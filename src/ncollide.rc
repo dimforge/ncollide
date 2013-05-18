@@ -7,3 +7,29 @@
 
 extern mod std;
 extern mod nalgebra;
+
+pub use geom::ball::Ball;
+pub use geom::box::Box;
+pub use geom::plane::Plane;
+pub use geom::convex_polytope::ConvexPolytope;
+pub use geom::minkowski_sum::MinkowskiSum;
+pub use geom::cso::CSO;
+pub use geom::reflection::Reflection;
+pub use geom::implicit::Implicit;
+
+mod geom
+{
+  mod ball;
+  mod plane;
+  mod box;
+  mod convex_polytope;
+  mod cso;
+  mod minkowski_sum;
+  mod reflection;
+  mod implicit;
+}
+
+mod tests
+{
+  mod geom;
+}

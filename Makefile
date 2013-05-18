@@ -10,6 +10,6 @@ test:
 	rm test~
 
 doc:
-	rust test $(ncollide_rc)
+	rust doc $(ncollide_rc)
 
 .PHONY:doc, test
