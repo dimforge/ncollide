@@ -1,0 +1,9 @@
+#[link(name = "ncollide"
+       , vers = "0.0"
+       , author = "Sébastien Crozet"
+       , uuid = "833DFDBD-3E85-456F-9CA7-84AADE5ED3BE")];
+#[crate_type = "lib"];
+#[warn(non_camel_case_types)]
+
+extern mod std;
+extern mod nalgebra;
