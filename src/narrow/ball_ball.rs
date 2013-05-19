@@ -12,8 +12,6 @@ fn update_collide_ball_ball
     T: Real + Copy>
    (c1: &V, b1: &Ball<T>, c2: &V, b2: &Ball<T>, out: &mut Contact<V, T>) -> bool
 {
-  // FIXME: for now, this is meaningless since both balls are centered on the
-  // origin…
   let r1         = b1.radius;
   let r2         = b2.radius;
   let delta_pos  = *c2 - *c1;
