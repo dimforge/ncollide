@@ -1,15 +1,13 @@
 use core::num::Zero;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::workarounds::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::vector_space::VectorSpace;
 use geom::transformed::Transformed;
 use geom::ball::Ball;
 use contact::Contact;
 
 
-fn update_collide_ball_ball
-   <V: Add<V, V> + Sub<V, V> + Norm<T> + ScalarMul<T> + ScalarDiv<T> + Copy,
-    T: Real + Copy>
+fn update_collide_ball_ball<V: VectorSpace<T> + Norm<T> + Copy, T: Real + Copy>
    (c1: &V, b1: &Ball<T>, c2: &V, b2: &Ball<T>, out: &mut Contact<V, T>) -> bool
 {
   let r1         = b1.radius;
@@ -31,9 +29,7 @@ fn update_collide_ball_ball
   { false }
 }
 
-fn collide_ball_ball
-   <V: Add<V, V> + Sub<V, V> + Norm<T> + ScalarMul<T> + ScalarDiv<T> + Copy + Zero,
-    T: Real + Copy>
+fn collide_ball_ball<V: VectorSpace<T> + Norm<T> + Copy, T: Real + Copy>
    (c1: &V, b1: &Ball<T>, c2: &V, b2: &Ball<T>) -> Option<~Contact<V, T>>
 {
   let mut res = 
@@ -51,7 +47,7 @@ fn collide_ball_ball
 
 fn update_collide_tball_tball
    <T: Translation<V>,
-    V: Add<V, V> + Sub<V, V> + Norm<N> + ScalarMul<N> + ScalarDiv<N> + Copy,
+    V: VectorSpace<N> + Norm<N> + Copy,
     N: Real + Copy>
    (b1:  &Transformed<Ball<N>, T>,
     b2:  &Transformed<Ball<N>, T>,
@@ -64,7 +60,7 @@ fn update_collide_tball_tball
 
 fn collide_tball_tball
    <T: Translation<V>,
-    V: Add<V, V> + Sub<V, V> + Norm<N> + ScalarMul<N> + ScalarDiv<N> + Copy + Zero,
+    V: VectorSpace<N> + Norm<N> + Copy,
     N: Real + Copy>
    (b1:  &Transformed<Ball<N>, T>,
     b2:  &Transformed<Ball<N>, T>) -> Option<~Contact<V, N>>
