@@ -26,6 +26,7 @@ mod geom
 mod narrow
 {
   mod plane_implicit;
+  mod ball_ball;
 }
 
 mod tests
