@@ -27,9 +27,15 @@ mod narrow
 {
   mod plane_implicit;
   mod ball_ball;
+
+  mod algorithm
+  {
+    mod johnson_simplex;
+  }
 }
 
 mod tests
 {
   mod geom;
+  mod algo;
 }
