@@ -1,3 +1,4 @@
+ncollide_doc_path=doc
 ncollide_rc=src/ncollide.rc
 ncollide_lib_path=lib
 nalgebra_lib_path=../nalgebra/lib
@@ -10,6 +11,7 @@ test:
 	rm test~
 
 doc:
-	rust doc $(ncollide_rc)
+	rust doc $(ncollide_rc) --output-dir $(ncollide_doc_path)
 
-.PHONY:doc, test
+.PHONY:doc
+.PHONY:test
