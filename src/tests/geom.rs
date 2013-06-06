@@ -1,5 +1,5 @@
 #[test]
-use core::cmp::ApproxEq;
+use std::cmp::ApproxEq;
 #[test]
 use nalgebra::dim3::vec3::vec3;
 #[test]

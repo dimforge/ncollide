@@ -1,7 +1,7 @@
 ncollide_doc_path=doc
 ncollide_rc=src/ncollide.rc
 ncollide_lib_path=lib
-nalgebra_lib_path=../nalgebra/lib
+nalgebra_lib_path=./nalgebra/lib
 
 all:
 	rust build $(ncollide_rc) -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path)

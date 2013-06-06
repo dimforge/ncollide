@@ -1,4 +1,4 @@
-use core::num::Zero;
+use std::num::Zero;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::vector_space::VectorSpace;

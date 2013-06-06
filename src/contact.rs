@@ -1,4 +1,4 @@
-use core::num::One;
+use std::num::One;
 use nalgebra::traits::workarounds::scalar_op::ScalarDiv;
 
 pub struct Contact<V, T>

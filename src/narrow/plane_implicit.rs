@@ -1,4 +1,4 @@
-use core::num::Zero;
+use std::num::Zero;
 use nalgebra::traits::dot::{Dot};
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::ring::Ring;

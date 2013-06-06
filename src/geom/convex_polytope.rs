@@ -1,4 +1,4 @@
-use core::num::Bounded;
+use std::num::Bounded;
 use nalgebra::traits::dot::Dot;
 use geom::implicit::Implicit;
 
