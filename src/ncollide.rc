@@ -36,6 +36,12 @@ mod narrow
   }
 }
 
+mod broad
+{
+  mod broad_phase;
+  mod empty_broad_phase;
+}
+
 mod tests
 {
   mod geom;
