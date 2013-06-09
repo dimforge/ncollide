@@ -5,13 +5,15 @@ use nalgebra::traits::ring::Ring;
 use nalgebra::traits::workarounds::scalar_op::ScalarMul;
 use geom::plane::Plane;
 use geom::implicit::Implicit;
-use contact::Contact;
+use contact::contact;
+use contact::contact::Contact;
 
 pub fn update_collide_plane_implicit_shape<
          V: VectorSpace<T> + Dot<T> + Copy,
          T: Ring + Ord + Copy,
-         G: Implicit<V>>
-   (center: &V, plane: &Plane<V>, other: &G, out: &mut Contact<V, T>) -> bool
+         G: Implicit<V>,
+         C: Contact<V, T>>
+   (center: &V, plane: &Plane<V>, other: &G, out: &mut C) -> bool
 {
   let deepest = &other.support_point(&-plane.normal);
   let dist    = &plane.normal.dot(&(*center - *deepest));
@@ -19,7 +21,7 @@ pub fn update_collide_plane_implicit_shape<
   if (*dist > Zero::zero())
   {
     let c1 = &(deepest + plane.normal.scalar_mul(dist));
-    out.set(c1, deepest, &plane.normal, dist);
+    contact::set(out, c1, deepest, &plane.normal, dist);
 
     true
   }
@@ -30,15 +32,11 @@ pub fn update_collide_plane_implicit_shape<
 pub fn collide_plane_implicit_shape<
          V: VectorSpace<T> + Dot<T> + Copy,
          T: Ring + Ord + Copy,
-         G: Implicit<V>>
-   (center: &V, plane: &Plane<V>, other: &G) -> Option<~Contact<V, T>>
+         G: Implicit<V>,
+         C: Contact<V, T>>
+   (center: &V, plane: &Plane<V>, other: &G) -> Option<~C>
 {
-  let mut res = 
-    ~Contact { world_contact1: Zero::zero(),
-               world_contact2: Zero::zero(),
-               center:         Zero::zero(),
-               normal:         Zero::zero(),
-               depth:          Zero::zero() };
+  let mut res : ~C = ~contact::zero::<V, T, C>();
 
   if (update_collide_plane_implicit_shape(center, plane, other, res))
   { Some(res) }
