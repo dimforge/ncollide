@@ -2,18 +2,18 @@ use nalgebra::traits::workarounds::rlmul::{RMul, LMul};
 use nalgebra::traits::delta_transform::DeltaTransform;
 use geom::implicit::Implicit;
 
-pub struct Transformed<G, T>
+pub struct Transformed<G, N>
 {
-  t: T,
+  t: N,
   g: @G
 }
 
-pub fn transformed<G, T: Copy + DeltaTransform<DT>, DT>
-       (t: &T, g: @G) -> Transformed<G, T>
+pub fn transformed<G, N: Copy + DeltaTransform<DT>, DT>
+       (t: &N, g: @G) -> Transformed<G, N>
 { Transformed { t: *t, g: g } }
 
-impl<G: Implicit<V>, T: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
-Implicit<V> for Transformed<G, T>
+impl<G: Implicit<V>, N: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
+Implicit<V> for Transformed<G, N>
 {
   fn support_point(&self, dir: &V) -> V
   {

@@ -4,12 +4,12 @@ struct EmptyBroadPhase<RB>;
 
 impl<RB> BroadPhase<RB> for EmptyBroadPhase<RB>
 {
-  fn add_object(&mut self, _: &RB)
+  fn add(&mut self, _: @mut RB)
   { }
 
-  fn remove_object(&mut self, _: &RB)
+  fn remove(&mut self, _: @mut RB)
   { }
 
-  fn collision_pairs(&self) -> ~[(RB, RB)]
+  fn collision_pairs(&mut self, _: &[@mut RB]) -> ~[(@mut RB, @mut RB)]
   { ~[] }
 }

@@ -1,19 +1,19 @@
 use std::util;
 use contact::contact::Contact;
 
-pub struct GeometricContact<V, T>
+pub struct GeometricContact<V, N>
 {
   priv world1: V,
   priv world2: V,
   priv center: V,
   priv normal: V,
-  priv depth:  T
+  priv depth:  N
 }
 
-impl<V: Copy + Neg<V>, T: Copy> Contact<V, T> for GeometricContact<V, T>
+impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
 {
-  fn new(center: &V, normal: &V, depth: &T, world1: &V, world2: &V)
-     -> GeometricContact<V, T>
+  fn new(center: &V, normal: &V, depth: &N, world1: &V, world2: &V)
+     -> GeometricContact<V, N>
   {
     GeometricContact {
       world1: *world1,
@@ -42,10 +42,10 @@ impl<V: Copy + Neg<V>, T: Copy> Contact<V, T> for GeometricContact<V, T>
   fn normal(&self) -> V
   { self.normal }
 
-  fn set_depth(&mut self, &depth: &T)
+  fn set_depth(&mut self, &depth: &N)
   { self.depth = depth; }
 
-  fn depth(&self) -> T
+  fn depth(&self) -> N
   { self.depth }
 
   fn set_world1(&mut self, &world1: &V)

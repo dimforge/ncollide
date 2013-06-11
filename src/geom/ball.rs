@@ -3,13 +3,19 @@ use nalgebra::traits::workarounds::scalar_op::ScalarMul;
 use geom::implicit::Implicit;
 
 #[deriving(Eq)]
-pub struct Ball<T>
-{ radius: T }
+pub struct Ball<N, V>
+{
+  center: V,
+  radius: N
+}
 
-pub fn ball<T: Copy>(radius: T) -> Ball<T>
-{ Ball { radius: radius } }
+impl<N: Copy, V: Copy> Ball<N, V>
+{
+  pub fn new(&center: &V, &radius: &N) -> Ball<N, V>
+  { Ball { center: center, radius: radius } }
+}
 
-impl<T, V: Norm<T> + ScalarMul<T>> Implicit<V> for Ball<T>
+impl<N, V: Norm<N> + ScalarMul<N>> Implicit<V> for Ball<N, V>
 {
   fn support_point(&self, dir: &V) -> V
   { dir.normalized().scalar_mul(&self.radius) }

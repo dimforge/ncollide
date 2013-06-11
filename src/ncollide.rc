@@ -9,37 +9,46 @@ extern mod std;
 extern mod extra;
 extern mod nalgebra;
 
-mod contact;
-
-mod geom
+pub mod geom
 {
-  mod ball;
-  mod plane;
-  mod box;
-  mod convex_polytope;
-  mod cso;
-  mod minkowski_sum;
-  mod reflection;
-  mod transformed;
-  mod implicit;
+  pub mod default_geom;
+  pub mod ball;
+  pub mod plane;
+  pub mod box;
+  pub mod convex_polytope;
+  pub mod cso;
+  pub mod minkowski_sum;
+  pub mod reflection;
+  pub mod transformed;
+  pub mod implicit;
 }
 
-mod narrow
+pub mod narrow
 {
-  mod plane_implicit;
-  mod ball_ball;
+  pub mod collision_detector;
+  pub mod empty_detector;
+  pub mod default_default;
+  pub mod plane_implicit;
+  pub mod ball_ball;
 
-  mod algorithm
+  pub mod algorithm
   {
-    mod johnson_simplex;
-    mod explicit_johnson_simplex;
+    pub mod johnson_simplex;
+    pub mod explicit_johnson_simplex;
   }
 }
 
-mod broad
+pub mod broad
 {
-  mod broad_phase;
-  mod empty_broad_phase;
+  pub mod broad_phase;
+  pub mod empty_broad_phase;
+  pub mod brute_force_broad_phase;
+}
+
+pub mod contact
+{
+  pub mod contact;
+  pub mod geometric_contact;
 }
 
 mod tests

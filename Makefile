@@ -4,12 +4,14 @@ ncollide_lib_path=lib
 nalgebra_lib_path=./nalgebra/lib
 
 all:
+	mkdir -p $(ncollide_lib_path)
 	rust build $(ncollide_rc) -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path)
 
 deps:
 	make -C nalgebra
 
 test:
+	mkdir -p $(ncollide_lib_path)
 	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) -o test~ && ./test~
 	rm test~
 

@@ -1,6 +1,6 @@
 use std::uint::iterate;
 use std::num::{Zero, One};
-use std::vec::{len, push};
+use std::vec::{push};
 use nalgebra::ndim::dmat::{zero_mat_with_dim};
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::sub_dot::SubDot;
@@ -28,7 +28,7 @@ ToStr,
   {
     let     _0  = Zero::zero::<T>();
     let     _1  = One::one::<T>();
-    let     dim = len(self.points);
+    let     dim = self.points.len();
     let mut mat = zero_mat_with_dim(dim);
 
     for iterate(0u, dim) |i|

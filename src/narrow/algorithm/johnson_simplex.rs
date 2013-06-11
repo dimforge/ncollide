@@ -1,6 +1,7 @@
 use std::uint::iterate;
 use std::at_vec::build;
 use std::num::{Zero, One};
+use std::iterator::IteratorUtil;
 use std::vec;
 use extra::treemap::TreeMap;
 use nalgebra::traits::division_ring::DivisionRing;
@@ -78,12 +79,12 @@ JohnsonSimplex<V, T>
     let mut cofactor_index  = 0;
 
     for iterate(0, max_num_points) |i|
-    { vec::push(&mut pts, i) }
+    { pts.push(i) }
 
     // initially push the whole simplex (will be removed at the end)
-    vec::push(&mut pts, 0);
+    pts.push(0);
 
-    vec::push(&mut offsets, max_num_points + 1); 
+    offsets.push(max_num_points + 1); 
 
     // ... then remove one point each time
     for iterate(0, dim + 1) |i|
@@ -105,22 +106,22 @@ JohnsonSimplex<V, T>
           {
             // we remove the j'th point
             if (pts[curr + j] != pts[curr + k])
-            { vec::push(&mut sublist, pts[curr + k]); }
+            { sublist.push(pts[curr + k]); }
           }
 
           // keep a trace of the removed point
-          vec::push(&mut sublist, pts[curr + j]);
+          sublist.push(pts[curr + j]);
 
           match map.find(&sublist)
           {
-            Some(&v) => vec::push(&mut sub_cofactors, v),
+            Some(&v) => sub_cofactors.push(v),
             None     => {
                           for sublist.each |&e|
                           {
-                            vec::push(&mut pts, e);
+                            pts.push(e);
                             num_added += 1;
                           }
-                          vec::push(&mut sub_cofactors, cofactor_index);
+                          sub_cofactors.push(cofactor_index);
                           map.insert(sublist, cofactor_index);
                           cofactor_index += 1;
                         }
@@ -129,18 +130,18 @@ JohnsonSimplex<V, T>
 
         let mut parent = ~[];
         for iterate(0, last_num_points + 1) |k|
-        { vec::push(&mut parent, pts[curr + k]) }
+        { parent.push(pts[curr + k]) }
 
 
         match map.find(&parent)
         {
           Some(&p) => {
-            vec::push(&mut cof_to_simplex, (curr - max_num_points, last_num_points));
-            vec::push(&mut sub_cofactors, p)
+            cof_to_simplex.push((curr - max_num_points, last_num_points));
+            sub_cofactors.push(p)
           },
           None => {
-            vec::push(&mut cof_to_simplex, (curr - max_num_points, last_num_points));
-            vec::push(&mut sub_cofactors, cofactor_index);
+            cof_to_simplex.push((curr - max_num_points, last_num_points));
+            sub_cofactors.push(cofactor_index);
             // There is no need to keep a place for the full simplex cofactor.
             // So we dont increase the cofactor buffer index for the first
             // iteration.
@@ -154,13 +155,13 @@ JohnsonSimplex<V, T>
       // initialize the next iteration with one less point
       last_dim_begin   = last_dim_end ;
       last_dim_end    += num_added;
-      vec::push(&mut offsets, last_dim_end);
+      offsets.push(last_dim_end);
       last_num_points -= 1;
     }
 
     // cofactor indices for leaves
     for iterate(0, max_num_points) |i|
-    { vec::push(&mut sub_cofactors, *map.find(&~[max_num_points - 1 - i]).unwrap()) }
+    { sub_cofactors.push(*map.find(&~[max_num_points - 1 - i]).unwrap()) }
 
     vec::reverse(pts);
     vec::reverse(sub_cofactors);
@@ -168,13 +169,13 @@ JohnsonSimplex<V, T>
     vec::pop(&mut offsets);
     vec::reverse(offsets);
     vec::pop(&mut offsets);
-    let mut rev_offsets = vec::map(offsets, |&e| vec::len(pts) - e);
+    let mut rev_offsets = vec::map(offsets, |&e| pts.len() - e);
     let num_leaves = vec::shift(&mut rev_offsets);
 
     vec::shift(&mut cof_to_simplex);
 
     // remove the full simplex
-    let num_pts = vec::len(pts);
+    let num_pts = pts.len();
     let reverse_cof_to_simplex =
       vec::map(cof_to_simplex, |&(id, sz)| (num_pts - max_num_points - id - 1, sz));
     vec::truncate(&mut pts, num_pts - max_num_points - 1);
@@ -216,7 +217,7 @@ JohnsonSimplex<V, T>
     let _0                   = Zero::zero::<T>();
     let _1                   = One::one::<T>();
     let _2                   = _1 + _1;
-    let max_num_pts          = vec::len(self.points);
+    let max_num_pts          = self.points.len();
     let recursion            = &self.recursion_templates[max_num_pts - 1];
     let mut curr_num_pts     = 1u;
     let mut curr             = max_num_pts;
@@ -283,7 +284,7 @@ JohnsonSimplex<V, T>
     { None } // the origin is inside of the simplex
     else
     {
-      for self.cofactors.eachi_reverse |i, &cof|
+      for self.cofactors.rev_iter().enumerate().advance |(i, &cof)|
       {
         if (cof == -_2)
         {
