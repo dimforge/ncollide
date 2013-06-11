@@ -1,11 +1,20 @@
 use geom::implicit::Implicit;
 
+/**
+ * Implicit represention of the reflection of a geometric object.
+ * A reflection is obtained with the central symetry wrt the origin.
+ */
 #[deriving(Eq)]
 pub struct Reflection<G>
-{ g: @G }
+{ priv g: @G }
 
-pub fn reflection<G>(g: @G) -> Reflection<G>
-{ Reflection { g: g } }
+impl<G> Reflection<G>
+{
+  /// Build the reflection of a geometry. Since the representation is implicit,
+  /// the reflection computation is done in constant time.
+  pub fn new(g: @G) -> Reflection<G>
+  { Reflection { g: g } }
+}
 
 impl<V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<G>
 {

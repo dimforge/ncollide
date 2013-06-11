@@ -8,6 +8,10 @@ use narrow::collision_detector::CollisionDetector;
 use narrow::ball_ball::BallBallCollisionDetector;
 use narrow::plane_implicit::PlaneImplicitCollisionDetector;
 
+/**
+ * Collision detector between two `DefaultGeometry`. Note that this is only a
+ * wrapper on the collision detector specific to each geometry.
+ */
 pub struct DefaultDefaultCollisionDetector<C, N, V>
 {
   // FIXME: it would be better to use a ~ instead of a @mut here…
@@ -56,12 +60,14 @@ for DefaultDefaultCollisionDetector<C, N, V>
 }
 
 // wrappers management
+#[doc(hidden)]
 trait DefaultExtractor<N, V, G1, G2>
 {
   fn extract<'r>(g1: &'r DefaultGeom<N, V>, g2: &'r DefaultGeom<N, V>)
      -> (&'r G1, &'r G2);
 }
 
+#[doc(hidden)]
 impl<C, N, V>
 DefaultExtractor<N, V, ball::Ball<N, V>, ball::Ball<N, V>>
 for BallBallCollisionDetector<C, N, V>
@@ -71,6 +77,7 @@ for BallBallCollisionDetector<C, N, V>
   { (g1.ball(), g2.ball()) }
 }
 
+#[doc(hidden)]
 impl<N, V, G, C>
 DefaultExtractor<N, V, plane::Plane<V>, ball::Ball<N, V>>
 for PlaneImplicitCollisionDetector<N, V, G, C>
@@ -80,9 +87,11 @@ for PlaneImplicitCollisionDetector<N, V, G, C>
   { (g1.plane(), g2.ball()) }
 }
 
+#[doc(hidden)]
 struct DispatchWrapper<C, N, V, NF, G1, G2>
 { priv sub_detector: ~NF }
 
+#[doc(hidden)]
 impl<C,
      N,
      V,

@@ -2,18 +2,28 @@ use nalgebra::traits::workarounds::rlmul::{RMul, LMul};
 use nalgebra::traits::delta_transform::DeltaTransform;
 use geom::implicit::Implicit;
 
-pub struct Transformed<G, N>
+/**
+ * Implicit representation of a geometry transformed by an affine
+ * transformation.
+ *
+ *   - `G`: type of the shape being transformed.
+ *   - `M`: type of the transformation.
+ */
+pub struct Transformed<G, M>
 {
-  t: N,
-  g: @G
+  priv t: M,
+  priv g: @G
 }
 
-pub fn transformed<G, N: Copy + DeltaTransform<DT>, DT>
-       (t: &N, g: @G) -> Transformed<G, N>
-{ Transformed { t: *t, g: g } }
+impl<G, M: Copy> Transformed<G, M>
+{
+  /// Creates a transformed geometry from a transform.
+  pub fn new(transform: &M, geometry: @G) -> Transformed<G, M>
+  { Transformed { t: *transform, g: geometry } }
+}
 
-impl<G: Implicit<V>, N: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
-Implicit<V> for Transformed<G, N>
+impl<G: Implicit<V>, M: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
+Implicit<V> for Transformed<G, M>
 {
   fn support_point(&self, dir: &V) -> V
   {

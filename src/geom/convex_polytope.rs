@@ -2,21 +2,34 @@ use std::num::Bounded;
 use nalgebra::traits::dot::Dot;
 use geom::implicit::Implicit;
 
-pub struct ConvexPolytope<V, T>
+/**
+ * Set of point assumed to form a convex polytope.
+ * 
+ *   - `V`: type of the polytope points.
+ *   - `N`: type of the result of a dot product between two points.
+ */
+pub struct ConvexPolytope<V, N>
 {
-  pts: ~[V]
+  priv pts: ~[V]
 }
 
-pub fn convex_polytope<V: Dot<T>, T>(pts: ~[V]) -> ConvexPolytope<V, T>
-{ ConvexPolytope { pts: pts } }
+impl<V, N> ConvexPolytope<V, N>
+{
+  /**
+   * Creates a polytope from a set of point. Those points are assumed to form
+   * a convex polytope: convexity is not checked.
+   */
+  pub fn new(pts: ~[V]) -> ConvexPolytope<V, N>
+  { ConvexPolytope { pts: pts } }
+}
 
-impl<T: Ord + Bounded + ToStr + Neg<T>, V: Dot<T> + Copy>
-Implicit<V> for ConvexPolytope<V, T>
+impl<N: Ord + Bounded + ToStr + Neg<N>, V: Dot<N> + Copy>
+Implicit<V> for ConvexPolytope<V, N>
 {
   fn support_point(&self, dir: &V) -> V
   {
-    let mut best_dot : T = -Bounded::max_value::<T>();
-    let mut best_pt  : &V = &self.pts[0];
+    let mut best_dot = -Bounded::max_value::<N>();
+    let mut best_pt  = &self.pts[0];
 
     for self.pts.each |p|
     {
@@ -30,6 +43,6 @@ Implicit<V> for ConvexPolytope<V, T>
     }
 
 
-    copy *best_pt
+    *best_pt
   }
 }

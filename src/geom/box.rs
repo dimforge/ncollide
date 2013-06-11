@@ -1,7 +1,7 @@
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Box<D, N>
 {
-  components: ~[N]
+  priv components: ~[N]
 }
 
 // FIXME: implementing support_point needs some more traits:

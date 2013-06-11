@@ -10,6 +10,10 @@ use geom::implicit::Implicit;
 use contact::contact;
 use contact::contact::Contact;
 
+/**
+ * Collision detector between a plane and a geometry implementing the
+ * `Implicit` trait.
+ */
 pub struct PlaneImplicitCollisionDetector<N, V, G, C>
 {
   priv contact: Option<C>
@@ -54,19 +58,27 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
  }
 }
 
+/**
+ * Computes the collision between a plane and an implicit geometry. Returns
+ * whether they are colliding.
+ *
+ *   - `plane`: the plane to test.
+ *   - `other`: the object to test against the plane.
+ *   - `out`: collision on which the result will be written.
+ */
 pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
                                            N: Ring + Ord + Copy,
                                            G: Implicit<V>,
                                            C: Contact<V, N>>
    (plane: &Plane<V>, other: &G, out: &mut C) -> bool
 {
-  let deepest = &other.support_point(&-plane.normal);
-  let dist    = &plane.normal.dot(&(plane.center - *deepest));
+  let deepest = &other.support_point(&-plane.normal());
+  let dist    = &plane.normal().dot(&(plane.center() - *deepest));
 
   if (*dist > Zero::zero())
   {
-    let c1 = &(deepest + plane.normal.scalar_mul(dist));
-    contact::set(out, c1, deepest, &plane.normal, dist);
+    let c1 = &(deepest + plane.normal().scalar_mul(dist));
+    contact::set(out, c1, deepest, &plane.normal(), dist);
 
     true
   }
@@ -74,6 +86,13 @@ pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
   { false }
 }
 
+/**
+ * Same as `update_collide_plane_implicit_shape` but the existing collision or
+ * `None`.
+ *
+ *   - `plane`: the plane to test.
+ *   - `other`: the object to test against the plane.
+ */
 pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
                                     N: Ring + Ord + Copy,
                                     G: Implicit<V>,

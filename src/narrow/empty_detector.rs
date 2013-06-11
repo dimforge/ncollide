@@ -1,5 +1,8 @@
 use narrow::collision_detector::CollisionDetector;
 
+/// Collision detector working with any geometry. It will never report any
+/// collision. Used for debug purpoise.
+/// Use it if you want to benchmark the broad phase.
 pub struct EmptyDetector;
 
 impl<C, G1, G2> CollisionDetector<C, G1, G2> for EmptyDetector

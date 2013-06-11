@@ -6,6 +6,13 @@ use narrow::collision_detector::CollisionDetector;
 use contact::contact;
 use contact::contact::Contact;
 
+/**
+ * Collision detector between two balls.
+ *
+ *   - `C`: type of the collision.
+ *   - `N`: type of a ball radius.
+ *   - `V`: type of a ball center.
+ */
 pub struct BallBallCollisionDetector<C, N, V>
 {
   priv contact: Option<C>
@@ -50,14 +57,22 @@ impl<N: Real + Copy,
  }
 }
 
+/**
+ * Computes the collision between two balls. Returns whether they are
+ * colliding.
+ *
+ *   - `b1`: first ball to test.
+ *   - `b2`: second ball to test.
+ *   - `out`: collision on which the result will be written.
+ */
 pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
                                 N: Real + Copy,
                                 C: Contact<V, N>>
    (b1: &Ball<N, V>, b2: &Ball<N, V>, out: &mut C) -> bool
 {
-  let r1         = b1.radius;
-  let r2         = b2.radius;
-  let delta_pos  = b2.center - b1.center;
+  let r1         = b1.radius();
+  let r2         = b2.radius();
+  let delta_pos  = b2.center() - b1.center();
   let sqdist     = delta_pos.sqnorm();
   let sum_radius = r1 + r2;
 
@@ -65,8 +80,8 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
   {
     let normal = delta_pos.normalized();
     contact::set(out,
-                 &(b1.center - normal.scalar_mul(&r1)),
-                 &(b2.center - normal.scalar_mul(&r2)),
+                 &(b1.center() - normal.scalar_mul(&r1)),
+                 &(b2.center() - normal.scalar_mul(&r2)),
                  &normal,
                  &(sum_radius - sqdist.sqrt()));
     true
@@ -75,6 +90,12 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
   { false }
 }
 
+/**
+ * Same as `update_collide_ball_ball` but returns the collision or `None`.
+ *
+ *   - `b1`: first ball to test.
+ *   - `b2`: second ball to test.
+ */
 pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
                          N: Real + Copy,
                          C: Contact<V, N>>

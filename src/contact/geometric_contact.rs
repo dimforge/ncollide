@@ -1,6 +1,12 @@
 use std::util;
 use contact::contact::Contact;
 
+/**
+ * Geometric description of a contact.
+ *
+ *   - `V`: type of all the contact points, its center and its normal.
+ *   - `N`: type of the penetration depth.
+ */
 pub struct GeometricContact<V, N>
 {
   priv world1: V,

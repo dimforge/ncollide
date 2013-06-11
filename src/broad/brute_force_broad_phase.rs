@@ -1,6 +1,11 @@
 use std::managed;
 use broad::broad_phase::BroadPhase;
 
+/**
+ * The slowest possible broad phase. It always returns false positive since
+ * it assumes that all object is in collision with all objects.
+ * Do not use this but for benchmarking the narrow phase.
+ */
 struct BruteForceBroadPhase<RB>
 {
   priv objects: ~[@mut RB],
@@ -9,6 +14,7 @@ struct BruteForceBroadPhase<RB>
 
 impl<RB> BruteForceBroadPhase<RB>
 {
+  /// Builds a new brute force broad phase.
   pub fn new() -> BruteForceBroadPhase<RB>
   {
     BruteForceBroadPhase {
