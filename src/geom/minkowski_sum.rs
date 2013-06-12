@@ -5,8 +5,8 @@ use geom::implicit::Implicit;
  * The only way to obtain the sum points is to use its support mapping
  * function.
  *
- *   `G1`: type of the first object involved on the sum.
- *   `G2`: type of the second object involved on the sum.
+ *  - `G1`: type of the first object involved on the sum.
+ *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr)]
 pub struct MinkowskiSum<G1, G2>
