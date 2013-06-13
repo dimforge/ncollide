@@ -57,5 +57,5 @@ pub mod contact
 mod tests
 {
   mod geom;
-  mod algo;
+  // mod algo;
 }
