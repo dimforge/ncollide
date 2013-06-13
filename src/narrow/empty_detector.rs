@@ -16,6 +16,6 @@ impl<C, G1, G2> CollisionDetector<C, G1, G2> for EmptyDetector
   fn num_coll(&self) -> uint
   { 0u }
 
-  fn colls<'a, 'b>(&'a mut self, _: &'b mut ~[&'a mut C])
+  fn colls(&mut self, _: &mut ~[@mut C])
   { }
 }

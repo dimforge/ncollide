@@ -5,7 +5,7 @@ nalgebra_lib_path=./nalgebra/lib
 
 all:
 	mkdir -p $(ncollide_lib_path)
-	rust build $(ncollide_rc) -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path)
+	rust build $(ncollide_rc) -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3
 
 deps:
 	make -C nalgebra

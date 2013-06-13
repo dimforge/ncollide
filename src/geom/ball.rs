@@ -1,6 +1,8 @@
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::workarounds::scalar_op::ScalarMul;
+use nalgebra::traits::workarounds::rlmul::RMul;
 use geom::implicit::Implicit;
+use geom::transformable::Transformable;
 
 /**
  * Implicit description of a ball geometry.
@@ -36,8 +38,17 @@ impl<N: Copy, V: Copy> Ball<N, V>
   { self.center }
 }
 
-impl<N, V: Norm<N> + ScalarMul<N>> Implicit<V> for Ball<N, V>
+impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>> Implicit<V> for Ball<N, V>
 {
   fn support_point(&self, dir: &V) -> V
-  { dir.normalized().scalar_mul(&self.radius) }
+  { self.center + dir.normalized().scalar_mul(&self.radius) }
+}
+
+impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
+{
+  fn transform(&self, transform: &M) -> Ball<N, V>
+  { Ball::new(&transform.rmul(&self.center), &self.radius) }
+
+  fn transform_to(&self, transform: &M, out: &mut Ball<N, V>)
+  { out.center = transform.rmul(&self.center); }
 }

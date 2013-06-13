@@ -15,11 +15,11 @@ use contact::contact::Contact;
  */
 pub struct BallBallCollisionDetector<C, N, V>
 {
-  priv contact: Option<C>
+  priv contact: Option<@mut C>
 }
 
 impl<N: Real + Copy,
-     C: Contact<V, N> + Copy,
+     C: Contact<V, N>,
      V: VectorSpace<N> + Norm<N> + Copy> 
     CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
     BallBallCollisionDetector<C, N, V>
@@ -29,12 +29,11 @@ impl<N: Real + Copy,
 
  fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>)
  {
-   if (self.contact.is_none())
-   { self.contact = collide_ball_ball(a, b) }
-   else
+   match self.contact
    {
-     if !(update_collide_ball_ball(a, b, self.contact.get_mut_ref()))
-     { self.contact = None }
+     None    => self.contact = collide_ball_ball(a, b).map(|&c| @mut c),
+     Some(c) => if !(update_collide_ball_ball(a, b, c))
+                { self.contact = None }
    }
  }
 
@@ -47,11 +46,11 @@ impl<N: Real + Copy,
    }
  }
 
- fn colls<'a, 'b>(&'a mut self, out_colls: &'b mut ~[&'a mut C])
+ fn colls(&mut self, out_colls: &mut ~[@mut C])
  {
    match self.contact
    {
-     Some(ref mut c) => vec::push(out_colls, c),
+     Some(c) => vec::push(out_colls, c),
      None    => ()
    }
  }
@@ -79,11 +78,13 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
   if (sqdist < sum_radius * sum_radius)
   {
     let normal = delta_pos.normalized();
+
     contact::set(out,
-                 &(b1.center() - normal.scalar_mul(&r1)),
+                 &(b1.center() + normal.scalar_mul(&r1)),
                  &(b2.center() - normal.scalar_mul(&r2)),
                  &normal,
                  &(sum_radius - sqdist.sqrt()));
+
     true
   }
   else

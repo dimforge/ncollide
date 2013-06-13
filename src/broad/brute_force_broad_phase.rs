@@ -69,7 +69,7 @@ impl<RB> BroadPhase<RB> for BruteForceBroadPhase<RB>
 
       for self.panding.each |&o2|
       {
-        if (managed::mut_ptr_eq(o, o2))
+        if (!managed::mut_ptr_eq(o, o2))
         { res.push((o, o2)) }
       }
     }

@@ -1,3 +1,6 @@
+use nalgebra::traits::workarounds::rlmul::RMul;
+use nalgebra::traits::delta_transform::DeltaTransformVector;
+use geom::transformable::Transformable;
 use geom::ball;
 use geom::plane;
 
@@ -26,6 +29,17 @@ impl<N, V> DefaultGeom<N, V>
   }
 
   /**
+   * Mutable version of `ball`.
+   */
+  pub fn ball_mut<'r>(&'r mut self) -> &'r mut ball::Ball<N, V>
+  {
+    match *self {
+        Ball(ref mut b) => b,
+        _ => fail!("Unexpected geometry: this is not a ball.")
+    }
+  }
+
+  /**
    * Convenience method to extract a plane from the enumation. Fails if the
    * pattern `Plane` is not matched.
    */
@@ -34,6 +48,39 @@ impl<N, V> DefaultGeom<N, V>
     match *self {
         Plane(ref p) => p,
         _ => fail!("Unexpected geometry: this is not a plane.")
+    }
+  }
+
+  /**
+   * Mutable version of `plane`.
+   */
+  pub fn plane_mut<'r>(&'r mut self) -> &'r mut plane::Plane<V>
+  {
+    match *self {
+        Plane(ref mut p) => p,
+        _ => fail!("Unexpected geometry: this is not a plane.")
+    }
+  }
+}
+
+impl<N: Copy, V: Copy, M: RMul<V> + DeltaTransformVector<V>>
+Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
+{
+  fn transform(&self, transform: &M) -> DefaultGeom<N, V>
+  { 
+    match *self
+    {
+      Plane(p) => Plane(p.transform(transform)),
+      Ball(b)  => Ball(b.transform(transform))
+    }
+  }
+
+  fn transform_to(&self, transform: &M, out: &mut DefaultGeom<N, V>)
+  { 
+    match *self
+    {
+      Plane(p) => p.transform_to(transform, out.plane_mut()),
+      Ball(b)  => b.transform_to(transform, out.ball_mut())
     }
   }
 }

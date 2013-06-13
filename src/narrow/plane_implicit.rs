@@ -15,14 +15,15 @@ use contact::contact::Contact;
  * `Implicit` trait.
  */
 pub struct PlaneImplicitCollisionDetector<N, V, G, C>
-{
-  priv contact: Option<C>
-}
+{ priv contact: Option<@mut C> }
+
+pub struct ImplicitPlaneCollisionDetector<N, V, G, C>
+{ priv contact: Option<@mut C> }
 
 impl<V: VectorSpace<N> + Dot<N> + Copy,
      N: Ring + Ord + Copy,
      G: Implicit<V>,
-     C: Contact<V, N> + Copy>
+     C: Contact<V, N>>
     CollisionDetector<C, Plane<V>, G> for PlaneImplicitCollisionDetector<N, V, G, C>
 {
  fn new(_: &Plane<V>, _: &G) -> PlaneImplicitCollisionDetector<N, V, G, C>
@@ -30,12 +31,11 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
 
  fn update(&mut self, a: &Plane<V>, b: &G)
  {
-   if (self.contact.is_none())
-   { self.contact = collide_plane_implicit_shape(a, b) }
-   else
+   match self.contact
    {
-     if !(update_collide_plane_implicit_shape(a, b, self.contact.get_mut_ref()))
-     { self.contact = None }
+     None => self.contact = collide_plane_implicit_shape(a, b).map(|&c| @mut c),
+     Some(c) => if !(update_collide_plane_implicit_shape(a, b, c))
+                { self.contact = None }
    }
  }
 
@@ -48,11 +48,51 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    }
  }
 
- fn colls<'a, 'b>(&'a mut self, out_colls: &'b mut ~[&'a mut C])
+ fn colls(&mut self, out_colls: &mut ~[@mut C])
  {
    match self.contact
    {
-     Some(ref mut c) => vec::push(out_colls, c),
+     Some(c) => vec::push(out_colls, c),
+     None    => ()
+   }
+ }
+}
+
+impl<V: VectorSpace<N> + Dot<N> + Copy,
+     N: Ring + Ord + Copy,
+     G: Implicit<V>,
+     C: Contact<V, N>>
+    CollisionDetector<C, G, Plane<V>> for ImplicitPlaneCollisionDetector<N, V, G, C>
+{
+ fn new(_: &G, _: &Plane<V>) -> ImplicitPlaneCollisionDetector<N, V, G, C>
+ { ImplicitPlaneCollisionDetector{ contact: None } }
+
+ fn update(&mut self, a: &G, b: &Plane<V>)
+ {
+   match self.contact
+   {
+     None => self.contact = collide_plane_implicit_shape(b, a).map(|&c| @mut c),
+     Some(c) => if !(update_collide_plane_implicit_shape(b, a, c))
+                { self.contact = None }
+   }
+
+   self.contact = self.contact.map(|&c| { c.flip(); c })
+ }
+
+ fn num_coll(&self) -> uint
+ {
+   match self.contact
+   {
+     None    => 0,
+     Some(_) => 1
+   }
+ }
+
+ fn colls(&mut self, out_colls: &mut ~[@mut C])
+ {
+   match self.contact
+   {
+     Some(c) => vec::push(out_colls, c),
      None    => ()
    }
  }

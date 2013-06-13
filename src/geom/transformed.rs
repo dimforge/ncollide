@@ -1,6 +1,7 @@
 use nalgebra::traits::workarounds::rlmul::{RMul, LMul};
 use nalgebra::traits::delta_transform::DeltaTransform;
 use geom::implicit::Implicit;
+use geom::transformable::Transformable;
 
 /**
  * Implicit representation of a geometry transformed by an affine
@@ -32,4 +33,14 @@ Implicit<V> for Transformed<G, M>
     // FIXME: will dt get inlined, preventing implicit copying the matrix?
     dt.lmul(&self.g.support_point(&dt.rmul(dir)))
   }
+}
+
+impl<G, M: Mul<M, M> + Copy>
+Transformable<M, Transformed<G, M>> for Transformed<G, M>
+{
+  fn transform(&self, transform: &M) -> Transformed<G, M>
+  { Transformed::new(&(transform * self.t), self.g) }
+
+  fn transform_to(&self, transform: &M, out: &mut Transformed<G, M>)
+  { out.t = transform * out.t; }
 }
