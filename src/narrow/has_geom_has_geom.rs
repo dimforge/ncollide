@@ -13,6 +13,7 @@ impl<C,
 CollisionDetector<C, RB1, RB2>
 for HasGeomHasGeomCollisionDetector<C, RB1, RB2, G1, G2, SD>
 {
+  #[inline(always)]
   fn new(b1: &RB1, b2: &RB2)
      -> HasGeomHasGeomCollisionDetector<C, RB1, RB2, G1, G2, SD>
   {
@@ -21,12 +22,15 @@ for HasGeomHasGeomCollisionDetector<C, RB1, RB2, G1, G2, SD>
     }
   }
 
+  #[inline(always)]
   fn update(&mut self, b1: &RB1, b2: &RB2)
   { self.sub_detector.update(b1.geom(), b2.geom()) }
 
+  #[inline(always)]
   fn num_coll(&self) -> uint
   { self.sub_detector.num_coll() }
 
+  #[inline(always)]
   fn colls(&mut self, colls: &mut ~[@mut C])
   { self.sub_detector.colls(colls) }
 }

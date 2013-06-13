@@ -19,6 +19,7 @@ impl<V, N> ConvexPolytope<V, N>
    * Creates a polytope from a set of point. Those points are assumed to form
    * a convex polytope: convexity is not checked.
    */
+  #[inline(always)]
   pub fn new(pts: ~[V]) -> ConvexPolytope<V, N>
   { ConvexPolytope { pts: pts } }
 }
@@ -26,6 +27,7 @@ impl<V, N> ConvexPolytope<V, N>
 impl<N: Ord + Bounded + ToStr + Neg<N>, V: Dot<N> + Copy>
 Implicit<V> for ConvexPolytope<V, N>
 {
+  #[inline]
   fn support_point(&self, dir: &V) -> V
   {
     let mut best_dot = -Bounded::max_value::<N>();

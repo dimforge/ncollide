@@ -21,6 +21,7 @@ impl<G1, G2> MinkowskiSum<G1, G2>
    * Builds the Minkowski sum of two geometries. Since the representation is
    * implicit, this is done in constant time.
    */
+  #[inline(always)]
   pub fn new(g1: @G1, g2: @G2) -> MinkowskiSum<G1, G2>
   { MinkowskiSum { g1: g1, g2: g2 } }
 }
@@ -28,6 +29,7 @@ impl<G1, G2> MinkowskiSum<G1, G2>
 impl<V: Add<V, V>, G1: Implicit<V>, G2: Implicit<V>>
 Implicit<V> for MinkowskiSum<G1, G2>
 {
+  #[inline(always)]
   fn support_point(&self, dir: &V) -> V
   { self.g1.support_point(dir) + self.g2.support_point(dir) }
 }

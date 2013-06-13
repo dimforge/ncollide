@@ -20,6 +20,7 @@ impl<N, V> DefaultGeom<N, V>
    * Convenience method to extract a ball from the enumation. Fails if the
    * pattern `Ball` is not matched.
    */
+  #[inline(always)]
   pub fn ball<'r>(&'r self) -> &'r ball::Ball<N, V>
   {
     match *self {
@@ -31,6 +32,7 @@ impl<N, V> DefaultGeom<N, V>
   /**
    * Mutable version of `ball`.
    */
+  #[inline(always)]
   pub fn ball_mut<'r>(&'r mut self) -> &'r mut ball::Ball<N, V>
   {
     match *self {
@@ -43,6 +45,7 @@ impl<N, V> DefaultGeom<N, V>
    * Convenience method to extract a plane from the enumation. Fails if the
    * pattern `Plane` is not matched.
    */
+  #[inline(always)]
   pub fn plane<'r>(&'r self) -> &'r plane::Plane<V>
   {
     match *self {
@@ -54,6 +57,7 @@ impl<N, V> DefaultGeom<N, V>
   /**
    * Mutable version of `plane`.
    */
+  #[inline(always)]
   pub fn plane_mut<'r>(&'r mut self) -> &'r mut plane::Plane<V>
   {
     match *self {
@@ -66,6 +70,7 @@ impl<N, V> DefaultGeom<N, V>
 impl<N: Copy, V: Copy, M: RMul<V> + DeltaTransformVector<V>>
 Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
 {
+  #[inline(always)]
   fn transform(&self, transform: &M) -> DefaultGeom<N, V>
   { 
     match *self
@@ -75,6 +80,7 @@ Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
     }
   }
 
+  #[inline(always)]
   fn transform_to(&self, transform: &M, out: &mut DefaultGeom<N, V>)
   { 
     match *self

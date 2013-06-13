@@ -26,6 +26,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
      C: Contact<V, N>>
     CollisionDetector<C, Plane<V>, G> for PlaneImplicitCollisionDetector<N, V, G, C>
 {
+  #[inline(always)]
  fn new(_: &Plane<V>, _: &G) -> PlaneImplicitCollisionDetector<N, V, G, C>
  { PlaneImplicitCollisionDetector{ contact: None } }
 
@@ -39,6 +40,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    }
  }
 
+  #[inline(always)]
  fn num_coll(&self) -> uint
  {
    match self.contact
@@ -48,6 +50,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    }
  }
 
+  #[inline(always)]
  fn colls(&mut self, out_colls: &mut ~[@mut C])
  {
    match self.contact
@@ -64,6 +67,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
      C: Contact<V, N>>
     CollisionDetector<C, G, Plane<V>> for ImplicitPlaneCollisionDetector<N, V, G, C>
 {
+  #[inline(always)]
  fn new(_: &G, _: &Plane<V>) -> ImplicitPlaneCollisionDetector<N, V, G, C>
  { ImplicitPlaneCollisionDetector{ contact: None } }
 
@@ -79,6 +83,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    self.contact = self.contact.map(|&c| { c.flip(); c })
  }
 
+  #[inline(always)]
  fn num_coll(&self) -> uint
  {
    match self.contact
@@ -88,6 +93,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    }
  }
 
+  #[inline(always)]
  fn colls(&mut self, out_colls: &mut ~[@mut C])
  {
    match self.contact

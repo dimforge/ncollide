@@ -24,36 +24,39 @@ impl<N: Real + Copy,
     CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
     BallBallCollisionDetector<C, N, V>
 {
- fn new(_: &Ball<N, V>, _: &Ball<N, V>) -> BallBallCollisionDetector<C, N, V>
- { BallBallCollisionDetector{ contact: None } }
+  #[inline(always)]
+  fn new(_: &Ball<N, V>, _: &Ball<N, V>) -> BallBallCollisionDetector<C, N, V>
+  { BallBallCollisionDetector{ contact: None } }
 
- fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>)
- {
-   match self.contact
-   {
-     None    => self.contact = collide_ball_ball(a, b).map(|&c| @mut c),
-     Some(c) => if !(update_collide_ball_ball(a, b, c))
-                { self.contact = None }
-   }
- }
+  fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>)
+  {
+    match self.contact
+    {
+      None    => self.contact = collide_ball_ball(a, b).map(|&c| @mut c),
+      Some(c) => if !(update_collide_ball_ball(a, b, c))
+                 { self.contact = None }
+    }
+  }
 
- fn num_coll(&self) -> uint
- {
-   match self.contact
-   {
-     None    => 0,
-     Some(_) => 1
-   }
- }
+  #[inline(always)]
+  fn num_coll(&self) -> uint
+  {
+    match self.contact
+    {
+      None    => 0,
+      Some(_) => 1
+    }
+  }
 
- fn colls(&mut self, out_colls: &mut ~[@mut C])
- {
-   match self.contact
-   {
-     Some(c) => vec::push(out_colls, c),
-     None    => ()
-   }
- }
+  #[inline(always)]
+  fn colls(&mut self, out_colls: &mut ~[@mut C])
+  {
+    match self.contact
+    {
+      Some(c) => vec::push(out_colls, c),
+      None    => ()
+    }
+  }
 }
 
 /**

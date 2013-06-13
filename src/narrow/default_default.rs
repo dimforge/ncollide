@@ -63,12 +63,15 @@ for DefaultDefaultCollisionDetector<C, N, V>
     }
   }
 
+  #[inline(always)]
   fn update(&mut self, g1: &DefaultGeom<N, V>, g2: &DefaultGeom<N, V>)
   { self.sub_detector.update(g1, g2); }
 
+  #[inline(always)]
   fn num_coll(&self) -> uint
   { self.sub_detector.num_coll() }
 
+  #[inline(always)]
   fn colls(&mut self, out_colls: &mut ~[@mut C])
   { self.sub_detector.colls(out_colls) }
 }
@@ -86,6 +89,7 @@ impl<C, N, V>
 DefaultExtractor<N, V, ball::Ball<N, V>, ball::Ball<N, V>>
 for BallBallCollisionDetector<C, N, V>
 {
+  #[inline(always)]
   fn extract<'r>(g1: &'r DefaultGeom<N, V>, g2: &'r DefaultGeom<N, V>)
      -> (&'r ball::Ball<N, V>, &'r ball::Ball<N, V>)
   { (g1.ball(), g2.ball()) }
@@ -96,6 +100,7 @@ impl<N, V, C>
 DefaultExtractor<N, V, plane::Plane<V>, ball::Ball<N, V>>
 for PlaneImplicitCollisionDetector<N, V, ball::Ball<N, V>, C>
 {
+  #[inline(always)]
   fn extract<'r>(g1: &'r DefaultGeom<N, V>, g2: &'r DefaultGeom<N, V>)
      -> (&'r plane::Plane<V>, &'r ball::Ball<N, V>)
   { (g1.plane(), g2.ball()) }
@@ -106,6 +111,7 @@ impl<N, V, C>
 DefaultExtractor<N, V, ball::Ball<N, V>, plane::Plane<V>>
 for ImplicitPlaneCollisionDetector<N, V, ball::Ball<N, V>, C>
 {
+  #[inline(always)]
   fn extract<'r>(g1: &'r DefaultGeom<N, V>, g2: &'r DefaultGeom<N, V>)
      -> (&'r ball::Ball<N, V>, &'r plane::Plane<V>)
   { (g1.ball(), g2.plane()) }
@@ -125,6 +131,7 @@ impl<C,
 CollisionDetector<C, DefaultGeom<N, V>, DefaultGeom<N, V>>
 for DispatchWrapper<C, N, V, NF, G1, G2>
 {
+  #[inline(always)]
   fn new(g1: &DefaultGeom<N, V>, g2: &DefaultGeom<N, V>)
      -> DispatchWrapper<C, N, V, NF, G1, G2>
   {
@@ -135,15 +142,18 @@ for DispatchWrapper<C, N, V, NF, G1, G2>
     }
   }
 
+  #[inline(always)]
   fn update(&mut self, g1: &DefaultGeom<N, V>, g2: &DefaultGeom<N, V>)
   {
     let (a, b): (&G1, &G2) = DefaultExtractor::extract::<N, V, G1, G2, NF>(g1, g2);
     self.sub_detector.update(a, b);
   }
 
+  #[inline(always)]
   fn num_coll(&self) -> uint
   { self.sub_detector.num_coll() }
 
+  #[inline(always)]
   fn colls(&mut self, out_colls: &mut ~[@mut C])
   { self.sub_detector.colls(out_colls) }
 }
