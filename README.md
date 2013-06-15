@@ -10,7 +10,7 @@ dimensions (never tried).
 
 
 ## Compilation
-You will need the last rust compiler from the incomming branch.
+You will need the last rust compiler from the master branch.
 I pull the compiler and fix my code almost every days. If you encounter
 problems, make sure you have the last version.
 
