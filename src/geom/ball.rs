@@ -51,7 +51,7 @@ impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>> Implicit<V> for Ball<N, V>
 impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
 {
   #[inline(always)]
-  fn transform(&self, transform: &M) -> Ball<N, V>
+  fn transformed(&self, transform: &M) -> Ball<N, V>
   { Ball::new(&transform.rmul(&self.center), &self.radius) }
 
   #[inline(always)]

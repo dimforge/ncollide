@@ -71,12 +71,12 @@ impl<N: Copy, V: Copy, M: RMul<V> + DeltaTransformVector<V>>
 Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
 {
   #[inline(always)]
-  fn transform(&self, transform: &M) -> DefaultGeom<N, V>
+  fn transformed(&self, transform: &M) -> DefaultGeom<N, V>
   { 
     match *self
     {
-      Plane(p) => Plane(p.transform(transform)),
-      Ball(b)  => Ball(b.transform(transform))
+      Plane(p) => Plane(p.transformed(transform)),
+      Ball(b)  => Ball(b.transformed(transform))
     }
   }
 

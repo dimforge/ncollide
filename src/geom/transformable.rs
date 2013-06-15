@@ -8,7 +8,7 @@
 pub trait Transformable<M, TS>
 {
   /// The transformed version of a geometry.
-  fn transform(&self, &M) -> TS;
+  fn transformed(&self, &M) -> TS;
   /// Same as `transform` but writing the result on a mutable buffer.
   fn transform_to(&self, &M, &mut TS);
 }

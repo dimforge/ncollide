@@ -41,7 +41,7 @@ impl<G, M: Mul<M, M> + Copy>
 Transformable<M, Transformed<G, M>> for Transformed<G, M>
 {
   #[inline(always)]
-  fn transform(&self, transform: &M) -> Transformed<G, M>
+  fn transformed(&self, transform: &M) -> Transformed<G, M>
   { Transformed::new(&(transform * self.t), self.g) }
 
   #[inline(always)]

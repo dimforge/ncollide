@@ -36,7 +36,7 @@ impl<V: Copy, M: RMul<V> + DeltaTransformVector<V>>
 Transformable<M, Plane<V>> for Plane<V>
 {
   #[inline(always)]
-  fn transform(&self, transform: &M) -> Plane<V>
+  fn transformed(&self, transform: &M) -> Plane<V>
   { Plane::new(&transform.rmul(&self.center),
                &transform.delta_transform_vector(&self.normal)) }
 
