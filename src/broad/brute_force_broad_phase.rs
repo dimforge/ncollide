@@ -1,4 +1,5 @@
 use std::managed;
+use utils::managed::position_elem_mut_ptr;
 use broad::broad_phase::BroadPhase;
 
 /**
@@ -22,19 +23,6 @@ impl<RB> BruteForceBroadPhase<RB>
       panding: ~[]
     }
   }
-}
-
-// FIXME: this is a workaround the fact no Eq instance is detected for the
-// pointer @mut (even with the 'use std::managed').
-fn position_elem_mut_ptr<RB>(l: &[@mut RB], e: @mut RB) -> Option<uint>
-{
-  for l.eachi |i, &curr|
-  {
-    if managed::mut_ptr_eq(e, curr)
-    { return Some(i) }
-  }
-
-  None
 }
 
 impl<RB> BroadPhase<RB> for BruteForceBroadPhase<RB>

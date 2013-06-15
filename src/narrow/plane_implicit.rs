@@ -3,7 +3,7 @@ use std::num::Zero;
 use nalgebra::traits::dot::{Dot};
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::ring::Ring;
-use nalgebra::traits::workarounds::scalar_op::ScalarMul;
+use nalgebra::traits::scalar_op::ScalarMul;
 use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;

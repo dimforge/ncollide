@@ -1,4 +1,4 @@
-use nalgebra::traits::workarounds::rlmul::RMul;
+use nalgebra::traits::rlmul::RMul;
 use nalgebra::traits::delta_transform::DeltaTransformVector;
 use geom::transformable::Transformable;
 use geom::ball;

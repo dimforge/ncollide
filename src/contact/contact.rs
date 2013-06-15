@@ -1,5 +1,5 @@
 use std::num::{One, Zero};
-use nalgebra::traits::workarounds::scalar_op::ScalarDiv;
+use nalgebra::traits::scalar_op::ScalarDiv;
 
 /// Trait of contacts. A contact is the structure describing the geometric
 /// configurations of the contact point of two touching/penetrating objects.

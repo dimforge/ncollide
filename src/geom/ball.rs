@@ -1,6 +1,6 @@
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::workarounds::scalar_op::ScalarMul;
-use nalgebra::traits::workarounds::rlmul::RMul;
+use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::rlmul::RMul;
 use geom::implicit::Implicit;
 use geom::transformable::Transformable;
 

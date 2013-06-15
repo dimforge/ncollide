@@ -7,7 +7,7 @@ use extra::treemap::TreeMap;
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::sub_dot::SubDot;
-use nalgebra::traits::workarounds::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 
 #[deriving(ToStr, Eq)]
 pub struct JohnsonSimplex<V, T>

@@ -5,7 +5,7 @@ use nalgebra::ndim::dmat::{zero_mat_with_dim};
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::inv::Inv;
-use nalgebra::traits::workarounds::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 
 pub struct ExplicitJohnsonSimplex<V, T>
 {

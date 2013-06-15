@@ -1,4 +1,4 @@
-use nalgebra::traits::workarounds::rlmul::{RMul, LMul};
+use nalgebra::traits::rlmul::{RMul, LMul};
 use nalgebra::traits::delta_transform::DeltaTransform;
 use geom::implicit::Implicit;
 use geom::transformable::Transformable;
