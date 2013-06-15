@@ -1,25 +1,37 @@
 use std::managed;
+use utils::default::Default;
 use utils::managed::position_elem_mut_ptr;
-use utils::has_proxy::HasProxy;
 use broad::broad_phase::BroadPhase;
 use bounding_volume::has_bounding_volume::HasBoundingVolume;
 use bounding_volume::bounding_volume::LooseBoundingVolume;
 
+pub trait HasBoundingVolumeProxy<BV>
+{
+  fn proxy<'r>(&'r self)         -> &'r BoundingVolumeProxy<BV>;
+  fn proxy_mut<'r>(&'r mut self) -> &'r mut BoundingVolumeProxy<BV>;
+}
+
 pub struct BoundingVolumeProxy<BV>
 { bounding_volume: BV }
 
-pub struct BruteForceBoundigVolumeBroadPhase<RB, BV, N>
+impl<BV: Default> Default for BoundingVolumeProxy<BV>
+{
+  fn default() -> BoundingVolumeProxy<BV>
+  { BoundingVolumeProxy { bounding_volume: Default::default() } }
+}
+
+pub struct BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 {
   priv objects: ~[@mut RB],
   priv panding: ~[@mut RB],
   priv margin:  N
 }
 
-impl<RB, BV, N: Copy> BruteForceBoundigVolumeBroadPhase<RB, BV, N>
+impl<RB, BV, N: Copy> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 {
-  pub fn new(margin: N) -> BruteForceBoundigVolumeBroadPhase<RB, BV, N>
+  pub fn new(margin: N) -> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
   {
-    BruteForceBoundigVolumeBroadPhase {
+    BruteForceBoundingVolumeBroadPhase {
       objects: ~[],
       panding: ~[],
       margin:  margin
@@ -27,10 +39,10 @@ impl<RB, BV, N: Copy> BruteForceBoundigVolumeBroadPhase<RB, BV, N>
   }
 }
 
-impl<RB: HasProxy<BoundingVolumeProxy<BV>> + HasBoundingVolume<BV>,
+impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
      BV: LooseBoundingVolume<N>,
      N:  Copy>
-     BroadPhase<RB> for BruteForceBoundigVolumeBroadPhase<RB, BV, N>
+     BroadPhase<RB> for BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 {
   fn add(&mut self, rb: @mut RB)
   {
@@ -93,6 +105,8 @@ impl<RB: HasProxy<BoundingVolumeProxy<BV>> + HasBoundingVolume<BV>,
         }
       }
     }
+
+    self.panding.clear();
 
     res
   }

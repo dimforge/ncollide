@@ -1,5 +1,8 @@
+use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use nalgebra::traits::rlmul::RMul;
 use nalgebra::traits::delta_transform::DeltaTransformVector;
+use bounding_volume::aabb::AABB;
+use bounding_volume::has_bounding_volume::HasBoundingVolume;
 use geom::transformable::Transformable;
 use geom::ball;
 use geom::plane;
@@ -75,8 +78,8 @@ Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
   { 
     match *self
     {
-      Plane(p) => Plane(p.transformed(transform)),
-      Ball(b)  => Ball(b.transformed(transform))
+      Plane(ref p) => Plane(p.transformed(transform)),
+      Ball(ref b)  => Ball(b.transformed(transform))
     }
   }
 
@@ -85,8 +88,24 @@ Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
   { 
     match *self
     {
-      Plane(p) => p.transform_to(transform, out.plane_mut()),
-      Ball(b)  => b.transform_to(transform, out.ball_mut())
+      Plane(ref p) => p.transform_to(transform, out.plane_mut()),
+      Ball(ref b)  => b.transform_to(transform, out.ball_mut())
+    }
+  }
+}
+
+// FIXME: these is something bad here…
+// Since we cannot implement HasBoundingVolume twice, we wont be able to
+// implement any other bounding volume… That’s bad.
+impl<N, V: Bounded + Neg<V> + ScalarAdd<N> + ScalarSub<N> + Ord + Copy>
+    HasBoundingVolume<AABB<V>> for DefaultGeom<N, V>
+{
+  fn bounding_volume(&self) -> AABB<V>
+  {
+    match *self
+    {
+      Plane(ref p) => p.bounding_volume(),
+      Ball(ref b)  => b.bounding_volume()
     }
   }
 }

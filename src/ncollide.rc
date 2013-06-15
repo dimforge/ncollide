@@ -12,7 +12,8 @@ extern mod nalgebra;
 pub mod utils
 {
   pub mod managed;
-  pub mod has_proxy;
+  pub mod exact;
+  pub mod default;
 }
 
 pub mod geom

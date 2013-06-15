@@ -1,6 +1,9 @@
+use std::num::Bounded;
 use nalgebra::traits::rlmul::RMul;
 use nalgebra::traits::delta_transform::DeltaTransformVector;
 use geom::transformable::Transformable;
+use bounding_volume::aabb::AABB;
+use bounding_volume::has_bounding_volume::HasBoundingVolume;
 
 /**
  * Implicit description of a plane.
@@ -45,5 +48,17 @@ Transformable<M, Plane<V>> for Plane<V>
   {
     out.center = transform.rmul(&self.center);
     out.normal = transform.delta_transform_vector(&self.normal);
+  }
+}
+
+// FIXME: these is something bad here…
+// Since we cannot implement HasBoundingVolume twice, we wont be able to
+// implement any other bounding volume… That’s bad.
+impl<V: Bounded + Neg<V> + Ord + Copy>
+    HasBoundingVolume<AABB<V>> for Plane<V>
+{
+  fn bounding_volume(&self) -> AABB<V>
+  {
+    AABB::new(&-Bounded::max_value::<V>(), &Bounded::max_value())
   }
 }

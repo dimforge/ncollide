@@ -1,4 +1,7 @@
+use std::cmp::{min, max};
+use std::num::Zero;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
+use utils::default::Default;
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 
 pub struct AABB<V>
@@ -7,7 +10,20 @@ pub struct AABB<V>
   priv maxs: V
 }
 
-impl<V: Ord + Orderable> BoundingVolume for AABB<V>
+impl<V: Copy + Ord> AABB<V>
+{
+  pub fn new(&mins: &V, &maxs: &V) -> AABB<V>
+  {
+    assert!(mins <= maxs);
+
+    AABB {
+      mins: mins,
+      maxs: maxs
+    }
+  }
+}
+
+impl<V: Ord + Copy> BoundingVolume for AABB<V>
 {
   #[inline(always)]
   fn intersects(&self, other: &AABB<V>) -> bool
@@ -20,16 +36,16 @@ impl<V: Ord + Orderable> BoundingVolume for AABB<V>
   #[inline(always)]
   fn merge(&mut self, other: &AABB<V>)
   {
-    self.mins = self.mins.min(&other.mins);
-    self.maxs = self.maxs.max(&other.maxs);
+    self.mins = min(self.mins, other.mins);
+    self.maxs = max(self.maxs, other.maxs);
   }
 
   #[inline(always)]
   fn merged(&self, other: &AABB<V>) -> AABB<V>
   {
     AABB {
-      mins: self.mins.min(&other.mins),
-      maxs: self.maxs.max(&other.maxs)
+      mins: min(self.mins, other.mins),
+      maxs: max(self.maxs, other.maxs)
     }
   }
 }
@@ -49,6 +65,17 @@ impl<V: Ord + ScalarAdd<N> + ScalarSub<N>, N> LooseBoundingVolume<N> for AABB<V>
     AABB {
       mins: self.mins.scalar_sub(&amount),
       maxs: self.maxs.scalar_add(&amount)
+    }
+  }
+}
+
+impl<V: Zero> Default for AABB<V>
+{
+  fn default() -> AABB<V>
+  {
+    AABB {
+      mins: Zero::zero(),
+      maxs: Zero::zero()
     }
   }
 }

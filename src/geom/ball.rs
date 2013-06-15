@@ -1,8 +1,10 @@
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub};
 use nalgebra::traits::rlmul::RMul;
 use geom::implicit::Implicit;
 use geom::transformable::Transformable;
+use bounding_volume::aabb::AABB;
+use bounding_volume::has_bounding_volume::HasBoundingVolume;
 
 /**
  * Implicit description of a ball geometry.
@@ -57,4 +59,17 @@ impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
   #[inline(always)]
   fn transform_to(&self, transform: &M, out: &mut Ball<N, V>)
   { out.center = transform.rmul(&self.center); }
+}
+
+// FIXME: these is something bad here…
+// Since we cannot implement HasBoundingVolume twice, we wont be able to
+// implement any other bounding volume… That’s bad.
+impl<N, V: ScalarAdd<N> + ScalarSub<N> + Ord + Copy>
+    HasBoundingVolume<AABB<V>> for Ball<N, V>
+{
+  fn bounding_volume(&self) -> AABB<V>
+  {
+    AABB::new(&self.center.scalar_sub(&self.radius),
+              &self.center.scalar_add(&self.radius))
+  }
 }
