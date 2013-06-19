@@ -45,6 +45,6 @@ Implicit<V> for ConvexPolytope<V, N>
     }
 
 
-    *best_pt
+    copy *best_pt
   }
 }

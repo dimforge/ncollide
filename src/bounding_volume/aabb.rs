@@ -36,16 +36,16 @@ impl<V: Ord + Copy> BoundingVolume for AABB<V>
   #[inline(always)]
   fn merge(&mut self, other: &AABB<V>)
   {
-    self.mins = min(self.mins, other.mins);
-    self.maxs = max(self.maxs, other.maxs);
+    self.mins = min(copy self.mins, copy other.mins);
+    self.maxs = max(copy self.maxs, copy other.maxs);
   }
 
   #[inline(always)]
   fn merged(&self, other: &AABB<V>) -> AABB<V>
   {
     AABB {
-      mins: min(self.mins, other.mins),
-      maxs: max(self.maxs, other.maxs)
+      mins: min(copy self.mins, copy other.mins),
+      maxs: max(copy self.maxs, copy other.maxs)
     }
   }
 }

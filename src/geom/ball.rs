@@ -33,14 +33,14 @@ impl<N: Copy, V: Copy> Ball<N, V>
    */
   #[inline(always)]
   pub fn radius(&self) -> N
-  { self.radius }
+  { copy self.radius }
 
   /**
    * The ball center.
    */
   #[inline(always)]
   pub fn center(&self) -> V
-  { self.center }
+  { copy self.center }
 }
 
 impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>> Implicit<V> for Ball<N, V>

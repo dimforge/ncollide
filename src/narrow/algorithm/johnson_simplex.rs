@@ -119,11 +119,11 @@ JohnsonSimplex<V, T>
                           for sublist.each |&e|
                           {
                             pts.push(e);
-                            num_added += 1;
+                            num_added = num_added + 1;
                           }
                           sub_cofactors.push(cofactor_index);
                           map.insert(sublist, cofactor_index);
-                          cofactor_index += 1;
+                          cofactor_index = cofactor_index + 1;
                         }
           }
         }
@@ -145,18 +145,18 @@ JohnsonSimplex<V, T>
             // There is no need to keep a place for the full simplex cofactor.
             // So we dont increase the cofactor buffer index for the first
             // iteration.
-            cofactor_index += if (i == 0) { 0 } else { 1 };
+            cofactor_index = cofactor_index + if (i == 0) { 0 } else { 1 };
           }
         }
 
-        curr += last_num_points + 1;
+        curr = curr + last_num_points + 1;
       }
 
       // initialize the next iteration with one less point
-      last_dim_begin   = last_dim_end ;
-      last_dim_end    += num_added;
+      last_dim_begin = last_dim_end ;
+      last_dim_end = last_dim_end + num_added;
       offsets.push(last_dim_end);
-      last_num_points -= 1;
+      last_num_points = last_num_points - 1;
     }
 
     // cofactor indices for leaves
@@ -200,7 +200,7 @@ JohnsonSimplex<V, T>
 
     JohnsonSimplex {
       recursion_templates: perm_list
-      , points:            ~[~*initial_point]
+      , points:            ~[~copy *initial_point]
       , cofactors:         vec::from_elem(
                              perm_list[Dim::dim::<V>()].num_cofactors,
                              Zero::zero())
@@ -208,7 +208,7 @@ JohnsonSimplex<V, T>
   }
 
   pub fn add_point(&mut self, pt: &V)
-  { vec::push(&mut self.points, ~*pt) }
+  { vec::push(&mut self.points, ~copy *pt) }
 
   pub fn project_origin(&mut self) -> Option<V> // FIXME: ~JohnsonSimplex<V>
   {
@@ -216,14 +216,14 @@ JohnsonSimplex<V, T>
 
     let _0                   = Zero::zero::<T>();
     let _1                   = One::one::<T>();
-    let _2                   = _1 + _1;
+    let _2                   = copy _1 + copy _1;
     let max_num_pts          = self.points.len();
     let recursion            = &self.recursion_templates[max_num_pts - 1];
     let mut curr_num_pts     = 1u;
     let mut curr             = max_num_pts;
 
     for iterate(0u, max_num_pts) |i|
-    { self.cofactors[recursion.num_cofactors - 1 - i] = _1; }
+    { self.cofactors[recursion.num_cofactors - 1 - i] = copy _1; }
 
     /*
      * first loop: compute all the cofactors
@@ -245,7 +245,7 @@ JohnsonSimplex<V, T>
         {
           // ... compute its cofactor.
           let i_pid        = recursion.permutation_list[curr + 1 + i];
-          let sub_cofactor = self.cofactors[recursion.sub_cofactors[curr + 1 + i]];
+          let sub_cofactor = copy self.cofactors[recursion.sub_cofactors[curr + 1 + i]];
 
           if (sub_cofactor < _0)
           {
@@ -254,7 +254,7 @@ JohnsonSimplex<V, T>
             break;
           }
 
-          cofactor += sub_cofactor *
+          cofactor = cofactor + sub_cofactor *
                       self.points[k_pid].sub_dot(self.points[j_pid],
                                                  self.points[i_pid]);
         }
@@ -268,12 +268,12 @@ JohnsonSimplex<V, T>
         }
 
         self.cofactors[recursion.sub_cofactors[curr]] = cofactor;
-        curr += curr_num_pts + 1; // points + removed point + cofactor id
+        curr = curr + curr_num_pts + 1; // points + removed point + cofactor id
 
-        _i += curr_num_pts + 1;
+        _i = _i + curr_num_pts + 1;
       }
 
-      curr_num_pts += 1;
+      curr_num_pts = curr_num_pts + 1;
     }
 
     /*
@@ -299,15 +299,15 @@ JohnsonSimplex<V, T>
           while (i != subsimplex_ids - subsimplex_size)
           {
             // FIXME: build the sub-simplex here
-            let sub_cofactor = self.cofactors[recursion.sub_cofactors[i]];
-            tot_cofactor     += sub_cofactor;
+            let sub_cofactor = copy self.cofactors[recursion.sub_cofactors[i]];
+            tot_cofactor     = tot_cofactor + copy sub_cofactor;
             println(~"__ADDED: " +
                     self.points[recursion.permutation_list[i]].to_str());
             println(~"__at: " + sub_cofactor.to_str());
-            proj             +=
+            proj             = proj + 
               self.points[recursion.permutation_list[i]].scalar_mul(&sub_cofactor);
 
-            i -= 1;
+            i = - 1;
           }
 
           proj.scalar_div_inplace(&tot_cofactor);

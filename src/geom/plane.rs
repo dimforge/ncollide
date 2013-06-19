@@ -27,12 +27,12 @@ impl<V: Copy> Plane<V>
   /// The plane normal.
   #[inline(always)]
   pub fn normal(&self) -> V
-  { self.normal }
+  { copy self.normal }
 
   /// The plane center.
   #[inline(always)]
   pub fn center(&self) -> V
-  { self.center }
+  { copy self.center }
 }
 
 impl<V: Copy, M: RMul<V> + DeltaTransformVector<V>>

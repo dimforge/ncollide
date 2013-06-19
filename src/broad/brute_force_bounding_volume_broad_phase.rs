@@ -49,7 +49,7 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
     self.objects.push(rb);
     self.panding.push(rb);
     rb.proxy_mut().bounding_volume = rb.bounding_volume();
-    rb.proxy_mut().bounding_volume.loosen(self.margin);
+    rb.proxy_mut().bounding_volume.loosen(copy self.margin);
   }
 
   fn remove(&mut self, b: @mut RB)
@@ -79,7 +79,7 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
 
       if !b.proxy().bounding_volume.contains(&new_bv)
       {
-        new_bv.loosen(self.margin);
+        new_bv.loosen(copy self.margin);
         b.proxy_mut().bounding_volume = new_bv;
         updated.push(b);
       }
@@ -93,7 +93,6 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
 
     for updated.each |&b1|
     {
-      // FIXME: will this do a copy?
       let bv1 = &b1.proxy().bounding_volume;
 
       for self.objects.each |&b2|

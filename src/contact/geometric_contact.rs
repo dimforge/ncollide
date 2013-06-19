@@ -23,11 +23,11 @@ impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
      -> GeometricContact<V, N>
   {
     GeometricContact {
-      world1: *world1,
-      world2: *world2,
-      center: *center,
-      normal: *normal,
-      depth:  *depth
+      world1: copy *world1,
+      world2: copy *world2,
+      center: copy *center,
+      normal: copy *normal,
+      depth:  copy *depth
     }
   }
 
@@ -44,15 +44,15 @@ impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline(always)]
   fn center(&self) -> V
-  { self.center }
+  { copy self.center }
 
   #[inline(always)]
   fn set_normal(&mut self, &normal: &V)
-  { self.normal = normal; }
+  { self.normal = copy normal; }
 
   #[inline(always)]
   fn normal(&self) -> V
-  { self.normal }
+  { copy self.normal }
 
   #[inline(always)]
   fn set_depth(&mut self, &depth: &N)
@@ -60,7 +60,7 @@ impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline(always)]
   fn depth(&self) -> N
-  { self.depth }
+  { copy self.depth }
 
   #[inline(always)]
   fn set_world1(&mut self, &world1: &V)
@@ -68,7 +68,7 @@ impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline(always)]
   fn world1(&self) -> V
-  { self.world1 }
+  { copy self.world1 }
 
   #[inline(always)]
   fn set_world2(&mut self, &world2: &V)
@@ -76,5 +76,5 @@ impl<V: Copy + Neg<V>, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline(always)]
   fn world2(&self) -> V
-  { self.world2 }
+  { copy self.world2 }
 }

@@ -21,7 +21,7 @@ impl<G, M: Copy> Transformed<G, M>
   /// Creates a transformed geometry from a transform.
   #[inline(always)]
   pub fn new(transform: &M, geometry: @G) -> Transformed<G, M>
-  { Transformed { t: *transform, g: geometry } }
+  { Transformed { t: copy *transform, g: geometry } }
 }
 
 impl<G: Implicit<V>, M: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
