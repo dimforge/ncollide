@@ -33,11 +33,11 @@ Implicit<V> for ConvexPolytope<V, N>
     let mut best_dot = -Bounded::max_value::<N>();
     let mut best_pt  = &self.pts[0];
 
-    for self.pts.each |p|
+    for self.pts.iter().advance |p|
     {
       let dot = p.dot(dir);
 
-      if (dot > best_dot)
+      if dot > best_dot
       {
         best_dot = dot;
         best_pt  = p;

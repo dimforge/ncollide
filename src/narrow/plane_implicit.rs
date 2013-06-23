@@ -35,7 +35,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    match self.contact
    {
      None => self.contact = collide_plane_implicit_shape(a, b).map(|&c| @mut c),
-     Some(c) => if !(update_collide_plane_implicit_shape(a, b, c))
+     Some(c) => if !update_collide_plane_implicit_shape(a, b, c)
                 { self.contact = None }
    }
  }
@@ -76,7 +76,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
    match self.contact
    {
      None => self.contact = collide_plane_implicit_shape(b, a).map(|&c| @mut c),
-     Some(c) => if !(update_collide_plane_implicit_shape(b, a, c))
+     Some(c) => if !update_collide_plane_implicit_shape(b, a, c)
                 { self.contact = None }
    }
 
@@ -121,7 +121,7 @@ pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
   let deepest = &other.support_point(&-plane.normal());
   let dist    = &plane.normal().dot(&(plane.center() - *deepest));
 
-  if (*dist > Zero::zero())
+  if *dist > Zero::zero()
   {
     let c1 = &(deepest + plane.normal().scalar_mul(dist));
     contact::set(out, c1, deepest, &plane.normal(), dist);
@@ -147,7 +147,7 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
 {
   let mut res : C = contact::zero::<V, N, C>();
 
-  if (update_collide_plane_implicit_shape(plane, other, &mut res))
+  if update_collide_plane_implicit_shape(plane, other, &mut res)
   { Some(res) }
   else
   { None }

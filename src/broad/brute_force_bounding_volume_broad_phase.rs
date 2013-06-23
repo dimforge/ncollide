@@ -73,7 +73,7 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
     let mut res     = ~[];
     let mut updated = ~[];
 
-    for rbs.each |&b|
+    for rbs.iter().advance |&b|
     {
       let mut new_bv = b.bounding_volume();
 
@@ -85,17 +85,17 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
       }
     }
 
-    for self.panding.each |&b|
+    for self.panding.iter().advance |&b|
     {
       if position_elem_mut_ptr(updated, b).is_none()
       { updated.push(b) }
     }
 
-    for updated.each |&b1|
+    for updated.iter().advance |&b1|
     {
       let bv1 = &b1.proxy().bounding_volume;
 
-      for self.objects.each |&b2|
+      for self.objects.iter().advance |&b2|
       {
         if !managed::mut_ptr_eq(b1, b2)
         {

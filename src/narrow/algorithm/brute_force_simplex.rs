@@ -7,7 +7,7 @@ use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::inv::Inv;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 
-pub struct ExplicitJohnsonSimplex<V, N>
+pub struct BruteForceSimplex<V, N>
 {
   points: ~[~V]
 }
@@ -28,16 +28,13 @@ impl<V: Copy         +
         DivisionRing +
         Ord          +
         ToStr>
-    ExplicitJohnsonSimplex<V, N>
+    BruteForceSimplex<V, N>
 {
-  pub fn new(initial_point: &V) -> ExplicitJohnsonSimplex<V, N>
-  { ExplicitJohnsonSimplex { points: ~[~copy *initial_point] } }
+  pub fn new(initial_point: &V) -> BruteForceSimplex<V, N>
+  { BruteForceSimplex { points: ~[~copy *initial_point] } }
 
   pub fn add_point(&mut self, pt: &V)
-  {
-    assert!(self.points.len() <= Dim::dim::<V>());
-    self.points.push(~copy *pt)
-  }
+  { self.points.push(~copy *pt) }
 
   fn project_on_subsimplex(points: &[~V]) -> Option<V>
   {
@@ -89,7 +86,7 @@ impl<V: Copy         +
     { copy *points[0] }
     else
     {
-      let mut bestproj = ExplicitJohnsonSimplex::project_on_subsimplex(points);
+      let mut bestproj = BruteForceSimplex::project_on_subsimplex(points);
 
       for uint::iterate(0u, points.len()) |i|
       {
@@ -100,7 +97,7 @@ impl<V: Copy         +
           { subsimplex.push(~copy *points[j]) }
         }
 
-        let proj = ExplicitJohnsonSimplex::project_on_subsimplices(subsimplex);
+        let proj = BruteForceSimplex::project_on_subsimplices(subsimplex);
 
         bestproj =
         match bestproj
@@ -117,7 +114,7 @@ impl<V: Copy         +
 
   pub fn project_origin(&mut self) -> V
   {
-    ExplicitJohnsonSimplex::project_on_subsimplices(self.points)
+    BruteForceSimplex::project_on_subsimplices(self.points)
   }
 
 }

@@ -52,7 +52,7 @@ pub mod narrow
   pub mod algorithm
   {
     pub mod johnson_simplex;
-    pub mod explicit_johnson_simplex;
+    pub mod brute_force_simplex;
   }
 }
 
@@ -73,7 +73,7 @@ pub mod contact
 
 mod tests
 {
-  mod geom;
-  mod narrow;
-  // mod algo;
+  // mod geom;
+  // mod narrow;
+  mod algo;
 }

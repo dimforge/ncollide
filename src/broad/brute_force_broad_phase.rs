@@ -50,19 +50,19 @@ impl<RB> BroadPhase<RB> for BruteForceBroadPhase<RB>
   {
     let mut res: ~[(@mut RB, @mut RB)] = ~[];
 
-    for self.panding.each |&o|
+    for self.panding.iter().advance |&o|
     {
-      for self.objects.each |&o2|
+      for self.objects.iter().advance |&o2|
       { res.push((o, o2)) }
 
-      for self.panding.each |&o2|
+      for self.panding.iter().advance |&o2|
       {
-        if (!managed::mut_ptr_eq(o, o2))
+        if !managed::mut_ptr_eq(o, o2)
         { res.push((o, o2)) }
       }
     }
 
-    for self.panding.each |&o|
+    for self.panding.iter().advance |&o|
     { self.objects.push(o) }
 
     self.panding.clear();

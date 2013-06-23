@@ -33,7 +33,7 @@ impl<N: Real + Copy,
     match self.contact
     {
       None    => self.contact = collide_ball_ball(a, b).map(|&c| @mut c),
-      Some(c) => if !(update_collide_ball_ball(a, b, c))
+      Some(c) => if !update_collide_ball_ball(a, b, c)
                  { self.contact = None }
     }
   }
@@ -78,7 +78,7 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
   let sqdist     = delta_pos.sqnorm();
   let sum_radius = r1 + r2;
 
-  if (sqdist < sum_radius * sum_radius)
+  if sqdist < sum_radius * sum_radius
   {
     let normal = delta_pos.normalized();
 
@@ -107,7 +107,7 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
 {
   let mut res = contact::zero::<V, N, C>();
 
-  if (update_collide_ball_ball(b1, b2, &mut res))
+  if update_collide_ball_ball(b1, b2, &mut res)
   { Some(res) }
   else
   { None }
