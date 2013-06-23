@@ -29,23 +29,20 @@ struct RecursionTemplate
 
 }
 
-// FIXME: remove the ToStr trait constraint.
 impl<V: Copy         +
         SubDot<N>    +
         ScalarMul<N> +
         ScalarDiv<N> +
         Zero         +
         Add<V, V>    +
-        Dim          +
-        ToStr,
+        Dim,
      N: Ord          +
         Copy         +
         Clone        +
         Eq           +
         DivisionRing +
         Ord          +
-        Bounded      +
-        ToStr>
+        Bounded>
 JohnsonSimplex<V, N>
 {
   fn make_permutation_lists() -> @[RecursionTemplate]
@@ -188,8 +185,6 @@ JohnsonSimplex<V, N>
     pts.truncate(num_pts - max_num_points - 1);
     sub_cofactors.truncate(num_pts - max_num_points - 1);
 
-    // println("offsets: "     + rev_offsets.to_str());
-
     RecursionTemplate {
       offsets:          rev_offsets,
       permutation_list: pts,
@@ -260,11 +255,7 @@ JohnsonSimplex<V, N>
           let delta = sub_cofactor *
                       self.points[k_pid].sub_dot(self.points[j_pid],
                                                  self.points[i_pid]);
-          // println("( "  + self.points[k_pid].to_str() + " - " +
-          //         self.points[j_pid].to_str() + " ) * " +
-          //         self.points[i_pid].to_str());
-          // println("delta: " + delta.to_str() + " cofactor: " +
-          //         cofactor.to_str());
+
           cofactor = cofactor + delta;
         }
 
@@ -280,10 +271,6 @@ JohnsonSimplex<V, N>
     /*
      * second loop: find the subsimplex containing the projection
      */
-    // println(recursion.to_str());
-    // println(curr.to_str() + " vs " + recursion.offsets.last().to_str());
-    // println(self.cofactors.to_str());
-
     let _invalid_cofactor = Bounded::max_value();
     let mut offsets_iter = recursion.offsets.rev_iter();
     offsets_iter.next(); // skip the first offset
@@ -291,7 +278,6 @@ JohnsonSimplex<V, N>
     {
       // for each sub-simplex ...
       let mut _i = curr;
-      // println("current end: " + end.to_str());
       while (_i != end)
       {
         let mut foundit = true;
@@ -299,14 +285,11 @@ JohnsonSimplex<V, N>
         for uint::iterate(0u, curr_num_pts) |i|
         {
           // ... see if its cofactor is positive
-          // println("Viewing cofactor for: " + (_i - (i + 1) * curr_num_pts).to_str());
-          // println("Viewing cofactor: " + recursion.sub_cofactors[_i - (i + 1) * curr_num_pts].to_str());
           let cof_id = _i - (i + 1) * curr_num_pts;
           let cof    = copy self.cofactors[recursion.sub_cofactors[cof_id]];
           if cof > _0
           {
             // invalidate the children cofactor
-            // println("Invalidating cofactor: " + recursion.sub_cofactors[cof_id + 1].to_str());
             if curr_num_pts > 1
             {
               let subcofid = recursion.sub_cofactors[cof_id + 1];
@@ -331,16 +314,12 @@ JohnsonSimplex<V, N>
           let mut total_cof = copy _0;
           let mut proj      = Zero::zero::<V>();
 
-          // println(self.cofactors.to_str());
           for uint::iterate(0u, curr_num_pts) |i|
           {
             // ... see if its cofactor is positive
             let id    = _i - (i + 1) * curr_num_pts;
             let cof   = copy self.cofactors[recursion.sub_cofactors[id]];
-            // println("taking: " +
-            //         self.points[recursion.permutation_list[id]].to_str() +
-            //         " with cof id: " + recursion.sub_cofactors[id].to_str() +
-            //         " with cof val: " + cof.to_str());
+
             total_cof = total_cof + cof;
             proj = proj +
               self.points[recursion.permutation_list[id]].scalar_mul(&cof);
@@ -352,7 +331,6 @@ JohnsonSimplex<V, N>
         }
 
         _i = _i - curr_num_pts * curr_num_pts;
-        // println("curr_i: " + _i.to_str());
       }
 
       curr = end;

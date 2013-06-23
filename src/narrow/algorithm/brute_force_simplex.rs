@@ -12,22 +12,19 @@ pub struct BruteForceSimplex<V, N>
   points: ~[~V]
 }
 
-// FIXME: remove ToStr
 impl<V: Copy         +
         SubDot<N>    +
         ScalarMul<N> +
         ScalarDiv<N> +
         Zero         +
         Add<V, V>    +
-        Norm<N>      +
-        ToStr,
+        Norm<N>,
      N: Ord          +
         Copy         +
         Clone        +
         Eq           +
         DivisionRing +
-        Ord          +
-        ToStr>
+        Ord>
     BruteForceSimplex<V, N>
 {
   pub fn new(initial_point: &V) -> BruteForceSimplex<V, N>
