@@ -23,7 +23,7 @@ macro_rules! test_johnson_simplex_impl(
   ($t: ty, $n: ty) => (
     for uint::iterate(0, Dim::dim::<$t>() + 1) |d|
     {
-      for uint::iterate(1, 2000 / (d + 1)) |i|
+      for uint::iterate(1, 200 / (d + 1)) |i|
       {
         // note that this fails with lower precision
         let mut v1: $t = rand::random();
