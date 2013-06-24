@@ -21,7 +21,7 @@ use geom::convex_polytope::ConvexPolytope;
 fn test_ball_support_function()
 {
   let dir  = &Vec3::new(1f64, 1f64, 1f64);
-  let ball = Ball::new(&Zero::zero(), &42f64);
+  let ball = Ball::new(Zero::zero(), 42f64);
   let diag = 42f64 / dir.norm();
 
   assert!(ball.support_point(dir).approx_eq(&Vec3::new(diag, diag, diag)));
@@ -42,7 +42,7 @@ fn test_convex_polytope_support_function()
 fn test_minkowski_sum_support_function()
 {
   let dir  = Vec3::new(1f64, 1f64, 1f64);
-  let ball = Ball::new(&Zero::zero::<Vec3<f64>>(), &42f64);
+  let ball = Ball::new(Zero::zero::<Vec3<f64>>(), 42f64);
   let diag = 2.0f64 * 42f64 / dir.norm();
 
   let msum = MinkowskiSum::new(&ball, &ball);

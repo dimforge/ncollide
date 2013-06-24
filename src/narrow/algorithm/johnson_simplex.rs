@@ -5,16 +5,19 @@ use std::num::{Zero, One};
 use std::iterator::IteratorUtil;
 use std::vec;
 use extra::treemap::TreeMap;
+use nalgebra::traits::norm::Norm;
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use narrow::algorithm::simplex::Simplex;
 
 #[deriving(Eq)]
 pub struct JohnsonSimplex<V, N>
 {
   recursion_templates: @[RecursionTemplate],
-  points:              ~[~V],
+  points:              ~[V],
+  exchange_points:     ~[V],
   cofactors:           ~[N]
 }
 
@@ -26,7 +29,6 @@ struct RecursionTemplate
   sub_cofactors:    ~[uint],
   num_cofactors:    uint,
   num_leaves:       uint // useful only for printing…
-
 }
 
 impl<V: Copy         +
@@ -38,13 +40,29 @@ impl<V: Copy         +
         Dim,
      N: Ord          +
         Copy         +
-        Clone        +
         Eq           +
         DivisionRing +
         Ord          +
         Bounded>
 JohnsonSimplex<V, N>
 {
+  pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
+  {
+    let _dim       = Dim::dim::<V>();
+    let perm_list  = JohnsonSimplex::make_permutation_lists::<V, N>();
+    let expoints   = vec::with_capacity(_dim);
+    let mut points = vec::with_capacity(_dim);
+
+    points.push(initial_point);
+
+    JohnsonSimplex {
+      recursion_templates: perm_list
+      , points:            points
+      , exchange_points:   expoints
+      , cofactors:         vec::from_elem(perm_list[_dim].num_cofactors, Zero::zero())
+    }
+  }
+
   fn make_permutation_lists() -> @[RecursionTemplate]
   {
     do build |push_to_at_vec|
@@ -194,32 +212,15 @@ JohnsonSimplex<V, N>
     }
   }
 
-  pub fn reset(&mut self)
-  { self.points.clear() }
-
-  pub fn new(initial_point: &V) -> JohnsonSimplex<V, N>
+  pub fn reset(&mut self, pt: V)
   {
-    let perm_list = JohnsonSimplex::make_permutation_lists::<V, N>();
-
-    JohnsonSimplex {
-      recursion_templates: perm_list
-      , points:            ~[~copy *initial_point]
-      , cofactors:         vec::from_elem(
-                             perm_list[Dim::dim::<V>()].num_cofactors,
-                             Zero::zero())
-    }
+    self.points.clear();
+    self.points.push(pt);
   }
 
-  pub fn add_point(&mut self, pt: &V)
-  {
-    assert!(self.points.len() <= Dim::dim::<V>());
-    vec::push(&mut self.points, ~copy *pt)
-  }
-
-  pub fn project_origin(&mut self) -> V // FIXME: ~JohnsonSimplex<V>
+  fn do_project_origin(&mut self, reduce: bool) -> V
   {
     // FIXME: for optimization: do special case when there are only 1 point ?
-
     let _0                   = Zero::zero::<N>();
     let _1                   = One::one::<N>();
     let max_num_pts          = self.points.len();
@@ -253,8 +254,8 @@ JohnsonSimplex<V, N>
           let i_pid        = recursion.permutation_list[curr + 1 + i];
           let sub_cofactor = copy self.cofactors[recursion.sub_cofactors[curr + 1 + i]];
           let delta = sub_cofactor *
-                      self.points[k_pid].sub_dot(self.points[j_pid],
-                                                 self.points[i_pid]);
+                      self.points[k_pid].sub_dot(&self.points[j_pid],
+                                                 &self.points[i_pid]);
 
           cofactor = cofactor + delta;
         }
@@ -325,6 +326,20 @@ JohnsonSimplex<V, N>
               self.points[recursion.permutation_list[id]].scalar_mul(&cof);
           }
 
+          if reduce // we need to reduce the simplex
+          {
+            // FIXME: is it possible to do that without copy?
+            // Maybe with some kind of cross-vector-swap?
+            for uint::iterate(0u, curr_num_pts) |i|
+            {
+              let id = _i - (i + 1) * curr_num_pts;
+              self.exchange_points.push(copy self.points[recursion.permutation_list[id]]);
+            }
+
+            util::swap(&mut self.exchange_points, &mut self.points);
+            self.exchange_points.clear();
+          }
+
           proj.scalar_div_inplace(&total_cof);
 
           return proj
@@ -341,6 +356,48 @@ JohnsonSimplex<V, N>
   }
 }
 
+impl<V: Copy         +
+        SubDot<N>    +
+        ScalarMul<N> +
+        ScalarDiv<N> +
+        Zero         +
+        Add<V, V>    +
+        Norm<N>      +
+        Eq           +
+        Dim,
+     N: Ord          +
+        Copy         +
+        Eq           +
+        DivisionRing +
+        Ord          +
+        Bounded>
+     Simplex<V, N> for JohnsonSimplex<V, N>
+{
+  pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
+  { JohnsonSimplex::new(initial_point) }
+
+  pub fn dimension(&self) -> uint
+  { self.points.len() - 1 }
+
+  pub fn max_sq_len(&self) -> N
+  { self.points.iter().transform(|v| v.sqnorm()).max().unwrap() }
+
+  pub fn contains_point(&self, pt: &V) -> bool
+  { self.points.iter().any_(|v| pt == v) }
+
+  pub fn add_point(&mut self, pt: V)
+  {
+    assert!(self.points.len() <= Dim::dim::<V>());
+    self.points.push(pt)
+  }
+
+  pub fn project_origin_and_reduce(&mut self) -> V
+  { self.do_project_origin(true) }
+
+  pub fn project_origin(&mut self) -> V
+  { self.do_project_origin(false) }
+}
+
 impl ToStr for RecursionTemplate
 {
   fn to_str(&self) -> ~str
@@ -353,6 +410,7 @@ impl ToStr for RecursionTemplate
 
     let mut recursion_offsets_skip_1 = self.offsets.iter();
     recursion_offsets_skip_1.next(); // Skip the two first entries
+
     for recursion_offsets_skip_1.advance |&off|
     {
       while (curr != off)

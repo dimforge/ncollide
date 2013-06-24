@@ -1,6 +1,7 @@
 use std::vec;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::vector_space::VectorSpace;
+use nalgebra::traits::scalar_op::ScalarMul;
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
 use contact::contact;
@@ -111,4 +112,22 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
   { Some(res) }
   else
   { None }
+}
+
+/**
+ * Computes the cloest points between two balls. If they are intersecting, the
+ * points corresponding to the penetration depth are returned.
+ *
+ *   - `b1`: first ball to test.
+ *   - `b2`: second ball to test.
+ */
+pub fn closest_points<N: Copy,
+                      V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Copy>
+       (b1: &Ball<N, V>, b2: &Ball<N, V>) -> (V, V)
+{
+  let r1     = b1.radius();
+  let r2     = b2.radius();
+  let normal = (b2.center() - b1.center()).normalized();
+
+  (b1.center() + normal.scalar_mul(&r1), b2.center() - normal.scalar_mul(&r2))
 }

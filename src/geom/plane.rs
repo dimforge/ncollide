@@ -21,7 +21,7 @@ impl<V: Copy> Plane<V>
 {
   /// Builds a new plane from its center and its normal.
   #[inline(always)]
-  pub fn new(&center: &V, &normal: &V) -> Plane<V>
+  pub fn new(center: V, normal: V) -> Plane<V>
   { Plane { center: center, normal: normal } }
 
   /// The plane normal.
@@ -40,8 +40,8 @@ Transformable<M, Plane<V>> for Plane<V>
 {
   #[inline(always)]
   fn transformed(&self, transform: &M) -> Plane<V>
-  { Plane::new(&transform.rmul(&self.center),
-               &transform.delta_transform_vector(&self.normal)) }
+  { Plane::new(transform.rmul(&self.center),
+               transform.delta_transform_vector(&self.normal)) }
 
   #[inline(always)]
   fn transform_to(&self, transform: &M, out: &mut Plane<V>)

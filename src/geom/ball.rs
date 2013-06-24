@@ -25,7 +25,7 @@ impl<N: Copy, V: Copy> Ball<N, V>
    * Creates a new ball from its radius and center.
    */
   #[inline(always)]
-  pub fn new(&center: &V, &radius: &N) -> Ball<N, V>
+  pub fn new(center: V, radius: N) -> Ball<N, V>
   { Ball { center: center, radius: radius } }
 
   /**
@@ -54,7 +54,7 @@ impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
 {
   #[inline(always)]
   fn transformed(&self, transform: &M) -> Ball<N, V>
-  { Ball::new(&transform.rmul(&self.center), &self.radius) }
+  { Ball::new(transform.rmul(&self.center), copy self.radius) }
 
   #[inline(always)]
   fn transform_to(&self, transform: &M, out: &mut Ball<N, V>)
