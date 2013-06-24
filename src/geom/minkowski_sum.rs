@@ -9,25 +9,25 @@ use geom::implicit::Implicit;
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr)]
-pub struct MinkowskiSum<G1, G2>
+pub struct MinkowskiSum<'self, G1, G2>
 {
-  priv g1: @G1,
-  priv g2: @G2
+  priv g1: &'self G1,
+  priv g2: &'self G2
 }
 
-impl<G1, G2> MinkowskiSum<G1, G2>
+impl<'self, G1, G2> MinkowskiSum<'self, G1, G2>
 {
   /**
    * Builds the Minkowski sum of two geometries. Since the representation is
    * implicit, this is done in constant time.
    */
   #[inline(always)]
-  pub fn new(g1: @G1, g2: @G2) -> MinkowskiSum<G1, G2>
+  pub fn new(g1: &'self G1, g2: &'self G2) -> MinkowskiSum<'self, G1, G2>
   { MinkowskiSum { g1: g1, g2: g2 } }
 }
 
-impl<V: Add<V, V>, G1: Implicit<V>, G2: Implicit<V>>
-Implicit<V> for MinkowskiSum<G1, G2>
+impl<'self, V: Add<V, V>, G1: Implicit<V>, G2: Implicit<V>>
+Implicit<V> for MinkowskiSum<'self, G1, G2>
 {
   #[inline(always)]
   fn support_point(&self, dir: &V) -> V

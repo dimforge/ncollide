@@ -5,19 +5,19 @@ use geom::implicit::Implicit;
  * A reflection is obtained with the central symetry wrt the origin.
  */
 #[deriving(Eq)]
-pub struct Reflection<G>
-{ priv g: @G }
+pub struct Reflection<'self, G>
+{ priv g: &'self G }
 
-impl<G> Reflection<G>
+impl<'self, G> Reflection<'self, G>
 {
   /// Build the reflection of a geometry. Since the representation is implicit,
   /// the reflection computation is done in constant time.
   #[inline(always)]
-  pub fn new(g: @G) -> Reflection<G>
+  pub fn new(g: &'self G) -> Reflection<'self, G>
   { Reflection { g: g } }
 }
 
-impl<V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<G>
+impl<'self, V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<'self, G>
 {
   #[inline(always)]
   fn support_point(&self, dir: &V) -> V

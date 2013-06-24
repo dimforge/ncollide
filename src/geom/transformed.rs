@@ -10,22 +10,26 @@ use geom::transformable::Transformable;
  *   - `G`: type of the shape being transformed.
  *   - `M`: type of the transformation.
  */
-pub struct Transformed<G, M>
+pub struct Transformed<'self, G, M>
 {
   priv t: M,
-  priv g: @G
+  priv g: &'self G
 }
 
-impl<G, M: Copy> Transformed<G, M>
+impl<'self, G, M: Copy> Transformed<'self, G, M>
 {
   /// Creates a transformed geometry from a transform.
   #[inline(always)]
-  pub fn new(transform: &M, geometry: @G) -> Transformed<G, M>
-  { Transformed { t: copy *transform, g: geometry } }
+  pub fn new(transform: M, geometry: &'self G) -> Transformed<'self, G, M>
+  { Transformed { t: transform, g: geometry } }
 }
 
-impl<G: Implicit<V>, M: DeltaTransform<DT>, DT: RMul<V> + LMul<V>, V: Copy>
-Implicit<V> for Transformed<G, M>
+impl<'self,
+     G:  Implicit<V>,
+     M:  DeltaTransform<DT>,
+     DT: RMul<V> + LMul<V>,
+     V:  Copy>
+Implicit<V> for Transformed<'self, G, M>
 {
   #[inline(always)]
   fn support_point(&self, dir: &V) -> V
@@ -37,14 +41,14 @@ Implicit<V> for Transformed<G, M>
   }
 }
 
-impl<G, M: Mul<M, M> + Copy>
-Transformable<M, Transformed<G, M>> for Transformed<G, M>
+impl<'self, G, M: Mul<M, M> + Copy>
+Transformable<M, Transformed<'self, G, M>> for Transformed<'self, G, M>
 {
   #[inline(always)]
-  fn transformed(&self, transform: &M) -> Transformed<G, M>
-  { Transformed::new(&(transform * self.t), self.g) }
+  fn transformed(&self, transform: &M) -> Transformed<'self, G, M>
+  { Transformed::new(transform * self.t, self.g) }
 
   #[inline(always)]
-  fn transform_to(&self, transform: &M, out: &mut Transformed<G, M>)
+  fn transform_to(&self, transform: &M, out: &mut Transformed<'self, G, M>)
   { out.t = transform * out.t; }
 }
