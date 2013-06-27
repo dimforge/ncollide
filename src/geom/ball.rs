@@ -1,8 +1,10 @@
+use std::num::One;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub};
 use nalgebra::traits::rlmul::RMul;
+use nalgebra::traits::transformation::{Transformation, Transformable};
+use nalgebra::traits::translation::Translation;
 use geom::implicit::Implicit;
-use geom::transformable::Transformable;
 use bounding_volume::aabb::AABB;
 use bounding_volume::has_bounding_volume::HasBoundingVolume;
 
@@ -19,7 +21,7 @@ pub struct Ball<N, V>
   priv radius: N
 }
 
-impl<N: Copy, V: Copy> Ball<N, V>
+impl<N, V> Ball<N, V>
 {
   /**
    * Creates a new ball from its radius and center.
@@ -27,7 +29,10 @@ impl<N: Copy, V: Copy> Ball<N, V>
   #[inline(always)]
   pub fn new(center: V, radius: N) -> Ball<N, V>
   { Ball { center: center, radius: radius } }
+}
 
+impl<N: Copy, V: Copy> Ball<N, V>
+{
   /**
    * The ball radius.
    */
@@ -50,15 +55,28 @@ impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>> Implicit<V> for Ball<N, V>
   { self.center + dir.normalized().scalar_mul(&self.radius) }
 }
 
+impl<V: Copy + Add<V, V>, N, M: One + Translation<V> + RMul<V>> Transformation<M> for Ball<N, V>
+{
+  #[inline(always)]
+  fn transformation(&self) -> M
+  {
+    let mut res = One::one::<M>();
+
+    res.translate(&self.center);
+
+    res
+  }
+
+  #[inline(always)]
+  fn transform_by(&mut self, m: &M)
+  { self.center = m.rmul(&self.center) }
+}
+
 impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
 {
   #[inline(always)]
   fn transformed(&self, transform: &M) -> Ball<N, V>
   { Ball::new(transform.rmul(&self.center), copy self.radius) }
-
-  #[inline(always)]
-  fn transform_to(&self, transform: &M, out: &mut Ball<N, V>)
-  { out.center = transform.rmul(&self.center); }
 }
 
 // FIXME: these is something bad here…

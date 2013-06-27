@@ -1,4 +1,3 @@
-use std::vec;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::scalar_op::ScalarMul;
@@ -27,7 +26,7 @@ impl<N: Real + Copy,
 {
   #[inline(always)]
   fn new(_: &Ball<N, V>, _: &Ball<N, V>) -> BallBallCollisionDetector<C, N, V>
-  { BallBallCollisionDetector{ contact: None } }
+  { BallBallCollisionDetector { contact: None } }
 
   fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>)
   {
@@ -54,7 +53,7 @@ impl<N: Real + Copy,
   {
     match self.contact
     {
-      Some(c) => vec::push(out_colls, c),
+      Some(c) => out_colls.push(c),
       None    => ()
     }
   }
@@ -84,10 +83,10 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
     let normal = delta_pos.normalized();
 
     contact::set(out,
-                 &(b1.center() + normal.scalar_mul(&r1)),
-                 &(b2.center() - normal.scalar_mul(&r2)),
-                 &normal,
-                 &(sum_radius - sqdist.sqrt()));
+                 (b1.center() + normal.scalar_mul(&r1)),
+                 (b2.center() - normal.scalar_mul(&r2)),
+                 normal,
+                 (sum_radius - sqdist.sqrt()));
 
     true
   }

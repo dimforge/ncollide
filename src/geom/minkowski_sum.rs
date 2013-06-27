@@ -1,9 +1,12 @@
 use std::num::{Zero, One};
+use std::cmp::ApproxEq;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::transformation::Transformable;
+use geom::transformed::Transformed;
 use geom::implicit::Implicit;
 
 /**
@@ -252,3 +255,26 @@ impl<V: Eq> Eq for AnnotatedPoint<V>
   { self.point != other.point }
 }
 
+impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V>
+{
+  #[inline(always)]
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
+
+  #[inline(always)]
+  fn approx_eq(&self, other: &AnnotatedPoint<V>) -> bool
+  { self.point.approx_eq(&other.point) }
+
+  #[inline(always)]
+  fn approx_eq_eps(&self, other: &AnnotatedPoint<V>, epsilon: &N) -> bool
+  { self.point.approx_eq_eps(&other.point, epsilon) }
+}
+
+impl<'self, G1, G2, M: Copy>
+Transformable<M, Transformed<MinkowskiSum<'self, G1, G2>, M>> for MinkowskiSum<'self, G1, G2>
+{
+  fn transformed(&self, transform: &M) -> Transformed<MinkowskiSum<'self, G1, G2>, M>
+  {
+    Transformed::new(copy *transform, copy *self)
+  }
+}

@@ -4,6 +4,7 @@ use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use utils::default::Default;
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 
+#[deriving(ToStr)]
 pub struct AABB<V>
 {
   priv mins: V,

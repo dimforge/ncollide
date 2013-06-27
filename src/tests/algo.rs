@@ -82,7 +82,7 @@ macro_rules! test_gjk_ball_ball_impl(
 
       let (p1, p2) = ball_ball::closest_points(&b1, &b2);
 
-      match gjk::closest_points_with_initial_direction_johnson(&b1, &b2, rand::random())
+      match gjk::closest_points_johnson(&b1, &b2)
       {
         Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),
                                     "found: " + jp1.to_str() + " " + jp2.to_str()

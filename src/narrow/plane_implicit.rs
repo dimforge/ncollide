@@ -55,7 +55,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
  {
    match self.contact
    {
-     Some(c) => vec::push(out_colls, c),
+     Some(c) => out_colls.push(c),
      None    => ()
    }
  }
@@ -118,13 +118,13 @@ pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
                                            C: Contact<V, N>>
    (plane: &Plane<V>, other: &G, out: &mut C) -> bool
 {
-  let deepest = &other.support_point(&-plane.normal());
-  let dist    = &plane.normal().dot(&(plane.center() - *deepest));
+  let deepest = other.support_point(&-plane.normal());
+  let dist    = plane.normal().dot(&(plane.center() - deepest));
 
-  if *dist > Zero::zero()
+  if dist > Zero::zero()
   {
-    let c1 = &(deepest + plane.normal().scalar_mul(dist));
-    contact::set(out, c1, deepest, &plane.normal(), dist);
+    let c1 = deepest + plane.normal().scalar_mul(&dist);
+    contact::set(out, c1, deepest, plane.normal(), dist);
 
     true
   }

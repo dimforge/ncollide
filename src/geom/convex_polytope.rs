@@ -1,5 +1,7 @@
 use std::num::Bounded;
 use nalgebra::traits::dot::Dot;
+use nalgebra::traits::transformation::Transformable;
+use geom::transformed::Transformed;
 use geom::implicit::Implicit;
 
 /**
@@ -9,9 +11,7 @@ use geom::implicit::Implicit;
  *   - `N`: type of the result of a dot product between two points.
  */
 pub struct ConvexPolytope<V, N>
-{
-  priv pts: ~[V]
-}
+{ priv pts: @[V] }
 
 impl<V, N> ConvexPolytope<V, N>
 {
@@ -20,7 +20,7 @@ impl<V, N> ConvexPolytope<V, N>
    * a convex polytope: convexity is not checked.
    */
   #[inline(always)]
-  pub fn new(pts: ~[V]) -> ConvexPolytope<V, N>
+  pub fn new(pts: @[V]) -> ConvexPolytope<V, N>
   { ConvexPolytope { pts: pts } }
 }
 
@@ -47,4 +47,10 @@ Implicit<V> for ConvexPolytope<V, N>
 
     copy *best_pt
   }
+}
+
+impl<V: Copy, N, M: Copy> Transformable<M, Transformed<ConvexPolytope<V, N>, M>> for ConvexPolytope<V, N>
+{
+  fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M>
+  { Transformed::new(copy *transform, copy *self) }
 }

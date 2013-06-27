@@ -1,4 +1,5 @@
 use geom::implicit::Implicit;
+// FIXME: rename that Reflected (to be coherent with Translated and Transformed
 
 /**
  * Implicit represention of the reflection of a geometric object.

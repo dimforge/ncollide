@@ -1,5 +1,5 @@
-use std::cmp::ApproxEq;
-use std::num::{Zero, One};
+use std::num::{Zero, NumCast};
+use std::rand::{Rand, random};
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
@@ -16,9 +16,9 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points_johnson<G1: Implicit<V>,
                               G2: Implicit<V>,
                               V:  Norm<N> + Neg<V> + Add<V, V> + SubDot<N> +
-                                  Dim + One + Zero + Copy + ScalarMul<N> +
+                                  Dim + Rand + Zero + Copy + ScalarMul<N> +
                                   ScalarDiv<N> + Eq,
-                              N:  Ord + ApproxEq<N> + DivisionRing + Bounded + Float + Eq>
+                              N:  Ord + DivisionRing + Bounded + Float + Eq>
                               (g1: &G1, g2: &G2) -> Option<(V, V)>
 { closest_points::<JohnsonSimplex<AnnotatedPoint<V>, N>, G1, G2, V, N>(g1, g2) }
 
@@ -28,7 +28,7 @@ pub fn closest_points_with_initial_direction_johnson
         V:  Norm<N> + Neg<V> + Add<V, V> + SubDot<N> +
             Dim + Zero + Copy + ScalarMul<N> +
             ScalarDiv<N> + Eq,
-        N:  Ord + ApproxEq<N> + DivisionRing + Bounded + Float + Eq>
+        N:  Ord + DivisionRing + Bounded + Float + Eq>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {
   closest_points_with_initial_direction
@@ -38,17 +38,17 @@ pub fn closest_points_with_initial_direction_johnson
 pub fn closest_points<S:  Simplex<AnnotatedPoint<V>, N>,
                       G1: Implicit<V>,
                       G2: Implicit<V>,
-                      V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + One + Zero + Copy,
-                      N:  Sub<N, N> + Ord + ApproxEq<N> + Mul<N, N> + Float>
+                      V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Rand + Zero + Copy,
+                      N:  Sub<N, N> + Ord + Mul<N, N> + Float>
                      (g1: &G1, g2: &G2) -> Option<(V, V)>
-{ closest_points_with_initial_direction::<S, G1, G2, V, N>(g1, g2, One::one()) }
+{ closest_points_with_initial_direction::<S, G1, G2, V, N>(g1, g2, random()) }
 
 pub fn closest_points_with_initial_direction
        <S:  Simplex<AnnotatedPoint<V>, N>,
         G1: Implicit<V>,
         G2: Implicit<V>,
         V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Zero + Copy,
-        N:  Sub<N, N> + Ord + ApproxEq<N> + Mul<N, N> + Float>
+        N:  Sub<N, N> + Ord + Mul<N, N> + Float>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {
   let rg2 = &Reflection::new(g2);
@@ -64,16 +64,15 @@ pub fn closest_points_with_initial_direction
 
 pub fn project_origin<S: Simplex<V, N>,
                       G: Implicit<V>,
-                      V: Norm<N> + Neg<V> + Dot<N> + Dim + One,
-                      N: Sub<N, N> + Ord + ApproxEq<N> + Mul<N, N> + Float>
+                      V: Norm<N> + Neg<V> + Dot<N> + Dim + Rand,
+                      N: Sub<N, N> + Ord + Mul<N, N> + Float>
                       (g: &G) -> Option<V>
-{ project_origin_with_initial_direction::<S, G, V, N>(g, One::one()) }
+{ project_origin_with_initial_direction::<S, G, V, N>(g, random()) }
 
 pub fn project_origin_with_initial_direction<S: Simplex<V, N>,
                                              G: Implicit<V>,
                                              V: Norm<N> + Neg<V> + Dot<N> + Dim,
-                                             N: Sub<N, N> + Ord + ApproxEq<N> +
-                                                Mul<N, N> + Float>
+                                             N: Sub<N, N> + Ord + Mul<N, N> + Float>
                                             (geom: &G, dir: V) -> Option<V>
 {
   let support_point = geom.support_point(&dir);
@@ -85,15 +84,14 @@ pub fn project_origin_with_initial_direction<S: Simplex<V, N>,
 pub fn project_origin_with_simplex<S: Simplex<V, N>,
                                    G: Implicit<V>,
                                    V: Norm<N> + Neg<V> + Dot<N> + Dim,
-                                   N: Sub<N, N> + Ord + ApproxEq<N> + Mul<N, N>
-                                      + Float>
+                                   N: Sub<N, N> + Ord + Mul<N, N> + Float + NumCast>
                                   (geom: &G, simplex: &mut S) -> Option<V>
 {
   let mut proj       = simplex.project_origin_and_reduce();
   let mut sq_len_dir = proj.sqnorm();
 
-  let _eps_tol = Float::epsilon::<N>(); // FIXME: * 100.0
-  let _eps_rel = Float::epsilon::<N>(); // FIXME: .sqrt()
+  let _eps_tol = Float::epsilon::<N>() * NumCast::from(100.0f64);
+  let _eps_rel = Float::epsilon::<N>(); // FIXME: .sqrt();
   let _dim     = Dim::dim::<V>();
 
   loop
@@ -115,6 +113,9 @@ pub fn project_origin_with_simplex<S: Simplex<V, N>,
     { return None } // point inside of the cso
 
     if (sq_len_dir >= old_sq_len_dir) // upper bounds inconsistencies
-    { return Some(proj) }
+    {
+      // FIXME: we should return the last projection instead
+      return Some(proj)
+    }
   }
 }

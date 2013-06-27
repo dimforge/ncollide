@@ -1,9 +1,12 @@
+use std::num::One;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
+use nalgebra::traits::transformation::Transformation;
+use nalgebra::traits::translation::Translation;
 use nalgebra::traits::rlmul::RMul;
 use nalgebra::traits::delta_transform::DeltaTransformVector;
+use nalgebra::traits::transformation::Transformable;
 use bounding_volume::aabb::AABB;
 use bounding_volume::has_bounding_volume::HasBoundingVolume;
-use geom::transformable::Transformable;
 use geom::ball;
 use geom::plane;
 
@@ -12,12 +15,33 @@ use geom::plane;
  * dispatch.
  */
 #[deriving(Eq, ToStr)]
-pub enum DefaultGeom<N, V> {
+pub enum DefaultGeom<N, V, M, I> {
   Plane(plane::Plane<V>),
-  Ball(ball::Ball<N, V>)
+  Ball(ball::Ball<N, V>),
+  Implicit(I)
 }
 
-impl<N, V> DefaultGeom<N, V>
+impl<N,
+     V,
+     I,
+     M: One + RMul<V> + DeltaTransformVector<V>>
+    DefaultGeom<N, V, M, I>
+{
+  pub fn new_plane<G: Transformable<M, plane::Plane<V>>>(geom: &G) -> DefaultGeom<N, V, M, I>
+  { Plane(geom.transformed(&One::one())) }
+}
+
+impl<N,
+     V: Copy + Add<V, V>,
+     I,
+     M: One + Translation<V> + RMul<V>>
+    DefaultGeom<N, V, M, I>
+{
+  pub fn new_ball<G: Transformable<M, ball::Ball<N, V>>>(geom: &G) -> DefaultGeom<N, V, M, I>
+  { Ball(geom.transformed(&One::one())) }
+}
+
+impl<N, V, I, M> DefaultGeom<N, V, M, I>
 {
   /**
    * Convenience method to extract a ball from the enumation. Fails if the
@@ -68,28 +92,25 @@ impl<N, V> DefaultGeom<N, V>
         _ => fail!("Unexpected geometry: this is not a plane.")
     }
   }
-}
 
-impl<N: Copy, V: Copy, M: RMul<V> + DeltaTransformVector<V>>
-Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
-{
   #[inline(always)]
-  fn transformed(&self, transform: &M) -> DefaultGeom<N, V>
-  { 
-    match *self
-    {
-      Plane(ref p) => Plane(p.transformed(transform)),
-      Ball(ref b)  => Ball(b.transformed(transform))
+  pub fn implicit<'r>(&'r self) -> &'r I
+  {
+    match *self {
+        Implicit(ref i) => i,
+        _ => fail!("Unexpected geometry: this is not an implicit.")
     }
   }
 
+  /**
+   * Mutable version of `implicit`.
+   */
   #[inline(always)]
-  fn transform_to(&self, transform: &M, out: &mut DefaultGeom<N, V>)
-  { 
-    match *self
-    {
-      Plane(ref p) => p.transform_to(transform, out.plane_mut()),
-      Ball(ref b)  => b.transform_to(transform, out.ball_mut())
+  pub fn implicit_mut<'r>(&'r mut self) -> &'r mut I
+  {
+    match *self {
+        Implicit(ref mut i) => i,
+        _ => fail!("Unexpected geometry: this is not an implicit.")
     }
   }
 }
@@ -97,15 +118,46 @@ Transformable<M, DefaultGeom<N, V>> for DefaultGeom<N, V>
 // FIXME: these is something bad here…
 // Since we cannot implement HasBoundingVolume twice, we wont be able to
 // implement any other bounding volume… That’s bad.
-impl<N, V: Bounded + Neg<V> + ScalarAdd<N> + ScalarSub<N> + Ord + Copy>
-    HasBoundingVolume<AABB<V>> for DefaultGeom<N, V>
+impl<N,
+     V: Bounded + Neg<V> + ScalarAdd<N> + ScalarSub<N> + Ord + Copy,
+     M,
+     I: HasBoundingVolume<AABB<V>>>
+    HasBoundingVolume<AABB<V>> for DefaultGeom<N, V, M, I>
 {
   fn bounding_volume(&self) -> AABB<V>
   {
     match *self
     {
-      Plane(ref p) => p.bounding_volume(),
-      Ball(ref b)  => b.bounding_volume()
+      Plane(ref p)    => p.bounding_volume(),
+      Ball(ref b)     => b.bounding_volume(),
+      Implicit(ref i) => i.bounding_volume()
+    }
+  }
+}
+
+impl<N,
+     V: Copy + Add<V, V>,
+     M: One + Translation<V> + RMul<V> + DeltaTransformVector<V>,
+     I: Transformation<M>>
+Transformation<M> for DefaultGeom<N, V, M, I>
+{
+  fn transformation(&self) -> M
+  {
+    match *self
+    {
+      Plane(ref p)    => p.transformation(),
+      Ball(ref b)     => b.transformation(),
+      Implicit(ref i) => i.transformation(),
+    }
+  }
+
+  fn transform_by(&mut self, m: &M)
+  {
+    match *self
+    {
+      Plane(ref mut p)    => p.transform_by(m),
+      Ball(ref mut b)     => b.transform_by(m),
+      Implicit(ref mut i) => i.transform_by(m),
     }
   }
 }

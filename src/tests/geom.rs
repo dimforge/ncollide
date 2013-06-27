@@ -32,7 +32,7 @@ fn test_convex_polytope_support_function()
 {
   let dir    = &Vec3::new(1f64, 1f64, 1f64);
   let bestpt = Vec3::new(2f64, 2f64, 0f64);
-  let pts    = ~[bestpt, Vec3::new(-2f64, -2f64, -0f64)];
+  let pts    = @[bestpt, Vec3::new(-2f64, -2f64, -0f64)];
   let poly   = ConvexPolytope::new(pts);
 
   assert!(poly.support_point(dir).approx_eq(&bestpt));
@@ -54,7 +54,7 @@ fn test_minkowski_sum_support_function()
 fn test_reflection_support_function()
 {
   let dir    = &Vec3::new(1f64, 1f64, 1f64);
-  let pts    = ~[Vec3::new(2f64, 2f64, 2f64), Vec3::new(-20f64, -20f64, -20f64)];
+  let pts    = @[Vec3::new(2f64, 2f64, 2f64), Vec3::new(-20f64, -20f64, -20f64)];
   let poly   = ConvexPolytope::new::<Vec3<f64>, f64>(pts);
 
   assert!(Reflection::new(&poly).support_point(dir)

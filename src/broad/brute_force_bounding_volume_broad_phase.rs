@@ -11,6 +11,7 @@ pub trait HasBoundingVolumeProxy<BV>
   fn proxy_mut<'r>(&'r mut self) -> &'r mut BoundingVolumeProxy<BV>;
 }
 
+#[deriving(ToStr)]
 pub struct BoundingVolumeProxy<BV>
 { bounding_volume: BV }
 
