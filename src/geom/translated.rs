@@ -11,7 +11,7 @@ pub struct Translated<'self, G, V>
 
 impl<'self, G, V> Translated<'self, G, V>
 {
-  #[inline(always)]
+  #[inline]
   pub fn new(g: &'self G, t: V) -> Translated<'self, G, V>
   { Translated { g: g, t: t } }
 }
@@ -19,7 +19,7 @@ impl<'self, G, V> Translated<'self, G, V>
 // FIXME: relax V by needing only Translation<V> ?
 impl<'self, V: Add<V, V>, G: Implicit<V>> Implicit<V> for Translated<'self, G, V>
 {
-  #[inline(always)]
+  #[inline]
   fn support_point(&self, dir: &V) -> V
   { self.g.support_point(dir) + self.t }
 }
@@ -32,7 +32,7 @@ impl<'self,
      Res: Transformation<M>>
 Transformable<M, Res> for Translated<'self, G, V>
 {
-  #[inline(always)]
+  #[inline]
   fn transformed(&self, transform: &M) -> Res
   { self.g.transformed(&transform.translated(&self.t)) }
 }

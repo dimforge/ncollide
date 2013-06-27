@@ -29,7 +29,7 @@ pub struct Transformed<G, M>
 impl<'self, G, M> TransformedRef<'self, G, M>
 {
   /// Creates a transformed geometry from a transform.
-  #[inline(always)]
+  #[inline]
   pub fn new(transform: M, geometry: &'self G) -> TransformedRef<'self, G, M>
   { TransformedRef { t: transform, g: geometry } }
 }
@@ -41,7 +41,7 @@ impl<'self,
      V:  Copy>
 Implicit<V> for TransformedRef<'self, G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn support_point(&self, dir: &V) -> V
   {
     let dt = self.t.delta_transform();
@@ -53,11 +53,11 @@ Implicit<V> for TransformedRef<'self, G, M>
 
 impl<'self, G, M: Mul<M, M> + Copy> Transformation<M> for TransformedRef<'self, G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn transformation(&self) -> M
   { copy self.t }
 
-  #[inline(always)]
+  #[inline]
   fn transform_by(&mut self, transform: &M)
   { self.t = transform * self.t; }
 }
@@ -69,7 +69,7 @@ impl<'self,
      Res: Transformation<M>>
 Transformable<M, Res> for TransformedRef<'self, G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn transformed(&self, transform: &M) -> Res
   { self.g.transformed(&(transform * self.t)) }
 }
@@ -78,7 +78,7 @@ Transformable<M, Res> for TransformedRef<'self, G, M>
 impl<G, M> Transformed<G, M>
 {
   /// Creates a transformed geometry from a transform.
-  #[inline(always)]
+  #[inline]
   pub fn new(transform: M, geometry: G) -> Transformed<G, M>
   { Transformed { t: transform, g: geometry } }
 }
@@ -89,7 +89,7 @@ impl<G:  Implicit<V>,
      V>
 Implicit<V> for Transformed<G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn support_point(&self, dir: &V) -> V
   {
     let dt = self.t.delta_transform();
@@ -101,11 +101,11 @@ Implicit<V> for Transformed<G, M>
 
 impl<G, M: Mul<M, M> + Copy> Transformation<M> for Transformed<G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn transformation(&self) -> M
   { copy self.t }
 
-  #[inline(always)]
+  #[inline]
   fn transform_by(&mut self, transform: &M)
   { self.t = transform * self.t; }
 }
@@ -116,7 +116,7 @@ impl<G: Transformable<M, Res>,
      Res: Transformation<M>>
 Transformable<M, Res> for Transformed<G, M>
 {
-  #[inline(always)]
+  #[inline]
   fn transformed(&self, transform: &M) -> Res
   { self.g.transformed(&(transform * self.t)) }
 }

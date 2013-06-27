@@ -26,22 +26,22 @@ impl<V: Copy + Ord> AABB<V>
 
 impl<V: Ord + Copy> BoundingVolume for AABB<V>
 {
-  #[inline(always)]
+  #[inline]
   fn intersects(&self, other: &AABB<V>) -> bool
   { !(self.mins > other.maxs || other.mins > self.maxs) }
 
-  #[inline(always)]
+  #[inline]
   fn contains(&self, other: &AABB<V>) -> bool
   { self.mins <= other.mins && self.maxs >= other.maxs }
 
-  #[inline(always)]
+  #[inline]
   fn merge(&mut self, other: &AABB<V>)
   {
     self.mins = min(copy self.mins, copy other.mins);
     self.maxs = max(copy self.maxs, copy other.maxs);
   }
 
-  #[inline(always)]
+  #[inline]
   fn merged(&self, other: &AABB<V>) -> AABB<V>
   {
     AABB {
@@ -53,14 +53,14 @@ impl<V: Ord + Copy> BoundingVolume for AABB<V>
 
 impl<V: Ord + ScalarAdd<N> + ScalarSub<N>, N> LooseBoundingVolume<N> for AABB<V>
 {
-  #[inline(always)]
+  #[inline]
   fn loosen(&mut self, amount: N)
   {
     self.mins.scalar_sub_inplace(&amount);
     self.maxs.scalar_add_inplace(&amount);
   }
 
-  #[inline(always)]
+  #[inline]
   fn loosened(&self, amount: N) -> AABB<V>
   {
     AABB {

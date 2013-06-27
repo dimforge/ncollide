@@ -19,7 +19,7 @@ impl<V, N> ConvexPolytope<V, N>
    * Creates a polytope from a set of point. Those points are assumed to form
    * a convex polytope: convexity is not checked.
    */
-  #[inline(always)]
+  #[inline]
   pub fn new(pts: @[V]) -> ConvexPolytope<V, N>
   { ConvexPolytope { pts: pts } }
 }

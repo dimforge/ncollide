@@ -47,7 +47,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
    * Convenience method to extract a ball from the enumation. Fails if the
    * pattern `Ball` is not matched.
    */
-  #[inline(always)]
+  #[inline]
   pub fn ball<'r>(&'r self) -> &'r ball::Ball<N, V>
   {
     match *self {
@@ -59,7 +59,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
   /**
    * Mutable version of `ball`.
    */
-  #[inline(always)]
+  #[inline]
   pub fn ball_mut<'r>(&'r mut self) -> &'r mut ball::Ball<N, V>
   {
     match *self {
@@ -72,7 +72,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
    * Convenience method to extract a plane from the enumation. Fails if the
    * pattern `Plane` is not matched.
    */
-  #[inline(always)]
+  #[inline]
   pub fn plane<'r>(&'r self) -> &'r plane::Plane<V>
   {
     match *self {
@@ -84,7 +84,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
   /**
    * Mutable version of `plane`.
    */
-  #[inline(always)]
+  #[inline]
   pub fn plane_mut<'r>(&'r mut self) -> &'r mut plane::Plane<V>
   {
     match *self {
@@ -93,7 +93,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
     }
   }
 
-  #[inline(always)]
+  #[inline]
   pub fn implicit<'r>(&'r self) -> &'r I
   {
     match *self {
@@ -105,7 +105,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
   /**
    * Mutable version of `implicit`.
    */
-  #[inline(always)]
+  #[inline]
   pub fn implicit_mut<'r>(&'r mut self) -> &'r mut I
   {
     match *self {

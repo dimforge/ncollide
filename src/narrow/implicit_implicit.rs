@@ -27,7 +27,7 @@ impl<S:  Simplex<AnnotatedPoint<V>, N>,
     CollisionDetector<C, G1, G2> for
     ImplicitImplicitCollisionDetector<S, C, G1, G2, V, N>
 {
-  #[inline(always)]
+  #[inline]
   fn new(_: &G1, _: &G2) -> ImplicitImplicitCollisionDetector<S, C, G1, G2, V, N>
   { ImplicitImplicitCollisionDetector { contact: None } }
 
@@ -41,7 +41,7 @@ impl<S:  Simplex<AnnotatedPoint<V>, N>,
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn num_coll(&self) -> uint
   {
     match self.contact
@@ -51,7 +51,7 @@ impl<S:  Simplex<AnnotatedPoint<V>, N>,
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn colls(&mut self, out_colls: &mut ~[@mut C])
   {
     match self.contact

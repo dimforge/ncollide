@@ -30,7 +30,7 @@ impl<'self, G1, G2> MinkowskiSum<'self, G1, G2>
    * Builds the Minkowski sum of two geometries. Since the representation is
    * implicit, this is done in constant time.
    */
-  #[inline(always)]
+  #[inline]
   pub fn new(g1: &'self G1, g2: &'self G2) -> MinkowskiSum<'self, G1, G2>
   { MinkowskiSum { g1: g1, g2: g2 } }
 }
@@ -38,7 +38,7 @@ impl<'self, G1, G2> MinkowskiSum<'self, G1, G2>
 impl<'self, V: Add<V, V>, G1: Implicit<V>, G2: Implicit<V>>
 Implicit<V> for MinkowskiSum<'self, G1, G2>
 {
-  #[inline(always)]
+  #[inline]
   fn support_point(&self, dir: &V) -> V
   { self.g1.support_point(dir) + self.g2.support_point(dir) }
 }
@@ -62,7 +62,7 @@ impl<'self, G1, G2> AnnotatedMinkowskiSum<'self, G1, G2>
    * Builds the Minkowski sum of two geometries. Since the representation is
    * implicit, this is done in constant time.
    */
-  #[inline(always)]
+  #[inline]
   pub fn new(g1: &'self G1, g2: &'self G2) -> AnnotatedMinkowskiSum<'self, G1, G2>
   { AnnotatedMinkowskiSum { g1: g1, g2: g2 } }
 }
@@ -70,7 +70,7 @@ impl<'self, G1, G2> AnnotatedMinkowskiSum<'self, G1, G2>
 impl<'self, V: Add<V, V>, G1: Implicit<V>, G2: Implicit<V>>
 Implicit<AnnotatedPoint<V>> for AnnotatedMinkowskiSum<'self, G1, G2>
 {
-  #[inline(always)]
+  #[inline]
   fn support_point(&self, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V>
   {
     let orig1 = self.g1.support_point(dir.point());
@@ -126,11 +126,11 @@ impl<V: Zero> AnnotatedPoint<V>
 
 impl<V: Zero> Zero for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn zero() -> AnnotatedPoint<V>
   { AnnotatedPoint::new(Zero::zero(), Zero::zero(), Zero::zero()) }
 
-  #[inline(always)]
+  #[inline]
   fn is_zero(&self) -> bool
   { self.point.is_zero() }
 }
@@ -138,7 +138,7 @@ impl<V: Zero> Zero for AnnotatedPoint<V>
 impl<V: One> One for AnnotatedPoint<V>
 {
   // FIXME: this definition works but is flawed (orig1 + orig2 != point)
-  #[inline(always)]
+  #[inline]
   fn one() -> AnnotatedPoint<V>
   { AnnotatedPoint::new(One::one(), One::one(), One::one()) }
 }
@@ -146,7 +146,7 @@ impl<V: One> One for AnnotatedPoint<V>
 impl<V: Sub<V, V>> Sub<AnnotatedPoint<V>, AnnotatedPoint<V>> for
     AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn sub(&self, other: &AnnotatedPoint<V>) -> AnnotatedPoint<V>
   {
     AnnotatedPoint::new(self.orig1 - other.orig1,
@@ -158,7 +158,7 @@ impl<V: Sub<V, V>> Sub<AnnotatedPoint<V>, AnnotatedPoint<V>> for
 impl<V: Add<V, V>> Add<AnnotatedPoint<V>, AnnotatedPoint<V>> for
     AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn add(&self, other: &AnnotatedPoint<V>) -> AnnotatedPoint<V>
   {
     AnnotatedPoint::new(self.orig1 + other.orig1,
@@ -169,28 +169,28 @@ impl<V: Add<V, V>> Add<AnnotatedPoint<V>, AnnotatedPoint<V>> for
 
 impl<V: Neg<V>> Neg<AnnotatedPoint<V>> for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn neg(&self) -> AnnotatedPoint<V>
   { AnnotatedPoint::new(-self.orig1, -self.orig2, -self.point) }
 }
 
 impl<V: Dim> Dim for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { Dim::dim::<V>() }
 }
 
 impl<V: Dot<N>, N> Dot<N> for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn dot(&self, other: &AnnotatedPoint<V>) -> N
   { self.point.dot(&other.point) }
 }
 
 impl<V: SubDot<N>, N> SubDot<N> for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn sub_dot(&self, sub: &AnnotatedPoint<V>, dot: &AnnotatedPoint<V>) -> N
   { self.point.sub_dot(&sub.point, &dot.point) }
 }
@@ -257,15 +257,15 @@ impl<V: Eq> Eq for AnnotatedPoint<V>
 
 impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &AnnotatedPoint<V>) -> bool
   { self.point.approx_eq(&other.point) }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &AnnotatedPoint<V>, epsilon: &N) -> bool
   { self.point.approx_eq_eps(&other.point, epsilon) }
 }

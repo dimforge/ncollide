@@ -7,19 +7,19 @@ pub struct EmptyDetector;
 
 impl<C, G1, G2> CollisionDetector<C, G1, G2> for EmptyDetector
 {
-  #[inline(always)]
+  #[inline]
   fn new(_: &G1, _: &G2) -> EmptyDetector
   { EmptyDetector }
 
-  #[inline(always)]
+  #[inline]
   fn update(&mut self, _: &G1, _: &G2)
   { }
 
-  #[inline(always)]
+  #[inline]
   fn num_coll(&self) -> uint
   { 0u }
 
-  #[inline(always)]
+  #[inline]
   fn colls(&mut self, _: &mut ~[@mut C])
   { }
 }

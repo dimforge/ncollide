@@ -24,7 +24,7 @@ impl<N: Real + Copy,
     CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
     BallBallCollisionDetector<C, N, V>
 {
-  #[inline(always)]
+  #[inline]
   fn new(_: &Ball<N, V>, _: &Ball<N, V>) -> BallBallCollisionDetector<C, N, V>
   { BallBallCollisionDetector { contact: None } }
 
@@ -38,7 +38,7 @@ impl<N: Real + Copy,
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn num_coll(&self) -> uint
   {
     match self.contact
@@ -48,7 +48,7 @@ impl<N: Real + Copy,
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn colls(&mut self, out_colls: &mut ~[@mut C])
   {
     match self.contact

@@ -60,7 +60,7 @@ for DefaultDefaultCollisionDetector<C, N, V, M, S, I>
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn update(&mut self, g1: &DefaultGeom<N, V, M, I>, g2: &DefaultGeom<N, V, M, I>)
   {
     match *self
@@ -76,7 +76,7 @@ for DefaultDefaultCollisionDetector<C, N, V, M, S, I>
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn num_coll(&self) -> uint
   {
     match *self
@@ -92,7 +92,7 @@ for DefaultDefaultCollisionDetector<C, N, V, M, S, I>
     }
   }
 
-  #[inline(always)]
+  #[inline]
   fn colls(&mut self, out_colls: &mut ~[@mut C])
   {
     match *self

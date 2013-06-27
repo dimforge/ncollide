@@ -20,7 +20,7 @@ pub struct Plane<V>
 impl<V> Plane<V>
 {
   /// Builds a new plane from its center and its normal.
-  #[inline(always)]
+  #[inline]
   pub fn new(center: V, normal: V) -> Plane<V>
   { Plane { center: center, normal: normal } }
 }
@@ -29,23 +29,23 @@ impl<V> Plane<V>
 impl<V: Copy> Plane<V>
 {
   /// The plane normal.
-  #[inline(always)]
+  #[inline]
   pub fn normal(&self) -> V
   { copy self.normal }
 
   /// The plane center.
-  #[inline(always)]
+  #[inline]
   pub fn center(&self) -> V
   { copy self.center }
 }
 
 impl<V, M: RMul<V> + DeltaTransformVector<V>> Transformation<M> for Plane<V>
 {
-  #[inline(always)]
+  #[inline]
   fn transformation(&self) -> M
   { fail!("Not yet implemented") } // deduce a transformation from the normal
 
-  #[inline(always)]
+  #[inline]
   fn transform_by(&mut self, transform: &M)
   {
     self.center = transform.rmul(&self.center);
@@ -55,7 +55,7 @@ impl<V, M: RMul<V> + DeltaTransformVector<V>> Transformation<M> for Plane<V>
 
 impl<V, M: RMul<V> + DeltaTransformVector<V>> Transformable<M, Plane<V>> for Plane<V>
 {
-  #[inline(always)]
+  #[inline]
   fn transformed(&self, transform: &M) -> Plane<V>
   { Plane::new(transform.rmul(&self.center),
                transform.delta_transform_vector(&self.normal)) }
