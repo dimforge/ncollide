@@ -270,10 +270,10 @@ impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V>
   { self.point.approx_eq_eps(&other.point, epsilon) }
 }
 
-impl<'self, G1, G2, M: Copy>
-Transformable<M, Transformed<MinkowskiSum<'self, G1, G2>, M>> for MinkowskiSum<'self, G1, G2>
+impl<'self, G1, G2, M: Copy, N>
+Transformable<M, Transformed<MinkowskiSum<'self, G1, G2>, M, N>> for MinkowskiSum<'self, G1, G2>
 {
-  fn transformed(&self, transform: &M) -> Transformed<MinkowskiSum<'self, G1, G2>, M>
+  fn transformed(&self, transform: &M) -> Transformed<MinkowskiSum<'self, G1, G2>, M, N>
   {
     Transformed::new(copy *transform, copy *self)
   }

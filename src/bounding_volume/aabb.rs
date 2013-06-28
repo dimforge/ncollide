@@ -1,6 +1,7 @@
 use std::cmp::{min, max};
 use std::num::Zero;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
+//FIXME: use nalgebra::traits::basis::Basis;
 use utils::default::Default;
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 
@@ -13,7 +14,7 @@ pub struct AABB<V>
 
 impl<V: Copy + Ord> AABB<V>
 {
-  pub fn new(&mins: &V, &maxs: &V) -> AABB<V>
+  pub fn new(mins: V, maxs: V) -> AABB<V>
   {
     assert!(mins <= maxs);
 
@@ -23,6 +24,18 @@ impl<V: Copy + Ord> AABB<V>
     }
   }
 }
+
+// FIXME: impl<V: Basis> AABB<V>
+// FIXME: {
+// FIXME:   pub fn new_from_implicit<G: Implicit<V>>(geom: &G) -> AABB<V>
+// FIXME:   {
+// FIXME:     let basis = Basis::canonical_basis();
+// FIXME: 
+// FIXME:     for basis.iter().advance |b|
+// FIXME:     {
+// FIXME:     }
+// FIXME:   }
+// FIXME: }
 
 impl<V: Ord + Copy> BoundingVolume for AABB<V>
 {

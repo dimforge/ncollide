@@ -1,7 +1,6 @@
 use std::num::Bounded;
-use nalgebra::traits::rlmul::RMul;
-use nalgebra::traits::delta_transform::DeltaTransformVector;
-use nalgebra::traits::transformation::{Transformation, Transformable};
+use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
+use nalgebra::traits::rotation::Rotate;
 use bounding_volume::aabb::AABB;
 use bounding_volume::has_bounding_volume::HasBoundingVolume;
 
@@ -39,26 +38,31 @@ impl<V: Copy> Plane<V>
   { copy self.center }
 }
 
-impl<V, M: RMul<V> + DeltaTransformVector<V>> Transformation<M> for Plane<V>
+impl<V, M: Transform<V> + Rotate<V>> Transformation<M> for Plane<V>
 {
   #[inline]
   fn transformation(&self) -> M
   { fail!("Not yet implemented") } // deduce a transformation from the normal
 
   #[inline]
+  fn inv_transformation(&self) -> M
+  { fail!("Not yet implemented") } // deduce a transformation from the normal
+
+
+  #[inline]
   fn transform_by(&mut self, transform: &M)
   {
-    self.center = transform.rmul(&self.center);
-    self.normal = transform.delta_transform_vector(&self.normal);
+    self.center = transform.transform_vec(&self.center);
+    self.normal = transform.rotate(&self.normal);
   }
 }
 
-impl<V, M: RMul<V> + DeltaTransformVector<V>> Transformable<M, Plane<V>> for Plane<V>
+impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V>
 {
   #[inline]
   fn transformed(&self, transform: &M) -> Plane<V>
-  { Plane::new(transform.rmul(&self.center),
-               transform.delta_transform_vector(&self.normal)) }
+  { Plane::new(transform.transform_vec(&self.center),
+               transform.rotate(&self.normal)) }
 }
 
 // FIXME: these is something bad here…
@@ -68,5 +72,5 @@ impl<V: Bounded + Neg<V> + Ord + Copy>
     HasBoundingVolume<AABB<V>> for Plane<V>
 {
   fn bounding_volume(&self) -> AABB<V>
-  { AABB::new(&-Bounded::max_value::<V>(), &Bounded::max_value()) }
+  { AABB::new(-Bounded::max_value::<V>(), Bounded::max_value()) }
 }

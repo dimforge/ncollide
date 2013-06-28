@@ -3,19 +3,13 @@ use std::rand;
 #[test]
 use std::uint;
 #[test]
-use nalgebra::traits::dim::{Dim, d4, d5, d6};
+use nalgebra::traits::dim::Dim;
 #[test]
 use nalgebra::traits::scalar_op::{ScalarSub, ScalarMul};
 #[test]
 use nalgebra::traits::norm::Norm;
 #[test]
-use nalgebra::dim3::vec3::Vec3;
-#[test]
-use nalgebra::dim2::vec2::Vec2;
-#[test]
-use nalgebra::dim1::vec1::Vec1;
-#[test]
-use nalgebra::ndim::nvec::NVec;
+use nalgebra::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[test]
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 #[test]
@@ -107,15 +101,15 @@ fn test_gjk_ball_ball_3d()
 
 #[test]
 fn test_gjk_ball_ball_4d()
-{ test_gjk_ball_ball_impl!(NVec<d4, f64>, f64); }
+{ test_gjk_ball_ball_impl!(Vec4<f64>, f64); }
 
 #[test]
 fn test_gjk_ball_ball_5d()
-{ test_gjk_ball_ball_impl!(NVec<d5, f64>, f64); }
+{ test_gjk_ball_ball_impl!(Vec5<f64>, f64); }
 
 #[test]
 fn test_gjk_ball_ball_6d()
-{ test_gjk_ball_ball_impl!(NVec<d6, f64>, f64); }
+{ test_gjk_ball_ball_impl!(Vec6<f64>, f64); }
 
 #[test]
 fn test_johnson_simplex_1d()
@@ -131,12 +125,12 @@ fn test_johnson_simplex_3d()
 
 #[test]
 fn test_johnson_simplex_4d()
-{ test_johnson_simplex_impl!(NVec<d4, f64>, f64); }
+{ test_johnson_simplex_impl!(Vec4<f64>, f64); }
 
 #[test]
 fn test_johnson_simplex_5d()
-{ test_johnson_simplex_impl!(NVec<d5, f64>, f64); }
+{ test_johnson_simplex_impl!(Vec5<f64>, f64); }
 
 #[test]
 fn test_johnson_simplex_6d()
-{ test_johnson_simplex_impl!(NVec<d6, f64>, f64); }
+{ test_johnson_simplex_impl!(Vec6<f64>, f64); }

@@ -1,8 +1,7 @@
 use std::num::One;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub};
-use nalgebra::traits::rlmul::RMul;
-use nalgebra::traits::transformation::{Transformation, Transformable};
+use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
 use nalgebra::traits::translation::Translation;
 use geom::implicit::Implicit;
 use bounding_volume::aabb::AABB;
@@ -55,28 +54,40 @@ impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>> Implicit<V> for Ball<N, V>
   { self.center + dir.normalized().scalar_mul(&self.radius) }
 }
 
-impl<V: Copy + Add<V, V>, N, M: One + Translation<V> + RMul<V>> Transformation<M> for Ball<N, V>
+impl<V: Copy + Add<V, V> + Neg<V>, N, M: One + Translation<V> + Transform<V>>
+Transformation<M> for Ball<N, V>
 {
   #[inline]
   fn transformation(&self) -> M
   {
     let mut res = One::one::<M>();
 
-    res.translate(&self.center);
+    res.translate_by(&self.center);
 
     res
   }
 
   #[inline]
+  fn inv_transformation(&self) -> M
+  {
+    let mut res = One::one::<M>();
+
+    res.translate_by(&-self.center);
+
+    res
+  }
+
+
+  #[inline]
   fn transform_by(&mut self, m: &M)
-  { self.center = m.rmul(&self.center) }
+  { self.center = m.transform_vec(&self.center) }
 }
 
-impl<N: Copy, V: Copy, M: RMul<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
+impl<N: Copy, V: Copy, M: Transform<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
 {
   #[inline]
   fn transformed(&self, transform: &M) -> Ball<N, V>
-  { Ball::new(transform.rmul(&self.center), copy self.radius) }
+  { Ball::new(transform.transform_vec(&self.center), copy self.radius) }
 }
 
 // FIXME: these is something bad here…
@@ -87,7 +98,7 @@ impl<N, V: ScalarAdd<N> + ScalarSub<N> + Ord + Copy>
 {
   fn bounding_volume(&self) -> AABB<V>
   {
-    AABB::new(&self.center.scalar_sub(&self.radius),
-              &self.center.scalar_add(&self.radius))
+    AABB::new(self.center.scalar_sub(&self.radius),
+              self.center.scalar_add(&self.radius))
   }
 }

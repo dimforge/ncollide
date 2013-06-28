@@ -1,4 +1,3 @@
-use std::vec;
 use std::num::Zero;
 use nalgebra::traits::dot::{Dot};
 use nalgebra::traits::vector_space::VectorSpace;
@@ -98,7 +97,7 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
  {
    match self.contact
    {
-     Some(c) => vec::push(out_colls, c),
+     Some(c) => out_colls.push(c),
      None    => ()
    }
  }

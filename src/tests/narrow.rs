@@ -1,7 +1,7 @@
 #[test]
 use std::num::Zero;
 #[test]
-use nalgebra::dim3::vec3::Vec3;
+use nalgebra::vec::Vec3;
 #[test]
 use nalgebra::traits::scalar_op::ScalarAdd;
 #[test]

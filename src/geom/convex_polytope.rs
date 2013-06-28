@@ -49,8 +49,9 @@ Implicit<V> for ConvexPolytope<V, N>
   }
 }
 
-impl<V: Copy, N, M: Copy> Transformable<M, Transformed<ConvexPolytope<V, N>, M>> for ConvexPolytope<V, N>
+impl<V: Copy, N, M: Copy>
+Transformable<M, Transformed<ConvexPolytope<V, N>, M, N>> for ConvexPolytope<V, N>
 {
-  fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M>
+  fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M, N>
   { Transformed::new(copy *transform, copy *self) }
 }

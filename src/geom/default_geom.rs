@@ -2,9 +2,8 @@ use std::num::One;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use nalgebra::traits::transformation::Transformation;
 use nalgebra::traits::translation::Translation;
-use nalgebra::traits::rlmul::RMul;
-use nalgebra::traits::delta_transform::DeltaTransformVector;
-use nalgebra::traits::transformation::Transformable;
+use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::transformation::{Transform, Transformable};
 use bounding_volume::aabb::AABB;
 use bounding_volume::has_bounding_volume::HasBoundingVolume;
 use geom::ball;
@@ -24,7 +23,7 @@ pub enum DefaultGeom<N, V, M, I> {
 impl<N,
      V,
      I,
-     M: One + RMul<V> + DeltaTransformVector<V>>
+     M: One + Transform<V> + Rotate<V>>
     DefaultGeom<N, V, M, I>
 {
   pub fn new_plane<G: Transformable<M, plane::Plane<V>>>(geom: &G) -> DefaultGeom<N, V, M, I>
@@ -32,9 +31,9 @@ impl<N,
 }
 
 impl<N,
-     V: Copy + Add<V, V>,
+     V: Copy + Add<V, V> + Neg<V>,
      I,
-     M: One + Translation<V> + RMul<V>>
+     M: One + Translation<V> + Transform<V>>
     DefaultGeom<N, V, M, I>
 {
   pub fn new_ball<G: Transformable<M, ball::Ball<N, V>>>(geom: &G) -> DefaultGeom<N, V, M, I>
@@ -136,8 +135,8 @@ impl<N,
 }
 
 impl<N,
-     V: Copy + Add<V, V>,
-     M: One + Translation<V> + RMul<V> + DeltaTransformVector<V>,
+     V: Copy + Add<V, V> + Neg<V>,
+     M: One + Translation<V> + Transform<V> + Rotate<V>,
      I: Transformation<M>>
 Transformation<M> for DefaultGeom<N, V, M, I>
 {
@@ -150,6 +149,17 @@ Transformation<M> for DefaultGeom<N, V, M, I>
       Implicit(ref i) => i.transformation(),
     }
   }
+
+  fn inv_transformation(&self) -> M
+  {
+    match *self
+    {
+      Plane(ref p)    => p.inv_transformation(),
+      Ball(ref b)     => b.inv_transformation(),
+      Implicit(ref i) => i.inv_transformation(),
+    }
+  }
+
 
   fn transform_by(&mut self, m: &M)
   {
