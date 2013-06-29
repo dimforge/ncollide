@@ -20,11 +20,7 @@ pub enum DefaultGeom<N, V, M, I> {
   Implicit(I)
 }
 
-impl<N,
-     V,
-     I,
-     M: One + Transform<V> + Rotate<V>>
-    DefaultGeom<N, V, M, I>
+impl<N, V, I, M: One + Transform<V> + Rotate<V>> DefaultGeom<N, V, M, I>
 {
   pub fn new_plane<G: Transformable<M, plane::Plane<V>>>(geom: &G) -> DefaultGeom<N, V, M, I>
   { Plane(geom.transformed(&One::one())) }

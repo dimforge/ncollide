@@ -1,10 +1,10 @@
 use std::num::{Zero, NumCast};
 use std::rand::{Rand, random};
+use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::sub_dot::SubDot;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use nalgebra::traits::division_ring::DivisionRing;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
@@ -15,9 +15,8 @@ use narrow::algorithm::simplex::Simplex;
 
 pub fn closest_points_johnson<G1: Implicit<V>,
                               G2: Implicit<V>,
-                              V:  Norm<N> + Neg<V> + Add<V, V> + SubDot<N> +
-                                  Dim + Rand + Zero + Copy + ScalarMul<N> +
-                                  ScalarDiv<N> + Eq,
+                              V:  Norm<N> + SubDot<N> + VectorSpace<N> +
+                                  Dim + Rand + Copy + Eq,
                               N:  Ord + DivisionRing + Bounded + Float + Eq>
                               (g1: &G1, g2: &G2) -> Option<(V, V)>
 { closest_points::<JohnsonSimplex<AnnotatedPoint<V>, N>, G1, G2, V, N>(g1, g2) }
@@ -25,9 +24,8 @@ pub fn closest_points_johnson<G1: Implicit<V>,
 pub fn closest_points_with_initial_direction_johnson
        <G1: Implicit<V>,
         G2: Implicit<V>,
-        V:  Norm<N> + Neg<V> + Add<V, V> + SubDot<N> +
-            Dim + Zero + Copy + ScalarMul<N> +
-            ScalarDiv<N> + Eq,
+        V:  Norm<N> + SubDot<N> + VectorSpace<N> +
+            Dim + Rand + Copy + Eq,
         N:  Ord + DivisionRing + Bounded + Float + Eq>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {

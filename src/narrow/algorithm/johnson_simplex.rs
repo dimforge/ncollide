@@ -406,7 +406,7 @@ impl ToStr for RecursionTemplate
     let mut curr = self.num_leaves;
     let mut dim  = 1;
 
-    res += ~"num_cofactors: " + self.num_cofactors.to_str();
+    res = res + "num_cofactors: " + self.num_cofactors.to_str();
 
     let mut recursion_offsets_skip_1 = self.offsets.iter();
     recursion_offsets_skip_1.next(); // Skip the two first entries
@@ -415,34 +415,34 @@ impl ToStr for RecursionTemplate
     {
       while (curr != off)
       {
-        res += ~"\n(@" + self.sub_cofactors[curr].to_str() + " -> ";
+        res = res + "\n(@" + self.sub_cofactors[curr].to_str() + " -> ";
 
         for uint::iterate(0u, dim) |i|
         {
-          res += self.permutation_list[i + curr].to_str();
+          res = res + self.permutation_list[i + curr].to_str();
           if i != dim - 1
-          { res += " "; }
+          { res = res + " "; }
         }
 
-        res  += " - ";
+        res = res + " - ";
 
         for uint::iterate(1u, dim) |i|
         {
-          res += self.sub_cofactors[i + curr].to_str();
+          res = res + self.sub_cofactors[i + curr].to_str();
           if i != dim - 1
-          { res += " "; }
+          { res = res + " "; }
         }
 
-        res  += ")";
-        curr += dim;
+        res  = res + ")";
+        curr = curr + dim;
       }
 
       dim += 1;
     }
 
-    res += " }\n";
+    res = res + " }\n";
 
-    res += ~"offsets: " + self.offsets.to_str();
+    res = res + "offsets: " + self.offsets.to_str();
 
     res
   }

@@ -1,6 +1,7 @@
 use std::uint;
 use std::num::{Zero, One};
-use nalgebra::ndim::dmat::{zero_mat_with_dim};
+use nalgebra::dmat::zero_mat_with_dim;
+use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::sub_dot::SubDot;
@@ -12,19 +13,8 @@ pub struct BruteForceSimplex<V, N>
   points: ~[~V]
 }
 
-impl<V: Copy         +
-        SubDot<N>    +
-        ScalarMul<N> +
-        ScalarDiv<N> +
-        Zero         +
-        Add<V, V>    +
-        Norm<N>,
-     N: Ord          +
-        Copy         +
-        Clone        +
-        Eq           +
-        DivisionRing +
-        Ord>
+impl<V: Copy + VectorSpace<N> + SubDot<N> + Norm<N>,
+     N: Ord + Copy + Eq + DivisionRing + Ord>
     BruteForceSimplex<V, N>
 {
   pub fn new(initial_point: &V) -> BruteForceSimplex<V, N>

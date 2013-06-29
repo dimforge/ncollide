@@ -1,6 +1,7 @@
 use std::num::{Zero, Signed};
 use nalgebra::traits::transformation::Transformable;
 use nalgebra::traits::iterable::{Iterable, IterableMut, FromAnyIterator};
+use nalgebra::traits::inv::Inv;
 use geom::implicit::Implicit;
 use geom::transformed::Transformed;
 
@@ -55,7 +56,7 @@ impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
   }
 }
 
-impl<V: Copy, N, M: Copy>
+impl<V: Copy, N, M: Copy + Mul<M, M> + Inv>
 Transformable<M, Transformed<Box<N, V>, M, N>> for Box<N, V>
 {
   #[inline]

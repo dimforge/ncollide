@@ -83,7 +83,8 @@ Transformation<M> for Ball<N, V>
   { self.center = m.transform_vec(&self.center) }
 }
 
-impl<N: Copy, V: Copy, M: Transform<V>> Transformable<M, Ball<N, V>> for Ball<N, V>
+impl<N: Copy, V: Copy + Add<V, V> + Neg<V>, M: One + Translation<V> + Transform<V>>
+Transformable<M, Ball<N, V>> for Ball<N, V>
 {
   #[inline]
   fn transformed(&self, transform: &M) -> Ball<N, V>

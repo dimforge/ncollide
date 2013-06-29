@@ -1,6 +1,7 @@
 use std::num::Bounded;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::transformation::Transformable;
+use nalgebra::traits::inv::Inv;
 use geom::transformed::Transformed;
 use geom::implicit::Implicit;
 
@@ -49,7 +50,7 @@ Implicit<V> for ConvexPolytope<V, N>
   }
 }
 
-impl<V: Copy, N, M: Copy>
+impl<V: Copy, N, M: Copy + Mul<M, M> + Inv>
 Transformable<M, Transformed<ConvexPolytope<V, N>, M, N>> for ConvexPolytope<V, N>
 {
   fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M, N>
