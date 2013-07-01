@@ -34,8 +34,8 @@ And various traits for collision detectors and broad phase collision detection.
 ## What is missing
 Almost everything:
 
-- collision detection between arbitrary convex object (work in progress)
-- efficient broad phases (work in progress)
+- collision detection between arbitrary convex object (nearly done)
+- efficient broad phases (nearly done)
 - composite geometries
 - heightmaps and simplex meshes (eg. triangle mesh for 3d and line strips for
   2d)
