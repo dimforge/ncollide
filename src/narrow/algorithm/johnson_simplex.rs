@@ -188,15 +188,15 @@ JohnsonSimplex<V, N>
 
     // end to begin offsets
     offsets.unshift(0u);
-    vec::reverse(offsets);
+    offsets.reverse();
     offsets.pop();
 
     let rev_offsets = offsets.map(|&e| pts.len() - e);
     let num_leaves = rev_offsets[0];
 
     // reverse points and cofectors
-    vec::reverse(pts);
-    vec::reverse(sub_cofactors);
+    pts.reverse();
+    sub_cofactors.reverse();
 
     // remove the full simplex
     let num_pts = pts.len();
