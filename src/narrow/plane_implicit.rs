@@ -19,8 +19,8 @@ pub struct PlaneImplicitCollisionDetector<N, V, G, C>
 pub struct ImplicitPlaneCollisionDetector<N, V, G, C>
 { priv contact: Option<@mut C> }
 
-impl<V: VectorSpace<N> + Dot<N> + Copy,
-     N: Ring + Ord + Copy,
+impl<V: VectorSpace<N> + Dot<N> + Clone,
+     N: Ring + Ord + Clone,
      G: Implicit<V>,
      C: Contact<V, N>>
     CollisionDetector<C, Plane<V>, G> for PlaneImplicitCollisionDetector<N, V, G, C>
@@ -60,8 +60,8 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
  }
 }
 
-impl<V: VectorSpace<N> + Dot<N> + Copy,
-     N: Ring + Ord + Copy,
+impl<V: VectorSpace<N> + Dot<N> + Clone,
+     N: Ring + Ord + Clone,
      G: Implicit<V>,
      C: Contact<V, N>>
     CollisionDetector<C, G, Plane<V>> for ImplicitPlaneCollisionDetector<N, V, G, C>
@@ -111,8 +111,8 @@ impl<V: VectorSpace<N> + Dot<N> + Copy,
  *   - `other`: the object to test against the plane.
  *   - `out`: collision on which the result will be written.
  */
-pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
-                                           N: Ring + Ord + Copy,
+pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
+                                           N: Ring + Ord + Clone,
                                            G: Implicit<V>,
                                            C: Contact<V, N>>
    (plane: &Plane<V>, other: &G, out: &mut C) -> bool
@@ -138,8 +138,8 @@ pub fn update_collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
  *   - `plane`: the plane to test.
  *   - `other`: the object to test against the plane.
  */
-pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Copy,
-                                    N: Ring + Ord + Copy,
+pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
+                                    N: Ring + Ord + Clone,
                                     G: Implicit<V>,
                                     C: Contact<V, N>>
    (plane: &Plane<V>, other: &G) -> Option<C>

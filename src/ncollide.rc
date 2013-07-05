@@ -49,6 +49,7 @@ pub mod narrow
   pub mod plane_implicit;
   pub mod ball_ball;
   pub mod implicit_implicit;
+  pub mod incremental_contact_manifold_generator;
 
   pub mod algorithm
   {
@@ -66,7 +67,7 @@ pub mod broad
   pub mod empty_broad_phase;
   pub mod brute_force_broad_phase;
   pub mod brute_force_bounding_volume_broad_phase;
-  // pub mod dbvh_broad_phase;
+  pub mod dbvh_broad_phase;
 }
 
 pub mod contact

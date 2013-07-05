@@ -2,7 +2,7 @@ use nalgebra::traits::translation::{Translation, Translatable};
 use nalgebra::traits::transformation::{Transformation, Transformable};
 use geom::implicit::Implicit;
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Translated<'self, G, V>
 {
   priv t: V,

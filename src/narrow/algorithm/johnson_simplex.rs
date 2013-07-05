@@ -1,6 +1,5 @@
 use std::util;
 use std::uint;
-use std::at_vec::build;
 use std::num::{Zero, One};
 use std::iterator::IteratorUtil;
 use std::vec;
@@ -12,16 +11,15 @@ use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use narrow::algorithm::simplex::Simplex;
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct JohnsonSimplex<V, N>
 {
-  recursion_templates: @[RecursionTemplate],
-  points:              ~[V],
-  exchange_points:     ~[V],
-  cofactors:           ~[N]
+  priv points:              ~[V],
+  priv exchange_points:     ~[V],
+  priv cofactors:           ~[N]
 }
 
-#[deriving(Eq)]
+#[deriving(Eq, Clone)]
 struct RecursionTemplate
 {
   permutation_list: ~[uint],
@@ -31,7 +29,13 @@ struct RecursionTemplate
   num_leaves:       uint // useful only for printing…
 }
 
-impl<V: Copy         +
+// XXX: we use an Either instead of an Option since the compiler will generate
+// something buggy with Option.
+// static mut templates: Option<~[RecursionTemplate]> = None;
+// FIXME: wont work with concurency…
+static mut templates: Either<int, ~[RecursionTemplate]> = Left(42);
+
+impl<V: Clone         +
         SubDot<N>    +
         ScalarMul<N> +
         ScalarDiv<N> +
@@ -39,7 +43,8 @@ impl<V: Copy         +
         Add<V, V>    +
         Dim,
      N: Ord          +
-        Copy         +
+        Clone        +
+        Copy         + // FIXME: needed?
         Eq           +
         DivisionRing +
         Ord          +
@@ -49,28 +54,47 @@ JohnsonSimplex<V, N>
   pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
   {
     let _dim       = Dim::dim::<V>();
-    let perm_list  = JohnsonSimplex::make_permutation_lists::<V, N>();
     let expoints   = vec::with_capacity(_dim);
     let mut points = vec::with_capacity(_dim);
 
+    JohnsonSimplex::make_permutation_lists::<V, N>();
+
     points.push(initial_point);
 
-    JohnsonSimplex {
-      recursion_templates: perm_list
-      , points:            points
-      , exchange_points:   expoints
-      , cofactors:         vec::from_elem(perm_list[_dim].num_cofactors, Zero::zero())
-    }
+    let res = JohnsonSimplex {
+      points:            points
+      , exchange_points: expoints
+      , cofactors:       vec::from_elem(
+        unsafe {
+          match templates
+          {
+            Right(ref mut l) => l[_dim].num_cofactors,
+            Left(_)          => fail!("Recursion template was not intialized.")
+          }
+        }, Zero::zero())
+    };
+
+    res
   }
 
-  fn make_permutation_lists() -> @[RecursionTemplate]
+  fn make_permutation_lists()
   {
-    do build |push_to_at_vec|
-    {
-      for uint::iterate(0u, Dim::dim::<V>() + 1u) |dim|
+    unsafe {
+      if templates.is_left()
+      { templates = Right(~[]) }
+
+      match templates
       {
-        push_to_at_vec(
-          JohnsonSimplex::make_permutation_list::<V, N>(dim))
+        Left(_) => fail!("There seem to be a compiler error for the implementation" +
+                         " of mutable static variables."),
+        Right(ref mut t) =>
+          for uint::iterate(t.len(), Dim::dim::<V>() + 1u) |dim|
+          {
+            t.push(JohnsonSimplex::make_permutation_list::<V, N>(dim));
+
+            println("Recursion template for dimension: " + dim.to_str());
+            println(t[t.len() - 1].to_str());
+          }
       }
     }
   }
@@ -224,12 +248,20 @@ JohnsonSimplex<V, N>
     let _0                   = Zero::zero::<N>();
     let _1                   = One::one::<N>();
     let max_num_pts          = self.points.len();
-    let recursion            = &self.recursion_templates[max_num_pts - 1];
+    let recursion            =
+      unsafe {
+        match templates
+        {
+          Left(_) => fail!("There seem to be a compiler error for the implementation" +
+                        " of mutable static variables."),
+          Right(ref mut t) => &t[max_num_pts - 1]
+        }
+      };
     let mut curr_num_pts     = 1u;
     let mut curr             = max_num_pts;
 
     for uint::iterate(0u, max_num_pts) |i|
-    { self.cofactors[recursion.num_cofactors - 1 - i] = copy _1; }
+    { self.cofactors[recursion.num_cofactors - 1 - i] = _1.clone(); }
 
     /*
      * first loop: compute all the cofactors
@@ -252,7 +284,7 @@ JohnsonSimplex<V, N>
         {
           // ... compute its cofactor.
           let i_pid        = recursion.permutation_list[curr + 1 + i];
-          let sub_cofactor = copy self.cofactors[recursion.sub_cofactors[curr + 1 + i]];
+          let sub_cofactor = self.cofactors[recursion.sub_cofactors[curr + 1 + i]].clone();
           let delta = sub_cofactor *
                       self.points[k_pid].sub_dot(&self.points[j_pid],
                                                  &self.points[i_pid]);
@@ -272,7 +304,7 @@ JohnsonSimplex<V, N>
     /*
      * second loop: find the subsimplex containing the projection
      */
-    let _invalid_cofactor = Bounded::max_value();
+    let _invalid_cofactor = Bounded::max_value::<N>();
     let mut offsets_iter = recursion.offsets.rev_iter();
     offsets_iter.next(); // skip the first offset
     for offsets_iter.advance |&end|
@@ -287,7 +319,7 @@ JohnsonSimplex<V, N>
         {
           // ... see if its cofactor is positive
           let cof_id = _i - (i + 1) * curr_num_pts;
-          let cof    = copy self.cofactors[recursion.sub_cofactors[cof_id]];
+          let cof    = self.cofactors[recursion.sub_cofactors[cof_id]].clone();
           if cof > _0
           {
             // invalidate the children cofactor
@@ -296,7 +328,7 @@ JohnsonSimplex<V, N>
               let subcofid = recursion.sub_cofactors[cof_id + 1];
 
               if self.cofactors[subcofid] > _0
-              { self.cofactors[subcofid] = copy _invalid_cofactor }
+              { self.cofactors[subcofid] = _invalid_cofactor.clone() }
             }
 
             // dont concider this sub-simplex if it has been invalidated by its
@@ -312,14 +344,14 @@ JohnsonSimplex<V, N>
         {
           // we found a projection!
           // re-run the same iteration but, this time, compute the projection
-          let mut total_cof = copy _0;
+          let mut total_cof = _0.clone();
           let mut proj      = Zero::zero::<V>();
 
           for uint::iterate(0u, curr_num_pts) |i|
           {
             // ... see if its cofactor is positive
             let id    = _i - (i + 1) * curr_num_pts;
-            let cof   = copy self.cofactors[recursion.sub_cofactors[id]];
+            let cof   = self.cofactors[recursion.sub_cofactors[id]].clone();
 
             total_cof = total_cof + cof;
             proj = proj +
@@ -333,7 +365,7 @@ JohnsonSimplex<V, N>
             for uint::iterate(0u, curr_num_pts) |i|
             {
               let id = _i - (i + 1) * curr_num_pts;
-              self.exchange_points.push(copy self.points[recursion.permutation_list[id]]);
+              self.exchange_points.push(self.points[recursion.permutation_list[id]].clone());
             }
 
             util::swap(&mut self.exchange_points, &mut self.points);
@@ -356,7 +388,7 @@ JohnsonSimplex<V, N>
   }
 }
 
-impl<V: Copy         +
+impl<V: Clone         +
         SubDot<N>    +
         ScalarMul<N> +
         ScalarDiv<N> +
@@ -366,7 +398,8 @@ impl<V: Copy         +
         Eq           +
         Dim,
      N: Ord          +
-        Copy         +
+        Clone        +
+        Copy         + // FIXME: needed?
         Eq           +
         DivisionRing +
         Ord          +

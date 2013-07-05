@@ -1,18 +1,21 @@
 use std::rand::Rand;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::ring::Ring;
+use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::dim::Dim;
+use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::sample::UniformSphereSample;
 use geom::default_geom::{DefaultGeom, Ball, Plane, Implicit};
 use geom::implicit::Implicit;
 use geom::ball::Ball;
 use geom::minkowski_sum::AnnotatedPoint;
-use contact::contact::Contact;
+use contact::contact::UpdatableContact;
 use narrow::algorithm::simplex::Simplex;
 use narrow::collision_detector::CollisionDetector;
 use narrow::implicit_implicit::ImplicitImplicitCollisionDetector;
 use narrow::ball_ball::BallBallCollisionDetector;
+use ICMG = narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 use narrow::plane_implicit::{PlaneImplicitCollisionDetector,
                              ImplicitPlaneCollisionDetector};
 
@@ -23,9 +26,9 @@ enum DefaultDefaultCollisionDetector<C, N, V, M, S, I>
   PlaneBall       (PlaneImplicitCollisionDetector<N, V, Ball<N, V>, C>),
   BallImplicit    (ImplicitImplicitCollisionDetector<S, C, Ball<N, V>, I, V, N>),
   ImplicitBall    (ImplicitImplicitCollisionDetector<S, C, I, Ball<N, V>, V, N>),
-  PlaneImplicit   (PlaneImplicitCollisionDetector<N, V, I, C>),
-  ImplicitPlane   (ImplicitPlaneCollisionDetector<N, V, I, C>),
-  ImplicitImplicit(ImplicitImplicitCollisionDetector<S, C, I, I, V, N>)
+  PlaneImplicit   (ICMG<C, PlaneImplicitCollisionDetector<N, V, I, C>, V, N>),
+  ImplicitPlane   (ICMG<C, ImplicitPlaneCollisionDetector<N, V, I, C>, V, N>),
+  ImplicitImplicit(ICMG<C, ImplicitImplicitCollisionDetector<S, C, I, I, V, N>, V, N>)
 }
 
 /**
@@ -33,12 +36,12 @@ enum DefaultDefaultCollisionDetector<C, N, V, M, S, I>
  * wrapper on the collision detector specific to each geometry.
  */
 // FIXME: Ring + Real ?
-impl<N: ApproxEq<N> + Ring + Real + Float + Ord + Copy,
-     C: Contact<V, N> + Copy,
-     V: VectorSpace<N> + Dim + Dot<N> + Norm<N> + Rand + Copy,
+impl<N: ApproxEq<N> + DivisionRing + Real + Float + Ord + Clone,
+     C: UpdatableContact<V, N> + Clone + ToStr + Freeze + DeepClone,
+     V: VectorSpace<N> + Dim + Dot<N> + Norm<N> + Rand + UniformSphereSample + ApproxEq<N> + Eq + Clone,
      M,
      S: Simplex<AnnotatedPoint<V>, N>,
-     I: Implicit<V>>
+     I: Implicit<V> + Transform<V>>
 CollisionDetector<C, DefaultGeom<N, V, M, I>, DefaultGeom<N, V, M, I>>
 for DefaultDefaultCollisionDetector<C, N, V, M, S, I>
 

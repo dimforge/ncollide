@@ -11,7 +11,7 @@ pub trait HasBoundingVolumeProxy<BV>
   fn proxy_mut<'r>(&'r mut self) -> &'r mut BoundingVolumeProxy<BV>;
 }
 
-#[deriving(ToStr)]
+#[deriving(ToStr, Eq, Clone)]
 pub struct BoundingVolumeProxy<BV>
 { bounding_volume: BV }
 
@@ -28,7 +28,7 @@ pub struct BruteForceBoundingVolumeBroadPhase<RB, BV, N>
   priv margin:  N
 }
 
-impl<RB, BV, N: Copy> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
+impl<RB, BV, N: Clone> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 {
   pub fn new(margin: N) -> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
   {
@@ -42,7 +42,7 @@ impl<RB, BV, N: Copy> BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 
 impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
      BV: LooseBoundingVolume<N>,
-     N:  Copy>
+     N:  Clone>
      BroadPhase<RB> for BruteForceBoundingVolumeBroadPhase<RB, BV, N>
 {
   fn add(&mut self, rb: @mut RB)
@@ -50,7 +50,7 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
     self.objects.push(rb);
     self.panding.push(rb);
     rb.proxy_mut().bounding_volume = rb.bounding_volume();
-    rb.proxy_mut().bounding_volume.loosen(copy self.margin);
+    rb.proxy_mut().bounding_volume.loosen(self.margin.clone());
   }
 
   fn remove(&mut self, b: @mut RB)
@@ -80,7 +80,7 @@ impl<RB: HasBoundingVolumeProxy<BV> + HasBoundingVolume<BV>,
 
       if !b.proxy().bounding_volume.contains(&new_bv)
       {
-        new_bv.loosen(copy self.margin);
+        new_bv.loosen(self.margin.clone());
         b.proxy_mut().bounding_volume = new_bv;
         updated.push(b);
       }

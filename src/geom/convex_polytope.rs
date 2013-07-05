@@ -25,7 +25,7 @@ impl<V, N> ConvexPolytope<V, N>
   { ConvexPolytope { pts: pts } }
 }
 
-impl<N: Ord + Bounded + ToStr + Neg<N>, V: Dot<N> + Copy>
+impl<N: Ord + Bounded + ToStr + Neg<N>, V: Dot<N> + Clone>
 Implicit<V> for ConvexPolytope<V, N>
 {
   #[inline]
@@ -46,13 +46,13 @@ Implicit<V> for ConvexPolytope<V, N>
     }
 
 
-    copy *best_pt
+    best_pt.clone()
   }
 }
 
-impl<V: Copy, N, M: Copy + Mul<M, M> + Inv>
+impl<V, N, M: Clone + Mul<M, M> + Inv>
 Transformable<M, Transformed<ConvexPolytope<V, N>, M, N>> for ConvexPolytope<V, N>
 {
   fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M, N>
-  { Transformed::new(copy *transform, copy *self) }
+  { Transformed::new(transform.clone(), ConvexPolytope::new(self.pts)) }
 }

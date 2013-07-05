@@ -1,5 +1,7 @@
 use std::util;
+use std::num::Zero;
 use contact::contact::Contact;
+use contact::contact::UpdatableContact;
 
 /**
  * Geometric description of a contact.
@@ -7,9 +9,11 @@ use contact::contact::Contact;
  *   - `V`: type of all the contact points, its center and its normal.
  *   - `N`: type of the penetration depth.
  */
-#[deriving(ToStr)]
+#[deriving(ToStr, Eq, Clone, DeepClone)]
 pub struct GeometricContact<V, N>
 {
+  priv local1: V,
+  priv local2: V,
   priv world1: V,
   priv world2: V,
   priv center: V,
@@ -17,13 +21,15 @@ pub struct GeometricContact<V, N>
   priv depth:  N
 }
 
-impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
+impl<V: Neg<V> + Zero + Clone, N: Clone> Contact<V, N> for GeometricContact<V, N>
 {
   #[inline]
   fn new(center: V, normal: V, depth: N, world1: V, world2: V)
      -> GeometricContact<V, N>
   {
     GeometricContact {
+      local1: Zero::zero(),
+      local2: Zero::zero(),
       world1: world1,
       world2: world2,
       center: center,
@@ -45,7 +51,7 @@ impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline]
   fn center(&self) -> V
-  { copy self.center }
+  { self.center.clone() }
 
   #[inline]
   fn set_normal(&mut self, normal: V)
@@ -53,7 +59,7 @@ impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline]
   fn normal(&self) -> V
-  { copy self.normal }
+  { self.normal.clone() }
 
   #[inline]
   fn set_depth(&mut self, depth: N)
@@ -61,7 +67,7 @@ impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline]
   fn depth(&self) -> N
-  { copy self.depth }
+  { self.depth.clone() }
 
   #[inline]
   fn set_world1(&mut self, world1: V)
@@ -69,7 +75,7 @@ impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline]
   fn world1(&self) -> V
-  { copy self.world1 }
+  { self.world1.clone() }
 
   #[inline]
   fn set_world2(&mut self, world2: V)
@@ -77,5 +83,24 @@ impl<V: Neg<V> + Copy, N: Copy> Contact<V, N> for GeometricContact<V, N>
 
   #[inline]
   fn world2(&self) -> V
-  { copy self.world2 }
+  { self.world2.clone() }
+}
+
+impl<V: Neg<V> + Clone, N: Clone> UpdatableContact<V, N> for GeometricContact<V, N>
+{
+  #[inline]
+  fn set_local1(&mut self, local1: V)
+  { self.local1 = local1; }
+
+  #[inline]
+  fn local1(&self) -> V
+  { self.local1.clone() }
+
+  #[inline]
+  fn set_local2(&mut self, local2: V)
+  { self.local2 = local2; }
+
+  #[inline]
+  fn local2(&self) -> V
+  { self.local2.clone() }
 }

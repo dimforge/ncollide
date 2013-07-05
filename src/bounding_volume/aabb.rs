@@ -5,14 +5,14 @@ use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use utils::default::Default;
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 
-#[deriving(ToStr)]
+#[deriving(ToStr, Eq, Clone)]
 pub struct AABB<V>
 {
   priv mins: V,
   priv maxs: V
 }
 
-impl<V: Copy + Ord> AABB<V>
+impl<V: Ord> AABB<V>
 {
   pub fn new(mins: V, maxs: V) -> AABB<V>
   {
@@ -37,7 +37,7 @@ impl<V: Copy + Ord> AABB<V>
 // FIXME:   }
 // FIXME: }
 
-impl<V: Ord + Copy> BoundingVolume for AABB<V>
+impl<V: Ord + Clone> BoundingVolume for AABB<V>
 {
   #[inline]
   fn intersects(&self, other: &AABB<V>) -> bool
@@ -50,16 +50,16 @@ impl<V: Ord + Copy> BoundingVolume for AABB<V>
   #[inline]
   fn merge(&mut self, other: &AABB<V>)
   {
-    self.mins = min(copy self.mins, copy other.mins);
-    self.maxs = max(copy self.maxs, copy other.maxs);
+    self.mins = min(self.mins.clone(), other.mins.clone());
+    self.maxs = max(self.maxs.clone(), other.maxs.clone());
   }
 
   #[inline]
   fn merged(&self, other: &AABB<V>) -> AABB<V>
   {
     AABB {
-      mins: min(copy self.mins, copy other.mins),
-      maxs: max(copy self.maxs, copy other.maxs)
+      mins: min(self.mins.clone(), other.mins.clone()),
+      maxs: max(self.maxs.clone(), other.maxs.clone())
     }
   }
 }

@@ -18,9 +18,9 @@ pub struct BallBallCollisionDetector<C, N, V>
   priv contact: Option<@mut C>
 }
 
-impl<N: Real + Copy,
+impl<N: Real + Clone,
      C: Contact<V, N>,
-     V: VectorSpace<N> + Norm<N> + Copy> 
+     V: VectorSpace<N> + Norm<N> + Clone> 
     CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
     BallBallCollisionDetector<C, N, V>
 {
@@ -67,8 +67,8 @@ impl<N: Real + Copy,
  *   - `b2`: second ball to test.
  *   - `out`: collision on which the result will be written.
  */
-pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
-                                N: Real + Copy,
+pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone,
+                                N: Real + Clone,
                                 C: Contact<V, N>>
    (b1: &Ball<N, V>, b2: &Ball<N, V>, out: &mut C) -> bool
 {
@@ -100,8 +100,8 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
  *   - `b1`: first ball to test.
  *   - `b2`: second ball to test.
  */
-pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
-                         N: Real + Copy,
+pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone,
+                         N: Real + Clone,
                          C: Contact<V, N>>
    (b1: &Ball<N, V>, b2: &Ball<N, V>) -> Option<C>
 {
@@ -120,8 +120,8 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Copy,
  *   - `b1`: first ball to test.
  *   - `b2`: second ball to test.
  */
-pub fn closest_points<N: Copy,
-                      V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Copy>
+pub fn closest_points<N: Clone,
+                      V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Clone>
        (b1: &Ball<N, V>, b2: &Ball<N, V>) -> (V, V)
 {
   let r1     = b1.radius();

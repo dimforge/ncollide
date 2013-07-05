@@ -39,6 +39,15 @@ pub trait Contact<V, N>
   fn world2(&self) -> V;
 }
 
+pub trait UpdatableContact<V, N> : Contact<V, N>
+{
+  fn set_local1(&mut self, V);
+  fn local1(&self) -> V;
+
+  fn set_local2(&mut self, V);
+  fn local2(&self) -> V;
+}
+
 /**
  * Creates a new, meaninless contact.
  */
@@ -73,4 +82,30 @@ pub fn set<V: Add<V, V> + ScalarDiv<N>,
   contact.set_world2(wc2);
   contact.set_normal(normal);
   contact.set_depth (depth);
+}
+
+pub fn copy_to<V: Add<V, V> + ScalarDiv<N>,
+               N: One + Add<N, N>,
+               C: Contact<V, N>>
+       (in: &C, out: &mut C)
+{
+  out.set_center(in.center());
+  out.set_world1(in.world1());
+  out.set_world2(in.world2());
+  out.set_normal(in.normal());
+  out.set_depth(in.depth());
+}
+
+pub fn copy_updatable_to<V: Add<V, V> + ScalarDiv<N>,
+                         N: One + Add<N, N>,
+                         C: UpdatableContact<V, N>>
+       (in: &C, out: &mut C)
+{
+  out.set_center(in.center());
+  out.set_world1(in.world1());
+  out.set_world2(in.world2());
+  out.set_normal(in.normal());
+  out.set_depth(in.depth());
+  out.set_local1(in.local1());
+  out.set_local2(in.local2());
 }

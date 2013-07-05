@@ -5,7 +5,7 @@ use geom::implicit::Implicit;
  * Implicit represention of the reflection of a geometric object.
  * A reflection is obtained with the central symetry wrt the origin.
  */
-#[deriving(Eq)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Reflection<'self, G>
 { priv g: &'self G }
 

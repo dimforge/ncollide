@@ -13,7 +13,7 @@ use geom::plane;
  * Enumeration grouping all common shapes. Used to simplify collision detection
  * dispatch.
  */
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub enum DefaultGeom<N, V, M, I> {
   Plane(plane::Plane<V>),
   Ball(ball::Ball<N, V>),
@@ -27,7 +27,7 @@ impl<N, V, I, M: One + Transform<V> + Rotate<V>> DefaultGeom<N, V, M, I>
 }
 
 impl<N,
-     V: Copy + Add<V, V> + Neg<V>,
+     V: Clone + Add<V, V> + Neg<V>,
      I,
      M: One + Translation<V> + Transform<V>>
     DefaultGeom<N, V, M, I>
@@ -114,7 +114,7 @@ impl<N, V, I, M> DefaultGeom<N, V, M, I>
 // Since we cannot implement HasBoundingVolume twice, we wont be able to
 // implement any other bounding volume… That’s bad.
 impl<N,
-     V: Bounded + Neg<V> + ScalarAdd<N> + ScalarSub<N> + Ord + Copy,
+     V: Bounded + Neg<V> + ScalarAdd<N> + ScalarSub<N> + Ord + Clone,
      M,
      I: HasBoundingVolume<AABB<V>>>
     HasBoundingVolume<AABB<V>> for DefaultGeom<N, V, M, I>
@@ -131,7 +131,7 @@ impl<N,
 }
 
 impl<N,
-     V: Copy + Add<V, V> + Neg<V>,
+     V: Clone + Add<V, V> + Neg<V>,
      M: One + Translation<V> + Transform<V> + Rotate<V>,
      I: Transformation<M>>
 Transformation<M> for DefaultGeom<N, V, M, I>

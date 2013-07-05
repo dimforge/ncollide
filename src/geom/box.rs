@@ -5,7 +5,7 @@ use nalgebra::traits::inv::Inv;
 use geom::implicit::Implicit;
 use geom::transformed::Transformed;
 
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Box<N, V>
 { priv half_extents: V }
 
@@ -20,15 +20,15 @@ impl<V: Iterable<N>, N: Signed> Box<N, V>
   }
 }
 
-impl<V: Copy, N> Box<N, V>
+impl<V: Clone, N> Box<N, V>
 {
   #[inline]
   pub fn half_extents(&self) -> V
-  { copy self.half_extents }
+  { self.half_extents.clone() }
 }
 
 impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
-     N: Zero + Signed + Neg<N> + Copy>
+     N: Zero + Signed + Neg<N> + Clone>
     Implicit<V> for Box<N, V>
 {
   #[inline]
@@ -43,7 +43,7 @@ impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
         if side.is_negative()
         { -extent }
         else
-        { copy *extent }
+        { extent.clone() }
       };
 
     // FIXME: cant do that due to limitations:
@@ -56,10 +56,10 @@ impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
   }
 }
 
-impl<V: Copy, N, M: Copy + Mul<M, M> + Inv>
+impl<V: Clone, N: Clone, M: Clone + Mul<M, M> + Inv>
 Transformable<M, Transformed<Box<N, V>, M, N>> for Box<N, V>
 {
   #[inline]
   fn transformed(&self, transform: &M) -> Transformed<Box<N, V>, M, N>
-  { Transformed::new(copy *transform, copy *self) }
+  { Transformed::new(transform.clone(), self.clone()) }
 }

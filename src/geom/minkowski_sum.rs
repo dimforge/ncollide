@@ -18,7 +18,7 @@ use geom::implicit::Implicit;
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
  */
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct MinkowskiSum<'self, G1, G2>
 {
   priv g1: &'self G1,
@@ -50,7 +50,7 @@ Implicit<V> for MinkowskiSum<'self, G1, G2>
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
  */
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct AnnotatedMinkowskiSum<'self, G1, G2>
 {
   priv g1: &'self G1,
@@ -84,6 +84,7 @@ Implicit<AnnotatedPoint<V>> for AnnotatedMinkowskiSum<'self, G1, G2>
 
 // Annotated point with various trait implementations
 // FIXME: AnnotatedPoint is not a good name.
+#[deriving(Clone, ToStr)]
 pub struct AnnotatedPoint<V>
 {
   priv orig1: V,
@@ -196,7 +197,7 @@ impl<V: SubDot<N>, N> SubDot<N> for AnnotatedPoint<V>
   { self.point.sub_dot(&sub.point, &dot.point) }
 }
 
-impl<V: Norm<N> + Copy, N> Norm<N> for AnnotatedPoint<V>
+impl<V: Norm<N> + Clone, N> Norm<N> for AnnotatedPoint<V>
 {
   fn norm(&self) -> N
   { self.point.norm() }
@@ -206,7 +207,7 @@ impl<V: Norm<N> + Copy, N> Norm<N> for AnnotatedPoint<V>
 
   /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
   fn normalized(&self) -> AnnotatedPoint<V>
-  { AnnotatedPoint::new(copy self.orig1, copy self.orig2, self.point.normalized()) }
+  { AnnotatedPoint::new(self.orig1.clone(), self.orig2.clone(), self.point.normalized()) }
 
   /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
   fn normalize(&mut self) -> N
@@ -271,11 +272,11 @@ impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V>
   { self.point.approx_eq_eps(&other.point, epsilon) }
 }
 
-impl<'self, G1, G2, M: Copy + Mul<M, M> + Inv, N>
+impl<'self, G1: Clone, G2: Clone, M: Clone + Mul<M, M> + Inv, N>
 Transformable<M, Transformed<MinkowskiSum<'self, G1, G2>, M, N>> for MinkowskiSum<'self, G1, G2>
 {
   fn transformed(&self, transform: &M) -> Transformed<MinkowskiSum<'self, G1, G2>, M, N>
   {
-    Transformed::new(copy *transform, copy *self)
+    Transformed::new(transform.clone(), self.clone())
   }
 }

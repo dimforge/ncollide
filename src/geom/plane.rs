@@ -9,7 +9,7 @@ use bounding_volume::has_bounding_volume::HasBoundingVolume;
  *
  *   - `V`: type of the plane center and normal.
  */
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Plane<V>
 {
   priv center: V,
@@ -25,17 +25,17 @@ impl<V> Plane<V>
 }
 
 
-impl<V: Copy> Plane<V>
+impl<V: Clone> Plane<V>
 {
   /// The plane normal.
   #[inline]
   pub fn normal(&self) -> V
-  { copy self.normal }
+  { self.normal.clone() }
 
   /// The plane center.
   #[inline]
   pub fn center(&self) -> V
-  { copy self.center }
+  { self.center.clone() }
 }
 
 impl<V, M: Transform<V> + Rotate<V>> Transformation<M> for Plane<V>
@@ -57,6 +57,17 @@ impl<V, M: Transform<V> + Rotate<V>> Transformation<M> for Plane<V>
   }
 }
 
+impl<V: Clone> Transform<V> for Plane<V>
+{
+  #[inline]
+  fn transform_vec(&self, v: &V) -> V
+  { v.clone() } // FIXME: we shit a little bit here =)
+
+  #[inline]
+  fn inv_transform(&self, v: &V) -> V
+  { v.clone() } // FIXME: we shit a little bit here =)
+}
+
 impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V>
 {
   #[inline]
@@ -68,7 +79,7 @@ impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V>
 // FIXME: these is something bad here…
 // Since we cannot implement HasBoundingVolume twice, we wont be able to
 // implement any other bounding volume… That’s bad.
-impl<V: Bounded + Neg<V> + Ord + Copy>
+impl<V: Bounded + Neg<V> + Ord + Clone>
     HasBoundingVolume<AABB<V>> for Plane<V>
 {
   fn bounding_volume(&self) -> AABB<V>

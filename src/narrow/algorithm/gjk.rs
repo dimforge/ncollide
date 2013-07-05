@@ -16,8 +16,8 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points_johnson<G1: Implicit<V>,
                               G2: Implicit<V>,
                               V:  Norm<N> + SubDot<N> + VectorSpace<N> +
-                                  Dim + Rand + Copy + Eq,
-                              N:  Ord + DivisionRing + Bounded + Float + Eq>
+                                  Dim + Rand + Clone + Eq,
+                              N:  Ord + DivisionRing + Bounded + Clone + Float + Eq>
                               (g1: &G1, g2: &G2) -> Option<(V, V)>
 { closest_points::<JohnsonSimplex<AnnotatedPoint<V>, N>, G1, G2, V, N>(g1, g2) }
 
@@ -25,8 +25,8 @@ pub fn closest_points_with_initial_direction_johnson
        <G1: Implicit<V>,
         G2: Implicit<V>,
         V:  Norm<N> + SubDot<N> + VectorSpace<N> +
-            Dim + Rand + Copy + Eq,
-        N:  Ord + DivisionRing + Bounded + Float + Eq>
+            Dim + Rand + Clone + Eq,
+        N:  Ord + DivisionRing + Bounded + Float + Clone + Eq>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {
   closest_points_with_initial_direction
@@ -36,7 +36,7 @@ pub fn closest_points_with_initial_direction_johnson
 pub fn closest_points<S:  Simplex<AnnotatedPoint<V>, N>,
                       G1: Implicit<V>,
                       G2: Implicit<V>,
-                      V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Rand + Zero + Copy,
+                      V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Rand + Zero + Clone,
                       N:  Sub<N, N> + Ord + Mul<N, N> + Float>
                      (g1: &G1, g2: &G2) -> Option<(V, V)>
 { closest_points_with_initial_direction::<S, G1, G2, V, N>(g1, g2, random()) }
@@ -45,7 +45,7 @@ pub fn closest_points_with_initial_direction
        <S:  Simplex<AnnotatedPoint<V>, N>,
         G1: Implicit<V>,
         G2: Implicit<V>,
-        V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Zero + Copy,
+        V:  Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim + Zero + Clone,
         N:  Sub<N, N> + Ord + Mul<N, N> + Float>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {
@@ -55,7 +55,7 @@ pub fn closest_points_with_initial_direction
   match project_origin_with_initial_direction
         ::<S, AnnotatedCSO<G1, G2>, AnnotatedPoint<V>, N>(&cso, AnnotatedPoint::new_invalid(dir))
   {
-    Some(ref pt) => Some((copy *pt.orig1(), -pt.orig2())),
+    Some(ref pt) => Some((pt.orig1().clone(), -pt.orig2())),
     None         => None
   }
 }
@@ -101,6 +101,8 @@ pub fn project_origin_with_simplex<S: Simplex<V, N>,
 
     simplex.add_point(support_point);
 
+    let old_proj = proj;
+
     proj = simplex.project_origin_and_reduce();
 
     let old_sq_len_dir = sq_len_dir;
@@ -111,9 +113,6 @@ pub fn project_origin_with_simplex<S: Simplex<V, N>,
     { return None } // point inside of the cso
 
     if (sq_len_dir >= old_sq_len_dir) // upper bounds inconsistencies
-    {
-      // FIXME: we should return the last projection instead
-      return Some(proj)
-    }
+    { return Some(old_proj) }
   }
 }
