@@ -89,12 +89,7 @@ JohnsonSimplex<V, N>
                          " of mutable static variables."),
         Right(ref mut t) =>
           for uint::iterate(t.len(), Dim::dim::<V>() + 1u) |dim|
-          {
-            t.push(JohnsonSimplex::make_permutation_list::<V, N>(dim));
-
-            println("Recursion template for dimension: " + dim.to_str());
-            println(t[t.len() - 1].to_str());
-          }
+          { t.push(JohnsonSimplex::make_permutation_list::<V, N>(dim)) }
       }
     }
   }
