@@ -35,7 +35,12 @@ impl<S:  Simplex<AnnotatedPoint<V>, N>,
   {
     match self.contact
     {
-      None    => self.contact = collide_implicit_implicit::<S, G1, G2, V, N, C>(a, b).map(|&c| @mut c),
+      None    => self.contact =
+        match collide_implicit_implicit::<S, G1, G2, V, N, C>(a, b)
+        {
+          Some(c) => Some(@mut c),
+          None    => None
+        },
       Some(c) => if !update_collide_implicit_implicit::<S, G1, G2, V, N, C>(a, b, c)
                  { self.contact = None }
     }

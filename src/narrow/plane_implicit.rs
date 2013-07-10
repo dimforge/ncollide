@@ -22,7 +22,7 @@ pub struct ImplicitPlaneCollisionDetector<N, V, G, C>
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>,
-     C: Contact<V, N>>
+     C: Contact<V, N> + Clone>
     CollisionDetector<C, Plane<V>, G> for PlaneImplicitCollisionDetector<N, V, G, C>
 {
   #[inline]
@@ -33,7 +33,7 @@ impl<V: VectorSpace<N> + Dot<N> + Clone,
  {
    match self.contact
    {
-     None => self.contact = collide_plane_implicit_shape(a, b).map(|&c| @mut c),
+     None    => self.contact = collide_plane_implicit_shape(a, b).map(|c: &C| @mut c.clone()),
      Some(c) => if !update_collide_plane_implicit_shape(a, b, c)
                 { self.contact = None }
    }
@@ -74,7 +74,12 @@ impl<V: VectorSpace<N> + Dot<N> + Clone,
  {
    match self.contact
    {
-     None => self.contact = collide_plane_implicit_shape(b, a).map(|&c| @mut c),
+     None => self.contact =
+       match collide_plane_implicit_shape(b, a)
+       {
+         Some(c) => Some(@mut c),
+         None    => None
+       },
      Some(c) => if !update_collide_plane_implicit_shape(b, a, c)
                 { self.contact = None }
    }

@@ -411,7 +411,7 @@ impl<V: Clone         +
   { self.points.iter().transform(|v| v.sqnorm()).max().unwrap() }
 
   pub fn contains_point(&self, pt: &V) -> bool
-  { self.points.iter().any_(|v| pt == v) }
+  { self.points.iter().any(|v| pt == v) }
 
   pub fn add_point(&mut self, pt: V)
   {

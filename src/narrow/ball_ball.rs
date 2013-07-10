@@ -32,7 +32,12 @@ impl<N: Real + Clone,
   {
     match self.contact
     {
-      None    => self.contact = collide_ball_ball(a, b).map(|&c| @mut c),
+      None    => self.contact =
+        match collide_ball_ball(a, b)
+        {
+          Some(c) => Some(@mut c),
+          None    => None
+        },
       Some(c) => if !update_collide_ball_ball(a, b, c)
                  { self.contact = None }
     }
