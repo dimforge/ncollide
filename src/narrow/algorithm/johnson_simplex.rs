@@ -3,6 +3,7 @@ use std::uint;
 use std::num::{Zero, One};
 use std::iterator::IteratorUtil;
 use std::vec;
+use std::local_data;
 use extra::treemap::TreeMap;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::division_ring::DivisionRing;
@@ -29,26 +30,10 @@ struct RecursionTemplate
   num_leaves:       uint // useful only for printing…
 }
 
-// XXX: we use an Either instead of an Option since the compiler will generate
-// something buggy with Option.
-// static mut templates: Option<~[RecursionTemplate]> = None;
-// FIXME: wont work with concurency…
-static mut templates: Either<int, ~[RecursionTemplate]> = Left(42);
+fn key_recursion_template(_: @mut ~[@RecursionTemplate]) { }
 
-impl<V: Clone         +
-        SubDot<N>    +
-        ScalarMul<N> +
-        ScalarDiv<N> +
-        Zero         +
-        Add<V, V>    +
-        Dim,
-     N: Ord          +
-        Clone        +
-        Copy         + // FIXME: needed?
-        Eq           +
-        DivisionRing +
-        Ord          +
-        Bounded>
+impl<V: Clone + SubDot<N> + ScalarMul<N> + ScalarDiv<N> + Zero + Add<V, V> + Dim,
+     N: Ord + Clone + Copy + Eq + DivisionRing + Ord + Bounded>
 JohnsonSimplex<V, N>
 {
   pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
@@ -66,12 +51,16 @@ JohnsonSimplex<V, N>
       , exchange_points: expoints
       , cofactors:       vec::from_elem(
         unsafe {
-          match templates
+          do local_data::get(key_recursion_template) |lopt|
           {
-            Right(ref mut l) => l[_dim].num_cofactors,
-            Left(_)          => fail!("Recursion template was not intialized.")
+            match lopt
+            {
+              Some(l) => l[_dim].num_cofactors,
+              None    => fail!("Recursion template was not intialized.")
+            }
           }
-        }, Zero::zero())
+        }
+      , Zero::zero())
     };
 
     res
@@ -80,16 +69,20 @@ JohnsonSimplex<V, N>
   fn make_permutation_lists()
   {
     unsafe {
-      if templates.is_left()
-      { templates = Right(~[]) }
-
-      match templates
+      do local_data::get(key_recursion_template) |lopt|
       {
-        Left(_) => fail!("There seem to be a compiler error for the implementation" +
-                         " of mutable static variables."),
-        Right(ref mut t) =>
-          for uint::iterate(t.len(), Dim::dim::<V>() + 1u) |dim|
-          { t.push(JohnsonSimplex::make_permutation_list::<V, N>(dim)) }
+        if lopt.is_none()
+        {
+          local_data::set(key_recursion_template, @mut ~[])
+        }
+      }
+
+      do local_data::get(key_recursion_template) |lopt|
+      {
+        let template = lopt.unwrap();
+
+        for uint::iterate(template.len(), Dim::dim::<V>() + 1u) |dim|
+        { template.push(@JohnsonSimplex::make_permutation_list::<V, N>(dim)) }
       }
     }
   }
@@ -245,12 +238,8 @@ JohnsonSimplex<V, N>
     let max_num_pts          = self.points.len();
     let recursion            =
       unsafe {
-        match templates
-        {
-          Left(_) => fail!("There seem to be a compiler error for the implementation" +
-                        " of mutable static variables."),
-          Right(ref mut t) => &t[max_num_pts - 1]
-        }
+        do local_data::get(key_recursion_template) |template_opt|
+        { template_opt.unwrap()[max_num_pts - 1] }
       };
     let mut curr_num_pts     = 1u;
     let mut curr             = max_num_pts;
