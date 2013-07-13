@@ -47,7 +47,7 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
       }
     }
 
-    if !mat.invert()
+    if !mat.inplace_inverse()
     { None }
     else
     {
