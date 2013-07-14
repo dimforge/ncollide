@@ -30,7 +30,7 @@ struct RecursionTemplate
   num_leaves:       uint // useful only for printing…
 }
 
-fn key_recursion_template(_: @mut ~[@RecursionTemplate]) { }
+static key_recursion_template: local_data::Key<@mut ~[@RecursionTemplate]> = &local_data::Key;
 
 impl<V: Clone + SubDot<N> + ScalarMul<N> + ScalarDiv<N> + Zero + Add<V, V> + Dim,
      N: Ord + Clone + Copy + Eq + DivisionRing + Ord + Bounded>
@@ -50,14 +50,12 @@ JohnsonSimplex<V, N>
       points:            points
       , exchange_points: expoints
       , cofactors:       vec::from_elem(
-        unsafe {
-          do local_data::get(key_recursion_template) |lopt|
+        do local_data::get(key_recursion_template) |lopt|
+        {
+          match lopt
           {
-            match lopt
-            {
-              Some(l) => l[_dim].num_cofactors,
-              None    => fail!("Recursion template was not intialized.")
-            }
+            Some(l) => l[_dim].num_cofactors,
+            None    => fail!("Recursion template was not intialized.")
           }
         }
       , Zero::zero())
@@ -68,22 +66,20 @@ JohnsonSimplex<V, N>
 
   fn make_permutation_lists()
   {
-    unsafe {
-      do local_data::get(key_recursion_template) |lopt|
+    do local_data::get(key_recursion_template) |lopt|
+    {
+      if lopt.is_none()
       {
-        if lopt.is_none()
-        {
-          local_data::set(key_recursion_template, @mut ~[])
-        }
+        local_data::set(key_recursion_template, @mut ~[])
       }
+    }
 
-      do local_data::get(key_recursion_template) |lopt|
-      {
-        let template = lopt.unwrap();
+    do local_data::get(key_recursion_template) |lopt|
+    {
+      let template = lopt.unwrap();
 
-        for uint::iterate(template.len(), Dim::dim::<V>() + 1u) |dim|
-        { template.push(@JohnsonSimplex::make_permutation_list::<V, N>(dim)) }
-      }
+      for uint::iterate(template.len(), Dim::dim::<V>() + 1u) |dim|
+      { template.push(@JohnsonSimplex::make_permutation_list::<V, N>(dim)) }
     }
   }
 
@@ -236,11 +232,8 @@ JohnsonSimplex<V, N>
     let _0                   = Zero::zero::<N>();
     let _1                   = One::one::<N>();
     let max_num_pts          = self.points.len();
-    let recursion            =
-      unsafe {
-        do local_data::get(key_recursion_template) |template_opt|
-        { template_opt.unwrap()[max_num_pts - 1] }
-      };
+    let recursion            = do local_data::get(key_recursion_template) |template_opt|
+                               { template_opt.unwrap()[max_num_pts - 1] };
     let mut curr_num_pts     = 1u;
     let mut curr             = max_num_pts;
 
