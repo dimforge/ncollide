@@ -34,8 +34,8 @@ macro_rules! test_johnson_simplex_impl(
         v1.scalar_sub_inplace(&(0.5 as $n));
         v1.scalar_mul_inplace(&(i   as $n));
 
-        let mut splx1 = JohnsonSimplex::new(copy v1);
-        let mut splx2 = BruteForceSimplex::new(copy v1);
+        let mut splx1 = JohnsonSimplex::new(v1.clone());
+        let mut splx2 = BruteForceSimplex::new(v1.clone());
 
         for d.times
         {
@@ -43,7 +43,7 @@ macro_rules! test_johnson_simplex_impl(
           v.scalar_sub_inplace(&(0.5 as $n));
           v.scalar_mul_inplace(&(i   as $n));
 
-          splx1.add_point(copy v);
+          splx1.add_point(v.clone());
           splx2.add_point(v);
         }
 

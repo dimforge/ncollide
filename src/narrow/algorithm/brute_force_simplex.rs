@@ -16,7 +16,7 @@ pub struct BruteForceSimplex<V, N>
 }
 
 impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
-     N: Ord + Clone + Copy + Eq + DivisionRing + Ord>
+     N: Ord + Clone + Eq + DivisionRing + Ord>
     BruteForceSimplex<V, N>
 {
   pub fn new(initial_point: V) -> BruteForceSimplex<V, N>
@@ -124,7 +124,7 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
 }
 
 impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N> + Eq + Dim,
-     N: Ord + Clone + Copy + Eq + DivisionRing + Ord>
+     N: Ord + Clone + Eq + DivisionRing + Ord>
 Simplex<V, N> for BruteForceSimplex<V, N>
 {
   pub fn new(initial_point: V) -> BruteForceSimplex<V, N>

@@ -1,6 +1,6 @@
 use std::num::{Zero, Signed};
 use nalgebra::traits::transformation::Transformable;
-use nalgebra::traits::iterable::{Iterable, IterableMut, FromAnyIterator};
+use nalgebra::traits::iterable::{Iterable, IterableMut};
 use nalgebra::traits::inv::Inv;
 use geom::implicit::Implicit;
 use geom::transformed::Transformed;
@@ -27,7 +27,7 @@ impl<V: Clone, N> Box<N, V>
   { self.half_extents.clone() }
 }
 
-impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
+impl<V: Iterable<N> + IterableMut<N> + Zero,
      N: Zero + Signed + Neg<N> + Clone>
     Implicit<V> for Box<N, V>
 {
@@ -46,9 +46,6 @@ impl<V: FromAnyIterator<N> + Iterable<N> + IterableMut<N> + Zero,
         { extent.clone() }
       };
 
-    // FIXME: cant do that due to limitations:
-    // FromAnyIterator::from_iterator(&mut res)
-    // instead, we do:
     for res.zip(vres.mut_iter()).advance |(in, out)|
     { *out = in }
 

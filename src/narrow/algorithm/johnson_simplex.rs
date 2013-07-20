@@ -33,7 +33,7 @@ struct RecursionTemplate
 static key_recursion_template: local_data::Key<@mut ~[@RecursionTemplate]> = &local_data::Key;
 
 impl<V: Clone + SubDot<N> + ScalarMul<N> + ScalarDiv<N> + Zero + Add<V, V> + Dim,
-     N: Ord + Clone + Copy + Eq + DivisionRing + Ord + Bounded>
+     N: Ord + Clone + Eq + DivisionRing + Ord + Bounded>
 JohnsonSimplex<V, N>
 {
   pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
@@ -376,7 +376,6 @@ impl<V: Clone         +
         Dim,
      N: Ord          +
         Clone        +
-        Copy         + // FIXME: needed?
         Eq           +
         DivisionRing +
         Ord          +
