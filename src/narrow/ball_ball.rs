@@ -19,7 +19,7 @@ pub struct BallBallCollisionDetector<C, N, V>
 }
 
 impl<N: Real + Clone,
-     C: Contact<V, N>,
+     C: 'static + Contact<V, N>,
      V: VectorSpace<N> + Norm<N> + Clone> 
     CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
     BallBallCollisionDetector<C, N, V>

@@ -37,7 +37,7 @@ enum DefaultDefaultCollisionDetector<C, N, V, M, S, I>
  */
 // FIXME: Ring + Real ?
 impl<N: ApproxEq<N> + DivisionRing + Real + Float + Ord + Clone,
-     C: UpdatableContact<V, N> + Clone + ToStr + Freeze + DeepClone,
+     C: 'static + UpdatableContact<V, N> + Clone + ToStr + Freeze + DeepClone,
      V: VectorSpace<N> + Dim + Dot<N> + Norm<N> + Rand + UniformSphereSample + ApproxEq<N> + Eq + Clone,
      M,
      S: Simplex<AnnotatedPoint<V>, N>,

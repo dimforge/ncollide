@@ -23,7 +23,7 @@ impl<S:  Simplex<AnnotatedPoint<V>, N>,
      G2: Implicit<V>,
      V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand + UniformSphereSample + Clone,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
-     C:  Contact<V, N>>
+     C:  'static + Contact<V, N>>
     CollisionDetector<C, G1, G2> for
     ImplicitImplicitCollisionDetector<S, C, G1, G2, V, N>
 {

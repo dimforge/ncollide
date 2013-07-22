@@ -17,7 +17,7 @@ pub struct IncrementalContactManifoldGenerator<C, CD, V, N>
   priv sub_detector: CD
 }
 
-impl<C:  UpdatableContact<V, N> + ToStr + Clone + Freeze + DeepClone,
+impl<C:  'static + UpdatableContact<V, N> + ToStr + Freeze + DeepClone,
      CD: CollisionDetector<C, G1, G2>,
      G1: Transform<V>,
      G2: Transform<V>,
@@ -34,7 +34,6 @@ CollisionDetector<C, G1, G2> for IncrementalContactManifoldGenerator<C, CD, V, N
     }
   }
 
-  #[inline]
   fn update(&mut self, g1: &G1, g2: &G2)
   {
     // cleanup existing contacts

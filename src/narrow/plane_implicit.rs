@@ -22,7 +22,7 @@ pub struct ImplicitPlaneCollisionDetector<N, V, G, C>
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>,
-     C: Contact<V, N> + Clone>
+     C: 'static + Contact<V, N> + Clone>
     CollisionDetector<C, Plane<V>, G> for PlaneImplicitCollisionDetector<N, V, G, C>
 {
   #[inline]
@@ -63,7 +63,7 @@ impl<V: VectorSpace<N> + Dot<N> + Clone,
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>,
-     C: Contact<V, N>>
+     C: 'static + Contact<V, N>>
     CollisionDetector<C, G, Plane<V>> for ImplicitPlaneCollisionDetector<N, V, G, C>
 {
   #[inline]
