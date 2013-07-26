@@ -86,7 +86,7 @@ impl<V: Neg<V> + Zero + Clone, N: Clone> Contact<V, N> for GeometricContact<V, N
   { self.world2.clone() }
 }
 
-impl<V: Neg<V> + Clone, N: Clone> UpdatableContact<V, N> for GeometricContact<V, N>
+impl<V: Zero + Neg<V> + Clone, N: Clone> UpdatableContact<V, N> for GeometricContact<V, N>
 {
   #[inline]
   fn set_local1(&mut self, local1: V)

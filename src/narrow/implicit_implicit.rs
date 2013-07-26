@@ -21,8 +21,8 @@ pub struct ImplicitImplicitCollisionDetector<S, C, G1, G2, V, N>
 impl<S:  Simplex<AnnotatedPoint<V>, N>,
      G1: Implicit<V>,
      G2: Implicit<V>,
-     V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand + UniformSphereSample + Clone,
-     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
+     V:  ToStr + Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand + UniformSphereSample + Clone,
+     N:  ToStr + Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
      C:  'static + Contact<V, N>>
     CollisionDetector<C, G1, G2> for
     ImplicitImplicitCollisionDetector<S, C, G1, G2, V, N>
@@ -71,9 +71,9 @@ pub fn update_collide_implicit_implicit
        <S:  Simplex<AnnotatedPoint<V>, N>,
         G1: Implicit<V>,
         G2: Implicit<V>,
-        V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand +
+        V:  ToStr + Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand +
             UniformSphereSample + Clone,
-        N:  Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
+        N:  ToStr + Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
         C:  Contact<V, N>>
        (g1: &G1, g2: &G2, out: &mut C) -> bool
 {
@@ -82,36 +82,42 @@ pub fn update_collide_implicit_implicit
 
   match gjk::closest_points::<S, G1, G2, V, N>(g1, g2)
   {
-    Some((p1, p2)) => if (p2 - p1).sqnorm() >= _margin * _margin * NumCast::from(4.0f64)
-                      { false }
-                      else
-                      {
-                        let _2  : N = NumCast::from(2.0f64);
-                        let mut normal = p2 - p1;
-                        let depth      = normal.normalize();
-                        contact::set(out,
-                                     p1 + normal.scalar_mul(&_margin),
-                                     p2 + normal.scalar_mul(&-_margin),
-                                     normal,
-                                     _2 * _margin - depth);
+    Some((p1, p2)) => {
+      let p1p2 = p2 - p1;
+      let sqn  = p1p2.sqnorm();
 
-                        true
-                      },
-    None => {
-      // The point is inside of the CSO: use the fallback algorithm
-      match minkowski_sampling::closest_points::<S, G1, G2, V, N>(g1, g2, _margin)
+      if sqn >= _margin * _margin * NumCast::from(4.0f64)
+      { return false }
+      else if !sqn.is_zero()
       {
-        Some((p1, p2)) => {
-          let mut normal = p1 - p2;
-          let depth      = normal.normalize();
+        let mut normal = p1p2;
+        let depth      = normal.normalize();
+        contact::set(out,
+        p1 + normal.scalar_mul(&_margin),
+        p2 + normal.scalar_mul(&-_margin),
+        normal,
+        _margin + _margin - depth);
 
-          contact::set(out, p1, p2, normal, depth);
+        // println("depth: " + (_margin + _margin - depth).to_str());
 
-          true
-        }
-        None => false // fail!("Both GJK and fallback algorithm failed.")
+        return true
       }
+    },
+    None => { }
+  }
+
+  // The point is inside of the CSO: use the fallback algorithm
+  match minkowski_sampling::closest_points::<S, G1, G2, V, N>(g1, g2, _margin)
+  {
+    Some((p1, p2)) => {
+      let mut normal = p1 - p2;
+      let depth      = normal.normalize();
+
+      contact::set(out, p1, p2, normal, depth);
+
+      true
     }
+    None => false // fail!("Both GJK and fallback algorithm failed.")
   }
 }
 
@@ -119,9 +125,9 @@ pub fn collide_implicit_implicit
        <S:  Simplex<AnnotatedPoint<V>, N>,
         G1: Implicit<V>,
         G2: Implicit<V>,
-        V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand +
+        V:  ToStr + Norm<N> + VectorSpace<N> + Dot<N> + Dim + Rand +
             UniformSphereSample + Clone,
-        N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
+        N:  ToStr + Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
         C:  Contact<V, N>>
       (g1: &G1, g2: &G2) -> Option<C>
 {

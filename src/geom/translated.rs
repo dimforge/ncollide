@@ -16,7 +16,6 @@ impl<'self, G, V> Translated<'self, G, V>
   { Translated { g: g, t: t } }
 }
 
-// FIXME: relax V by needing only Translation<V> ?
 impl<'self, V: Add<V, V>, G: Implicit<V>> Implicit<V> for Translated<'self, G, V>
 {
   #[inline]

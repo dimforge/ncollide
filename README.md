@@ -11,8 +11,7 @@ dimensions (never tried).
 
 ## Compilation
 You will need the last rust compiler from the master branch.
-I pull the compiler and fix my code almost every days. If you encounter
-problems, make sure you have the last version.
+If you encounter problems, make sure you have the last version before creating an issue.
 
 The simplest way to build **ncollide** and all its dependencies is to do a
 recursive clone:
@@ -22,19 +21,19 @@ recursive clone:
     cd ncollide
     make deps
     make
-    
+
 ## Features
 Almost nothing:
 
 - ball vs. ball collision detection,
 - plane vs. any convex object collision detection.
+- collision detection between arbitrary convex objects
 
 And various traits for collision detectors and broad phase collision detection.
 
 ## What is missing
 Almost everything:
 
-- collision detection between arbitrary convex object (nearly done)
 - efficient broad phases (nearly done)
 - composite geometries
 - heightmaps and simplex meshes (eg. triangle mesh for 3d and line strips for

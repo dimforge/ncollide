@@ -3,7 +3,8 @@ use std::managed;
 use nalgebra::traits::translation::Translation;
 use utils::empty::Empty;
 use broad::broad_phase::BroadPhase;
-use bounding_volume::bounding_volume::BoundingVolume;
+use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
+use bounding_volume::has_bounding_volume::HasBoundingVolume;
 
 pub trait HasDBVHProxy<BV, V>
 {
@@ -190,11 +191,30 @@ impl<BV, RB, V, N> DBVHBroadPhase<BV, RB, V, N>
   }
 }
 
-impl<BV, RB, V, N> BroadPhase<RB> for DBVHBroadPhase<BV, RB, V, N>
+impl<BV: 'static + LooseBoundingVolume<N> + Translation<V>,
+     RB: 'static + HasBoundingVolume<BV> + HasDBVHProxy<BV, V>,
+     V:  'static,
+     N:  'static + Clone> BroadPhase<RB> for DBVHBroadPhase<BV, RB, V, N>
 {
-  fn add(&mut self, _: @mut RB)
+  fn add(&mut self, rb: @mut RB)
   {
-    fail!("Not yet implemented.");
+    // FIXME: test that the body has not been added already?
+    let bv = rb.bounding_volume().loosened(self.margin.clone());
+
+    let new_node = @mut DBVHNode {
+      center:          bv.translation(),
+      bounding_volume: bv,
+      body:            Some(rb),
+      left:            None,
+      right:           None,
+      parent:          None,
+      state:           UpToDate
+    };
+
+    let proxy = rb.proxy_mut();
+    *proxy = DBVHProxy::new(new_node);
+
+    self.panding.push(new_node);
   }
 
   fn remove(&mut self, _: @mut RB)

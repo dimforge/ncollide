@@ -64,7 +64,7 @@ impl<V: Ord + Clone> BoundingVolume for AABB<V>
   }
 }
 
-impl<V: Ord + ScalarAdd<N> + ScalarSub<N>, N> LooseBoundingVolume<N> for AABB<V>
+impl<V: Clone + Ord + ScalarAdd<N> + ScalarSub<N>, N> LooseBoundingVolume<N> for AABB<V>
 {
   #[inline]
   fn loosen(&mut self, amount: N)

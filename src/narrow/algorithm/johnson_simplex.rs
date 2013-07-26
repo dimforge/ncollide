@@ -5,6 +5,7 @@ use std::iterator::IteratorUtil;
 use std::vec;
 use std::local_data;
 use extra::treemap::TreeMap;
+use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::dim::Dim;
@@ -32,8 +33,8 @@ struct RecursionTemplate
 
 static key_recursion_template: local_data::Key<@mut ~[@RecursionTemplate]> = &local_data::Key;
 
-impl<V: Clone + SubDot<N> + ScalarMul<N> + ScalarDiv<N> + Zero + Add<V, V> + Dim,
-     N: Ord + Clone + Eq + DivisionRing + Ord + Bounded>
+impl<V: Clone + SubDot<N> + ScalarMul<N> + ScalarDiv<N> + Zero + Add<V, V> + Dim + ToStr,
+     N: Ord + Clone + Eq + DivisionRing + Ord + Bounded + ToStr>
 JohnsonSimplex<V, N>
 {
   pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
@@ -361,25 +362,15 @@ JohnsonSimplex<V, N>
       curr_num_pts = curr_num_pts - 1;
     }
 
-    util::unreachable();
+    // println(self.points.to_str());
+    // println(self.cofactors.to_str());
+    Zero::zero()
+    // fail!("Internal error: projection of the origin failed.");
   }
 }
 
-impl<V: Clone         +
-        SubDot<N>    +
-        ScalarMul<N> +
-        ScalarDiv<N> +
-        Zero         +
-        Add<V, V>    +
-        Norm<N>      +
-        Eq           +
-        Dim,
-     N: Ord          +
-        Clone        +
-        Eq           +
-        DivisionRing +
-        Ord          +
-        Bounded>
+impl<V: ToStr + Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim,
+     N: ToStr + Ord + Clone + Eq + DivisionRing + Ord + Bounded>
      Simplex<V, N> for JohnsonSimplex<V, N>
 {
   pub fn new(initial_point: V) -> JohnsonSimplex<V, N>
@@ -446,7 +437,7 @@ impl ToStr for RecursionTemplate
         curr = curr + dim;
       }
 
-      dim += 1;
+      dim = dim + 1;
     }
 
     res = res + " }\n";

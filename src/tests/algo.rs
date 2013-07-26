@@ -9,7 +9,7 @@ use nalgebra::traits::scalar_op::{ScalarSub, ScalarMul};
 #[test]
 use nalgebra::traits::norm::Norm;
 #[test]
-use nalgebra::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use nalgebra::vec::*;
 #[test]
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 #[test]
@@ -76,7 +76,10 @@ macro_rules! test_gjk_ball_ball_impl(
 
       let (p1, p2) = ball_ball::closest_points(&b1, &b2);
 
-      match gjk::closest_points_johnson(&b1, &b2)
+      // FIXME: it is weird to have to type exlicitly the function
+      let pts_johnson = gjk::closest_points_johnson::<Ball<$n, $t>, Ball<$n, $t>, $t, $n>(&b1, &b2);
+
+      match pts_johnson
       {
         Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),
                                     "found: " + jp1.to_str() + " " + jp2.to_str()
@@ -86,6 +89,17 @@ macro_rules! test_gjk_ball_ball_impl(
     }
   )
 )
+
+#[test]
+fn test_gjk_3d_special_case()
+{
+  let mut s = JohnsonSimplex::new(Vec3::new(-0.46536462, -0.043484,   -0.06416665));
+  s.add_point(Vec3::new(0.70202655,  -0.6409216,  0.55151657));
+  s.add_point(Vec3::new(0.5084204,   -0.11851134, -0.27890753));
+  s.add_point(Vec3::new(-0.27175847, -0.56589426, 0.76625745));
+
+  println(s.project_origin().to_str());
+}
 
 #[test]
 fn test_gjk_ball_ball_1d()

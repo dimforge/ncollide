@@ -1,6 +1,9 @@
+use std::uint;
 use std::num::{Zero, Signed};
+use nalgebra::traits::dim::Dim;
+use nalgebra::traits::indexable::Indexable;
 use nalgebra::traits::transformation::Transformable;
-use nalgebra::traits::iterable::{Iterable, IterableMut};
+use nalgebra::traits::iterable::Iterable;
 use nalgebra::traits::inv::Inv;
 use geom::implicit::Implicit;
 use geom::transformed::Transformed;
@@ -27,27 +30,20 @@ impl<V: Clone, N> Box<N, V>
   { self.half_extents.clone() }
 }
 
-impl<V: Iterable<N> + IterableMut<N> + Zero,
-     N: Zero + Signed + Neg<N> + Clone>
-    Implicit<V> for Box<N, V>
+impl<V: Dim + Indexable<uint, N> + Zero, N: Signed> Implicit<V> for Box<N, V>
 {
   #[inline]
   fn support_point(&self, dir: &V) -> V
   {
     let mut vres = Zero::zero::<V>();
 
-    // FIXME: is that slow?
-    let res =
-      do self.half_extents.iter().zip(dir.iter()).transform |(extent, side)|
-      {
-        if side.is_negative()
-        { -extent }
-        else
-        { extent.clone() }
-      };
-
-    for res.zip(vres.mut_iter()).advance |(in, out)|
-    { *out = in }
+    for uint::iterate(0u, Dim::dim::<V>()) |i|
+    {
+      if dir.at(i).is_negative()
+      { vres.set(i, -self.half_extents.at(i)); }
+      else
+      { vres.set(i, self.half_extents.at(i)); }
+    }
 
     vres
   }

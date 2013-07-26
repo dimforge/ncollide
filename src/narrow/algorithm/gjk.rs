@@ -15,18 +15,18 @@ use narrow::algorithm::simplex::Simplex;
 
 pub fn closest_points_johnson<G1: Implicit<V>,
                               G2: Implicit<V>,
-                              V:  Norm<N> + SubDot<N> + VectorSpace<N> +
+                              V:  ToStr + Norm<N> + SubDot<N> + VectorSpace<N> +
                                   Dim + Rand + Clone + Eq,
-                              N:  Ord + DivisionRing + Bounded + Clone + Float + Eq>
+                              N:  ToStr + Ord + DivisionRing + Bounded + Clone + Float + Eq>
                               (g1: &G1, g2: &G2) -> Option<(V, V)>
 { closest_points::<JohnsonSimplex<AnnotatedPoint<V>, N>, G1, G2, V, N>(g1, g2) }
 
 pub fn closest_points_with_initial_direction_johnson
        <G1: Implicit<V>,
         G2: Implicit<V>,
-        V:  Norm<N> + SubDot<N> + VectorSpace<N> +
+        V:  ToStr + Norm<N> + SubDot<N> + VectorSpace<N> +
             Dim + Rand + Clone + Eq,
-        N:  Ord + DivisionRing + Bounded + Float + Clone + Eq>
+        N:  ToStr + Ord + DivisionRing + Bounded + Float + Clone + Eq>
        (g1: &G1, g2: &G2, dir: V) -> Option<(V, V)>
 {
   closest_points_with_initial_direction

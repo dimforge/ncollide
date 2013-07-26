@@ -36,9 +36,9 @@ enum DefaultDefaultCollisionDetector<C, N, V, M, S, I>
  * wrapper on the collision detector specific to each geometry.
  */
 // FIXME: Ring + Real ?
-impl<N: ApproxEq<N> + DivisionRing + Real + Float + Ord + Clone,
+impl<N: ToStr + ApproxEq<N> + DivisionRing + Real + Float + Ord + Clone,
      C: 'static + UpdatableContact<V, N> + Clone + ToStr + Freeze + DeepClone,
-     V: VectorSpace<N> + Dim + Dot<N> + Norm<N> + Rand + UniformSphereSample + ApproxEq<N> + Eq + Clone,
+     V: ToStr + VectorSpace<N> + Dim + Dot<N> + Norm<N> + Rand + UniformSphereSample + ApproxEq<N> + Eq + Clone,
      M,
      S: Simplex<AnnotatedPoint<V>, N>,
      I: Implicit<V> + Transform<V>>

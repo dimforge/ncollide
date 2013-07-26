@@ -17,9 +17,9 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<AnnotatedPoint<V>, N>,
                       G1: Implicit<V>,
                       G2: Implicit<V>,
-                      V:  Norm<N> + Dot<N> + Dim + Rand + VectorSpace<N> +
+                      V:  ToStr + Norm<N> + Dot<N> + Dim + Rand + VectorSpace<N> +
                           UniformSphereSample + Clone,
-                      N:  Sub<N, N> + Ord + Mul<N, N> + Float>
+                      N:  ToStr + Sub<N, N> + Ord + Mul<N, N> + Float>
        (g1: &G1, g2: &G2, margin: N) -> Option<(V, V)>
 {
   // build the cso with enlarged shapes
@@ -36,15 +36,18 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint<V>, N>,
   // find an approximation of the smallest penetration direction
   let mut best_dir: Option<&'static V> = None;
   let mut min_dist = Bounded::max_value();
+  let mut best_support = Zero::zero(); // FIXME: remove that (for debug)
 
   do UniformSphereSample::sample::<V>() |sample|
   {
-    let dist = sample.dot(&cso.support_point(sample));
+    let support = cso.support_point(sample);
+    let dist    = sample.dot(&support);
 
     if (dist < min_dist)
     {
-      best_dir = Some(sample);
-      min_dist = dist;
+      best_dir     = Some(sample);
+      best_support = support;
+      min_dist     = dist;
     }
   }
 
@@ -57,14 +60,22 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint<V>, N>,
   match gjk::closest_points::<S, G1, Translated<G2, V>, V, N>
         (g1, &Translated::new(g2, shift.clone()))
   {
-    None => fail!("The origin was inside of the Simplex during phase 1."),
+    None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
     Some((p1, p2)) => {
       let corrected_normal = (p2 - p1).normalized();
 
-      let min_dist2 = corrected_normal.dot(&cso.support_point(&corrected_normal));
+      let corrected_support = cso.support_point(&corrected_normal);
+      let min_dist2 = corrected_normal.dot(&corrected_support);
 
-      assert!(min_dist2 >= _0, "The Minkowski Sampling algorithm must be used" +
-                               " only when the origin is inside of the cso.");
+      // println("min_dist: " + min_dist.to_str());
+      // println("min_dist2: " + min_dist2.to_str());
+      // println("best_dir: " + best_dir.unwrap().to_str());
+      // println("corrected_normal: " + corrected_normal.to_str());
+      // println("best_support: " + best_support.to_str());
+      // println("corrected_support: " + corrected_support.to_str());
+      // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");
+      if min_dist2 < _0
+      { return None }
 
       let shift2 = corrected_normal.scalar_mul(&min_dist2);
 
