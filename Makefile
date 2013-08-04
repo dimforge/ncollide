@@ -15,6 +15,11 @@ test:
 	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) -o test~ && ./test~
 	rm test~
 
+bench:
+	mkdir -p $(ncollide_lib_path)
+	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) -o bench~ && ./bench~ --bench
+	rm bench~
+
 doc:
 	rust doc $(ncollide_rc) --output-dir $(ncollide_doc_path)
 

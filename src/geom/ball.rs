@@ -1,11 +1,14 @@
+//!
+//! Support mapping based Ball geometry.
+//!
+
 use std::num::One;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub};
 use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
-use nalgebra::traits::translation::Translation;
+use nalgebra::traits::translation::{Translation, Translatable};
 use geom::implicit::Implicit;
-use bounding_volume::aabb::AABB;
-use bounding_volume::has_bounding_volume::HasBoundingVolume;
+use bounding_volume::aabb::{HasAABB, AABB};
 
 /**
  * Implicit description of a ball geometry.
@@ -77,10 +80,33 @@ Transformation<M> for Ball<N, V>
     res
   }
 
-
   #[inline]
   fn transform_by(&mut self, m: &M)
   { self.center = m.transform_vec(&self.center) }
+}
+
+impl<N, V: Clone + Add<V, V> + Neg<V>> Translation<V> for Ball<N, V>
+{
+  #[inline]
+  fn translation(&self) -> V
+  { self.center.clone() }
+
+  #[inline]
+  fn inv_translation(&self) -> V
+  { -self.center }
+
+  #[inline]
+  fn translate_by(&mut self, t: &V)
+  { self.center = self.center + *t }
+}
+
+impl<N: Clone, V: Clone + Add<V, V> + Neg<V>> Translatable<V, Ball<N, V>> for Ball<N, V>
+{
+    #[inline]
+    fn translated(&self, t: &V) -> Ball<N, V>
+    {
+        Ball::new(self.center + *t, self.radius.clone())
+    }
 }
 
 impl<N: Clone, V: Clone + Add<V, V> + Neg<V>, M: One + Translation<V> + Transform<V>>
@@ -91,13 +117,9 @@ Transformable<M, Ball<N, V>> for Ball<N, V>
   { Ball::new(transform.transform_vec(&self.center), self.radius.clone()) }
 }
 
-// FIXME: these is something bad here…
-// Since we cannot implement HasBoundingVolume twice, we wont be able to
-// implement any other bounding volume… That’s bad.
-impl<N, V: ScalarAdd<N> + ScalarSub<N> + Ord + Clone>
-    HasBoundingVolume<AABB<V>> for Ball<N, V>
+impl<N, V: ScalarAdd<N> + ScalarSub<N> + Ord + Clone> HasAABB<V> for Ball<N, V>
 {
-  fn bounding_volume(&self) -> AABB<V>
+  fn aabb(&self) -> AABB<V>
   {
     AABB::new(self.center.scalar_sub(&self.radius),
               self.center.scalar_add(&self.radius))

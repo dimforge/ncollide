@@ -1,7 +1,17 @@
+//!
+//! Support mapping based translated geometry.
+//!
+
 use nalgebra::traits::translation::{Translation, Translatable};
 use nalgebra::traits::transformation::{Transformation, Transformable};
 use geom::implicit::Implicit;
 
+/// Implicit representation of a geometry transformed by a translation.
+/// The wrapped geometry is captured by a borrowed pointer.
+///
+/// # Parameters:
+///   * `G` - type of the shape being transformed.
+///   * `V` - type of the translation.
 #[deriving(Eq, ToStr, Clone)]
 pub struct Translated<'self, G, V>
 {
@@ -11,6 +21,7 @@ pub struct Translated<'self, G, V>
 
 impl<'self, G, V> Translated<'self, G, V>
 {
+  /// Creates a translated geometry geometry.
   #[inline]
   pub fn new(g: &'self G, t: V) -> Translated<'self, G, V>
   { Translated { g: g, t: t } }

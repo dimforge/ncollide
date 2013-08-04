@@ -1,8 +1,12 @@
+//!
+//! Support mapping based Plane geometry.
+//!
+
 use std::num::Bounded;
 use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
 use nalgebra::traits::rotation::Rotate;
-use bounding_volume::aabb::AABB;
-use bounding_volume::has_bounding_volume::HasBoundingVolume;
+use bounding_volume::aabb::{HasAABB, AABB};
+use nalgebra::traits::translation::Translation;
 
 /**
  * Implicit description of a plane.
@@ -68,6 +72,21 @@ impl<V: Clone> Transform<V> for Plane<V>
   { v.clone() } // FIXME: we shit a little bit here =)
 }
 
+impl<V: Clone + Add<V, V> + Neg<V>> Translation<V> for Plane<V>
+{
+  #[inline]
+  fn translation(&self) -> V
+  { self.center.clone() }
+
+  #[inline]
+  fn inv_translation(&self) -> V
+  { -self.center }
+
+  #[inline]
+  fn translate_by(&mut self, m: &V)
+  { self.center = self.center + *m }
+}
+
 impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V>
 {
   #[inline]
@@ -80,8 +99,8 @@ impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V>
 // Since we cannot implement HasBoundingVolume twice, we wont be able to
 // implement any other bounding volume… That’s bad.
 impl<V: Bounded + Neg<V> + Ord + Clone>
-    HasBoundingVolume<AABB<V>> for Plane<V>
+    HasAABB<V> for Plane<V>
 {
-  fn bounding_volume(&self) -> AABB<V>
+  fn aabb(&self) -> AABB<V>
   { AABB::new(-Bounded::max_value::<V>(), Bounded::max_value()) }
 }

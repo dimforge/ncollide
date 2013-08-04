@@ -1,5 +1,8 @@
+//!
+//! Support mapping based reflected geometry.
+//!
+
 use geom::implicit::Implicit;
-// FIXME: rename that Reflected (to be coherent with Translated and Transformed
 
 /**
  * Implicit represention of the reflection of a geometric object.
@@ -24,3 +27,5 @@ impl<'self, V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<'self, G>
   fn support_point(&self, dir: &V) -> V
   { -self.g.support_point(&-dir) }
 }
+
+// Implement transform efficiently.

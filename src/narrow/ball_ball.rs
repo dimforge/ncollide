@@ -3,44 +3,36 @@ use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::scalar_op::ScalarMul;
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
-use contact::contact;
-use contact::contact::Contact;
+use contact::Contact;
 
 /**
  * Collision detector between two balls.
  *
- *   - `C`: type of the collision.
- *   - `N`: type of a ball radius.
- *   - `V`: type of a ball center.
+ * # Parameters:
+ *   * `N` - type of a ball radius.
+ *   * `V` - type of a ball center.
  */
-pub struct BallBallCollisionDetector<C, N, V>
+pub struct BallBall<N, V>
 {
-  priv contact: Option<@mut C>
+  priv contact: Option<Contact<N, V>>
+}
+
+impl<N, V> BallBall<N, V>
+{
+  /// Creates a new persistant collision detector between two balls.
+  #[inline]
+  pub fn new() -> BallBall<N, V>
+  { BallBall { contact: None } }
 }
 
 impl<N: Real + Clone,
-     C: 'static + Contact<V, N>,
      V: VectorSpace<N> + Norm<N> + Clone> 
-    CollisionDetector<C, Ball<N, V>, Ball<N, V>> for
-    BallBallCollisionDetector<C, N, V>
+    CollisionDetector<N, V, Ball<N, V>, Ball<N, V>> for
+    BallBall<N, V>
 {
-  #[inline]
-  fn new(_: &Ball<N, V>, _: &Ball<N, V>) -> BallBallCollisionDetector<C, N, V>
-  { BallBallCollisionDetector { contact: None } }
-
   fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>)
   {
-    match self.contact
-    {
-      None    => self.contact =
-        match collide_ball_ball(a, b)
-        {
-          Some(c) => Some(@mut c),
-          None    => None
-        },
-      Some(c) => if !update_collide_ball_ball(a, b, c)
-                 { self.contact = None }
-    }
+    self.contact = collide_ball_ball(a, b);
   }
 
   #[inline]
@@ -54,28 +46,19 @@ impl<N: Real + Clone,
   }
 
   #[inline]
-  fn colls(&mut self, out_colls: &mut ~[@mut C])
+  fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
   {
     match self.contact
     {
-      Some(c) => out_colls.push(c),
-      None    => ()
+      Some(ref c) => out_colls.push(c.clone()),
+      None        => ()
     }
   }
 }
 
-/**
- * Computes the collision between two balls. Returns whether they are
- * colliding.
- *
- *   - `b1`: first ball to test.
- *   - `b2`: second ball to test.
- *   - `out`: collision on which the result will be written.
- */
-pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone,
-                                N: Real + Clone,
-                                C: Contact<V, N>>
-   (b1: &Ball<N, V>, b2: &Ball<N, V>, out: &mut C) -> bool
+/// Computes the contact point between two balls. The balls must penetrate to have contact points.
+pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone, N: Real + Clone>
+   (b1: &Ball<N, V>, b2: &Ball<N, V>) -> Option<Contact<N, V>>
 {
   let r1         = b1.radius();
   let r2         = b2.radius();
@@ -87,44 +70,17 @@ pub fn update_collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone,
   {
     let normal = delta_pos.normalized();
 
-    contact::set(out,
-                 (b1.center() + normal.scalar_mul(&r1)),
-                 (b2.center() - normal.scalar_mul(&r2)),
-                 normal,
-                 (sum_radius - sqdist.sqrt()));
-
-    true
+    Some(Contact::new(b1.center() + normal.scalar_mul(&r1),
+                      b2.center() - normal.scalar_mul(&r2),
+                      normal,
+                      (sum_radius - sqdist.sqrt())))
   }
-  else
-  { false }
-}
-
-/**
- * Same as `update_collide_ball_ball` but returns the collision or `None`.
- *
- *   - `b1`: first ball to test.
- *   - `b2`: second ball to test.
- */
-pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone,
-                         N: Real + Clone,
-                         C: Contact<V, N>>
-   (b1: &Ball<N, V>, b2: &Ball<N, V>) -> Option<C>
-{
-  let mut res = contact::zero::<V, N, C>();
-
-  if update_collide_ball_ball(b1, b2, &mut res)
-  { Some(res) }
   else
   { None }
 }
 
-/**
- * Computes the cloest points between two balls. If they are intersecting, the
- * points corresponding to the penetration depth are returned.
- *
- *   - `b1`: first ball to test.
- *   - `b2`: second ball to test.
- */
+/// Computes the cloest points between two balls. If they are intersecting, the points
+/// corresponding to the penetration depth are returned.
 pub fn closest_points<N: Clone,
                       V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Clone>
        (b1: &Ball<N, V>, b2: &Ball<N, V>) -> (V, V)

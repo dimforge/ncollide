@@ -1,3 +1,7 @@
+//!
+//! Support mapping based Minkowski Sum geometry.
+//!
+
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
 use nalgebra::traits::inv::Inv;
@@ -9,6 +13,12 @@ use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use nalgebra::traits::transformation::Transformable;
 use geom::transformed::Transformed;
 use geom::implicit::Implicit;
+use geom::reflection::Reflection;
+
+/// Type of an implicit representation of the Configuration Space Obstacle
+/// formed by two geometric objects.
+pub type CSO<'self, G1, G2> = MinkowskiSum<'self, G1, Reflection<'self, G2>>;
+pub type AnnotatedCSO<'self, G1, G2> = AnnotatedMinkowskiSum<'self, G1, Reflection<'self, G2>>;
 
 /**
  * Implicit representation of the minkowski sum of two geometries.
@@ -82,8 +92,8 @@ Implicit<AnnotatedPoint<V>> for AnnotatedMinkowskiSum<'self, G1, G2>
   }
 }
 
-// Annotated point with various trait implementations
 // FIXME: AnnotatedPoint is not a good name.
+#[doc(hidden)]
 #[deriving(Clone, ToStr)]
 pub struct AnnotatedPoint<V>
 {
@@ -94,6 +104,7 @@ pub struct AnnotatedPoint<V>
 
 impl<V> AnnotatedPoint<V>
 {
+  #[doc(hidden)]
   pub fn new(orig1: V, orig2: V, point: V) -> AnnotatedPoint<V>
   {
     AnnotatedPoint {
@@ -103,18 +114,22 @@ impl<V> AnnotatedPoint<V>
     }
   }
 
+  #[doc(hidden)]
   pub fn point<'r>(&'r self) -> &'r V
   { &'r self.point }
 
+  #[doc(hidden)]
   pub fn orig1<'r>(&'r self) -> &'r V
   { &'r self.orig1 }
 
+  #[doc(hidden)]
   pub fn orig2<'r>(&'r self) -> &'r V
   { &'r self.orig2 }
 }
 
 impl<V: Zero> AnnotatedPoint<V>
 {
+  #[doc(hidden)]
   pub fn new_invalid(point: V) -> AnnotatedPoint<V>
   {
     AnnotatedPoint {
@@ -255,6 +270,22 @@ impl<V: Eq> Eq for AnnotatedPoint<V>
 
   fn ne(&self, other: &AnnotatedPoint<V>) -> bool
   { self.point != other.point }
+}
+
+/// Computes the support point of a CSO on a given direction.
+/// The result is a support point with informations about how it has been constructed.
+pub fn cso_support_point<G1: Implicit<V>,
+                         G2: Implicit<V>,
+                         V:  Zero + Neg<V> + Add<V, V>>(
+                         g1:  &G1,
+                         g2:  &G2,
+                         dir: V)
+                         -> AnnotatedPoint<V>
+{
+    let rg2 = Reflection::new(g2);
+    let cso = AnnotatedMinkowskiSum::new(g1, &rg2);
+
+    cso.support_point(&AnnotatedPoint::new_invalid(dir))
 }
 
 impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V>

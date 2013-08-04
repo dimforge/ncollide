@@ -1,95 +1,98 @@
-use std::cmp::{min, max};
-use std::num::Zero;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 //FIXME: use nalgebra::traits::basis::Basis;
-use utils::default::Default;
-use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
+use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
+/// Traits of objects approximable by an AABB.
+pub trait HasAABB<V>
+{
+    /// The object’s AABB.
+    fn aabb(&self) -> AABB<V>;
+}
+
+/// An Axis Aligned Bounding Box.
+///
+/// # Parameter:
+///   * `V` - type of the points of the bounding box. It determines the AABB dimension.
 #[deriving(ToStr, Eq, Clone)]
 pub struct AABB<V>
 {
-  priv mins: V,
-  priv maxs: V
+    priv mins: V,
+    priv maxs: V
 }
 
 impl<V: Ord> AABB<V>
 {
-  pub fn new(mins: V, maxs: V) -> AABB<V>
-  {
-    assert!(mins <= maxs);
+    /// Creates a new AABB.
+    ///
+    /// # Arguments:
+    ///   * `mins` - position of the point with the smallest coordinates.
+    ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
+    ///   must be smaller than the related components of `maxs`.
+    pub fn new(mins: V, maxs: V) -> AABB<V>
+    {
+        assert!(mins <= maxs);
 
-    AABB {
-      mins: mins,
-      maxs: maxs
+        AABB {
+            mins: mins,
+            maxs: maxs
+        }
     }
-  }
 }
 
-// FIXME: impl<V: Basis> AABB<V>
-// FIXME: {
-// FIXME:   pub fn new_from_implicit<G: Implicit<V>>(geom: &G) -> AABB<V>
-// FIXME:   {
-// FIXME:     let basis = Basis::canonical_basis();
-// FIXME: 
-// FIXME:     for basis.iter().advance |b|
-// FIXME:     {
-// FIXME:     }
-// FIXME:   }
-// FIXME: }
-
-impl<V: Ord + Clone> BoundingVolume for AABB<V>
+impl<V: Ord + Orderable + Clone> BoundingVolume for AABB<V>
 {
-  #[inline]
-  fn intersects(&self, other: &AABB<V>) -> bool
-  { !(self.mins > other.maxs || other.mins > self.maxs) }
+    #[inline]
+    fn intersects(&self, other: &AABB<V>) -> bool
+    { self.mins <= other.maxs && self.maxs >= other.mins }
 
-  #[inline]
-  fn contains(&self, other: &AABB<V>) -> bool
-  { self.mins <= other.mins && self.maxs >= other.maxs }
+    #[inline]
+    fn contains(&self, other: &AABB<V>) -> bool
+    { self.mins <= other.mins && self.maxs >= other.maxs }
 
-  #[inline]
-  fn merge(&mut self, other: &AABB<V>)
-  {
-    self.mins = min(self.mins.clone(), other.mins.clone());
-    self.maxs = max(self.maxs.clone(), other.maxs.clone());
-  }
-
-  #[inline]
-  fn merged(&self, other: &AABB<V>) -> AABB<V>
-  {
-    AABB {
-      mins: min(self.mins.clone(), other.mins.clone()),
-      maxs: max(self.maxs.clone(), other.maxs.clone())
+    #[inline]
+    fn merge(&mut self, other: &AABB<V>)
+    {
+        self.mins = self.mins.min(&other.mins);
+        self.maxs = self.maxs.max(&other.maxs);
     }
-  }
+
+    #[inline]
+    fn merged(&self, other: &AABB<V>) -> AABB<V>
+    {
+        AABB {
+            mins: self.mins.min(&other.mins),
+            maxs: self.maxs.max(&other.maxs)
+        }
+    }
 }
 
-impl<V: Clone + Ord + ScalarAdd<N> + ScalarSub<N>, N> LooseBoundingVolume<N> for AABB<V>
+impl<V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, N>
+LooseBoundingVolume<N> for AABB<V>
 {
-  #[inline]
-  fn loosen(&mut self, amount: N)
-  {
-    self.mins.scalar_sub_inplace(&amount);
-    self.maxs.scalar_add_inplace(&amount);
-  }
-
-  #[inline]
-  fn loosened(&self, amount: N) -> AABB<V>
-  {
-    AABB {
-      mins: self.mins.scalar_sub(&amount),
-      maxs: self.maxs.scalar_add(&amount)
+    #[inline]
+    fn loosen(&mut self, amount: N)
+    {
+        self.mins.scalar_sub_inplace(&amount);
+        self.maxs.scalar_add_inplace(&amount);
     }
-  }
+
+    #[inline]
+    fn loosened(&self, amount: N) -> AABB<V>
+    {
+        AABB {
+            mins: self.mins.scalar_sub(&amount),
+            maxs: self.maxs.scalar_add(&amount)
+        }
+    }
 }
 
-impl<V: Zero> Default for AABB<V>
+/// Wrapper which implements `HasBoundingVolume<AABB<V>>` for objects implementing `HasAABB<V>`.
+#[deriving(Clone, Eq, DeepClone)]
+pub struct WithAABB<A>(A);
+
+impl<A: HasAABB<V>, V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, N>
+HasBoundingVolume<AABB<V>> for WithAABB<A>
 {
-  fn default() -> AABB<V>
-  {
-    AABB {
-      mins: Zero::zero(),
-      maxs: Zero::zero()
-    }
-  }
+    fn bounding_volume(&self) -> AABB<V>
+    { self.aabb() }
 }

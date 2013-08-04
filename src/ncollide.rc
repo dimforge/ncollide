@@ -3,82 +3,76 @@
        , author = "Sébastien Crozet"
        , uuid = "833DFDBD-3E85-456F-9CA7-84AADE5ED3BE")];
 #[crate_type = "lib"];
-#[warn(non_camel_case_types)]
+#[deny(non_camel_case_types)];
+#[deny(non_uppercase_statics)];
+#[deny(unnecessary_qualification)];
+#[deny(missing_doc)];
+#[deny(warnings)];
 
 extern mod std;
 extern mod extra;
 extern mod nalgebra;
 
-pub mod utils
-{
-  pub mod managed;
-  pub mod exact;
-  pub mod default;
-  pub mod empty;
-}
-
 pub mod geom
 {
-  pub mod implicit;
-  pub mod has_geom;
-  pub mod default_geom;
-  pub mod ball;
-  pub mod plane;
-  pub mod box;
-  pub mod convex_polytope;
-  pub mod cso;
-  pub mod minkowski_sum;
-  pub mod reflection;
-  pub mod transformed;
-  pub mod translated;
+    pub mod implicit;
+    pub mod ball;
+    pub mod plane;
+    pub mod box;
+    pub mod capsule;
+    pub mod cone;
+    pub mod cylinder;
+    pub mod convex_polytope;
+    pub mod minkowski_sum;
+    pub mod reflection;
+    pub mod transformed;
+    pub mod translated;
 }
 
 pub mod bounding_volume
 {
-  pub mod has_bounding_volume;
-  pub mod bounding_volume;
-  pub mod aabb;
+    pub mod bounding_volume;
+    pub mod aabb;
 }
 
 pub mod narrow
 {
-  pub mod collision_detector;
-  pub mod has_geom_has_geom;
-  pub mod default_default;
-  pub mod empty_detector;
-  pub mod plane_implicit;
-  pub mod ball_ball;
-  pub mod implicit_implicit;
-  pub mod incremental_contact_manifold_generator;
+    pub mod collision_detector;
+    pub mod plane_implicit;
+    pub mod ball_ball;
+    pub mod implicit_implicit;
+    pub mod incremental_contact_manifold_generator;
 
-  pub mod algorithm
-  {
-    pub mod simplex;
-    pub mod johnson_simplex;
-    pub mod brute_force_simplex;
-    pub mod gjk;
-    pub mod minkowski_sampling;
-  }
+    pub mod algorithm
+    {
+        pub mod simplex;
+        pub mod johnson_simplex;
+        pub mod brute_force_simplex;
+        pub mod gjk;
+        pub mod minkowski_sampling;
+    }
 }
 
 pub mod broad
 {
-  pub mod broad_phase;
-  pub mod empty_broad_phase;
-  pub mod brute_force_broad_phase;
-  pub mod brute_force_bounding_volume_broad_phase;
-  pub mod dbvh_broad_phase;
+    pub mod dispatcher;
+    pub mod brute_force_broad_phase;
+    pub mod brute_force_bounding_volume_broad_phase;
+    // pub mod dbvh_broad_phase;
 }
 
-pub mod contact
+pub mod util
 {
-  pub mod contact;
-  pub mod geometric_contact;
+    pub mod pair;
+    pub mod hash;
+    pub mod hash_map;
 }
+
+pub mod contact;
 
 mod tests
 {
-  mod geom;
-  mod narrow;
-  mod algo;
+    mod geom;
+    mod narrow;
+    // mod algo;
 }

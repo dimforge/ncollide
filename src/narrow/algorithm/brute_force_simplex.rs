@@ -1,4 +1,5 @@
-use std::uint;
+#[doc(hidden)];
+
 use std::num::{Zero, One};
 use nalgebra::dmat::zero_mat_with_dim;
 use nalgebra::traits::vector_space::VectorSpace;
@@ -10,16 +11,16 @@ use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use nalgebra::traits::dim::Dim;
 use narrow::algorithm::simplex::Simplex;
 
-pub struct BruteForceSimplex<V, N>
+pub struct BruteForceSimplex<N, V>
 {
   points: ~[V]
 }
 
 impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
      N: Ord + Clone + Eq + DivisionRing + Ord>
-    BruteForceSimplex<V, N>
+    BruteForceSimplex<N, V>
 {
-  pub fn new(initial_point: V) -> BruteForceSimplex<V, N>
+  pub fn new(initial_point: V) -> BruteForceSimplex<N, V>
   { BruteForceSimplex { points: ~[initial_point] } }
 
   pub fn add_point(&mut self, pt: V)
@@ -32,12 +33,12 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
     let     dim = points.len();
     let mut mat = zero_mat_with_dim(dim);
 
-    for uint::iterate(0u, dim) |i|
+    for i in range(0u, dim)
     { mat.set(0u, i, &_1) }
 
-    for uint::iterate(1u, dim) |i|
+    for i in range(1u, dim)
     {
-      for uint::iterate(0u, dim) |j|
+      for j in range(0u, dim)
       {
         mat.set(
           i,
@@ -54,7 +55,7 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
       let mut res        = Zero::zero::<V>();
       let mut normalizer = Zero::zero::<N>();
 
-      for uint::iterate(0u, dim) |i|
+      for i in range(0u, dim)
       {
         if mat.at(i, 0u) > _0
         {
@@ -81,10 +82,10 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
       let mut bestproj = BruteForceSimplex::project_on_subsimplex(points);
       let mut bestpts  = points.clone();
 
-      for uint::iterate(0u, points.len()) |i|
+      for i in range(0u, points.len())
       {
         let mut subsimplex = ~[];
-        for uint::iterate(0u, points.len()) |j|
+        for j in range(0u, points.len())
         {
           if i != j
           { subsimplex.push(points[j].clone()) }
@@ -125,10 +126,13 @@ impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
 
 impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N> + Eq + Dim,
      N: Ord + Clone + Eq + DivisionRing + Ord>
-Simplex<V, N> for BruteForceSimplex<V, N>
+Simplex<N, V> for BruteForceSimplex<N, V>
 {
-  pub fn new(initial_point: V) -> BruteForceSimplex<V, N>
-  { BruteForceSimplex::new(initial_point) }
+  pub fn reset(&mut self, initial_point: V)
+  {
+    self.points.clear();
+    self.points.push(initial_point);
+  }
 
   pub fn dimension(&self) -> uint
   { self.points.len() - 1 }
