@@ -42,8 +42,8 @@ pub struct Transformed<G, M, N> {
 impl<G: Implicit<V>,
      M: Rotate<V> + Transform<V>,
      V: Basis + Dot<N> + VectorSpace<N> + Ord + Clone,
-     N> HasAABB<V> for Transformed<G, M, N> {
-    fn aabb(&self) -> AABB<V> {
+     N> HasAABB<N, V> for Transformed<G, M, N> {
+    fn aabb(&self) -> AABB<N, V> {
         let mut resm = Zero::zero::<V>();
         let mut resM = Zero::zero::<V>();
 

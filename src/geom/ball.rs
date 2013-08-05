@@ -4,7 +4,7 @@
 
 use std::num::One;
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub};
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarAdd, ScalarSub, ScalarDiv};
 use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
 use nalgebra::traits::translation::{Translation, Translatable};
 use geom::implicit::Implicit;
@@ -115,8 +115,8 @@ Transformable<M, Ball<N, V>> for Ball<N, V> {
     }
 }
 
-impl<N, V: ScalarAdd<N> + ScalarSub<N> + Ord + Clone> HasAABB<V> for Ball<N, V> {
-    fn aabb(&self) -> AABB<V> {
+impl<N, V: ScalarAdd<N> + ScalarSub<N> + ScalarDiv<N> + Ord + Clone> HasAABB<N, V> for Ball<N, V> {
+    fn aabb(&self) -> AABB<N, V> {
         AABB::new(self.center.scalar_sub(&self.radius),
         self.center.scalar_add(&self.radius))
     }

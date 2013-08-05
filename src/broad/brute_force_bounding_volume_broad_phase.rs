@@ -60,10 +60,13 @@ pub struct BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
     priv margin:     N,
     priv to_update:  ~[@mut BoundingVolumeProxy<N, B, BV>],
     priv update_off: uint // incremental pairs removal index
-
 }
 
-impl<N: Clone, B: 'static + HasBoundingVolume<BV>, BV: 'static + LooseBoundingVolume<N>, D: Dispatcher<B, DV>, DV>
+impl<N:  Clone,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N>,
+     D:  Dispatcher<B, DV>,
+     DV>
 BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
     /// Creates a new bounding volume based brute force broad phase.
     pub fn new(dispatcher: D, margin: N) -> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
@@ -206,7 +209,7 @@ BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
 mod test {
     use super::*;
     use nalgebra::vec::Vec3;
-    use nalgebra::traits::translation::Translatable;
+    use nalgebra::traits::translation::{Translatable, Translation};
     use geom::ball::Ball;
     use bounding_volume::aabb::WithAABB;
     use broad::dispatcher::NoIdDispatcher;
@@ -243,6 +246,40 @@ mod test {
 
                 bf.add(@mut WithAABB(tball));
             }
+        }
+
+        bf.update();
+
+        assert_eq!(
+            bf.pairs().len(),
+            (18 * 18 * 8 + // internal rectangles have 8 neighbors
+             18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
+             4 * 3)        // corners have 3 neighbors
+            / 2            // remove all duplicates
+        )
+    }
+
+    #[test]
+    fn test_dbvt_nbh_move_collide() {
+        let dispatcher: NoIdDispatcher<WithAABB<Ball<float, Vec3<float>>>> = NoIdDispatcher;
+        let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
+        let ball       = Ball::new(Vec3::new(0.0, 0.0, 0.0), 0.3);
+
+        let mut to_move = ~[];
+
+        // create a grid
+        for i in range(-10, 10) {
+            for j in range(-10, 10) {
+                let tball = ball.translated(&Vec3::new(i as float * 0.9, j as float * 0.9, 0.0));
+
+                let to_add = @mut WithAABB(tball);
+                bf.add(to_add);
+                to_move.push(to_add);
+            }
+        }
+
+        for e in to_move.consume_iter() {
+            e.translate_by(&Vec3::new(10.0, 10.0, 10.0))
         }
 
         bf.update();

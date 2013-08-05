@@ -58,7 +58,8 @@ pub mod broad
     pub mod dispatcher;
     pub mod brute_force_broad_phase;
     pub mod brute_force_bounding_volume_broad_phase;
-    // pub mod dbvh_broad_phase;
+    pub mod dbvt_broad_phase;
+    pub mod dbvt;
 }
 
 pub mod util

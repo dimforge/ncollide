@@ -3,6 +3,7 @@
 //!
 
 use std::num::Bounded;
+use nalgebra::traits::scalar_op::ScalarDiv;
 use nalgebra::traits::transformation::{Transformation, Transform, Transformable};
 use nalgebra::traits::rotation::Rotate;
 use bounding_volume::aabb::{HasAABB, AABB};
@@ -101,9 +102,9 @@ impl<V, M: Transform<V> + Rotate<V>> Transformable<M, Plane<V>> for Plane<V> {
 // FIXME: these is something bad here…
 // Since we cannot implement HasBoundingVolume twice, we wont be able to
 // implement any other bounding volume… That’s bad.
-impl<V: Bounded + Neg<V> + Ord + Clone>
-HasAABB<V> for Plane<V> {
-    fn aabb(&self) -> AABB<V> {
+impl<V: Bounded + Neg<V> + ScalarDiv<N> + Ord + Clone, N>
+HasAABB<N, V> for Plane<V> {
+    fn aabb(&self) -> AABB<N, V> {
         AABB::new(-Bounded::max_value::<V>(), Bounded::max_value())
     }
 }

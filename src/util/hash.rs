@@ -76,4 +76,3 @@ pub fn tomas_wang_hash(k: uint) -> uint {
 
     res
 }
-
