@@ -14,18 +14,18 @@ pub struct Reflection<'self, G>
 
 impl<'self, G> Reflection<'self, G>
 {
-  /// Build the reflection of a geometry. Since the representation is implicit,
-  /// the reflection computation is done in constant time.
-  #[inline]
-  pub fn new(g: &'self G) -> Reflection<'self, G>
-  { Reflection { g: g } }
+    /// Build the reflection of a geometry. Since the representation is implicit,
+    /// the reflection computation is done in constant time.
+    #[inline]
+    pub fn new(g: &'self G) -> Reflection<'self, G>
+    { Reflection { g: g } }
 }
 
 impl<'self, V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<'self, G>
 {
-  #[inline]
-  fn support_point(&self, dir: &V) -> V
-  { -self.g.support_point(&-dir) }
+    #[inline]
+    fn support_point(&self, dir: &V) -> V
+    { -self.g.support_point(&-dir) }
 }
 
 // Implement transform efficiently.

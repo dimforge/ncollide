@@ -15,14 +15,14 @@ use contact::Contact;
  */
 pub trait CollisionDetector<N, V, G1, G2>
 {
-  /// Runs the collision detection on two objects. It is assumed that the same
-  /// collision detector (the same structure) is always used with the same
-  /// pair of object.
-  fn update(&mut self, &G1, &G2);
+    /// Runs the collision detection on two objects. It is assumed that the same
+    /// collision detector (the same structure) is always used with the same
+    /// pair of object.
+    fn update(&mut self, &G1, &G2);
 
-  /// The number of collision detected during the last update.
-  fn num_coll(&self) -> uint;
+    /// The number of collision detected during the last update.
+    fn num_coll(&self) -> uint;
 
-  /// Collects the collisions detected during the last update.
-  fn colls(&mut self, &mut ~[Contact<N, V>]);
+    /// Collects the collisions detected during the last update.
+    fn colls(&mut self, &mut ~[Contact<N, V>]);
 }

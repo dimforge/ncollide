@@ -22,81 +22,81 @@ pub struct ImplicitPlane<N, V, G>
 
 impl<N, V, G> PlaneImplicit<N, V, G>
 {
-  /// Creates a new persistant collision detector between a plane and a geometry with a support
-  /// mapping function.
-  #[inline]
-  pub fn new() -> PlaneImplicit<N, V, G>
-  { PlaneImplicit { contact: None } }
+    /// Creates a new persistant collision detector between a plane and a geometry with a support
+    /// mapping function.
+    #[inline]
+    pub fn new() -> PlaneImplicit<N, V, G>
+    { PlaneImplicit { contact: None } }
 }
 
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>>
-    CollisionDetector<N, V, Plane<V>, G> for PlaneImplicit<N, V, G>
+CollisionDetector<N, V, Plane<V>, G> for PlaneImplicit<N, V, G>
 {
-  fn update(&mut self, a: &Plane<V>, b: &G)
-  { self.contact = collide_plane_implicit_shape(a, b) }
+    fn update(&mut self, a: &Plane<V>, b: &G)
+    { self.contact = collide_plane_implicit_shape(a, b) }
 
-  #[inline]
-  fn num_coll(&self) -> uint
-  {
-    match self.contact
+    #[inline]
+    fn num_coll(&self) -> uint
     {
-      None    => 0,
-      Some(_) => 1
+        match self.contact
+        {
+            None    => 0,
+            Some(_) => 1
+        }
     }
-  }
 
-  #[inline]
-  fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
-  {
-    match self.contact
+    #[inline]
+    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
     {
-      Some(ref c) => out_colls.push(c.clone()),
-      None        => ()
+        match self.contact
+        {
+            Some(ref c) => out_colls.push(c.clone()),
+            None        => ()
+        }
     }
-  }
 }
 
 impl<N, V, G> ImplicitPlane<N, V, G>
 {
-  /// Creates a new persistant collision detector between a geometry with a support mapping
-  /// function, and a plane.
-  #[inline]
-  pub fn new() -> ImplicitPlane<N, V, G>
-  { ImplicitPlane { contact: None } }
+    /// Creates a new persistant collision detector between a geometry with a support mapping
+    /// function, and a plane.
+    #[inline]
+    pub fn new() -> ImplicitPlane<N, V, G>
+    { ImplicitPlane { contact: None } }
 }
 
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>>
-    CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G>
+CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G>
 {
-  fn update(&mut self, a: &G, b: &Plane<V>)
-  {
-    self.contact = collide_plane_implicit_shape(b, a);
-    self.contact = self.contact.map_mut(|c| { c.flip(); c.clone() })
-  }
-
-  #[inline]
-  fn num_coll(&self) -> uint
-  {
-    match self.contact
+    fn update(&mut self, a: &G, b: &Plane<V>)
     {
-      None    => 0,
-      Some(_) => 1
+        self.contact = collide_plane_implicit_shape(b, a);
+        self.contact = self.contact.map_mut(|c| { c.flip(); c.clone() })
     }
-  }
 
-  #[inline]
-  fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
-  {
-    match self.contact
+    #[inline]
+    fn num_coll(&self) -> uint
     {
-      Some(ref c) => out_colls.push(c.clone()),
-      None        => ()
+        match self.contact
+        {
+            None    => 0,
+            Some(_) => 1
+        }
     }
-  }
+
+    #[inline]
+    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
+    {
+        match self.contact
+        {
+            Some(ref c) => out_colls.push(c.clone()),
+            None        => ()
+        }
+    }
 }
 
 /**
@@ -113,15 +113,15 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
                                     other: &G)
                                     -> Option<Contact<N, V>>
 {
-  let deepest = other.support_point(&-plane.normal());
-  let dist    = plane.normal().dot(&(plane.center() - deepest));
+    let deepest = other.support_point(&-plane.normal());
+    let dist    = plane.normal().dot(&(plane.center() - deepest));
 
-  if dist > Zero::zero()
-  {
-    let c1 = deepest + plane.normal().scalar_mul(&dist);
+    if dist > Zero::zero()
+    {
+        let c1 = deepest + plane.normal().scalar_mul(&dist);
 
-    Some(Contact::new(c1, deepest, plane.normal(), dist))
-  }
-  else
-  { None }
+        Some(Contact::new(c1, deepest, plane.normal(), dist))
+    }
+    else
+    { None }
 }
