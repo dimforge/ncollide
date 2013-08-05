@@ -3,8 +3,7 @@
 /// # Parameters:
 ///   * `V` - type of a point of the simplex.
 ///   * `N` - type of the points norm.
-pub trait Simplex<N, V>
-{
+pub trait Simplex<N, V> {
     /// Replace the point of the simplex by a single one. The simplex is reduced to be
     /// 0-dimensional.
     fn reset(&mut self, V);

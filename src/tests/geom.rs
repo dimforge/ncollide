@@ -18,8 +18,7 @@ use geom::reflection::Reflection;
 use geom::convex_polytope::ConvexPolytope;
 
 #[test]
-fn test_ball_support_function()
-{
+fn test_ball_support_function() {
     let dir  = &Vec3::new(1f64, 1f64, 1f64);
     let ball = Ball::new(Zero::zero(), 42f64);
     let diag = 42f64 / dir.norm();
@@ -28,8 +27,7 @@ fn test_ball_support_function()
 }
 
 #[test]
-fn test_convex_polytope_support_function()
-{
+fn test_convex_polytope_support_function() {
     let dir    = &Vec3::new(1f64, 1f64, 1f64);
     let bestpt = Vec3::new(2f64, 2f64, 0f64);
     let pts    = @[bestpt, Vec3::new(-2f64, -2f64, -0f64)];
@@ -39,8 +37,7 @@ fn test_convex_polytope_support_function()
 }
 
 #[test]
-fn test_minkowski_sum_support_function()
-{
+fn test_minkowski_sum_support_function() {
     let dir  = Vec3::new(1f64, 1f64, 1f64);
     let ball = Ball::new(Zero::zero::<Vec3<f64>>(), 42f64);
     let diag = 2.0f64 * 42f64 / dir.norm();
@@ -51,8 +48,7 @@ fn test_minkowski_sum_support_function()
 }
 
 #[test]
-fn test_reflection_support_function()
-{
+fn test_reflection_support_function() {
     let dir    = &Vec3::new(1f64, 1f64, 1f64);
     let pts    = @[Vec3::new(2f64, 2f64, 2f64), Vec3::new(-20f64, -20f64, -20f64)];
     let poly   = ConvexPolytope::new::<Vec3<f64>, f64>(pts);

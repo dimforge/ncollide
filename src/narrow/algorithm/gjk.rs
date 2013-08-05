@@ -22,8 +22,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       V:  Clone + Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim>(
                       g1:      &G1,
                       g2:      &G2,
-                      simplex: &mut S) -> Option<(V, V)>
-{
+                      simplex: &mut S) -> Option<(V, V)> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(g1, &reflect2);
 
@@ -42,8 +41,7 @@ pub fn project_origin<S: Simplex<N, V>,
                       V: Norm<N> + Neg<V> + Dot<N> + Dim>(
                       geom:    &G,
                       simplex: &mut S)
-                      -> Option<V>
-{
+                      -> Option<V> {
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = proj.sqnorm();
 
@@ -51,12 +49,12 @@ pub fn project_origin<S: Simplex<N, V>,
     let _eps_rel = Float::epsilon::<N>(); // FIXME: .sqrt();
     let _dim     = Dim::dim::<V>();
 
-    loop
-    {
+    loop {
         let support_point = geom.support_point(&-proj);
 
-        if (sq_len_dir - proj.dot(&support_point) <= _eps_rel * sq_len_dir)
-        { return Some(proj) } // the distance found has a good enough precision 
+        if (sq_len_dir - proj.dot(&support_point) <= _eps_rel * sq_len_dir) {
+            return Some(proj) // the distance found has a good enough precision 
+        }
 
         simplex.add_point(support_point);
 
@@ -68,10 +66,12 @@ pub fn project_origin<S: Simplex<N, V>,
 
         sq_len_dir = proj.sqnorm();
 
-        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol * simplex.max_sq_len())
-        { return None } // point inside of the cso
+        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol * simplex.max_sq_len()) {
+            return None // point inside of the cso
+        }
 
-        if (sq_len_dir >= old_sq_len_dir) // upper bounds inconsistencies
-        { return Some(old_proj) }
+        if (sq_len_dir >= old_sq_len_dir) {
+            return Some(old_proj) // upper bounds inconsistencies
+        }
     }
 }

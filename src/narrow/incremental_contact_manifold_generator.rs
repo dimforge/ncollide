@@ -8,23 +8,20 @@ use nalgebra::traits::transformation::Transform;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 
-struct ContactWLocals<N, V>
-{
+struct ContactWLocals<N, V> {
     local1:  V,
     local2:  V,
     center:  V,
     contact: Contact<N, V>
 }
 
-impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V>
-{
+impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V> {
     fn new_with_contact<G1: Transform<V>,
                         G2: Transform<V>>(
                         contact: Contact<N, V>,
                         g1:      &G1,
                         g2:      &G2)
-                        -> ContactWLocals<N, V>
-        {
+                        -> ContactWLocals<N, V> {
             ContactWLocals {
                 local1: g1.inv_transform(&contact.world1),
                 local2: g2.inv_transform(&contact.world2),
@@ -39,21 +36,18 @@ impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V>
 /// is reached. When the maximum number of contact is reached, each time a new contact is created,
 /// the new manifold is computed by maximizing the variance along each canonical axis (of the space
 /// in which leaves the contacts).
-pub struct IncrementalContactManifoldGenerator<CD, N, V>
-{
+pub struct IncrementalContactManifoldGenerator<CD, N, V> {
     priv contacts:     ~[ContactWLocals<N, V>],
     priv collector:    ~[Contact<N, V>],
     priv sub_detector: CD
 }
 
-impl<CD, N, V> IncrementalContactManifoldGenerator<CD, N, V>
-{
+impl<CD, N, V> IncrementalContactManifoldGenerator<CD, N, V> {
     /// Creates a new incremental contact manifold generator.
     ///
     /// # Arguments:
     ///   * `cd` - collision detection sub-algorithm used to generate the contact points.
-    pub fn new(cd: CD) -> IncrementalContactManifoldGenerator<CD, N, V>
-    {
+    pub fn new(cd: CD) -> IncrementalContactManifoldGenerator<CD, N, V> {
         IncrementalContactManifoldGenerator {
             contacts:     ~[],
             collector:    ~[],
@@ -67,14 +61,11 @@ impl<CD: CollisionDetector<N, V, G1, G2>,
      G2: Transform<V>,
      V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
      N: Clone + DivisionRing + Ord + NumCast>
-CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V>
-{
-    fn update(&mut self, g1: &G1, g2: &G2)
-    {
+CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
+    fn update(&mut self, g1: &G1, g2: &G2) {
         // cleanup existing contacts
         let mut i = 0;
-        while i != self.contacts.len()
-        {
+        while i != self.contacts.len() {
             let remove = {
                 let c      = &mut self.contacts[i];
                 let _2     = One::one::<N>() + One::one();
@@ -87,8 +78,7 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
                 let _tangencial_limit: N = NumCast::from(0.25f64);
 
                 if depth >= Zero::zero() &&
-                    (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= _tangencial_limit * depth * depth
-                    {
+                    (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= _tangencial_limit * depth * depth {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;
@@ -98,12 +88,14 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
 
                         false
                     }
-                else
-                { true }
+                else {
+                    true
+                }
             };
 
-            if remove
-            { self.contacts.swap_remove(i); }
+            if remove {
+                self.contacts.swap_remove(i);
+            }
         }
 
         // add the new ones
@@ -114,26 +106,28 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
         // remove duplicates
         let _max_num_contact = (Dim::dim::<V>() - 1) * 2;
 
-        for c in self.collector.iter()
-        {
-            if self.contacts.len() == _max_num_contact
-            { add_reduce_by_variance(self.contacts, c.clone(), g1, g2) }
-            else
-            { self.contacts.push(ContactWLocals::new_with_contact(c.clone(), g1, g2)) }
+        for c in self.collector.iter() {
+            if self.contacts.len() == _max_num_contact {
+                add_reduce_by_variance(self.contacts, c.clone(), g1, g2)
+            }
+            else {
+                self.contacts.push(ContactWLocals::new_with_contact(c.clone(), g1, g2))
+            }
         }
 
         self.collector.clear();
     }
 
     #[inline]
-    fn num_coll(&self) -> uint
-    { self.contacts.len() }
+    fn num_coll(&self) -> uint {
+        self.contacts.len()
+    }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
-    {
-        for c in self.contacts.iter()
-        { out_colls.push(c.contact.clone()) }
+    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+        for c in self.contacts.iter() {
+            out_colls.push(c.contact.clone())
+        }
     }
 }
 
@@ -144,17 +138,14 @@ fn add_reduce_by_variance<N:  DivisionRing + NumCast + Ord,
                           pts:    &mut [ContactWLocals<N, V>],
                           to_add: Contact<N, V>,
                           g1:     &G1,
-                          g2:     &G2)
-{
+                          g2:     &G2) {
     let mut argmax = 0;
     let mut varmax = approx_variance(pts, &to_add, 0);
 
-    for i in range(1u, pts.len())
-    {
+    for i in range(1u, pts.len()) {
         let var = approx_variance(pts, &to_add, i);
 
-        if var > varmax
-        {
+        if var > varmax {
             argmax = i;
             varmax = var;
         }
@@ -167,17 +158,14 @@ fn approx_variance<N: DivisionRing + NumCast,
 V: Clone + VectorSpace<N> + Norm<N>>(
     pts:       &[ContactWLocals<N, V>],
     to_add:    &Contact<N, V>,
-    to_ignore: uint) -> N
-{
+    to_ignore: uint) -> N {
     // first: compute the mean
     let to_add_center = (to_add.world1 + to_add.world2).scalar_div(&NumCast::from(2.0));
 
     let mut mean = to_add_center.clone();
 
-    for i in range(0u, pts.len())
-    {
-        if i != to_ignore
-        {
+    for i in range(0u, pts.len()) {
+        if i != to_ignore {
             mean = mean + pts[i].center
         }
     }
@@ -187,10 +175,10 @@ V: Clone + VectorSpace<N> + Norm<N>>(
     // compute the sum of variances along all axis
     let mut sum = (to_add_center - mean).sqnorm();
 
-    for i in range(0u, pts.len())
-    {
-        if i != to_ignore
-        { sum = sum + (pts[i].center - mean).sqnorm(); }
+    for i in range(0u, pts.len()) {
+        if i != to_ignore {
+            sum = sum + (pts[i].center - mean).sqnorm();
+        }
     }
 
     sum

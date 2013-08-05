@@ -17,19 +17,16 @@ use contact::Contact;
 /// implement the `Implicit` trait. It is based on the GJK algorithm.
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-pub struct ImplicitImplicit<S, G1, G2, N, V>
-{
+pub struct ImplicitImplicit<S, G1, G2, N, V> {
     priv simplex: S,
     priv margin:  N,
     priv contact: Option<Contact<N, V>>
 }
 
-impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V>
-{
+impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
     /// Creates a new persistant collision detector between two geometries with support mapping
     /// functions. It is initialized with a pre-created simplex.
-    pub fn new(margin: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V>
-    {
+    pub fn new(margin: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
         ImplicitImplicit {
             simplex: simplex,
             margin:  margin,
@@ -44,27 +41,23 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G2: Implicit<V> + Translation<V>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
      V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + UniformSphereSample + Clone>
-     CollisionDetector<N, V, G1, G2> for ImplicitImplicit<S, G1, G2, N, V>
-{
+     CollisionDetector<N, V, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
-    fn update(&mut self, a: &G1, b: &G2)
-    { self.contact = collide_implicit_implicit(a, b, &self.margin, &mut self.simplex) }
+    fn update(&mut self, a: &G1, b: &G2) {
+        self.contact = collide_implicit_implicit(a, b, &self.margin, &mut self.simplex)
+    }
 
     #[inline]
-    fn num_coll(&self) -> uint
-    {
-        match self.contact
-        {
+    fn num_coll(&self) -> uint {
+        match self.contact {
             None    => 0,
             Some(_) => 1
         }
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>])
-    {
-        match self.contact
-        {
+    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+        match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
         }
@@ -94,22 +87,20 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                                  g2:      &G2,
                                  margin:  &N,
                                  simplex: &mut S)
-                                 -> Option<Contact<N, V>>
-{
+                                 -> Option<Contact<N, V>> {
     let dir = g1.translation() - g2.translation(); // FIXME: or g2 - g1 ?
 
     simplex.reset(minkowski_sum::cso_support_point(g1, g2, dir));
 
-    match gjk::closest_points(g1, g2, simplex)
-    {
+    match gjk::closest_points(g1, g2, simplex) {
         Some((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = p1p2.sqnorm();
 
-            if sqn >= *margin * *margin * NumCast::from(4.0f64)
-            { return None }
-            else if !sqn.is_zero()
-            {
+            if sqn >= *margin * *margin * NumCast::from(4.0f64) {
+                return None
+            }
+            else if !sqn.is_zero() {
                 let mut normal = p1p2;
                 let depth      = normal.normalize();
 
@@ -127,8 +118,7 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     // The point is inside of the CSO: use the fallback algorithm
-    match minkowski_sampling::closest_points(g1, g2, margin, simplex)
-    {
+    match minkowski_sampling::closest_points(g1, g2, margin, simplex) {
         Some((p1, p2)) => {
             let mut normal = p1 - p2;
             let depth      = normal.normalize();

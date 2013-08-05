@@ -26,8 +26,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       g2:      &G2,
                       margin:  &N,
                       simplex: &mut S)
-                      -> Option<(V, V)>
-{
+                      -> Option<(V, V)> {
     // build the cso with enlarged shapes
     // we enlarge the shapes with a small sphere
     // FIXME: using minkowskiSum(CSO(...)) could be more
@@ -44,21 +43,20 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let mut min_dist = Bounded::max_value();
     let mut best_support = Zero::zero(); // FIXME: remove that (for debug)
 
-    do UniformSphereSample::sample::<V>() |sample|
-    {
+    do UniformSphereSample::sample::<V>() |sample| {
         let support = cso.support_point(sample);
         let dist    = sample.dot(&support);
 
-        if (dist < min_dist)
-        {
+        if (dist < min_dist) {
             best_dir     = Some(sample);
             best_support = support;
             min_dist     = dist;
         }
     }
 
-    if min_dist <= _0
-    { return None }
+    if min_dist <= _0 {
+        return None
+    }
 
     let shift = best_dir.unwrap().scalar_mul(&min_dist);
 
@@ -67,8 +65,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 
     simplex.reset(minkowski_sum::cso_support_point(g1, tg2, best_dir.unwrap().clone()));
 
-    match gjk::closest_points(g1, tg2, simplex)
-    {
+    match gjk::closest_points(g1, tg2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
             let corrected_normal = (p2 - p1).normalized();
@@ -77,28 +74,27 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             let min_dist2 = corrected_normal.dot(&corrected_support);
 
             // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");
-            if min_dist2 < _0
-            { return None }
+            if min_dist2 < _0 {
+                return None
+            }
 
             let shift2 = corrected_normal.scalar_mul(&min_dist2);
 
             Some((p2 - shift + shift2 , p2 - shift))
 
-                /* This second pass might not really be useful after all
-                else
-                {
+            /* This second pass might not really be useful after all
+            else {
                 // FIXME: (optim) use a scalar_mul_inplace?
 
                 //  FIXME: optimize by translating the last gjk simplex
                 match gjk::closest_points::<S, G1, Translated<G2, V>, N, V>
-                (g1, &Translated::new(g2, shift2.clone()))
-                {
-                None =>
-                fail!("Internal error: the origin was inside of the Simplex during phase 2."),
-                Some((res1, res2)) => Some((res1, res2 - shift2))
+                (g1, &Translated::new(g2, shift2.clone())) {
+                    None =>
+                    fail!("Internal error: the origin was inside of the Simplex during phase 2."),
+                    Some((res1, res2)) => Some((res1, res2 - shift2))
                 }
-                }
-                */
+            }
+            */
 
         }
     }

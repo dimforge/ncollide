@@ -26,14 +26,11 @@ use geom::minkowski_sum::AnnotatedPoint;
 use geom::minkowski_sum;
 
 macro_rules! test_johnson_simplex_impl(
-  ($t: ty, $n: ty) => (
-    {
+  ($t: ty, $n: ty) => ( {
         let recursion = RecursionTemplate::new::<$t>();
 
-        for  d in range(0, Dim::dim::<$t>() + 1)
-        {
-            for i in range(1u, 200 / (d + 1))
-            {
+        for  d in range(0, Dim::dim::<$t>() + 1) {
+            for i in range(1u, 200 / (d + 1)) {
                 // note that this fails with lower precision
                 let mut v1: $t = rand::random();
                 v1.scalar_sub_inplace(&(0.5 as $n));
@@ -42,8 +39,7 @@ macro_rules! test_johnson_simplex_impl(
                 let mut splx1 = JohnsonSimplex::new(recursion, v1.clone());
                 let mut splx2 = BruteForceSimplex::new(v1.clone());
 
-                do d.times
-                {
+                do d.times {
                     let mut v: $t = rand::random();
                     v.scalar_sub_inplace(&(0.5 as $n));
                     v.scalar_mul_inplace(&(i   as $n));
@@ -63,12 +59,10 @@ macro_rules! test_johnson_simplex_impl(
 )
 
 macro_rules! test_gjk_ball_ball_impl(
-  ($t: ty, $n: ty) => (
-    {
+  ($t: ty, $n: ty) => ( {
         let recursion   = RecursionTemplate::new::<AnnotatedPoint<$t>>();
 
-        do 200.times
-        {
+        do 200.times {
             let r1 = 10.0 as $n * rand::random();
             let r2 = 10.0 as $n * rand::random();
 
@@ -91,8 +85,7 @@ macro_rules! test_gjk_ball_ball_impl(
 
             let pts_johnson = gjk::closest_points(&b1, &b2, &mut simplex);
 
-            match pts_johnson
-            {
+            match pts_johnson {
                 Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),
                 "found: " + jp1.to_str() + " " + jp2.to_str()
                 + " but expected: " + p1.to_str() + p2.to_str()),
@@ -104,49 +97,61 @@ macro_rules! test_gjk_ball_ball_impl(
 )
 
 #[test]
-fn test_gjk_ball_ball_1d()
-{ test_gjk_ball_ball_impl!(Vec1<f64>, f64) }
+fn test_gjk_ball_ball_1d() {
+    test_gjk_ball_ball_impl!(Vec1<f64>, f64)
+}
 
 #[test]
-fn test_gjk_ball_ball_2d()
-{ test_gjk_ball_ball_impl!(Vec2<f64>, f64) }
+fn test_gjk_ball_ball_2d() {
+    test_gjk_ball_ball_impl!(Vec2<f64>, f64)
+}
 
 #[test]
-fn test_gjk_ball_ball_3d()
-{ test_gjk_ball_ball_impl!(Vec3<f64>, f64) }
+fn test_gjk_ball_ball_3d() {
+    test_gjk_ball_ball_impl!(Vec3<f64>, f64)
+}
 
 #[test]
-fn test_gjk_ball_ball_4d()
-{ test_gjk_ball_ball_impl!(Vec4<f64>, f64); }
+fn test_gjk_ball_ball_4d() {
+    test_gjk_ball_ball_impl!(Vec4<f64>, f64);
+}
 
 #[test]
-fn test_gjk_ball_ball_5d()
-{ test_gjk_ball_ball_impl!(Vec5<f64>, f64); }
+fn test_gjk_ball_ball_5d() {
+    test_gjk_ball_ball_impl!(Vec5<f64>, f64);
+}
 
 #[test]
-fn test_gjk_ball_ball_6d()
-{ test_gjk_ball_ball_impl!(Vec6<f64>, f64); }
+fn test_gjk_ball_ball_6d() {
+    test_gjk_ball_ball_impl!(Vec6<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_1d()
-{ test_johnson_simplex_impl!(Vec1<f64>, f64); }
+fn test_johnson_simplex_1d() {
+    test_johnson_simplex_impl!(Vec1<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_2d()
-{ test_johnson_simplex_impl!(Vec2<f64>, f64); }
+fn test_johnson_simplex_2d() {
+    test_johnson_simplex_impl!(Vec2<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_3d()
-{ test_johnson_simplex_impl!(Vec3<f64>, f64); }
+fn test_johnson_simplex_3d() {
+    test_johnson_simplex_impl!(Vec3<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_4d()
-{ test_johnson_simplex_impl!(Vec4<f64>, f64); }
+fn test_johnson_simplex_4d() {
+    test_johnson_simplex_impl!(Vec4<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_5d()
-{ test_johnson_simplex_impl!(Vec5<f64>, f64); }
+fn test_johnson_simplex_5d() {
+    test_johnson_simplex_impl!(Vec5<f64>, f64);
+}
 
 #[test]
-fn test_johnson_simplex_6d()
-{ test_johnson_simplex_impl!(Vec6<f64>, f64); }
+fn test_johnson_simplex_6d() {
+    test_johnson_simplex_impl!(Vec6<f64>, f64);
+}

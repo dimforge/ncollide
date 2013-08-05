@@ -10,8 +10,7 @@ use narrow::ball_ball::*;
 use geom::ball::Ball;
 
 #[test]
-fn ball_ball_detection()
-{
+fn ball_ball_detection() {
     let cb1: Vec3<f64> = Zero::zero();
     let cb2            = cb1.scalar_add(&1.0);
 

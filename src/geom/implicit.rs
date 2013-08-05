@@ -2,8 +2,7 @@
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returnd point.
-pub trait Implicit<V>
-{
+pub trait Implicit<V> {
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
