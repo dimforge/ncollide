@@ -1,5 +1,3 @@
-#[doc(hidden)]; // XXX remove when the developement is done
-
 use std::ptr;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::translation::Translation;
@@ -10,6 +8,8 @@ use util::pair::{Pair, PairTWHash};
 use broad::dispatcher::Dispatcher;
 use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 
+/// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
+/// objects and which is never updated, and one for moving objects.
 pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
     priv tree:       Option<DBVTNode<V, @mut B, BV>>,
     priv stree:      Option<DBVTNode<V, @mut B, BV>>,
@@ -29,6 +29,7 @@ impl<N:  Clone + Ord,
      D:  Dispatcher<B, DV>,
      DV>
 DBVTBroadPhase<N, V, B, BV, D, DV> {
+    /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, V, B, BV, D, DV> {
         DBVTBroadPhase {
             tree:       None,

@@ -61,43 +61,24 @@ impl<CD: CollisionDetector<N, V, G1, G2>,
      G2: Transform<V>,
      V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
      N: Clone + DivisionRing + Ord + NumCast>
-CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
-    fn update(&mut self, g1: &G1, g2: &G2) {
-        // cleanup existing contacts
-        let mut i = 0;
-        while i != self.contacts.len() {
-            let remove = {
-                let c      = &mut self.contacts[i];
-                let _2     = One::one::<N>() + One::one();
-                let world1 = g1.transform_vec(&c.local1);
-                let world2 = g2.transform_vec(&c.local2);
+IncrementalContactManifoldGenerator<CD, N, V> {
+    pub fn get_sub_collision(&mut self, g1: &G1, g2: &G2) -> Option<Contact<N, V>> {
+        self.sub_detector.update(g1, g2);
+        self.sub_detector.colls(&mut self.collector);
 
-                let dw    = world1 - world2;
-                let depth = dw.dot(&c.contact.normal);
-
-                let _tangencial_limit: N = NumCast::from(0.25f64);
-
-                if depth >= Zero::zero() &&
-                    (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= _tangencial_limit * depth * depth {
-                        c.contact.depth = depth;
-
-                        c.contact.world1 = world1;
-                        c.contact.world2 = world2;
-
-                        i = i + 1;
-
-                        false
-                    }
-                else {
-                    true
-                }
-            };
-
-            if remove {
-                self.contacts.swap_remove(i);
-            }
+        let res = if self.collector.len() == 0 {
+            None
         }
+        else {
+            Some(self.collector[0].clone())
+        };
 
+        self.collector.clear();
+
+        res
+    }
+
+    pub fn add_new_contacts(&mut self, g1: &G1, g2: &G2) {
         // add the new ones
         self.sub_detector.update(g1, g2);
 
@@ -116,6 +97,56 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
         }
 
         self.collector.clear();
+    }
+
+    pub fn update_contacts(&mut self, g1: &G1, g2: &G2) {
+        // cleanup existing contacts
+        let mut i = 0;
+        while i != self.contacts.len() {
+            let remove = {
+                let c      = &mut self.contacts[i];
+                let world1 = g1.transform_vec(&c.local1);
+                let world2 = g2.transform_vec(&c.local2);
+
+                let dw    = world1 - world2;
+                let depth = dw.dot(&c.contact.normal);
+
+                let _tangencial_limit = NumCast::from::<N, f64>(0.25f64) * depth * depth;
+
+                if depth >= Zero::zero() &&
+                   (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= _tangencial_limit {
+                        c.contact.depth = depth;
+
+                        c.contact.world1 = world1;
+                        c.contact.world2 = world2;
+
+                        false
+                    }
+                else {
+                    true
+                }
+            };
+
+            if remove {
+                self.contacts.swap_remove(i);
+            }
+            else {
+                i = i + 1;
+            }
+        }
+    }
+}
+
+impl<CD: CollisionDetector<N, V, G1, G2>,
+     G1: Transform<V>,
+     G2: Transform<V>,
+     V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
+     N: Clone + DivisionRing + Ord + NumCast>
+CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
+    #[inline]
+    fn update(&mut self, g1: &G1, g2: &G2) {
+        self.update_contacts(g1, g2);
+        self.add_new_contacts(g1, g2);
     }
 
     #[inline]

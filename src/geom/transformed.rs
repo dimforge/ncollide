@@ -58,9 +58,6 @@ impl<G: Implicit<V>,
     }
 }
 
-// FIXME: is there a way to not have two different structs for the pointer and
-// the non-pointer version?
-
 // implementations for TransformedRef
 impl<'self, G, M, N> TransformedRef<'self, G, M, N> {
     /// Creates a transformed geometry.
@@ -70,11 +67,11 @@ impl<'self, G, M, N> TransformedRef<'self, G, M, N> {
     }
 }
 
-impl<'self, G: Implicit<V>, M: Rotate<V>, V: Clone, N>
+impl<'self, G: Implicit<V>, M: Rotate<V> + Transform<V>, V: Clone, N>
 Implicit<V> for TransformedRef<'self, G, M, N> {
     #[inline]
     fn support_point(&self, dir: &V) -> V {
-        self.t.rotate(&self.g.support_point(&self.t.inv_rotate(dir)))
+        self.t.transform_vec(&self.g.support_point(&self.t.inv_rotate(dir)))
     }
 }
 

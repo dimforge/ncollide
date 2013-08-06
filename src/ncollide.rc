@@ -6,8 +6,7 @@
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
-#[deny(missing_doc)];
-#[deny(warnings)];
+#[warn(missing_doc)];
 
 extern mod std;
 extern mod extra;
@@ -42,6 +41,7 @@ pub mod narrow
     pub mod ball_ball;
     pub mod implicit_implicit;
     pub mod incremental_contact_manifold_generator;
+    pub mod one_shot_contact_manifold_generator;
 
     pub mod algorithm
     {

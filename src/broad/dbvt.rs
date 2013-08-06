@@ -1,5 +1,3 @@
-#[doc(hidden)]; // XXX remove that when development is complete
-
 use std::managed;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::translation::Translation;
@@ -10,21 +8,30 @@ enum UpdateState {
     UpToDate
 }
 
+/// Node of the Dynamic Bounding Volume Tree.
 pub enum DBVTNode<V, B, BV> {
     Internal(@mut DBVTInternal<V, B, BV>),
     Leaf(@mut DBVTLeaf<V, B, BV>)
 }
 
+/// Internal node of a DBV Tree. An internal node always has two children.
 pub struct DBVTInternal<V, B, BV> {
+    /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
+    /// The center of this node bounding volume.
     center:          V,
+    /// This node left child.
     left:            DBVTNode<V, B, BV>,
+    /// This node right child.
     right:           DBVTNode<V, B, BV>,
+    /// This node parent.
     parent:          Option<@mut DBVTInternal<V, B, BV>>,
-    state:           UpdateState
+
+    priv state:           UpdateState
 }
 
 impl<BV: Translation<V>, B, V> DBVTInternal<V, B, BV> {
+    /// Creates a new internal node.
     pub fn new(bounding_volume: BV,
                parent:          Option<@mut DBVTInternal<V, B, BV>>,
                left:            DBVTNode<V, B, BV>,
@@ -41,15 +48,20 @@ impl<BV: Translation<V>, B, V> DBVTInternal<V, B, BV> {
     }
 }
 
+/// Leaf of a DBV Tree.
 pub struct DBVTLeaf<V, B, BV> {
+    /// The bounding volume of this node.
     bounding_volume: BV,
+    /// The center of this node bounding volume.
     center:          V,
+    /// An user-defined object.
     object:          B,
+    /// This node parent.
     parent:          Option<@mut DBVTInternal<V, B, BV>>,
 }
 
-
 impl<V, B, BV> DBVTNode<V, B, BV> {
+    /// Maximum depth of this tree.
     pub fn depth(&self) -> uint {
         match *self {
             Internal(i) => (1 + i.right.depth()).max(&(1 + i.left.depth())),
@@ -57,6 +69,7 @@ impl<V, B, BV> DBVTNode<V, B, BV> {
         }
     }
 
+    /// Number of leaves of this tree.
     pub fn num_leaves(&self) -> uint {
         match *self {
             Internal(i) => i.right.num_leaves() + i.left.num_leaves(),
@@ -104,6 +117,7 @@ impl<V, B, BV> DBVTInternal<V, B, BV> {
 }
 
 impl<V, B, BV: Translation<V>> DBVTLeaf<V, B, BV> {
+    /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<V, B, BV> {
         DBVTLeaf {
             center:          bounding_volume.translation(),
@@ -113,6 +127,12 @@ impl<V, B, BV: Translation<V>> DBVTLeaf<V, B, BV> {
         }
     }
 
+    /// Removes this leaf from the tree.
+    ///
+    /// Returns the new root of the tree.
+    ///
+    /// # Arguments:
+    ///     * `curr_root`: current root of the tree.
     pub fn unlink(@mut self, curr_root: DBVTNode<V, B, BV>) -> Option<DBVTNode<V, B, BV>> {
         match self.parent {
             Some(p) => {
@@ -225,6 +245,7 @@ impl<BV: 'static + BoundingVolume + Translation<V>,
      V:  'static + Sub<V, V> + Norm<N>,
      N:  Ord>
 DBVTNode<V, B, BV> {
+    /// Inserts a new leaf on this tree.
     pub fn insert(&mut self, to_insert: @mut DBVTLeaf<V, B, BV>) -> @mut DBVTInternal<V, B, BV> {
         match *self {
             Internal(i) => {
@@ -303,6 +324,13 @@ DBVTNode<V, B, BV> {
         }
     }
 
+    /// Finds all leaves which have their bounding boxes intersecting a specific leave bounding
+    /// box.
+    ///
+    /// # Arguments:
+    ///     * `to_test` - the leaf to check interference with.
+    ///     * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
+    ///     is not considered intersecting itself.
     pub fn interferences_with_leaf(&self,
                                    to_test: @mut DBVTLeaf<V, B, BV>,
                                    out:     &mut ~[(@mut DBVTLeaf<V, B, BV>)])
@@ -326,6 +354,7 @@ DBVTNode<V, B, BV> {
         }
     }
 
+    /// Finds all interferances between this tree and another one.
     pub fn interferences_with_tree(&self,
                                    to_test: &DBVTNode<V, B, BV>,
                                    out:     &mut ~[(@mut DBVTLeaf<V, B, BV>)])
@@ -351,6 +380,7 @@ DBVTNode<V, B, BV> {
         }
     }
 
+    #[doc(hidden)]
     pub fn check_invariant(&self) {
         match *self {
             Internal(i) => {

@@ -34,8 +34,8 @@ impl<N, V, G> PlaneImplicit<N, V, G> {
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
      G: Implicit<V>>
-CollisionDetector<N, V, Plane<V>, G> for PlaneImplicit<N, V, G> {
-    fn update(&mut self, a: &Plane<V>, b: &G) {
+CollisionDetector<N, V, G, Plane<V>> for PlaneImplicit<N, V, G> {
+    fn update(&mut self, b: &G, a: &Plane<V>) {
         self.contact = collide_plane_implicit_shape(a, b)
     }
 
@@ -71,7 +71,6 @@ impl<V: VectorSpace<N> + Dot<N> + Clone,
 CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G> {
     fn update(&mut self, a: &G, b: &Plane<V>) {
         self.contact = collide_plane_implicit_shape(b, a);
-        self.contact = self.contact.map_mut(|c| { c.flip(); c.clone() })
     }
 
     #[inline]
@@ -93,10 +92,14 @@ CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G> {
 
 /**
  * Same as `update_collide_plane_implicit_shape` but the existing collision or
- * `None`.
+ * `None`. In the created collsion:
+ *   * `world1` - designs the collision point on the object.
+ *   * `world2` - designs the collision point on the object.
+ *   * `normal` - designs the opposite of the plane normal.
  *
- *   - `plane`: the plane to test.
- *   - `other`: the object to test against the plane.
+ * # Arguments:
+ *   * `plane` - the plane to test.
+ *   * `other` - the object to test against the plane.
  */
 pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
                                     N: Ring + Ord + Clone,
@@ -110,7 +113,7 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
     if dist > Zero::zero() {
         let c1 = deepest + plane.normal().scalar_mul(&dist);
 
-        Some(Contact::new(c1, deepest, plane.normal(), dist))
+        Some(Contact::new(deepest, c1, -plane.normal(), dist))
     }
     else {
         None
