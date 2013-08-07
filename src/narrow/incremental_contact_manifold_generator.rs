@@ -1,4 +1,4 @@
-use std::num::{One, Zero};
+use std::num::Zero;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
@@ -62,6 +62,8 @@ impl<CD: CollisionDetector<N, V, G1, G2>,
      V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
      N: Clone + DivisionRing + Ord + NumCast>
 IncrementalContactManifoldGenerator<CD, N, V> {
+    /// Gets a collision from the sub-detector used by this manifold generator. This does not
+    /// update the manifold itself.
     pub fn get_sub_collision(&mut self, g1: &G1, g2: &G2) -> Option<Contact<N, V>> {
         self.sub_detector.update(g1, g2);
         self.sub_detector.colls(&mut self.collector);
@@ -78,6 +80,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
         res
     }
 
+    /// Updates the current manifold by adding one point.
     pub fn add_new_contacts(&mut self, g1: &G1, g2: &G2) {
         // add the new ones
         self.sub_detector.update(g1, g2);
@@ -99,6 +102,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
         self.collector.clear();
     }
 
+    /// Updates the contacts already existing on this manifold.
     pub fn update_contacts(&mut self, g1: &G1, g2: &G2) {
         // cleanup existing contacts
         let mut i = 0;

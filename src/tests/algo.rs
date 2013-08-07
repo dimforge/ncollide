@@ -81,7 +81,7 @@ macro_rules! test_gjk_ball_ball_impl(
 
             // FIXME: a bit verbose…
             let cso_point   = minkowski_sum::cso_support_point(&b1, &b2, rand::random());
-            let mut simplex = JohnsonSimplex::new(recursion, cso_point);
+            let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion, cso_point);
 
             let pts_johnson = gjk::closest_points(&b1, &b2, &mut simplex);
 

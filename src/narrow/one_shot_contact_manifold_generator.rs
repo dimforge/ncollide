@@ -16,11 +16,15 @@ use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGe
 use contact::Contact;
 use geom::implicit::Implicit;
 
+/// This is an hybrid contact manifold genarator. Whenever a new contact is detected (i.e. when the
+/// current manifold is empty) a full manifold is generated. Then, the manifold is incrementally
+/// updated by the `IncrementalContactManifoldGenerator`.
 pub struct OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     priv sub_detector: IncrementalContactManifoldGenerator<CD, N, LV>
 }
 
 impl<CD, N, LV, AV, M> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
+    /// Creates a new one shot contact manifold generator.
     pub fn new(cd: CD) -> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
         OneShotContactManifoldGenerator {
             sub_detector: IncrementalContactManifoldGenerator::new(cd)

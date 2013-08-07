@@ -59,9 +59,6 @@ impl<V: Dim> RecursionTemplate<V> {
     // only once for all. The resulting GC-managed list is intented to be shared
     // between all other simplicis with the same dimension.
     fn make_permutation_list(dim: uint) -> RecursionTemplate<V> {
-        // FIXME: the permutation list should be computed once for all, at compile
-        // time. I dont know how to do that though…
-
         // The number of points on the biggest subsimplex
         let max_num_points      = dim + 1;
 
@@ -207,51 +204,58 @@ JohnsonSimplex<N, V> {
 }
 
 impl<N: Ord + Clone + Eq + DivisionRing + Ord + Bounded,
-V: Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim>
+     V: Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim>
 JohnsonSimplex<N, V> {
     fn do_project_origin(&mut self, reduce: bool) -> V {
-        // FIXME: for optimization: do special case when there are only 1 point ?
-        let _0                   = Zero::zero::<N>();
-        let _1                   = One::one::<N>();
-        let max_num_pts          = self.points.len();
-        let recursion            = &self.recursion_template[max_num_pts - 1];
-        let mut curr_num_pts     = 1u;
-        let mut curr             = max_num_pts;
-
-        for i in range(0u, max_num_pts) {
-            self.cofactors[recursion.num_cofactors - 1 - i] = _1.clone();
+        if self.points.len() == 1 {
+            return self.points[0].clone();
         }
+
+        let max_num_pts      = self.points.len();
+        let recursion        = &self.recursion_template[max_num_pts - 1];
+        let mut curr_num_pts = 1u;
+        let mut curr         = max_num_pts;
+
+        for c in self.cofactors.mut_slice_from(recursion.num_cofactors - max_num_pts).mut_iter() {
+            *c = One::one::<N>().clone();
+        }
+
+        // NOTE: Please read that before thinking all those `unsafe_whatever` should be bannished.
+        // The whole point of having this `recursion_template` stuff is to speed up the
+        // computations having exact precomputed indices.
+        // Using safe accesses to vectors kind of makes this useless sinces each array access will
+        // be much slower.
+        // That is why we use unsafe indexing here. Nothing personal, just a huge need of
+        // performances :p
+        // There might be a whay to to this nicely with iterators. But indexing is verry intricate
+        // here…
 
         /*
          * first loop: compute all the cofactors
          */
-        let mut recursion_offsets_skip_2 = recursion.offsets.iter();
-        recursion_offsets_skip_2.next(); // Skip the two first entries
-        recursion_offsets_skip_2.next();
-        for &end in recursion_offsets_skip_2 {
+        for &end in recursion.offsets.slice_from(2).iter() { // FIXME: try to transform this using a `window_iter()`
             // for each sub-simplex ...
-            let mut _i = curr;
-            while (_i != end) {
-                let mut cofactor = Zero::zero::<N>();
-                let j_pid        = recursion.permutation_list[curr];
-                let k_pid        = recursion.permutation_list[curr + 1u];
+            while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
+                unsafe {
+                    let mut cofactor = Zero::zero::<N>();
+                    let kpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr + 1u)).clone();
+                    let jpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr)).clone();
 
-                // ... with curr_num_pts points ...
-                for i in range(0u, curr_num_pts) {
-                    // ... compute its cofactor.
-                    let i_pid        = recursion.permutation_list[curr + 1 + i];
-                    let sub_cofactor = self.cofactors[recursion.sub_cofactors[curr + 1 + i]].clone();
-                    let delta = sub_cofactor *
-                        self.points[k_pid].sub_dot(&self.points[j_pid],
-                        &self.points[i_pid]);
+                    // ... with curr_num_pts points ...
+                    for i in range(curr + 1, curr + 1 + curr_num_pts) {
+                        // ... compute its cofactor.
+                        let i_pid = recursion.permutation_list.unsafe_get(i);
+                        let sub_cofactor = self.cofactors.unsafe_get(
+                                             recursion.sub_cofactors.unsafe_get(i)).clone();
+                        let delta = sub_cofactor * kpt.sub_dot(&jpt, &self.points.unsafe_get(i_pid));
 
-                    cofactor = cofactor + delta;
+                        cofactor = cofactor + delta;
+                    }
+
+                    self.cofactors.unsafe_set(recursion.sub_cofactors.unsafe_get(curr), cofactor);
+
+                    curr = curr + curr_num_pts + 1; // points + removed point + cofactor id
                 }
-
-                self.cofactors[recursion.sub_cofactors[curr]] = cofactor;
-                curr = curr + curr_num_pts + 1; // points + removed point + cofactor id
-
-                _i = _i + curr_num_pts + 1;
             }
 
             curr_num_pts = curr_num_pts + 1;
@@ -260,68 +264,76 @@ JohnsonSimplex<N, V> {
         /*
          * second loop: find the subsimplex containing the projection
          */
-        let _invalid_cofactor = Bounded::max_value::<N>();
         let mut offsets_iter = recursion.offsets.rev_iter();
         offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
             // for each sub-simplex ...
-            let mut _i = curr;
-            while (_i != end) {
+            while (curr != end) {
                 let mut foundit = true;
+
                 // ... with curr_num_pts points permutations ...
                 for i in range(0u, curr_num_pts) {
-                    // ... see if its cofactor is positive
-                    let cof_id = _i - (i + 1) * curr_num_pts;
-                    let cof    = self.cofactors[recursion.sub_cofactors[cof_id]].clone();
-                    if cof > _0 {
-                        // invalidate the children cofactor
-                        if curr_num_pts > 1 {
-                            let subcofid = recursion.sub_cofactors[cof_id + 1];
+                    unsafe {
+                        // ... see if its cofactor is positive
+                        let cof_id = curr - (i + 1) * curr_num_pts;
+                        let cof    = self.cofactors.unsafe_get(recursion.sub_cofactors.unsafe_get(cof_id));
 
-                            if self.cofactors[subcofid] > _0 {
-                                self.cofactors[subcofid] = _invalid_cofactor.clone()
+                        if cof > Zero::zero::<N>() {
+                            // invalidate the children cofactor
+                            if curr_num_pts > 1 {
+                                let subcofid = recursion.sub_cofactors.unsafe_get(cof_id + 1);
+
+                                if self.cofactors.unsafe_get(subcofid) > Zero::zero::<N>() {
+                                    self.cofactors.unsafe_set(subcofid, Bounded::max_value::<N>())
+                                }
+                            }
+
+                            // dont concider this sub-simplex if it has been invalidated by its
+                            // parent(s)
+                            if cof == Bounded::max_value::<N>() {
+                                foundit = false
                             }
                         }
-
-                        // dont concider this sub-simplex if it has been invalidated by its
-                        // parent(s)
-                        if cof == _invalid_cofactor {
+                        else {
+                            // we found a negative cofactor: no projection possible here
                             foundit = false
                         }
-                    }
-                    else {
-                        // we found a negative cofactor: no projection possible here
-                        foundit = false
                     }
                 }
 
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_cof = _0.clone();
+                    let mut total_cof = Zero::zero::<N>();
                     let mut proj      = Zero::zero::<V>();
 
-                    for i in range(0u, curr_num_pts) {
-                        // ... see if its cofactor is positive
-                        let id    = _i - (i + 1) * curr_num_pts;
-                        let cof   = self.cofactors[recursion.sub_cofactors[id]].clone();
+                    unsafe {
+                        for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
+                            // ... see if its cofactor is positive
+                            let id    = curr - (i + 1) * curr_num_pts;
+                            let cof   = self.cofactors
+                                            .unsafe_get(recursion.sub_cofactors.unsafe_get(id));
 
-                        total_cof = total_cof + cof;
-                        proj = proj +
-                            self.points[recursion.permutation_list[id]].scalar_mul(&cof);
-                    }
-
-                    if reduce {
-                        // we need to reduce the simplex 
-                        // FIXME: is it possible to do that without copy?
-                        // Maybe with some kind of cross-vector-swap?
-                        for i in range(0u, curr_num_pts) {
-                            let id = _i - (i + 1) * curr_num_pts;
-                            self.exchange_points.push(self.points[recursion.permutation_list[id]].clone());
+                            total_cof = total_cof + cof;
+                            proj = proj +
+                                self.points.unsafe_get(recursion.permutation_list
+                                                                .unsafe_get(id)).scalar_mul(&cof);
                         }
 
-                        util::swap(&mut self.exchange_points, &mut self.points);
-                        self.exchange_points.clear();
+                        if reduce {
+                            // we need to reduce the simplex 
+                            // FIXME: is it possible to do that without copy?
+                            // Maybe with some kind of cross-vector-swap?
+                            for i in range(0u, curr_num_pts) {
+                                let id = curr - (i + 1) * curr_num_pts;
+                                self.exchange_points.push(
+                                    self.points.unsafe_get(
+                                        recursion.permutation_list.unsafe_get(id)));
+                            }
+
+                            util::swap(&mut self.exchange_points, &mut self.points);
+                            self.exchange_points.clear();
+                        }
                     }
 
                     proj.scalar_div_inplace(&total_cof);
@@ -329,49 +341,55 @@ JohnsonSimplex<N, V> {
                     return proj
                 }
 
-                _i = _i - curr_num_pts * curr_num_pts;
+                curr = curr - curr_num_pts * curr_num_pts;
             }
 
-            curr = end;
             curr_num_pts = curr_num_pts - 1;
         }
 
         // println(self.points.to_str());
         // println(self.cofactors.to_str());
         Zero::zero()
-            // fail!("Internal error: projection of the origin failed.");
+        // fail!("Internal error: projection of the origin failed.");
     }
 }
 
 impl<V: Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim,
 N: Ord + Clone + Eq + DivisionRing + Ord + Bounded>
 Simplex<N, V> for JohnsonSimplex<N, V> {
+    #[inline]
     fn reset(&mut self, pt: V) {
         self.points.clear();
         self.points.push(pt);
     }
 
+    #[inline]
     fn dimension(&self) -> uint {
         self.points.len() - 1
     }
 
+    #[inline]
     fn max_sq_len(&self) -> N {
         self.points.iter().transform(|v| v.sqnorm()).max().unwrap()
     }
 
+    #[inline]
     fn contains_point(&self, pt: &V) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
+    #[inline]
     fn add_point(&mut self, pt: V) {
         self.points.push(pt);
         assert!(self.points.len() <= Dim::dim::<V>() + 1);
     }
 
+    #[inline]
     fn project_origin_and_reduce(&mut self) -> V {
         self.do_project_origin(true)
     }
 
+    #[inline]
     fn project_origin(&mut self) -> V {
         self.do_project_origin(false)
     }
@@ -420,5 +438,37 @@ impl<V> ToStr for RecursionTemplate<V> {
         res = res + "offsets: " + self.offsets.to_str();
 
         res
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use nalgebra::types::Vec3f64;
+    use nalgebra::vec::Vec3;
+    use extra::test::BenchHarness;
+
+    #[bench]
+    fn bench_johnson_simplex(bh: &mut BenchHarness) {
+        let recursion = RecursionTemplate::new::<Vec3f64>();
+
+        let a = Vec3::new(-0.5, -0.5, -0.5);
+        let b = Vec3::new(0.0, 0.5, 0.0);
+        let c = Vec3::new(0.5, -0.5, -0.5);
+        let d = Vec3::new(0.0, -0.5, -0.5);
+
+        do bh.iter {
+            let mut spl = JohnsonSimplex::new(recursion, a);
+
+            do 1000.times {
+                spl.reset(a);
+
+                spl.add_point(b);
+                spl.add_point(c);
+                spl.add_point(d);
+
+                spl.project_origin_and_reduce();
+            }
+        }
     }
 }

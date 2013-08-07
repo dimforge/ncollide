@@ -75,5 +75,5 @@ mod tests
 {
     mod geom;
     mod narrow;
-    // mod algo;
+    mod algo;
 }

@@ -17,7 +17,7 @@ test:
 
 bench:
 	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) -o bench~ && ./bench~ --bench
+	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) --opt-level 3 -o bench~ && ./bench~ --bench
 	rm bench~
 
 doc:

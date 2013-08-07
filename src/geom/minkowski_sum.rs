@@ -99,6 +99,7 @@ pub struct AnnotatedPoint<V> {
 
 impl<V> AnnotatedPoint<V> {
     #[doc(hidden)]
+    #[inline]
     pub fn new(orig1: V, orig2: V, point: V) -> AnnotatedPoint<V> {
         AnnotatedPoint {
             orig1: orig1,
@@ -108,16 +109,19 @@ impl<V> AnnotatedPoint<V> {
     }
 
     #[doc(hidden)]
+    #[inline]
     pub fn point<'r>(&'r self) -> &'r V {
         &'r self.point
     }
 
     #[doc(hidden)]
+    #[inline]
     pub fn orig1<'r>(&'r self) -> &'r V {
         &'r self.orig1
     }
 
     #[doc(hidden)]
+    #[inline]
     pub fn orig2<'r>(&'r self) -> &'r V {
         &'r self.orig2
     }
@@ -125,6 +129,7 @@ impl<V> AnnotatedPoint<V> {
 
 impl<V: Zero> AnnotatedPoint<V> {
     #[doc(hidden)]
+    #[inline]
     pub fn new_invalid(point: V) -> AnnotatedPoint<V> {
         AnnotatedPoint {
             orig1: Zero::zero::(),
@@ -204,32 +209,38 @@ impl<V: SubDot<N>, N> SubDot<N> for AnnotatedPoint<V> {
 }
 
 impl<V: Norm<N> + Clone, N> Norm<N> for AnnotatedPoint<V> {
+    #[inline]
     fn norm(&self) -> N {
         self.point.norm()
     }
 
+    #[inline]
     fn sqnorm(&self) -> N {
         self.point.sqnorm()
     }
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
+    #[inline]
     fn normalized(&self) -> AnnotatedPoint<V> {
         AnnotatedPoint::new(self.orig1.clone(), self.orig2.clone(), self.point.normalized())
     }
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
+    #[inline]
     fn normalize(&mut self) -> N {
         self.point.normalize()
     }
 }
 
 impl<V: ScalarDiv<N>, N> ScalarDiv<N> for AnnotatedPoint<V> {
+    #[inline]
     fn scalar_div(&self, n: &N) -> AnnotatedPoint<V> {
         AnnotatedPoint::new(self.orig1.scalar_div(n),
         self.orig2.scalar_div(n),
         self.point.scalar_div(n))
     }
 
+    #[inline]
     fn scalar_div_inplace(&mut self, n: &N) {
         self.orig1.scalar_div_inplace(n);
         self.orig2.scalar_div_inplace(n);
@@ -238,12 +249,14 @@ impl<V: ScalarDiv<N>, N> ScalarDiv<N> for AnnotatedPoint<V> {
 }
 
 impl<V: ScalarMul<N>, N> ScalarMul<N> for AnnotatedPoint<V> {
+    #[inline]
     fn scalar_mul(&self, n: &N) -> AnnotatedPoint<V> {
         AnnotatedPoint::new(self.orig1.scalar_mul(n),
         self.orig2.scalar_mul(n),
         self.point.scalar_mul(n))
     }
 
+    #[inline]
     fn scalar_mul_inplace(&mut self, n: &N) {
         self.orig1.scalar_mul_inplace(n);
         self.orig2.scalar_mul_inplace(n);
@@ -252,10 +265,12 @@ impl<V: ScalarMul<N>, N> ScalarMul<N> for AnnotatedPoint<V> {
 }
 
 impl<V: Eq> Eq for AnnotatedPoint<V> {
+    #[inline]
     fn eq(&self, other: &AnnotatedPoint<V>) -> bool {
         self.point == other.point
     }
 
+    #[inline]
     fn ne(&self, other: &AnnotatedPoint<V>) -> bool {
         self.point != other.point
     }
@@ -295,6 +310,7 @@ impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {
 
 impl<'self, G1: Clone, G2: Clone, M: Clone + Mul<M, M> + Inv, N>
 Transformable<M, Transformed<MinkowskiSum<'self, G1, G2>, M, N>> for MinkowskiSum<'self, G1, G2> {
+    #[inline]
     fn transformed(&self, transform: &M) -> Transformed<MinkowskiSum<'self, G1, G2>, M, N> {
         Transformed::new(transform.clone(), self.clone())
     }
