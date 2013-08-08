@@ -23,5 +23,5 @@ pub trait CollisionDetector<N, V, G1, G2> {
     fn num_coll(&self) -> uint;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&mut self, &mut ~[Contact<N, V>]);
+    fn colls(&self, &mut ~[Contact<N, V>]);
 }

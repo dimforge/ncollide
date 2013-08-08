@@ -56,7 +56,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()

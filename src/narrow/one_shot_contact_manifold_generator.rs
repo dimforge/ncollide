@@ -89,7 +89,7 @@ CollisionDetector<N, LV, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, 
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, LV>]) {
+    fn colls(&self, out_colls: &mut ~[Contact<N, LV>]) {
         self.sub_detector.colls(out_colls)
     }
 }

@@ -48,7 +48,7 @@ CollisionDetector<N, V, G, Plane<V>> for PlaneImplicit<N, V, G> {
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
@@ -82,7 +82,7 @@ CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G> {
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()

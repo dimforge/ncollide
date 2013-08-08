@@ -159,7 +159,7 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
     }
 
     #[inline]
-    fn colls(&mut self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
         for c in self.contacts.iter() {
             out_colls.push(c.contact.clone())
         }
