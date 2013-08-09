@@ -16,15 +16,14 @@ struct ContactWLocals<N, V> {
 }
 
 impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V> {
-    fn new_with_contact<G1: Transform<V>,
-                        G2: Transform<V>>(
+    fn new_with_contact<M: Transform<V>>(
                         contact: Contact<N, V>,
-                        g1:      &G1,
-                        g2:      &G2)
+                        m1:      &M,
+                        m2:      &M)
                         -> ContactWLocals<N, V> {
             ContactWLocals {
-                local1: g1.inv_transform(&contact.world1),
-                local2: g2.inv_transform(&contact.world2),
+                local1: m1.inv_transform(&contact.world1),
+                local2: m2.inv_transform(&contact.world2),
                 center: (contact.world1 + contact.world2).scalar_div(&(NumCast::from(2.0))),
                 contact: contact
             }
@@ -56,16 +55,17 @@ impl<CD, N, V> IncrementalContactManifoldGenerator<CD, N, V> {
     }
 }
 
-impl<CD: CollisionDetector<N, V, G1, G2>,
-     G1: Transform<V>,
-     G2: Transform<V>,
+impl<CD: CollisionDetector<N, V, M, G1, G2>,
+     G1,
+     G2,
+     M: Transform<V>,
      V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
      N: Clone + DivisionRing + Ord + NumCast>
 IncrementalContactManifoldGenerator<CD, N, V> {
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
-    pub fn get_sub_collision(&mut self, g1: &G1, g2: &G2) -> Option<Contact<N, V>> {
-        self.sub_detector.update(g1, g2);
+    pub fn get_sub_collision(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) -> Option<Contact<N, V>> {
+        self.sub_detector.update(m1, g1, m2, g2);
         self.sub_detector.colls(&mut self.collector);
 
         let res = if self.collector.len() == 0 {
@@ -81,9 +81,9 @@ IncrementalContactManifoldGenerator<CD, N, V> {
     }
 
     /// Updates the current manifold by adding one point.
-    pub fn add_new_contacts(&mut self, g1: &G1, g2: &G2) {
+    pub fn add_new_contacts(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
         // add the new ones
-        self.sub_detector.update(g1, g2);
+        self.sub_detector.update(m1, g1, m2, g2);
 
         self.sub_detector.colls(&mut self.collector);
 
@@ -92,10 +92,10 @@ IncrementalContactManifoldGenerator<CD, N, V> {
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
-                add_reduce_by_variance(self.contacts, c.clone(), g1, g2)
+                add_reduce_by_variance(self.contacts, c.clone(), m1, m2)
             }
             else {
-                self.contacts.push(ContactWLocals::new_with_contact(c.clone(), g1, g2))
+                self.contacts.push(ContactWLocals::new_with_contact(c.clone(), m1, m2))
             }
         }
 
@@ -103,14 +103,14 @@ IncrementalContactManifoldGenerator<CD, N, V> {
     }
 
     /// Updates the contacts already existing on this manifold.
-    pub fn update_contacts(&mut self, g1: &G1, g2: &G2) {
+    pub fn update_contacts(&mut self, m1: &M, m2: &M) {
         // cleanup existing contacts
         let mut i = 0;
         while i != self.contacts.len() {
             let remove = {
                 let c      = &mut self.contacts[i];
-                let world1 = g1.transform_vec(&c.local1);
-                let world2 = g2.transform_vec(&c.local2);
+                let world1 = m1.transform_vec(&c.local1);
+                let world2 = m2.transform_vec(&c.local2);
 
                 let dw    = world1 - world2;
                 let depth = dw.dot(&c.contact.normal);
@@ -141,16 +141,17 @@ IncrementalContactManifoldGenerator<CD, N, V> {
     }
 }
 
-impl<CD: CollisionDetector<N, V, G1, G2>,
-     G1: Transform<V>,
-     G2: Transform<V>,
+impl<CD: CollisionDetector<N, V, M, G1, G2>,
+     G1,
+     G2,
+     M: Transform<V>,
      V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
      N: Clone + DivisionRing + Ord + NumCast>
-CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
+CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
     #[inline]
-    fn update(&mut self, g1: &G1, g2: &G2) {
-        self.update_contacts(g1, g2);
-        self.add_new_contacts(g1, g2);
+    fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
+        self.update_contacts(m1, m2);
+        self.add_new_contacts(m1, g1, m2, g2);
     }
 
     #[inline]
@@ -166,14 +167,13 @@ CollisionDetector<N, V, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V
     }
 }
 
-fn add_reduce_by_variance<N:  DivisionRing + NumCast + Ord,
-                          V:  Clone + VectorSpace<N> + Norm<N>,
-                          G1: Transform<V>,
-                          G2: Transform<V>>(
+fn add_reduce_by_variance<N: DivisionRing + NumCast + Ord,
+                          V: Clone + VectorSpace<N> + Norm<N>,
+                          M: Transform<V>>(
                           pts:    &mut [ContactWLocals<N, V>],
                           to_add: Contact<N, V>,
-                          g1:     &G1,
-                          g2:     &G2) {
+                          m1:     &M,
+                          m2:     &M) {
     let mut argmax = 0;
     let mut varmax = approx_variance(pts, &to_add, 0);
 
@@ -186,7 +186,7 @@ fn add_reduce_by_variance<N:  DivisionRing + NumCast + Ord,
         }
     }
 
-    pts[argmax] = ContactWLocals::new_with_contact(to_add, g1, g2);
+    pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
 fn approx_variance<N: DivisionRing + NumCast,

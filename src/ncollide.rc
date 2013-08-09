@@ -1,7 +1,7 @@
-#[link(name = "ncollide"
-       , vers = "0.0"
+#[link(name     = "ncollide"
+       , vers   = "0.0"
        , author = "Sébastien Crozet"
-       , uuid = "833DFDBD-3E85-456F-9CA7-84AADE5ED3BE")];
+       , uuid   = "833DFDBD-3E85-456F-9CA7-84AADE5ED3BE")];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
@@ -24,8 +24,6 @@ pub mod geom
     pub mod convex_polytope;
     pub mod minkowski_sum;
     pub mod reflection;
-    pub mod transformed;
-    pub mod translated;
 }
 
 pub mod bounding_volume
@@ -37,8 +35,8 @@ pub mod bounding_volume
 pub mod narrow
 {
     pub mod collision_detector;
-    pub mod plane_implicit;
     pub mod ball_ball;
+    pub mod plane_implicit;
     pub mod implicit_implicit;
     pub mod incremental_contact_manifold_generator;
     pub mod one_shot_contact_manifold_generator;

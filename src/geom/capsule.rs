@@ -1,15 +1,18 @@
 //!
 //! Support mapping based Capsule geometry.
-//!
-
+//!  
 use std::num::Zero;
-use nalgebra::traits::transformation::Transformable;
+use nalgebra::traits::basis::Basis;
+use nalgebra::traits::dim::Dim;
+use nalgebra::traits::dot::Dot;
 use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::inv::Inv;
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::transformation::Transform;
+use bounding_volume::aabb::{HasAABB, AABB};
+use bounding_volume::aabb;
 use geom::implicit::Implicit;
-use geom::transformed::Transformed;
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone)]
@@ -47,11 +50,15 @@ impl<N: Clone> Capsule<N> {
 }
 
 impl<N: Clone + Signed,
-     V: Clone + Zero + Norm<N> + ScalarMul<N> + Indexable<uint, N>> Implicit<V> for Capsule<N> {
-    fn support_point(&self, dir: &V) -> V {
-        let mut vres = dir.clone();
+     V: Clone + Zero + Norm<N> + ScalarMul<N> + Indexable<uint, N>,
+     M: Transform<V> + Rotate<V>>
+Implicit<V, M> for Capsule<N> {
+    fn support_point(&self, m: &M, dir: &V) -> V {
+        let local_dir = m.inv_rotate(dir);
 
-        let negative = dir.at(0).is_negative();
+        let mut vres = local_dir.clone();
+
+        let negative = local_dir.at(0).is_negative();
 
         vres.scalar_mul_inplace(&self.radius);
 
@@ -64,14 +71,16 @@ impl<N: Clone + Signed,
             vres.set(0, v0 + self.half_height.clone())
         }
 
-        vres
+        m.transform_vec(&vres)
     }
 }
 
-impl<N: Clone, M: Clone + Mul<M, M> + Inv>
-Transformable<M, Transformed<Capsule<N>, M, N>> for Capsule<N> {
-  #[inline]
-  fn transformed(&self, transform: &M) -> Transformed<Capsule<N>, M, N> {
-      Transformed::new(transform.clone(), self.clone())
-  }
+impl<N: Signed + Clone,
+     V: Dim + Indexable<uint, N> + Zero + Dot<N> + ScalarMul<N> + ScalarDiv<N> +
+        Basis + Neg<V> + Add<V, V> + Norm<N> + Ord + Clone,
+     M: Rotate<V> + Transform<V>>
+HasAABB<N, V, M> for Capsule<N> {
+    fn aabb(&self, m: &M) -> AABB<N, V> {
+        aabb::implicit_shape_aabb(m, self)
+    }
 }

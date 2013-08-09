@@ -1,8 +1,7 @@
 use std::num::Bounded;
 use nalgebra::traits::dot::Dot;
-use nalgebra::traits::transformation::Transformable;
-use nalgebra::traits::inv::Inv;
-use geom::transformed::Transformed;
+use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::rotation::Rotate;
 use geom::implicit::Implicit;
 
 /**
@@ -11,30 +10,34 @@ use geom::implicit::Implicit;
  *   - `V`: type of the polytope points.
  *   - `N`: type of the result of a dot product between two points.
  */
-pub struct ConvexPolytope<V, N> {
+pub struct ConvexPolytope<N, V> {
     priv pts: @[V]
 }
 
-impl<V, N> ConvexPolytope<V, N> {
+impl<N, V> ConvexPolytope<N, V> {
     /**
      * Creates a polytope from a set of point. Those points are assumed to form
      * a convex polytope: convexity is not checked.
      */
     #[inline]
-    pub fn new(pts: @[V]) -> ConvexPolytope<V, N> {
+    pub fn new(pts: @[V]) -> ConvexPolytope<N, V> {
         ConvexPolytope { pts: pts }
     }
 }
 
-impl<N: Ord + Bounded + ToStr + Neg<N>, V: Dot<N> + Clone>
-Implicit<V> for ConvexPolytope<V, N> {
+impl<N: Ord + Bounded + ToStr + Neg<N>,
+     V: Dot<N> + Clone,
+     M: Transform<V> + Rotate<V>>
+Implicit<V, M> for ConvexPolytope<N, V> {
     #[inline]
-    fn support_point(&self, dir: &V) -> V {
+    fn support_point(&self, m: &M, dir: &V) -> V {
+        let local_dir = m.inv_rotate(dir);
+
         let mut best_dot = -Bounded::max_value::<N>();
         let mut best_pt  = &self.pts[0];
 
         for p in self.pts.iter() {
-            let dot = p.dot(dir);
+            let dot = p.dot(&local_dir);
 
             if dot > best_dot {
                 best_dot = dot;
@@ -43,13 +46,6 @@ Implicit<V> for ConvexPolytope<V, N> {
         }
 
 
-        best_pt.clone()
-    }
-}
-
-impl<V, N, M: Clone + Mul<M, M> + Inv>
-Transformable<M, Transformed<ConvexPolytope<V, N>, M, N>> for ConvexPolytope<V, N> {
-    fn transformed(&self, transform: &M) -> Transformed<ConvexPolytope<V, N>, M, N> {
-        Transformed::new(transform.clone(), ConvexPolytope::new(self.pts))
+        m.transform_vec(best_pt)
     }
 }

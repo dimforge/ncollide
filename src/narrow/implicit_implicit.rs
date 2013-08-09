@@ -1,9 +1,10 @@
+use std::num::One;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::sample::UniformSphereSample;
-use nalgebra::traits::translation::Translation;
+use nalgebra::traits::translation::{Translation, Translatable};
 use geom::implicit::Implicit;
 use geom::minkowski_sum;
 use geom::minkowski_sum::AnnotatedPoint;
@@ -37,14 +38,15 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 }
 
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
-     G1: Implicit<V> + Translation<V>,
-     G2: Implicit<V> + Translation<V>,
+     G1: Implicit<V, M>,
+     G2: Implicit<V, M>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
-     V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + UniformSphereSample + Clone>
-     CollisionDetector<N, V, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
+     V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + UniformSphereSample + Clone,
+     M:  Translation<V> + Translatable<V, M> + One>
+     CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
-    fn update(&mut self, a: &G1, b: &G2) {
-        self.contact = collide_implicit_implicit(a, b, &self.margin, &mut self.simplex)
+    fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
+        self.contact = collide_implicit_implicit(ma, a, mb, b, &self.margin, &mut self.simplex)
     }
 
     #[inline]
@@ -78,21 +80,24 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
-                                 G1: Implicit<V> + Translation<V>,
-                                 G2: Implicit<V> + Translation<V>,
+                                 G1: Implicit<V, M>,
+                                 G2: Implicit<V, M>,
                                  N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
                                  V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim +
-                                     UniformSphereSample + Clone>(
+                                     UniformSphereSample + Clone,
+                                 M:  Translation<V> + Translatable<V, M> + One>(
+                                 m1:      &M,
                                  g1:      &G1,
+                                 m2:      &M,
                                  g2:      &G2,
                                  margin:  &N,
                                  simplex: &mut S)
                                  -> Option<Contact<N, V>> {
-    let dir = g1.translation() - g2.translation(); // FIXME: or g2 - g1 ?
+    let dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
 
-    simplex.reset(minkowski_sum::cso_support_point(g1, g2, dir));
+    simplex.reset(minkowski_sum::cso_support_point(m1, g1, m2, g2, dir));
 
-    match gjk::closest_points(g1, g2, simplex) {
+    match gjk::closest_points(m1, g1, m2, g2, simplex) {
         Some((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = p1p2.sqnorm();
@@ -118,7 +123,7 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     // The point is inside of the CSO: use the fallback algorithm
-    match minkowski_sampling::closest_points(g1, g2, margin, simplex) {
+    match minkowski_sampling::closest_points(m1, g1, m2, g2, margin, simplex) {
         Some((p1, p2)) => {
             let mut normal = p1 - p2;
             let depth      = normal.normalize();

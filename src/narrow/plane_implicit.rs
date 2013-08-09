@@ -1,8 +1,10 @@
 use std::num::Zero;
-use nalgebra::traits::dot::{Dot};
+use nalgebra::traits::dot::Dot;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::ring::Ring;
 use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::translation::Translation;
 use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;
@@ -11,32 +13,33 @@ use contact::Contact;
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-pub struct PlaneImplicit<N, V, G> {
+pub struct PlaneImplicit<N, V, M, G> {
     priv contact: Option<Contact<N, V>>
 }
 
 /// Collision detector between a geometry implementing the `Implicit` trait and a plane.
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-pub struct ImplicitPlane<N, V, G> {
+pub struct ImplicitPlane<N, V, M, G> {
     priv contact: Option<Contact<N, V>>
 }
 
-impl<N, V, G> PlaneImplicit<N, V, G> {
+impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
     /// Creates a new persistant collision detector between a plane and a geometry with a support
     /// mapping function.
     #[inline]
-    pub fn new() -> PlaneImplicit<N, V, G> {
+    pub fn new() -> PlaneImplicit<N, V, M, G> {
         PlaneImplicit { contact: None }
     }
 }
 
-impl<V: VectorSpace<N> + Dot<N> + Clone,
-     N: Ring + Ord + Clone,
-     G: Implicit<V>>
-CollisionDetector<N, V, G, Plane<V>> for PlaneImplicit<N, V, G> {
-    fn update(&mut self, b: &G, a: &Plane<V>) {
-        self.contact = collide_plane_implicit_shape(a, b)
+impl<N: Ring + Ord + Clone,
+     V: VectorSpace<N> + Dot<N> + Clone,
+     M: Rotate<V> + Translation<V>,
+     G: Implicit<V, M>>
+CollisionDetector<N, V, M, G, Plane<V>> for PlaneImplicit<N, V, M, G> {
+    fn update(&mut self, mb: &M, b: &G, ma: &M, a: &Plane<V>) {
+        self.contact = collide_plane_implicit_shape(ma, a, mb, b)
     }
 
     #[inline]
@@ -56,21 +59,22 @@ CollisionDetector<N, V, G, Plane<V>> for PlaneImplicit<N, V, G> {
     }
 }
 
-impl<N, V, G> ImplicitPlane<N, V, G> {
+impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
     /// Creates a new persistant collision detector between a geometry with a support mapping
     /// function, and a plane.
     #[inline]
-    pub fn new() -> ImplicitPlane<N, V, G> {
+    pub fn new() -> ImplicitPlane<N, V, M, G> {
         ImplicitPlane { contact: None }
     }
 }
 
 impl<V: VectorSpace<N> + Dot<N> + Clone,
      N: Ring + Ord + Clone,
-     G: Implicit<V>>
-CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G> {
-    fn update(&mut self, a: &G, b: &Plane<V>) {
-        self.contact = collide_plane_implicit_shape(b, a);
+     M: Rotate<V> + Translation<V>,
+     G: Implicit<V, M>>
+CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
+    fn update(&mut self, ma: &M, a: &G, mb: &M, b: &Plane<V>) {
+        self.contact = collide_plane_implicit_shape(mb, b, ma, a);
     }
 
     #[inline]
@@ -103,17 +107,24 @@ CollisionDetector<N, V, G, Plane<V>> for ImplicitPlane<N, V, G> {
  */
 pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
                                     N: Ring + Ord + Clone,
-                                    G: Implicit<V>>(
-                                    plane: &Plane<V>,
-                                    other: &G)
+                                    M: Rotate<V> + Translation<V>,
+                                    G: Implicit<V, M>>(
+                                    mplane: &M,
+                                    plane:  &Plane<V>,
+                                    mother: &M,
+                                    other:  &G)
                                     -> Option<Contact<N, V>> {
-    let deepest = other.support_point(&-plane.normal());
-    let dist    = plane.normal().dot(&(plane.center() - deepest));
+    let plane_normal = mplane.rotate(&plane.normal());
+
+    let plane_center = mplane.translation();
+
+    let deepest = other.support_point(mother, &-plane_normal);
+    let dist    = plane_normal.dot(&(plane_center - deepest));
 
     if dist > Zero::zero() {
-        let c1 = deepest + plane.normal().scalar_mul(&dist);
+        let c1 = deepest + plane_normal.scalar_mul(&dist);
 
-        Some(Contact::new(deepest, c1, -plane.normal(), dist))
+        Some(Contact::new(deepest, c1, -plane_normal, dist))
     }
     else {
         None

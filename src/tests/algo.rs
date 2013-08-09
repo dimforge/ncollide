@@ -74,16 +74,16 @@ macro_rules! test_gjk_ball_ball_impl(
             c2.scalar_sub_inplace(&(0.5 as $n));
             c2.scalar_mul_inplace(&(100.0 as $n));
 
-            let b1 = Ball::new(c1, r1);
-            let b2 = Ball::new(c2, r2);
+            let b1 = Ball::new(r1);
+            let b2 = Ball::new(r2);
 
-            let (p1, p2) = ball_ball::closest_points(&b1, &b2);
+            let (p1, p2) = ball_ball::closest_points(&c1, &b1, &c2, &b2);
 
             // FIXME: a bit verbose…
-            let cso_point   = minkowski_sum::cso_support_point(&b1, &b2, rand::random());
+            let cso_point   = minkowski_sum::cso_support_point(&c1, &b1, &c2, &b2, rand::random());
             let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion, cso_point);
 
-            let pts_johnson = gjk::closest_points(&b1, &b2, &mut simplex);
+            let pts_johnson = gjk::closest_points(&c1, &b1, &c2, &b2, &mut simplex);
 
             match pts_johnson {
                 Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),

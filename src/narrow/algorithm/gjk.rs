@@ -4,7 +4,7 @@ use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
-use geom::minkowski_sum::{AnnotatedPoint, AnnotatedMinkowskiSum};
+use geom::minkowski_sum::{AnnotatedPoint, AnnotatedNonTransformableMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
 ///  Computes the closest points between two convex geometries unsing the GJK algorithm.
@@ -16,17 +16,21 @@ use narrow::algorithm::simplex::Simplex;
 ///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///     compute such point.
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
-                      G1: Implicit<V>,
-                      G2: Implicit<V>,
+                      G1: Implicit<V, M>,
+                      G2: Implicit<V, M>,
                       N:  Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
-                      V:  Clone + Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim>(
+                      V:  Clone + Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim,
+                      M>(
+                      m1:      &M,
                       g1:      &G1,
+                      m2:      &M,
                       g2:      &G2,
                       simplex: &mut S) -> Option<(V, V)> {
     let reflect2 = Reflection::new(g2);
-    let cso      = AnnotatedMinkowskiSum::new(g1, &reflect2);
+    let cso      = AnnotatedNonTransformableMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    project_origin(&cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
+    // NOTE: we pass `m1` or whatever, it will be ignored by the NonTransformableMinkowskiSum anyway.
+    project_origin(m1, &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
 /// Projects the origin on a geometry unsing the GJK algorithm.
@@ -36,9 +40,11 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
 pub fn project_origin<S: Simplex<N, V>,
-                      G: Implicit<V>,
+                      G: Implicit<V, M>,
                       N: Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
-                      V: Norm<N> + Neg<V> + Dot<N> + Dim>(
+                      V: Norm<N> + Neg<V> + Dot<N> + Dim,
+                      M>(
+                      m:       &M,
                       geom:    &G,
                       simplex: &mut S)
                       -> Option<V> {
@@ -50,7 +56,7 @@ pub fn project_origin<S: Simplex<N, V>,
     let _dim     = Dim::dim::<V>();
 
     loop {
-        let support_point = geom.support_point(&-proj);
+        let support_point = geom.support_point(m, &-proj);
 
         if (sq_len_dir - proj.dot(&support_point) <= _eps_rel * sq_len_dir) {
             return Some(proj) // the distance found has a good enough precision 

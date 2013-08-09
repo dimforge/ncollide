@@ -13,11 +13,11 @@ use contact::Contact;
  *   * `G1`- the type of the first object involved on the collision detection.
  *   * `G2`- the type of the second object involved on the collision detection.
  */
-pub trait CollisionDetector<N, V, G1, G2> {
+pub trait CollisionDetector<N, V, M, G1, G2> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self, &G1, &G2);
+    fn update(&mut self, &M, &G1, &M, &G2);
 
     /// The number of collision detected during the last update.
     fn num_coll(&self) -> uint;

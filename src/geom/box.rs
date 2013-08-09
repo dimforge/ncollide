@@ -5,11 +5,15 @@
 use std::num::{Zero, Signed};
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::transformation::Transformable;
+use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::iterable::Iterable;
-use nalgebra::traits::inv::Inv;
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::dot::Dot;
+use nalgebra::traits::basis::Basis;
+use bounding_volume::aabb::{HasAABB, AABB};
+use bounding_volume::aabb;
 use geom::implicit::Implicit;
-use geom::transformed::Transformed;
 
 /// Geometry of a box.
 ///
@@ -42,13 +46,18 @@ impl<N, V: Clone> Box<N, V> {
     }
 }
 
-impl<N: Signed, V: Dim + Indexable<uint, N> + Zero> Implicit<V> for Box<N, V> {
+impl<N: Signed,
+     V: Dim + Indexable<uint, N> + Zero,
+     M: Rotate<V> + Transform<V>>
+Implicit<V, M> for Box<N, V> {
     #[inline]
-    fn support_point(&self, dir: &V) -> V {
+    fn support_point(&self, m: &M, dir: &V) -> V {
+        let local_dir = m.inv_rotate(dir);
+
         let mut vres = Zero::zero::<V>();
 
         for i in range(0u, Dim::dim::<V>()) {
-            if dir.at(i).is_negative() {
+            if local_dir.at(i).is_negative() {
                 vres.set(i, -self.half_extents.at(i));
             }
             else {
@@ -56,14 +65,16 @@ impl<N: Signed, V: Dim + Indexable<uint, N> + Zero> Implicit<V> for Box<N, V> {
             }
         }
 
-        vres
+        m.transform_vec(&vres)
     }
 }
 
-impl<N: Clone, V: Clone, M: Clone + Mul<M, M> + Inv>
-Transformable<M, Transformed<Box<N, V>, M, N>> for Box<N, V> {
-    #[inline]
-    fn transformed(&self, transform: &M) -> Transformed<Box<N, V>, M, N> {
-        Transformed::new(transform.clone(), self.clone())
+impl<N: Signed,
+     V: Dim + Indexable<uint, N> + Zero + Dot<N> + ScalarMul<N> + ScalarDiv<N> +
+        Basis + Neg<V> + Add<V, V> + Ord,
+     M: Rotate<V> + Transform<V>>
+HasAABB<N, V, M> for Box<N, V> {
+    fn aabb(&self, m: &M) -> AABB<N, V> {
+        aabb::implicit_shape_aabb(m, self)
     }
 }

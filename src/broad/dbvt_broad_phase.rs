@@ -203,22 +203,20 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
 mod test {
     use super::*;
     use nalgebra::vec::Vec3;
-    use nalgebra::traits::translation::Translatable;
     use geom::ball::Ball;
     use bounding_volume::aabb::WithAABB;
     use broad::dispatcher::NoIdDispatcher;
 
     #[test]
     fn test_dbvt_empty() {
-        let dispatcher: NoIdDispatcher<WithAABB<Ball<float, Vec3<float>>>> = NoIdDispatcher;
+        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(Vec3::new(0.0, 0.0, 0.0), 0.3);
+        let ball       = Ball::new(0.3);
 
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                let tball = ball.translated(&Vec3::new(i as float * 30.0, j as float * 30.0, 0.0));
-
-                bf.add(@mut WithAABB(tball));
+                bf.add(@mut WithAABB(Vec3::new(i as float * 30.0, j as float * 30.0, 0.0), ball));
             }
         }
 
@@ -229,16 +227,15 @@ mod test {
 
     #[test]
     fn test_dbvt_nbh_collide() {
-        let dispatcher: NoIdDispatcher<WithAABB<Ball<float, Vec3<float>>>> = NoIdDispatcher;
+        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(Vec3::new(0.0, 0.0, 0.0), 0.3);
+        let ball       = Ball::new(0.3);
 
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                let tball = ball.translated(&Vec3::new(i as float * 0.9, j as float * 0.9, 0.0));
-
-                bf.add(@mut WithAABB(tball));
+                bf.add(@mut WithAABB(Vec3::new(i as float * 0.9, j as float * 0.9, 0.0), ball));
             }
         }
 
@@ -255,18 +252,18 @@ mod test {
 
     #[test]
     fn test_dbvt_nbh_move_collide() {
-        let dispatcher: NoIdDispatcher<WithAABB<Ball<float, Vec3<float>>>> = NoIdDispatcher;
+        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(Vec3::new(0.0, 0.0, 0.0), 0.3);
+        let ball       = Ball::new(0.3);
 
         let mut to_move = ~[];
 
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                let tball = ball.translated(&Vec3::new(i as float * 0.9, j as float * 0.9, 0.0));
-
-                let to_add = @mut WithAABB(tball);
+                let to_add = @mut WithAABB(Vec3::new(i as float * 0.9, j as float * 0.9, 0.0),
+                                           ball);
                 bf.add(to_add);
                 to_move.push(to_add);
             }
@@ -275,7 +272,8 @@ mod test {
         bf.update();
 
         for e in to_move.consume_iter() {
-            e.translate_by(&Vec3::new(10.0, 10.0, 10.0))
+            let WithAABB(m, c) = *e;
+            *e = WithAABB(Vec3::new(10.0, 10.0, 10.0) + m, c)
         }
 
         bf.update();
@@ -285,18 +283,19 @@ mod test {
             (18 * 18 * 8 + // internal rectangles have 8 neighbors
              18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
              4 * 3)        // corners have 3 neighbors
-            / 2            // remove all duplicates
+             / 2           // remove all duplicates
         )
     }
 
     #[test]
     fn test_dbvt_quadratic_collide() {
-        let dispatcher: NoIdDispatcher<WithAABB<Ball<float, Vec3<float>>>> = NoIdDispatcher;
+        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(Vec3::new(0.0, 0.0, 0.0), 0.3);
+        let ball       = Ball::new(0.3);
 
         do 400.times {
-            bf.add(@mut WithAABB(ball))
+            bf.add(@mut WithAABB(Vec3::new(0.0, 0.0, 0.0), ball))
         }
 
         bf.update();

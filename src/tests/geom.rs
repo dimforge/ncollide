@@ -1,6 +1,4 @@
 #[test]
-use std::num::{Zero};
-#[test]
 use std::cmp::ApproxEq;
 #[test]
 use nalgebra::vec::Vec3;
@@ -11,48 +9,26 @@ use geom::ball::Ball;
 #[test]
 use geom::implicit::Implicit;
 #[test]
-use geom::minkowski_sum::MinkowskiSum;
-#[test]
-use geom::reflection::Reflection;
-#[test]
-use geom::convex_polytope::ConvexPolytope;
+use geom::minkowski_sum::NonTransformableMinkowskiSum;
 
 #[test]
 fn test_ball_support_function() {
     let dir  = &Vec3::new(1f64, 1f64, 1f64);
-    let ball = Ball::new(Zero::zero(), 42f64);
+    let ball = Ball::new(42f64);
     let diag = 42f64 / dir.norm();
 
-    assert!(ball.support_point(dir).approx_eq(&Vec3::new(diag, diag, diag)));
-}
-
-#[test]
-fn test_convex_polytope_support_function() {
-    let dir    = &Vec3::new(1f64, 1f64, 1f64);
-    let bestpt = Vec3::new(2f64, 2f64, 0f64);
-    let pts    = @[bestpt, Vec3::new(-2f64, -2f64, -0f64)];
-    let poly   = ConvexPolytope::new(pts);
-
-    assert!(poly.support_point(dir).approx_eq(&bestpt));
+    assert!(ball.support_point(&Vec3::new(0.0f64, 0.0, 0.0), dir)
+                .approx_eq(&Vec3::new(diag, diag, diag)));
 }
 
 #[test]
 fn test_minkowski_sum_support_function() {
     let dir  = Vec3::new(1f64, 1f64, 1f64);
-    let ball = Ball::new(Zero::zero::<Vec3<f64>>(), 42f64);
+    let ball = Ball::new(42f64);
     let diag = 2.0f64 * 42f64 / dir.norm();
+    let _0v  = Vec3::new(0.0f64, 0.0, 0.0);
 
-    let msum = MinkowskiSum::new(&ball, &ball);
+    let msum = NonTransformableMinkowskiSum::new(&_0v, &ball, &_0v, &ball);
 
-    assert!(msum.support_point(&dir).approx_eq(&Vec3::new(diag, diag, diag)));
-}
-
-#[test]
-fn test_reflection_support_function() {
-    let dir    = &Vec3::new(1f64, 1f64, 1f64);
-    let pts    = @[Vec3::new(2f64, 2f64, 2f64), Vec3::new(-20f64, -20f64, -20f64)];
-    let poly   = ConvexPolytope::new::<Vec3<f64>, f64>(pts);
-
-    assert!(Reflection::new(&poly).support_point(dir)
-            .approx_eq(&Vec3::new(20f64, 20f64, 20f64)));
+    assert!(msum.support_point(&_0v, &dir).approx_eq(&Vec3::new(diag, diag, diag)));
 }

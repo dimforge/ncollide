@@ -1,11 +1,15 @@
-use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub, ScalarDiv};
+use std::num::Zero;
+use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub, ScalarDiv, ScalarMul};
 use nalgebra::traits::translation::Translation;
+use nalgebra::traits::dot::Dot;
+use nalgebra::traits::basis::Basis;
+use geom::implicit::Implicit;
 use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
 /// Traits of objects approximable by an AABB.
-pub trait HasAABB<N, V> {
+pub trait HasAABB<N, V, M> {
     /// The object’s AABB.
-    fn aabb(&self) -> AABB<N, V>;
+    fn aabb(&self, &M) -> AABB<N, V>;
 }
 
 /// An Axis Aligned Bounding Box.
@@ -94,14 +98,40 @@ LooseBoundingVolume<N> for AABB<N, V> {
     }
 }
 
-/// Wrapper which implements `HasBoundingVolume<AABB<N, V>>` for objects implementing `HasAABB<N, V>`.
-#[deriving(Clone, Eq, DeepClone)]
-pub struct WithAABB<A>(A);
+/// Builds the AABB of an implicit shape.
+pub fn implicit_shape_aabb<N,
+                           V: Dot<N> + ScalarMul<N> + ScalarDiv<N> + Basis + Neg<V> + Add<V, V> +
+                              Zero + Ord,
+                           M,
+                           I: Implicit<V, M>>(
+                           m: &M,
+                           i: &I)
+                           -> AABB<N, V> {
+        let mut resm = Zero::zero::<V>();
+        let mut resM = Zero::zero::<V>();
 
-impl<A: HasAABB<N, V>, V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, N>
-HasBoundingVolume<AABB<N, V>> for WithAABB<A> {
+        // FIXME: optimize using Indexable?
+        do Basis::canonical_basis::<V>() |basis| {
+            resm = resm + basis.scalar_mul(&basis.dot(&i.support_point(m, &-basis)));
+            resM = resM + basis.scalar_mul(&basis.dot(&i.support_point(m, &basis)));
+        }
+
+        let res = AABB::new(resm, resM);
+
+        res
+}
+
+// FIXME: remove that to use `Transformed` istead?
+/// Wrapper which implements `HasBoundingVolume<M, AABB<N, V>>` for objects implementing `HasAABB<N, V, M>`.
+#[deriving(Clone, Eq, DeepClone)]
+pub struct WithAABB<M, A>(M, A);
+
+impl<N, V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, M, A: HasAABB<N, V, M>>
+HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {
     fn bounding_volume(&self) -> AABB<N, V> {
-        self.aabb()
+        let WithAABB(ref t, ref g) = *self;
+
+        g.aabb(t)
     }
 }
 

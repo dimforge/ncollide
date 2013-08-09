@@ -1,28 +1,31 @@
-use std::num::Zero;
+use std::num::{Zero, One};
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
 use nalgebra::traits::scalar_op::ScalarMul;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::sample::UniformSphereSample;
+use nalgebra::traits::translation::{Translation, Translatable};
 use geom::minkowski_sum;
-use geom::minkowski_sum::{MinkowskiSum, AnnotatedPoint};
+use geom::minkowski_sum::{NonTransformableMinkowskiSum, AnnotatedPoint};
 use geom::reflection::Reflection;
 use geom::implicit::Implicit;
 use geom::ball::Ball;
-use geom::translated::Translated;
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
-                      G1: Implicit<V>,
-                      G2: Implicit<V>,
+                      G1: Implicit<V, M>,
+                      G2: Implicit<V, M>,
                       N:  Clone + Sub<N, N> + Ord + Mul<N, N> + Float,
                       V:  Norm<N> + Dot<N> + Dim + VectorSpace<N> +
-                      UniformSphereSample + Clone>(
+                          UniformSphereSample + Clone,
+                      M:  One + Translation<V> + Translatable<V, M>>(
+                      m1:      &M,
                       g1:      &G1,
+                      m2:      &M,
                       g2:      &G2,
                       margin:  &N,
                       simplex: &mut S)
@@ -32,11 +35,12 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     // FIXME: using minkowskiSum(CSO(...)) could be more
     // efficient than the current approach (CSO(minkowskiSum(...), minkowskiSum(..)))
     let _0        = Zero::zero::<N>();
-    let enlarger  = Ball::new(Zero::zero::<V>(), margin.clone());
-    let enlarged1 = MinkowskiSum::new(g1, &enlarger);
-    let enlarged2 = MinkowskiSum::new(g2, &enlarger);
+    let _1m       = One::one::<M>();
+    let enlarger  = Ball::new(margin.clone());
+    let enlarged1 = NonTransformableMinkowskiSum::new(m1, g1, &_1m, &enlarger);
+    let enlarged2 = NonTransformableMinkowskiSum::new(m2, g2, &_1m, &enlarger);
     let reflect2  = Reflection::new(&enlarged2);
-    let cso       = MinkowskiSum::new(&enlarged1, &reflect2);
+    let cso       = NonTransformableMinkowskiSum::new(m1, &enlarged1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
     let mut best_dir: Option<&'static V> = None;
@@ -44,7 +48,8 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let mut best_support = Zero::zero(); // FIXME: remove that (for debug)
 
     do UniformSphereSample::sample::<V>() |sample| {
-        let support = cso.support_point(sample);
+        // NOTE: m1 will be ignored by the minkowski sum
+        let support = cso.support_point(m1, sample);
         let dist    = sample.dot(&support);
 
         if (dist < min_dist) {
@@ -61,16 +66,17 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let shift = best_dir.unwrap().scalar_mul(&min_dist);
 
     // XXX: translate the simplex instead of reseting it
-    let tg2 = &Translated::new(g2, shift.clone());
+    let tm2 = m2.translated(&shift.clone());
 
-    simplex.reset(minkowski_sum::cso_support_point(g1, tg2, best_dir.unwrap().clone()));
+    simplex.reset(minkowski_sum::cso_support_point(m1, g1, &tm2, g2, best_dir.unwrap().clone()));
 
-    match gjk::closest_points(g1, tg2, simplex) {
+    match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
             let corrected_normal = (p2 - p1).normalized();
 
-            let corrected_support = cso.support_point(&corrected_normal);
+            // NOTE: m1 will be ignored by the MinkowskiSum
+            let corrected_support = cso.support_point(m1, &corrected_normal);
             let min_dist2 = corrected_normal.dot(&corrected_support);
 
             // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");

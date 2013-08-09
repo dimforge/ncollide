@@ -22,11 +22,9 @@ impl<'self, G> Reflection<'self, G> {
     }
 }
 
-impl<'self, V: Neg<V>, G: Implicit<V>> Implicit<V> for Reflection<'self, G> {
+impl<'self, V: Neg<V>, M, G: Implicit<V, M>> Implicit<V, M> for Reflection<'self, G> {
     #[inline]
-    fn support_point(&self, dir: &V) -> V {
-        -self.g.support_point(&-dir)
+    fn support_point(&self, m: &M, dir: &V) -> V {
+        -self.g.support_point(m, &-dir)
     }
 }
-
-// Implement transform efficiently.

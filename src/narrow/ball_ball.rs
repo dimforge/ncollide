@@ -1,6 +1,7 @@
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::translation::Translation;
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
@@ -12,24 +13,25 @@ use contact::Contact;
  *   * `N` - type of a ball radius.
  *   * `V` - type of a ball center.
  */
-pub struct BallBall<N, V> {
+pub struct BallBall<N, V, M> {
     priv contact: Option<Contact<N, V>>
 }
 
-impl<N, V> BallBall<N, V> {
+impl<N, V, M> BallBall<N, V, M> {
     /// Creates a new persistant collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBall<N, V> {
+    pub fn new() -> BallBall<N, V, M> {
         BallBall { contact: None }
     }
 }
 
 impl<N: Real + Clone,
-     V: VectorSpace<N> + Norm<N> + Clone> 
-     CollisionDetector<N, V, Ball<N, V>, Ball<N, V>> for
-BallBall<N, V> {
-    fn update(&mut self, a: &Ball<N, V>, b: &Ball<N, V>) {
-        self.contact = collide_ball_ball(a, b);
+     V: VectorSpace<N> + Norm<N> + Clone,
+     M: Translation<V>> 
+     CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
+BallBall<N, V, M> {
+    fn update(&mut self, ma: &M, a: &Ball<N>, mb: &M, b: &Ball<N>) {
+        self.contact = collide_ball_ball(&ma.translation(), a, &mb.translation(), b);
     }
 
     #[inline]
@@ -51,18 +53,18 @@ BallBall<N, V> {
 
 /// Computes the contact point between two balls. The balls must penetrate to have contact points.
 pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone, N: Real + Clone>
-(b1: &Ball<N, V>, b2: &Ball<N, V>) -> Option<Contact<N, V>> {
+(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> Option<Contact<N, V>> {
     let r1         = b1.radius();
     let r2         = b2.radius();
-    let delta_pos  = b2.center() - b1.center();
+    let delta_pos  = center2 - *center1;
     let sqdist     = delta_pos.sqnorm();
     let sum_radius = r1 + r2;
 
     if sqdist < sum_radius * sum_radius {
         let normal = delta_pos.normalized();
 
-        Some(Contact::new(b1.center() + normal.scalar_mul(&r1),
-        b2.center() - normal.scalar_mul(&r2),
+        Some(Contact::new(center1 + normal.scalar_mul(&r1),
+        center2 - normal.scalar_mul(&r2),
         normal,
         (sum_radius - sqdist.sqrt())))
     }
@@ -73,12 +75,13 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone, N: Real + Clone>
 
 /// Computes the cloest points between two balls. If they are intersecting, the points
 /// corresponding to the penetration depth are returned.
+#[inline]
 pub fn closest_points<N: Clone,
                       V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Clone>
-(b1: &Ball<N, V>, b2: &Ball<N, V>) -> (V, V) {
+(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> (V, V) {
     let r1     = b1.radius();
     let r2     = b2.radius();
-    let normal = (b2.center() - b1.center()).normalized();
+    let normal = (center2 - *center1).normalized();
 
-    (b1.center() + normal.scalar_mul(&r1), b2.center() - normal.scalar_mul(&r2))
+    (center1 + normal.scalar_mul(&r1), center2 - normal.scalar_mul(&r2))
 }

@@ -3,13 +3,17 @@
 //!
 
 use std::num::Zero;
-use nalgebra::traits::transformation::Transformable;
+use nalgebra::traits::basis::Basis;
+use nalgebra::traits::dim::Dim;
+use nalgebra::traits::dot::Dot;
 use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::inv::Inv;
 use nalgebra::traits::norm::Norm;
-use nalgebra::traits::scalar_op::ScalarMul;
+use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::transformation::Transform;
+use bounding_volume::aabb::{HasAABB, AABB};
+use bounding_volume::aabb;
 use geom::implicit::Implicit;
-use geom::transformed::Transformed;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone)]
@@ -47,10 +51,14 @@ impl<N: Clone> Cone<N> {
 }
 
 impl<N: Clone + Signed,
-     V: Clone + Zero + Norm<N> + ScalarMul<N> + Indexable<uint, N>> Implicit<V> for Cone<N> {
-    fn support_point(&self, dir: &V) -> V {
-        if dir.at(0).is_negative() { // points toward the base 
-            let mut vres = dir.clone();
+     V: Clone + Zero + Norm<N> + ScalarMul<N> + Indexable<uint, N>,
+     M: Transform<V> + Rotate<V>>
+Implicit<V, M> for Cone<N> {
+    fn support_point(&self, m: &M, dir: &V) -> V {
+        let local_dir = m.inv_rotate(dir);
+
+        if local_dir.at(0).is_negative() { // points toward the base 
+            let mut vres = local_dir.clone();
 
             vres.set(0, Zero::zero());
 
@@ -63,22 +71,24 @@ impl<N: Clone + Signed,
 
             vres.set(0, -self.half_height);
 
-            vres
+            m.transform_vec(&vres)
         }
         else { // points toward the pointy thing
             let mut vres = Zero::zero::<V>();
 
             vres.set(0, self.half_height.clone());
 
-            vres
+            m.transform_vec(&vres)
         }
     }
 }
 
-impl<N: Clone, M: Clone + Mul<M, M> + Inv>
-Transformable<M, Transformed<Cone<N>, M, N>> for Cone<N> {
-  #[inline]
-  fn transformed(&self, transform: &M) -> Transformed<Cone<N>, M, N> {
-      Transformed::new(transform.clone(), self.clone())
-  }
+impl<N: Signed + Clone,
+     V: Dim + Indexable<uint, N> + Zero + Dot<N> + ScalarMul<N> + ScalarDiv<N> +
+        Basis + Neg<V> + Add<V, V> + Norm<N> + Ord + Clone,
+     M: Rotate<V> + Transform<V>>
+HasAABB<N, V, M> for Cone<N> {
+    fn aabb(&self, m: &M) -> AABB<N, V> {
+        aabb::implicit_shape_aabb(m, self)
+    }
 }
