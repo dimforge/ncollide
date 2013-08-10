@@ -130,6 +130,8 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
 
             Some(Contact::new(p1, p2, normal, depth))
         }
-        None => None // fail!("Both GJK and fallback algorithm failed.")
+        None => {
+            None // fail!("Both GJK and fallback algorithm failed.")
+        }
     }
 }

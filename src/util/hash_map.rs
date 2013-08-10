@@ -1,3 +1,4 @@
+use std::uint;
 use std::util;
 use std::vec;
 use util::hash::HashFun;
@@ -37,15 +38,22 @@ static HASH_CHARGE_FACTOR: float = 0.7;
 
 impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Creates a new hash map.
-    pub fn new(_: H) -> HashMap<K, V, H> {
+    pub fn new(h: H) -> HashMap<K, V, H> {
+        HashMap::new_with_capacity(31, h)
+    }
+
+    /// Creates a new hash map with a given capacity.
+    pub fn new_with_capacity(capacity: uint, _: H) -> HashMap<K, V, H> {
+        let pow2 = uint::next_power_of_two(capacity);
+
         HashMap {
-            table:  vec::with_capacity(32),
-            mask:   31,
-            htable: vec::from_elem(32, -1),
-            next:   vec::from_elem(32, -1),
+            table:  vec::with_capacity(pow2),
+            mask:   pow2 - 1,
+            htable: vec::from_elem(pow2, -1),
+            next:   vec::from_elem(pow2, -1),
             num_elem: 0,
-            max_elem: 32,
-            real_max_elem: ((32 as float) * 0.7) as uint
+            max_elem: pow2,
+            real_max_elem: ((pow2 as float) * 0.7) as uint
         }
     }
 
@@ -315,10 +323,12 @@ impl<K: Eq, V, H: HashFun<K>> MutableMap<K, V> for HashMap<K, V, H> {
 
 #[cfg(test)]
 mod test {
+    use std::uint;
     use super::*;
     use std::hashmap;
     use extra::test::BenchHarness;
     use util::hash::{UintTWHash, UintPairTWHash};
+    use extra::time;
 
     // NOTE: some tests are simply copy-pasted from std::hashmap tests.
     #[test]
@@ -492,5 +502,23 @@ mod test {
                 assert!(m.find(&(i, i)).is_none())
             }
         }
+    }
+
+    #[test]
+    fn abench_insert_find_this() {
+        let before = time::precise_time_ns();
+
+        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new_with_capacity(20000, UintPairTWHash);
+
+        for i in range(0u, 20000) {
+            m.insert((i, i), i);
+        }
+
+        for i in range(0u, 20000) {
+            assert!(*m.find(&(i, i)).unwrap() == i)
+        }
+
+        println(((time::precise_time_ns() - before) as f64 / 1000000.0).to_str());
+
     }
 }

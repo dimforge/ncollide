@@ -12,7 +12,7 @@ deps:
 
 test:
 	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) -o test~ && ./test~
+	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) --opt-level 3 -o test~ && ./test~
 	rm test~
 
 bench:
