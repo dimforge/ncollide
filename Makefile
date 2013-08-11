@@ -1,3 +1,4 @@
+tmp=_git_distcheck
 ncollide_doc_path=doc
 ncollide_rc=src/ncollide.rc
 ncollide_lib_path=lib
@@ -19,6 +20,13 @@ bench:
 	mkdir -p $(ncollide_lib_path)
 	rustc -L$(nalgebra_lib_path) --test $(ncollide_rc) --opt-level 3 -o bench~ && ./bench~ --bench
 	rm bench~
+
+distcheck:
+	rm -rf $(tmp)
+	git clone --recursive . $(tmp)
+	make -C $(tmp) deps
+	make -C $(tmp)
+	rm -rf $(tmp)
 
 doc:
 	rust doc $(ncollide_rc) --output-dir $(ncollide_doc_path)
