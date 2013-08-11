@@ -109,8 +109,8 @@ IncrementalContactManifoldGenerator<CD, N, V> {
         while i != self.contacts.len() {
             let remove = {
                 let c      = &mut self.contacts[i];
-                let world1 = m1.transform_vec(&c.local1);
-                let world2 = m2.transform_vec(&c.local2);
+                let world1 = m1.transform(&c.local1);
+                let world2 = m2.transform(&c.local2);
 
                 let dw    = world1 - world2;
                 let depth = dw.dot(&c.contact.normal);

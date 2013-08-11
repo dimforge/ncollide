@@ -274,9 +274,9 @@ mod test {
             }
         }
 
-        for e in to_move.consume_iter() {
-            let WithAABB(m, c) = *e;
-            *e = WithAABB(Vec3::new(10.0, 10.0, 10.0) + m, c)
+        for e in to_move.mut_iter() {
+            let WithAABB(m, c) = **e;
+            **e = WithAABB(Vec3::new(10.0, 10.0, 10.0) + m, c)
         }
 
         bf.update();

@@ -1,6 +1,5 @@
 use std::util;
 use std::num::{Zero, One};
-use std::iterator::IteratorUtil;
 use std::vec;
 use std::at_vec;
 use extra::treemap::TreeMap;
@@ -370,7 +369,7 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
 
     #[inline]
     fn max_sq_len(&self) -> N {
-        self.points.iter().transform(|v| v.sqnorm()).max().unwrap()
+        self.points.iter().map(|v| v.sqnorm()).max().unwrap()
     }
 
     #[inline]

@@ -77,7 +77,7 @@ Implicit<V, M> for Cylinder<N> {
             vres.set(0, self.half_height.clone())
         }
 
-        m.transform_vec(&vres)
+        m.transform(&vres)
     }
 }
 

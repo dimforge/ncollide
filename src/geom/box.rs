@@ -65,7 +65,7 @@ Implicit<V, M> for Box<N, V> {
             }
         }
 
-        m.transform_vec(&vres)
+        m.transform(&vres)
     }
 }
 

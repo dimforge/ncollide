@@ -134,7 +134,7 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     pub fn max_sq_len(&self) -> N {
-        self.points.iter().transform(|v| v.sqnorm()).max().unwrap()
+        self.points.iter().map(|v| v.sqnorm()).max().unwrap()
     }
 
     pub fn contains_point(&self, pt: &V) -> bool {

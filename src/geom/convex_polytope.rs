@@ -46,6 +46,6 @@ Implicit<V, M> for ConvexPolytope<N, V> {
         }
 
 
-        m.transform_vec(best_pt)
+        m.transform(best_pt)
     }
 }

@@ -71,14 +71,14 @@ Implicit<V, M> for Cone<N> {
 
             vres.set(0, -self.half_height);
 
-            m.transform_vec(&vres)
+            m.transform(&vres)
         }
         else { // points toward the pointy thing
             let mut vres = Zero::zero::<V>();
 
             vres.set(0, self.half_height.clone());
 
-            m.transform_vec(&vres)
+            m.transform(&vres)
         }
     }
 }

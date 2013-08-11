@@ -71,7 +71,7 @@ Implicit<V, M> for Capsule<N> {
             vres.set(0, v0 + self.half_height.clone())
         }
 
-        m.transform_vec(&vres)
+        m.transform(&vres)
     }
 }
 
