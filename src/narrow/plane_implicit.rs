@@ -18,14 +18,6 @@ pub struct PlaneImplicit<N, V, M, G> {
     priv contact: Option<Contact<N, V>>
 }
 
-/// Collision detector between a geometry implementing the `Implicit` trait and a plane.
-/// This detector generates only one contact point. For a full manifold generation, see
-/// `IncrementalContactManifoldGenerator`.
-pub struct ImplicitPlane<N, V, M, G> {
-    priv margin:  N,
-    priv contact: Option<Contact<N, V>>
-}
-
 impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
     /// Creates a new persistant collision detector between a plane and a geometry with a support
     /// mapping function.
@@ -42,9 +34,10 @@ impl<N: Ring + Ord + Clone,
      V: VectorSpace<N> + Dot<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
-CollisionDetector<N, V, M, G, Plane<V>> for PlaneImplicit<N, V, M, G> {
-    fn update(&mut self, mb: &M, b: &G, ma: &M, a: &Plane<V>) {
-        self.contact = collide_plane_implicit_shape(ma, a, mb, b, &self.margin)
+CollisionDetector<N, V, M, Plane<V>, G> for PlaneImplicit<N, V, M, G> {
+    #[inline]
+    fn update(&mut self, ma: &M, plane: &Plane<V>, mb: &M, b: &G) {
+        self.contact = collide_plane_implicit_shape(ma, plane, mb, b, &self.margin)
     }
 
     #[inline]
@@ -64,9 +57,17 @@ CollisionDetector<N, V, M, G, Plane<V>> for PlaneImplicit<N, V, M, G> {
     }
 }
 
+/// Collision detector between a plane and a geometry implementing the `Implicit` trait.
+/// This detector generates only one contact point. For a full manifold generation, see
+/// `IncrementalContactManifoldGenerator`.
+pub struct ImplicitPlane<N, V, M, G> {
+    priv margin:  N,
+    priv contact: Option<Contact<N, V>>
+}
+
 impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
-    /// Creates a new persistant collision detector between a geometry with a support mapping
-    /// function, and a plane.
+    /// Creates a new persistant collision detector between a plane and a geometry with a support
+    /// mapping function.
     #[inline]
     pub fn new(margin: N) -> ImplicitPlane<N, V, M, G> {
         ImplicitPlane {
@@ -76,13 +77,15 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
     }
 }
 
-impl<V: VectorSpace<N> + Dot<N> + Clone,
-     N: Ring + Ord + Clone,
+impl<N: Ring + Ord + Clone,
+     V: VectorSpace<N> + Dot<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
 CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
-    fn update(&mut self, ma: &M, a: &G, mb: &M, b: &Plane<V>) {
-        self.contact = collide_plane_implicit_shape(mb, b, ma, a, &self.margin);
+    #[inline]
+    fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<V>) {
+        self.contact = collide_plane_implicit_shape(mb, plane, ma, a, &self.margin);
+        self.contact.mutate(|mut c| { c.flip(); c });
     }
 
     #[inline]
@@ -104,10 +107,7 @@ CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
 
 /**
  * Same as `update_collide_plane_implicit_shape` but the existing collision or
- * `None`. In the created collsion:
- *   * `world1` - designs the collision point on the object.
- *   * `world2` - designs the collision point on the object.
- *   * `normal` - designs the opposite of the plane normal.
+ * `None`.
  *
  * # Arguments:
  *   * `plane` - the plane to test.
@@ -136,12 +136,12 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
         deepest = other.support_point(mother, &-plane_normal)
     }
 
-    let dist    = plane_normal.dot(&(plane_center - deepest));
+    let dist = plane_normal.dot(&(plane_center - deepest));
 
     if dist > Zero::zero() {
         let c1 = deepest + plane_normal.scalar_mul(&dist);
 
-        Some(Contact::new(deepest, c1, -plane_normal, dist))
+        Some(Contact::new(c1, deepest, plane_normal, dist))
     }
     else {
         None

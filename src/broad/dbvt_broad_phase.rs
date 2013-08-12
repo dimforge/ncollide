@@ -1,7 +1,7 @@
 use std::ptr;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::translation::Translation;
-use broad::dbvt::{DBVTNode, DBVTLeaf, Leaf, Internal};
+use broad::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
@@ -11,8 +11,8 @@ use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
 /// objects and which is never updated, and one for moving objects.
 pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
-    priv tree:       Option<DBVTNode<V, @mut B, BV>>,
-    priv stree:      Option<DBVTNode<V, @mut B, BV>>,
+    priv tree:       DBVT<V, @mut B, BV>,
+    priv stree:      DBVT<V, @mut B, BV>,
     priv active:     ~[@mut DBVTLeaf<V, @mut B, BV>],
     priv rs2bv:      HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
     priv pairs:      HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>, // pair manager
@@ -32,8 +32,8 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, V, B, BV, D, DV> {
         DBVTBroadPhase {
-            tree:       None,
-            stree:      None,
+            tree:       DBVT::new(),
+            stree:      DBVT::new(),
             rs2bv:      HashMap::new(UintTWHash),
             pairs:      HashMap::new(PairTWHash),
             dispatcher: dispatcher,
@@ -92,7 +92,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
                 // need an update!
                 new_bv.loosen(self.margin.clone());
                 a.bounding_volume = new_bv;
-                self.tree = a.unlink(self.tree.unwrap());
+                self.tree.remove(*a);
                 self.to_update.push(*a);
             }
         }
@@ -110,57 +110,45 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         let mut new_colls = 0u;
 
         for u in self.to_update.iter() {
-            self.tree =
-                match self.tree {
-                    Some(ref mut tree) => {
-                        tree.interferences_with_leaf(*u, &mut interferences);
+            self.tree.interferences_with_leaf(*u, &mut interferences);
 
-                        // dispatch
-                        for o in interferences.iter() {
-                            if self.dispatcher.is_valid(u.object, o.object) {
-                                if u.bounding_volume.intersects(&o.bounding_volume) {
-                                    self.pairs.find_or_insert_lazy(
-                                        Pair::new(*u, *o),
-                                        || self.dispatcher.dispatch(u.object, o.object)
-                                        );
+            // dispatch
+            for o in interferences.iter() {
+                if self.dispatcher.is_valid(u.object, o.object) {
+                    if u.bounding_volume.intersects(&o.bounding_volume) {
+                        self.pairs.find_or_insert_lazy(
+                            Pair::new(*u, *o),
+                            || self.dispatcher.dispatch(u.object, o.object)
+                            );
 
-                                    new_colls = new_colls + 1;
-                                }
-                            }
-                        };
+                        new_colls = new_colls + 1;
+                    }
+                }
+            }
 
-                        interferences.clear();
-
-                        Some(Internal(tree.insert(*u)))
-                    },
-                    None => Some(Leaf(*u)),
-                };
+            interferences.clear();
+            self.tree.insert(*u);
         }
 
         // interferences against the static tree
-        match self.stree {
-            Some(ref mut stree) => {
-                for u in self.to_update.iter() {
-                    stree.interferences_with_leaf(*u, &mut interferences);
+        for u in self.to_update.iter() {
+            self.stree.interferences_with_leaf(*u, &mut interferences);
 
-                    // dispatch
-                    for o in interferences.iter() {
-                        if self.dispatcher.is_valid(u.object, o.object) {
-                            if u.bounding_volume.intersects(&o.bounding_volume) {
-                                self.pairs.find_or_insert_lazy(
-                                    Pair::new(*u, *o),
-                                    || self.dispatcher.dispatch(u.object, o.object)
-                                    );
+            // dispatch
+            for o in interferences.iter() {
+                if self.dispatcher.is_valid(u.object, o.object) {
+                    if u.bounding_volume.intersects(&o.bounding_volume) {
+                        self.pairs.find_or_insert_lazy(
+                            Pair::new(*u, *o),
+                            || self.dispatcher.dispatch(u.object, o.object)
+                            );
 
-                                new_colls = new_colls + 1;
-                            }
-                        }
-                    };
-
-                    interferences.clear();
+                        new_colls = new_colls + 1;
+                    }
                 }
-            },
-            None => { }
+            }
+
+            interferences.clear();
         }
 
         /*

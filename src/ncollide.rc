@@ -24,6 +24,7 @@ pub mod geom
     pub mod convex_polytope;
     pub mod minkowski_sum;
     pub mod reflection;
+    pub mod compound;
 }
 
 pub mod bounding_volume
@@ -35,11 +36,14 @@ pub mod bounding_volume
 pub mod narrow
 {
     pub mod collision_detector;
+    pub mod empty;
     pub mod ball_ball;
     pub mod plane_implicit;
     pub mod implicit_implicit;
     pub mod incremental_contact_manifold_generator;
     pub mod one_shot_contact_manifold_generator;
+    pub mod compound_any;
+    pub mod compound_compound;
 
     pub mod algorithm
     {
