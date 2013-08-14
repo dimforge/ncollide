@@ -130,7 +130,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
         }
     }
 
-    fn do_insert_or_replace<'a>(&'a mut self, key: K, value: V, replace: bool) -> (bool, &'a mut V) {
+    fn do_insert_or_replace(&mut self, key: K, value: V, replace: bool) -> (bool, uint) {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -143,15 +143,81 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
 
-            (true, &'a mut self.table[self.num_elem - 1].value)
+            (true, (self.num_elem - 1) as uint)
         }
         else {
             if replace {
                 self.table[entry].value = value
             }
 
-            (false, &'a mut self.table[entry].value)
+            (false, entry as uint)
         }
+    }
+
+    /// Removes an element and returns its value if it existed.
+    pub fn get_and_remove(&mut self, key: &K) -> Option<Entry<K, V>> {
+        let h = HashFun::hash::<K, H>(key) & self.mask;
+
+        let mut obji;
+        let mut o = self.htable[h];
+
+        if o != -1 {
+            if self.table[o].key != *key {
+                while self.next[o] != -1 && self.table[self.next[o]].key != *key {
+                    o = self.next[o]
+                }
+
+                if self.next[o] == -1 {
+                    return None
+                }
+
+                obji            = self.next[o];
+                self.next[o]    = self.next[obji];
+                self.next[obji] = -1;
+            }
+            else {
+                obji = o;
+                self.htable[h] = self.next[o];
+                self.next[o]   = -1;
+            }
+
+            self.num_elem = self.num_elem - 1;
+
+            let removed = self.table.swap_remove(obji as uint);
+
+            if obji != self.num_elem as int {
+                let nh = HashFun::hash::<K, H>(&self.table[obji].key) & self.mask;
+
+                if self.htable[nh] == self.num_elem as int {
+                    self.htable[nh] = obji
+                }
+                else {
+                    let mut no = self.htable[nh];
+
+                    while self.next[no]  != self.num_elem as int {
+                        no = self.next[no]
+                    }
+
+                    self.next[no] = obji;
+                }
+
+                self.next[obji] = self.next[self.num_elem];
+                self.next[self.num_elem] = -1;
+            }
+
+            Some(removed)
+        }
+        else {
+            None
+        }
+    }
+
+    /// Insert and element and return its position on the table.
+    /// The returned position is valid as long as no element are removed from the table.
+    pub fn insert_and_get_id<'a>(&'a mut self, key: K, value: V) -> uint {
+        let (_, res) = self.do_insert_or_replace(key, value, true);
+
+        res
     }
 
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
@@ -186,7 +252,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn insert_or_replace<'a>(&'a mut self, key: K, value: V, replace: bool) -> &'a mut V {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 
-        res
+        &'a mut self.table[res].value
     }
 }
 
@@ -243,62 +309,7 @@ impl<K: Eq, V, H: HashFun<K>> MutableMap<K, V> for HashMap<K, V, H> {
     }
 
     fn remove(&mut self, key: &K) -> bool {
-        let h = HashFun::hash::<K, H>(key) & self.mask;
-
-        let mut obji;
-        let mut o    = self.htable[h];
-
-        if o != -1 {
-            if self.table[o].key != *key {
-                while self.next[o] != -1 && self.table[self.next[o]].key != *key {
-                    o = self.next[o]
-                }
-
-                if self.next[o] == -1 {
-                    return false
-                }
-
-                obji            = self.next[o];
-                self.next[o]    = self.next[obji];
-                self.next[obji] = -1;
-            }
-            else {
-                obji = o;
-                self.htable[h] = self.next[o];
-                self.next[o]   = -1;
-            }
-
-            self.num_elem = self.num_elem - 1;
-            let p = self.table.pop();
-
-            if obji != self.num_elem as int {
-                let nh = HashFun::hash::<K, H>(&p.key) & self.mask;
-
-                self.table[obji] = p;
-
-
-                if self.htable[nh] == self.num_elem as int {
-                    self.htable[nh] = obji
-                }
-                else {
-                    let mut no = self.htable[nh];
-
-                    while self.next[no]  != self.num_elem as int {
-                        no = self.next[no]
-                    }
-
-                    self.next[no] = obji;
-                }
-
-                self.next[obji] = self.next[self.num_elem];
-                self.next[self.num_elem] = -1;
-            }
-
-            true
-        }
-        else {
-            false
-        }
+        self.get_and_remove(key).is_some()
     }
 
     fn swap(&mut self, _: K, _: V) -> Option<V> {

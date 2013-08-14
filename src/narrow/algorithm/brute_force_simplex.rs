@@ -124,33 +124,33 @@ BruteForceSimplex<N, V> {
 impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N> + Eq + Dim,
      N: Ord + Clone + Eq + DivisionRing + Ord>
 Simplex<N, V> for BruteForceSimplex<N, V> {
-    pub fn reset(&mut self, initial_point: V) {
+    fn reset(&mut self, initial_point: V) {
         self.points.clear();
         self.points.push(initial_point);
     }
 
-    pub fn dimension(&self) -> uint {
+    fn dimension(&self) -> uint {
         self.points.len() - 1
     }
 
-    pub fn max_sq_len(&self) -> N {
+    fn max_sq_len(&self) -> N {
         self.points.iter().map(|v| v.sqnorm()).max().unwrap()
     }
 
-    pub fn contains_point(&self, pt: &V) -> bool {
+    fn contains_point(&self, pt: &V) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
-    pub fn add_point(&mut self, pt: V) {
+    fn add_point(&mut self, pt: V) {
         assert!(self.points.len() <= Dim::dim::<V>());
         self.points.push(pt)
     }
 
-    pub fn project_origin_and_reduce(&mut self) -> V {
+    fn project_origin_and_reduce(&mut self) -> V {
         self.do_project_origin(true)
     }
 
-    pub fn project_origin(&mut self) -> V {
+    fn project_origin(&mut self) -> V {
         self.do_project_origin(false)
     }
 }

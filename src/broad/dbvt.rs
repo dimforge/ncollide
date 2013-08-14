@@ -444,7 +444,7 @@ DBVTNode<V, B, BV> {
             },
             Leaf(l) =>
                 if !borrow::ref_eq(&l.bounding_volume, to_test) &&
-                   l.bounding_volume.intersects(to_test) {
+                    l.bounding_volume.intersects(to_test) {
                     out.push(l)
                 }
         }

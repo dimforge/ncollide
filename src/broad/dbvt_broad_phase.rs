@@ -11,15 +11,16 @@ use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
 /// objects and which is never updated, and one for moving objects.
 pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
-    priv tree:       DBVT<V, @mut B, BV>,
-    priv stree:      DBVT<V, @mut B, BV>,
-    priv active:     ~[@mut DBVTLeaf<V, @mut B, BV>],
-    priv rs2bv:      HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
-    priv pairs:      HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>, // pair manager
-    priv dispatcher: D,
-    priv margin:     N,
-    priv to_update:  ~[@mut DBVTLeaf<V, @mut B, BV>],
-    priv update_off: uint // incremental pairs removal index
+    priv tree:        DBVT<V, @mut B, BV>,
+    priv stree:       DBVT<V, @mut B, BV>,
+    priv active2bv:   HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
+    priv inactive2bv: HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
+    priv pairs:       HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>, // pair manager
+    priv spairs:      HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>,
+    priv dispatcher:  D,
+    priv margin:      N,
+    priv to_update:   ~[@mut DBVTLeaf<V, @mut B, BV>],
+    priv update_off:  uint // incremental pairs removal index
 }
 
 impl<N:  Clone + Ord,
@@ -32,15 +33,16 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, V, B, BV, D, DV> {
         DBVTBroadPhase {
-            tree:       DBVT::new(),
-            stree:      DBVT::new(),
-            rs2bv:      HashMap::new(UintTWHash),
-            pairs:      HashMap::new(PairTWHash),
-            dispatcher: dispatcher,
-            update_off: 0,
-            active:     ~[],
-            to_update:  ~[],
-            margin:     margin
+            tree:        DBVT::new(),
+            stree:       DBVT::new(),
+            active2bv:   HashMap::new(UintTWHash),
+            inactive2bv: HashMap::new(UintTWHash),
+            pairs:       HashMap::new(PairTWHash),
+            spairs:      HashMap::new(PairTWHash),
+            dispatcher:  dispatcher,
+            update_off:  0,
+            to_update:   ~[],
+            margin:      margin
         }
     }
 
@@ -62,8 +64,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         self.to_update.push(leaf);
         self.update_updatable();
 
-        self.active.push(leaf);
-        self.rs2bv.insert(ptr::to_mut_unsafe_ptr(rb) as uint, leaf);
+        self.active2bv.insert(ptr::to_mut_unsafe_ptr(rb) as uint, leaf);
     }
 
     /// Removes an element from this broad phase.
@@ -71,29 +72,90 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         fail!("Not yet implemented.");
     }
 
-    /// Marks and object as active or inactive. The bounding volume of an inactive object is never
-    /// updated. Activating/deactivating an already active/inactive objecs leads to undefined
-    /// behaviour.
-    pub fn set_active(&mut self, _: @mut B, _: bool) {
-        fail!("Not yet implemented.");
+    /// Marks and object as active. The bounding volume of an active object is updated at each
+    /// `update` call.
+    pub fn activate<'a>(&'a mut self, body: @mut B, out: &mut ~[uint]) {
+        // verify that it is not already active and add it to the active map.
+        let leaf =
+            match self.inactive2bv.get_and_remove(&(ptr::to_mut_unsafe_ptr(body) as uint)) {
+                None    => return, // not found: the object is already active
+                Some(l) => l.value
+            };
+
+        self.active2bv.insert(ptr::to_mut_unsafe_ptr(body) as uint, leaf);
+
+        // remove from the inactive tree
+        self.stree.remove(leaf);
+
+        // Now we find interferences with inactive objects.
+        let mut interferences = ~[];
+
+        self.stree.interferences_with_leaf(leaf, &mut interferences);
+
+        for i in interferences.iter() {
+            if self.dispatcher.is_valid(leaf.object, i.object) {
+                // the intereference should be registered on the spairs already
+                match self.spairs.get_and_remove(&Pair::new(leaf, *i)) {
+                    Some(dv) => out.push(self.pairs.insert_and_get_id(dv.key, dv.value)),
+                    None     => fail!("Internal error: found a new collision during the activation.")
+                }
+            }
+        }
+
+        // add to the active tree
+        self.tree.insert(leaf);
+    }
+
+    /// Marks and object as inactive. The bounding volume of an inactive object is never updated.
+    /// And inactive objects are not tested for mutual intersection.
+    pub fn deactivate(&mut self, body: @mut B) {
+        // verify that it is not already inactive and add it to the inactive map.
+        let leaf =
+            match self.active2bv.get_and_remove(&(ptr::to_mut_unsafe_ptr(body) as uint)) {
+                None    => return, // not found: the object is already inactive
+                Some(l) => l.value
+            };
+
+        self.inactive2bv.insert(ptr::to_mut_unsafe_ptr(body) as uint, leaf);
+
+        // Now transfer all collisions involving `leaf` and deactivated objects from `pairs` to
+        // `spairs`.
+
+        // remove from the active tree
+        self.tree.remove(leaf);
+
+        let mut interferences = ~[];
+        self.stree.interferences_with_leaf(leaf, &mut interferences);
+
+        for i in interferences.iter() {
+            if self.dispatcher.is_valid(leaf.object, i.object) {
+                // the intereference should be registered on the pairs already
+                match self.pairs.get_and_remove(&Pair::new(leaf, *i)) {
+                    Some(dv) => { self.spairs.insert(dv.key, dv.value); },
+                    None     => fail!("Internal error: found a new collision during the deactivation.")
+                }
+            }
+        }
+
+        // add to the inactive tree
+        self.stree.insert(leaf);
     }
 
     /// Updates the collision pairs based on the objects bounding volumes.
     pub fn update(&mut self) {
         // NOTE: be careful not to add the same object twice!
-
         /*
          * Remove all outdated nodes
          */
-        for a in self.active.iter() {
-            let mut new_bv = a.object.bounding_volume();
+        for a in self.active2bv.elements().iter() {
+            let mut new_bv = a.value.object.bounding_volume();
 
-            if !a.bounding_volume.contains(&new_bv) {
+            if !a.value.bounding_volume.contains(&new_bv) {
                 // need an update!
                 new_bv.loosen(self.margin.clone());
-                a.bounding_volume = new_bv;
-                self.tree.remove(*a);
-                self.to_update.push(*a);
+                a.value.bounding_volume = new_bv;
+                self.tree.remove(a.value);
+                self.to_update.push(a.value);
             }
         }
 
@@ -111,44 +173,22 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
 
         for u in self.to_update.iter() {
             self.tree.interferences_with_leaf(*u, &mut interferences);
+            self.stree.interferences_with_leaf(*u, &mut interferences);
 
             // dispatch
-            for o in interferences.iter() {
-                if self.dispatcher.is_valid(u.object, o.object) {
-                    if u.bounding_volume.intersects(&o.bounding_volume) {
-                        self.pairs.find_or_insert_lazy(
-                            Pair::new(*u, *o),
-                            || self.dispatcher.dispatch(u.object, o.object)
-                            );
+            for i in interferences.iter() {
+                if self.dispatcher.is_valid(u.object, i.object) {
+                    self.pairs.find_or_insert_lazy(
+                        Pair::new(*u, *i),
+                        || self.dispatcher.dispatch(u.object, i.object)
+                        );
 
-                        new_colls = new_colls + 1;
-                    }
+                    new_colls = new_colls + 1;
                 }
             }
 
             interferences.clear();
             self.tree.insert(*u);
-        }
-
-        // interferences against the static tree
-        for u in self.to_update.iter() {
-            self.stree.interferences_with_leaf(*u, &mut interferences);
-
-            // dispatch
-            for o in interferences.iter() {
-                if self.dispatcher.is_valid(u.object, o.object) {
-                    if u.bounding_volume.intersects(&o.bounding_volume) {
-                        self.pairs.find_or_insert_lazy(
-                            Pair::new(*u, *o),
-                            || self.dispatcher.dispatch(u.object, o.object)
-                            );
-
-                        new_colls = new_colls + 1;
-                    }
-                }
-            }
-
-            interferences.clear();
         }
 
         /*
@@ -258,6 +298,34 @@ mod test {
         }
 
         bf.update();
+
+        let mut useless = ~[];
+        // test deactivations followed by activations: this should not changes anything
+        for e in to_move.mut_iter() {
+            bf.deactivate(*e);
+        }
+
+        // nothing on pairs …
+        assert_eq!(bf.pairs().len(), 0);
+        // … because it has been transfered to spairs. NOTE: `spairs` is used for test only here,
+        // there is no explicit way for the user to access it.
+        assert_eq!(
+            bf.spairs.len(),
+            (18 * 18 * 8 + // internal rectangles have 8 neighbors
+             18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
+             4 * 3)        // corners have 3 neighbors
+             / 2           // remove all duplicates
+        )
+
+        for e in to_move.mut_iter() {
+            bf.activate(*e, &mut useless);
+        }
+
+        // test one deactivation followed by one activation: this should not changes anything
+        for e in to_move.mut_iter() {
+            bf.deactivate(*e);
+            bf.activate(*e, &mut useless);
+        }
 
         for e in to_move.mut_iter() {
             let WithAABB(m, c) = **e;
