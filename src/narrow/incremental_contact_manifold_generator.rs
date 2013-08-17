@@ -1,4 +1,3 @@
-use std::num::Zero;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
@@ -115,10 +114,8 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let dw    = world1 - world2;
                 let depth = dw.dot(&c.contact.normal);
 
-                let _tangencial_limit = NumCast::from::<N, f64>(0.25f64) * depth * depth;
-
-                if depth >= Zero::zero() &&
-                   (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= _tangencial_limit {
+                if depth >= NumCast::from(-0.1f64) &&
+                   (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= NumCast::from(0.01f64) {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;

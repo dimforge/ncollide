@@ -114,6 +114,8 @@ pub fn implicit_shape_aabb<N,
         do Basis::canonical_basis::<V>() |basis| {
             resm = resm + basis.scalar_mul(&basis.dot(&i.support_point(m, &-basis)));
             resM = resM + basis.scalar_mul(&basis.dot(&i.support_point(m, &basis)));
+
+            true
         }
 
         let res = AABB::new(resm, resM);

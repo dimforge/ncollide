@@ -18,7 +18,7 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<V, M>,
                       G2: Implicit<V, M>,
-                      N:  Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
+                      N:  Sub<N, N> + Ord + Mul<N, N> + Float + NumCast + ToStr,
                       V:  Clone + Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim,
                       M>(
                       m1:      &M,
@@ -41,7 +41,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     with at least one point on the geometry boundary.
 pub fn project_origin<S: Simplex<N, V>,
                       G: Implicit<V, M>,
-                      N: Sub<N, N> + Ord + Mul<N, N> + Float + NumCast,
+                      N: Sub<N, N> + Ord + Mul<N, N> + Float + NumCast + ToStr,
                       V: Norm<N> + Neg<V> + Dot<N> + Dim,
                       M>(
                       m:       &M,
@@ -52,7 +52,7 @@ pub fn project_origin<S: Simplex<N, V>,
     let mut sq_len_dir = proj.sqnorm();
 
     let _eps_tol = Float::epsilon::<N>() * NumCast::from(100.0f64);
-    let _eps_rel = Float::epsilon::<N>(); // FIXME: .sqrt();
+    let _eps_rel = Float::epsilon::<N>().sqrt();
     let _dim     = Dim::dim::<V>();
 
     loop {

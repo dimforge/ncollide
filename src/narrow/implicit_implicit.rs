@@ -1,4 +1,4 @@
-use std::num::One;
+use std::num::{Zero, One};
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::norm::Norm;
 use nalgebra::traits::dot::Dot;
@@ -40,7 +40,7 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G1: Implicit<V, M>,
      G2: Implicit<V, M>,
-     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
+     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
      V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + UniformSphereSample + Clone,
      M:  Translation<V> + Translatable<V, M> + One>
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
@@ -82,7 +82,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                                  G1: Implicit<V, M>,
                                  G2: Implicit<V, M>,
-                                 N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone,
+                                 N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
                                  V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim +
                                      UniformSphereSample + Clone,
                                  M:  Translation<V> + Translatable<V, M> + One>(
@@ -93,7 +93,11 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                                  margin:  &N,
                                  simplex: &mut S)
                                  -> Option<Contact<N, V>> {
-    let dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
+    let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
+
+    if dir.is_zero() {
+        dir = UniformSphereSample::sample_list::<V>()[0].clone();
+    }
 
     simplex.reset(minkowski_sum::cso_support_point(m1, g1, m2, g2, dir));
 
@@ -102,7 +106,8 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
             let p1p2 = p2 - p1;
             let sqn  = p1p2.sqnorm();
 
-            if sqn >= *margin * *margin * NumCast::from(4.0f64) {
+            if sqn >= (*margin * NumCast::from(2.0) + NumCast::from(0.1)) *
+                      (*margin * NumCast::from(2.0) + NumCast::from(0.1)) {
                 return None
             }
             else if !sqn.is_zero() {
@@ -114,8 +119,7 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                         p1 + normal.scalar_mul(margin),
                         p2 + normal.scalar_mul(&-margin),
                         normal,
-                        *margin + *margin - depth
-                        )
+                        *margin + *margin - depth)
                     );
             }
         },
@@ -128,7 +132,16 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
             let mut normal = p1 - p2;
             let depth      = normal.normalize();
 
-            Some(Contact::new(p1, p2, normal, depth))
+            if depth.is_zero() {
+                // FIXME: this seems to happend on some very rare cases which makes the johnson
+                // simplex fail.
+                // This might be an implementation bug…
+                // … as a workaround we just act as if nothing happended…
+                None
+            }
+            else {
+                Some(Contact::new(p1, p2, normal, depth))
+            }
         }
         None => {
             None // fail!("Both GJK and fallback algorithm failed.")

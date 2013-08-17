@@ -1,4 +1,5 @@
 use nalgebra::traits::norm::Norm;
+use nalgebra::traits::basis::Basis;
 use nalgebra::traits::vector_space::VectorSpace;
 use nalgebra::traits::scalar_op::ScalarMul;
 use nalgebra::traits::translation::Translation;
@@ -25,8 +26,8 @@ impl<N, V, M> BallBall<N, V, M> {
     }
 }
 
-impl<N: Real + Clone,
-     V: VectorSpace<N> + Norm<N> + Clone,
+impl<N: Real + NumCast + Clone,
+     V: VectorSpace<N> + Norm<N> + Basis + Clone,
      M: Translation<V>> 
      CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
 BallBall<N, V, M> {
@@ -52,21 +53,31 @@ BallBall<N, V, M> {
 }
 
 /// Computes the contact point between two balls. The balls must penetrate to have contact points.
-pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Clone, N: Real + Clone>
+pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Basis + Clone, N: Real + NumCast + Clone>
 (center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> Option<Contact<N, V>> {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
     let sqdist     = delta_pos.sqnorm();
     let sum_radius = r1 + r2;
+    let sum_radius_with_error = sum_radius + NumCast::from(0.1);
 
-    if sqdist < sum_radius * sum_radius {
-        let normal = delta_pos.normalized();
+    if sqdist < sum_radius_with_error * sum_radius_with_error {
+        let mut normal = delta_pos.normalized();
+        
+        if sqdist.is_zero() {
+            do Basis::canonical_basis() |b| {
+                normal = b;
 
-        Some(Contact::new(center1 + normal.scalar_mul(&r1),
-        center2 - normal.scalar_mul(&r2),
-        normal,
-        (sum_radius - sqdist.sqrt())))
+                false
+            }
+        }
+
+        Some(Contact::new(
+                center1 + normal.scalar_mul(&r1),
+                center2 - normal.scalar_mul(&r2),
+                normal,
+                (sum_radius - sqdist.sqrt())))
     }
     else {
         None

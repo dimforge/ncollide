@@ -35,8 +35,9 @@ impl<CD: CollisionDetector<N, LV, M, G1, G2>,
      G1,
      G2,
      N:  Clone + DivisionRing + Ord + NumCast,
-     LV: Clone + VectorSpace<N> + Cross<AV> + Dot<N> + Norm<N> + ApproxEq<N> + Dim + Basis,
-     AV: ScalarMul<N> + Neg<AV>,
+     LV: Clone + VectorSpace<N> + Cross<AV> + Dot<N> + Norm<N> + ApproxEq<N> + Dim + Basis +
+         ToStr,
+     AV: ScalarMul<N> + Neg<AV> + ToStr,
      M:  Rotation<AV> + Transform<LV> + Translation<LV> + Translatable<LV, M> + One>
 CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
@@ -58,6 +59,8 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
                         let rot_mat = rotation::rotated_wrt_center(m1, &-rot_axis);
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
+
+                        true
                     }
 
                     self.sub_detector.update_contacts(m1, m2);

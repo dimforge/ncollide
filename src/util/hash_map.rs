@@ -267,9 +267,14 @@ impl<K, V, H: HashFun<K>> Mutable for HashMap<K, V, H> {
     fn clear(&mut self) {
         self.table.clear();
         self.num_elem = 0;
-        // FIXME ??? self.htable.clear()
-        // FIXME ??? self.next.clear()
-        fail!("Not yet implemented.")
+
+        for i in self.htable.mut_iter() {
+            *i = -1
+        }
+
+        for i in self.next.mut_iter() {
+            *i = -1
+        }
     }
 }
 

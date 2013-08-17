@@ -30,7 +30,7 @@ impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
     }
 }
 
-impl<N: Ring + Ord + Clone,
+impl<N: Ring + NumCast + Ord + Clone,
      V: VectorSpace<N> + Dot<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
@@ -77,7 +77,7 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
     }
 }
 
-impl<N: Ring + Ord + Clone,
+impl<N: Ring + NumCast + Ord + Clone,
      V: VectorSpace<N> + Dot<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
@@ -114,7 +114,7 @@ CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
  *   * `other` - the object to test against the plane.
  */
 pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
-                                    N: Ring + Ord + Clone,
+                                    N: Ring + NumCast + Ord + Clone,
                                     M: Rotate<V> + Translation<V>,
                                     G: Implicit<V, M>>(
                                     mplane: &M,
@@ -138,7 +138,7 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
 
     let dist = plane_normal.dot(&(plane_center - deepest));
 
-    if dist > Zero::zero() {
+    if dist > NumCast::from(-0.1) {
         let c1 = deepest + plane_normal.scalar_mul(&dist);
 
         Some(Contact::new(c1, deepest, plane_normal, dist))

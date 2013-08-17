@@ -19,7 +19,7 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<V, M>,
                       G2: Implicit<V, M>,
-                      N:  Clone + Sub<N, N> + Ord + Mul<N, N> + Float,
+                      N:  Clone + Sub<N, N> + Ord + Mul<N, N> + Float + ToStr,
                       V:  Norm<N> + Dot<N> + Dim + VectorSpace<N> +
                           UniformSphereSample + Clone,
                       M:  One + Translation<V> + Translatable<V, M>>(
