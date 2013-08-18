@@ -1,12 +1,13 @@
 use std::ptr;
-use nalgebra::traits::norm::Norm;
 use nalgebra::traits::translation::Translation;
+use nalgebra::traits::vector::AlgebraicVec;
 use broad::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
 use broad::dispatcher::Dispatcher;
 use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
+use ray::ray::Ray;
 
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
 /// objects and which is never updated, and one for moving objects.
@@ -19,14 +20,15 @@ pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
     priv spairs:      HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>,
     priv dispatcher:  D,
     priv margin:      N,
+    priv collector:   ~[@mut DBVTLeaf<V, @mut B, BV>],
     priv to_update:   ~[@mut DBVTLeaf<V, @mut B, BV>],
     priv update_off:  uint // incremental pairs removal index
 }
 
-impl<N:  Clone + Ord,
-     V:  'static + Sub<V, V> + Norm<N>,
-     B:  'static + HasBoundingVolume<BV>,
-     BV: 'static + LooseBoundingVolume<N> + Translation<V>,
+impl<N:  Algebraic + Clone + Ord,
+     V:  'static + AlgebraicVec<N>,
+     B:  'static + HasBoundingVolume<V, BV>,
+     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 DBVTBroadPhase<N, V, B, BV, D, DV> {
@@ -41,6 +43,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
             spairs:      HashMap::new(PairTWHash),
             dispatcher:  dispatcher,
             update_off:  0,
+            collector:   ~[],
             to_update:   ~[],
             margin:      margin
         }
@@ -88,11 +91,9 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         self.stree.remove(leaf);
 
         // Now we find interferences with inactive objects.
-        let mut interferences = ~[];
+        self.stree.interferences_with_leaf(leaf, &mut self.collector);
 
-        self.stree.interferences_with_leaf(leaf, &mut interferences);
-
-        for i in interferences.iter() {
+        for i in self.collector.iter() {
             if self.dispatcher.is_valid(leaf.object, i.object) {
                 // the intereference should be registered on the spairs already
                 match self.spairs.get_and_remove(&Pair::new(leaf, *i)) {
@@ -104,6 +105,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
 
         // add to the active tree
         self.tree.insert(leaf);
+        self.collector.clear();
     }
 
     /// Marks and object as inactive. The bounding volume of an inactive object is never updated.
@@ -124,10 +126,9 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         // remove from the active tree
         self.tree.remove(leaf);
 
-        let mut interferences = ~[];
-        self.stree.interferences_with_leaf(leaf, &mut interferences);
+        self.stree.interferences_with_leaf(leaf, &mut self.collector);
 
-        for i in interferences.iter() {
+        for i in self.collector.iter() {
             if self.dispatcher.is_valid(leaf.object, i.object) {
                 // the intereference should be registered on the pairs already
                 match self.pairs.get_and_remove(&Pair::new(leaf, *i)) {
@@ -139,6 +140,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
 
         // add to the inactive tree
         self.stree.insert(leaf);
+        self.collector.clear();
     }
 
     /// Updates the collision pairs based on the objects bounding volumes.
@@ -162,21 +164,30 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
         self.update_updatable();
     }
 
+    /// Collects every object which might intersect a ray.
+    pub fn interferences_with_ray(&mut self, ray: &Ray<V>, out: &mut ~[@mut B]) {
+        self.tree.interferences_with_ray(ray, &mut self.collector);
+        self.stree.interferences_with_ray(ray, &mut self.collector);
+
+        for l in self.collector.iter() {
+            out.push(l.object)
+        }
+
+        self.collector.clear()
+    }
+
     fn update_updatable(&mut self) {
         /*
          * Re-insert outdated nodes one by one and collect interferences at the same time.
          */
-        let mut interferences = ~[];
-
-
         let mut new_colls = 0u;
 
         for u in self.to_update.iter() {
-            self.tree.interferences_with_leaf(*u, &mut interferences);
-            self.stree.interferences_with_leaf(*u, &mut interferences);
+            self.tree.interferences_with_leaf(*u, &mut self.collector);
+            self.stree.interferences_with_leaf(*u, &mut self.collector);
 
             // dispatch
-            for i in interferences.iter() {
+            for i in self.collector.iter() {
                 if self.dispatcher.is_valid(u.object, i.object) {
                     self.pairs.find_or_insert_lazy(
                         Pair::new(*u, *i),
@@ -187,7 +198,7 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
                 }
             }
 
-            interferences.clear();
+            self.collector.clear();
             self.tree.insert(*u);
         }
 

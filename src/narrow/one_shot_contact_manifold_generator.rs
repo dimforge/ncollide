@@ -1,16 +1,11 @@
 use std::num::One;
 use nalgebra::traits::basis::Basis;
 use nalgebra::traits::cross::Cross;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::division_ring::DivisionRing;
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::norm::Norm;
 use nalgebra::traits::rotation;
+use nalgebra::traits::vector::{AlgebraicVecExt, Vec};
 use nalgebra::traits::rotation::Rotation;
-use nalgebra::traits::scalar_op::ScalarMul;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::translation::{Translation, Translatable};
-use nalgebra::traits::vector_space::VectorSpace;
 use narrow::collision_detector::CollisionDetector;
 use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 use contact::Contact;
@@ -34,10 +29,9 @@ impl<CD, N, LV, AV, M> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
 impl<CD: CollisionDetector<N, LV, M, G1, G2>,
      G1,
      G2,
-     N:  Clone + DivisionRing + Ord + NumCast,
-     LV: Clone + VectorSpace<N> + Cross<AV> + Dot<N> + Norm<N> + ApproxEq<N> + Dim + Basis +
-         ToStr,
-     AV: ScalarMul<N> + Neg<AV> + ToStr,
+     N:  Clone + Num + Ord + NumCast + Algebraic,
+     LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + ToStr,
+     AV: Vec<N> + ToStr,
      M:  Rotation<AV> + Transform<LV> + Translation<LV> + Translatable<LV, M> + One>
 CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
@@ -49,7 +43,7 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
                         let mut rot_axis: AV = coll.normal.cross(&b);
 
                         // first perturbation
-                        rot_axis.scalar_mul_inplace(&NumCast::from(0.01));
+                        rot_axis = rot_axis * NumCast::from(0.01);
 
                         let rot_mat: M = rotation::rotated_wrt_center(m1, &rot_axis);
 

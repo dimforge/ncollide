@@ -1,6 +1,4 @@
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
-use nalgebra::traits::norm::Norm;
+use nalgebra::traits::vector::{AlgebraicVecExt, VecExt};
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 use bounding_volume::aabb::{AABB, HasAABB};
 use broad::dbvt::{DBVT, DBVTLeaf};
@@ -15,8 +13,8 @@ pub struct CompoundAABB<N, V, M, S> {
     priv leaves: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>]
 }
 
-impl<N: 'static + NumCast + Ord,
-     V: 'static + VectorSpace<N> + ScalarAdd<N> + ScalarSub<N> + Norm<N> + Ord + Orderable + Clone,
+impl<N: 'static + Algebraic + Primitive + Orderable + ToStr,
+     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M,
      S: HasAABB<N, V, M>>
 CompoundAABB<N, V, M, S> {
@@ -67,8 +65,8 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
     }
 }
 
-impl<N,
-     V: Ord + Orderable + Clone,
+impl<N: Primitive + Orderable + ToStr,
+     V: VecExt<N> + Clone + ToStr,
      M: Mul<M, M>,
      S: HasAABB<N, V, M>>
 HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {

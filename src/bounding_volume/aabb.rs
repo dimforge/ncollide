@@ -1,8 +1,9 @@
 use std::num::Zero;
-use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub, ScalarDiv, ScalarMul};
+use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use nalgebra::traits::translation::Translation;
-use nalgebra::traits::dot::Dot;
 use nalgebra::traits::basis::Basis;
+use nalgebra::traits::vector::{Vec, VecExt};
+use ray::ray::Ray;
 use geom::implicit::Implicit;
 use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
@@ -16,13 +17,28 @@ pub trait HasAABB<N, V, M> {
 ///
 /// # Parameter:
 ///   * `V` - type of the points of the bounding box. It determines the AABB dimension.
+///   * `N` - type of the one components of the aabb points.
 #[deriving(ToStr, Eq, Clone)]
 pub struct AABB<N, V> {
     priv mins: V,
     priv maxs: V
 }
 
-impl<V: Ord + ScalarDiv<N>, N> AABB<N, V> {
+impl<N, V> AABB<N, V> {
+    /// Reference to the AABB point with the smallest components along each axis.
+    #[inline]
+    pub fn mins<'r>(&'r self) -> &'r V {
+        &'r self.mins
+    }
+
+    /// Reference to the AABB point with the bigest components along each axis.
+    #[inline]
+    pub fn maxs<'r>(&'r self) -> &'r V {
+        &'r self.maxs
+    }
+}
+
+impl<V: VecExt<N>, N> AABB<N, V> {
     /// Creates a new AABB.
     ///
     /// # Arguments:
@@ -39,7 +55,9 @@ impl<V: Ord + ScalarDiv<N>, N> AABB<N, V> {
     }
 }
 
-impl<V: Ord + Orderable + Clone, N> BoundingVolume for AABB<N, V> {
+impl<N: Primitive + Orderable + ToStr,
+     V: VecExt<N> + ToStr>
+BoundingVolume<V> for AABB<N, V> {
     #[inline]
     fn intersects(&self, other: &AABB<N, V>) -> bool {
         self.mins <= other.maxs && self.maxs >= other.mins
@@ -63,12 +81,17 @@ impl<V: Ord + Orderable + Clone, N> BoundingVolume for AABB<N, V> {
             maxs: self.maxs.max(&other.maxs)
         }
     }
+
+    #[inline]
+    fn intersects_ray(&self, ray: &Ray<V>) -> bool {
+        self.toi_with_ray(ray).is_some()
+    }
 }
 
-impl<V: Add<V, V> + Neg<V> + ScalarDiv<N>, N: NumCast> Translation<V> for AABB<N, V>
+impl<V: Vec<N>, N: NumCast> Translation<V> for AABB<N, V>
 {
     fn translation(&self) -> V {
-        (self.mins + self.maxs).scalar_div(&NumCast::from(2.0f64))
+        (self.mins + self.maxs) / NumCast::from(2.0f64)
     }
 
     fn inv_translation(&self) -> V {
@@ -81,8 +104,9 @@ impl<V: Add<V, V> + Neg<V> + ScalarDiv<N>, N: NumCast> Translation<V> for AABB<N
     }
 }
 
-impl<V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, N>
-LooseBoundingVolume<N> for AABB<N, V> {
+impl<N: Primitive + Orderable + ToStr,
+     V: VecExt<N> + ToStr>
+LooseBoundingVolume<N, V> for AABB<N, V> {
     #[inline]
     fn loosen(&mut self, amount: N) {
         self.mins.scalar_sub_inplace(&amount);
@@ -100,8 +124,7 @@ LooseBoundingVolume<N> for AABB<N, V> {
 
 /// Builds the AABB of an implicit shape.
 pub fn implicit_shape_aabb<N,
-                           V: Dot<N> + ScalarMul<N> + ScalarDiv<N> + Basis + Neg<V> + Add<V, V> +
-                              Zero + Ord,
+                           V: VecExt<N>,
                            M,
                            I: Implicit<V, M>>(
                            m: &M,
@@ -112,8 +135,8 @@ pub fn implicit_shape_aabb<N,
 
         // FIXME: optimize using Indexable?
         do Basis::canonical_basis::<V>() |basis| {
-            resm = resm + basis.scalar_mul(&basis.dot(&i.support_point(m, &-basis)));
-            resM = resM + basis.scalar_mul(&basis.dot(&i.support_point(m, &basis)));
+            resm = resm + basis * basis.dot(&i.support_point(m, &-basis));
+            resM = resM + basis * basis.dot(&i.support_point(m, &basis));
 
             true
         }
@@ -128,8 +151,11 @@ pub fn implicit_shape_aabb<N,
 #[deriving(Clone, Eq, DeepClone)]
 pub struct WithAABB<M, A>(M, A);
 
-impl<N, V: Clone + Ord + Orderable + ScalarAdd<N> + ScalarSub<N>, M, A: HasAABB<N, V, M>>
-HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {
+impl<N: Primitive + Orderable + ToStr,
+     V: VecExt<N> + Clone + ToStr,
+     M,
+     A: HasAABB<N, V, M>>
+HasBoundingVolume<V, AABB<N, V>> for WithAABB<M, A> {
     fn bounding_volume(&self) -> AABB<N, V> {
         let WithAABB(ref t, ref g) = *self;
 

@@ -8,9 +8,7 @@ use nalgebra::traits::indexable::Indexable;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::iterable::Iterable;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::basis::Basis;
+use nalgebra::traits::vector::VecExt;
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
 use geom::implicit::Implicit;
@@ -70,8 +68,7 @@ Implicit<V, M> for Box<N, V> {
 }
 
 impl<N: Signed,
-     V: Dim + Indexable<uint, N> + Zero + Dot<N> + ScalarMul<N> + ScalarDiv<N> +
-        Basis + Neg<V> + Add<V, V> + Ord,
+     V: VecExt<N>,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Box<N, V> {
     fn aabb(&self, m: &M) -> AABB<N, V> {

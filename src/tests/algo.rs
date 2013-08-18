@@ -3,9 +3,9 @@ use std::rand;
 #[test]
 use nalgebra::traits::dim::Dim;
 #[test]
-use nalgebra::traits::scalar_op::{ScalarSub, ScalarMul};
+use nalgebra::traits::scalar_op::ScalarSub;
 #[test]
-use nalgebra::traits::norm::Norm;
+use nalgebra::traits::vector::AlgebraicVec;
 #[test]
 use nalgebra::vec::*;
 #[test]
@@ -34,7 +34,7 @@ macro_rules! test_johnson_simplex_impl(
                 // note that this fails with lower precision
                 let mut v1: $t = rand::random();
                 v1.scalar_sub_inplace(&(0.5 as $n));
-                v1.scalar_mul_inplace(&(i   as $n));
+                v1 = v1 * (i as $n);
 
                 let mut splx1 = JohnsonSimplex::new(recursion, v1.clone());
                 let mut splx2 = BruteForceSimplex::new(v1.clone());
@@ -42,7 +42,7 @@ macro_rules! test_johnson_simplex_impl(
                 do d.times {
                     let mut v: $t = rand::random();
                     v.scalar_sub_inplace(&(0.5 as $n));
-                    v.scalar_mul_inplace(&(i   as $n));
+                    v = v * (i as $n);
 
                     splx1.add_point(v.clone());
                     splx2.add_point(v);
@@ -68,11 +68,11 @@ macro_rules! test_gjk_ball_ball_impl(
 
             let mut c1: $t = rand::random();
             c1.scalar_sub_inplace(&(0.5 as $n));
-            c1.scalar_mul_inplace(&(100.0 as $n));
+            c1 = c1 * (100.0 as $n);
 
             let mut c2: $t = rand::random();
             c2.scalar_sub_inplace(&(0.5 as $n));
-            c2.scalar_mul_inplace(&(100.0 as $n));
+            c2 = c2 * (100.0 as $n);
 
             let b1 = Ball::new(r1);
             let b2 = Ball::new(r2);

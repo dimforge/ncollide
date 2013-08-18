@@ -1,7 +1,7 @@
 use std::num::Bounded;
-use nalgebra::traits::dot::Dot;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::vector::Vec;
 use geom::implicit::Implicit;
 
 /**
@@ -26,7 +26,7 @@ impl<N, V> ConvexPolytope<N, V> {
 }
 
 impl<N: Ord + Bounded + ToStr + Neg<N>,
-     V: Dot<N> + Clone,
+     V: Vec<N> + Clone,
      M: Transform<V> + Rotate<V>>
 Implicit<V, M> for ConvexPolytope<N, V> {
     #[inline]

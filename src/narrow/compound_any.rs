@@ -1,7 +1,6 @@
 use std::vec;
 use nalgebra::traits::inv::Inv;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::vector_space::VectorSpace;
+use nalgebra::traits::vector::AlgebraicVecExt;
 use bounding_volume::bounding_volume::BoundingVolume;
 use bounding_volume::aabb::{AABB, HasAABB};
 use broad::dispatcher::Dispatcher;
@@ -65,8 +64,8 @@ impl<N, V, M, S, D, SD> AnyCompoundAABB<N, V, M, S, D, SD> {
     }
 }
 
-impl<N:  NumCast + Ord,
-     V:  'static + VectorSpace<N> + Norm<N> + Ord + Orderable + Clone,
+impl<N:  Algebraic + Primitive + Orderable + ToStr,
+     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
      M:  Inv + Mul<M, M>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,
@@ -133,8 +132,8 @@ CompoundAABBAny<N, V, M, S, D, SD> {
     }
 }
 
-impl<N:  NumCast + Ord,
-     V:  'static + VectorSpace<N> + Norm<N> + Ord + Orderable + Clone,
+impl<N:  Algebraic + Primitive + Orderable + ToStr,
+     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
      M:  Inv + Mul<M, M>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,
@@ -171,8 +170,8 @@ for CompoundAABBAny<N, V, M, S, D, SD> {
     }
 }
 
-impl<N:  NumCast + Ord,
-     V:  'static + VectorSpace<N> + Norm<N> + Ord + Orderable + Clone,
+impl<N:  Algebraic + Primitive + Orderable + ToStr,
+     V:  'static + AlgebraicVecExt<N> + Clone + ToStr,
      M:  Inv + Mul<M, M>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,

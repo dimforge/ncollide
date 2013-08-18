@@ -2,21 +2,16 @@
 
 use std::num::{Zero, One};
 use nalgebra::dmat::zero_mat_with_dim;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::division_ring::DivisionRing;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::sub_dot::SubDot;
 use nalgebra::traits::inv::Inv;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use nalgebra::traits::dim::Dim;
+use nalgebra::traits::vector::AlgebraicVec;
 use narrow::algorithm::simplex::Simplex;
 
 pub struct BruteForceSimplex<N, V> {
     points: ~[V]
 }
 
-impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N>,
-    N: Ord + Clone + Eq + DivisionRing + Ord>
+impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
 BruteForceSimplex<N, V> {
     pub fn new(initial_point: V) -> BruteForceSimplex<N, V> {
         BruteForceSimplex { points: ~[initial_point] }
@@ -56,7 +51,7 @@ BruteForceSimplex<N, V> {
             for i in range(0u, dim) {
                 if mat.at(i, 0u) > _0 {
                     let offset = mat.at(i, 0u);
-                    res        = res + points[i].scalar_mul(&offset);
+                    res        = res + points[i] * offset;
                     normalizer = normalizer + offset;
                 }
                 else {
@@ -64,9 +59,7 @@ BruteForceSimplex<N, V> {
                 }
             }
 
-            res.scalar_div_inplace(&normalizer);
-
-            Some(res)
+            Some(res / normalizer)
         }
     }
 
@@ -121,8 +114,7 @@ BruteForceSimplex<N, V> {
     }
 }
 
-impl<V: Clone + VectorSpace<N> + SubDot<N> + Norm<N> + Eq + Dim,
-     N: Ord + Clone + Eq + DivisionRing + Ord>
+impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
 Simplex<N, V> for BruteForceSimplex<N, V> {
     fn reset(&mut self, initial_point: V) {
         self.points.clear();

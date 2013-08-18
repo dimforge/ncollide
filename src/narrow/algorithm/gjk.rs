@@ -1,7 +1,6 @@
 use std::num::NumCast;
 use nalgebra::traits::dim::Dim;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::dot::Dot;
+use nalgebra::traits::vector::AlgebraicVec;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
 use geom::minkowski_sum::{AnnotatedPoint, AnnotatedNonTransformableMinkowskiSum};
@@ -18,8 +17,8 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<V, M>,
                       G2: Implicit<V, M>,
-                      N:  Sub<N, N> + Ord + Mul<N, N> + Float + NumCast + ToStr,
-                      V:  Clone + Norm<N> + Neg<V> + Add<V, V> + Dot<N> + Dim,
+                      N:  Ord + Num + Float + NumCast + ToStr,
+                      V:  Clone + AlgebraicVec<N>,
                       M>(
                       m1:      &M,
                       g1:      &G1,
@@ -41,8 +40,8 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     with at least one point on the geometry boundary.
 pub fn project_origin<S: Simplex<N, V>,
                       G: Implicit<V, M>,
-                      N: Sub<N, N> + Ord + Mul<N, N> + Float + NumCast + ToStr,
-                      V: Norm<N> + Neg<V> + Dot<N> + Dim,
+                      N: Ord + Num + Float + NumCast + ToStr,
+                      V: AlgebraicVec<N>,
                       M>(
                       m:       &M,
                       geom:    &G,
@@ -52,7 +51,7 @@ pub fn project_origin<S: Simplex<N, V>,
     let mut sq_len_dir = proj.sqnorm();
 
     let _eps_tol = Float::epsilon::<N>() * NumCast::from(100.0f64);
-    let _eps_rel = Float::epsilon::<N>().sqrt();
+    let _eps_rel = Float::epsilon::<N>();
     let _dim     = Dim::dim::<V>();
 
     loop {

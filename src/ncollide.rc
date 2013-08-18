@@ -33,6 +33,15 @@ pub mod bounding_volume
     pub mod aabb;
 }
 
+pub mod ray {
+    pub mod ray;
+    mod ray_ball;
+    mod ray_plane;
+    mod ray_box;
+    mod ray_aabb;
+    mod ray_compound;
+}
+
 pub mod narrow
 {
     pub mod collision_detector;

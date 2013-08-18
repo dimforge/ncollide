@@ -1,10 +1,7 @@
 use std::num::Zero;
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::ring::Ring;
-use nalgebra::traits::scalar_op::ScalarMul;
 use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::translation::Translation;
+use nalgebra::traits::vector::Vec;
 use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;
@@ -30,13 +27,13 @@ impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
     }
 }
 
-impl<N: Ring + NumCast + Ord + Clone,
-     V: VectorSpace<N> + Dot<N> + Clone,
+impl<N: Num + NumCast + Ord + Clone,
+     V: Vec<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
-CollisionDetector<N, V, M, Plane<V>, G> for PlaneImplicit<N, V, M, G> {
+CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
     #[inline]
-    fn update(&mut self, ma: &M, plane: &Plane<V>, mb: &M, b: &G) {
+    fn update(&mut self, ma: &M, plane: &Plane<N, V>, mb: &M, b: &G) {
         self.contact = collide_plane_implicit_shape(ma, plane, mb, b, &self.margin)
     }
 
@@ -77,13 +74,13 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
     }
 }
 
-impl<N: Ring + NumCast + Ord + Clone,
-     V: VectorSpace<N> + Dot<N> + Clone,
+impl<N: Num + NumCast + Ord + Clone,
+     V: Vec<N> + Clone,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
-CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
+CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
     #[inline]
-    fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<V>) {
+    fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<N, V>) {
         self.contact = collide_plane_implicit_shape(mb, plane, ma, a, &self.margin);
         self.contact.mutate(|mut c| { c.flip(); c });
     }
@@ -113,24 +110,22 @@ CollisionDetector<N, V, M, G, Plane<V>> for ImplicitPlane<N, V, M, G> {
  *   * `plane` - the plane to test.
  *   * `other` - the object to test against the plane.
  */
-pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
-                                    N: Ring + NumCast + Ord + Clone,
+pub fn collide_plane_implicit_shape<V: Vec<N> + Clone,
+                                    N: Num + NumCast + Ord + Clone,
                                     M: Rotate<V> + Translation<V>,
                                     G: Implicit<V, M>>(
                                     mplane: &M,
-                                    plane:  &Plane<V>,
+                                    plane:  &Plane<N, V>,
                                     mother: &M,
                                     other:  &G,
                                     margin: &N)
                                     -> Option<Contact<N, V>> {
     let plane_normal = mplane.rotate(&plane.normal());
-
     let plane_center = mplane.translation();
-
     let deepest;
 
     if *margin > Zero::zero() {
-        deepest = other.support_point(mother, &-plane_normal) - plane_normal.scalar_mul(margin)
+        deepest = other.support_point(mother, &-plane_normal) - plane_normal * *margin
     }
     else {
         deepest = other.support_point(mother, &-plane_normal)
@@ -139,7 +134,7 @@ pub fn collide_plane_implicit_shape<V: VectorSpace<N> + Dot<N> + Clone,
     let dist = plane_normal.dot(&(plane_center - deepest));
 
     if dist > NumCast::from(-0.1) {
-        let c1 = deepest + plane_normal.scalar_mul(&dist);
+        let c1 = deepest + plane_normal * dist;
 
         Some(Contact::new(c1, deepest, plane_normal, dist))
     }

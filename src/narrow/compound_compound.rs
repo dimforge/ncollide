@@ -1,7 +1,6 @@
 use std::vec;
 use nalgebra::traits::inv::Inv;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::vector_space::VectorSpace;
+use nalgebra::traits::vector::AlgebraicVecExt;
 use bounding_volume::aabb::HasAABB;
 use broad::dispatcher::Dispatcher;
 use narrow::collision_detector::CollisionDetector;
@@ -48,8 +47,8 @@ impl<N, V, M, S, D: Clone, SD> CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     }
 }
 
-impl<N:  NumCast + Ord,
-     V:  'static + VectorSpace<N> + Norm<N> + Ord + Orderable + Clone,
+impl<N:  Algebraic + Primitive + Orderable + ToStr,
+     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
      M:  Inv + Mul<M, M>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,

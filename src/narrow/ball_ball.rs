@@ -1,8 +1,6 @@
-use nalgebra::traits::norm::Norm;
 use nalgebra::traits::basis::Basis;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::scalar_op::ScalarMul;
 use nalgebra::traits::translation::Translation;
+use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
@@ -27,7 +25,7 @@ impl<N, V, M> BallBall<N, V, M> {
 }
 
 impl<N: Real + NumCast + Clone,
-     V: VectorSpace<N> + Norm<N> + Basis + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Translation<V>> 
      CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
 BallBall<N, V, M> {
@@ -53,7 +51,7 @@ BallBall<N, V, M> {
 }
 
 /// Computes the contact point between two balls. The balls must penetrate to have contact points.
-pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Basis + Clone, N: Real + NumCast + Clone>
+pub fn collide_ball_ball<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
 (center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> Option<Contact<N, V>> {
     let r1         = b1.radius();
     let r2         = b2.radius();
@@ -74,8 +72,8 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Basis + Clone, N: Real + 
         }
 
         Some(Contact::new(
-                center1 + normal.scalar_mul(&r1),
-                center2 - normal.scalar_mul(&r2),
+                center1 + normal * r1,
+                center2 - normal * r2,
                 normal,
                 (sum_radius - sqdist.sqrt())))
     }
@@ -87,12 +85,12 @@ pub fn collide_ball_ball<V: VectorSpace<N> + Norm<N> + Basis + Clone, N: Real + 
 /// Computes the cloest points between two balls. If they are intersecting, the points
 /// corresponding to the penetration depth are returned.
 #[inline]
-pub fn closest_points<N: Clone,
-                      V: ScalarMul<N> + Sub<V, V> + Add<V, V> + Norm<N> + Clone>
+pub fn closest_points<N: Algebraic + Clone,
+                      V: AlgebraicVec<N> + Clone>
 (center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> (V, V) {
     let r1     = b1.radius();
     let r2     = b2.radius();
     let normal = (center2 - *center1).normalized();
 
-    (center1 + normal.scalar_mul(&r1), center2 - normal.scalar_mul(&r2))
+    (center1 + normal * r1, center2 - normal * r2)
 }

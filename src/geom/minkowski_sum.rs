@@ -6,10 +6,7 @@
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
 use nalgebra::traits::dim::Dim;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::sub_dot::SubDot;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::vector::{Vec, AlgebraicVec};
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
 
@@ -203,21 +200,19 @@ impl<V: Dim> Dim for AnnotatedPoint<V> {
     }
 }
 
-impl<V: Dot<N>, N> Dot<N> for AnnotatedPoint<V> {
+impl<V: Vec<N>, N> Vec<N> for AnnotatedPoint<V> {
     #[inline]
     fn dot(&self, other: &AnnotatedPoint<V>) -> N {
         self.point.dot(&other.point)
     }
-}
 
-impl<V: SubDot<N>, N> SubDot<N> for AnnotatedPoint<V> {
     #[inline]
     fn sub_dot(&self, sub: &AnnotatedPoint<V>, dot: &AnnotatedPoint<V>) -> N {
         self.point.sub_dot(&sub.point, &dot.point)
     }
 }
 
-impl<V: Norm<N> + Clone, N> Norm<N> for AnnotatedPoint<V> {
+impl<N: Algebraic, V: AlgebraicVec<N> + Clone> AlgebraicVec<N> for AnnotatedPoint<V> {
     #[inline]
     fn norm(&self) -> N {
         self.point.norm()
@@ -241,35 +236,17 @@ impl<V: Norm<N> + Clone, N> Norm<N> for AnnotatedPoint<V> {
     }
 }
 
-impl<V: ScalarDiv<N>, N> ScalarDiv<N> for AnnotatedPoint<V> {
+impl<V: Div<N, V>, N> Div<N, AnnotatedPoint<V>> for AnnotatedPoint<V> {
     #[inline]
-    fn scalar_div(&self, n: &N) -> AnnotatedPoint<V> {
-        AnnotatedPoint::new(self.orig1.scalar_div(n),
-        self.orig2.scalar_div(n),
-        self.point.scalar_div(n))
-    }
-
-    #[inline]
-    fn scalar_div_inplace(&mut self, n: &N) {
-        self.orig1.scalar_div_inplace(n);
-        self.orig2.scalar_div_inplace(n);
-        self.point.scalar_div_inplace(n);
+    fn div(&self, n: &N) -> AnnotatedPoint<V> {
+        AnnotatedPoint::new(self.orig1 / *n, self.orig2 / *n, self.point / *n)
     }
 }
 
-impl<V: ScalarMul<N>, N> ScalarMul<N> for AnnotatedPoint<V> {
+impl<V: Mul<N, V>, N> Mul<N, AnnotatedPoint<V>> for AnnotatedPoint<V> {
     #[inline]
-    fn scalar_mul(&self, n: &N) -> AnnotatedPoint<V> {
-        AnnotatedPoint::new(self.orig1.scalar_mul(n),
-        self.orig2.scalar_mul(n),
-        self.point.scalar_mul(n))
-    }
-
-    #[inline]
-    fn scalar_mul_inplace(&mut self, n: &N) {
-        self.orig1.scalar_mul_inplace(n);
-        self.orig2.scalar_mul_inplace(n);
-        self.point.scalar_mul_inplace(n);
+    fn mul(&self, n: &N) -> AnnotatedPoint<V> {
+        AnnotatedPoint::new(self.orig1 * *n, self.orig2 * *n, self.point * *n)
     }
 }
 

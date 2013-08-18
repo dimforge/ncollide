@@ -8,20 +8,24 @@ use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 
 /// Associatio of an object with its loose bounding volume.
 #[deriving(ToStr, Eq, Clone)]
-pub struct BoundingVolumeProxy<N, B, BV> {
+pub struct BoundingVolumeProxy<N, V, B, BV> {
     /// The objects loose bounding volume.
     bounding_volume: BV,
     /// The object.
     body:            @mut B
 }
 
-impl<N: Clone, BV: LooseBoundingVolume<N>, B: HasBoundingVolume<BV>> BoundingVolumeProxy<N, B, BV> {
+impl<N:  Clone,
+     V,
+     BV: LooseBoundingVolume<N, V>,
+     B:  HasBoundingVolume<V, BV>>
+BoundingVolumeProxy<N, V, B, BV> {
     /// Builds a new brute force broad phase based on loose bounding volumes.
     ///
     /// # Arguments:
     ///     * `b` - collision dispatcher.
     ///     * `margin` - loosening margin.
-    pub fn new(b: @mut B, margin: N) -> BoundingVolumeProxy<N, B, BV> {
+    pub fn new(b: @mut B, margin: N) -> BoundingVolumeProxy<N, V, B, BV> {
         BoundingVolumeProxy {
             bounding_volume: b.bounding_volume().loosened(margin),
             body:            b
@@ -51,25 +55,26 @@ impl<N: Clone, BV: LooseBoundingVolume<N>, B: HasBoundingVolume<BV>> BoundingVol
 ///
 /// Dont use this broad phase. It exists mainly as a transition broad phase between the Brute Force
 /// one and the DBVH/SAP based broad phases.
-pub struct BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
-    priv objects:    ~[@mut BoundingVolumeProxy<N, B, BV>], // active   objects
-    priv sobjects:   ~[@mut BoundingVolumeProxy<N, B, BV>], // inactive objects
+pub struct BruteForceBoundingVolumeBroadPhase<N, V, B, BV, D, DV> {
+    priv objects:    ~[@mut BoundingVolumeProxy<N, V, B, BV>], // active   objects
+    priv sobjects:   ~[@mut BoundingVolumeProxy<N, V, B, BV>], // inactive objects
     priv rb2bv:      HashMap<uint, uint, UintTWHash>,
-    priv pairs:      HashMap<Pair<BoundingVolumeProxy<N, B, BV>>, DV, PairTWHash>, // pair manager
+    priv pairs:      HashMap<Pair<BoundingVolumeProxy<N, V, B, BV>>, DV, PairTWHash>, // pair manager
     priv dispatcher: D,
     priv margin:     N,
-    priv to_update:  ~[@mut BoundingVolumeProxy<N, B, BV>],
+    priv to_update:  ~[@mut BoundingVolumeProxy<N, V, B, BV>],
     priv update_off: uint // incremental pairs removal index
 }
 
 impl<N:  Clone,
-     B:  'static + HasBoundingVolume<BV>,
-     BV: 'static + LooseBoundingVolume<N>,
+     V,
+     B:  'static + HasBoundingVolume<V, BV>,
+     BV: 'static + LooseBoundingVolume<N, V>,
      D:  Dispatcher<B, DV>,
      DV>
-BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
+BruteForceBoundingVolumeBroadPhase<N, V, B, BV, D, DV> {
     /// Creates a new bounding volume based brute force broad phase.
-    pub fn new(dispatcher: D, margin: N) -> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
+    pub fn new(dispatcher: D, margin: N) -> BruteForceBoundingVolumeBroadPhase<N, V, B, BV, D, DV> {
         BruteForceBoundingVolumeBroadPhase {
             objects:    ~[],
             sobjects:   ~[],
@@ -83,13 +88,13 @@ BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
     }
 
     /// The pair manager of this broad phase.
-    pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<BoundingVolumeProxy<N, B, BV>>, DV, PairTWHash> {
+    pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<BoundingVolumeProxy<N, V, B, BV>>, DV, PairTWHash> {
         &'r self.pairs
     }
 
     /// The pair manager of this broad phase.
     pub fn pairs_mut<'r>(&'r mut self)
-                         -> &'r mut HashMap<Pair<BoundingVolumeProxy<N, B, BV>>, DV, PairTWHash> {
+                         -> &'r mut HashMap<Pair<BoundingVolumeProxy<N, V, B, BV>>, DV, PairTWHash> {
         &'r mut self.pairs
     }
 

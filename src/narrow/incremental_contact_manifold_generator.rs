@@ -1,9 +1,6 @@
 use nalgebra::traits::dim::Dim;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::vector::{Vec, AlgebraicVec};
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 
@@ -14,7 +11,7 @@ struct ContactWLocals<N, V> {
     contact: Contact<N, V>
 }
 
-impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V> {
+impl<N: Num + NumCast, V: Vec<N>> ContactWLocals<N, V> {
     fn new_with_contact<M: Transform<V>>(
                         contact: Contact<N, V>,
                         m1:      &M,
@@ -23,7 +20,7 @@ impl<N: DivisionRing + NumCast, V: VectorSpace<N>> ContactWLocals<N, V> {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + contact.world2).scalar_div(&(NumCast::from(2.0))),
+                center: (contact.world1 + contact.world2) / NumCast::from(2.0),
                 contact: contact
             }
         }
@@ -58,8 +55,8 @@ impl<CD: CollisionDetector<N, V, M, G1, G2>,
      G1,
      G2,
      M: Transform<V>,
-     V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
-     N: Clone + DivisionRing + Ord + NumCast>
+     V: Clone + AlgebraicVec<N> + ApproxEq<N>,
+     N: Clone + Num + Ord + NumCast + Algebraic>
 IncrementalContactManifoldGenerator<CD, N, V> {
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
@@ -115,7 +112,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let depth = dw.dot(&c.contact.normal);
 
                 if depth >= NumCast::from(-0.1f64) &&
-                   (dw - c.contact.normal.scalar_mul(&depth)).sqnorm() <= NumCast::from(0.01f64) {
+                   (dw - c.contact.normal * depth).sqnorm() <= NumCast::from(0.01f64) {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;
@@ -142,8 +139,8 @@ impl<CD: CollisionDetector<N, V, M, G1, G2>,
      G1,
      G2,
      M: Transform<V>,
-     V: Clone + VectorSpace<N> + Dot<N> + Norm<N> + ApproxEq<N> + Dim,
-     N: Clone + DivisionRing + Ord + NumCast>
+     V: Clone + AlgebraicVec<N> + ApproxEq<N>,
+     N: Clone + Num + Ord + NumCast + Algebraic>
 CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
     #[inline]
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
@@ -164,8 +161,8 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
     }
 }
 
-fn add_reduce_by_variance<N: DivisionRing + NumCast + Ord,
-                          V: Clone + VectorSpace<N> + Norm<N>,
+fn add_reduce_by_variance<N: Num + NumCast + Algebraic + Ord,
+                          V: Clone + AlgebraicVec<N>,
                           M: Transform<V>>(
                           pts:    &mut [ContactWLocals<N, V>],
                           to_add: Contact<N, V>,
@@ -186,13 +183,12 @@ fn add_reduce_by_variance<N: DivisionRing + NumCast + Ord,
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<N: DivisionRing + NumCast,
-V: Clone + VectorSpace<N> + Norm<N>>(
+fn approx_variance<N: Num + NumCast + Algebraic, V: Clone + AlgebraicVec<N>>(
     pts:       &[ContactWLocals<N, V>],
     to_add:    &Contact<N, V>,
     to_ignore: uint) -> N {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + to_add.world2).scalar_div(&NumCast::from(2.0));
+    let to_add_center = (to_add.world1 + to_add.world2) / NumCast::from(2.0);
 
     let mut mean = to_add_center.clone();
 
@@ -202,7 +198,7 @@ V: Clone + VectorSpace<N> + Norm<N>>(
         }
     }
 
-    mean.scalar_div_inplace(&NumCast::from(pts.len()));
+    mean = mean / NumCast::from(pts.len());
 
     // compute the sum of variances along all axis
     let mut sum = (to_add_center - mean).sqnorm();

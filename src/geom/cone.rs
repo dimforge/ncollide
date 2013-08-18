@@ -3,14 +3,10 @@
 //!
 
 use std::num::Zero;
-use nalgebra::traits::basis::Basis;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::dot::Dot;
 use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::norm::Norm;
 use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
 use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::vector::AlgebraicVecExt;
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
 use geom::implicit::Implicit;
@@ -50,8 +46,8 @@ impl<N: Clone> Cone<N> {
     }
 }
 
-impl<N: Clone + Signed,
-     V: Clone + Zero + Norm<N> + ScalarMul<N> + Indexable<uint, N>,
+impl<N: Clone + Signed + Algebraic,
+     V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
 Implicit<V, M> for Cone<N> {
     fn support_point(&self, m: &M, dir: &V) -> V {
@@ -66,7 +62,7 @@ Implicit<V, M> for Cone<N> {
                 vres = Zero::zero()
             }
             else {
-                vres.scalar_mul_inplace(&self.radius)
+                vres = vres * self.radius
             }
 
             vres.set(0, -self.half_height);
@@ -83,9 +79,8 @@ Implicit<V, M> for Cone<N> {
     }
 }
 
-impl<N: Signed + Clone,
-     V: Dim + Indexable<uint, N> + Zero + Dot<N> + ScalarMul<N> + ScalarDiv<N> +
-        Basis + Neg<V> + Add<V, V> + Norm<N> + Ord + Clone,
+impl<N: Signed + Algebraic + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Cone<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {

@@ -2,7 +2,7 @@
 //! Support mapping based Plane geometry.
 //!
 
-use nalgebra::traits::scalar_op::ScalarDiv;
+use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
 use bounding_volume::aabb::{HasAABB, AABB};
 
 /**
@@ -11,22 +11,28 @@ use bounding_volume::aabb::{HasAABB, AABB};
  *   - `V`: type of the plane normal.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct Plane<V> {
+pub struct Plane<N, V> {
     /// The plane normal.
     normal: V
 }
 
-impl<V> Plane<V> {
+impl<N: Algebraic, V: AlgebraicVec<N>> Plane<N, V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
-    pub fn new(normal: V) -> Plane<V> {
+    pub fn new(normal: V) -> Plane<N, V> {
+        unsafe { Plane::new_normalized(normal.normalized()) }
+    }
+
+    /// Builds a new plane from its center and its normal.
+    #[inline]
+    pub unsafe fn new_normalized(normal: V) -> Plane<N, V> {
         Plane {
             normal: normal
         }
     }
 }
 
-impl<V: Clone> Plane<V> {
+impl<N, V: Clone> Plane<N, V> {
     /// The plane normal.
     #[inline]
     pub fn normal(&self) -> V {
@@ -34,8 +40,8 @@ impl<V: Clone> Plane<V> {
     }
 }
 
-impl<V: Bounded + Neg<V> + ScalarDiv<N> + Ord, N, M>
-HasAABB<N, V, M> for Plane<V> {
+impl<V: AlgebraicVecExt<N>, N, M>
+HasAABB<N, V, M> for Plane<N, V> {
     fn aabb(&self, _: &M) -> AABB<N, V> {
         AABB::new(-Bounded::max_value::<V>(), Bounded::max_value())
     }

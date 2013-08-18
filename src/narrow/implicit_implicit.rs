@@ -1,10 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::dot::Dot;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::sample::UniformSphereSample;
 use nalgebra::traits::translation::{Translation, Translatable};
+use nalgebra::traits::vector::AlgebraicVecExt;
 use geom::implicit::Implicit;
 use geom::minkowski_sum;
 use geom::minkowski_sum::AnnotatedPoint;
@@ -41,7 +37,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G1: Implicit<V, M>,
      G2: Implicit<V, M>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
-     V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim + UniformSphereSample + Clone,
+     V:  AlgebraicVecExt<N> + Clone,
      M:  Translation<V> + Translatable<V, M> + One>
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
@@ -83,8 +79,7 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                                  G1: Implicit<V, M>,
                                  G2: Implicit<V, M>,
                                  N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
-                                 V:  Norm<N> + VectorSpace<N> + Dot<N> + Dim +
-                                     UniformSphereSample + Clone,
+                                 V:  AlgebraicVecExt<N> + Clone,
                                  M:  Translation<V> + Translatable<V, M> + One>(
                                  m1:      &M,
                                  g1:      &G1,
@@ -96,7 +91,8 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
     let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
 
     if dir.is_zero() {
-        dir = UniformSphereSample::sample_list::<V>()[0].clone();
+        dir = Zero::zero();
+        dir.set(0, One::one());
     }
 
     simplex.reset(minkowski_sum::cso_support_point(m1, g1, m2, g2, dir));
@@ -116,8 +112,8 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
 
                 return Some(
                     Contact::new(
-                        p1 + normal.scalar_mul(margin),
-                        p2 + normal.scalar_mul(&-margin),
+                        p1 + normal * *margin,
+                        p2 + normal * (-margin),
                         normal,
                         *margin + *margin - depth)
                     );

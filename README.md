@@ -23,20 +23,18 @@ recursive clone:
     make
 
 ## Features
-Almost nothing:
-
+- dynamic bounding volume tree based broad phase
 - ball vs. ball collision detection,
 - plane vs. any convex object collision detection.
 - collision detection between arbitrary convex objects
+- compound geometries
+- ray-casting
 
 And various traits for collision detectors and broad phase collision detection.
 
 ## What is missing
-Almost everything:
+Some common features are still missing:
 
-- efficient broad phases (nearly done)
-- composite geometries
 - heightmaps and simplex meshes (eg. triangle mesh for 3d and line strips for
   2d)
-- ray-casting
 - continuous collision detection

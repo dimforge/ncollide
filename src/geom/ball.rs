@@ -2,9 +2,9 @@
 //! Support mapping based Ball geometry.
 //!
 
-use nalgebra::traits::norm::Norm;
 use nalgebra::traits::translation::Translation;
-use nalgebra::traits::scalar_op::{ScalarSub, ScalarAdd, ScalarDiv, ScalarMul};
+use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
+use nalgebra::traits::scalar_op::{ScalarSub, ScalarAdd};
 use geom::implicit::Implicit;
 use bounding_volume::aabb::{HasAABB, AABB};
 
@@ -38,15 +38,15 @@ impl<N: Clone> Ball<N> {
     }
 }
 
-impl<N, V: Norm<N> + ScalarMul<N> + Add<V, V>, M: Translation<V>> Implicit<V, M> for Ball<N> {
+impl<N: Algebraic, V: AlgebraicVec<N>, M: Translation<V>> Implicit<V, M> for Ball<N> {
     #[inline]
     fn support_point(&self, m: &M, dir: &V) -> V {
-        m.translation() + dir.normalized().scalar_mul(&self.radius)
+        m.translation() + dir.normalized() * self.radius
     }
 }
 
 impl<N,
-     V: ScalarSub<N> + ScalarAdd<N> + ScalarDiv<N> + Ord,
+     V: AlgebraicVecExt<N> + Ord,
      M: Translation<V>>
 HasAABB<N, V, M> for Ball<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {

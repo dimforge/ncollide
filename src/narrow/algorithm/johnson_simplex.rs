@@ -3,12 +3,8 @@ use std::num::{Zero, One};
 use std::vec;
 use std::at_vec;
 use extra::treemap::TreeMap;
-use nalgebra::traits::vector_space::VectorSpace;
-use nalgebra::traits::norm::Norm;
-use nalgebra::traits::division_ring::DivisionRing;
 use nalgebra::traits::dim::Dim;
-use nalgebra::traits::sub_dot::SubDot;
-use nalgebra::traits::scalar_op::{ScalarMul, ScalarDiv};
+use nalgebra::traits::vector::AlgebraicVec;
 use narrow::algorithm::simplex::Simplex;
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
@@ -202,8 +198,8 @@ JohnsonSimplex<N, V> {
     }
 }
 
-impl<N: Ord + Clone + Eq + DivisionRing + Ord + Bounded,
-     V: Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim>
+impl<N: Ord + Clone + Num + Bounded,
+     V: Clone + AlgebraicVec<N>>
 JohnsonSimplex<N, V> {
     fn do_project_origin(&mut self, reduce: bool) -> V {
         if self.points.len() == 1 {
@@ -316,7 +312,7 @@ JohnsonSimplex<N, V> {
                             total_cof = total_cof + cof;
                             proj = proj +
                                 self.points.unsafe_get(recursion.permutation_list
-                                                                .unsafe_get(id)).scalar_mul(&cof);
+                                                                .unsafe_get(id)) * cof;
                         }
 
                         if reduce {
@@ -335,9 +331,7 @@ JohnsonSimplex<N, V> {
                         }
                     }
 
-                    proj.scalar_div_inplace(&total_cof);
-
-                    return proj
+                    return proj / total_cof;
                 }
 
                 curr = curr - curr_num_pts * curr_num_pts;
@@ -353,8 +347,7 @@ JohnsonSimplex<N, V> {
     }
 }
 
-impl<V: Clone + VectorSpace<N> + Norm<N> + SubDot<N> + Eq + Dim,
-N: Ord + Clone + Eq + DivisionRing + Ord + Bounded>
+impl<N: Ord + Clone + Num + Bounded + Algebraic, V: Clone + AlgebraicVec<N>>
 Simplex<N, V> for JohnsonSimplex<N, V> {
     #[inline]
     fn reset(&mut self, pt: V) {
