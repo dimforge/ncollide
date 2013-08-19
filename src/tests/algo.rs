@@ -27,7 +27,7 @@ use geom::minkowski_sum;
 
 macro_rules! test_johnson_simplex_impl(
   ($t: ty, $n: ty) => ( {
-        let recursion = RecursionTemplate::new::<$t>();
+        let recursion = RecursionTemplate::new(Dim::dim::<$t>());
 
         for  d in range(0, Dim::dim::<$t>() + 1) {
             for i in range(1u, 200 / (d + 1)) {
@@ -36,8 +36,11 @@ macro_rules! test_johnson_simplex_impl(
                 v1.scalar_sub_inplace(&(0.5 as $n));
                 v1 = v1 * (i as $n);
 
-                let mut splx1 = JohnsonSimplex::new(recursion, v1.clone());
-                let mut splx2 = BruteForceSimplex::new(v1.clone());
+                let mut splx1 = JohnsonSimplex::new(recursion);
+                splx1.reset(v1.clone());
+
+                let mut splx2 = BruteForceSimplex::new();
+                splx2.reset(v1.clone());
 
                 do d.times {
                     let mut v: $t = rand::random();
@@ -60,7 +63,7 @@ macro_rules! test_johnson_simplex_impl(
 
 macro_rules! test_gjk_ball_ball_impl(
   ($t: ty, $n: ty) => ( {
-        let recursion   = RecursionTemplate::new::<AnnotatedPoint<$t>>();
+        let recursion   = RecursionTemplate::new(Dim::dim::<$t>());
 
         do 200.times {
             let r1 = 10.0 as $n * rand::random();
@@ -81,7 +84,9 @@ macro_rules! test_gjk_ball_ball_impl(
 
             // FIXME: a bit verbose…
             let cso_point   = minkowski_sum::cso_support_point(&c1, &b1, &c2, &b2, rand::random());
-            let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion, cso_point);
+            let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion);
+
+            simplex.reset(cso_point);
 
             let pts_johnson = gjk::closest_points(&c1, &b1, &c2, &b2, &mut simplex);
 

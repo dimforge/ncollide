@@ -2,48 +2,49 @@ use std::util;
 use std::num::{Zero, One};
 use std::vec;
 use std::at_vec;
+use std::local_data;
+
 use extra::treemap::TreeMap;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::vector::AlgebraicVec;
 use narrow::algorithm::simplex::Simplex;
 
+static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;
+
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
-#[deriving(Eq, ToStr, Clone)] // FIXME: DeepClone
+#[deriving(Eq, ToStr, Clone)]
 pub struct JohnsonSimplex<N, V> {
-    priv recursion_template: @[RecursionTemplate<V>],
+    priv recursion_template: @[RecursionTemplate],
     priv points:             ~[V],
     priv exchange_points:    ~[V],
-    priv cofactors:          ~[N]
+    priv determinants:       ~[N]
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-///
-/// # Parameters:
-///     * V - Parameter used to synchronize the template dimension and the simplex dimension.
-#[deriving(Eq, Clone)] // FIXME: DeepClone
-pub struct RecursionTemplate<V> {
+#[deriving(Eq, Clone)]
+pub struct RecursionTemplate {
     // FIXME: why #[doc(hidden)] does not work?
     /// For internal uses. Do not read.
     permutation_list: ~[uint],
     /// For internal uses. Do not read.
     offsets:          ~[uint],
     /// For internal uses. Do not read.
-    sub_cofactors:    ~[uint],
+    sub_determinants: ~[uint],
     /// For internal uses. Do not read.
-    num_cofactors:    uint,
+    num_determinants: uint,
     /// For internal uses. Do not read.
     num_leaves:       uint // useful only for printing…
 }
 
-impl<V: Dim> RecursionTemplate<V> {
-    /// Creates a new set o Recursion simplex sharable between any Johnson simplex parametrized
-    /// with the same `V`.
-    pub fn new() -> @[RecursionTemplate<V>] {
+impl RecursionTemplate {
+    /// Creates a new set o Recursion simplex sharable between any Johnson simplex having a
+    /// dimension inferior or equal to `dim`.
+    pub fn new(dim: uint) -> @[RecursionTemplate] {
         do at_vec::build |push| {
-            for dim in range(0u, Dim::dim::<V>() + 1u) {
-                push(RecursionTemplate::make_permutation_list::<V>(dim))
+            for dim in range(0u, dim + 1u) {
+                push(RecursionTemplate::make_permutation_list(dim))
             }
         }
     }
@@ -53,13 +54,13 @@ impl<V: Dim> RecursionTemplate<V> {
     // the algorithm is executed. Instead, it should be pre-computed, or computed
     // only once for all. The resulting GC-managed list is intented to be shared
     // between all other simplicis with the same dimension.
-    fn make_permutation_list(dim: uint) -> RecursionTemplate<V> {
+    fn make_permutation_list(dim: uint) -> RecursionTemplate {
         // The number of points on the biggest subsimplex
         let max_num_points      = dim + 1;
 
         let mut pts             = ~[]; // the result
         let mut offsets         = ~[];
-        let mut sub_cofactors   = ~[];
+        let mut sub_determinants   = ~[];
 
         // the beginning of the last subsimplices list
         let mut last_dim_begin  = 0;
@@ -72,7 +73,7 @@ impl<V: Dim> RecursionTemplate<V> {
 
         let mut map             = TreeMap::new::<~[uint], uint>();
 
-        let mut cofactor_index  = 0;
+        let mut determinant_index  = 0;
 
         for i in range(0, max_num_points) {
             pts.push(i)
@@ -107,15 +108,15 @@ impl<V: Dim> RecursionTemplate<V> {
                     sublist.push(pts[curr + j]);
 
                     match map.find(&sublist) {
-                        Some(&v) => sub_cofactors.push(v),
+                        Some(&v) => sub_determinants.push(v),
                         None     => {
                             for &e in sublist.iter() {
                                 pts.push(e);
                                 num_added = num_added + 1;
                             }
-                            sub_cofactors.push(cofactor_index);
-                            map.insert(sublist, cofactor_index);
-                            cofactor_index = cofactor_index + 1;
+                            sub_determinants.push(determinant_index);
+                            map.insert(sublist, determinant_index);
+                            determinant_index = determinant_index + 1;
                         }
                     }
                 }
@@ -127,13 +128,13 @@ impl<V: Dim> RecursionTemplate<V> {
 
 
                 match map.find(&parent) {
-                    Some(&p) => sub_cofactors.push(p),
+                    Some(&p) => sub_determinants.push(p),
                     None => {
-                        sub_cofactors.push(cofactor_index);
-                        // There is no need to keep a place for the full simplex cofactor.
-                        // So we dont increase the cofactor buffer index for the first
+                        sub_determinants.push(determinant_index);
+                        // There is no need to keep a place for the full simplex determinant.
+                        // So we dont increase the determinant buffer index for the first
                         // iteration.
-                        cofactor_index = cofactor_index + if i == 0 { 0 } else { 1 };
+                        determinant_index = determinant_index + if i == 0 { 0 } else { 1 };
                     }
                 }
 
@@ -147,9 +148,9 @@ impl<V: Dim> RecursionTemplate<V> {
             last_num_points = last_num_points - 1;
         }
 
-        // cofactor indices for leaves
+        // determinant indices for leaves
         for i in range(0u, max_num_points) {
-            sub_cofactors.push(*map.find(&~[max_num_points - 1 - i]).unwrap())
+            sub_determinants.push(*map.find(&~[max_num_points - 1 - i]).unwrap())
         }
 
         // end to begin offsets
@@ -160,20 +161,20 @@ impl<V: Dim> RecursionTemplate<V> {
         let rev_offsets = offsets.map(|&e| pts.len() - e);
         let num_leaves = rev_offsets[0];
 
-        // reverse points and cofectors
+        // reverse points and detereminants
         pts.reverse();
-        sub_cofactors.reverse();
+        sub_determinants.reverse();
 
         // remove the full simplex
         let num_pts = pts.len();
         pts.truncate(num_pts - max_num_points - 1);
-        sub_cofactors.truncate(num_pts - max_num_points - 1);
+        sub_determinants.truncate(num_pts - max_num_points - 1);
 
         RecursionTemplate {
             offsets:          rev_offsets,
             permutation_list: pts,
-            num_cofactors:    sub_cofactors[0] + 1,
-            sub_cofactors:    sub_cofactors,
+            num_determinants: sub_determinants[0] + 1,
+            sub_determinants: sub_determinants,
             num_leaves:       num_leaves
         }
     }
@@ -181,20 +182,36 @@ impl<V: Dim> RecursionTemplate<V> {
 
 impl<N: Clone + Zero, V: Dim>
 JohnsonSimplex<N, V> {
-    /// Creates a new johnson simplex given a point.
-    pub fn new(recursion: @[RecursionTemplate<V>], initial_point: V) -> JohnsonSimplex<N, V> {
-        let _dim       = Dim::dim::<V>();
-        let expoints   = vec::with_capacity(_dim);
-        let mut points = vec::with_capacity(_dim);
-
-        points.push(initial_point);
+    /// Creates a new, empty, johnson simplex.
+    pub fn new(recursion: @[RecursionTemplate]) -> JohnsonSimplex<N, V> {
+        let _dim = Dim::dim::<V>();
 
         JohnsonSimplex {
-            points:               points
-            , exchange_points:    expoints
-            , cofactors:          vec::from_elem(recursion[_dim].num_cofactors, Zero::zero())
-            , recursion_template: recursion
+            points:             vec::with_capacity(_dim + 1),
+            exchange_points:    vec::with_capacity(_dim + 1),
+            determinants:       vec::from_elem(recursion[_dim].num_determinants, Zero::zero()),
+            recursion_template: recursion
         }
+    }
+
+    /// Creates a new, empty johnson simplex. The recursion template uses the thread-local one.
+    pub fn new_w_tls() -> JohnsonSimplex<N, V> {
+
+        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| **rec));
+
+        match recursion {
+            Some(r) => {
+                if r.len() > Dim::dim::<V>() {
+                    return JohnsonSimplex::new(recursion.unwrap())
+                }
+            },
+            _ => { }
+        }
+
+        let new_recursion = RecursionTemplate::new(Dim::dim::<V>());
+        local_data::set(KEY_RECURSION_TEMPLATE, new_recursion);
+        JohnsonSimplex::new(new_recursion)
+
     }
 }
 
@@ -202,6 +219,10 @@ impl<N: Ord + Clone + Num + Bounded,
      V: Clone + AlgebraicVec<N>>
 JohnsonSimplex<N, V> {
     fn do_project_origin(&mut self, reduce: bool) -> V {
+        if self.points.is_empty() {
+            fail!("Cannot project the origin on an empty simplex.")
+        }
+
         if self.points.len() == 1 {
             return self.points[0].clone();
         }
@@ -211,7 +232,7 @@ JohnsonSimplex<N, V> {
         let mut curr_num_pts = 1u;
         let mut curr         = max_num_pts;
 
-        for c in self.cofactors.mut_slice_from(recursion.num_cofactors - max_num_pts).mut_iter() {
+        for c in self.determinants.mut_slice_from(recursion.num_determinants - max_num_pts).mut_iter() {
             *c = One::one::<N>().clone();
         }
 
@@ -226,30 +247,30 @@ JohnsonSimplex<N, V> {
         // here…
 
         /*
-         * first loop: compute all the cofactors
+         * first loop: compute all the determinants
          */
         for &end in recursion.offsets.slice_from(2).iter() { // FIXME: try to transform this using a `window_iter()`
             // for each sub-simplex ...
             while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut cofactor = Zero::zero::<N>();
+                    let mut determinant = Zero::zero::<N>();
                     let kpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr + 1u)).clone();
                     let jpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr)).clone();
 
                     // ... with curr_num_pts points ...
                     for i in range(curr + 1, curr + 1 + curr_num_pts) {
-                        // ... compute its cofactor.
+                        // ... compute its determinant.
                         let i_pid = recursion.permutation_list.unsafe_get(i);
-                        let sub_cofactor = self.cofactors.unsafe_get(
-                                             recursion.sub_cofactors.unsafe_get(i)).clone();
-                        let delta = sub_cofactor * kpt.sub_dot(&jpt, &self.points.unsafe_get(i_pid));
+                        let sub_determinant = self.determinants.unsafe_get(
+                                             recursion.sub_determinants.unsafe_get(i)).clone();
+                        let delta = sub_determinant * kpt.sub_dot(&jpt, &self.points.unsafe_get(i_pid));
 
-                        cofactor = cofactor + delta;
+                        determinant = determinant + delta;
                     }
 
-                    self.cofactors.unsafe_set(recursion.sub_cofactors.unsafe_get(curr), cofactor);
+                    self.determinants.unsafe_set(recursion.sub_determinants.unsafe_get(curr), determinant);
 
-                    curr = curr + curr_num_pts + 1; // points + removed point + cofactor id
+                    curr = curr + curr_num_pts + 1; // points + removed point + determinant id
                 }
             }
 
@@ -269,28 +290,28 @@ JohnsonSimplex<N, V> {
                 // ... with curr_num_pts points permutations ...
                 for i in range(0u, curr_num_pts) {
                     unsafe {
-                        // ... see if its cofactor is positive
-                        let cof_id = curr - (i + 1) * curr_num_pts;
-                        let cof    = self.cofactors.unsafe_get(recursion.sub_cofactors.unsafe_get(cof_id));
+                        // ... see if its determinant is positive
+                        let det_id = curr - (i + 1) * curr_num_pts;
+                        let det    = self.determinants.unsafe_get(recursion.sub_determinants.unsafe_get(det_id));
 
-                        if cof > Zero::zero::<N>() {
-                            // invalidate the children cofactor
+                        if det > Zero::zero::<N>() {
+                            // invalidate the children determinant
                             if curr_num_pts > 1 {
-                                let subcofid = recursion.sub_cofactors.unsafe_get(cof_id + 1);
+                                let subdetid = recursion.sub_determinants.unsafe_get(det_id + 1);
 
-                                if self.cofactors.unsafe_get(subcofid) > Zero::zero::<N>() {
-                                    self.cofactors.unsafe_set(subcofid, Bounded::max_value::<N>())
+                                if self.determinants.unsafe_get(subdetid) > Zero::zero::<N>() {
+                                    self.determinants.unsafe_set(subdetid, Bounded::max_value::<N>())
                                 }
                             }
 
                             // dont concider this sub-simplex if it has been invalidated by its
                             // parent(s)
-                            if cof == Bounded::max_value::<N>() {
+                            if det == Bounded::max_value::<N>() {
                                 foundit = false
                             }
                         }
                         else {
-                            // we found a negative cofactor: no projection possible here
+                            // we found a negative determinant: no projection possible here
                             foundit = false
                         }
                     }
@@ -299,26 +320,24 @@ JohnsonSimplex<N, V> {
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_cof = Zero::zero::<N>();
+                    let mut total_det = Zero::zero::<N>();
                     let mut proj      = Zero::zero::<V>();
 
                     unsafe {
                         for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
-                            // ... see if its cofactor is positive
+                            // ... see if its determinant is positive
                             let id    = curr - (i + 1) * curr_num_pts;
-                            let cof   = self.cofactors
-                                            .unsafe_get(recursion.sub_cofactors.unsafe_get(id));
+                            let det   = self.determinants
+                                            .unsafe_get(recursion.sub_determinants.unsafe_get(id));
 
-                            total_cof = total_cof + cof;
+                            total_det = total_det + det;
                             proj = proj +
                                 self.points.unsafe_get(recursion.permutation_list
-                                                                .unsafe_get(id)) * cof;
+                                                                .unsafe_get(id)) * det;
                         }
 
                         if reduce {
                             // we need to reduce the simplex 
-                            // FIXME: is it possible to do that without copy?
-                            // Maybe with some kind of cross-vector-swap?
                             for i in range(0u, curr_num_pts) {
                                 let id = curr - (i + 1) * curr_num_pts;
                                 self.exchange_points.push(
@@ -331,7 +350,7 @@ JohnsonSimplex<N, V> {
                         }
                     }
 
-                    return proj / total_cof;
+                    return proj / total_det;
                 }
 
                 curr = curr - curr_num_pts * curr_num_pts;
@@ -341,7 +360,7 @@ JohnsonSimplex<N, V> {
         }
 
         // println(self.points.to_str());
-        // println(self.cofactors.to_str());
+        // println(self.determinants.to_str());
         Zero::zero()
         // fail!("Internal error: projection of the origin failed.");
     }
@@ -387,20 +406,20 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     }
 }
 
-impl<V> ToStr for RecursionTemplate<V> {
+impl ToStr for RecursionTemplate {
     fn to_str(&self) -> ~str {
         let mut res  = ~"RecursionTemplate { ";
         let mut curr = self.num_leaves;
         let mut dim  = 1;
 
-        res = res + "num_cofactors: " + self.num_cofactors.to_str();
+        res = res + "num_determinants: " + self.num_determinants.to_str();
 
         let mut recursion_offsets_skip_1 = self.offsets.iter();
         recursion_offsets_skip_1.next(); // Skip the two first entries
 
         for &off in recursion_offsets_skip_1 {
             while (curr != off) {
-                res = res + "\n(@" + self.sub_cofactors[curr].to_str() + " -> ";
+                res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
 
                 for i in range(0u, dim) {
                     res = res + self.permutation_list[i + curr].to_str();
@@ -412,7 +431,7 @@ impl<V> ToStr for RecursionTemplate<V> {
                 res = res + " - ";
 
                 for i in range(1u, dim) {
-                    res = res + self.sub_cofactors[i + curr].to_str();
+                    res = res + self.sub_determinants[i + curr].to_str();
                     if i != dim - 1 {
                         res = res + " ";
                     }
@@ -436,21 +455,42 @@ impl<V> ToStr for RecursionTemplate<V> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use nalgebra::types::Vec3f64;
     use nalgebra::vec::Vec3;
     use extra::test::BenchHarness;
 
     #[bench]
     fn bench_johnson_simplex(bh: &mut BenchHarness) {
-        let recursion = RecursionTemplate::new::<Vec3f64>();
-
         let a = Vec3::new(-0.5, -0.5, -0.5);
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);
         let d = Vec3::new(0.0, -0.5, -0.5);
+        let recursion = RecursionTemplate::new(3);
 
         do bh.iter {
-            let mut spl = JohnsonSimplex::new(recursion, a);
+            let mut spl = JohnsonSimplex::new(recursion);
+
+            do 1000.times {
+                spl.reset(a);
+
+                spl.add_point(b);
+                spl.add_point(c);
+                spl.add_point(d);
+
+                spl.project_origin_and_reduce();
+            }
+        }
+    }
+
+    #[bench]
+    fn bench_johnson_simplex_tls(bh: &mut BenchHarness) {
+        let a = Vec3::new(-0.5, -0.5, -0.5);
+        let b = Vec3::new(0.0, 0.5, 0.0);
+        let c = Vec3::new(0.5, -0.5, -0.5);
+        let d = Vec3::new(0.0, -0.5, -0.5);
+        let _ = JohnsonSimplex::new_w_tls::<float, Vec3<float>>();
+
+        do bh.iter {
+            let mut spl = JohnsonSimplex::new_w_tls();
 
             do 1000.times {
                 spl.reset(a);

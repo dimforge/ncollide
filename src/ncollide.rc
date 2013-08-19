@@ -35,11 +35,12 @@ pub mod bounding_volume
 
 pub mod ray {
     pub mod ray;
+    pub mod ray_plane;
     mod ray_ball;
-    mod ray_plane;
     mod ray_box;
     mod ray_aabb;
     mod ray_compound;
+    mod ray_implicit;
 }
 
 pub mod narrow

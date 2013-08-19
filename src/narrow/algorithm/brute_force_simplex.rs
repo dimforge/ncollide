@@ -13,8 +13,8 @@ pub struct BruteForceSimplex<N, V> {
 
 impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
 BruteForceSimplex<N, V> {
-    pub fn new(initial_point: V) -> BruteForceSimplex<N, V> {
-        BruteForceSimplex { points: ~[initial_point] }
+    pub fn new() -> BruteForceSimplex<N, V> {
+        BruteForceSimplex { points: ~[] }
     }
 
     pub fn add_point(&mut self, pt: V) {
@@ -143,6 +143,10 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     fn project_origin(&mut self) -> V {
+        if self.points.is_empty() {
+            fail!("Cannot project the origin on an empty simplex.")
+        }
+
         self.do_project_origin(false)
     }
 }
