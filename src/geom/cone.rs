@@ -46,40 +46,42 @@ impl<N: Clone> Cone<N> {
     }
 }
 
-impl<N: Clone + Signed + Algebraic,
+impl<N: Clone + Signed + Algebraic + Ord,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
 Implicit<V, M> for Cone<N> {
     fn support_point(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        if local_dir.at(0).is_negative() { // points toward the base 
-            let mut vres = local_dir.clone();
+        let mut vres = local_dir.clone();
 
-            vres.set(0, Zero::zero());
+        vres.set(0, Zero::zero());
 
-            if vres.normalize().is_zero() {
-                vres = Zero::zero()
+        if vres.normalize().is_zero() {
+            vres = Zero::zero();
+
+            if local_dir.at(0).is_negative() {
+                vres.set(0, -self.half_height)
             }
             else {
-                vres = vres * self.radius
+                vres.set(0, self.half_height.clone())
             }
-
+        }
+        else {
+            vres = vres * self.radius;
             vres.set(0, -self.half_height);
 
-            m.transform(&vres)
+            if local_dir.dot(&vres) < local_dir.at(0) * self.half_height {
+                vres = Zero::zero();
+                vres.set(0, self.half_height.clone())
+            }
         }
-        else { // points toward the pointy thing
-            let mut vres = Zero::zero::<V>();
 
-            vres.set(0, self.half_height.clone());
-
-            m.transform(&vres)
-        }
+        m.transform(&vres)
     }
 }
 
-impl<N: Signed + Algebraic + Clone,
+impl<N: Signed + Algebraic + Ord + Clone,
      V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Cone<N> {
