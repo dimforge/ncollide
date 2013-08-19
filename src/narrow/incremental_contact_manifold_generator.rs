@@ -34,6 +34,7 @@ impl<N: Num + NumCast, V: Vec<N>> ContactWLocals<N, V> {
 pub struct IncrementalContactManifoldGenerator<CD, N, V> {
     priv contacts:     ~[ContactWLocals<N, V>],
     priv collector:    ~[Contact<N, V>],
+    priv prediction:   N,
     priv sub_detector: CD
 }
 
@@ -42,10 +43,11 @@ impl<CD, N, V> IncrementalContactManifoldGenerator<CD, N, V> {
     ///
     /// # Arguments:
     ///   * `cd` - collision detection sub-algorithm used to generate the contact points.
-    pub fn new(cd: CD) -> IncrementalContactManifoldGenerator<CD, N, V> {
+    pub fn new(prediction: N, cd: CD) -> IncrementalContactManifoldGenerator<CD, N, V> {
         IncrementalContactManifoldGenerator {
             contacts:     ~[],
             collector:    ~[],
+            prediction:   prediction,
             sub_detector: cd
         }
     }
@@ -111,7 +113,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let dw    = world1 - world2;
                 let depth = dw.dot(&c.contact.normal);
 
-                if depth >= NumCast::from(-0.1f64) &&
+                if depth >= -self.prediction &&
                    (dw - c.contact.normal * depth).sqnorm() <= NumCast::from(0.01f64) {
                         c.contact.depth = depth;
 

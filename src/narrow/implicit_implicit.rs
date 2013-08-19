@@ -15,19 +15,21 @@ use contact::Contact;
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
-    priv simplex: S,
-    priv margin:  N,
-    priv contact: Option<Contact<N, V>>
+    priv simplex:    S,
+    priv margin:     N,
+    priv prediction: N,
+    priv contact:    Option<Contact<N, V>>
 }
 
 impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
     /// Creates a new persistant collision detector between two geometries with support mapping
     /// functions. It is initialized with a pre-created simplex.
-    pub fn new(margin: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
+    pub fn new(margin: N, prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
         ImplicitImplicit {
-            simplex: simplex,
-            margin:  margin,
-            contact: None
+            simplex:    simplex,
+            margin:     margin,
+            prediction: prediction,
+            contact:    None
         }
     }
 
@@ -42,7 +44,14 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
-        self.contact = collide_implicit_implicit(ma, a, mb, b, &self.margin, &mut self.simplex)
+        self.contact = collide_implicit_implicit(
+            ma,
+            a,
+            mb,
+            b,
+            &self.margin,
+            &self.prediction,
+            &mut self.simplex)
     }
 
     #[inline]
@@ -81,11 +90,12 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
                                  N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
                                  V:  AlgebraicVecExt<N> + Clone,
                                  M:  Translation<V> + Translatable<V, M> + One>(
-                                 m1:      &M,
-                                 g1:      &G1,
-                                 m2:      &M,
-                                 g2:      &G2,
-                                 margin:  &N,
+                                 m1:         &M,
+                                 g1:         &G1,
+                                 m2:         &M,
+                                 g2:         &G2,
+                                 margin:     &N,
+                                 prediction: &N,
                                  simplex: &mut S)
                                  -> Option<Contact<N, V>> {
     let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
@@ -102,8 +112,8 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
             let p1p2 = p2 - p1;
             let sqn  = p1p2.sqnorm();
 
-            if sqn >= (*margin * NumCast::from(2.0) + NumCast::from(0.1)) *
-                      (*margin * NumCast::from(2.0) + NumCast::from(0.1)) {
+            if sqn >= (*margin * NumCast::from(2.0) + *prediction) *
+                      (*margin * NumCast::from(2.0) + *prediction) {
                 return None
             }
             else if !sqn.is_zero() {

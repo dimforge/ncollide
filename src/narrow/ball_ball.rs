@@ -13,14 +13,18 @@ use contact::Contact;
  *   * `V` - type of a ball center.
  */
 pub struct BallBall<N, V, M> {
-    priv contact: Option<Contact<N, V>>
+    priv prediction: N,
+    priv contact:    Option<Contact<N, V>>
 }
 
 impl<N, V, M> BallBall<N, V, M> {
     /// Creates a new persistant collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBall<N, V, M> {
-        BallBall { contact: None }
+    pub fn new(prediction: N) -> BallBall<N, V, M> {
+        BallBall {
+            prediction: prediction,
+            contact:    None
+        }
     }
 }
 
@@ -30,7 +34,12 @@ impl<N: Real + NumCast + Clone,
      CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
 BallBall<N, V, M> {
     fn update(&mut self, ma: &M, a: &Ball<N>, mb: &M, b: &Ball<N>) {
-        self.contact = collide_ball_ball(&ma.translation(), a, &mb.translation(), b);
+        self.contact = collide_ball_ball(
+            &ma.translation(),
+            a,
+            &mb.translation(),
+            b,
+            &self.prediction);
     }
 
     #[inline]
@@ -52,13 +61,13 @@ BallBall<N, V, M> {
 
 /// Computes the contact point between two balls. The balls must penetrate to have contact points.
 pub fn collide_ball_ball<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
-(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> Option<Contact<N, V>> {
+(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>, prediction: &N) -> Option<Contact<N, V>> {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
     let sqdist     = delta_pos.sqnorm();
     let sum_radius = r1 + r2;
-    let sum_radius_with_error = sum_radius + NumCast::from(0.1);
+    let sum_radius_with_error = sum_radius + *prediction;
 
     if sqdist < sum_radius_with_error * sum_radius_with_error {
         let mut normal = delta_pos.normalized();
