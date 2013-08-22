@@ -11,7 +11,7 @@ use geom::compound::CompoundAABB;
 
 /// Collision detector between a `CompoundAABB` and any other shape. This other shape can itself be
 /// a `CompoundAABB` but this is discouraged: use the `CompoundCompound` collision detector istead.
-pub struct CompoundAABBAny<N, V, M, S, D, SD> {
+pub struct CompoundAABBAny<N, V, M, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: ~[Option<SD>],
     priv interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>],
@@ -21,18 +21,18 @@ pub struct CompoundAABBAny<N, V, M, S, D, SD> {
 /// Collision detector between any shape and a `CompoundAABB`. This is the same as
 /// `CompoundAABBAny` but with the shapes swaped (the compound comes second on the argument of
 /// `update`.
-pub struct AnyCompoundAABB<N, V, M, S, D, SD> {
-    priv sub_detector: CompoundAABBAny<N, V, M, S, D, SD>
+pub struct AnyCompoundAABB<N, V, M, G, D, SD> {
+    priv sub_detector: CompoundAABBAny<N, V, M, G, D, SD>
 }
 
-impl<N, V, M, S, D, SD> CompoundAABBAny<N, V, M, S, D, SD> {
+impl<N, V, M, G, D, SD> CompoundAABBAny<N, V, M, G, D, SD> {
     /// Creates a new CompoundAABBAny collision detector.
     ///
     /// # Arguments:
     ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
     ///     compound geometry shapes and the other shape.
     ///     * `g` - the compound geometry to be handled by the detector.
-    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, S>) -> CompoundAABBAny<N, V, M, S, D, SD> {
+    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> CompoundAABBAny<N, V, M, G, D, SD> {
         let nshapes           = g.shapes().len();
         let mut sub_detectors = vec::with_capacity(nshapes);
 
@@ -50,14 +50,14 @@ impl<N, V, M, S, D, SD> CompoundAABBAny<N, V, M, S, D, SD> {
     }
 }
 
-impl<N, V, M, S, D, SD> AnyCompoundAABB<N, V, M, S, D, SD> {
+impl<N, V, M, G, D, SD> AnyCompoundAABB<N, V, M, G, D, SD> {
     /// Creates a new AnyCompoundAABB collision detector.
     ///
     /// # Arguments:
     ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
     ///     compound geometry shapes and the other shape.
     ///     * `g` - the compound geometry to be handled by the detector.
-    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, S>) -> AnyCompoundAABB<N, V, M, S, D, SD> {
+    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> AnyCompoundAABB<N, V, M, G, D, SD> {
         AnyCompoundAABB {
             sub_detector: CompoundAABBAny::new(dispatcher, g)
         }
@@ -67,11 +67,11 @@ impl<N, V, M, S, D, SD> AnyCompoundAABB<N, V, M, S, D, SD> {
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
      M:  Inv + Mul<M, M>,
-     S:  HasAABB<N, V, M>,
-     D:  Dispatcher<S, SD>,
-     SD: CollisionDetector<N, V, M, S, S>>
-CompoundAABBAny<N, V, M, S, D, SD> {
-    fn do_update(&mut self, m1: &M, g1: &CompoundAABB<N, V, M, S>, m2: &M, g2: &S, swap: bool) {
+     G:  HasAABB<N, V, M>,
+     D:  Dispatcher<G, SD>,
+     SD: CollisionDetector<N, V, M, G, G>>
+CompoundAABBAny<N, V, M, G, D, SD> {
+    fn do_update(&mut self, m1: &M, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G, swap: bool) {
         for u in self.updated.mut_iter() {
             *u = false
         }
@@ -135,13 +135,13 @@ CompoundAABBAny<N, V, M, S, D, SD> {
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
      M:  Inv + Mul<M, M>,
-     S:  HasAABB<N, V, M>,
-     D:  Dispatcher<S, SD>,
-     SD: CollisionDetector<N, V, M, S, S>>
-CollisionDetector<N, V, M, CompoundAABB<N, V, M, S>, S>
-for CompoundAABBAny<N, V, M, S, D, SD> {
+     G:  HasAABB<N, V, M>,
+     D:  Dispatcher<G, SD>,
+     SD: CollisionDetector<N, V, M, G, G>>
+CollisionDetector<N, V, M, CompoundAABB<N, V, M, G>, G>
+for CompoundAABBAny<N, V, M, G, D, SD> {
     #[inline]
-    fn update(&mut self, m1: &M, g1: &CompoundAABB<N, V, M, S>, m2: &M, g2: &S) {
+    fn update(&mut self, m1: &M, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G) {
         self.do_update(m1, g1, m2, g2, false)
     }
 
@@ -170,21 +170,45 @@ for CompoundAABBAny<N, V, M, S, D, SD> {
     }
 
     #[inline]
-    fn toi(_: &M, _: &V, _: &CompoundAABB<N, V, M, S>, _: &M, _: &S) -> Option<N> {
-        fail!("TOI for compound_any is not yet implemented.")
+    fn toi(m1: &M, dir: &V, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G) -> Option<N> {
+        let ls_m2    = m1.inverse().expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_aabb2 = g2.aabb(&ls_m2);
+
+        // FIXME: too bad we have to allocate here…
+        let mut interferences = ~[];
+        g1.dbvt().interferences_with_bounding_volume(&ls_aabb2, &mut interferences);
+
+        let mut min_toi = Bounded::max_value::<N>();
+
+        for i in interferences.iter() {
+            let m1 = m1 * *g1.shapes()[i.object].first_ref();
+            let g1 = g1.shapes()[i.object].second_ref();
+
+            match CollisionDetector::toi::<N, V, M, G, G, SD>(&m1, dir, g1, m2, g2) {
+                Some(toi) => min_toi = min_toi.min(&toi),
+                None => { }
+            }
+        }
+
+        if min_toi != Bounded::max_value() {
+            Some(min_toi)
+        }
+        else {
+            None
+        }
     }
 }
 
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + AlgebraicVecExt<N> + Clone + ToStr,
      M:  Inv + Mul<M, M>,
-     S:  HasAABB<N, V, M>,
-     D:  Dispatcher<S, SD>,
-     SD: CollisionDetector<N, V, M, S, S>>
-CollisionDetector<N, V, M, S, CompoundAABB<N, V, M, S>>
-for AnyCompoundAABB<N, V, M, S, D, SD> {
+     G:  HasAABB<N, V, M>,
+     D:  Dispatcher<G, SD>,
+     SD: CollisionDetector<N, V, M, G, G>>
+CollisionDetector<N, V, M, G, CompoundAABB<N, V, M, G>>
+for AnyCompoundAABB<N, V, M, G, D, SD> {
     #[inline]
-    fn update(&mut self, m1: &M, g1: &S, m2: &M, g2: &CompoundAABB<N, V, M, S>) {
+    fn update(&mut self, m1: &M, g1: &G, m2: &M, g2: &CompoundAABB<N, V, M, G>) {
         self.sub_detector.do_update(m2, g2, m1, g1, true)
     }
 
@@ -199,7 +223,9 @@ for AnyCompoundAABB<N, V, M, S, D, SD> {
     }
 
     #[inline]
-    fn toi(_: &M, _: &V, _: &S, _: &M, _: &CompoundAABB<N, V, M, S>) -> Option<N> {
-        fail!("TOI for any_compound is not yet implemented.")
+    fn toi(m1: &M, dir: &V, g1: &G, m2: &M, g2: &CompoundAABB<N, V, M, G>) -> Option<N> {
+        CollisionDetector::toi::<N, V, M, CompoundAABB<N, V, M, G>, G, CompoundAABBAny<N, V, M, G, D, SD>>(
+            m2, &-dir, g2, m1, g1
+        )
     }
 }
