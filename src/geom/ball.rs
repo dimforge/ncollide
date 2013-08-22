@@ -49,6 +49,7 @@ impl<N,
      V: AlgebraicVecExt<N> + Ord,
      M: Translation<V>>
 HasAABB<N, V, M> for Ball<N> {
+    #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
         AABB::new(m.translation().scalar_sub(&self.radius),
                   m.translation().scalar_add(&self.radius))

@@ -49,6 +49,14 @@ impl RecursionTemplate {
         }
     }
 
+    // pub fn to_raw_str(&self) -> ~str {
+    //     let res = "permutation_list: " + self.permutation_list.to_str() + ", " +
+    //               "offset: "           + self.offsets.to_str() + ", " +
+    //               "sub_determinants: " + self.sub_determinants.to_str();
+
+    //     res
+    // }
+
     // This is the tricky part of the algorithm. This generates all datas needed
     // to run the johson subalgorithm fastly. This should _not_ be run every time
     // the algorithm is executed. Instead, it should be pre-computed, or computed

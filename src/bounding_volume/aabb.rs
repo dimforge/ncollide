@@ -88,7 +88,7 @@ BoundingVolume<V> for AABB<N, V> {
     }
 }
 
-impl<V: Vec<N>, N: NumCast> Translation<V> for AABB<N, V>
+impl<V: VecExt<N>, N: NumCast> Translation<V> for AABB<N, V>
 {
     fn translation(&self) -> V {
         (self.mins + self.maxs) / NumCast::from(2.0f64)
@@ -101,6 +101,10 @@ impl<V: Vec<N>, N: NumCast> Translation<V> for AABB<N, V>
     fn translate_by(&mut self, dv: &V) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
+    }
+
+    fn translated(&self, dv: &V) -> AABB<N, V> {
+        AABB::new(self.mins + *dv, self.maxs + *dv)
     }
 }
 

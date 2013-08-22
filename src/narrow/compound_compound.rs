@@ -115,4 +115,13 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
         }
     }
 
+    #[inline]
+    fn toi(_: &M,
+           _: &V,
+           _: &CompoundAABB<N, V, M, S>,
+           _: &M,
+           _: &CompoundAABB<N, V, M, S>)
+           -> Option<N> {
+        fail!("TOI for compound_compound is not yet implemented.")
+    }
 }

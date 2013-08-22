@@ -6,6 +6,7 @@ use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;
 use contact::Contact;
+use ray::ray::{Ray, RayCast};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 /// This detector generates only one contact point. For a full manifold generation, see
@@ -30,13 +31,13 @@ impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
 }
 
 impl<N: Num + NumCast + Ord + Clone,
-     V: Vec<N> + Clone,
+     V: Vec<N> + Clone + ToStr,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
 CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
     #[inline]
     fn update(&mut self, ma: &M, plane: &Plane<N, V>, mb: &M, b: &G) {
-        self.contact = collide_plane_implicit_shape(
+        self.contact = collide(
             ma,
             plane,
             mb,
@@ -59,6 +60,11 @@ CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
         }
+    }
+
+    #[inline]
+    fn toi(ma: &M, dir: &V, plane: &Plane<N, V>, mb: &M, b: &G) -> Option<N> {
+        toi(ma, plane, mb, &-dir, b)
     }
 }
 
@@ -85,13 +91,13 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
 }
 
 impl<N: Num + NumCast + Ord + Clone,
-     V: Vec<N> + Clone,
+     V: Vec<N> + Clone + ToStr,
      M: Rotate<V> + Translation<V>,
      G: Implicit<V, M>>
 CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<N, V>) {
-        self.contact = collide_plane_implicit_shape(mb, plane, ma, a, &self.margin, &self.prediction);
+        self.contact = collide(mb, plane, ma, a, &self.margin, &self.prediction);
         self.contact.mutate(|mut c| { c.flip(); c });
     }
 
@@ -110,6 +116,11 @@ CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
             None        => ()
         }
     }
+
+    #[inline]
+    fn toi(ma: &M, dir: &V, a: &G, mb: &M, plane: &Plane<N, V>) -> Option<N> {
+        toi(mb, plane, ma, dir, a)
+    }
 }
 
 /**
@@ -120,17 +131,17 @@ CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
  *   * `plane` - the plane to test.
  *   * `other` - the object to test against the plane.
  */
-pub fn collide_plane_implicit_shape<V: Vec<N> + Clone,
-                                    N: Num + NumCast + Ord + Clone,
-                                    M: Rotate<V> + Translation<V>,
-                                    G: Implicit<V, M>>(
-                                    mplane:     &M,
-                                    plane:      &Plane<N, V>,
-                                    mother:     &M,
-                                    other:      &G,
-                                    margin:     &N,
-                                    prediction: &N)
-                                    -> Option<Contact<N, V>> {
+pub fn collide<V: Vec<N> + Clone,
+               N: Num + NumCast + Ord + Clone,
+               M: Rotate<V> + Translation<V>,
+               G: Implicit<V, M>>(
+               mplane:     &M,
+               plane:      &Plane<N, V>,
+               mother:     &M,
+               other:      &G,
+               margin:     &N,
+               prediction: &N)
+               -> Option<Contact<N, V>> {
     let plane_normal = mplane.rotate(&plane.normal());
     let plane_center = mplane.translation();
     let deepest;
@@ -152,4 +163,28 @@ pub fn collide_plane_implicit_shape<V: Vec<N> + Clone,
     else {
         None
     }
+}
+
+/// Computes the Time Of Impact of a geometry and a plane.
+///
+/// Arguments:
+///     * `mplane` - the plane transform.
+///     * `plane`  - the plane.
+///     * `mother` - the geometry transform.
+///     * `dir`    - the direction of the other geometry movement.
+///     * `other`  - the other geometry.
+pub fn toi<N: Ord + Num,
+           V: Vec<N> + Clone + ToStr,
+           M: Translation<V> + Rotate<V>,
+           G: Implicit<V, M>>(
+           mplane: &M,
+           plane:  &Plane<N, V>,
+           mother: &M,
+           dir:    &V,
+           other:  &G)
+           -> Option<N> {
+    let plane_normal  = mplane.rotate(&plane.normal());
+    let closest_point = other.support_point(mother, &-plane_normal);
+
+    plane.toi_with_ray(mplane, &Ray::new(closest_point, dir.clone()))
 }

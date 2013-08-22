@@ -1,14 +1,18 @@
 use std::num::{Zero, One};
-use nalgebra::traits::translation::{Translation, Translatable};
+use nalgebra::traits::translation::Translation;
+use nalgebra::traits::transformation::Transform;
+use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::vector::AlgebraicVecExt;
 use geom::implicit::Implicit;
+use geom::reflection::Reflection;
 use geom::minkowski_sum;
-use geom::minkowski_sum::AnnotatedPoint;
+use geom::minkowski_sum::{AnnotatedPoint, NonTransformableMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::minkowski_sampling;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
+use ray::ray::{Ray, RayCast};
 
 /// Persistant collision detector between two shapes having a support mapping function (i.e. which
 /// implement the `Implicit` trait. It is based on the GJK algorithm.
@@ -39,12 +43,12 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G1: Implicit<V, M>,
      G2: Implicit<V, M>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
-     V:  AlgebraicVecExt<N> + Clone,
-     M:  Translation<V> + Translatable<V, M> + One>
+     V:  AlgebraicVecExt<N> + Clone + ToStr,
+     M:  Translation<V> + Transform<V> + Rotate<V> + One>
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
-        self.contact = collide_implicit_implicit(
+        self.contact = collide(
             ma,
             a,
             mb,
@@ -69,6 +73,11 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
             None        => ()
         }
     }
+
+    #[inline]
+    fn toi(ma: &M, dir: &V, a: &G1, mb: &M, b: &G2) -> Option<N> {
+        toi(ma, dir, a, mb, b)
+    }
 }
 
 /// Computes a contact point between two implicit geometries. For optimizations purposes the
@@ -84,20 +93,20 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 ///   0.08]` give good results.
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
-pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
-                                 G1: Implicit<V, M>,
-                                 G2: Implicit<V, M>,
-                                 N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
-                                 V:  AlgebraicVecExt<N> + Clone,
-                                 M:  Translation<V> + Translatable<V, M> + One>(
-                                 m1:         &M,
-                                 g1:         &G1,
-                                 m2:         &M,
-                                 g2:         &G2,
-                                 margin:     &N,
-                                 prediction: &N,
-                                 simplex: &mut S)
-                                 -> Option<Contact<N, V>> {
+pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
+               G1: Implicit<V, M>,
+               G2: Implicit<V, M>,
+               N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
+               V:  AlgebraicVecExt<N> + Clone,
+               M:  Translation<V> + One>(
+               m1:         &M,
+               g1:         &G1,
+               m2:         &M,
+               g2:         &G2,
+               margin:     &N,
+               prediction: &N,
+               simplex: &mut S)
+               -> Option<Contact<N, V>> {
     let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
 
     if dir.is_zero() {
@@ -153,4 +162,30 @@ pub fn collide_implicit_implicit<S:  Simplex<N, AnnotatedPoint<V>>,
             None // fail!("Both GJK and fallback algorithm failed.")
         }
     }
+}
+
+/// Computes the Time Of Impact of two geometries.
+///
+/// Arguments:
+///     * `m1`  - the first geometry transform.
+///     * `dir` - the direction of the first geometry movement.
+///     * `g1`  - the first geometry.
+///     * `m2`  - the second geometry transform.
+///     * `g2`  - the second geometry.
+pub fn toi<N:  Ord + Num + Float + NumCast + Clone + ToStr,
+           V:  AlgebraicVecExt<N> + Clone + ToStr,
+           M:  Translation<V> + Transform<V> + Rotate<V>,
+           G1: Implicit<V, M>,
+           G2: Implicit<V, M>>(
+           m1:  &M,
+           dir: &V,
+           g1:  &G1,
+           m2:  &M,
+           g2:  &G2)
+           -> Option<N> {
+    let rg2 = Reflection::new(g2);
+    let cso = NonTransformableMinkowskiSum::new(m1, g1, m2, &rg2);
+
+    // m1 will be ignored
+    cso.toi_with_ray(m1, &Ray::new(Zero::zero(), -dir))
 }

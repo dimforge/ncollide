@@ -212,14 +212,6 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
         }
     }
 
-    /// Insert and element and return its position on the table.
-    /// The returned position is valid as long as no element are removed from the table.
-    pub fn insert_and_get_id<'a>(&'a mut self, key: K, value: V) -> uint {
-        let (_, res) = self.do_insert_or_replace(key, value, true);
-
-        res
-    }
-
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
     /// called iff. the value does not exist yet.
     pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: &fn() -> V) -> &'a mut V {

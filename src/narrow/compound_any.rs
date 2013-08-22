@@ -168,6 +168,11 @@ for CompoundAABBAny<N, V, M, S, D, SD> {
             }
         }
     }
+
+    #[inline]
+    fn toi(_: &M, _: &V, _: &CompoundAABB<N, V, M, S>, _: &M, _: &S) -> Option<N> {
+        fail!("TOI for compound_any is not yet implemented.")
+    }
 }
 
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
@@ -191,5 +196,10 @@ for AnyCompoundAABB<N, V, M, S, D, SD> {
     #[inline]
     fn colls(&self, out: &mut ~[Contact<N, V>]) {
         self.sub_detector.colls(out);
+    }
+
+    #[inline]
+    fn toi(_: &M, _: &V, _: &S, _: &M, _: &CompoundAABB<N, V, M, S>) -> Option<N> {
+        fail!("TOI for any_compound is not yet implemented.")
     }
 }

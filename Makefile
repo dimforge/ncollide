@@ -33,3 +33,4 @@ doc:
 
 .PHONY:doc
 .PHONY:test
+.PHONY:bench

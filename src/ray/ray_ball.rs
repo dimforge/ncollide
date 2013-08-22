@@ -6,7 +6,8 @@ use geom::ball::Ball;
 
 impl<N: Num + Algebraic + Ord + Clone,
      V: AlgebraicVec<N> + Clone,
-     M: Translation<V>> RayCast<N, V, M> for Ball<N> {
+     M: Translation<V>>
+RayCast<N, V, M> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
         let center  = m.translation();

@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
 use nalgebra::traits::sample::UniformSphereSample;
-use nalgebra::traits::translation::{Translation, Translatable};
+use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::AlgebraicVecExt;
 use geom::minkowski_sum;
 use geom::minkowski_sum::{NonTransformableMinkowskiSum, AnnotatedPoint};
@@ -17,7 +17,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G2: Implicit<V, M>,
                       N:  Clone + Ord + Num + Float + ToStr,
                       V:  AlgebraicVecExt<N> + Clone,
-                      M:  One + Translation<V> + Translatable<V, M>>(
+                      M:  One + Translation<V>>(
                       m1:      &M,
                       g1:      &G1,
                       m2:      &M,

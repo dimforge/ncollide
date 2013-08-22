@@ -161,6 +161,12 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
             out_colls.push(c.contact.clone())
         }
     }
+
+    #[inline]
+    fn toi(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<N> {
+        CollisionDetector::toi::<N, V, M, G1, G2, CD>(m1, dir, g1, m2, g2)
+    }
+
 }
 
 fn add_reduce_by_variance<N: Num + NumCast + Algebraic + Ord,

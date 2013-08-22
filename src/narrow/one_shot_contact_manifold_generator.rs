@@ -5,7 +5,7 @@ use nalgebra::traits::rotation;
 use nalgebra::traits::vector::{AlgebraicVecExt, Vec};
 use nalgebra::traits::rotation::Rotation;
 use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::translation::{Translation, Translatable};
+use nalgebra::traits::translation::Translation;
 use narrow::collision_detector::CollisionDetector;
 use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 use contact::Contact;
@@ -32,7 +32,7 @@ impl<CD: CollisionDetector<N, LV, M, G1, G2>,
      N:  Clone + Num + Ord + NumCast + Algebraic,
      LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + ToStr,
      AV: Vec<N> + ToStr,
-     M:  Rotation<AV> + Transform<LV> + Translation<LV> + Translatable<LV, M> + One>
+     M:  Rotation<AV> + Transform<LV> + Translation<LV> + One>
 CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
         if self.sub_detector.num_coll() == 0 {
@@ -76,5 +76,10 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
     #[inline]
     fn colls(&self, out_colls: &mut ~[Contact<N, LV>]) {
         self.sub_detector.colls(out_colls)
+    }
+
+    #[inline]
+    fn toi(m1: &M, dir: &LV, g1: &G1, m2: &M, g2: &G2) -> Option<N> {
+        CollisionDetector::toi::<N, LV, M, G1, G2, CD>(m1, dir, g1, m2, g2)
     }
 }
