@@ -15,21 +15,33 @@ use geom::implicit::Implicit;
 #[deriving(Eq, ToStr, Clone)]
 pub struct Cone<N> {
     priv half_height: N,
-    priv radius: N
+    priv radius: N,
+    priv margin: N
 }
 
-impl<N: Signed> Cone<N> {
+impl<N: Signed + NumCast> Cone<N> {
     /// Creates a new cone.
     ///
     /// # Arguments:
     ///     * `half_height` - the half length of the cone along the `x` axis.
     ///     * `radius` - the length of the cone along all other axis.
     pub fn new(half_height: N, radius: N) -> Cone<N> {
+        Cone::new_with_margin(half_height, radius, NumCast::from(0.04))
+    }
+
+    /// Creates a new cone with a custom marin.
+    ///
+    /// # Arguments:
+    ///     * `half_height` - the half length of the cone along the `x` axis.
+    ///     * `radius` - the length of the cone along all other axis.
+    ///     * `margin` - the  cone margin.
+    pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cone<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Cone {
             half_height: half_height,
-            radius: radius
+            radius:      radius,
+            margin:      margin
         }
     }
 }
@@ -49,8 +61,14 @@ impl<N: Clone> Cone<N> {
 impl<N: Clone + Signed + Algebraic + Ord,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
-Implicit<V, M> for Cone<N> {
-    fn support_point(&self, m: &M, dir: &V) -> V {
+Implicit<N, V, M> for Cone<N> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.margin.clone()
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();

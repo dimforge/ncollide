@@ -1,7 +1,7 @@
 use std::num::Bounded;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::vector::Vec;
+use nalgebra::traits::vector::AlgebraicVec;
 use geom::implicit::Implicit;
 
 /**
@@ -11,26 +11,44 @@ use geom::implicit::Implicit;
  *   - `N`: type of the result of a dot product between two points.
  */
 pub struct ConvexPolytope<N, V> {
-    priv pts: @[V]
+    priv pts:    ~[V],
+    priv margin: N
 }
 
-impl<N, V> ConvexPolytope<N, V> {
+impl<N: NumCast, V> ConvexPolytope<N, V> {
     /**
      * Creates a polytope from a set of point. Those points are assumed to form
      * a convex polytope: convexity is not checked.
      */
     #[inline]
-    pub fn new(pts: @[V]) -> ConvexPolytope<N, V> {
-        ConvexPolytope { pts: pts }
+    pub fn new(pts: ~[V]) -> ConvexPolytope<N, V> {
+        ConvexPolytope::new_with_margin(pts, NumCast::from(0.04))
+    }
+
+    /**
+     * Creates a polytope from a set of point and a custom margin. Those points are assumed to form
+     * a convex polytope: convexity is not checked.
+     */
+    #[inline]
+    pub fn new_with_margin(pts: ~[V], margin: N) -> ConvexPolytope<N, V> {
+        ConvexPolytope {
+            pts:    pts,
+            margin: margin
+        }
     }
 }
 
-impl<N: Ord + Bounded + ToStr + Neg<N>,
-     V: Vec<N> + Clone,
+impl<N: Algebraic + Ord + Bounded + ToStr + Neg<N> + Clone,
+     V: AlgebraicVec<N> + Clone,
      M: Transform<V> + Rotate<V>>
-Implicit<V, M> for ConvexPolytope<N, V> {
+Implicit<N, V, M> for ConvexPolytope<N, V> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> V {
+    fn margin(&self) -> N {
+        self.margin.clone()
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut best_dot = -Bounded::max_value::<N>();

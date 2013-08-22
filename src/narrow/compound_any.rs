@@ -1,6 +1,7 @@
 use std::vec;
 use nalgebra::traits::inv::Inv;
 use nalgebra::traits::vector::AlgebraicVecExt;
+use nalgebra::traits::translation::Translation;
 use bounding_volume::bounding_volume::BoundingVolume;
 use bounding_volume::aabb::{AABB, HasAABB};
 use broad::dispatcher::Dispatcher;
@@ -134,7 +135,7 @@ CompoundAABBAny<N, V, M, G, D, SD> {
 
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
-     M:  Inv + Mul<M, M>,
+     M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
      D:  Dispatcher<G, SD>,
      SD: CollisionDetector<N, V, M, G, G>>
@@ -170,38 +171,16 @@ for CompoundAABBAny<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &V, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G) -> Option<N> {
-        let ls_m2    = m1.inverse().expect("The transformation `m1` must be inversible.") * *m2;
-        let ls_aabb2 = g2.aabb(&ls_m2);
-
-        // FIXME: too bad we have to allocate here…
-        let mut interferences = ~[];
-        g1.dbvt().interferences_with_bounding_volume(&ls_aabb2, &mut interferences);
-
-        let mut min_toi = Bounded::max_value::<N>();
-
-        for i in interferences.iter() {
-            let m1 = m1 * *g1.shapes()[i.object].first_ref();
-            let g1 = g1.shapes()[i.object].second_ref();
-
-            match CollisionDetector::toi::<N, V, M, G, G, SD>(&m1, dir, g1, m2, g2) {
-                Some(toi) => min_toi = min_toi.min(&toi),
-                None => { }
-            }
-        }
-
-        if min_toi != Bounded::max_value() {
-            Some(min_toi)
-        }
-        else {
-            None
-        }
+    fn toi(m1: &M, dir: &V, dist: &N, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G) -> Option<N> {
+        CollisionDetector::toi::<N, V, M, G, CompoundAABB<N, V, M, G>, AnyCompoundAABB<N, V, M, G, D, SD>>(
+            m2, &-dir, dist, g2, m1, g1
+        )
     }
 }
 
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + AlgebraicVecExt<N> + Clone + ToStr,
-     M:  Inv + Mul<M, M>,
+     M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
      D:  Dispatcher<G, SD>,
      SD: CollisionDetector<N, V, M, G, G>>
@@ -223,9 +202,36 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &V, g1: &G, m2: &M, g2: &CompoundAABB<N, V, M, G>) -> Option<N> {
-        CollisionDetector::toi::<N, V, M, CompoundAABB<N, V, M, G>, G, CompoundAABBAny<N, V, M, G, D, SD>>(
-            m2, &-dir, g2, m1, g1
-        )
+    fn toi(m1: &M, dir: &V, dist: &N, g1: &G, m2: &M, g2: &CompoundAABB<N, V, M, G>) -> Option<N> {
+        let inv_m2        = m2.inverse().expect("The transformation `m2` must be inversible.");
+        let ls_m1_begin   = inv_m2 * *m1;
+        let m1_end        = m1.translated(&(dir * *dist));
+        let ls_m1_end     = inv_m2 * m1_end;
+        let ls_aabb_begin = g1.aabb(&ls_m1_begin);
+        let ls_aabb_end   = g1.aabb(&ls_m1_end);
+        let ls_swept_aabb = ls_aabb_begin.merged(&ls_aabb_end);
+
+        // FIXME: too bad we have to allocate here…
+        let mut interferences = ~[];
+        g2.dbvt().interferences_with_bounding_volume(&ls_swept_aabb, &mut interferences);
+
+        let mut min_toi = Bounded::max_value::<N>();
+
+        for i in interferences.iter() {
+            let child_m2 = m2 * *g2.shapes()[i.object].first_ref();
+            let g2       = g2.shapes()[i.object].second_ref();
+
+            match CollisionDetector::toi::<N, V, M, G, G, SD>(m1, dir, dist, g1, &child_m2, g2) {
+                Some(toi) => min_toi = min_toi.min(&toi),
+                None => { }
+            }
+        }
+
+        if min_toi != Bounded::max_value() {
+            Some(min_toi)
+        }
+        else {
+            None
+        }
     }
 }

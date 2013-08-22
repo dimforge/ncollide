@@ -15,21 +15,32 @@ use geom::implicit::Implicit;
 #[deriving(Eq, ToStr, Clone)]
 pub struct Cylinder<N> {
     priv half_height: N,
-    priv radius:      N
+    priv radius:      N,
+    priv margin:      N
 }
 
-impl<N: Signed> Cylinder<N> {
+impl<N: Signed + NumCast> Cylinder<N> {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
     ///     * `half_height` - the half length of the cylinder along the `x` axis.
     ///     * `radius` - the length of the cylinder along all other axis.
     pub fn new(half_height: N, radius: N) -> Cylinder<N> {
+        Cylinder::new_with_margin(half_height, radius, NumCast::from(0.04))
+    }
+
+    /// Creates a new cylinder.
+    ///
+    /// # Arguments:
+    ///     * `half_height` - the half length of the cylinder along the `x` axis.
+    ///     * `radius` - the length of the cylinder along all other axis.
+    pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cylinder<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Cylinder {
             half_height: half_height,
-            radius:      radius
+            radius:      radius,
+            margin:      margin
         }
     }
 }
@@ -49,8 +60,12 @@ impl<N: Clone> Cylinder<N> {
 impl<N: Clone + Algebraic + Signed,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
-Implicit<V, M> for Cylinder<N> {
-    fn support_point(&self, m: &M, dir: &V) -> V {
+Implicit<N, V, M> for Cylinder<N> {
+    fn margin(&self) -> N {
+        self.margin.clone()
+    }
+
+    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();

@@ -38,10 +38,15 @@ impl<N: Clone> Ball<N> {
     }
 }
 
-impl<N: Algebraic, V: AlgebraicVec<N>, M: Translation<V>> Implicit<V, M> for Ball<N> {
+impl<N: Algebraic + Clone, V: AlgebraicVec<N>, M: Translation<V>> Implicit<N, V, M> for Ball<N> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> V {
-        m.translation() + dir.normalized() * self.radius
+    fn margin(&self) -> N {
+        self.radius.clone()
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, m: &M, _: &V) -> V {
+        m.translation()
     }
 }
 

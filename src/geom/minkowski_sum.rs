@@ -46,11 +46,22 @@ impl<'self, M, G1, G2> NonTransformableMinkowskiSum<'self, M, G1, G2> {
     }
 }
 
-impl<'self, V: Add<V, V>, M, G1: Implicit<V, M>, G2: Implicit<V, M>>
-Implicit<V, M> for NonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, N: Num + Algebraic, V: AlgebraicVec<N>, M, G1: Implicit<N, V, M>, G2: Implicit<N, V, M>>
+Implicit<N, V, M> for NonTransformableMinkowskiSum<'self, M, G1, G2> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.g1.margin() + self.g2.margin()
+    }
+
     #[inline]
     fn support_point(&self, _: &M, dir: &V) -> V {
         self.g1.support_point(self.m1, dir) + self.g2.support_point(self.m2, dir)
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, _: &M, dir: &V) -> V {
+        self.g1.support_point_without_margin(self.m1, dir) +
+        self.g2.support_point_without_margin(self.m2, dir)
     }
 }
 
@@ -82,12 +93,26 @@ impl<'self, M, G1, G2> AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
     }
 }
 
-impl<'self, V: Add<V, V>, M, G1: Implicit<V, M>, G2: Implicit<V, M>>
-Implicit<AnnotatedPoint<V>, M> for AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, N: Algebraic + Num, V: AlgebraicVec<N> + Clone, M, G1: Implicit<N, V, M>, G2: Implicit<N, V, M>>
+Implicit<N, AnnotatedPoint<V>, M> for AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.g1.margin() + self.g2.margin()
+    }
+
     #[inline]
     fn support_point(&self, _: &M, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
         let orig1 = self.g1.support_point(self.m1, dir.point());
         let orig2 = self.g2.support_point(self.m2, dir.point());
+        let point = orig1 + orig2;
+
+        AnnotatedPoint::new(orig1, orig2, point)
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, _: &M, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+        let orig1 = self.g1.support_point_without_margin(self.m1, dir.point());
+        let orig2 = self.g2.support_point_without_margin(self.m2, dir.point());
         let point = orig1 + orig2;
 
         AnnotatedPoint::new(orig1, orig2, point)
@@ -264,9 +289,10 @@ impl<V: Eq> Eq for AnnotatedPoint<V> {
 
 /// Computes the support point of a CSO on a given direction.
 /// The result is a support point with informations about how it has been constructed.
-pub fn cso_support_point<G1: Implicit<V, M>,
-                         G2: Implicit<V, M>,
-                         V:  Zero + Neg<V> + Add<V, V>,
+pub fn cso_support_point<G1: Implicit<N, V, M>,
+                         G2: Implicit<N, V, M>,
+                         N:  Algebraic + Num,
+                         V:  AlgebraicVec<N> + Clone,
                          M>(
                          m1:  &M,
                          g1:  &G1,
@@ -279,6 +305,26 @@ pub fn cso_support_point<G1: Implicit<V, M>,
 
     // m1 or whatever: it will be ignored
     cso.support_point(m1, &AnnotatedPoint::new_invalid(dir))
+}
+
+/// Computes the support point of a CSO on a given direction.
+/// The result is a support point with informations about how it has been constructed.
+pub fn cso_support_point_without_margin<G1: Implicit<N, V, M>,
+                                        G2: Implicit<N, V, M>,
+                                        N:  Algebraic + Num,
+                                        V:  AlgebraicVec<N> + Clone,
+                                        M>(
+                                        m1:  &M,
+                                        g1:  &G1,
+                                        m2:  &M,
+                                        g2:  &G2,
+                                        dir: V)
+                                        -> AnnotatedPoint<V> {
+    let rg2 = Reflection::new(g2);
+    let cso = AnnotatedNonTransformableMinkowskiSum::new(m1, g1, m2, &rg2);
+
+    // m1 or whatever: it will be ignored
+    cso.support_point_without_margin(m1, &AnnotatedPoint::new_invalid(dir))
 }
 
 impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {

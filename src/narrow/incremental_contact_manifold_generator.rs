@@ -163,8 +163,8 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<N> {
-        CollisionDetector::toi::<N, V, M, G1, G2, CD>(m1, dir, g1, m2, g2)
+    fn toi(m1: &M, dir: &V, dist: &N, g1: &G1, m2: &M, g2: &G2) -> Option<N> {
+        CollisionDetector::toi::<N, V, M, G1, G2, CD>(m1, dir, dist, g1, m2, g2)
     }
 
 }

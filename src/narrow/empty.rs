@@ -26,7 +26,7 @@ impl<N, V, M, G1, G2> CollisionDetector<N, V, M, G1, G2> for Empty<N, V, M, G1, 
     fn colls(&self, _: &mut ~[Contact<N, V>]) {
     }
 
-    fn toi(_: &M, _: &V, _: &G1, _: &M, _: &G2) -> Option<N> {
+    fn toi(_: &M, _: &V, _: &N, _: &G1, _: &M, _: &G2) -> Option<N> {
         None
     }
 }

@@ -61,7 +61,7 @@ BallBall<N, V, M> {
     }
 
     #[inline]
-    fn toi(c1: &M, dir: &V, b1: &Ball<N>, c2: &M, b2: &Ball<N>) -> Option<N> {
+    fn toi(c1: &M, dir: &V, _: &N, b1: &Ball<N>, c2: &M, b2: &Ball<N>) -> Option<N> {
         toi(c1, dir, b1, c2, b2)
     }
 }

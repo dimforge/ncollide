@@ -2,6 +2,7 @@
 //! Support mapping based reflected geometry.
 //!
 
+use nalgebra::traits::vector::AlgebraicVec;
 use geom::implicit::Implicit;
 
 /**
@@ -22,9 +23,19 @@ impl<'self, G> Reflection<'self, G> {
     }
 }
 
-impl<'self, V: Neg<V>, M, G: Implicit<V, M>> Implicit<V, M> for Reflection<'self, G> {
+impl<'self, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'self, G> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.g.margin()
+    }
+
     #[inline]
     fn support_point(&self, m: &M, dir: &V) -> V {
         -self.g.support_point(m, &-dir)
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+        -self.g.support_point_without_margin(m, &-dir)
     }
 }

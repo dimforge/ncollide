@@ -1,6 +1,7 @@
 use std::vec;
 use nalgebra::traits::inv::Inv;
 use nalgebra::traits::vector::AlgebraicVecExt;
+use nalgebra::traits::translation::Translation;
 use bounding_volume::aabb::HasAABB;
 use broad::dispatcher::Dispatcher;
 use narrow::collision_detector::CollisionDetector;
@@ -49,7 +50,7 @@ impl<N, V, M, S, D: Clone, SD> CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
 
 impl<N:  Algebraic + Primitive + Orderable + ToStr,
      V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
-     M:  Inv + Mul<M, M>,
+     M:  Inv + Mul<M, M> + Translation<V>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,
      SD: CollisionDetector<N, V, M, S, S>>
@@ -118,6 +119,7 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     #[inline]
     fn toi(_: &M,
            _: &V,
+           _: &N,
            _: &CompoundAABB<N, V, M, S>,
            _: &M,
            _: &CompoundAABB<N, V, M, S>)

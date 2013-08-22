@@ -21,7 +21,7 @@ use ray::ray_plane;
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
 pub fn gjk_toi_with_ray<S: Simplex<N, V>,
-                        G: Implicit<V, M>,
+                        G: Implicit<N, V, M>,
                         N: Ord + Num + Float + NumCast + ToStr,
                         V: AlgebraicVec<N> + Clone + ToStr,
                         M: Translation<V>>(
@@ -131,8 +131,8 @@ impl<'self,
      N:  Ord + Num + Float + NumCast + Clone + ToStr,
      V:  AlgebraicVecExt<N> + Clone + ToStr,
      M:  Translation<V> + Transform<V> + Rotate<V>,
-     G1: Implicit<V, M>,
-     G2: Implicit<V, M>>
+     G1: Implicit<N, V, M>,
+     G2: Implicit<N, V, M>>
 RayCast<N, V, M> for NonTransformableMinkowskiSum<'self, M, G1, G2> {
     fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
         // FIXME: too bad we have to do _a lot_ of allocations to create the simplex solver…

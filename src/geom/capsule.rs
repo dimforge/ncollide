@@ -1,6 +1,7 @@
 //!
 //! Support mapping based Capsule geometry.
 //!  
+use std::num::Zero;
 use nalgebra::traits::indexable::Indexable;
 use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::transformation::Transform;
@@ -13,7 +14,8 @@ use geom::implicit::Implicit;
 #[deriving(Eq, ToStr, Clone)]
 pub struct Capsule<N> {
     priv half_height: N,
-    priv radius:      N
+    priv radius:      N,
+    priv margin:      N
 }
 
 impl<N: Signed> Capsule<N> {
@@ -22,12 +24,13 @@ impl<N: Signed> Capsule<N> {
     /// # Arguments:
     ///     * `half_height` - the half length of the capsule along the `x` axis.
     ///     * `radius` - radius of the rounded part of the capsule.
-    pub fn new(half_height: N, radius: N) -> Capsule<N> {
+    pub fn new(half_height: N, radius: N, margin: N) -> Capsule<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Capsule {
             half_height: half_height,
-            radius:      radius
+            radius:      radius,
+            margin:      margin
         }
     }
 }
@@ -44,26 +47,24 @@ impl<N: Clone> Capsule<N> {
     }
 }
 
-impl<N: Clone + Signed,
+impl<N: Clone + Signed + Algebraic,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
-Implicit<V, M> for Capsule<N> {
-    fn support_point(&self, m: &M, dir: &V) -> V {
+Implicit<N, V, M> for Capsule<N> {
+    fn margin(&self) -> N {
+        self.radius.clone()
+    }
+
+    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        let mut vres = local_dir.clone();
+        let mut vres = Zero::zero::<V>();
 
-        let negative = local_dir.at(0).is_negative();
-
-        vres = vres * self.radius;
-
-        let v0 = vres.at(0);
-
-        if negative {
-            vres.set(0, v0 - self.half_height)
+        if local_dir.at(0).is_negative() {
+            vres.set(0, -self.half_height)
         }
         else {
-            vres.set(0, v0 + self.half_height.clone())
+            vres.set(0, self.half_height.clone())
         }
 
         m.transform(&vres)

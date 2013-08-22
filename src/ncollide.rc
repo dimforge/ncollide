@@ -25,6 +25,7 @@ pub mod geom
     pub mod minkowski_sum;
     pub mod reflection;
     pub mod compound;
+    mod geom_with_margin;
 }
 
 pub mod bounding_volume

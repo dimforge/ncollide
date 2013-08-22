@@ -2,7 +2,7 @@ use std::num::Zero;
 use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::basis::Basis;
-use nalgebra::traits::vector::{Vec, VecExt};
+use nalgebra::traits::vector::{Vec, VecExt, AlgebraicVecExt};
 use ray::ray::Ray;
 use geom::implicit::Implicit;
 use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
@@ -127,10 +127,10 @@ LooseBoundingVolume<N, V> for AABB<N, V> {
 }
 
 /// Builds the AABB of an implicit shape.
-pub fn implicit_shape_aabb<N,
-                           V: VecExt<N>,
+pub fn implicit_shape_aabb<N: Algebraic,
+                           V: AlgebraicVecExt<N>,
                            M,
-                           I: Implicit<V, M>>(
+                           I: Implicit<N, V, M>>(
                            m: &M,
                            i: &I)
                            -> AABB<N, V> {

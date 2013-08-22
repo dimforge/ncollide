@@ -20,7 +20,6 @@ use ray::ray::{Ray, RayCast};
 /// `IncrementalContactManifoldGenerator`.
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
     priv simplex:    S,
-    priv margin:     N,
     priv prediction: N,
     priv contact:    Option<Contact<N, V>>
 }
@@ -28,10 +27,9 @@ pub struct ImplicitImplicit<S, G1, G2, N, V> {
 impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
     /// Creates a new persistant collision detector between two geometries with support mapping
     /// functions. It is initialized with a pre-created simplex.
-    pub fn new(margin: N, prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
+    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
         ImplicitImplicit {
             simplex:    simplex,
-            margin:     margin,
             prediction: prediction,
             contact:    None
         }
@@ -40,8 +38,8 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 }
 
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
-     G1: Implicit<V, M>,
-     G2: Implicit<V, M>,
+     G1: Implicit<N, V, M>,
+     G2: Implicit<N, V, M>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
      V:  AlgebraicVecExt<N> + Clone + ToStr,
      M:  Translation<V> + Transform<V> + Rotate<V> + One>
@@ -53,7 +51,6 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
             a,
             mb,
             b,
-            &self.margin,
             &self.prediction,
             &mut self.simplex)
     }
@@ -75,7 +72,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn toi(ma: &M, dir: &V, a: &G1, mb: &M, b: &G2) -> Option<N> {
+    fn toi(ma: &M, dir: &V, _: &N, a: &G1, mb: &M, b: &G2) -> Option<N> {
         toi(ma, dir, a, mb, b)
     }
 }
@@ -88,14 +85,11 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 /// # Arguments:
 ///   * `g1` - the first implicit shape involved on the collision check
 ///   * `g2` - the second implicit shape involved on the collision check
-///   * `margin` - margin used to enlarge both shapes. This must not be negative. Small or too big
-///   values can lead to visible gaps in-between objects. In practice, values on the range `[0.04;
-///   0.08]` give good results.
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
-               G1: Implicit<V, M>,
-               G2: Implicit<V, M>,
+               G1: Implicit<N, V, M>,
+               G2: Implicit<N, V, M>,
                N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
                V:  AlgebraicVecExt<N> + Clone,
                M:  Translation<V> + One>(
@@ -103,7 +97,6 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                g1:         &G1,
                m2:         &M,
                g2:         &G2,
-               margin:     &N,
                prediction: &N,
                simplex: &mut S)
                -> Option<Contact<N, V>> {
@@ -114,15 +107,18 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
         dir.set(0, One::one());
     }
 
-    simplex.reset(minkowski_sum::cso_support_point(m1, g1, m2, g2, dir));
+    simplex.reset(minkowski_sum::cso_support_point_without_margin(m1, g1, m2, g2, dir));
 
-    match gjk::closest_points(m1, g1, m2, g2, simplex) {
+    let margin1 = g1.margin();
+    let margin2 = g2.margin();
+
+    match gjk::closest_points_without_margin(m1, g1, m2, g2, simplex) {
         Some((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = p1p2.sqnorm();
 
-            if sqn >= (*margin * NumCast::from(2.0) + *prediction) *
-                      (*margin * NumCast::from(2.0) + *prediction) {
+            if sqn >= (margin1 + margin2 + *prediction) *
+                      (margin1 + margin2 + *prediction) {
                 return None
             }
             else if !sqn.is_zero() {
@@ -131,10 +127,10 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 
                 return Some(
                     Contact::new(
-                        p1 + normal * *margin,
-                        p2 + normal * (-margin),
+                        p1 + normal * margin1,
+                        p2 + normal * (-margin2),
                         normal,
-                        *margin + *margin - depth)
+                        margin1 + margin2 - depth)
                     );
             }
         },
@@ -142,7 +138,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     // The point is inside of the CSO: use the fallback algorithm
-    match minkowski_sampling::closest_points(m1, g1, m2, g2, margin, simplex) {
+    match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
         Some((p1, p2)) => {
             let mut normal = p1 - p2;
             let depth      = normal.normalize();
@@ -175,8 +171,8 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn toi<N:  Ord + Num + Float + NumCast + Clone + ToStr,
            V:  AlgebraicVecExt<N> + Clone + ToStr,
            M:  Translation<V> + Transform<V> + Rotate<V>,
-           G1: Implicit<V, M>,
-           G2: Implicit<V, M>>(
+           G1: Implicit<N, V, M>,
+           G2: Implicit<N, V, M>>(
            m1:  &M,
            dir: &V,
            g1:  &G1,

@@ -6,15 +6,14 @@ use geom::minkowski_sum;
 use geom::minkowski_sum::{NonTransformableMinkowskiSum, AnnotatedPoint};
 use geom::reflection::Reflection;
 use geom::implicit::Implicit;
-use geom::ball::Ball;
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
-                      G1: Implicit<V, M>,
-                      G2: Implicit<V, M>,
+                      G1: Implicit<N, V, M>,
+                      G2: Implicit<N, V, M>,
                       N:  Clone + Ord + Num + Float + ToStr,
                       V:  AlgebraicVecExt<N> + Clone,
                       M:  One + Translation<V>>(
@@ -22,7 +21,6 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       g1:      &G1,
                       m2:      &M,
                       g2:      &G2,
-                      margin:  &N,
                       simplex: &mut S)
                       -> Option<(V, V)> {
     // build the cso with enlarged shapes
@@ -31,16 +29,12 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     // efficient than the current approach (CSO(minkowskiSum(...), minkowskiSum(..)))
     let _0        = Zero::zero::<N>();
     let _1m       = One::one::<M>();
-    let enlarger  = Ball::new(margin.clone());
-    let enlarged1 = NonTransformableMinkowskiSum::new(m1, g1, &_1m, &enlarger);
-    let enlarged2 = NonTransformableMinkowskiSum::new(m2, g2, &_1m, &enlarger);
-    let reflect2  = Reflection::new(&enlarged2);
-    let cso       = NonTransformableMinkowskiSum::new(m1, &enlarged1, m2, &reflect2);
+    let reflect2  = Reflection::new(g2);
+    let cso       = NonTransformableMinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
     let mut best_dir     = Zero::zero::<V>();
     let mut min_dist     = Bounded::max_value();
-    let mut best_support = Zero::zero(); // FIXME: remove that (for debug)
 
     do UniformSphereSample::sample::<V>() |sample| {
         // NOTE: m1 will be ignored by the minkowski sum
@@ -49,7 +43,6 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 
         if (dist < min_dist) {
             best_dir     = sample;
-            best_support = support;
             min_dist     = dist;
         }
     }
@@ -63,9 +56,9 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     // XXX: translate the simplex instead of reseting it
     let tm2 = m2.translated(&shift.clone());
 
-    simplex.reset(minkowski_sum::cso_support_point(m1, g1, &tm2, g2, best_dir));
+    simplex.reset(minkowski_sum::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir));
 
-    match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
+    match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
             let corrected_normal = (p2 - p1).normalized();
@@ -88,7 +81,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                 // FIXME: (optim) use a scalar_mul_inplace?
 
                 //  FIXME: optimize by translating the last gjk simplex
-                match gjk::closest_points::<S, G1, Translated<G2, V>, N, V>
+                match gjk::closest_points_without_margin::<S, G1, Translated<G2, V>, N, V>
                 (g1, &Translated::new(g2, shift2.clone())) {
                     None =>
                     fail!("Internal error: the origin was inside of the Simplex during phase 2."),
