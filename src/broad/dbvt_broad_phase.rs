@@ -2,7 +2,7 @@ use std::ptr;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::AlgebraicVec;
 use broad::broad_phase::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
-use broad::dbvt::{DBVT, DBVTLeaf};
+use partitioning::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};

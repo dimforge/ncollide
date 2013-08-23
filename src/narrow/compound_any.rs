@@ -5,7 +5,7 @@ use nalgebra::traits::translation::Translation;
 use bounding_volume::bounding_volume::BoundingVolume;
 use bounding_volume::aabb::{AABB, HasAABB};
 use broad::dispatcher::Dispatcher;
-use broad::dbvt::DBVTLeaf;
+use partitioning::dbvt::DBVTLeaf;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 use geom::compound::CompoundAABB;

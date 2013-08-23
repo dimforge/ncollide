@@ -29,6 +29,8 @@ recursive clone:
 - collision detection between arbitrary convex objects
 - compound geometries
 - ray-casting
+- time of impact computation  for objects without rotational movement (compound vs. compound is not
+  yet implemented)
 
 And various traits for collision detectors and broad phase collision detection.
 
@@ -37,4 +39,3 @@ Some common features are still missing:
 
 - heightmaps and simplex meshes (eg. triangle mesh for 3d and line strips for
   2d)
-- continuous collision detection

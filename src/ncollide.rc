@@ -73,6 +73,9 @@ pub mod broad
     pub mod brute_force_broad_phase;
     pub mod brute_force_bounding_volume_broad_phase;
     pub mod dbvt_broad_phase;
+}
+
+pub mod partitioning {
     pub mod dbvt;
 }
 
