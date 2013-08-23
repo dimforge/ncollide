@@ -2,7 +2,7 @@ use std::ptr;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::AlgebraicVec;
 use broad::broad_phase::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
-use partitioning::dbvt::{DBVT, DBVTLeaf};
+use partitioning::dyn_bvt::{DynBVT, DynBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
@@ -12,17 +12,17 @@ use ray::ray::Ray;
 
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
 /// objects and which is never updated, and one for moving objects.
-pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
-    priv tree:        DBVT<V, @mut B, BV>,
-    priv stree:       DBVT<V, @mut B, BV>,
-    priv active2bv:   HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
-    priv inactive2bv: HashMap<uint, @mut DBVTLeaf<V, @mut B, BV>, UintTWHash>,
-    priv pairs:       HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>, // pair manager
-    priv spairs:      HashMap<Pair<DBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>,
+pub struct DynBVTBroadPhase<N, V, B, BV, D, DV> {
+    priv tree:        DynBVT<V, @mut B, BV>,
+    priv stree:       DynBVT<V, @mut B, BV>,
+    priv active2bv:   HashMap<uint, @mut DynBVTLeaf<V, @mut B, BV>, UintTWHash>,
+    priv inactive2bv: HashMap<uint, @mut DynBVTLeaf<V, @mut B, BV>, UintTWHash>,
+    priv pairs:       HashMap<Pair<DynBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>, // pair manager
+    priv spairs:      HashMap<Pair<DynBVTLeaf<V, @mut B, BV>>, DV, PairTWHash>,
     priv dispatcher:  D,
     priv margin:      N,
-    priv collector:   ~[@mut DBVTLeaf<V, @mut B, BV>],
-    priv to_update:   ~[@mut DBVTLeaf<V, @mut B, BV>],
+    priv collector:   ~[@mut DynBVTLeaf<V, @mut B, BV>],
+    priv to_update:   ~[@mut DynBVTLeaf<V, @mut B, BV>],
     priv update_off:  uint // incremental pairs removal index
 }
 
@@ -32,12 +32,12 @@ impl<N:  Algebraic + Clone + Ord,
      BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
-DBVTBroadPhase<N, V, B, BV, D, DV> {
+DynBVTBroadPhase<N, V, B, BV, D, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, V, B, BV, D, DV> {
-        DBVTBroadPhase {
-            tree:        DBVT::new(),
-            stree:       DBVT::new(),
+    pub fn new(dispatcher: D, margin: N) -> DynBVTBroadPhase<N, V, B, BV, D, DV> {
+        DynBVTBroadPhase {
+            tree:        DynBVT::new(),
+            stree:       DynBVT::new(),
             active2bv:   HashMap::new(UintTWHash),
             inactive2bv: HashMap::new(UintTWHash),
             pairs:       HashMap::new(PairTWHash),
@@ -123,10 +123,10 @@ impl<N:  Algebraic + Clone + Ord,
      BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
-BroadPhase<B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
+BroadPhase<B> for DynBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline]
     fn add(&mut self, rb: @mut B) {
-        let leaf = @mut DBVTLeaf::new(rb.bounding_volume().loosened(self.margin.clone()), rb);
+        let leaf = @mut DynBVTLeaf::new(rb.bounding_volume().loosened(self.margin.clone()), rb);
 
         self.to_update.push(leaf);
         self.update_updatable();
@@ -183,7 +183,7 @@ impl<N:  Algebraic + Clone + Ord,
      BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
-InterferencesBroadPhase<B, DV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
+InterferencesBroadPhase<B, DV> for DynBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline(always)]
     fn for_each_pair(&self, f: &fn(@mut B, @mut B, &DV)) {
         for p in self.pairs.elements().iter() {
@@ -276,7 +276,7 @@ impl<N:  Algebraic + Clone + Ord,
      BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
-BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
+BoundingVolumeBroadPhase<B, BV> for DynBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut ~[@mut B]) {
         self.tree.interferences_with_bounding_volume(bv, &mut self.collector);
         self.stree.interferences_with_bounding_volume(bv, &mut self.collector);
@@ -295,7 +295,7 @@ impl<N:  Algebraic + Clone + Ord,
      BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
-RayCastBroadPhase<V, B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
+RayCastBroadPhase<V, B> for DynBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_ray(&mut self, ray: &Ray<V>, out: &mut ~[@mut B]) {
         self.tree.interferences_with_ray(ray, &mut self.collector);
         self.stree.interferences_with_ray(ray, &mut self.collector);
@@ -320,7 +320,7 @@ mod test {
     fn test_dbvt_empty() {
         type Shape = WithAABB<Vec3<float>, Ball<float>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
+        let mut bf     = DynBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         for i in range(-10, 10) {
@@ -338,7 +338,7 @@ mod test {
     fn test_dbvt_nbh_collide() {
         type Shape = WithAABB<Vec3<float>, Ball<float>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
+        let mut bf     = DynBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         // create a grid
@@ -363,7 +363,7 @@ mod test {
     fn test_dbvt_nbh_move_collide() {
         type Shape = WithAABB<Vec3<float>, Ball<float>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
+        let mut bf     = DynBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         let mut to_move = ~[];
@@ -420,7 +420,7 @@ mod test {
     fn test_dbvt_quadratic_collide() {
         type Shape = WithAABB<Vec3<float>, Ball<float>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
+        let mut bf     = DynBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         do 400.times {

@@ -5,7 +5,7 @@ use nalgebra::traits::translation::Translation;
 use bounding_volume::bounding_volume::BoundingVolume;
 use bounding_volume::aabb::{AABB, HasAABB};
 use broad::dispatcher::Dispatcher;
-use partitioning::dbvt::DBVTLeaf;
+use partitioning::dyn_bvt::DynBVTLeaf;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 use geom::compound::CompoundAABB;
@@ -15,7 +15,7 @@ use geom::compound::CompoundAABB;
 pub struct CompoundAABBAny<N, V, M, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: ~[Option<SD>],
-    priv interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>],
+    priv interferences: ~[@mut DynBVTLeaf<V, uint, AABB<N, V>>],
     priv updated:       ~[bool]
 }
 

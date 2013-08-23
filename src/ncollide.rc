@@ -76,7 +76,7 @@ pub mod broad
 }
 
 pub mod partitioning {
-    pub mod dbvt;
+    pub mod dyn_bvt;
 }
 
 pub mod util
