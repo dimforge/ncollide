@@ -5,7 +5,7 @@
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
 use nalgebra::traits::scalar_op::{ScalarSub, ScalarAdd};
-use geom::implicit::Implicit;
+use geom::implicit::{HasMargin, Implicit};
 use bounding_volume::aabb::{HasAABB, AABB};
 
 /**
@@ -38,12 +38,15 @@ impl<N: Clone> Ball<N> {
     }
 }
 
-impl<N: Algebraic + Clone, V: AlgebraicVec<N>, M: Translation<V>> Implicit<N, V, M> for Ball<N> {
+impl<N: Clone> HasMargin<N> for Ball<N> {
     #[inline]
     fn margin(&self) -> N {
         self.radius.clone()
     }
+}
 
+
+impl<N: Algebraic + Clone, V: AlgebraicVec<N>, M: Translation<V>> Implicit<N, V, M> for Ball<N> {
     #[inline]
     fn support_point_without_margin(&self, m: &M, _: &V) -> V {
         m.translation()

@@ -8,7 +8,8 @@ use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
 use broad::dispatcher::Dispatcher;
 use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
-use ray::ray::Ray;
+use ray::ray::{Ray, RayCast};
+use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
 /// objects and which is never updated, and one for moving objects.
@@ -28,8 +29,8 @@ pub struct DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
-     B:  'static + HasBoundingVolume<V, BV>,
-     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 DBVTBroadPhase<N, V, B, BV, D, DV> {
@@ -119,8 +120,8 @@ DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
-     B:  'static + HasBoundingVolume<V, BV>,
-     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 BroadPhase<B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
@@ -179,8 +180,8 @@ BroadPhase<B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
-     B:  'static + HasBoundingVolume<V, BV>,
-     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 InterferencesBroadPhase<B, DV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
@@ -272,14 +273,18 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
-     B:  'static + HasBoundingVolume<V, BV>,
-     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut ~[@mut B]) {
-        self.tree.interferences_with_bounding_volume(bv, &mut self.collector);
-        self.stree.interferences_with_bounding_volume(bv, &mut self.collector);
+        {
+            let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut self.collector);
+
+            self.tree.visit(&mut visitor);
+            self.stree.visit(&mut visitor);
+        }
 
         for l in self.collector.iter() {
             out.push(l.object)
@@ -291,14 +296,18 @@ BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
-     B:  'static + HasBoundingVolume<V, BV>,
-     BV: 'static + LooseBoundingVolume<N, V> + Translation<V>,
+     B:  'static + HasBoundingVolume<BV>,
+     BV: 'static + LooseBoundingVolume<N> + RayCast<N, V> + Translation<V>,
      D:  Dispatcher<B, DV>,
      DV>
 RayCastBroadPhase<V, B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_ray(&mut self, ray: &Ray<V>, out: &mut ~[@mut B]) {
-        self.tree.interferences_with_ray(ray, &mut self.collector);
-        self.stree.interferences_with_ray(ray, &mut self.collector);
+        {
+            let mut visitor = RayInterferencesCollector::new(ray, &mut self.collector);
+
+            self.tree.visit(&mut visitor);
+            self.stree.visit(&mut visitor);
+        }
 
         for l in self.collector.iter() {
             out.push(l.object)

@@ -1,10 +1,11 @@
 use std::num::NumCast;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::mat::Identity;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
 use geom::geom_with_margin::GeomWithMargin;
-use geom::minkowski_sum::{AnnotatedPoint, AnnotatedNonTransformableMinkowskiSum};
+use geom::minkowski_sum::{AnnotatedPoint, AnnotatedMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
 ///  Computes the closest points between two convex geometries unsing the GJK algorithm.
@@ -19,7 +20,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<N, V, M>,
                       G2: Implicit<N, V, M>,
                       N:  Ord + Num + Float + NumCast + ToStr,
-                      V:  Clone + AlgebraicVec<N>,
+                      V:  Clone + AlgebraicVec<N> + ToStr,
                       M>(
                       m1:      &M,
                       g1:      &G1,
@@ -29,10 +30,9 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let mg1      = GeomWithMargin::new(g1);
     let mg2      = GeomWithMargin::new(g2);
     let reflect2 = Reflection::new(&mg2);
-    let cso      = AnnotatedNonTransformableMinkowskiSum::new(m1, &mg1, m2, &reflect2);
+    let cso      = AnnotatedMinkowskiSum::new(m1, &mg1, m2, &reflect2);
 
-    // NOTE: we pass `m1` or whatever, it will be ignored by the NonTransformableMinkowskiSum anyway.
-    project_origin(m1, &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
+    project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
 ///  Computes the closest points between two convex geometries without their margins unsing the GJK
@@ -48,7 +48,7 @@ pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
                                      G1: Implicit<N, V, M>,
                                      G2: Implicit<N, V, M>,
                                      N:  Ord + Num + Float + NumCast + ToStr,
-                                     V:  Clone + AlgebraicVec<N>,
+                                     V:  Clone + AlgebraicVec<N> + ToStr,
                                      M>(
                                      m1:      &M,
                                      g1:      &G1,
@@ -56,10 +56,9 @@ pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
                                      g2:      &G2,
                                      simplex: &mut S) -> Option<(V, V)> {
     let reflect2 = Reflection::new(g2);
-    let cso      = AnnotatedNonTransformableMinkowskiSum::new(m1, g1, m2, &reflect2);
+    let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    // NOTE: we pass `m1` or whatever, it will be ignored by the NonTransformableMinkowskiSum anyway.
-    project_origin(m1, &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
+    project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
 /// Projects the origin on a geometry unsing the GJK algorithm.
@@ -71,7 +70,7 @@ pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn project_origin<S: Simplex<N, V>,
                       G: Implicit<N, V, M>,
                       N: Ord + Num + Float + NumCast + ToStr,
-                      V: AlgebraicVec<N>,
+                      V: AlgebraicVec<N> + ToStr,
                       M>(
                       m:       &M,
                       geom:    &G,

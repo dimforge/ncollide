@@ -7,13 +7,14 @@ use std::num::{Zero, One};
 use std::cmp::ApproxEq;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::vector::{Vec, AlgebraicVec};
-use geom::implicit::Implicit;
+use nalgebra::mat::Identity;
+use geom::implicit::{Implicit, HasMargin};
 use geom::reflection::Reflection;
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
-pub type CSO<'self, M, G1, G2> = NonTransformableMinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
-pub type AnnotatedCSO<'self, M, G1, G2> = AnnotatedNonTransformableMinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
+pub type CSO<'self, M, G1, G2> = MinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
+pub type AnnotatedCSO<'self, M, G1, G2> = AnnotatedMinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
 
 /**
  * Implicit representation of the minkowski sum of two geometries.
@@ -24,14 +25,14 @@ pub type AnnotatedCSO<'self, M, G1, G2> = AnnotatedNonTransformableMinkowskiSum<
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct NonTransformableMinkowskiSum<'self, M, G1, G2> {
+pub struct MinkowskiSum<'self, M, G1, G2> {
     priv m1: &'self M,
     priv g1: &'self G1,
     priv m2: &'self M,
     priv g2: &'self G2
 }
 
-impl<'self, M, G1, G2> NonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, M, G1, G2> MinkowskiSum<'self, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
@@ -41,45 +42,54 @@ impl<'self, M, G1, G2> NonTransformableMinkowskiSum<'self, M, G1, G2> {
                g1: &'self G1,
                m2: &'self M,
                g2: &'self G2)
-               -> NonTransformableMinkowskiSum<'self, M, G1, G2> {
-        NonTransformableMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
+               -> MinkowskiSum<'self, M, G1, G2> {
+        MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 }
 
-impl<'self, N: Num + Algebraic, V: AlgebraicVec<N>, M, G1: Implicit<N, V, M>, G2: Implicit<N, V, M>>
-Implicit<N, V, M> for NonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
+HasMargin<N> for MinkowskiSum<'self, M, G1, G2> {
     #[inline]
     fn margin(&self) -> N {
         self.g1.margin() + self.g2.margin()
     }
 
+}
+
+impl<'self,
+     N: Num + Algebraic,
+     V: AlgebraicVec<N>,
+     M,
+     G1: Implicit<N, V, M>,
+     G2: Implicit<N, V, M>>
+Implicit<N, V, Identity> for MinkowskiSum<'self, M, G1, G2> {
     #[inline]
-    fn support_point(&self, _: &M, dir: &V) -> V {
+    fn support_point(&self, _: &Identity, dir: &V) -> V {
         self.g1.support_point(self.m1, dir) + self.g2.support_point(self.m2, dir)
     }
 
     #[inline]
-    fn support_point_without_margin(&self, _: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, _: &Identity, dir: &V) -> V {
         self.g1.support_point_without_margin(self.m1, dir) +
         self.g2.support_point_without_margin(self.m2, dir)
     }
 }
 
 /**
- * Same as the NonTransformableMinkowskiSum but with a support mapping which keeps track of the
+ * Same as the MinkowskiSum but with a support mapping which keeps track of the
  * original supports points from the two wrapped geometries.
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
+pub struct AnnotatedMinkowskiSum<'self, M, G1, G2> {
     priv m1: &'self M,
     priv g1: &'self G1,
     priv m2: &'self M,
     priv g2: &'self G2
 }
 
-impl<'self, M, G1, G2> AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, M, G1, G2> AnnotatedMinkowskiSum<'self, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
@@ -88,20 +98,28 @@ impl<'self, M, G1, G2> AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
     pub fn new(m1: &'self M,
                g1: &'self G1,
                m2: &'self M,
-               g2: &'self G2) -> AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
-        AnnotatedNonTransformableMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
+               g2: &'self G2) -> AnnotatedMinkowskiSum<'self, M, G1, G2> {
+        AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 }
 
-impl<'self, N: Algebraic + Num, V: AlgebraicVec<N> + Clone, M, G1: Implicit<N, V, M>, G2: Implicit<N, V, M>>
-Implicit<N, AnnotatedPoint<V>, M> for AnnotatedNonTransformableMinkowskiSum<'self, M, G1, G2> {
+impl<'self, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
+HasMargin<N> for AnnotatedMinkowskiSum<'self, M, G1, G2> {
     #[inline]
     fn margin(&self) -> N {
         self.g1.margin() + self.g2.margin()
     }
+}
 
+impl<'self,
+     N: Algebraic + Num,
+     V: AlgebraicVec<N> + Clone,
+     M,
+     G1: Implicit<N, V, M>,
+     G2: Implicit<N, V, M>>
+Implicit<N, AnnotatedPoint<V>, Identity> for AnnotatedMinkowskiSum<'self, M, G1, G2> {
     #[inline]
-    fn support_point(&self, _: &M, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+    fn support_point(&self, _: &Identity, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
         let orig1 = self.g1.support_point(self.m1, dir.point());
         let orig2 = self.g2.support_point(self.m2, dir.point());
         let point = orig1 + orig2;
@@ -110,7 +128,10 @@ Implicit<N, AnnotatedPoint<V>, M> for AnnotatedNonTransformableMinkowskiSum<'sel
     }
 
     #[inline]
-    fn support_point_without_margin(&self, _: &M, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+    fn support_point_without_margin(&self,
+                                    _:   &Identity,
+                                    dir: &AnnotatedPoint<V>)
+                                    -> AnnotatedPoint<V> {
         let orig1 = self.g1.support_point_without_margin(self.m1, dir.point());
         let orig2 = self.g2.support_point_without_margin(self.m2, dir.point());
         let point = orig1 + orig2;
@@ -301,10 +322,9 @@ pub fn cso_support_point<G1: Implicit<N, V, M>,
                          dir: V)
                          -> AnnotatedPoint<V> {
     let rg2 = Reflection::new(g2);
-    let cso = AnnotatedNonTransformableMinkowskiSum::new(m1, g1, m2, &rg2);
+    let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 
-    // m1 or whatever: it will be ignored
-    cso.support_point(m1, &AnnotatedPoint::new_invalid(dir))
+    cso.support_point(&Identity::new(), &AnnotatedPoint::new_invalid(dir))
 }
 
 /// Computes the support point of a CSO on a given direction.
@@ -321,10 +341,9 @@ pub fn cso_support_point_without_margin<G1: Implicit<N, V, M>,
                                         dir: V)
                                         -> AnnotatedPoint<V> {
     let rg2 = Reflection::new(g2);
-    let cso = AnnotatedNonTransformableMinkowskiSum::new(m1, g1, m2, &rg2);
+    let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 
-    // m1 or whatever: it will be ignored
-    cso.support_point_without_margin(m1, &AnnotatedPoint::new_invalid(dir))
+    cso.support_point_without_margin(&Identity::new(), &AnnotatedPoint::new_invalid(dir))
 }
 
 impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {

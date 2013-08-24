@@ -1,15 +1,20 @@
 use nalgebra::traits::vector::AlgebraicVec;
 
-/// Traits of convex geometries representable by a support mapping function.
-///
-/// # Parameters:
-///   * V - type of the support mapping direction argument and of the returnd point.
-pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M> {
+// Sadly, we cannot put this on the `Implicit` trait because the caller of `margin` might get
+// unconstrained type.
+/// Trait of geometries having a margin.
+pub trait HasMargin<N> {
     /**
      * The geometry margin.
      */
     fn margin(&self) -> N;
+}
 
+/// Traits of convex geometries representable by a support mapping function.
+///
+/// # Parameters:
+///   * V - type of the support mapping direction argument and of the returnd point.
+pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M>: HasMargin<N>{
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
@@ -19,6 +24,7 @@ pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M> {
      *  * `dir` - the input of the support function. It is not required for it to
      *            be normalized.
      */
+    #[inline]
     fn support_point(&self, transform: &M, dir: &V) -> V {
         let wo_margin = self.support_point_without_margin(transform, dir);
 

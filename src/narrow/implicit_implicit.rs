@@ -6,7 +6,7 @@ use nalgebra::traits::vector::AlgebraicVecExt;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
 use geom::minkowski_sum;
-use geom::minkowski_sum::{AnnotatedPoint, NonTransformableMinkowskiSum};
+use geom::minkowski_sum::{AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::minkowski_sampling;
@@ -91,7 +91,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                G1: Implicit<N, V, M>,
                G2: Implicit<N, V, M>,
                N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
-               V:  AlgebraicVecExt<N> + Clone,
+               V:  AlgebraicVecExt<N> + Clone + ToStr,
                M:  Translation<V> + One>(
                m1:         &M,
                g1:         &G1,
@@ -103,7 +103,6 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
     let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
 
     if dir.is_zero() {
-        dir = Zero::zero();
         dir.set(0, One::one());
     }
 
@@ -180,8 +179,7 @@ pub fn toi<N:  Ord + Num + Float + NumCast + Clone + ToStr,
            g2:  &G2)
            -> Option<N> {
     let rg2 = Reflection::new(g2);
-    let cso = NonTransformableMinkowskiSum::new(m1, g1, m2, &rg2);
+    let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    // m1 will be ignored
-    cso.toi_with_ray(m1, &Ray::new(Zero::zero(), -dir))
+    cso.toi_with_ray(&Ray::new(Zero::zero(), -dir))
 }

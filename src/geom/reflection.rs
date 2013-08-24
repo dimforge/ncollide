@@ -3,7 +3,7 @@
 //!
 
 use nalgebra::traits::vector::AlgebraicVec;
-use geom::implicit::Implicit;
+use geom::implicit::{Implicit, HasMargin};
 
 /**
  * Implicit represention of the reflection of a geometric object.
@@ -23,12 +23,14 @@ impl<'self, G> Reflection<'self, G> {
     }
 }
 
-impl<'self, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'self, G> {
+impl<'self, N, G: HasMargin<N>> HasMargin<N> for Reflection<'self, G> {
     #[inline]
     fn margin(&self) -> N {
         self.g.margin()
     }
+}
 
+impl<'self, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'self, G> {
     #[inline]
     fn support_point(&self, m: &M, dir: &V) -> V {
         -self.g.support_point(m, &-dir)

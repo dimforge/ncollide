@@ -1,11 +1,13 @@
 use std::num::Zero;
 use nalgebra::traits::basis::Basis;
 use nalgebra::traits::translation::Translation;
+use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
-use ray::ray::{Ray, RayCast};
+use ray::ray::{Ray, RayCastWithTransform};
 
 /**
  * Collision detector between two balls.
@@ -31,7 +33,7 @@ impl<N, V, M> BallBall<N, V, M> {
 }
 
 impl<N: Real + NumCast + Clone,
-     V: AlgebraicVecExt<N> + Translation<V> + Clone,
+     V: AlgebraicVecExt<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
      M: Translation<V>> 
      CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
 BallBall<N, V, M> {
@@ -122,16 +124,18 @@ pub fn closest_points<N: Algebraic + Clone,
 ///     * `b2`  - the second ball.
 #[inline]
 pub fn toi<N: Num + Algebraic + Ord + Clone,
-           V: AlgebraicVec<N> + Translation<V> + Clone,
+           V: AlgebraicVec<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
            M: Translation<V>>(
            c1:  &M,
            dir: &V,
            b1:  &Ball<N>,
            c2:  &M,
            b2:  &Ball<N>) -> Option<N> {
-    // Here again, we cast a ray on the CSO.
-    // But we know that our CSO is just another bigger ball!
+    // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!
     let cso = Ball::new(b1.radius() + b2.radius());
 
-    cso.toi_with_ray(&(c1.translation() - c2.translation()), &Ray::new(Zero::zero(), -dir))
+    cso.toi_with_transform_and_ray(
+        &(c1.translation() - c2.translation()),
+        &Ray::new(Zero::zero(), -dir)
+    )
 }

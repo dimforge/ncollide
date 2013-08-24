@@ -9,7 +9,7 @@ use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::vector::AlgebraicVecExt;
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
-use geom::implicit::Implicit;
+use geom::implicit::{Implicit, HasMargin};
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone)]
@@ -57,14 +57,17 @@ impl<N: Clone> Cylinder<N> {
     }
 }
 
+impl<N: Clone> HasMargin<N> for Cylinder<N> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.margin.clone()
+    }
+}
+
 impl<N: Clone + Algebraic + Signed,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
 Implicit<N, V, M> for Cylinder<N> {
-    fn margin(&self) -> N {
-        self.margin.clone()
-    }
-
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 

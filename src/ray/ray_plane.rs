@@ -1,8 +1,8 @@
 use std::num::Zero;
-use nalgebra::traits::translation::Translation;
+use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::vector::Vec;
-use ray::ray::{Ray, RayCast};
+use ray::ray::{Ray, RayCast, RayCastWithTransform};
 use geom::plane::Plane;
 
 /// Computes the toi of a ray with a plane described by its center and normal.
@@ -25,15 +25,13 @@ pub fn plane_toi_with_ray<N: Num + Ord,
     }
 }
 
-impl<N: Num + Ord,
-     V: Vec<N> + Clone,
-     M: Rotate<V> + Translation<V>>
-RayCast<N, V, M> for Plane<N, V> {
+impl<N: Num + Ord, V: Vec<N> + Clone>
+RayCast<N, V> for Plane<N, V> {
     #[inline]
-    fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
-        let plane_normal = m.rotate(&self.normal());
-        let plane_center = m.translation();
-
-        plane_toi_with_ray(&plane_center, &plane_normal, ray)
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+        plane_toi_with_ray(&Zero::zero(), &self.normal(), ray)
     }
 }
+
+impl<N: Num + Ord, V: Vec<N> + Clone, M: Rotate<V> + Transform<V>>
+RayCastWithTransform<N, V, M> for Plane<N, V>;

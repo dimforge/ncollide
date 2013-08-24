@@ -3,7 +3,6 @@ use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::basis::Basis;
 use nalgebra::traits::vector::{Vec, VecExt, AlgebraicVecExt};
-use ray::ray::Ray;
 use geom::implicit::Implicit;
 use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
@@ -53,11 +52,22 @@ impl<V: VecExt<N>, N> AABB<N, V> {
             maxs: maxs
         }
     }
+
+    /// Creates an invalid AABB with:
+    ///     * `mins = Bounded::max_value()`
+    ///     * `maxs = Bounded::max_value()`.
+    /// This is useful to build aabb using merges.
+    pub fn new_invalid() -> AABB<N, V> {
+        AABB {
+            mins: Bounded::max_value(),
+            maxs: -Bounded::max_value::<V>(),
+        }
+    }
 }
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + ToStr>
-BoundingVolume<V> for AABB<N, V> {
+BoundingVolume for AABB<N, V> {
     #[inline]
     fn intersects(&self, other: &AABB<N, V>) -> bool {
         self.mins <= other.maxs && self.maxs >= other.mins
@@ -80,11 +90,6 @@ BoundingVolume<V> for AABB<N, V> {
             mins: self.mins.min(&other.mins),
             maxs: self.maxs.max(&other.maxs)
         }
-    }
-
-    #[inline]
-    fn intersects_ray(&self, ray: &Ray<V>) -> bool {
-        self.toi_with_ray(ray).is_some()
     }
 }
 
@@ -110,7 +115,7 @@ impl<V: VecExt<N>, N: NumCast> Translation<V> for AABB<N, V>
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + ToStr>
-LooseBoundingVolume<N, V> for AABB<N, V> {
+LooseBoundingVolume<N> for AABB<N, V> {
     #[inline]
     fn loosen(&mut self, amount: N) {
         self.mins.scalar_sub_inplace(&amount);
@@ -159,7 +164,7 @@ impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + Clone + ToStr,
      M,
      A: HasAABB<N, V, M>>
-HasBoundingVolume<V, AABB<N, V>> for WithAABB<M, A> {
+HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {
     fn bounding_volume(&self) -> AABB<N, V> {
         let WithAABB(ref t, ref g) = *self;
 

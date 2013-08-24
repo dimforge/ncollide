@@ -2,8 +2,9 @@ use std::num::{Zero, One};
 use nalgebra::traits::sample::UniformSphereSample;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::AlgebraicVecExt;
+use nalgebra::mat::Identity;
 use geom::minkowski_sum;
-use geom::minkowski_sum::{NonTransformableMinkowskiSum, AnnotatedPoint};
+use geom::minkowski_sum::{MinkowskiSum, AnnotatedPoint};
 use geom::reflection::Reflection;
 use geom::implicit::Implicit;
 use narrow::algorithm::gjk;
@@ -15,7 +16,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<N, V, M>,
                       G2: Implicit<N, V, M>,
                       N:  Clone + Ord + Num + Float + ToStr,
-                      V:  AlgebraicVecExt<N> + Clone,
+                      V:  AlgebraicVecExt<N> + Clone + ToStr,
                       M:  One + Translation<V>>(
                       m1:      &M,
                       g1:      &G1,
@@ -30,15 +31,14 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let _0        = Zero::zero::<N>();
     let _1m       = One::one::<M>();
     let reflect2  = Reflection::new(g2);
-    let cso       = NonTransformableMinkowskiSum::new(m1, g1, m2, &reflect2);
+    let cso       = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
     let mut best_dir     = Zero::zero::<V>();
     let mut min_dist     = Bounded::max_value();
 
     do UniformSphereSample::sample::<V>() |sample| {
-        // NOTE: m1 will be ignored by the minkowski sum
-        let support = cso.support_point(m1, &sample);
+        let support = cso.support_point(&Identity::new(), &sample);
         let dist    = sample.dot(&support);
 
         if (dist < min_dist) {
@@ -63,8 +63,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
         Some((p1, p2)) => {
             let corrected_normal = (p2 - p1).normalized();
 
-            // NOTE: m1 will be ignored by the MinkowskiSum
-            let corrected_support = cso.support_point(m1, &corrected_normal);
+            let corrected_support = cso.support_point(&Identity::new(), &corrected_normal);
             let min_dist2 = corrected_normal.dot(&corrected_support);
 
             // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");

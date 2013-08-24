@@ -9,6 +9,7 @@ use partitioning::dbvt::DBVTLeaf;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 use geom::compound::CompoundAABB;
+use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 
 /// Collision detector between a `CompoundAABB` and any other shape. This other shape can itself be
 /// a `CompoundAABB` but this is discouraged: use the `CompoundCompound` collision detector istead.
@@ -81,7 +82,10 @@ CompoundAABBAny<N, V, M, G, D, SD> {
         let ls_m2    = m1.inverse().expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
 
-        g1.dbvt().interferences_with_bounding_volume(&ls_aabb2, &mut self.interferences);
+        {
+            let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
+            g1.dbvt().visit(&mut visitor);
+        }
 
         for i in self.interferences.iter() {
             let g1 = g1.shapes()[i.object].second_ref();
@@ -212,8 +216,13 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
         let ls_swept_aabb = ls_aabb_begin.merged(&ls_aabb_end);
 
         // FIXME: too bad we have to allocate here…
-        let mut interferences = ~[];
-        g2.dbvt().interferences_with_bounding_volume(&ls_swept_aabb, &mut interferences);
+        // FIXME: why cant the array type be infered here?
+        let mut interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>] = ~[];
+
+        {
+            let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_swept_aabb, &mut interferences);
+            g2.dbvt().visit(&mut visitor);
+        }
 
         let mut min_toi = Bounded::max_value::<N>();
 

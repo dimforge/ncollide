@@ -8,7 +8,7 @@ use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::vector::AlgebraicVecExt;
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
-use geom::implicit::Implicit;
+use geom::implicit::{Implicit, HasMargin};
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone)]
@@ -47,14 +47,19 @@ impl<N: Clone> Capsule<N> {
     }
 }
 
+
+impl<N: Clone> HasMargin<N> for Capsule<N> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.radius.clone()
+    }
+}
+
 impl<N: Clone + Signed + Algebraic,
      V: Clone + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>>
 Implicit<N, V, M> for Capsule<N> {
-    fn margin(&self) -> N {
-        self.radius.clone()
-    }
-
+    #[inline]
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 

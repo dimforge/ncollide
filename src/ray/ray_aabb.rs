@@ -3,14 +3,14 @@ use std::num::{Zero, One};
 use nalgebra::traits::indexable::Indexable;
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::vector::VecExt;
-use ray::ray::Ray;
+use ray::ray::{Ray, RayCast};
 use bounding_volume::aabb;
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + ToStr>
-aabb::AABB<N, V> {
+RayCast<N, V> for aabb::AABB<N, V> {
     /// Computes the toi of a ray and this aabb.
-    pub fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         let mut tmin = Zero::zero::<N>();
         let mut tmax = Bounded::max_value::<N>();
 

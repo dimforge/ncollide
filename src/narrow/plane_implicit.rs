@@ -1,11 +1,12 @@
 use nalgebra::traits::rotation::Rotate;
+use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::vector::{Vec, AlgebraicVec};
 use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;
 use contact::Contact;
-use ray::ray::{Ray, RayCast};
+use ray::ray::{Ray, RayCastWithTransform};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 /// This detector generates only one contact point. For a full manifold generation, see
@@ -29,7 +30,7 @@ impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
 
 impl<N: Algebraic + Num + NumCast + Ord + Clone,
      V: AlgebraicVec<N> + Clone + ToStr,
-     M: Rotate<V> + Translation<V>,
+     M: Rotate<V> + Translation<V> + Transform<V>,
      G: Implicit<N, V, M>>
 CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
     #[inline]
@@ -86,7 +87,7 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
 
 impl<N: Algebraic + Num + NumCast + Ord + Clone,
      V: AlgebraicVec<N> + Clone + ToStr,
-     M: Rotate<V> + Translation<V>,
+     M: Rotate<V> + Translation<V> + Transform<V>,
      G: Implicit<N, V, M>>
 CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
     #[inline]
@@ -161,7 +162,7 @@ pub fn collide<V: AlgebraicVec<N> + Clone,
 ///     * `other`  - the other geometry.
 pub fn toi<N: Algebraic + Ord + Num,
            V: AlgebraicVec<N> + Clone + ToStr,
-           M: Translation<V> + Rotate<V>,
+           M: Translation<V> + Rotate<V> + Transform<V>,
            G: Implicit<N, V, M>>(
            mplane: &M,
            plane:  &Plane<N, V>,
@@ -172,5 +173,5 @@ pub fn toi<N: Algebraic + Ord + Num,
     let plane_normal  = mplane.rotate(&plane.normal());
     let closest_point = other.support_point(mother, &-plane_normal);
 
-    plane.toi_with_ray(mplane, &Ray::new(closest_point, dir.clone()))
+    plane.toi_with_transform_and_ray(mplane, &Ray::new(closest_point, dir.clone()))
 }

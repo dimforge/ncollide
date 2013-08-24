@@ -2,7 +2,7 @@ use std::num::Bounded;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
 use nalgebra::traits::vector::AlgebraicVec;
-use geom::implicit::Implicit;
+use geom::implicit::{Implicit, HasMargin};
 
 /**
  * Set of point assumed to form a convex polytope.
@@ -38,15 +38,17 @@ impl<N: NumCast, V> ConvexPolytope<N, V> {
     }
 }
 
-impl<N: Algebraic + Ord + Bounded + ToStr + Neg<N> + Clone,
-     V: AlgebraicVec<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for ConvexPolytope<N, V> {
+impl<N: Clone, V> HasMargin<N> for ConvexPolytope<N, V> {
     #[inline]
     fn margin(&self) -> N {
         self.margin.clone()
     }
+}
 
+impl<N: Algebraic + Ord + Bounded + ToStr + Neg<N> + Clone,
+     V: AlgebraicVec<N> + Clone,
+     M: Transform<V> + Rotate<V>>
+Implicit<N, V, M> for ConvexPolytope<N, V> {
     #[inline]
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);

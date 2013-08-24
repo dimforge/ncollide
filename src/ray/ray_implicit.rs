@@ -1,17 +1,18 @@
-use std::num::Zero;
+use std::num::{Zero, One};
 use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
 use nalgebra::traits::dim::Dim;
 use nalgebra::traits::translation::Translation;
 use nalgebra::traits::transformation::Transform;
 use nalgebra::traits::rotation::Rotate;
+use nalgebra::mat::Identity;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::implicit::Implicit;
 use geom::cylinder::Cylinder;
 use geom::cone::Cone;
 use geom::capsule::Capsule;
-use geom::minkowski_sum::NonTransformableMinkowskiSum;
-use ray::ray::{Ray, RayCast};
+use geom::minkowski_sum::MinkowskiSum;
+use ray::ray::{Ray, RayCast, RayCastWithTransform};
 use ray::ray_plane;
 
 /// Projects the origin on a geometry unsing the GJK algorithm.
@@ -23,7 +24,7 @@ use ray::ray_plane;
 pub fn gjk_toi_with_ray<S: Simplex<N, V>,
                         G: Implicit<N, V, M>,
                         N: Ord + Num + Float + NumCast + ToStr,
-                        V: AlgebraicVec<N> + Clone + ToStr,
+                        V: AlgebraicVecExt<N> + Clone + ToStr,
                         M: Translation<V>>(
                         m:       &M,
                         geom:    &G,
@@ -39,7 +40,11 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
     let mut dir        = curr_ray.orig - m.translation();
-    // XXX: will fail if curr_ray.orig - m.translation() == Zero::zero()
+
+    if dir.is_zero() {
+        dir.set(0, One::one())
+    }
+
     let mut old_sq_len = Bounded::max_value::<N>();
 
     // FIXME: this converges in more than 100 iterations… something is wrong here…
@@ -98,44 +103,60 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
 }
 
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
-     M: Translation<V> + Transform<V> + Rotate<V>>
-RayCast<N, V, M> for Cylinder<N> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
-        // FIXME: too bad we have to do _a lot_ of allocations to create the simplex solver…
-        gjk_toi_with_ray(m, self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+     V: AlgebraicVecExt<N> + Clone + ToStr>
+RayCast<N, V> for Cylinder<N> {
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
     }
 }
 
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
-     M: Translation<V> + Transform<V> + Rotate<V>>
-RayCast<N, V, M> for Cone<N> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
-        // FIXME: too bad we have to do _a lot_ of allocations to create the simplex solver…
-        gjk_toi_with_ray(m, self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Cylinder<N>;
+
+impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
+     V: AlgebraicVecExt<N> + Clone + ToStr>
+RayCast<N, V> for Cone<N> {
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
     }
 }
 
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
-     M: Translation<V> + Transform<V> + Rotate<V>>
-RayCast<N, V, M> for Capsule<N> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
-        // FIXME: too bad we have to do _a lot_ of allocations to create the simplex solver…
-        gjk_toi_with_ray(m, self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Cone<N>;
+
+impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
+     V: AlgebraicVecExt<N> + Clone + ToStr>
+RayCast<N, V> for Capsule<N> {
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+    }
+}
+
+impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
+     V: AlgebraicVecExt<N> + Clone + ToStr,
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Capsule<N>;
+
+impl<'self,
+     N:  Ord + Num + Float + NumCast + Clone + ToStr,
+     V:  AlgebraicVecExt<N> + Clone + ToStr,
+     G1: Implicit<N, V, M>,
+     G2: Implicit<N, V, M>,
+     M>
+RayCast<N, V> for MinkowskiSum<'self, M, G1, G2> {
+    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
     }
 }
 
 impl<'self,
      N:  Ord + Num + Float + NumCast + Clone + ToStr,
      V:  AlgebraicVecExt<N> + Clone + ToStr,
-     M:  Translation<V> + Transform<V> + Rotate<V>,
      G1: Implicit<N, V, M>,
-     G2: Implicit<N, V, M>>
-RayCast<N, V, M> for NonTransformableMinkowskiSum<'self, M, G1, G2> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<V>) -> Option<N> {
-        // FIXME: too bad we have to do _a lot_ of allocations to create the simplex solver…
-        gjk_toi_with_ray(m, self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
-    }
-}
+     G2: Implicit<N, V, M>,
+     M:  Rotate<V> + Transform<V>>
+RayCastWithTransform<N, V, M> for MinkowskiSum<'self, M, G1, G2>;

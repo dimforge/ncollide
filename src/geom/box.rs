@@ -12,7 +12,7 @@ use nalgebra::traits::vector::{VecExt, AlgebraicVecExt};
 use nalgebra::traits::scalar_op::ScalarSub;
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
-use geom::implicit::Implicit;
+use geom::implicit::{HasMargin, Implicit};
 
 /// Geometry of a box.
 ///
@@ -55,15 +55,18 @@ impl<N, V: VecExt<N> + Clone> Box<N, V> {
     }
 }
 
-impl<N: Algebraic + Signed + Clone,
-     V: AlgebraicVecExt<N>,
-     M: Rotate<V> + Transform<V>>
-Implicit<N, V, M> for Box<N, V> {
+impl<N: Clone, V> HasMargin<N> for Box<N, V> {
     #[inline]
     fn margin(&self) -> N {
         self.margin.clone()
     }
+}
 
+
+impl<N: Algebraic + Signed + Clone,
+     V: AlgebraicVecExt<N>,
+     M: Rotate<V> + Transform<V>>
+Implicit<N, V, M> for Box<N, V> {
     #[inline]
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
