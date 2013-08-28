@@ -23,7 +23,7 @@ RayCast<N, V> for CompoundAABB<N, V, M, S> {
         }
 
         // compute the minimum toi
-        let mut toi = Bounded::max_value::<N>();
+        let mut toi: N = Bounded::max_value();
         let shapes = self.shapes();
 
         for i in interferences.iter() {

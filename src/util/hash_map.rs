@@ -25,6 +25,7 @@ impl<K, V> Entry<K, V> {
 ///     * the hash table are speratate from the datas. Thus, the vector of entries is tight (no
 ///     holes due to sparce hashing).
 pub struct HashMap<K, V, H> {
+    priv hash:          H,
     priv table:         ~[Entry<K, V>],
     priv mask:          uint,
     priv htable:        ~[int],
@@ -43,10 +44,11 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 
     /// Creates a new hash map with a given capacity.
-    pub fn new_with_capacity(capacity: uint, _: H) -> HashMap<K, V, H> {
+    pub fn new_with_capacity(capacity: uint, h: H) -> HashMap<K, V, H> {
         let pow2 = uint::next_power_of_two(capacity);
 
         HashMap {
+            hash:   h,
             table:  vec::with_capacity(pow2),
             mask:   pow2 - 1,
             htable: vec::from_elem(pow2, -1),
@@ -92,7 +94,7 @@ impl<K: Eq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
 
 impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
     fn find_entry_id(&self, key: &K) -> int {
-        let h = HashFun::hash::<K, H>(key) & self.mask;
+        let h = self.hash.hash(key) & self.mask;
 
         let mut pos = self.htable[h];
 
@@ -119,7 +121,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
             let mut newnext  = vec::from_elem(self.max_elem, -1);
 
             for i in range(0u, self.num_elem) {
-                let h = HashFun::hash::<K, H>(&self.table[i].key) & self.mask;
+                let h = self.hash.hash(&self.table[i].key) & self.mask;
 
                 newnext[i] = newhash[h];
                 newhash[h] = i as int;
@@ -136,7 +138,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
         if entry == -1 {
             self.may_grow();
 
-            let h = HashFun::hash::<K, H>(&key) & self.mask;
+            let h = self.hash.hash(&key) & self.mask;
 
             self.next[self.num_elem] = self.htable[h];
             self.htable[h] = self.num_elem as int;
@@ -156,7 +158,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
 
     /// Removes an element and returns its value if it existed.
     pub fn get_and_remove(&mut self, key: &K) -> Option<Entry<K, V>> {
-        let h = HashFun::hash::<K, H>(key) & self.mask;
+        let h = self.hash.hash(key) & self.mask;
 
         let mut obji;
         let mut o = self.htable[h];
@@ -186,7 +188,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
             let removed = self.table.swap_remove(obji as uint);
 
             if obji != self.num_elem as int {
-                let nh = HashFun::hash::<K, H>(&self.table[obji].key) & self.mask;
+                let nh = self.hash.hash(&self.table[obji].key) & self.mask;
 
                 if self.htable[nh] == self.num_elem as int {
                     self.htable[nh] = obji
@@ -220,7 +222,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
         if entry == -1 {
             self.may_grow();
 
-            let h = HashFun::hash::<K, H>(&key) & self.mask;
+            let h = self.hash.hash(&key) & self.mask;
 
             self.next[self.num_elem] = self.htable[h];
             self.htable[h] = self.num_elem as int;
@@ -277,7 +279,7 @@ impl<K: Eq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
     }
 
     fn find<'a>(&'a self, key: &K) -> Option<&'a V> {
-        let h = HashFun::hash::<K, H>(key) & self.mask;
+        let h = self.hash.hash(key) & self.mask;
 
         let mut pos = self.htable[h];
 
@@ -340,7 +342,7 @@ mod test {
     // NOTE: some tests are simply copy-pasted from std::hashmap tests.
     #[test]
     fn test_find() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.find(&1).is_none());
         m.insert(1, 2);
         match m.find(&1) {
@@ -351,7 +353,7 @@ mod test {
 
     #[test]
     fn test_is_empty() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(!m.is_empty());
         assert!(m.remove(&1));
@@ -360,7 +362,7 @@ mod test {
 
     #[test]
     fn test_insert() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(2, 4));
         assert_eq!(*m.find(&1).unwrap(), 2);
@@ -369,7 +371,7 @@ mod test {
 
     #[test]
     fn test_find_mut() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 12));
         assert!(m.insert(2, 8));
         assert!(m.insert(5, 14));
@@ -382,7 +384,7 @@ mod test {
 
     #[test]
     fn test_insert_overwrite() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert_eq!(*m.find(&1).unwrap(), 2);
         assert!(!m.insert(1, 3));
@@ -391,7 +393,7 @@ mod test {
 
     #[test]
     fn test_insert_conflicts() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(5, 3));
         assert!(m.insert(9, 4));
@@ -402,7 +404,7 @@ mod test {
 
     #[test]
     fn test_conflict_remove() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash);
+        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(5, 3));
         assert!(m.insert(9, 4));
@@ -413,7 +415,7 @@ mod test {
 
     #[bench]
     fn bench_insert_this(bh: &mut BenchHarness) {
-        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash);
+        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
         do bh.iter {
             for i in range(0u, 500) {
@@ -435,7 +437,7 @@ mod test {
 
     #[bench]
     fn bench_insert_find_remove_this(bh: &mut BenchHarness) {
-        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash);
+        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
         do bh.iter {
             for i in range(0u, 200) {
@@ -515,7 +517,7 @@ mod test {
     fn abench_insert_find_this() {
         let before = time::precise_time_ns();
 
-        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new_with_capacity(20000, UintPairTWHash);
+        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new_with_capacity(20000, UintPairTWHash::new());
 
         for i in range(0u, 20000) {
             m.insert((i, i), i);

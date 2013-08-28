@@ -43,6 +43,8 @@ impl<N, V: Clone> Plane<N, V> {
 impl<V: AlgebraicVecExt<N>, N, M>
 HasAABB<N, V, M> for Plane<N, V> {
     fn aabb(&self, _: &M) -> AABB<N, V> {
-        AABB::new(-Bounded::max_value::<V>(), Bounded::max_value())
+        let _m: V = Bounded::max_value();
+
+        AABB::new(-_m, Bounded::max_value())
     }
 }

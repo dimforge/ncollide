@@ -28,16 +28,16 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     // we enlarge the shapes with a small sphere
     // FIXME: using minkowskiSum(CSO(...)) could be more
     // efficient than the current approach (CSO(minkowskiSum(...), minkowskiSum(..)))
-    let _0        = Zero::zero::<N>();
-    let _1m       = One::one::<M>();
+    let _0: N     = Zero::zero();
+    let _1m: M    = One::one();
     let reflect2  = Reflection::new(g2);
     let cso       = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
-    let mut best_dir     = Zero::zero::<V>();
-    let mut min_dist     = Bounded::max_value();
+    let mut best_dir: V = Zero::zero();
+    let mut min_dist    = Bounded::max_value();
 
-    do UniformSphereSample::sample::<V>() |sample| {
+    do UniformSphereSample::sample() |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = sample.dot(&support);
 

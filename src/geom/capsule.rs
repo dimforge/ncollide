@@ -63,7 +63,7 @@ Implicit<N, V, M> for Capsule<N> {
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        let mut vres = Zero::zero::<V>();
+        let mut vres: V = Zero::zero();
 
         if local_dir.at(0).is_negative() {
             vres.set(0, -self.half_height)

@@ -77,8 +77,8 @@ BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
             objects:    ~[],
             sobjects:   ~[],
             to_update:  ~[],
-            rb2bv:      HashMap::new(UintTWHash),
-            pairs:      HashMap::new(PairTWHash),
+            rb2bv:      HashMap::new(UintTWHash::new()),
+            pairs:      HashMap::new(PairTWHash::new()),
             dispatcher: dispatcher,
             update_off: 0,
             margin:     margin

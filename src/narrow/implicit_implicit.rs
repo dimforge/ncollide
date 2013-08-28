@@ -72,7 +72,13 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn toi(ma: &M, dir: &V, _: &N, a: &G1, mb: &M, b: &G2) -> Option<N> {
+    fn toi(_:   Option<ImplicitImplicit<S, G1, G2, N, V>>,
+           ma:  &M,
+           dir: &V,
+           _:   &N,
+           a:   &G1,
+           mb:  &M,
+           b:   &G2) -> Option<N> {
         toi(ma, dir, a, mb, b)
     }
 }

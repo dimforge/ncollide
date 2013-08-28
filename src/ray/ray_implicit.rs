@@ -31,11 +31,13 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
                         simplex: &mut S,
                         ray:     &Ray<V>)
                         -> Option<N> {
-    let mut ltoi   = Zero::zero::<N>();
+    let mut ltoi: N = Zero::zero();
 
-    let _eps_tol = Float::epsilon::<N>() * NumCast::from(100.0f64);
-    let _eps_rel = Float::epsilon::<N>().sqrt();
-    let _dim     = Dim::dim::<V>();
+    let _eps: N  = Float::epsilon();
+    let _dim: Option<V> = None;
+    let _eps_tol = _eps * NumCast::from(100.0f64);
+    let _eps_rel = _eps.sqrt();
+    let _dim     = Dim::dim(_dim);
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
@@ -45,7 +47,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
         dir.set(0, One::one())
     }
 
-    let mut old_sq_len = Bounded::max_value::<N>();
+    let mut old_sq_len: N = Bounded::max_value();
 
     // FIXME: this converges in more than 100 iterations… something is wrong here…
     loop {
@@ -73,7 +75,8 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
                     curr_ray.orig = ray.orig + ray.dir * ltoi;
                     dir    = curr_ray.orig - support_point;
                     simplex.reset(-dir);
-                    old_sq_len = Bounded::max_value::<N>();
+                    let _M: N = Bounded::max_value();
+                    old_sq_len = _M;
                     loop
                 }
             },
@@ -106,7 +109,7 @@ impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Cylinder<N> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -119,7 +122,7 @@ impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Cone<N> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -132,7 +135,7 @@ impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Capsule<N> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -149,7 +152,7 @@ impl<'self,
      M>
 RayCast<N, V> for MinkowskiSum<'self, M, G1, G2> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::new_w_tls::<N, V>(), ray)
+        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 

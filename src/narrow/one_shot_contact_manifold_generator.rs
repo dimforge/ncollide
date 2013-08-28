@@ -79,7 +79,14 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &LV, dist: &N, g1: &G1, m2: &M, g2: &G2) -> Option<N> {
-        CollisionDetector::toi::<N, LV, M, G1, G2, CD>(m1, dir, dist, g1, m2, g2)
+    fn toi(_:    Option<OneShotContactManifoldGenerator<CD, N, LV, AV, M>>,
+           m1:   &M,
+           dir:  &LV,
+           dist: &N,
+           g1:   &G1,
+           m2:   &M,
+           g2:   &G2) -> Option<N> {
+        let _self: Option<CD> = None;
+        CollisionDetector::toi(_self, m1, dir, dist, g1, m2, g2)
     }
 }

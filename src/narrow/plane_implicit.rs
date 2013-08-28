@@ -60,7 +60,13 @@ CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
     }
 
     #[inline]
-    fn toi(ma: &M, dir: &V, _: &N, plane: &Plane<N, V>, mb: &M, b: &G) -> Option<N> {
+    fn toi(_:     Option<PlaneImplicit<N, V, M, G>>,
+           ma:    &M,
+           dir:   &V,
+           _:     &N,
+           plane: &Plane<N, V>,
+           mb:    &M,
+           b:     &G) -> Option<N> {
         toi(ma, plane, mb, &-dir, b)
     }
 }
@@ -113,7 +119,13 @@ CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
     }
 
     #[inline]
-    fn toi(ma: &M, dir: &V, _: &N, a: &G, mb: &M, plane: &Plane<N, V>) -> Option<N> {
+    fn toi(_:     Option<ImplicitPlane<N, V, M, G>>,
+           ma:    &M,
+           dir:   &V,
+           _:     &N,
+           a:     &G,
+           mb:    &M,
+           plane: &Plane<N, V>) -> Option<N> {
         toi(mb, plane, ma, dir, a)
     }
 }

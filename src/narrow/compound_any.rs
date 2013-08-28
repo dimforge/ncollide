@@ -175,10 +175,16 @@ for CompoundAABBAny<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &V, dist: &N, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G) -> Option<N> {
-        CollisionDetector::toi::<N, V, M, G, CompoundAABB<N, V, M, G>, AnyCompoundAABB<N, V, M, G, D, SD>>(
-            m2, &-dir, dist, g2, m1, g1
-        )
+    fn toi(_:    Option<CompoundAABBAny<N, V, M, G, D, SD>>,
+           m1:   &M,
+           dir:  &V,
+           dist: &N,
+           g1:   &CompoundAABB<N, V, M, G>,
+           m2:   &M,
+           g2:   &G)
+           -> Option<N> {
+        let _self: Option<AnyCompoundAABB<N, V, M, G, D, SD>> = None;
+        CollisionDetector::toi(_self, m2, &-dir, dist, g2, m1, g1)
     }
 }
 
@@ -206,7 +212,14 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn toi(m1: &M, dir: &V, dist: &N, g1: &G, m2: &M, g2: &CompoundAABB<N, V, M, G>) -> Option<N> {
+    fn toi(_:    Option<AnyCompoundAABB<N, V, M, G, D, SD>>,
+           m1:   &M,
+           dir:  &V,
+           dist: &N,
+           g1:   &G,
+           m2:   &M,
+           g2:   &CompoundAABB<N, V, M, G>)
+           -> Option<N> {
         let inv_m2        = m2.inverse().expect("The transformation `m2` must be inversible.");
         let ls_m1_begin   = inv_m2 * *m1;
         let m1_end        = m1.translated(&(dir * *dist));
@@ -224,13 +237,14 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
             g2.dbvt().visit(&mut visitor);
         }
 
-        let mut min_toi = Bounded::max_value::<N>();
+        let mut min_toi: N = Bounded::max_value();
 
         for i in interferences.iter() {
             let child_m2 = m2 * *g2.shapes()[i.object].first_ref();
             let g2       = g2.shapes()[i.object].second_ref();
 
-            match CollisionDetector::toi::<N, V, M, G, G, SD>(m1, dir, dist, g1, &child_m2, g2) {
+            let _sd: Option<SD> = None;
+            match CollisionDetector::toi(_sd, m1, dir, dist, g1, &child_m2, g2) {
                 Some(toi) => min_toi = min_toi.min(&toi),
                 None => { }
             }

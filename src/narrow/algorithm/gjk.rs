@@ -79,9 +79,11 @@ pub fn project_origin<S: Simplex<N, V>,
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = proj.sqnorm();
 
-    let _eps_tol = Float::epsilon::<N>() * NumCast::from(100.0f64);
-    let _eps_rel = Float::epsilon::<N>();
-    let _dim     = Dim::dim::<V>();
+    let _eps: N  = Float::epsilon();
+    let _eps_tol = _eps * NumCast::from(100.0f64);
+    let _eps_rel = _eps;
+    let _dim: Option<V> = None;
+    let _dim            = Dim::dim(_dim);
 
     loop {
         let support_point = geom.support_point_without_margin(m, &-proj);

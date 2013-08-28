@@ -46,10 +46,17 @@ impl<B> Eq for Pair<B> {
 }
 
 /// Tomas Wang based hash function for a `Pair` object.
-pub struct PairTWHash;
+pub struct PairTWHash { priv unused: uint } // FIXME: ICE with zero-sized structs
+
+impl PairTWHash {
+    /// Creates a new PairTWHash
+    pub fn new() -> PairTWHash {
+        PairTWHash { unused: 0 }
+    }
+}
 
 impl<B> HashFun<Pair<B>> for PairTWHash {
-    fn hash(p: &Pair<B>) -> uint {
+    fn hash(&self, p: &Pair<B>) -> uint {
         hash::tomas_wang_hash(
             hash::key_from_pair(
                 ptr::to_mut_unsafe_ptr(p.sfirst) as uint, ptr::to_mut_unsafe_ptr(p.ssecond) as uint

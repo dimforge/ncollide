@@ -22,10 +22,10 @@ BruteForceSimplex<N, V> {
     }
 
     fn project_on_subsimplex(points: &[V]) -> Option<V> {
-        let     _0  = Zero::zero::<N>();
-        let     _1  = One::one::<N>();
-        let     dim = points.len();
-        let mut mat = zero_mat_with_dim(dim);
+        let     _0: N = Zero::zero();
+        let     _1: N = One::one();
+        let     dim   = points.len();
+        let mut mat   = zero_mat_with_dim(dim);
 
         for i in range(0u, dim) {
             mat.set(0u, i, &_1)
@@ -45,8 +45,8 @@ BruteForceSimplex<N, V> {
             None
         }
         else {
-            let mut res        = Zero::zero::<V>();
-            let mut normalizer = Zero::zero::<N>();
+            let mut res: V        = Zero::zero();
+            let mut normalizer: N = Zero::zero();
 
             for i in range(0u, dim) {
                 if mat.at(i, 0u) > _0 {
@@ -134,7 +134,8 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     fn add_point(&mut self, pt: V) {
-        assert!(self.points.len() <= Dim::dim::<V>());
+        let _dim: Option<V> = None;
+        assert!(self.points.len() <= Dim::dim(_dim));
         self.points.push(pt)
     }
 

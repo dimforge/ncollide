@@ -117,7 +117,8 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     }
 
     #[inline]
-    fn toi(_: &M,
+    fn toi(_: Option<CompoundAABBCompoundAABB<N, V, M, S, D, SD>>,
+           _: &M,
            _: &V,
            _: &N,
            _: &CompoundAABB<N, V, M, S>,

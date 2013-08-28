@@ -19,7 +19,7 @@ impl<B, D: Dispatcher<B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
     pub fn new(dispatcher: D) -> BruteForceBroadPhase<B, D, DV> {
         BruteForceBroadPhase {
             dispatcher: dispatcher,
-            pairs:      HashMap::new(PairTWHash),
+            pairs:      HashMap::new(PairTWHash::new()),
             objects:    ~[],
         }
     }

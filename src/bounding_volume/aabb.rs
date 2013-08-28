@@ -58,9 +58,10 @@ impl<V: VecExt<N>, N> AABB<N, V> {
     ///     * `maxs = Bounded::max_value()`.
     /// This is useful to build aabb using merges.
     pub fn new_invalid() -> AABB<N, V> {
+        let _M: V = Bounded::max_value();
         AABB {
             mins: Bounded::max_value(),
-            maxs: -Bounded::max_value::<V>(),
+            maxs: -_M,
         }
     }
 }
@@ -139,11 +140,11 @@ pub fn implicit_shape_aabb<N: Algebraic,
                            m: &M,
                            i: &I)
                            -> AABB<N, V> {
-        let mut resm = Zero::zero::<V>();
-        let mut resM = Zero::zero::<V>();
+        let mut resm: V = Zero::zero();
+        let mut resM: V = Zero::zero();
 
         // FIXME: optimize using Indexable?
-        do Basis::canonical_basis::<V>() |basis| {
+        do Basis::canonical_basis() |basis: V| {
             resm = resm + basis * basis.dot(&i.support_point(m, &-basis));
             resM = resM + basis * basis.dot(&i.support_point(m, &basis));
 

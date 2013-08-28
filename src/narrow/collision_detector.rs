@@ -34,5 +34,5 @@ pub trait CollisionDetector<N, V, M, G1, G2> {
     ///     * `g1`   - the first object.
     ///     * `m2`   - the second object transform.
     ///     * `g2`   - the second object.
-    fn toi(m1: &M, dir: &V, dist: &N, g1: &G1, m2: &M, g2: &G2) -> Option<N>;
+    fn toi(unused_self: Option<Self>, m1: &M, dir: &V, dist: &N, g1: &G1, m2: &M, g2: &G2) -> Option<N>;
 }

@@ -53,7 +53,8 @@ Implicit<N, V, M> for ConvexPolytope<N, V> {
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        let mut best_dot = -Bounded::max_value::<N>();
+        let _M: N = Bounded::max_value();
+        let mut best_dot = -_M;
         let mut best_pt  = &self.pts[0];
 
         for p in self.pts.iter() {

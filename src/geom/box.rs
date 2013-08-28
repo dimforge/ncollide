@@ -71,9 +71,10 @@ Implicit<N, V, M> for Box<N, V> {
     fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        let mut vres = Zero::zero::<V>();
+        let mut vres: V = Zero::zero();
+        let _dim: Option<V> = None;
 
-        for i in range(0u, Dim::dim::<V>()) {
+        for i in range(0u, Dim::dim(_dim)) {
             if local_dir.at(i).is_negative() {
                 vres.set(i, -self.half_extents.at(i));
             }

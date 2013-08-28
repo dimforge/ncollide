@@ -241,8 +241,9 @@ impl<V: Neg<V>> Neg<AnnotatedPoint<V>> for AnnotatedPoint<V> {
 
 impl<V: Dim> Dim for AnnotatedPoint<V> {
     #[inline]
-    fn dim() -> uint {
-        Dim::dim::<V>()
+    fn dim(_: Option<AnnotatedPoint<V>>) -> uint {
+        let _dim: Option<V> = None;
+        Dim::dim(_dim)
     }
 }
 
@@ -349,7 +350,8 @@ pub fn cso_support_point_without_margin<G1: Implicit<N, V, M>,
 impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+        // ApproxEq::<N>::approx_epsilon()
     }
 
     #[inline]

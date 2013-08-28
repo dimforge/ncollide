@@ -79,7 +79,7 @@ impl RecursionTemplate {
         // the number of points of the last subsimplices
         let mut last_num_points = dim + 1;
 
-        let mut map             = TreeMap::new::<~[uint], uint>();
+        let mut map             = TreeMap::<~[uint], uint>::new();
 
         let mut determinant_index  = 0;
 
@@ -192,7 +192,8 @@ impl<N: Clone + Zero, V: Dim>
 JohnsonSimplex<N, V> {
     /// Creates a new, empty, johnson simplex.
     pub fn new(recursion: @[RecursionTemplate]) -> JohnsonSimplex<N, V> {
-        let _dim = Dim::dim::<V>();
+        let _dim: Option<V> = None;
+        let _dim = Dim::dim(_dim);
 
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
@@ -209,14 +210,16 @@ JohnsonSimplex<N, V> {
 
         match recursion {
             Some(r) => {
-                if r.len() > Dim::dim::<V>() {
+                let _dim: Option<V> = None;
+                if r.len() > Dim::dim(_dim) {
                     return JohnsonSimplex::new(recursion.unwrap())
                 }
             },
             _ => { }
         }
 
-        let new_recursion = RecursionTemplate::new(Dim::dim::<V>());
+        let _dim: Option<V> = None;
+        let new_recursion = RecursionTemplate::new(Dim::dim(_dim));
         local_data::set(KEY_RECURSION_TEMPLATE, new_recursion);
         JohnsonSimplex::new(new_recursion)
 
@@ -241,7 +244,7 @@ JohnsonSimplex<N, V> {
         let mut curr         = max_num_pts;
 
         for c in self.determinants.mut_slice_from(recursion.num_determinants - max_num_pts).mut_iter() {
-            *c = One::one::<N>().clone();
+            *c = One::one();
         }
 
         // NOTE: Please read that before thinking all those `unsafe_whatever` should be bannished.
@@ -261,7 +264,7 @@ JohnsonSimplex<N, V> {
             // for each sub-simplex ...
             while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant = Zero::zero::<N>();
+                    let mut determinant: N = Zero::zero();
                     let kpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr + 1u)).clone();
                     let jpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr)).clone();
 
@@ -302,19 +305,19 @@ JohnsonSimplex<N, V> {
                         let det_id = curr - (i + 1) * curr_num_pts;
                         let det    = self.determinants.unsafe_get(recursion.sub_determinants.unsafe_get(det_id));
 
-                        if det > Zero::zero::<N>() {
+                        if det > Zero::zero() {
                             // invalidate the children determinant
                             if curr_num_pts > 1 {
                                 let subdetid = recursion.sub_determinants.unsafe_get(det_id + 1);
 
-                                if self.determinants.unsafe_get(subdetid) > Zero::zero::<N>() {
-                                    self.determinants.unsafe_set(subdetid, Bounded::max_value::<N>())
+                                if self.determinants.unsafe_get(subdetid) > Zero::zero() {
+                                    self.determinants.unsafe_set(subdetid, Bounded::max_value())
                                 }
                             }
 
                             // dont concider this sub-simplex if it has been invalidated by its
                             // parent(s)
-                            if det == Bounded::max_value::<N>() {
+                            if det == Bounded::max_value() {
                                 foundit = false
                             }
                         }
@@ -328,8 +331,8 @@ JohnsonSimplex<N, V> {
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_det = Zero::zero::<N>();
-                    let mut proj      = Zero::zero::<V>();
+                    let mut total_det: N = Zero::zero();
+                    let mut proj: V      = Zero::zero();
 
                     unsafe {
                         for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
@@ -400,7 +403,8 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     #[inline]
     fn add_point(&mut self, pt: V) {
         self.points.push(pt);
-        assert!(self.points.len() <= Dim::dim::<V>() + 1);
+        let _dim: Option<V> = None;
+        assert!(self.points.len() <= Dim::dim(_dim) + 1);
     }
 
     #[inline]
@@ -495,7 +499,7 @@ mod test {
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);
         let d = Vec3::new(0.0, -0.5, -0.5);
-        let _ = JohnsonSimplex::new_w_tls::<float, Vec3<float>>();
+        let _ = JohnsonSimplex::<float, Vec3<float>>::new_w_tls();
 
         do bh.iter {
             let mut spl = JohnsonSimplex::new_w_tls();

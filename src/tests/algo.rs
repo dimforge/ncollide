@@ -26,10 +26,12 @@ use geom::minkowski_sum::AnnotatedPoint;
 use geom::minkowski_sum;
 
 macro_rules! test_johnson_simplex_impl(
-  ($t: ty, $n: ty) => ( {
-        let recursion = RecursionTemplate::new(Dim::dim::<$t>());
+    ($t: ty, $n: ty) => ( {
+        let _dim: Option<$t> = None;
+        let recursion = RecursionTemplate::new(Dim::dim(_dim));
 
-        for  d in range(0, Dim::dim::<$t>() + 1) {
+        let _dim: Option<$t> = None;
+        for d in range(0u, Dim::dim(_dim) + 1) {
             for i in range(1u, 200 / (d + 1)) {
                 // note that this fails with lower precision
                 let mut v1: $t = rand::random();
@@ -62,8 +64,9 @@ macro_rules! test_johnson_simplex_impl(
 )
 
 macro_rules! test_gjk_ball_ball_impl(
-  ($t: ty, $n: ty) => ( {
-        let recursion   = RecursionTemplate::new(Dim::dim::<$t>());
+    ($t: ty, $n: ty) => ( {
+        let _dim: Option<$t> = None;
+        let recursion   = RecursionTemplate::new(Dim::dim(_dim));
 
         do 200.times {
             let r1 = 10.0 as $n * rand::random();
