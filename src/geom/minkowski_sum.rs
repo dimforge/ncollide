@@ -242,8 +242,7 @@ impl<V: Neg<V>> Neg<AnnotatedPoint<V>> for AnnotatedPoint<V> {
 impl<V: Dim> Dim for AnnotatedPoint<V> {
     #[inline]
     fn dim(_: Option<AnnotatedPoint<V>>) -> uint {
-        let _dim: Option<V> = None;
-        Dim::dim(_dim)
+        Dim::dim(None::<V>)
     }
 }
 

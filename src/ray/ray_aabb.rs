@@ -13,9 +13,8 @@ RayCast<N, V> for aabb::AABB<N, V> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         let mut tmin: N = Zero::zero();
         let mut tmax: N = Bounded::max_value();
-        let _dim: Option<V> = None;
 
-        for i in range(0u, Dim::dim(_dim)) {
+        for i in range(0u, Dim::dim(None::<V>)) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None

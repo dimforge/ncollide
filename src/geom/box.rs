@@ -72,9 +72,8 @@ Implicit<N, V, M> for Box<N, V> {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres: V = Zero::zero();
-        let _dim: Option<V> = None;
 
-        for i in range(0u, Dim::dim(_dim)) {
+        for i in range(0u, Dim::dim(None::<V>)) {
             if local_dir.at(i).is_negative() {
                 vres.set(i, -self.half_extents.at(i));
             }

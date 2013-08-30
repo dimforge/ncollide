@@ -108,14 +108,12 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + 
         let center = bounding_bounding_box.translation();
 
         // build the partitions
-        let _dim: Option<V> = None;
-        let mut partitions = vec::from_fn(1u << Dim::dim(_dim), |_| ~[]);
+        let mut partitions = vec::from_fn(1u << Dim::dim(None::<V>), |_| ~[]);
         for (b, aabb) in leaves.move_iter() {
             let dpos    = aabb.translation() - center;
             let mut key = 0u;
 
-            let _dim: Option<V> = None;
-            for i in range(0u, Dim::dim(_dim)) {
+            for i in range(0u, Dim::dim(None::<V>)) {
                 if dpos.at(i).is_negative() {
                     key = key | (1u << i);
                 }

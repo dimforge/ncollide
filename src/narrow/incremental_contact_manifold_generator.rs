@@ -86,8 +86,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
         self.sub_detector.colls(&mut self.collector);
 
         // remove duplicates
-        let _dim: Option<V> = None;
-        let _max_num_contact = (Dim::dim(_dim) - 1) * 2;
+        let _max_num_contact = (Dim::dim(None::<V>) - 1) * 2;
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
@@ -171,8 +170,7 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
            g1:   &G1,
            m2:   &M,
            g2:   &G2) -> Option<N> {
-        let _self: Option<CD> = None;
-        CollisionDetector::toi(_self, m1, dir, dist, g1, m2, g2)
+        CollisionDetector::toi(None::<CD>, m1, dir, dist, g1, m2, g2)
     }
 
 }

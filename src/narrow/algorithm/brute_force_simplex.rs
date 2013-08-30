@@ -134,8 +134,7 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     fn add_point(&mut self, pt: V) {
-        let _dim: Option<V> = None;
-        assert!(self.points.len() <= Dim::dim(_dim));
+        assert!(self.points.len() <= Dim::dim(None::<V>));
         self.points.push(pt)
     }
 

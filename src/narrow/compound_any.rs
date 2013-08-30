@@ -243,8 +243,7 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
             let child_m2 = m2 * *g2.shapes()[i.object].first_ref();
             let g2       = g2.shapes()[i.object].second_ref();
 
-            let _sd: Option<SD> = None;
-            match CollisionDetector::toi(_sd, m1, dir, dist, g1, &child_m2, g2) {
+            match CollisionDetector::toi(None::<SD>, m1, dir, dist, g1, &child_m2, g2) {
                 Some(toi) => min_toi = min_toi.min(&toi),
                 None => { }
             }

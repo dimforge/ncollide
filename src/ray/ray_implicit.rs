@@ -34,10 +34,9 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
     let mut ltoi: N = Zero::zero();
 
     let _eps: N  = Float::epsilon();
-    let _dim: Option<V> = None;
     let _eps_tol = _eps * NumCast::from(100.0f64);
     let _eps_rel = _eps.sqrt();
-    let _dim     = Dim::dim(_dim);
+    let _dim     = Dim::dim(None::<V>);
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());

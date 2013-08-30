@@ -192,8 +192,7 @@ impl<N: Clone + Zero, V: Dim>
 JohnsonSimplex<N, V> {
     /// Creates a new, empty, johnson simplex.
     pub fn new(recursion: @[RecursionTemplate]) -> JohnsonSimplex<N, V> {
-        let _dim: Option<V> = None;
-        let _dim = Dim::dim(_dim);
+        let _dim = Dim::dim(None::<V>);
 
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
@@ -210,16 +209,14 @@ JohnsonSimplex<N, V> {
 
         match recursion {
             Some(r) => {
-                let _dim: Option<V> = None;
-                if r.len() > Dim::dim(_dim) {
+                if r.len() > Dim::dim(None::<V>) {
                     return JohnsonSimplex::new(recursion.unwrap())
                 }
             },
             _ => { }
         }
 
-        let _dim: Option<V> = None;
-        let new_recursion = RecursionTemplate::new(Dim::dim(_dim));
+        let new_recursion = RecursionTemplate::new(Dim::dim(None::<V>));
         local_data::set(KEY_RECURSION_TEMPLATE, new_recursion);
         JohnsonSimplex::new(new_recursion)
 
@@ -403,8 +400,7 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     #[inline]
     fn add_point(&mut self, pt: V) {
         self.points.push(pt);
-        let _dim: Option<V> = None;
-        assert!(self.points.len() <= Dim::dim(_dim) + 1);
+        assert!(self.points.len() <= Dim::dim(None::<V>) + 1);
     }
 
     #[inline]
