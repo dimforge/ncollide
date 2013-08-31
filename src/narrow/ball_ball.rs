@@ -1,10 +1,10 @@
 use std::num::Zero;
 use nalgebra::vec::{Basis, AlgebraicVec, AlgebraicVecExt};
 use nalgebra::mat::{Rotate, Translation, Transform};
-use geom::ball::Ball;
-use narrow::collision_detector::CollisionDetector;
+use geom::Ball;
+use narrow::CollisionDetector;
 use contact::Contact;
-use ray::ray::{Ray, RayCastWithTransform};
+use ray::{Ray, RayCastWithTransform};
 
 /**
  * Collision detector between two balls.

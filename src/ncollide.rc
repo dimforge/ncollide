@@ -12,83 +12,41 @@ extern mod std;
 extern mod extra;
 extern mod nalgebra;
 
-pub mod geom
-{
-    pub mod implicit;
-    pub mod ball;
-    pub mod plane;
-    pub mod box;
-    pub mod capsule;
-    pub mod cone;
-    pub mod cylinder;
-    pub mod convex_polytope;
-    pub mod minkowski_sum;
-    pub mod reflection;
-    pub mod compound;
-    mod geom_with_margin;
-}
+/// Bounding volumes.
+pub mod bounding_volume;
 
-pub mod bounding_volume
-{
-    pub mod bounding_volume;
-    pub mod aabb;
-}
+/// Geometries.
+pub mod geom;
 
-pub mod ray {
-    pub mod ray;
-    pub mod ray_plane;
-    mod ray_ball;
-    mod ray_box;
-    mod ray_aabb;
-    mod ray_compound;
-    mod ray_implicit;
-}
+/// Ray casting utilities.
+pub mod ray;
 
-pub mod narrow
-{
-    pub mod collision_detector;
-    pub mod empty;
-    pub mod ball_ball;
-    pub mod plane_implicit;
-    pub mod implicit_implicit;
-    pub mod incremental_contact_manifold_generator;
-    pub mod one_shot_contact_manifold_generator;
-    pub mod compound_any;
-    pub mod compound_compound;
+/// Narrow phases.
+pub mod narrow;
 
-    pub mod algorithm
-    {
-        pub mod simplex;
-        pub mod johnson_simplex;
-        pub mod brute_force_simplex;
-        pub mod gjk;
-        pub mod minkowski_sampling;
-    }
-}
+/// Broad phases.
+pub mod broad;
 
-pub mod broad
-{
-    pub mod broad_phase;
-    pub mod dispatcher;
-    pub mod brute_force_broad_phase;
-    pub mod brute_force_bounding_volume_broad_phase;
-    pub mod dbvt_broad_phase;
-}
+/// Main data structure for contacts.
+pub mod contact;
 
+/// Spatial partitioning tools.
 pub mod partitioning {
+    /// A Dynamic Bounding Volume Tree.
     pub mod dbvt;
+    /// A read-only Bounding Volume Tree.
     pub mod bvt;
+    /// Trait of visitors of bounding volume based tree.
     pub mod bvt_visitor;
 }
 
+/// Data structure utilities.
 pub mod util
 {
     pub mod pair;
     pub mod hash;
     pub mod hash_map;
 }
-
-pub mod contact;
 
 mod tests
 {

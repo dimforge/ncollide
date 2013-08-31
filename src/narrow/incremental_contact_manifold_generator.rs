@@ -1,6 +1,6 @@
 use nalgebra::vec::{Vec, AlgebraicVec, Dim};
 use nalgebra::mat::Transform;
-use narrow::collision_detector::CollisionDetector;
+use narrow::CollisionDetector;
 use contact::Contact;
 
 struct ContactWLocals<N, V> {

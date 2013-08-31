@@ -5,11 +5,7 @@ use nalgebra::vec::{Vec3, AlgebraicVec};
 #[test]
 use nalgebra::mat::Identity;
 #[test]
-use geom::ball::Ball;
-#[test]
-use geom::implicit::Implicit;
-#[test]
-use geom::minkowski_sum::MinkowskiSum;
+use geom::{Ball, Implicit, MinkowskiSum};
 
 #[test]
 fn test_ball_support_function() {

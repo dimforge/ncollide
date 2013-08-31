@@ -3,7 +3,7 @@
 //!
 
 use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt};
-use bounding_volume::aabb::{HasAABB, AABB};
+use bounding_volume::{HasAABB, AABB};
 
 /**
  * Implicit description of a plane.

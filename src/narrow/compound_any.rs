@@ -1,13 +1,12 @@
 use std::vec;
 use nalgebra::mat::{Translation, Inv};
 use nalgebra::vec::AlgebraicVecExt;
-use bounding_volume::bounding_volume::BoundingVolume;
-use bounding_volume::aabb::{AABB, HasAABB};
-use broad::dispatcher::Dispatcher;
+use bounding_volume::{BoundingVolume, AABB, HasAABB};
+use broad::Dispatcher;
 use partitioning::dbvt::DBVTLeaf;
-use narrow::collision_detector::CollisionDetector;
+use narrow::CollisionDetector;
 use contact::Contact;
-use geom::compound::CompoundAABB;
+use geom::CompoundAABB;
 use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 
 /// Collision detector between a `CompoundAABB` and any other shape. This other shape can itself be

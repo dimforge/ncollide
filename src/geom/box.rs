@@ -5,9 +5,9 @@
 use std::num::{Zero, Signed};
 use nalgebra::vec::{Dim, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub};
 use nalgebra::mat::{Transform, Rotate};
-use bounding_volume::aabb::{HasAABB, AABB};
-use bounding_volume::aabb;
-use geom::implicit::{HasMargin, Implicit};
+use bounding_volume::{HasAABB, AABB};
+use bounding_volume;
+use geom::{HasMargin, Implicit};
 
 /// Geometry of a box.
 ///
@@ -86,6 +86,6 @@ impl<N: Algebraic + Signed + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Box<N, V> {
     fn aabb(&self, m: &M) -> AABB<N, V> {
-        aabb::implicit_shape_aabb(m, self)
+        bounding_volume::implicit_shape_aabb(m, self)
     }
 }

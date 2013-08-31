@@ -1,16 +1,14 @@
 use std::num::{Zero, One};
 use nalgebra::mat::{Translation, Rotate, Transform};
 use nalgebra::vec::AlgebraicVecExt;
-use geom::implicit::Implicit;
-use geom::reflection::Reflection;
-use geom::minkowski_sum;
-use geom::minkowski_sum::{AnnotatedPoint, MinkowskiSum};
+use geom;
+use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::minkowski_sampling;
-use narrow::collision_detector::CollisionDetector;
+use narrow::CollisionDetector;
 use contact::Contact;
-use ray::ray::{Ray, RayCast};
+use ray::{Ray, RayCast};
 
 /// Persistant collision detector between two shapes having a support mapping function (i.e. which
 /// implement the `Implicit` trait. It is based on the GJK algorithm.
@@ -110,7 +108,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
         dir.set(0, One::one());
     }
 
-    simplex.reset(minkowski_sum::cso_support_point_without_margin(m1, g1, m2, g2, dir));
+    simplex.reset(geom::cso_support_point_without_margin(m1, g1, m2, g2, dir));
 
     let margin1 = g1.margin();
     let margin2 = g2.margin();

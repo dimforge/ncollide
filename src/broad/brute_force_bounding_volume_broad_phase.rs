@@ -3,8 +3,8 @@ use std::util;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};
-use broad::dispatcher::Dispatcher;
-use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
+use broad::Dispatcher;
+use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 
 /// Associatio of an object with its loose bounding volume.
 #[deriving(ToStr, Eq, Clone)]
@@ -217,9 +217,9 @@ BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
 mod test {
     use super::*;
     use nalgebra::vec::Vec3;
-    use geom::ball::Ball;
-    use bounding_volume::aabb::WithAABB;
-    use broad::dispatcher::NoIdDispatcher;
+    use geom::Ball;
+    use bounding_volume::WithAABB;
+    use broad::NoIdDispatcher;
 
     #[test]
     fn test_bfbv_empty() {

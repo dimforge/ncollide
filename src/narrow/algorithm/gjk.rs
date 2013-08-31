@@ -1,10 +1,7 @@
 use std::num::NumCast;
 use nalgebra::vec::{AlgebraicVec, Dim};
 use nalgebra::mat::Identity;
-use geom::implicit::Implicit;
-use geom::reflection::Reflection;
-use geom::geom_with_margin::GeomWithMargin;
-use geom::minkowski_sum::{AnnotatedPoint, AnnotatedMinkowskiSum};
+use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
 ///  Computes the closest points between two convex geometries unsing the GJK algorithm.

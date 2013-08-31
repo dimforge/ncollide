@@ -4,8 +4,8 @@
 
 use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt, ScalarSub, ScalarAdd};
 use nalgebra::mat::Translation;
-use geom::implicit::{HasMargin, Implicit};
-use bounding_volume::aabb::{HasAABB, AABB};
+use geom::{HasMargin, Implicit};
+use bounding_volume::{HasAABB, AABB};
 
 /**
  * Implicit description of a ball geometry.

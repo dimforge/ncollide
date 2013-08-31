@@ -1,6 +1,5 @@
 use nalgebra::vec::{AlgebraicVecExt, VecExt};
-use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
-use bounding_volume::aabb::{AABB, HasAABB};
+use bounding_volume::{BoundingVolume, LooseBoundingVolume, AABB, HasAABB};
 use partitioning::dbvt::{DBVT, DBVTLeaf};
 
 /// A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of

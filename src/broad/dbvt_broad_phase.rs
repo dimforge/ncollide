@@ -1,14 +1,14 @@
 use std::ptr;
 use nalgebra::mat::Translation;
 use nalgebra::vec::AlgebraicVec;
-use broad::broad_phase::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
+use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
-use broad::dispatcher::Dispatcher;
-use bounding_volume::bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
-use ray::ray::{Ray, RayCast};
+use broad::Dispatcher;
+use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
+use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
@@ -321,9 +321,9 @@ RayCastBroadPhase<V, B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
 mod test {
     use super::*;
     use nalgebra::vec::Vec3;
-    use geom::ball::Ball;
-    use bounding_volume::aabb::WithAABB;
-    use broad::dispatcher::NoIdDispatcher;
+    use geom::Ball;
+    use bounding_volume::WithAABB;
+    use broad::NoIdDispatcher;
 
     #[test]
     fn test_dbvt_empty() {

@@ -1,12 +1,11 @@
 use std::vec;
 use nalgebra::mat::{Translation, Inv};
 use nalgebra::vec::AlgebraicVecExt;
-use bounding_volume::aabb::HasAABB;
-use broad::dispatcher::Dispatcher;
-use narrow::collision_detector::CollisionDetector;
-use narrow::compound_any::{CompoundAABBAny, AnyCompoundAABB};
+use bounding_volume::HasAABB;
+use broad::Dispatcher;
+use narrow::{CollisionDetector, CompoundAABBAny, AnyCompoundAABB};
 use contact::Contact;
-use geom::compound::CompoundAABB;
+use geom::CompoundAABB;
 
 /// Collision detector between two `CompoundAABB` geometries.
 pub struct CompoundAABBCompoundAABB<N, V, M, S, D, SD> {

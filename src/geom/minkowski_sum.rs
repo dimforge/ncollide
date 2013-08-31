@@ -7,8 +7,7 @@ use std::num::{Zero, One};
 use std::cmp::ApproxEq;
 use nalgebra::vec::{Vec, AlgebraicVec, Dim};
 use nalgebra::mat::Identity;
-use geom::implicit::{Implicit, HasMargin};
-use geom::reflection::Reflection;
+use geom::{Reflection, Implicit, HasMargin};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.

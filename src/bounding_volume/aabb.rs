@@ -1,8 +1,8 @@
 use std::num::Zero;
 use nalgebra::vec::{Vec, VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub};
 use nalgebra::mat::Translation;
-use geom::implicit::Implicit;
-use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
+use geom::Implicit;
+use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
 /// Traits of objects approximable by an AABB.
 pub trait HasAABB<N, V, M> {

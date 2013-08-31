@@ -1,4 +1,4 @@
-use narrow::collision_detector::CollisionDetector;
+use narrow::CollisionDetector;
 use contact::Contact;
 
 /// An empty collision detector. It does nothing.

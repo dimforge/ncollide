@@ -1,6 +1,6 @@
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
-use broad::dispatcher::Dispatcher;
+use broad::Dispatcher;
 
 
 /**
@@ -49,7 +49,7 @@ impl<B, D: Dispatcher<B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use broad::dispatcher::NoIdDispatcher;
+    use broad::NoIdDispatcher;
     use util::Pair;
 
     #[test]

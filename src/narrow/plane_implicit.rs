@@ -1,10 +1,9 @@
 use nalgebra::mat::{Translation, Rotate, Transform};
 use nalgebra::vec::{Vec, AlgebraicVec};
-use narrow::collision_detector::CollisionDetector;
-use geom::plane::Plane;
-use geom::implicit::Implicit;
+use narrow::CollisionDetector;
+use geom::{Plane, Implicit};
 use contact::Contact;
-use ray::ray::{Ray, RayCastWithTransform};
+use ray::{Ray, RayCastWithTransform};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 /// This detector generates only one contact point. For a full manifold generation, see

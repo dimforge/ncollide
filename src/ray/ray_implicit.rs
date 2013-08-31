@@ -3,13 +3,9 @@ use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt, Dim};
 use nalgebra::mat::{Identity, Translation, Rotate, Transform};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
-use geom::implicit::Implicit;
-use geom::cylinder::Cylinder;
-use geom::cone::Cone;
-use geom::capsule::Capsule;
-use geom::minkowski_sum::MinkowskiSum;
-use ray::ray::{Ray, RayCast, RayCastWithTransform};
-use ray::ray_plane;
+use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Implicit};
+use ray::{Ray, RayCast, RayCastWithTransform};
+use ray;
 
 /// Projects the origin on a geometry unsing the GJK algorithm.
 ///
@@ -58,7 +54,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
         //          < 0        |  > 0  | New lower bound, move the origin.
         //          > 0        |  < 0  | Miss. No intersection.
         //          > 0        |  > 0  | New higher bound.
-        match ray_plane::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
+        match ray::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
             Some(t) => {
                 if dir.dot(&ray.dir) < Zero::zero() {
                     // new lower bound

@@ -1,7 +1,7 @@
 use std::num::Bounded;
 use nalgebra::mat::{Transform, Rotate};
 use nalgebra::vec::AlgebraicVec;
-use geom::implicit::{Implicit, HasMargin};
+use geom::{Implicit, HasMargin};
 
 /**
  * Set of point assumed to form a convex polytope.

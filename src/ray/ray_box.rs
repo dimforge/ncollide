@@ -1,8 +1,8 @@
 use nalgebra::vec::VecExt;
 use nalgebra::mat::{Rotate, Transform};
-use bounding_volume::aabb::AABB;
-use geom::box::Box;
-use ray::ray::{Ray, RayCast, RayCastWithTransform};
+use bounding_volume::AABB;
+use geom::Box;
+use ray::{Ray, RayCast, RayCastWithTransform};
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + Clone + ToStr>

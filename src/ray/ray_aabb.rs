@@ -1,12 +1,12 @@
 use std::util;
 use std::num::{Zero, One};
 use nalgebra::vec::{VecExt, Indexable, Dim};
-use ray::ray::{Ray, RayCast};
-use bounding_volume::aabb;
+use ray::{Ray, RayCast};
+use bounding_volume;
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + ToStr>
-RayCast<N, V> for aabb::AABB<N, V> {
+RayCast<N, V> for bounding_volume::AABB<N, V> {
     /// Computes the toi of a ray and this aabb.
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         let mut tmin: N = Zero::zero();

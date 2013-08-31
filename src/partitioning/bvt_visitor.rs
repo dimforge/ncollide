@@ -1,7 +1,7 @@
 use std::borrow;
 use nalgebra::vec::Vec;
-use bounding_volume::bounding_volume::BoundingVolume;
-use ray::ray::{Ray, RayCast};
+use bounding_volume::BoundingVolume;
+use ray::{Ray, RayCast};
 
 /// Visitor of Bounding Volume Trees.
 pub trait BVTVisitor<B, BV> {

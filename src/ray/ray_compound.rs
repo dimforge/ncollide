@@ -1,8 +1,8 @@
 use nalgebra::vec::AlgebraicVecExt;
 use nalgebra::mat::{Rotate, Transform};
-use ray::ray::{Ray, RayCast, RayCastWithTransform};
-use bounding_volume::aabb::AABB;
-use geom::compound::CompoundAABB;
+use ray::{Ray, RayCast, RayCastWithTransform};
+use bounding_volume::AABB;
+use geom::CompoundAABB;
 use partitioning::bvt_visitor::RayInterferencesCollector;
 use partitioning::dbvt::DBVTLeaf;
 

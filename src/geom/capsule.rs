@@ -4,9 +4,9 @@
 use std::num::Zero;
 use nalgebra::vec::{Indexable, AlgebraicVecExt};
 use nalgebra::mat::{Rotate, Transform};
-use bounding_volume::aabb::{HasAABB, AABB};
-use bounding_volume::aabb;
-use geom::implicit::{Implicit, HasMargin};
+use bounding_volume::{HasAABB, AABB};
+use bounding_volume;
+use geom::{Implicit, HasMargin};
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone)]
@@ -79,6 +79,6 @@ impl<N: Algebraic + Signed + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Capsule<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {
-        aabb::implicit_shape_aabb(m, self)
+        bounding_volume::implicit_shape_aabb(m, self)
     }
 }

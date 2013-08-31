@@ -1,8 +1,8 @@
 use std::num::Zero;
 use nalgebra::mat::{Rotate, Transform};
 use nalgebra::vec::Vec;
-use ray::ray::{Ray, RayCast, RayCastWithTransform};
-use geom::plane::Plane;
+use ray::{Ray, RayCast, RayCastWithTransform};
+use geom::Plane;
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]

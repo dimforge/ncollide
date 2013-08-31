@@ -3,7 +3,7 @@
 //!
 
 use nalgebra::vec::AlgebraicVec;
-use geom::implicit::{Implicit, HasMargin};
+use geom::{Implicit, HasMargin};
 
 /**
  * Implicit represention of the reflection of a geometric object.

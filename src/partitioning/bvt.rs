@@ -2,8 +2,7 @@ use std::vec;
 use nalgebra::mat::Translation;
 use nalgebra::vec::{Dim, VecExt};
 use partitioning::bvt_visitor::BVTVisitor;
-use bounding_volume::bounding_volume::BoundingVolume;
-use bounding_volume::aabb::AABB;
+use bounding_volume::{BoundingVolume, AABB};
 
 /// A Boundig Volume Tree.
 pub struct BVT<B, BV> {

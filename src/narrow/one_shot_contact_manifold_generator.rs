@@ -2,8 +2,7 @@ use std::num::One;
 use nalgebra::vec::{AlgebraicVecExt, Vec, Basis, Cross};
 use nalgebra::mat::{Translation, Rotation, Transform};
 use nalgebra::mat;
-use narrow::collision_detector::CollisionDetector;
-use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
+use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
 
 /// This is an hybrid contact manifold genarator. Whenever a new contact is detected (i.e. when the

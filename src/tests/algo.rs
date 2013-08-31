@@ -9,15 +9,15 @@ use narrow::algorithm::simplex::Simplex;
 #[test]
 use narrow::algorithm::gjk;
 #[test]
-use narrow::ball_ball;
+use narrow::closest_points;
 #[test]
 use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
 #[test]
-use geom::ball::Ball;
+use geom::Ball;
 #[test]
-use geom::minkowski_sum::AnnotatedPoint;
+use geom::AnnotatedPoint;
 #[test]
-use geom::minkowski_sum;
+use geom;
 
 macro_rules! test_johnson_simplex_impl(
     ($t: ty, $n: ty) => ( {
@@ -74,10 +74,10 @@ macro_rules! test_gjk_ball_ball_impl(
             let b1 = Ball::new(r1);
             let b2 = Ball::new(r2);
 
-            let (p1, p2) = ball_ball::closest_points(&c1, &b1, &c2, &b2);
+            let (p1, p2) = closest_points::ball_ball(&c1, &b1, &c2, &b2);
 
             // FIXME: a bit verbose…
-            let cso_point   = minkowski_sum::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
+            let cso_point   = geom::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
             let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion);
 
             simplex.reset(cso_point);

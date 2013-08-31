@@ -1,10 +1,8 @@
 use std::num::{Zero, One};
 use nalgebra::vec::{AlgebraicVecExt, UniformSphereSample};
 use nalgebra::mat::{Identity, Translation};
-use geom::minkowski_sum;
-use geom::minkowski_sum::{MinkowskiSum, AnnotatedPoint};
-use geom::reflection::Reflection;
-use geom::implicit::Implicit;
+use geom;
+use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 
@@ -54,7 +52,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     // XXX: translate the simplex instead of reseting it
     let tm2 = m2.translated(&shift.clone());
 
-    simplex.reset(minkowski_sum::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir));
+    simplex.reset(geom::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir));
 
     match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),

@@ -1,4 +1,4 @@
-use ray::ray::Ray;
+use ray::Ray;
 
 /// Trait all broad phase must implement. This does not do much per se. Useful features are
 /// provided by the traits: `InterferencesBroadPhase`, `BoundingVolumeBroadPhase`, and

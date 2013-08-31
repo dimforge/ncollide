@@ -1,8 +1,8 @@
 use std::num::{Zero, Algebraic};
 use nalgebra::vec::AlgebraicVec;
 use nalgebra::mat::{Translation, Rotate, Transform};
-use ray::ray::{Ray, RayCast, RayCastWithTransform};
-use geom::ball::Ball;
+use ray::{Ray, RayCast, RayCastWithTransform};
+use geom::Ball;
 
 impl<N: Num + Algebraic + Ord + Clone,
      V: AlgebraicVec<N> + Clone>
