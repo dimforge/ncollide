@@ -2,6 +2,7 @@
 pub use narrow::private::collision_detector::CollisionDetector;
 pub use narrow::private::empty::Empty;
 pub use narrow::private::ball_ball::BallBall;
+pub use narrow::private::geom_geom::GeomGeom;
 pub use narrow::private::plane_implicit::{PlaneImplicit, ImplicitPlane};
 pub use narrow::private::implicit_implicit::ImplicitImplicit;
 pub use narrow::private::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
@@ -15,6 +16,7 @@ pub mod toi {
     pub use ball_ball         = narrow::private::ball_ball::toi;
     pub use plane_implicit    = narrow::private::plane_implicit::toi;
     pub use implicit_implicit = narrow::private::implicit_implicit::toi;
+    pub use geom_geom         = narrow::private::geom_geom::toi;
 }
 
 /// Functions to compute one contact point between two geometries.
@@ -36,6 +38,9 @@ mod private { // FIXME: this is only to do the compiler's work: ensure invisibil
 
     #[path = "../empty.rs"]
     mod empty;
+
+    #[path = "../geom_geom.rs"]
+    mod geom_geom;
 
     #[path = "../ball_ball.rs"]
     mod ball_ball;

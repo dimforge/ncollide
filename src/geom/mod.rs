@@ -11,6 +11,9 @@ pub use geom::private::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, Anno
 pub use geom::private::reflection::Reflection;
 pub use geom::private::compound::CompoundAABB;
 pub use geom::private::geom_with_margin::GeomWithMargin;
+pub use geom::private::geom::{Geom, IGeom, PlaneGeom, BallGeom, BoxGeom, ConeGeom, CylinderGeom,
+                              CompoundGeom, ImplicitGeom};
+
 
 // methods
 pub use geom::private::minkowski_sum::cso_support_point;
@@ -18,6 +21,8 @@ pub use geom::private::minkowski_sum::cso_support_point_without_margin;
 
 // modules
 mod private { // FIXME: this is only to do the compiler's work: ensure invisibility of submodules.
+    #[path = "../geom.rs"]
+    mod geom;
     #[path = "../implicit.rs"]
     mod implicit;
     #[path = "../ball.rs"]
