@@ -1,11 +1,9 @@
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use nalgebra::vec::Vec3;
+use nalgebra::vec::{Vec3, AlgebraicVec};
 #[test]
 use nalgebra::mat::Identity;
-#[test]
-use nalgebra::traits::vector::AlgebraicVec;
 #[test]
 use geom::ball::Ball;
 #[test]

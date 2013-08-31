@@ -1,4 +1,4 @@
-use nalgebra::traits::vector::{AlgebraicVecExt, VecExt};
+use nalgebra::vec::{AlgebraicVecExt, VecExt};
 use bounding_volume::bounding_volume::{BoundingVolume, LooseBoundingVolume};
 use bounding_volume::aabb::{AABB, HasAABB};
 use partitioning::dbvt::{DBVT, DBVTLeaf};

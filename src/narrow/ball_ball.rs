@@ -1,9 +1,6 @@
 use std::num::Zero;
-use nalgebra::traits::basis::Basis;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
+use nalgebra::vec::{Basis, AlgebraicVec, AlgebraicVecExt};
+use nalgebra::mat::{Rotate, Translation, Transform};
 use geom::ball::Ball;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;

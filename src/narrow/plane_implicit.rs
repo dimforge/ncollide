@@ -1,7 +1,5 @@
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::vector::{Vec, AlgebraicVec};
+use nalgebra::mat::{Translation, Rotate, Transform};
+use nalgebra::vec::{Vec, AlgebraicVec};
 use narrow::collision_detector::CollisionDetector;
 use geom::plane::Plane;
 use geom::implicit::Implicit;

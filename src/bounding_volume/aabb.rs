@@ -1,8 +1,6 @@
 use std::num::Zero;
-use nalgebra::traits::scalar_op::{ScalarAdd, ScalarSub};
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::basis::Basis;
-use nalgebra::traits::vector::{Vec, VecExt, AlgebraicVecExt};
+use nalgebra::vec::{Vec, VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub};
+use nalgebra::mat::Translation;
 use geom::implicit::Implicit;
 use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 

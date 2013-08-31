@@ -1,5 +1,5 @@
 use std::borrow;
-use nalgebra::traits::vector::Vec;
+use nalgebra::vec::Vec;
 use bounding_volume::bounding_volume::BoundingVolume;
 use ray::ray::{Ray, RayCast};
 

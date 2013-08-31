@@ -1,10 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::traits::vector::{AlgebraicVec, AlgebraicVecExt};
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::mat::Identity;
+use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt, Dim};
+use nalgebra::mat::{Identity, Translation, Rotate, Transform};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::implicit::Implicit;

@@ -1,6 +1,5 @@
-use nalgebra::traits::vector::Vec;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
+use nalgebra::vec::Vec;
+use nalgebra::mat::{Rotate, Transform};
 
 /// A Ray.
 #[deriving(ToStr)]

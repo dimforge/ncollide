@@ -1,7 +1,6 @@
 use std::vec;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::VecExt;
-use nalgebra::traits::translation::Translation;
+use nalgebra::mat::Translation;
+use nalgebra::vec::{Dim, VecExt};
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::bounding_volume::BoundingVolume;
 use bounding_volume::aabb::AABB;

@@ -1,6 +1,6 @@
 use std::managed;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::mat::Translation;
+use nalgebra::vec::AlgebraicVec;
 use bounding_volume::bounding_volume::BoundingVolume;
 use ray::ray::{Ray, RayCast};
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};

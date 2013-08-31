@@ -1,6 +1,5 @@
 use std::num::NumCast;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::vec::{AlgebraicVec, Dim};
 use nalgebra::mat::Identity;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;

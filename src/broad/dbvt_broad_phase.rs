@@ -1,6 +1,6 @@
 use std::ptr;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::mat::Translation;
+use nalgebra::vec::AlgebraicVec;
 use broad::broad_phase::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;

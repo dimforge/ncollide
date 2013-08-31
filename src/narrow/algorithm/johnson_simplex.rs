@@ -5,8 +5,7 @@ use std::at_vec;
 use std::local_data;
 
 use extra::treemap::TreeMap;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::vec::{AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
 
 static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;

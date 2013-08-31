@@ -1,8 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::traits::sample::UniformSphereSample;
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::vector::AlgebraicVecExt;
-use nalgebra::mat::Identity;
+use nalgebra::vec::{AlgebraicVecExt, UniformSphereSample};
+use nalgebra::mat::{Identity, Translation};
 use geom::minkowski_sum;
 use geom::minkowski_sum::{MinkowskiSum, AnnotatedPoint};
 use geom::reflection::Reflection;

@@ -1,7 +1,6 @@
 use std::vec;
-use nalgebra::traits::inv::Inv;
-use nalgebra::traits::vector::AlgebraicVecExt;
-use nalgebra::traits::translation::Translation;
+use nalgebra::mat::{Translation, Inv};
+use nalgebra::vec::AlgebraicVecExt;
 use bounding_volume::aabb::HasAABB;
 use broad::dispatcher::Dispatcher;
 use narrow::collision_detector::CollisionDetector;

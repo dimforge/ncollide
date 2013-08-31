@@ -5,8 +5,7 @@
 
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::{Vec, AlgebraicVec};
+use nalgebra::vec::{Vec, AlgebraicVec, Dim};
 use nalgebra::mat::Identity;
 use geom::implicit::{Implicit, HasMargin};
 use geom::reflection::Reflection;

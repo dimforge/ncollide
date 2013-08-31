@@ -1,7 +1,6 @@
 use std::num::Bounded;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::mat::{Transform, Rotate};
+use nalgebra::vec::AlgebraicVec;
 use geom::implicit::{Implicit, HasMargin};
 
 /**

@@ -2,9 +2,8 @@
 
 use std::num::{Zero, One};
 use nalgebra::dmat::zero_mat_with_dim;
-use nalgebra::traits::inv::Inv;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::AlgebraicVec;
+use nalgebra::mat::Inv;
+use nalgebra::vec::{AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
 
 pub struct BruteForceSimplex<N, V> {

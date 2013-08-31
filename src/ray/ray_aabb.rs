@@ -1,8 +1,6 @@
 use std::util;
 use std::num::{Zero, One};
-use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::vector::VecExt;
+use nalgebra::vec::{VecExt, Indexable, Dim};
 use ray::ray::{Ray, RayCast};
 use bounding_volume::aabb;
 

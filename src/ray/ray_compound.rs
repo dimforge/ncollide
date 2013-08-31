@@ -1,6 +1,5 @@
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::vector::AlgebraicVecExt;
+use nalgebra::vec::AlgebraicVecExt;
+use nalgebra::mat::{Rotate, Transform};
 use ray::ray::{Ray, RayCast, RayCastWithTransform};
 use bounding_volume::aabb::AABB;
 use geom::compound::CompoundAABB;

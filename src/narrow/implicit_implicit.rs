@@ -1,8 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::traits::translation::Translation;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::vector::AlgebraicVecExt;
+use nalgebra::mat::{Translation, Rotate, Transform};
+use nalgebra::vec::AlgebraicVecExt;
 use geom::implicit::Implicit;
 use geom::reflection::Reflection;
 use geom::minkowski_sum;

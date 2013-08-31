@@ -1,6 +1,5 @@
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::vector::{Vec, AlgebraicVec};
+use nalgebra::vec::{Vec, AlgebraicVec, Dim};
+use nalgebra::mat::Transform;
 use narrow::collision_detector::CollisionDetector;
 use contact::Contact;
 

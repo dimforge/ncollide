@@ -1,9 +1,7 @@
 #[test]
 use std::num::Zero;
 #[test]
-use nalgebra::vec::Vec3;
-#[test]
-use nalgebra::traits::scalar_op::ScalarAdd;
+use nalgebra::vec::{Vec3, ScalarAdd};
 #[test]
 use narrow::ball_ball;
 #[test]

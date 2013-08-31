@@ -3,13 +3,8 @@
 //!
 
 use std::num::{Zero, Signed};
-use nalgebra::traits::dim::Dim;
-use nalgebra::traits::indexable::Indexable;
-use nalgebra::traits::transformation::Transform;
-use nalgebra::traits::rotation::Rotate;
-use nalgebra::traits::iterable::Iterable;
-use nalgebra::traits::vector::{VecExt, AlgebraicVecExt};
-use nalgebra::traits::scalar_op::ScalarSub;
+use nalgebra::vec::{Dim, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub};
+use nalgebra::mat::{Transform, Rotate};
 use bounding_volume::aabb::{HasAABB, AABB};
 use bounding_volume::aabb;
 use geom::implicit::{HasMargin, Implicit};

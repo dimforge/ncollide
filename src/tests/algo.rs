@@ -1,12 +1,6 @@
 #[test]
 use std::rand;
 #[test]
-use nalgebra::traits::dim::Dim;
-#[test]
-use nalgebra::traits::scalar_op::ScalarSub;
-#[test]
-use nalgebra::traits::vector::AlgebraicVec;
-#[test]
 use nalgebra::vec::*;
 #[test]
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
