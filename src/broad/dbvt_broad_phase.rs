@@ -1,4 +1,5 @@
 use std::ptr;
+use std::managed;
 use nalgebra::mat::Translation;
 use nalgebra::vec::AlgebraicVec;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
@@ -126,17 +127,65 @@ impl<N:  Algebraic + Clone + Ord,
      DV>
 BroadPhase<B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline]
-    fn add(&mut self, rb: @mut B) {
-        let leaf = @mut DBVTLeaf::new(rb.bounding_volume().loosened(self.margin.clone()), rb);
+    fn add(&mut self, b: @mut B) {
+        let leaf = @mut DBVTLeaf::new(b.bounding_volume().loosened(self.margin.clone()), b);
 
         self.to_update.push(leaf);
         self.update_updatable();
 
-        self.active2bv.insert(ptr::to_mut_unsafe_ptr(rb) as uint, leaf);
+        self.active2bv.insert(ptr::to_mut_unsafe_ptr(b) as uint, leaf);
     }
 
-    fn remove(&mut self, _: @mut B) {
-        fail!("Not yet implemented.");
+    fn remove(&mut self, b: @mut B) {
+        // remove b from the dbvts
+        let key      = ptr::to_mut_unsafe_ptr(b) as uint;
+        let leaf_opt = self.active2bv.get_and_remove(&key);
+        let leaf;
+
+        match leaf_opt {
+            Some(l) => {
+                leaf = l.value;
+                self.tree.remove(leaf);
+            },
+            None => {
+                let leaf_opt = self.inactive2bv.get_and_remove(&key);
+                match leaf_opt {
+                    Some(l) => {
+                        leaf = l.value;
+                        self.stree.remove(leaf);
+                    },
+                    None => return
+                }
+            }
+        }
+
+        let mut keys_to_remove = ~[];
+
+        // remove every pair involving b
+        for elt in self.pairs.elements().iter() {
+            if managed::mut_ptr_eq(elt.key.first, leaf) ||
+               managed::mut_ptr_eq(elt.key.second, leaf) {
+                keys_to_remove.push(elt.key);
+            }
+        }
+
+        for k in keys_to_remove.iter() {
+            self.pairs.remove(k);
+        }
+
+        keys_to_remove.clear();
+
+        // remove every "sleeping" pair involving b
+        for elt in self.spairs.elements().iter() {
+            if managed::mut_ptr_eq(elt.key.first, leaf) ||
+               managed::mut_ptr_eq(elt.key.second, leaf) {
+                keys_to_remove.push(elt.key);
+            }
+        }
+
+        for k in keys_to_remove.iter() {
+            self.spairs.remove(k);
+        }
     }
 
     fn update(&mut self) {
