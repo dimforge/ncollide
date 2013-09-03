@@ -41,7 +41,7 @@ CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         match self.contact {
             None    => 0,
             Some(_) => 1
@@ -100,7 +100,7 @@ CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         match self.contact {
             None    => 0,
             Some(_) => 1

@@ -64,9 +64,7 @@ impl<V: VecExt<N>, N> AABB<N, V> {
     }
 }
 
-impl<N: Primitive + Orderable + ToStr,
-     V: VecExt<N> + ToStr>
-BoundingVolume for AABB<N, V> {
+impl<N: Primitive + Orderable + ToStr, V: VecExt<N> + ToStr> BoundingVolume for AABB<N, V> {
     #[inline]
     fn intersects(&self, other: &AABB<N, V>) -> bool {
         self.mins <= other.maxs && self.maxs >= other.mins
@@ -109,6 +107,13 @@ impl<V: VecExt<N>, N: NumCast> Translation<V> for AABB<N, V>
 
     fn translated(&self, dv: &V) -> AABB<N, V> {
         AABB::new(self.mins + *dv, self.maxs + *dv)
+    }
+
+    fn set_translation(&mut self, v: V) {
+        let center = self.translation();
+
+        self.mins = self.mins - center + v;
+        self.maxs = self.maxs - center + v;
     }
 }
 

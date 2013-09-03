@@ -19,7 +19,7 @@ impl<N, V, M, G1, G2> CollisionDetector<N, V, M, G1, G2> for Empty<N, V, M, G1, 
     fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) {
     }
 
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         0
     }
 

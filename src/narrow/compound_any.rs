@@ -149,12 +149,12 @@ for CompoundAABBAny<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         let mut total = 0;
 
         for cd in self.sub_detectors.iter() {
             match *cd {
-                Some(ref d) => total = total + d.num_coll(),
+                Some(ref d) => total = total + d.num_colls(),
                 None        => { }
             }
         }
@@ -200,8 +200,8 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
-        self.sub_detector.num_coll()
+    fn num_colls(&self) -> uint {
+        self.sub_detector.num_colls()
     }
 
     #[inline]

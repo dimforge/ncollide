@@ -119,19 +119,19 @@ for GeomGeom<N, LV, AV, M, II> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         match *self {
-            BallBall(ref cd)         => cd.num_coll(),
-            BallPlane(ref cd)        => cd.num_coll(),
-            PlaneBall(ref cd)        => cd.num_coll(),
-            BallImplicit(ref cd)     => cd.num_coll(),
-            ImplicitBall(ref cd)     => cd.num_coll(),
-            PlaneImplicit(ref cd)    => cd.num_coll(),
-            ImplicitPlane(ref cd)    => cd.num_coll(),
-            ImplicitImplicit(ref cd) => cd.num_coll(),
-            CompoundCompound(ref cd) => cd.num_coll(),
-            CompoundAny(ref cd)      => cd.num_coll(),
-            AnyCompound(ref cd)      => cd.num_coll(),
+            BallBall(ref cd)         => cd.num_colls(),
+            BallPlane(ref cd)        => cd.num_colls(),
+            PlaneBall(ref cd)        => cd.num_colls(),
+            BallImplicit(ref cd)     => cd.num_colls(),
+            ImplicitBall(ref cd)     => cd.num_colls(),
+            PlaneImplicit(ref cd)    => cd.num_colls(),
+            ImplicitPlane(ref cd)    => cd.num_colls(),
+            ImplicitImplicit(ref cd) => cd.num_colls(),
+            CompoundCompound(ref cd) => cd.num_colls(),
+            CompoundAny(ref cd)      => cd.num_colls(),
+            AnyCompound(ref cd)      => cd.num_colls(),
         }
     }
 

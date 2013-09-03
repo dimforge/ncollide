@@ -44,7 +44,7 @@ BallBall<N, V, M> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         match self.contact {
             None    => 0,
             Some(_) => 1

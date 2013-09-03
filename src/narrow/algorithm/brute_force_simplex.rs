@@ -1,7 +1,7 @@
 #[doc(hidden)];
 
 use std::num::{Zero, One};
-use nalgebra::dmat::zero_mat_with_dim;
+use nalgebra::dmat::DMat;
 use nalgebra::mat::Inv;
 use nalgebra::vec::{AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
@@ -24,10 +24,10 @@ BruteForceSimplex<N, V> {
         let     _0: N = Zero::zero();
         let     _1: N = One::one();
         let     dim   = points.len();
-        let mut mat   = zero_mat_with_dim(dim);
+        let mut mat   = DMat::new_zeros(dim, dim);
 
         for i in range(0u, dim) {
-            mat.set(0u, i, &_1)
+            mat.set(0u, i, _1.clone())
         }
 
         for i in range(1u, dim) {
@@ -35,7 +35,7 @@ BruteForceSimplex<N, V> {
                 mat.set(
                     i,
                     j,
-                    &points[i].sub_dot(&points[0], &points[j])
+                    points[i].sub_dot(&points[0], &points[j])
                 )
             }
         }

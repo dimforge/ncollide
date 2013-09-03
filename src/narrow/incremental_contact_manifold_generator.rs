@@ -150,7 +150,7 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         self.contacts.len()
     }
 

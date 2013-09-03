@@ -77,18 +77,18 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     }
 
     #[inline]
-    fn num_coll(&self) -> uint {
+    fn num_colls(&self) -> uint {
         let mut res = 0;
 
         match self.sub_detectors {
             Left(ref ds) => {
                 for d in ds.iter() {
-                    res = res + d.num_coll()
+                    res = res + d.num_colls()
                 }
             },
             Right(ref ds) => {
                 for d in ds.iter() {
-                    res = res + d.num_coll()
+                    res = res + d.num_colls()
                 }
             }
 
