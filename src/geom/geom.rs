@@ -7,12 +7,14 @@ use ray::{Ray, RayCast, RayCastWithTransform};
 
 /// Enumeration grouping all common shapes. Used to simplify collision detection
 /// dispatch.
+#[deriving(Clone)]
 pub enum Geom<N, V, M, II> { // FIXME: rename that
     PlaneGeom(Plane<N, V>),
     CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M, II>>),
     ImplicitGeom(IGeom<N, V, M>)
 }
 
+#[deriving(Clone)]
 pub enum IGeom<N, V, M> {
     BallGeom(Ball<N>),
     BoxGeom(Box<N, V>),
