@@ -2,9 +2,8 @@ use std::vec;
 use extra::serialize::{Encodable, Decodable, Encoder, Decoder};
 use nalgebra::mat::{Translation, Inv};
 use nalgebra::vec::AlgebraicVecExt;
-use bounding_volume::{BoundingVolume, AABB, HasAABB};
+use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;
-use partitioning::dbvt::DBVTLeaf;
 use narrow::CollisionDetector;
 use contact::Contact;
 use geom::CompoundAABB;
@@ -15,7 +14,7 @@ use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 pub struct CompoundAABBAny<N, V, M, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: ~[Option<SD>],
-    priv interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>],
+    priv interferences: ~[uint],
     priv updated:       ~[bool]
 }
 
@@ -87,22 +86,22 @@ CompoundAABBAny<N, V, M, G, D, SD> {
 
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
-            g1.dbvt().visit(&mut visitor);
+            g1.bvt().visit(&mut visitor);
         }
 
         for i in self.interferences.iter() {
-            let g1 = g1.shapes()[i.object].second_ref();
+            let g1 = g1.shapes()[*i].second_ref();
 
-            if self.sub_detectors[i.object].is_none() && self.dispatcher.is_valid(g1, g2) {
+            if self.sub_detectors[*i].is_none() && self.dispatcher.is_valid(g1, g2) {
                 if swap {
-                    self.sub_detectors[i.object] = Some(self.dispatcher.dispatch(g2, g1))
+                    self.sub_detectors[*i] = Some(self.dispatcher.dispatch(g2, g1))
                 }
                 else {
-                    self.sub_detectors[i.object] = Some(self.dispatcher.dispatch(g1, g2))
+                    self.sub_detectors[*i] = Some(self.dispatcher.dispatch(g1, g2))
                 }
             }
 
-            self.updated[i.object] = true;
+            self.updated[*i] = true;
         }
 
         self.interferences.clear();
@@ -112,7 +111,7 @@ CompoundAABBAny<N, V, M, G, D, SD> {
             match *detector {
                 None            => { },
                 Some(ref mut d) => {
-                    if self.updated[i] || ls_aabb2.intersects(&g1.leaves()[i].bounding_volume) {
+                    if self.updated[i] || ls_aabb2.intersects(&g1.bounding_volumes()[i]) {
                         // no more collision: remove the collision detector
                         let s1 = g1.shapes();
                         let new_child_transform = m1 * *s1[i].first_ref();
@@ -233,18 +232,18 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
 
         // FIXME: too bad we have to allocate here…
         // FIXME: why cant the array type be infered here?
-        let mut interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>] = ~[];
+        let mut interferences: ~[uint] = ~[];
 
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_swept_aabb, &mut interferences);
-            g2.dbvt().visit(&mut visitor);
+            g2.bvt().visit(&mut visitor);
         }
 
         let mut min_toi: N = Bounded::max_value();
 
         for i in interferences.iter() {
-            let child_m2 = m2 * *g2.shapes()[i.object].first_ref();
-            let g2       = g2.shapes()[i.object].second_ref();
+            let child_m2 = m2 * *g2.shapes()[*i].first_ref();
+            let g2       = g2.shapes()[*i].second_ref();
 
             match CollisionDetector::toi(None::<SD>, m1, dir, dist, g1, &child_m2, g2) {
                 Some(toi) => min_toi = min_toi.min(&toi),

@@ -1,5 +1,5 @@
 use nalgebra::mat::{Translation, Rotate, Transform};
-use nalgebra::vec::{Vec, AlgebraicVec};
+use nalgebra::vec::{AlgebraicVec};
 use narrow::CollisionDetector;
 use geom::{Plane, Implicit};
 use contact::Contact;

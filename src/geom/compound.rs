@@ -1,19 +1,20 @@
-use extra::serialize::{Encodable, Decodable, Encoder, Decoder};
 use nalgebra::vec::{AlgebraicVecExt, VecExt};
 use bounding_volume::{BoundingVolume, LooseBoundingVolume, AABB, HasAABB};
-use partitioning::dbvt::{DBVT, DBVTLeaf};
+use partitioning::bvt::BVT;
+use partitioning::bvt;
 
 /// A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of
 /// the union of several simpler geometry. This is the main way of creating a concave geometry from
 /// convex parts. Each parts can have its own delta transformation to shift or rotate it with
 /// regard to the other geometries.
+#[deriving(Encodable, Decodable)]
 pub struct CompoundAABB<N, V, M, S> {
     priv shapes: ~[(M, S)],
-    priv dbvt:   DBVT<V, uint, AABB<N, V>>,
-    priv leaves: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>]
+    priv bvt:   BVT<uint, AABB<N, V>>,
+    priv bvs:    ~[AABB<N, V>]
 }
 
-impl<N: 'static + Algebraic + Primitive + Orderable + ToStr,
+impl<N: 'static + Algebraic + Primitive + Orderable + Signed + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M,
      S: HasAABB<N, V, M>>
@@ -21,22 +22,22 @@ CompoundAABB<N, V, M, S> {
     /// Builds a new compound shape from a list of shape with their respective delta
     /// transformation.
     pub fn new(shapes: ~[(M, S)]) -> CompoundAABB<N, V, M, S> {
-        let mut dbvt   = DBVT::new();
+        let mut bvs    = ~[];
         let mut leaves = ~[];
-
-        // FIXME: shuffle the shapes array to avoid the dbvt worst case?
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             let bv = shape.aabb(delta).loosened(NumCast::from(0.04)); // loozen for better persistancy
-            let l  = @mut DBVTLeaf::new(bv, i);
-            leaves.push(l);
-            dbvt.insert(l)
+
+            bvs.push(bv.clone());
+            leaves.push((i, bv));
         }
+
+        let bvt = BVT::new_with_partitioner(leaves, bvt::dim_pow_2_aabb_partitioner);
 
         CompoundAABB {
             shapes: shapes,
-            dbvt:   dbvt,
-            leaves: leaves
+            bvt:    bvt,
+            bvs:    bvs
         }
     }
 }
@@ -52,14 +53,14 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
 
     /// The optimization structure used by this compound geometry.
     #[inline]
-    pub fn dbvt<'r>(&'r self) -> &'r DBVT<V, uint, AABB<N, V>> {
-        &'r self.dbvt
+    pub fn bvt<'r>(&'r self) -> &'r BVT<uint, AABB<N, V>> {
+        &'r self.bvt
     }
 
-    /// The leaves of the bouding volume tree used by thes compound geometry.
+    /// The shapes bounding volumes.
     #[inline]
-    pub fn leaves<'r>(&'r self) -> &'r [@mut DBVTLeaf<V, uint, AABB<N, V>>] {
-        let res: &'r [@mut DBVTLeaf<V, uint, AABB<N, V>>] = self.leaves;
+    pub fn bounding_volumes<'r>(&'r self) -> &'r [AABB<N, V>] {
+        let res: &'r [AABB<N, V>] = self.bvs;
 
         res
     }
@@ -82,26 +83,5 @@ HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {
         }
 
         res
-    }
-}
-
-impl<N, V, M: Encodable<E>, S: Encodable<E>, E: Encoder> Encodable<E> for CompoundAABB<N, V, M, S> {
-    fn encode(&self, encoder: &mut E) {
-        // encode only the geometry
-        self.shapes.encode(encoder)
-    }
-}
-
-impl<N: 'static + Algebraic + Primitive + Orderable + ToStr,
-     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
-     M: Decodable<D>,
-     S: Decodable<D> + HasAABB<N, V, M>,
-     D: Decoder>
-Decodable<D> for CompoundAABB<N, V, M, S> {
-    fn decode(decoder: &mut D) -> CompoundAABB<N, V, M, S> {
-        // encode only the geometry
-        let geometries: ~[(M, S)] = Decodable::decode(decoder);
-
-        CompoundAABB::new(geometries)
     }
 }

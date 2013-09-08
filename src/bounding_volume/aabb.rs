@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::vec::{Vec, VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub};
+use nalgebra::vec::{VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub};
 use nalgebra::mat::Translation;
 use geom::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};

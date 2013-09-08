@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt, Dim};
+use nalgebra::vec::{AlgebraicVecExt, Dim};
 use nalgebra::mat::{Identity, Translation, Rotate, Transform};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;

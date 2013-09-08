@@ -1,10 +1,8 @@
 use nalgebra::vec::AlgebraicVecExt;
 use nalgebra::mat::{Rotate, Transform};
 use ray::{Ray, RayCast, RayCastWithTransform};
-use bounding_volume::AABB;
 use geom::CompoundAABB;
 use partitioning::bvt_visitor::RayInterferencesCollector;
-use partitioning::dbvt::DBVTLeaf;
 
 
 impl<N: Num + Bounded + Orderable + Primitive + Algebraic + ToStr,
@@ -14,11 +12,11 @@ impl<N: Num + Bounded + Orderable + Primitive + Algebraic + ToStr,
 RayCast<N, V> for CompoundAABB<N, V, M, S> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         // FIXME: why cant the array type be infered here?
-        let mut interferences: ~[@mut DBVTLeaf<V, uint, AABB<N, V>>] = ~[];
+        let mut interferences: ~[uint] = ~[];
 
         {
             let mut visitor = RayInterferencesCollector::new(ray, &mut interferences);
-            self.dbvt().visit(&mut visitor);
+            self.bvt().visit(&mut visitor);
         }
 
         // compute the minimum toi
@@ -26,7 +24,7 @@ RayCast<N, V> for CompoundAABB<N, V, M, S> {
         let shapes = self.shapes();
 
         for i in interferences.iter() {
-            let (ref objm, ref obj) = shapes[i.object];
+            let (ref objm, ref obj) = shapes[*i];
 
             match obj.toi_with_transform_and_ray(objm, ray) {
                 None        => { },

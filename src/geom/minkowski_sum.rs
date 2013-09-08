@@ -5,7 +5,7 @@
 
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
-use nalgebra::vec::{Vec, AlgebraicVec, Dim};
+use nalgebra::vec::{Dot, Norm, Vec, AlgebraicVec, Dim};
 use nalgebra::mat::Identity;
 use geom::{Reflection, Implicit, HasMargin};
 
@@ -244,7 +244,7 @@ impl<V: Dim> Dim for AnnotatedPoint<V> {
     }
 }
 
-impl<V: Vec<N>, N> Vec<N> for AnnotatedPoint<V> {
+impl<V: Vec<N>, N> Dot<N> for AnnotatedPoint<V> {
     #[inline]
     fn dot(&self, other: &AnnotatedPoint<V>) -> N {
         self.point.dot(&other.point)
@@ -256,7 +256,7 @@ impl<V: Vec<N>, N> Vec<N> for AnnotatedPoint<V> {
     }
 }
 
-impl<N: Algebraic, V: AlgebraicVec<N> + Clone> AlgebraicVec<N> for AnnotatedPoint<V> {
+impl<N: Algebraic, V: Norm<N> + Clone> Norm<N> for AnnotatedPoint<V> {
     #[inline]
     fn norm(&self) -> N {
         self.point.norm()

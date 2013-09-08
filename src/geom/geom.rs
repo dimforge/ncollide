@@ -1,5 +1,4 @@
 use std::num::One;
-use extra::serialize::{Decodable, Decoder};
 use nalgebra::mat::{Translation, Rotate, Transform};
 use nalgebra::vec::AlgebraicVecExt;
 use bounding_volume::{HasAABB, AABB};
@@ -8,7 +7,7 @@ use ray::{Ray, RayCast, RayCastWithTransform};
 
 /// Enumeration grouping all common shapes. Used to simplify collision detection
 /// dispatch.
-#[deriving(Clone, Encodable)]
+#[deriving(Clone, Encodable, Decodable)]
 pub enum Geom<N, V, M, II> { // FIXME: rename that
     PlaneGeom(Plane<N, V>),
     CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M, II>>),
@@ -233,36 +232,6 @@ Implicit<N, V, M> for IGeom<N, V, M> {
             BoxGeom(ref b)      => b.support_point(transform, dir),
             ConeGeom(ref c)     => c.support_point(transform, dir),
             CylinderGeom(ref c) => c.support_point(transform, dir),
-        }
-    }
-}
-
-impl<N: 'static + Decodable<D> + Algebraic + Primitive + Orderable + Signed + Clone + ToStr,
-     V: 'static + Decodable<D> + AlgebraicVecExt<N> + Clone + ToStr,
-     M: Decodable<D> + Translation<V> + Rotate<V> + Transform<V> + Mul<M, M>,
-     II,
-     D: Decoder>
-Decodable<D> for Geom<N, V, M, II> {
-    fn decode(d: &mut D) -> Geom<N, V, M, II> {
-        do d.read_enum_variant(["PlaneGeom", "CompoundGeom", "ImplicitGeom"]) |d, i| {
-            match i {
-                0 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        PlaneGeom(Decodable::decode(d))
-                    }
-                },
-                1 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        CompoundGeom(Decodable::decode(d))
-                    }
-                },
-                2 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        ImplicitGeom(Decodable::decode(d))
-                    }
-                }
-                _ => fail!("Trying to decode an unknown variant.")
-            }
         }
     }
 }

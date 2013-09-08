@@ -1,5 +1,4 @@
 use std::num::{Zero, One};
-use extra::serialize::{Decodable, Decoder};
 use nalgebra::mat::{Translation, Rotate, Rotation, Transform, Inv};
 use nalgebra::vec::{Vec, AlgebraicVecExt, Cross};
 use geom::{Ball, AnnotatedPoint, CompoundAABB};
@@ -23,7 +22,7 @@ type AC<N, LV, AV, M, II> = AnyCompoundAABB<N, LV, M,
                                             Dispatcher<N, LV, AV, M, II>,
                                             GeomGeom<N, LV, AV, M, II>>;
 
-#[deriving(Encodable)]
+#[deriving(Encodable, Decodable)]
 pub enum GeomGeom<N, LV, AV, M, II> {
     BallBall(BallBall<N, LV, M>),
     BallPlane(ImplicitPlane<N, LV, M, Ball<N>>),
@@ -228,87 +227,5 @@ for Dispatcher<N, LV, AV, M, II> {
 impl<N: Clone, LV: Clone, AV, M, II> Clone for Dispatcher<N, LV, AV, M, II> {
     fn clone(&self) -> Dispatcher<N, LV, AV, M, II> {
         Dispatcher::new(self.simplex.clone())
-    }
-}
-
-impl<N:  'static + Decodable<D> + Algebraic + Primitive + Orderable + Signed + Clone + ToStr,
-     LV: 'static + Decodable<D> + AlgebraicVecExt<N> + Clone + ToStr,
-     AV: Decodable<D>,
-     M:  Decodable<D> + Translation<LV> + Rotate<LV> + Transform<LV> + Mul<M, M>,
-     II: Decodable<D>,
-     D: Decoder>
-Decodable<D> for GeomGeom<N, LV, AV, M, II> {
-    fn decode(d: &mut D) -> GeomGeom<N, LV, AV, M, II> {
-
-        let variants = [
-            "BallBall"
-            , "BallPlane"
-            , "PlaneBall"
-            , "BallImplicit"
-            , "ImplicitBall"
-            , "PlaneImplicit"
-            , "ImplicitPlane"
-            , "ImplicitImplicit"
-            , "CompoundCompound"
-            , "CompoundAny"
-            , "AnyCompound"
-        ];
-
-        // FIXME: write a macro for that?
-        do d.read_enum_variant(variants) |d, i| {
-            match i {
-                0 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        BallBall(Decodable::decode(d))
-                    }
-                },
-                1 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        BallPlane(Decodable::decode(d))
-                    }
-                },
-                2 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        BallImplicit(Decodable::decode(d))
-                    }
-                },
-                3 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        ImplicitBall(Decodable::decode(d))
-                    }
-                },
-                4 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        PlaneImplicit(Decodable::decode(d))
-                    }
-                },
-                5 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        ImplicitPlane(Decodable::decode(d))
-                    }
-                },
-                6 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        ImplicitImplicit(Decodable::decode(d))
-                    }
-                },
-                7 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        CompoundCompound(Decodable::decode(d))
-                    }
-                },
-                8 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        CompoundAny(Decodable::decode(d))
-                    }
-                },
-                9 => {
-                    do d.read_enum_variant_arg(0u) |d| {
-                        AnyCompound(Decodable::decode(d))
-                    }
-                },
-                _ => fail!("Trying to decode an unknown variant.")
-            }
-        }
     }
 }

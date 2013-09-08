@@ -20,9 +20,9 @@ type PartFnResult<B, BV> = (BV, Either<B, ~[~[(B, BV)]]>);
 
 impl<B, BV> BVT<B, BV> {
     /// Builds a bounding volume tree using an user-defined construction function.
-    pub fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
-                                       partitioner: @fn(~[(B, BV)]) -> PartFnResult<B, BV>)
-                                       -> BVT<B, BV> {
+    pub fn new_with_partitioner(leaves:      ~[(B, BV)],
+                                partitioner: @fn(~[(B, BV)]) -> PartFnResult<B, BV>)
+                                -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
                 tree: None
@@ -88,8 +88,7 @@ impl<B, BV> BVTNode<B, BV> {
 /// parameter of `new_with_partitioner`.
 pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + ToStr,
                                   V: VecExt<N> + ToStr,
-                                  B>(
-                                  leaves: ~[(B, AABB<N, V>)])
+                                  B>(leaves: ~[(B, AABB<N, V>)])
                                   -> PartFnResult<B, AABB<N, V>> {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
