@@ -140,7 +140,7 @@ Implicit<N, AnnotatedPoint<V>, Identity> for AnnotatedMinkowskiSum<'self, M, G1,
 
 // FIXME: AnnotatedPoint is not a good name.
 #[doc(hidden)]
-#[deriving(Clone, ToStr)]
+#[deriving(Clone, ToStr, Encodable, Decodable)]
 pub struct AnnotatedPoint<V> {
     priv orig1: V,
     priv orig2: V,

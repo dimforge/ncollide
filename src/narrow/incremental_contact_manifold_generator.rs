@@ -3,6 +3,7 @@ use nalgebra::mat::Transform;
 use narrow::CollisionDetector;
 use contact::Contact;
 
+#[deriving(Encodable, Decodable)]
 struct ContactWLocals<N, V> {
     local1:  V,
     local2:  V,
@@ -30,6 +31,7 @@ impl<N: Num + NumCast, V: Vec<N>> ContactWLocals<N, V> {
 /// is reached. When the maximum number of contact is reached, each time a new contact is created,
 /// the new manifold is computed by maximizing the variance along each canonical axis (of the space
 /// in which leaves the contacts).
+#[deriving(Encodable, Decodable)]
 pub struct IncrementalContactManifoldGenerator<CD, N, V> {
     priv contacts:     ~[ContactWLocals<N, V>],
     priv collector:    ~[Contact<N, V>],

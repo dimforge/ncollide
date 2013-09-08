@@ -4,6 +4,7 @@ use std::vec;
 use util::hash::HashFun;
 
 /// Entry of an `HashMap`.
+#[deriving(Encodable, Decodable)]
 pub struct Entry<K, V> {
     /// The key of the entry.
     key:   K,
@@ -24,6 +25,7 @@ impl<K, V> Entry<K, V> {
 ///     * the hash function can be personalized
 ///     * the hash table are speratate from the datas. Thus, the vector of entries is tight (no
 ///     holes due to sparce hashing).
+#[deriving(Encodable, Decodable)]
 pub struct HashMap<K, V, H> {
     priv hash:          H,
     priv table:         ~[Entry<K, V>],

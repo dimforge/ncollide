@@ -5,10 +5,12 @@ use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
 
 /// A Boundig Volume Tree.
+#[deriving(Encodable, Decodable)]
 pub struct BVT<B, BV> {
     priv tree: Option<BVTNode<B, BV>>
 }
 
+#[deriving(Encodable, Decodable)]
 enum BVTNode<B, BV> {
     Internal(BV, ~[BVTNode<B, BV>]),
     Leaf(BV, B)

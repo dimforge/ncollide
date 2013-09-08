@@ -10,7 +10,7 @@ use bounding_volume::{HasAABB, AABB};
  *
  *   - `V`: type of the plane normal.
  */
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct Plane<N, V> {
     /// The plane normal.
     normal: V

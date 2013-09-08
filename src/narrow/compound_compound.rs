@@ -7,10 +7,15 @@ use narrow::{CollisionDetector, CompoundAABBAny, AnyCompoundAABB};
 use contact::Contact;
 use geom::CompoundAABB;
 
+#[deriving(Encodable, Decodable)]
+enum SubDetectors<N, V, M, S, D, SD> {
+    CA(~[CompoundAABBAny<N, V, M, S, D, SD>]),
+    AC(~[AnyCompoundAABB<N, V, M, S, D, SD>])
+}
 /// Collision detector between two `CompoundAABB` geometries.
+#[deriving(Encodable, Decodable)]
 pub struct CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
-    priv sub_detectors: Either<~[CompoundAABBAny<N, V, M, S, D, SD>],
-                               ~[AnyCompoundAABB<N, V, M, S, D, SD>]>
+    priv sub_detectors: SubDetectors<N, V, M, S, D, SD>
 }
 
 impl<N, V, M, S, D: Clone, SD> CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
@@ -30,14 +35,14 @@ impl<N, V, M, S, D: Clone, SD> CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
         if g1.shapes().len() > g2.shapes().len() {
             // g2 leaves vs g1
             // FIXME: it could be great to avoid the dispatcher.clone()
-            sub_detectors = Left(vec::from_fn(g2.shapes().len(),
-                                 |_| CompoundAABBAny::new(dispatcher.clone(), g1)))
+            sub_detectors = CA(vec::from_fn(g2.shapes().len(),
+                               |_| CompoundAABBAny::new(dispatcher.clone(), g1)))
         }
         else {
             // g1 leaves vs g2
             // FIXME: it could be great to avoid the dispatcher.clone()
-            sub_detectors = Right(vec::from_fn(g1.shapes().len(),
-                                  |_| AnyCompoundAABB::new(dispatcher.clone(), g2)))
+            sub_detectors = AC(vec::from_fn(g1.shapes().len(),
+                               |_| AnyCompoundAABB::new(dispatcher.clone(), g2)))
         }
 
         CompoundAABBCompoundAABB {
@@ -61,13 +66,13 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
               m2: &M,
               g2: &CompoundAABB<N, V, M, S>) {
         match self.sub_detectors {
-            Left(ref mut ds) => {
+            CA(ref mut ds) => {
                 for (i, d) in ds.mut_iter().enumerate() {
                     let child_transform = m2 * *g2.shapes()[i].first_ref();
                     d.update(m1, g1, &child_transform, g2.shapes()[i].second_ref())
                 }
             },
-            Right(ref mut ds) => {
+            AC(ref mut ds) => {
                 for (i, d) in ds.mut_iter().enumerate() {
                     let child_transform = m1 * *g1.shapes()[i].first_ref();
                     d.update(&child_transform, g1.shapes()[i].second_ref(), m2, g2)
@@ -81,12 +86,12 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
         let mut res = 0;
 
         match self.sub_detectors {
-            Left(ref ds) => {
+            CA(ref ds) => {
                 for d in ds.iter() {
                     res = res + d.num_colls()
                 }
             },
-            Right(ref ds) => {
+            AC(ref ds) => {
                 for d in ds.iter() {
                     res = res + d.num_colls()
                 }
@@ -100,12 +105,12 @@ for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     #[inline]
     fn colls(&self, out: &mut ~[Contact<N, V>]) {
         match self.sub_detectors {
-            Left(ref ds) => {
+            CA(ref ds) => {
                 for d in ds.iter() {
                     d.colls(out)
                 }
             },
-            Right(ref ds) => {
+            AC(ref ds) => {
                 for d in ds.iter() {
                     d.colls(out)
                 }

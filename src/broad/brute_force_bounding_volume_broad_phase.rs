@@ -7,7 +7,6 @@ use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 
 /// Associatio of an object with its loose bounding volume.
-#[deriving(ToStr, Eq, Clone)]
 pub struct BoundingVolumeProxy<N, B, BV> {
     /// The objects loose bounding volume.
     bounding_volume: BV,

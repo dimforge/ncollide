@@ -1,4 +1,5 @@
 use std::vec;
+use extra::serialize::{Encodable, Decodable, Encoder, Decoder};
 use nalgebra::mat::{Translation, Inv};
 use nalgebra::vec::AlgebraicVecExt;
 use bounding_volume::{BoundingVolume, AABB, HasAABB};
@@ -21,19 +22,13 @@ pub struct CompoundAABBAny<N, V, M, G, D, SD> {
 /// Collision detector between any shape and a `CompoundAABB`. This is the same as
 /// `CompoundAABBAny` but with the shapes swaped (the compound comes second on the argument of
 /// `update`.
+#[deriving(Encodable, Decodable)]
 pub struct AnyCompoundAABB<N, V, M, G, D, SD> {
     priv sub_detector: CompoundAABBAny<N, V, M, G, D, SD>
 }
 
 impl<N, V, M, G, D, SD> CompoundAABBAny<N, V, M, G, D, SD> {
-    /// Creates a new CompoundAABBAny collision detector.
-    ///
-    /// # Arguments:
-    ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
-    ///     compound geometry shapes and the other shape.
-    ///     * `g` - the compound geometry to be handled by the detector.
-    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> CompoundAABBAny<N, V, M, G, D, SD> {
-        let nshapes           = g.shapes().len();
+    fn new_with_num_shapes(dispatcher: D, nshapes: uint) -> CompoundAABBAny<N, V, M, G, D, SD> {
         let mut sub_detectors = vec::with_capacity(nshapes);
 
         // we do this to avoid the need of the `Clone` bound on `SD`.
@@ -47,6 +42,16 @@ impl<N, V, M, G, D, SD> CompoundAABBAny<N, V, M, G, D, SD> {
             interferences: vec::with_capacity(nshapes),
             updated:       vec::from_elem(nshapes, false)
         }
+    }
+
+    /// Creates a new CompoundAABBAny collision detector.
+    ///
+    /// # Arguments:
+    ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
+    ///     compound geometry shapes and the other shape.
+    ///     * `g` - the compound geometry to be handled by the detector.
+    pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> CompoundAABBAny<N, V, M, G, D, SD> {
+        CompoundAABBAny::new_with_num_shapes(dispatcher, g.shapes().len())
     }
 }
 
@@ -253,5 +258,25 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
         else {
             None
         }
+    }
+}
+
+impl<N, V, M, G, D: Encodable<E>, SD, E: Encoder>
+Encodable<E> for CompoundAABBAny<N, V, M, G, D, SD> {
+    fn encode(&self, encoder: &mut E) {
+        self.dispatcher.encode(encoder);
+
+        let len: uint = self.sub_detectors.len();
+        len.encode(encoder);
+    }
+}
+
+impl<N, V, M, G, D: Decodable<De>, SD, De: Decoder>
+Decodable<De> for CompoundAABBAny<N, V, M, G, D, SD> {
+    fn decode(decoder: &mut De) -> CompoundAABBAny<N, V, M, G, D, SD> {
+        let dispatcher: D    = Decodable::decode(decoder);
+        let nshapes:    uint = Decodable::decode(decoder);
+
+        CompoundAABBAny::new_with_num_shapes(dispatcher, nshapes)
     }
 }

@@ -15,7 +15,7 @@ pub trait HasAABB<N, V, M> {
 /// # Parameter:
 ///   * `V` - type of the points of the bounding box. It determines the AABB dimension.
 ///   * `N` - type of the one components of the aabb points.
-#[deriving(ToStr, Eq, Clone)]
+#[deriving(ToStr, Eq, Clone, Encodable, Decodable)]
 pub struct AABB<N, V> {
     priv mins: V,
     priv maxs: V

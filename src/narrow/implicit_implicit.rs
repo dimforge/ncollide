@@ -14,6 +14,7 @@ use ray::{Ray, RayCast};
 /// implement the `Implicit` trait. It is based on the GJK algorithm.
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
+#[deriving(Encodable, Decodable)]
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
     priv simplex:    S,
     priv prediction: N,

@@ -7,7 +7,7 @@ use std::util;
  *   * `N` - type of the penetration depth.
  *   * `V` - type of all the contact points, its center and its normal.
  */
-#[deriving(ToStr, Eq, Clone, DeepClone)]
+#[deriving(ToStr, Eq, Clone, DeepClone, Encodable, Decodable)]
 pub struct Contact<N, V> {
     /// Position of the contact on the first object. The position is expressed in world space.
     world1: V,

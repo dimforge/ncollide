@@ -6,6 +6,7 @@ use nalgebra::mat::Inv;
 use nalgebra::vec::{AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
 
+#[deriving(Encodable, Decodable)]
 pub struct BruteForceSimplex<N, V> {
     points: ~[V]
 }

@@ -7,6 +7,7 @@ use contact::Contact;
 /// This is an hybrid contact manifold genarator. Whenever a new contact is detected (i.e. when the
 /// current manifold is empty) a full manifold is generated. Then, the manifold is incrementally
 /// updated by the `IncrementalContactManifoldGenerator`.
+#[deriving(Encodable, Decodable)]
 pub struct OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     priv sub_detector: IncrementalContactManifoldGenerator<CD, N, LV>
 }

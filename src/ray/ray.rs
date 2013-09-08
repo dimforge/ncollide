@@ -2,7 +2,7 @@ use nalgebra::vec::Vec;
 use nalgebra::mat::{Rotate, Transform};
 
 /// A Ray.
-#[deriving(ToStr)]
+#[deriving(ToStr, Encodable, Decodable)]
 pub struct Ray<V> {
     /// Starting point of the ray.
     orig: V,

@@ -11,7 +11,7 @@ use narrow::algorithm::simplex::Simplex;
 static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct JohnsonSimplex<N, V> {
     priv recursion_template: @[RecursionTemplate],
     priv points:             ~[V],
@@ -22,7 +22,7 @@ pub struct JohnsonSimplex<N, V> {
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-#[deriving(Eq, Clone)]
+#[deriving(Eq, Clone, Encodable, Decodable)]
 pub struct RecursionTemplate {
     // FIXME: why #[doc(hidden)] does not work?
     /// For internal uses. Do not read.

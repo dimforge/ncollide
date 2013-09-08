@@ -2,6 +2,7 @@ use narrow::CollisionDetector;
 use contact::Contact;
 
 /// An empty collision detector. It does nothing.
+#[deriving(Encodable, Decodable)]
 pub struct Empty<N, V, M, G1, G2> {
     priv dummy: uint // FIXME: useless, but zero-sized structure ICE when used cross-crate.
 }

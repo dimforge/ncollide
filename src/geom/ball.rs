@@ -12,7 +12,7 @@ use bounding_volume::{HasAABB, AABB};
  * 
  *  - `N`: numeric type used for the ball radius.
  */
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct Ball<N> {
     priv radius: N
 }

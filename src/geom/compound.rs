@@ -1,3 +1,4 @@
+use extra::serialize::{Encodable, Decodable, Encoder, Decoder};
 use nalgebra::vec::{AlgebraicVecExt, VecExt};
 use bounding_volume::{BoundingVolume, LooseBoundingVolume, AABB, HasAABB};
 use partitioning::dbvt::{DBVT, DBVTLeaf};
@@ -81,5 +82,26 @@ HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {
         }
 
         res
+    }
+}
+
+impl<N, V, M: Encodable<E>, S: Encodable<E>, E: Encoder> Encodable<E> for CompoundAABB<N, V, M, S> {
+    fn encode(&self, encoder: &mut E) {
+        // encode only the geometry
+        self.shapes.encode(encoder)
+    }
+}
+
+impl<N: 'static + Algebraic + Primitive + Orderable + ToStr,
+     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
+     M: Decodable<D>,
+     S: Decodable<D> + HasAABB<N, V, M>,
+     D: Decoder>
+Decodable<D> for CompoundAABB<N, V, M, S> {
+    fn decode(decoder: &mut D) -> CompoundAABB<N, V, M, S> {
+        // encode only the geometry
+        let geometries: ~[(M, S)] = Decodable::decode(decoder);
+
+        CompoundAABB::new(geometries)
     }
 }

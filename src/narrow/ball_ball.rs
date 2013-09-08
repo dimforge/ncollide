@@ -13,6 +13,7 @@ use ray::{Ray, RayCastWithTransform};
  *   * `N` - type of a ball radius.
  *   * `V` - type of a ball center.
  */
+#[deriving(Encodable, Decodable)]
 pub struct BallBall<N, V, M> {
     priv prediction: N,
     priv contact:    Option<Contact<N, V>>

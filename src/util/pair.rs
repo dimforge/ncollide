@@ -4,6 +4,7 @@ use util::hash;
 use util::hash::HashFun;
 
 /// Pair of managed boxes. It is accompagned with a fast hash function.
+#[deriving(Encodable, Decodable)]
 pub struct Pair<B> {
     /// first object of the pair
     first: @mut B,
@@ -46,6 +47,7 @@ impl<B> Eq for Pair<B> {
 }
 
 /// Tomas Wang based hash function for a `Pair` object.
+#[deriving(Encodable, Decodable)]
 pub struct PairTWHash { priv unused: uint } // FIXME: ICE with zero-sized structs
 
 impl PairTWHash {

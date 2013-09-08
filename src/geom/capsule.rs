@@ -9,7 +9,7 @@ use bounding_volume;
 use geom::{Implicit, HasMargin};
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct Capsule<N> {
     priv half_height: N,
     priv radius:      N,

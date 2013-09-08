@@ -5,6 +5,7 @@ use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
 
+#[deriving(Encodable, Decodable)]
 enum UpdateState {
     NeedsShrink,
     UpToDate
