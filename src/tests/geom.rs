@@ -1,7 +1,7 @@
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use nalgebra::vec::{Vec3, AlgebraicVec};
+use nalgebra::vec::{Vec3, Norm};
 #[test]
 use nalgebra::mat::Identity;
 #[test]
