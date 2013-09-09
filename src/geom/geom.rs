@@ -2,7 +2,7 @@ use std::num::One;
 use nalgebra::mat::{Translation, Rotate, Transform};
 use nalgebra::vec::AlgebraicVecExt;
 use bounding_volume::{HasAABB, AABB};
-use geom::{Plane, Ball, Box, Cone, Cylinder, Implicit, HasMargin, CompoundAABB};
+use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
 use ray::{Ray, RayCast, RayCastWithTransform};
 
 /// Enumeration grouping all common shapes. Used to simplify collision detection
@@ -20,6 +20,7 @@ pub enum IGeom<N, V, M> {
     BoxGeom(Box<N, V>),
     ConeGeom(Cone<N>),
     CylinderGeom(Cylinder<N>),
+    CapsuleGeom(Capsule<N>)
 }
 
 impl<N: One + ToStr, V: ToStr, M, II: ToStr> Geom<N, V, M, II> {
@@ -164,6 +165,7 @@ HasAABB<N, V, M> for Geom<N, V, M, II> {
                     BoxGeom(ref b)      => b.aabb(m),
                     ConeGeom(ref c)     => c.aabb(m),
                     CylinderGeom(ref c) => c.aabb(m),
+                    CapsuleGeom(ref c)  => c.aabb(m)
                 }
             }
         }
@@ -187,6 +189,7 @@ RayCast<N, V> for Geom<N, V, M, II> {
                     BoxGeom(ref b)      => b.toi_with_ray(ray),
                     ConeGeom(ref c)     => c.toi_with_ray(ray),
                     CylinderGeom(ref c) => c.toi_with_ray(ray),
+                    CapsuleGeom(ref c)  => c.toi_with_ray(ray),
                 }
             }
         }
@@ -206,7 +209,8 @@ impl<N: Clone + Add<N, N>, V, M> HasMargin<N> for IGeom<N, V, M> {
             BallGeom(ref b)     => b.margin(),
             BoxGeom(ref b)      => b.margin(),
             ConeGeom(ref c)     => c.margin(),
-            CylinderGeom(ref c) => c.margin()
+            CylinderGeom(ref c) => c.margin(),
+            CapsuleGeom(ref c)  => c.margin()
         }
     }
 }
@@ -222,6 +226,7 @@ Implicit<N, V, M> for IGeom<N, V, M> {
             BoxGeom(ref b)      => b.support_point_without_margin(transform, dir),
             ConeGeom(ref c)     => c.support_point_without_margin(transform, dir),
             CylinderGeom(ref c) => c.support_point_without_margin(transform, dir),
+            CapsuleGeom(ref c)  => c.support_point_without_margin(transform, dir)
         }
     }
 
@@ -232,6 +237,7 @@ Implicit<N, V, M> for IGeom<N, V, M> {
             BoxGeom(ref b)      => b.support_point(transform, dir),
             ConeGeom(ref c)     => c.support_point(transform, dir),
             CylinderGeom(ref c) => c.support_point(transform, dir),
+            CapsuleGeom(ref c)  => c.support_point(transform, dir)
         }
     }
 }

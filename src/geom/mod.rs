@@ -12,7 +12,7 @@ pub use geom::private::reflection::Reflection;
 pub use geom::private::compound::CompoundAABB;
 pub use geom::private::geom_with_margin::GeomWithMargin;
 pub use geom::private::geom::{Geom, IGeom, PlaneGeom, BallGeom, BoxGeom, ConeGeom, CylinderGeom,
-                              CompoundGeom, ImplicitGeom};
+                              CapsuleGeom, CompoundGeom, ImplicitGeom};
 
 
 // methods
