@@ -90,7 +90,6 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + 
                                   V: VecExt<N> + ToStr,
                                   B>(leaves: ~[(B, AABB<N, V>)])
                                   -> PartFnResult<B, AABB<N, V>> {
-    println("nleaves: " + leaves.len().to_str());
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }
@@ -112,7 +111,6 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + 
         let mut partitions = vec::from_fn(1u << Dim::dim(None::<V>), |_| ~[]);
         for (b, aabb) in leaves.move_iter() {
             let dpos    = aabb.translation() - center;
-            println("dpos: " + dpos.to_str());
             let mut key = 0u;
 
             for i in range(0u, Dim::dim(None::<V>)) {
@@ -120,7 +118,7 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + 
                     key = key | (1u << i);
                 }
                 else if dpos.at(i).is_zero() {
-                    rl = !rl;
+                    if i == 0u { rl = !rl }
                     if rl {
                         key = key | (1u << i);
                     }
