@@ -41,7 +41,7 @@ impl RecursionTemplate {
     /// Creates a new set o Recursion simplex sharable between any Johnson simplex having a
     /// dimension inferior or equal to `dim`.
     pub fn new(dim: uint) -> @[RecursionTemplate] {
-        do at_vec::build |push| {
+        do at_vec::build(Some(dim + 1u)) |push| {
             for dim in range(0u, dim + 1u) {
                 push(RecursionTemplate::make_permutation_list(dim))
             }
