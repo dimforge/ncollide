@@ -4,7 +4,7 @@
 use std::num::Zero;
 use nalgebra::vec::{Indexable, AlgebraicVecExt};
 use nalgebra::mat::{Rotate, Transform};
-use bounding_volume::{HasAABB, AABB};
+use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
 
@@ -74,11 +74,15 @@ Implicit<N, V, M> for Capsule<N> {
     }
 }
 
-impl<N: Algebraic + Signed + Clone,
-     V: AlgebraicVecExt<N> + Clone,
+impl<N: Algebraic + Signed + Primitive + Orderable + Clone + ToStr,
+     V: AlgebraicVecExt<N> + Clone + ToStr,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Capsule<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {
-        bounding_volume::implicit_shape_aabb(m, self)
+        let mut res = bounding_volume::implicit_shape_aabb(m, self);
+
+        res.loosen(self.margin.clone());
+
+        res
     }
 }

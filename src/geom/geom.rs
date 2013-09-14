@@ -1,5 +1,5 @@
 use std::num::One;
-use nalgebra::mat::{Translation, Rotate, Transform};
+use nalgebra::mat::{Translation, Rotate, Transform, AbsoluteRotate};
 use nalgebra::vec::AlgebraicVecExt;
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
@@ -151,7 +151,7 @@ impl<N, V, M, II> Geom<N, V, M, II> {
 
 impl<N: NumCast + Primitive + Orderable + Algebraic + Signed + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
-     M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M>,
+     M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>,
      II>
 HasAABB<N, V, M> for Geom<N, V, M, II> {
     #[inline]

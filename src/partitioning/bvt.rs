@@ -52,6 +52,21 @@ impl<B, BV> BVT<B, BV> {
     }
 }
 
+impl<B, BV> BVT<B, BV> {
+    /// Reference to the bounding volume of the tree root.
+    pub fn root_bounding_volume<'r>(&'r self) -> Option<&'r BV> {
+        match self.tree {
+            Some(ref n) => {
+                match *n {
+                    Internal(ref bv, _) => Some(bv),
+                    Leaf(ref bv, _)     => Some(bv)
+                }
+            },
+            None => None
+        }
+    }
+}
+
 impl<B, BV> BVTNode<B, BV> {
     fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match *self {

@@ -1,5 +1,6 @@
 use nalgebra::vec::{AlgebraicVecExt, VecExt};
-use bounding_volume::{BoundingVolume, LooseBoundingVolume, AABB, HasAABB};
+use nalgebra::mat::{Translation, AbsoluteRotate, Transform};
+use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use partitioning::bvt::BVT;
 use partitioning::bvt;
 
@@ -10,7 +11,7 @@ use partitioning::bvt;
 #[deriving(Encodable, Decodable)]
 pub struct CompoundAABB<N, V, M, S> {
     priv shapes: ~[(M, S)],
-    priv bvt:   BVT<uint, AABB<N, V>>,
+    priv bvt:    BVT<uint, AABB<N, V>>,
     priv bvs:    ~[AABB<N, V>]
 }
 
@@ -68,20 +69,17 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
 
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + Clone + ToStr,
-     M: Mul<M, M>,
+     M: Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V>,
      S: HasAABB<N, V, M>>
 HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
-        let mut iter          = self.shapes.iter();
-        let &(ref m1, ref s1) = iter.next().expect("Cannot compute the aabb of an empty compoundAABB.");
+        let bv              = self.bvt.root_bounding_volume().unwrap();
+        let ls_center       = bv.translation();
+        let center          = m.transform(&ls_center);
+        let half_extents    = (bv.maxs() - *bv.mins()) / NumCast::from(2.0);
+        let ws_half_extents = m.absolute_rotate(&half_extents);
 
-        let mut res = s1.aabb(&(m * *m1));
-
-        for &(ref mi, ref si) in iter {
-            res.merge(&si.aabb(&(m * *mi)))
-        }
-
-        res
+        AABB::new(center - ws_half_extents, center + ws_half_extents)
     }
 }

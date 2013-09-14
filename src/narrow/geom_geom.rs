@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::mat::{Translation, Rotate, Rotation, Transform, Inv};
+use nalgebra::mat::{Translation, Rotate, Rotation, AbsoluteRotate, Transform, Inv};
 use nalgebra::vec::{Vec, AlgebraicVecExt, Cross};
 use geom::{Ball, AnnotatedPoint, CompoundAABB};
 use geom::{Geom, IGeom, PlaneGeom, BallGeom, ImplicitGeom, CompoundGeom};
@@ -94,7 +94,8 @@ impl<N: ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebraic,
      LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone + ToStr +
          Rotate<LV> + Transform<LV>,
      AV: Vec<N> + ToStr,
-     M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + Mul<M, M> + Inv + One,
+     M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
+         Mul<M, M> + Inv + One,
      II>
 CollisionDetector<N, LV, M, Geom<N, LV, M, II>, Geom<N, LV, M, II>>
 for GeomGeom<N, LV, AV, M, II> {
@@ -172,7 +173,8 @@ pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebrai
            LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
                Rotate<LV> + Transform<LV> + ToStr,
            AV: Vec<N> + ToStr,
-           M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + Mul<M, M> + Inv + One,
+           M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
+               Mul<M, M> + Inv + One,
            II>(
            m1:   &M,
            dir:  &LV,
