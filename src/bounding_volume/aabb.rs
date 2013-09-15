@@ -122,15 +122,15 @@ impl<N: Primitive + Orderable + ToStr,
 LooseBoundingVolume<N> for AABB<N, V> {
     #[inline]
     fn loosen(&mut self, amount: N) {
-        self.mins.scalar_sub_inplace(&amount);
-        self.maxs.scalar_add_inplace(&amount);
+        self.mins = self.mins.sub_s(&amount);
+        self.maxs = self.maxs.add_s(&amount);
     }
 
     #[inline]
     fn loosened(&self, amount: N) -> AABB<N, V> {
         AABB {
-            mins: self.mins.scalar_sub(&amount),
-            maxs: self.maxs.scalar_add(&amount)
+            mins: self.mins.sub_s(&amount),
+            maxs: self.maxs.add_s(&amount)
         }
     }
 }

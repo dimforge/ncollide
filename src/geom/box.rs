@@ -31,7 +31,7 @@ impl<N: Signed + NumCast, V: VecExt<N>> Box<N, V> {
     /// along each axis. Each half-extent must be positive but not zero.
     #[inline]
     pub fn new_with_margin(half_extents: V, margin: N) -> Box<N, V> {
-        let half_extents_wo_margin = half_extents.scalar_sub(&margin);
+        let half_extents_wo_margin = half_extents.sub_s(&margin);
         assert!(half_extents_wo_margin.iter().all(|e| e.is_positive()));
 
         Box {
@@ -45,7 +45,7 @@ impl<N, V: VecExt<N> + Clone> Box<N, V> {
     /// The half-extents of this box. Half-extents are the box half-width along each axis. 
     #[inline]
     pub fn half_extents(&self) -> V {
-        self.half_extents.scalar_add(&self.margin)
+        self.half_extents.add_s(&self.margin)
     }
 }
 
@@ -87,7 +87,7 @@ HasAABB<N, V, M> for Box<N, V> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
         let center          = m.translation();
-        let ws_half_extents = m.absolute_rotate(&self.half_extents.scalar_add(&self.margin));
+        let ws_half_extents = m.absolute_rotate(&self.half_extents.add_s(&self.margin));
 
         AABB::new(center - ws_half_extents, center + ws_half_extents)
     }

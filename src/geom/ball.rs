@@ -58,7 +58,7 @@ impl<N,
 HasAABB<N, V, M> for Ball<N> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
-        AABB::new(m.translation().scalar_sub(&self.radius),
-                  m.translation().scalar_add(&self.radius))
+        AABB::new(m.translation().sub_s(&self.radius),
+                  m.translation().add_s(&self.radius))
     }
 }

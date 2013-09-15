@@ -27,7 +27,7 @@ macro_rules! test_johnson_simplex_impl(
             for i in range(1u, 200 / (d + 1)) {
                 // note that this fails with lower precision
                 let mut v1: $t = rand::random();
-                v1.scalar_sub_inplace(&(0.5 as $n));
+                v1 = v1 - (0.5 as $n);
                 v1 = v1 * (i as $n);
 
                 let mut splx1 = JohnsonSimplex::new(recursion);
@@ -38,7 +38,7 @@ macro_rules! test_johnson_simplex_impl(
 
                 do d.times {
                     let mut v: $t = rand::random();
-                    v.scalar_sub_inplace(&(0.5 as $n));
+                    v = v - (0.5 as $n);
                     v = v * (i as $n);
 
                     splx1.add_point(v.clone());
@@ -64,11 +64,11 @@ macro_rules! test_gjk_ball_ball_impl(
             let r2 = 10.0 as $n * rand::random();
 
             let mut c1: $t = rand::random();
-            c1.scalar_sub_inplace(&(0.5 as $n));
+            c1 = c1 - (0.5 as $n);
             c1 = c1 * (100.0 as $n);
 
             let mut c2: $t = rand::random();
-            c2.scalar_sub_inplace(&(0.5 as $n));
+            c2 = c2 - (0.5 as $n);
             c2 = c2 * (100.0 as $n);
 
             let b1 = Ball::new(r1);
