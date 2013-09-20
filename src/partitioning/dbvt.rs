@@ -1,6 +1,7 @@
 use std::ptr;
 use std::borrow;
 use std::util;
+use std::managed;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::mat::Translation;
 use nalgebra::vec::AlgebraicVec;
@@ -219,7 +220,7 @@ impl<V, B, BV: Translation<V>> DBVTLeaf<V, B, BV> {
     ///
     /// # Arguments:
     ///     * `curr_root`: current root of the tree.
-    fn unlink(&mut self,
+    fn unlink(@mut self,
               cache:     &mut Cache<V, B, BV>,
               curr_root: DBVTNode<V, B, BV>) -> Option<DBVTNode<V, B, BV>> {
         if self.parent.is_not_null() {
@@ -232,8 +233,8 @@ impl<V, B, BV: Translation<V>> DBVTLeaf<V, B, BV> {
             let parent_right = unsafe { (*p).right.invalidate() };
 
             let take_left = match parent_left {
-                Leaf(l) => !borrow::ref_eq(self, l),
-                _ => true 
+                Leaf(l) => !managed::mut_ptr_eq(self, l),
+                _       => true 
             };
 
             let mut other = if take_left { parent_left } else { parent_right };

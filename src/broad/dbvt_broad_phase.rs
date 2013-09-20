@@ -452,7 +452,7 @@ mod test {
             bf.activate(*e, |_, _, _| { });
         }
 
-        // test one deactivation followed by one activation: this should not changes anything
+        // test one deactivation followed by one activation: this should not change anything
         for e in to_move.mut_iter() {
             bf.deactivate(*e);
             bf.activate(*e, |_, _, _| { });
