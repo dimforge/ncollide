@@ -16,9 +16,9 @@ use ray::{Ray, RayCast};
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
-    priv simplex:    S,
-    priv prediction: N,
-    priv contact:    Option<Contact<N, V>>
+    priv simplex:       S,
+    priv prediction:    N,
+    priv contact:       Option<Contact<N, V>>
 }
 
 impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
@@ -49,7 +49,8 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
             mb,
             b,
             &self.prediction,
-            &mut self.simplex)
+            &mut self.simplex,
+            self.contact.map(|c| c.normal.clone()))
     }
 
     #[inline]
@@ -101,9 +102,14 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                m2:         &M,
                g2:         &G2,
                prediction: &N,
-               simplex: &mut S)
+               simplex:    &mut S,
+               init_dir:   Option<V>)
                -> Option<Contact<N, V>> {
-    let mut dir = m1.translation() - m2.translation(); // FIXME: or m2.translation - m1.translation ?
+    let mut dir = 
+        match init_dir {
+            None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
+            Some(dir) => dir
+        };
 
     if dir.is_zero() {
         dir.set(0, One::one());
