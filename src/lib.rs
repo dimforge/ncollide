@@ -46,6 +46,7 @@ pub mod util
     pub mod pair;
     pub mod hash;
     pub mod hash_map;
+    pub mod owned_allocation_cache;
 }
 
 mod tests
