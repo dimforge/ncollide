@@ -1,10 +1,6 @@
-#[test]
 use std::cmp::ApproxEq;
-#[test]
 use nalgebra::vec::{Vec3, Norm};
-#[test]
 use nalgebra::mat::Identity;
-#[test]
 use geom::{Ball, Implicit, MinkowskiSum};
 
 #[test]

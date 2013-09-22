@@ -29,7 +29,8 @@ distcheck:
 	rm -rf $(tmp)
 
 doc:
-	rust doc $(ncollide_rs) --output-dir $(ncollide_doc_path)
+	mkdir -p $(ncollide_doc_path)
+	rustdoc_ng html src/lib.rs -L$(nalgebra_lib_path)
 
 .PHONY:doc
 .PHONY:test

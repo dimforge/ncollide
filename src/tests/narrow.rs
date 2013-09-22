@@ -1,10 +1,6 @@
-#[test]
 use std::num::Zero;
-#[test]
 use nalgebra::vec::Vec3;
-#[test]
 use narrow::collide;
-#[test]
 use geom::Ball;
 
 #[test]

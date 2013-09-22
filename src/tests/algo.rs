@@ -1,22 +1,12 @@
-#[test]
 use std::rand;
-#[test]
 use nalgebra::vec::*;
-#[test]
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
-#[test]
 use narrow::algorithm::simplex::Simplex;
-#[test]
 use narrow::algorithm::gjk;
-#[test]
 use narrow::closest_points;
-#[test]
 use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
-#[test]
 use geom::Ball;
-#[test]
 use geom::AnnotatedPoint;
-#[test]
 use geom;
 
 macro_rules! test_johnson_simplex_impl(
