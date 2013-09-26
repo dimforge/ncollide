@@ -45,4 +45,4 @@ impl<N: Num + Bounded + Orderable + Primitive + Algebraic + ToStr,
      V: 'static + AlgebraicVecExt<N> + ToStr,
      M: Transform<V> + Rotate<V>,
      S: RayCastWithTransform<N, V, M>>
-RayCastWithTransform<N, V, M> for CompoundAABB<N, V, M, S>;
+RayCastWithTransform<N, V, M> for CompoundAABB<N, V, M, S> { }

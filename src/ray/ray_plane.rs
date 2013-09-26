@@ -33,4 +33,4 @@ RayCast<N, V> for Plane<N, V> {
 }
 
 impl<N: Num + Ord, V: Vec<N> + Clone, M: Rotate<V> + Transform<V>>
-RayCastWithTransform<N, V, M> for Plane<N, V>;
+RayCastWithTransform<N, V, M> for Plane<N, V> { }

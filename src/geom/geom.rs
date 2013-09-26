@@ -200,7 +200,7 @@ impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M: Rotate<V> + Transform<V>,
      II>
-RayCastWithTransform<N, V, M> for Geom<N, V, M, II>;
+RayCastWithTransform<N, V, M> for Geom<N, V, M, II> { }
 
 impl<N: Clone + Add<N, N>, V, M> HasMargin<N> for IGeom<N, V, M> {
     #[inline]

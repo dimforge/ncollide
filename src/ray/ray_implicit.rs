@@ -107,7 +107,7 @@ RayCast<N, V> for Cylinder<N> {
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
      M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Cylinder<N>;
+RayCastWithTransform<N, V, M> for Cylinder<N> { }
 
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
@@ -120,7 +120,7 @@ RayCast<N, V> for Cone<N> {
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
      M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Cone<N>;
+RayCastWithTransform<N, V, M> for Cone<N> { }
 
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
@@ -133,7 +133,7 @@ RayCast<N, V> for Capsule<N> {
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
      M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Capsule<N>;
+RayCastWithTransform<N, V, M> for Capsule<N> { }
 
 impl<'self,
      N:  Ord + Num + Float + NumCast + Clone + ToStr,
@@ -153,4 +153,4 @@ impl<'self,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>,
      M:  Rotate<V> + Transform<V>>
-RayCastWithTransform<N, V, M> for MinkowskiSum<'self, M, G1, G2>;
+RayCastWithTransform<N, V, M> for MinkowskiSum<'self, M, G1, G2> { }

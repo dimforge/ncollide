@@ -21,7 +21,7 @@ type PartFnResult<B, BV> = (BV, Either<B, ~[~[(B, BV)]]>);
 impl<B, BV> BVT<B, BV> {
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner(leaves:      ~[(B, BV)],
-                                partitioner: @fn(~[(B, BV)]) -> PartFnResult<B, BV>)
+                                partitioner: &fn(~[(B, BV)]) -> PartFnResult<B, BV>)
                                 -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
@@ -148,7 +148,7 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + 
 }
 
 fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
-                               partitioner: @fn(~[(B, BV)]) -> PartFnResult<B, BV>)
+                               partitioner: &fn(~[(B, BV)]) -> PartFnResult<B, BV>)
                                -> BVTNode<B, BV> {
     let (bv, partitions) = partitioner(leaves);
 
@@ -159,7 +159,7 @@ fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
 
             for part in parts.move_iter() {
                 if part.len() != 0 {
-                    children.push(new_with_partitioner(part, partitioner))
+                    children.push(new_with_partitioner(part, |x| partitioner(x)))
                 }
             }
 

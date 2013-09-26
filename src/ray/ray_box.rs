@@ -16,4 +16,4 @@ RayCast<N, V> for Box<N, V> {
 impl<N: Primitive + Orderable + ToStr,
      V: VecExt<N> + Clone + ToStr,
      M: Rotate<V> + Transform<V>>
-RayCastWithTransform<N, V, M> for Box<N, V>;
+RayCastWithTransform<N, V, M> for Box<N, V> { }
