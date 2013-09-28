@@ -1,4 +1,4 @@
-//! Geometries.
+//! Geometric primitives.
 
 // traits and types
 pub use geom::implicit::{Implicit, HasMargin};

@@ -4,9 +4,10 @@ use broad::Dispatcher;
 
 
 /**
- * The slowest possible broad phase. It always returns false positive since
- * it assumes that all object is in collision with all objects.
- * Do not use this but for benchmarking the narrow phase.
+ * The broad phase which does nothing.
+ *
+ * It always returns false positives since it assumes that all object is in collision with all
+ * objects. Do not use this but for benchmarking the narrow phase.
  */
 struct BruteForceBroadPhase<B, D, DV> {
     priv dispatcher: D,

@@ -4,9 +4,11 @@ use nalgebra::mat::{RotationWithTranslation, Translation, Rotation, Transform};
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
 
-/// This is an hybrid contact manifold genarator. Whenever a new contact is detected (i.e. when the
-/// current manifold is empty) a full manifold is generated. Then, the manifold is incrementally
-/// updated by the `IncrementalContactManifoldGenerator`.
+/// Contact manifold generator producing a full manifold at the first update.
+///
+/// Whenever a new contact is detected (i.e. when the current manifold is empty) a full manifold is
+/// generated. Then, the manifold is incrementally updated by an
+/// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     priv sub_detector: IncrementalContactManifoldGenerator<CD, N, LV>

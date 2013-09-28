@@ -6,6 +6,7 @@ use contact::Contact;
 use ray::{Ray, RayCastWithTransform};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
+///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
@@ -70,6 +71,7 @@ CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
 }
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
+///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]

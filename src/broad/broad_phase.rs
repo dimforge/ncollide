@@ -1,8 +1,9 @@
 use ray::Ray;
 
-/// Trait all broad phase must implement. This does not do much per se. Useful features are
-/// provided by the traits: `InterferencesBroadPhase`, `BoundingVolumeBroadPhase`, and
-/// `RayCastBroadPhase`.
+/// Trait all broad phase must implement.
+///
+/// This does not do much per se. Useful features are provided by the
+/// traits: `InterferencesBroadPhase`, `BoundingVolumeBroadPhase`, and `RayCastBroadPhase`.
 pub trait BroadPhase<B> {
     /// Adds an element to this broad phase.
     fn add(&mut self, @mut B);
@@ -15,13 +16,17 @@ pub trait BroadPhase<B> {
     fn update_object(&mut self, @mut B);
 }
 
-/// Broad phase which check for pairwise interferences (aka. coarse collision detection).
+/// Broad phase which check for pairwise interferences.
+///
 /// This is the most common feature provided by broad phases.
 pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {
-    /// Marks and object as active. Active objects are checked for interferences at each update.
+    /// Marks and object as active.
+    ///
+    /// Active objects are checked for interferences at each update.
     fn activate(&mut self, body: @mut B, f: &fn(@mut B, @mut B, &mut DV));
-    /// Marks and object as inactive. Inactive objects are assumed to be static and not tested for
-    /// mutual interferences.
+    /// Marks and object as inactive.
+    ///
+    /// Inactive objects are assumed to be static and not tested for mutual interferences.
     fn deactivate(&mut self, @mut B);
 
     /// Execute a function on each interefence detected by the broad phase.

@@ -66,7 +66,9 @@ BallBall<N, V, M> {
     }
 }
 
-/// Computes the contact point between two balls. The balls must penetrate to have contact points.
+/// Computes the contact point between two balls.
+///
+/// The balls must penetrate to have contact points.
 #[inline]
 pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
 (center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>, prediction: &N) -> Option<Contact<N, V>> {
@@ -99,8 +101,9 @@ pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
     }
 }
 
-/// Computes the cloest points between two balls. If they are intersecting, the points
-/// corresponding to the penetration depth are returned.
+/// Computes the closest points between two balls.
+///
+/// If they are intersecting, the points corresponding to the penetration depth are returned.
 #[inline]
 pub fn closest_points<N: Algebraic + Clone,
                       V: AlgebraicVec<N> + Clone>

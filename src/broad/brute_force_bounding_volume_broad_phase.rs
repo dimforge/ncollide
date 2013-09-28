@@ -6,7 +6,7 @@ use util::pair::{Pair, PairTWHash};
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 
-/// Associatio of an object with its loose bounding volume.
+/// Association of an object with its loose bounding volume.
 pub struct BoundingVolumeProxy<N, B, BV> {
     /// The objects loose bounding volume.
     bounding_volume: BV,
@@ -30,7 +30,9 @@ BoundingVolumeProxy<N, B, BV> {
         }
     }
 
-    /// Updates this proxy. Returns `true` if the stored bounding volume has been changed.
+    /// Updates this proxy.
+    ///
+    /// Returns `true` if the stored bounding volume has been changed.
     pub fn update(&mut self, margin: &N) -> bool {
         let mut new_bv = self.body.bounding_volume();
 
@@ -46,10 +48,9 @@ BoundingVolumeProxy<N, B, BV> {
     }
 }
 
-/// Broad phase with quadratic complixity but sped up using looze bounding volumes. Interference
-/// detection is executed only for objects which have their bounding volumes updated. The number of
-/// such objects is assumed to be small enough to not exhibit the quadratic nature of the detection
-/// algorithm.
+/// Broad phase with quadratic complexity but sped up using loose bounding volumes.
+///
+/// Interference detection is executed only for objects which have their bounding volumes updated.
 ///
 /// Dont use this broad phase. It exists mainly as a transition broad phase between the Brute Force
 /// one and the DBVH/SAP based broad phases.

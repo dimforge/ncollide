@@ -1,3 +1,5 @@
+//! A Dynamic Bounding Volume Tree.
+
 use std::ptr;
 use std::borrow;
 use std::util;

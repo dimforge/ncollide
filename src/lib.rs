@@ -21,11 +21,8 @@ pub mod contact;
 
 /// Spatial partitioning tools.
 pub mod partitioning {
-    /// A Dynamic Bounding Volume Tree.
     pub mod dbvt;
-    /// A read-only Bounding Volume Tree.
     pub mod bvt;
-    /// Trait of visitors of bounding volume based tree.
     pub mod bvt_visitor;
 }
 

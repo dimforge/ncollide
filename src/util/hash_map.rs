@@ -21,10 +21,13 @@ impl<K, V> Entry<K, V> {
     }
 }
 
-/// Alternative implementation of HashMap. It is different from std::hashmap::HashMap because:
-///     * the hash function can be personalized
-///     * the hash table are speratate from the datas. Thus, the vector of entries is tight (no
-///     holes due to sparce hashing).
+/// Alternative implementation of `HashMap`.
+///
+/// It is different from `std::hashmap::HashMap` because:
+///
+/// * the hash function can be personalized
+/// * the hash table is separate from the data. Thus, the vector of entries is tight (no holes
+///     due to sparse hashing).
 #[deriving(Encodable, Decodable)]
 pub struct HashMap<K, V, H> {
     priv hash:          H,
@@ -61,7 +64,9 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
         }
     }
 
-    /// The elements added to this hash map. This is a simple, contiguous array.
+    /// The elements added to this hash map.
+    ///
+    /// This is a simple, contiguous array.
     #[inline]
     pub fn elements<'r>(&'r self) -> &'r [Entry<K, V>] {
         let table: &'r [Entry<K, V>] = self.table;
@@ -69,7 +74,9 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
         table
     }
 
-    /// The elements added to this hash map. This is a simple, contiguous array.
+    /// The elements added to this hash map.
+    ///
+    /// This is a simple, contiguous array.
     #[inline]
     pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, V>] {
         let table: &'r mut [Entry<K, V>] = self.table;
@@ -81,6 +88,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
 
 impl<K: Eq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Removes the element at the specified position of the element array.
+    ///
     /// If the index is greater than the table length, it returns `false`.
     pub fn remove_elem_at(&mut self, at: uint) -> bool {
         if at > self.table.len() {

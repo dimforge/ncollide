@@ -10,10 +10,10 @@ use narrow::CollisionDetector;
 use contact::Contact;
 use ray::{Ray, RayCast};
 
-/// Persistant collision detector between two shapes having a support mapping function (i.e. which
-/// implement the `Implicit` trait. It is based on the GJK algorithm.
-/// This detector generates only one contact point. For a full manifold generation, see
-/// `IncrementalContactManifoldGenerator`.
+/// Persistent collision detector between two shapes having a support mapping function.
+///
+/// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
+/// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
     priv simplex:       S,
@@ -22,8 +22,10 @@ pub struct ImplicitImplicit<S, G1, G2, N, V> {
 }
 
 impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
-    /// Creates a new persistant collision detector between two geometries with support mapping
-    /// functions. It is initialized with a pre-created simplex.
+    /// Creates a new persistent collision detector between two geometries with support mapping
+    /// functions.
+    ///
+    /// It is initialized with a pre-created simplex.
     pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
         ImplicitImplicit {
             simplex:    simplex,
@@ -81,10 +83,11 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 }
 
-/// Computes a contact point between two implicit geometries. For optimizations purposes the
-/// objects are artificially enlarged by a small margin. This uses the GJK algorithm to handle
-/// penetrations within the margin and a Minkowski sum sampling based algorithm to handle deep
-/// penetrations.
+/// Computes a contact point between two implicit geometries.
+///
+/// For optimizations purposes the objects are artificially enlarged by a small margin. This uses
+/// the GJK algorithm to handle penetrations within the margin and a Minkowski sum sampling based
+/// algorithm to handle deep penetrations.
 ///
 /// # Arguments:
 ///   * `g1` - the first implicit shape involved on the collision check
@@ -170,12 +173,12 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 
 /// Computes the Time Of Impact of two geometries.
 ///
-/// Arguments:
-///     * `m1`  - the first geometry transform.
-///     * `dir` - the direction of the first geometry movement.
-///     * `g1`  - the first geometry.
-///     * `m2`  - the second geometry transform.
-///     * `g2`  - the second geometry.
+/// # Arguments:
+/// * `m1`  - the first geometry transform.
+/// * `dir` - the direction of the first geometry movement.
+/// * `g1`  - the first geometry.
+/// * `m2`  - the second geometry transform.
+/// * `g2`  - the second geometry.
 pub fn toi<N:  Ord + Num + Float + NumCast + Clone + ToStr,
            V:  AlgebraicVecExt<N> + Clone + ToStr,
            M:  Translation<V> + Transform<V> + Rotate<V>,

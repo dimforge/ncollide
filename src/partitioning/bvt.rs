@@ -1,3 +1,5 @@
+//! A read-only Bounding Volume Tree.
+
 use std::vec;
 use nalgebra::mat::Translation;
 use nalgebra::vec::{Dim, VecExt};
@@ -99,8 +101,9 @@ impl<B, BV> BVTNode<B, BV> {
     }
 }
 
-/// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d. Use this as a
-/// parameter of `new_with_partitioner`.
+/// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
+///
+/// Use this as a parameter of `new_with_partitioner`.
 pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + NumCast + Signed + ToStr,
                                   V: VecExt<N> + ToStr,
                                   B>(leaves: ~[(B, AABB<N, V>)])

@@ -27,7 +27,7 @@ CompoundAABB<N, V, M, S> {
         let mut leaves = ~[];
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
-            let bv = shape.aabb(delta).loosened(NumCast::from(0.04)); // loozen for better persistancy
+            let bv = shape.aabb(delta).loosened(NumCast::from(0.04)); // loosen for better persistancy
 
             bvs.push(bv.clone());
             leaves.push((i, bv));

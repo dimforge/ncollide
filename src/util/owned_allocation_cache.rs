@@ -1,6 +1,7 @@
 // FIXME: add a limit to the cache?
-/// Cache for owned objects. Useful if fast allocation/deallocation of small owned objects is
-/// needed.
+/// Cache for owned objects.
+///
+/// Useful if fast allocation/deallocation of small owned objects is needed.
 pub struct OwnedAllocationCache<T> {
     priv cache: ~[~T]
 }

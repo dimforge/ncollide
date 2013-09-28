@@ -9,8 +9,10 @@ use contact::Contact;
 use geom::CompoundAABB;
 use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 
-/// Collision detector between a `CompoundAABB` and any other shape. This other shape can itself be
-/// a `CompoundAABB` but this is discouraged: use the `CompoundCompound` collision detector istead.
+/// Collision detector between a `CompoundAABB` and any other shape.
+///
+/// This other shape can itself be a `CompoundAABB` but this is discouraged: use the
+/// `CompoundCompound` collision detector istead.
 pub struct CompoundAABBAny<N, V, M, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: ~[Option<SD>],
@@ -18,9 +20,10 @@ pub struct CompoundAABBAny<N, V, M, G, D, SD> {
     priv updated:       ~[bool]
 }
 
-/// Collision detector between any shape and a `CompoundAABB`. This is the same as
-/// `CompoundAABBAny` but with the shapes swaped (the compound comes second on the argument of
-/// `update`.
+/// Collision detector between any shape and a `CompoundAABB`.
+///
+/// This is the same as `CompoundAABBAny` but with the shapes swaped (the compound comes second on
+/// the argument of `update`.
 #[deriving(Encodable, Decodable)]
 pub struct AnyCompoundAABB<N, V, M, G, D, SD> {
     priv sub_detector: CompoundAABBAny<N, V, M, G, D, SD>
@@ -46,9 +49,9 @@ impl<N, V, M, G, D, SD> CompoundAABBAny<N, V, M, G, D, SD> {
     /// Creates a new CompoundAABBAny collision detector.
     ///
     /// # Arguments:
-    ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
-    ///     compound geometry shapes and the other shape.
-    ///     * `g` - the compound geometry to be handled by the detector.
+    /// * `dispatcher` - the collision dispatcher to build the collision detectors between the
+    /// compound geometry shapes and the other shape.
+    /// * `g` - the compound geometry to be handled by the detector.
     pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> CompoundAABBAny<N, V, M, G, D, SD> {
         CompoundAABBAny::new_with_num_shapes(dispatcher, g.shapes().len())
     }
@@ -58,9 +61,9 @@ impl<N, V, M, G, D, SD> AnyCompoundAABB<N, V, M, G, D, SD> {
     /// Creates a new AnyCompoundAABB collision detector.
     ///
     /// # Arguments:
-    ///     * `dispatcher` - the collision dispatcher to build the collision detectors between the
-    ///     compound geometry shapes and the other shape.
-    ///     * `g` - the compound geometry to be handled by the detector.
+    /// * `dispatcher` - the collision dispatcher to build the collision detectors between the
+    /// compound geometry shapes and the other shape.
+    /// * `g` - the compound geometry to be handled by the detector.
     pub fn new(dispatcher: D, g: &CompoundAABB<N, V, M, G>) -> AnyCompoundAABB<N, V, M, G, D, SD> {
         AnyCompoundAABB {
             sub_detector: CompoundAABBAny::new(dispatcher, g)

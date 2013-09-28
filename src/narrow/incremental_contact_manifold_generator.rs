@@ -26,11 +26,12 @@ impl<N: Num + NumCast, V: Vec<N>> ContactWLocals<N, V> {
         }
 }
 
-/// Incremental contact manifold generator wich keep track and update several contacts through
-/// multiple consecutive frames. One contact is added per frame until the maximum number of contact
-/// is reached. When the maximum number of contact is reached, each time a new contact is created,
-/// the new manifold is computed by maximizing the variance along each canonical axis (of the space
-/// in which leaves the contacts).
+/// Contact manifold generator which keeps track of several contacts.
+///
+/// One contact is added per update until the maximum number of contact is reached. When the
+/// maximum number of contact is reached, each time a new contact is created, the new manifold is
+/// computed by maximizing the variance along each canonical axis (of the space in which leaves the
+/// contacts).
 #[deriving(Encodable, Decodable)]
 pub struct IncrementalContactManifoldGenerator<CD, N, V> {
     priv contacts:     ~[ContactWLocals<N, V>],
