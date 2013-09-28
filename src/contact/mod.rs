@@ -1,3 +1,5 @@
+//! Main data structure for contacts.
+
 use std::util;
 
 /**

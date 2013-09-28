@@ -12,22 +12,11 @@ extern mod std;
 extern mod extra;
 extern mod nalgebra;
 
-/// Bounding volumes.
 pub mod bounding_volume;
-
-/// Geometries.
 pub mod geom;
-
-/// Ray casting utilities.
 pub mod ray;
-
-/// Narrow phases.
 pub mod narrow;
-
-/// Broad phases.
 pub mod broad;
-
-/// Main data structure for contacts.
 pub mod contact;
 
 /// Spatial partitioning tools.
