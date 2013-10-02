@@ -12,18 +12,18 @@ use narrow::{CollisionDetector, ImplicitImplicit, BallBall, AnyCompoundAABB,
 use OSCMG = narrow::OneShotContactManifoldGenerator;
 
 type S<N, LV> = JohnsonSimplex<N, AnnotatedPoint<LV>>;
-type C<N, LV, M, II> = CompoundAABB<N, LV, M, Geom<N, LV, M, II>>;
-type CA<N, LV, AV, M, II> = CompoundAABBAny<N, LV, M,
-                                            Geom<N, LV, M, II>,
-                                            Dispatcher<N, LV, AV, M, II>,
-                                            GeomGeom<N, LV, AV, M, II>>;
-type AC<N, LV, AV, M, II> = AnyCompoundAABB<N, LV, M,
-                                            Geom<N, LV, M, II>,
-                                            Dispatcher<N, LV, AV, M, II>,
-                                            GeomGeom<N, LV, AV, M, II>>;
+type C<N, LV, M> = CompoundAABB<N, LV, M, Geom<N, LV, M>>;
+type CA<N, LV, AV, M> = CompoundAABBAny<N, LV, M,
+                                        Geom<N, LV, M>,
+                                        Dispatcher<N, LV, AV, M>,
+                                        GeomGeom<N, LV, AV, M>>;
+type AC<N, LV, AV, M> = AnyCompoundAABB<N, LV, M,
+                                        Geom<N, LV, M>,
+                                        Dispatcher<N, LV, AV, M>,
+                                        GeomGeom<N, LV, AV, M>>;
 
 #[deriving(Encodable, Decodable)]
-pub enum GeomGeom<N, LV, AV, M, II> {
+pub enum GeomGeom<N, LV, AV, M> {
     BallBall(BallBall<N, LV, M>),
     BallPlane(ImplicitPlane<N, LV, M, Ball<N>>),
     PlaneBall(PlaneImplicit<N, LV, M, Ball<N>>),
@@ -33,19 +33,19 @@ pub enum GeomGeom<N, LV, AV, M, II> {
     ImplicitPlane(OSCMG<ImplicitPlane<N, LV, M, IGeom<N, LV, M>>, N, LV, AV, M>),
     ImplicitImplicit(OSCMG<ImplicitImplicit<S<N, LV>, IGeom<N, LV, M>, IGeom<N, LV, M>, N, LV>, N, LV, AV, M>),
     CompoundCompound(CompoundAABBCompoundAABB<N, LV, M,
-                                              Geom<N, LV, M, II>,
-                                              Dispatcher<N, LV, AV, M, II>,
-                                              GeomGeom<N, LV, AV, M, II>>),
-    CompoundAny(CA<N, LV, AV, M, II>),
-    AnyCompound(AC<N, LV, AV, M, II>)
+                                              Geom<N, LV, M>,
+                                              Dispatcher<N, LV, AV, M>,
+                                              GeomGeom<N, LV, AV, M>>),
+    CompoundAny(CA<N, LV, AV, M>),
+    AnyCompound(AC<N, LV, AV, M>)
 }
 
-impl<N: NumCast + Zero + Clone, LV: Clone, AV, M, II> GeomGeom<N, LV, AV, M, II> {
+impl<N: NumCast + Zero + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
     /// Creates a new Geom vs Geom collision detector.
-    pub fn new(g1:     &Geom<N, LV, M, II>,
-               g2:     &Geom<N, LV, M, II>,
+    pub fn new(g1:     &Geom<N, LV, M>,
+               g2:     &Geom<N, LV, M>,
                s:      &JohnsonSimplex<N, AnnotatedPoint<LV>>)
-               -> GeomGeom<N, LV, AV, M, II> {
+               -> GeomGeom<N, LV, AV, M> {
         match (g1, g2) {
             (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(BallGeom(_))) => {
                 BallBall(BallBall::new(NumCast::from(0.1)))
@@ -95,16 +95,15 @@ impl<N: ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebraic,
          Rotate<LV> + Transform<LV>,
      AV: Vec<N> + ToStr,
      M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
-         Mul<M, M> + Inv + One,
-     II>
-CollisionDetector<N, LV, M, Geom<N, LV, M, II>, Geom<N, LV, M, II>>
-for GeomGeom<N, LV, AV, M, II> {
+         Mul<M, M> + Inv + One>
+CollisionDetector<N, LV, M, Geom<N, LV, M>, Geom<N, LV, M>>
+for GeomGeom<N, LV, AV, M> {
     #[inline]
     fn update(&mut self,
               m1: &M,
-              g1: &Geom<N, LV, M, II>,
+              g1: &Geom<N, LV, M>,
               m2: &M,
-              g2: &Geom<N, LV, M, II>) {
+              g2: &Geom<N, LV, M>) {
         match *self {
             BallBall(ref mut cd)         => cd.update(m1, g1.ball(),     m2, g2.ball()),
             BallPlane(ref mut cd)        => cd.update(m1, g1.ball(),     m2, g2.plane()),
@@ -155,13 +154,13 @@ for GeomGeom<N, LV, AV, M, II> {
     }
 
     #[inline]
-    fn toi(_:    Option<GeomGeom<N, LV, AV, M, II>>,
+    fn toi(_:    Option<GeomGeom<N, LV, AV, M>>,
            m1:   &M,
            dir:  &LV,
            dist: &N,
-           g1:   &Geom<N, LV, M, II>,
+           g1:   &Geom<N, LV, M>,
            m2:   &M,
-           g2:   &Geom<N, LV, M, II>)
+           g2:   &Geom<N, LV, M>)
            -> Option<N> {
         toi(m1, dir, dist, g1, m2, g2)
     }
@@ -174,14 +173,13 @@ pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebrai
                Rotate<LV> + Transform<LV> + ToStr,
            AV: Vec<N> + ToStr,
            M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
-               Mul<M, M> + Inv + One,
-           II>(
+               Mul<M, M> + Inv + One>(
            m1:   &M,
            dir:  &LV,
            dist: &N,
-           g1:   &Geom<N, LV, M, II>,
+           g1:   &Geom<N, LV, M>,
            m2:   &M,
-           g2:   &Geom<N, LV, M, II>)
+           g2:   &Geom<N, LV, M>)
            -> Option<N> {
     match (g1, g2) {
         (&ImplicitGeom(BallGeom(ref b1)), &ImplicitGeom(BallGeom(ref b2))) => toi::ball_ball(m1, dir, b1, m2, b2),
@@ -190,44 +188,44 @@ pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebrai
         (&ImplicitGeom(ref i1), &ImplicitGeom(ref i2)) => toi::implicit_implicit(m1, dir, i1, m2, i2),
         (&CompoundGeom(_), &CompoundGeom(_))   => fail!("Not yet implemented."), // CompoundCompound(),
         (&CompoundGeom(c), b) => {
-            CollisionDetector::toi(None::<CA<N, LV, AV, M, II>>, m1, dir, dist, c, m2, b)
+            CollisionDetector::toi(None::<CA<N, LV, AV, M>>, m1, dir, dist, c, m2, b)
         },
         (a, &CompoundGeom(c)) => {
-            CollisionDetector::toi(None::<AC<N, LV, AV, M, II>>, m1, dir, dist, a, m2, c)
+            CollisionDetector::toi(None::<AC<N, LV, AV, M>>, m1, dir, dist, a, m2, c)
         },
         _ => fail!("Cannot compute the toi of those two geometries.")
     }
 }
 
 #[deriving(Encodable, Decodable)]
-struct Dispatcher<N, LV, AV, M, II> {
+struct Dispatcher<N, LV, AV, M> {
     simplex: JohnsonSimplex<N, AnnotatedPoint<LV>>
 }
 
-impl<N: Clone, LV: Clone, AV, M, II>
-Dispatcher<N, LV, AV, M, II> {
-    fn new(simplex: JohnsonSimplex<N, AnnotatedPoint<LV>>) -> Dispatcher<N, LV, AV, M, II> {
+impl<N: Clone, LV: Clone, AV, M>
+Dispatcher<N, LV, AV, M> {
+    fn new(simplex: JohnsonSimplex<N, AnnotatedPoint<LV>>) -> Dispatcher<N, LV, AV, M> {
         Dispatcher {
             simplex: simplex
         }
     }
 }
 
-impl<N: NumCast + Zero + Clone, LV: Clone, AV, M, II>
-     broad::Dispatcher<Geom<N, LV, M, II>, GeomGeom<N, LV, AV, M, II>>
-for Dispatcher<N, LV, AV, M, II> {
-    fn dispatch(&self, g1: &Geom<N, LV, M, II>, g2: &Geom<N, LV, M, II>)
-                -> GeomGeom<N, LV, AV, M, II> {
+impl<N: NumCast + Zero + Clone, LV: Clone, AV, M>
+     broad::Dispatcher<Geom<N, LV, M>, GeomGeom<N, LV, AV, M>>
+for Dispatcher<N, LV, AV, M> {
+    fn dispatch(&self, g1: &Geom<N, LV, M>, g2: &Geom<N, LV, M>)
+                -> GeomGeom<N, LV, AV, M> {
         GeomGeom::new(g1, g2, &self.simplex)
     }
 
-    fn is_valid(&self, _: &Geom<N, LV, M, II>, _: &Geom<N, LV, M, II>) -> bool {
+    fn is_valid(&self, _: &Geom<N, LV, M>, _: &Geom<N, LV, M>) -> bool {
         true
     }
 }
 
-impl<N: Clone, LV: Clone, AV, M, II> Clone for Dispatcher<N, LV, AV, M, II> {
-    fn clone(&self) -> Dispatcher<N, LV, AV, M, II> {
+impl<N: Clone, LV: Clone, AV, M> Clone for Dispatcher<N, LV, AV, M> {
+    fn clone(&self) -> Dispatcher<N, LV, AV, M> {
         Dispatcher::new(self.simplex.clone())
     }
 }

@@ -8,9 +8,9 @@ use ray::{Ray, RayCast, RayCastWithTransform};
 /// Enumeration grouping all common shapes. Used to simplify collision detection
 /// dispatch.
 #[deriving(Clone, Encodable, Decodable)]
-pub enum Geom<N, V, M, II> { // FIXME: rename that
+pub enum Geom<N, V, M> { // FIXME: rename that
     PlaneGeom(Plane<N, V>),
-    CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M, II>>),
+    CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M>>),
     ImplicitGeom(IGeom<N, V, M>)
 }
 
@@ -23,47 +23,47 @@ pub enum IGeom<N, V, M> {
     CapsuleGeom(Capsule<N>)
 }
 
-impl<N: One + ToStr, V: ToStr, M, II: ToStr> Geom<N, V, M, II> {
+impl<N: One + ToStr, V: ToStr, M> Geom<N, V, M> {
     /// Creates a new `Geom` from a plane.
     #[inline]
-    pub fn new_plane(p: Plane<N, V>) -> Geom<N, V, M, II> {
+    pub fn new_plane(p: Plane<N, V>) -> Geom<N, V, M> {
         PlaneGeom(p)
     }
 
     /// Creates a new `Geom` from a compound geometry.
     #[inline]
-    pub fn new_compound(c: @CompoundAABB<N, V, M, Geom<N, V, M, II>>)
-        -> Geom<N, V, M, II> {
+    pub fn new_compound(c: @CompoundAABB<N, V, M, Geom<N, V, M>>)
+        -> Geom<N, V, M> {
         CompoundGeom(c)
     }
 
     /// Creates a new `Geom` from a ball.
     #[inline]
-    pub fn new_ball(b: Ball<N>) -> Geom<N, V, M, II> {
+    pub fn new_ball(b: Ball<N>) -> Geom<N, V, M> {
         ImplicitGeom(BallGeom(b))
     }
 
     /// Creates a new `Geom` from a cylinder.
     #[inline]
-    pub fn new_cylinder(b: Cylinder<N>) -> Geom<N, V, M, II> {
+    pub fn new_cylinder(b: Cylinder<N>) -> Geom<N, V, M> {
         ImplicitGeom(CylinderGeom(b))
     }
 
     /// Creates a new `Geom` from a box.
     #[inline]
-    pub fn new_box(b: Box<N, V>) -> Geom<N, V, M, II> {
+    pub fn new_box(b: Box<N, V>) -> Geom<N, V, M> {
         ImplicitGeom(BoxGeom(b))
     }
 
     /// Creates a new `Geom` from a cone.
     #[inline]
-    pub fn new_cone(b: Cone<N>) -> Geom<N, V, M, II> {
+    pub fn new_cone(b: Cone<N>) -> Geom<N, V, M> {
         ImplicitGeom(ConeGeom(b))
     }
 
 }
 
-impl<N, V, M, II> Geom<N, V, M, II> {
+impl<N, V, M> Geom<N, V, M> {
     /**
      * Convenience method to extract a plane from the enumation. Fails if the
      * pattern `Plane(_)` is not matched.
@@ -81,7 +81,7 @@ impl<N, V, M, II> Geom<N, V, M, II> {
      * pattern `Compound(_)` is not matched.
      */
     #[inline]
-    pub fn compound(&self) -> @CompoundAABB<N, V, M, Geom<N, V, M, II>> {
+    pub fn compound(&self) -> @CompoundAABB<N, V, M, Geom<N, V, M>> {
         match *self {
             CompoundGeom(c) => c,
             _ => fail!("Unexpected geometry: this is not a compound.")
@@ -151,9 +151,8 @@ impl<N, V, M, II> Geom<N, V, M, II> {
 
 impl<N: NumCast + Primitive + Orderable + Algebraic + Signed + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
-     M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>,
-     II>
-HasAABB<N, V, M> for Geom<N, V, M, II> {
+     M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>>
+HasAABB<N, V, M> for Geom<N, V, M> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
         match *self {
@@ -175,9 +174,8 @@ HasAABB<N, V, M> for Geom<N, V, M, II> {
 // FIXME: move this to the ray folder?
 impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
-     M: Rotate<V> + Transform<V>,
-     II>
-RayCast<N, V> for Geom<N, V, M, II> {
+     M: Rotate<V> + Transform<V>>
+RayCast<N, V> for Geom<N, V, M> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         match *self {
@@ -198,9 +196,8 @@ RayCast<N, V> for Geom<N, V, M, II> {
 
 impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
-     M: Rotate<V> + Transform<V>,
-     II>
-RayCastWithTransform<N, V, M> for Geom<N, V, M, II> { }
+     M: Rotate<V> + Transform<V>>
+RayCastWithTransform<N, V, M> for Geom<N, V, M> { }
 
 impl<N: Clone + Add<N, N>, V, M> HasMargin<N> for IGeom<N, V, M> {
     #[inline]
