@@ -32,7 +32,7 @@ distcheck:
 
 doc:
 	mkdir -p $(ncollide_doc_path)
-	rustdoc html src/lib.rs -L$(nalgebra_lib_path)
+	rustdoc -L$(nalgebra_lib_path) src/lib.rs
 
 .PHONY:doc
 .PHONY:test

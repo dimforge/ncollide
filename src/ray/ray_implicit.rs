@@ -68,7 +68,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
                     simplex.reset(-dir);
                     let _M: N = Bounded::max_value();
                     old_sq_len = _M;
-                    loop
+                    continue
                 }
             },
             None => {
