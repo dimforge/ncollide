@@ -40,7 +40,7 @@ pub struct HashMap<K, V, H> {
     priv real_max_elem: uint
 }
 
-static HASH_CHARGE_FACTOR: float = 0.7;
+static HASH_CHARGE_FACTOR: f32 = 0.7;
 
 impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Creates a new hash map.
@@ -60,7 +60,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
             next:   vec::from_elem(pow2, -1),
             num_elem: 0,
             max_elem: pow2,
-            real_max_elem: ((pow2 as float) * 0.7) as uint
+            real_max_elem: ((pow2 as f32) * 0.7) as uint
         }
     }
 
@@ -123,7 +123,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
         if self.num_elem >= self.real_max_elem {
             self.max_elem = self.max_elem * 2;
 
-            self.real_max_elem = ((self.max_elem as float)* HASH_CHARGE_FACTOR) as uint;
+            self.real_max_elem = ((self.max_elem as f32)* HASH_CHARGE_FACTOR) as uint;
 
             self.mask = self.max_elem - 1;
 

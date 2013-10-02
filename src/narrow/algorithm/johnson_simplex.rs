@@ -494,7 +494,7 @@ mod test {
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);
         let d = Vec3::new(0.0, -0.5, -0.5);
-        let _ = JohnsonSimplex::<float, Vec3<float>>::new_w_tls();
+        let _ = JohnsonSimplex::<f64, Vec3<f64>>::new_w_tls();
 
         do bh.iter {
             let mut spl = JohnsonSimplex::new_w_tls();
