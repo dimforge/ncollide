@@ -26,6 +26,8 @@ distcheck:
 	git clone --recursive . $(tmp)
 	make -C $(tmp) deps
 	make -C $(tmp)
+	make -C $(tmp) test
+	make -C $(tmp) bench
 	rm -rf $(tmp)
 
 doc:

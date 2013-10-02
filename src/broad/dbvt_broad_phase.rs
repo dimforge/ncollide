@@ -376,14 +376,14 @@ mod test {
 
     #[test]
     fn test_dbvt_empty() {
-        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        type Shape = WithAABB<Vec3<f64>, Ball<f64>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                bf.add(@mut WithAABB(Vec3::new(i as float * 30.0, j as float * 30.0, 0.0), ball));
+                bf.add(@mut WithAABB(Vec3::new(i as f64 * 30.0, j as f64 * 30.0, 0.0), ball));
             }
         }
 
@@ -394,7 +394,7 @@ mod test {
 
     #[test]
     fn test_dbvt_nbh_collide() {
-        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        type Shape = WithAABB<Vec3<f64>, Ball<f64>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
@@ -402,7 +402,7 @@ mod test {
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                bf.add(@mut WithAABB(Vec3::new(i as float * 0.9, j as float * 0.9, 0.0), ball));
+                bf.add(@mut WithAABB(Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0), ball));
             }
         }
 
@@ -419,7 +419,7 @@ mod test {
 
     #[test]
     fn test_dbvt_nbh_move_collide() {
-        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        type Shape = WithAABB<Vec3<f64>, Ball<f64>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
@@ -429,7 +429,7 @@ mod test {
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                let to_add = @mut WithAABB(Vec3::new(i as float * 0.9, j as float * 0.9, 0.0),
+                let to_add = @mut WithAABB(Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0),
                                            ball);
                 bf.add(to_add);
                 to_move.push(to_add);
@@ -476,7 +476,7 @@ mod test {
 
     #[test]
     fn test_dbvt_quadratic_collide() {
-        type Shape = WithAABB<Vec3<float>, Ball<float>>;
+        type Shape = WithAABB<Vec3<f64>, Ball<f64>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
