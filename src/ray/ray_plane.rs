@@ -30,6 +30,13 @@ RayCast<N, V> for Plane<N, V> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         plane_toi_with_ray(&Zero::zero(), &self.normal(), ray)
     }
+
+    #[inline]
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        do plane_toi_with_ray(&Zero::zero(), &self.normal(), ray).map_move |n| {
+            (n, self.normal())
+        }
+    }
 }
 
 impl<N: Num + Ord, V: Vec<N> + Clone, M: Rotate<V> + Transform<V>>

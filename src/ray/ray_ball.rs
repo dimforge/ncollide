@@ -11,6 +11,16 @@ RayCast<N, V> for Ball<N> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         toi_with_ray(Zero::zero(), self.radius(), ray)
     }
+
+    #[inline]
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        do toi_with_ray(Zero::zero(), self.radius(), ray).map_move |n| {
+            let pos    = ray.orig + ray.dir * n;
+            let normal = pos.normalized();
+
+            (n, normal)
+        }
+    }
 }
 
 impl<N: Num + Algebraic + Ord + Clone,

@@ -9,17 +9,26 @@ use ray::{Ray, RayCast, RayCastWithTransform};
 /// dispatch.
 #[deriving(Clone, Encodable, Decodable)]
 pub enum Geom<N, V, M> { // FIXME: rename that
+    /// A plane geometry.
     PlaneGeom(Plane<N, V>),
+    /// A compound geometry.
     CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M>>),
+    /// Geometry describable with a support function.
     ImplicitGeom(IGeom<N, V, M>)
 }
 
+/// Geometries with a support function.
 #[deriving(Clone, Encodable, Decodable)]
 pub enum IGeom<N, V, M> {
+    /// A ball geometry.
     BallGeom(Ball<N>),
+    /// A box geometry.
     BoxGeom(Box<N, V>),
+    /// A cone geometry.
     ConeGeom(Cone<N>),
+    /// A cylinder geometry.
     CylinderGeom(Cylinder<N>),
+    /// A capsule geometry.
     CapsuleGeom(Capsule<N>)
 }
 
@@ -188,6 +197,23 @@ RayCast<N, V> for Geom<N, V, M> {
                     ConeGeom(ref c)     => c.toi_with_ray(ray),
                     CylinderGeom(ref c) => c.toi_with_ray(ray),
                     CapsuleGeom(ref c)  => c.toi_with_ray(ray),
+                }
+            }
+        }
+    }
+
+    #[inline]
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        match *self {
+            PlaneGeom(ref p)    => p.toi_and_normal_with_ray(ray),
+            CompoundGeom(ref c) => c.toi_and_normal_with_ray(ray),
+            ImplicitGeom(ref i) => {
+                match *i {
+                    BallGeom(ref b)     => b.toi_and_normal_with_ray(ray),
+                    BoxGeom(ref b)      => b.toi_and_normal_with_ray(ray),
+                    ConeGeom(ref c)     => c.toi_and_normal_with_ray(ray),
+                    CylinderGeom(ref c) => c.toi_and_normal_with_ray(ray),
+                    CapsuleGeom(ref c)  => c.toi_and_normal_with_ray(ray),
                 }
             }
         }

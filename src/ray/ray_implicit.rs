@@ -13,16 +13,16 @@ use ray;
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn gjk_toi_with_ray<S: Simplex<N, V>,
-                        G: Implicit<N, V, M>,
-                        N: Ord + Num + Float + NumCast + ToStr,
-                        V: AlgebraicVecExt<N> + Clone + ToStr,
-                        M: Translation<V>>(
-                        m:       &M,
-                        geom:    &G,
-                        simplex: &mut S,
-                        ray:     &Ray<V>)
-                        -> Option<N> {
+pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
+                                   G: Implicit<N, V, M>,
+                                   N: Ord + Num + Float + NumCast + ToStr,
+                                   V: AlgebraicVecExt<N> + Clone + ToStr,
+                                   M: Translation<V>>(
+                                   m:       &M,
+                                   geom:    &G,
+                                   simplex: &mut S,
+                                   ray:     &Ray<V>)
+                                   -> Option<(N, V)> {
     let mut ltoi: N = Zero::zero();
 
     let _eps: N  = Float::epsilon();
@@ -50,7 +50,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
         // The configurations are:
         //   dir.dot(ray.dir)  |   t   |               Action
         // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
-        //          < 0        |  < 0  | Continue. ?????
+        //          < 0        |  < 0  | Continue.
         //          < 0        |  > 0  | New lower bound, move the origin.
         //          > 0        |  < 0  | Miss. No intersection.
         //          > 0        |  > 0  | New higher bound.
@@ -59,7 +59,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
                 if dir.dot(&ray.dir) < Zero::zero() {
                     // new lower bound
                     if t <= _eps_rel * ltoi {
-                        return Some(ltoi)
+                        return Some((ltoi, dir))
                     }
 
                     ltoi   = ltoi + t;
@@ -88,7 +88,7 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
             sq_len_dir >= old_sq_len    || // FIXME: hacky way to prevent infinite loop…
             sq_len_dir <= _eps_tol * simplex.max_sq_len()
            ) {
-            return Some(ltoi)
+            return Some((ltoi, dir)) // FIXME: dir or -proj ?
         }
 
         old_sq_len = sq_len_dir;
@@ -99,8 +99,8 @@ pub fn gjk_toi_with_ray<S: Simplex<N, V>,
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Cylinder<N> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -112,8 +112,8 @@ RayCastWithTransform<N, V, M> for Cylinder<N> { }
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Cone<N> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -125,8 +125,8 @@ RayCastWithTransform<N, V, M> for Cone<N> { }
 impl<N: Ord + Num + Float + NumCast + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr>
 RayCast<N, V> for Capsule<N> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
@@ -142,8 +142,8 @@ impl<'self,
      G2: Implicit<N, V, M>,
      M>
 RayCast<N, V> for MinkowskiSum<'self, M, G1, G2> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        gjk_toi_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 

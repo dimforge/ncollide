@@ -22,21 +22,33 @@ type AC<N, LV, AV, M> = AnyCompoundAABB<N, LV, M,
                                         Dispatcher<N, LV, AV, M>,
                                         GeomGeom<N, LV, AV, M>>;
 
+/// Enum grouping collision detectors.
 #[deriving(Encodable, Decodable)]
 pub enum GeomGeom<N, LV, AV, M> {
+    /// Ball vs. ball collision detector.
     BallBall(BallBall<N, LV, M>),
+    /// Ball vs. plane collision detector.
     BallPlane(ImplicitPlane<N, LV, M, Ball<N>>),
+    /// Plane vs. ball collision detector.
     PlaneBall(PlaneImplicit<N, LV, M, Ball<N>>),
+    /// Ball vs. implicit geometry collision detector.
     BallImplicit(ImplicitImplicit<S<N, LV>, Ball<N>, IGeom<N, LV, M>, N, LV>),
+    /// Implicit geometry vs. ball collision detector.
     ImplicitBall(ImplicitImplicit<S<N, LV>, IGeom<N, LV, M>, Ball<N>, N, LV>),
+    /// Plane vs. implicit geometry collision detector.
     PlaneImplicit(OSCMG<PlaneImplicit<N, LV, M, IGeom<N, LV, M>>, N, LV, AV, M>),
+    /// Implicit geometry vs. plane collision detector.
     ImplicitPlane(OSCMG<ImplicitPlane<N, LV, M, IGeom<N, LV, M>>, N, LV, AV, M>),
+    /// Implicit geometry vs. implicit geometry collision detector.
     ImplicitImplicit(OSCMG<ImplicitImplicit<S<N, LV>, IGeom<N, LV, M>, IGeom<N, LV, M>, N, LV>, N, LV, AV, M>),
+    /// Compound geometry vs. compound geometry collision detector.
     CompoundCompound(CompoundAABBCompoundAABB<N, LV, M,
                                               Geom<N, LV, M>,
                                               Dispatcher<N, LV, AV, M>,
                                               GeomGeom<N, LV, AV, M>>),
+    /// Compound geometry vs. any other geometry collision detector.
     CompoundAny(CA<N, LV, AV, M>),
+    /// Any geometry vs. compound geometry collision detector.
     AnyCompound(AC<N, LV, AV, M>)
 }
 
