@@ -1,6 +1,5 @@
 use std::vec;
-use nalgebra::mat::{Translation, Inv};
-use nalgebra::vec::AlgebraicVecExt;
+use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use bounding_volume::HasAABB;
 use broad::Dispatcher;
 use narrow::{CollisionDetector, CompoundAABBAny, AnyCompoundAABB};

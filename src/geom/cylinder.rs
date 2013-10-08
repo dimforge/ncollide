@@ -2,9 +2,8 @@
 //! Support mapping based Cylinder geometry.
 //!
 
-use std::num::Zero;
-use nalgebra::vec::{Indexable, AlgebraicVecExt};
-use nalgebra::mat::{Rotate, Transform};
+use std::num::{Zero, from_f32};
+use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
@@ -17,14 +16,14 @@ pub struct Cylinder<N> {
     priv margin:      N
 }
 
-impl<N: Signed + NumCast> Cylinder<N> {
+impl<N: Signed + FromPrimitive> Cylinder<N> {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
     ///     * `half_height` - the half length of the cylinder along the `x` axis.
     ///     * `radius` - the length of the cylinder along all other axis.
     pub fn new(half_height: N, radius: N) -> Cylinder<N> {
-        Cylinder::new_with_margin(half_height, radius, NumCast::from(0.04))
+        Cylinder::new_with_margin(half_height, radius, from_f32(0.04).unwrap())
     }
 
     /// Creates a new cylinder.

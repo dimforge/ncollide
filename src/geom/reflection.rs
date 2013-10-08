@@ -2,7 +2,7 @@
 //! Support mapping based reflected geometry.
 //!
 
-use nalgebra::vec::AlgebraicVec;
+use nalgebra::na::AlgebraicVec;
 use geom::{Implicit, HasMargin};
 
 /**

@@ -343,7 +343,7 @@ impl<K: Eq, V, H: HashFun<K>> MutableMap<K, V> for HashMap<K, V, H> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::HashMap;
     use std::hashmap;
     use extra::test::BenchHarness;
     use util::hash::{UintTWHash, UintPairTWHash};

@@ -49,9 +49,9 @@ impl<B, D: Dispatcher<B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::BruteForceBroadPhase;
     use broad::NoIdDispatcher;
-    use util::Pair;
+    use util::pair::Pair;
 
     #[test]
     fn test_bf() {

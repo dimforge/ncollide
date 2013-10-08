@@ -1,5 +1,6 @@
 use std::rand;
-use nalgebra::vec::*;
+use nalgebra::na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use nalgebra::na;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
@@ -11,9 +12,9 @@ use geom;
 
 macro_rules! test_johnson_simplex_impl(
     ($t: ty, $n: ty) => ( {
-        let recursion = RecursionTemplate::new(Dim::dim(None::<$t>));
+        let recursion = RecursionTemplate::new(na::dim::<$t>());
 
-        for d in range(0u, Dim::dim(None::<$t>) + 1) {
+        for d in range(0u, na::dim::<$t>() + 1) {
             for i in range(1u, 200 / (d + 1)) {
                 // note that this fails with lower precision
                 let mut v1: $t = rand::random();
@@ -47,7 +48,7 @@ macro_rules! test_johnson_simplex_impl(
 
 macro_rules! test_gjk_ball_ball_impl(
     ($t: ty, $n: ty) => ( {
-        let recursion   = RecursionTemplate::new(Dim::dim(None::<$t>));
+        let recursion   = RecursionTemplate::new(na::dim::<$t>());
 
         do 200.times {
             let r1 = 10.0 as $n * rand::random();
@@ -78,7 +79,7 @@ macro_rules! test_gjk_ball_ball_impl(
                 Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),
                 "found: " + jp1.to_str() + " " + jp2.to_str()
                 + " but expected: " + p1.to_str() + p2.to_str()),
-                None => assert!((p1 - p2).norm() <= r1 + r2)
+                None => assert!(na::norm(&(p1 - p2)) <= r1 + r2)
             }
         }
     }

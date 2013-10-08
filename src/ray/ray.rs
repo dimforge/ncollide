@@ -1,5 +1,4 @@
-use nalgebra::vec::Vec;
-use nalgebra::mat::{Rotate, Transform};
+use nalgebra::na::{Vec, Rotate, Transform};
 
 /// A Ray.
 #[deriving(ToStr, Encodable, Decodable)]

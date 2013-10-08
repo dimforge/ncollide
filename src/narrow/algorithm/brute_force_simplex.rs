@@ -1,9 +1,7 @@
 #[doc(hidden)];
 
 use std::num::{Zero, One};
-use nalgebra::dmat::DMat;
-use nalgebra::mat::Inv;
-use nalgebra::vec::{AlgebraicVec, Dim};
+use nalgebra::na::{DMat, Inv, AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
 
 #[deriving(Encodable, Decodable)]
@@ -41,7 +39,7 @@ BruteForceSimplex<N, V> {
             }
         }
 
-        if !mat.inplace_inverse() {
+        if !mat.invert() {
             None
         }
         else {

@@ -2,8 +2,7 @@
 //! Support mapping based Capsule geometry.
 //!  
 use std::num::Zero;
-use nalgebra::vec::{Indexable, AlgebraicVecExt};
-use nalgebra::mat::{Rotate, Transform};
+use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};

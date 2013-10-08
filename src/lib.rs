@@ -7,6 +7,7 @@
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[warn(missing_doc)];
+#[feature(macro_rules)];
 
 extern mod std;
 extern mod extra;

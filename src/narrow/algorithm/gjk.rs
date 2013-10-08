@@ -1,6 +1,5 @@
-use std::num::NumCast;
-use nalgebra::vec::{AlgebraicVec, Dim};
-use nalgebra::mat::Identity;
+use std::num::from_f32;
+use nalgebra::na::{AlgebraicVec, Dim, Identity};
 use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
@@ -15,7 +14,7 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<N, V, M>,
                       G2: Implicit<N, V, M>,
-                      N:  Ord + Num + Float + NumCast + ToStr,
+                      N:  Ord + Num + Float + FromPrimitive + ToStr,
                       V:  Clone + AlgebraicVec<N> + ToStr,
                       M>(
                       m1:      &M,
@@ -43,7 +42,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
                                      G1: Implicit<N, V, M>,
                                      G2: Implicit<N, V, M>,
-                                     N:  Ord + Num + Float + NumCast + ToStr,
+                                     N:  Ord + Num + Float + FromPrimitive + ToStr,
                                      V:  Clone + AlgebraicVec<N> + ToStr,
                                      M>(
                                      m1:      &M,
@@ -65,7 +64,7 @@ pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     with at least one point on the geometry boundary.
 pub fn project_origin<S: Simplex<N, V>,
                       G: Implicit<N, V, M>,
-                      N: Ord + Num + Float + NumCast + ToStr,
+                      N: Ord + Num + Float + FromPrimitive + ToStr,
                       V: AlgebraicVec<N> + ToStr,
                       M>(
                       m:       &M,
@@ -76,7 +75,7 @@ pub fn project_origin<S: Simplex<N, V>,
     let mut sq_len_dir = proj.sqnorm();
 
     let _eps: N  = Float::epsilon();
-    let _eps_tol = _eps * NumCast::from(100.0f64);
+    let _eps_tol = _eps * from_f32(100.0).unwrap();
     let _eps_rel = _eps.sqrt();
     let _dim     = Dim::dim(None::<V>);
 

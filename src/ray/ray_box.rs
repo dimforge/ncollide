@@ -1,5 +1,4 @@
-use nalgebra::vec::AlgebraicVecExt;
-use nalgebra::mat::{Rotate, Transform};
+use nalgebra::na::{AlgebraicVecExt, Rotate, Transform};
 use bounding_volume::AABB;
 use geom::Box;
 use ray::{Ray, RayCast, RayCastWithTransform};

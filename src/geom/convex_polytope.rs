@@ -1,6 +1,5 @@
-use std::num::Bounded;
-use nalgebra::mat::{Transform, Rotate};
-use nalgebra::vec::AlgebraicVec;
+use std::num::{Bounded, from_f32};
+use nalgebra::na::{Transform, Rotate, AlgebraicVec};
 use geom::{Implicit, HasMargin};
 
 /**
@@ -14,14 +13,14 @@ pub struct ConvexPolytope<N, V> {
     priv margin: N
 }
 
-impl<N: NumCast, V> ConvexPolytope<N, V> {
+impl<N: FromPrimitive, V> ConvexPolytope<N, V> {
     /**
      * Creates a polytope from a set of point. Those points are assumed to form
      * a convex polytope: convexity is not checked.
      */
     #[inline]
     pub fn new(pts: ~[V]) -> ConvexPolytope<N, V> {
-        ConvexPolytope::new_with_margin(pts, NumCast::from(0.04))
+        ConvexPolytope::new_with_margin(pts, from_f32(0.04).unwrap())
     }
 
     /**

@@ -7,16 +7,16 @@ pub use ray::ray::{Ray, RayCast, RayCastWithTransform};
 pub use ray::ray_plane::plane_toi_with_ray;
 
 // modules
-mod ray;
+pub mod ray;
 #[doc(hidden)]
-mod ray_plane;
+pub mod ray_plane;
 #[doc(hidden)]
-mod ray_ball;
+pub mod ray_ball;
 #[doc(hidden)]
-mod ray_box;
+pub mod ray_box;
 #[doc(hidden)]
-mod ray_aabb;
+pub mod ray_aabb;
 #[doc(hidden)]
-mod ray_compound;
+pub mod ray_compound;
 #[doc(hidden)]
-mod ray_implicit;
+pub mod ray_implicit;

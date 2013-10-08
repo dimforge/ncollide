@@ -1,6 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::mat::{Translation, Rotate, Transform};
-use nalgebra::vec::AlgebraicVecExt;
+use nalgebra::na::{Translation, Rotate, Transform, AlgebraicVecExt};
 use geom;
 use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
@@ -39,7 +38,7 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>,
-     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
+     N:  Sub<N, N> + Ord + Mul<N, N> + Float + FromPrimitive + Clone + ToStr,
      V:  AlgebraicVecExt<N> + Clone + ToStr,
      M:  Translation<V> + Transform<V> + Rotate<V> + One>
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
@@ -97,7 +96,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                G1: Implicit<N, V, M>,
                G2: Implicit<N, V, M>,
-               N:  Sub<N, N> + Ord + Mul<N, N> + Float + Clone + ToStr,
+               N:  Sub<N, N> + Ord + Mul<N, N> + Float + FromPrimitive + Clone + ToStr,
                V:  AlgebraicVecExt<N> + Clone + ToStr,
                M:  Translation<V> + One>(
                m1:         &M,
@@ -179,7 +178,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<N:  Ord + Num + Float + NumCast + Clone + ToStr,
+pub fn toi<N:  Ord + Num + Float + FromPrimitive + Clone + ToStr,
            V:  AlgebraicVecExt<N> + Clone + ToStr,
            M:  Translation<V> + Transform<V> + Rotate<V>,
            G1: Implicit<N, V, M>,

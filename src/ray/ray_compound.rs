@@ -1,6 +1,5 @@
 use std::num::Zero;
-use nalgebra::vec::AlgebraicVecExt;
-use nalgebra::mat::{Rotate, Transform};
+use nalgebra::na::{AlgebraicVecExt, Rotate, Transform};
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::CompoundAABB;
 use partitioning::bvt_visitor::RayInterferencesCollector;

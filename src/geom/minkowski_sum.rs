@@ -5,8 +5,7 @@
 
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
-use nalgebra::vec::{Dot, Norm, Vec, AlgebraicVec, Dim};
-use nalgebra::mat::Identity;
+use nalgebra::na::{Dot, Norm, Vec, AlgebraicVec, Dim, Identity};
 use geom::{Reflection, Implicit, HasMargin};
 
 /// Type of an implicit representation of the Configuration Space Obstacle

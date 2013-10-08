@@ -1,4 +1,4 @@
-use nalgebra::vec::AlgebraicVec;
+use nalgebra::na::AlgebraicVec;
 
 // Sadly, we cannot put this on the `Implicit` trait because the caller of `margin` might get
 // unconstrained type.

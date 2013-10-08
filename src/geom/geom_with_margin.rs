@@ -1,7 +1,7 @@
 #[doc(hidden)];
 
 use std::num::Zero;
-use nalgebra::vec::AlgebraicVec;
+use nalgebra::na::AlgebraicVec;
 use geom::{Implicit, HasMargin};
 
 // This extends the wrapped geometry with its margin. I.e. the `support_point_withou_margin` method

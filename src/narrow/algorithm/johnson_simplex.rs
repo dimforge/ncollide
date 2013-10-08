@@ -5,7 +5,7 @@ use std::at_vec;
 use std::local_data;
 
 use extra::treemap::TreeMap;
-use nalgebra::vec::{AlgebraicVec, Dim};
+use nalgebra::na::{AlgebraicVec, Dim};
 use narrow::algorithm::simplex::Simplex;
 
 static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;
@@ -461,16 +461,17 @@ impl ToStr for RecursionTemplate {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use nalgebra::vec::Vec3;
+    use super::{JohnsonSimplex, RecursionTemplate};
+    use nalgebra::na::Vec3;
+    use nalgebra::na;
     use extra::test::BenchHarness;
 
     #[bench]
     fn bench_johnson_simplex(bh: &mut BenchHarness) {
-        let a = Vec3::new(-0.5, -0.5, -0.5);
-        let b = Vec3::new(0.0, 0.5, 0.0);
-        let c = Vec3::new(0.5, -0.5, -0.5);
-        let d = Vec3::new(0.0, -0.5, -0.5);
+        let a = na::vec3(-0.5, -0.5, -0.5);
+        let b = na::vec3(0.0, 0.5, 0.0);
+        let c = na::vec3(0.5, -0.5, -0.5);
+        let d = na::vec3(0.0, -0.5, -0.5);
         let recursion = RecursionTemplate::new(3);
 
         do bh.iter {
@@ -490,10 +491,10 @@ mod test {
 
     #[bench]
     fn bench_johnson_simplex_tls(bh: &mut BenchHarness) {
-        let a = Vec3::new(-0.5, -0.5, -0.5);
-        let b = Vec3::new(0.0, 0.5, 0.0);
-        let c = Vec3::new(0.5, -0.5, -0.5);
-        let d = Vec3::new(0.0, -0.5, -0.5);
+        let a = na::vec3(-0.5, -0.5, -0.5);
+        let b = na::vec3(0.0, 0.5, 0.0);
+        let c = na::vec3(0.5, -0.5, -0.5);
+        let d = na::vec3(0.0, -0.5, -0.5);
         let _ = JohnsonSimplex::<f64, Vec3<f64>>::new_w_tls();
 
         do bh.iter {

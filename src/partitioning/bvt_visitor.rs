@@ -1,7 +1,7 @@
 //! Trait of visitors of bounding volume based tree.
 
 use std::borrow;
-use nalgebra::vec::Vec;
+use nalgebra::na::Vec;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 

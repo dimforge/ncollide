@@ -1,7 +1,6 @@
 use std::ptr;
 use std::managed;
-use nalgebra::mat::Translation;
-use nalgebra::vec::AlgebraicVec;
+use nalgebra::na::{Translation, AlgebraicVec};
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::dbvt::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
@@ -368,8 +367,8 @@ RayCastBroadPhase<V, B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use nalgebra::vec::Vec3;
+    use super::DBVTBroadPhase;
+    use nalgebra::na::Vec3;
     use geom::Ball;
     use bounding_volume::WithAABB;
     use broad::NoIdDispatcher;

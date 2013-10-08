@@ -1,6 +1,5 @@
 use std::num::Zero;
-use nalgebra::vec::{Basis, AlgebraicVec, AlgebraicVecExt};
-use nalgebra::mat::{Rotate, Translation, Transform};
+use nalgebra::na::{Basis, AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform};
 use geom::Ball;
 use narrow::CollisionDetector;
 use contact::Contact;

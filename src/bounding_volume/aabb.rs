@@ -1,6 +1,5 @@
-use std::num::Zero;
-use nalgebra::vec::{VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub};
-use nalgebra::mat::Translation;
+use std::num::{Zero, from_f32};
+use nalgebra::na::{VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub, Translation};
 use geom::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
@@ -90,10 +89,10 @@ impl<N: Primitive + Orderable + ToStr, V: VecExt<N> + ToStr> BoundingVolume for 
     }
 }
 
-impl<V: VecExt<N>, N: NumCast> Translation<V> for AABB<N, V>
+impl<V: VecExt<N>, N: FromPrimitive> Translation<V> for AABB<N, V>
 {
     fn translation(&self) -> V {
-        (self.mins + self.maxs) / NumCast::from(2.0f64)
+        (self.mins + self.maxs) / from_f32(2.0f32).unwrap()
     }
 
     fn inv_translation(&self) -> V {
@@ -178,15 +177,15 @@ HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use nalgebra::vec::Vec3;
+    use super::AABB;
+    use nalgebra::na;
 
     #[test]
     fn test_merge() {
-        let a = AABB::new(Vec3::new(10f64, 20.0, 30.0), Vec3::new(20.0, 30.0, 40.0));
-        let b = AABB::new(Vec3::new(-10f64, -20.0, 35.0), Vec3::new(30.0, 50.0, 36.0));
+        let a = AABB::new(na::vec3(10f64, 20.0, 30.0), na::vec3(20.0, 30.0, 40.0));
+        let b = AABB::new(na::vec3(-10f64, -20.0, 35.0), na::vec3(30.0, 50.0, 36.0));
 
-        let merge = AABB::new(Vec3::new(-10.0f64, -20.0, 30.0), Vec3::new(30.0, 50.0, 40.0));
+        let merge = AABB::new(na::vec3(-10.0f64, -20.0, 30.0), na::vec3(30.0, 50.0, 40.0));
 
         assert!(a.merged(&b) == merge)
     }

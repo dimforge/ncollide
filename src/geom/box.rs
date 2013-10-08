@@ -2,9 +2,9 @@
 //! Support mapping based Box geometry.
 //!
 
-use std::num::{Zero, Signed};
-use nalgebra::vec::{Dim, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub};
-use nalgebra::mat::{Transform, Rotate, AbsoluteRotate, Translation};
+use std::num::{Zero, Signed, from_f32};
+use nalgebra::na::{Dim, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub,
+                   Transform, Rotate, AbsoluteRotate, Translation};
 use bounding_volume::{HasAABB, AABB};
 use geom::{HasMargin, Implicit};
 
@@ -19,12 +19,12 @@ pub struct Box<N, V> {
     priv margin:       N
 }
 
-impl<N: Signed + NumCast, V: VecExt<N>> Box<N, V> {
+impl<N: Signed + FromPrimitive, V: VecExt<N>> Box<N, V> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be positive but not zero.
     #[inline]
     pub fn new(half_extents: V) -> Box<N, V> {
-        Box::new_with_margin(half_extents, NumCast::from(0.04f64))
+        Box::new_with_margin(half_extents, from_f32(0.04f32).unwrap())
     }
 
     /// Creates a new box from its half-extents and its margin. Half-extents are the box half-width

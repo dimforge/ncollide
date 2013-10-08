@@ -2,7 +2,7 @@
 //! Support mapping based Plane geometry.
 //!
 
-use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt};
+use nalgebra::na::{AlgebraicVec, AlgebraicVecExt};
 use bounding_volume::{HasAABB, AABB};
 
 /**

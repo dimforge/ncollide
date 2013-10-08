@@ -1,6 +1,5 @@
 use std::num::{Zero, Algebraic};
-use nalgebra::vec::AlgebraicVec;
-use nalgebra::mat::{Translation, Rotate, Transform};
+use nalgebra::na::{AlgebraicVec, Translation, Rotate, Transform};
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::Ball;
 

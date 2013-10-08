@@ -1,6 +1,5 @@
 use std::num::Zero;
-use nalgebra::mat::{Rotate, Transform};
-use nalgebra::vec::Vec;
+use nalgebra::na::{Rotate, Transform, Vec};
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::Plane;
 

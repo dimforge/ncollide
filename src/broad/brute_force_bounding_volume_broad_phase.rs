@@ -215,8 +215,9 @@ BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use nalgebra::vec::Vec3;
+    use super::BruteForceBoundingVolumeBroadPhase;
+    use nalgebra::na::Vec3;
+    use nalgebra::na;
     use geom::Ball;
     use bounding_volume::WithAABB;
     use broad::NoIdDispatcher;
@@ -230,7 +231,7 @@ mod test {
 
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                bf.add(@mut WithAABB(Vec3::new(i as f64 * 30.0, j as f64 * 30.0, 0.0), ball));
+                bf.add(@mut WithAABB(na::vec3(i as f64 * 30.0, j as f64 * 30.0, 0.0), ball));
             }
         }
 
@@ -249,7 +250,7 @@ mod test {
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                bf.add(@mut WithAABB(Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0), ball));
+                bf.add(@mut WithAABB(na::vec3(i as f64 * 0.9, j as f64 * 0.9, 0.0), ball));
             }
         }
 
@@ -276,7 +277,7 @@ mod test {
         // create a grid
         for i in range(-10, 10) {
             for j in range(-10, 10) {
-                let to_add = @mut WithAABB(Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0), ball);
+                let to_add = @mut WithAABB(na::vec3(i as f64 * 0.9, j as f64 * 0.9, 0.0), ball);
                 bf.add(to_add);
                 to_move.push(to_add);
             }
@@ -284,7 +285,7 @@ mod test {
 
         for e in to_move.mut_iter() {
             let WithAABB(m, c) = **e;
-            **e = WithAABB(Vec3::new(10.0, 10.0, 10.0) + m, c)
+            **e = WithAABB(na::vec3(10.0, 10.0, 10.0) + m, c)
         }
 
         bf.update();
@@ -306,7 +307,7 @@ mod test {
         let ball       = Ball::new(0.3);
 
         do 400.times {
-            bf.add(@mut WithAABB(Vec3::new(0.0, 0.0, 0.0), ball))
+            bf.add(@mut WithAABB(na::vec3(0.0, 0.0, 0.0), ball))
         }
 
         bf.update();

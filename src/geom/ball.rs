@@ -2,8 +2,7 @@
 //! Support mapping based Ball geometry.
 //!
 
-use nalgebra::vec::{AlgebraicVec, AlgebraicVecExt, ScalarSub, ScalarAdd};
-use nalgebra::mat::Translation;
+use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, ScalarSub, ScalarAdd, Translation};
 use geom::{HasMargin, Implicit};
 use bounding_volume::{HasAABB, AABB};
 
