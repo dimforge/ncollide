@@ -39,6 +39,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
 
     let mut old_sq_len: N = Bounded::max_value();
 
+    let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
     loop {
         dir.normalize();
@@ -57,7 +58,8 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
             Some(t) => {
                 if dir.dot(&ray.dir) < Zero::zero() {
                     // new lower bound
-                    if t <= _eps_rel * ltoi {
+                    ldir = dir.clone();
+                    if false { // t <= _eps_rel * ltoi {
                         return Some((ltoi, dir))
                     }
 
@@ -87,7 +89,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
             sq_len_dir >= old_sq_len    || // FIXME: hacky way to prevent infinite loop…
             sq_len_dir <= _eps_tol * simplex.max_sq_len()
            ) {
-            return Some((ltoi, dir)) // FIXME: dir or -proj ?
+            return Some((ltoi, ldir)) // FIXME: dir or -proj ?
         }
 
         old_sq_len = sq_len_dir;
