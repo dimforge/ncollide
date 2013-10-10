@@ -1,5 +1,5 @@
 use std::num::One;
-use nalgebra::na::{Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
+use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
 use ray::{Ray, RayCast, RayCastWithTransform};
@@ -157,7 +157,7 @@ impl<N, V, M> Geom<N, V, M> {
     }
 }
 
-impl<N: FromPrimitive + Primitive + Orderable + Algebraic + Signed + Clone + ToStr,
+impl<N: Primitive + Orderable + Algebraic + Signed + Cast<f32> + Clone + ToStr,
      V: AlgebraicVecExt<N> + Clone + ToStr,
      M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>>
 HasAABB<N, V, M> for Geom<N, V, M> {
@@ -180,7 +180,7 @@ HasAABB<N, V, M> for Geom<N, V, M> {
 }
 
 // FIXME: move this to the ray folder?
-impl<N: Algebraic + Bounded + Orderable + Primitive + Float + FromPrimitive + Clone + ToStr,
+impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M: Rotate<V> + Transform<V>>
 RayCast<N, V> for Geom<N, V, M> {
@@ -219,7 +219,7 @@ RayCast<N, V> for Geom<N, V, M> {
     }
 }
 
-impl<N: Algebraic + Bounded + Orderable + Primitive + Float + FromPrimitive + Clone + ToStr,
+impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M: Rotate<V> + Transform<V>>
 RayCastWithTransform<N, V, M> for Geom<N, V, M> { }

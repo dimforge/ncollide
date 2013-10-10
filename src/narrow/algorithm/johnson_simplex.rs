@@ -204,7 +204,7 @@ JohnsonSimplex<N, V> {
     /// Creates a new, empty johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<N, V> {
 
-        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| **rec));
+        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| *rec));
 
         match recursion {
             Some(r) => {

@@ -1,5 +1,5 @@
-use std::num::{Zero, One, from_f32};
-use nalgebra::na::{Translation, Rotate, Rotation, AbsoluteRotate, Transform,
+use std::num::{Zero, One};
+use nalgebra::na::{Cast, Translation, Rotate, Rotation, AbsoluteRotate, Transform,
                    Inv, Vec, AlgebraicVecExt, Cross};
 use geom::{Ball, AnnotatedPoint, CompoundAABB};
 use geom::{Geom, IGeom, PlaneGeom, BallGeom, ImplicitGeom, CompoundGeom};
@@ -52,7 +52,7 @@ pub enum GeomGeom<N, LV, AV, M> {
     AnyCompound(AC<N, LV, AV, M>)
 }
 
-impl<N: FromPrimitive + Zero + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
+impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
     /// Creates a new Geom vs Geom collision detector.
     pub fn new(g1:     &Geom<N, LV, M>,
                g2:     &Geom<N, LV, M>,
@@ -60,29 +60,29 @@ impl<N: FromPrimitive + Zero + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
                -> GeomGeom<N, LV, AV, M> {
         match (g1, g2) {
             (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(BallGeom(_))) => {
-                BallBall(BallBall::new(from_f32(0.1).unwrap()))
+                BallBall(BallBall::new(Cast::from(0.1)))
             },
             (&ImplicitGeom(BallGeom(_)), &PlaneGeom(_))           => {
-                BallPlane(ImplicitPlane::new(from_f32(0.1).unwrap()))
+                BallPlane(ImplicitPlane::new(Cast::from(0.1)))
             },
             (&PlaneGeom(_), &ImplicitGeom(BallGeom(_)))           => {
-                PlaneBall(PlaneImplicit::new(from_f32(0.1).unwrap()))
+                PlaneBall(PlaneImplicit::new(Cast::from(0.1)))
             },
             (&ImplicitGeom(_), &ImplicitGeom(BallGeom(_)))        => {
-                ImplicitBall(ImplicitImplicit::new(from_f32(0.1).unwrap(), s.clone()))
+                ImplicitBall(ImplicitImplicit::new(Cast::from(0.1), s.clone()))
             },
             (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(_))        => {
-                BallImplicit(ImplicitImplicit::new(from_f32(0.1).unwrap(), s.clone()))
+                BallImplicit(ImplicitImplicit::new(Cast::from(0.1), s.clone()))
             },
             (&ImplicitGeom(_), &PlaneGeom(_))       => {
-                ImplicitPlane(OSCMG::new(from_f32(0.1).unwrap(), ImplicitPlane::new(Zero::zero())))
+                ImplicitPlane(OSCMG::new(Cast::from(0.1), ImplicitPlane::new(Zero::zero())))
             },
             (&PlaneGeom(_), &ImplicitGeom(_))       => {
-                PlaneImplicit(OSCMG::new(from_f32(0.1).unwrap(), PlaneImplicit::new(Zero::zero())))
+                PlaneImplicit(OSCMG::new(Cast::from(0.1), PlaneImplicit::new(Zero::zero())))
             },
             (&ImplicitGeom(_), &ImplicitGeom(_))    => {
                 ImplicitImplicit(
-                OSCMG::new(from_f32(0.1).unwrap(), ImplicitImplicit::new(Zero::zero(), s.clone())))
+                OSCMG::new(Cast::from(0.1), ImplicitImplicit::new(Zero::zero(), s.clone())))
             },
             (&CompoundGeom(c1), &CompoundGeom(c2))  => {
                 CompoundCompound(CompoundAABBCompoundAABB::new(Dispatcher::new(s.clone()), c1, c2))
@@ -102,7 +102,7 @@ impl<N: FromPrimitive + Zero + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
  * Collision detector between two `Geometry`. Note that this is only a
  * wrapper on the collision detector specific to each geometry.
  */
-impl<N: ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebraic + FromPrimitive,
+impl<N: ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + ToStr + Algebraic,
      LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone + ToStr +
          Rotate<LV> + Transform<LV>,
      AV: Vec<N> + ToStr,
@@ -180,7 +180,7 @@ for GeomGeom<N, LV, AV, M> {
 
 /// Computes the time of impact of two `Geom`.
 #[inline]
-pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Clone + ToStr + Algebraic + FromPrimitive,
+pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + ToStr + Algebraic,
            LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
                Rotate<LV> + Transform<LV> + ToStr,
            AV: Vec<N> + ToStr,
@@ -223,7 +223,7 @@ Dispatcher<N, LV, AV, M> {
     }
 }
 
-impl<N: FromPrimitive + Zero + Clone, LV: Clone, AV, M>
+impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M>
      broad::Dispatcher<Geom<N, LV, M>, GeomGeom<N, LV, AV, M>>
 for Dispatcher<N, LV, AV, M> {
     fn dispatch(&self, g1: &Geom<N, LV, M>, g2: &Geom<N, LV, M>)

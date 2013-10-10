@@ -1,5 +1,5 @@
-use std::num::{Zero, from_f32};
-use nalgebra::na::{VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub, Translation};
+use std::num::Zero;
+use nalgebra::na::{Cast, VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub, Translation};
 use geom::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
@@ -89,10 +89,10 @@ impl<N: Primitive + Orderable + ToStr, V: VecExt<N> + ToStr> BoundingVolume for 
     }
 }
 
-impl<V: VecExt<N>, N: FromPrimitive> Translation<V> for AABB<N, V>
+impl<V: VecExt<N>, N: Cast<f32>> Translation<V> for AABB<N, V>
 {
     fn translation(&self) -> V {
-        (self.mins + self.maxs) / from_f32(2.0f32).unwrap()
+        (self.mins + self.maxs) / Cast::from(2.0)
     }
 
     fn inv_translation(&self) -> V {

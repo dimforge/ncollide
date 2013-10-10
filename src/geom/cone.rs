@@ -2,8 +2,8 @@
 //! Support mapping based Cone geometry.
 //!
 
-use std::num::{Zero, from_f32};
-use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
+use std::num::Zero;
+use nalgebra::na::{Cast, Indexable, AlgebraicVecExt, Rotate, Transform};
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
@@ -16,14 +16,14 @@ pub struct Cone<N> {
     priv margin: N
 }
 
-impl<N: Signed + FromPrimitive> Cone<N> {
+impl<N: Signed + Cast<f32>> Cone<N> {
     /// Creates a new cone.
     ///
     /// # Arguments:
     ///     * `half_height` - the half length of the cone along the `x` axis.
     ///     * `radius` - the length of the cone along all other axis.
     pub fn new(half_height: N, radius: N) -> Cone<N> {
-        Cone::new_with_margin(half_height, radius, from_f32(0.04).unwrap())
+        Cone::new_with_margin(half_height, radius, Cast::from(0.04))
     }
 
     /// Creates a new cone with a custom marin.

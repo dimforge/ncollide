@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::na::{AlgebraicVecExt, UniformSphereSample, Identity, Translation};
+use nalgebra::na::{Cast, AlgebraicVecExt, UniformSphereSample, Identity, Translation};
 use geom;
 use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
 use narrow::algorithm::gjk;
@@ -10,7 +10,7 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<N, V, M>,
                       G2: Implicit<N, V, M>,
-                      N:  Clone + Ord + Num + Float + FromPrimitive + ToStr,
+                      N:  Clone + Ord + Num + Float + Cast<f32> + ToStr,
                       V:  AlgebraicVecExt<N> + Clone + ToStr,
                       M:  One + Translation<V>>(
                       m1:      &M,

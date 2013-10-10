@@ -1,5 +1,5 @@
-use std::num::{One, from_f32};
-use nalgebra::na::{AlgebraicVecExt, Vec, Basis, Cross, RotationWithTranslation, Translation,
+use std::num::One;
+use nalgebra::na::{Cast, AlgebraicVecExt, Vec, Basis, Cross, RotationWithTranslation, Translation,
                    Rotation, Transform};
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
@@ -26,7 +26,7 @@ impl<CD, N, LV, AV, M> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
 impl<CD: CollisionDetector<N, LV, M, G1, G2>,
      G1,
      G2,
-     N:  Clone + Num + Ord + FromPrimitive + Algebraic,
+     N:  Clone + Num + Ord + Algebraic + Cast<f32>,
      LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + ToStr,
      AV: Vec<N> + ToStr,
      M:  Rotation<AV> + Transform<LV> + Translation<LV> + One>
@@ -40,7 +40,7 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
                         let mut rot_axis: AV = coll.normal.cross(&b);
 
                         // first perturbation
-                        rot_axis = rot_axis * from_f32(0.01).unwrap();
+                        rot_axis = rot_axis * Cast::from(0.01);
 
                         let rot_mat: M = m1.rotated_wrt_center(&rot_axis);
 

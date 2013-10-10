@@ -1,5 +1,4 @@
-use std::num::from_f32;
-use nalgebra::na::{AlgebraicVecExt, VecExt, Translation, AbsoluteRotate, Transform};
+use nalgebra::na::{AlgebraicVecExt, Cast, VecExt, Translation, AbsoluteRotate, Transform};
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use partitioning::bvt::BVT;
 use partitioning::bvt;
@@ -15,7 +14,7 @@ pub struct CompoundAABB<N, V, M, S> {
     priv bvs:    ~[AABB<N, V>]
 }
 
-impl<N: 'static + Algebraic + Primitive + Orderable + Signed + FromPrimitive + Clone + ToStr,
+impl<N: 'static + Algebraic + Primitive + Orderable + Signed + Cast<f32> + Clone + ToStr,
      V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
      M,
      S: HasAABB<N, V, M>>
@@ -27,7 +26,7 @@ CompoundAABB<N, V, M, S> {
         let mut leaves = ~[];
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
-            let bv = shape.aabb(delta).loosened(from_f32(0.04).unwrap()); // loosen for better persistancy
+            let bv = shape.aabb(delta).loosened(Cast::from(0.04)); // loosen for better persistancy
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
@@ -67,7 +66,7 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
     }
 }
 
-impl<N: Primitive + Orderable + FromPrimitive + ToStr,
+impl<N: Primitive + Orderable + Cast<f32> + ToStr,
      V: VecExt<N> + Clone + ToStr,
      M: Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V>,
      S: HasAABB<N, V, M>>
@@ -77,7 +76,7 @@ HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {
         let bv              = self.bvt.root_bounding_volume().unwrap();
         let ls_center       = bv.translation();
         let center          = m.transform(&ls_center);
-        let half_extents    = (bv.maxs() - *bv.mins()) / from_f32(2.0).unwrap();
+        let half_extents    = (bv.maxs() - *bv.mins()) / Cast::from(2.0);
         let ws_half_extents = m.absolute_rotate(&half_extents);
 
         AABB::new(center - ws_half_extents, center + ws_half_extents)

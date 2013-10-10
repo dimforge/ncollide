@@ -1,5 +1,4 @@
-use std::num::{from_uint, from_f32};
-use nalgebra::na::{Vec, AlgebraicVec, Dim, Transform};
+use nalgebra::na::{Cast, Vec, AlgebraicVec, Dim, Transform};
 use narrow::CollisionDetector;
 use contact::Contact;
 
@@ -11,7 +10,7 @@ struct ContactWLocals<N, V> {
     contact: Contact<N, V>
 }
 
-impl<N: Num + FromPrimitive, V: Vec<N>> ContactWLocals<N, V> {
+impl<N: Cast<f32> + Num, V: Vec<N>> ContactWLocals<N, V> {
     fn new_with_contact<M: Transform<V>>(
                         contact: Contact<N, V>,
                         m1:      &M,
@@ -20,7 +19,7 @@ impl<N: Num + FromPrimitive, V: Vec<N>> ContactWLocals<N, V> {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + contact.world2) / from_f32(2.0).unwrap(),
+                center: (contact.world1 + contact.world2) / Cast::from(2.0),
                 contact: contact
             }
         }
@@ -60,7 +59,7 @@ impl<CD: CollisionDetector<N, V, M, G1, G2>,
      G2,
      M: Transform<V>,
      V: Clone + AlgebraicVec<N> + ApproxEq<N>,
-     N: Clone + Num + Ord + FromPrimitive + Algebraic>
+     N: Clone + Num + Ord + Algebraic + Cast<f32>>
 IncrementalContactManifoldGenerator<CD, N, V> {
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
@@ -116,7 +115,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let depth = dw.dot(&c.contact.normal);
 
                 if depth >= -self.prediction &&
-                   (dw - c.contact.normal * depth).sqnorm() <= from_f32(0.01).unwrap() {
+                   (dw - c.contact.normal * depth).sqnorm() <= Cast::from(0.01) {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;
@@ -144,7 +143,7 @@ impl<CD: CollisionDetector<N, V, M, G1, G2>,
      G2,
      M: Transform<V>,
      V: Clone + AlgebraicVec<N> + ApproxEq<N>,
-     N: Clone + Num + Ord + FromPrimitive + Algebraic>
+     N: Clone + Num + Ord + Algebraic + Cast<f32>>
 CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N, V> {
     #[inline]
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
@@ -177,7 +176,7 @@ CollisionDetector<N, V, M, G1, G2> for IncrementalContactManifoldGenerator<CD, N
 
 }
 
-fn add_reduce_by_variance<N: Num + FromPrimitive + Algebraic + Ord,
+fn add_reduce_by_variance<N: Num + Algebraic + Ord + Cast<f32>,
                           V: Clone + AlgebraicVec<N>,
                           M: Transform<V>>(
                           pts:    &mut [ContactWLocals<N, V>],
@@ -199,12 +198,12 @@ fn add_reduce_by_variance<N: Num + FromPrimitive + Algebraic + Ord,
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<N: Num + FromPrimitive + Algebraic, V: Clone + AlgebraicVec<N>>(
+fn approx_variance<N: Num + Algebraic + Cast<f32>, V: Clone + AlgebraicVec<N>>(
     pts:       &[ContactWLocals<N, V>],
     to_add:    &Contact<N, V>,
     to_ignore: uint) -> N {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + to_add.world2) / from_f32(2.0).unwrap();
+    let to_add_center = (to_add.world1 + to_add.world2) / Cast::from(2.0);
 
     let mut mean = to_add_center.clone();
 
@@ -214,7 +213,8 @@ fn approx_variance<N: Num + FromPrimitive + Algebraic, V: Clone + AlgebraicVec<N
         }
     }
 
-    mean = mean / from_uint(pts.len()).unwrap();
+    let divisor: f32 = 1.0 / Cast::from(pts.len());
+    mean = mean * Cast::from(divisor);
 
     // compute the sum of variances along all axis
     let mut sum = (to_add_center - mean).sqnorm();
