@@ -63,7 +63,7 @@ impl<V: VecExt<N>, N> AABB<N, V> {
     }
 }
 
-impl<N: Primitive + Orderable + ToStr, V: VecExt<N> + ToStr> BoundingVolume for AABB<N, V> {
+impl<N: Primitive + Orderable, V: VecExt<N>> BoundingVolume for AABB<N, V> {
     #[inline]
     fn intersects(&self, other: &AABB<N, V>) -> bool {
         self.mins <= other.maxs && self.maxs >= other.mins
@@ -116,8 +116,8 @@ impl<V: VecExt<N>, N: Cast<f32>> Translation<V> for AABB<N, V>
     }
 }
 
-impl<N: Primitive + Orderable + ToStr,
-     V: VecExt<N> + ToStr>
+impl<N: Primitive + Orderable,
+     V: VecExt<N>>
 LooseBoundingVolume<N> for AABB<N, V> {
     #[inline]
     fn loosen(&mut self, amount: N) {
@@ -163,8 +163,8 @@ pub fn implicit_shape_aabb<N: Algebraic,
 #[deriving(Clone, Eq, DeepClone)]
 pub struct WithAABB<M, A>(M, A);
 
-impl<N: Primitive + Orderable + ToStr,
-     V: VecExt<N> + Clone + ToStr,
+impl<N: Primitive + Orderable,
+     V: VecExt<N> + Clone,
      M,
      A: HasAABB<N, V, M>>
 HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {

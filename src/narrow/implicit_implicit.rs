@@ -38,8 +38,8 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>,
-     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone + ToStr,
-     V:  AlgebraicVecExt<N> + Clone + ToStr,
+     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
+     V:  AlgebraicVecExt<N> + Clone,
      M:  Translation<V> + Transform<V> + Rotate<V> + One>
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
@@ -96,8 +96,8 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                G1: Implicit<N, V, M>,
                G2: Implicit<N, V, M>,
-               N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone + ToStr,
-               V:  AlgebraicVecExt<N> + Clone + ToStr,
+               N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
+               V:  AlgebraicVecExt<N> + Clone,
                M:  Translation<V> + One>(
                m1:         &M,
                g1:         &G1,
@@ -178,8 +178,8 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<N:  Ord + Num + Float + Cast<f32> + Clone + ToStr,
-           V:  AlgebraicVecExt<N> + Clone + ToStr,
+pub fn toi<N:  Ord + Num + Float + Cast<f32> + Clone,
+           V:  AlgebraicVecExt<N> + Clone,
            M:  Translation<V> + Transform<V> + Rotate<V>,
            G1: Implicit<N, V, M>,
            G2: Implicit<N, V, M>>(

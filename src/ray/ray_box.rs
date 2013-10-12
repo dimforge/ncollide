@@ -3,8 +3,8 @@ use bounding_volume::AABB;
 use geom::Box;
 use ray::{Ray, RayCast, RayCastWithTransform};
 
-impl<N: Primitive + Orderable + Algebraic + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr>
+impl<N: Primitive + Orderable + Algebraic,
+     V: AlgebraicVecExt<N> + Clone>
 RayCast<N, V> for Box<N, V> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
@@ -17,7 +17,7 @@ RayCast<N, V> for Box<N, V> {
     }
 }
 
-impl<N: Primitive + Orderable + Algebraic + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Primitive + Orderable + Algebraic,
+     V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 RayCastWithTransform<N, V, M> for Box<N, V> { }

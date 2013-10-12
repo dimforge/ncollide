@@ -98,8 +98,8 @@ Implicit<N, V, M> for Cone<N> {
     }
 }
 
-impl<N: Signed + Algebraic + Primitive + Orderable + Clone + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Signed + Algebraic + Primitive + Orderable + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Cone<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {

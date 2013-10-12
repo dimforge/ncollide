@@ -102,10 +102,10 @@ impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
  * Collision detector between two `Geometry`. Note that this is only a
  * wrapper on the collision detector specific to each geometry.
  */
-impl<N: ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + ToStr + Algebraic,
-     LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone + ToStr +
+impl<N: ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
+     LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
          Rotate<LV> + Transform<LV>,
-     AV: Vec<N> + ToStr,
+     AV: Vec<N>,
      M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
          Mul<M, M> + Inv + One>
 CollisionDetector<N, LV, M, Geom<N, LV, M>, Geom<N, LV, M>>
@@ -180,10 +180,10 @@ for GeomGeom<N, LV, AV, M> {
 
 /// Computes the time of impact of two `Geom`.
 #[inline]
-pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + ToStr + Algebraic,
+pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
            LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
-               Rotate<LV> + Transform<LV> + ToStr,
-           AV: Vec<N> + ToStr,
+               Rotate<LV> + Transform<LV>,
+           AV: Vec<N>,
            M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
                Mul<M, M> + Inv + One>(
            m1:   &M,

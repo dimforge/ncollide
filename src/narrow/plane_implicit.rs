@@ -27,7 +27,7 @@ impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
 }
 
 impl<N: Algebraic + Num + NumCast + Ord + Clone,
-     V: AlgebraicVec<N> + Clone + ToStr,
+     V: AlgebraicVec<N> + Clone,
      M: Rotate<V> + Translation<V> + Transform<V>,
      G: Implicit<N, V, M>>
 CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
@@ -92,7 +92,7 @@ impl<N, V, M, G> ImplicitPlane<N, V, M, G> {
 }
 
 impl<N: Algebraic + Num + NumCast + Ord + Clone,
-     V: AlgebraicVec<N> + Clone + ToStr,
+     V: AlgebraicVec<N> + Clone,
      M: Rotate<V> + Translation<V> + Transform<V>,
      G: Implicit<N, V, M>>
 CollisionDetector<N, V, M, G, Plane<N, V>> for ImplicitPlane<N, V, M, G> {
@@ -173,7 +173,7 @@ pub fn collide<V: AlgebraicVec<N> + Clone,
 ///     * `dir`    - the direction of the other geometry movement.
 ///     * `other`  - the other geometry.
 pub fn toi<N: Algebraic + Ord + Num,
-           V: AlgebraicVec<N> + Clone + ToStr,
+           V: AlgebraicVec<N> + Clone,
            M: Translation<V> + Rotate<V> + Transform<V>,
            G: Implicit<N, V, M>>(
            mplane: &M,

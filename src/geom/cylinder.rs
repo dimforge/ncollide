@@ -92,8 +92,8 @@ Implicit<N, V, M> for Cylinder<N> {
     }
 }
 
-impl<N: Signed + Algebraic + Orderable + Primitive + Clone + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Signed + Algebraic + Orderable + Primitive + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Cylinder<N> {
     #[inline]

@@ -103,8 +103,8 @@ impl<B, BV> BVTNode<B, BV> {
 /// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
 ///
 /// Use this as a parameter of `new_with_partitioner`.
-pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32> + ToStr,
-                                  V: VecExt<N> + ToStr,
+pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
+                                  V: VecExt<N>,
                                   B>(leaves: ~[(B, AABB<N, V>)])
                                   -> PartFnResult<B, AABB<N, V>> {
     if leaves.len() == 0 {

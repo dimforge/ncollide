@@ -70,8 +70,8 @@ impl<N, V, M, G, D, SD> AnyCompoundAABB<N, V, M, G, D, SD> {
     }
 }
 
-impl<N:  Algebraic + Primitive + Orderable + ToStr,
-     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
+impl<N:  Algebraic + Primitive + Orderable,
+     V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M>,
      G:  HasAABB<N, V, M>,
      D:  Dispatcher<G, SD>,
@@ -141,8 +141,8 @@ CompoundAABBAny<N, V, M, G, D, SD> {
     }
 }
 
-impl<N:  Algebraic + Primitive + Orderable + ToStr,
-     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
+impl<N:  Algebraic + Primitive + Orderable,
+     V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
      D:  Dispatcher<G, SD>,
@@ -192,8 +192,8 @@ for CompoundAABBAny<N, V, M, G, D, SD> {
     }
 }
 
-impl<N:  Algebraic + Primitive + Orderable + ToStr,
-     V:  'static + AlgebraicVecExt<N> + Clone + ToStr,
+impl<N:  Algebraic + Primitive + Orderable,
+     V:  'static + AlgebraicVecExt<N> + Clone,
      M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
      D:  Dispatcher<G, SD>,

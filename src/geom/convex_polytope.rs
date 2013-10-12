@@ -43,7 +43,7 @@ impl<N: Clone, V> HasMargin<N> for ConvexPolytope<N, V> {
     }
 }
 
-impl<N: Algebraic + Ord + Bounded + ToStr + Neg<N> + Clone,
+impl<N: Algebraic + Ord + Bounded + Neg<N> + Clone,
      V: AlgebraicVec<N> + Clone,
      M: Transform<V> + Rotate<V>>
 Implicit<N, V, M> for ConvexPolytope<N, V> {

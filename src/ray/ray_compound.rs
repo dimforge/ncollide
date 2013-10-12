@@ -5,8 +5,8 @@ use geom::CompoundAABB;
 use partitioning::bvt_visitor::RayInterferencesCollector;
 
 
-impl<N: Num + Bounded + Orderable + Primitive + Algebraic + ToStr,
-     V: 'static + AlgebraicVecExt<N> + ToStr,
+impl<N: Num + Bounded + Orderable + Primitive + Algebraic,
+     V: 'static + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>,
      S: RayCastWithTransform<N, V, M>>
 RayCast<N, V> for CompoundAABB<N, V, M, S> {
@@ -77,8 +77,8 @@ RayCast<N, V> for CompoundAABB<N, V, M, S> {
     }
 }
 
-impl<N: Num + Bounded + Orderable + Primitive + Algebraic + ToStr,
-     V: 'static + AlgebraicVecExt<N> + ToStr,
+impl<N: Num + Bounded + Orderable + Primitive + Algebraic,
+     V: 'static + AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>,
      S: RayCastWithTransform<N, V, M>>
 RayCastWithTransform<N, V, M> for CompoundAABB<N, V, M, S> { }

@@ -73,8 +73,8 @@ Implicit<N, V, M> for Capsule<N> {
     }
 }
 
-impl<N: Algebraic + Signed + Primitive + Orderable + Clone + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Algebraic + Signed + Primitive + Orderable + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 HasAABB<N, V, M> for Capsule<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {

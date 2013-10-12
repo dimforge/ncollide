@@ -50,8 +50,8 @@ impl<N, V, M, S, D: Clone, SD> CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
     }
 }
 
-impl<N:  Algebraic + Primitive + Orderable + ToStr,
-     V:  'static + Clone + AlgebraicVecExt<N> + ToStr,
+impl<N:  Algebraic + Primitive + Orderable,
+     V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M> + Translation<V>,
      S:  HasAABB<N, V, M>,
      D:  Dispatcher<S, SD>,

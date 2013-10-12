@@ -14,8 +14,8 @@ pub struct CompoundAABB<N, V, M, S> {
     priv bvs:    ~[AABB<N, V>]
 }
 
-impl<N: 'static + Algebraic + Primitive + Orderable + Signed + Cast<f32> + Clone + ToStr,
-     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: 'static + Algebraic + Primitive + Orderable + Signed + Cast<f32> + Clone,
+     V: 'static + AlgebraicVecExt<N> + Clone,
      M,
      S: HasAABB<N, V, M>>
 CompoundAABB<N, V, M, S> {
@@ -66,8 +66,8 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
     }
 }
 
-impl<N: Primitive + Orderable + Cast<f32> + ToStr,
-     V: VecExt<N> + Clone + ToStr,
+impl<N: Primitive + Orderable + Cast<f32>,
+     V: VecExt<N> + Clone,
      M: Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V>,
      S: HasAABB<N, V, M>>
 HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {

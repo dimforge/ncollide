@@ -27,8 +27,8 @@ impl<CD: CollisionDetector<N, LV, M, G1, G2>,
      G1,
      G2,
      N:  Clone + Num + Ord + Algebraic + Cast<f32>,
-     LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + ToStr,
-     AV: Vec<N> + ToStr,
+     LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N>,
+     AV: Vec<N>,
      M:  Rotation<AV> + Transform<LV> + Translation<LV> + One>
 CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {

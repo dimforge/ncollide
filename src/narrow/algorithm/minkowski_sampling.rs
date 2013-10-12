@@ -10,8 +10,8 @@ use narrow::algorithm::simplex::Simplex;
 pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
                       G1: Implicit<N, V, M>,
                       G2: Implicit<N, V, M>,
-                      N:  Clone + Ord + Num + Float + Cast<f32> + ToStr,
-                      V:  AlgebraicVecExt<N> + Clone + ToStr,
+                      N:  Clone + Ord + Num + Float + Cast<f32>,
+                      V:  AlgebraicVecExt<N> + Clone,
                       M:  One + Translation<V>>(
                       m1:      &M,
                       g1:      &G1,

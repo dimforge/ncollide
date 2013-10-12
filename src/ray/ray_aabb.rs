@@ -4,8 +4,8 @@ use nalgebra::na::{AlgebraicVecExt, Indexable, Dim};
 use ray::{Ray, RayCast};
 use bounding_volume;
 
-impl<N: Primitive + Orderable + Algebraic + ToStr,
-     V: AlgebraicVecExt<N> + ToStr>
+impl<N: Primitive + Orderable + Algebraic,
+     V: AlgebraicVecExt<N>>
 RayCast<N, V> for bounding_volume::AABB<N, V> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         let mut tmin: N = Zero::zero();

@@ -31,7 +31,7 @@ pub enum IGeom<N, V, M> {
     CapsuleGeom(Capsule<N>)
 }
 
-impl<N: One + ToStr, V: ToStr, M> Geom<N, V, M> {
+impl<N: One, V, M> Geom<N, V, M> {
     /// Creates a new `Geom` from a plane.
     #[inline]
     pub fn new_plane(p: Plane<N, V>) -> Geom<N, V, M> {
@@ -157,8 +157,8 @@ impl<N, V, M> Geom<N, V, M> {
     }
 }
 
-impl<N: Primitive + Orderable + Algebraic + Signed + Cast<f32> + Clone + ToStr,
-     V: AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Primitive + Orderable + Algebraic + Signed + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone,
      M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>>
 HasAABB<N, V, M> for Geom<N, V, M> {
     #[inline]
@@ -180,8 +180,8 @@ HasAABB<N, V, M> for Geom<N, V, M> {
 }
 
 // FIXME: move this to the ray folder?
-impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone + ToStr,
-     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone,
+     V: 'static + AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 RayCast<N, V> for Geom<N, V, M> {
     #[inline]
@@ -219,8 +219,8 @@ RayCast<N, V> for Geom<N, V, M> {
     }
 }
 
-impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone + ToStr,
-     V: 'static + AlgebraicVecExt<N> + Clone + ToStr,
+impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone,
+     V: 'static + AlgebraicVecExt<N> + Clone,
      M: Rotate<V> + Transform<V>>
 RayCastWithTransform<N, V, M> for Geom<N, V, M> { }
 
