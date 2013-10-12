@@ -310,26 +310,29 @@ impl<K: Eq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
     }
 }
 
-impl<K: Eq, V, H: HashFun<K>> MutableMap<K, V> for HashMap<K, V, H> {
-    fn insert(&mut self, key: K, value: V) -> bool {
+impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
+    /// Inserts an element on the hash map.
+    pub fn insert(&mut self, key: K, value: V) -> bool {
         let (res, _) = self.do_insert_or_replace(key, value, true);
 
         res
     }
 
-    fn remove(&mut self, key: &K) -> bool {
+    /// Remove an element from the hash map.
+    pub fn remove(&mut self, key: &K) -> bool {
         self.get_and_remove(key).is_some()
     }
 
-    fn swap(&mut self, _: K, _: V) -> Option<V> {
-        fail!("Not yet implemented.")
-    }
+    // pub fn swap(&mut self, _: K, _: V) -> Option<V> {
+    //     fail!("Not yet implemented.")
+    // }
 
-    fn pop(&mut self, _: &K) -> Option<V> {
-        fail!("Not yet implemented.")
-    }
+    // pub fn pop(&mut self, _: &K) -> Option<V> {
+    //     fail!("Not yet implemented.")
+    // }
 
-    fn find_mut<'a>(&'a mut self, key: &K) -> Option<&'a mut V> {
+    /// Gets a mutable reference to an element of the hashmap.
+    pub fn find_mut<'a>(&'a mut self, key: &K) -> Option<&'a mut V> {
         let entry = self.find_entry_id(key);
 
         if entry == -1 {
