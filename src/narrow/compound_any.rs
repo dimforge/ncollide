@@ -1,6 +1,7 @@
 use std::vec;
 use extra::serialize::{Encodable, Decodable, Encoder, Decoder};
 use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
+use nalgebra::na;
 use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;
 use narrow::CollisionDetector;
@@ -83,7 +84,7 @@ CompoundAABBAny<N, V, M, G, D, SD> {
         }
 
         // Find new collisions
-        let ls_m2    = m1.inverted().expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
 
         {
@@ -224,9 +225,9 @@ for AnyCompoundAABB<N, V, M, G, D, SD> {
            m2:   &M,
            g2:   &CompoundAABB<N, V, M, G>)
            -> Option<N> {
-        let inv_m2        = m2.inverted().expect("The transformation `m2` must be inversible.");
+        let inv_m2        = na::inv(m2).expect("The transformation `m2` must be inversible.");
         let ls_m1_begin   = inv_m2 * *m1;
-        let m1_end        = m1.translated(&(dir * *dist));
+        let m1_end        = na::append_translation(m1, &(dir * *dist));
         let ls_m1_end     = inv_m2 * m1_end;
         let ls_aabb_begin = g1.aabb(&ls_m1_begin);
         let ls_aabb_end   = g1.aabb(&ls_m1_end);

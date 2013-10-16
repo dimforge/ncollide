@@ -4,6 +4,7 @@
 
 use std::num::Zero;
 use nalgebra::na::{Cast, Indexable, AlgebraicVecExt, Rotate, Transform};
+use nalgebra::na;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
@@ -88,7 +89,7 @@ Implicit<N, V, M> for Cone<N> {
             vres = vres * self.radius;
             vres.set(0, -self.half_height);
 
-            if local_dir.dot(&vres) < local_dir.at(0) * self.half_height {
+            if na::dot(&local_dir, &vres) < local_dir.at(0) * self.half_height {
                 vres = Zero::zero();
                 vres.set(0, self.half_height.clone())
             }

@@ -1,4 +1,5 @@
 use nalgebra::na::AlgebraicVec;
+use nalgebra::na;
 
 // Sadly, we cannot put this on the `Implicit` trait because the caller of `margin` might get
 // unconstrained type.
@@ -28,7 +29,7 @@ pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M>: HasMargin<N>{
     fn support_point(&self, transform: &M, dir: &V) -> V {
         let wo_margin = self.support_point_without_margin(transform, dir);
 
-        wo_margin + dir.normalized() * self.margin()
+        wo_margin + na::normalize(dir) * self.margin()
     }
 
     /**

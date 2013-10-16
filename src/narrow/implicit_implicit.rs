@@ -1,5 +1,6 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, Translation, Rotate, Transform, AlgebraicVecExt};
+use nalgebra::na;
 use geom;
 use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
@@ -125,7 +126,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
     match gjk::closest_points_without_margin(m1, g1, m2, g2, simplex) {
         Some((p1, p2)) => {
             let p1p2 = p2 - p1;
-            let sqn  = p1p2.sqnorm();
+            let sqn  = na::sqnorm(&p1p2);
 
             if sqn >= (margin1 + margin2 + *prediction) *
                       (margin1 + margin2 + *prediction) {

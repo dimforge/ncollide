@@ -1,6 +1,7 @@
 use std::num::One;
-use nalgebra::na::{Cast, AlgebraicVecExt, Vec, Basis, Cross, RotationWithTranslation, Translation,
+use nalgebra::na::{Cast, AlgebraicVecExt, Vec, Cross, Translation,
                    Rotation, Transform};
+use nalgebra::na;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
 
@@ -36,18 +37,18 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
             // do the one-shot manifold generation
             match self.sub_detector.get_sub_collision(m1, g1, m2, g2) {
                 Some(coll) => {
-                    do coll.normal.orthonormal_subspace_basis |b| {
-                        let mut rot_axis: AV = coll.normal.cross(&b);
+                    do na::orthonormal_subspace_basis(&coll.normal) |b| {
+                        let mut rot_axis: AV = na::cross(&coll.normal, &b);
 
                         // first perturbation
-                        rot_axis = rot_axis * Cast::from(0.01);
+                        rot_axis = rot_axis * na::cast(0.01);
 
-                        let rot_mat: M = m1.rotated_wrt_center(&rot_axis);
+                        let rot_mat: M = na::append_rotation_wrt_center(m1, &rot_axis);
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 
                         // second perturbation (opposite direction)
-                        let rot_mat = m1.rotated_wrt_center(&-rot_axis);
+                        let rot_mat = na::append_rotation_wrt_center(m1, &-rot_axis);
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 

@@ -1,5 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Cast, VecExt, AlgebraicVecExt, Basis, ScalarAdd, ScalarSub, Translation};
+use nalgebra::na::{Cast, VecExt, AlgebraicVecExt, ScalarAdd, ScalarSub, Translation};
+use nalgebra::na;
 use geom::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
@@ -99,13 +100,22 @@ impl<V: VecExt<N>, N: Cast<f32>> Translation<V> for AABB<N, V>
         -self.translation()
     }
 
-    fn translate_by(&mut self, dv: &V) {
+    fn append_translation(&mut self, dv: &V) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
-    fn translated(&self, dv: &V) -> AABB<N, V> {
-        AABB::new(self.mins + *dv, self.maxs + *dv)
+    fn append_translation_cpy(aabb: &AABB<N, V>, dv: &V) -> AABB<N, V> {
+        AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
+    }
+
+    fn prepend_translation(&mut self, dv: &V) {
+        self.mins = self.mins + *dv;
+        self.maxs = self.maxs + *dv;
+    }
+
+    fn prepend_translation_cpy(aabb: &AABB<N, V>, dv: &V) -> AABB<N, V> {
+        AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
     }
 
     fn set_translation(&mut self, v: V) {
@@ -146,9 +156,9 @@ pub fn implicit_shape_aabb<N: Algebraic,
         let mut resM: V = Zero::zero();
 
         // FIXME: optimize using Indexable?
-        do Basis::canonical_basis() |basis: V| {
-            resm = resm + basis * basis.dot(&i.support_point(m, &-basis));
-            resM = resM + basis * basis.dot(&i.support_point(m, &basis));
+        do na::canonical_basis() |basis: V| {
+            resm = resm + basis * na::dot(&basis, &i.support_point(m, &-basis));
+            resM = resM + basis * na::dot(&basis, &i.support_point(m, &basis));
 
             true
         }
@@ -178,14 +188,14 @@ HasBoundingVolume<AABB<N, V>> for WithAABB<M, A> {
 #[cfg(test)]
 mod test {
     use super::AABB;
-    use nalgebra::na;
+    use nalgebra::na::Vec3;
 
     #[test]
     fn test_merge() {
-        let a = AABB::new(na::vec3(10f64, 20.0, 30.0), na::vec3(20.0, 30.0, 40.0));
-        let b = AABB::new(na::vec3(-10f64, -20.0, 35.0), na::vec3(30.0, 50.0, 36.0));
+        let a = AABB::new(Vec3::new(10f64, 20.0, 30.0), Vec3::new(20.0, 30.0, 40.0));
+        let b = AABB::new(Vec3::new(-10f64, -20.0, 35.0), Vec3::new(30.0, 50.0, 36.0));
 
-        let merge = AABB::new(na::vec3(-10.0f64, -20.0, 30.0), na::vec3(30.0, 50.0, 40.0));
+        let merge = AABB::new(Vec3::new(-10.0f64, -20.0, 30.0), Vec3::new(30.0, 50.0, 40.0));
 
         assert!(a.merged(&b) == merge)
     }

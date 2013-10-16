@@ -1,5 +1,6 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, AlgebraicVecExt, UniformSphereSample, Identity, Translation};
+use nalgebra::na;
 use geom;
 use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
 use narrow::algorithm::gjk;
@@ -34,11 +35,11 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 
     do UniformSphereSample::sample() |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = sample.dot(&support);
+        let dist    = na::dot(&sample, &support);
 
         if (dist < min_dist) {
-            best_dir     = sample;
-            min_dist     = dist;
+            best_dir = sample;
+            min_dist = dist;
         }
     }
 
@@ -49,17 +50,17 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let shift = best_dir * min_dist;
 
     // XXX: translate the simplex instead of reseting it
-    let tm2 = m2.translated(&shift.clone());
+    let tm2 = na::append_translation(m2, &shift.clone());
 
     simplex.reset(geom::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir));
 
     match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
-            let corrected_normal = (p2 - p1).normalized();
+            let corrected_normal = na::normalize(&(p2 - p1));
 
             let corrected_support = cso.support_point(&Identity::new(), &corrected_normal);
-            let min_dist2 = corrected_normal.dot(&corrected_support);
+            let min_dist2 = na::dot(&corrected_normal, &corrected_support);
 
             // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");
             if min_dist2 < _0 {

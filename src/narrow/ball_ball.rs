@@ -1,5 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Basis, AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform};
+use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform};
+use nalgebra::na;
 use geom::Ball;
 use narrow::CollisionDetector;
 use contact::Contact;
@@ -74,15 +75,15 @@ pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
-    let sqdist     = delta_pos.sqnorm();
+    let sqdist     = na::sqnorm(&delta_pos);
     let sum_radius = r1 + r2;
     let sum_radius_with_error = sum_radius + *prediction;
 
     if sqdist < sum_radius_with_error * sum_radius_with_error {
-        let mut normal = delta_pos.normalized();
+        let mut normal = na::normalize(&delta_pos);
         
         if sqdist.is_zero() {
-            do Basis::canonical_basis() |b| {
+            do na::canonical_basis() |b| {
                 normal = b;
 
                 false
@@ -109,7 +110,7 @@ pub fn closest_points<N: Algebraic + Clone,
 (center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> (V, V) {
     let r1     = b1.radius();
     let r2     = b2.radius();
-    let normal = (center2 - *center1).normalized();
+    let normal = na::normalize(&(center2 - *center1));
 
     (center1 + normal * r1, center2 - normal * r2)
 }
@@ -136,6 +137,6 @@ pub fn toi<N: Num + Algebraic + Ord + Clone,
 
     cso.toi_with_transform_and_ray(
         &(c1.translation() - c2.translation()),
-        &Ray::new(Zero::zero(), -dir)
+        &Ray::new(na::zero(), -dir)
     )
 }

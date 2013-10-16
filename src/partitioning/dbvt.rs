@@ -6,6 +6,7 @@ use std::util;
 use std::managed;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::{Translation, AlgebraicVec};
+use nalgebra::na;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
@@ -288,8 +289,8 @@ impl<V, B, BV: Translation<V>> DBVTLeaf<V, B, BV> {
 impl<BV: BoundingVolume, B, V: AlgebraicVec<N>, N: Algebraic> DBVTNode<V, B, BV> {
     fn sqdist_to(&self, to: &V) -> N {
         match *self {
-            Internal(ref i) => (i.center - *to).sqnorm(),
-            Leaf(ref l)     => (l.center - *to).sqnorm(),
+            Internal(ref i) => na::sqnorm(&(i.center - *to)),
+            Leaf(ref l)     => na::sqnorm(&(l.center - *to)),
             Invalid         => unreachable!()
         }
     }

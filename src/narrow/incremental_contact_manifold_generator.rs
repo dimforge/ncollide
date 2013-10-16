@@ -1,4 +1,5 @@
-use nalgebra::na::{Cast, Vec, AlgebraicVec, Dim, Transform};
+use nalgebra::na::{Cast, Vec, AlgebraicVec, Transform};
+use nalgebra::na;
 use narrow::CollisionDetector;
 use contact::Contact;
 
@@ -87,7 +88,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
         self.sub_detector.colls(&mut self.collector);
 
         // remove duplicates
-        let _max_num_contact = (Dim::dim(None::<V>) - 1) * 2;
+        let _max_num_contact = (na::dim::<V>() - 1) * 2;
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
@@ -112,10 +113,10 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let world2 = m2.transform(&c.local2);
 
                 let dw    = world1 - world2;
-                let depth = dw.dot(&c.contact.normal);
+                let depth = na::dot(&dw, &c.contact.normal);
 
                 if depth >= -self.prediction &&
-                   (dw - c.contact.normal * depth).sqnorm() <= Cast::from(0.01) {
+                   na::sqnorm(&(dw - c.contact.normal * depth)) <= Cast::from(0.01) {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;
@@ -217,11 +218,11 @@ fn approx_variance<N: Num + Algebraic + Cast<f32>, V: Clone + AlgebraicVec<N>>(
     mean = mean * Cast::from(divisor);
 
     // compute the sum of variances along all axis
-    let mut sum = (to_add_center - mean).sqnorm();
+    let mut sum = na::sqnorm(&(to_add_center - mean));
 
     for i in range(0u, pts.len()) {
         if i != to_ignore {
-            sum = sum + (pts[i].center - mean).sqnorm();
+            sum = sum + na::sqnorm(&(pts[i].center - mean));
         }
     }
 

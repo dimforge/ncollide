@@ -1,6 +1,6 @@
 use std::util;
-use std::num::{Zero, One};
-use nalgebra::na::{AlgebraicVecExt, Indexable, Dim};
+use nalgebra::na::{AlgebraicVecExt, Indexable};
+use nalgebra::na;
 use ray::{Ray, RayCast};
 use bounding_volume;
 
@@ -8,17 +8,17 @@ impl<N: Primitive + Orderable + Algebraic,
      V: AlgebraicVecExt<N>>
 RayCast<N, V> for bounding_volume::AABB<N, V> {
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        let mut tmin: N = Zero::zero();
+        let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
 
-        for i in range(0u, Dim::dim(None::<V>)) {
+        for i in range(0u, na::dim::<V>()) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None
                 }
             }
             else {
-                let _1: N = One::one();
+                let _1: N = na::one();
                 let denom = _1 / ray.dir.at(i);
                 let mut inter_with_near_plane = (self.mins().at(i) - ray.orig.at(i)) * denom;
                 let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
@@ -40,19 +40,19 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
     }
 
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        let mut tmin: N = Zero::zero();
+        let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
         let mut side = 0u;
         let mut diag = false;
 
-        for i in range(0u, Dim::dim(None::<V>)) {
+        for i in range(0u, na::dim::<V>()) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None
                 }
             }
             else {
-                let _1: N = One::one();
+                let _1: N = na::one();
                 let denom = _1 / ray.dir.at(i);
                 let mut inter_with_near_plane = (self.mins().at(i) - ray.orig.at(i)) * denom;
                 let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
@@ -79,11 +79,11 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
         }
 
         if diag {
-            Some((tmin, -ray.dir.normalized()))
+            Some((tmin, -na::normalize(&ray.dir)))
         }
         else {
-            let mut normal: V = Zero::zero();
-            normal.set(side, One::one());
+            let mut normal: V = na::zero();
+            normal.set(side, na::one());
             Some((tmin, normal))
         }
     }

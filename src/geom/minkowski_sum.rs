@@ -6,6 +6,7 @@
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
 use nalgebra::na::{Dot, Norm, Vec, AlgebraicVec, Dim, Identity};
+use nalgebra::na;
 use geom::{Reflection, Implicit, HasMargin};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
@@ -239,37 +240,37 @@ impl<V: Neg<V>> Neg<AnnotatedPoint<V>> for AnnotatedPoint<V> {
 impl<V: Dim> Dim for AnnotatedPoint<V> {
     #[inline]
     fn dim(_: Option<AnnotatedPoint<V>>) -> uint {
-        Dim::dim(None::<V>)
+        na::dim::<V>()
     }
 }
 
 impl<V: Vec<N>, N> Dot<N> for AnnotatedPoint<V> {
     #[inline]
-    fn dot(&self, other: &AnnotatedPoint<V>) -> N {
-        self.point.dot(&other.point)
+    fn dot(a: &AnnotatedPoint<V>, b: &AnnotatedPoint<V>) -> N {
+        na::dot(&a.point, &b.point)
     }
 
     #[inline]
-    fn sub_dot(&self, sub: &AnnotatedPoint<V>, dot: &AnnotatedPoint<V>) -> N {
-        self.point.sub_dot(&sub.point, &dot.point)
+    fn sub_dot(a: &AnnotatedPoint<V>, b: &AnnotatedPoint<V>, c: &AnnotatedPoint<V>) -> N {
+        na::sub_dot(&a.point, &b.point, &c.point)
     }
 }
 
 impl<N: Algebraic, V: Norm<N> + Clone> Norm<N> for AnnotatedPoint<V> {
     #[inline]
-    fn norm(&self) -> N {
-        self.point.norm()
+    fn norm(v: &AnnotatedPoint<V>) -> N {
+        na::norm(&v.point)
     }
 
     #[inline]
-    fn sqnorm(&self) -> N {
-        self.point.sqnorm()
+    fn sqnorm(v: &AnnotatedPoint<V>) -> N {
+        na::sqnorm(&v.point)
     }
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
     #[inline]
-    fn normalized(&self) -> AnnotatedPoint<V> {
-        AnnotatedPoint::new(self.orig1.clone(), self.orig2.clone(), self.point.normalized())
+    fn normalize_cpy(v: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+        AnnotatedPoint::new(v.orig1.clone(), v.orig2.clone(), na::normalize(&v.point))
     }
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.

@@ -1,5 +1,6 @@
 use std::num::Bounded;
 use nalgebra::na::{Cast, Transform, Rotate, AlgebraicVec};
+use nalgebra::na;
 use geom::{Implicit, HasMargin};
 
 /**
@@ -56,7 +57,7 @@ Implicit<N, V, M> for ConvexPolytope<N, V> {
         let mut best_pt  = &self.pts[0];
 
         for p in self.pts.iter() {
-            let dot = p.dot(&local_dir);
+            let dot = na::dot(p, &local_dir);
 
             if dot > best_dot {
                 best_dot = dot;

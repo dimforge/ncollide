@@ -1,5 +1,6 @@
 use std::num::Zero;
 use nalgebra::na::{Rotate, Transform, Vec};
+use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::Plane;
 
@@ -13,7 +14,7 @@ pub fn plane_toi_with_ray<N: Num + Ord,
                           -> Option<N> {
     let dpos = center - ray.orig;
 
-    let t = normal.dot(&dpos) / normal.dot(&ray.dir);
+    let t = na::dot(normal, &dpos) / na::dot(normal, &ray.dir);
 
     if t >= Zero::zero() {
         Some(t)

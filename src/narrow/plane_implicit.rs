@@ -1,4 +1,5 @@
 use nalgebra::na::{Translation, Rotate, Transform, AlgebraicVec};
+use nalgebra::na;
 use narrow::CollisionDetector;
 use geom::{Plane, Implicit};
 use contact::Contact;
@@ -152,7 +153,7 @@ pub fn collide<V: AlgebraicVec<N> + Clone,
     let plane_center = mplane.translation();
     let deepest      = other.support_point(mother, &-plane_normal);
 
-    let dist = plane_normal.dot(&(plane_center - deepest));
+    let dist = na::dot(&plane_normal, &(plane_center - deepest));
 
     if dist > -prediction {
         let c1 = deepest + plane_normal * dist;

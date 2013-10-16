@@ -1,5 +1,6 @@
 use std::num::{Zero, Algebraic};
 use nalgebra::na::{AlgebraicVec, Translation, Rotate, Transform};
+use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::Ball;
 
@@ -15,7 +16,7 @@ RayCast<N, V> for Ball<N> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
         do toi_with_ray(Zero::zero(), self.radius(), ray).map |n| {
             let pos    = ray.orig + ray.dir * n;
-            let normal = pos.normalized();
+            let normal = na::normalize(&pos);
 
             (n, normal)
         }
@@ -40,8 +41,8 @@ fn toi_with_ray<N: Num + Algebraic + Ord + Clone,
                 -> Option<N>{
     let dcenter = ray.orig - center;
 
-    let b = dcenter.dot(&ray.dir);
-    let c = dcenter.sqnorm() - radius * radius;
+    let b = na::dot(&dcenter, &ray.dir);
+    let c = na::sqnorm(&dcenter) - radius * radius;
 
     if c > Zero::zero() && b > Zero::zero() {
         None

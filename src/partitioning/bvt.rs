@@ -1,7 +1,8 @@
 //! A read-only Bounding Volume Tree.
 
 use std::vec;
-use nalgebra::na::{Cast, Translation, Dim, VecExt};
+use nalgebra::na::{Cast, Translation, VecExt};
+use nalgebra::na;
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
 
@@ -125,12 +126,12 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
         let center = bounding_bounding_box.translation();
 
         // build the partitions
-        let mut partitions = vec::from_fn(1u << Dim::dim(None::<V>), |_| ~[]);
+        let mut partitions = vec::from_fn(1u << na::dim::<V>(), |_| ~[]);
         for (b, aabb) in leaves.move_iter() {
             let dpos    = aabb.translation() - center;
             let mut key = 0u;
 
-            for i in range(0u, Dim::dim(None::<V>)) {
+            for i in range(0u, na::dim::<V>()) {
                 if dpos.at(i).is_negative() {
                     key = key | (1u << i);
                 }

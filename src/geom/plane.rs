@@ -3,6 +3,7 @@
 //!
 
 use nalgebra::na::{AlgebraicVec, AlgebraicVecExt};
+use nalgebra::na;
 use bounding_volume::{HasAABB, AABB};
 
 /**
@@ -20,7 +21,7 @@ impl<N: Algebraic, V: AlgebraicVec<N>> Plane<N, V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub fn new(normal: V) -> Plane<N, V> {
-        unsafe { Plane::new_normalized(normal.normalized()) }
+        unsafe { Plane::new_normalized(na::normalize(&normal)) }
     }
 
     /// Builds a new plane from its center and its normal.

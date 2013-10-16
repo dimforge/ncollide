@@ -1,7 +1,8 @@
 #[doc(hidden)];
 
 use std::num::{Zero, One};
-use nalgebra::na::{DMat, Inv, AlgebraicVec, Dim};
+use nalgebra::na::{DMat, Inv, AlgebraicVec};
+use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 
 #[deriving(Encodable, Decodable)]
@@ -34,12 +35,12 @@ BruteForceSimplex<N, V> {
                 mat.set(
                     i,
                     j,
-                    points[i].sub_dot(&points[0], &points[j])
+                    na::sub_dot(&points[i], &points[0], &points[j])
                 )
             }
         }
 
-        if !mat.invert() {
+        if !mat.inv() {
             None
         }
         else {
@@ -80,14 +81,14 @@ BruteForceSimplex<N, V> {
                 let (proj, sub_p_pts) = BruteForceSimplex::project_on_subsimplices(subsimplex);
 
                 match bestproj {
-                    Some(ref p) => if p.norm() > proj.norm() {
+                    Some(ref p) => if na::norm(p) > na::norm(&proj) {
                         bestpts = sub_p_pts
                     },
                     None    => bestpts = sub_p_pts
                 }
 
                 bestproj = match bestproj {
-                    Some(ref p) => if p.norm() > proj.norm() {
+                    Some(ref p) => if na::norm(p) > na::norm(&proj) {
                         Some(proj)
                     }
                     else {
@@ -124,7 +125,7 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     fn max_sq_len(&self) -> N {
-        self.points.iter().map(|v| v.sqnorm()).max().unwrap()
+        self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
     }
 
     fn contains_point(&self, pt: &V) -> bool {
@@ -132,7 +133,7 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     fn add_point(&mut self, pt: V) {
-        assert!(self.points.len() <= Dim::dim(None::<V>));
+        assert!(self.points.len() <= na::dim::<V>());
         self.points.push(pt)
     }
 

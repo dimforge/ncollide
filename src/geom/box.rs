@@ -3,8 +3,9 @@
 //!
 
 use std::num::{Zero, Signed};
-use nalgebra::na::{Cast, Dim, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub,
+use nalgebra::na::{Cast, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub,
                    Transform, Rotate, AbsoluteRotate, Translation};
+use nalgebra::na;
 use bounding_volume::{HasAABB, AABB};
 use geom::{HasMargin, Implicit};
 
@@ -67,7 +68,7 @@ Implicit<N, V, M> for Box<N, V> {
 
         let mut vres: V = Zero::zero();
 
-        for i in range(0u, Dim::dim(None::<V>)) {
+        for i in range(0u, na::dim::<V>()) {
             if local_dir.at(i).is_negative() {
                 vres.set(i, -self.half_extents.at(i));
             }

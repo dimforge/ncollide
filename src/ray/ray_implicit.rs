@@ -1,5 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::na::{AlgebraicVecExt, Cast, Dim, Identity, Translation, Rotate, Transform};
+use nalgebra::na::{AlgebraicVecExt, Cast, Identity, Translation, Rotate, Transform};
+use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Implicit};
@@ -27,7 +28,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
     let _eps: N  = Float::epsilon();
     let _eps_tol = _eps * Cast::from(100.0);
     let _eps_rel = _eps.sqrt();
-    let _dim     = Dim::dim(None::<V>);
+    let _dim     = na::dim::<V>();
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
@@ -56,7 +57,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
         //          > 0        |  > 0  | New higher bound.
         match ray::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
             Some(t) => {
-                if dir.dot(&ray.dir) < Zero::zero() {
+                if na::dot(&dir, &ray.dir) < na::zero() {
                     // new lower bound
                     ldir = dir.clone();
                     if false { // t <= _eps_rel * ltoi {
@@ -73,7 +74,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
                 }
             },
             None => {
-                if dir.dot(&ray.dir) > Zero::zero() {
+                if na::dot(&dir, &ray.dir) > na::zero() {
                     // miss
                     return None
                 }
@@ -83,7 +84,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
         simplex.add_point(support_point - curr_ray.orig);
 
         let proj = simplex.project_origin_and_reduce();
-        let sq_len_dir = proj.sqnorm();
+        let sq_len_dir = na::sqnorm(&proj);
 
         if (simplex.dimension() == _dim ||
             sq_len_dir >= old_sq_len    || // FIXME: hacky way to prevent infinite loop…

@@ -3,9 +3,9 @@ use std::num::{Zero, One};
 use std::vec;
 use std::at_vec;
 use std::local_data;
-
 use extra::treemap::TreeMap;
 use nalgebra::na::{AlgebraicVec, Dim};
+use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 
 static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;
@@ -191,7 +191,7 @@ impl<N: Clone + Zero, V: Dim>
 JohnsonSimplex<N, V> {
     /// Creates a new, empty, johnson simplex.
     pub fn new(recursion: @[RecursionTemplate]) -> JohnsonSimplex<N, V> {
-        let _dim = Dim::dim(None::<V>);
+        let _dim = na::dim::<V>();
 
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
@@ -208,14 +208,14 @@ JohnsonSimplex<N, V> {
 
         match recursion {
             Some(r) => {
-                if r.len() > Dim::dim(None::<V>) {
+                if r.len() > na::dim::<V>() {
                     return JohnsonSimplex::new(recursion.unwrap())
                 }
             },
             _ => { }
         }
 
-        let new_recursion = RecursionTemplate::new(Dim::dim(None::<V>));
+        let new_recursion = RecursionTemplate::new(na::dim::<V>());
         local_data::set(KEY_RECURSION_TEMPLATE, new_recursion);
         JohnsonSimplex::new(new_recursion)
 
@@ -270,7 +270,7 @@ JohnsonSimplex<N, V> {
                         let i_pid = recursion.permutation_list.unsafe_get(i);
                         let sub_determinant = self.determinants.unsafe_get(
                                              recursion.sub_determinants.unsafe_get(i)).clone();
-                        let delta = sub_determinant * kpt.sub_dot(&jpt, &self.points.unsafe_get(i_pid));
+                        let delta = sub_determinant * na::sub_dot(&kpt, &jpt, &self.points.unsafe_get(i_pid));
 
                         determinant = determinant + delta;
                     }
@@ -388,7 +388,7 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
 
     #[inline]
     fn max_sq_len(&self) -> N {
-        self.points.iter().map(|v| v.sqnorm()).max().unwrap()
+        self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
     }
 
     #[inline]
@@ -399,7 +399,7 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     #[inline]
     fn add_point(&mut self, pt: V) {
         self.points.push(pt);
-        assert!(self.points.len() <= Dim::dim(None::<V>) + 1);
+        assert!(self.points.len() <= na::dim::<V>() + 1);
     }
 
     #[inline]
@@ -463,15 +463,14 @@ impl ToStr for RecursionTemplate {
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use nalgebra::na::Vec3;
-    use nalgebra::na;
     use extra::test::BenchHarness;
 
     #[bench]
     fn bench_johnson_simplex(bh: &mut BenchHarness) {
-        let a = na::vec3(-0.5, -0.5, -0.5);
-        let b = na::vec3(0.0, 0.5, 0.0);
-        let c = na::vec3(0.5, -0.5, -0.5);
-        let d = na::vec3(0.0, -0.5, -0.5);
+        let a = Vec3::new(-0.5, -0.5, -0.5);
+        let b = Vec3::new(0.0, 0.5, 0.0);
+        let c = Vec3::new(0.5, -0.5, -0.5);
+        let d = Vec3::new(0.0, -0.5, -0.5);
         let recursion = RecursionTemplate::new(3);
 
         do bh.iter {
@@ -491,10 +490,10 @@ mod test {
 
     #[bench]
     fn bench_johnson_simplex_tls(bh: &mut BenchHarness) {
-        let a = na::vec3(-0.5, -0.5, -0.5);
-        let b = na::vec3(0.0, 0.5, 0.0);
-        let c = na::vec3(0.5, -0.5, -0.5);
-        let d = na::vec3(0.0, -0.5, -0.5);
+        let a = Vec3::new(-0.5, -0.5, -0.5);
+        let b = Vec3::new(0.0, 0.5, 0.0);
+        let c = Vec3::new(0.5, -0.5, -0.5);
+        let d = Vec3::new(0.0, -0.5, -0.5);
         let _ = JohnsonSimplex::<f64, Vec3<f64>>::new_w_tls();
 
         do bh.iter {

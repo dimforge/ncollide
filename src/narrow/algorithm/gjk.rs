@@ -1,4 +1,5 @@
-use nalgebra::na::{Cast, AlgebraicVec, Dim, Identity};
+use nalgebra::na::{Cast, AlgebraicVec, Identity};
+use nalgebra::na;
 use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
@@ -71,17 +72,17 @@ pub fn project_origin<S: Simplex<N, V>,
                       simplex: &mut S)
                       -> Option<V> {
     let mut proj       = simplex.project_origin_and_reduce();
-    let mut sq_len_dir = proj.sqnorm();
+    let mut sq_len_dir = na::sqnorm(&proj);
 
     let _eps: N  = Float::epsilon();
     let _eps_tol = _eps * Cast::from(100.0);
     let _eps_rel = _eps.sqrt();
-    let _dim     = Dim::dim(None::<V>);
+    let _dim     = na::dim::<V>();
 
     loop {
         let support_point = geom.support_point_without_margin(m, &-proj);
 
-        if (sq_len_dir - proj.dot(&support_point) <= _eps_rel * sq_len_dir) {
+        if (sq_len_dir - na::dot(&proj, &support_point) <= _eps_rel * sq_len_dir) {
             return Some(proj) // the distance found has a good enough precision 
         }
 
@@ -93,7 +94,7 @@ pub fn project_origin<S: Simplex<N, V>,
 
         let old_sq_len_dir = sq_len_dir;
 
-        sq_len_dir = proj.sqnorm();
+        sq_len_dir = na::sqnorm(&proj);
 
         if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol * simplex.max_sq_len()) {
             return None // point inside of the cso
