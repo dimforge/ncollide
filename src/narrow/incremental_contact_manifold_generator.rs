@@ -20,7 +20,7 @@ impl<N: Cast<f32> + Num, V: Vec<N>> ContactWLocals<N, V> {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + contact.world2) / Cast::from(2.0),
+                center: (contact.world1 + contact.world2) / na::cast(2.0),
                 contact: contact
             }
         }
@@ -116,7 +116,7 @@ IncrementalContactManifoldGenerator<CD, N, V> {
                 let depth = na::dot(&dw, &c.contact.normal);
 
                 if depth >= -self.prediction &&
-                   na::sqnorm(&(dw - c.contact.normal * depth)) <= Cast::from(0.01) {
+                   na::sqnorm(&(dw - c.contact.normal * depth)) <= na::cast(0.01) {
                         c.contact.depth = depth;
 
                         c.contact.world1 = world1;
@@ -204,7 +204,7 @@ fn approx_variance<N: Num + Algebraic + Cast<f32>, V: Clone + AlgebraicVec<N>>(
     to_add:    &Contact<N, V>,
     to_ignore: uint) -> N {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + to_add.world2) / Cast::from(2.0);
+    let to_add_center = (to_add.world1 + to_add.world2) / na::cast(2.0);
 
     let mut mean = to_add_center.clone();
 
@@ -214,8 +214,8 @@ fn approx_variance<N: Num + Algebraic + Cast<f32>, V: Clone + AlgebraicVec<N>>(
         }
     }
 
-    let divisor: f32 = 1.0 / Cast::from(pts.len());
-    mean = mean * Cast::from(divisor);
+    let divisor: f32 = 1.0 / na::cast(pts.len());
+    mean = mean * na::cast(divisor);
 
     // compute the sum of variances along all axis
     let mut sum = na::sqnorm(&(to_add_center - mean));

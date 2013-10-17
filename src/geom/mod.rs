@@ -22,16 +22,29 @@ pub use geom::minkowski_sum::cso_support_point;
 pub use geom::minkowski_sum::cso_support_point_without_margin;
 
 // modules
+#[doc(hidden)]
 pub mod geom;
+#[doc(hidden)]
 pub mod implicit;
+#[doc(hidden)]
 pub mod ball;
+#[doc(hidden)]
 pub mod plane;
+#[doc(hidden)]
 pub mod box;
+#[doc(hidden)]
 pub mod capsule;
+#[doc(hidden)]
 pub mod cone;
+#[doc(hidden)]
 pub mod cylinder;
+#[doc(hidden)]
 pub mod convex_polytope;
+#[doc(hidden)]
 pub mod minkowski_sum;
+#[doc(hidden)]
 pub mod reflection;
+#[doc(hidden)]
 pub mod compound;
+#[doc(hidden)]
 pub mod geom_with_margin;
