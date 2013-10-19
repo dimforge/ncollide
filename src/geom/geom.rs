@@ -1,4 +1,5 @@
 use std::num::One;
+use extra::arc::Arc;
 use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
@@ -6,12 +7,11 @@ use ray::{Ray, RayCast, RayCastWithTransform};
 
 /// Enumeration grouping all common shapes. Used to simplify collision detection
 /// dispatch.
-#[deriving(Clone, Encodable, Decodable)]
 pub enum Geom<N, V, M> { // FIXME: rename that
     /// A plane geometry.
     PlaneGeom(Plane<N, V>),
     /// A compound geometry.
-    CompoundGeom(@CompoundAABB<N, V, M, Geom<N, V, M>>),
+    CompoundGeom(Arc<CompoundAABB<N, V, M, Geom<N, V, M>>>),
     /// Geometry describable with a support function.
     ImplicitGeom(IGeom<N, V, M>)
 }
@@ -31,6 +31,19 @@ pub enum IGeom<N, V, M> {
     CapsuleGeom(Capsule<N>)
 }
 
+impl<N: Send + Freeze + Clone,
+     V: Send + Freeze + Clone,
+     M: Send + Freeze + Clone>
+Clone for Geom<N, V, M> {
+    fn clone(&self) -> Geom<N, V, M> {
+        match *self {
+            PlaneGeom(ref p)    => PlaneGeom(p.clone()),
+            CompoundGeom(ref c) => CompoundGeom(c.clone()),
+            ImplicitGeom(ref i) => ImplicitGeom(i.clone())
+        }
+    }
+}
+
 impl<N: One, V, M> Geom<N, V, M> {
     /// Creates a new `Geom` from a plane.
     #[inline]
@@ -40,7 +53,7 @@ impl<N: One, V, M> Geom<N, V, M> {
 
     /// Creates a new `Geom` from a compound geometry.
     #[inline]
-    pub fn new_compound(c: @CompoundAABB<N, V, M, Geom<N, V, M>>)
+    pub fn new_compound(c: Arc<CompoundAABB<N, V, M, Geom<N, V, M>>>)
         -> Geom<N, V, M> {
         CompoundGeom(c)
     }
@@ -71,7 +84,7 @@ impl<N: One, V, M> Geom<N, V, M> {
 
 }
 
-impl<N, V, M> Geom<N, V, M> {
+impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
     /**
      * Convenience method to extract a plane from the enumation. Fails if the
      * pattern `Plane(_)` is not matched.
@@ -89,9 +102,9 @@ impl<N, V, M> Geom<N, V, M> {
      * pattern `Compound(_)` is not matched.
      */
     #[inline]
-    pub fn compound(&self) -> @CompoundAABB<N, V, M, Geom<N, V, M>> {
+    pub fn compound<'r>(&'r self) -> &'r CompoundAABB<N, V, M, Geom<N, V, M>> {
         match *self {
-            CompoundGeom(c) => c,
+            CompoundGeom(ref c) => c.get(),
             _ => fail!("Unexpected geometry: this is not a compound.")
         }
     }
@@ -157,15 +170,15 @@ impl<N, V, M> Geom<N, V, M> {
     }
 }
 
-impl<N: Primitive + Orderable + Algebraic + Signed + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>>
+impl<N: Send + Freeze + Primitive + Orderable + Algebraic + Signed + Cast<f32> + Clone,
+     V: Send + Freeze + AlgebraicVecExt<N> + Clone,
+     M: Send + Freeze + Translation<V> + Rotate<V> + Transform<V> + Mul<M, M> + AbsoluteRotate<V>>
 HasAABB<N, V, M> for Geom<N, V, M> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {
         match *self {
             PlaneGeom(ref p)    => p.aabb(m),
-            CompoundGeom(ref c) => c.aabb(m),
+            CompoundGeom(ref c) => c.get().aabb(m),
             ImplicitGeom(ref i) => {
                 match *i {
                     BallGeom(ref b)     => b.aabb(m),
@@ -180,15 +193,15 @@ HasAABB<N, V, M> for Geom<N, V, M> {
 }
 
 // FIXME: move this to the ray folder?
-impl<N: Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone,
-     V: 'static + AlgebraicVecExt<N> + Clone,
-     M: Rotate<V> + Transform<V>>
+impl<N: Send + Freeze + Algebraic + Bounded + Orderable + Primitive + Float + Cast<f32> + Clone,
+     V: 'static + Send + Freeze + AlgebraicVecExt<N> + Clone,
+     M: Send + Freeze + Rotate<V> + Transform<V>>
 RayCast<N, V> for Geom<N, V, M> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
         match *self {
             PlaneGeom(ref p)    => p.toi_with_ray(ray),
-            CompoundGeom(ref c) => c.toi_with_ray(ray),
+            CompoundGeom(ref c) => c.get().toi_with_ray(ray),
             ImplicitGeom(ref i) => {
                 match *i {
                     BallGeom(ref b)     => b.toi_with_ray(ray),
@@ -205,7 +218,7 @@ RayCast<N, V> for Geom<N, V, M> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
         match *self {
             PlaneGeom(ref p)    => p.toi_and_normal_with_ray(ray),
-            CompoundGeom(ref c) => c.toi_and_normal_with_ray(ray),
+            CompoundGeom(ref c) => c.get().toi_and_normal_with_ray(ray),
             ImplicitGeom(ref i) => {
                 match *i {
                     BallGeom(ref b)     => b.toi_and_normal_with_ray(ray),

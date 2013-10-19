@@ -7,7 +7,7 @@ use partitioning::bvt;
 /// the union of several simpler geometry. This is the main way of creating a concave geometry from
 /// convex parts. Each parts can have its own delta transformation to shift or rotate it with
 /// regard to the other geometries.
-#[deriving(Encodable, Decodable)]
+#[deriving(Clone, Encodable, Decodable)]
 pub struct CompoundAABB<N, V, M, S> {
     priv shapes: ~[(M, S)],
     priv bvt:    BVT<uint, AABB<N, V>>,

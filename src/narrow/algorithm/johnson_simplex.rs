@@ -3,17 +3,18 @@ use std::num::{Zero, One};
 use std::vec;
 use std::at_vec;
 use std::local_data;
+use extra::arc::Arc;
 use extra::treemap::TreeMap;
 use nalgebra::na::{AlgebraicVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 
-static KEY_RECURSION_TEMPLATE: local_data::Key<@[RecursionTemplate]> = &local_data::Key;
+static KEY_RECURSION_TEMPLATE: local_data::Key<Arc<~[RecursionTemplate]>> = &local_data::Key;
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
-#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
+#[deriving(Clone)]
 pub struct JohnsonSimplex<N, V> {
-    priv recursion_template: @[RecursionTemplate],
+    priv recursion_template: Arc<~[RecursionTemplate]>,
     priv points:             ~[V],
     priv exchange_points:    ~[V],
     priv determinants:       ~[N]
@@ -40,12 +41,14 @@ pub struct RecursionTemplate {
 impl RecursionTemplate {
     /// Creates a new set o Recursion simplex sharable between any Johnson simplex having a
     /// dimension inferior or equal to `dim`.
-    pub fn new(dim: uint) -> @[RecursionTemplate] {
-        do at_vec::build(Some(dim + 1u)) |push| {
-            for dim in range(0u, dim + 1u) {
-                push(RecursionTemplate::make_permutation_list(dim))
-            }
+    pub fn new(dim: uint) -> Arc<~[RecursionTemplate]> {
+        let mut template = vec::with_capacity(dim + 1);
+
+        for dim in range(0u, dim + 1u) {
+            template.push(RecursionTemplate::make_permutation_list(dim))
         }
+
+        Arc::new(template)
     }
 
     // pub fn to_raw_str(&self) -> ~str {
@@ -190,13 +193,13 @@ impl RecursionTemplate {
 impl<N: Clone + Zero, V: Dim>
 JohnsonSimplex<N, V> {
     /// Creates a new, empty, johnson simplex.
-    pub fn new(recursion: @[RecursionTemplate]) -> JohnsonSimplex<N, V> {
+    pub fn new(recursion: Arc<~[RecursionTemplate]>) -> JohnsonSimplex<N, V> {
         let _dim = na::dim::<V>();
 
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
             exchange_points:    vec::with_capacity(_dim + 1),
-            determinants:       vec::from_elem(recursion[_dim].num_determinants, Zero::zero()),
+            determinants:       vec::from_elem(recursion.get()[_dim].num_determinants, Zero::zero()),
             recursion_template: recursion
         }
     }
@@ -204,19 +207,19 @@ JohnsonSimplex<N, V> {
     /// Creates a new, empty johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<N, V> {
 
-        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| *rec));
+        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| rec.clone()));
 
         match recursion {
             Some(r) => {
-                if r.len() > na::dim::<V>() {
-                    return JohnsonSimplex::new(recursion.unwrap())
+                if r.get().len() > na::dim::<V>() {
+                    return JohnsonSimplex::new(r)
                 }
             },
             _ => { }
         }
 
         let new_recursion = RecursionTemplate::new(na::dim::<V>());
-        local_data::set(KEY_RECURSION_TEMPLATE, new_recursion);
+        local_data::set(KEY_RECURSION_TEMPLATE, new_recursion.clone());
         JohnsonSimplex::new(new_recursion)
 
     }
@@ -235,7 +238,7 @@ JohnsonSimplex<N, V> {
         }
 
         let max_num_pts      = self.points.len();
-        let recursion        = &self.recursion_template[max_num_pts - 1];
+        let recursion        = &self.recursion_template.get()[max_num_pts - 1];
         let mut curr_num_pts = 1u;
         let mut curr         = max_num_pts;
 
@@ -474,7 +477,7 @@ mod test {
         let recursion = RecursionTemplate::new(3);
 
         do bh.iter {
-            let mut spl = JohnsonSimplex::new(recursion);
+            let mut spl = JohnsonSimplex::new(recursion.clone());
 
             do 1000.times {
                 spl.reset(a);

@@ -23,7 +23,6 @@ type AC<N, LV, AV, M> = AnyCompoundAABB<N, LV, M,
                                         GeomGeom<N, LV, AV, M>>;
 
 /// Enum grouping collision detectors.
-#[deriving(Encodable, Decodable)]
 pub enum GeomGeom<N, LV, AV, M> {
     /// Ball vs. ball collision detector.
     BallBall(BallBall<N, LV, M>),
@@ -52,7 +51,11 @@ pub enum GeomGeom<N, LV, AV, M> {
     AnyCompound(AC<N, LV, AV, M>)
 }
 
-impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
+impl<N:  Send + Freeze + Zero + Cast<f32> + Clone,
+     LV: Send + Freeze + Clone,
+     AV,
+     M: Send + Freeze>
+GeomGeom<N, LV, AV, M> {
     /// Creates a new Geom vs Geom collision detector.
     pub fn new(g1:     &Geom<N, LV, M>,
                g2:     &Geom<N, LV, M>,
@@ -62,36 +65,36 @@ impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
             (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(BallGeom(_))) => {
                 BallBall(BallBall::new(Cast::from(0.1)))
             },
-            (&ImplicitGeom(BallGeom(_)), &PlaneGeom(_))           => {
+            (&ImplicitGeom(BallGeom(_)), &PlaneGeom(_)) => {
                 BallPlane(ImplicitPlane::new(Cast::from(0.1)))
             },
-            (&PlaneGeom(_), &ImplicitGeom(BallGeom(_)))           => {
+            (&PlaneGeom(_), &ImplicitGeom(BallGeom(_))) => {
                 PlaneBall(PlaneImplicit::new(Cast::from(0.1)))
             },
-            (&ImplicitGeom(_), &ImplicitGeom(BallGeom(_)))        => {
+            (&ImplicitGeom(_), &ImplicitGeom(BallGeom(_))) => {
                 ImplicitBall(ImplicitImplicit::new(Cast::from(0.1), s.clone()))
             },
-            (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(_))        => {
+            (&ImplicitGeom(BallGeom(_)), &ImplicitGeom(_)) => {
                 BallImplicit(ImplicitImplicit::new(Cast::from(0.1), s.clone()))
             },
-            (&ImplicitGeom(_), &PlaneGeom(_))       => {
+            (&ImplicitGeom(_), &PlaneGeom(_)) => {
                 ImplicitPlane(OSCMG::new(Cast::from(0.1), ImplicitPlane::new(Zero::zero())))
             },
-            (&PlaneGeom(_), &ImplicitGeom(_))       => {
+            (&PlaneGeom(_), &ImplicitGeom(_)) => {
                 PlaneImplicit(OSCMG::new(Cast::from(0.1), PlaneImplicit::new(Zero::zero())))
             },
-            (&ImplicitGeom(_), &ImplicitGeom(_))    => {
+            (&ImplicitGeom(_), &ImplicitGeom(_)) => {
                 ImplicitImplicit(
                 OSCMG::new(Cast::from(0.1), ImplicitImplicit::new(Zero::zero(), s.clone())))
             },
-            (&CompoundGeom(c1), &CompoundGeom(c2))  => {
-                CompoundCompound(CompoundAABBCompoundAABB::new(Dispatcher::new(s.clone()), c1, c2))
+            (&CompoundGeom(ref c1), &CompoundGeom(ref c2)) => {
+                CompoundCompound(CompoundAABBCompoundAABB::new(Dispatcher::new(s.clone()), c1.get(), c2.get()))
             },
-            (&CompoundGeom(c), _)               => {
-                CompoundAny(CompoundAABBAny::new(Dispatcher::new(s.clone()), c))
+            (&CompoundGeom(ref c), _) => {
+                CompoundAny(CompoundAABBAny::new(Dispatcher::new(s.clone()), c.get()))
             },
-            (_, &CompoundGeom(c))               => {
-                AnyCompound(AnyCompoundAABB::new(Dispatcher::new(s.clone()), c))
+            (_, &CompoundGeom(ref c)) => {
+                AnyCompound(AnyCompoundAABB::new(Dispatcher::new(s.clone()), c.get()))
             },
             _ => fail!("Dont know how to dispatch that.")
         }
@@ -102,12 +105,12 @@ impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M> GeomGeom<N, LV, AV, M> {
  * Collision detector between two `Geometry`. Note that this is only a
  * wrapper on the collision detector specific to each geometry.
  */
-impl<N: ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
-     LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
+impl<N:  Send + Freeze + ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
+     LV: 'static + Send + Freeze + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
          Rotate<LV> + Transform<LV>,
      AV: Vec<N>,
-     M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
-         Mul<M, M> + Inv + One>
+     M:  Send + Freeze + Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> +
+         AbsoluteRotate<LV> + Mul<M, M> + Inv + One>
 CollisionDetector<N, LV, M, Geom<N, LV, M>, Geom<N, LV, M>>
 for GeomGeom<N, LV, AV, M> {
     #[inline]
@@ -180,12 +183,12 @@ for GeomGeom<N, LV, AV, M> {
 
 /// Computes the time of impact of two `Geom`.
 #[inline]
-pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
-           LV: 'static + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
-               Rotate<LV> + Transform<LV>,
+pub fn toi<N:  Send + Freeze + ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
+           LV: 'static + Send + Freeze + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> +
+               Translation<LV> + Clone + Rotate<LV> + Transform<LV>,
            AV: Vec<N>,
-           M:  Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> + AbsoluteRotate<LV> +
-               Mul<M, M> + Inv + One>(
+           M:  Send + Freeze + Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> +
+               AbsoluteRotate<LV> + Mul<M, M> + Inv + One>(
            m1:   &M,
            dir:  &LV,
            dist: &N,
@@ -199,17 +202,16 @@ pub fn toi<N:  ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Alge
         (&PlaneGeom(ref p), &ImplicitGeom(ref i))      => toi::plane_implicit(m1, p, m2, &-dir, i),
         (&ImplicitGeom(ref i1), &ImplicitGeom(ref i2)) => toi::implicit_implicit(m1, dir, i1, m2, i2),
         (&CompoundGeom(_), &CompoundGeom(_))   => fail!("Not yet implemented."), // CompoundCompound(),
-        (&CompoundGeom(c), b) => {
-            CollisionDetector::toi(None::<CA<N, LV, AV, M>>, m1, dir, dist, c, m2, b)
+        (&CompoundGeom(ref c), b) => {
+            CollisionDetector::toi(None::<CA<N, LV, AV, M>>, m1, dir, dist, c.get(), m2, b)
         },
-        (a, &CompoundGeom(c)) => {
-            CollisionDetector::toi(None::<AC<N, LV, AV, M>>, m1, dir, dist, a, m2, c)
+        (a, &CompoundGeom(ref c)) => {
+            CollisionDetector::toi(None::<AC<N, LV, AV, M>>, m1, dir, dist, a, m2, c.get())
         },
         _ => fail!("Cannot compute the toi of those two geometries.")
     }
 }
 
-#[deriving(Encodable, Decodable)]
 struct Dispatcher<N, LV, AV, M> {
     simplex: JohnsonSimplex<N, AnnotatedPoint<LV>>
 }
@@ -223,7 +225,7 @@ Dispatcher<N, LV, AV, M> {
     }
 }
 
-impl<N: Zero + Cast<f32> + Clone, LV: Clone, AV, M>
+impl<N: Send + Freeze + Zero + Cast<f32> + Clone, LV: Send + Freeze + Clone, AV, M: Send + Freeze>
      broad::Dispatcher<Geom<N, LV, M>, GeomGeom<N, LV, AV, M>>
 for Dispatcher<N, LV, AV, M> {
     fn dispatch(&self, g1: &Geom<N, LV, M>, g2: &Geom<N, LV, M>)

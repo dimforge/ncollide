@@ -21,7 +21,7 @@ macro_rules! test_johnson_simplex_impl(
                 v1 = v1 - (0.5 as $n);
                 v1 = v1 * (i as $n);
 
-                let mut splx1 = JohnsonSimplex::new(recursion);
+                let mut splx1 = JohnsonSimplex::new(recursion.clone());
                 splx1.reset(v1.clone());
 
                 let mut splx2 = BruteForceSimplex::new();
@@ -69,7 +69,7 @@ macro_rules! test_gjk_ball_ball_impl(
 
             // FIXME: a bit verbose…
             let cso_point   = geom::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
-            let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion);
+            let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion.clone());
 
             simplex.reset(cso_point);
 
