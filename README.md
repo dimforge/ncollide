@@ -1,4 +1,4 @@
-ncollide
+ncollide  [![Build Status](https://travis-ci.org/sebcrozet/ncollide.png?branch=master)](https://travis-ci.org/sebcrozet/ncollide)
 ========
 
 **ncollide** is a n-dimensional collision detection library written with the
