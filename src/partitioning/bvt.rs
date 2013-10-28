@@ -127,7 +127,7 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
 
         // build the partitions
         let mut partitions = vec::from_fn(1u << na::dim::<V>(), |_| ~[]);
-        for (b, aabb) in leaves.move_iter() {
+        for (b, aabb) in leaves.move_rev_iter() {
             let dpos    = aabb.translation() - center;
             let mut key = 0u;
 
@@ -160,7 +160,7 @@ fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
         Right(parts) => {
             let mut children = ~[];
 
-            for part in parts.move_iter() {
+            for part in parts.move_rev_iter() {
                 if part.len() != 0 {
                     children.push(new_with_partitioner(part, |x| partitioner(x)))
                 }

@@ -96,7 +96,7 @@ pub fn project_origin<S: Simplex<N, V>,
 
         sq_len_dir = na::sqnorm(&proj);
 
-        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol * simplex.max_sq_len()) {
+        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/) {
             return None // point inside of the cso
         }
 

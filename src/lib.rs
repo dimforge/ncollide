@@ -8,6 +8,7 @@
 #[deny(unnecessary_qualification)];
 #[warn(missing_doc)];
 #[feature(macro_rules)];
+#[feature(managed_boxes)];
 
 extern mod std;
 extern mod extra;

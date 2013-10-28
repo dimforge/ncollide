@@ -55,21 +55,27 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     simplex.reset(geom::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir));
 
     match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
-        None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
+        None => {
+            None
+        }, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
             let corrected_normal = na::normalize(&(p2 - p1));
 
+            Some((p1 + corrected_normal * g1.margin(), p2 - shift - corrected_normal * g2.margin()))
+            /*
             let corrected_support = cso.support_point(&Identity::new(), &corrected_normal);
             let min_dist2 = na::dot(&corrected_normal, &corrected_support);
 
             // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");
             if min_dist2 < _0 {
+                println!("Error in phase 2");
                 return None
             }
 
             let shift2 = corrected_normal * min_dist2;
 
             Some((p2 - shift + shift2 , p2 - shift))
+            */
 
             /* This second pass might not really be useful after all
             else {

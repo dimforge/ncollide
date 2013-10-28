@@ -1,7 +1,6 @@
 use std::util;
 use std::num::{Zero, One};
 use std::vec;
-use std::at_vec;
 use std::local_data;
 use extra::arc::Arc;
 use extra::treemap::TreeMap;
@@ -369,10 +368,7 @@ JohnsonSimplex<N, V> {
             curr_num_pts = curr_num_pts - 1;
         }
 
-        // println(self.points.to_str());
-        // println(self.determinants.to_str());
         Zero::zero()
-        // fail!("Internal error: projection of the origin failed.");
     }
 }
 
