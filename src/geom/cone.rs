@@ -2,12 +2,13 @@
 //! Support mapping based Cone geometry.
 //!
 
-use std::num::Zero;
-use nalgebra::na::{Cast, Indexable, AlgebraicVecExt, Rotate, Transform};
+use std::num::{Zero, One};
+use nalgebra::na::{Cast, Indexable, VecExt, AlgebraicVecExt, Rotate, Transform};
 use nalgebra::na;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
@@ -96,6 +97,22 @@ Implicit<N, V, M> for Cone<N> {
         }
 
         m.transform(&vres)
+    }
+}
+
+impl<N: One,
+     V: VecExt<N>,
+     M: Rotate<V>>
+PreferedSamplingDirections<V, M> for Cone<N> {
+    #[inline(always)]
+    fn sample(&self, transform: &M, f: &fn(V)) {
+        // Sample along the principal axis
+        let mut v: V = na::zero();
+        v.set(0, na::one());
+
+        let rv = transform.rotate(&v);
+        f(-rv);
+        f(rv);
     }
 }
 

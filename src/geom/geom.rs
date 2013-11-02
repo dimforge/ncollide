@@ -1,9 +1,10 @@
 use std::num::One;
 use extra::arc::Arc;
-use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
+use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt, VecExt};
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
 use ray::{Ray, RayCast, RayCastWithTransform};
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /// Enumeration grouping all common shapes. Used to simplify collision detection
 /// dispatch.
@@ -273,6 +274,22 @@ Implicit<N, V, M> for IGeom<N, V, M> {
             ConeGeom(ref c)     => c.support_point(transform, dir),
             CylinderGeom(ref c) => c.support_point(transform, dir),
             CapsuleGeom(ref c)  => c.support_point(transform, dir)
+        }
+    }
+}
+
+impl<N: One,
+     V: AlgebraicVecExt<N>,
+     M: Rotate<V>>
+PreferedSamplingDirections<V, M> for IGeom<N, V, M> {
+    #[inline(always)]
+    fn sample(&self, transform: &M, f: &fn(V)) {
+        match *self {
+            BallGeom(ref b)     => b.sample(transform, f),
+            BoxGeom(ref b)      => b.sample(transform, f),
+            ConeGeom(ref c)     => c.sample(transform, f),
+            CylinderGeom(ref c) => c.sample(transform, f),
+            CapsuleGeom(ref c)  => c.sample(transform, f)
         }
     }
 }

@@ -5,6 +5,7 @@
 use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, ScalarSub, ScalarAdd, Translation};
 use geom::{HasMargin, Implicit};
 use bounding_volume::{HasAABB, AABB};
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /**
  * Implicit description of a ball geometry.
@@ -59,5 +60,11 @@ HasAABB<N, V, M> for Ball<N> {
     fn aabb(&self, m: &M) -> AABB<N, V> {
         AABB::new(m.translation().sub_s(&self.radius),
                   m.translation().add_s(&self.radius))
+    }
+}
+
+impl<N, V, M> PreferedSamplingDirections<V, M> for Ball<N> {
+    #[inline(always)]
+    fn sample(&self, _: &M, _: &fn(V)) {
     }
 }

@@ -8,6 +8,7 @@ use nalgebra::na::{Cast, Indexable, Iterable, VecExt, AlgebraicVecExt, ScalarSub
 use nalgebra::na;
 use bounding_volume::{HasAABB, AABB};
 use geom::{HasMargin, Implicit};
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /// Geometry of a box.
 ///
@@ -78,6 +79,21 @@ Implicit<N, V, M> for Box<N, V> {
         }
 
         m.transform(&vres)
+    }
+}
+
+impl<N,
+     V: AlgebraicVecExt<N>,
+     M: Rotate<V>>
+PreferedSamplingDirections<V, M> for Box<N, V> {
+    #[inline(always)]
+    fn sample(&self, transform: &M, f: &fn(V)) {
+        do na::canonical_basis |e: V| {
+            let re = transform.rotate(&e);
+            f(-re);
+            f(re);
+            true
+        }
     }
 }
 

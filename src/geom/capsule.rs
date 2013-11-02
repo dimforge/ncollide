@@ -6,6 +6,7 @@ use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use bounding_volume;
 use geom::{Implicit, HasMargin};
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
@@ -70,6 +71,13 @@ Implicit<N, V, M> for Capsule<N> {
         }
 
         m.transform(&vres)
+    }
+}
+
+impl<N, V, M>
+PreferedSamplingDirections<V, M> for Capsule<N> {
+    #[inline(always)]
+    fn sample(&self, _: &M, _: &fn(V)) {
     }
 }
 

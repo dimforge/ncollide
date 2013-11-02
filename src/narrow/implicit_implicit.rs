@@ -5,6 +5,7 @@ use geom;
 use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
+use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 use narrow::algorithm::minkowski_sampling;
 use narrow::CollisionDetector;
 use contact::Contact;
@@ -37,8 +38,8 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
 }
 
 impl<S:  Simplex<N, AnnotatedPoint<V>>,
-     G1: Implicit<N, V, M>,
-     G2: Implicit<N, V, M>,
+     G1: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
+     G2: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
      V:  AlgebraicVecExt<N> + Clone,
      M:  Translation<V> + Transform<V> + Rotate<V> + One>
@@ -95,8 +96,8 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
-               G1: Implicit<N, V, M>,
-               G2: Implicit<N, V, M>,
+               G1: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
+               G2: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
                N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
                V:  AlgebraicVecExt<N> + Clone,
                M:  Translation<V> + One>(

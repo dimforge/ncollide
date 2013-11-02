@@ -106,8 +106,8 @@ GeomGeom<N, LV, AV, M> {
  * wrapper on the collision detector specific to each geometry.
  */
 impl<N:  Send + Freeze + ApproxEq<N> + Num + Real + Float + Ord + Cast<f32> + Clone + Algebraic,
-     LV: 'static + Send + Freeze + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> + Clone +
-         Rotate<LV> + Transform<LV>,
+     LV: 'static + Send + Freeze + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N> + Translation<LV> +
+         Clone + Rotate<LV> + Transform<LV>,
      AV: Vec<N>,
      M:  Send + Freeze + Rotation<AV> + Rotate<LV> + Translation<LV> + Transform<LV> +
          AbsoluteRotate<LV> + Mul<M, M> + Inv + One>
