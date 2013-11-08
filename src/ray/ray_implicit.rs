@@ -60,7 +60,10 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
                 if na::dot(&dir, &ray.dir) < na::zero() {
                     // new lower bound
                     ldir = dir.clone();
-                    if false { // t <= _eps_rel * ltoi {
+                    // XXX: this prevents the normal from being perfectly continuous.
+                    // However, without this the algorithm might never converge…
+                    // Find a way to fix that.
+                    if t <= _eps_rel * ltoi {
                         return Some((ltoi, dir))
                     }
 
