@@ -1,6 +1,6 @@
 use std::num::One;
 use extra::arc::Arc;
-use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt, VecExt};
+use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
 use ray::{Ray, RayCast, RayCastWithTransform};

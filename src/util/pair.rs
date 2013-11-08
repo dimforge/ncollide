@@ -1,3 +1,5 @@
+//! Pair of managed boxes.
+
 use std::ptr;
 use std::managed;
 use util::hash;

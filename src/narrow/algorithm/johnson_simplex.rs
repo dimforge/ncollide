@@ -1,3 +1,5 @@
+//!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
+
 use std::util;
 use std::num::{Zero, One};
 use std::vec;

@@ -1,3 +1,5 @@
+//! The Gilbert–Johnson–Keerthi distance algorithm.
+
 use nalgebra::na::{Cast, AlgebraicVec, Identity};
 use nalgebra::na;
 use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};

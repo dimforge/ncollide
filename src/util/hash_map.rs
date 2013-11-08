@@ -1,3 +1,5 @@
+//! An hash map with a customizable hash function.
+
 use std::uint;
 use std::util;
 use std::vec;

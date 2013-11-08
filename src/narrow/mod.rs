@@ -45,6 +45,7 @@ mod one_shot_contact_manifold_generator;
 mod compound_any;
 mod compound_compound;
 
+/// Algorithms needed for distance and penetration depth computation.
 pub mod algorithm
 {
     pub mod simplex;

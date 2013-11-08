@@ -1,12 +1,17 @@
+//! Penetration depth computation algorithm approximating the Minkowskis sum.
+
 use std::num::{Zero, One};
-use nalgebra::na::{Cast, AlgebraicVecExt, UniformSphereSample, Identity, Translation};
+use nalgebra::na::{Cast, AlgebraicVecExt, Identity, Translation};
 use nalgebra::na;
 use geom;
 use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 
+/// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
+/// Those directions are usually the geometry faces normals.
 pub trait PreferedSamplingDirections<V, M> {
+    /// Applies a function to this geometry with a given transform.
     fn sample(&self, &M, &fn(V));
 }
 
@@ -80,8 +85,6 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
-            let corrected_normal = na::normalize(&(p2 - p1));
-
             // NOTE: at this point, p1 must *not* be concidered as a good contact point for the
             // first object. For example:
             //
@@ -117,49 +120,12 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             //                       |    obj1     |
             //                       |             |
             //                       +-------------+
-
-            /*
-            let corrected_support = cso.support_point(&Identity::new(), &corrected_normal);
-            let min_dist2 = na::dot(&corrected_normal, &corrected_support);
-
-            println!("min_dist: {:?}, min_dist2: {:?}", min_dist, min_dist2);
-            println!("p2: {:?}, shift: {:?}, corrected_normal: {:?}", p2, shift, corrected_normal);
-            Some((p2 - shift + corrected_normal * (na::dot(&corrected_normal, &shift) - g2.margin()),
-                  p2 - shift - corrected_normal * g2.margin()))
-                  */
-
-            // let corrected_support = cso.support_point(&Identity::new(), &corrected_normal);
-            // let min_dist2 = na::dot(&corrected_normal, &corrected_support);
-
-            // // assert!(min_dist2 >= _0, "Internal error: corrected normal is invalid.");
-            // if min_dist2 < _0 {
-            //     println!("Error in phase 2");
-            //     return None
-            // }
-
-            // let shift2 = corrected_normal * min_dist2;
-
             let dist_err = na::norm(&(p2 - p1)) - g1.margin() - g2.margin();
             let center   = (p1 + p2) / na::cast(2.0);
 
             let p2 = center - best_dir * if dist_err > na::zero() { min_dist - dist_err } else { min_dist };
 
             Some((center, p2))
-
-            /* This second pass might not really be useful after all
-            else {
-                // FIXME: (optim) use a scalar_mul_inplace?
-
-                //  FIXME: optimize by translating the last gjk simplex
-                match gjk::closest_points_without_margin::<S, G1, Translated<G2, V>, N, V>
-                (g1, &Translated::new(g2, shift2.clone())) {
-                    None =>
-                    fail!("Internal error: the origin was inside of the Simplex during phase 2."),
-                    Some((res1, res2)) => Some((res1, res2 - shift2))
-                }
-            }
-            */
-
         }
     }
 }

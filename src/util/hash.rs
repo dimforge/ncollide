@@ -1,3 +1,5 @@
+//! Trait for hash functions.
+
 use std::util;
 use std::hash::Hash;
 

@@ -1,3 +1,5 @@
+//! Allocation cache for owned objects.
+
 // FIXME: add a limit to the cache?
 /// Cache for owned objects.
 ///

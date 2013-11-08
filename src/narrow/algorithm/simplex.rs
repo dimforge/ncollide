@@ -1,3 +1,5 @@
+//! Abstract definition of a simplex usable by the GJK algorithm.
+
 /// Trait of a simplex usable by the GJK algorithm.
 ///
 /// # Parameters:
