@@ -1,6 +1,6 @@
 use std::num::One;
 use extra::arc::Arc;
-use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt};
+use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt, Dim};
 use bounding_volume::{HasAABB, AABB};
 use geom::{Plane, Ball, Box, Cone, Cylinder, Capsule, Implicit, HasMargin, CompoundAABB};
 use ray::{Ray, RayCast, RayCastWithTransform};
@@ -45,11 +45,14 @@ Clone for Geom<N, V, M> {
     }
 }
 
-impl<N: One, V, M> Geom<N, V, M> {
+impl<N: One + Algebraic + Signed + Cast<f32>,
+     V: Dim + AlgebraicVecExt<N>,
+     M>
+Geom<N, V, M> {
     /// Creates a new `Geom` from a plane.
     #[inline]
-    pub fn new_plane(p: Plane<N, V>) -> Geom<N, V, M> {
-        PlaneGeom(p)
+    pub fn new_plane(normal: V) -> Geom<N, V, M> {
+        PlaneGeom(Plane::new(normal))
     }
 
     /// Creates a new `Geom` from a compound geometry.
@@ -61,28 +64,48 @@ impl<N: One, V, M> Geom<N, V, M> {
 
     /// Creates a new `Geom` from a ball.
     #[inline]
-    pub fn new_ball(b: Ball<N>) -> Geom<N, V, M> {
-        ImplicitGeom(BallGeom(b))
+    pub fn new_ball(radius: N) -> Geom<N, V, M> {
+        ImplicitGeom(BallGeom(Ball::new(radius)))
     }
 
     /// Creates a new `Geom` from a cylinder.
     #[inline]
-    pub fn new_cylinder(b: Cylinder<N>) -> Geom<N, V, M> {
-        ImplicitGeom(CylinderGeom(b))
+    pub fn new_cylinder(half_height: N, radius: N) -> Geom<N, V, M> {
+        ImplicitGeom(CylinderGeom(Cylinder::new(half_height, radius)))
+    }
+
+    /// Creates a new `Geom` from a cylinder.
+    #[inline]
+    pub fn new_cylinder_with_margin(half_height: N,
+                                    radius:      N,
+                                    margin:      N)
+                                    -> Geom<N, V, M> {
+        ImplicitGeom(CylinderGeom(Cylinder::new_with_margin(half_height, radius, margin)))
     }
 
     /// Creates a new `Geom` from a box.
     #[inline]
-    pub fn new_box(b: Box<N, V>) -> Geom<N, V, M> {
-        ImplicitGeom(BoxGeom(b))
+    pub fn new_box(half_extents: V) -> Geom<N, V, M> {
+        ImplicitGeom(BoxGeom(Box::new(half_extents)))
+    }
+
+    /// Creates a new `Geom` from a box.
+    #[inline]
+    pub fn new_box_with_margin(half_extents: V, margin: N) -> Geom<N, V, M> {
+        ImplicitGeom(BoxGeom(Box::new_with_margin(half_extents, margin)))
     }
 
     /// Creates a new `Geom` from a cone.
     #[inline]
-    pub fn new_cone(b: Cone<N>) -> Geom<N, V, M> {
-        ImplicitGeom(ConeGeom(b))
+    pub fn new_cone(half_height: N, radius: N) -> Geom<N, V, M> {
+        ImplicitGeom(ConeGeom(Cone::new(half_height, radius)))
     }
 
+    /// Creates a new `Geom` from a cone.
+    #[inline]
+    pub fn new_cone_with_margin(half_height: N, radius: N, margin: N) -> Geom<N, V, M> {
+        ImplicitGeom(ConeGeom(Cone::new_with_margin(half_height, radius, margin)))
+    }
 }
 
 impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
