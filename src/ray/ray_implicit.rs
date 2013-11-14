@@ -25,10 +25,9 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
                                    -> Option<(N, V)> {
     let mut ltoi: N = Zero::zero();
 
-    let _eps: N  = Float::epsilon();
-    let _eps_tol = _eps * Cast::from(100.0);
-    let _eps_rel = _eps.sqrt();
-    let _dim     = na::dim::<V>();
+    let _eps: N     = Float::epsilon();
+    let _eps_tol: N = _eps * na::cast(100.0);
+    let _dim        = na::dim::<V>();
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
@@ -42,7 +41,9 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
 
     let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
+    let mut niter = 0;
     loop {
+        niter = niter + 1;
         dir.normalize();
 
         let support_point = geom.support_point(m, &dir);
@@ -57,16 +58,9 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
         //          > 0        |  > 0  | New higher bound.
         match ray::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
             Some(t) => {
-                if na::dot(&dir, &ray.dir) < na::zero() {
+                if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
                     // new lower bound
                     ldir = dir.clone();
-                    // XXX: this prevents the normal from being perfectly continuous.
-                    // However, without this the algorithm might never converge…
-                    // Find a way to fix that.
-                    if t <= _eps_rel * ltoi {
-                        return Some((ltoi, dir))
-                    }
-
                     ltoi   = ltoi + t;
                     curr_ray.orig = ray.orig + ray.dir * ltoi;
                     dir    = curr_ray.orig - support_point;
@@ -86,14 +80,20 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
 
         simplex.add_point(support_point - curr_ray.orig);
 
-        let proj = simplex.project_origin_and_reduce();
+        let proj       = simplex.project_origin_and_reduce();
         let sq_len_dir = na::sqnorm(&proj);
 
-        if (simplex.dimension() == _dim ||
-            sq_len_dir >= old_sq_len    || // FIXME: hacky way to prevent infinite loop…
-            sq_len_dir <= _eps_tol * simplex.max_sq_len()
-           ) {
+        if (simplex.dimension() == _dim) {
             return Some((ltoi, ldir)) // FIXME: dir or -proj ?
+        }
+        else if (sq_len_dir <= _eps_tol * simplex.max_sq_len()) {
+            // Return ldir: the last projection plane is tangeant to the intersected surface.
+            return Some((ltoi, ldir))
+        }
+        else if (sq_len_dir >= old_sq_len) {
+            // use dir instead of proj since this situations means that the new projection is less
+            // accurate than the last one (which is stored on dir).
+            return Some((ltoi, dir)) // FIXME: dir or -proj ?
         }
 
         old_sq_len = sq_len_dir;
