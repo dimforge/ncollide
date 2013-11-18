@@ -182,8 +182,8 @@ impl<V: Zero> AnnotatedPoint<V> {
     #[inline]
     pub fn new_invalid(point: V) -> AnnotatedPoint<V> {
         AnnotatedPoint {
-            orig1: Zero::zero::(),
-            orig2: Zero::zero::(),
+            orig1: na::zero(),
+            orig2: na::zero(),
             point: point
         }
     }
@@ -193,7 +193,7 @@ impl<V: Zero> AnnotatedPoint<V> {
 impl<V: Zero> Zero for AnnotatedPoint<V> {
     #[inline]
     fn zero() -> AnnotatedPoint<V> {
-        AnnotatedPoint::new(Zero::zero(), Zero::zero(), Zero::zero())
+        AnnotatedPoint::new(na::zero(), na::zero(), na::zero())
     }
 
     #[inline]
