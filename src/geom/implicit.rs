@@ -11,6 +11,12 @@ pub trait HasMargin<N> {
     fn margin(&self) -> N;
 }
 
+impl<'a, N> HasMargin<N> for &'a HasMargin<N> {
+    fn margin(&self) -> N {
+        self.margin()
+    }
+}
+
 /// Traits of convex geometries representable by a support mapping function.
 ///
 /// # Parameters:
@@ -43,4 +49,23 @@ pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M>: HasMargin<N>{
      *            be normalized.
      */
     fn support_point_without_margin(&self, transform: &M, dir: &V) -> V;
+}
+
+impl<'a, N: Algebraic, V: AlgebraicVec<N>, M> HasMargin<N> for &'a Implicit<N, V, M> {
+    #[inline]
+    fn margin(&self) -> N {
+        self.margin()
+    }
+}
+
+impl<'a, N: Algebraic, V: AlgebraicVec<N>, M> Implicit<N, V, M> for &'a Implicit<N, V, M> {
+    #[inline]
+    fn support_point(&self, transform: &M, dir: &V) -> V {
+        self.support_point(transform, dir)
+    }
+
+    #[inline]
+    fn support_point_without_margin(&self, transform: &M, dir: &V) -> V {
+        self.support_point_without_margin(transform, dir)
+    }
 }
