@@ -34,9 +34,9 @@ pub trait RayCastWithTransform<N, V: Vec<N>, M: Rotate<V> + Transform<V>> : RayC
     fn toi_and_normal_with_transform_and_ray(&self, m: &M, ray: &Ray<V>) -> Option<(N, V)> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-        do self.toi_and_normal_with_ray(&ls_ray).map |(n, d)| {
+        self.toi_and_normal_with_ray(&ls_ray).map(|(n, d)| {
             (n, m.rotate(&d))
-        }
+        })
     }
 
     /// Tests whether a ray intersects this transformed geometry.

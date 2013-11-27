@@ -65,6 +65,6 @@ HasAABB<N, V, M> for Ball<N> {
 
 impl<N, V, M> PreferedSamplingDirections<V, M> for Ball<N> {
     #[inline(always)]
-    fn sample(&self, _: &M, _: &fn(V)) {
+    fn sample(&self, _: &M, _: |V| -> ()) {
     }
 }

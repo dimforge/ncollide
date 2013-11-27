@@ -87,13 +87,13 @@ impl<N,
      M: Rotate<V>>
 PreferedSamplingDirections<V, M> for Box<N, V> {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: &fn(V)) {
-        do na::canonical_basis |e: V| {
+    fn sample(&self, transform: &M, f: |V| -> ()) {
+        na::canonical_basis(|e: V| {
             let re = transform.rotate(&e);
             f(-re);
             f(re);
             true
-        }
+        })
     }
 }
 

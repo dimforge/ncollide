@@ -83,11 +83,11 @@ pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
         let mut normal = na::normalize(&delta_pos);
         
         if sqdist.is_zero() {
-            do na::canonical_basis() |b| {
+            na::canonical_basis(|b| {
                 normal = b;
 
                 false
-            }
+            })
         }
 
         Some(Contact::new(

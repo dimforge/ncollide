@@ -156,12 +156,12 @@ pub fn implicit_shape_aabb<N: Algebraic,
         let mut resM: V = Zero::zero();
 
         // FIXME: optimize using Indexable?
-        do na::canonical_basis() |basis: V| {
+        na::canonical_basis(|basis: V| {
             resm = resm + basis * na::dot(&basis, &i.support_point(m, &-basis));
             resM = resM + basis * na::dot(&basis, &i.support_point(m, &basis));
 
             true
-        }
+        });
 
         let res = AABB::new(resm, resM);
 

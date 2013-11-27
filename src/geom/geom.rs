@@ -306,7 +306,7 @@ impl<N: One,
      M: Rotate<V>>
 PreferedSamplingDirections<V, M> for IGeom<N, V, M> {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: &fn(V)) {
+    fn sample(&self, transform: &M, f: |V| -> ()) {
         match *self {
             BallGeom(ref b)     => b.sample(transform, f),
             BoxGeom(ref b)      => b.sample(transform, f),

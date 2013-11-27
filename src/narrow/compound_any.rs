@@ -34,9 +34,9 @@ impl<N, V, M, G, D, SD> CompoundAABBAny<N, V, M, G, D, SD> {
         let mut sub_detectors = vec::with_capacity(nshapes);
 
         // we do this to avoid the need of the `Clone` bound on `SD`.
-        do nshapes.times() {
+        nshapes.times(|| {
             sub_detectors.push(None)
-        }
+        });
 
         CompoundAABBAny {
             dispatcher:    dispatcher,

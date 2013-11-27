@@ -305,9 +305,9 @@ mod test {
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
-        do 400.times {
+        400.times(|| {
             bf.add(@mut WithAABB(Vec3::new(0.0, 0.0, 0.0), ball))
-        }
+        });
 
         bf.update();
 

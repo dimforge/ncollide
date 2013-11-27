@@ -12,7 +12,7 @@ use narrow::algorithm::simplex::Simplex;
 /// Those directions are usually the geometry faces normals.
 pub trait PreferedSamplingDirections<V, M> {
     /// Applies a function to this geometry with a given transform.
-    fn sample(&self, &M, &fn(V));
+    fn sample(&self, &M, |V| -> ());
 }
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
@@ -39,7 +39,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
-    do g1.sample(m1) |sample: V| {
+    g1.sample(m1, |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
@@ -47,10 +47,10 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             best_dir = sample;
             min_dist = dist;
         }
-    }
+    });
 
     // FIXME: avoid code duplication for the closure
-    do g2.sample(m2) |sample: V| {
+    g2.sample(m2, |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
@@ -58,10 +58,10 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             best_dir = sample;
             min_dist = dist;
         }
-    }
+    });
 
     // FIXME: avoid code duplication for the closure
-    do na::sample_sphere |sample: V| {
+    na::sample_sphere(|sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
@@ -69,7 +69,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             best_dir = sample;
             min_dist = dist;
         }
-    }
+    });
 
     if min_dist <= _0 {
         return None

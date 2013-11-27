@@ -474,10 +474,10 @@ mod test {
         let d = Vec3::new(0.0, -0.5, -0.5);
         let recursion = RecursionTemplate::new(3);
 
-        do bh.iter {
+        bh.iter(|| {
             let mut spl = JohnsonSimplex::new(recursion.clone());
 
-            do 1000.times {
+            1000.times(|| {
                 spl.reset(a);
 
                 spl.add_point(b);
@@ -485,8 +485,8 @@ mod test {
                 spl.add_point(d);
 
                 spl.project_origin_and_reduce();
-            }
-        }
+            })
+        })
     }
 
     #[bench]
@@ -497,10 +497,10 @@ mod test {
         let d = Vec3::new(0.0, -0.5, -0.5);
         let _ = JohnsonSimplex::<f64, Vec3<f64>>::new_w_tls();
 
-        do bh.iter {
+        bh.iter(|| {
             let mut spl = JohnsonSimplex::new_w_tls();
 
-            do 1000.times {
+            1000.times(|| {
                 spl.reset(a);
 
                 spl.add_point(b);
@@ -508,7 +508,7 @@ mod test {
                 spl.add_point(d);
 
                 spl.project_origin_and_reduce();
-            }
-        }
+            })
+        })
     }
 }

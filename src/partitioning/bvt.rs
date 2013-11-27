@@ -23,7 +23,7 @@ type PartFnResult<B, BV> = (BV, Either<B, ~[~[(B, BV)]]>);
 impl<B, BV> BVT<B, BV> {
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner(leaves:      ~[(B, BV)],
-                                partitioner: &fn(~[(B, BV)]) -> PartFnResult<B, BV>)
+                                partitioner: |~[(B, BV)]| -> PartFnResult<B, BV>)
                                 -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
@@ -119,9 +119,9 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
         let mut rl = false;
         // merge all bounding boxes
         let bounding_bounding_box =
-            do leaves.iter().fold(AABB::new_invalid()) |curr_aabb, &(_, ref other_aabb)| {
+            leaves.iter().fold(AABB::new_invalid(), |curr_aabb, &(_, ref other_aabb)| {
                 curr_aabb.merged(other_aabb)
-            };
+            });
 
         let center = bounding_bounding_box.translation();
 
@@ -151,7 +151,7 @@ pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
 }
 
 fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
-                               partitioner: &fn(~[(B, BV)]) -> PartFnResult<B, BV>)
+                               partitioner: |~[(B, BV)]| -> PartFnResult<B, BV>)
                                -> BVTNode<B, BV> {
     let (bv, partitions) = partitioner(leaves);
 

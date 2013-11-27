@@ -14,12 +14,12 @@ RayCast<N, V> for Ball<N> {
 
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        do toi_with_ray(Zero::zero(), self.radius(), ray).map |n| {
+        toi_with_ray(Zero::zero(), self.radius(), ray).map(|n| {
             let pos    = ray.orig + ray.dir * n;
             let normal = na::normalize(&pos);
 
             (n, normal)
-        }
+        })
     }
 }
 

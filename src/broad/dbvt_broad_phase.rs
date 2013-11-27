@@ -234,21 +234,21 @@ impl<N:  Algebraic + Clone + Ord,
      DV>
 InterferencesBroadPhase<B, DV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline(always)]
-    fn for_each_pair(&self, f: &fn(@mut B, @mut B, &DV)) {
+    fn for_each_pair(&self, f: |@mut B, @mut B, &DV| -> ()) {
         for p in self.pairs.elements().iter() {
             f(p.key.first.object, p.key.second.object, &p.value)
         }
     }
 
     #[inline(always)]
-    fn for_each_pair_mut(&mut self, f: &fn(@mut B, @mut B, &mut DV)) {
+    fn for_each_pair_mut(&mut self, f: |@mut B, @mut B, &mut DV| -> ()) {
         for p in self.pairs.elements_mut().mut_iter() {
             f(p.key.first.object, p.key.second.object, &mut p.value)
         }
     }
 
     #[inline(always)]
-    fn activate(&mut self, body: @mut B, f: &fn(@mut B, @mut B, &mut DV)) {
+    fn activate(&mut self, body: @mut B, f: |@mut B, @mut B, &mut DV| -> ()) {
         // verify that it is not already active and add it to the active map.
         let leaf =
             match self.inactive2bv.get_and_remove(&(ptr::to_mut_unsafe_ptr(body) as uint)) {
@@ -480,9 +480,9 @@ mod test {
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
-        do 400.times {
+        400.times(|| {
             bf.add(@mut WithAABB(Vec3::new(0.0, 0.0, 0.0), ball))
-        }
+        });
 
         bf.update();
 

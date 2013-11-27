@@ -228,7 +228,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
 
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
     /// called iff. the value does not exist yet.
-    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: &fn() -> V) -> &'a mut V {
+    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> V) -> &'a mut V {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -432,29 +432,29 @@ mod test {
     fn bench_insert_this(bh: &mut BenchHarness) {
         let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
-        do bh.iter {
+        bh.iter(|| {
             for i in range(0u, 500) {
                 m.insert((i, i), i);
             }
-        }
+        })
     }
 
     #[bench]
     fn bench_insert_std(bh: &mut BenchHarness) {
         let mut m = hashmap::HashMap::with_capacity(32);
 
-        do bh.iter {
+        bh.iter(|| {
             for i in range(0u, 500) {
                 m.insert((i, i), i);
             }
-        }
+        })
     }
 
     #[bench]
     fn bench_insert_find_remove_this(bh: &mut BenchHarness) {
         let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
-        do bh.iter {
+        bh.iter(|| {
             for i in range(0u, 200) {
                 m.insert((i, i), i);
             }
@@ -486,14 +486,14 @@ mod test {
             for i in range(0u, 100) {
                 assert!(m.find(&(i, i)).is_none())
             }
-        }
+        })
     }
 
     #[bench]
     fn bench_insert_find_remove_std(bh: &mut BenchHarness) {
         let mut m = hashmap::HashMap::with_capacity(32);
 
-        do bh.iter {
+        bh.iter(|| {
             for i in range(0u, 200) {
                 m.insert((i, i), i);
             }
@@ -525,7 +525,7 @@ mod test {
             for i in range(0u, 100) {
                 assert!(m.find(&(i, i)).is_none())
             }
-        }
+        })
     }
 
     #[test]

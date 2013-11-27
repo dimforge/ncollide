@@ -23,16 +23,16 @@ pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {
     /// Marks and object as active.
     ///
     /// Active objects are checked for interferences at each update.
-    fn activate(&mut self, body: @mut B, f: &fn(@mut B, @mut B, &mut DV));
+    fn activate(&mut self, body: @mut B, f: |@mut B, @mut B, &mut DV| -> ());
     /// Marks and object as inactive.
     ///
     /// Inactive objects are assumed to be static and not tested for mutual interferences.
     fn deactivate(&mut self, @mut B);
 
     /// Execute a function on each interefence detected by the broad phase.
-    fn for_each_pair(&self, f: &fn(@mut B, @mut B, &DV));
+    fn for_each_pair(&self, f: |@mut B, @mut B, &DV| -> ());
     /// Execute a function on each interefence detected by the broad phase.
-    fn for_each_pair_mut(&mut self, f: &fn(@mut B, @mut B, &mut DV));
+    fn for_each_pair_mut(&mut self, f: |@mut B, @mut B, &mut DV| -> ());
 }
 
 /// Trait of broad phases working with bounding volume.

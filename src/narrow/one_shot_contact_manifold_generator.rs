@@ -37,7 +37,7 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
             // do the one-shot manifold generation
             match self.sub_detector.get_sub_collision(m1, g1, m2, g2) {
                 Some(coll) => {
-                    do na::orthonormal_subspace_basis(&coll.normal) |b| {
+                    na::orthonormal_subspace_basis(&coll.normal, |b| {
                         let mut rot_axis: AV = na::cross(&coll.normal, &b);
 
                         // first perturbation
@@ -53,7 +53,7 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 
                         true
-                    }
+                    });
 
                     self.sub_detector.update_contacts(m1, m2);
                 },

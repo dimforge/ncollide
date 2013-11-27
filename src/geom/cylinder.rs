@@ -99,7 +99,7 @@ impl<N: One,
      M: Rotate<V>>
 PreferedSamplingDirections<V, M> for Cylinder<N> {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: &fn(V)) {
+    fn sample(&self, transform: &M, f: |V| -> ()) {
         // Sample along the principal axis
         let mut v: V = na::zero();
         v.set(0, na::one());
