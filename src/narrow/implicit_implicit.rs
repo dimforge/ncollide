@@ -121,16 +121,16 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 
     simplex.reset(geom::cso_support_point_without_margin(m1, g1, m2, g2, dir));
 
-    let margin1 = g1.margin();
-    let margin2 = g2.margin();
+    let margin1  = g1.margin();
+    let margin2  = g2.margin();
+    let max_dist = margin1 + margin2 + *prediction;
 
-    match gjk::closest_points_without_margin(m1, g1, m2, g2, simplex) {
-        Some((p1, p2)) => {
+    match gjk::closest_points_without_margin_with_max_dist(m1, g1, m2, g2, &max_dist, simplex) {
+        gjk::Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);
 
-            if sqn >= (margin1 + margin2 + *prediction) *
-                      (margin1 + margin2 + *prediction) {
+            if sqn >= max_dist * max_dist {
                 return None
             }
             else if !sqn.is_zero() {
@@ -146,7 +146,8 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                     );
             }
         },
-        None => { }
+        gjk::NoIntersection => return None,
+        gjk::Intersection   => { } // fallback
     }
 
     // The point is inside of the CSO: use the fallback algorithm

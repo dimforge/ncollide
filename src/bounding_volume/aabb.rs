@@ -1,4 +1,4 @@
-use std::num::Zero;
+use std::num::{Zero, One};
 use nalgebra::na::{Cast, VecExt, AlgebraicVecExt, ScalarAdd, ScalarSub, Translation};
 use nalgebra::na;
 use geom::Implicit;
@@ -145,23 +145,28 @@ LooseBoundingVolume<N> for AABB<N, V> {
 }
 
 /// Builds the AABB of an implicit shape.
-pub fn implicit_shape_aabb<N: Algebraic,
+pub fn implicit_shape_aabb<N: Algebraic + One + Zero + Neg<N>,
                            V: AlgebraicVecExt<N>,
                            M,
                            I: Implicit<N, V, M>>(
                            m: &M,
                            i: &I)
                            -> AABB<N, V> {
-        let mut resm: V = Zero::zero();
-        let mut resM: V = Zero::zero();
+        let mut resm: V  = na::zero();
+        let mut resM: V  = na::zero();
+        let mut basis: V = na::zero();
 
-        // FIXME: optimize using Indexable?
-        na::canonical_basis(|basis: V| {
-            resm = resm + basis * na::dot(&basis, &i.support_point(m, &-basis));
-            resM = resM + basis * na::dot(&basis, &i.support_point(m, &basis));
+        for d in range(0, na::dim::<V>()) {
+            // FIXME: this could be further improved iterating on `m`'s columns, and passing
+            // Identity as the transformation matrix.
+            basis.set(d, na::one());
+            resM.set(d, i.support_point(m, &basis).at(d));
 
-            true
-        });
+            basis.set(d, -na::one::<N>());
+            resm.set(d, i.support_point(m, &basis).at(d));
+
+            basis.set(d, na::zero());
+        }
 
         let res = AABB::new(resm, resM);
 
