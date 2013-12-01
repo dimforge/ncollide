@@ -10,6 +10,9 @@ pub trait Simplex<N, V> {
     /// 0-dimensional.
     fn reset(&mut self, V);
 
+    /// Translates each point of this simplex.
+    fn translate_by(&mut self, &V);
+
     /// Adds a point to the simplex.
     fn add_point(&mut self, V);
 

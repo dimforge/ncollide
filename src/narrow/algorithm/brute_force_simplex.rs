@@ -115,37 +115,51 @@ BruteForceSimplex<N, V> {
 
 impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
 Simplex<N, V> for BruteForceSimplex<N, V> {
+    #[inline]
     fn reset(&mut self, initial_point: V) {
         self.points.clear();
         self.points.push(initial_point);
     }
 
+    #[inline]
     fn dimension(&self) -> uint {
         self.points.len() - 1
     }
 
+    #[inline]
     fn max_sq_len(&self) -> N {
         self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
     }
 
+    #[inline]
     fn contains_point(&self, pt: &V) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
+    #[inline]
     fn add_point(&mut self, pt: V) {
         assert!(self.points.len() <= na::dim::<V>());
         self.points.push(pt)
     }
 
+    #[inline]
     fn project_origin_and_reduce(&mut self) -> V {
         self.do_project_origin(true)
     }
 
+    #[inline]
     fn project_origin(&mut self) -> V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
         }
 
         self.do_project_origin(false)
+    }
+
+    #[inline]
+    fn translate_by(&mut self, v: &V) {
+        for p in self.points.mut_iter() {
+            *p = *p + *v;
+        }
     }
 }

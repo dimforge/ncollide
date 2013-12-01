@@ -3,7 +3,6 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, AlgebraicVecExt, Identity, Translation};
 use nalgebra::na;
-use geom;
 use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
@@ -79,8 +78,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 
     let tm2 = na::append_translation(m2, &shift);
 
-    // XXX: translate the simplex instead of reseting it
-    simplex.reset(geom::cso_support_point_without_margin(m1, g1, &tm2, g2, best_dir.clone()));
+    simplex.translate_by(&AnnotatedPoint::new(na::zero(), -shift, -shift));
 
     match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
@@ -135,6 +133,7 @@ mod test {
     use super::closest_points;
     use nalgebra::na::Vec2;
     use geom::{Box, AnnotatedPoint};
+    use geom;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 
     #[test]
@@ -144,6 +143,7 @@ mod test {
         let ta = Vec2::new(0.0f32, 0.0);
         let tb = Vec2::new(7.0f32, 1.0);
         let mut splx: JohnsonSimplex<f32, AnnotatedPoint<Vec2<f32>>> = JohnsonSimplex::new_w_tls();
+        splx.reset(geom::cso_support_point_without_margin(&ta, &a, &tb, &b, Vec2::new(1.0f32, 1.0)));
         println!("{:?}", closest_points(&ta, &a, &tb, &b, &mut splx));
     }
 }

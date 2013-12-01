@@ -93,7 +93,7 @@ impl<N: Primitive + Orderable, V: VecExt<N>> BoundingVolume for AABB<N, V> {
 impl<V: VecExt<N>, N: Cast<f32>> Translation<V> for AABB<N, V>
 {
     fn translation(&self) -> V {
-        (self.mins + self.maxs) / Cast::from(2.0)
+        (self.mins + self.maxs) * na::cast(0.5)
     }
 
     fn inv_translation(&self) -> V {

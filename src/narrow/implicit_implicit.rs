@@ -5,6 +5,7 @@ use geom;
 use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
+use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
 use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 use narrow::algorithm::minkowski_sampling;
 use narrow::CollisionDetector;
@@ -19,7 +20,7 @@ use ray::{Ray, RayCast};
 pub struct ImplicitImplicit<S, G1, G2, N, V> {
     priv simplex:       S,
     priv prediction:    N,
-    priv contact:       Option<Contact<N, V>>
+    priv contact:       GJKResult<Contact<N, V>, V>
 }
 
 impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
@@ -31,7 +32,7 @@ impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
         ImplicitImplicit {
             simplex:    simplex,
             prediction: prediction,
-            contact:    None
+            contact:    Intersection
         }
     }
 
@@ -46,6 +47,12 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
+        let initial_direction = match self.contact {
+            NoIntersection(ref separator) => Some(separator.clone()),
+            Projection(ref contact)       => Some(contact.normal.clone()),
+            Intersection                  => None
+        };
+
         self.contact = collide(
             ma,
             a,
@@ -53,22 +60,22 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
             b,
             &self.prediction,
             &mut self.simplex,
-            self.contact.as_ref().map(|c| c.normal.clone()))
+            initial_direction)
     }
 
     #[inline]
     fn num_colls(&self) -> uint {
         match self.contact {
-            None    => 0,
-            Some(_) => 1
+            Projection(_) => 1,
+            _             => 0
         }
     }
 
     #[inline]
     fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
         match self.contact {
-            Some(ref c) => out_colls.push(c.clone()),
-            None        => ()
+            Projection(ref c) => out_colls.push(c.clone()),
+            _                 => ()
         }
     }
 
@@ -108,7 +115,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                prediction: &N,
                simplex:    &mut S,
                init_dir:   Option<V>)
-               -> Option<Contact<N, V>> {
+               -> GJKResult<Contact<N, V>, V> {
     let mut dir = 
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
@@ -116,7 +123,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
         };
 
     if dir.is_zero() {
-        dir.set(0, One::one());
+        dir.set(0, na::one());
     }
 
     simplex.reset(geom::cso_support_point_without_margin(m1, g1, m2, g2, dir));
@@ -126,18 +133,15 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
     let max_dist = margin1 + margin2 + *prediction;
 
     match gjk::closest_points_without_margin_with_max_dist(m1, g1, m2, g2, &max_dist, simplex) {
-        gjk::Projection((p1, p2)) => {
+        Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);
 
-            if sqn >= max_dist * max_dist {
-                return None
-            }
-            else if !sqn.is_zero() {
+            if !sqn.is_zero() {
                 let mut normal = p1p2;
                 let depth      = normal.normalize();
 
-                return Some(
+                return Projection(
                     Contact::new(
                         p1 + normal * margin1,
                         p2 + normal * (-margin2),
@@ -146,8 +150,8 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                     );
             }
         },
-        gjk::NoIntersection => return None,
-        gjk::Intersection   => { } // fallback
+        NoIntersection(dir) => return NoIntersection(dir),
+        Intersection        => { } // fallback
     }
 
     // The point is inside of the CSO: use the fallback algorithm
@@ -161,14 +165,14 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                 // simplex fail.
                 // This might be an implementation bug…
                 // … as a workaround we just act as if nothing happended…
-                None
+                NoIntersection(na::zero())
             }
             else {
-                Some(Contact::new(p1, p2, normal, depth))
+                Projection(Contact::new(p1, p2, normal, depth))
             }
         }
         None => {
-            None // fail!("Both GJK and fallback algorithm failed.")
+            NoIntersection(na::zero()) // fail!("Both GJK and fallback algorithm failed.")
         }
     }
 }

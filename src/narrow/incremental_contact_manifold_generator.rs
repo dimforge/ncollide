@@ -20,7 +20,7 @@ impl<N: Cast<f32> + Num, V: Vec<N>> ContactWLocals<N, V> {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + contact.world2) / na::cast(2.0),
+                center: (contact.world1 + contact.world2) * na::cast(0.5),
                 contact: contact
             }
         }
@@ -199,12 +199,13 @@ fn add_reduce_by_variance<N: Num + Algebraic + Ord + Cast<f32>,
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<N: Num + Algebraic + Cast<f32>, V: Clone + AlgebraicVec<N>>(
-    pts:       &[ContactWLocals<N, V>],
-    to_add:    &Contact<N, V>,
-    to_ignore: uint) -> N {
+fn approx_variance<N: Num + Algebraic + Cast<f32>,
+                   V: Clone + AlgebraicVec<N>>(
+                   pts:       &[ContactWLocals<N, V>],
+                   to_add:    &Contact<N, V>,
+                   to_ignore: uint) -> N {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + to_add.world2) / na::cast(2.0);
+    let to_add_center = (to_add.world1 + to_add.world2) * na::cast(0.5);
 
     let mut mean = to_add_center.clone();
 

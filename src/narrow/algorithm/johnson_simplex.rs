@@ -412,6 +412,13 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     fn project_origin(&mut self) -> V {
         self.do_project_origin(false)
     }
+
+    #[inline]
+    fn translate_by(&mut self, v: &V) {
+        for p in self.points.mut_iter() {
+            *p = *p + *v;
+        }
+    }
 }
 
 impl ToStr for RecursionTemplate {

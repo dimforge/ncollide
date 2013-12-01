@@ -13,12 +13,12 @@ deps:
 
 test:
 	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) --test $(ncollide_rs) --opt-level 3 -o test~ && ./test~
+	rustc -L$(nalgebra_lib_path) --test $(ncollide_rs) --opt-level 3 --link-args -lm -o test~ && ./test~
 	rm test~
 
 bench:
 	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) --test $(ncollide_rs) --opt-level 3 -o bench~ && ./bench~ --bench
+	rustc -L$(nalgebra_lib_path) --test $(ncollide_rs) --opt-level 3 --link-args -lm -o bench~ && ./bench~ --bench
 	rm bench~
 
 distcheck:
