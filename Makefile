@@ -1,6 +1,6 @@
 tmp=_git_distcheck
 ncollide_doc_path=doc
-ncollide_rs=src/lib.rs
+ncollide_rs=src/ncollide.rs
 ncollide_lib_path=lib
 nalgebra_lib_path=./nalgebra/lib
 
@@ -32,7 +32,7 @@ distcheck:
 
 doc:
 	mkdir -p $(ncollide_doc_path)
-	rustdoc -L$(nalgebra_lib_path) src/lib.rs
+	rustdoc -L$(nalgebra_lib_path) src/ncollide.rs
 
 .PHONY:doc
 .PHONY:test
