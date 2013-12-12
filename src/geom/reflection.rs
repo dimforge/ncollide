@@ -10,27 +10,27 @@ use geom::{Implicit, HasMargin};
  * A reflection is obtained with the central symetry wrt the origin.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct Reflection<'self, G> {
-    priv g: &'self G
+pub struct Reflection<'a, G> {
+    priv g: &'a G
 }
 
-impl<'self, G> Reflection<'self, G> {
+impl<'a, G> Reflection<'a, G> {
     /// Build the reflection of a geometry. Since the representation is implicit,
     /// the reflection computation is done in constant time.
     #[inline]
-    pub fn new(g: &'self G) -> Reflection<'self, G> {
+    pub fn new(g: &'a G) -> Reflection<'a, G> {
         Reflection { g: g }
     }
 }
 
-impl<'self, N, G: HasMargin<N>> HasMargin<N> for Reflection<'self, G> {
+impl<'a, N, G: HasMargin<N>> HasMargin<N> for Reflection<'a, G> {
     #[inline]
     fn margin(&self) -> N {
         self.g.margin()
     }
 }
 
-impl<'self, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'self, G> {
+impl<'a, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'a, G> {
     #[inline]
     fn support_point(&self, m: &M, dir: &V) -> V {
         -self.g.support_point(m, &-dir)

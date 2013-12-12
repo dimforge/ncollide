@@ -6,19 +6,19 @@ use geom::{Implicit, HasMargin};
 
 // This extends the wrapped geometry with its margin. I.e. the `support_point_withou_margin` method
 // will return the wrapped geometry `support_point` instead.
-pub struct GeomWithMargin<'self, G> {
-    priv geom: &'self G
+pub struct GeomWithMargin<'a, G> {
+    priv geom: &'a G
 }
 
-impl<'self, G> GeomWithMargin<'self, G> {
-    pub fn new(geom: &'self G) -> GeomWithMargin<'self, G> {
+impl<'a, G> GeomWithMargin<'a, G> {
+    pub fn new(geom: &'a G) -> GeomWithMargin<'a, G> {
         GeomWithMargin {
             geom: geom
         }
     }
 }
 
-impl<'self, N: Zero, G> HasMargin<N> for GeomWithMargin<'self, G> {
+impl<'a, N: Zero, G> HasMargin<N> for GeomWithMargin<'a, G> {
     #[inline]
     fn margin(&self) -> N {
         Zero::zero()
@@ -26,12 +26,12 @@ impl<'self, N: Zero, G> HasMargin<N> for GeomWithMargin<'self, G> {
 }
 
 
-impl<'self,
+impl<'a,
      N: Algebraic + Zero,
      V: AlgebraicVec<N>,
      M,
      G: Implicit<N, V, M>>
-Implicit<N, V, M> for GeomWithMargin<'self, G> {
+Implicit<N, V, M> for GeomWithMargin<'a, G> {
     #[inline]
     fn support_point(&self, m: &M, dir: &V) -> V {
         self.geom.support_point(m, dir)

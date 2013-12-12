@@ -29,17 +29,17 @@ pub trait BVTVisitor<B, BV> {
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'self, V, B> {
-    priv ray:       &'self Ray<V>,
-    priv collector: &'self mut ~[B]
+pub struct RayInterferencesCollector<'a, V, B> {
+    priv ray:       &'a Ray<V>,
+    priv collector: &'a mut ~[B]
 }
 
-impl<'self, V, B> RayInterferencesCollector<'self, V, B> {
+impl<'a, V, B> RayInterferencesCollector<'a, V, B> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray:    &'self Ray<V>,
-               buffer: &'self mut ~[B])
-               -> RayInterferencesCollector<'self, V, B> {
+    pub fn new(ray:    &'a Ray<V>,
+               buffer: &'a mut ~[B])
+               -> RayInterferencesCollector<'a, V, B> {
         RayInterferencesCollector {
             ray:       ray,
             collector: buffer
@@ -47,12 +47,12 @@ impl<'self, V, B> RayInterferencesCollector<'self, V, B> {
     }
 }
 
-impl<'self,
+impl<'a,
      N,
      V:  Vec<N>,
      B:  Clone,
      BV: RayCast<N, V>>
-BVTVisitor<B, BV> for RayInterferencesCollector<'self, V, B> {
+BVTVisitor<B, BV> for RayInterferencesCollector<'a, V, B> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects_ray(self.ray)
@@ -67,17 +67,17 @@ BVTVisitor<B, BV> for RayInterferencesCollector<'self, V, B> {
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given bounding volume.
-pub struct BoundingVolumeInterferencesCollector<'self, B, BV> {
-    priv bv:        &'self BV,
-    priv collector: &'self mut ~[B]
+pub struct BoundingVolumeInterferencesCollector<'a, B, BV> {
+    priv bv:        &'a BV,
+    priv collector: &'a mut ~[B]
 }
 
-impl<'self, B, BV> BoundingVolumeInterferencesCollector<'self, B, BV> {
+impl<'a, B, BV> BoundingVolumeInterferencesCollector<'a, B, BV> {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
     #[inline]
-    pub fn new(bv:     &'self BV,
-               buffer: &'self mut ~[B])
-               -> BoundingVolumeInterferencesCollector<'self, B, BV> {
+    pub fn new(bv:     &'a BV,
+               buffer: &'a mut ~[B])
+               -> BoundingVolumeInterferencesCollector<'a, B, BV> {
         BoundingVolumeInterferencesCollector {
             bv:        bv,
             collector: buffer
@@ -85,10 +85,10 @@ impl<'self, B, BV> BoundingVolumeInterferencesCollector<'self, B, BV> {
     }
 }
 
-impl<'self,
+impl<'a,
      B:  Clone,
      BV: BoundingVolume>
-BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'self, B, BV> {
+BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects(self.bv)

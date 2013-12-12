@@ -1,8 +1,8 @@
 #[link(name         = "ncollide"
-       , package_id = "ncollide"
        , vers       = "0.0"
        , author     = "Sébastien Crozet"
        , uuid       = "833dfdbd-3e85-456f-9ca7-84aade5ed3be")];
+#[pkgid = "github.com/sebcrozet/ncollide"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];

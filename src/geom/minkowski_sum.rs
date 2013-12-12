@@ -11,8 +11,8 @@ use geom::{Reflection, Implicit, HasMargin};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
-pub type CSO<'self, M, G1, G2> = MinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
-pub type AnnotatedCSO<'self, M, G1, G2> = AnnotatedMinkowskiSum<'self, M, G1, Reflection<'self, G2>>;
+pub type CSO<'a, M, G1, G2> = MinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
+pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
 
 /**
  * Implicit representation of the minkowski sum of two geometries.
@@ -23,30 +23,30 @@ pub type AnnotatedCSO<'self, M, G1, G2> = AnnotatedMinkowskiSum<'self, M, G1, Re
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct MinkowskiSum<'self, M, G1, G2> {
-    priv m1: &'self M,
-    priv g1: &'self G1,
-    priv m2: &'self M,
-    priv g2: &'self G2
+pub struct MinkowskiSum<'a, M, G1, G2> {
+    priv m1: &'a M,
+    priv g1: &'a G1,
+    priv m2: &'a M,
+    priv g2: &'a G2
 }
 
-impl<'self, M, G1, G2> MinkowskiSum<'self, M, G1, G2> {
+impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'self M,
-               g1: &'self G1,
-               m2: &'self M,
-               g2: &'self G2)
-               -> MinkowskiSum<'self, M, G1, G2> {
+    pub fn new(m1: &'a M,
+               g1: &'a G1,
+               m2: &'a M,
+               g2: &'a G2)
+               -> MinkowskiSum<'a, M, G1, G2> {
         MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 }
 
-impl<'self, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
-HasMargin<N> for MinkowskiSum<'self, M, G1, G2> {
+impl<'a, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
+HasMargin<N> for MinkowskiSum<'a, M, G1, G2> {
     #[inline]
     fn margin(&self) -> N {
         self.g1.margin() + self.g2.margin()
@@ -54,13 +54,13 @@ HasMargin<N> for MinkowskiSum<'self, M, G1, G2> {
 
 }
 
-impl<'self,
+impl<'a,
      N: Num + Algebraic,
      V: AlgebraicVec<N>,
      M,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>>
-Implicit<N, V, Identity> for MinkowskiSum<'self, M, G1, G2> {
+Implicit<N, V, Identity> for MinkowskiSum<'a, M, G1, G2> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &V) -> V {
         self.g1.support_point(self.m1, dir) + self.g2.support_point(self.m2, dir)
@@ -80,42 +80,42 @@ Implicit<N, V, Identity> for MinkowskiSum<'self, M, G1, G2> {
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct AnnotatedMinkowskiSum<'self, M, G1, G2> {
-    priv m1: &'self M,
-    priv g1: &'self G1,
-    priv m2: &'self M,
-    priv g2: &'self G2
+pub struct AnnotatedMinkowskiSum<'a, M, G1, G2> {
+    priv m1: &'a M,
+    priv g1: &'a G1,
+    priv m2: &'a M,
+    priv g2: &'a G2
 }
 
-impl<'self, M, G1, G2> AnnotatedMinkowskiSum<'self, M, G1, G2> {
+impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'self M,
-               g1: &'self G1,
-               m2: &'self M,
-               g2: &'self G2) -> AnnotatedMinkowskiSum<'self, M, G1, G2> {
+    pub fn new(m1: &'a M,
+               g1: &'a G1,
+               m2: &'a M,
+               g2: &'a G2) -> AnnotatedMinkowskiSum<'a, M, G1, G2> {
         AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 }
 
-impl<'self, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
-HasMargin<N> for AnnotatedMinkowskiSum<'self, M, G1, G2> {
+impl<'a, N: Add<N, N>, M, G1: HasMargin<N>, G2: HasMargin<N>>
+HasMargin<N> for AnnotatedMinkowskiSum<'a, M, G1, G2> {
     #[inline]
     fn margin(&self) -> N {
         self.g1.margin() + self.g2.margin()
     }
 }
 
-impl<'self,
+impl<'a,
      N: Algebraic + Num,
      V: AlgebraicVec<N> + Clone,
      M,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>>
-Implicit<N, AnnotatedPoint<V>, Identity> for AnnotatedMinkowskiSum<'self, M, G1, G2> {
+Implicit<N, AnnotatedPoint<V>, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
         let orig1 = self.g1.support_point(self.m1, dir.point());

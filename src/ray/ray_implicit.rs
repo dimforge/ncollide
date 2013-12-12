@@ -140,22 +140,22 @@ impl<N: Ord + Num + Float + Cast<f32> + Clone,
      M: Transform<V> + Rotate<V>>
 RayCastWithTransform<N, V, M> for Capsule<N> { }
 
-impl<'self,
+impl<'a,
      N:  Ord + Num + Float + Cast<f32> + Clone,
      V:  AlgebraicVecExt<N> + Clone,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>,
      M>
-RayCast<N, V> for MinkowskiSum<'self, M, G1, G2> {
+RayCast<N, V> for MinkowskiSum<'a, M, G1, G2> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
     }
 }
 
-impl<'self,
+impl<'a,
      N:  Ord + Num + Float + Cast<f32> + Clone,
      V:  AlgebraicVecExt<N> + Clone,
      G1: Implicit<N, V, M>,
      G2: Implicit<N, V, M>,
      M:  Rotate<V> + Transform<V>>
-RayCastWithTransform<N, V, M> for MinkowskiSum<'self, M, G1, G2> { }
+RayCastWithTransform<N, V, M> for MinkowskiSum<'a, M, G1, G2> { }
