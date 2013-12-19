@@ -386,7 +386,7 @@ DBVTNode<V, B, BV> {
                                 parent = ptr::to_mut_unsafe_ptr(*ci);
                             },
                             Leaf(ref l) => {
-                                let mut internal = cache.box(DBVTInternal::new(
+                                let mut internal = cache.alloc(DBVTInternal::new(
                                     l.bounding_volume.merged(&to_insert.bounding_volume),
                                     parent,
                                     Leaf(l.clone()),
@@ -413,7 +413,7 @@ DBVTNode<V, B, BV> {
             },
             Leaf(i) => {
                 // create the root
-                let mut root = cache.box(DBVTInternal::new(
+                let mut root = cache.alloc(DBVTInternal::new(
                     i.bounding_volume.merged(&to_insert.bounding_volume),
                     ptr::mut_null(),
                     Leaf(i),

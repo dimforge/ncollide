@@ -120,17 +120,17 @@ for GeomGeom<N, LV, AV, M> {
               m2: &M,
               g2: &Geom<N, LV, M>) {
         match *self {
-            BallBall(ref mut cd)         => cd.update(m1, g1.ball(),     m2, g2.ball()),
-            BallPlane(ref mut cd)        => cd.update(m1, g1.ball(),     m2, g2.plane()),
-            PlaneBall(ref mut cd)        => cd.update(m1, g1.plane(),    m2, g2.ball()),
-            BallImplicit(ref mut cd)     => cd.update(m1, g1.ball(),     m2, g2.implicit()),
-            ImplicitBall(ref mut cd)     => cd.update(m1, g1.implicit(), m2, g2.ball()),
-            PlaneImplicit(ref mut cd)    => cd.update(m1, g1.plane(),    m2, g2.implicit()),
-            ImplicitPlane(ref mut cd)    => cd.update(m1, g1.implicit(), m2, g2.plane()),
-            ImplicitImplicit(ref mut cd) => cd.update(m1, g1.implicit(), m2, g2.implicit()),
-            CompoundCompound(ref mut cd) => cd.update(m1, g1.compound(), m2, g2.compound()),
-            CompoundAny(ref mut cd)      => cd.update(m1, g1.compound(), m2, g2),
-            AnyCompound(ref mut cd)      => cd.update(m1, g1,            m2, g2.compound())
+            BallBall(ref mut cd)         => cd.update(m1, g1.as_ball(),     m2, g2.as_ball()),
+            BallPlane(ref mut cd)        => cd.update(m1, g1.as_ball(),     m2, g2.as_plane()),
+            PlaneBall(ref mut cd)        => cd.update(m1, g1.as_plane(),    m2, g2.as_ball()),
+            BallImplicit(ref mut cd)     => cd.update(m1, g1.as_ball(),     m2, g2.as_implicit()),
+            ImplicitBall(ref mut cd)     => cd.update(m1, g1.as_implicit(), m2, g2.as_ball()),
+            PlaneImplicit(ref mut cd)    => cd.update(m1, g1.as_plane(),    m2, g2.as_implicit()),
+            ImplicitPlane(ref mut cd)    => cd.update(m1, g1.as_implicit(), m2, g2.as_plane()),
+            ImplicitImplicit(ref mut cd) => cd.update(m1, g1.as_implicit(), m2, g2.as_implicit()),
+            CompoundCompound(ref mut cd) => cd.update(m1, g1.as_compound(), m2, g2.as_compound()),
+            CompoundAny(ref mut cd)      => cd.update(m1, g1.as_compound(), m2, g2),
+            AnyCompound(ref mut cd)      => cd.update(m1, g1,            m2, g2.as_compound())
         }
     }
 

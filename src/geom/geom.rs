@@ -114,7 +114,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Plane(_)` is not matched.
      */
     #[inline]
-    pub fn plane<'r>(&'r self) -> &'r Plane<N, V> {
+    pub fn as_plane<'r>(&'r self) -> &'r Plane<N, V> {
         match *self {
             PlaneGeom(ref p) => p,
             _ => fail!("Unexpected geometry: this is not a plane.")
@@ -126,7 +126,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Compound(_)` is not matched.
      */
     #[inline]
-    pub fn compound<'r>(&'r self) -> &'r CompoundAABB<N, V, M, Geom<N, V, M>> {
+    pub fn as_compound<'r>(&'r self) -> &'r CompoundAABB<N, V, M, Geom<N, V, M>> {
         match *self {
             CompoundGeom(ref c) => c.get(),
             _ => fail!("Unexpected geometry: this is not a compound.")
@@ -138,7 +138,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Implicit(_)` is not matched.
      */
     #[inline]
-    pub fn implicit<'r>(&'r self) -> &'r IGeom<N, V, M> {
+    pub fn as_implicit<'r>(&'r self) -> &'r IGeom<N, V, M> {
         match *self {
             ImplicitGeom(ref i) => i,
             _ => fail!("Unexpected geometry: this is not an implicit.")
@@ -150,7 +150,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Implicit(Ball(_))` is not matched.
      */
     #[inline]
-    pub fn ball<'r>(&'r self) -> &'r Ball<N> {
+    pub fn as_ball<'r>(&'r self) -> &'r Ball<N> {
         match *self {
             ImplicitGeom(BallGeom(ref b)) => b,
             _ => fail!("Unexpected geometry: this is not a ball.")
@@ -162,7 +162,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Implicit(Cone(_))` is not matched.
      */
     #[inline]
-    pub fn cone<'r>(&'r self) -> &'r Cone<N> {
+    pub fn as_cone<'r>(&'r self) -> &'r Cone<N> {
         match *self {
             ImplicitGeom(ConeGeom(ref c)) => c,
             _ => fail!("Unexpected geometry: this is not a ball.")
@@ -174,7 +174,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Implicit(Cylinder(_))` is not matched.
      */
     #[inline]
-    pub fn cylinder<'r>(&'r self) -> &'r Cylinder<N> {
+    pub fn as_cylinder<'r>(&'r self) -> &'r Cylinder<N> {
         match *self {
             ImplicitGeom(CylinderGeom(ref c)) => c,
             _ => fail!("Unexpected geometry: this is not a ball.")
@@ -186,7 +186,7 @@ impl<N: Send + Freeze, V: Send + Freeze, M: Send + Freeze> Geom<N, V, M> {
      * pattern `Implicit(Box(_))` is not matched.
      */
     #[inline]
-    pub fn box<'r>(&'r self) -> &'r Box<N, V> {
+    pub fn as_box<'r>(&'r self) -> &'r Box<N, V> {
         match *self {
             ImplicitGeom(BoxGeom(ref b)) => b,
             _ => fail!("Unexpected geometry: this is not a ball.")

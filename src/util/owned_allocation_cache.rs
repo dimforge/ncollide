@@ -19,7 +19,7 @@ impl<T> OwnedAllocationCache<T> {
 
     /// Box a value into a potentially already allocated box.
     #[inline]
-    pub fn box(&mut self, value: T) -> ~T {
+    pub fn alloc(&mut self, value: T) -> ~T {
         if !self.cache.is_empty() {
             let mut res = self.cache.pop();
             *res = value;

@@ -4,7 +4,7 @@
 pub use geom::implicit::{Implicit, HasMargin};
 pub use geom::ball::Ball;
 pub use geom::plane::Plane;
-pub use geom::box::Box;
+pub use geom::box_geom::Box;
 pub use geom::capsule::Capsule;
 pub use geom::cone::Cone;
 pub use geom::cylinder::Cylinder;
@@ -27,7 +27,7 @@ pub mod geom;
 pub mod implicit;
 pub mod ball;
 pub mod plane;
-pub mod box;
+pub mod box_geom;
 pub mod capsule;
 pub mod cone;
 pub mod cylinder;

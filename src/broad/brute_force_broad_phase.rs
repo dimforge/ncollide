@@ -9,7 +9,7 @@ use broad::Dispatcher;
  * It always returns false positives since it assumes that all object is in collision with all
  * objects. Do not use this but for benchmarking the narrow phase.
  */
-struct BruteForceBroadPhase<B, D, DV> {
+pub struct BruteForceBroadPhase<B, D, DV> {
     priv dispatcher: D,
     priv pairs:      HashMap<Pair<B>, DV, PairTWHash>,
     priv objects:    ~[@mut B]

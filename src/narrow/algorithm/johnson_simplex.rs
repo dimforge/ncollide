@@ -265,21 +265,21 @@ JohnsonSimplex<N, V> {
             while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
                     let mut determinant: N = Zero::zero();
-                    let kpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr + 1u)).clone();
-                    let jpt = self.points.unsafe_get(recursion.permutation_list.unsafe_get(curr)).clone();
+                    let kpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr + 1u))).clone();
+                    let jpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr))).clone();
 
                     // ... with curr_num_pts points ...
                     for i in range(curr + 1, curr + 1 + curr_num_pts) {
                         // ... compute its determinant.
-                        let i_pid = recursion.permutation_list.unsafe_get(i);
-                        let sub_determinant = self.determinants.unsafe_get(
-                                             recursion.sub_determinants.unsafe_get(i)).clone();
-                        let delta = sub_determinant * na::sub_dot(&kpt, &jpt, &self.points.unsafe_get(i_pid));
+                        let i_pid = *recursion.permutation_list.unsafe_ref(i);
+                        let sub_determinant = (*self.determinants.unsafe_ref(
+                                                *recursion.sub_determinants.unsafe_ref(i))).clone();
+                        let delta = sub_determinant * na::sub_dot(&kpt, &jpt, &*self.points.unsafe_ref(i_pid));
 
                         determinant = determinant + delta;
                     }
 
-                    self.determinants.unsafe_set(recursion.sub_determinants.unsafe_get(curr), determinant);
+                    self.determinants.unsafe_set(*recursion.sub_determinants.unsafe_ref(curr), determinant);
 
                     curr = curr + curr_num_pts + 1; // points + removed point + determinant id
                 }
@@ -303,14 +303,14 @@ JohnsonSimplex<N, V> {
                     unsafe {
                         // ... see if its determinant is positive
                         let det_id = curr - (i + 1) * curr_num_pts;
-                        let det    = self.determinants.unsafe_get(recursion.sub_determinants.unsafe_get(det_id));
+                        let det    = (*self.determinants.unsafe_ref(*recursion.sub_determinants.unsafe_ref(det_id))).clone();
 
                         if det > Zero::zero() {
                             // invalidate the children determinant
                             if curr_num_pts > 1 {
-                                let subdetid = recursion.sub_determinants.unsafe_get(det_id + 1);
+                                let subdetid = *recursion.sub_determinants.unsafe_ref(det_id + 1);
 
-                                if self.determinants.unsafe_get(subdetid) > Zero::zero() {
+                                if *self.determinants.unsafe_ref(subdetid) > Zero::zero() {
                                     self.determinants.unsafe_set(subdetid, Bounded::max_value())
                                 }
                             }
@@ -338,13 +338,13 @@ JohnsonSimplex<N, V> {
                         for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
                             // ... see if its determinant is positive
                             let id    = curr - (i + 1) * curr_num_pts;
-                            let det   = self.determinants
-                                            .unsafe_get(recursion.sub_determinants.unsafe_get(id));
+                            let det   = (*self.determinants
+                                              .unsafe_ref(*recursion.sub_determinants.unsafe_ref(id))).clone();
 
                             total_det = total_det + det;
                             proj = proj +
-                                self.points.unsafe_get(recursion.permutation_list
-                                                                .unsafe_get(id)) * det;
+                                   *self.points.unsafe_ref(*recursion.permutation_list
+                                                                     .unsafe_ref(id)) * det;
                         }
 
                         if reduce {
@@ -352,8 +352,8 @@ JohnsonSimplex<N, V> {
                             for i in range(0u, curr_num_pts) {
                                 let id = curr - (i + 1) * curr_num_pts;
                                 self.exchange_points.push(
-                                    self.points.unsafe_get(
-                                        recursion.permutation_list.unsafe_get(id)));
+                                    (*self.points.unsafe_ref(
+                                        *recursion.permutation_list.unsafe_ref(id))).clone());
                             }
 
                             util::swap(&mut self.exchange_points, &mut self.points);
