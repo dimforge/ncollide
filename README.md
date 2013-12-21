@@ -37,5 +37,4 @@ And various traits for collision detectors and broad phase collision detection.
 ## What is missing
 Some common features are still missing:
 
-- heightmaps and simplex meshes (eg. triangle mesh for 3d and line strips for
-  2d)
+- heightmaps

@@ -1,3 +1,5 @@
+//! Enum grouping the most useful geometric shapes.
+
 use std::num::One;
 use extra::arc::Arc;
 use nalgebra::na::{Cast, Translation, Rotate, Transform, AbsoluteRotate, AlgebraicVecExt, Dim};

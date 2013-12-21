@@ -1,3 +1,8 @@
+//!
+//! Geometry composed from the union of primitives.
+//!
+
+use nalgebra::na;
 use nalgebra::na::{AlgebraicVecExt, Cast, VecExt, Translation, AbsoluteRotate, Transform};
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use partitioning::bvt::BVT;
@@ -26,13 +31,13 @@ CompoundAABB<N, V, M, S> {
         let mut leaves = ~[];
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
-            let bv = shape.aabb(delta).loosened(Cast::from(0.04)); // loosen for better persistancy
+            let bv = shape.aabb(delta).loosened(na::cast(0.04)); // loosen for better persistancy
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
         }
 
-        let bvt = BVT::new_with_partitioner(leaves, bvt::dim_pow_2_aabb_partitioner);
+        let bvt = BVT::new_with_partitioner(leaves, bvt::kdtree_partitioner);
 
         CompoundAABB {
             shapes: shapes,
@@ -68,8 +73,8 @@ impl<N, V, M, S> CompoundAABB<N, V, M, S> {
 
 impl<N: Primitive + Orderable + Cast<f32>,
      V: VecExt<N> + Clone,
-     M: Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V>,
-     S: HasAABB<N, V, M>>
+     M: Translation<V> + AbsoluteRotate<V> + Transform<V>,
+     S>
 HasAABB<N, V, M> for CompoundAABB<N, V, M, S> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<N, V> {

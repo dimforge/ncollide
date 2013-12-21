@@ -11,6 +11,7 @@ pub use narrow::incremental_contact_manifold_generator::IncrementalContactManifo
 pub use narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
 pub use narrow::compound_any::{CompoundAABBAny, AnyCompoundAABB};
 pub use narrow::compound_compound::CompoundAABBCompoundAABB;
+pub use narrow::subsimplex_mesh_any::SubsimplexMeshAny;
 
 // functions
 /// Functions to compule the time of impact between two geometries.
@@ -44,6 +45,7 @@ mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
 mod compound_any;
 mod compound_compound;
+mod subsimplex_mesh_any;
 
 /// Algorithms needed for distance and penetration depth computation.
 pub mod algorithm

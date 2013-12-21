@@ -8,7 +8,6 @@ use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::{Translation, AlgebraicVec};
 use nalgebra::na;
 use bounding_volume::BoundingVolume;
-use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
 
 #[deriving(Encodable, Decodable)]
@@ -175,24 +174,6 @@ impl<V, B, BV> DBVTNode<V, B, BV> {
 
         res
     }
-
-    /// Maximum depth of this tree.
-    fn depth(&self) -> uint {
-        match *self {
-            Internal(ref i) => (1 + i.right.depth()).max(&(1 + i.left.depth())),
-            Leaf(_)         => 1,
-            Invalid         => unreachable!()
-        }
-    }
-
-    /// Number of leaves of this tree.
-    fn num_leaves(&self) -> uint {
-        match *self {
-            Internal(ref i) => i.right.num_leaves() + i.left.num_leaves(),
-            Leaf(_)         => 1,
-            Invalid         => unreachable!()
-        }
-    }
 }
 
 impl<V, B, BV> DBVTInternal<V, B, BV> {
@@ -295,6 +276,7 @@ impl<BV: BoundingVolume, B, V: AlgebraicVec<N>, N: Algebraic> DBVTNode<V, B, BV>
         }
     }
 
+    /*
     fn enclosing_volume(&self, other: &DBVTNode<V, B, BV>) -> BV {
         match (self, other) {
             (&Internal(ref a), &Internal(ref b)) => a.bounding_volume.merged(&b.bounding_volume),
@@ -304,6 +286,7 @@ impl<BV: BoundingVolume, B, V: AlgebraicVec<N>, N: Algebraic> DBVTNode<V, B, BV>
             _ => unreachable!() // combination including invalide nodes
         }
     }
+    */
 }
 
 impl<BV: Translation<V> + BoundingVolume,
@@ -315,6 +298,7 @@ DBVTInternal<V, B, BV> {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
     }
 
+    /*
     fn is_closest_to_right(&self, pt: &V) -> bool {
         !self.is_closest_to_left(pt)
     }
@@ -328,6 +312,7 @@ DBVTInternal<V, B, BV> {
             _ => { }
         }
     }
+    */
 }
 
 impl<BV: 'static + BoundingVolume + Translation<V>,
@@ -500,6 +485,7 @@ DBVTNode<V, B, BV> {
     }
 }
 
+/*
 impl<BV: 'static + BoundingVolume + RayCast<N, V> + Translation<V>,
      B:  'static,
      V:  'static + AlgebraicVec<N>,
@@ -522,5 +508,6 @@ DBVTNode<V, B, BV> {
         }
     }
 }
+*/
 
 // XXX: Drop should be implemented to invalidate the leaves parents when the tree is dropped.

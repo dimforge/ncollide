@@ -1,12 +1,12 @@
-use std::num::Zero;
 use nalgebra::na::{AlgebraicVecExt, Rotate, Transform};
+use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::CompoundAABB;
 use partitioning::bvt_visitor::RayInterferencesCollector;
 
 
 impl<N: Num + Bounded + Orderable + Primitive + Algebraic,
-     V: 'static + AlgebraicVecExt<N>,
+     V: AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>,
      S: RayCastWithTransform<N, V, M>>
 RayCast<N, V> for CompoundAABB<N, V, M, S> {
@@ -52,7 +52,7 @@ RayCast<N, V> for CompoundAABB<N, V, M, S> {
         }
 
         // compute the minimum toi
-        let mut toi: (N, V) = (Bounded::max_value(), Zero::zero());
+        let mut toi: (N, V) = (Bounded::max_value(), na::zero());
         let shapes = self.shapes();
 
         for i in interferences.iter() {
@@ -78,7 +78,7 @@ RayCast<N, V> for CompoundAABB<N, V, M, S> {
 }
 
 impl<N: Num + Bounded + Orderable + Primitive + Algebraic,
-     V: 'static + AlgebraicVecExt<N>,
+     V: AlgebraicVecExt<N>,
      M: Transform<V> + Rotate<V>,
      S: RayCastWithTransform<N, V, M>>
 RayCastWithTransform<N, V, M> for CompoundAABB<N, V, M, S> { }

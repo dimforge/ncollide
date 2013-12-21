@@ -226,7 +226,7 @@ Dispatcher<N, LV, AV, M> {
 }
 
 impl<N: Send + Freeze + Zero + Cast<f32> + Clone, LV: Send + Freeze + Clone, AV, M: Send + Freeze>
-     broad::Dispatcher<Geom<N, LV, M>, GeomGeom<N, LV, AV, M>>
+     broad::Dispatcher<Geom<N, LV, M>, Geom<N, LV, M>, GeomGeom<N, LV, AV, M>>
 for Dispatcher<N, LV, AV, M> {
     fn dispatch(&self, g1: &Geom<N, LV, M>, g2: &Geom<N, LV, M>)
                 -> GeomGeom<N, LV, AV, M> {

@@ -5,9 +5,11 @@ pub use ray::ray::{Ray, RayCast, RayCastWithTransform};
 
 // functions
 pub use ray::ray_plane::plane_toi_with_ray;
+pub use ray::ray_implicit::gjk_toi_and_normal_with_ray;
+pub use ray::ray_subsimplex_mesh::triangle_toi_and_normal_with_ray;
+pub use ray::ray_subsimplex_mesh::segment_toi_and_normal_with_ray;
 
 // modules
-#[doc(hidden)]
 pub mod ray;
 #[doc(hidden)]
 pub mod ray_plane;
@@ -21,3 +23,5 @@ pub mod ray_aabb;
 pub mod ray_compound;
 #[doc(hidden)]
 pub mod ray_implicit;
+#[doc(hidden)]
+pub mod ray_subsimplex_mesh;

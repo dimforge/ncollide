@@ -68,7 +68,7 @@ pub struct BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
 impl<N:  Clone,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
     /// Creates a new bounding volume based brute force broad phase.

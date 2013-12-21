@@ -5,10 +5,14 @@ use nalgebra::na;
 use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use narrow::algorithm::simplex::Simplex;
 
+/// Results of the GJK algorithm.
 #[deriving(Encodable, Decodable)]
 pub enum GJKResult<V, Dir> {
+    /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
+    /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
     Projection(V),
+    /// Result of the GJK algorithm when the origin is to far away from the polytope.
     NoIntersection(Dir)
 }
 
@@ -153,6 +157,14 @@ pub fn project_origin<S: Simplex<N, V>,
 /*
  * Separating Axis GJK
  */
+/// Projects the origin on a geometry unsing the Separating Axis GJK algorithm.
+/// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away
+/// from the origin.
+///
+/// # Arguments:
+///     * geom - the geometry to project the origin on
+///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
+///     with at least one point on the geometry boundary.
 pub fn project_origin_with_max_dist<S: Simplex<N, V>,
                                     G: Implicit<N, V, M>,
                                     N: Ord + Num + Float + Cast<f32>,

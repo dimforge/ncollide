@@ -21,6 +21,7 @@ enum BVTNode<B, BV> {
 type PartFnResult<B, BV> = (BV, Either<B, ~[~[(B, BV)]]>);
 
 impl<B, BV> BVT<B, BV> {
+    // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner(leaves:      ~[(B, BV)],
                                 partitioner: |~[(B, BV)]| -> PartFnResult<B, BV>)
@@ -48,8 +49,8 @@ impl<B, BV> BVT<B, BV> {
     /// Visit this tree using… a visitor! Visitor arguments are mutable.
     pub fn visit_mut<Vis: BVTVisitor<B, BV>>(&mut self, visitor: &mut Vis) {
         match self.tree {
-            Some(ref mut t) => t.visit(visitor),
-            None        => { }
+            Some(ref mut t) => t.visit_mut(visitor),
+            None            => { }
         }
     }
 }
@@ -104,10 +105,10 @@ impl<B, BV> BVTNode<B, BV> {
 /// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
 ///
 /// Use this as a parameter of `new_with_partitioner`.
-pub fn dim_pow_2_aabb_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
-                                  V: VecExt<N>,
-                                  B>(leaves: ~[(B, AABB<N, V>)])
-                                  -> PartFnResult<B, AABB<N, V>> {
+pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
+                          V: VecExt<N>,
+                          B>(leaves: ~[(B, AABB<N, V>)])
+                          -> PartFnResult<B, AABB<N, V>> {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }

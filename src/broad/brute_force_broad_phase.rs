@@ -15,7 +15,7 @@ pub struct BruteForceBroadPhase<B, D, DV> {
     priv objects:    ~[@mut B]
 }
 
-impl<B, D: Dispatcher<B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
+impl<B, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
     /// Builds a new brute force broad phase.
     pub fn new(dispatcher: D) -> BruteForceBroadPhase<B, D, DV> {
         BruteForceBroadPhase {

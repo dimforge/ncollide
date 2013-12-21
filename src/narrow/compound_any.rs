@@ -75,7 +75,7 @@ impl<N:  Algebraic + Primitive + Orderable,
      V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M>,
      G:  HasAABB<N, V, M>,
-     D:  Dispatcher<G, SD>,
+     D:  Dispatcher<G, G, SD>,
      SD: CollisionDetector<N, V, M, G, G>>
 CompoundAABBAny<N, V, M, G, D, SD> {
     fn do_update(&mut self, m1: &M, g1: &CompoundAABB<N, V, M, G>, m2: &M, g2: &G, swap: bool) {
@@ -115,7 +115,6 @@ CompoundAABBAny<N, V, M, G, D, SD> {
                 None            => { },
                 Some(ref mut d) => {
                     if self.updated[i] || ls_aabb2.intersects(&g1.bounding_volumes()[i]) {
-                        // no more collision: remove the collision detector
                         let s1 = g1.shapes();
                         let new_child_transform = m1 * *s1[i].first_ref();
 
@@ -146,7 +145,7 @@ impl<N:  Algebraic + Primitive + Orderable,
      V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
-     D:  Dispatcher<G, SD>,
+     D:  Dispatcher<G, G, SD>,
      SD: CollisionDetector<N, V, M, G, G>>
 CollisionDetector<N, V, M, CompoundAABB<N, V, M, G>, G>
 for CompoundAABBAny<N, V, M, G, D, SD> {
@@ -197,7 +196,7 @@ impl<N:  Algebraic + Primitive + Orderable,
      V:  'static + AlgebraicVecExt<N> + Clone,
      M:  Inv + Mul<M, M> + Translation<V>,
      G:  HasAABB<N, V, M>,
-     D:  Dispatcher<G, SD>,
+     D:  Dispatcher<G, G, SD>,
      SD: CollisionDetector<N, V, M, G, G>>
 CollisionDetector<N, V, M, G, CompoundAABB<N, V, M, G>>
 for AnyCompoundAABB<N, V, M, G, D, SD> {

@@ -31,7 +31,7 @@ impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N> + Translation<V>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 DBVTBroadPhase<N, V, B, BV, D, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
@@ -122,7 +122,7 @@ impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N> + Translation<V>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 BroadPhase<B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline]
@@ -230,7 +230,7 @@ impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N> + Translation<V>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 InterferencesBroadPhase<B, DV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     #[inline(always)]
@@ -323,7 +323,7 @@ impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N> + Translation<V>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut ~[@mut B]) {
@@ -346,7 +346,7 @@ impl<N:  Algebraic + Clone + Ord,
      V:  'static + AlgebraicVec<N>,
      B:  'static + HasBoundingVolume<BV>,
      BV: 'static + LooseBoundingVolume<N> + RayCast<N, V> + Translation<V>,
-     D:  Dispatcher<B, DV>,
+     D:  Dispatcher<B, B, DV>,
      DV>
 RayCastBroadPhase<V, B> for DBVTBroadPhase<N, V, B, BV, D, DV> {
     fn interferences_with_ray(&mut self, ray: &Ray<V>, out: &mut ~[@mut B]) {

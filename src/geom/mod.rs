@@ -13,7 +13,7 @@ pub use geom::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoin
 pub use geom::reflection::Reflection;
 pub use geom::compound::CompoundAABB;
 pub use geom::geom_with_margin::GeomWithMargin;
-// pub use geom::simplex_mesh::SimplexMesh;
+pub use geom::subsimplex_mesh::SubsimplexMesh;
 pub use geom::geom::{Geom, IGeom, PlaneGeom, BallGeom, BoxGeom, ConeGeom, CylinderGeom,
                      CapsuleGeom, CompoundGeom, ImplicitGeom};
 
@@ -36,4 +36,4 @@ pub mod minkowski_sum;
 pub mod reflection;
 pub mod compound;
 pub mod geom_with_margin;
-// pub mod simplex_mesh;
+pub mod subsimplex_mesh;

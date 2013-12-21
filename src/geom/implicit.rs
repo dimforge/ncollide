@@ -1,3 +1,7 @@
+//!
+//! Traits for support mapping based geometries.
+//!
+
 use nalgebra::na::AlgebraicVec;
 use nalgebra::na;
 

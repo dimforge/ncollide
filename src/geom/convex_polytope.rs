@@ -1,3 +1,6 @@
+//! 
+//! Support mapping based Convex Polytope geometry.
+//!
 use std::num::Bounded;
 use nalgebra::na::{Cast, Transform, Rotate, AlgebraicVec};
 use nalgebra::na;

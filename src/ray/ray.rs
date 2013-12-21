@@ -1,3 +1,5 @@
+//! Traits and structure needed to cast rays.
+
 use nalgebra::na::{Vec, Rotate, Transform};
 
 /// A Ray.

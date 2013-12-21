@@ -54,7 +54,7 @@ impl<N:  Algebraic + Primitive + Orderable,
      V:  'static + Clone + AlgebraicVecExt<N>,
      M:  Inv + Mul<M, M> + Translation<V>,
      S:  HasAABB<N, V, M>,
-     D:  Dispatcher<S, SD>,
+     D:  Dispatcher<S, S, SD>,
      SD: CollisionDetector<N, V, M, S, S>>
 CollisionDetector<N, V, M, CompoundAABB<N, V, M, S>, CompoundAABB<N, V, M, S>>
 for CompoundAABBCompoundAABB<N, V, M, S, D, SD> {
