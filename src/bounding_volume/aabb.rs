@@ -1,7 +1,7 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, VecExt, AlgebraicVecExt, ScalarAdd, ScalarSub, Translation};
 use nalgebra::na;
-use geom::Implicit;
+use implicit::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 
 /// Traits of objects approximable by an AABB.
@@ -145,32 +145,31 @@ LooseBoundingVolume<N> for AABB<N, V> {
 }
 
 /// Builds the AABB of an implicit shape.
-pub fn implicit_shape_aabb<N: Algebraic + One + Zero + Neg<N>,
+pub fn implicit_shape_aabb<N: Algebraic + One + Zero + Neg<N> + Primitive,
                            V: AlgebraicVecExt<N>,
                            M,
                            I: Implicit<N, V, M>>(
                            m: &M,
                            i: &I)
                            -> AABB<N, V> {
-        let mut resm: V  = na::zero();
-        let mut resM: V  = na::zero();
+        let mut resm:  V = na::zero();
+        let mut resM:  V = na::zero();
         let mut basis: V = na::zero();
 
         for d in range(0, na::dim::<V>()) {
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis.set(d, na::one());
-            resM.set(d, i.support_point(m, &basis).at(d));
+            resM.set(d, i.support_point_without_margin(m, &basis).at(d));
 
             basis.set(d, -na::one::<N>());
-            resm.set(d, i.support_point(m, &basis).at(d));
+            resm.set(d, i.support_point_without_margin(m, &basis).at(d));
 
             basis.set(d, na::zero());
         }
 
-        let res = AABB::new(resm, resM);
-
-        res
+        let margin = i.margin();
+        AABB::new(resm.sub_s(&margin), resM.add_s(&margin))
 }
 
 // FIXME: remove that to use `Transformed` istead?

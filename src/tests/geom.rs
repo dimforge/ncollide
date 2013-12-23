@@ -1,7 +1,8 @@
 use std::cmp::ApproxEq;
 use nalgebra::na::Vec3;
 use nalgebra::na;
-use geom::{Ball, Implicit, MinkowskiSum};
+use geom::{Ball, MinkowskiSum};
+use implicit::Implicit;
 
 #[test]
 fn test_ball_support_function() {

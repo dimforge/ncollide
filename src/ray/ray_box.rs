@@ -1,7 +1,8 @@
 use nalgebra::na::{AlgebraicVecExt, Rotate, Transform, Identity, Cast};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use bounding_volume::AABB;
-use geom::{HasMargin, Box};
+use geom::Box;
+use implicit::HasMargin;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use ray::ray_implicit::gjk_toi_and_normal_with_ray;
 
@@ -10,7 +11,7 @@ impl<N: Primitive + Orderable + Algebraic + Float + Cast<f32>,
 RayCast<N, V> for Box<N, V> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        if self.margin().is_zero() {
+        if !self.margin().is_zero() {
             gjk_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,

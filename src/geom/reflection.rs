@@ -2,9 +2,6 @@
 //! Support mapping based reflected geometry.
 //!
 
-use nalgebra::na::AlgebraicVec;
-use geom::{Implicit, HasMargin};
-
 /**
  * Implicit represention of the reflection of a geometric object.
  * A reflection is obtained with the central symetry wrt the origin.
@@ -21,23 +18,9 @@ impl<'a, G> Reflection<'a, G> {
     pub fn new(g: &'a G) -> Reflection<'a, G> {
         Reflection { g: g }
     }
-}
-
-impl<'a, N, G: HasMargin<N>> HasMargin<N> for Reflection<'a, G> {
-    #[inline]
-    fn margin(&self) -> N {
-        self.g.margin()
-    }
-}
-
-impl<'a, N: Algebraic, V: AlgebraicVec<N>, M, G: Implicit<N, V, M>> Implicit<N, V, M> for Reflection<'a, G> {
-    #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> V {
-        -self.g.support_point(m, &-dir)
-    }
 
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
-        -self.g.support_point_without_margin(m, &-dir)
+    pub fn g(&self) -> &'a G {
+        self.g
     }
 }

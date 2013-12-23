@@ -2,13 +2,7 @@
 //! Support mapping based Cylinder geometry.
 //!
 
-use std::num::{Zero, One};
-use nalgebra::na::{Cast, Indexable, VecExt, AlgebraicVecExt, Rotate, Transform};
-use nalgebra::na;
-use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
-use bounding_volume;
-use geom::{Implicit, HasMargin};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
+use nalgebra::na::Cast;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
@@ -54,72 +48,9 @@ impl<N: Clone> Cylinder<N> {
     pub fn radius(&self) -> N {
         self.radius.clone()
     }
-}
 
-impl<N: Clone> HasMargin<N> for Cylinder<N> {
-    #[inline]
-    fn margin(&self) -> N {
+    /// Size of the margin around the cylinder.
+    pub fn margin(&self) -> N {
         self.margin.clone()
-    }
-}
-
-impl<N: Clone + Algebraic + Signed,
-     V: Clone + AlgebraicVecExt<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Cylinder<N> {
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
-        let local_dir = m.inv_rotate(dir);
-
-        let mut vres = local_dir.clone();
-
-        let negative = local_dir.at(0).is_negative();
-
-        vres.set(0, Zero::zero());
-
-        if vres.normalize().is_zero() {
-            vres = Zero::zero()
-        }
-        else {
-            vres = vres * self.radius;
-        }
-
-        if negative {
-            vres.set(0, -self.half_height)
-        }
-        else {
-            vres.set(0, self.half_height.clone())
-        }
-
-        m.transform(&vres)
-    }
-}
-
-impl<N: One,
-     V: VecExt<N>,
-     M: Rotate<V>>
-PreferedSamplingDirections<V, M> for Cylinder<N> {
-    #[inline(always)]
-    fn sample(&self, transform: &M, f: |V| -> ()) {
-        // Sample along the principal axis
-        let mut v: V = na::zero();
-        v.set(0, na::one());
-
-        let rv = transform.rotate(&v);
-        f(-rv);
-        f(rv);
-    }
-}
-
-impl<N: Signed + Algebraic + Orderable + Primitive + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Rotate<V> + Transform<V>>
-HasAABB<N, V, M> for Cylinder<N> {
-    #[inline]
-    fn aabb(&self, m: &M) -> AABB<N, V> {
-        let mut res = bounding_volume::implicit_shape_aabb(m, self);
-
-        res.loosen(self.margin.clone());
-
-        res
     }
 }

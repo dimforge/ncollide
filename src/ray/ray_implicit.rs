@@ -3,7 +3,8 @@ use nalgebra::na::{AlgebraicVecExt, Cast, Identity, Translation, Rotate, Transfo
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
-use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Implicit};
+use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Triangle, Segment};
+use implicit::Implicit;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use ray;
 
@@ -139,6 +140,48 @@ impl<N: Ord + Num + Float + Cast<f32> + Clone,
      V: AlgebraicVecExt<N> + Clone,
      M: Transform<V> + Rotate<V>>
 RayCastWithTransform<N, V, M> for Capsule<N> { }
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone>
+RayCast<N, V> for Convex<N, V> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    }
+}
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone,
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Convex<N, V> { }
+
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone>
+RayCast<N, V> for Triangle<N, V> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        // XXX: optimize if na::dim::<V>() == 3 && self.margin().is_zero()
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    }
+}
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone,
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Triangle<N, V> { }
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone>
+RayCast<N, V> for Segment<N, V> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+        // XXX: optimize if na::dim::<V>() == 2 && self.margin().is_zero()
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+    }
+}
+
+impl<N: Ord + Num + Float + Cast<f32> + Clone,
+     V: AlgebraicVecExt<N> + Clone,
+     M: Transform<V> + Rotate<V>>
+RayCastWithTransform<N, V, M> for Segment<N, V> { }
 
 impl<'a,
      N:  Ord + Num + Float + Cast<f32> + Clone,

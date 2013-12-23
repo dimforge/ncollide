@@ -19,6 +19,15 @@ pub struct BallBall<N, V, M> {
     priv contact:    Option<Contact<N, V>>
 }
 
+impl<N: Clone, V: Clone, M> Clone for BallBall<N, V, M> {
+    fn clone(&self) -> BallBall<N, V, M> {
+        BallBall {
+            prediction: self.prediction.clone(),
+            contact:    self.contact.clone()
+        }
+    }
+}
+
 impl<N, V, M> BallBall<N, V, M> {
     /// Creates a new persistant collision detector between two balls.
     #[inline]

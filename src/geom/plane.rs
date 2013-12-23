@@ -2,9 +2,8 @@
 //! Support mapping based Plane geometry.
 //!
 
-use nalgebra::na::{AlgebraicVec, AlgebraicVecExt};
+use nalgebra::na::AlgebraicVec;
 use nalgebra::na;
-use bounding_volume::{HasAABB, AABB};
 
 /**
  * Implicit description of a plane.
@@ -38,14 +37,5 @@ impl<N, V: Clone> Plane<N, V> {
     #[inline]
     pub fn normal(&self) -> V {
         self.normal.clone()
-    }
-}
-
-impl<V: AlgebraicVecExt<N>, N, M>
-HasAABB<N, V, M> for Plane<N, V> {
-    fn aabb(&self, _: &M) -> AABB<N, V> {
-        let _m: V = Bounded::max_value();
-
-        AABB::new(-_m, Bounded::max_value())
     }
 }

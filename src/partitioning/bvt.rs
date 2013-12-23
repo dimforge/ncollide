@@ -1,6 +1,8 @@
 //! A read-only Bounding Volume Tree.
 
 use std::vec;
+use std::rand;
+use std::rand::Rng;
 use nalgebra::na::{Cast, Translation, VecExt};
 use nalgebra::na;
 use partitioning::bvt_visitor::BVTVisitor;
@@ -24,7 +26,7 @@ impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner(leaves:      ~[(B, BV)],
-                                partitioner: |~[(B, BV)]| -> PartFnResult<B, BV>)
+                                partitioner: |&mut rand::StdRng, ~[(B, BV)]| -> PartFnResult<B, BV>)
                                 -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
@@ -107,7 +109,7 @@ impl<B, BV> BVTNode<B, BV> {
 /// Use this as a parameter of `new_with_partitioner`.
 pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
                           V: VecExt<N>,
-                          B>(leaves: ~[(B, AABB<N, V>)])
+                          B>(rng: &mut rand::StdRng, leaves: ~[(B, AABB<N, V>)])
                           -> PartFnResult<B, AABB<N, V>> {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
@@ -117,7 +119,6 @@ pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
         (aabb, Left(b))
     }
     else {
-        let mut rl = false;
         // merge all bounding boxes
         let bounding_bounding_box =
             leaves.iter().fold(AABB::new_invalid(), |curr_aabb, &(_, ref other_aabb)| {
@@ -137,8 +138,7 @@ pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
                     key = key | (1u << i);
                 }
                 else if dpos.at(i).is_zero() {
-                    if i == 0u { rl = !rl }
-                    if rl {
+                    if rng.gen() {
                         key = key | (1u << i);
                     }
                 }
@@ -152,9 +152,17 @@ pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
 }
 
 fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
-                               partitioner: |~[(B, BV)]| -> PartFnResult<B, BV>)
+                               partitioner: |&mut rand::StdRng, ~[(B, BV)]| -> PartFnResult<B, BV>)
                                -> BVTNode<B, BV> {
-    let (bv, partitions) = partitioner(leaves);
+    let mut rng: rand::StdRng = rand::SeedableRng::from_seed(&[1, 2, 3, 4]);
+    _new_with_partitioner(&mut rng, leaves, partitioner)
+}
+
+fn _new_with_partitioner<B, BV>(rng:         &mut rand::StdRng,
+                                leaves:      ~[(B, BV)],
+                                partitioner: |&mut rand::StdRng, ~[(B, BV)]| -> PartFnResult<B, BV>)
+                                -> BVTNode<B, BV> {
+    let (bv, partitions) = partitioner(rng, leaves);
 
     match partitions {
         Left(b)      => Leaf(bv, b),
@@ -163,10 +171,12 @@ fn new_with_partitioner<B, BV>(leaves:      ~[(B, BV)],
 
             for part in parts.move_rev_iter() {
                 if part.len() != 0 {
-                    children.push(new_with_partitioner(part, |x| partitioner(x)))
+                    children.push(_new_with_partitioner(rng, part, |r, x| partitioner(r, x)))
                 }
             }
 
+            // FIXME. if children.len() == 1 && children[0].len() > 1,
+            // ignore this node!
             Internal(bv, children)
         }
     }

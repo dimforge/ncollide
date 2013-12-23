@@ -3,7 +3,8 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, AlgebraicVecExt, Identity, Translation};
 use nalgebra::na;
-use geom::{Implicit, Reflection, MinkowskiSum, AnnotatedPoint};
+use geom::{Reflection, MinkowskiSum, AnnotatedPoint};
+use implicit::Implicit;
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 
@@ -133,7 +134,7 @@ mod test {
     use super::closest_points;
     use nalgebra::na::Vec2;
     use geom::{Box, AnnotatedPoint};
-    use geom;
+    use implicit;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 
     #[test]
@@ -143,7 +144,7 @@ mod test {
         let ta = Vec2::new(0.0f32, 0.0);
         let tb = Vec2::new(7.0f32, 1.0);
         let mut splx: JohnsonSimplex<f32, AnnotatedPoint<Vec2<f32>>> = JohnsonSimplex::new_w_tls();
-        splx.reset(geom::cso_support_point_without_margin(&ta, &a, &tb, &b, Vec2::new(1.0f32, 1.0)));
+        splx.reset(implicit::cso_support_point_without_margin(&ta, &a, &tb, &b, Vec2::new(1.0f32, 1.0)));
         println!("{:?}", closest_points(&ta, &a, &tb, &b, &mut splx));
     }
 }

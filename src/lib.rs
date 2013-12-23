@@ -49,7 +49,7 @@ Some common features are still missing:
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
-#[warn(missing_doc)];
+// #[warn(missing_doc)];
 #[feature(macro_rules)];
 #[feature(managed_boxes)];
 
@@ -63,6 +63,8 @@ pub mod ray;
 pub mod narrow;
 pub mod broad;
 pub mod contact;
+pub mod volumetric;
+pub mod implicit;
 
 /// Spatial partitioning tools.
 pub mod partitioning {
@@ -79,9 +81,12 @@ pub mod util {
     pub mod owned_allocation_cache;
 }
 
-// #[cfg(test)]
-// mod tests {
-//     mod geom;
-//     mod narrow;
-//     mod algo;
-// }
+/// Aliases
+pub mod aliases;
+
+#[cfg(test)]
+mod tests {
+    mod geom;
+    mod narrow;
+    mod algo;
+}

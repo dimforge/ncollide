@@ -1,12 +1,6 @@
 //!
 //! Support mapping based Capsule geometry.
 //!  
-use std::num::Zero;
-use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
-use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
-use bounding_volume;
-use geom::{Implicit, HasMargin};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
@@ -42,54 +36,5 @@ impl<N: Clone> Capsule<N> {
     /// The radius of the capsule's rounded part.
     pub fn radius(&self) -> N {
         self.radius.clone()
-    }
-}
-
-
-impl<N: Clone> HasMargin<N> for Capsule<N> {
-    #[inline]
-    fn margin(&self) -> N {
-        self.radius.clone()
-    }
-}
-
-impl<N: Clone + Signed + Algebraic,
-     V: Clone + AlgebraicVecExt<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Capsule<N> {
-    #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
-        let local_dir = m.inv_rotate(dir);
-
-        let mut vres: V = Zero::zero();
-
-        if local_dir.at(0).is_negative() {
-            vres.set(0, -self.half_height)
-        }
-        else {
-            vres.set(0, self.half_height.clone())
-        }
-
-        m.transform(&vres)
-    }
-}
-
-impl<N, V, M>
-PreferedSamplingDirections<V, M> for Capsule<N> {
-    #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
-    }
-}
-
-impl<N: Algebraic + Signed + Primitive + Orderable + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Rotate<V> + Transform<V>>
-HasAABB<N, V, M> for Capsule<N> {
-    fn aabb(&self, m: &M) -> AABB<N, V> {
-        let mut res = bounding_volume::implicit_shape_aabb(m, self);
-
-        res.loosen(self.margin.clone());
-
-        res
     }
 }

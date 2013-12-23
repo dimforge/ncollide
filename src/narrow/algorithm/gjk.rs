@@ -2,11 +2,12 @@
 
 use nalgebra::na::{Cast, AlgebraicVec, Identity};
 use nalgebra::na;
-use geom::{Implicit, Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
+use geom::{Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
+use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
 
 /// Results of the GJK algorithm.
-#[deriving(Encodable, Decodable)]
+#[deriving(Encodable, Decodable, Clone)]
 pub enum GJKResult<V, Dir> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
@@ -123,7 +124,7 @@ pub fn project_origin<S: Simplex<N, V>,
     let mut sq_len_dir = na::sqnorm(&proj);
 
     let _eps: N  = Float::epsilon();
-    let _eps_tol = _eps * Cast::from(100.0);
+    let _eps_tol = _eps * na::cast(100.0);
     let _eps_rel = _eps.sqrt();
     let _dim     = na::dim::<V>();
 
@@ -180,7 +181,7 @@ pub fn project_origin_with_max_dist<S: Simplex<N, V>,
     let mut sq_len_dir = na::sqnorm(&proj);
 
     let _eps: N  = Float::epsilon();
-    let _eps_tol = _eps * Cast::from(100.0);
+    let _eps_tol = _eps * na::cast(100.0);
     let _eps_rel = _eps.sqrt();
     let _dim     = na::dim::<V>();
 

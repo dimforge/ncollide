@@ -1,8 +1,9 @@
 use std::num::{Zero, One};
 use nalgebra::na::{Cast, Translation, Rotate, Transform, AlgebraicVecExt};
 use nalgebra::na;
-use geom;
-use geom::{Implicit, Reflection, AnnotatedPoint, MinkowskiSum};
+use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
+use implicit::Implicit;
+use implicit;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
@@ -17,18 +18,28 @@ use ray::{Ray, RayCast};
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct ImplicitImplicit<S, G1, G2, N, V> {
+pub struct ImplicitImplicit<N, V, S, G1, G2> {
     priv simplex:       S,
     priv prediction:    N,
     priv contact:       GJKResult<Contact<N, V>, V>
 }
 
-impl<S, G1, G2, N, V> ImplicitImplicit<S, G1, G2, N, V> {
+impl<N: Clone, V: Clone, S: Clone, G1, G2> Clone for ImplicitImplicit<N, V, S, G1, G2> {
+    fn clone(&self) -> ImplicitImplicit<N, V, S, G1, G2> {
+        ImplicitImplicit {
+            simplex:    self.simplex.clone(),
+            prediction: self.prediction.clone(),
+            contact:    self.contact.clone()
+        }
+    }
+}
+
+impl<N, V, S, G1, G2> ImplicitImplicit<N, V, S, G1, G2> {
     /// Creates a new persistent collision detector between two geometries with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2, N, V> {
+    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<N, V, S, G1, G2> {
         ImplicitImplicit {
             simplex:    simplex,
             prediction: prediction,
@@ -44,7 +55,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
      N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
      V:  AlgebraicVecExt<N> + Clone,
      M:  Translation<V> + Transform<V> + Rotate<V> + One>
-     CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<S, G1, G2, N, V> {
+     CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<N, V, S, G1, G2> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
         let initial_direction = match self.contact {
@@ -80,7 +91,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn toi(_:   Option<ImplicitImplicit<S, G1, G2, N, V>>,
+    fn toi(_:   Option<ImplicitImplicit<N, V, S, G1, G2>>,
            ma:  &M,
            dir: &V,
            _:   &N,
@@ -126,7 +137,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
         dir.set(0, na::one());
     }
 
-    simplex.reset(geom::cso_support_point_without_margin(m1, g1, m2, g2, dir));
+    simplex.reset(implicit::cso_support_point_without_margin(m1, g1, m2, g2, dir));
 
     let margin1  = g1.margin();
     let margin2  = g2.margin();

@@ -1,7 +1,8 @@
 use nalgebra::na::{Translation, Rotate, Transform, AlgebraicVec};
 use nalgebra::na;
 use narrow::CollisionDetector;
-use geom::{Plane, Implicit};
+use geom::Plane;
+use implicit::Implicit;
 use contact::Contact;
 use ray::{Ray, RayCastWithTransform};
 
@@ -13,6 +14,15 @@ use ray::{Ray, RayCastWithTransform};
 pub struct PlaneImplicit<N, V, M, G> {
     priv prediction: N,
     priv contact: Option<Contact<N, V>>
+}
+
+impl<N: Clone, V: Clone, M, G> Clone for PlaneImplicit<N, V, M, G> {
+    fn clone(&self) -> PlaneImplicit<N, V, M, G> {
+        PlaneImplicit {
+            prediction: self.prediction.clone(),
+            contact:    self.contact.clone()
+        }
+    }
 }
 
 impl<N, V, M, G> PlaneImplicit<N, V, M, G> {
@@ -78,6 +88,15 @@ CollisionDetector<N, V, M, Plane<N, V>, G> for PlaneImplicit<N, V, M, G> {
 pub struct ImplicitPlane<N, V, M, G> {
     priv prediction: N,
     priv contact:    Option<Contact<N, V>>
+}
+
+impl<N: Clone, V: Clone, M, G> Clone for ImplicitPlane<N, V, M, G> {
+    fn clone(&self) -> ImplicitPlane<N, V, M, G> {
+        ImplicitPlane {
+            prediction: self.prediction.clone(),
+            contact:    self.contact.clone()
+        }
+    }
 }
 
 impl<N, V, M, G> ImplicitPlane<N, V, M, G> {

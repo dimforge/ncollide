@@ -8,7 +8,7 @@ use narrow::closest_points;
 use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
 use geom::Ball;
 use geom::AnnotatedPoint;
-use geom;
+use implicit;
 
 macro_rules! test_johnson_simplex_impl(
     ($t: ty, $n: ty) => ( {
@@ -27,14 +27,14 @@ macro_rules! test_johnson_simplex_impl(
                 let mut splx2 = BruteForceSimplex::new();
                 splx2.reset(v1.clone());
 
-                do d.times {
+                d.times(|| {
                     let mut v: $t = rand::random();
                     v = v - (0.5 as $n);
                     v = v * (i as $n);
 
                     splx1.add_point(v.clone());
                     splx2.add_point(v);
-                }
+                });
 
                 let proj2 = splx2.project_origin();
                 let proj1 = splx1.project_origin();
@@ -50,7 +50,7 @@ macro_rules! test_gjk_ball_ball_impl(
     ($t: ty, $n: ty) => ( {
         let recursion   = RecursionTemplate::new(na::dim::<$t>());
 
-        do 200.times {
+        200.times(|| {
             let r1 = 10.0 as $n * rand::random();
             let r2 = 10.0 as $n * rand::random();
 
@@ -68,7 +68,7 @@ macro_rules! test_gjk_ball_ball_impl(
             let (p1, p2) = closest_points::ball_ball(&c1, &b1, &c2, &b2);
 
             // FIXME: a bit verbose…
-            let cso_point   = geom::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
+            let cso_point   = implicit::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
             let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion.clone());
 
             simplex.reset(cso_point);
@@ -81,7 +81,7 @@ macro_rules! test_gjk_ball_ball_impl(
                 + " but expected: " + p1.to_str() + p2.to_str()),
                 None => assert!(na::norm(&(p1 - p2)) <= r1 + r2)
             }
-        }
+        });
     }
   )
 )
