@@ -1,6 +1,6 @@
 pub mod dim4 {
     use bounding_volume::AABB;
-    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom};
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
     use nalgebra::na::{Vec4, Mat4, Iso4};
 
     type LV<N> = Vec4<N>;
@@ -14,7 +14,7 @@ pub mod dim4 {
     pub type Plane4d<N>        = Plane<N, LV<N>>;
     pub type Compound4d<N>     = Compound<N, LV<N>, M<N>, II<N>>;
     pub type Triangle4d<N>     = Triangle<N, LV<N>>;
-    pub type Segment4d<N>      = Triangle<N, LV<N>>;
+    pub type Segment4d<N>      = Segment<N, LV<N>>;
     pub type TriangleMesh4d<N> = Mesh<N, LV<N>, M<N>, II<N>, Triangle4d<N>>;
     pub type LineStrip4d<N>    = Mesh<N, LV<N>, M<N>, II<N>, Segment4d<N>>;
     pub type Geom4dRef<'a, N>  = &'a Geom<N, LV<N>, M<N>, II<N>>;
@@ -24,7 +24,7 @@ pub mod dim4 {
 
 pub mod dim3 {
     use bounding_volume::AABB;
-    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom};
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
     use nalgebra::na::{Vec3, Mat3, Iso3};
 
     type LV<N> = Vec3<N>;
@@ -38,7 +38,7 @@ pub mod dim3 {
     pub type Plane3d<N>        = Plane<N, LV<N>>;
     pub type Compound3d<N>     = Compound<N, LV<N>, M<N>, II<N>>;
     pub type Triangle3d<N>     = Triangle<N, LV<N>>;
-    pub type Segment3d<N>      = Triangle<N, LV<N>>;
+    pub type Segment3d<N>      = Segment<N, LV<N>>;
     pub type TriangleMesh3d<N> = Mesh<N, LV<N>, M<N>, II<N>, Triangle3d<N>>;
     pub type LineStrip3d<N>    = Mesh<N, LV<N>, M<N>, II<N>, Segment3d<N>>;
     pub type Geom3dRef<'a, N>  = &'a Geom<N, LV<N>, M<N>, II<N>>;
@@ -48,7 +48,7 @@ pub mod dim3 {
 
 pub mod dim2 {
     use bounding_volume::AABB;
-    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom};
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
     use nalgebra::na::{Mat1, Vec2, Iso2};
 
     type LV<N> = Vec2<N>;
@@ -62,7 +62,7 @@ pub mod dim2 {
     pub type Plane2d<N>        = Plane<N, LV<N>>;
     pub type Compound2d<N>     = Compound<N, LV<N>, M<N>, II<N>>;
     pub type Triangle2d<N>     = Triangle<N, LV<N>>;
-    pub type Segment2d<N>      = Triangle<N, LV<N>>;
+    pub type Segment2d<N>      = Segment<N, LV<N>>;
     pub type TriangleMesh2d<N> = Mesh<N, LV<N>, M<N>, II<N>, Triangle2d<N>>;
     pub type LineStrip2d<N>    = Mesh<N, LV<N>, M<N>, II<N>, Segment2d<N>>;
     pub type Geom2dRef<'a, N>  = &'a Geom<N, LV<N>, M<N>, II<N>>;
