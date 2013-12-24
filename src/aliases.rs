@@ -49,10 +49,10 @@ pub mod dim3 {
 pub mod dim2 {
     use bounding_volume::AABB;
     use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom};
-    use nalgebra::na::{Vec2, Mat2, Iso2};
+    use nalgebra::na::{Mat1, Vec2, Iso2};
 
     type LV<N> = Vec2<N>;
-    type II<N> = Mat2<N>;
+    type II<N> = Mat1<N>;
     type M<N>  = Iso2<N>;
 
     pub type Ball2d<N>         = Ball<N>;
