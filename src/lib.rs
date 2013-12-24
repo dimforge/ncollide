@@ -40,11 +40,8 @@ Some common features are still missing:
 
 - heightmaps
 */
-#[link(name         = "ncollide"
-       , vers       = "0.0"
-       , author     = "Sébastien Crozet"
-       , uuid       = "833dfdbd-3e85-456f-9ca7-84aade5ed3be")];
-#[crate_id = "github.com/sebcrozet/ncollide"];
+
+#[crate_id = "ncollide#0.1"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
