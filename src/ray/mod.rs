@@ -23,3 +23,5 @@ pub mod ray_aabb;
 pub mod ray_implicit;
 #[doc(hidden)]
 pub mod ray_concave;
+#[doc(hidden)]
+pub mod ray_triangle;
