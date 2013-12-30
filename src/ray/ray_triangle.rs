@@ -11,7 +11,7 @@ impl<N: Ord + Num + Float + Cast<f32> + Clone,
 RayCast<N, V> for Triangle<N, V> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
         if na::dim::<V>() == 3 && self.margin().is_zero() {
-            triangle_toi_and_normal_with_ray(self.a(), self.b(), self.c(), ray)
+            triangle_ray_intersection(self.a(), self.b(), self.c(), ray).map(|(toi, n, _)| (toi, n))
         }
         else {
             gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
@@ -24,13 +24,13 @@ impl<N: Ord + Num + Float + Cast<f32> + Clone,
      M: Transform<V> + Rotate<V>>
 RayCastWithTransform<N, V, M> for Triangle<N, V> { }
 
-pub fn triangle_toi_and_normal_with_ray<N: Num + Ord + Signed + Algebraic,
-                                        V: AlgebraicVecExt<N>>(
-                                        a:   &V,
-                                        b:   &V,
-                                        c:   &V,
-                                        ray: &Ray<V>)
-                                        -> Option<(N, V)> {
+pub fn triangle_ray_intersection<N: Num + Ord + Signed + Algebraic,
+                                 V: AlgebraicVecExt<N>>(
+                                 a:   &V,
+                                 b:   &V,
+                                 c:   &V,
+                                 ray: &Ray<V>)
+                                 -> Option<(N, V, (N, N, N))> {
     assert!(na::dim::<V>() == 3);
 
     /*
@@ -75,8 +75,10 @@ pub fn triangle_toi_and_normal_with_ray<N: Num + Ord + Signed + Algebraic,
     //
     let e = -cross(&ray.dir, &ap);
 
-    let v;
-    let w;
+    let mut v;
+    let mut w;
+    let toi;
+    let normal;
 
     if t < na::zero() {
         v = -na::dot(&ac, &e);
@@ -91,7 +93,11 @@ pub fn triangle_toi_and_normal_with_ray<N: Num + Ord + Signed + Algebraic,
             return None;
         }
 
-        Some((-t / d, -na::normalize(&n)))
+        let invd = na::one::<N>() / d;
+        toi      = -t * invd;
+        normal   = -na::normalize(&n);
+        v        = v * invd;
+        w        = w * invd;
     }
     else {
         v = na::dot(&ac, &e);
@@ -106,8 +112,12 @@ pub fn triangle_toi_and_normal_with_ray<N: Num + Ord + Signed + Algebraic,
             return None;
         }
 
-        Some((t / d, na::normalize(&n)))
+        let invd = na::one::<N>() / d;
+        toi      = t * invd;
+        normal   = na::normalize(&n);
+        v        = v * invd;
+        w        = w * invd;
     }
 
-    // FIXME: it could be useful to return barycentric coordinates too
+    Some((toi, normal, (-v - w + na::one(), v, w)))
 }

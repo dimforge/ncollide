@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform};
+use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform, Cast};
 use nalgebra::na;
 use geom::Ball;
 use narrow::CollisionDetector;
@@ -39,7 +39,7 @@ impl<N, V, M> BallBall<N, V, M> {
     }
 }
 
-impl<N: Real + NumCast + Clone,
+impl<N: Real + NumCast + Clone + Real + Cast<f32>,
      V: AlgebraicVecExt<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
      M: Translation<V>> 
      CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
@@ -133,8 +133,8 @@ pub fn closest_points<N: Algebraic + Clone,
 ///     * `m2`  - the second ball transform.
 ///     * `b2`  - the second ball.
 #[inline]
-pub fn toi<N: Num + Algebraic + Ord + Clone,
-           V: AlgebraicVec<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
+pub fn toi<N: Num + Algebraic + Ord + Clone + Real + Cast<f32>,
+           V: AlgebraicVecExt<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
            M: Translation<V>>(
            c1:  &M,
            dir: &V,

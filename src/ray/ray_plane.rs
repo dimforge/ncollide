@@ -33,8 +33,8 @@ RayCast<N, V> for Plane<N, V> {
 
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        plane_toi_with_ray(&Zero::zero(), &self.normal(), ray).map(|n| {
-            (n, self.normal())
+        plane_toi_with_ray(&Zero::zero(), &self.normal(), ray).map(|t| {
+            (t, self.normal())
         })
     }
 }

@@ -36,8 +36,17 @@ pub trait RayCastWithTransform<N, V: Vec<N>, M: Rotate<V> + Transform<V>> : RayC
     fn toi_and_normal_with_transform_and_ray(&self, m: &M, ray: &Ray<V>) -> Option<(N, V)> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-        self.toi_and_normal_with_ray(&ls_ray).map(|(n, d)| {
-            (n, m.rotate(&d))
+        self.toi_and_normal_with_ray(&ls_ray).map(|(t, d)| {
+            (t, m.rotate(&d))
+        })
+    }
+
+    #[inline]
+    fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &M, ray: &Ray<V>) -> Option<(N, V, Option<(N, N, N)>)> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
+
+        self.toi_and_normal_and_uv_with_ray(&ls_ray).map(|(t, d, uv)| {
+            (t, m.rotate(&d), uv)
         })
     }
 
@@ -53,12 +62,17 @@ pub trait RayCast<N, V: Vec<N>> {
     /// Computes the time of impact between this geometry and a ray
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        self.toi_and_normal_with_ray(ray).map(|(n, _)| n)
+        self.toi_and_normal_with_ray(ray).map(|(t, _)| t)
     }
 
     /// Computes the intersection point between this geometry and a ray.
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)>;
+
+    #[inline]
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<V>) -> Option<(N, V, Option<(N, N, N)>)> {
+        self.toi_and_normal_with_ray(ray).map(|(t, n)| (t, n, None))
+    }
 
     /// Tests whether a ray intersects this geometry.
     #[inline]

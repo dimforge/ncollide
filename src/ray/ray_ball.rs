@@ -1,30 +1,59 @@
-use std::num::{Zero, Algebraic};
-use nalgebra::na::{AlgebraicVec, Translation, Rotate, Transform};
+use std::num::Algebraic;
+use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, Translation, Rotate, Transform, Cast};
 use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::Ball;
 
-impl<N: Num + Algebraic + Ord + Clone,
-     V: AlgebraicVec<N> + Clone>
+fn ball_uv<N: Num + Algebraic + Ord + Clone + Trigonometric + Real + Cast<f32>,
+           V: AlgebraicVecExt<N> + Clone>(
+           normal: &V)
+           -> Option<(N, N, N)> {
+    if na::dim::<V>() == 3 {
+        let two_pi: N = Real::two_pi();
+        let pi:     N = Real::pi();
+        let _0_5:   N = na::cast(0.5);
+        let uvx       = _0_5 + normal.at(2).atan2(&normal.at(0)) / two_pi;
+        let uvy       = _0_5 - normal.at(1).asin() / pi;
+
+        Some((uvx, uvy, na::zero()))
+    }
+    else {
+        None
+    }
+}
+
+impl<N: Num + Algebraic + Ord + Clone + Trigonometric + Real + Cast<f32>,
+     V: AlgebraicVecExt<N> + Clone>
 RayCast<N, V> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
-        toi_with_ray(Zero::zero(), self.radius(), ray)
+        toi_with_ray(na::zero(), self.radius(), ray)
     }
 
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        toi_with_ray(Zero::zero(), self.radius(), ray).map(|n| {
+        toi_with_ray(na::zero(), self.radius(), ray).map(|n| {
             let pos    = ray.orig + ray.dir * n;
             let normal = na::normalize(&pos);
 
             (n, normal)
         })
     }
+
+    #[inline]
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<V>) -> Option<(N, V, Option<(N, N, N)>)> {
+        toi_with_ray(na::zero(), self.radius(), ray).map(|n| {
+            let pos    = ray.orig + ray.dir * n;
+            let normal = na::normalize(&pos);
+            let uv     = ball_uv(&normal);
+
+            (n, normal, uv)
+        })
+    }
 }
 
-impl<N: Num + Algebraic + Ord + Clone,
-     V: AlgebraicVec<N> + Clone,
+impl<N: Num + Algebraic + Ord + Clone + Trigonometric + Real + Cast<f32>,
+     V: AlgebraicVecExt<N> + Clone,
      M: Translation<V> + Rotate<V> + Transform<V>>
 RayCastWithTransform<N, V, M> for Ball<N> {
     #[inline]
@@ -44,22 +73,22 @@ fn toi_with_ray<N: Num + Algebraic + Ord + Clone,
     let b = na::dot(&dcenter, &ray.dir);
     let c = na::sqnorm(&dcenter) - radius * radius;
 
-    if c > Zero::zero() && b > Zero::zero() {
+    if c > na::zero() && b > na::zero() {
         None
     }
     else {
         let delta = b * b - c;
 
-        if delta < Zero::zero() {
+        if delta < na::zero() {
             // no solution
             None
         }
         else {
             let t = -b - delta.sqrt();
 
-            if t < Zero::zero() {
+            if t < na::zero() {
                 // orig inside of the ball
-                Some(Zero::zero())
+                Some(na::zero())
             }
             else {
                 Some(t)

@@ -28,7 +28,8 @@ pub struct Mesh<N, V, M, II, E> {
     priv margin:   N,
     priv vertices: Arc<~[V]>,
     priv indices:  Arc<~[uint]>,
-    priv uvs:      Option<Arc<~[(N, N)]>>
+    priv uvs:      Option<Arc<~[(N, N, N)]>>,
+    priv normals:  Option<Arc<~[V]>>,
 }
 
 impl<N: Clone + Send + Freeze, V: Clone + Send + Freeze, M, II, E> Clone for Mesh<N, V, M, II, E> {
@@ -39,7 +40,8 @@ impl<N: Clone + Send + Freeze, V: Clone + Send + Freeze, M, II, E> Clone for Mes
             margin:   self.margin.clone(),
             vertices: self.vertices.clone(),
             indices:  self.indices.clone(),
-            uvs:      self.uvs.clone()
+            uvs:      self.uvs.clone(),
+            normals:  self.normals.clone()
         }
     }
 }
@@ -53,15 +55,17 @@ Mesh<N, V, M, II, E> {
     /// Builds a new mesh with a default margin of 0.04.
     pub fn new(vertices: Arc<~[V]>,
                indices:  Arc<~[uint]>,
-               uvs:      Option<Arc<~[(N, N)]>>)
+               uvs:      Option<Arc<~[(N, N, N)]>>,
+               normals:  Option<Arc<~[V]>>)
                -> Mesh<N, V, M, II, E> {
-        Mesh::new_with_margin(vertices, indices, uvs, na::cast(0.04))
+        Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
     }
 
     /// Builds a new mesh with a custom margin.
     pub fn new_with_margin(vertices: Arc<~[V]>,
                            indices:  Arc<~[uint]>,
-                           uvs:      Option<Arc<~[(N, N)]>>,
+                           uvs:      Option<Arc<~[(N, N, N)]>>,
+                           normals:  Option<Arc<~[V]>>,
                            margin:   N)
                            -> Mesh<N, V, M, II, E> {
         assert!(indices.get().len() % MeshElement::nvertices(None::<E>) == 0);
@@ -93,13 +97,14 @@ Mesh<N, V, M, II, E> {
             margin:   margin,
             vertices: vertices,
             indices:  indices,
-            uvs:      uvs
+            uvs:      uvs,
+            normals:  normals
         }
     }
 }
 
 impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
-    /// The vertices of this subsimplex mesh.
+    /// The vertices of this mesh.
     #[inline]
     pub fn vertices<'a>(&'a self) -> &'a Arc<~[V]> {
         &'a self.vertices
@@ -113,16 +118,22 @@ impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
         res
     }
 
-    /// The indices of this subsimplex mesh.
+    /// The indices of this mesh.
     #[inline]
     pub fn indices<'a>(&'a self) -> &'a Arc<~[uint]> {
         &'a self.indices
     }
 
-    /// The texture coordinates of this subsimplex mesh.
+    /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<~[(N, N)]>> {
+    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<~[(N, N, N)]>> {
         &'a self.uvs
+    }
+
+    /// The normals of this mesh.
+    #[inline]
+    pub fn normals<'a>(&'a self) -> &'a Option<Arc<~[V]>> {
+        &'a self.normals
     }
 
     /// The acceleration structure used for efficient collision detection and ray casting.
@@ -138,7 +149,18 @@ impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
     }
 }
 
-impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic,
+impl<N: Clone, V: Freeze + Send, M, II, E: MeshElement<N, V>> Mesh<N, V, M, II, E> {
+    #[inline(always)]
+    pub fn element_at(&self, i: uint) -> E {
+        let vs: &[V] = *self.vertices.get();
+        let i        = i * MeshElement::nvertices(None::<E>);
+        let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<E>));
+
+        MeshElement::new_with_vertices_and_indices(vs, is, self.margin.clone())
+    }
+}
+
+impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic + Signed,
      V:  Send + Freeze + Clone + Zero + AlgebraicVecExt<N>,
      M:  Clone + Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V> + Rotate<V> + One,
      II: Zero + Add<II, II>,
@@ -153,11 +175,7 @@ ConcaveGeom<N, V, M, II> for Mesh<N, V, M, II, E> {
 
     #[inline(always)]
     fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom<N, V, M, II>| -> ()) {
-        let vs: &[V] = *self.vertices.get();
-        let i        = i * MeshElement::nvertices(None::<E>);
-        let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<E>));
-
-        let element: E = MeshElement::new_with_vertices_and_indices(vs, is, self.margin());
+        let element = self.element_at(i);
 
         f(m, &element as &Geom<N, V, M, II>);
     }

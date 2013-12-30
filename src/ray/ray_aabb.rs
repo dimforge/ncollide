@@ -42,7 +42,7 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
         let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
-        let mut side = 0u;
+        let mut side = 0;
         let mut diag = false;
 
         for i in range(0u, na::dim::<V>()) {
@@ -54,16 +54,21 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
             else {
                 let _1: N = na::one();
                 let denom = _1 / ray.dir.at(i);
+                let flip_sides;
                 let mut inter_with_near_plane = (self.mins().at(i) - ray.orig.at(i)) * denom;
                 let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
 
                 if inter_with_near_plane > inter_with_far_plane {
+                    flip_sides = true;
                     util::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
+                }
+                else {
+                    flip_sides = false;
                 }
 
                 if inter_with_near_plane > tmin {
                     tmin = inter_with_near_plane;
-                    side = i;
+                    side = if flip_sides { -(i as int) } else { i as int };
                     diag = false;
                 }
                 else if inter_with_near_plane == tmin {
@@ -83,7 +88,13 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
         }
         else {
             let mut normal: V = na::zero();
-            normal.set(side, na::one());
+
+            if side < 0 {
+                normal.set((-side) as uint, na::one::<N>());
+            }
+            else {
+                normal.set(side as uint, -na::one::<N>());
+            }
             Some((tmin, normal))
         }
     }
