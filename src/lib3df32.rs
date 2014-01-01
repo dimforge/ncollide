@@ -41,7 +41,7 @@ Some common features are still missing:
 - heightmaps
 */
 
-#[crate_id = "ncollide#0.1"];
+#[crate_id = "ncollide3df32#0.1"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
@@ -62,7 +62,7 @@ pub mod broad;
 pub mod contact;
 pub mod volumetric;
 pub mod implicit;
-
+// 
 /// Spatial partitioning tools.
 pub mod partitioning {
     pub mod dbvt;
@@ -78,12 +78,55 @@ pub mod util {
     pub mod owned_allocation_cache;
 }
 
-/// Aliases
-pub mod aliases;
+// #[cfg(test)]
+// mod tests {
+//     mod geom;
+//     mod narrow;
+//     mod algo;
+// }
 
-#[cfg(test)]
-mod tests {
-    mod geom;
-    mod narrow;
-    mod algo;
+#[cfg(dim2)]
+pub mod math {
+    use nalgebra::na::{Vec1, Vec2, Mat1, Iso2};
+    #[cfg(f64)]
+    pub type Scalar = f64;
+    #[cfg(f32)]
+    pub type Scalar = f32;
+    pub type N      = Scalar;
+    pub type V      = Vec2<Scalar>;
+    pub type LV     = Vec2<Scalar>;
+    pub type AV     = Vec1<Scalar>;
+    pub type M      = Iso2<Scalar>;
+    pub type II     = Mat1<Scalar>;
+}
+
+#[cfg(dim3)]
+pub mod math {
+    use nalgebra::na::{Vec3, Mat3, Iso3};
+    #[cfg(f64)]
+    pub type Scalar = f64;
+    #[cfg(f32)]
+    pub type Scalar = f32;
+    pub type N      = Scalar;
+    pub type V      = Vec3<Scalar>;
+    pub type LV     = Vec3<Scalar>;
+    pub type AV     = Vec3<Scalar>;
+    pub type M      = Iso3<Scalar>;
+    pub type II     = Mat3<Scalar>;
+}
+
+
+#[cfg(dim4)]
+pub mod math {
+    use nalgebra::na::{Vec4, Mat4, Iso4};
+    #[cfg(f64)]
+    pub type Scalar = f64;
+    #[cfg(f32)]
+    pub type Scalar = f32;
+    pub type N      = Scalar;
+    pub type V      = Vec4<Scalar>;
+    pub type LV     = Vec4<Scalar>;
+    pub type AV     = Vec4<Scalar>;
+    pub type M      = Iso4<Scalar>;
+    pub type II     = Mat4<Scalar>;
 }

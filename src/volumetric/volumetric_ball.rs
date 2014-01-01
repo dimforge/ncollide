@@ -1,19 +1,17 @@
-use std::num::{Zero, Real};
-use nalgebra::na::{Cast, Dim, Indexable};
+use std::num::Real;
+use nalgebra::na::{Cast, Indexable};
 use nalgebra::na;
 use geom::Ball;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
 #[inline]
-pub fn ball_volume<N: Real + Num + Cast<f32>>(radius: &N, dim: uint) -> N {
+pub fn ball_volume(radius: &N, dim: uint) -> N {
     let _pi: N = Real::pi();
     _pi * radius.pow(&Cast::from(dim as f32))
 }
 
-impl<N:  Real + Num + Cast<f32> + Clone,
-     V:  Zero + Dim,
-     II: Zero + Indexable<(uint, uint), N>>
-Volumetric<N, V, II> for Ball<N> {
+impl Volumetric for Ball {
     fn mass_properties(&self, density: &N) -> (N, V, II) {
         let volume = ball_volume(&self.radius(), na::dim::<V>());
         let mass   = volume * *density;

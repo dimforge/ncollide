@@ -1,17 +1,10 @@
-use std::num::Zero;
-use nalgebra::na::{AlgebraicVecExt, Rotate, Transform, Cast, Translation, AbsoluteRotate};
 use nalgebra::na;
-use volumetric::InertiaTensor;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::{ConcaveGeom, Compound};
+use math::{N, LV};
 
-impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic,
-     LV: Clone + Zero + AlgebraicVecExt<N>,
-     AV,
-     M:  Clone + Mul<M, M> + Translation<LV> + AbsoluteRotate<LV> + Transform<LV> + Rotate<LV>,
-     II: Zero + Add<II, II> + InertiaTensor<N, LV, AV, M>>
-RayCast<N, LV> for Compound<N, LV, M, II> {
-    fn toi_with_ray(&self, ray: &Ray<LV>) -> Option<N> {
+impl RayCast for Compound {
+    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
         let mut interferences: ~[uint] = ~[];
 
         self.approx_interferences_with_ray(ray, &mut interferences);
@@ -36,7 +29,7 @@ RayCast<N, LV> for Compound<N, LV, M, II> {
         }
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray<LV>) -> Option<(N, LV)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, LV)> {
         let mut interferences: ~[uint] = ~[];
 
         self.approx_interferences_with_ray(ray, &mut interferences);
@@ -69,9 +62,4 @@ RayCast<N, LV> for Compound<N, LV, M, II> {
     // for any of the sub-shapes.
 }
 
-impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic,
-     LV: Clone + Zero + AlgebraicVecExt<N>,
-     AV,
-     M:  Clone + Mul<M, M> + Translation<LV> + AbsoluteRotate<LV> + Transform<LV> + Rotate<LV>,
-     II: Zero + Add<II, II> + InertiaTensor<N, LV, AV, M>>
-RayCastWithTransform<N, LV, M> for Compound<N, LV, M, II> { }
+impl RayCastWithTransform for Compound { }

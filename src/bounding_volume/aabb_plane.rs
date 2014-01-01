@@ -1,10 +1,9 @@
-use nalgebra::na::AlgebraicVecExt;
 use bounding_volume::{HasAABB, AABB};
 use geom::Plane;
+use math::{M, V};
 
-impl<V: AlgebraicVecExt<N>, N, M>
-HasAABB<N, V, M> for Plane<N, V> {
-    fn aabb(&self, _: &M) -> AABB<N, V> {
+impl HasAABB for Plane {
+    fn aabb(&self, _: &M) -> AABB {
         let _m: V = Bounded::max_value();
 
         AABB::new(-_m, Bounded::max_value())

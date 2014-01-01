@@ -1,15 +1,12 @@
-use std::num::{Zero, One};
-use nalgebra::na::{Cast, VecExt, Indexable};
+use nalgebra::na::{Cast, Indexable, Iterable};
 use nalgebra::na;
 use geom::Box;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
 
 #[inline]
-pub fn box_volume<N:  Zero + One + Cast<f32> + Num + Clone,
-                  V:  Clone + VecExt<N>>(
-                  half_extents: &V)
-                  -> N {
+pub fn box_volume(half_extents: &V) -> N {
     let mut res: N = na::one();
 
     for half_extent in half_extents.iter() {
@@ -19,12 +16,9 @@ pub fn box_volume<N:  Zero + One + Cast<f32> + Num + Clone,
     res
 }
 
-impl<N:  Zero + One + Cast<f32> + Num + Clone,
-     V:  Clone + VecExt<N>,
-     II: Zero + Indexable<(uint, uint), N>>
-Volumetric<N, V, II> for Box<N, V> {
+impl Volumetric for Box {
     fn mass_properties(&self, density: &N) -> (N, V, II) {
-        let half_extents_w_margin = self.half_extents().add_s(&self.margin());
+        let half_extents_w_margin = self.half_extents() + self.margin();
         let mass = box_volume(&half_extents_w_margin) * *density;
         let dim  = na::dim::<V>();
 

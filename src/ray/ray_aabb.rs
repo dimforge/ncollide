@@ -1,13 +1,13 @@
+use std::num::Zero;
 use std::util;
-use nalgebra::na::{AlgebraicVecExt, Indexable};
+use nalgebra::na::Indexable;
 use nalgebra::na;
 use ray::{Ray, RayCast};
 use bounding_volume;
+use math::{N, V};
 
-impl<N: Primitive + Orderable + Algebraic,
-     V: AlgebraicVecExt<N>>
-RayCast<N, V> for bounding_volume::AABB<N, V> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+impl RayCast for bounding_volume::AABB {
+    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
         let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
 
@@ -39,7 +39,7 @@ RayCast<N, V> for bounding_volume::AABB<N, V> {
         Some(tmin)
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
         let mut side = 0;

@@ -1,4 +1,5 @@
 use contact::Contact;
+use math::{N, V, M};
 
 /**
  * Trait of the algorithms executed during the so-called Narrow Phase.
@@ -8,12 +9,10 @@ use contact::Contact;
  * in order to give enough informations to the constraint solver.
  *
  * # Arguments
- * * `N` - the type of the penetration depth.
- * * `V` - the type of the contact normal and contact points.
  * * `G1`- the type of the first object involved on the collision detection.
  * * `G2`- the type of the second object involved on the collision detection.
  */
-pub trait CollisionDetector<N, V, M, G1, G2> {
+pub trait CollisionDetector<G1, G2> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
@@ -23,7 +22,7 @@ pub trait CollisionDetector<N, V, M, G1, G2> {
     fn num_colls(&self) -> uint;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut ~[Contact<N, V>]);
+    fn colls(&self, &mut ~[Contact]);
 
     /// Computes the time of impact of two objects.
     ///

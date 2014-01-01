@@ -5,41 +5,35 @@ use std::cast;
 use ray::{RayCastWithTransform, Ray};
 use volumetric::Volumetric;
 use bounding_volume::{HasAABB, AABB};
+use math::M;
 
-pub trait Geom<N, V, M, II> : Volumetric<N, V, II>          +
-                              HasAABB<N, V, M>              +
-                              RayCastWithTransform<N, V, M> +
-                              Any {
-    fn duplicate(&self) -> ~Geom<N, V, M, II>;
+pub trait Geom : Volumetric           +
+                 HasAABB              +
+                 RayCastWithTransform +
+                 Any {
+    fn duplicate(&self) -> ~Geom;
 }
 
-pub trait ConcaveGeom<N, V, M, II> : Geom<N, V, M, II> {
-    fn map_part_at(&self, uint, |&M, &Geom<N, V, M, II>| -> ());
-    fn map_transformed_part_at(&self, m: &M, uint, |&M, &Geom<N, V, M, II>| -> ());
+pub trait ConcaveGeom : Geom {
+    fn map_part_at(&self, uint, |&M, &Geom| -> ());
+    fn map_transformed_part_at(&self, m: &M, uint, |&M, &Geom| -> ());
 
     // FIXME: replace those by a visitor?
-    fn approx_interferences_with_aabb(&self, &AABB<N, V>, &mut ~[uint]);
-    fn approx_interferences_with_ray(&self, &Ray<V>, &mut ~[uint]);
+    fn approx_interferences_with_aabb(&self, &AABB, &mut ~[uint]);
+    fn approx_interferences_with_ray(&self, &Ray, &mut ~[uint]);
     // FIXME: kind of ad-hoc…
-    fn aabb_at<'a>(&'a self, uint) -> &'a AABB<N, V>;
+    fn aabb_at<'a>(&'a self, uint) -> &'a AABB;
 }
 
-impl<T: 'static              +
-        Send                 +
-        Clone                +
-        Volumetric<N, V, II> +
-        HasAABB<N, V, M>     +
-        RayCastWithTransform<N, V, M> +
-        Any,
-     N, V, M, II>
-Geom<N, V, M, II> for T {
-    fn duplicate(&self) -> ~Geom<N, V, M, II> {
-        ~self.clone() as ~Geom<N, V, M, II>
+impl<T: 'static + Send + Clone + Volumetric + HasAABB + RayCastWithTransform + Any>
+Geom for T {
+    fn duplicate(&self) -> ~Geom {
+        ~self.clone() as ~Geom
     }
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not
 // seem possible to convert a &Geom to a &Any…
-impl<'a, N, V, M, II> AnyRefExt<'a> for &'a Geom<N, V, M, II> {
+impl<'a> AnyRefExt<'a> for &'a Geom {
     #[inline]
     fn is<T: 'static>(self) -> bool {
         // Get TypeId of the type this function is instantiated with

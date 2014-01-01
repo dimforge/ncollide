@@ -1,22 +1,20 @@
-use nalgebra::na::{AlgebraicVec, Transform, Rotate};
+use nalgebra::na::{Transform, Rotate};
 use nalgebra::na;
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
-use implicit::{Implicit, HasMargin};
+use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Triangle;
+use math::{N, V};
 
-impl<N: Clone, V> HasMargin<N> for Triangle<N, V> {
+impl HasMargin for Triangle {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<N: Algebraic + Clone + Ord,
-     V: AlgebraicVec<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Triangle<N, V> {
+impl<_M: Transform<V> + Rotate<V>>
+Implicit<V, _M> for Triangle {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let d1 = na::dot(self.a(), &local_dir);
@@ -45,8 +43,8 @@ Implicit<N, V, M> for Triangle<N, V> {
     }
 }
 
-impl<N, V, M> PreferedSamplingDirections<V, M> for Triangle<N, V> {
+impl<_V, _M> PreferedSamplingDirections<_V, _M> for Triangle {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &_M, _: |_V| -> ()) {
     }
 }

@@ -1,24 +1,22 @@
 
 use std::num::Signed;
-use nalgebra::na::{Indexable, AlgebraicVecExt, Transform, Rotate};
+use nalgebra::na::{Indexable, Transform, Rotate};
 use nalgebra::na;
 use geom::Box;
-use implicit::{HasMargin, Implicit};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
+use implicit::{HasMargin, Implicit, PreferedSamplingDirections};
+use math::{N, V};
 
-impl<N: Clone, V: Clone> HasMargin<N> for Box<N, V> {
+impl HasMargin for Box {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<N: Algebraic + Signed + Clone,
-     V: Clone + AlgebraicVecExt<N>,
-     M: Rotate<V> + Transform<V>>
-Implicit<N, V, M> for Box<N, V> {
+impl<_M: Rotate<V> + Transform<V>>
+Implicit<V, _M> for Box {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres: V = na::zero();
@@ -37,12 +35,10 @@ Implicit<N, V, M> for Box<N, V> {
     }
 }
 
-impl<N,
-     V: AlgebraicVecExt<N>,
-     M: Rotate<V>>
-PreferedSamplingDirections<V, M> for Box<N, V> {
+impl<_M: Rotate<V>>
+PreferedSamplingDirections<V, _M> for Box {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: |V| -> ()) {
+    fn sample(&self, transform: &_M, f: |V| -> ()) {
         na::canonical_basis(|e: V| {
             let re = transform.rotate(&e);
             f(-re);

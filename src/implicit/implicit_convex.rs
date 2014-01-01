@@ -1,27 +1,25 @@
 use std::num::Bounded;
-use nalgebra::na::{Transform, Rotate, AlgebraicVec};
+use nalgebra::na::{Transform, Rotate};
 use nalgebra::na;
-use implicit::{Implicit, HasMargin};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
+use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Convex;
+use math::{N, V};
 
-impl<N: Clone, V> HasMargin<N> for Convex<N, V> {
+impl HasMargin for Convex {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<N: Algebraic + Ord + Bounded + Neg<N> + Clone,
-     V: AlgebraicVec<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Convex<N, V> {
+impl<_M: Transform<V> + Rotate<V>>
+Implicit<V, _M> for Convex {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
-        let _M: N = Bounded::max_value();
-        let mut best_dot = -_M;
+        let _max: N = Bounded::max_value();
+        let mut best_dot = -_max;
         let mut best_pt  = &self.pts()[0];
 
         for p in self.pts().iter() {
@@ -38,9 +36,9 @@ Implicit<N, V, M> for Convex<N, V> {
     }
 }
 
-impl<N, V, M>
-PreferedSamplingDirections<V, M> for Convex<N, V> {
+impl<_M>
+PreferedSamplingDirections<V, _M> for Convex {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &_M, _: |V| -> ()) {
     }
 }

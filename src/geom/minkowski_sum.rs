@@ -5,14 +5,15 @@
 
 use std::num::{Zero, One};
 use std::cmp::ApproxEq;
-use nalgebra::na::{Dot, Norm, Vec, Dim};
+use nalgebra::na::{Dot, Norm, Dim};
 use nalgebra::na;
 use geom::Reflection;
+use math::{N, V, M};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
-pub type CSO<'a, M, G1, G2> = MinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
-pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
+pub type CSO<'a, G1, G2> = MinkowskiSum<'a, G1, Reflection<'a, G2>>;
+pub type AnnotatedCSO<'a, G1, G2> = AnnotatedMinkowskiSum<'a, G1, Reflection<'a, G2>>;
 
 /**
  * Implicit representation of the minkowski sum of two geometries.
@@ -23,24 +24,21 @@ pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflecti
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct MinkowskiSum<'a, M, G1, G2> {
+pub struct MinkowskiSum<'a, G1, G2> {
     priv m1: &'a M,
     priv g1: &'a G1,
     priv m2: &'a M,
     priv g2: &'a G2
 }
 
-impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
+impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M,
-               g1: &'a G1,
-               m2: &'a M,
-               g2: &'a G2)
-               -> MinkowskiSum<'a, M, G1, G2> {
+    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
+               -> MinkowskiSum<'a, G1, G2> {
         MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
@@ -72,23 +70,20 @@ impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
  *  - `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
-pub struct AnnotatedMinkowskiSum<'a, M, G1, G2> {
+pub struct AnnotatedMinkowskiSum<'a, G1, G2> {
     priv m1: &'a M,
     priv g1: &'a G1,
     priv m2: &'a M,
     priv g2: &'a G2
 }
 
-impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
+impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
     /**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M,
-               g1: &'a G1,
-               m2: &'a M,
-               g2: &'a G2) -> AnnotatedMinkowskiSum<'a, M, G1, G2> {
+    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> AnnotatedMinkowskiSum<'a, G1, G2> {
         AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
@@ -116,16 +111,16 @@ impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 // FIXME: AnnotatedPoint is not a good name.
 #[doc(hidden)]
 #[deriving(Clone, ToStr, Encodable, Decodable)]
-pub struct AnnotatedPoint<V> {
+pub struct AnnotatedPoint {
     priv orig1: V,
     priv orig2: V,
     priv point: V
 }
 
-impl<V> AnnotatedPoint<V> {
+impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new(orig1: V, orig2: V, point: V) -> AnnotatedPoint<V> {
+    pub fn new(orig1: V, orig2: V, point: V) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
@@ -152,10 +147,10 @@ impl<V> AnnotatedPoint<V> {
     }
 }
 
-impl<V: Zero> AnnotatedPoint<V> {
+impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new_invalid(point: V) -> AnnotatedPoint<V> {
+    pub fn new_invalid(point: V) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: na::zero(),
             orig2: na::zero(),
@@ -165,9 +160,9 @@ impl<V: Zero> AnnotatedPoint<V> {
 }
 
 
-impl<V: Zero> Zero for AnnotatedPoint<V> {
+impl Zero for AnnotatedPoint {
     #[inline]
-    fn zero() -> AnnotatedPoint<V> {
+    fn zero() -> AnnotatedPoint {
         AnnotatedPoint::new(na::zero(), na::zero(), na::zero())
     }
 
@@ -177,74 +172,74 @@ impl<V: Zero> Zero for AnnotatedPoint<V> {
     }
 }
 
-impl<V: One> One for AnnotatedPoint<V> {
+impl One for AnnotatedPoint {
     // FIXME: this definition works but is flawed (orig1 + orig2 != point)
     #[inline]
-    fn one() -> AnnotatedPoint<V> {
+    fn one() -> AnnotatedPoint {
         AnnotatedPoint::new(One::one(), One::one(), One::one())
     }
 }
 
-impl<V: Sub<V, V>> Sub<AnnotatedPoint<V>, AnnotatedPoint<V>> for
-AnnotatedPoint<V> {
+impl Sub<AnnotatedPoint, AnnotatedPoint> for
+AnnotatedPoint {
     #[inline]
-    fn sub(&self, other: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+    fn sub(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 - other.orig1,
         self.orig2 - other.orig2,
         self.point - other.point)
     }
 }
 
-impl<V: Add<V, V>> Add<AnnotatedPoint<V>, AnnotatedPoint<V>> for
-AnnotatedPoint<V> {
+impl Add<AnnotatedPoint, AnnotatedPoint> for
+AnnotatedPoint {
     #[inline]
-    fn add(&self, other: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+    fn add(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 + other.orig1,
         self.orig2 + other.orig2,
         self.point + other.point)
     }
 }
 
-impl<V: Neg<V>> Neg<AnnotatedPoint<V>> for AnnotatedPoint<V> {
+impl Neg<AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn neg(&self) -> AnnotatedPoint<V> {
+    fn neg(&self) -> AnnotatedPoint {
         AnnotatedPoint::new(-self.orig1, -self.orig2, -self.point)
     }
 }
 
-impl<V: Dim> Dim for AnnotatedPoint<V> {
+impl Dim for AnnotatedPoint {
     #[inline]
-    fn dim(_: Option<AnnotatedPoint<V>>) -> uint {
+    fn dim(_: Option<AnnotatedPoint>) -> uint {
         na::dim::<V>()
     }
 }
 
-impl<V: Vec<N>, N> Dot<N> for AnnotatedPoint<V> {
+impl Dot<N> for AnnotatedPoint {
     #[inline]
-    fn dot(a: &AnnotatedPoint<V>, b: &AnnotatedPoint<V>) -> N {
+    fn dot(a: &AnnotatedPoint, b: &AnnotatedPoint) -> N {
         na::dot(&a.point, &b.point)
     }
 
     #[inline]
-    fn sub_dot(a: &AnnotatedPoint<V>, b: &AnnotatedPoint<V>, c: &AnnotatedPoint<V>) -> N {
+    fn sub_dot(a: &AnnotatedPoint, b: &AnnotatedPoint, c: &AnnotatedPoint) -> N {
         na::sub_dot(&a.point, &b.point, &c.point)
     }
 }
 
-impl<N: Algebraic, V: Norm<N> + Clone> Norm<N> for AnnotatedPoint<V> {
+impl Norm<N> for AnnotatedPoint {
     #[inline]
-    fn norm(v: &AnnotatedPoint<V>) -> N {
+    fn norm(v: &AnnotatedPoint) -> N {
         na::norm(&v.point)
     }
 
     #[inline]
-    fn sqnorm(v: &AnnotatedPoint<V>) -> N {
+    fn sqnorm(v: &AnnotatedPoint) -> N {
         na::sqnorm(&v.point)
     }
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
     #[inline]
-    fn normalize_cpy(v: &AnnotatedPoint<V>) -> AnnotatedPoint<V> {
+    fn normalize_cpy(v: &AnnotatedPoint) -> AnnotatedPoint {
         AnnotatedPoint::new(v.orig1.clone(), v.orig2.clone(), na::normalize(&v.point))
     }
 
@@ -255,33 +250,33 @@ impl<N: Algebraic, V: Norm<N> + Clone> Norm<N> for AnnotatedPoint<V> {
     }
 }
 
-impl<V: Div<N, V>, N> Div<N, AnnotatedPoint<V>> for AnnotatedPoint<V> {
+impl Div<N, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn div(&self, n: &N) -> AnnotatedPoint<V> {
+    fn div(&self, n: &N) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 / *n, self.orig2 / *n, self.point / *n)
     }
 }
 
-impl<V: Mul<N, V>, N> Mul<N, AnnotatedPoint<V>> for AnnotatedPoint<V> {
+impl Mul<N, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn mul(&self, n: &N) -> AnnotatedPoint<V> {
+    fn mul(&self, n: &N) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 * *n, self.orig2 * *n, self.point * *n)
     }
 }
 
-impl<V: Eq> Eq for AnnotatedPoint<V> {
+impl Eq for AnnotatedPoint {
     #[inline]
-    fn eq(&self, other: &AnnotatedPoint<V>) -> bool {
+    fn eq(&self, other: &AnnotatedPoint) -> bool {
         self.point == other.point
     }
 
     #[inline]
-    fn ne(&self, other: &AnnotatedPoint<V>) -> bool {
+    fn ne(&self, other: &AnnotatedPoint) -> bool {
         self.point != other.point
     }
 }
 
-impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {
+impl ApproxEq<N> for AnnotatedPoint {
     #[inline]
     fn approx_epsilon() -> N {
         fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
@@ -289,12 +284,12 @@ impl<V: ApproxEq<N>, N: ApproxEq<N>> ApproxEq<N> for AnnotatedPoint<V> {
     }
 
     #[inline]
-    fn approx_eq(&self, other: &AnnotatedPoint<V>) -> bool {
+    fn approx_eq(&self, other: &AnnotatedPoint) -> bool {
         self.point.approx_eq(&other.point)
     }
 
     #[inline]
-    fn approx_eq_eps(&self, other: &AnnotatedPoint<V>, epsilon: &N) -> bool {
+    fn approx_eq_eps(&self, other: &AnnotatedPoint, epsilon: &N) -> bool {
         self.point.approx_eq_eps(&other.point, epsilon)
     }
 }

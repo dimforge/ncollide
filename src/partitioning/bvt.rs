@@ -1,12 +1,14 @@
 //! A read-only Bounding Volume Tree.
 
+use std::num::Zero;
 use std::vec;
 use std::rand;
 use std::rand::Rng;
-use nalgebra::na::{Cast, Translation, VecExt};
+use nalgebra::na::{Translation, Indexable};
 use nalgebra::na;
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
+use math::V;
 
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
@@ -107,10 +109,8 @@ impl<B, BV> BVTNode<B, BV> {
 /// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
 ///
 /// Use this as a parameter of `new_with_partitioner`.
-pub fn kdtree_partitioner<N: Primitive + Orderable + Signed + Cast<f32>,
-                          V: VecExt<N>,
-                          B>(rng: &mut rand::StdRng, leaves: ~[(B, AABB<N, V>)])
-                          -> PartFnResult<B, AABB<N, V>> {
+pub fn kdtree_partitioner<B>(rng: &mut rand::StdRng, leaves: ~[(B, AABB)])
+                             -> PartFnResult<B, AABB> {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }

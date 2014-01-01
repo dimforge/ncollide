@@ -1,14 +1,8 @@
-use std::num::{Zero, One, Real};
-use nalgebra::na::{Cast, Dim, Indexable};
 use geom::Convex;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
-
-
-impl<N:  Zero + One + Cast<f32> + Num + Real + Clone,
-     V:  Zero + Dim,
-     II: Zero + Indexable<(uint, uint), N>>
-Volumetric<N, V, II> for Convex<N, V> {
+impl Volumetric for Convex {
     fn mass_properties(&self, _: &N) -> (N, V, II) {
         fail!("Not yet implemented.")
     }

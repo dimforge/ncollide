@@ -3,22 +3,23 @@
 //!
 
 use nalgebra::na::Cast;
+use math::N;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
-pub struct Cone<N> {
+pub struct Cone {
     priv half_height: N,
-    priv radius: N,
-    priv margin: N
+    priv radius:      N,
+    priv margin:      N
 }
 
-impl<N: Signed + Cast<f32>> Cone<N> {
+impl Cone {
     /// Creates a new cone.
     ///
     /// # Arguments:
     ///     * `half_height` - the half length of the cone along the `x` axis.
     ///     * `radius` - the length of the cone along all other axis.
-    pub fn new(half_height: N, radius: N) -> Cone<N> {
+    pub fn new(half_height: N, radius: N) -> Cone {
         Cone::new_with_margin(half_height, radius, Cast::from(0.04))
     }
 
@@ -28,7 +29,7 @@ impl<N: Signed + Cast<f32>> Cone<N> {
     ///     * `half_height` - the half length of the cone along the `x` axis.
     ///     * `radius` - the length of the cone along all other axis.
     ///     * `margin` - the  cone margin.
-    pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cone<N> {
+    pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cone {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Cone {
@@ -39,7 +40,7 @@ impl<N: Signed + Cast<f32>> Cone<N> {
     }
 }
 
-impl<N: Clone> Cone<N> {
+impl Cone {
     /// The cone half length along the `x` axis.
     pub fn half_height(&self) -> N {
         self.half_height.clone()

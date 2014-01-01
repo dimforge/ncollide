@@ -1,22 +1,20 @@
-use nalgebra::na::{AlgebraicVec, Transform, Rotate};
+use nalgebra::na::{Transform, Rotate};
 use nalgebra::na;
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
-use implicit::{Implicit, HasMargin};
+use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Segment;
+use math::{N, V};
 
-impl<N: Clone, V> HasMargin<N> for Segment<N, V> {
+impl HasMargin for Segment {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<N: Algebraic + Clone + Ord,
-     V: AlgebraicVec<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Segment<N, V> {
+impl<_M: Transform<V> + Rotate<V>>
+Implicit<V, _M> for Segment {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         if na::dot(self.a(), &local_dir) > na::dot(self.b(), &local_dir) {
@@ -28,8 +26,8 @@ Implicit<N, V, M> for Segment<N, V> {
     }
 }
 
-impl<N, V, M> PreferedSamplingDirections<V, M> for Segment<N, V> {
+impl<_V, _M> PreferedSamplingDirections<_V, _M> for Segment {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &_M, _: |_V| -> ()) {
     }
 }

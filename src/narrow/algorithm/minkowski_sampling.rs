@@ -1,28 +1,18 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
-use std::num::{Zero, One};
-use nalgebra::na::{Cast, AlgebraicVecExt, Identity, Translation};
+use nalgebra::na::Identity;
 use nalgebra::na;
 use geom::{Reflection, MinkowskiSum, AnnotatedPoint};
-use implicit::Implicit;
+use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
-
-/// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
-/// Those directions are usually the geometry faces normals.
-pub trait PreferedSamplingDirections<V, M> {
-    /// Applies a function to this geometry with a given transform.
-    fn sample(&self, &M, |V| -> ());
-}
+use math::{N, V, M};
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
-pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
-                      G1: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-                      G2: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-                      N:  Clone + Ord + Num + Float + Cast<f32>,
-                      V:  AlgebraicVecExt<N> + Clone,
-                      M:  One + Translation<V>>(
+pub fn closest_points<S:  Simplex<AnnotatedPoint>,
+                      G1: Implicit<V, M> + PreferedSamplingDirections<V, M>,
+                      G2: Implicit<V, M> + PreferedSamplingDirections<V, M>>(
                       m1:      &M,
                       g1:      &G1,
                       m2:      &M,
@@ -35,7 +25,7 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     let cso       = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
-    let mut best_dir: V = Zero::zero();
+    let mut best_dir: V = na::zero();
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
@@ -119,8 +109,9 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
             //                       |    obj1     |
             //                       |             |
             //                       +-------------+
-            let dist_err = na::norm(&(p2 - p1)) - g1.margin() - g2.margin();
-            let center   = (p1 + p2) / na::cast(2.0);
+            let dist_err  = na::norm(&(p2 - p1)) - g1.margin() - g2.margin();
+            let _2: N     = na::cast(2.0);
+            let center: V = (p1 + p2) / _2;
 
             let p2 = center - best_dir * if dist_err > na::zero() { min_dist - dist_err } else { min_dist };
 
@@ -129,10 +120,11 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 }
 
-#[cfg(test)]
+#[cfg(dim2, f32, test)]
 mod test {
     use super::closest_points;
-    use nalgebra::na::Vec2;
+    use nalgebra::na::{Vec2, Iso2};
+    use nalgebra::na;
     use geom::{Box, AnnotatedPoint};
     use implicit;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;
@@ -141,10 +133,11 @@ mod test {
     fn test_closest_points() {
         let a = Box::new(Vec2::new(5.0f32, 1.0));
         let b = Box::new(Vec2::new(5.0f32, 1.0));
-        let ta = Vec2::new(0.0f32, 0.0);
-        let tb = Vec2::new(7.0f32, 1.0);
-        let mut splx: JohnsonSimplex<f32, AnnotatedPoint<Vec2<f32>>> = JohnsonSimplex::new_w_tls();
-        splx.reset(implicit::cso_support_point_without_margin(&ta, &a, &tb, &b, Vec2::new(1.0f32, 1.0)));
+        let ta = Iso2::new(Vec2::new(0.0f32, 0.0), na::zero());
+        let tb = Iso2::new(Vec2::new(7.0f32, 1.0), na::zero());
+        let mut splx: JohnsonSimplex<AnnotatedPoint> = JohnsonSimplex::new_w_tls();
+        let t = Vec2::new(1.0f32, 1.0);
+        splx.reset(implicit::cso_support_point_without_margin(&ta, &a, &tb, &b, t));
         println!("{:?}", closest_points(&ta, &a, &tb, &b, &mut splx));
     }
 }

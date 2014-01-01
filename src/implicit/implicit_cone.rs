@@ -1,23 +1,21 @@
-use std::num::{Zero, One};
-use nalgebra::na::{Indexable, VecExt, AlgebraicVecExt, Rotate, Transform};
+use std::num::Zero;
+use nalgebra::na::{Indexable, Rotate, Transform, Norm};
 use nalgebra::na;
-use implicit::{Implicit, HasMargin};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
+use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Cone;
+use math::{N, V};
 
-impl<N: Clone> HasMargin<N> for Cone<N> {
+impl HasMargin for Cone {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<N: Clone + Signed + Algebraic + Ord,
-     V: Clone + AlgebraicVecExt<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Cone<N> {
+impl<_M: Transform<V> + Rotate<V>>
+Implicit<V, _M> for Cone {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
@@ -48,12 +46,10 @@ Implicit<N, V, M> for Cone<N> {
     }
 }
 
-impl<N: One,
-     V: VecExt<N>,
-     M: Rotate<V>>
-PreferedSamplingDirections<V, M> for Cone<N> {
+impl<_M: Rotate<V>>
+PreferedSamplingDirections<V, _M> for Cone {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: |V| -> ()) {
+    fn sample(&self, transform: &_M, f: |V| -> ()) {
         // Sample along the principal axis
         let mut v: V = na::zero();
         v.set(0, na::one());

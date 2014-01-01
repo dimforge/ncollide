@@ -1,15 +1,12 @@
-use std::num::{Zero, One, Real};
-use nalgebra::na::{Cast, Indexable, Dim};
+use std::num::Real;
+use nalgebra::na::{Cast, Indexable};
 use nalgebra::na;
 use geom::Cylinder;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
 #[inline]
-pub fn cylinder_volume<N: Zero + One + Cast<f32> + Num + Real + Clone>(
-                       half_height: &N,
-                       radius:      &N,
-                       dim:         uint)
-                       -> N {
+pub fn cylinder_volume(half_height: &N, radius: &N, dim: uint) -> N {
     if dim == 2 {
         // same as a rectangle
         half_height * *radius * Cast::from(4.0)
@@ -22,10 +19,7 @@ pub fn cylinder_volume<N: Zero + One + Cast<f32> + Num + Real + Clone>(
     }
 }
 
-impl<N:  Zero + One + Cast<f32> + Num + Real + Clone,
-     V:  Zero + Dim,
-     II: Zero + Indexable<(uint, uint), N>>
-Volumetric<N, V, II> for Cylinder<N> {
+impl Volumetric for Cylinder {
     fn mass_properties(&self, density: &N) -> (N, V, II) {
         let dim  = na::dim::<V>();
         let mass = cylinder_volume(&self.half_height(), &self.radius(), dim) * *density;

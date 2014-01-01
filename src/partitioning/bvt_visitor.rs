@@ -1,7 +1,6 @@
 //! Trait of visitors of bounding volume based tree.
 
 use std::borrow;
-use nalgebra::na::Vec;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 
@@ -29,17 +28,17 @@ pub trait BVTVisitor<B, BV> {
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'a, V, B> {
-    priv ray:       &'a Ray<V>,
+pub struct RayInterferencesCollector<'a, B> {
+    priv ray:       &'a Ray,
     priv collector: &'a mut ~[B]
 }
 
-impl<'a, V, B> RayInterferencesCollector<'a, V, B> {
+impl<'a, B> RayInterferencesCollector<'a, B> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray:    &'a Ray<V>,
+    pub fn new(ray:    &'a Ray,
                buffer: &'a mut ~[B])
-               -> RayInterferencesCollector<'a, V, B> {
+               -> RayInterferencesCollector<'a, B> {
         RayInterferencesCollector {
             ray:       ray,
             collector: buffer
@@ -47,12 +46,8 @@ impl<'a, V, B> RayInterferencesCollector<'a, V, B> {
     }
 }
 
-impl<'a,
-     N,
-     V:  Vec<N>,
-     B:  Clone,
-     BV: RayCast<N, V>>
-BVTVisitor<B, BV> for RayInterferencesCollector<'a, V, B> {
+impl<'a, B: Clone, BV: RayCast>
+BVTVisitor<B, BV> for RayInterferencesCollector<'a, B> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects_ray(self.ray)

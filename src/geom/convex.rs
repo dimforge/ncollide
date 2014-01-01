@@ -2,6 +2,7 @@
 //! Support mapping based Convex polytope.
 //!
 use nalgebra::na::Cast;
+use math::{N, V};
 
 /**
  * Set of point assumed to form a convex polytope.
@@ -10,18 +11,18 @@ use nalgebra::na::Cast;
  *   - `N`: type of the result of a dot product between two points.
  */
 #[deriving(Clone)]
-pub struct Convex<N, V> {
+pub struct Convex {
     priv pts:    ~[V],
     priv margin: N
 }
 
-impl<N: Cast<f32>, V> Convex<N, V> {
+impl Convex {
     /**
      * Creates a polytope from a set of point. Those points are assumed to form
      * a convex polytope: convexity is not checked.
      */
     #[inline]
-    pub fn new(pts: ~[V]) -> Convex<N, V> {
+    pub fn new(pts: ~[V]) -> Convex {
         Convex::new_with_margin(pts, Cast::from(0.04))
     }
 
@@ -30,7 +31,7 @@ impl<N: Cast<f32>, V> Convex<N, V> {
      * a convex polytope: convexity is not checked.
      */
     #[inline]
-    pub fn new_with_margin(pts: ~[V], margin: N) -> Convex<N, V> {
+    pub fn new_with_margin(pts: ~[V], margin: N) -> Convex {
         Convex {
             pts:    pts,
             margin: margin
@@ -38,7 +39,7 @@ impl<N: Cast<f32>, V> Convex<N, V> {
     }
 }
 
-impl<N: Clone, V> Convex<N, V> {
+impl Convex {
     #[inline]
     pub fn pts<'a>(&'a self) -> &'a [V] {
         let res: &'a [V] = self.pts;

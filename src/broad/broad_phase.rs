@@ -42,7 +42,7 @@ pub trait BoundingVolumeBroadPhase<B, BV> : BroadPhase<B> {
 }
 
 /// Traits of broad phase able to run fast ray-cast queries.
-pub trait RayCastBroadPhase<V, B> : BroadPhase<B> {
+pub trait RayCastBroadPhase<B> : BroadPhase<B> {
     /// Collects every object which might intersect a ray.
-    fn interferences_with_ray(&mut self, &Ray<V>, &mut ~[@mut B]);
+    fn interferences_with_ray(&mut self, &Ray, &mut ~[@mut B]);
 }

@@ -2,8 +2,8 @@
 //! Support mapping based Plane geometry.
 //!
 
-use nalgebra::na::AlgebraicVec;
 use nalgebra::na;
+use math::V;
 
 /**
  * Implicit description of a plane.
@@ -11,28 +11,28 @@ use nalgebra::na;
  *   - `V`: type of the plane normal.
  */
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
-pub struct Plane<N, V> {
+pub struct Plane {
     /// The plane normal.
     normal: V
 }
 
-impl<N: Algebraic, V: AlgebraicVec<N>> Plane<N, V> {
+impl Plane {
     /// Builds a new plane from its center and its normal.
     #[inline]
-    pub fn new(normal: V) -> Plane<N, V> {
+    pub fn new(normal: V) -> Plane {
         unsafe { Plane::new_normalized(na::normalize(&normal)) }
     }
 
     /// Builds a new plane from its center and its normal.
     #[inline]
-    pub unsafe fn new_normalized(normal: V) -> Plane<N, V> {
+    pub unsafe fn new_normalized(normal: V) -> Plane {
         Plane {
             normal: normal
         }
     }
 }
 
-impl<N, V: Clone> Plane<N, V> {
+impl Plane {
     /// The plane normal.
     #[inline]
     pub fn normal(&self) -> V {

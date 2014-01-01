@@ -1,23 +1,23 @@
-use nalgebra::na::{Dim, Cast};
 use nalgebra::na;
 use geom::mesh::MeshElement;
+use math::{N, V};
 
 #[deriving(Encodable, Decodable, Clone)]
-pub struct Triangle<N, V> {
+pub struct Triangle {
     margin: N,
     a:      V,
     b:      V,
     c:      V
 }
 
-impl<N: Cast<f32>, V: Dim> Triangle<N, V> {
+impl Triangle {
     #[inline]
-    pub fn new(a: V, b: V, c: V) -> Triangle<N, V> {
+    pub fn new(a: V, b: V, c: V) -> Triangle {
         Triangle::new_with_margin(a, b, c, na::cast(0.04))
     }
 
     #[inline]
-    pub fn new_with_margin(a: V, b: V, c: V, margin: N) -> Triangle<N, V> {
+    pub fn new_with_margin(a: V, b: V, c: V, margin: N) -> Triangle {
         assert!(na::dim::<V>() > 1);
 
         Triangle {
@@ -29,7 +29,7 @@ impl<N: Cast<f32>, V: Dim> Triangle<N, V> {
     }
 }
 
-impl<N: Clone, V> Triangle<N, V> {
+impl Triangle {
     #[inline]
     pub fn a<'a>(&'a self) -> &'a V {
         &'a self.a
@@ -51,14 +51,14 @@ impl<N: Clone, V> Triangle<N, V> {
     }
 }
 
-impl<N: Cast<f32>, V: Dim + Clone> MeshElement<N, V> for Triangle<N, V> {
+impl MeshElement for Triangle {
     #[inline]
-    fn nvertices(_: Option<Triangle<N, V>>) -> uint {
+    fn nvertices(_: Option<Triangle>) -> uint {
         3
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[V], is: &[uint], margin: N) -> Triangle<N, V> {
+    fn new_with_vertices_and_indices(vs: &[V], is: &[uint], margin: N) -> Triangle {
         assert!(is.len() == 3);
 
         Triangle::new_with_margin(vs[is[0]].clone(), vs[is[1]].clone(), vs[is[2]].clone(), margin)

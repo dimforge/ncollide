@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::na::{AlgebraicVecExt, Cast, Identity, Translation, Rotate, Transform};
+use nalgebra::na::{Identity, Translation, Indexable, Norm};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
@@ -7,6 +7,7 @@ use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};
 use implicit::Implicit;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use ray;
+use math::{N, V, M};
 
 /// Projects the origin on a geometry unsing the GJK algorithm.
 ///
@@ -14,15 +15,11 @@ use ray;
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
-                                   G: Implicit<N, V, M>,
-                                   N: Ord + Num + Float + Cast<f32>,
-                                   V: AlgebraicVecExt<N> + Clone,
-                                   M: Translation<V>>(
-                                   m:       &M,
+pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translation<V>>(
+                                   m:       &_M,
                                    geom:    &G,
                                    simplex: &mut S,
-                                   ray:     &Ray<V>)
+                                   ray:     &Ray)
                                    -> Option<(N, V)> {
     let mut ltoi: N = Zero::zero();
 
@@ -102,88 +99,53 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<N, V>,
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone>
-RayCast<N, V> for Cylinder<N> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+impl RayCast for Cylinder {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Cylinder<N> { }
+impl RayCastWithTransform for Cylinder { }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone>
-RayCast<N, V> for Cone<N> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+impl RayCast for Cone {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Cone<N> { }
+impl RayCastWithTransform for Cone { }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone>
-RayCast<N, V> for Capsule<N> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+impl RayCast for Capsule {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Capsule<N> { }
+impl RayCastWithTransform for Capsule { }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone>
-RayCast<N, V> for Convex<N, V> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+impl RayCast for Convex {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Convex<N, V> { }
+impl RayCastWithTransform for Convex { }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone>
-RayCast<N, V> for Segment<N, V> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+impl RayCast for Segment {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         // XXX: optimize if na::dim::<V>() == 2 && self.margin().is_zero()
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<N: Ord + Num + Float + Cast<f32> + Clone,
-     V: AlgebraicVecExt<N> + Clone,
-     M: Transform<V> + Rotate<V>>
-RayCastWithTransform<N, V, M> for Segment<N, V> { }
+impl RayCastWithTransform for Segment { }
 
-impl<'a,
-     N:  Ord + Num + Float + Cast<f32> + Clone,
-     V:  AlgebraicVecExt<N> + Clone,
-     G1: Implicit<N, V, M>,
-     G2: Implicit<N, V, M>,
-     M>
-RayCast<N, V> for MinkowskiSum<'a, M, G1, G2> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, V>::new_w_tls(), ray)
+impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
+RayCast for MinkowskiSum<'a, G1, G2> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
-impl<'a,
-     N:  Ord + Num + Float + Cast<f32> + Clone,
-     V:  AlgebraicVecExt<N> + Clone,
-     G1: Implicit<N, V, M>,
-     G2: Implicit<N, V, M>,
-     M:  Rotate<V> + Transform<V>>
-RayCastWithTransform<N, V, M> for MinkowskiSum<'a, M, G1, G2> { }
+impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
+RayCastWithTransform for MinkowskiSum<'a, G1, G2> { }

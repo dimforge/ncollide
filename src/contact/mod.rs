@@ -1,16 +1,13 @@
 //! Main data structure for contacts.
 
 use std::util;
+use math::{N, V};
 
 /**
  * Geometric description of a contact.
- *
- * # Parameters:
- *   * `N` - type of the penetration depth.
- *   * `V` - type of all the contact points, its center and its normal.
  */
 #[deriving(ToStr, Eq, Clone, DeepClone, Encodable, Decodable)]
-pub struct Contact<N, V> {
+pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.
     world1: V,
 
@@ -24,10 +21,10 @@ pub struct Contact<N, V> {
     depth:  N
 }
 
-impl<N, V> Contact<N, V> {
+impl Contact {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: V, world2: V, normal: V, depth: N) -> Contact<N, V> {
+    pub fn new(world1: V, world2: V, normal: V, depth: N) -> Contact {
         Contact {
             world1: world1,
             world2: world2,
@@ -37,7 +34,7 @@ impl<N, V> Contact<N, V> {
     }
 }
 
-impl<N, V: Neg<V>> Contact<N, V> {
+impl Contact {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     pub fn flip(&mut self) {
         util::swap(&mut self.world1, &mut self.world2);

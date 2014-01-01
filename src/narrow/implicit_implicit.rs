@@ -1,31 +1,31 @@
-use std::num::{Zero, One};
-use nalgebra::na::{Cast, Translation, Rotate, Transform, AlgebraicVecExt};
+use std::num::Zero;
+use nalgebra::na::{Translation, Indexable, Norm};
 use nalgebra::na;
 use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
-use implicit::Implicit;
+use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
 use narrow::algorithm::minkowski_sampling;
 use narrow::CollisionDetector;
 use contact::Contact;
 use ray::{Ray, RayCast};
+use math::{N, V, M};
 
 /// Persistent collision detector between two shapes having a support mapping function.
 ///
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct ImplicitImplicit<N, V, S, G1, G2> {
+pub struct ImplicitImplicit<S, G1, G2> {
     priv simplex:       S,
     priv prediction:    N,
-    priv contact:       GJKResult<Contact<N, V>, V>
+    priv contact:       GJKResult<Contact, V>
 }
 
-impl<N: Clone, V: Clone, S: Clone, G1, G2> Clone for ImplicitImplicit<N, V, S, G1, G2> {
-    fn clone(&self) -> ImplicitImplicit<N, V, S, G1, G2> {
+impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {
+    fn clone(&self) -> ImplicitImplicit<S, G1, G2> {
         ImplicitImplicit {
             simplex:    self.simplex.clone(),
             prediction: self.prediction.clone(),
@@ -34,12 +34,12 @@ impl<N: Clone, V: Clone, S: Clone, G1, G2> Clone for ImplicitImplicit<N, V, S, G
     }
 }
 
-impl<N, V, S, G1, G2> ImplicitImplicit<N, V, S, G1, G2> {
+impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
     /// Creates a new persistent collision detector between two geometries with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<N, V, S, G1, G2> {
+    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2> {
         ImplicitImplicit {
             simplex:    simplex,
             prediction: prediction,
@@ -49,13 +49,10 @@ impl<N, V, S, G1, G2> ImplicitImplicit<N, V, S, G1, G2> {
 
 }
 
-impl<S:  Simplex<N, AnnotatedPoint<V>>,
-     G1: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-     G2: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-     N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
-     V:  AlgebraicVecExt<N> + Clone,
-     M:  Translation<V> + Transform<V> + Rotate<V> + One>
-     CollisionDetector<N, V, M, G1, G2> for ImplicitImplicit<N, V, S, G1, G2> {
+impl<S:  Simplex<AnnotatedPoint>,
+     G1: Implicit<V, M> + PreferedSamplingDirections<V, M>,
+     G2: Implicit<V, M> + PreferedSamplingDirections<V, M>>
+     CollisionDetector<G1, G2> for ImplicitImplicit<S, G1, G2> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
         let initial_direction = match self.contact {
@@ -83,7 +80,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact]) {
         match self.contact {
             Projection(ref c) => out_colls.push(c.clone()),
             _                 => ()
@@ -91,7 +88,7 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
     }
 
     #[inline]
-    fn toi(_:   Option<ImplicitImplicit<N, V, S, G1, G2>>,
+    fn toi(_:   Option<ImplicitImplicit<S, G1, G2>>,
            ma:  &M,
            dir: &V,
            _:   &N,
@@ -113,12 +110,9 @@ impl<S:  Simplex<N, AnnotatedPoint<V>>,
 ///   * `g2` - the second implicit shape involved on the collision check
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
-pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
-               G1: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-               G2: Implicit<N, V, M> + PreferedSamplingDirections<V, M>,
-               N:  Sub<N, N> + Ord + Mul<N, N> + Float + Cast<f32> + Clone,
-               V:  AlgebraicVecExt<N> + Clone,
-               M:  Translation<V> + One>(
+pub fn collide<S:  Simplex<AnnotatedPoint>,
+               G1: Implicit<V, M> + PreferedSamplingDirections<V, M>,
+               G2: Implicit<V, M> + PreferedSamplingDirections<V, M>>(
                m1:         &M,
                g1:         &G1,
                m2:         &M,
@@ -126,7 +120,7 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
                prediction: &N,
                simplex:    &mut S,
                init_dir:   Option<V>)
-               -> GJKResult<Contact<N, V>, V> {
+               -> GJKResult<Contact, V> {
     let mut dir = 
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
@@ -196,11 +190,8 @@ pub fn collide<S:  Simplex<N, AnnotatedPoint<V>>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<N:  Ord + Num + Float + Cast<f32> + Clone,
-           V:  AlgebraicVecExt<N> + Clone,
-           M:  Translation<V> + Transform<V> + Rotate<V>,
-           G1: Implicit<N, V, M>,
-           G2: Implicit<N, V, M>>(
+pub fn toi<G1: Implicit<V, M>,
+           G2: Implicit<V, M>>(
            m1:  &M,
            dir: &V,
            g1:  &G1,

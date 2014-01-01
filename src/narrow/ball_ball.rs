@@ -1,26 +1,23 @@
 use std::num::Zero;
-use nalgebra::na::{AlgebraicVec, AlgebraicVecExt, Rotate, Translation, Transform, Cast};
+use nalgebra::na::Translation;
 use nalgebra::na;
 use geom::Ball;
 use narrow::CollisionDetector;
 use contact::Contact;
-use ray::{Ray, RayCastWithTransform};
+use ray::{Ray, ball_toi_with_ray};
+use math::{N, V, M};
 
 /**
  * Collision detector between two balls.
- *
- * # Parameters:
- *   * `N` - type of a ball radius.
- *   * `V` - type of a ball center.
  */
 #[deriving(Encodable, Decodable)]
-pub struct BallBall<N, V, M> {
+pub struct BallBall {
     priv prediction: N,
-    priv contact:    Option<Contact<N, V>>
+    priv contact:    Option<Contact>
 }
 
-impl<N: Clone, V: Clone, M> Clone for BallBall<N, V, M> {
-    fn clone(&self) -> BallBall<N, V, M> {
+impl Clone for BallBall {
+    fn clone(&self) -> BallBall {
         BallBall {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
@@ -28,10 +25,10 @@ impl<N: Clone, V: Clone, M> Clone for BallBall<N, V, M> {
     }
 }
 
-impl<N, V, M> BallBall<N, V, M> {
+impl BallBall {
     /// Creates a new persistant collision detector between two balls.
     #[inline]
-    pub fn new(prediction: N) -> BallBall<N, V, M> {
+    pub fn new(prediction: N) -> BallBall {
         BallBall {
             prediction: prediction,
             contact:    None
@@ -39,12 +36,9 @@ impl<N, V, M> BallBall<N, V, M> {
     }
 }
 
-impl<N: Real + NumCast + Clone + Real + Cast<f32>,
-     V: AlgebraicVecExt<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
-     M: Translation<V>> 
-     CollisionDetector<N, V, M, Ball<N>, Ball<N>> for
-BallBall<N, V, M> {
-    fn update(&mut self, ma: &M, a: &Ball<N>, mb: &M, b: &Ball<N>) {
+impl CollisionDetector<Ball, Ball> for
+BallBall {
+    fn update(&mut self, ma: &M, a: &Ball, mb: &M, b: &Ball) {
         self.contact = collide(
             &ma.translation(),
             a,
@@ -62,7 +56,7 @@ BallBall<N, V, M> {
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact<N, V>]) {
+    fn colls(&self, out_colls: &mut ~[Contact]) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
@@ -70,7 +64,7 @@ BallBall<N, V, M> {
     }
 
     #[inline]
-    fn toi(_: Option<BallBall<N, V, M>>, c1: &M, dir: &V, _: &N, b1: &Ball<N>, c2: &M, b2: &Ball<N>) -> Option<N> {
+    fn toi(_: Option<BallBall>, c1: &M, dir: &V, _: &N, b1: &Ball, c2: &M, b2: &Ball) -> Option<N> {
         toi(c1, dir, b1, c2, b2)
     }
 }
@@ -79,8 +73,7 @@ BallBall<N, V, M> {
 ///
 /// The balls must penetrate to have contact points.
 #[inline]
-pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
-(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>, prediction: &N) -> Option<Contact<N, V>> {
+pub fn collide(center1: &V, b1: &Ball, center2: &V, b2: &Ball, prediction: &N) -> Option<Contact> {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
@@ -114,9 +107,7 @@ pub fn collide<V: AlgebraicVecExt<N> + Clone, N: Real + NumCast + Clone>
 ///
 /// If they are intersecting, the points corresponding to the penetration depth are returned.
 #[inline]
-pub fn closest_points<N: Algebraic + Clone,
-                      V: AlgebraicVec<N> + Clone>
-(center1: &V, b1: &Ball<N>, center2: &V, b2: &Ball<N>) -> (V, V) {
+pub fn closest_points(center1: &V, b1: &Ball, center2: &V, b2: &Ball) -> (V, V) {
     let r1     = b1.radius();
     let r2     = b2.radius();
     let normal = na::normalize(&(center2 - *center1));
@@ -133,19 +124,10 @@ pub fn closest_points<N: Algebraic + Clone,
 ///     * `m2`  - the second ball transform.
 ///     * `b2`  - the second ball.
 #[inline]
-pub fn toi<N: Num + Algebraic + Ord + Clone + Real + Cast<f32>,
-           V: AlgebraicVecExt<N> + Translation<V> + Rotate<V> + Transform<V> + Clone,
-           M: Translation<V>>(
-           c1:  &M,
-           dir: &V,
-           b1:  &Ball<N>,
-           c2:  &M,
-           b2:  &Ball<N>) -> Option<N> {
+pub fn toi(c1: &M, dir: &V, b1: &Ball, c2: &M, b2: &Ball) -> Option<N> {
     // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!
-    let cso = Ball::new(b1.radius() + b2.radius());
+    let radius = b1.radius() + b2.radius();
+    let center = c1.translation() - c2.translation();
 
-    cso.toi_with_transform_and_ray(
-        &(c1.translation() - c2.translation()),
-        &Ray::new(na::zero(), -dir)
-    )
+    ball_toi_with_ray(center, radius, &Ray::new(na::zero(), -dir))
 }

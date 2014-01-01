@@ -2,29 +2,27 @@
 //! Geometry composed from the union of primitives.
 //!
 
-use std::num::Zero;
 use nalgebra::na;
-use nalgebra::na::{AlgebraicVecExt, Cast, Translation, AbsoluteRotate, Transform, Rotate};
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
-use volumetric::InertiaTensor;
 use ray::Ray;
 use partitioning::bvt::BVT;
 use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use partitioning::bvt;
 use geom::{Geom, ConcaveGeom};
+use math::M;
 
 /// A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of
 /// the union of several simpler geometry. This is the main way of creating a concave geometry from
 /// convex parts. Each parts can have its own delta transformation to shift or rotate it with
 /// regard to the other geometries.
-pub struct Compound<N, V, M, II> {
-    priv shapes: ~[(M, ~Geom<N, V, M, II>)],
-    priv bvt:    BVT<uint, AABB<N, V>>,
-    priv bvs:    ~[AABB<N, V>]
+pub struct Compound {
+    priv shapes: ~[(M, ~Geom)],
+    priv bvt:    BVT<uint, AABB>,
+    priv bvs:    ~[AABB]
 }
 
-impl<N: Clone, V: Clone, M: Clone, II> Clone for Compound<N, V, M, II> {
-    fn clone(&self) -> Compound<N, V, M, II> {
+impl Clone for Compound {
+    fn clone(&self) -> Compound {
         Compound {
             shapes: self.shapes.map(|&(ref m, ref s)| (m.clone(), s.duplicate())),
             bvt:    self.bvt.clone(),
@@ -33,14 +31,10 @@ impl<N: Clone, V: Clone, M: Clone, II> Clone for Compound<N, V, M, II> {
     }
 }
 
-impl<N: 'static + Algebraic + Primitive + Orderable + Signed + Cast<f32> + Clone,
-     V: 'static + AlgebraicVecExt<N> + Clone,
-     M,
-     II>
-Compound<N, V, M, II> {
+impl Compound {
     /// Builds a new compound shape from a list of shape with their respective delta
     /// transformation.
-    pub fn new(shapes: ~[(M, ~Geom<N, V, M, II>)]) -> Compound<N, V, M, II> {
+    pub fn new(shapes: ~[(M, ~Geom)]) -> Compound {
         let mut bvs    = ~[];
         let mut leaves = ~[];
 
@@ -61,64 +55,59 @@ Compound<N, V, M, II> {
     }
 }
 
-impl<N, V, M, II> Compound<N, V, M, II> {
+impl Compound {
     /// The shapes of this compound geometry.
     #[inline]
-    pub fn shapes<'r>(&'r self) -> &'r [(M, ~Geom<N, V, M, II>)] {
-        let res: &'r [(M, ~Geom<N, V, M, II>)] = self.shapes;
+    pub fn shapes<'r>(&'r self) -> &'r [(M, ~Geom)] {
+        let res: &'r [(M, ~Geom)] = self.shapes;
 
         res
     }
 
     /// The optimization structure used by this compound geometry.
     #[inline]
-    pub fn bvt<'r>(&'r self) -> &'r BVT<uint, AABB<N, V>> {
+    pub fn bvt<'r>(&'r self) -> &'r BVT<uint, AABB> {
         &'r self.bvt
     }
 
     /// The shapes bounding volumes.
     #[inline]
-    pub fn bounding_volumes<'r>(&'r self) -> &'r [AABB<N, V>] {
-        let res: &'r [AABB<N, V>] = self.bvs;
+    pub fn bounding_volumes<'r>(&'r self) -> &'r [AABB] {
+        let res: &'r [AABB] = self.bvs;
 
         res
     }
 }
 
-impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic,
-     LV: Clone + Zero + AlgebraicVecExt<N>,
-     AV,
-     M:  Clone + Mul<M, M> + Translation<LV> + AbsoluteRotate<LV> + Transform<LV> + Rotate<LV>,
-     II: Zero + Add<II, II> + InertiaTensor<N, LV, AV, M>>
-ConcaveGeom<N, LV, M, II> for Compound<N, LV, M, II> {
+impl ConcaveGeom for Compound {
     #[inline(always)]
-    fn map_part_at(&self, i: uint, f: |&M, &Geom<N, LV, M, II>| -> ()) {
+    fn map_part_at(&self, i: uint, f: |&M, &Geom| -> ()) {
         let (ref m, ref g) = self.shapes[i];
 
         f(m, *g)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom<N, LV, M, II>| -> ()) {
+    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom| -> ()) {
         let (ref lm, ref g) = self.shapes[i];
 
         f(&(m * *lm), *g)
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB<N, LV>, out: &mut ~[uint]) {
+    fn approx_interferences_with_aabb(&self, aabb: &AABB, out: &mut ~[uint]) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray<LV>, out: &mut ~[uint]) {
+    fn approx_interferences_with_ray(&self, ray: &Ray, out: &mut ~[uint]) {
         let mut visitor = RayInterferencesCollector::new(ray, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB<N, LV> {
+    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
         &'a self.bvs[i]
     }
 }

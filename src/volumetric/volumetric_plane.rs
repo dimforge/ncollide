@@ -1,9 +1,9 @@
-use std::num::Zero;
 use nalgebra::na;
 use geom::Plane;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
-impl<N: Zero, V: Zero, II: Zero> Volumetric<N, V, II> for Plane<N, V> {
+impl Volumetric for Plane {
     #[inline]
     fn mass_properties(&self, _: &N) -> (N, V, II) {
         (na::zero(), na::zero(), na::zero())

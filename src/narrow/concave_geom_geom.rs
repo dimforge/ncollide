@@ -1,4 +1,3 @@
-use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use nalgebra::na;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
@@ -8,15 +7,16 @@ use narrow::{CollisionDetector, GeomGeomDispatcher, GeomGeomCollisionDetector,
              DynamicCollisionDetector, CollisionDetectorFactory};
 use contact::Contact;
 use geom::{Geom, ConcaveGeom};
+use math::M;
 
-pub struct ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
-    priv sub_detectors: HashMap<uint, ~GeomGeomCollisionDetector<N, LV, AV, M, II>, UintTWHash>,
+pub struct ConcaveGeomGeom<G1, G2> {
+    priv sub_detectors: HashMap<uint, ~GeomGeomCollisionDetector, UintTWHash>,
     priv to_delete:     ~[uint],
     priv interferences: ~[uint]
 }
 
-impl<N, LV, AV, M, II, G1, G2> ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
-    pub fn new() -> ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
+impl<G1, G2> ConcaveGeomGeom<G1, G2> {
+    pub fn new() -> ConcaveGeomGeom<G1, G2> {
         ConcaveGeomGeom {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete:     ~[],
@@ -25,16 +25,9 @@ impl<N, LV, AV, M, II, G1, G2> ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
     }
 }
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: ConcaveGeom<N, LV, M, II>,
-     G2: Geom<N, LV, M, II>>
-ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
+impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
     fn do_update(&mut self,
-                 dispatcher: &GeomGeomDispatcher<N, LV, AV, M, II>,
+                 dispatcher: &GeomGeomDispatcher,
                  m1:         &M,
                  g1:         &G1,
                  m2:         &M,
@@ -43,7 +36,7 @@ ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
         // Find new collisions
         let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
-        let g2       = g2 as &Geom<N, LV, M, II>;
+        let g2       = g2 as &Geom;
 
         g1.approx_interferences_with_aabb(&ls_aabb2, &mut self.interferences);
 
@@ -92,20 +85,14 @@ ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
     }
 }
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: 'static + ConcaveGeom<N, LV, M, II>,
-     G2: 'static + Geom<N, LV, M, II>>
-GeomGeomCollisionDetector<N, LV, AV, M, II> for ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> {
+impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
+GeomGeomCollisionDetector for ConcaveGeomGeom<G1, G2> {
     fn update(&mut self,
-              dispatcher: &GeomGeomDispatcher<N, LV, AV, M, II>,
+              dispatcher: &GeomGeomDispatcher,
               m1:         &M,
-              g1:         &Geom<N, LV, M, II>,
+              g1:         &Geom,
               m2:         &M,
-              g2:         &Geom<N, LV, M, II>) {
+              g2:         &Geom) {
         self.do_update(dispatcher,
                        m1,
                        g1.as_ref::<G1>().expect("Invalid geometry."),
@@ -124,48 +111,36 @@ GeomGeomCollisionDetector<N, LV, AV, M, II> for ConcaveGeomGeom<N, LV, AV, M, II
         res
     }
 
-    fn colls(&self, out: &mut ~[Contact<N, LV>]) {
+    fn colls(&self, out: &mut ~[Contact]) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.colls(out);
         }
     }
 }
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: ConcaveGeom<N, LV, M, II>,
-     G2: Geom<N, LV, M, II>>
-DynamicCollisionDetector<N, LV, AV, M, II, G1, G2> for ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> { }
+impl<G1: ConcaveGeom, G2: Geom>
+DynamicCollisionDetector<G1, G2> for ConcaveGeomGeom<G1, G2> { }
 
-pub struct GeomConcaveGeom<N, LV, AV, M, II, G1, G2> {
-    priv sub_detector: ConcaveGeomGeom<N, LV, AV, M, II, G2, G1>
+pub struct GeomConcaveGeom<G1, G2> {
+    priv sub_detector: ConcaveGeomGeom<G2, G1>
 }
 
-impl<N, LV, AV, M, II, G1, G2> GeomConcaveGeom<N, LV, AV, M, II, G1, G2> {
-    pub fn new() -> GeomConcaveGeom<N, LV, AV, M, II, G1, G2> {
+impl<G1, G2> GeomConcaveGeom<G1, G2> {
+    pub fn new() -> GeomConcaveGeom<G1, G2> {
         GeomConcaveGeom {
             sub_detector: ConcaveGeomGeom::new()
         }
     }
 }
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: 'static + Geom<N, LV, M, II>,
-     G2: 'static + ConcaveGeom<N, LV, M, II>>
-GeomGeomCollisionDetector<N, LV, AV, M, II> for GeomConcaveGeom<N, LV, AV, M, II, G1, G2> {
+impl<G1: 'static + Geom, G2: 'static + ConcaveGeom>
+GeomGeomCollisionDetector for GeomConcaveGeom<G1, G2> {
     fn update(&mut self,
-              dispatcher: &GeomGeomDispatcher<N, LV, AV, M, II>,
+              dispatcher: &GeomGeomDispatcher,
               m1:         &M,
-              g1:         &Geom<N, LV, M, II>,
+              g1:         &Geom,
               m2:         &M,
-              g2:         &Geom<N, LV, M, II>) {
+              g2:         &Geom) {
         self.sub_detector.do_update(dispatcher,
                                     m2,
                                     g2.as_ref::<G2>().expect("Invalid geometry."),
@@ -178,53 +153,36 @@ GeomGeomCollisionDetector<N, LV, AV, M, II> for GeomConcaveGeom<N, LV, AV, M, II
         self.sub_detector.num_colls()
     }
 
-    fn colls(&self, out: &mut ~[Contact<N, LV>]) {
+    fn colls(&self, out: &mut ~[Contact]) {
         self.sub_detector.colls(out)
     }
 }
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: Geom<N, LV, M, II>,
-     G2: ConcaveGeom<N, LV, M, II>>
-DynamicCollisionDetector<N, LV, AV, M, II, G1, G2> for GeomConcaveGeom<N, LV, AV, M, II, G1, G2> { }
+impl<G1: Geom, G2: ConcaveGeom>
+DynamicCollisionDetector<G1, G2> for GeomConcaveGeom<G1, G2> { }
 
 /*
  *
  * Custom factories
  *
  */
-pub struct ConcaveGeomGeomFactory<N, LV, AV, M, II, G1, G2>;
+pub struct ConcaveGeomGeomFactory<G1, G2>;
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: 'static + ConcaveGeom<N, LV, M, II>,
-     G2: 'static + Geom<N, LV, M, II>>
-CollisionDetectorFactory<N, LV, AV, M, II> for ConcaveGeomGeomFactory<N, LV, AV, M, II, G1, G2> {
-    fn build(&self) -> ~GeomGeomCollisionDetector<N, LV, AV, M, II> {
-        let res: ConcaveGeomGeom<N, LV, AV, M, II, G1, G2> = ConcaveGeomGeom::new();
-        ~res as ~GeomGeomCollisionDetector<N, LV, AV, M, II>
+impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
+CollisionDetectorFactory for ConcaveGeomGeomFactory<G1, G2> {
+    fn build(&self) -> ~GeomGeomCollisionDetector {
+        let res: ConcaveGeomGeom<G1, G2> = ConcaveGeomGeom::new();
+        ~res as ~GeomGeomCollisionDetector
     }
 }
 
-pub struct GeomConcaveGeomFactory<N, LV, AV, M, II, G1, G2>;
+pub struct GeomConcaveGeomFactory<G1, G2>;
 
-impl<N:  Freeze + Send + Algebraic + Primitive + Orderable,
-     LV: Freeze + Send + AlgebraicVecExt<N> + Clone,
-     AV: Freeze + Send,
-     M:  Freeze + Send + Inv + Mul<M, M> + Translation<LV>,
-     II: Freeze + Send,
-     G1: 'static + Geom<N, LV, M, II>,
-     G2: 'static + ConcaveGeom<N, LV, M, II>>
-CollisionDetectorFactory<N, LV, AV, M, II> for GeomConcaveGeomFactory<N, LV, AV, M, II, G1, G2> {
-    fn build(&self) -> ~GeomGeomCollisionDetector<N, LV, AV, M, II> {
-        let res: GeomConcaveGeom<N, LV, AV, M, II, G1, G2> = GeomConcaveGeom::new();
-        ~res as ~GeomGeomCollisionDetector<N, LV, AV, M, II>
+impl<G1: 'static + Geom,
+     G2: 'static + ConcaveGeom>
+CollisionDetectorFactory for GeomConcaveGeomFactory<G1, G2> {
+    fn build(&self) -> ~GeomGeomCollisionDetector {
+        let res: GeomConcaveGeom<G1, G2> = GeomConcaveGeom::new();
+        ~res as ~GeomGeomCollisionDetector
     }
 }

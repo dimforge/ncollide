@@ -1,12 +1,12 @@
-use std::num::{Zero, One, Real};
-use nalgebra::na::{Cast, Dim, Indexable};
+use std::num::Real;
+use nalgebra::na::{Cast, Indexable};
 use nalgebra::na;
 use geom::Cone;
 use volumetric::Volumetric;
+use math::{N, V, II};
 
 #[inline]
-pub fn cone_volume<N:  Zero + One + Cast<f32> + Num + Real + Clone>(
-                   half_height: &N,
+pub fn cone_volume(half_height: &N,
                    radius:      &N,
                    dim:         uint)
                    -> N {
@@ -22,10 +22,7 @@ pub fn cone_volume<N:  Zero + One + Cast<f32> + Num + Real + Clone>(
     }
 }
 
-impl<N:  Zero + One + Cast<f32> + Num + Real + Clone,
-     V:  Zero + Indexable<uint, N> + Dim,
-     II: Zero + Indexable<(uint, uint), N>>
-Volumetric<N, V, II> for Cone<N> {
+impl Volumetric for Cone {
     fn mass_properties(&self, density: &N) -> (N, V, II) {
         let dim  = na::dim::<V>();
         let mass = cone_volume(&self.half_height(), &self.radius(), dim) * *density;
@@ -71,4 +68,3 @@ Volumetric<N, V, II> for Cone<N> {
         }
     }
 }
-

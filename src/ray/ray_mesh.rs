@@ -1,19 +1,17 @@
-use std::num::{Zero, One};
-use nalgebra::na::{AlgebraicVecExt, Rotate, Transform, Cast, Translation, AbsoluteRotate};
 use nalgebra::na;
 use partitioning::bvt_visitor::RayInterferencesCollector;
 use ray::{Ray, RayCast, RayCastWithTransform};
+use geom::Mesh;
+use math::{N, V};
+
+#[cfg(dim3)]
 use ray;
-use geom::{Geom, Mesh, MeshElement};
+#[cfg(dim3)]
+use std::num::Zero;
 
 
-impl<N:  Freeze + Send + Num + Bounded + Orderable + Primitive + Algebraic + Cast<f32> + Signed,
-     V:  Freeze + Send + AlgebraicVecExt<N> + Clone,
-     M:  Transform<V> + Rotate<V> + Clone + Mul<M, M> + Translation<V> + AbsoluteRotate<V> + One,
-     II: Zero + Add<II, II>,
-     E:  Geom<N, V, M, II> + MeshElement<N, V>>
-RayCast<N, V> for Mesh<N, V, M, II, E> {
-    fn toi_with_ray(&self, ray: &Ray<V>) -> Option<N> {
+impl RayCast for Mesh {
+    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
         let mut interferences: ~[uint] = ~[];
 
         {
@@ -41,7 +39,7 @@ RayCast<N, V> for Mesh<N, V, M, II, E> {
         }
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray<V>) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         let mut interferences: ~[uint] = ~[];
 
         {
@@ -73,7 +71,8 @@ RayCast<N, V> for Mesh<N, V, M, II, E> {
         }
     }
 
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<V>) -> Option<(N, V, Option<(N, N, N)>)> {
+    #[cfg(dim3)]
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
         if na::dim::<V>() != 3 || !self.margin().is_zero() || self.uvs().is_none() {
             return self.toi_and_normal_with_ray(ray).map(|(toi, n)| (toi, n, None));
         }
@@ -91,8 +90,8 @@ RayCast<N, V> for Mesh<N, V, M, II, E> {
 
         for i in interferences.iter() {
             let vs: &[V] = *self.vertices().get();
-            let i        = i * MeshElement::nvertices(None::<E>);
-            let is       = self.indices().get().slice(i, i + MeshElement::nvertices(None::<E>));
+            let i        = i * 3;
+            let is       = self.indices().get().slice(i, i + 3);
 
             match ray::triangle_ray_intersection(&vs[is[0]], &vs[is[1]], &vs[is[2]], ray) {
                 None    => { },
@@ -110,7 +109,7 @@ RayCast<N, V> for Mesh<N, V, M, II, E> {
         }
         else {
             let (toi, n, (u, v, w)) = toi;
-            let is  = self.indices().get().slice(best, best + MeshElement::nvertices(None::<E>));
+            let is  = self.indices().get().slice(best, best + 3);
             let uvs = self.uvs().as_ref().unwrap().get();
 
             let (x1, y1, z1) = uvs[is[0]].clone();
@@ -145,9 +144,4 @@ RayCast<N, V> for Mesh<N, V, M, II, E> {
     }
 }
 
-impl<N:  Num + Bounded + Orderable + Primitive + Algebraic + Cast<f32> + Signed,
-     V:  AlgebraicVecExt<N> + Clone,
-     M:  Transform<V> + Rotate<V> + Clone + Mul<M, M> + Translation<V> + AbsoluteRotate<V> + One,
-     II: Zero + Add<II, II>,
-     E:  Geom<N, V, M, II> + MeshElement<N, V>>
-RayCastWithTransform<N, V, M> for Mesh<N, V, M, II, E> { }
+impl RayCastWithTransform for Mesh { }

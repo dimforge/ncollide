@@ -8,13 +8,10 @@ pub use narrow::plane_implicit::{PlaneImplicit, ImplicitPlane};
 pub use narrow::implicit_implicit::ImplicitImplicit;
 pub use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 pub use narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
-// pub use narrow::compound_any::{CompoundAABBAny, AnyCompoundAABB};
-// pub use narrow::compound_compound::CompoundAABBCompoundAABB;
 pub use narrow::geom_geom::{DynamicCollisionDetector, GeomGeomCollisionDetector, GeomGeomDispatcher,
                             CollisionDetectorFactory};
 pub use narrow::concave_geom_geom::{ConcaveGeomGeom, GeomConcaveGeom, ConcaveGeomGeomFactory,
                                     GeomConcaveGeomFactory};
-// pub use narrow::subsimplex_mesh_any::SubsimplexMeshAny;
 
 // functions
 /// Functions to compule the time of impact between two geometries.
@@ -44,8 +41,6 @@ mod plane_implicit;
 mod implicit_implicit;
 mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
-// mod compound_any;
-// mod compound_compound;
 mod concave_geom_geom;
 pub mod geom_geom;
 

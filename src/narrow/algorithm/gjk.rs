@@ -1,18 +1,19 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use nalgebra::na::{Cast, AlgebraicVec, Identity};
+use nalgebra::na::{AlgebraicVec, Identity};
 use nalgebra::na;
 use geom::{Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
+use math::{N, V, M};
 
 /// Results of the GJK algorithm.
 #[deriving(Encodable, Decodable, Clone)]
-pub enum GJKResult<V, Dir> {
+pub enum GJKResult<_V, Dir> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-    Projection(V),
+    Projection(_V),
     /// Result of the GJK algorithm when the origin is to far away from the polytope.
     NoIntersection(Dir)
 }
@@ -25,12 +26,9 @@ pub enum GJKResult<V, Dir> {
 ///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///     compute such point.
-pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
-                      G1: Implicit<N, V, M>,
-                      G2: Implicit<N, V, M>,
-                      N:  Cast<f32> + Ord + Num + Float,
-                      V:  Clone + AlgebraicVec<N>,
-                      M>(
+pub fn closest_points<S:  Simplex<AnnotatedPoint>,
+                      G1: Implicit<V, M>,
+                      G2: Implicit<V, M>>(
                       m1:      &M,
                       g1:      &G1,
                       m2:      &M,
@@ -53,12 +51,9 @@ pub fn closest_points<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///     compute such point.
-pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
-                                     G1: Implicit<N, V, M>,
-                                     G2: Implicit<N, V, M>,
-                                     N:  Cast<f32> + Ord + Num + Float,
-                                     V:  Clone + AlgebraicVec<N>,
-                                     M>(
+pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
+                                     G1: Implicit<V, M>,
+                                     G2: Implicit<V, M>>(
                                      m1:      &M,
                                      g1:      &G1,
                                      m2:      &M,
@@ -79,12 +74,9 @@ pub fn closest_points_without_margin<S:  Simplex<N, AnnotatedPoint<V>>,
 ///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///     compute such point.
-pub fn closest_points_without_margin_with_max_dist<S:  Simplex<N, AnnotatedPoint<V>>,
-                                                   G1: Implicit<N, V, M>,
-                                                   G2: Implicit<N, V, M>,
-                                                   N:  Cast<f32> + Ord + Num + Float,
-                                                   V:  Clone + AlgebraicVec<N>,
-                                                   M>(
+pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
+                                                   G1: Implicit<V, M>,
+                                                   G2: Implicit<V, M>>(
                                                    m1:       &M,
                                                    g1:       &G1,
                                                    m2:       &M,
@@ -110,15 +102,11 @@ pub fn closest_points_without_margin_with_max_dist<S:  Simplex<N, AnnotatedPoint
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn project_origin<S: Simplex<N, V>,
-                      G: Implicit<N, V, M>,
-                      N: Ord + Num + Float + Cast<f32>,
-                      V: AlgebraicVec<N>,
-                      M>(
-                      m:       &M,
+pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: AlgebraicVec<N>, _M>(
+                      m:       &_M,
                       geom:    &G,
                       simplex: &mut S)
-                      -> Option<V> {
+                      -> Option<_V> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = na::sqnorm(&proj);
@@ -166,16 +154,12 @@ pub fn project_origin<S: Simplex<N, V>,
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn project_origin_with_max_dist<S: Simplex<N, V>,
-                                    G: Implicit<N, V, M>,
-                                    N: Ord + Num + Float + Cast<f32>,
-                                    V: AlgebraicVec<N> + Clone,
-                                    M>(
-                                    m:        &M,
+pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: AlgebraicVec<N>, _M>(
+                                    m:        &_M,
                                     geom:     &G,
                                     max_dist: &N,
                                     simplex:  &mut S)
-                                    -> GJKResult<V, V> {
+                                    -> GJKResult<_V, _V> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = na::sqnorm(&proj);

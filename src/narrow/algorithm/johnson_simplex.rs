@@ -9,15 +9,16 @@ use extra::treemap::TreeMap;
 use nalgebra::na::{AlgebraicVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
+use math::N;
 
 static KEY_RECURSION_TEMPLATE: local_data::Key<Arc<~[RecursionTemplate]>> = &local_data::Key;
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
-pub struct JohnsonSimplex<N, V> {
+pub struct JohnsonSimplex<_V> {
     priv recursion_template: Arc<~[RecursionTemplate]>,
-    priv points:             ~[V],
-    priv exchange_points:    ~[V],
+    priv points:             ~[_V],
+    priv exchange_points:    ~[_V],
     priv determinants:       ~[N]
 }
 
@@ -191,11 +192,11 @@ impl RecursionTemplate {
     }
 }
 
-impl<N: Clone + Zero, V: Dim>
-JohnsonSimplex<N, V> {
+impl<_V: Dim>
+JohnsonSimplex<_V> {
     /// Creates a new, empty, johnson simplex.
-    pub fn new(recursion: Arc<~[RecursionTemplate]>) -> JohnsonSimplex<N, V> {
-        let _dim = na::dim::<V>();
+    pub fn new(recursion: Arc<~[RecursionTemplate]>) -> JohnsonSimplex<_V> {
+        let _dim = na::dim::<_V>();
 
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
@@ -206,30 +207,29 @@ JohnsonSimplex<N, V> {
     }
 
     /// Creates a new, empty johnson simplex. The recursion template uses the thread-local one.
-    pub fn new_w_tls() -> JohnsonSimplex<N, V> {
+    pub fn new_w_tls() -> JohnsonSimplex<_V> {
 
         let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| rec.clone()));
 
         match recursion {
             Some(r) => {
-                if r.get().len() > na::dim::<V>() {
+                if r.get().len() > na::dim::<_V>() {
                     return JohnsonSimplex::new(r)
                 }
             },
             _ => { }
         }
 
-        let new_recursion = RecursionTemplate::new(na::dim::<V>());
+        let new_recursion = RecursionTemplate::new(na::dim::<_V>());
         local_data::set(KEY_RECURSION_TEMPLATE, new_recursion.clone());
         JohnsonSimplex::new(new_recursion)
 
     }
 }
 
-impl<N: Ord + Clone + Num + Bounded,
-     V: Clone + AlgebraicVec<N>>
-JohnsonSimplex<N, V> {
-    fn do_project_origin(&mut self, reduce: bool) -> V {
+impl<_V: Clone + AlgebraicVec<N>>
+JohnsonSimplex<_V> {
+    fn do_project_origin(&mut self, reduce: bool) -> _V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
         }
@@ -331,8 +331,8 @@ JohnsonSimplex<N, V> {
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_det: N = Zero::zero();
-                    let mut proj: V      = Zero::zero();
+                    let mut total_det: N = na::zero();
+                    let mut proj: _V     = na::zero();
 
                     unsafe {
                         for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
@@ -374,10 +374,10 @@ JohnsonSimplex<N, V> {
     }
 }
 
-impl<N: Ord + Clone + Num + Bounded + Algebraic, V: Clone + AlgebraicVec<N>>
-Simplex<N, V> for JohnsonSimplex<N, V> {
+impl<_V: Clone + AlgebraicVec<N>>
+Simplex<_V> for JohnsonSimplex<_V> {
     #[inline]
-    fn reset(&mut self, pt: V) {
+    fn reset(&mut self, pt: _V) {
         self.points.clear();
         self.points.push(pt);
     }
@@ -393,28 +393,28 @@ Simplex<N, V> for JohnsonSimplex<N, V> {
     }
 
     #[inline]
-    fn contains_point(&self, pt: &V) -> bool {
+    fn contains_point(&self, pt: &_V) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
     #[inline]
-    fn add_point(&mut self, pt: V) {
+    fn add_point(&mut self, pt: _V) {
         self.points.push(pt);
-        assert!(self.points.len() <= na::dim::<V>() + 1);
+        assert!(self.points.len() <= na::dim::<_V>() + 1);
     }
 
     #[inline]
-    fn project_origin_and_reduce(&mut self) -> V {
+    fn project_origin_and_reduce(&mut self) -> _V {
         self.do_project_origin(true)
     }
 
     #[inline]
-    fn project_origin(&mut self) -> V {
+    fn project_origin(&mut self) -> _V {
         self.do_project_origin(false)
     }
 
     #[inline]
-    fn translate_by(&mut self, v: &V) {
+    fn translate_by(&mut self, v: &_V) {
         for p in self.points.mut_iter() {
             *p = *p + *v;
         }
@@ -467,7 +467,7 @@ impl ToStr for RecursionTemplate {
     }
 }
 
-#[cfg(test)]
+#[cfg(dim3, f64, test)]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use nalgebra::na::Vec3;
@@ -502,7 +502,7 @@ mod test {
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);
         let d = Vec3::new(0.0, -0.5, -0.5);
-        let _ = JohnsonSimplex::<f64, Vec3<f64>>::new_w_tls();
+        let _ = JohnsonSimplex::<Vec3<f64>>::new_w_tls();
 
         bh.iter(|| {
             let mut spl = JohnsonSimplex::new_w_tls();

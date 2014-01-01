@@ -2,10 +2,8 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 //!
 
-use std::num::{One, Zero};
 use extra::arc::Arc;
-use nalgebra::na::{VecExt, AlgebraicVecExt, Rotate, Transform, Cast,
-                   Translation, AbsoluteRotate, Dim};
+use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;
 use ray::Ray;
 use partitioning::bvt;
@@ -14,17 +12,33 @@ use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom};
+use math::{N, V, M};
 
-pub trait MeshElement<N, V> {
+#[cfg(dim2)]
+use geom::Segment;
+#[cfg(dim3)]
+use geom::Triangle;
+#[cfg(dim4)] // XXX: this is wrong
+use geom::Triangle;
+
+pub trait MeshElement {
     fn nvertices(unused: Option<Self>) -> uint;
     fn new_with_vertices_and_indices(&[V], &[uint], N) -> Self;
 }
 
-// XXX: sadly, M and II seem to be needed to avoid an UnconstrainedType when trying to use it…
+#[cfg(dim2)]
+pub type E = Segment;
+
+#[cfg(dim3)]
+pub type E = Triangle;
+
+#[cfg(dim4)]
+pub type E = Triangle; // XXX: this is wrong
+
 /// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
-pub struct Mesh<N, V, M, II, E> {
-    priv bvt:      BVT<uint, AABB<N, V>>,
-    priv bvs:      ~[AABB<N, V>],
+pub struct Mesh {
+    priv bvt:      BVT<uint, AABB>,
+    priv bvs:      ~[AABB],
     priv margin:   N,
     priv vertices: Arc<~[V]>,
     priv indices:  Arc<~[uint]>,
@@ -32,8 +46,8 @@ pub struct Mesh<N, V, M, II, E> {
     priv normals:  Option<Arc<~[V]>>,
 }
 
-impl<N: Clone + Send + Freeze, V: Clone + Send + Freeze, M, II, E> Clone for Mesh<N, V, M, II, E> {
-    fn clone(&self) -> Mesh<N, V, M, II, E> {
+impl Clone for Mesh {
+    fn clone(&self) -> Mesh {
         Mesh {
             bvt:      self.bvt.clone(),
             bvs:      self.bvs.clone(),
@@ -46,18 +60,13 @@ impl<N: Clone + Send + Freeze, V: Clone + Send + Freeze, M, II, E> Clone for Mes
     }
 }
 
-impl<N: Send + Freeze + Clone + Cast<f32> + Algebraic + Signed + Ord + Bounded + Primitive,
-     V: Send + Freeze + Clone + AlgebraicVecExt<N>,
-     M: One,
-     II,
-     E: Geom<N, V, M, II> + MeshElement<N, V>>
-Mesh<N, V, M, II, E> {
+impl Mesh {
     /// Builds a new mesh with a default margin of 0.04.
     pub fn new(vertices: Arc<~[V]>,
                indices:  Arc<~[uint]>,
                uvs:      Option<Arc<~[(N, N, N)]>>,
                normals:  Option<Arc<~[V]>>)
-               -> Mesh<N, V, M, II, E> {
+               -> Mesh {
         Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
     }
 
@@ -67,7 +76,7 @@ Mesh<N, V, M, II, E> {
                            uvs:      Option<Arc<~[(N, N, N)]>>,
                            normals:  Option<Arc<~[V]>>,
                            margin:   N)
-                           -> Mesh<N, V, M, II, E> {
+                           -> Mesh {
         assert!(indices.get().len() % MeshElement::nvertices(None::<E>) == 0);
         uvs.as_ref().map(|uvs| assert!(uvs.get().len() == vertices.get().len()));
 
@@ -103,7 +112,7 @@ Mesh<N, V, M, II, E> {
     }
 }
 
-impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
+impl Mesh {
     /// The vertices of this mesh.
     #[inline]
     pub fn vertices<'a>(&'a self) -> &'a Arc<~[V]> {
@@ -112,8 +121,8 @@ impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
 
     /// Bounding volumes of the subsimplices.
     #[inline]
-    pub fn bounding_volumes<'a>(&'a self) -> &'a [AABB<N, V>] {
-        let res: &'a [AABB<N, V>] = self.bvs;
+    pub fn bounding_volumes<'a>(&'a self) -> &'a [AABB] {
+        let res: &'a [AABB] = self.bvs;
 
         res
     }
@@ -138,7 +147,7 @@ impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
-    pub fn bvt<'a>(&'a self) -> &'a BVT<uint, AABB<N, V>> {
+    pub fn bvt<'a>(&'a self) -> &'a BVT<uint, AABB> {
         &'a self.bvt
     }
 
@@ -149,7 +158,7 @@ impl<N: Clone, V: Send + Freeze + Dim, M, II, E> Mesh<N, V, M, II, E> {
     }
 }
 
-impl<N: Clone, V: Freeze + Send, M, II, E: MeshElement<N, V>> Mesh<N, V, M, II, E> {
+impl Mesh {
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> E {
         let vs: &[V] = *self.vertices.get();
@@ -160,57 +169,47 @@ impl<N: Clone, V: Freeze + Send, M, II, E: MeshElement<N, V>> Mesh<N, V, M, II, 
     }
 }
 
-impl<N:  Clone + Zero + Num + Primitive + Orderable + Cast<f32> + Algebraic + Signed,
-     V:  Send + Freeze + Clone + Zero + AlgebraicVecExt<N>,
-     M:  Clone + Mul<M, M> + Translation<V> + AbsoluteRotate<V> + Transform<V> + Rotate<V> + One,
-     II: Zero + Add<II, II>,
-     E:  Geom<N, V, M, II> + MeshElement<N, V>>
-ConcaveGeom<N, V, M, II> for Mesh<N, V, M, II, E> {
+impl ConcaveGeom for Mesh {
     #[inline(always)]
-    fn map_part_at(&self, i: uint, f: |&M, &Geom<N, V, M, II>| -> ()) {
+    fn map_part_at(&self, i: uint, f: |&M, &Geom| -> ()) {
         let one: M = na::one();
 
         self.map_transformed_part_at(&one, i, f);
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom<N, V, M, II>| -> ()) {
+    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom| -> ()) {
         let element = self.element_at(i);
 
-        f(m, &element as &Geom<N, V, M, II>);
+        f(m, &element as &Geom);
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB<N, V>, out: &mut ~[uint]) {
+    fn approx_interferences_with_aabb(&self, aabb: &AABB, out: &mut ~[uint]) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray<V>, out: &mut ~[uint]) {
+    fn approx_interferences_with_ray(&self, ray: &Ray, out: &mut ~[uint]) {
         let mut visitor = RayInterferencesCollector::new(ray, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB<N, V> {
+    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
         &'a self.bvs[i]
     }
 }
 
 // FIXME: move that to aabb_mesh.rs
-impl<N: Cast<f32> + Primitive + Orderable,
-     V: VecExt<N> + Clone,
-     M: Translation<V> + AbsoluteRotate<V> + Transform<V>,
-     II,
-     E>
-HasAABB<N, V, M> for Mesh<N, V, M, II, E> {
+impl HasAABB for Mesh {
     #[inline]
-    fn aabb(&self, m: &M) -> AABB<N, V> {
+    fn aabb(&self, m: &M) -> AABB {
         let bv              = self.bvt.root_bounding_volume().unwrap();
         let ls_center       = bv.translation();
         let center          = m.transform(&ls_center);
-        let half_extents    = (bv.maxs() - *bv.mins()) / Cast::from(2.0);
+        let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f64, N>(2.0);
         let ws_half_extents = m.absolute_rotate(&half_extents);
 
         AABB::new(center - ws_half_extents, center + ws_half_extents)

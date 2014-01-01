@@ -1,8 +1,8 @@
 #[doc(hidden)];
 
 use std::num::Zero;
-use nalgebra::na::AlgebraicVec;
 use implicit::{Implicit, HasMargin};
+use math::{N, V};
 
 // This extends the wrapped geometry with its margin. I.e. the `support_point_withou_margin` method
 // will return the wrapped geometry `support_point` instead.
@@ -18,7 +18,7 @@ impl<'a, G> GeomWithMargin<'a, G> {
     }
 }
 
-impl<'a, N: Zero, G> HasMargin<N> for GeomWithMargin<'a, G> {
+impl<'a, G> HasMargin for GeomWithMargin<'a, G> {
     #[inline]
     fn margin(&self) -> N {
         Zero::zero()
@@ -26,19 +26,15 @@ impl<'a, N: Zero, G> HasMargin<N> for GeomWithMargin<'a, G> {
 }
 
 
-impl<'a,
-     N: Algebraic + Zero,
-     V: AlgebraicVec<N>,
-     M,
-     G: Implicit<N, V, M>>
-Implicit<N, V, M> for GeomWithMargin<'a, G> {
+impl<'a, _M, G: Implicit<V, _M>>
+Implicit<V, _M> for GeomWithMargin<'a, G> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> V {
+    fn support_point(&self, m: &_M, dir: &V) -> V {
         self.geom.support_point(m, dir)
     }
 
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         self.geom.support_point(m, dir)
     }
 }

@@ -1,28 +1,28 @@
 #[doc(hidden)];
 
-use std::num::{Zero, One};
 use nalgebra::na::{DMat, Inv, AlgebraicVec};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
+use math::N;
 
 #[deriving(Encodable, Decodable)]
-pub struct BruteForceSimplex<N, V> {
-    points: ~[V]
+pub struct BruteForceSimplex<_V> {
+    points: ~[_V]
 }
 
-impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
-BruteForceSimplex<N, V> {
-    pub fn new() -> BruteForceSimplex<N, V> {
+impl<_V: Clone + AlgebraicVec<N>>
+BruteForceSimplex<_V> {
+    pub fn new() -> BruteForceSimplex<_V> {
         BruteForceSimplex { points: ~[] }
     }
 
-    pub fn add_point(&mut self, pt: V) {
+    pub fn add_point(&mut self, pt: _V) {
         self.points.push(pt)
     }
 
-    fn project_on_subsimplex(points: &[V]) -> Option<V> {
-        let     _0: N = Zero::zero();
-        let     _1: N = One::one();
+    fn project_on_subsimplex(points: &[_V]) -> Option<_V> {
+        let     _0: N = na::zero();
+        let     _1: N = na::one();
         let     dim   = points.len();
         let mut mat   = DMat::new_zeros(dim, dim);
 
@@ -44,8 +44,8 @@ BruteForceSimplex<N, V> {
             None
         }
         else {
-            let mut res: V        = Zero::zero();
-            let mut normalizer: N = Zero::zero();
+            let mut res: _V       = na::zero();
+            let mut normalizer: N = na::zero();
 
             for i in range(0u, dim) {
                 if mat.at(i, 0u) > _0 {
@@ -62,7 +62,7 @@ BruteForceSimplex<N, V> {
         }
     }
 
-    fn project_on_subsimplices(points: ~[V]) -> (V, ~[V]) {
+    fn project_on_subsimplices(points: ~[_V]) -> (_V, ~[_V]) {
         if points.len() == 1 {
             (points[0].clone(), points)
         }
@@ -102,7 +102,7 @@ BruteForceSimplex<N, V> {
         }
     }
 
-    pub fn do_project_origin(&mut self, reduce: bool) -> V {
+    pub fn do_project_origin(&mut self, reduce: bool) -> _V {
         let (res, reduction) = BruteForceSimplex::project_on_subsimplices(self.points.clone());
 
         if reduce {
@@ -113,10 +113,10 @@ BruteForceSimplex<N, V> {
     }
 }
 
-impl<N: Ord + Clone + Num + Algebraic, V: Clone + AlgebraicVec<N>>
-Simplex<N, V> for BruteForceSimplex<N, V> {
+impl<_V: Clone + AlgebraicVec<N>>
+Simplex<_V> for BruteForceSimplex<_V> {
     #[inline]
-    fn reset(&mut self, initial_point: V) {
+    fn reset(&mut self, initial_point: _V) {
         self.points.clear();
         self.points.push(initial_point);
     }
@@ -132,23 +132,23 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     #[inline]
-    fn contains_point(&self, pt: &V) -> bool {
+    fn contains_point(&self, pt: &_V) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
     #[inline]
-    fn add_point(&mut self, pt: V) {
-        assert!(self.points.len() <= na::dim::<V>());
+    fn add_point(&mut self, pt: _V) {
+        assert!(self.points.len() <= na::dim::<_V>());
         self.points.push(pt)
     }
 
     #[inline]
-    fn project_origin_and_reduce(&mut self) -> V {
+    fn project_origin_and_reduce(&mut self) -> _V {
         self.do_project_origin(true)
     }
 
     #[inline]
-    fn project_origin(&mut self) -> V {
+    fn project_origin(&mut self) -> _V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
         }
@@ -157,7 +157,7 @@ Simplex<N, V> for BruteForceSimplex<N, V> {
     }
 
     #[inline]
-    fn translate_by(&mut self, v: &V) {
+    fn translate_by(&mut self, v: &_V) {
         for p in self.points.mut_iter() {
             *p = *p + *v;
         }

@@ -1,4 +1,4 @@
-pub use implicit::implicit::{Implicit, HasMargin};
+pub use implicit::implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 pub use implicit::implicit_minkowski_sum::{cso_support_point, cso_support_point_without_margin};
 
 pub mod implicit;

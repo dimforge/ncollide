@@ -1,3 +1,4 @@
+use math::N;
 
 /// Traits of objects having a bounding volume.
 pub trait HasBoundingVolume<BV: BoundingVolume> {
@@ -26,7 +27,7 @@ pub trait BoundingVolume {
 /// Loose bounding volumes are bounding volumes which can be enlarged (loosened). This is typically
 /// used to avoid any update on broad phases as long as the real bounding volume is inside of its
 /// loosened version.
-pub trait LooseBoundingVolume<N> : BoundingVolume {
+pub trait LooseBoundingVolume : BoundingVolume {
     /// Enlarges this bounding volume.
     fn loosen(&mut self, N);
     /// Creates a new, enlarged version, of this bounding volume.

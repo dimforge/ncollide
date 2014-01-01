@@ -1,9 +1,12 @@
-use std::num::One;
-use nalgebra::na::{Cast, AlgebraicVecExt, Vec, Cross, Translation,
-                   Rotation, Transform};
+#[cfg(not(dim4))]
 use nalgebra::na;
+
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
+use math::{N, LV, M};
+
+#[cfg(not(dim4))]
+use math::AV;
 
 /// Contact manifold generator producing a full manifold at the first update.
 ///
@@ -11,27 +14,22 @@ use contact::Contact;
 /// generated. Then, the manifold is incrementally updated by an
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable, Clone)]
-pub struct OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
-    priv sub_detector: IncrementalContactManifoldGenerator<CD, N, LV>
+pub struct OneShotContactManifoldGenerator<CD> {
+    priv sub_detector: IncrementalContactManifoldGenerator<CD>
 }
 
-impl<CD, N, LV, AV, M> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
+impl<CD> OneShotContactManifoldGenerator<CD> {
     /// Creates a new one shot contact manifold generator.
-    pub fn new(prediction: N, cd: CD) -> OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
+    pub fn new(prediction: N, cd: CD) -> OneShotContactManifoldGenerator<CD> {
         OneShotContactManifoldGenerator {
             sub_detector: IncrementalContactManifoldGenerator::new(prediction, cd)
         }
     }
 }
 
-impl<CD: CollisionDetector<N, LV, M, G1, G2>,
-     G1,
-     G2,
-     N:  Clone + Num + Ord + Algebraic + Cast<f32>,
-     LV: Clone + AlgebraicVecExt<N> + Cross<AV> + ApproxEq<N>,
-     AV: Vec<N>,
-     M:  Rotation<AV> + Transform<LV> + Translation<LV> + One>
-CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, LV, AV, M> {
+impl<CD: CollisionDetector<G1, G2>, G1, G2>
+CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
+    #[cfg(not(dim4))]
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
@@ -41,7 +39,7 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
                         let mut rot_axis: AV = na::cross(&coll.normal, &b);
 
                         // first perturbation
-                        rot_axis = rot_axis * na::cast(0.01);
+                        rot_axis = rot_axis * na::cast::<f32, N>(0.01);
 
                         let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, &coll.world1);
 
@@ -66,18 +64,23 @@ CollisionDetector<N, LV, M, G1, G2> for OneShotContactManifoldGenerator<CD, N, L
         }
     }
 
+    #[cfg(dim4)]
+    fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) {
+        fail!("Not yet implemented.")
+    }
+
     #[inline]
     fn num_colls(&self) -> uint {
         self.sub_detector.num_colls()
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact<N, LV>]) {
+    fn colls(&self, out_colls: &mut ~[Contact]) {
         self.sub_detector.colls(out_colls)
     }
 
     #[inline]
-    fn toi(_:    Option<OneShotContactManifoldGenerator<CD, N, LV, AV, M>>,
+    fn toi(_:    Option<OneShotContactManifoldGenerator<CD>>,
            m1:   &M,
            dir:  &LV,
            dist: &N,

@@ -4,18 +4,19 @@
 
 use nalgebra::na::AlgebraicVec;
 use nalgebra::na;
+use math::N;
 
 // Sadly, we cannot put this on the `Implicit` trait because the caller of `margin` might get
 // unconstrained type.
 /// Trait of geometries having a margin.
-pub trait HasMargin<N> {
+pub trait HasMargin {
     /**
      * The geometry margin.
      */
     fn margin(&self) -> N;
 }
 
-impl<'a, N> HasMargin<N> for &'a HasMargin<N> {
+impl<'a> HasMargin for &'a HasMargin {
     fn margin(&self) -> N {
         self.margin()
     }
@@ -25,7 +26,7 @@ impl<'a, N> HasMargin<N> for &'a HasMargin<N> {
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returnd point.
-pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M>: HasMargin<N>{
+pub trait Implicit<V: AlgebraicVec<N>, M>: HasMargin {
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
@@ -55,14 +56,14 @@ pub trait Implicit<N: Algebraic, V: AlgebraicVec<N>, M>: HasMargin<N>{
     fn support_point_without_margin(&self, transform: &M, dir: &V) -> V;
 }
 
-impl<'a, N: Algebraic, V: AlgebraicVec<N>, M> HasMargin<N> for &'a Implicit<N, V, M> {
+impl<'a, V: AlgebraicVec<N>, M> HasMargin for &'a Implicit<V, M> {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<'a, N: Algebraic, V: AlgebraicVec<N>, M> Implicit<N, V, M> for &'a Implicit<N, V, M> {
+impl<'a, V: AlgebraicVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
     #[inline]
     fn support_point(&self, transform: &M, dir: &V) -> V {
         self.support_point(transform, dir)
@@ -72,4 +73,11 @@ impl<'a, N: Algebraic, V: AlgebraicVec<N>, M> Implicit<N, V, M> for &'a Implicit
     fn support_point_without_margin(&self, transform: &M, dir: &V) -> V {
         self.support_point_without_margin(transform, dir)
     }
+}
+
+/// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
+/// Those directions are usually the geometry faces normals.
+pub trait PreferedSamplingDirections<V, M> {
+    /// Applies a function to this geometry with a given transform.
+    fn sample(&self, &M, |V| -> ());
 }

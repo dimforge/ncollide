@@ -6,6 +6,7 @@ pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, Lo
 
 // functions
 pub use bounding_volume::aabb::implicit_shape_aabb;
+pub use bounding_volume::aabb_ball::ball_aabb;
 
 // modules
 mod aabb;

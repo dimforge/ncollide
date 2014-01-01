@@ -1,22 +1,20 @@
 use std::num::Zero;
-use nalgebra::na::{Indexable, AlgebraicVecExt, Rotate, Transform};
-use implicit::{Implicit, HasMargin};
-use narrow::algorithm::minkowski_sampling::PreferedSamplingDirections;
+use nalgebra::na::{Indexable, Rotate, Transform};
+use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Capsule;
+use math::{N, V};
 
-impl<N: Clone> HasMargin<N> for Capsule<N> {
+impl HasMargin for Capsule {
     #[inline]
     fn margin(&self) -> N {
         self.radius().clone()
     }
 }
 
-impl<N: Clone + Signed + Algebraic,
-     V: Clone + AlgebraicVecExt<N>,
-     M: Transform<V> + Rotate<V>>
-Implicit<N, V, M> for Capsule<N> {
+impl<_M: Transform<V> + Rotate<V>>
+Implicit<V, _M> for Capsule {
     #[inline]
-    fn support_point_without_margin(&self, m: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres: V = Zero::zero();
@@ -32,9 +30,9 @@ Implicit<N, V, M> for Capsule<N> {
     }
 }
 
-impl<N, V, M>
-PreferedSamplingDirections<V, M> for Capsule<N> {
+impl<V, _M>
+PreferedSamplingDirections<V, _M> for Capsule {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &_M, _: |V| -> ()) {
     }
 }

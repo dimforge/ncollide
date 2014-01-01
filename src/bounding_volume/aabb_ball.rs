@@ -1,14 +1,15 @@
-use nalgebra::na::{AlgebraicVecExt, ScalarSub, ScalarAdd, Translation};
+use nalgebra::na::Translation;
 use bounding_volume::{HasAABB, AABB};
 use geom::Ball;
+use math::{N, V, M};
 
-impl<N: Clone,
-     V: AlgebraicVecExt<N> + Ord,
-     M: Translation<V>>
-HasAABB<N, V, M> for Ball<N> {
+pub fn ball_aabb(center: &V, radius: &N) -> AABB {
+    AABB::new(center - *radius, center + *radius)
+}
+
+impl HasAABB for Ball {
     #[inline]
-    fn aabb(&self, m: &M) -> AABB<N, V> {
-        AABB::new(m.translation().sub_s(&self.radius()),
-                  m.translation().add_s(&self.radius()))
+    fn aabb(&self, m: &M) -> AABB {
+        ball_aabb(&m.translation(), &self.radius())
     }
 }

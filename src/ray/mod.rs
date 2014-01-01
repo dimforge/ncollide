@@ -6,9 +6,10 @@ pub use ray::ray::{Ray, RayCast, RayCastWithTransform};
 // functions
 pub use ray::ray_plane::plane_toi_with_ray;
 pub use ray::ray_implicit::gjk_toi_and_normal_with_ray;
+pub use ray::ray_ball::ball_toi_with_ray;
+
+#[cfg(dim3)]
 pub use ray::ray_triangle::triangle_ray_intersection;
-// pub use ray::ray_subsimplex_mesh::triangle_toi_and_normal_with_ray;
-// pub use ray::ray_subsimplex_mesh::segment_toi_and_normal_with_ray;
 
 // modules
 pub mod ray;
