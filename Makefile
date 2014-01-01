@@ -43,7 +43,7 @@ distcheck:
 
 doc:
 	mkdir -p $(ncollide_doc_path)
-	rustdoc -L$(nalgebra_lib_path) src/lib.rs
+	rustdoc -L$(nalgebra_lib_path) --cfg dim3 --cfg f64 src/lib3df64.rs
 
 .PHONY:doc
 .PHONY:test
