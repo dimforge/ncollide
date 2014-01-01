@@ -28,7 +28,7 @@ impl<B> Clone for Pair<B> {
 impl<B> Pair<B> {
     /// Builds a new pair of managed boxes.
     pub fn new(a: @mut B, b: @mut B) -> Pair<B> {
-        if ptr::to_mut_unsafe_ptr(a) < ptr::to_mut_unsafe_ptr(b) {
+        if ptr::to_unsafe_ptr(a) < ptr::to_unsafe_ptr(b) {
             Pair {
                 first: a, second: b, sfirst: a, ssecond: b
             }
@@ -63,7 +63,7 @@ impl<B> HashFun<Pair<B>> for PairTWHash {
     fn hash(&self, p: &Pair<B>) -> uint {
         hash::tomas_wang_hash(
             hash::key_from_pair(
-                ptr::to_mut_unsafe_ptr(p.sfirst) as uint, ptr::to_mut_unsafe_ptr(p.ssecond) as uint
+                ptr::to_unsafe_ptr(p.sfirst) as uint, ptr::to_unsafe_ptr(p.ssecond) as uint
             )
         )
     }

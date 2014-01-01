@@ -115,7 +115,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     /// behaviour.
     pub fn set_active(&mut self, b: @mut B, active: bool) {
         let (key, at) =
-            match self.rb2bv.find_mut(&(ptr::to_mut_unsafe_ptr(b) as uint)) {
+            match self.rb2bv.find_mut(&(ptr::to_unsafe_ptr(b) as uint)) {
                 None    => fail!("Unable to change the active state of an unknown object."),
                 Some(i) => {
                     if active {
@@ -151,7 +151,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 }
             };
 
-        self.rb2bv.insert(ptr::to_mut_unsafe_ptr(key) as uint, at);
+        self.rb2bv.insert(ptr::to_unsafe_ptr(key) as uint, at);
     }
 
     /// Updates the collision pairs based on the objects bounding volumes.

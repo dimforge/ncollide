@@ -129,12 +129,12 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         self.to_update.push(leaf);
         self.update_updatable();
 
-        self.active2bv.insert(ptr::to_mut_unsafe_ptr(b) as uint, leaf);
+        self.active2bv.insert(ptr::to_unsafe_ptr(b) as uint, leaf);
     }
 
     fn remove(&mut self, b: @mut B) {
         // remove b from the dbvts
-        let key      = ptr::to_mut_unsafe_ptr(b) as uint;
+        let key      = ptr::to_unsafe_ptr(b) as uint;
         let leaf_opt = self.active2bv.get_and_remove(&key);
         let leaf;
 
@@ -205,7 +205,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
     }
 
     fn update_object(&mut self, object: @mut B) {
-        match self.active2bv.find(&(ptr::to_mut_unsafe_ptr(object) as uint)) {
+        match self.active2bv.find(&(ptr::to_unsafe_ptr(object) as uint)) {
             None       => { },
             Some(leaf) => {
                 let mut new_bv = leaf.object.bounding_volume();
@@ -246,12 +246,12 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
     fn activate(&mut self, body: @mut B, f: |@mut B, @mut B, &mut DV| -> ()) {
         // verify that it is not already active and add it to the active map.
         let leaf =
-            match self.inactive2bv.get_and_remove(&(ptr::to_mut_unsafe_ptr(body) as uint)) {
+            match self.inactive2bv.get_and_remove(&(ptr::to_unsafe_ptr(body) as uint)) {
                 None    => return, // not found: the object is already active
                 Some(l) => l.value
             };
 
-        self.active2bv.insert(ptr::to_mut_unsafe_ptr(body) as uint, leaf);
+        self.active2bv.insert(ptr::to_unsafe_ptr(body) as uint, leaf);
 
         // remove from the inactive tree
         self.stree.remove(leaf);
@@ -283,12 +283,12 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
     fn deactivate(&mut self, body: @mut B) {
         // verify that it is not already inactive and add it to the inactive map.
         let leaf =
-            match self.active2bv.get_and_remove(&(ptr::to_mut_unsafe_ptr(body) as uint)) {
+            match self.active2bv.get_and_remove(&(ptr::to_unsafe_ptr(body) as uint)) {
                 None    => return, // not found: the object is already inactive
                 Some(l) => l.value
             };
 
-        self.inactive2bv.insert(ptr::to_mut_unsafe_ptr(body) as uint, leaf);
+        self.inactive2bv.insert(ptr::to_unsafe_ptr(body) as uint, leaf);
 
         // Now transfer all collisions involving `leaf` and deactivated objects from `pairs` to
         // `spairs`.
