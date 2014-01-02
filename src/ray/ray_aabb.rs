@@ -40,8 +40,8 @@ impl RayCast for bounding_volume::AABB {
     }
 
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
-        let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
+        let mut tmin: N = -tmax;
         let mut side = 0;
         let mut diag = false;
 
@@ -68,7 +68,7 @@ impl RayCast for bounding_volume::AABB {
 
                 if inter_with_near_plane > tmin {
                     tmin = inter_with_near_plane;
-                    side = if flip_sides { -(i as int) } else { i as int };
+                    side = if flip_sides { -(i as int + 1) } else { i as int + 1 };
                     diag = false;
                 }
                 else if inter_with_near_plane == tmin {
@@ -83,6 +83,10 @@ impl RayCast for bounding_volume::AABB {
             }
         }
 
+        if tmin < na::cast(0.0) {
+            return None;
+        }
+
         if diag {
             Some((tmin, -na::normalize(&ray.dir)))
         }
@@ -90,10 +94,10 @@ impl RayCast for bounding_volume::AABB {
             let mut normal: V = na::zero();
 
             if side < 0 {
-                normal.set((-side) as uint, na::one::<N>());
+                normal.set((-side - 1) as uint, na::one::<N>());
             }
             else {
-                normal.set(side as uint, -na::one::<N>());
+                normal.set((side - 1) as uint, -na::one::<N>());
             }
             Some((tmin, normal))
         }
