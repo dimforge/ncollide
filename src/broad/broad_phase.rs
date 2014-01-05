@@ -6,14 +6,14 @@ use ray::Ray;
 /// traits: `InterferencesBroadPhase`, `BoundingVolumeBroadPhase`, and `RayCastBroadPhase`.
 pub trait BroadPhase<B> {
     /// Adds an element to this broad phase.
-    fn add(&mut self, @mut B);
+    fn add(&mut self, B);
     /// Removes an element from this broad phase.
-    fn remove(&mut self, @mut B);
+    fn remove(&mut self, &B);
 
     /// Updates the collision pairs based on the objects bounding volumes.
     fn update(&mut self);
     /// Updates the collision pairs involving one specific object.
-    fn update_object(&mut self, @mut B);
+    fn update_object(&mut self, &B);
 }
 
 /// Broad phase which check for pairwise interferences.
@@ -23,26 +23,26 @@ pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {
     /// Marks and object as active.
     ///
     /// Active objects are checked for interferences at each update.
-    fn activate(&mut self, body: @mut B, f: |@mut B, @mut B, &mut DV| -> ());
+    fn activate(&mut self, body: &B, f: |&B, &B, &mut DV| -> ());
     /// Marks and object as inactive.
     ///
     /// Inactive objects are assumed to be static and not tested for mutual interferences.
-    fn deactivate(&mut self, @mut B);
+    fn deactivate(&mut self, &B);
 
     /// Execute a function on each interefence detected by the broad phase.
-    fn for_each_pair(&self, f: |@mut B, @mut B, &DV| -> ());
+    fn for_each_pair(&self, f: |&B, &B, &DV| -> ());
     /// Execute a function on each interefence detected by the broad phase.
-    fn for_each_pair_mut(&mut self, f: |@mut B, @mut B, &mut DV| -> ());
+    fn for_each_pair_mut(&mut self, f: |&B, &B, &mut DV| -> ());
 }
 
 /// Trait of broad phases working with bounding volume.
 pub trait BoundingVolumeBroadPhase<B, BV> : BroadPhase<B> {
     /// Collects every object which might intersect a given bounding volume.
-    fn interferences_with_bounding_volume(&mut self, &BV, &mut ~[@mut B]);
+    fn interferences_with_bounding_volume(&mut self, &BV, &mut ~[B]);
 }
 
 /// Traits of broad phase able to run fast ray-cast queries.
 pub trait RayCastBroadPhase<B> : BroadPhase<B> {
     /// Collects every object which might intersect a ray.
-    fn interferences_with_ray(&mut self, &Ray, &mut ~[@mut B]);
+    fn interferences_with_ray(&mut self, &Ray, &mut ~[B]);
 }

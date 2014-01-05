@@ -1,3 +1,5 @@
+use std::rc::Rc;
+use std::cell::RefCell;
 use nalgebra::na::{Translation, Indexable};
 use nalgebra::na;
 use implicit::Implicit;
@@ -169,12 +171,44 @@ pub fn implicit_shape_aabb<I: Implicit<V, M>>(m: &M, i: &I) -> AABB {
 #[deriving(Clone, Eq, DeepClone)]
 pub struct WithAABB<A>(M, A);
 
+impl<A> WithAABB<A> {
+    pub fn m<'a>(&'a self) -> &'a M {
+        let WithAABB(ref t, _) = *self;
+
+        t
+    }
+
+    pub fn g<'a>(&'a self) -> &'a A {
+        let WithAABB(_, ref g) = *self;
+
+        g
+    }
+}
+
 impl<A: HasAABB>
 HasBoundingVolume<AABB> for WithAABB<A> {
     fn bounding_volume(&self) -> AABB {
         let WithAABB(ref t, ref g) = *self;
 
         g.aabb(t)
+    }
+}
+
+impl<A: HasAABB>
+HasBoundingVolume<AABB> for Rc<WithAABB<A>> {
+    fn bounding_volume(&self) -> AABB {
+        let bself = self.borrow();
+
+        bself.g().aabb(bself.m())
+    }
+}
+
+impl<A: HasAABB>
+HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
+    fn bounding_volume(&self) -> AABB {
+        let bself = self.borrow().borrow();
+
+        bself.get().g().aabb(bself.get().m())
     }
 }
 

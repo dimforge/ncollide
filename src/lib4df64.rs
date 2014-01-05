@@ -71,12 +71,7 @@ pub mod partitioning {
 }
 
 /// Data structure utilities.
-pub mod util {
-    pub mod pair;
-    pub mod hash;
-    pub mod hash_map;
-    pub mod owned_allocation_cache;
-}
+pub mod util;
 
 // #[cfg(test)]
 // mod tests {

@@ -22,7 +22,12 @@ enum BVTNode<B, BV> {
     Leaf(BV, B)
 }
 
-type PartFnResult<B, BV> = (BV, Either<B, ~[~[(B, BV)]]>);
+enum Partition<B, BV> {
+    Part(B),
+    Parts(~[~[(B, BV)]])
+}
+
+type PartFnResult<B, BV> = (BV, Partition<B, BV>);
 
 impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
@@ -116,7 +121,7 @@ pub fn kdtree_partitioner<B>(rng: &mut rand::StdRng, leaves: ~[(B, AABB)])
     }
     else if leaves.len() == 1 {
         let (b, aabb) = leaves[0];
-        (aabb, Left(b))
+        (aabb, Part(b))
     }
     else {
         // merge all bounding boxes
@@ -147,7 +152,7 @@ pub fn kdtree_partitioner<B>(rng: &mut rand::StdRng, leaves: ~[(B, AABB)])
             partitions[key].push((b, aabb))
         }
 
-        (bounding_bounding_box, Right(partitions))
+        (bounding_bounding_box, Parts(partitions))
     }
 }
 
@@ -165,8 +170,8 @@ fn _new_with_partitioner<B, BV>(rng:         &mut rand::StdRng,
     let (bv, partitions) = partitioner(rng, leaves);
 
     match partitions {
-        Left(b)      => Leaf(bv, b),
-        Right(parts) => {
+        Part(b)      => Leaf(bv, b),
+        Parts(parts) => {
             let mut children = ~[];
 
             for part in parts.move_rev_iter() {

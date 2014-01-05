@@ -1,18 +1,21 @@
-use std::ptr;
 use std::util;
+use std::gc::Gc;
+use std::cell::RefCell;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};
+use util::has_uid::HasUid;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use math::N;
 
 /// Association of an object with its loose bounding volume.
+#[deriving(Clone)]
 pub struct BoundingVolumeProxy<B, BV> {
     /// The objects loose bounding volume.
     bounding_volume: BV,
     /// The object.
-    body:            @mut B
+    body:            B
 }
 
 impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, BV> {
@@ -21,7 +24,7 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
     /// # Arguments:
     ///     * `b` - collision dispatcher.
     ///     * `margin` - loosening margin.
-    pub fn new(b: @mut B, margin: N) -> BoundingVolumeProxy<B, BV> {
+    pub fn new(b: B, margin: N) -> BoundingVolumeProxy<B, BV> {
         BoundingVolumeProxy {
             bounding_volume: b.bounding_volume().loosened(margin),
             body:            b
@@ -53,18 +56,18 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 /// Dont use this broad phase. It exists mainly as a transition broad phase between the Brute Force
 /// one and the DBVH/SAP based broad phases.
 pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
-    priv objects:    ~[@mut BoundingVolumeProxy<B, BV>], // active   objects
-    priv sobjects:   ~[@mut BoundingVolumeProxy<B, BV>], // inactive objects
+    priv objects:    ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // active   objects
+    priv sobjects:   ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // inactive objects
     priv rb2bv:      HashMap<uint, uint, UintTWHash>,
-    priv pairs:      HashMap<Pair<BoundingVolumeProxy<B, BV>>, DV, PairTWHash>, // pair manager
+    priv pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
     priv dispatcher: D,
     priv margin:     N,
-    priv to_update:  ~[@mut BoundingVolumeProxy<B, BV>],
+    priv to_update:  ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>],
     priv update_off: uint // incremental pairs removal index
 }
 
-impl<B:  'static + HasBoundingVolume<BV>,
-     BV: 'static + LooseBoundingVolume,
+impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
+     BV: 'static + LooseBoundingVolume + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
@@ -88,34 +91,34 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     }
 
     /// The pair manager of this broad phase.
-    pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<BoundingVolumeProxy<B, BV>>, DV, PairTWHash> {
+    pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash> {
         &'r self.pairs
     }
 
     /// The pair manager of this broad phase.
     pub fn pairs_mut<'r>(&'r mut self)
-                         -> &'r mut HashMap<Pair<BoundingVolumeProxy<B, BV>>, DV, PairTWHash> {
+                         -> &'r mut HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash> {
         &'r mut self.pairs
     }
 
     /// Adds an element to this broad phase.
-    pub fn add(&mut self, rb: @mut B) {
-        let proxy = @mut BoundingVolumeProxy::new(rb, self.margin.clone());
+    pub fn add(&mut self, rb: B) {
+        let proxy = Gc::new(RefCell::new(BoundingVolumeProxy::new(rb, self.margin.clone())));
         self.objects.push(proxy);
         self.to_update.push(proxy);
     }
 
     /// Removes an element from this broad phase.
-    pub fn remove(&mut self, _: @mut B) {
+    pub fn remove(&mut self, _: &B) {
         fail!("Not yet implemented.");
     }
 
     /// Marks and object as active or inactive. The bounding volume of an inactive object is never
     /// updated. Activating/deactivating an already active/inactive objecs leads to undefined
     /// behaviour.
-    pub fn set_active(&mut self, b: @mut B, active: bool) {
+    pub fn set_active(&mut self, b: &B, active: bool) {
         let (key, at) =
-            match self.rb2bv.find_mut(&(ptr::to_unsafe_ptr(b) as uint)) {
+            match self.rb2bv.find_mut(&b.uid()) {
                 None    => fail!("Unable to change the active state of an unknown object."),
                 Some(i) => {
                     if active {
@@ -151,7 +154,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 }
             };
 
-        self.rb2bv.insert(ptr::to_unsafe_ptr(key) as uint, at);
+        self.rb2bv.insert(key.uid(), at);
     }
 
     /// Updates the collision pairs based on the objects bounding volumes.
@@ -159,18 +162,20 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         let mut new_colls = 0u;
 
         for &b in self.objects.mut_iter() {
-            if b.update(&self.margin) {
+            if b.borrow().with_mut(|b| b.update(&self.margin)) {
                 self.to_update.push(b)
             }
         }
 
         for &b1 in self.to_update.iter() {
             for &b2 in self.objects.iter() {
-                if self.dispatcher.is_valid(b1.body, b2.body) {
-                    if b2.bounding_volume.intersects(&b1.bounding_volume) {
+                let bb1 = b1.borrow().borrow();
+                let bb2 = b2.borrow().borrow();
+                if self.dispatcher.is_valid(&bb1.get().body, &bb2.get().body) {
+                    if bb2.get().bounding_volume.intersects(&bb1.get().bounding_volume) {
                         self.pairs.find_or_insert_lazy(
                             Pair::new(b1, b2),
-                            || self.dispatcher.dispatch(b1.body, b2.body)
+                            || self.dispatcher.dispatch(&bb1.get().body, &bb2.get().body)
                         );
 
                         new_colls = new_colls + 1;
@@ -190,7 +195,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     let elts  = self.pairs.elements();
                     let entry = &elts[id];
 
-                    if (!entry.key.first.bounding_volume.intersects(&entry.key.second.bounding_volume)) {
+                    let bf = entry.key.first.borrow().borrow();
+                    let bs = entry.key.second.borrow().borrow();
+                    if (!bf.get().bounding_volume.intersects(&bs.get().bounding_volume)) {
                         true
                     }
                     else {
@@ -213,6 +220,8 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 #[cfg(test, dim3, f64)]
 mod test {
     use super::BruteForceBoundingVolumeBroadPhase;
+    use std::rc::Rc;
+    use std::cell::RefCell;
     use nalgebra::na::{Vec3, Iso3};
     use nalgebra::na;
     use geom::Ball;
@@ -222,14 +231,14 @@ mod test {
     #[test]
     fn test_bfbv_empty() {
         type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
+        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         for i in range(-10, 10) {
             for j in range(-10, 10) {
                 let t = Vec3::new(i as f64 * 30.0, j as f64 * 30.0, 0.0);
-                bf.add(@mut WithAABB(Iso3::new(t, na::zero()), ball));
+                bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
             }
         }
 
@@ -241,7 +250,7 @@ mod test {
     #[test]
     fn test_bfbv_nbh_collide() {
         type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
+        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
@@ -249,7 +258,7 @@ mod test {
         for i in range(-10, 10) {
             for j in range(-10, 10) {
                 let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                bf.add(@mut WithAABB(Iso3::new(t, na::zero()), ball));
+                bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
             }
         }
 
@@ -266,7 +275,7 @@ mod test {
 
     #[test]
     fn test_dbvt_nbh_move_collide() {
-        type Shape = WithAABB<Ball>;
+        type Shape = Rc<RefCell<WithAABB<Ball>>>;
         let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
@@ -277,15 +286,17 @@ mod test {
         for i in range(-10, 10) {
             for j in range(-10, 10) {
                 let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                let to_add = @mut WithAABB(Iso3::new(t, na::zero()), ball);
-                bf.add(to_add);
+                let to_add = Rc::from_mut(RefCell::new(WithAABB(Iso3::new(t, na::zero()), ball)));
+                bf.add(to_add.clone());
                 to_move.push(to_add);
             }
         }
 
         for e in to_move.mut_iter() {
-            let WithAABB(m, c) = **e;
-            **e = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), c)
+            let mut pe = e.borrow().borrow_mut();
+            let m      = pe.get().m().clone();
+            let g      = pe.get().g().clone();
+            *pe.get()  = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
         }
 
         bf.update();
@@ -302,12 +313,12 @@ mod test {
     #[test]
     fn test_bfbv_quadratic_collide() {
         type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
+        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
         400.times(|| {
-            bf.add(@mut WithAABB(Iso3::new(na::zero(), na::zero()), ball))
+            bf.add(Rc::new(WithAABB(Iso3::new(na::zero(), na::zero()), ball)))
         });
 
         bf.update();

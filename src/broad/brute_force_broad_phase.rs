@@ -1,5 +1,6 @@
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
+use util::has_uid::HasUid;
 use broad::Dispatcher;
 
 
@@ -12,10 +13,10 @@ use broad::Dispatcher;
 pub struct BruteForceBroadPhase<B, D, DV> {
     priv dispatcher: D,
     priv pairs:      HashMap<Pair<B>, DV, PairTWHash>,
-    priv objects:    ~[@mut B]
+    priv objects:    ~[B]
 }
 
-impl<B, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
+impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
     /// Builds a new brute force broad phase.
     pub fn new(dispatcher: D) -> BruteForceBroadPhase<B, D, DV> {
         BruteForceBroadPhase {
@@ -31,10 +32,10 @@ impl<B, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
     }
 
     /// Adds an element to this broad phase.
-    pub fn add(&mut self, b: @mut B) {
+    pub fn add(&mut self, b: B) {
         for o in self.objects.iter() {
-            if self.dispatcher.is_valid(*o, b) {
-                self.pairs.insert(Pair::new(*o, b), self.dispatcher.dispatch(*o, b));
+            if self.dispatcher.is_valid(o, &b) {
+                self.pairs.insert(Pair::new(o.clone(), b.clone()), self.dispatcher.dispatch(o, &b));
             }
         }
 
@@ -42,7 +43,7 @@ impl<B, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
     }
 
     /// Removes an element from this broad phase.
-    pub fn remove(&mut self, _: @mut B) {
+    pub fn remove(&mut self, _: &B) {
         fail!("Not yet implemented.");
     }
 }
@@ -58,9 +59,9 @@ mod test {
         let dispatcher: NoIdDispatcher<int> = NoIdDispatcher;
         let mut bf = BruteForceBroadPhase::new(dispatcher);
 
-        let a = @mut 10;
-        let b = @mut 20;
-        let c = @mut 30;
+        let a = 10;
+        let b = 20;
+        let c = 30;
 
         bf.add(a);
         bf.add(b);
