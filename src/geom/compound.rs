@@ -7,7 +7,6 @@ use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use ray::Ray;
 use partitioning::bvt::BVT;
 use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use partitioning::bvt;
 use geom::{Geom, ConcaveGeom};
 use math::M;
 
@@ -45,7 +44,7 @@ impl Compound {
             leaves.push((i, bv));
         }
 
-        let bvt = BVT::new_with_partitioner(leaves, bvt::kdtree_partitioner);
+        let bvt = BVT::new_kdtree(leaves);
 
         Compound {
             shapes: shapes,

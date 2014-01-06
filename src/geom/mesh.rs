@@ -6,7 +6,6 @@ use extra::arc::Arc;
 use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;
 use ray::Ray;
-use partitioning::bvt;
 use partitioning::bvt::BVT;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
@@ -98,7 +97,7 @@ impl Mesh {
             }
         }
 
-        let bvt = BVT::new_with_partitioner(leaves, bvt::kdtree_partitioner);
+        let bvt = BVT::new_kdtree(leaves);
 
         Mesh {
             bvt:      bvt,
