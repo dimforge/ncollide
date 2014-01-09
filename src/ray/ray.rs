@@ -48,6 +48,9 @@ pub trait RayCastWithTransform: RayCast {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
         self.toi_and_normal_and_uv_with_ray(&ls_ray).map(|(t, d, uv)| {
+            if d != d {
+                fail!("Te normal is wrong: {:?}", d)
+            }
             (t, m.rotate(&d), uv)
         })
     }

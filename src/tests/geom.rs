@@ -10,8 +10,7 @@ fn test_ball_support_function() {
     let ball = Ball::new(42f64);
     let diag = 42f64 / na::norm(dir);
 
-    assert!(ball.support_point(&Vec3::new(0.0f64, 0.0, 0.0), dir)
-                .approx_eq(&Vec3::new(diag, diag, diag)));
+    assert!(na::approx_eq(&ball.support_point(&Vec3::new(0.0f64, 0.0, 0.0), dir), &Vec3::new(diag, diag, diag)));
 }
 
 #[test]
@@ -23,5 +22,5 @@ fn test_minkowski_sum_support_function() {
 
     let msum = MinkowskiSum::new(&_0v, &ball, &_0v, &ball);
 
-    assert!(msum.support_point(&na::identity(), &dir).approx_eq(&Vec3::new(diag, diag, diag)));
+    assert!(na::approx_eq(&msum.support_point(&na::identity(), &dir), &Vec3::new(diag, diag, diag)));
 }

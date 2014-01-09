@@ -4,8 +4,7 @@
 //!
 
 use std::num::{Zero, One};
-use std::cmp::ApproxEq;
-use nalgebra::na::{Dot, Norm, Dim};
+use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
 use nalgebra::na;
 use geom::Reflection;
 use math::{N, V, M};
@@ -278,18 +277,12 @@ impl Eq for AnnotatedPoint {
 
 impl ApproxEq<N> for AnnotatedPoint {
     #[inline]
-    fn approx_epsilon() -> N {
-        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
-        // ApproxEq::<N>::approx_epsilon()
+    fn approx_epsilon(_: Option<AnnotatedPoint>) -> N {
+        ApproxEq::approx_epsilon(None::<N>)
     }
 
     #[inline]
-    fn approx_eq(&self, other: &AnnotatedPoint) -> bool {
-        self.point.approx_eq(&other.point)
-    }
-
-    #[inline]
-    fn approx_eq_eps(&self, other: &AnnotatedPoint, epsilon: &N) -> bool {
-        self.point.approx_eq_eps(&other.point, epsilon)
+    fn approx_eq_eps(a: &AnnotatedPoint, b: &AnnotatedPoint, eps: &N) -> bool {
+        na::approx_eq_eps(&a.point, &b.point, eps)
     }
 }

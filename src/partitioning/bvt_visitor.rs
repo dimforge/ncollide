@@ -80,9 +80,7 @@ impl<'a, B, BV> BoundingVolumeInterferencesCollector<'a, B, BV> {
     }
 }
 
-impl<'a,
-     B:  Clone,
-     BV: BoundingVolume>
+impl<'a, B: Clone, BV: BoundingVolume>
 BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {

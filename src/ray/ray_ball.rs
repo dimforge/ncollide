@@ -1,4 +1,4 @@
-use std::num::Algebraic;
+use std::num::Real;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};

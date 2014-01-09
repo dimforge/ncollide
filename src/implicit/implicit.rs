@@ -2,7 +2,7 @@
 //! Traits for support mapping based geometries.
 //!
 
-use nalgebra::na::AlgebraicVec;
+use nalgebra::na::RealVec;
 use nalgebra::na;
 use math::N;
 
@@ -26,7 +26,7 @@ impl<'a> HasMargin for &'a HasMargin {
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returnd point.
-pub trait Implicit<V: AlgebraicVec<N>, M>: HasMargin {
+pub trait Implicit<V: RealVec<N>, M>: HasMargin {
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
@@ -56,14 +56,14 @@ pub trait Implicit<V: AlgebraicVec<N>, M>: HasMargin {
     fn support_point_without_margin(&self, transform: &M, dir: &V) -> V;
 }
 
-impl<'a, V: AlgebraicVec<N>, M> HasMargin for &'a Implicit<V, M> {
+impl<'a, V: RealVec<N>, M> HasMargin for &'a Implicit<V, M> {
     #[inline]
     fn margin(&self) -> N {
         self.margin()
     }
 }
 
-impl<'a, V: AlgebraicVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
+impl<'a, V: RealVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
     #[inline]
     fn support_point(&self, transform: &M, dir: &V) -> V {
         self.support_point(transform, dir)

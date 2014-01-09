@@ -128,6 +128,7 @@ mod test {
     use geom::{Box, AnnotatedPoint};
     use implicit;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;
+    use narrow::algorithm::simplex::Simplex;
 
     #[test]
     fn test_closest_points() {

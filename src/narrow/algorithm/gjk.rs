@@ -1,6 +1,6 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use nalgebra::na::{AlgebraicVec, Identity};
+use nalgebra::na::{RealVec, Identity};
 use nalgebra::na;
 use geom::{Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
@@ -102,7 +102,7 @@ pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: AlgebraicVec<N>, _M>(
+pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: RealVec<N>, _M>(
                       m:       &_M,
                       geom:    &G,
                       simplex: &mut S)
@@ -154,7 +154,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: AlgebraicVec<N>, 
 ///     * geom - the geometry to project the origin on
 ///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///     with at least one point on the geometry boundary.
-pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: AlgebraicVec<N>, _M>(
+pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: RealVec<N>, _M>(
                                     m:        &_M,
                                     geom:     &G,
                                     max_dist: &N,

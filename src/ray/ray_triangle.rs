@@ -22,6 +22,7 @@ impl RayCast for Triangle {
 
     #[cfg(dim2)]
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+        // FIXME: optimize that!
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 

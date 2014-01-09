@@ -6,7 +6,7 @@ use std::vec;
 use std::local_data;
 use extra::arc::Arc;
 use extra::treemap::TreeMap;
-use nalgebra::na::{AlgebraicVec, Dim};
+use nalgebra::na::{RealVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use math::N;
@@ -227,7 +227,7 @@ JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + AlgebraicVec<N>>
+impl<_V: Clone + RealVec<N>>
 JohnsonSimplex<_V> {
     fn do_project_origin(&mut self, reduce: bool) -> _V {
         if self.points.is_empty() {
@@ -374,7 +374,7 @@ JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + AlgebraicVec<N>>
+impl<_V: Clone + RealVec<N>>
 Simplex<_V> for JohnsonSimplex<_V> {
     #[inline]
     fn reset(&mut self, pt: _V) {
@@ -470,6 +470,7 @@ impl ToStr for RecursionTemplate {
 #[cfg(dim3, f64, test)]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
+    use narrow::algorithm::simplex::Simplex;
     use nalgebra::na::Vec3;
     use extra::test::BenchHarness;
 

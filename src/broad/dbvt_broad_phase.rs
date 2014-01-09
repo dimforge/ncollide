@@ -393,7 +393,7 @@ mod test {
     use nalgebra::na;
     use geom::Ball;
     use bounding_volume::WithAABB;
-    use broad::NoIdDispatcher;
+    use broad::{NoIdDispatcher, BroadPhase, InterferencesBroadPhase};
 
     // #[test]
     // fn test_dbvt_empty() {

@@ -3,9 +3,10 @@
 use extra::stats::Stats;
 use nalgebra::na::{Translation, Indexable};
 use nalgebra::na;
+use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
-use math::V;
+use math::{N, V};
 
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
@@ -59,16 +60,7 @@ impl<B, BV> BVT<B, BV> {
             None            => { }
         }
     }
-}
 
-impl<B> BVT<B, AABB> {
-    /// Creates a new kdtree.
-    pub fn new_kdtree(leaves: ~[(B, AABB)]) -> BVT<B, AABB> {
-        BVT::new_with_partitioner(leaves, kdtree_partitioner)
-    }
-}
-
-impl<B, BV> BVT<B, BV> {
     /// Reference to the bounding volume of the tree root.
     pub fn root_bounding_volume<'r>(&'r self) -> Option<&'r BV> {
         match self.tree {
@@ -81,9 +73,30 @@ impl<B, BV> BVT<B, BV> {
             None => None
         }
     }
+
+    pub fn depth(&self) -> uint {
+        match self.tree {
+            Some(ref n) => n.depth(),
+            None        => 0
+        }
+    }
+}
+
+impl<B> BVT<B, AABB> {
+    /// Creates a new kdtree.
+    pub fn new_kdtree(leaves: ~[(B, AABB)]) -> BVT<B, AABB> {
+        BVT::new_with_partitioner(leaves, kdtree_partitioner)
+    }
 }
 
 impl<B, BV> BVTNode<B, BV> {
+    pub fn bounding_volume<'a>(&'a self) -> &'a BV {
+        match *self {
+            Internal(ref bv, _, _) => bv,
+            Leaf(ref bv, _)        => bv
+        }
+    }
+
     fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match *self {
             Internal(ref bv, ref left, ref right) => {
@@ -111,6 +124,111 @@ impl<B, BV> BVTNode<B, BV> {
             }
         }
     }
+
+    fn depth(&self) -> uint {
+        match *self {
+            Internal(_, ref left, ref right) => 1 + (left.depth().max(&right.depth())),
+            Leaf(_, _) => 1
+        }
+    }
+}
+
+impl<B, BV: RayCast> BVT<B, BV> {
+    pub fn cast_ray<'a, T>(&'a self,
+                           ray:     &Ray,
+                           cast_fn: &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
+        match self.tree {
+            None        => None,
+            Some(ref n) => {
+                if n.bounding_volume().toi_with_ray(ray).is_some() {
+                    n.cast_ray(ray, Bounded::max_value(), cast_fn)
+                }
+                else {
+                    None
+                }
+            }
+        }
+    }
+}
+
+impl<B, BV: RayCast> BVTNode<B, BV> {
+    fn cast_ray<'a, T>(&'a self,
+                       ray:         &Ray,
+                       upper_bound: N,
+                       cast_fn:     &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
+        match *self {
+            Internal(_, ref left, ref right) => {
+                let left_toi  = left.bounding_volume().toi_with_ray(ray);
+                let right_toi = right.bounding_volume().toi_with_ray(ray);
+
+                match (left_toi, right_toi) {
+                    (Some(t1), Some(t2)) => {
+                        let best;
+                        let other;
+                        let closest;
+                        let farthest;
+
+                        if t1 < t2 {
+                            farthest = t2;
+                            closest  = t1;
+                            best     = left;
+                            other    = right;
+                        }
+                        else {
+                            farthest = t1;
+                            closest  = t2;
+                            best     = right;
+                            other    = left;
+                        }
+
+                        if closest > upper_bound {
+                            // a better solution has already been found
+                            return None;
+                        }
+
+                        match best.cast_ray(ray, upper_bound, cast_fn) {
+                            None    => other.cast_ray(ray, upper_bound, cast_fn),
+                            Some(t) => {
+                                if farthest < *t.n0_ref() {
+                                    match other.cast_ray(ray, *t.n0_ref(), cast_fn) {
+                                        None         => Some(t),
+                                        Some(tother) => {
+                                            if *t.n0_ref() < *tother.n0_ref() {
+                                                Some(t)
+                                            }
+                                            else {
+                                                Some(tother)
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    Some(t)
+                                }
+                            }
+                        }
+                    },
+                    (Some(_), None) => left.cast_ray(ray, upper_bound, cast_fn),
+                    (None, Some(_)) => right.cast_ray(ray, upper_bound, cast_fn),
+                    (None, None)    => None,
+                }
+            },
+            Leaf(_, ref b) => {
+                // do not test the bounding volume: this has been done by the parent node.
+                match (*cast_fn)(b, ray) {
+                    None         => None,
+                    Some((t, d)) => {
+                        if t < upper_bound {
+                            Some((t, d, b))
+                        }
+                        else {
+                            None
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
@@ -132,10 +250,10 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<
 
         for l in leaves.iter() {
             let center = l.n1_ref().translation();
-            median.push(center.at(sep_axis));
+            median.push(center.at(sep_axis) as f64);
         }
 
-        let median = median.median();
+        let median = na::cast(median.median());
 
         // build the partitions
         let mut right = ~[];

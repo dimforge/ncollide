@@ -39,7 +39,7 @@ macro_rules! test_johnson_simplex_impl(
                 let proj2 = splx2.project_origin();
                 let proj1 = splx1.project_origin();
 
-                assert!(proj1.approx_eq(&proj2));
+                assert!(na::approx_eq(&proj1, &proj2));
             }
         }
     }
@@ -76,7 +76,7 @@ macro_rules! test_gjk_ball_ball_impl(
             let pts_johnson = gjk::closest_points(&c1, &b1, &c2, &b2, &mut simplex);
 
             match pts_johnson {
-                Some((jp1, jp2)) => assert!(jp1.approx_eq(&p1) && jp2.approx_eq(&p2),
+                Some((jp1, jp2)) => assert!(na::approx_eq(&jp1, &p1) && na::approx_eq(&jp2, &p2),
                 "found: " + jp1.to_str() + " " + jp2.to_str()
                 + " but expected: " + p1.to_str() + p2.to_str()),
                 None => assert!(na::norm(&(p1 - p2)) <= r1 + r2)

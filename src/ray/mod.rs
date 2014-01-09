@@ -29,3 +29,5 @@ pub mod ray_triangle;
 pub mod ray_concave;
 #[doc(hidden)]
 pub mod ray_mesh;
+#[doc(hidden)]
+pub mod ray_bvt;

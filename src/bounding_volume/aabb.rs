@@ -215,6 +215,7 @@ HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
 #[cfg(dim3, f64, test)]
 mod test {
     use super::AABB;
+    use bounding_volume::BoundingVolume;
     use nalgebra::na::Vec3;
 
     #[test]

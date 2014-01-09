@@ -18,8 +18,8 @@ deps:
 
 test:
 	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) -Z debug-info --test src/lib3df64.rs --opt-level 3 --cfg dim3 --cfg f64 -o test~ && ./test~
 	rustc -L$(nalgebra_lib_path) -Z debug-info --test src/lib2df32.rs --opt-level 3 --cfg dim2 --cfg f32 -o test~ && ./test~
+	rustc -L$(nalgebra_lib_path) -Z debug-info --test src/lib3df64.rs --opt-level 3 --cfg dim3 --cfg f64 -o test~ && ./test~
 	rustc -L$(nalgebra_lib_path) -Z debug-info --test src/lib3df32.rs --opt-level 3 --cfg dim3 --cfg f32 -o test~ && ./test~
 	rustc -L$(nalgebra_lib_path) -Z debug-info --test src/lib2df64.rs --opt-level 3 --cfg dim2 --cfg f64 -o test~ && ./test~
 
