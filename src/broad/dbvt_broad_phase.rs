@@ -285,11 +285,13 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                     // the intereference should be registered on the spairs already
                     match self.spairs.get_and_remove(&Pair::new(leaf, *i)) {
                         Some(dv) => {
-                            let bdvf = dv.key.first.borrow().borrow();
-                            let bdvs = dv.key.second.borrow().borrow();
-                            let obj1 = &bdvf.get().object;
-                            let obj2 = &bdvs.get().object;
-                            let p    = self.pairs.insert_or_replace(dv.key, dv.value, true);
+                            let key   = dv.key;
+                            let value = dv.value;
+                            let bdvf  = key.first.borrow().borrow();
+                            let bdvs  = key.second.borrow().borrow();
+                            let obj1  = &bdvf.get().object;
+                            let obj2  = &bdvs.get().object;
+                            let p     = self.pairs.insert_or_replace(key, value, true);
 
                             f(obj1, obj2, p)
                         },
