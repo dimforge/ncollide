@@ -542,7 +542,7 @@ mod test {
             assert!(*m.find(&(i, i)).unwrap() == i)
         }
 
-        println(((time::precise_time_ns() - before) as f64 / 1000000.0).to_str());
+        println!("{}", (time::precise_time_ns() - before) as f64 / 1000000.0);
 
     }
 }

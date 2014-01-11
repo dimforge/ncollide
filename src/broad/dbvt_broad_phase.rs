@@ -455,7 +455,7 @@ mod test {
         for i in range(-10, 10) {
             for j in range(-10, 10) {
                 let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                let to_add = Rc::from_mut(RefCell::new(WithAABB(Iso3::new(t, na::zero()), ball)));
+                let to_add = Rc::new(RefCell::new(WithAABB(Iso3::new(t, na::zero()), ball)));
                 bf.add(to_add.clone());
                 to_move.push(to_add);
             }
