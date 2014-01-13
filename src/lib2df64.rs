@@ -46,7 +46,7 @@ Some common features are still missing:
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
-// #[warn(missing_doc)];
+#[deny(missing_doc)];
 #[feature(macro_rules)];
 #[feature(managed_boxes)];
 
@@ -80,48 +80,22 @@ pub mod util;
 //     mod algo;
 // }
 
+/// Aliases for mathematical types.
+///
+/// The aliases are selected, depending on the compilation flags. The possible flags are:
+///     - `--cfg dim2`: use 2d vectors and matrices.
+///     - `--cfg dim3`: use 3d vectors and matrices.
+///     - `--cfg dim4`: use 4d vectors and matrices.
+///     - `--cfg f32`:  use 32-bit floating point values.
+///     - `--cfg f64`:  use 64-bit floating point values.
 #[cfg(dim2)]
 pub mod math {
     use nalgebra::na::{Vec1, Vec2, Mat1, Iso2};
-    #[cfg(f64)]
     pub type Scalar = f64;
-    #[cfg(f32)]
-    pub type Scalar = f32;
     pub type N      = Scalar;
     pub type V      = Vec2<Scalar>;
     pub type LV     = Vec2<Scalar>;
     pub type AV     = Vec1<Scalar>;
     pub type M      = Iso2<Scalar>;
     pub type II     = Mat1<Scalar>;
-}
-
-#[cfg(dim3)]
-pub mod math {
-    use nalgebra::na::{Vec3, Mat3, Iso3};
-    #[cfg(f64)]
-    pub type Scalar = f64;
-    #[cfg(f32)]
-    pub type Scalar = f32;
-    pub type N      = Scalar;
-    pub type V      = Vec3<Scalar>;
-    pub type LV     = Vec3<Scalar>;
-    pub type AV     = Vec3<Scalar>;
-    pub type M      = Iso3<Scalar>;
-    pub type II     = Mat3<Scalar>;
-}
-
-
-#[cfg(dim4)]
-pub mod math {
-    use nalgebra::na::{Vec4, Mat4, Iso4};
-    #[cfg(f64)]
-    pub type Scalar = f64;
-    #[cfg(f32)]
-    pub type Scalar = f32;
-    pub type N      = Scalar;
-    pub type V      = Vec4<Scalar>;
-    pub type LV     = Vec4<Scalar>;
-    pub type AV     = Vec4<Scalar>;
-    pub type M      = Iso4<Scalar>;
-    pub type II     = Mat4<Scalar>;
 }

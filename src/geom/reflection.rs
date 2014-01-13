@@ -19,6 +19,7 @@ impl<'a, G> Reflection<'a, G> {
         Reflection { g: g }
     }
 
+    /// The reflected geometry.
     #[inline]
     pub fn g(&self) -> &'a G {
         self.g

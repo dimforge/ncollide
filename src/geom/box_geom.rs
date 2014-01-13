@@ -47,6 +47,11 @@ impl Box {
         self.half_extents.clone()
     }
 
+    /// The margin surounding this box.
+    ///
+    /// Note that unlike most other geometries, a box has an interior margin. Therefore, the
+    /// real extents of the box (those that have been passed to the Box constructor) equal the sum
+    /// of the margin and its half-extents (as returned by the `half_extents` method).
     #[inline]
     pub fn margin(&self) -> N {
         self.margin.clone()

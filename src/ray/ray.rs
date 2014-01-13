@@ -42,6 +42,8 @@ pub trait RayCastWithTransform: RayCast {
         })
     }
 
+    /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
+    /// geometry and a ray.
     #[cfg(dim3)]
     #[inline]
     fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
@@ -74,6 +76,7 @@ pub trait RayCast {
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)>;
 
+    /// Computes the intersection point and normal between this geometry and a ray.
     #[cfg(dim3)]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {

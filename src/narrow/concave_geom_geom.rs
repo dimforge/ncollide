@@ -9,6 +9,7 @@ use contact::Contact;
 use geom::{Geom, ConcaveGeom};
 use math::M;
 
+/// Collision detector between a concave geometry and another geometry.
 pub struct ConcaveGeomGeom<G1, G2> {
     priv sub_detectors: HashMap<uint, ~GeomGeomCollisionDetector, UintTWHash>,
     priv to_delete:     ~[uint],
@@ -16,6 +17,7 @@ pub struct ConcaveGeomGeom<G1, G2> {
 }
 
 impl<G1, G2> ConcaveGeomGeom<G1, G2> {
+    /// Creates a new collision detector between a concave geometry and another geometry.
     pub fn new() -> ConcaveGeomGeom<G1, G2> {
         ConcaveGeomGeom {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
@@ -121,11 +123,13 @@ GeomGeomCollisionDetector for ConcaveGeomGeom<G1, G2> {
 impl<G1: ConcaveGeom, G2: Geom>
 DynamicCollisionDetector<G1, G2> for ConcaveGeomGeom<G1, G2> { }
 
+/// Collision detector between a geometry and a concave geometry.
 pub struct GeomConcaveGeom<G1, G2> {
     priv sub_detector: ConcaveGeomGeom<G2, G1>
 }
 
 impl<G1, G2> GeomConcaveGeom<G1, G2> {
+    /// Creates a new collision detector between a geometry and a concave geometry.
     pub fn new() -> GeomConcaveGeom<G1, G2> {
         GeomConcaveGeom {
             sub_detector: ConcaveGeomGeom::new()
@@ -166,6 +170,8 @@ DynamicCollisionDetector<G1, G2> for GeomConcaveGeom<G1, G2> { }
  * Custom factories
  *
  */
+/// Structure implementing `CollisionDetectorFactory` in order to create a new `ConcaveGeomGeom`
+/// collision detector.
 pub struct ConcaveGeomGeomFactory<G1, G2>;
 
 impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
@@ -176,6 +182,8 @@ CollisionDetectorFactory for ConcaveGeomGeomFactory<G1, G2> {
     }
 }
 
+/// Structure implementing `CollisionDetectorFactory` in order to create a new `GeomConcaveGeom`
+/// collision detector.
 pub struct GeomConcaveGeomFactory<G1, G2>;
 
 impl<G1: 'static + Geom,

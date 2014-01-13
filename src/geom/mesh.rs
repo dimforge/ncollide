@@ -20,8 +20,15 @@ use geom::Triangle;
 #[cfg(dim4)] // XXX: this is wrong
 use geom::Triangle;
 
+/// Trait implemented by elements usable on the Mesh.
+///
+/// Note that this trait is not useful per se since the Mesh is not parameterized by
+/// the element type. However, types implementing this trait is valid as a type
+/// alias for `E`.
 pub trait MeshElement {
+    /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
+    /// Creates a new mesh element from a set of vertices and indices and the margin.
     fn new_with_vertices_and_indices(&[V], &[uint], N) -> Self;
 }
 
@@ -158,6 +165,7 @@ impl Mesh {
 }
 
 impl Mesh {
+    /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> E {
         let vs: &[V] = *self.vertices.get();

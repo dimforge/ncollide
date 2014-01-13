@@ -1,3 +1,5 @@
+//! Collision detector betwen two `~Geom`.
+
 use std::unstable::intrinsics::TypeId;
 use std::hashmap::HashMap;
 use nalgebra::na;
@@ -88,17 +90,21 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
     }
 }
 
+/// Collision dispatcher between two `~Geom`.
 pub struct GeomGeomDispatcher {
     priv constructors: HashMap<(TypeId, TypeId), ~CollisionDetectorFactory>
 }
 
 impl GeomGeomDispatcher {
+    /// Creates a new `GeomGeomDispatcher` without the default set of collision detectors
+    /// factories.
     pub fn new_without_default() -> GeomGeomDispatcher {
         GeomGeomDispatcher {
             constructors: HashMap::new()
         }
     }
 
+    /// Registers a new dynamic collision detector for two geometries.
     pub fn register_dynamic_detector<G1: 'static + Any,
                                      G2: 'static + Any,
                                      D:  'static + Send + Clone +
@@ -110,6 +116,7 @@ impl GeomGeomDispatcher {
         self.constructors.insert(key, factory as ~CollisionDetectorFactory);
     }
 
+    /// Registers a new collision detector for two geometries.
     pub fn register_detector<G1: 'static + Any,
                              G2: 'static + Any,
                              D:  'static + Send + CollisionDetector<G1, G2> + Clone>(
@@ -118,13 +125,14 @@ impl GeomGeomDispatcher {
         self.register_dynamic_detector(DetectorWithoutRedispatch::new(d));
     }
 
+    /// Unregister the collision detector for a givem pair of geometries.
     pub fn unregister_detector<G1: 'static + Any, G2: 'static + Any>(&mut self) {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
         self.constructors.remove(&key);
     }
 
-    pub fn dispatch(&self, a: &Geom, b: &Geom)
-                    -> ~GeomGeomCollisionDetector {
+    /// Creates a new collision detector adapted for the two given geometries.
+    pub fn dispatch(&self, a: &Geom, b: &Geom) -> ~GeomGeomCollisionDetector {
         match self.constructors.find(&(a.get_type_id(), b.get_type_id())) {
             Some(f) => f.build(),
             None    => fail!("Unable to find a collision detector.")
@@ -134,6 +142,8 @@ impl GeomGeomDispatcher {
 
 impl GeomGeomDispatcher {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
+    /// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
+    /// geometries suported by `ncollide`.
     pub fn new() -> GeomGeomDispatcher {
         let mut res = GeomGeomDispatcher::new_without_default();
 
@@ -200,6 +210,7 @@ impl GeomGeomDispatcher {
         res
     }
 
+    /// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
     pub fn register_default_plane_implicit_detector<I: 'static + Implicit<LV, M>>(
                                                     &mut self,
                                                     generate_manifold: bool,
@@ -222,6 +233,7 @@ impl GeomGeomDispatcher {
         }
     }
 
+    /// Register an `ImplicitImplicit` collision detector between two implicit geometries.
     pub fn register_default_implicit_implicit_detector<G1: 'static            +
                                                            Implicit<LV, M> +
                                                            PreferedSamplingDirections<LV, M>,
@@ -251,6 +263,8 @@ impl GeomGeomDispatcher {
         }
     }
 
+    /// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a
+    /// given geometry.
     pub fn register_default_concave_geom_geom_detector<G1: 'static + ConcaveGeom,
                                                        G2: 'static + Geom>(&mut self) {
         type CGG      = ConcaveGeomGeomFactory<G1, G2>;
@@ -267,6 +281,8 @@ impl GeomGeomDispatcher {
         self.constructors.insert(key, ~f2 as ~CollisionDetectorFactory);
     }
 
+    /// Register a given collision detector and adds it a contact manifold generator (a
+    /// `OneShotContactManifoldGenerator`).
     pub fn register_detector_with_contact_manifold_generator<G1: 'static + Any,
                                                              G2: 'static + Any,
                                                              D:  'static + Send +
@@ -286,6 +302,8 @@ impl GeomGeomDispatcher {
     }
     */
 
+    /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
+    /// geometry suported by `ncollide`.
     pub fn register_default_implicit_detectors<G: 'static + Implicit<LV, M> + PreferedSamplingDirections<LV, M>>(
                                                &mut self,
                                                generate_manifold: bool,
@@ -308,15 +326,21 @@ impl GeomGeomDispatcher {
 }
 
 // FIXME: rename that GeomGeomCollisionDetectorFactory ?
+/// Trait of structures able do build a new collision detector.
 pub trait CollisionDetectorFactory : Send + Freeze {
+    /// Builds a new collision detector.
     fn build(&self) -> ~GeomGeomCollisionDetector;
 }
 
+/// Cloning-based collision detector factory.
 pub struct CollisionDetectorCloner<CD> {
-    template: CD
+    priv template: CD
 }
 
 impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
+    /// Creates a new `CollisionDetectorCloner`.
+    ///
+    /// The cloned detector is `CD`.
     fn new(detector: CD) -> CollisionDetectorCloner<CD> {
         CollisionDetectorCloner {
             template: detector

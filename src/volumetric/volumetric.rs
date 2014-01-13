@@ -10,13 +10,24 @@ use nalgebra::na::Mat3;
 #[cfg(dim3)]
 use nalgebra::na;
 
+/// Trait to be implemented by inertia tensors.
 pub trait InertiaTensor {
+    /// Applies this inertia tensor to a vector.
+    ///
+    /// This is usually done by a matrix-vector multiplication.
     fn apply(&self, a: &AV) -> AV;
+
+    /// Transforms this inertia tensor from local space to world space.
     fn to_world_space(&self, &M) -> Self;
+
+    /// Computes this inertia tensor relative to a given point.
     fn to_relative_wrt_point(&self, &N, &V) -> Self;
 }
 
+/// Trait to be implemented by objects which have a mass, a center of mass, and an inverse
+/// inertia tensor.
 pub trait Volumetric {
+    /// Given a density, this computes the mass, center of mass, and inertia tensor of this object.
     fn mass_properties(&self, &N) -> (N, V, II);
 }
 

@@ -172,12 +172,14 @@ pub fn implicit_shape_aabb<I: Implicit<V, M>>(m: &M, i: &I) -> AABB {
 pub struct WithAABB<A>(M, A);
 
 impl<A> WithAABB<A> {
+    /// The transformation matrix of this shape.
     pub fn m<'a>(&'a self) -> &'a M {
         let WithAABB(ref t, _) = *self;
 
         t
     }
 
+    /// The local-space geometry of this shape.
     pub fn g<'a>(&'a self) -> &'a A {
         let WithAABB(_, ref g) = *self;
 
@@ -185,8 +187,7 @@ impl<A> WithAABB<A> {
     }
 }
 
-impl<A: HasAABB>
-HasBoundingVolume<AABB> for WithAABB<A> {
+impl<A: HasAABB> HasBoundingVolume<AABB> for WithAABB<A> {
     fn bounding_volume(&self) -> AABB {
         let WithAABB(ref t, ref g) = *self;
 

@@ -1,50 +1,61 @@
 use std::num::Real;
-use nalgebra::na::{Cast, Indexable};
 use nalgebra::na;
 use geom::Ball;
 use volumetric::Volumetric;
 use math::{N, V, II};
 
+#[cfg(dim2)]
+use nalgebra::na::Indexable;
+
+#[cfg(dim3)]
+use nalgebra::na::Indexable;
+
+/// Computes the volume of a ball.
 #[inline]
-pub fn ball_volume(radius: &N, dim: uint) -> N {
+pub fn ball_volume(radius: &N) -> N {
     let _pi: N = Real::pi();
-    _pi * radius.pow(&Cast::from(dim as f32))
+    _pi * radius.pow(&(na::cast(na::dim::<V>())))
 }
 
+#[cfg(dim2)]
 impl Volumetric for Ball {
     fn mass_properties(&self, density: &N) -> (N, V, II) {
-        let volume = ball_volume(&self.radius(), na::dim::<V>());
+        let volume = ball_volume(&self.radius());
         let mass   = volume * *density;
+        let diag   = self.radius() * self.radius() * mass / na::cast(2.0);
 
-        let dim = na::dim::<V>();
+        let mut res: II = na::zero();
 
-        if dim == 2 {
-            let diag = self.radius() * self.radius() * mass / Cast::from(2.0);
+        res.set((0, 0), diag);
 
-            let mut res: II = na::zero();
+        (mass, na::zero(), res)
+    }
+}
 
-            res.set((0, 0), diag);
+#[cfg(dim3)]
+impl Volumetric for Ball {
+    fn mass_properties(&self, density: &N) -> (N, V, II) {
+        let volume  = ball_volume(&self.radius());
+        let mass    = volume * *density;
+        let diag: N = mass                *
+                      na::cast(2.0 / 5.0) *
+                      self.radius()       *
+                      self.radius();
 
-            (mass, na::zero(), res)
-        }
-        else if dim == 3 {
-            let _0: N  = na::zero();
-            let diag: N = mass                  *
-                          Cast::from(2.0 / 5.0) *
-                          self.radius()         *
-                          self.radius();
+        let mut res: II = na::zero();
 
-            let mut res: II = na::zero();
+        res.set((0, 0), diag.clone());
+        res.set((1, 1), diag.clone());
+        res.set((2, 2), diag.clone());
 
-            res.set((0, 0), diag.clone());
-            res.set((1, 1), diag.clone());
-            res.set((2, 2), diag.clone());
+        (mass, na::zero(), res)
+    }
+}
 
-            (mass, na::zero(), res)
-        }
-        else {
-            fail!("Inertia tensor for n-dimensional balls, n > 3, is not implemented.")
-        }
+#[cfg(dim4)]
+impl Volumetric for Ball {
+    fn mass_properties(&self, _: &N) -> (N, V, II) {
+        fail!("mass_properties is not yet implemented for 4d balls")
     }
 }
 

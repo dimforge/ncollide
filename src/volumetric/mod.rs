@@ -1,8 +1,21 @@
+//! Volume and inertia tensor computation.
+
 pub use volumetric::volumetric::{Volumetric, InertiaTensor};
 pub use volumetric::volumetric_ball::ball_volume;
 pub use volumetric::volumetric_box::box_volume;
+
+#[cfg(dim3)]
 pub use volumetric::volumetric_cone::cone_volume;
+#[cfg(dim3)]
 pub use volumetric::volumetric_capsule::capsule_volume;
+#[cfg(dim3)]
+pub use volumetric::volumetric_cylinder::cylinder_volume;
+
+#[cfg(dim2)]
+pub use volumetric::volumetric_cone::cone_volume;
+#[cfg(dim2)]
+pub use volumetric::volumetric_capsule::capsule_volume;
+#[cfg(dim2)]
 pub use volumetric::volumetric_cylinder::cylinder_volume;
 
 mod volumetric;

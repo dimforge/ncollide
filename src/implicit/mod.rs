@@ -1,3 +1,5 @@
+//! Definition of support functions.
+
 pub use implicit::implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 pub use implicit::implicit_minkowski_sum::{cso_support_point, cso_support_point_without_margin};
 
@@ -12,4 +14,4 @@ mod implicit_convex;
 mod implicit_reflection;
 mod implicit_triangle;
 mod implicit_segment;
-pub mod implicit_minkowski_sum;
+mod implicit_minkowski_sum;

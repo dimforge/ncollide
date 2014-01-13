@@ -1,3 +1,5 @@
+//! Objects with an unique identifier.
+
 use std::gc::Gc;
 use std::rc::Rc;
 use std::ptr;

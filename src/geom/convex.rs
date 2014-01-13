@@ -40,6 +40,7 @@ impl Convex {
 }
 
 impl Convex {
+    /// The list of points of this convex polytope.
     #[inline]
     pub fn pts<'a>(&'a self) -> &'a [V] {
         let res: &'a [V] = self.pts;
@@ -47,6 +48,7 @@ impl Convex {
         res
     }
 
+    /// The margin surrounding this convex polytope.
     #[inline]
     pub fn margin(&self) -> N {
         self.margin.clone()

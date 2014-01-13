@@ -74,6 +74,7 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
+    /// Computes the depth of this tree.
     pub fn depth(&self) -> uint {
         match self.tree {
             Some(ref n) => n.depth(),
@@ -134,6 +135,7 @@ impl<B, BV> BVTNode<B, BV> {
 }
 
 impl<B, BV: RayCast> BVT<B, BV> {
+    /// Computes the closest intersection between the objects stored on this tree and a given ray.
     pub fn cast_ray<'a, T>(&'a self,
                            ray:     &Ray,
                            cast_fn: &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
