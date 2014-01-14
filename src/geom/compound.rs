@@ -5,8 +5,8 @@
 use nalgebra::na;
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use ray::Ray;
-use partitioning::bvt::BVT;
-use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use partitioning::BVT;
+use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use geom::{Geom, ConcaveGeom};
 use math::M;
 

@@ -12,22 +12,13 @@ pub use ray::ray_ball::ball_toi_with_ray;
 pub use ray::ray_triangle::triangle_ray_intersection;
 
 // modules
-pub mod ray;
-#[doc(hidden)]
-pub mod ray_plane;
-#[doc(hidden)]
-pub mod ray_ball;
-#[doc(hidden)]
-pub mod ray_box;
-#[doc(hidden)]
-pub mod ray_aabb;
-#[doc(hidden)]
-pub mod ray_implicit;
-#[doc(hidden)]
-pub mod ray_triangle;
-#[doc(hidden)]
-pub mod ray_concave;
-#[doc(hidden)]
-pub mod ray_mesh;
-#[doc(hidden)]
-pub mod ray_bvt;
+mod ray;
+mod ray_plane;
+mod ray_ball;
+mod ray_box;
+mod ray_aabb;
+mod ray_implicit;
+mod ray_triangle;
+mod ray_concave;
+mod ray_mesh;
+mod ray_bvt;

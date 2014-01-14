@@ -172,7 +172,7 @@ impl<B, BV> LeafState<B, BV> {
     }
 }
 
-/// Leaf of a DBV Tree.
+/// Leaf of a Dynamic Bounding Volume Tree.
 #[deriving(Clone)]
 pub struct DBVTLeaf<B, BV> {
     /// The bounding volume of this node.

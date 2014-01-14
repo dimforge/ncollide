@@ -42,7 +42,7 @@ mod implicit_implicit;
 mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
 mod concave_geom_geom;
-pub mod geom_geom;
+mod geom_geom;
 
 /// Algorithms needed for distance and penetration depth computation.
 pub mod algorithm

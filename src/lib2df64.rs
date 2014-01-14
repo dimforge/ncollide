@@ -62,13 +62,7 @@ pub mod broad;
 pub mod contact;
 pub mod volumetric;
 pub mod implicit;
-// 
-/// Spatial partitioning tools.
-pub mod partitioning {
-    pub mod dbvt;
-    pub mod bvt;
-    pub mod bvt_visitor;
-}
+pub mod partitioning;
 
 /// Data structure utilities.
 pub mod util;
@@ -80,22 +74,37 @@ pub mod util;
 //     mod algo;
 // }
 
-/// Aliases for mathematical types.
+/// Compilation flags dependent aliases for mathematical types.
 ///
 /// The aliases are selected, depending on the compilation flags. The possible flags are:
-///     - `--cfg dim2`: use 2d vectors and matrices.
-///     - `--cfg dim3`: use 3d vectors and matrices.
-///     - `--cfg dim4`: use 4d vectors and matrices.
-///     - `--cfg f32`:  use 32-bit floating point values.
-///     - `--cfg f64`:  use 64-bit floating point values.
+///
+/// * `--cfg dim2` - use 2d vectors and matrices.
+/// * `--cfg dim3` - use 3d vectors and matrices.
+/// * `--cfg dim4` - use 4d vectors and matrices.
+/// * `--cfg f32`  - use 32-bit floating point values.
+/// * `--cfg f64`  - use 64-bit floating point values.
 #[cfg(dim2)]
 pub mod math {
     use nalgebra::na::{Vec1, Vec2, Mat1, Iso2};
+
+    /// The scalar type.
     pub type Scalar = f64;
+
+    /// The scalar type.
     pub type N      = Scalar;
+
+    /// The vector type.
     pub type V      = Vec2<Scalar>;
+
+    /// The linear velocity or position (center of mass) type.
     pub type LV     = Vec2<Scalar>;
+
+    /// The angular velocity or orientation (center of mass) type.
     pub type AV     = Vec1<Scalar>;
+
+    /// The transformation matrix type.
     pub type M      = Iso2<Scalar>;
+
+    /// The inertia tensor type.
     pub type II     = Mat1<Scalar>;
 }

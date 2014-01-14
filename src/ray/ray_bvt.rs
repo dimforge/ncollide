@@ -1,5 +1,5 @@
 use ray::{Ray, RayCast, RayCastWithTransform};
-use partitioning::bvt::BVT;
+use partitioning::BVT;
 use math::{N, V};
 
 impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {

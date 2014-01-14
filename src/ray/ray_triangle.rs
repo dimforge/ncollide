@@ -34,10 +34,12 @@ impl RayCast for Triangle {
 
 impl RayCastWithTransform for Triangle { }
 
+/// Computes the intersection between a triangle and a ray.
+///
+/// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
+/// the intersection point are returned.
 #[cfg(dim3)]
 pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<(N, V, (N, N, N))> {
-    assert!(na::dim::<V>() == 3);
-
     let ab = *b - *a;
     let ac = *c - *a;
 

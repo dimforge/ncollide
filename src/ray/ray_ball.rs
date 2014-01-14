@@ -52,6 +52,7 @@ impl RayCastWithTransform for Ball {
     }
 }
 
+/// Computes the time of impact of a ray on a ball.
 pub fn ball_toi_with_ray(center: V, radius: N, ray: &Ray) -> Option<N>{
     let dcenter = ray.orig - center;
 

@@ -2,7 +2,7 @@ use std::gc::Gc;
 use std::cell::RefCell;
 use nalgebra::na::Translation;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
-use partitioning::dbvt::{DBVT, DBVTLeaf};
+use partitioning::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
@@ -10,7 +10,7 @@ use util::has_uid::HasUid;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use ray::{Ray, RayCast};
-use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use math::{N, V};
 
 /// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static

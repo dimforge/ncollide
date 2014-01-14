@@ -1,16 +1,19 @@
-#[doc(hidden)];
+//! A geometry enlarged with its margin.
 
 use std::num::Zero;
 use implicit::{Implicit, HasMargin};
 use math::{N, V};
 
-// This extends the wrapped geometry with its margin. I.e. the `support_point_withou_margin` method
-// will return the wrapped geometry `support_point` instead.
+/// Extends the wrapped geometry with its margin.
+///
+/// The purpose of this structuro as to make the `support_point_without_margin` method return
+/// result of the wrapped geometry `support_point` method instead.
 pub struct GeomWithMargin<'a, G> {
     priv geom: &'a G
 }
 
 impl<'a, G> GeomWithMargin<'a, G> {
+    /// Creates a new `GeomWithMargin`.
     pub fn new(geom: &'a G) -> GeomWithMargin<'a, G> {
         GeomWithMargin {
             geom: geom
