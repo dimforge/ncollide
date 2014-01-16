@@ -1,5 +1,6 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
+use std::num::Bounded;
 use nalgebra::na::Identity;
 use nalgebra::na;
 use geom::{Reflection, MinkowskiSum, AnnotatedPoint};

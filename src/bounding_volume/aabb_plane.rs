@@ -1,3 +1,4 @@
+use std::num::Bounded;
 use bounding_volume::{HasAABB, AABB};
 use geom::Plane;
 use math::{M, V};

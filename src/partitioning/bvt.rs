@@ -1,5 +1,6 @@
 //! A read-only Bounding Volume Tree.
 
+use std::num::Bounded;
 use extra::stats::Stats;
 use nalgebra::na::{Translation, Indexable};
 use nalgebra::na;

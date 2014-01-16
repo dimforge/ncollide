@@ -1,3 +1,4 @@
+use std::num::Bounded;
 use std::rc::Rc;
 use std::cell::RefCell;
 use nalgebra::na::{Translation, Indexable};

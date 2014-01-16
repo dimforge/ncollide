@@ -1,4 +1,4 @@
-use std::num::{Zero, One};
+use std::num::{Zero, One, Bounded};
 use nalgebra::na::{Identity, Translation, Indexable, Norm};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;

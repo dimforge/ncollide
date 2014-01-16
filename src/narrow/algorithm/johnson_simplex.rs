@@ -1,7 +1,7 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
 use std::util;
-use std::num::{Zero, One};
+use std::num::{Zero, One, Bounded};
 use std::vec;
 use std::local_data;
 use extra::arc::Arc;

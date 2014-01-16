@@ -1,3 +1,4 @@
+use std::num::Bounded;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayCastWithTransform};
 use geom::{ConcaveGeom, Compound};

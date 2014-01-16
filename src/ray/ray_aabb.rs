@@ -1,4 +1,4 @@
-use std::num::Zero;
+use std::num::{Zero, Bounded};
 use std::util;
 use nalgebra::na::Indexable;
 use nalgebra::na;
