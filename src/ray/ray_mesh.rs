@@ -64,9 +64,6 @@ impl RayCast for Mesh {
                 // XXX: this interpolation should be done on the two other ray cast too!
                 match *self.normals() {
                     None         => {
-                        if na::norm(&n).is_zero() {
-                            println!("Computed normal is zero: {:?}", n);
-                        }
                         Some((toi, n, Some((uvx, uvy, uvz))))
                     },
                     Some(ref ns) => {
@@ -77,13 +74,6 @@ impl RayCast for Mesh {
                         let n3 = &ns[is[2]];
 
                         let mut n123 = n1 * u + n2 * v + n3 * w;
-
-                        if na::norm(&n123).is_zero() {
-                            println!("Interpolated normal is zero: {:?}", n123);
-                        }
-                        if na::norm(&n).is_zero() {
-                            println!("Computed normal is zero: {:?}", n);
-                        }
 
                         if n123.normalize().is_zero() {
                             Some((toi, n, Some((uvx, uvy, uvz))))
