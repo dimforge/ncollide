@@ -42,7 +42,12 @@ distcheck:
 
 doc:
 	mkdir -p $(ncollide_doc_path)
+	rustdoc -L$(nalgebra_lib_path) --cfg dim2 --cfg f64 src/lib2df64.rs
 	rustdoc -L$(nalgebra_lib_path) --cfg dim3 --cfg f64 src/lib3df64.rs
+	rustdoc -L$(nalgebra_lib_path) --cfg dim4 --cfg f64 src/lib4df64.rs
+	rustdoc -L$(nalgebra_lib_path) --cfg dim2 --cfg f32 src/lib2df32.rs
+	rustdoc -L$(nalgebra_lib_path) --cfg dim3 --cfg f32 src/lib3df32.rs
+	rustdoc -L$(nalgebra_lib_path) --cfg dim4 --cfg f32 src/lib4df32.rs
 
 .PHONY:doc
 .PHONY:test

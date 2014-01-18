@@ -49,6 +49,7 @@ Some common features are still missing:
 #[deny(missing_doc)];
 #[feature(macro_rules)];
 #[feature(managed_boxes)];
+#[doc(html_root_url = "http://crozet.re/ncollide/doc")];
 
 extern mod std;
 extern mod extra;
