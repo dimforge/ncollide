@@ -5,7 +5,7 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};
 use implicit::Implicit;
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use ray;
 use math::{N, V, M};
 
@@ -105,15 +105,11 @@ impl RayCast for Cylinder {
     }
 }
 
-impl RayCastWithTransform for Cylinder { }
-
 impl RayCast for Cone {
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
-
-impl RayCastWithTransform for Cone { }
 
 impl RayCast for Capsule {
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
@@ -121,15 +117,11 @@ impl RayCast for Capsule {
     }
 }
 
-impl RayCastWithTransform for Capsule { }
-
 impl RayCast for Convex {
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
-
-impl RayCastWithTransform for Convex { }
 
 impl RayCast for Segment {
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
@@ -138,14 +130,9 @@ impl RayCast for Segment {
     }
 }
 
-impl RayCastWithTransform for Segment { }
-
 impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
 RayCast for MinkowskiSum<'a, G1, G2> {
     fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
-
-impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
-RayCastWithTransform for MinkowskiSum<'a, G1, G2> { }

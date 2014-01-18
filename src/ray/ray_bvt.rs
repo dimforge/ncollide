@@ -1,4 +1,4 @@
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use partitioning::BVT;
 use math::{N, V};
 
@@ -33,5 +33,3 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
 
     // FIXME: optimize insersect_ray ?
 }
-
-impl<B: RayCast, BV: RayCast> RayCastWithTransform for BVT<B, BV> { }

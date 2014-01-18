@@ -4,7 +4,7 @@ use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use bounding_volume::AABB;
 use geom::Box;
 use implicit::HasMargin;
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use ray::ray_implicit::gjk_toi_and_normal_with_ray;
 use math::{N, V};
 
@@ -52,5 +52,3 @@ impl RayCast for Box {
         }
     }
 }
-
-impl RayCastWithTransform for Box { }

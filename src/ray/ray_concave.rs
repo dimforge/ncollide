@@ -1,6 +1,6 @@
 use std::num::Bounded;
 use nalgebra::na;
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use geom::{ConcaveGeom, Compound};
 use math::{N, LV};
 
@@ -62,5 +62,3 @@ impl RayCast for Compound {
     // XXX: we have to implement toi_and_normal_and_uv_with_ray! Otherwise, no uv will be computed
     // for any of the sub-shapes.
 }
-
-impl RayCastWithTransform for Compound { }

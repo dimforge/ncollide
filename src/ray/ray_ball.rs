@@ -1,7 +1,7 @@
 use std::num::Real;
 use nalgebra::na::Translation;
 use nalgebra::na;
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use geom::Ball;
 use math::{N, V, M};
 
@@ -43,9 +43,7 @@ impl RayCast for Ball {
             (n, normal, uv)
         })
     }
-}
 
-impl RayCastWithTransform for Ball {
     #[inline]
     fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<N> {
         ball_toi_with_ray(m.translation(), self.radius(), ray)

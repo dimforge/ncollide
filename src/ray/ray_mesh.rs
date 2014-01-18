@@ -1,4 +1,4 @@
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use geom::Mesh;
 use math::{N, V};
 
@@ -102,5 +102,3 @@ impl RayCast for Mesh {
         }
     }
 }
-
-impl RayCastWithTransform for Mesh { }

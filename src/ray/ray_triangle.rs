@@ -1,7 +1,7 @@
 use nalgebra::na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
-use ray::{Ray, RayCast, RayCastWithTransform, gjk_toi_and_normal_with_ray};
+use ray::{Ray, RayCast, gjk_toi_and_normal_with_ray};
 use math::{N, V};
 
 #[cfg(dim3)]
@@ -31,8 +31,6 @@ impl RayCast for Triangle {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
-
-impl RayCastWithTransform for Triangle { }
 
 /// Computes the intersection between a triangle and a ray.
 ///

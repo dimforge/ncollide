@@ -2,15 +2,15 @@
 
 use std::unstable::intrinsics::TypeId;
 use std::cast;
-use ray::{RayCastWithTransform, Ray};
+use ray::{Ray, RayCast};
 use volumetric::Volumetric;
 use bounding_volume::{HasAABB, AABB};
 use math::M;
 
 /// Trait implemented by each geometry suported by `ncollide`.
-pub trait Geom : Volumetric           +
-                 HasAABB              +
-                 RayCastWithTransform +
+pub trait Geom : Volumetric  +
+                 HasAABB     +
+                 RayCast     +
                  Any {
     /// Duplicates (clones) this geometry.
     fn duplicate(&self) -> ~Geom;
@@ -37,7 +37,7 @@ pub trait ConcaveGeom : Geom {
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
 }
 
-impl<T: 'static + Send + Clone + Volumetric + HasAABB + RayCastWithTransform + Any>
+impl<T: 'static + Send + Clone + Volumetric + HasAABB + RayCast + Any>
 Geom for T {
     fn duplicate(&self) -> ~Geom {
         ~self.clone() as ~Geom

@@ -4,7 +4,7 @@ use narrow::CollisionDetector;
 use geom::Plane;
 use implicit::Implicit;
 use contact::Contact;
-use ray::{Ray, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use math::{N, V, M};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.

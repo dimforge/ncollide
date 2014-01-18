@@ -1,6 +1,6 @@
 use std::num::Zero;
 use nalgebra::na;
-use ray::{Ray, RayCast, RayCastWithTransform};
+use ray::{Ray, RayCast};
 use geom::Plane;
 use math::{N, V};
 
@@ -35,5 +35,3 @@ impl RayCast for Plane {
         })
     }
 }
-
-impl RayCastWithTransform for Plane { }

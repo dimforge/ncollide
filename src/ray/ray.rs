@@ -23,8 +23,31 @@ impl Ray {
     }
 }
 
-/// Traits of transformable objects which can be tested for intersection with a ray.
-pub trait RayCastWithTransform: RayCast {
+/// Traits of objects which can be tested for intersection with a ray.
+pub trait RayCast {
+    /// Computes the time of impact between this geometry and a ray
+    #[inline]
+    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
+        self.toi_and_normal_with_ray(ray).map(|(t, _)| t)
+    }
+
+    /// Computes the intersection point between this geometry and a ray.
+    #[inline]
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)>;
+
+    /// Computes the intersection point and normal between this geometry and a ray.
+    #[cfg(dim3)]
+    #[inline]
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
+        self.toi_and_normal_with_ray(ray).map(|(t, n)| (t, n, None))
+    }
+
+    /// Tests whether a ray intersects this geometry.
+    #[inline]
+    fn intersects_ray(&self, ray: &Ray) -> bool {
+        self.toi_with_ray(ray).is_some()
+    }
+
     /// Computes the time of impact between this transform geometry and a ray.
     fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<N> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
@@ -50,9 +73,6 @@ pub trait RayCastWithTransform: RayCast {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
         self.toi_and_normal_and_uv_with_ray(&ls_ray).map(|(t, d, uv)| {
-            if d != d {
-                fail!("Te normal is wrong: {:?}", d)
-            }
             (t, m.rotate(&d), uv)
         })
     }
@@ -61,31 +81,5 @@ pub trait RayCastWithTransform: RayCast {
     #[inline]
     fn intersects_with_transform_and_ray(&self, m: &M, ray: &Ray) -> bool {
         self.toi_with_transform_and_ray(m, ray).is_some()
-    }
-}
-
-/// Traits of objects which can be tested for intersection with a ray.
-pub trait RayCast {
-    /// Computes the time of impact between this geometry and a ray
-    #[inline]
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
-        self.toi_and_normal_with_ray(ray).map(|(t, _)| t)
-    }
-
-    /// Computes the intersection point between this geometry and a ray.
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)>;
-
-    /// Computes the intersection point and normal between this geometry and a ray.
-    #[cfg(dim3)]
-    #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
-        self.toi_and_normal_with_ray(ray).map(|(t, n)| (t, n, None))
-    }
-
-    /// Tests whether a ray intersects this geometry.
-    #[inline]
-    fn intersects_ray(&self, ray: &Ray) -> bool {
-        self.toi_with_ray(ray).is_some()
     }
 }
