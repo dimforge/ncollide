@@ -1,4 +1,5 @@
 use std::num::Real;
+use std::num;
 use nalgebra::na;
 use geom::Ball;
 use volumetric::Volumetric;
@@ -14,7 +15,7 @@ use nalgebra::na::Indexable;
 #[inline]
 pub fn ball_volume(radius: &N) -> N {
     let _pi: N = Real::pi();
-    _pi * radius.pow(&(na::cast(na::dim::<V>())))
+    _pi * num::pow(radius.clone(), na::dim::<V>())
 }
 
 #[cfg(dim2)]
