@@ -17,8 +17,8 @@ impl Cylinder {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
-    ///     * `half_height` - the half length of the cylinder along the `x` axis.
-    ///     * `radius` - the length of the cylinder along all other axis.
+    /// * `half_height` - the half length of the cylinder along the `x` axis.
+    /// * `radius` - the length of the cylinder along all other axis.
     pub fn new(half_height: N, radius: N) -> Cylinder {
         Cylinder::new_with_margin(half_height, radius, Cast::from(0.04))
     }
@@ -26,8 +26,8 @@ impl Cylinder {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
-    ///     * `half_height` - the half length of the cylinder along the `x` axis.
-    ///     * `radius` - the length of the cylinder along all other axis.
+    /// * `half_height` - the half length of the cylinder along the `x` axis.
+    /// * `radius` - the length of the cylinder along all other axis.
     pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cylinder {
         assert!(half_height.is_positive() && radius.is_positive());
 

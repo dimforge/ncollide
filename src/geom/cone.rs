@@ -1,6 +1,4 @@
-//!
 //! Support mapping based Cone geometry.
-//!
 
 use nalgebra::na::Cast;
 use math::N;
@@ -17,18 +15,18 @@ impl Cone {
     /// Creates a new cone.
     ///
     /// # Arguments:
-    ///     * `half_height` - the half length of the cone along the `x` axis.
-    ///     * `radius` - the length of the cone along all other axis.
+    /// * `half_height` - the half length of the cone along the `x` axis.
+    /// * `radius` - the length of the cone along all other axis.
     pub fn new(half_height: N, radius: N) -> Cone {
         Cone::new_with_margin(half_height, radius, Cast::from(0.04))
     }
 
-    /// Creates a new cone with a custom marin.
+    /// Creates a new cone with a custom margin.
     ///
     /// # Arguments:
-    ///     * `half_height` - the half length of the cone along the `x` axis.
-    ///     * `radius` - the length of the cone along all other axis.
-    ///     * `margin` - the  cone margin.
+    /// * `half_height` - the half length of the cone along the `x` axis.
+    /// * `radius` - the length of the cone along all other axis.
+    /// * `margin` - the  cone margin.
     pub fn new_with_margin(half_height: N, radius: N, margin: N) -> Cone {
         assert!(half_height.is_positive() && radius.is_positive());
 

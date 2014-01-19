@@ -1,4 +1,4 @@
-//! Collision detector betwen two `~Geom`.
+//! Collision detector between two `~Geom`.
 
 use std::unstable::intrinsics::TypeId;
 use std::hashmap::HashMap;
@@ -34,6 +34,7 @@ pub trait GeomGeomCollisionDetector {
 }
 
 /// Trait to be implemented by collision detector using dynamic dispatch.
+///
 /// This is used to know the exact type of the geometries.
 pub trait DynamicCollisionDetector<G1, G2>: GeomGeomCollisionDetector { }
 
@@ -143,7 +144,7 @@ impl GeomGeomDispatcher {
 impl GeomGeomDispatcher {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
-    /// geometries suported by `ncollide`.
+    /// geometries supported by `ncollide`.
     pub fn new() -> GeomGeomDispatcher {
         let mut res = GeomGeomDispatcher::new_without_default();
 
@@ -303,7 +304,7 @@ impl GeomGeomDispatcher {
     */
 
     /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
-    /// geometry suported by `ncollide`.
+    /// geometry supported by `ncollide`.
     pub fn register_default_implicit_detectors<G: 'static + Implicit<LV, M> + PreferedSamplingDirections<LV, M>>(
                                                &mut self,
                                                generate_manifold: bool,

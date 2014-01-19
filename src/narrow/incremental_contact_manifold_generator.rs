@@ -41,7 +41,7 @@ impl<CD> IncrementalContactManifoldGenerator<CD> {
     /// Creates a new incremental contact manifold generator.
     ///
     /// # Arguments:
-    ///   * `cd` - collision detection sub-algorithm used to generate the contact points.
+    /// * `cd` - collision detection sub-algorithm used to generate the contact points.
     pub fn new(prediction: N, cd: CD) -> IncrementalContactManifoldGenerator<CD> {
         IncrementalContactManifoldGenerator {
             contacts:     ~[],

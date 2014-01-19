@@ -27,7 +27,7 @@ impl<G> Clone for PlaneImplicit<G> {
 }
 
 impl<G> PlaneImplicit<G> {
-    /// Creates a new persistant collision detector between a plane and a geometry with a support
+    /// Creates a new persistent collision detector between a plane and a geometry with a support
     /// mapping function.
     #[inline]
     pub fn new(prediction: N) -> PlaneImplicit<G> {
@@ -97,7 +97,7 @@ impl<G> Clone for ImplicitPlane<G> {
 }
 
 impl<G> ImplicitPlane<G> {
-    /// Creates a new persistant collision detector between a plane and a geometry with a support
+    /// Creates a new persistent collision detector between a plane and a geometry with a support
     /// mapping function.
     #[inline]
     pub fn new(prediction: N) -> ImplicitPlane<G> {
@@ -143,14 +143,11 @@ impl<G: Implicit<V, M>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
     }
 }
 
-/**
- * Same as `update_collide_plane_implicit_shape` but the existing collision or
- * `None`.
- *
- * # Arguments:
- *   * `plane` - the plane to test.
- *   * `other` - the object to test against the plane.
- */
+/// Same as `update_collide_plane_implicit_shape` but the existing collision or `None`.
+///
+/// # Arguments:
+/// * `plane` - the plane to test.
+/// * `other` - the object to test against the plane.
 pub fn collide<G: Implicit<V, M>>(
                mplane:     &M,
                plane:      &Plane,
@@ -177,11 +174,11 @@ pub fn collide<G: Implicit<V, M>>(
 /// Computes the Time Of Impact of a geometry and a plane.
 ///
 /// Arguments:
-///     * `mplane` - the plane transform.
-///     * `plane`  - the plane.
-///     * `mother` - the geometry transform.
-///     * `dir`    - the direction of the other geometry movement.
-///     * `other`  - the other geometry.
+/// * `mplane` - the plane transform.
+/// * `plane`  - the plane.
+/// * `mother` - the geometry transform.
+/// * `dir`    - the direction of the other geometry movement.
+/// * `other`  - the other geometry.
 pub fn toi<G: Implicit<V, M>>(
            mplane: &M,
            plane:  &Plane,

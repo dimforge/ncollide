@@ -1,6 +1,4 @@
-//!
 //! Traits for support mapping based geometries.
-//!
 
 use nalgebra::na::RealVec;
 use nalgebra::na;
@@ -25,7 +23,7 @@ impl<'a> HasMargin for &'a HasMargin {
 /// Traits of convex geometries representable by a support mapping function.
 ///
 /// # Parameters:
-///   * V - type of the support mapping direction argument and of the returnd point.
+///   * V - type of the support mapping direction argument and of the returned point.
 pub trait Implicit<V: RealVec<N>, M>: HasMargin {
     /**
      * Evaluates the support function of the object. A support function is a
@@ -76,6 +74,7 @@ impl<'a, V: RealVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
 }
 
 /// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
+///
 /// Those directions are usually the geometry faces normals.
 pub trait PreferedSamplingDirections<V, M> {
     /// Applies a function to this geometry with a given transform.

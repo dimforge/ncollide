@@ -7,7 +7,7 @@ use implicit::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 use math::{N, V, M};
 
-/// Traits of objects approximable by an AABB.
+/// Traits of objects that can be approximated by an AABB.
 pub trait HasAABB {
     /// The object’s AABB.
     fn aabb(&self, &M) -> AABB;
@@ -31,7 +31,7 @@ impl AABB {
         &'r self.mins
     }
 
-    /// Reference to the AABB point with the bigest components along each axis.
+    /// Reference to the AABB point with the biggest components along each axis.
     #[inline]
     pub fn maxs<'r>(&'r self) -> &'r V {
         &'r self.maxs

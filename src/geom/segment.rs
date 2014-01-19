@@ -21,7 +21,7 @@ impl Segment {
         Segment::new_with_margin(a, b, na::cast(0.04))
     }
 
-    /// Creates a new segment frow two points and a custom margin.
+    /// Creates a new segment from two points and a custom margin.
     #[inline]
     pub fn new_with_margin(a: V, b: V, margin: N) -> Segment {
         assert!(na::dim::<V>() > 1);
@@ -47,7 +47,7 @@ impl Segment {
         &'a self.b
     }
 
-    /// The margin surounding this segment.
+    /// The margin surrounding this segment.
     #[inline]
     pub fn margin(&self) -> N {
         self.margin.clone()

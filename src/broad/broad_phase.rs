@@ -29,9 +29,9 @@ pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {
     /// Inactive objects are assumed to be static and not tested for mutual interferences.
     fn deactivate(&mut self, &B);
 
-    /// Execute a function on each interefence detected by the broad phase.
+    /// Execute a function on each interference detected by the broad phase.
     fn for_each_pair(&self, f: |&B, &B, &DV| -> ());
-    /// Execute a function on each interefence detected by the broad phase.
+    /// Execute a function on each interference detected by the broad phase.
     fn for_each_pair_mut(&mut self, f: |&B, &B, &mut DV| -> ());
 }
 

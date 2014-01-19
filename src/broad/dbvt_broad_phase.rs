@@ -13,8 +13,10 @@ use ray::{Ray, RayCast};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use math::{N, V};
 
-/// Broad phase based on a Dynamic Bounding Volume Tree. It uses two separate trees: one for static
-/// objects and which is never updated, and one for moving objects.
+/// Broad phase based on a Dynamic Bounding Volume Tree.
+///
+/// It uses two separate trees: one for static objects and which is never updated, and one for
+/// moving objects.
 pub struct DBVTBroadPhase<B, BV, D, DV> {
     priv tree:        DBVT<B, BV>,
     priv stree:       DBVT<B, BV>,

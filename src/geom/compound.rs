@@ -10,10 +10,11 @@ use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollect
 use geom::{Geom, ConcaveGeom};
 use math::M;
 
-/// A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of
-/// the union of several simpler geometry. This is the main way of creating a concave geometry from
-/// convex parts. Each parts can have its own delta transformation to shift or rotate it with
-/// regard to the other geometries.
+/// A compound geometry with an aabb bounding volume.
+///
+/// A compound geometry is a geometry composed of the union of several simpler geometry. This is
+/// the main way of creating a concave geometry from convex parts. Each parts can have its own
+/// delta transformation to shift or rotate it with regard to the other geometries.
 pub struct Compound {
     priv shapes: ~[(M, ~Geom)],
     priv bvt:    BVT<uint, AABB>,

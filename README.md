@@ -8,6 +8,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
+An on-line version of this documentation is available [here](http://crozet.re/ncollide/doc/ncollide3df32/index.html).
 
 ## Compilation
 You will need the last rust compiler from the master branch.

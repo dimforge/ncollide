@@ -7,7 +7,7 @@ use volumetric::Volumetric;
 use bounding_volume::{HasAABB, AABB};
 use math::M;
 
-/// Trait implemented by each geometry suported by `ncollide`.
+/// Trait implemented by each geometry supported by `ncollide`.
 pub trait Geom : Volumetric  +
                  HasAABB     +
                  RayCast     +
@@ -16,7 +16,7 @@ pub trait Geom : Volumetric  +
     fn duplicate(&self) -> ~Geom;
 }
 
-/// Trait implemented by concave, composite geometries suported by `ncollide`.
+/// Trait implemented by concave, composite geometries supported by `ncollide`.
 ///
 /// A composite geometry is composed of several `Geom`. Typically, it is a convex decomposition of
 /// a concave geometry.
@@ -33,7 +33,7 @@ pub trait ConcaveGeom : Geom {
     /// Computes the indices of every sub-geometry which might intersect a given Ray.
     fn approx_interferences_with_ray(&self, &Ray, &mut ~[uint]);
     // FIXME: kind of ad-hoc…
-    /// Gets the AABB a the geometry identified by the index `i`.
+    /// Gets the AABB of the geometry identified by the index `i`.
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
 }
 

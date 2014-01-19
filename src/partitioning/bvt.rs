@@ -234,7 +234,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
     }
 }
 
-/// Construction function for quadtree in 2d, an octree in 4d, and a 2^n tree in n-d.
+/// Construction function for a kdree.
 ///
 /// Use this as a parameter of `new_with_partitioner`.
 pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<B, AABB> {

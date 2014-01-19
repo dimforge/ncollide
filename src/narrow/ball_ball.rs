@@ -7,9 +7,7 @@ use contact::Contact;
 use ray::{Ray, ball_toi_with_ray};
 use math::{N, V, M};
 
-/**
- * Collision detector between two balls.
- */
+/// Collision detector between two balls.
 #[deriving(Encodable, Decodable)]
 pub struct BallBall {
     priv prediction: N,
@@ -26,7 +24,7 @@ impl Clone for BallBall {
 }
 
 impl BallBall {
-    /// Creates a new persistant collision detector between two balls.
+    /// Creates a new persistent collision detector between two balls.
     #[inline]
     pub fn new(prediction: N) -> BallBall {
         BallBall {

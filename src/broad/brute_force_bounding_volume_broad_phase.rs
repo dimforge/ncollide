@@ -53,8 +53,7 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 ///
 /// Interference detection is executed only for objects which have their bounding volumes updated.
 ///
-/// Dont use this broad phase. It exists mainly as a transition broad phase between the Brute Force
-/// one and the DBVH/SAP based broad phases.
+/// Do not use this broad phase.
 pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     priv objects:    ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // active   objects
     priv sobjects:   ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // inactive objects
@@ -114,7 +113,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     }
 
     /// Marks and object as active or inactive. The bounding volume of an inactive object is never
-    /// updated. Activating/deactivating an already active/inactive objecs leads to undefined
+    /// updated. Activating/deactivating an already active/inactive objects leads to undefined
     /// behaviour.
     pub fn set_active(&mut self, b: &B, active: bool) {
         let (key, at) =

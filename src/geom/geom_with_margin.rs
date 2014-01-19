@@ -6,7 +6,7 @@ use math::{N, V};
 
 /// Extends the wrapped geometry with its margin.
 ///
-/// The purpose of this structuro as to make the `support_point_without_margin` method return
+/// The purpose of this structure as to make the `support_point_without_margin` method return
 /// result of the wrapped geometry `support_point` method instead.
 pub struct GeomWithMargin<'a, G> {
     priv geom: &'a G

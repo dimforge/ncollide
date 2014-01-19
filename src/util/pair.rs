@@ -1,10 +1,10 @@
-//! Pair of managed boxes.
+//! Hashable pair of objects implementing `HasUid`.
 
 use util::hash;
 use util::hash::HashFun;
 use util::has_uid::HasUid;
 
-/// Pair of managed boxes. It is accompagned with a fast hash function.
+/// An unordered pair of elements implementing `HasUid`.
 #[deriving(Clone, Encodable, Decodable)]
 pub struct Pair<B> {
     /// first object of the pair
@@ -17,7 +17,7 @@ pub struct Pair<B> {
 }
 
 impl<B: HasUid> Pair<B> {
-    /// Builds a new pair of managed boxes.
+    /// Builds a new `Pair`.
     pub fn new(a: B, b: B) -> Pair<B> {
         let ia = a.uid();
         let ib = b.uid();

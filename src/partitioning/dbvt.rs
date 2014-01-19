@@ -83,9 +83,9 @@ DBVT<B, BV> {
     /// volume.
     ///
     /// # Arguments:
-    ///     * `to_test` - the leaf to check interferences with.
-    ///     * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-    ///     is not considered intersecting itself.
+    /// * `to_test` - the leaf to check interferences with.
+    /// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
+    ///           is not considered intersecting itself.
     pub fn interferences_with_leaf(&self,
                                    leaf: &DBVTLeaf<B, BV>,
                                    out:  &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {
@@ -114,7 +114,7 @@ enum DBVTNode<B, BV> {
     Invalid
 }
 
-/// Internal node of a DBV Tree. An internal node always has two children.
+/// Internal node of a DBVT. An internal node always has two children.
 struct DBVTInternal<B, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
@@ -228,7 +228,7 @@ impl<B: 'static, BV: Translation<V> + 'static> DBVTLeaf<B, BV> {
     /// Returns the new root of the tree.
     ///
     /// # Arguments:
-    ///     * `curr_root`: current root of the tree.
+    /// * `curr_root`: current root of the tree.
     fn unlink(&mut self,
               cache:     &mut Cache<B, BV>,
               curr_root: DBVTNode<B, BV>) -> Option<DBVTNode<B, BV>> {
@@ -446,9 +446,9 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
     /// volume.
     ///
     /// # Arguments:
-    ///     * `to_test` - the leaf to check interference with.
-    ///     * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-    ///     is not considered intersecting itself.
+    /// * `to_test` - the leaf to check interference with.
+    /// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
+    /// is not considered intersecting itself.
     fn interferences_with_leaf(&self,
                                to_test: &DBVTLeaf<B, BV>,
                                out:     &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {

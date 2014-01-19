@@ -59,6 +59,7 @@ Implicit<AnnotatedPoint, Identity> for AnnotatedMinkowskiSum<'a, G1, G2> {
 }
 
 /// Computes the support point of a CSO on a given direction.
+///
 /// The result is a support point with informations about how it has been constructed.
 pub fn cso_support_point<G1: Implicit<V, M>,
                          G2: Implicit<V, M>>(
@@ -75,6 +76,7 @@ pub fn cso_support_point<G1: Implicit<V, M>,
 }
 
 /// Computes the support point of a CSO on a given direction.
+///
 /// The result is a support point with informations about how it has been constructed.
 pub fn cso_support_point_without_margin<G1: Implicit<V, M>,
                                         G2: Implicit<V, M>>(

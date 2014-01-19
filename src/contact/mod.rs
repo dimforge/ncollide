@@ -3,9 +3,7 @@
 use std::util;
 use math::{N, V};
 
-/**
- * Geometric description of a contact.
- */
+/// Geometric description of a contact.
 #[deriving(ToStr, Eq, Clone, DeepClone, Encodable, Decodable)]
 pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.

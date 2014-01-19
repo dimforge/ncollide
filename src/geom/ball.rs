@@ -4,9 +4,7 @@
 
 use math::N;
 
-/**
- * A Ball geometry.
- */
+/// A Ball geometry.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct Ball {
     priv radius: N

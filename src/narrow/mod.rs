@@ -14,7 +14,7 @@ pub use narrow::concave_geom_geom::{ConcaveGeomGeom, GeomConcaveGeom, ConcaveGeo
                                     GeomConcaveGeomFactory};
 
 // functions
-/// Functions to compule the time of impact between two geometries.
+/// Functions to compute the time of impact between two geometries.
 pub mod toi {
     pub use ball_ball         = narrow::ball_ball::toi;
     pub use plane_implicit    = narrow::plane_implicit::toi;

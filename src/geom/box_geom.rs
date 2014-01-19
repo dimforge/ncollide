@@ -1,6 +1,4 @@
-//!
 //! Support mapping based Box geometry.
-//!
 
 use std::num::Signed;
 use nalgebra::na::Iterable;
@@ -47,7 +45,7 @@ impl Box {
         self.half_extents.clone()
     }
 
-    /// The margin surounding this box.
+    /// The margin surrounding this box.
     ///
     /// Note that unlike most other geometries, a box has an interior margin. Therefore, the
     /// real extents of the box (those that have been passed to the Box constructor) equal the sum

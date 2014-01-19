@@ -9,7 +9,7 @@ use ray::{Ray, RayCast};
 use ray;
 use math::{N, V, M};
 
-/// Projects the origin on a geometry unsing the GJK algorithm.
+/// Projects the origin on a geometry using the GJK algorithm.
 ///
 /// # Arguments:
 ///     * geom - the geometry to project the origin on

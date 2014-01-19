@@ -146,7 +146,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: RealVec<N>, _M>(
 /*
  * Separating Axis GJK
  */
-/// Projects the origin on a geometry unsing the Separating Axis GJK algorithm.
+/// Projects the origin on a geometry using the Separating Axis GJK algorithm.
 /// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away
 /// from the origin.
 ///

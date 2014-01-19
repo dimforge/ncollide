@@ -1,11 +1,6 @@
-//!
-//! Support mapping based reflected geometry.
-//!
-
-/**
- * Implicit represention of the reflection of a geometric object.
- * A reflection is obtained with the central symetry wrt the origin.
- */
+/// Implicit representation of the reflection of a geometry.
+///
+/// A reflection is obtained with the central symmetry with regard to the origin.
 #[deriving(Eq, ToStr, Clone)]
 pub struct Reflection<'a, G> {
     priv g: &'a G

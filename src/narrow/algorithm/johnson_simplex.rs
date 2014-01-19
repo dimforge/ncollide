@@ -27,21 +27,20 @@ pub struct JohnsonSimplex<_V> {
 /// Johnson simplex.
 #[deriving(Eq, Clone, Encodable, Decodable)]
 pub struct RecursionTemplate {
-    // FIXME: why #[doc(hidden)] does not work?
-    /// For internal uses. Do not read.
+    #[doc(hidden)]
     permutation_list: ~[uint],
-    /// For internal uses. Do not read.
+    #[doc(hidden)]
     offsets:          ~[uint],
-    /// For internal uses. Do not read.
+    #[doc(hidden)]
     sub_determinants: ~[uint],
-    /// For internal uses. Do not read.
+    #[doc(hidden)]
     num_determinants: uint,
-    /// For internal uses. Do not read.
+    #[doc(hidden)]
     num_leaves:       uint // useful only for printing…
 }
 
 impl RecursionTemplate {
-    /// Creates a new set o Recursion simplex sharable between any Johnson simplex having a
+    /// Creates a new set of Recursion simplex sharable between any Johnson simplex having a
     /// dimension inferior or equal to `dim`.
     pub fn new(dim: uint) -> Arc<~[RecursionTemplate]> {
         let mut template = vec::with_capacity(dim + 1);
@@ -192,9 +191,8 @@ impl RecursionTemplate {
     }
 }
 
-impl<_V: Dim>
-JohnsonSimplex<_V> {
-    /// Creates a new, empty, johnson simplex.
+impl<_V: Dim> JohnsonSimplex<_V> {
+    /// Creates a new, empty, Johnson simplex.
     pub fn new(recursion: Arc<~[RecursionTemplate]>) -> JohnsonSimplex<_V> {
         let _dim = na::dim::<_V>();
 
@@ -206,7 +204,7 @@ JohnsonSimplex<_V> {
         }
     }
 
-    /// Creates a new, empty johnson simplex. The recursion template uses the thread-local one.
+    /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<_V> {
 
         let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| rec.clone()));
@@ -227,8 +225,7 @@ JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + RealVec<N>>
-JohnsonSimplex<_V> {
+impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
     fn do_project_origin(&mut self, reduce: bool) -> _V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")

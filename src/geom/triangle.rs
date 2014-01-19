@@ -1,4 +1,4 @@
-//! definition of the triangle geometry.
+//! Definition of the triangle geometry.
 
 use nalgebra::na;
 use geom::mesh::MeshElement;
@@ -55,7 +55,7 @@ impl Triangle {
         &'a self.c
     }
 
-    /// The margin surounding this triangle.
+    /// The margin surrounding this triangle.
     #[inline]
     pub fn margin(&self) -> N {
         self.margin.clone()

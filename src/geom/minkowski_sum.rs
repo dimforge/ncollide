@@ -1,8 +1,3 @@
-//!
-//! Support mapping based Minkowski Sum geometry. Note thas the support mapping function will
-//! ignore the transformation matrix (the first argument of the `support_point` method).
-//!
-
 use std::num::{Zero, One};
 use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
 use nalgebra::na;
@@ -15,7 +10,8 @@ pub type CSO<'a, G1, G2> = MinkowskiSum<'a, G1, Reflection<'a, G2>>;
 pub type AnnotatedCSO<'a, G1, G2> = AnnotatedMinkowskiSum<'a, G1, Reflection<'a, G2>>;
 
 /**
- * Implicit representation of the minkowski sum of two geometries.
+ * Implicit representation of the Minkowski sum of two geometries.
+ *
  * The only way to obtain the sum points is to use its support mapping
  * function.
  *
@@ -69,8 +65,9 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
 /**
  * Same as the MinkowskiSum but with a support mapping which keeps track of the
  * original supports points from the two wrapped geometries.
- *  - `G1`: type of the first object involved on the sum.
- *  - `G2`: type of the second object involved on the sum.
+ *
+ * * `G1`: type of the first object involved on the sum.
+ * * `G2`: type of the second object involved on the sum.
  */
 #[deriving(Eq, ToStr, Clone)]
 pub struct AnnotatedMinkowskiSum<'a, G1, G2> {

@@ -27,7 +27,7 @@ impl<T: Hash> HashFun<T> for StdHash {
     }
 }
 
-/// Hash function for pairs of uint, using the Tomas Wang hash.
+/// Hash function for pairs of `uint`, using the Tomas Wang hash.
 #[deriving(Clone, Encodable, Decodable)]
 pub struct UintPairTWHash { priv unused: uint }
 
@@ -52,7 +52,7 @@ impl HashFun<(uint, uint)> for UintPairTWHash {
     }
 }
 
-/// Hash function for uint.
+/// Hash function for `uint`.
 #[deriving(Clone, Encodable, Decodable)]
 pub struct UintTWHash { priv unused: uint } // FIXME: ICE if the struct is zero-sized
 
@@ -70,13 +70,13 @@ impl HashFun<uint> for UintTWHash {
     }
 }
 
-/// Combines two uint on a single one.
+/// Combines two `uint` on a single one.
 #[cfg(target_word_size = "32")] #[inline]
 pub fn key_from_pair(a: uint, b: uint) -> uint {
     (a & 0xffff) | (b << 16)
 }
 
-/// Combines two uint on a sigle one.
+/// Combines two `uint` on a single one.
 #[cfg(target_word_size = "64")] #[inline]
 pub fn key_from_pair(a: uint, b: uint) -> uint {
     (a & 0xffffffff) | (b << 32)

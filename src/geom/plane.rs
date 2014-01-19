@@ -1,15 +1,9 @@
-//!
 //! Support mapping based Plane geometry.
-//!
 
 use nalgebra::na;
 use math::V;
 
-/**
- * Implicit description of a plane.
- *
- *   - `V`: type of the plane normal.
- */
+/// Implicit description of a plane.
 #[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
 pub struct Plane {
     /// The plane normal.
