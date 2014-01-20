@@ -1,7 +1,7 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
 use std::util;
-use std::num::{Zero, One, Bounded};
+use std::num::Bounded;
 use std::vec;
 use std::local_data;
 use extra::arc::Arc;
@@ -199,7 +199,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
         JohnsonSimplex {
             points:             vec::with_capacity(_dim + 1),
             exchange_points:    vec::with_capacity(_dim + 1),
-            determinants:       vec::from_elem(recursion.get()[_dim].num_determinants, Zero::zero()),
+            determinants:       vec::from_elem(recursion.get()[_dim].num_determinants, na::zero()),
             recursion_template: recursion
         }
     }
@@ -241,7 +241,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
         let mut curr         = max_num_pts;
 
         for c in self.determinants.mut_slice_from(recursion.num_determinants - max_num_pts).mut_iter() {
-            *c = One::one();
+            *c = na::one();
         }
 
         // NOTE: Please read that before thinking all those `unsafe_whatever` should be bannished.
@@ -261,7 +261,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
             // for each sub-simplex ...
             while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant: N = Zero::zero();
+                    let mut determinant: N = na::zero();
                     let kpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr + 1u))).clone();
                     let jpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr))).clone();
 
@@ -302,12 +302,12 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
                         let det_id = curr - (i + 1) * curr_num_pts;
                         let det    = (*self.determinants.unsafe_ref(*recursion.sub_determinants.unsafe_ref(det_id))).clone();
 
-                        if det > Zero::zero() {
+                        if det > na::zero() {
                             // invalidate the children determinant
                             if curr_num_pts > 1 {
                                 let subdetid = *recursion.sub_determinants.unsafe_ref(det_id + 1);
 
-                                if *self.determinants.unsafe_ref(subdetid) > Zero::zero() {
+                                if *self.determinants.unsafe_ref(subdetid) > na::zero() {
                                     self.determinants.unsafe_set(subdetid, Bounded::max_value())
                                 }
                             }
@@ -367,7 +367,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
             curr_num_pts = curr_num_pts - 1;
         }
 
-        Zero::zero()
+        na::zero()
     }
 }
 

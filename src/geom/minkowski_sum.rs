@@ -1,4 +1,4 @@
-use std::num::{Zero, One};
+use std::num::Zero;
 use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
 use nalgebra::na;
 use geom::Reflection;
@@ -32,8 +32,7 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
-               -> MinkowskiSum<'a, G1, G2> {
+    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> MinkowskiSum<'a, G1, G2> {
         MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
@@ -176,16 +175,7 @@ impl Zero for AnnotatedPoint {
     }
 }
 
-impl One for AnnotatedPoint {
-    // FIXME: this definition works but is flawed (orig1 + orig2 != point)
-    #[inline]
-    fn one() -> AnnotatedPoint {
-        AnnotatedPoint::new(One::one(), One::one(), One::one())
-    }
-}
-
-impl Sub<AnnotatedPoint, AnnotatedPoint> for
-AnnotatedPoint {
+impl Sub<AnnotatedPoint, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
     fn sub(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 - other.orig1,
@@ -194,8 +184,7 @@ AnnotatedPoint {
     }
 }
 
-impl Add<AnnotatedPoint, AnnotatedPoint> for
-AnnotatedPoint {
+impl Add<AnnotatedPoint, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
     fn add(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 + other.orig1,
