@@ -1,3 +1,6 @@
+env:
+  global:
+    - secure: rZ4tKOggcWI3MivjmiTxFfDP/8omkBcr/Wb2EpQWtWGI0dGS93A7Ofvo439WiY1uplsXaF+fyazMpUEAHc6EF0M48K+F956JR9rN0SYzV97qy5R2guiB5RUQaq+Yqr43J8V08J2tahp7XrTuhcEL6dHrFnCXDLcttD+PKYr+3qw=
 before_install:
   - yes | sudo add-apt-repository ppa:hansjorg/rust
   - sudo apt-get update
@@ -10,3 +13,5 @@ script:
   - make
   - make test
   - make bench
+after_script:
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh

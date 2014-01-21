@@ -9,7 +9,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
-An on-line version of this documentation is available [here](http://crozet.re/ncollide/doc/ncollide4df32/index.html).
+An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide4df32/index.html).
 
 ## Compilation
 You will need the last rust compiler from the master branch.
@@ -50,7 +50,7 @@ Some common features are still missing:
 #[deny(missing_doc)];
 #[feature(macro_rules)];
 #[feature(managed_boxes)];
-#[doc(html_root_url = "http://crozet.re/ncollide/doc")];
+#[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")];
 
 extern mod std;
 extern mod extra;
