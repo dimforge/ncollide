@@ -13,5 +13,6 @@ script:
   - make
   - make test
   - make bench
+  - make doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
