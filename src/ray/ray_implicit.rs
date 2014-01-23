@@ -81,14 +81,14 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Transl
         let proj       = simplex.project_origin_and_reduce();
         let sq_len_dir = na::sqnorm(&proj);
 
-        if (simplex.dimension() == _dim) {
+        if simplex.dimension() == _dim {
             return Some((ltoi, ldir)) // FIXME: dir or -proj ?
         }
-        else if (sq_len_dir <= _eps_tol * simplex.max_sq_len()) {
+        else if sq_len_dir <= _eps_tol * simplex.max_sq_len() {
             // Return ldir: the last projection plane is tangeant to the intersected surface.
             return Some((ltoi, ldir))
         }
-        else if (sq_len_dir >= old_sq_len) {
+        else if sq_len_dir >= old_sq_len {
             // use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
             return Some((ltoi, dir)) // FIXME: dir or -proj ?

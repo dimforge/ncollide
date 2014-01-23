@@ -74,7 +74,7 @@ pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<(N, V
     if t < na::zero() {
         v = -na::dot(&ac, &e);
 
-        if (v < na::zero() || v > d) {
+        if v < na::zero() || v > d {
             return None;
         }
 
@@ -93,7 +93,7 @@ pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<(N, V
     else {
         v = na::dot(&ac, &e);
 
-        if (v < na::zero() || v > d) {
+        if v < na::zero() || v > d {
             return None;
         }
 

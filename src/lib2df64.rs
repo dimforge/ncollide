@@ -45,6 +45,7 @@ Some common features are still missing:
 #[crate_id = "ncollide2df64#0.1"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
+#[deny(unnecessary_parens)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[deny(missing_doc)];

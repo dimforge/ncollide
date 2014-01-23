@@ -21,7 +21,7 @@ impl<T> OwnedAllocationCache<T> {
     #[inline]
     pub fn alloc(&mut self, value: T) -> ~T {
         if !self.cache.is_empty() {
-            let mut res = self.cache.pop();
+            let mut res = self.cache.pop().unwrap();
             *res = value;
 
             res

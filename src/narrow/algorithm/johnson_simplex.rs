@@ -101,7 +101,7 @@ impl RecursionTemplate {
             let mut curr      = last_dim_begin;
             let mut num_added = 0;
 
-            while (curr != last_dim_end) {
+            while curr != last_dim_end {
                 // ... iterate on it ...
                 for j in range(0u, last_num_points) {
                     // ... and build all the sublist with one last point
@@ -259,7 +259,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
          */
         for &end in recursion.offsets.slice_from(2).iter() { // FIXME: try to transform this using a `window_iter()`
             // for each sub-simplex ...
-            while (curr != end) { // FIXME: replace this `while` by a `for` when a range with custom increment exist
+            while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
                     let mut determinant: N = na::zero();
                     let kpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr + 1u))).clone();
@@ -292,7 +292,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
         offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
             // for each sub-simplex ...
-            while (curr != end) {
+            while curr != end {
                 let mut foundit = true;
 
                 // ... with curr_num_pts points permutations ...
@@ -430,7 +430,7 @@ impl ToStr for RecursionTemplate {
         recursion_offsets_skip_1.next(); // Skip the two first entries
 
         for &off in recursion_offsets_skip_1 {
-            while (curr != off) {
+            while curr != off {
                 res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
 
                 for i in range(0u, dim) {

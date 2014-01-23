@@ -106,7 +106,7 @@ DBVTBroadPhase<B, BV, D, DV> {
 
                     let bf = entry.key.first.borrow().borrow();
                     let bs = entry.key.second.borrow().borrow();
-                    if (!bf.get().bounding_volume.intersects(&bs.get().bounding_volume)) {
+                    if !bf.get().bounding_volume.intersects(&bs.get().bounding_volume) {
                         true
                     }
                     else {

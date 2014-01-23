@@ -123,7 +123,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     if active {
                         // remove from sobjects…
                         let proxy  = self.sobjects[*i];
-                        let lproxy = self.sobjects.pop();
+                        let lproxy = self.sobjects.pop().unwrap();
                         self.sobjects[*i] = lproxy;
 
                         // … then add to objects
@@ -138,7 +138,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     else {
                         // remove from objects…
                         let proxy  = self.objects[*i];
-                        let lproxy = self.objects.pop();
+                        let lproxy = self.objects.pop().unwrap();
                         self.objects[*i] = lproxy;
 
                         // … then add to sobjects
@@ -196,7 +196,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
                     let bf = entry.key.first.borrow().borrow();
                     let bs = entry.key.second.borrow().borrow();
-                    if (!bf.get().bounding_volume.intersects(&bs.get().bounding_volume)) {
+                    if !bf.get().bounding_volume.intersects(&bs.get().bounding_volume) {
                         true
                     }
                     else {

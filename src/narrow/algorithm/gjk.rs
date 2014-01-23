@@ -117,13 +117,13 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: RealVec<N>, _M>(
     let _dim     = na::dim::<V>();
 
     loop {
-        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/) {
+        if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
             return None // point inside of the cso
         }
 
         let support_point = geom.support_point_without_margin(m, &-proj);
 
-        if (sq_len_dir - na::dot(&proj, &support_point) <= _eps_rel * sq_len_dir) {
+        if sq_len_dir - na::dot(&proj, &support_point) <= _eps_rel * sq_len_dir {
             return Some(proj) // the distance found has a good enough precision 
         }
 
@@ -137,7 +137,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: RealVec<N>, _M>(
 
         sq_len_dir = na::sqnorm(&proj);
 
-        if (sq_len_dir >= old_sq_len_dir) {
+        if sq_len_dir >= old_sq_len_dir {
             return Some(old_proj) // upper bounds inconsistencies
         }
     }
@@ -170,7 +170,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Rea
     let _dim     = na::dim::<V>();
 
     loop {
-        if (simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/) {
+        if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
             return Intersection // point inside of the cso
         }
 
@@ -183,7 +183,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Rea
             return NoIntersection(proj);
         }
 
-        if (sq_len_dir - dot <= _eps_rel * sq_len_dir) {
+        if sq_len_dir - dot <= _eps_rel * sq_len_dir {
             return Projection(proj) // the distance found has a good enough precision 
         }
 
@@ -197,7 +197,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Rea
 
         sq_len_dir = na::sqnorm(&proj);
 
-        if (sq_len_dir >= old_sq_len_dir) {
+        if sq_len_dir >= old_sq_len_dir {
             return Projection(old_proj) // upper bounds inconsistencies
         }
     }

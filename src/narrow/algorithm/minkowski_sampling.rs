@@ -34,7 +34,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
-        if (dist < min_dist) {
+        if dist < min_dist {
             best_dir = sample;
             min_dist = dist;
         }
@@ -45,7 +45,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
-        if (dist < min_dist) {
+        if dist < min_dist {
             best_dir = sample;
             min_dist = dist;
         }
@@ -56,7 +56,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, &support);
 
-        if (dist < min_dist) {
+        if dist < min_dist {
             best_dir = sample;
             min_dist = dist;
         }
