@@ -2,9 +2,12 @@ use std::num::{Zero, Bounded};
 use std::util;
 use nalgebra::na::Indexable;
 use nalgebra::na;
-use ray::{Ray, RayCast};
+use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{N, V};
+
+#[cfg(dim3)]
+use nalgebra::na::Vec3;
 
 impl RayCast for AABB {
     fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
@@ -39,25 +42,25 @@ impl RayCast for AABB {
         Some(tmin)
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
-        ray_aabb(self, ray).map(|(t, n, _)| (t, n))
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+        ray_aabb(self, ray).map(|(t, n, _)| RayIntersection::new(t, n))
     }
 
     #[cfg(dim3)]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         ray_aabb(self, ray).map(|(t, n, s)| {
             let pt  = ray.orig + ray.dir * t;
             let lpt = (pt - *self.mins()) / (self.maxs() - *self.mins());
             let id  = s.abs();
 
             if id == 1 {
-                (t, n, Some((lpt.y.clone(), lpt.z.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.y.clone(), lpt.z.clone(), na::zero())))
             }
             else if id == 2 {
-                (t, n, Some((lpt.z.clone(), lpt.x.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.z.clone(), lpt.x.clone(), na::zero())))
             }
             else {
-                (t, n, Some((lpt.x.clone(), lpt.y.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.x.clone(), lpt.y.clone(), na::zero())))
             }
         })
     }

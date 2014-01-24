@@ -5,7 +5,7 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};
 use implicit::Implicit;
-use ray::{Ray, RayCast};
+use ray::{Ray, RayCast, RayIntersection};
 use ray;
 use math::{N, V, M};
 
@@ -20,7 +20,7 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Transl
                                    geom:    &G,
                                    simplex: &mut S,
                                    ray:     &Ray)
-                                   -> Option<(N, V)> {
+                                   -> Option<RayIntersection> {
     let mut ltoi: N = Zero::zero();
 
     let _eps: N     = Float::epsilon();
@@ -82,16 +82,16 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Transl
         let sq_len_dir = na::sqnorm(&proj);
 
         if simplex.dimension() == _dim {
-            return Some((ltoi, ldir)) // FIXME: dir or -proj ?
+            return Some(RayIntersection::new(ltoi, ldir)) // FIXME: dir or -proj ?
         }
         else if sq_len_dir <= _eps_tol * simplex.max_sq_len() {
             // Return ldir: the last projection plane is tangeant to the intersected surface.
-            return Some((ltoi, ldir))
+            return Some(RayIntersection::new(ltoi, ldir))
         }
         else if sq_len_dir >= old_sq_len {
             // use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
-            return Some((ltoi, dir)) // FIXME: dir or -proj ?
+            return Some(RayIntersection::new(ltoi, dir)) // FIXME: dir or -proj ?
         }
 
         old_sq_len = sq_len_dir;
@@ -100,31 +100,31 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Transl
 }
 
 impl RayCast for Cylinder {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
 impl RayCast for Cone {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
 impl RayCast for Capsule {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
 impl RayCast for Convex {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }
 
 impl RayCast for Segment {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         // XXX: optimize if na::dim::<V>() == 2 && self.margin().is_zero()
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
@@ -132,7 +132,7 @@ impl RayCast for Segment {
 
 impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
 RayCast for MinkowskiSum<'a, G1, G2> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
     }
 }

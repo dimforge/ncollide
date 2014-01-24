@@ -23,23 +23,75 @@ impl Ray {
     }
 }
 
+/// Structure containing the result of a ray cast.
+pub struct RayIntersection {
+    /// The time of impact of the ray with the object.
+    ///
+    /// The exact contact point is: `orig + dir * toi` where `orig` is the origin of the ray; `dir`
+    /// is its direction and `toi` is the value of this field.
+    toi:    N,
+
+    /// The normal at the intersection point.
+    normal: V,
+
+    #[cfg(dim3)]
+    /// The textures coordinates at the intersection point.
+    ///
+    /// This is an `Option` because some shape do not support texture coordinates.
+    uvs:   Option<V>
+}
+
+impl RayIntersection {
+    #[cfg(dim3)]
+    #[inline]
+    /// Creates a new `RayIntersection`.
+    pub fn new_with_uvs(toi: N, normal: V, uvs: Option<V>) -> RayIntersection {
+        RayIntersection {
+            toi:    toi,
+            normal: normal,
+            uvs:    uvs
+        }
+    }
+
+    #[cfg(not(dim3))]
+    #[inline]
+    /// Creates a new `RayIntersection`.
+    pub fn new(toi: N, normal: V) -> RayIntersection {
+        RayIntersection {
+            toi:    toi,
+            normal: normal
+        }
+    }
+
+    #[cfg(dim3)]
+    #[inline]
+    /// Creates a new `RayIntersection`.
+    pub fn new(toi: N, normal: V) -> RayIntersection {
+        RayIntersection {
+            toi:    toi,
+            normal: normal,
+            uvs:    None
+        }
+    }
+}
+
 /// Traits of objects which can be tested for intersection with a ray.
 pub trait RayCast {
     /// Computes the time of impact between this geometry and a ray
     #[inline]
     fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
-        self.toi_and_normal_with_ray(ray).map(|(t, _)| t)
+        self.toi_and_normal_with_ray(ray).map(|inter| inter.toi)
     }
 
     /// Computes the intersection point between this geometry and a ray.
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)>;
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection>;
 
     /// Computes the intersection point and normal between this geometry and a ray.
     #[cfg(dim3)]
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
-        self.toi_and_normal_with_ray(ray).map(|(t, n)| (t, n, None))
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+        self.toi_and_normal_with_ray(ray)
     }
 
     /// Tests whether a ray intersects this geometry.
@@ -57,11 +109,13 @@ pub trait RayCast {
 
     /// Computes the time of impact, and normal between this transformed geometry and a ray.
     #[inline]
-    fn toi_and_normal_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<RayIntersection> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-        self.toi_and_normal_with_ray(&ls_ray).map(|(t, d)| {
-            (t, m.rotate(&d))
+        self.toi_and_normal_with_ray(&ls_ray).map(|mut inter| {
+            inter.normal = m.rotate(&inter.normal);
+
+            inter
         })
     }
 
@@ -69,11 +123,13 @@ pub trait RayCast {
     /// geometry and a ray.
     #[cfg(dim3)]
     #[inline]
-    fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<(N, V, Option<(N, N, N)>)> {
+    fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<RayIntersection> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-        self.toi_and_normal_and_uv_with_ray(&ls_ray).map(|(t, d, uv)| {
-            (t, m.rotate(&d), uv)
+        self.toi_and_normal_and_uv_with_ray(&ls_ray).map(|mut inter| {
+            inter.normal = m.rotate(&inter.normal);
+
+            inter
         })
     }
 

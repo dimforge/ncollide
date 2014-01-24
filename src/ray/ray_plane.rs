@@ -1,6 +1,6 @@
 use std::num::Zero;
 use nalgebra::na;
-use ray::{Ray, RayCast};
+use ray::{Ray, RayCast, RayIntersection};
 use geom::Plane;
 use math::{N, V};
 
@@ -29,9 +29,9 @@ impl RayCast for Plane {
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, V)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         plane_toi_with_ray(&Zero::zero(), &self.normal(), ray).map(|t| {
-            (t, self.normal())
+            RayIntersection::new(t, self.normal())
         })
     }
 }

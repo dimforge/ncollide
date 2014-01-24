@@ -1,8 +1,8 @@
 use std::num::Bounded;
 use nalgebra::na;
-use ray::{Ray, RayCast};
+use ray::{Ray, RayCast, RayIntersection};
 use geom::{ConcaveGeom, Compound};
-use math::{N, LV};
+use math::N;
 
 impl RayCast for Compound {
     fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
@@ -30,32 +30,32 @@ impl RayCast for Compound {
         }
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<(N, LV)> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
         let mut interferences: ~[uint] = ~[];
 
         self.approx_interferences_with_ray(ray, &mut interferences);
 
         // compute the minimum toi
-        let mut toi: (N, LV) = (Bounded::max_value(), na::zero());
+        let mut best = RayIntersection::new(Bounded::max_value(), na::zero());
 
         for i in interferences.iter() {
             self.map_part_at(*i, |objm, obj|
                           match obj.toi_and_normal_with_transform_and_ray(objm, ray) {
-                              None    => { },
-                              Some(t) => {
-                                  if *t.first_ref() < *toi.first_ref() {
-                                      toi = t
+                              None        => { },
+                              Some(inter) => {
+                                  if inter.toi < best.toi {
+                                      best = inter
                                   }
                               }
                           }
                          );
         }
 
-        if *toi.first_ref() == Bounded::max_value() {
+        if best.toi == Bounded::max_value() {
             None
         }
         else {
-            Some(toi)
+            Some(best)
         }
     }
 

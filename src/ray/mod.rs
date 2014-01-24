@@ -1,7 +1,7 @@
 //! Ray casting utilities.
 
 // types an traits
-pub use ray::ray::{Ray, RayCast};
+pub use ray::ray::{Ray, RayCast, RayIntersection};
 
 // functions
 pub use ray::ray_plane::plane_toi_with_ray;
