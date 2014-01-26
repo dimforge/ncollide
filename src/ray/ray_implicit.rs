@@ -1,4 +1,4 @@
-use std::num::{Zero, One, Bounded};
+use std::num::{Zero, Bounded};
 use nalgebra::na::{Identity, Translation, Indexable, Norm};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
@@ -27,13 +27,14 @@ pub fn implicit_toi_and_normal_with_ray<S: Simplex<V>,
             Some(inter) => {
                 if inter.toi == na::zero() {
                     // the ray is inside of the shape.
-                    let supp  = geom.support_point(m, &ray.dir);
-                    let shift = na::dot(&supp, &ray.dir) + na::cast(0.001);
-
+                    let supp    = geom.support_point(m, &ray.dir);
+                    let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001);
                     let new_ray = Ray::new(ray.orig + ray.dir * shift, -ray.dir);
 
-                    gjk_toi_and_normal_with_ray(m, geom, simplex, &new_ray).map(|inter| {
-                        RayIntersection::new(shift - inter.toi, -inter.normal)
+                    simplex.reset(supp - new_ray.orig); // FIXME: replace by? : simplex.translate_by(&(ray.orig - new_ray.orig));
+
+                    gjk_toi_and_normal_with_ray(m, geom, simplex, &new_ray).map(|new_inter| {
+                        RayIntersection::new(shift - new_inter.toi, new_inter.normal)
                     })
                 }
                 else {
@@ -53,7 +54,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
                                simplex: &mut S,
                                ray:     &Ray)
                                -> Option<RayIntersection> {
-    let mut ltoi: N = Zero::zero();
+    let mut ltoi: N = na::zero();
 
     let _eps: N     = Float::epsilon();
     let _eps_tol: N = _eps * na::cast(100.0);
@@ -64,7 +65,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
     let mut dir        = curr_ray.orig - m.translation();
 
     if dir.is_zero() {
-        dir.set(0, One::one())
+        dir.set(0, na::one())
     }
 
     let mut old_sq_len: N = Bounded::max_value();
@@ -91,10 +92,10 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
                 if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
                     // new lower bound
                     ldir = dir.clone();
-                    ltoi   = ltoi + t;
+                    ltoi = ltoi + t;
                     curr_ray.orig = ray.orig + ray.dir * ltoi;
-                    dir    = curr_ray.orig - support_point;
-                    simplex.reset(-dir);
+                    dir = curr_ray.orig - support_point;
+                    simplex.reset(-dir); // FIXME: could we simply translate the simpex by old_orig - new_orig ?
                     let _M: N = Bounded::max_value();
                     old_sq_len = _M;
                     continue
@@ -114,7 +115,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
         let sq_len_dir = na::sqnorm(&proj);
 
         if simplex.dimension() == _dim {
-            return Some(RayIntersection::new(ltoi, ldir)) // FIXME: dir or -proj ?
+            return Some(RayIntersection::new(ltoi, ldir))
         }
         else if sq_len_dir <= _eps_tol * simplex.max_sq_len() {
             // Return ldir: the last projection plane is tangeant to the intersected surface.
@@ -123,7 +124,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
         else if sq_len_dir >= old_sq_len {
             // use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
-            return Some(RayIntersection::new(ltoi, dir)) // FIXME: dir or -proj ?
+            return Some(RayIntersection::new(ltoi, dir))
         }
 
         old_sq_len = sq_len_dir;
