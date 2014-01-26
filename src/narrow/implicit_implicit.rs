@@ -201,5 +201,5 @@ pub fn toi<G1: Implicit<V, M>,
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_with_ray(&Ray::new(Zero::zero(), -dir))
+    cso.toi_with_ray(&Ray::new(Zero::zero(), -dir), true)
 }

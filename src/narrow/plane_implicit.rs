@@ -189,5 +189,5 @@ pub fn toi<G: Implicit<V, M>>(
     let plane_normal  = mplane.rotate(&plane.normal());
     let closest_point = other.support_point(mother, &-plane_normal);
 
-    plane.toi_with_transform_and_ray(mplane, &Ray::new(closest_point, dir.clone()))
+    plane.toi_with_transform_and_ray(mplane, &Ray::new(closest_point, dir.clone()), true)
 }

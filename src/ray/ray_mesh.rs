@@ -15,25 +15,25 @@ use math::V;
 
 
 impl RayCast for Mesh {
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, _: bool) -> Option<N> {
         self.bvt().cast_ray(
                 ray,
-                &|b, r| self.element_at(*b).toi_with_ray(r).map(|t| (t.clone(), t))
+                &|b, r| self.element_at(*b).toi_with_ray(r, true).map(|t| (t.clone(), t))
             ).map(|(_, res, _)| res)
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, _: bool) -> Option<RayIntersection> {
         self.bvt().cast_ray(
             ray,
-            &|b, r| self.element_at(*b).toi_and_normal_with_ray(r).map(
+            &|b, r| self.element_at(*b).toi_and_normal_with_ray(r, true).map(
                 |inter| (inter.toi.clone(), inter))).map(
                     |(_, res, _)| res)
     }
 
     #[cfg(dim3)]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, _: bool) -> Option<RayIntersection> {
         if !self.margin().is_zero() || self.uvs().is_none() {
-            return self.toi_and_normal_with_ray(ray);
+            return self.toi_and_normal_with_ray(ray, true);
         }
 
         let cast = self.bvt().cast_ray(

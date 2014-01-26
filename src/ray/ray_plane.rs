@@ -1,4 +1,3 @@
-use std::num::Zero;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Plane;
@@ -6,15 +5,11 @@ use math::{N, V};
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_ray(center: &V,
-                          normal: &V,
-                          ray:    &Ray)
-                          -> Option<N> {
+pub fn plane_toi_with_ray(center: &V, normal: &V, ray: &Ray) -> Option<N> {
     let dpos = center - ray.orig;
+    let t    = na::dot(normal, &dpos) / na::dot(normal, &ray.dir);
 
-    let t = na::dot(normal, &dpos) / na::dot(normal, &ray.dir);
-
-    if t >= Zero::zero() {
+    if t >= na::zero() {
         Some(t)
     }
     else {
@@ -24,14 +19,25 @@ pub fn plane_toi_with_ray(center: &V,
 
 impl RayCast for Plane {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
-        plane_toi_with_ray(&Zero::zero(), &self.normal(), ray)
-    }
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        let dpos = -ray.orig;
 
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        plane_toi_with_ray(&Zero::zero(), &self.normal(), ray).map(|t| {
-            RayIntersection::new(t, self.normal())
-        })
+        let dot_normal_dpos = na::dot(&self.normal(), &dpos);
+
+        if solid && dot_normal_dpos > na::zero() {
+            // The ray is inside of the solid half-space.
+            return Some(RayIntersection::new(na::zero(), na::zero()))
+        }
+
+        let t = dot_normal_dpos / na::dot(&self.normal(), &ray.dir);
+
+        if t >= na::zero() {
+            let n = if dot_normal_dpos > na::zero() { -self.normal() } else { self.normal() };
+
+            Some(RayIntersection::new(t, n))
+        }
+        else {
+            None
+        }
     }
 }

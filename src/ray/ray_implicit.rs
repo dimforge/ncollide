@@ -9,18 +9,50 @@ use ray::{Ray, RayCast, RayIntersection};
 use ray;
 use math::{N, V, M};
 
-/// Projects the origin on a geometry using the GJK algorithm.
-///
-/// # Arguments:
-///     * geom - the geometry to project the origin on
-///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometry boundary.
-pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translation<V>>(
-                                   m:       &_M,
-                                   geom:    &G,
-                                   simplex: &mut S,
-                                   ray:     &Ray)
-                                   -> Option<RayIntersection> {
+/// Cast a ray on a geometry using the GJK algorithm.
+pub fn implicit_toi_and_normal_with_ray<S: Simplex<V>,
+                                        G: Implicit<V, _M>,
+                                        _M: Translation<V>>(
+                                        m:       &_M,
+                                        geom:    &G,
+                                        simplex: &mut S,
+                                        ray:     &Ray,
+                                        solid:   bool)
+                                        -> Option<RayIntersection> {
+    let inter = gjk_toi_and_normal_with_ray(m, geom, simplex, ray);
+
+    if !solid {
+        match inter {
+            None        => None,
+            Some(inter) => {
+                if inter.toi == na::zero() {
+                    // the ray is inside of the shape.
+                    let supp  = geom.support_point(m, &ray.dir);
+                    let shift = na::dot(&supp, &ray.dir) + na::cast(0.001);
+
+                    let new_ray = Ray::new(ray.orig + ray.dir * shift, -ray.dir);
+
+                    gjk_toi_and_normal_with_ray(m, geom, simplex, &new_ray).map(|inter| {
+                        RayIntersection::new(shift - inter.toi, -inter.normal)
+                    })
+                }
+                else {
+                    Some(inter)
+                }
+            }
+        }
+    }
+    else {
+        inter
+    }
+}
+
+fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translation<V>>(
+                               m:       &_M,
+                               geom:    &G,
+                               simplex: &mut S,
+                               ray:     &Ray)
+                               -> Option<RayIntersection> {
     let mut ltoi: N = Zero::zero();
 
     let _eps: N     = Float::epsilon();
@@ -100,39 +132,39 @@ pub fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Transl
 }
 
 impl RayCast for Cylinder {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Cone {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Capsule {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Convex {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Segment {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         // XXX: optimize if na::dim::<V>() == 2 && self.margin().is_zero()
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 
 impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
 RayCast for MinkowskiSum<'a, G1, G2> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }

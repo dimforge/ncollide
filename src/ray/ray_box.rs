@@ -5,50 +5,53 @@ use bounding_volume::AABB;
 use geom::Box;
 use implicit::HasMargin;
 use ray::{Ray, RayCast, RayIntersection};
-use ray::ray_implicit::gjk_toi_and_normal_with_ray;
+use ray::ray_implicit::implicit_toi_and_normal_with_ray;
 use math::{N, V};
 
 impl RayCast for Box {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
         if !self.margin().is_zero() {
-            gjk_toi_and_normal_with_ray(
+            implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
                 &mut JohnsonSimplex::<V>::new_w_tls(),
-                ray).map(|inter| inter.toi)
+                ray,
+                solid).map(|inter| inter.toi)
         }
         else {
-            AABB::new(-self.half_extents(), self.half_extents()).toi_with_ray(ray)
+            AABB::new(-self.half_extents(), self.half_extents()).toi_with_ray(ray, solid)
         }
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if self.margin().is_zero() {
-            AABB::new(-self.half_extents(), self.half_extents()).toi_and_normal_with_ray(ray)
+            AABB::new(-self.half_extents(), self.half_extents()).toi_and_normal_with_ray(ray, solid)
         }
         else {
-            gjk_toi_and_normal_with_ray(
+            implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
                 &mut JohnsonSimplex::<V>::new_w_tls(),
-                ray)
+                ray,
+                solid)
         }
     }
 
     #[cfg(dim3)]
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if self.margin().is_zero() {
-            AABB::new(-self.half_extents(), self.half_extents()).toi_and_normal_and_uv_with_ray(ray)
+            AABB::new(-self.half_extents(), self.half_extents()).toi_and_normal_and_uv_with_ray(ray, solid)
         }
         else {
-            gjk_toi_and_normal_with_ray(
+            implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
                 &mut JohnsonSimplex::<V>::new_w_tls(),
-                ray)
+                ray,
+                solid)
         }
     }
 }

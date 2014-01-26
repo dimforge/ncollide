@@ -22,64 +22,72 @@ fn ball_uv(normal: &V) -> Option<V> {
 
 impl RayCast for Ball {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
-        ball_toi_with_ray(na::zero(), self.radius(), ray)
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
+        ball_toi_with_ray(na::zero(), self.radius(), ray, solid).n1()
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        ball_toi_with_ray(na::zero(), self.radius(), ray).map(|n| {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);
+        inter.map(|n| {
             let pos    = ray.orig + ray.dir * n;
             let normal = na::normalize(&pos);
 
-            RayIntersection::new(n, normal)
+            RayIntersection::new(n, if inside { -normal } else { normal })
         })
     }
 
     #[cfg(dim3)]
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        ball_toi_with_ray(na::zero(), self.radius(), ray).map(|n| {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);
+
+        inter.map(|n| {
             let pos    = ray.orig + ray.dir * n;
             let normal = na::normalize(&pos);
             let uv     = ball_uv(&normal);
 
-            RayIntersection::new_with_uvs(n, normal, uv)
+            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, uv)
         })
     }
 
     #[inline]
-    fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray) -> Option<N> {
-        ball_toi_with_ray(m.translation(), self.radius(), ray)
+    fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray, solid: bool) -> Option<N> {
+        ball_toi_with_ray(m.translation(), self.radius(), ray, solid).n1()
     }
 }
 
 /// Computes the time of impact of a ray on a ball.
-pub fn ball_toi_with_ray(center: V, radius: N, ray: &Ray) -> Option<N>{
+pub fn ball_toi_with_ray(center: V, radius: N, ray: &Ray, solid: bool) -> (bool, Option<N>) {
     let dcenter = ray.orig - center;
 
     let b = na::dot(&dcenter, &ray.dir);
     let c = na::sqnorm(&dcenter) - radius * radius;
 
     if c > na::zero() && b > na::zero() {
-        None
+        (false, None)
     }
     else {
         let delta = b * b - c;
 
         if delta < na::zero() {
             // no solution
-            None
+            (false, None)
         }
         else {
             let t = -b - delta.sqrt();
 
-            if t < na::zero() {
+            if t <= na::zero() {
                 // orig inside of the ball
-                Some(na::zero())
+                if solid {
+                    (true, Some(na::zero()))
+                }
+                else {
+                    (true, Some(-b + delta.sqrt()))
+                }
             }
             else {
-                Some(t)
+                (false, Some(t))
             }
         }
     }

@@ -127,5 +127,5 @@ pub fn toi(c1: &M, dir: &V, b1: &Ball, c2: &M, b2: &Ball) -> Option<N> {
     let radius = b1.radius() + b2.radius();
     let center = c1.translation() - c2.translation();
 
-    ball_toi_with_ray(center, radius, &Ray::new(na::zero(), -dir))
+    ball_toi_with_ray(center, radius, &Ray::new(na::zero(), -dir), true).n1()
 }

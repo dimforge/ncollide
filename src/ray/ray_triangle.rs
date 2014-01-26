@@ -1,7 +1,7 @@
 use nalgebra::na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
-use ray::{Ray, RayCast, RayIntersection, gjk_toi_and_normal_with_ray};
+use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::V;
 
 #[cfg(dim3)]
@@ -15,24 +15,24 @@ use math::N;
 
 impl RayCast for Triangle {
     #[cfg(dim3)]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if self.margin().is_zero() {
             triangle_ray_intersection(self.a(), self.b(), self.c(), ray)
         }
         else {
-            gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
         }
     }
 
     #[cfg(dim2)]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         // FIXME: optimize that!
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 
     #[cfg(dim4)]
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        gjk_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray)
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
     }
 }
 

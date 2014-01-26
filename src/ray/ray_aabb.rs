@@ -10,7 +10,7 @@ use math::{N, V};
 use nalgebra::na::Vec3;
 
 impl RayCast for AABB {
-    fn toi_with_ray(&self, ray: &Ray) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
         let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
 
@@ -39,16 +39,21 @@ impl RayCast for AABB {
             }
         }
 
-        Some(tmin)
+        if tmin.is_zero() && !solid {
+            Some(tmax)
+        }
+        else {
+            Some(tmin)
+        }
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        ray_aabb(self, ray).map(|(t, n, _)| RayIntersection::new(t, n))
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        ray_aabb(self, ray, solid).map(|(t, n, _)| RayIntersection::new(t, n))
     }
 
     #[cfg(dim3)]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray) -> Option<RayIntersection> {
-        ray_aabb(self, ray).map(|(t, n, s)| {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        ray_aabb(self, ray, solid).map(|(t, n, s)| {
             let pt  = ray.orig + ray.dir * t;
             let lpt = (pt - *self.mins()) / (self.maxs() - *self.mins());
             let id  = s.abs();
@@ -66,11 +71,13 @@ impl RayCast for AABB {
     }
 }
 
-fn ray_aabb(aabb: &AABB, ray: &Ray) -> Option<(N, V, int)> {
-    let mut tmax: N = Bounded::max_value();
-    let mut tmin: N = -tmax;
-    let mut side = 0;
-    let mut diag = false;
+fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(N, V, int)> {
+    let mut tmax: N   = Bounded::max_value();
+    let mut tmin: N   = -tmax;
+    let mut near_side = 0;
+    let mut far_side  = 0;
+    let mut near_diag = false;
+    let mut far_diag  = false;
 
     for i in range(0u, na::dim::<V>()) {
         if ray.dir.at(i).is_zero() {
@@ -94,15 +101,22 @@ fn ray_aabb(aabb: &AABB, ray: &Ray) -> Option<(N, V, int)> {
             }
 
             if inter_with_near_plane > tmin {
-                tmin = inter_with_near_plane;
-                side = if flip_sides { -(i as int + 1) } else { i as int + 1 };
-                diag = false;
+                tmin      = inter_with_near_plane;
+                near_side = if flip_sides { -(i as int + 1) } else { i as int + 1 };
+                near_diag = false;
             }
             else if inter_with_near_plane == tmin {
-                diag = true;
+                near_diag = true;
             }
 
-            tmax = tmax.min(&inter_with_far_plane);
+            if inter_with_far_plane < tmax {
+                tmax     = inter_with_far_plane;
+                far_side = if !flip_sides { -(i as int + 1) } else { i as int + 1 };
+                far_diag = false;
+            }
+            else if inter_with_far_plane == tmax {
+                far_diag = true;
+            }
 
             if tmin > tmax {
                 return None;
@@ -111,21 +125,42 @@ fn ray_aabb(aabb: &AABB, ray: &Ray) -> Option<(N, V, int)> {
     }
 
     if tmin < na::cast(0.0) {
-        return None;
-    }
-
-    if diag {
-        Some((tmin, -na::normalize(&ray.dir), side))
-    }
-    else {
-        let mut normal: V = na::zero();
-
-        if side < 0 {
-            normal.set((-side - 1) as uint, na::one::<N>());
+        // the ray starts inside of the box
+        if solid {
+            Some((na::zero(), na::zero(), far_side))
         }
         else {
-            normal.set((side - 1) as uint, -na::one::<N>());
+            if far_diag {
+                Some((tmax, -na::normalize(&ray.dir), far_side))
+            }
+            else {
+                let mut normal: V = na::zero();
+
+                if far_side < 0 {
+                    normal.set((-far_side - 1) as uint, -na::one::<N>());
+                }
+                else {
+                    normal.set((far_side - 1) as uint, na::one::<N>());
+                }
+
+                Some((tmax, normal, far_side))
+            }
         }
-        Some((tmin, normal, side))
+    }
+    else {
+        if near_diag {
+            Some((tmin, -na::normalize(&ray.dir), near_side))
+        }
+        else {
+            let mut normal: V = na::zero();
+
+            if near_side < 0 {
+                normal.set((-near_side - 1) as uint, na::one::<N>());
+            }
+            else {
+                normal.set((near_side - 1) as uint, -na::one::<N>());
+            }
+            Some((tmin, normal, near_side))
+        }
     }
 }

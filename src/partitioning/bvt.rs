@@ -143,7 +143,7 @@ impl<B, BV: RayCast> BVT<B, BV> {
         match self.tree {
             None        => None,
             Some(ref n) => {
-                if n.bounding_volume().toi_with_ray(ray).is_some() {
+                if n.bounding_volume().toi_with_ray(ray, true).is_some() {
                     n.cast_ray(ray, Bounded::max_value(), cast_fn)
                 }
                 else {
@@ -161,8 +161,8 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
                        cast_fn:     &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
         match *self {
             Internal(_, ref left, ref right) => {
-                let left_toi  = left.bounding_volume().toi_with_ray(ray);
-                let right_toi = right.bounding_volume().toi_with_ray(ray);
+                let left_toi  = left.bounding_volume().toi_with_ray(ray, true);
+                let right_toi = right.bounding_volume().toi_with_ray(ray, true);
 
                 match (left_toi, right_toi) {
                     (Some(t1), Some(t2)) => {
