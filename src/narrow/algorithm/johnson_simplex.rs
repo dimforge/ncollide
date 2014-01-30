@@ -482,7 +482,7 @@ mod test {
         bh.iter(|| {
             let mut spl = JohnsonSimplex::new(recursion.clone());
 
-            1000.times(|| {
+            for _ in range(0, 1000) {
                 spl.reset(a);
 
                 spl.add_point(b);
@@ -490,7 +490,7 @@ mod test {
                 spl.add_point(d);
 
                 spl.project_origin_and_reduce();
-            })
+            }
         })
     }
 
@@ -505,7 +505,7 @@ mod test {
         bh.iter(|| {
             let mut spl = JohnsonSimplex::new_w_tls();
 
-            1000.times(|| {
+            for _ in range(0, 1000) {
                 spl.reset(a);
 
                 spl.add_point(b);
@@ -513,7 +513,7 @@ mod test {
                 spl.add_point(d);
 
                 spl.project_origin_and_reduce();
-            })
+            }
         })
     }
 }

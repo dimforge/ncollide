@@ -18,7 +18,7 @@ pub type AnnotatedCSO<'a, G1, G2> = AnnotatedMinkowskiSum<'a, G1, Reflection<'a,
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
  */
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(ToStr)]
 pub struct MinkowskiSum<'a, G1, G2> {
     priv m1: &'a M,
     priv g1: &'a G1,
@@ -68,7 +68,7 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
  * * `G1`: type of the first object involved on the sum.
  * * `G2`: type of the second object involved on the sum.
  */
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(ToStr)]
 pub struct AnnotatedMinkowskiSum<'a, G1, G2> {
     priv m1: &'a M,
     priv g1: &'a G1,
