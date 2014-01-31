@@ -3,7 +3,6 @@
 use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
-use std::borrow;
 use std::util;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
@@ -206,7 +205,7 @@ impl<B, BV> DBVTInternal<B, BV> {
     fn is_right_internal_node(&self, r: &mut DBVTInternal<B, BV>) -> bool
     {
         match self.right {
-            Internal(ref i) => borrow::ref_eq(*i, r),
+            Internal(ref i) => &**i as *DBVTInternal<B, BV> == &*r as *DBVTInternal<B, BV>,
             _ => false
         }
     }
@@ -510,7 +509,7 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                 // FIXME: la.partial_optimise();
                 // FIXME: lb.partial_optimise();
 
-                if !borrow::ref_eq(la, lb) &&
+                if (&**la as *DBVTInternal<B, BV> != &**lb as *DBVTInternal<B, BV>) &&
                     la.bounding_volume.intersects(&lb.bounding_volume)
                 {
                     la.right.interferences_with_tree(&lb.right, out);

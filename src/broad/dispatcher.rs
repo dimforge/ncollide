@@ -1,5 +1,3 @@
-use std::borrow;
-
 /// Trait of dispatcher.
 ///
 /// A (collision) dispatcher typically takes two bodies in parameter and return the corresponding
@@ -22,6 +20,6 @@ impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
     }
 
     fn is_valid(&self, a: &B, b: &B) -> bool {
-        !borrow::ref_eq(a, b)
+        a as *B != b as *B
     }
 }

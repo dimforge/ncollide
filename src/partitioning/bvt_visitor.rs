@@ -1,6 +1,5 @@
 //! Trait of visitors of bounding volume based tree.
 
-use std::borrow;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 
@@ -89,7 +88,7 @@ BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
 
     #[inline]
     fn visit_leaf(&mut self, b: &B, bv: &BV) {
-        if !borrow::ref_eq(self.bv, bv) && bv.intersects(self.bv) {
+        if (self.bv as *BV) != (bv as *BV) && bv.intersects(self.bv) {
             self.collector.push(b.clone())
         }
     }
