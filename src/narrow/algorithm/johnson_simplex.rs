@@ -167,7 +167,7 @@ impl RecursionTemplate {
         // end to begin offsets
         offsets.unshift(0u);
         offsets.reverse();
-        offsets.pop();
+        let _ = offsets.pop();
 
         let rev_offsets = offsets.map(|&e| pts.len() - e);
         let num_leaves = rev_offsets[0];
@@ -289,7 +289,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
          * second loop: find the subsimplex containing the projection
          */
         let mut offsets_iter = recursion.offsets.rev_iter();
-        offsets_iter.next(); // skip the first offset
+        let     _            = offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
             // for each sub-simplex ...
             while curr != end {
@@ -427,7 +427,7 @@ impl ToStr for RecursionTemplate {
         res = res + "num_determinants: " + self.num_determinants.to_str();
 
         let mut recursion_offsets_skip_1 = self.offsets.iter();
-        recursion_offsets_skip_1.next(); // Skip the two first entries
+        let     _                        = recursion_offsets_skip_1.next(); // Skip the two first entries
 
         for &off in recursion_offsets_skip_1 {
             while curr != off {
@@ -489,7 +489,7 @@ mod test {
                 spl.add_point(c);
                 spl.add_point(d);
 
-                spl.project_origin_and_reduce();
+                let _ = spl.project_origin_and_reduce();
             }
         })
     }
@@ -512,7 +512,7 @@ mod test {
                 spl.add_point(c);
                 spl.add_point(d);
 
-                spl.project_origin_and_reduce();
+                let _ = spl.project_origin_and_reduce();
             }
         })
     }

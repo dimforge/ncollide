@@ -49,6 +49,7 @@ Some common features are still missing:
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[deny(missing_doc)];
+#[deny(unused_result)];
 #[feature(macro_rules)];
 #[feature(managed_boxes)];
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")];

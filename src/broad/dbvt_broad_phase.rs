@@ -74,7 +74,7 @@ DBVTBroadPhase<B, BV, D, DV> {
                 for i in self.collector.iter() {
                     let bi = i.borrow().borrow();
                     if self.dispatcher.is_valid(&bu.get().object, &bi.get().object) {
-                        self.pairs.find_or_insert_lazy(
+                        let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(u.clone(), i.clone()),
                             || self.dispatcher.dispatch(&bu.get().object, &bi.get().object)
                             );

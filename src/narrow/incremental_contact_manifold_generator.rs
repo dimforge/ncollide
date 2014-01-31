@@ -120,7 +120,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
             };
 
             if remove {
-                self.contacts.swap_remove(i);
+                let _ = self.contacts.swap_remove(i);
             }
             else {
                 i = i + 1;

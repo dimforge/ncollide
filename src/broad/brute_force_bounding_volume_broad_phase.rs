@@ -172,7 +172,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 let bb2 = b2.borrow().borrow();
                 if self.dispatcher.is_valid(&bb1.get().body, &bb2.get().body) {
                     if bb2.get().bounding_volume.intersects(&bb1.get().bounding_volume) {
-                        self.pairs.find_or_insert_lazy(
+                        let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(b1, b2),
                             || self.dispatcher.dispatch(&bb1.get().body, &bb2.get().body)
                         );

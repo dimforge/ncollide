@@ -75,8 +75,8 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
     let mut niter = 0;
     loop {
         niter = niter + 1;
-        dir.normalize();
 
+        let _             = dir.normalize();
         let support_point = geom.support_point(m, &dir);
 
         // Clip the ray on the support plane (None <=> t < 0)

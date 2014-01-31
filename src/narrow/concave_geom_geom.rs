@@ -53,7 +53,7 @@ impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
                     detector = dispatcher.dispatch(g1, g2);
                 }
 
-                self.sub_detectors.insert_or_replace(*i, detector, false);
+                let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
             });
         }
 

@@ -84,7 +84,10 @@ impl Mesh {
                            margin:   N)
                            -> Mesh {
         assert!(indices.get().len() % MeshElement::nvertices(None::<E>) == 0);
-        uvs.as_ref().map(|uvs| assert!(uvs.get().len() == vertices.get().len()));
+
+        for uvs in uvs.iter() {
+            assert!(uvs.get().len() == vertices.get().len());
+        }
 
         let mut leaves = ~[];
         let mut bvs    = ~[];
