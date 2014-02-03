@@ -218,11 +218,8 @@ impl GeomGeomDispatcher {
                                                     prediction:        &N) {
         let p = if generate_manifold { na::zero() } else { prediction.clone() };
 
-        type IP    = ImplicitPlane<I>;
-        let d1: IP = ImplicitPlane::new(p.clone());
-
-        type PI    = PlaneImplicit<I>;
-        let d2: PI = PlaneImplicit::new(p.clone());
+        let d1 = ImplicitPlane::<I>::new(p.clone());
+        let d2 = PlaneImplicit::<I>::new(p.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -248,11 +245,8 @@ impl GeomGeomDispatcher {
                                                        simplex:           &S) {
         let p = if generate_manifold { na::zero() } else { prediction.clone() };
 
-        type I1I2    = ImplicitImplicit<S, G1, G2>;
-        let d1: I1I2 = ImplicitImplicit::new(p.clone(), simplex.clone());
-
-        type I2I1    = ImplicitImplicit<S, G2, G1>;
-        let d2: I2I1 = ImplicitImplicit::new(p.clone(), simplex.clone());
+        let d1 = ImplicitImplicit::<S, G1, G2>::new(p.clone(), simplex.clone());
+        let d2 = ImplicitImplicit::<S, G2, G1>::new(p.clone(), simplex.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -268,11 +262,8 @@ impl GeomGeomDispatcher {
     /// given geometry.
     pub fn register_default_concave_geom_geom_detector<G1: 'static + ConcaveGeom,
                                                        G2: 'static + Geom>(&mut self) {
-        type CGG      = ConcaveGeomGeomFactory<G1, G2>;
-        let  f1: CGG  = ConcaveGeomGeomFactory;
-
-        type GCG      = GeomConcaveGeomFactory<G2, G1>;
-        let  f2: GCG  = GeomConcaveGeomFactory;
+        let  f1 = ConcaveGeomGeomFactory::<G1, G2>;
+        let  f2 = GeomConcaveGeomFactory::<G2, G1>;
 
         // FIXME: find a way to factorize that?
         let key     = (TypeId::of::<G1>(), TypeId::of::<G2>());
@@ -292,8 +283,7 @@ impl GeomGeomDispatcher {
                                                              &mut self,
                                                              d:          D,
                                                              prediction: &N) {
-        type OSCMGD   = OSCMG<D>;
-        let d: OSCMGD = OSCMG::new(prediction.clone(), d);
+        let d = OSCMG::<D>::new(prediction.clone(), d);
         self.register_detector(d);
     }
 
