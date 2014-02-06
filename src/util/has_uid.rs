@@ -3,7 +3,7 @@
 use std::gc::Gc;
 use std::rc::Rc;
 use std::ptr;
-use extra::arc::{Arc, RWArc};
+use sync::{Arc, RWArc};
 
 /// Trait of objects having an unique identifier.
 pub trait HasUid {

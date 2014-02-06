@@ -4,7 +4,7 @@ use std::util;
 use std::num::Bounded;
 use std::vec;
 use std::local_data;
-use extra::arc::Arc;
+use sync::Arc;
 use extra::treemap::TreeMap;
 use nalgebra::na::{RealVec, Dim};
 use nalgebra::na;

@@ -2,7 +2,7 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 //!
 
-use extra::arc::Arc;
+use sync::Arc;
 use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;
 use ray::Ray;

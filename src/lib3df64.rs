@@ -57,6 +57,8 @@ Some common features are still missing:
 extern mod std;
 extern mod extra;
 extern mod nalgebra;
+extern mod sync;
+extern mod serialize;
 
 pub mod bounding_volume;
 pub mod geom;
