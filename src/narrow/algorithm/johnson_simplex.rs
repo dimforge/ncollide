@@ -1,11 +1,11 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
-use std::util;
+use std::mem;
 use std::num::Bounded;
 use std::vec;
 use std::local_data;
 use sync::Arc;
-use extra::treemap::TreeMap;
+use collections::TreeMap;
 use nalgebra::na::{RealVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
@@ -353,7 +353,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
                                         *recursion.permutation_list.unsafe_ref(id))).clone());
                             }
 
-                            util::swap(&mut self.exchange_points, &mut self.points);
+                            mem::swap(&mut self.exchange_points, &mut self.points);
                             self.exchange_points.clear();
                         }
                     }

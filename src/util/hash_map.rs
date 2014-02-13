@@ -1,7 +1,7 @@
 //! An hash map with a customizable hash function.
 
 use std::num;
-use std::util;
+use std::mem;
 use std::vec;
 use util::hash::HashFun;
 
@@ -139,8 +139,8 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
                 newhash[h] = i as int;
             }
 
-            util::swap(&mut newhash, &mut self.htable);
-            util::swap(&mut newnext, &mut self.next);
+            mem::swap(&mut newhash, &mut self.htable);
+            mem::swap(&mut newnext, &mut self.next);
         }
     }
 

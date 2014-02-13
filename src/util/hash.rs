@@ -1,6 +1,6 @@
 //! Trait for hash functions.
 
-use std::util;
+use std::mem;
 use std::hash::Hash;
 
 /// Hash function.
@@ -45,7 +45,7 @@ impl HashFun<(uint, uint)> for UintPairTWHash {
         let mut ib = b;
 
         if ia > ib {
-            util::swap(&mut ia, &mut ib)
+            mem::swap(&mut ia, &mut ib)
         }
 
         tomas_wang_hash(key_from_pair(ia, ib)) as uint

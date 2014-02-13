@@ -1,5 +1,5 @@
 use std::num::{Zero, Bounded};
-use std::util;
+use std::mem;
 use nalgebra::na::Indexable;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
@@ -27,7 +27,7 @@ impl RayCast for AABB {
                 let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
 
                 if inter_with_near_plane > inter_with_far_plane {
-                    util::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
+                    mem::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
                 }
 
                 tmin = tmin.max(&inter_with_near_plane);
@@ -94,7 +94,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(N, V, int)> {
 
             if inter_with_near_plane > inter_with_far_plane {
                 flip_sides = true;
-                util::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
+                mem::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
             }
             else {
                 flip_sides = false;

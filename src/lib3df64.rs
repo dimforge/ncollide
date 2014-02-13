@@ -59,6 +59,7 @@ extern mod extra;
 extern mod nalgebra;
 extern mod sync;
 extern mod serialize;
+extern mod collections;
 
 pub mod bounding_volume;
 pub mod geom;

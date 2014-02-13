@@ -3,7 +3,7 @@
 use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
-use std::util;
+use std::mem;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;
@@ -52,7 +52,7 @@ DBVT<B, BV> {
     /// Inserts a leaf to the tree.
     pub fn insert(&mut self, leaf: Gc<RefCell<DBVTLeaf<B, BV>>>) {
         let mut self_tree = None;
-        util::swap(&mut self_tree, &mut self.tree);
+        mem::swap(&mut self_tree, &mut self.tree);
 
         self.tree = match self_tree {
             None    => Some(Leaf(leaf)),
@@ -195,7 +195,7 @@ impl<B, BV> DBVTNode<B, BV> {
     fn invalidate(&mut self) -> DBVTNode<B, BV> {
         let mut res = Invalid;
 
-        util::swap(&mut res, self);
+        mem::swap(&mut res, self);
 
         res
     }
@@ -232,7 +232,7 @@ impl<B: 'static, BV: Translation<V> + 'static> DBVTLeaf<B, BV> {
               cache:     &mut Cache<B, BV>,
               curr_root: DBVTNode<B, BV>) -> Option<DBVTNode<B, BV>> {
         if !self.parent.is_detached() {
-            let (is_left, p) = util::replace(&mut self.parent, Detached).unwrap();
+            let (is_left, p) = mem::replace(&mut self.parent, Detached).unwrap();
 
             let pp           = unsafe { (*p).parent };
             let parent_left  = unsafe { (*p).left.invalidate() };
@@ -254,12 +254,12 @@ impl<B: 'static, BV: Translation<V> + 'static> DBVTLeaf<B, BV> {
                     }
 
                     if is_p_right_to_pp {
-                        util::swap(&mut (*pp).right, &mut other);
+                        mem::swap(&mut (*pp).right, &mut other);
                         // NOTE: the children have already been invalidated before
                         cache.retain(other.take_internal())
                     }
                     else {
-                        util::swap(&mut (*pp).left, &mut other);
+                        mem::swap(&mut (*pp).left, &mut other);
                         // NOTE: the children have already been invalidated before
                         cache.retain(other.take_internal())
                     }

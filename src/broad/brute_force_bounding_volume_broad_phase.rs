@@ -1,4 +1,4 @@
-use std::util;
+use std::mem;
 use std::gc::Gc;
 use std::cell::RefCell;
 use util::hash_map::HashMap;
@@ -131,7 +131,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
                         let mut at = self.objects.len() - 1;
 
-                        util::swap(&mut at, i);
+                        mem::swap(&mut at, i);
 
                         (lproxy, at)
                     }
@@ -146,7 +146,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
                         let mut at = self.sobjects.len() - 1;
 
-                        util::swap(&mut at, i);
+                        mem::swap(&mut at, i);
 
                         (lproxy, at)
                     }

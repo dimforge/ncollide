@@ -1,6 +1,6 @@
 //! Main data structure for contacts.
 
-use std::util;
+use std::mem;
 use math::{N, V};
 
 /// Geometric description of a contact.
@@ -35,7 +35,7 @@ impl Contact {
 impl Contact {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     pub fn flip(&mut self) {
-        util::swap(&mut self.world1, &mut self.world2);
+        mem::swap(&mut self.world1, &mut self.world2);
         self.normal = -self.normal;
     }
 }
