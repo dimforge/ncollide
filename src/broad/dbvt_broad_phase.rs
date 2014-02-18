@@ -1,6 +1,7 @@
 use std::gc::Gc;
 use std::cell::RefCell;
 use nalgebra::na::Translation;
+use nalgebra::na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::{DBVT, DBVTLeaf};
 use util::hash::UintTWHash;
@@ -74,9 +75,10 @@ DBVTBroadPhase<B, BV, D, DV> {
                 for i in self.collector.iter() {
                     let bi = i.borrow().borrow();
                     if self.dispatcher.is_valid(&bu.get().object, &bi.get().object) {
+                        let dispatcher = &mut self.dispatcher;
                         let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(u.clone(), i.clone()),
-                            || self.dispatcher.dispatch(&bu.get().object, &bi.get().object)
+                            || dispatcher.dispatch(&bu.get().object, &bi.get().object)
                             );
 
                         new_colls = new_colls + 1;
@@ -95,7 +97,7 @@ DBVTBroadPhase<B, BV, D, DV> {
         // Refactor that?
         if new_colls != 0 {
             let len          = self.pairs.len();
-            let num_removals = new_colls.clamp(&(len / 10), &len);
+            let num_removals = na::clamp(new_colls, len / 10, len);
 
             for i in range(self.update_off, self.update_off + num_removals) {
                 let id = i % self.pairs.len();

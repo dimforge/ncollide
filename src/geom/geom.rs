@@ -22,10 +22,10 @@ pub trait Geom : Volumetric  +
 /// a concave geometry.
 pub trait ConcaveGeom : Geom {
     /// Applies a function to each sub-geometry of this concave geometry.
-    fn map_part_at(&self, uint, |&M, &Geom| -> ());
+    fn map_part_at<T>(&self, uint, |&M, &Geom| -> T) -> T;
     /// Applies a transformation matrix and a function to each sub-geometry of this concave
     /// geometry.
-    fn map_transformed_part_at(&self, m: &M, uint, |&M, &Geom| -> ());
+    fn map_transformed_part_at<T>(&self, m: &M, uint, |&M, &Geom| -> T) -> T;
 
     // FIXME: replace those by a visitor?
     /// Computes the indices of every sub-geometry which might intersect a given AABB.

@@ -1,4 +1,4 @@
-use std::num::Real;
+use std::num::Float;
 use std::num;
 use nalgebra::na;
 use geom::Ball;
@@ -14,7 +14,7 @@ use nalgebra::na::Indexable;
 /// Computes the volume of a ball.
 #[inline]
 pub fn ball_volume(radius: &N) -> N {
-    let _pi: N = Real::pi();
+    let _pi: N = Float::pi();
     _pi * num::pow(radius.clone(), na::dim::<V>())
 }
 

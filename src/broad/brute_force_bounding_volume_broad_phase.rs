@@ -5,6 +5,7 @@ use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};
 use util::has_uid::HasUid;
+use nalgebra::na;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use math::N;
@@ -161,7 +162,8 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         let mut new_colls = 0u;
 
         for &b in self.objects.mut_iter() {
-            if b.borrow().with_mut(|b| b.update(&self.margin)) {
+            let margin = self.margin;
+            if b.borrow().with_mut(|b| b.update(&margin)) {
                 self.to_update.push(b)
             }
         }
@@ -172,9 +174,10 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 let bb2 = b2.borrow().borrow();
                 if self.dispatcher.is_valid(&bb1.get().body, &bb2.get().body) {
                     if bb2.get().bounding_volume.intersects(&bb1.get().bounding_volume) {
+                        let dispatcher = &mut self.dispatcher;
                         let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(b1, b2),
-                            || self.dispatcher.dispatch(&bb1.get().body, &bb2.get().body)
+                            || dispatcher.dispatch(&bb1.get().body, &bb2.get().body)
                         );
 
                         new_colls = new_colls + 1;
@@ -185,7 +188,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
         if new_colls != 0 {
             let len          = self.pairs.len();
-            let num_removals = new_colls.clamp(&(len / 10), &len);
+            let num_removals = na::clamp(new_colls, (len / 10), len);
 
             for i in range(self.update_off, self.update_off + num_removals) {
                 let id = i % self.pairs.len();

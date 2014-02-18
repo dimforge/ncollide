@@ -1,6 +1,6 @@
 #[doc(hidden)];
 
-use nalgebra::na::{DMat, Inv, RealVec};
+use nalgebra::na::{DMat, Inv, FloatVec};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use math::N;
@@ -10,7 +10,7 @@ pub struct BruteForceSimplex<_V> {
     points: ~[_V]
 }
 
-impl<_V: Clone + RealVec<N>>
+impl<_V: Clone + FloatVec<N>>
 BruteForceSimplex<_V> {
     pub fn new() -> BruteForceSimplex<_V> {
         BruteForceSimplex { points: ~[] }
@@ -113,7 +113,7 @@ BruteForceSimplex<_V> {
     }
 }
 
-impl<_V: Clone + RealVec<N>>
+impl<_V: Clone + FloatVec<N>>
 Simplex<_V> for BruteForceSimplex<_V> {
     #[inline]
     fn reset(&mut self, initial_point: _V) {

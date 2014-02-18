@@ -9,7 +9,7 @@ use nalgebra::na;
 
 
 #[cfg(dim3)]
-use std::num::Real;
+use std::num::Float;
 #[cfg(dim3)]
 use nalgebra::na::Indexable;
 #[cfg(dim3)]
@@ -27,7 +27,7 @@ pub fn cone_volume(half_height: &N, radius: &N) -> N {
 #[cfg(dim3)]
 #[inline]
 pub fn cone_volume(half_height: &N, radius: &N) -> N {
-    *radius * *radius * Real::pi() * *half_height * na::cast(2.0 / 3.0)
+    *radius * *radius * Float::pi() * *half_height * na::cast(2.0 / 3.0)
 }
 
 #[cfg(dim2)]

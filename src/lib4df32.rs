@@ -54,12 +54,12 @@ Some common features are still missing:
 #[feature(managed_boxes)];
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")];
 
-extern mod std;
-extern mod extra;
-extern mod nalgebra;
-extern mod sync;
-extern mod serialize;
-extern mod collections;
+extern crate std;
+extern crate extra;
+extern crate nalgebra;
+extern crate sync;
+extern crate serialize;
+extern crate collections;
 
 pub mod bounding_volume;
 pub mod geom;

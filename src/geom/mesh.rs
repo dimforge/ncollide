@@ -181,17 +181,17 @@ impl Mesh {
 
 impl ConcaveGeom for Mesh {
     #[inline(always)]
-    fn map_part_at(&self, i: uint, f: |&M, &Geom| -> ()) {
+    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom| -> T) -> T {
         let one: M = na::one();
 
-        self.map_transformed_part_at(&one, i, f);
+        self.map_transformed_part_at(&one, i, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom| -> ()) {
+    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom| -> T) -> T{
         let element = self.element_at(i);
 
-        f(m, &element as &Geom);
+        f(m, &element as &Geom)
     }
 
     #[inline]

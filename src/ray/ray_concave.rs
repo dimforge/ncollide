@@ -21,7 +21,7 @@ impl RayCast for Compound {
             self.map_part_at(*i, |objm, obj|
                           match obj.toi_with_transform_and_ray(objm, ray, solid) {
                               None        => { },
-                              Some(ref t) => toi = toi.min(t)
+                              Some(ref t) => toi = na::min(toi, *t)
                           }
                          );
         }

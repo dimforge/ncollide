@@ -81,14 +81,14 @@ impl Compound {
 
 impl ConcaveGeom for Compound {
     #[inline(always)]
-    fn map_part_at(&self, i: uint, f: |&M, &Geom| -> ()) {
+    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom| -> T) -> T{
         let (ref m, ref g) = self.shapes[i];
 
         f(m, *g)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, m: &M, i: uint, f: |&M, &Geom| -> ()) {
+    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom| -> T) -> T{
         let (ref lm, ref g) = self.shapes[i];
 
         f(&(m * *lm), *g)

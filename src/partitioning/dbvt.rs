@@ -358,7 +358,7 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                  */
 
                 let mut mut_internal = i;
-                let mut parent       = ptr::to_mut_unsafe_ptr(mut_internal);
+                let mut parent       = &mut *mut_internal as *mut DBVTInternal<B, BV>;
 
                 unsafe {
                     (*parent).bounding_volume.merge(&pto_insert.bounding_volume);
@@ -368,11 +368,11 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                     let mut left;
 
                     if (*parent).is_closest_to_left(&pto_insert.center) {
-                        curr = ptr::to_mut_unsafe_ptr(&mut (*parent).left);
+                        curr = &mut (*parent).left as *mut DBVTNode<B, BV>;
                         left = true;
                     }
                     else {
-                        curr = ptr::to_mut_unsafe_ptr(&mut (*parent).right);
+                        curr = &mut (*parent).right as *mut DBVTNode<B, BV>;
                         left = false;
                     }
 
@@ -383,15 +383,15 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                                 ci.bounding_volume.merge(&pto_insert.bounding_volume);
 
                                 if ci.is_closest_to_left(&pto_insert.center) { // FIXME
-                                    curr = ptr::to_mut_unsafe_ptr(&mut ci.left);
+                                    curr = &mut ci.left as *mut DBVTNode<B, BV>;
                                     left = true;
                                 }
                                 else {
-                                    curr = ptr::to_mut_unsafe_ptr(&mut ci.right);
+                                    curr = &mut ci.right as *mut DBVTNode<B, BV>;
                                     left = false;
                                 }
 
-                                parent = ptr::to_mut_unsafe_ptr(*ci);
+                                parent = &mut **ci as *mut DBVTInternal<B, BV>;
                             },
                             Leaf(ref l) => {
                                 let mut bl       = l.borrow().borrow_mut();
@@ -402,8 +402,8 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                                     Leaf(l.clone()),
                                     Leaf(to_insert.clone())));
 
-                                pl.parent         = LeftChildOf(ptr::to_mut_unsafe_ptr(internal));
-                                pto_insert.parent = RightChildOf(ptr::to_mut_unsafe_ptr(internal));
+                                pl.parent         = LeftChildOf(&mut *internal as *mut DBVTInternal<B, BV>);
+                                pto_insert.parent = RightChildOf(&mut *internal as *mut DBVTInternal<B, BV>);
 
                                 if left {
                                     (*parent).left = Internal(internal)
@@ -432,8 +432,8 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
                     Leaf(l),
                     Leaf(to_insert.clone())));
 
-                pl.parent         = LeftChildOf(ptr::to_mut_unsafe_ptr(root));
-                pto_insert.parent = RightChildOf(ptr::to_mut_unsafe_ptr(root));
+                pl.parent         = LeftChildOf(&mut *root as *mut DBVTInternal<B, BV>);
+                pto_insert.parent = RightChildOf(&mut *root as *mut DBVTInternal<B, BV>);
 
                 root
             },

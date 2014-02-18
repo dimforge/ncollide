@@ -129,7 +129,7 @@ impl<B, BV> BVTNode<B, BV> {
 
     fn depth(&self) -> uint {
         match *self {
-            Internal(_, ref left, ref right) => 1 + (left.depth().max(&right.depth())),
+            Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
             Leaf(_, _) => 1
         }
     }
@@ -192,11 +192,11 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
                         match best.cast_ray(ray, upper_bound, cast_fn) {
                             None    => other.cast_ray(ray, upper_bound, cast_fn),
                             Some(t) => {
-                                if farthest < *t.n0_ref() {
-                                    match other.cast_ray(ray, *t.n0_ref(), cast_fn) {
+                                if farthest < *t.ref0() {
+                                    match other.cast_ray(ray, *t.ref0(), cast_fn) {
                                         None         => Some(t),
                                         Some(tother) => {
-                                            if *t.n0_ref() < *tother.n0_ref() {
+                                            if *t.ref0() < *tother.ref0() {
                                                 Some(t)
                                             }
                                             else {
@@ -252,7 +252,7 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<
         let mut median = ~[];
 
         for l in leaves.iter() {
-            let center = l.n1_ref().translation();
+            let center = l.ref1().translation();
             median.push(center.at(sep_axis) as f64);
         }
 

@@ -46,7 +46,7 @@ impl AABB {
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
     pub fn new(mins: V, maxs: V) -> AABB {
-        assert!(mins <= maxs);
+        assert!(na::partial_le(&mins, &maxs));
 
         AABB {
             mins: mins,
@@ -70,25 +70,27 @@ impl AABB {
 impl BoundingVolume for AABB {
     #[inline]
     fn intersects(&self, other: &AABB) -> bool {
-        self.mins <= other.maxs && self.maxs >= other.mins
+        na::partial_le(&self.mins, &other.maxs) &&
+        na::partial_ge(&self.maxs, &other.mins)
     }
 
     #[inline]
     fn contains(&self, other: &AABB) -> bool {
-        self.mins <= other.mins && self.maxs >= other.maxs
+        na::partial_le(&self.mins, &other.mins) &&
+        na::partial_ge(&self.maxs, &other.maxs)
     }
 
     #[inline]
     fn merge(&mut self, other: &AABB) {
-        self.mins = self.mins.min(&other.mins);
-        self.maxs = self.maxs.max(&other.maxs);
+        self.mins = na::inf(&self.mins, &other.mins);
+        self.maxs = na::sup(&self.maxs, &other.maxs);
     }
 
     #[inline]
     fn merged(&self, other: &AABB) -> AABB {
         AABB {
-            mins: self.mins.min(&other.mins),
-            maxs: self.maxs.max(&other.maxs)
+            mins: na::inf(&self.mins, &other.mins),
+            maxs: na::sup(&self.maxs, &other.maxs)
         }
     }
 }

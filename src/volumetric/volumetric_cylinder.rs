@@ -8,7 +8,7 @@ use nalgebra::na::Indexable;
 use nalgebra::na;
 
 #[cfg(dim3)]
-use std::num::Real;
+use std::num::Float;
 #[cfg(dim3)]
 use nalgebra::na::Indexable;
 #[cfg(dim3)]
@@ -27,7 +27,7 @@ pub fn cylinder_volume(half_height: &N, radius: &N) -> N {
 #[cfg(dim3)]
 #[inline]
 pub fn cylinder_volume(half_height: &N, radius: &N) -> N {
-    half_height * *radius * *radius * Real::pi() * na::cast(2.0)
+    half_height * *radius * *radius * Float::pi() * na::cast(2.0)
 }
 
 #[cfg(dim2)]

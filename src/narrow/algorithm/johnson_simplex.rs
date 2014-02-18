@@ -6,7 +6,7 @@ use std::vec;
 use std::local_data;
 use sync::Arc;
 use collections::TreeMap;
-use nalgebra::na::{RealVec, Dim};
+use nalgebra::na::{FloatVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use math::N;
@@ -225,7 +225,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
+impl<_V: Clone + FloatVec<N>> JohnsonSimplex<_V> {
     fn do_project_origin(&mut self, reduce: bool) -> _V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
@@ -371,7 +371,7 @@ impl<_V: Clone + RealVec<N>> JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + RealVec<N>>
+impl<_V: Clone + FloatVec<N>>
 Simplex<_V> for JohnsonSimplex<_V> {
     #[inline]
     fn reset(&mut self, pt: _V) {

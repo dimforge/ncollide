@@ -43,18 +43,16 @@ impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
         g1.approx_interferences_with_aabb(&ls_aabb2, &mut self.interferences);
 
         for i in self.interferences.iter() {
-            g1.map_part_at(*i, |_, g1| {
-                let detector;
-                
+            let detector = g1.map_part_at(*i, |_, g1| {
                 if swap {
-                    detector = dispatcher.dispatch(g2, g1);
+                    dispatcher.dispatch(g2, g1)
                 }
                 else {
-                    detector = dispatcher.dispatch(g1, g2);
+                    dispatcher.dispatch(g1, g2)
                 }
-
-                let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
             });
+
+            let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
         }
 
         self.interferences.clear();
