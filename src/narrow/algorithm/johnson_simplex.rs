@@ -469,7 +469,7 @@ mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use narrow::algorithm::simplex::Simplex;
     use nalgebra::na::Vec3;
-    use extra::test::BenchHarness;
+    use test::BenchHarness;
 
     #[bench]
     fn bench_johnson_simplex(bh: &mut BenchHarness) {

@@ -350,9 +350,8 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
 mod test {
     use super::HashMap;
     use std::hashmap;
-    use extra::test::BenchHarness;
+    use test::BenchHarness;
     use util::hash::{UintTWHash, UintPairTWHash};
-    use extra::time;
 
     // NOTE: some tests are simply copy-pasted from std::hashmap tests.
     #[test]
@@ -526,23 +525,5 @@ mod test {
                 assert!(m.find(&(i, i)).is_none())
             }
         })
-    }
-
-    #[test]
-    fn abench_insert_find_this() {
-        let before = time::precise_time_ns();
-
-        let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new_with_capacity(20000, UintPairTWHash::new());
-
-        for i in range(0u, 20000) {
-            m.insert((i, i), i);
-        }
-
-        for i in range(0u, 20000) {
-            assert!(*m.find(&(i, i)).unwrap() == i)
-        }
-
-        println!("{}", (time::precise_time_ns() - before) as f64 / 1000000.0);
-
     }
 }

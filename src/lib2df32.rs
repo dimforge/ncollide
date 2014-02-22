@@ -60,6 +60,8 @@ extern crate nalgebra;
 extern crate sync;
 extern crate serialize;
 extern crate collections;
+#[cfg(test)]
+extern crate test;
 
 pub mod bounding_volume;
 pub mod geom;
