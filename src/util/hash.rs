@@ -1,30 +1,11 @@
 //! Trait for hash functions.
 
 use std::mem;
-use std::hash::Hash;
 
 /// Hash function.
 pub trait HashFun<K> {
     /// Hash function.
     fn hash(&self, &K) -> uint;
-}
-
-/// Hash function for everything implementing the `Hash` trait.
-#[deriving(Clone, Encodable, Decodable)]
-pub struct StdHash { priv unused: uint } // FIXME: ICE if the struct is zero-sized
-
-impl StdHash {
-    /// Creates a new StdHash.
-    pub fn new() -> StdHash {
-        StdHash { unused: 0 }
-    }
-}
-
-impl<T: Hash> HashFun<T> for StdHash {
-    #[inline]
-    fn hash(&self, t: &T) -> uint {
-        t.hash() as uint
-    }
 }
 
 /// Hash function for pairs of `uint`, using the Tomas Wang hash.
@@ -48,7 +29,7 @@ impl HashFun<(uint, uint)> for UintPairTWHash {
             mem::swap(&mut ia, &mut ib)
         }
 
-        tomas_wang_hash(key_from_pair(ia, ib)) as uint
+        tomas_wang_hash(key_from_pair(ia, ib))
     }
 }
 

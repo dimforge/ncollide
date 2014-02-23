@@ -237,6 +237,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
 /// Construction function for a kdree.
 ///
 /// Use this as a parameter of `new_with_partitioner`.
+#[allow(unnecessary_typecast)]
 pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<B, AABB> {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");

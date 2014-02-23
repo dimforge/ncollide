@@ -157,7 +157,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
 
-            (true, (self.num_elem - 1) as uint)
+            (true, self.num_elem - 1)
         }
         else {
             if replace {
