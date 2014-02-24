@@ -1,6 +1,6 @@
 //! Enum grouping the most useful geometric shapes.
 
-use std::unstable::intrinsics::TypeId;
+use std::intrinsics::TypeId;
 use std::cast;
 use ray::{Ray, RayCast};
 use volumetric::Volumetric;

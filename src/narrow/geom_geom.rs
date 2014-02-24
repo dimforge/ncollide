@@ -1,7 +1,7 @@
 //! Collision detector between two `~Geom`.
 
-use std::unstable::intrinsics::TypeId;
-use std::hashmap::HashMap;
+use std::intrinsics::TypeId;
+use collections::HashMap;
 use nalgebra::na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Box, Ball, Capsule, Convex, Cylinder, Compound,
            Mesh, Triangle, Segment, Plane};

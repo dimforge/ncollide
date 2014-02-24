@@ -349,7 +349,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
 #[cfg(test)]
 mod test {
     use super::HashMap;
-    use std::hashmap;
+    use collections::hashmap;
     use test::BenchHarness;
     use util::hash::{UintTWHash, UintPairTWHash};
 
