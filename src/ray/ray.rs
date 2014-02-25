@@ -4,7 +4,7 @@ use nalgebra::na::{Rotate, Transform};
 use math::{N, V, M};
 
 /// A Ray.
-#[deriving(ToStr, Encodable, Decodable)]
+#[deriving(Show, Encodable, Decodable)]
 pub struct Ray {
     /// Starting point of the ray.
     orig: V,

@@ -418,51 +418,51 @@ Simplex<_V> for JohnsonSimplex<_V> {
     }
 }
 
-impl ToStr for RecursionTemplate {
-    fn to_str(&self) -> ~str {
-        let mut res  = ~"RecursionTemplate { ";
-        let mut curr = self.num_leaves;
-        let mut dim  = 1;
-
-        res = res + "num_determinants: " + self.num_determinants.to_str();
-
-        let mut recursion_offsets_skip_1 = self.offsets.iter();
-        let     _                        = recursion_offsets_skip_1.next(); // Skip the two first entries
-
-        for &off in recursion_offsets_skip_1 {
-            while curr != off {
-                res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
-
-                for i in range(0u, dim) {
-                    res = res + self.permutation_list[i + curr].to_str();
-                    if i != dim - 1 {
-                        res = res + " ";
-                    }
-                }
-
-                res = res + " - ";
-
-                for i in range(1u, dim) {
-                    res = res + self.sub_determinants[i + curr].to_str();
-                    if i != dim - 1 {
-                        res = res + " ";
-                    }
-                }
-
-                res  = res + ")";
-                curr = curr + dim;
-            }
-
-            dim = dim + 1;
-        }
-
-        res = res + " }\n";
-
-        res = res + "offsets: " + self.offsets.to_str();
-
-        res
-    }
-}
+// impl ToStr for RecursionTemplate {
+//     fn to_str(&self) -> ~str {
+//         let mut res  = ~"RecursionTemplate { ";
+//         let mut curr = self.num_leaves;
+//         let mut dim  = 1;
+// 
+//         res = res + "num_determinants: " + self.num_determinants.to_str();
+// 
+//         let mut recursion_offsets_skip_1 = self.offsets.iter();
+//         let     _                        = recursion_offsets_skip_1.next(); // Skip the two first entries
+// 
+//         for &off in recursion_offsets_skip_1 {
+//             while curr != off {
+//                 res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
+// 
+//                 for i in range(0u, dim) {
+//                     res = res + self.permutation_list[i + curr].to_str();
+//                     if i != dim - 1 {
+//                         res = res + " ";
+//                     }
+//                 }
+// 
+//                 res = res + " - ";
+// 
+//                 for i in range(1u, dim) {
+//                     res = res + self.sub_determinants[i + curr].to_str();
+//                     if i != dim - 1 {
+//                         res = res + " ";
+//                     }
+//                 }
+// 
+//                 res  = res + ")";
+//                 curr = curr + dim;
+//             }
+// 
+//             dim = dim + 1;
+//         }
+// 
+//         res = res + " }\n";
+// 
+//         res = res + "offsets: " + self.offsets.to_str();
+// 
+//         res
+//     }
+// }
 
 #[cfg(dim3, f64, test)]
 mod test {

@@ -3,7 +3,7 @@
 use math::N;
 
 /// Implicit description of a capsule geometry with its principal axis aligned with the `x` axis.
-#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
+#[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Capsule {
     priv half_height: N,
     priv radius:      N,

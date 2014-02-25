@@ -4,7 +4,7 @@ use nalgebra::na::Cast;
 use math::N;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
-#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
+#[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Cone {
     priv half_height: N,
     priv radius:      N,

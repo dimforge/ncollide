@@ -1,7 +1,7 @@
 /// Implicit representation of the reflection of a geometry.
 ///
 /// A reflection is obtained with the central symmetry with regard to the origin.
-#[deriving(ToStr)]
+#[deriving(Show)]
 pub struct Reflection<'a, G> {
     priv g: &'a G
 }

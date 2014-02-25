@@ -10,7 +10,7 @@ use math::{N, V};
 /// # Parameters:
 ///   * N - type of an extent of the box
 ///   * V - vector of extents. This determines the box dimension
-#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
+#[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Box {
     priv half_extents: V,
     priv margin:       N

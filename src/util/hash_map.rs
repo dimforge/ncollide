@@ -219,7 +219,7 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
                 self.next[self.num_elem] = -1;
             }
 
-            Some(removed)
+            removed
         }
         else {
             None
