@@ -23,8 +23,8 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
     /// Builds a new brute force broad phase based on loose bounding volumes.
     ///
     /// # Arguments:
-    ///     * `b` - collision dispatcher.
-    ///     * `margin` - loosening margin.
+    /// * `b` - collision dispatcher.
+    /// * `margin` - loosening margin.
     pub fn new(b: B, margin: N) -> BoundingVolumeProxy<B, BV> {
         BoundingVolumeProxy {
             bounding_volume: b.bounding_volume().loosened(margin),

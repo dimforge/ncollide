@@ -38,6 +38,7 @@ distcheck:
 	make -C $(tmp)
 	make -C $(tmp) test
 	make -C $(tmp) bench
+	make -C $(tmp) doc
 	rm -rf $(tmp)
 
 doc:

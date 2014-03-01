@@ -251,10 +251,10 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Inserts or replace an element.
     ///
     /// # Arguments.
-    ///     * `key` - key of the element to add.
-    ///     * `value` - value to add.
-    ///     * `replace` - if true the new value will replace the existing value. If false, the old
-    ///     value is kept if it exists.
+    /// * `key` - key of the element to add.
+    /// * `value` - value to add.
+    /// * `replace` - if true the new value will replace the existing value. If false, the old
+    ///               value is kept if it exists.
     pub fn insert_or_replace<'a>(&'a mut self, key: K, value: V, replace: bool) -> &'a mut V {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 

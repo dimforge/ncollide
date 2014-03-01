@@ -148,13 +148,18 @@ impl<BV: Translation<V>, B> DBVTInternal<B, BV> {
 }
 
 #[deriving(Clone)]
-enum LeafState<B, BV> {
-    RightChildOf(*mut DBVTInternal<B, BV>),
-    LeftChildOf(*mut DBVTInternal<B, BV>),
-    Detached
+/// State of a leaf.
+pub enum DBVTLeafState<B, BV> {
+    /// This leaf is the right child of another node.
+    priv RightChildOf(*mut DBVTInternal<B, BV>),
+    /// This leaf is the left child of another node.
+    priv LeftChildOf(*mut DBVTInternal<B, BV>),
+    /// This leaf is detached from any tree.
+    priv Detached
 }
 
-impl<B, BV> LeafState<B, BV> {
+impl<B, BV> DBVTLeafState<B, BV> {
+    /// Indicates whether this leaf is detached.
     pub fn is_detached(&self) -> bool {
         match *self {
             Detached => true,
@@ -162,7 +167,8 @@ impl<B, BV> LeafState<B, BV> {
         }
     }
 
-    pub fn unwrap(self) -> (bool, *mut DBVTInternal<B, BV>) {
+    /// Returns a pointer to this leaf parent and `true` if it is the left child.
+    fn unwrap(self) -> (bool, *mut DBVTInternal<B, BV>) {
         match self {
             RightChildOf(p) => (false, p),
             LeftChildOf(p)  => (true, p),
@@ -181,7 +187,7 @@ pub struct DBVTLeaf<B, BV> {
     /// An user-defined object.
     object:          B,
     /// This node parent.
-    parent:          LeafState<B, BV>
+    parent:          DBVTLeafState<B, BV>
 }
 
 impl<B, BV> DBVTNode<B, BV> {

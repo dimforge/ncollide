@@ -21,18 +21,19 @@ enum BVTNode<B, BV> {
     Leaf(BV, B)
 }
 
-enum Partition<B, BV> {
+/// Result of a binary partitioning.
+pub enum BinaryPartition<B, BV> {
+    /// Result of the partitioning of one element.
     Part(B),
+    /// Result of the partitioning of several elements.
     Parts(~[(B, BV)], ~[(B, BV)])
 }
-
-type PartFnResult<B, BV> = (BV, Partition<B, BV>);
 
 impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner(leaves:      ~[(B, BV)],
-                                partitioner: |uint, ~[(B, BV)]| -> PartFnResult<B, BV>)
+                                partitioner: |uint, ~[(B, BV)]| -> (BV, BinaryPartition<B, BV>))
                                 -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
@@ -238,7 +239,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
 ///
 /// Use this as a parameter of `new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<B, AABB> {
+pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> (AABB, BinaryPartition<B, AABB>) {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }
@@ -287,14 +288,14 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> PartFnResult<
 
 fn _new_with_partitioner<B, BV>(depth:       uint,
                                 leaves:      ~[(B, BV)],
-                                partitioner: |uint, ~[(B, BV)]| -> PartFnResult<B, BV>)
+                                partitioner: |uint, ~[(B, BV)]| -> (BV, BinaryPartition<B, BV>))
                                -> BVTNode<B, BV> {
     __new_with_partitioner(depth, leaves, partitioner)
 }
 
 fn __new_with_partitioner<B, BV>(depth:       uint,
                                  leaves:      ~[(B, BV)],
-                                 partitioner: |uint, ~[(B, BV)]| -> PartFnResult<B, BV>)
+                                 partitioner: |uint, ~[(B, BV)]| -> (BV, BinaryPartition<B, BV>))
                                  -> BVTNode<B, BV> {
     let (bv, partitions) = partitioner(depth, leaves);
 

@@ -18,14 +18,14 @@ pub enum GJKResult<_V, Dir> {
     NoIntersection(Dir)
 }
 
-///  Computes the closest points between two convex geometries unsing the GJK algorithm.
+/// Computes the closest points between two convex geometries unsing the GJK algorithm.
 ///
-///  # Arguments:
-///     * `g1`      - first geometry.
-///     * `g2`      - second geometry.
-///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
-///     compute such point.
+/// # Arguments:
+/// * `g1`      - first geometry.
+/// * `g2`      - second geometry.
+/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized with
+///               at least one point on the geometries CSO. See `minkowski_sum::cso_support_point`
+///               to compute such point.
 pub fn closest_points<S:  Simplex<AnnotatedPoint>,
                       G1: Implicit<V, M>,
                       G2: Implicit<V, M>>(
@@ -42,15 +42,15 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
-///  Computes the closest points between two convex geometries without their margins unsing the GJK
-///  algorithm.
+/// Computes the closest points between two convex geometries without their margins unsing the GJK
+/// algorithm.
 ///
-///  # Arguments:
-///     * `g1`      - first geometry.
-///     * `g2`      - second geometry.
-///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
-///     compute such point.
+/// # Arguments:
+/// * `g1`      - first geometry.
+/// * `g2`      - second geometry.
+/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
+///               with at least one point on the geometries CSO. See
+///               `minkowski_sum::cso_support_point` to compute such point.
 pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
                                      G1: Implicit<V, M>,
                                      G2: Implicit<V, M>>(
@@ -65,15 +65,15 @@ pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
     project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
-///  Computes the closest points between two convex geometries without their margins unsing the GJK
-///  algorithm.
+/// Computes the closest points between two convex geometries without their margins unsing the GJK
+/// algorithm.
 ///
-///  # Arguments:
-///     * `g1`      - first geometry.
-///     * `g2`      - second geometry.
-///     * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
-///     compute such point.
+/// # Arguments:
+/// * `g1`      - first geometry.
+/// * `g2`      - second geometry.
+/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
+///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
+///               compute such point.
 pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
                                                    G1: Implicit<V, M>,
                                                    G2: Implicit<V, M>>(
@@ -99,9 +99,9 @@ pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
 /// Projects the origin on a geometry unsing the GJK algorithm.
 ///
 /// # Arguments:
-///     * geom - the geometry to project the origin on
-///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometry boundary.
+/// * geom - the geometry to project the origin on
+/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
+///             with at least one point on the geometry boundary.
 pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<N>, _M>(
                       m:       &_M,
                       geom:    &G,
@@ -151,9 +151,9 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<N>, _M>(
 /// from the origin.
 ///
 /// # Arguments:
-///     * geom - the geometry to project the origin on
-///     * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-///     with at least one point on the geometry boundary.
+/// * geom - the geometry to project the origin on
+/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
+///             with at least one point on the geometry boundary.
 pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<N>, _M>(
                                     m:        &_M,
                                     geom:     &G,

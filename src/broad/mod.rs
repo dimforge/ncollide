@@ -7,7 +7,7 @@ pub use broad::broad_phase::{BroadPhase,
                              RayCastBroadPhase};
 pub use broad::dispatcher::{Dispatcher, NoIdDispatcher};
 pub use broad::brute_force_broad_phase::BruteForceBroadPhase;
-pub use broad::brute_force_bounding_volume_broad_phase::BruteForceBoundingVolumeBroadPhase;
+pub use broad::brute_force_bounding_volume_broad_phase::{BruteForceBoundingVolumeBroadPhase, BoundingVolumeProxy};
 pub use broad::dbvt_broad_phase::DBVTBroadPhase;
 
 // modules

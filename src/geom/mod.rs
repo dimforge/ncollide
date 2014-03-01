@@ -12,7 +12,7 @@ pub use geom::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoin
 pub use geom::reflection::Reflection;
 pub use geom::compound::Compound;
 pub use geom::geom_with_margin::GeomWithMargin;
-pub use geom::mesh::{Mesh, MeshElement};
+pub use geom::mesh::{Mesh, MeshElement, MeshPrimitive};
 pub use geom::segment::Segment;
 pub use geom::triangle::Triangle;
 pub use geom::geom::{Geom, ConcaveGeom};

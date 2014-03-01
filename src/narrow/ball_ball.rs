@@ -116,11 +116,11 @@ pub fn closest_points(center1: &V, b1: &Ball, center2: &V, b2: &Ball) -> (V, V) 
 /// Computes the Time Of Impact of two balls.
 ///
 /// Arguments:
-///     * `m1`  - the first ball transform.
-///     * `dir` - the direction of the first geometry movement.
-///     * `b1`  - the first ball.
-///     * `m2`  - the second ball transform.
-///     * `b2`  - the second ball.
+/// * `m1`  - the first ball transform.
+/// * `dir` - the direction of the first geometry movement.
+/// * `b1`  - the first ball.
+/// * `m2`  - the second ball transform.
+/// * `b2`  - the second ball.
 #[inline]
 pub fn toi(c1: &M, dir: &V, b1: &Ball, c2: &M, b2: &Ball) -> Option<N> {
     // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!

@@ -24,7 +24,7 @@ use geom::Triangle;
 ///
 /// Note that this trait is not useful per se since the Mesh is not parameterized by
 /// the element type. However, types implementing this trait is valid as a type
-/// alias for `E`.
+/// alias for `MeshPrimitive`.
 pub trait MeshElement {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
@@ -33,13 +33,13 @@ pub trait MeshElement {
 }
 
 #[cfg(dim2)]
-pub type E = Segment;
+pub type MeshPrimitive = Segment;
 
 #[cfg(dim3)]
-pub type E = Triangle;
+pub type MeshPrimitive = Triangle;
 
 #[cfg(dim4)]
-pub type E = Triangle; // XXX: this is wrong
+pub type MeshPrimitive = Triangle; // XXX: this is wrong
 
 /// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct Mesh {
@@ -83,7 +83,7 @@ impl Mesh {
                            normals:  Option<Arc<~[V]>>,
                            margin:   N)
                            -> Mesh {
-        assert!(indices.get().len() % MeshElement::nvertices(None::<E>) == 0);
+        assert!(indices.get().len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
 
         for uvs in uvs.iter() {
             assert!(uvs.get().len() == vertices.get().len());
@@ -96,9 +96,9 @@ impl Mesh {
             let vs = vertices.get();
             let is = indices.get();
 
-            for (i, is) in is.chunks(MeshElement::nvertices(None::<E>)).enumerate() {
+            for (i, is) in is.chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
                 let vs: &[V] = *vs;
-                let element: E = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
+                let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
                 // loosen for better persistancy
                 let id = na::one();
                 let bv= element.aabb(&id).loosened(margin);
@@ -170,10 +170,10 @@ impl Mesh {
 impl Mesh {
     /// Gets the i-th mesh element.
     #[inline(always)]
-    pub fn element_at(&self, i: uint) -> E {
+    pub fn element_at(&self, i: uint) -> MeshPrimitive {
         let vs: &[V] = *self.vertices.get();
-        let i        = i * MeshElement::nvertices(None::<E>);
-        let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<E>));
+        let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
+        let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
         MeshElement::new_with_vertices_and_indices(vs, is, self.margin.clone())
     }

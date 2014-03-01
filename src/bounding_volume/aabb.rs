@@ -55,8 +55,8 @@ impl AABB {
     }
 
     /// Creates an invalid AABB with:
-    ///     * `mins = Bounded::max_value()`
-    ///     * `maxs = Bounded::max_value()`.
+    /// * `mins = Bounded::max_value()`
+    /// * `maxs = Bounded::max_value()`.
     /// This is useful to build aabb using merges.
     pub fn new_invalid() -> AABB {
         let _M: V = Bounded::max_value();
