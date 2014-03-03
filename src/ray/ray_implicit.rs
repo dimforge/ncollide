@@ -7,12 +7,12 @@ use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};
 use implicit::Implicit;
 use ray::{Ray, RayCast, RayIntersection};
 use ray;
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Cast a ray on a geometry using the GJK algorithm.
-pub fn implicit_toi_and_normal_with_ray<S: Simplex<V>,
-                                        G: Implicit<V, _M>,
-                                        _M: Translation<V>>(
+pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vector>,
+                                        G: Implicit<Vector, _M>,
+                                        _M: Translation<Vector>>(
                                         m:       &_M,
                                         geom:    &G,
                                         simplex: &mut S,
@@ -48,17 +48,17 @@ pub fn implicit_toi_and_normal_with_ray<S: Simplex<V>,
     }
 }
 
-fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translation<V>>(
+fn gjk_toi_and_normal_with_ray<S: Simplex<Vector>, G: Implicit<Vector, _M>, _M: Translation<Vector>>(
                                m:       &_M,
                                geom:    &G,
                                simplex: &mut S,
                                ray:     &Ray)
                                -> Option<RayIntersection> {
-    let mut ltoi: N = na::zero();
+    let mut ltoi: Scalar = na::zero();
 
-    let _eps: N     = Float::epsilon();
-    let _eps_tol: N = _eps * na::cast(100.0);
-    let _dim        = na::dim::<V>();
+    let _eps: Scalar     = Float::epsilon();
+    let _eps_tol: Scalar = _eps * na::cast(100.0);
+    let _dim        = na::dim::<Vector>();
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
@@ -68,7 +68,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
         dir.set(0, na::one())
     }
 
-    let mut old_sq_len: N = Bounded::max_value();
+    let mut old_sq_len: Scalar = Bounded::max_value();
 
     let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
@@ -96,7 +96,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
                     curr_ray.orig = ray.orig + ray.dir * ltoi;
                     dir = curr_ray.orig - support_point;
                     simplex.reset(-dir); // FIXME: could we simply translate the simpex by old_orig - new_orig ?
-                    let _M: N = Bounded::max_value();
+                    let _M: Scalar = Bounded::max_value();
                     old_sq_len = _M;
                     continue
                 }
@@ -134,38 +134,38 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<V>, G: Implicit<V, _M>, _M: Translatio
 
 impl RayCast for Cylinder {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Cone {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Capsule {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Convex {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Segment {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        // XXX: optimize if na::dim::<V>() == 2 && self.margin().is_zero()
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        // XXX: optimize if na::dim::<Vector>() == 2 && self.margin().is_zero()
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
-impl<'a, G1: Implicit<V, M>, G2: Implicit<V, M>>
+impl<'a, G1: Implicit<Vector, Matrix>, G2: Implicit<Vector, Matrix>>
 RayCast for MinkowskiSum<'a, G1, G2> {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }

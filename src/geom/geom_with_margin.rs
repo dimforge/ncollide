@@ -2,7 +2,7 @@
 
 use std::num::Zero;
 use implicit::{Implicit, HasMargin};
-use math::{N, V};
+use math::{Scalar, Vector};
 
 /// Extends the wrapped geometry with its margin.
 ///
@@ -23,21 +23,21 @@ impl<'a, G> GeomWithMargin<'a, G> {
 
 impl<'a, G> HasMargin for GeomWithMargin<'a, G> {
     #[inline]
-    fn margin(&self) -> N {
+    fn margin(&self) -> Scalar {
         Zero::zero()
     }
 }
 
 
-impl<'a, _M, G: Implicit<V, _M>>
-Implicit<V, _M> for GeomWithMargin<'a, G> {
+impl<'a, _M, G: Implicit<Vector, _M>>
+Implicit<Vector, _M> for GeomWithMargin<'a, G> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &V) -> V {
+    fn support_point(&self, m: &_M, dir: &Vector) -> Vector {
         self.geom.support_point(m, dir)
     }
 
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, dir: &V) -> V {
+    fn support_point_without_margin(&self, m: &_M, dir: &Vector) -> Vector {
         self.geom.support_point(m, dir)
     }
 }

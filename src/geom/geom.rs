@@ -5,7 +5,7 @@ use std::cast;
 use ray::{Ray, RayCast};
 use volumetric::Volumetric;
 use bounding_volume::{HasAABB, AABB};
-use math::M;
+use math::Matrix;
 
 /// Trait implemented by each geometry supported by `ncollide`.
 pub trait Geom : Volumetric  +
@@ -22,10 +22,10 @@ pub trait Geom : Volumetric  +
 /// a concave geometry.
 pub trait ConcaveGeom : Geom {
     /// Applies a function to each sub-geometry of this concave geometry.
-    fn map_part_at<T>(&self, uint, |&M, &Geom| -> T) -> T;
+    fn map_part_at<T>(&self, uint, |&Matrix, &Geom| -> T) -> T;
     /// Applies a transformation matrix and a function to each sub-geometry of this concave
     /// geometry.
-    fn map_transformed_part_at<T>(&self, m: &M, uint, |&M, &Geom| -> T) -> T;
+    fn map_transformed_part_at<T>(&self, m: &Matrix, uint, |&Matrix, &Geom| -> T) -> T;
 
     // FIXME: replace those by a visitor?
     /// Computes the indices of every sub-geometry which might intersect a given AABB.

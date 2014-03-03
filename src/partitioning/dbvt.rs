@@ -9,7 +9,7 @@ use nalgebra::na::Translation;
 use nalgebra::na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
-use math::{N, V};
+use math::{Scalar, Vector};
 
 #[deriving(Encodable, Decodable)]
 enum UpdateState {
@@ -37,7 +37,7 @@ impl<B, BV> DBVT<B, BV> {
     }
 }
 
-impl<BV: 'static + BoundingVolume + Translation<V> + Clone,
+impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone,
      B:  'static + Clone>
 DBVT<B, BV> {
     /// Removes a leaf from the tree. Fails if the tree is empty.
@@ -118,7 +118,7 @@ struct DBVTInternal<B, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          V,
+    center:          Vector,
     /// This node left child.
     left:            DBVTNode<B, BV>,
     /// This node right child.
@@ -129,7 +129,7 @@ struct DBVTInternal<B, BV> {
     state:      UpdateState
 }
 
-impl<BV: Translation<V>, B> DBVTInternal<B, BV> {
+impl<BV: Translation<Vector>, B> DBVTInternal<B, BV> {
     /// Creates a new internal node.
     fn new(bounding_volume: BV,
            parent:          *mut DBVTInternal<B, BV>,
@@ -183,7 +183,7 @@ pub struct DBVTLeaf<B, BV> {
     /// The bounding volume of this node.
     bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          V,
+    center:          Vector,
     /// An user-defined object.
     object:          B,
     /// This node parent.
@@ -217,7 +217,7 @@ impl<B, BV> DBVTInternal<B, BV> {
     }
 }
 
-impl<B: 'static, BV: Translation<V> + 'static> DBVTLeaf<B, BV> {
+impl<B: 'static, BV: Translation<Vector> + 'static> DBVTLeaf<B, BV> {
     /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<B, BV> {
         DBVTLeaf {
@@ -299,7 +299,7 @@ impl<B: 'static, BV: Translation<V> + 'static> DBVTLeaf<B, BV> {
 }
 
 impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
-    fn sqdist_to(&self, to: &V) -> N {
+    fn sqdist_to(&self, to: &Vector) -> Scalar {
         match *self {
             Internal(ref i) => na::sqnorm(&(i.center - *to)),
             Leaf(ref l)     => {
@@ -323,13 +323,13 @@ impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
     */
 }
 
-impl<BV: 'static + Translation<V> + BoundingVolume, B: 'static> DBVTInternal<B, BV> {
-    fn is_closest_to_left(&self, pt: &V) -> bool {
+impl<BV: 'static + Translation<Vector> + BoundingVolume, B: 'static> DBVTInternal<B, BV> {
+    fn is_closest_to_left(&self, pt: &Vector) -> bool {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
     }
 
     /*
-    fn is_closest_to_right(&self, pt: &V) -> bool {
+    fn is_closest_to_right(&self, pt: &Vector) -> bool {
         !self.is_closest_to_left(pt)
     }
 
@@ -345,7 +345,7 @@ impl<BV: 'static + Translation<V> + BoundingVolume, B: 'static> DBVTInternal<B, 
     */
 }
 
-impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> DBVTNode<B, BV> {
+impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone, B: 'static + Clone> DBVTNode<B, BV> {
     /// Inserts a new leaf on this tree.
     fn insert(self,
               cache:     &mut Cache<B, BV>,
@@ -530,12 +530,12 @@ impl<BV: 'static + BoundingVolume + Translation<V> + Clone, B: 'static + Clone> 
 }
 
 /*
-impl<BV: 'static + BoundingVolume + RayCast<N, V> + Translation<V>,
+impl<BV: 'static + BoundingVolume + RayCast<Scalar, Vector> + Translation<Vector>,
      B:  'static,
-     V:  'static + AlgebraicVec<N>,
-     N:  Algebraic + Ord>
-DBVTNode<V, B, BV> {
-    fn interferences_with_ray(&self, ray: &Ray<V>, out: &mut ~[Gc<RefCell<f<V, B, BV>>]) {
+     Vector:  'static + AlgebraicVec<Scalar>,
+     Scalar:  Algebraic + Ord>
+DBVTNode<Vector, B, BV> {
+    fn interferences_with_ray(&self, ray: &Ray<Vector>, out: &mut ~[Gc<RefCell<f<Vector, B, BV>>]) {
         match (*self) {
             Internal(ref i) => {
                 if i.bounding_volume.intersects_ray(ray) {

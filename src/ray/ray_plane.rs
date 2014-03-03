@@ -1,11 +1,11 @@
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Plane;
-use math::{N, V};
+use math::{Scalar, Vector};
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_ray(center: &V, normal: &V, ray: &Ray) -> Option<N> {
+pub fn plane_toi_with_ray(center: &Vector, normal: &Vector, ray: &Ray) -> Option<Scalar> {
     let dpos = center - ray.orig;
     let t    = na::dot(normal, &dpos) / na::dot(normal, &ray.dir);
 

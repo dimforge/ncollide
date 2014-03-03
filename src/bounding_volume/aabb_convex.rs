@@ -1,9 +1,9 @@
 use bounding_volume::{AABB, HasAABB, implicit_shape_aabb};
 use geom::Convex;
-use math::M;
+use math::Matrix;
 
 impl HasAABB for Convex {
-    fn aabb(&self, m: &M) -> AABB {
+    fn aabb(&self, m: &Matrix) -> AABB {
         // XXX: optimize that
         implicit_shape_aabb(m, self)
     }

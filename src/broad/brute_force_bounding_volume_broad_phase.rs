@@ -8,7 +8,7 @@ use util::has_uid::HasUid;
 use nalgebra::na;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
-use math::N;
+use math::Scalar;
 
 /// Association of an object with its loose bounding volume.
 #[deriving(Clone)]
@@ -25,7 +25,7 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
     /// # Arguments:
     /// * `b` - collision dispatcher.
     /// * `margin` - loosening margin.
-    pub fn new(b: B, margin: N) -> BoundingVolumeProxy<B, BV> {
+    pub fn new(b: B, margin: Scalar) -> BoundingVolumeProxy<B, BV> {
         BoundingVolumeProxy {
             bounding_volume: b.bounding_volume().loosened(margin),
             body:            b
@@ -35,7 +35,7 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
     /// Updates this proxy.
     ///
     /// Returns `true` if the stored bounding volume has been changed.
-    pub fn update(&mut self, margin: &N) -> bool {
+    pub fn update(&mut self, margin: &Scalar) -> bool {
         let mut new_bv = self.body.bounding_volume();
 
         if !self.bounding_volume.contains(&new_bv) {
@@ -61,7 +61,7 @@ pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     priv rb2bv:      HashMap<uint, uint, UintTWHash>,
     priv pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
     priv dispatcher: D,
-    priv margin:     N,
+    priv margin:     Scalar,
     priv to_update:  ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>],
     priv update_off: uint // incremental pairs removal index
 }
@@ -72,7 +72,7 @@ impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
      DV>
 BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     /// Creates a new bounding volume based brute force broad phase.
-    pub fn new(dispatcher: D, margin: N) -> BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
+    pub fn new(dispatcher: D, margin: Scalar) -> BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         BruteForceBoundingVolumeBroadPhase {
             objects:    ~[],
             sobjects:   ~[],

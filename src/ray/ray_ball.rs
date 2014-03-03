@@ -3,17 +3,17 @@ use nalgebra::na::Translation;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 #[cfg(dim3)]
 use nalgebra::na::Vec3;
 
 
 #[cfg(dim3)]
-fn ball_uv(normal: &V) -> Option<V> {
-    let two_pi: N = Float::two_pi();
-    let pi:     N = Float::pi();
-    let _0_5:   N = na::cast(0.5);
+fn ball_uv(normal: &Vector) -> Option<Vector> {
+    let two_pi: Scalar = Float::two_pi();
+    let pi:     Scalar = Float::pi();
+    let _0_5:   Scalar = na::cast(0.5);
     let uvx       = _0_5 + normal.z.atan2(&normal.x) / two_pi;
     let uvy       = _0_5 - normal.y.asin() / pi;
 
@@ -22,7 +22,7 @@ fn ball_uv(normal: &V) -> Option<V> {
 
 impl RayCast for Ball {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         ball_toi_with_ray(na::zero(), self.radius(), ray, solid).val1()
     }
 
@@ -52,13 +52,13 @@ impl RayCast for Ball {
     }
 
     #[inline]
-    fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray, solid: bool) -> Option<N> {
+    fn toi_with_transform_and_ray(&self, m: &Matrix, ray: &Ray, solid: bool) -> Option<Scalar> {
         ball_toi_with_ray(m.translation(), self.radius(), ray, solid).val1()
     }
 }
 
 /// Computes the time of impact of a ray on a ball.
-pub fn ball_toi_with_ray(center: V, radius: N, ray: &Ray, solid: bool) -> (bool, Option<N>) {
+pub fn ball_toi_with_ray(center: Vector, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
     let dcenter = ray.orig - center;
 
     let b = na::dot(&dcenter, &ray.dir);

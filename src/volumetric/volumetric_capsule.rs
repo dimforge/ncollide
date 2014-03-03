@@ -1,6 +1,6 @@
 use geom::Capsule;
 use volumetric::Volumetric;
-use math::{N, V, II};
+use math::{Scalar, Vector, AngularInertia};
 
 #[cfg(dim2)]
 use volumetric::cylinder_volume;
@@ -15,19 +15,19 @@ use volumetric::ball_volume;
 /// Computes the volume of a capsule.
 #[inline]
 #[cfg(dim2)]
-pub fn capsule_volume(half_height: &N, radius: &N) -> N {
+pub fn capsule_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     cylinder_volume(half_height, radius) + ball_volume(radius)
 }
 
 /// Computes the volume of a capsule.
 #[inline]
 #[cfg(dim3)]
-pub fn capsule_volume(half_height: &N, radius: &N) -> N {
+pub fn capsule_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     cylinder_volume(half_height, radius) + ball_volume(radius)
 }
 
 impl Volumetric for Capsule {
-    fn mass_properties(&self, _: &N) -> (N, V, II) {
+    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vector, AngularInertia) {
         fail!("Not yet implemented.")
     }
 }

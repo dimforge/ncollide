@@ -1,6 +1,6 @@
 use geom::Cylinder;
 use volumetric::Volumetric;
-use math::{N, V, II};
+use math::{Scalar, Vector, AngularInertia};
 
 #[cfg(dim2)]
 use nalgebra::na::Indexable;
@@ -17,7 +17,7 @@ use nalgebra::na;
 /// Computes the volume of a cylinder.
 #[cfg(dim2)]
 #[inline]
-pub fn cylinder_volume(half_height: &N, radius: &N) -> N {
+pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     // same as a rectangle
     half_height * *radius * na::cast(4.0)
 }
@@ -26,22 +26,22 @@ pub fn cylinder_volume(half_height: &N, radius: &N) -> N {
 /// Computes the volume of a cylinder.
 #[cfg(dim3)]
 #[inline]
-pub fn cylinder_volume(half_height: &N, radius: &N) -> N {
+pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     half_height * *radius * *radius * Float::pi() * na::cast(2.0)
 }
 
 #[cfg(dim2)]
 impl Volumetric for Cylinder {
-    fn mass_properties(&self, density: &N) -> (N, V, II) {
+    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vector, AngularInertia) {
         let mass = cylinder_volume(&self.half_height(), &self.radius()) * *density;
         // same as the box
-        let _2:   N = na::cast(2.0);
-        let _i12: N = na::cast(1.0 / 12.0);
+        let _2:   Scalar = na::cast(2.0);
+        let _i12: Scalar = na::cast(1.0 / 12.0);
         let w       = _i12 * mass * _2 * _2;
         let ix      = w * self.half_height() * self.half_height();
         let iy      = w * self.radius() * self.radius();
 
-        let mut res: II = na::zero();
+        let mut res: AngularInertia = na::zero();
 
         res.set((0, 0), ix + iy);
 
@@ -51,13 +51,13 @@ impl Volumetric for Cylinder {
 
 #[cfg(dim3)]
 impl Volumetric for Cylinder {
-    fn mass_properties(&self, density: &N) -> (N, V, II) {
+    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vector, AngularInertia) {
         let mass = cylinder_volume(&self.half_height(), &self.radius()) * *density;
         let sq_radius = self.radius() * self.radius();
         let sq_height = self.half_height() * self.half_height() * na::cast(4.0);
         let off_principal = mass * (sq_radius * na::cast(3.0) + sq_height) / na::cast(12.0);
 
-        let mut res: II = na::zero();
+        let mut res: AngularInertia = na::zero();
 
         res.set((0, 0), mass * sq_radius / na::cast(2.0));
         res.set((1, 1), off_principal.clone());
@@ -69,7 +69,7 @@ impl Volumetric for Cylinder {
 
 #[cfg(dim4)]
 impl Volumetric for Cylinder {
-    fn mass_properties(&self, _: &N) -> (N, V, II) {
+    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vector, AngularInertia) {
         fail!("mass_properties is not yet implemented for 4d cylinders.")
     }
 }

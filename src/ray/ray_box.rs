@@ -6,16 +6,16 @@ use geom::Box;
 use implicit::HasMargin;
 use ray::{Ray, RayCast, RayIntersection};
 use ray::ray_implicit::implicit_toi_and_normal_with_ray;
-use math::{N, V};
+use math::{Scalar, Vector};
 
 impl RayCast for Box {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         if !self.margin().is_zero() {
             implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
-                &mut JohnsonSimplex::<V>::new_w_tls(),
+                &mut JohnsonSimplex::<Vector>::new_w_tls(),
                 ray,
                 solid).map(|inter| inter.toi)
         }
@@ -33,7 +33,7 @@ impl RayCast for Box {
             implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
-                &mut JohnsonSimplex::<V>::new_w_tls(),
+                &mut JohnsonSimplex::<Vector>::new_w_tls(),
                 ray,
                 solid)
         }
@@ -49,7 +49,7 @@ impl RayCast for Box {
             implicit_toi_and_normal_with_ray(
                 &Identity::new(),
                 self,
-                &mut JohnsonSimplex::<V>::new_w_tls(),
+                &mut JohnsonSimplex::<Vector>::new_w_tls(),
                 ray,
                 solid)
         }

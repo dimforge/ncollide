@@ -93,28 +93,22 @@ pub mod util;
 /// * `--cfg dim4` - use 4d vectors and matrices.
 /// * `--cfg f32`  - use 32-bit floating point values.
 /// * `--cfg f64`  - use 64-bit floating point values.
-#[cfg(dim4)]
+#[cfg(dim4, f64)]
 pub mod math {
     use nalgebra::na::{Vec4, Mat4, Iso4};
 
     /// The scalar type.
     pub type Scalar = f64;
 
-    /// The scalar type.
-    pub type N      = Scalar;
-
     /// The vector type.
-    pub type V      = Vec4<Scalar>;
+    pub type Vector = Vec4<Scalar>;
 
-    /// The linear velocity or position (center of mass) type.
-    pub type LV     = Vec4<Scalar>;
-
-    /// The angular velocity or orientation (center of mass) type.
-    pub type AV     = Vec4<Scalar>;
+    /// The orientation type.
+    pub type Orientation = Vec4<Scalar>;
 
     /// The transformation matrix type.
-    pub type M      = Iso4<Scalar>;
+    pub type Matrix = Iso4<Scalar>;
 
     /// The inertia tensor type.
-    pub type II     = Mat4<Scalar>;
+    pub type AngularInertia = Mat4<Scalar>;
 }

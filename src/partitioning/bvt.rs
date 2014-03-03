@@ -7,7 +7,7 @@ use nalgebra::na;
 use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
-use math::{N, V};
+use math::{Scalar, Vector};
 
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
@@ -140,7 +140,7 @@ impl<B, BV: RayCast> BVT<B, BV> {
     /// Computes the closest intersection between the objects stored on this tree and a given ray.
     pub fn cast_ray<'a, T>(&'a self,
                            ray:     &Ray,
-                           cast_fn: &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
+                           cast_fn: &|&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
         match self.tree {
             None        => None,
             Some(ref n) => {
@@ -158,8 +158,8 @@ impl<B, BV: RayCast> BVT<B, BV> {
 impl<B, BV: RayCast> BVTNode<B, BV> {
     fn cast_ray<'a, T>(&'a self,
                        ray:         &Ray,
-                       upper_bound: N,
-                       cast_fn:     &|&B, &Ray| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
+                       upper_bound: Scalar,
+                       cast_fn:     &|&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
         match *self {
             Internal(_, ref left, ref right) => {
                 let left_toi  = left.bounding_volume().toi_with_ray(ray, true);
@@ -248,7 +248,7 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: ~[(B, AABB)]) -> (AABB, Binary
         (aabb, Part(b))
     }
     else {
-        let sep_axis = depth % na::dim::<V>();
+        let sep_axis = depth % na::dim::<Vector>();
 
         // compute the median along sep_axis
         let mut median = ~[];

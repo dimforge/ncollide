@@ -1,6 +1,6 @@
 use narrow::CollisionDetector;
 use contact::Contact;
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// A collision detector that does nothing.
 #[deriving(Encodable, Decodable)]
@@ -18,7 +18,7 @@ impl<G1, G2> Empty<G1, G2> {
 }
 
 impl<G1, G2> CollisionDetector<G1, G2> for Empty<G1, G2> {
-    fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) {
+    fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) {
     }
 
     fn num_colls(&self) -> uint {
@@ -28,7 +28,7 @@ impl<G1, G2> CollisionDetector<G1, G2> for Empty<G1, G2> {
     fn colls(&self, _: &mut ~[Contact]) {
     }
 
-    fn toi(_: Option<Empty<G1, G2>>, _: &M, _: &V, _: &N, _: &G1, _: &M, _: &G2) -> Option<N> {
+    fn toi(_: Option<Empty<G1, G2>>, _: &Matrix, _: &Vector, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
         None
     }
 }

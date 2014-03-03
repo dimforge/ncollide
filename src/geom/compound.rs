@@ -8,7 +8,7 @@ use ray::Ray;
 use partitioning::BVT;
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use geom::{Geom, ConcaveGeom};
-use math::M;
+use math::Matrix;
 
 /// A compound geometry with an aabb bounding volume.
 ///
@@ -16,7 +16,7 @@ use math::M;
 /// the main way of creating a concave geometry from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other geometries.
 pub struct Compound {
-    priv shapes: ~[(M, ~Geom)],
+    priv shapes: ~[(Matrix, ~Geom)],
     priv bvt:    BVT<uint, AABB>,
     priv bvs:    ~[AABB]
 }
@@ -34,7 +34,7 @@ impl Clone for Compound {
 impl Compound {
     /// Builds a new compound shape from a list of shape with their respective delta
     /// transformation.
-    pub fn new(shapes: ~[(M, ~Geom)]) -> Compound {
+    pub fn new(shapes: ~[(Matrix, ~Geom)]) -> Compound {
         let mut bvs    = ~[];
         let mut leaves = ~[];
 
@@ -58,8 +58,8 @@ impl Compound {
 impl Compound {
     /// The shapes of this compound geometry.
     #[inline]
-    pub fn shapes<'r>(&'r self) -> &'r [(M, ~Geom)] {
-        let res: &'r [(M, ~Geom)] = self.shapes;
+    pub fn shapes<'r>(&'r self) -> &'r [(Matrix, ~Geom)] {
+        let res: &'r [(Matrix, ~Geom)] = self.shapes;
 
         res
     }
@@ -81,14 +81,14 @@ impl Compound {
 
 impl ConcaveGeom for Compound {
     #[inline(always)]
-    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom| -> T) -> T{
+    fn map_part_at<T>(&self, i: uint, f: |&Matrix, &Geom| -> T) -> T{
         let (ref m, ref g) = self.shapes[i];
 
         f(m, *g)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom| -> T) -> T{
+    fn map_transformed_part_at<T>(&self, m: &Matrix, i: uint, f: |&Matrix, &Geom| -> T) -> T{
         let (ref lm, ref g) = self.shapes[i];
 
         f(&(m * *lm), *g)

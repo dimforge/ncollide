@@ -1,6 +1,6 @@
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Mesh;
-use math::N;
+use math::Scalar;
 
 #[cfg(dim3)]
 use ray;
@@ -11,11 +11,11 @@ use nalgebra::na::{Vec3, Norm};
 #[cfg(dim3)]
 use nalgebra::na;
 #[cfg(dim3)]
-use math::V;
+use math::Vector;
 
 
 impl RayCast for Mesh {
-    fn toi_with_ray(&self, ray: &Ray, _: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, _: bool) -> Option<Scalar> {
         self.bvt().cast_ray(
                 ray,
                 &|b, r| self.element_at(*b).toi_with_ray(r, true).map(|t| (t.clone(), t))
@@ -39,7 +39,7 @@ impl RayCast for Mesh {
         let cast = self.bvt().cast_ray(
             ray,
             &|b, r| {
-                let vs: &[V] = *self.vertices().get();
+                let vs: &[Vector] = *self.vertices().get();
                 let i        = *b * 3;
                 let is       = self.indices().get().slice(i, i + 3);
 

@@ -12,7 +12,7 @@ use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory};
 use OSCMG = narrow::OneShotContactManifoldGenerator;
-use math::{N, V, LV, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
 pub trait GeomGeomCollisionDetector {
@@ -21,9 +21,9 @@ pub trait GeomGeomCollisionDetector {
     /// pair of object.
     fn update(&mut self,
               &GeomGeomDispatcher,
-              &M,
+              &Matrix,
               &Geom,
-              &M,
+              &Matrix,
               &Geom);
 
     /// The number of collision detected during the last update.
@@ -53,10 +53,10 @@ impl<D> DetectorWithoutRedispatch<D> {
 
 impl<D: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for DetectorWithoutRedispatch<D> {
-    fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) { unreachable!() }
+    fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) { unreachable!() }
     fn num_colls(&self) -> uint { unreachable!() }
     fn colls(&self, _: &mut ~[Contact]) { unreachable!() }
-    fn toi(_: Option<DetectorWithoutRedispatch<D>>, _: &M, _: &V, _: &N, _: &G1, _: &M, _: &G2) -> Option<N> {
+    fn toi(_: Option<DetectorWithoutRedispatch<D>>, _: &Matrix, _: &Vector, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
         unreachable!()
     }
 }
@@ -69,9 +69,9 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
     #[inline]
     fn update(&mut self,
               _:  &GeomGeomDispatcher,
-              m1: &M,
+              m1: &Matrix,
               g1: &Geom,
-              m2: &M,
+              m2: &Matrix,
               g2: &Geom) {
         self.detector.update(
             m1,
@@ -155,7 +155,7 @@ impl GeomGeomDispatcher {
         /*
          * Involving a Plane
          */
-        let prediction: &N = &na::cast(0.1);
+        let prediction: &Scalar = &na::cast(0.1);
 
         // Ball vs. Ball
         let bb: BallBall = BallBall::new(prediction.clone());
@@ -212,10 +212,10 @@ impl GeomGeomDispatcher {
     }
 
     /// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
-    pub fn register_default_plane_implicit_detector<I: 'static + Implicit<LV, M>>(
+    pub fn register_default_plane_implicit_detector<I: 'static + Implicit<Vector, Matrix>>(
                                                     &mut self,
                                                     generate_manifold: bool,
-                                                    prediction:        &N) {
+                                                    prediction:        &Scalar) {
         let p = if generate_manifold { na::zero() } else { prediction.clone() };
 
         let d1 = ImplicitPlane::<I>::new(p.clone());
@@ -233,15 +233,15 @@ impl GeomGeomDispatcher {
 
     /// Register an `ImplicitImplicit` collision detector between two implicit geometries.
     pub fn register_default_implicit_implicit_detector<G1: 'static            +
-                                                           Implicit<LV, M> +
-                                                           PreferedSamplingDirections<LV, M>,
+                                                           Implicit<Vector, Matrix> +
+                                                           PreferedSamplingDirections<Vector, Matrix>,
                                                        G2: 'static            +
-                                                           Implicit<LV, M> +
-                                                           PreferedSamplingDirections<LV, M>,
+                                                           Implicit<Vector, Matrix> +
+                                                           PreferedSamplingDirections<Vector, Matrix>,
                                                        S:  Send + Clone + Simplex<AnnotatedPoint>>(
                                                        &mut self,
                                                        generate_manifold: bool,
-                                                       prediction:        &N,
+                                                       prediction:        &Scalar,
                                                        simplex:           &S) {
         let p = if generate_manifold { na::zero() } else { prediction.clone() };
 
@@ -282,7 +282,7 @@ impl GeomGeomDispatcher {
                                                                  Clone>(
                                                              &mut self,
                                                              d:          D,
-                                                             prediction: &N) {
+                                                             prediction: &Scalar) {
         let d = OSCMG::<D>::new(prediction.clone(), d);
         self.register_detector(d);
     }
@@ -295,14 +295,14 @@ impl GeomGeomDispatcher {
 
     /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
     /// geometry supported by `ncollide`.
-    pub fn register_default_implicit_detectors<G: 'static + Implicit<LV, M> + PreferedSamplingDirections<LV, M>>(
+    pub fn register_default_implicit_detectors<G: 'static + Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>>(
                                                &mut self,
                                                generate_manifold: bool,
-                                               prediction:        &N) {
+                                               prediction:        &Scalar) {
         type Simplex  = JohnsonSimplex<AnnotatedPoint>;
 
         // Implicit vs. Implicit
-        let rt = RecursionTemplate::new(na::dim::<LV>());
+        let rt = RecursionTemplate::new(na::dim::<Vector>());
         let js = &JohnsonSimplex::new(rt);
 
         self.register_default_implicit_implicit_detector::<Ball, G, Simplex>(false, prediction, js);

@@ -2,7 +2,7 @@
 
 use nalgebra::na::FloatVec;
 use nalgebra::na;
-use math::N;
+use math::Scalar;
 
 // Sadly, we cannot put this on the `Implicit` trait because the caller of `margin` might get
 // unconstrained type.
@@ -11,11 +11,11 @@ pub trait HasMargin {
     /**
      * The geometry margin.
      */
-    fn margin(&self) -> N;
+    fn margin(&self) -> Scalar;
 }
 
 impl<'a> HasMargin for &'a HasMargin {
-    fn margin(&self) -> N {
+    fn margin(&self) -> Scalar {
         self.margin()
     }
 }
@@ -23,8 +23,8 @@ impl<'a> HasMargin for &'a HasMargin {
 /// Traits of convex geometries representable by a support mapping function.
 ///
 /// # Parameters:
-///   * V - type of the support mapping direction argument and of the returned point.
-pub trait Implicit<V: FloatVec<N>, M>: HasMargin {
+///   * Vector - type of the support mapping direction argument and of the returned point.
+pub trait Implicit<Vector: FloatVec<Scalar>, Matrix>: HasMargin {
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
@@ -35,7 +35,7 @@ pub trait Implicit<V: FloatVec<N>, M>: HasMargin {
      *            be normalized.
      */
     #[inline]
-    fn support_point(&self, transform: &M, dir: &V) -> V {
+    fn support_point(&self, transform: &Matrix, dir: &Vector) -> Vector {
         let wo_margin = self.support_point_without_margin(transform, dir);
 
         wo_margin + na::normalize(dir) * self.margin()
@@ -51,24 +51,24 @@ pub trait Implicit<V: FloatVec<N>, M>: HasMargin {
      *  * `dir` - the input of the support function. It is not required for it to
      *            be normalized.
      */
-    fn support_point_without_margin(&self, transform: &M, dir: &V) -> V;
+    fn support_point_without_margin(&self, transform: &Matrix, dir: &Vector) -> Vector;
 }
 
-impl<'a, V: FloatVec<N>, M> HasMargin for &'a Implicit<V, M> {
+impl<'a, Vector: FloatVec<Scalar>, Matrix> HasMargin for &'a Implicit<Vector, Matrix> {
     #[inline]
-    fn margin(&self) -> N {
+    fn margin(&self) -> Scalar {
         self.margin()
     }
 }
 
-impl<'a, V: FloatVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
+impl<'a, Vector: FloatVec<Scalar>, Matrix> Implicit<Vector, Matrix> for &'a Implicit<Vector, Matrix> {
     #[inline]
-    fn support_point(&self, transform: &M, dir: &V) -> V {
+    fn support_point(&self, transform: &Matrix, dir: &Vector) -> Vector {
         self.support_point(transform, dir)
     }
 
     #[inline]
-    fn support_point_without_margin(&self, transform: &M, dir: &V) -> V {
+    fn support_point_without_margin(&self, transform: &Matrix, dir: &Vector) -> Vector {
         self.support_point_without_margin(transform, dir)
     }
 }
@@ -76,7 +76,7 @@ impl<'a, V: FloatVec<N>, M> Implicit<V, M> for &'a Implicit<V, M> {
 /// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
 ///
 /// Those directions are usually the geometry faces normals.
-pub trait PreferedSamplingDirections<V, M> {
+pub trait PreferedSamplingDirections<Vector, Matrix> {
     /// Applies a function to this geometry with a given transform.
-    fn sample(&self, &M, |V| -> ());
+    fn sample(&self, &Matrix, |Vector| -> ());
 }

@@ -3,14 +3,14 @@
 use nalgebra::na::{DMat, Inv, FloatVec};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
-use math::N;
+use math::Scalar;
 
 #[deriving(Encodable, Decodable)]
 pub struct BruteForceSimplex<_V> {
     points: ~[_V]
 }
 
-impl<_V: Clone + FloatVec<N>>
+impl<_V: Clone + FloatVec<Scalar>>
 BruteForceSimplex<_V> {
     pub fn new() -> BruteForceSimplex<_V> {
         BruteForceSimplex { points: ~[] }
@@ -21,8 +21,8 @@ BruteForceSimplex<_V> {
     }
 
     fn project_on_subsimplex(points: &[_V]) -> Option<_V> {
-        let     _0: N = na::zero();
-        let     _1: N = na::one();
+        let     _0: Scalar = na::zero();
+        let     _1: Scalar = na::one();
         let     dim   = points.len();
         let mut mat   = DMat::new_zeros(dim, dim);
 
@@ -45,7 +45,7 @@ BruteForceSimplex<_V> {
         }
         else {
             let mut res: _V       = na::zero();
-            let mut normalizer: N = na::zero();
+            let mut normalizer: Scalar = na::zero();
 
             for i in range(0u, dim) {
                 if mat.at(i, 0u) > _0 {
@@ -113,7 +113,7 @@ BruteForceSimplex<_V> {
     }
 }
 
-impl<_V: Clone + FloatVec<N>>
+impl<_V: Clone + FloatVec<Scalar>>
 Simplex<_V> for BruteForceSimplex<_V> {
     #[inline]
     fn reset(&mut self, initial_point: _V) {
@@ -127,7 +127,7 @@ Simplex<_V> for BruteForceSimplex<_V> {
     }
 
     #[inline]
-    fn max_sq_len(&self) -> N {
+    fn max_sq_len(&self) -> Scalar {
         self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
     }
 

@@ -7,7 +7,7 @@ use narrow::{CollisionDetector, GeomGeomDispatcher, GeomGeomCollisionDetector,
              DynamicCollisionDetector, CollisionDetectorFactory};
 use contact::Contact;
 use geom::{Geom, ConcaveGeom};
-use math::M;
+use math::Matrix;
 
 /// Collision detector between a concave geometry and another geometry.
 pub struct ConcaveGeomGeom<G1, G2> {
@@ -30,9 +30,9 @@ impl<G1, G2> ConcaveGeomGeom<G1, G2> {
 impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
     fn do_update(&mut self,
                  dispatcher: &GeomGeomDispatcher,
-                 m1:         &M,
+                 m1:         &Matrix,
                  g1:         &G1,
-                 m2:         &M,
+                 m2:         &Matrix,
                  g2:         &G2,
                  swap:       bool) {
         // Find new collisions
@@ -89,9 +89,9 @@ impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
 GeomGeomCollisionDetector for ConcaveGeomGeom<G1, G2> {
     fn update(&mut self,
               dispatcher: &GeomGeomDispatcher,
-              m1:         &M,
+              m1:         &Matrix,
               g1:         &Geom,
-              m2:         &M,
+              m2:         &Matrix,
               g2:         &Geom) {
         self.do_update(dispatcher,
                        m1,
@@ -139,9 +139,9 @@ impl<G1: 'static + Geom, G2: 'static + ConcaveGeom>
 GeomGeomCollisionDetector for GeomConcaveGeom<G1, G2> {
     fn update(&mut self,
               dispatcher: &GeomGeomDispatcher,
-              m1:         &M,
+              m1:         &Matrix,
               g1:         &Geom,
-              m2:         &M,
+              m2:         &Matrix,
               g2:         &Geom) {
         self.sub_detector.do_update(dispatcher,
                                     m2,

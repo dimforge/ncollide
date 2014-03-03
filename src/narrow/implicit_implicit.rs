@@ -11,7 +11,7 @@ use narrow::algorithm::minkowski_sampling;
 use narrow::CollisionDetector;
 use contact::Contact;
 use ray::{Ray, RayCast};
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Persistent collision detector between two shapes having a support mapping function.
 ///
@@ -20,8 +20,8 @@ use math::{N, V, M};
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitImplicit<S, G1, G2> {
     priv simplex:       S,
-    priv prediction:    N,
-    priv contact:       GJKResult<Contact, V>
+    priv prediction:    Scalar,
+    priv contact:       GJKResult<Contact, Vector>
 }
 
 impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {
@@ -39,7 +39,7 @@ impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<S, G1, G2> {
+    pub fn new(prediction: Scalar, simplex: S) -> ImplicitImplicit<S, G1, G2> {
         ImplicitImplicit {
             simplex:    simplex,
             prediction: prediction,
@@ -50,11 +50,11 @@ impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
 }
 
 impl<S:  Simplex<AnnotatedPoint>,
-     G1: Implicit<V, M> + PreferedSamplingDirections<V, M>,
-     G2: Implicit<V, M> + PreferedSamplingDirections<V, M>>
+     G1: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>,
+     G2: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>>
      CollisionDetector<G1, G2> for ImplicitImplicit<S, G1, G2> {
     #[inline]
-    fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
+    fn update(&mut self, ma: &Matrix, a: &G1, mb: &Matrix, b: &G2) {
         let initial_direction = match self.contact {
             NoIntersection(ref separator) => Some(separator.clone()),
             Projection(ref contact)       => Some(contact.normal.clone()),
@@ -89,12 +89,12 @@ impl<S:  Simplex<AnnotatedPoint>,
 
     #[inline]
     fn toi(_:   Option<ImplicitImplicit<S, G1, G2>>,
-           ma:  &M,
-           dir: &V,
-           _:   &N,
+           ma:  &Matrix,
+           dir: &Vector,
+           _:   &Scalar,
            a:   &G1,
-           mb:  &M,
-           b:   &G2) -> Option<N> {
+           mb:  &Matrix,
+           b:   &G2) -> Option<Scalar> {
         toi(ma, dir, a, mb, b)
     }
 }
@@ -111,16 +111,16 @@ impl<S:  Simplex<AnnotatedPoint>,
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide<S:  Simplex<AnnotatedPoint>,
-               G1: Implicit<V, M> + PreferedSamplingDirections<V, M>,
-               G2: Implicit<V, M> + PreferedSamplingDirections<V, M>>(
-               m1:         &M,
+               G1: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>,
+               G2: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>>(
+               m1:         &Matrix,
                g1:         &G1,
-               m2:         &M,
+               m2:         &Matrix,
                g2:         &G2,
-               prediction: &N,
+               prediction: &Scalar,
                simplex:    &mut S,
-               init_dir:   Option<V>)
-               -> GJKResult<Contact, V> {
+               init_dir:   Option<Vector>)
+               -> GJKResult<Contact, Vector> {
     let mut dir = 
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
@@ -190,14 +190,14 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<G1: Implicit<V, M>,
-           G2: Implicit<V, M>>(
-           m1:  &M,
-           dir: &V,
+pub fn toi<G1: Implicit<Vector, Matrix>,
+           G2: Implicit<Vector, Matrix>>(
+           m1:  &Matrix,
+           dir: &Vector,
            g1:  &G1,
-           m2:  &M,
+           m2:  &Matrix,
            g2:  &G2)
-           -> Option<N> {
+           -> Option<Scalar> {
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 

@@ -1,4 +1,4 @@
-use math::N;
+use math::Scalar;
 
 /// Traits of objects having a bounding volume.
 pub trait HasBoundingVolume<BV: BoundingVolume> {
@@ -29,7 +29,7 @@ pub trait BoundingVolume {
 /// loosened version.
 pub trait LooseBoundingVolume : BoundingVolume {
     /// Enlarges this bounding volume.
-    fn loosen(&mut self, N);
+    fn loosen(&mut self, Scalar);
     /// Creates a new, enlarged version, of this bounding volume.
-    fn loosened(&self, N) -> Self;
+    fn loosened(&self, Scalar) -> Self;
 }

@@ -9,7 +9,7 @@ use collections::TreeMap;
 use nalgebra::na::{FloatVec, Dim};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
-use math::N;
+use math::Scalar;
 
 static KEY_RECURSION_TEMPLATE: local_data::Key<Arc<~[RecursionTemplate]>> = &local_data::Key;
 
@@ -19,7 +19,7 @@ pub struct JohnsonSimplex<_V> {
     priv recursion_template: Arc<~[RecursionTemplate]>,
     priv points:             ~[_V],
     priv exchange_points:    ~[_V],
-    priv determinants:       ~[N]
+    priv determinants:       ~[Scalar]
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
@@ -225,7 +225,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + FloatVec<N>> JohnsonSimplex<_V> {
+impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
     fn do_project_origin(&mut self, reduce: bool) -> _V {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
@@ -261,7 +261,7 @@ impl<_V: Clone + FloatVec<N>> JohnsonSimplex<_V> {
             // for each sub-simplex ...
             while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant: N = na::zero();
+                    let mut determinant: Scalar = na::zero();
                     let kpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr + 1u))).clone();
                     let jpt = (*self.points.unsafe_ref(*recursion.permutation_list.unsafe_ref(curr))).clone();
 
@@ -328,7 +328,7 @@ impl<_V: Clone + FloatVec<N>> JohnsonSimplex<_V> {
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_det: N = na::zero();
+                    let mut total_det: Scalar = na::zero();
                     let mut proj: _V     = na::zero();
 
                     unsafe {
@@ -371,7 +371,7 @@ impl<_V: Clone + FloatVec<N>> JohnsonSimplex<_V> {
     }
 }
 
-impl<_V: Clone + FloatVec<N>>
+impl<_V: Clone + FloatVec<Scalar>>
 Simplex<_V> for JohnsonSimplex<_V> {
     #[inline]
     fn reset(&mut self, pt: _V) {
@@ -385,7 +385,7 @@ Simplex<_V> for JohnsonSimplex<_V> {
     }
 
     #[inline]
-    fn max_sq_len(&self) -> N {
+    fn max_sq_len(&self) -> Scalar {
         self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
     }
 

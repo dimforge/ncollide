@@ -2,7 +2,7 @@ use std::num::Zero;
 use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
 use nalgebra::na;
 use geom::Reflection;
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
@@ -20,9 +20,9 @@ pub type AnnotatedCSO<'a, G1, G2> = AnnotatedMinkowskiSum<'a, G1, Reflection<'a,
  */
 #[deriving(Show)]
 pub struct MinkowskiSum<'a, G1, G2> {
-    priv m1: &'a M,
+    priv m1: &'a Matrix,
     priv g1: &'a G1,
-    priv m2: &'a M,
+    priv m2: &'a Matrix,
     priv g2: &'a G2
 }
 
@@ -32,19 +32,19 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> MinkowskiSum<'a, G1, G2> {
+    pub fn new(m1: &'a Matrix, g1: &'a G1, m2: &'a Matrix, g2: &'a G2) -> MinkowskiSum<'a, G1, G2> {
         MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
     /// The transformation matrix of the first geometry of this Minkowski Sum.
     #[inline]
-    pub fn m1(&self) -> &'a M {
+    pub fn m1(&self) -> &'a Matrix {
         self.m1
     }
 
     /// The transformation matrix of the second geometry of this Minkowski Sum.
     #[inline]
-    pub fn m2(&self) -> &'a M {
+    pub fn m2(&self) -> &'a Matrix {
         self.m2
     }
 
@@ -70,9 +70,9 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
  */
 #[deriving(Show)]
 pub struct AnnotatedMinkowskiSum<'a, G1, G2> {
-    priv m1: &'a M,
+    priv m1: &'a Matrix,
     priv g1: &'a G1,
-    priv m2: &'a M,
+    priv m2: &'a Matrix,
     priv g2: &'a G2
 }
 
@@ -82,19 +82,19 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> AnnotatedMinkowskiSum<'a, G1, G2> {
+    pub fn new(m1: &'a Matrix, g1: &'a G1, m2: &'a Matrix, g2: &'a G2) -> AnnotatedMinkowskiSum<'a, G1, G2> {
         AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
     /// The transformation matrix of the first geometry of this Minkowski Sum.
     #[inline]
-    pub fn m1(&self) -> &'a M {
+    pub fn m1(&self) -> &'a Matrix {
         self.m1
     }
 
     /// The transformation matrix of the second geometry of this Minkowski Sum.
     #[inline]
-    pub fn m2(&self) -> &'a M {
+    pub fn m2(&self) -> &'a Matrix {
         self.m2
     }
 
@@ -115,15 +115,15 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
 #[doc(hidden)]
 #[deriving(Clone, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint {
-    priv orig1: V,
-    priv orig2: V,
-    priv point: V
+    priv orig1: Vector,
+    priv orig2: Vector,
+    priv point: Vector
 }
 
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new(orig1: V, orig2: V, point: V) -> AnnotatedPoint {
+    pub fn new(orig1: Vector, orig2: Vector, point: Vector) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
@@ -133,19 +133,19 @@ impl AnnotatedPoint {
 
     #[doc(hidden)]
     #[inline]
-    pub fn point<'r>(&'r self) -> &'r V {
+    pub fn point<'r>(&'r self) -> &'r Vector {
         &'r self.point
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig1<'r>(&'r self) -> &'r V {
+    pub fn orig1<'r>(&'r self) -> &'r Vector {
         &'r self.orig1
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig2<'r>(&'r self) -> &'r V {
+    pub fn orig2<'r>(&'r self) -> &'r Vector {
         &'r self.orig2
     }
 }
@@ -153,7 +153,7 @@ impl AnnotatedPoint {
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new_invalid(point: V) -> AnnotatedPoint {
+    pub fn new_invalid(point: Vector) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: na::zero(),
             orig2: na::zero(),
@@ -203,30 +203,30 @@ impl Neg<AnnotatedPoint> for AnnotatedPoint {
 impl Dim for AnnotatedPoint {
     #[inline]
     fn dim(_: Option<AnnotatedPoint>) -> uint {
-        na::dim::<V>()
+        na::dim::<Vector>()
     }
 }
 
-impl Dot<N> for AnnotatedPoint {
+impl Dot<Scalar> for AnnotatedPoint {
     #[inline]
-    fn dot(a: &AnnotatedPoint, b: &AnnotatedPoint) -> N {
+    fn dot(a: &AnnotatedPoint, b: &AnnotatedPoint) -> Scalar {
         na::dot(&a.point, &b.point)
     }
 
     #[inline]
-    fn sub_dot(a: &AnnotatedPoint, b: &AnnotatedPoint, c: &AnnotatedPoint) -> N {
+    fn sub_dot(a: &AnnotatedPoint, b: &AnnotatedPoint, c: &AnnotatedPoint) -> Scalar {
         na::sub_dot(&a.point, &b.point, &c.point)
     }
 }
 
-impl Norm<N> for AnnotatedPoint {
+impl Norm<Scalar> for AnnotatedPoint {
     #[inline]
-    fn norm(v: &AnnotatedPoint) -> N {
+    fn norm(v: &AnnotatedPoint) -> Scalar {
         na::norm(&v.point)
     }
 
     #[inline]
-    fn sqnorm(v: &AnnotatedPoint) -> N {
+    fn sqnorm(v: &AnnotatedPoint) -> Scalar {
         na::sqnorm(&v.point)
     }
 
@@ -238,21 +238,21 @@ impl Norm<N> for AnnotatedPoint {
 
     /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
     #[inline]
-    fn normalize(&mut self) -> N {
+    fn normalize(&mut self) -> Scalar {
         self.point.normalize()
     }
 }
 
-impl Div<N, AnnotatedPoint> for AnnotatedPoint {
+impl Div<Scalar, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn div(&self, n: &N) -> AnnotatedPoint {
+    fn div(&self, n: &Scalar) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 / *n, self.orig2 / *n, self.point / *n)
     }
 }
 
-impl Mul<N, AnnotatedPoint> for AnnotatedPoint {
+impl Mul<Scalar, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn mul(&self, n: &N) -> AnnotatedPoint {
+    fn mul(&self, n: &Scalar) -> AnnotatedPoint {
         AnnotatedPoint::new(self.orig1 * *n, self.orig2 * *n, self.point * *n)
     }
 }
@@ -269,14 +269,14 @@ impl Eq for AnnotatedPoint {
     }
 }
 
-impl ApproxEq<N> for AnnotatedPoint {
+impl ApproxEq<Scalar> for AnnotatedPoint {
     #[inline]
-    fn approx_epsilon(_: Option<AnnotatedPoint>) -> N {
-        ApproxEq::approx_epsilon(None::<N>)
+    fn approx_epsilon(_: Option<AnnotatedPoint>) -> Scalar {
+        ApproxEq::approx_epsilon(None::<Scalar>)
     }
 
     #[inline]
-    fn approx_eq_eps(a: &AnnotatedPoint, b: &AnnotatedPoint, eps: &N) -> bool {
+    fn approx_eq_eps(a: &AnnotatedPoint, b: &AnnotatedPoint, eps: &Scalar) -> bool {
         na::approx_eq_eps(&a.point, &b.point, eps)
     }
 }

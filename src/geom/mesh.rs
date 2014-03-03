@@ -11,7 +11,7 @@ use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom};
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 #[cfg(dim2)]
 use geom::Segment;
@@ -29,7 +29,7 @@ pub trait MeshElement {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
     /// Creates a new mesh element from a set of vertices and indices and the margin.
-    fn new_with_vertices_and_indices(&[V], &[uint], N) -> Self;
+    fn new_with_vertices_and_indices(&[Vector], &[uint], Scalar) -> Self;
 }
 
 #[cfg(dim2)]
@@ -45,11 +45,11 @@ pub type MeshPrimitive = Triangle; // XXX: this is wrong
 pub struct Mesh {
     priv bvt:      BVT<uint, AABB>,
     priv bvs:      ~[AABB],
-    priv margin:   N,
-    priv vertices: Arc<~[V]>,
+    priv margin:   Scalar,
+    priv vertices: Arc<~[Vector]>,
     priv indices:  Arc<~[uint]>,
-    priv uvs:      Option<Arc<~[(N, N, N)]>>,
-    priv normals:  Option<Arc<~[V]>>,
+    priv uvs:      Option<Arc<~[(Scalar, Scalar, Scalar)]>>,
+    priv normals:  Option<Arc<~[Vector]>>,
 }
 
 impl Clone for Mesh {
@@ -68,20 +68,20 @@ impl Clone for Mesh {
 
 impl Mesh {
     /// Builds a new mesh with a default margin of 0.04.
-    pub fn new(vertices: Arc<~[V]>,
+    pub fn new(vertices: Arc<~[Vector]>,
                indices:  Arc<~[uint]>,
-               uvs:      Option<Arc<~[(N, N, N)]>>,
-               normals:  Option<Arc<~[V]>>)
+               uvs:      Option<Arc<~[(Scalar, Scalar, Scalar)]>>,
+               normals:  Option<Arc<~[Vector]>>)
                -> Mesh {
         Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
     }
 
     /// Builds a new mesh with a custom margin.
-    pub fn new_with_margin(vertices: Arc<~[V]>,
+    pub fn new_with_margin(vertices: Arc<~[Vector]>,
                            indices:  Arc<~[uint]>,
-                           uvs:      Option<Arc<~[(N, N, N)]>>,
-                           normals:  Option<Arc<~[V]>>,
-                           margin:   N)
+                           uvs:      Option<Arc<~[(Scalar, Scalar, Scalar)]>>,
+                           normals:  Option<Arc<~[Vector]>>,
+                           margin:   Scalar)
                            -> Mesh {
         assert!(indices.get().len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
 
@@ -97,7 +97,7 @@ impl Mesh {
             let is = indices.get();
 
             for (i, is) in is.chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
-                let vs: &[V] = *vs;
+                let vs: &[Vector] = *vs;
                 let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
                 // loosen for better persistancy
                 let id = na::one();
@@ -124,7 +124,7 @@ impl Mesh {
 impl Mesh {
     /// The vertices of this mesh.
     #[inline]
-    pub fn vertices<'a>(&'a self) -> &'a Arc<~[V]> {
+    pub fn vertices<'a>(&'a self) -> &'a Arc<~[Vector]> {
         &'a self.vertices
     }
 
@@ -144,13 +144,13 @@ impl Mesh {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<~[(N, N, N)]>> {
+    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<~[(Scalar, Scalar, Scalar)]>> {
         &'a self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals<'a>(&'a self) -> &'a Option<Arc<~[V]>> {
+    pub fn normals<'a>(&'a self) -> &'a Option<Arc<~[Vector]>> {
         &'a self.normals
     }
 
@@ -162,7 +162,7 @@ impl Mesh {
 
     /// The collision margin used by this mesh.
     #[inline]
-    pub fn margin(&self) -> N {
+    pub fn margin(&self) -> Scalar {
         self.margin.clone()
     }
 }
@@ -171,7 +171,7 @@ impl Mesh {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> MeshPrimitive {
-        let vs: &[V] = *self.vertices.get();
+        let vs: &[Vector] = *self.vertices.get();
         let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
         let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
@@ -181,14 +181,14 @@ impl Mesh {
 
 impl ConcaveGeom for Mesh {
     #[inline(always)]
-    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom| -> T) -> T {
-        let one: M = na::one();
+    fn map_part_at<T>(&self, i: uint, f: |&Matrix, &Geom| -> T) -> T {
+        let one: Matrix = na::one();
 
         self.map_transformed_part_at(&one, i, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom| -> T) -> T{
+    fn map_transformed_part_at<T>(&self, m: &Matrix, i: uint, f: |&Matrix, &Geom| -> T) -> T{
         let element = self.element_at(i);
 
         f(m, &element as &Geom)
@@ -215,11 +215,11 @@ impl ConcaveGeom for Mesh {
 // FIXME: move that to aabb_mesh.rs
 impl HasAABB for Mesh {
     #[inline]
-    fn aabb(&self, m: &M) -> AABB {
+    fn aabb(&self, m: &Matrix) -> AABB {
         let bv              = self.bvt.root_bounding_volume().unwrap();
         let ls_center       = bv.translation();
         let center          = m.transform(&ls_center);
-        let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f64, N>(2.0);
+        let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f64, Scalar>(2.0);
         let ws_half_extents = m.absolute_rotate(&half_extents);
 
         AABB::new(center - ws_half_extents, center + ws_half_extents)

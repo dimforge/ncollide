@@ -2,7 +2,7 @@ use nalgebra::na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
-use math::V;
+use math::Vector;
 
 #[cfg(dim3)]
 use nalgebra::na;
@@ -11,7 +11,7 @@ use nalgebra::na::Vec3;
 #[cfg(dim3)]
 use std::num::Zero;
 #[cfg(dim3)]
-use math::N;
+use math::Scalar;
 
 impl RayCast for Triangle {
     #[cfg(dim3)]
@@ -20,19 +20,19 @@ impl RayCast for Triangle {
             triangle_ray_intersection(self.a(), self.b(), self.c(), ray)
         }
         else {
-            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
         }
     }
 
     #[cfg(dim2)]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         // FIXME: optimize that!
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 
     #[cfg(dim4)]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<V>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
     }
 }
 
@@ -41,7 +41,7 @@ impl RayCast for Triangle {
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
 #[cfg(dim3)]
-pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<RayIntersection> {
+pub fn triangle_ray_intersection(a: &Vector, b: &Vector, c: &Vector, ray: &Ray) -> Option<RayIntersection> {
     let ab = *b - *a;
     let ac = *c - *a;
 
@@ -88,7 +88,7 @@ pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<RayIn
             return None;
         }
 
-        let invd = na::one::<N>() / d;
+        let invd = na::one::<Scalar>() / d;
         toi      = -t * invd;
         normal   = -na::normalize(&n);
         v        = v * invd;
@@ -107,7 +107,7 @@ pub fn triangle_ray_intersection(a: &V, b: &V, c: &V, ray: &Ray) -> Option<RayIn
             return None;
         }
 
-        let invd = na::one::<N>() / d;
+        let invd = na::one::<Scalar>() / d;
         toi      = t * invd;
         normal   = na::normalize(&n);
         v        = v * invd;

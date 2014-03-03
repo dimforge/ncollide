@@ -12,7 +12,7 @@ use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use ray::{Ray, RayCast};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use math::{N, V};
+use math::{Scalar, Vector};
 
 /// Broad phase based on a Dynamic Bounding Volume Tree.
 ///
@@ -26,19 +26,19 @@ pub struct DBVTBroadPhase<B, BV, D, DV> {
     priv pairs:       HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
     priv spairs:      HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
     priv dispatcher:  D,
-    priv margin:      N,
+    priv margin:      Scalar,
     priv collector:   ~[Gc<RefCell<DBVTLeaf<B, BV>>>],
     priv to_update:   ~[Gc<RefCell<DBVTLeaf<B, BV>>>],
     priv update_off:  uint // incremental pairs removal index
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<V> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 DBVTBroadPhase<B, BV, D, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<B, BV, D, DV> {
+    pub fn new(dispatcher: D, margin: Scalar) -> DBVTBroadPhase<B, BV, D, DV> {
         DBVTBroadPhase {
             tree:        DBVT::new(),
             stree:       DBVT::new(),
@@ -129,7 +129,7 @@ DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + Clone + HasUid,
-     BV: 'static + LooseBoundingVolume + Translation<V> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
@@ -242,7 +242,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<V> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
@@ -349,7 +349,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<V> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
@@ -370,7 +370,7 @@ BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + RayCast + Translation<V> + Clone,
+     BV: 'static + LooseBoundingVolume + RayCast + Translation<Vector> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {

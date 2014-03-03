@@ -5,7 +5,7 @@ use geom::Plane;
 use implicit::Implicit;
 use contact::Contact;
 use ray::{Ray, RayCast};
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 ///
@@ -13,7 +13,7 @@ use math::{N, V, M};
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct PlaneImplicit<G> {
-    priv prediction: N,
+    priv prediction: Scalar,
     priv contact:    Option<Contact>
 }
 
@@ -30,7 +30,7 @@ impl<G> PlaneImplicit<G> {
     /// Creates a new persistent collision detector between a plane and a geometry with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> PlaneImplicit<G> {
+    pub fn new(prediction: Scalar) -> PlaneImplicit<G> {
         PlaneImplicit {
             prediction: prediction,
             contact:    None
@@ -38,9 +38,9 @@ impl<G> PlaneImplicit<G> {
     }
 }
 
-impl<G: Implicit<V, M>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
+impl<G: Implicit<Vector, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
     #[inline]
-    fn update(&mut self, ma: &M, plane: &Plane, mb: &M, b: &G) {
+    fn update(&mut self, ma: &Matrix, plane: &Plane, mb: &Matrix, b: &G) {
         self.contact = collide(
             ma,
             plane,
@@ -67,12 +67,12 @@ impl<G: Implicit<V, M>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
 
     #[inline]
     fn toi(_:     Option<PlaneImplicit<G>>,
-           ma:    &M,
-           dir:   &V,
-           _:     &N,
+           ma:    &Matrix,
+           dir:   &Vector,
+           _:     &Scalar,
            plane: &Plane,
-           mb:    &M,
-           b:     &G) -> Option<N> {
+           mb:    &Matrix,
+           b:     &G) -> Option<Scalar> {
         toi(ma, plane, mb, &-dir, b)
     }
 }
@@ -83,7 +83,7 @@ impl<G: Implicit<V, M>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitPlane<G> {
-    priv prediction: N,
+    priv prediction: Scalar,
     priv contact:    Option<Contact>
 }
 
@@ -100,7 +100,7 @@ impl<G> ImplicitPlane<G> {
     /// Creates a new persistent collision detector between a plane and a geometry with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> ImplicitPlane<G> {
+    pub fn new(prediction: Scalar) -> ImplicitPlane<G> {
         ImplicitPlane {
             prediction: prediction,
             contact:    None
@@ -108,9 +108,9 @@ impl<G> ImplicitPlane<G> {
     }
 }
 
-impl<G: Implicit<V, M>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
+impl<G: Implicit<Vector, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
     #[inline]
-    fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane) {
+    fn update(&mut self, ma: &Matrix, a: &G, mb: &Matrix, plane: &Plane) {
         self.contact = collide(mb, plane, ma, a, &self.prediction);
         self.contact.mutate(|mut c| { c.flip(); c });
     }
@@ -133,12 +133,12 @@ impl<G: Implicit<V, M>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
 
     #[inline]
     fn toi(_:     Option<ImplicitPlane<G>>,
-           ma:    &M,
-           dir:   &V,
-           _:     &N,
+           ma:    &Matrix,
+           dir:   &Vector,
+           _:     &Scalar,
            a:     &G,
-           mb:    &M,
-           plane: &Plane) -> Option<N> {
+           mb:    &Matrix,
+           plane: &Plane) -> Option<Scalar> {
         toi(mb, plane, ma, dir, a)
     }
 }
@@ -148,12 +148,12 @@ impl<G: Implicit<V, M>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
 /// # Arguments:
 /// * `plane` - the plane to test.
 /// * `other` - the object to test against the plane.
-pub fn collide<G: Implicit<V, M>>(
-               mplane:     &M,
+pub fn collide<G: Implicit<Vector, Matrix>>(
+               mplane:     &Matrix,
                plane:      &Plane,
-               mother:     &M,
+               mother:     &Matrix,
                other:      &G,
-               prediction: &N)
+               prediction: &Scalar)
                -> Option<Contact> {
     let plane_normal = mplane.rotate(&plane.normal());
     let plane_center = mplane.translation();
@@ -179,13 +179,13 @@ pub fn collide<G: Implicit<V, M>>(
 /// * `mother` - the geometry transform.
 /// * `dir`    - the direction of the other geometry movement.
 /// * `other`  - the other geometry.
-pub fn toi<G: Implicit<V, M>>(
-           mplane: &M,
+pub fn toi<G: Implicit<Vector, Matrix>>(
+           mplane: &Matrix,
            plane:  &Plane,
-           mother: &M,
-           dir:    &V,
+           mother: &Matrix,
+           dir:    &Vector,
            other:  &G)
-           -> Option<N> {
+           -> Option<Scalar> {
     let plane_normal  = mplane.rotate(&plane.normal());
     let closest_point = other.support_point(mother, &-plane_normal);
 

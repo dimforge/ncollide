@@ -3,10 +3,10 @@ use nalgebra::na;
 
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
-use math::{N, LV, M};
+use math::{Scalar, Vector, Matrix};
 
 #[cfg(not(dim4))]
-use math::AV;
+use math::Orientation;
 
 /// Contact manifold generator producing a full manifold at the first update.
 ///
@@ -20,7 +20,7 @@ pub struct OneShotContactManifoldGenerator<CD> {
 
 impl<CD> OneShotContactManifoldGenerator<CD> {
     /// Creates a new one shot contact manifold generator.
-    pub fn new(prediction: N, cd: CD) -> OneShotContactManifoldGenerator<CD> {
+    pub fn new(prediction: Scalar, cd: CD) -> OneShotContactManifoldGenerator<CD> {
         OneShotContactManifoldGenerator {
             sub_detector: IncrementalContactManifoldGenerator::new(prediction, cd)
         }
@@ -30,18 +30,18 @@ impl<CD> OneShotContactManifoldGenerator<CD> {
 impl<CD: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     #[cfg(not(dim4))]
-    fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
+    fn update(&mut self, m1: &Matrix, g1: &G1, m2: &Matrix, g2: &G2) {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
             match self.sub_detector.get_sub_collision(m1, g1, m2, g2) {
                 Some(coll) => {
                     na::orthonormal_subspace_basis(&coll.normal, |b| {
-                        let mut rot_axis: AV = na::cross(&coll.normal, &b);
+                        let mut rot_axis: Orientation = na::cross(&coll.normal, &b);
 
                         // first perturbation
-                        rot_axis = rot_axis * na::cast::<f32, N>(0.01);
+                        rot_axis = rot_axis * na::cast::<f32, Scalar>(0.01);
 
-                        let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, &coll.world1);
+                        let rot_mat: Matrix = na::append_rotation_wrt_point(m1, &rot_axis, &coll.world1);
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 
@@ -65,7 +65,7 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     }
 
     #[cfg(dim4)]
-    fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) {
+    fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) {
         fail!("Not yet implemented.")
     }
 
@@ -81,12 +81,12 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
 
     #[inline]
     fn toi(_:    Option<OneShotContactManifoldGenerator<CD>>,
-           m1:   &M,
-           dir:  &LV,
-           dist: &N,
+           m1:   &Matrix,
+           dir:  &Vector,
+           dist: &Scalar,
            g1:   &G1,
-           m2:   &M,
-           g2:   &G2) -> Option<N> {
+           m2:   &Matrix,
+           g2:   &G2) -> Option<Scalar> {
         CollisionDetector::toi(None::<CD>, m1, dir, dist, g1, m2, g2)
     }
 }

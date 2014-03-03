@@ -1,5 +1,5 @@
 use contact::Contact;
-use math::{N, V, M};
+use math::{Scalar, Vector, Matrix};
 
 /// Trait of the algorithms executed during the so-called Narrow Phase.
 ///
@@ -14,7 +14,7 @@ pub trait CollisionDetector<G1, G2> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self, &M, &G1, &M, &G2);
+    fn update(&mut self, &Matrix, &G1, &Matrix, &G2);
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> uint;
@@ -31,5 +31,5 @@ pub trait CollisionDetector<G1, G2> {
     /// * `g1`   - the first object.
     /// * `m2`   - the second object transform.
     /// * `g2`   - the second object.
-    fn toi(unused_self: Option<Self>, m1: &M, dir: &V, dist: &N, g1: &G1, m2: &M, g2: &G2) -> Option<N>;
+    fn toi(unused_self: Option<Self>, m1: &Matrix, dir: &Vector, dist: &Scalar, g1: &G1, m2: &Matrix, g2: &G2) -> Option<Scalar>;
 }

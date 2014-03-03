@@ -1,4 +1,4 @@
-use math::{N, V, AV, M, II};
+use math::{Scalar, Vector, Orientation, Matrix, AngularInertia};
 
 #[cfg(dim2)]
 use nalgebra::na::Mat1;
@@ -15,55 +15,55 @@ pub trait InertiaTensor {
     /// Applies this inertia tensor to a vector.
     ///
     /// This is usually done by a matrix-vector multiplication.
-    fn apply(&self, a: &AV) -> AV;
+    fn apply(&self, a: &Orientation) -> Orientation;
 
     /// Transforms this inertia tensor from local space to world space.
-    fn to_world_space(&self, &M) -> Self;
+    fn to_world_space(&self, &Matrix) -> Self;
 
     /// Computes this inertia tensor relative to a given point.
-    fn to_relative_wrt_point(&self, &N, &V) -> Self;
+    fn to_relative_wrt_point(&self, &Scalar, &Vector) -> Self;
 }
 
 /// Trait to be implemented by objects which have a mass, a center of mass, and an inverse
 /// inertia tensor.
 pub trait Volumetric {
     /// Given a density, this computes the mass, center of mass, and inertia tensor of this object.
-    fn mass_properties(&self, &N) -> (N, V, II);
+    fn mass_properties(&self, &Scalar) -> (Scalar, Vector, AngularInertia);
 }
 
 #[cfg(dim2)]
-impl InertiaTensor for II {
+impl InertiaTensor for AngularInertia {
     #[inline]
-    fn apply(&self, av: &AV) -> AV {
+    fn apply(&self, av: &Orientation) -> Orientation {
         *self * *av
     }
 
     #[inline]
-    fn to_world_space(&self, _: &M) -> II {
+    fn to_world_space(&self, _: &Matrix) -> AngularInertia {
         self.clone()
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &N, pt: &V) -> II {
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vector) -> AngularInertia {
         *self + Mat1::new(mass * na::sqnorm(pt))
     }
 }
 
 #[cfg(dim3)]
-impl InertiaTensor for II {
+impl InertiaTensor for AngularInertia {
     #[inline]
-    fn apply(&self, av: &AV) -> AV {
+    fn apply(&self, av: &Orientation) -> Orientation {
         *self * *av
     }
 
     #[inline]
-    fn to_world_space(&self, t: &M) -> II {
+    fn to_world_space(&self, t: &Matrix) -> AngularInertia {
         let inv = na::inv(&t.rotation).unwrap();
         *t.rotation.submat() * *self * *inv.submat()
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &N, pt: &V) -> II {
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vector) -> AngularInertia {
         let diag  = na::sqnorm(pt);
         let diagm = Mat3::new(
             diag.clone(), na::zero(),   na::zero(),
@@ -76,19 +76,19 @@ impl InertiaTensor for II {
 }
 
 #[cfg(dim4)]
-impl InertiaTensor for II {
+impl InertiaTensor for AngularInertia {
     #[inline]
-    fn apply(&self, _: &AV) -> AV {
+    fn apply(&self, _: &Orientation) -> Orientation {
         fail!("Not yet implemented.")
     }
 
     #[inline]
-    fn to_world_space(&self, _: &M) -> II {
+    fn to_world_space(&self, _: &Matrix) -> AngularInertia {
         fail!("Not yet implemented.")
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, _: &N, _: &V) -> II {
+    fn to_relative_wrt_point(&self, _: &Scalar, _: &Vector) -> AngularInertia {
         fail!("Not yet implemented.")
     }
 }

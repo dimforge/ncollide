@@ -1,11 +1,11 @@
 use std::num::Bounded;
 use bounding_volume::{HasAABB, AABB};
 use geom::Plane;
-use math::{M, V};
+use math::{Matrix, Vector};
 
 impl HasAABB for Plane {
-    fn aabb(&self, _: &M) -> AABB {
-        let _m: V = Bounded::max_value();
+    fn aabb(&self, _: &Matrix) -> AABB {
+        let _m: Vector = Bounded::max_value();
 
         AABB::new(-_m, Bounded::max_value())
     }

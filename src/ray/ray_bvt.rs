@@ -1,10 +1,10 @@
 use ray::{Ray, RayCast, RayIntersection};
 use partitioning::BVT;
-use math::N;
+use math::Scalar;
 
 impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         self.cast_ray(
             ray,
             &|b, r| b.toi_with_ray(r, solid).map(

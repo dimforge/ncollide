@@ -4,24 +4,24 @@ use nalgebra::na::Indexable;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
-use math::{N, V};
+use math::{Scalar, Vector};
 
 #[cfg(dim3)]
 use nalgebra::na::Vec3;
 
 impl RayCast for AABB {
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
-        let mut tmin: N = na::zero();
-        let mut tmax: N = Bounded::max_value();
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
+        let mut tmin: Scalar = na::zero();
+        let mut tmax: Scalar = Bounded::max_value();
 
-        for i in range(0u, na::dim::<V>()) {
+        for i in range(0u, na::dim::<Vector>()) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None
                 }
             }
             else {
-                let _1: N = na::one();
+                let _1: Scalar = na::one();
                 let denom = _1 / ray.dir.at(i);
                 let mut inter_with_near_plane = (self.mins().at(i) - ray.orig.at(i)) * denom;
                 let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
@@ -71,22 +71,22 @@ impl RayCast for AABB {
     }
 }
 
-fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(N, V, int)> {
-    let mut tmax: N   = Bounded::max_value();
-    let mut tmin: N   = -tmax;
+fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vector, int)> {
+    let mut tmax: Scalar   = Bounded::max_value();
+    let mut tmin: Scalar   = -tmax;
     let mut near_side = 0;
     let mut far_side  = 0;
     let mut near_diag = false;
     let mut far_diag  = false;
 
-    for i in range(0u, na::dim::<V>()) {
+    for i in range(0u, na::dim::<Vector>()) {
         if ray.dir.at(i).is_zero() {
             if ray.orig.at(i) < aabb.mins().at(i) || ray.orig.at(i) > aabb.maxs().at(i) {
                 return None
             }
         }
         else {
-            let _1: N = na::one();
+            let _1: Scalar = na::one();
             let denom = _1 / ray.dir.at(i);
             let flip_sides;
             let mut inter_with_near_plane = (aabb.mins().at(i) - ray.orig.at(i)) * denom;
@@ -134,13 +134,13 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(N, V, int)> {
                 Some((tmax, -na::normalize(&ray.dir), far_side))
             }
             else {
-                let mut normal: V = na::zero();
+                let mut normal: Vector = na::zero();
 
                 if far_side < 0 {
-                    normal.set((-far_side - 1) as uint, -na::one::<N>());
+                    normal.set((-far_side - 1) as uint, -na::one::<Scalar>());
                 }
                 else {
-                    normal.set((far_side - 1) as uint, na::one::<N>());
+                    normal.set((far_side - 1) as uint, na::one::<Scalar>());
                 }
 
                 Some((tmax, normal, far_side))
@@ -152,13 +152,13 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(N, V, int)> {
             Some((tmin, -na::normalize(&ray.dir), near_side))
         }
         else {
-            let mut normal: V = na::zero();
+            let mut normal: Vector = na::zero();
 
             if near_side < 0 {
-                normal.set((-near_side - 1) as uint, na::one::<N>());
+                normal.set((-near_side - 1) as uint, na::one::<Scalar>());
             }
             else {
-                normal.set((near_side - 1) as uint, -na::one::<N>());
+                normal.set((near_side - 1) as uint, -na::one::<Scalar>());
             }
             Some((tmin, normal, near_side))
         }

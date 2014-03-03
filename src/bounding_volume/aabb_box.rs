@@ -1,11 +1,11 @@
 use nalgebra::na::{AbsoluteRotate, Translation};
 use bounding_volume::{HasAABB, AABB};
 use geom::Box;
-use math::M;
+use math::Matrix;
 
 impl HasAABB for Box {
     #[inline]
-    fn aabb(&self, m: &M) -> AABB {
+    fn aabb(&self, m: &Matrix) -> AABB {
         let center          = m.translation();
         let ws_half_extents = m.absolute_rotate(&(self.half_extents() + self.margin()));
 
