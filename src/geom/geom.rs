@@ -1,7 +1,9 @@
 //! Enum grouping the most useful geometric shapes.
 
+use std::raw::TraitObject;
 use std::intrinsics::TypeId;
 use std::cast;
+use std::any::{Any, AnyRefExt};
 use ray::{Ray, RayCast};
 use volumetric::Volumetric;
 use bounding_volume::{HasAABB, AABB};
@@ -61,7 +63,11 @@ impl<'a> AnyRefExt<'a> for &'a Geom {
     #[inline]
     fn as_ref<T: 'static>(self) -> Option<&'a T> {
         if self.is::<T>() {
-            Some(unsafe { cast::transmute(self.as_void_ptr()) })
+            unsafe {
+                let to: TraitObject = cast::transmute_copy(&self);
+
+                Some(cast::transmute(to.data))
+            }
         } else {
             None
         }

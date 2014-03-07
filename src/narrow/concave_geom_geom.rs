@@ -1,3 +1,4 @@
+use std::any::AnyRefExt;
 use nalgebra::na;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
