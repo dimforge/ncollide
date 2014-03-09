@@ -4,7 +4,7 @@ use std::mem;
 use math::{Scalar, Vector};
 
 /// Geometric description of a contact.
-#[deriving(Show, Eq, Clone, DeepClone, Encodable, Decodable)]
+#[deriving(Show, Eq, Clone, Encodable, Decodable)]
 pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.
     world1: Vector,
