@@ -1,4 +1,4 @@
-use std::rand;
+use rand;
 use nalgebra::na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use nalgebra::na;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};

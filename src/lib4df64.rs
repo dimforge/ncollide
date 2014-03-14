@@ -64,6 +64,9 @@ extern crate collections;
 #[cfg(test)]
 extern crate test;
 
+// #[cfg(test)]
+// extern crate rand;
+
 pub mod bounding_volume;
 pub mod geom;
 pub mod ray;
