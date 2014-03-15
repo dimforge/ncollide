@@ -56,12 +56,10 @@ Some common features are still missing:
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")];
 
 extern crate std;
-extern crate extra;
 extern crate nalgebra;
 extern crate sync;
 extern crate serialize;
 extern crate collections;
-#[cfg(test)]
 extern crate test;
 
 // #[cfg(test)]

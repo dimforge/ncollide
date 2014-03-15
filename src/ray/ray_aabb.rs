@@ -1,4 +1,4 @@
-use std::num::{Zero, Bounded};
+use std::num::{Zero, Bounded, Float};
 use std::mem;
 use nalgebra::na::Indexable;
 use nalgebra::na;
@@ -30,8 +30,8 @@ impl RayCast for AABB {
                     mem::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
                 }
 
-                tmin = na::max(tmin, inter_with_near_plane);
-                tmax = na::min(tmax, inter_with_far_plane);
+                tmin = tmin.max(inter_with_near_plane);
+                tmax = tmax.max(inter_with_far_plane);
 
                 if tmin > tmax {
                     return None;

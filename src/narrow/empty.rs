@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use narrow::CollisionDetector;
 use contact::Contact;
 use math::{Scalar, Vector, Matrix};
@@ -25,7 +26,7 @@ impl<G1, G2> CollisionDetector<G1, G2> for Empty<G1, G2> {
         0
     }
 
-    fn colls(&self, _: &mut ~[Contact]) {
+    fn colls(&self, _: &mut Vec<Contact>) {
     }
 
     fn toi(_: Option<Empty<G1, G2>>, _: &Matrix, _: &Vector, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {

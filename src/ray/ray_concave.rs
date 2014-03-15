@@ -1,4 +1,5 @@
 use std::num::Bounded;
+use std::vec_ng::Vec;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::{ConcaveGeom, Compound};
@@ -10,7 +11,7 @@ impl RayCast for Compound {
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         // FIXME: optimize that and avoid the allocation using the dedicated ray casting function
         // from the BVT.
-        let mut interferences: ~[uint] = ~[];
+        let mut interferences: Vec<uint> = Vec::new();
 
         self.approx_interferences_with_ray(ray, &mut interferences);
 
@@ -21,7 +22,7 @@ impl RayCast for Compound {
             self.map_part_at(*i, |objm, obj|
                           match obj.toi_with_transform_and_ray(objm, ray, solid) {
                               None        => { },
-                              Some(ref t) => toi = na::min(toi, *t)
+                              Some(ref t) => toi = toi.min(*t)
                           }
                          );
         }
@@ -35,7 +36,7 @@ impl RayCast for Compound {
     }
 
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        let mut interferences: ~[uint] = ~[];
+        let mut interferences: Vec<uint> = Vec::new();
 
         self.approx_interferences_with_ray(ray, &mut interferences);
 

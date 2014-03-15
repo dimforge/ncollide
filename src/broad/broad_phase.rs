@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use ray::Ray;
 
 /// Trait all broad phase must implement.
@@ -38,11 +39,11 @@ pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {
 /// Trait of broad phases working with bounding volume.
 pub trait BoundingVolumeBroadPhase<B, BV> : BroadPhase<B> {
     /// Collects every object which might intersect a given bounding volume.
-    fn interferences_with_bounding_volume(&mut self, &BV, &mut ~[B]);
+    fn interferences_with_bounding_volume(&mut self, &BV, &mut Vec<B>);
 }
 
 /// Traits of broad phase able to run fast ray-cast queries.
 pub trait RayCastBroadPhase<B> : BroadPhase<B> {
     /// Collects every object which might intersect a ray.
-    fn interferences_with_ray(&mut self, &Ray, &mut ~[B]);
+    fn interferences_with_ray(&mut self, &Ray, &mut Vec<B>);
 }

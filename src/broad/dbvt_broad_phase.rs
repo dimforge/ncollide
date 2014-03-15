@@ -1,5 +1,6 @@
 use std::gc::Gc;
 use std::cell::RefCell;
+use std::vec_ng::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
@@ -27,8 +28,8 @@ pub struct DBVTBroadPhase<B, BV, D, DV> {
     priv spairs:      HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
     priv dispatcher:  D,
     priv margin:      Scalar,
-    priv collector:   ~[Gc<RefCell<DBVTLeaf<B, BV>>>],
-    priv to_update:   ~[Gc<RefCell<DBVTLeaf<B, BV>>>],
+    priv collector:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
+    priv to_update:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
     priv update_off:  uint // incremental pairs removal index
 }
 
@@ -48,8 +49,8 @@ DBVTBroadPhase<B, BV, D, DV> {
             spairs:      HashMap::new(PairTWHash::new()),
             dispatcher:  dispatcher,
             update_off:  0,
-            collector:   ~[],
-            to_update:   ~[],
+            collector:   Vec::new(),
+            to_update:   Vec::new(),
             margin:      margin
         }
     }
@@ -167,7 +168,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
             }
         }
 
-        let mut keys_to_remove = ~[];
+        let mut keys_to_remove = Vec::new();
 
         // remove every pair involving b
         for elt in self.pairs.elements().iter() {
@@ -353,7 +354,7 @@ impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
-    fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut ~[B]) {
+    fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut Vec<B>) {
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut self.collector);
 
@@ -374,7 +375,7 @@ impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
-    fn interferences_with_ray(&mut self, ray: &Ray, out: &mut ~[B]) {
+    fn interferences_with_ray(&mut self, ray: &Ray, out: &mut Vec<B>) {
         {
             let mut visitor = RayInterferencesCollector::new(ray, &mut self.collector);
 
@@ -395,6 +396,7 @@ mod test {
     use super::DBVTBroadPhase;
     use std::rc::Rc;
     use std::cell::RefCell;
+    use std::vec_ng::Vec;
     use nalgebra::na::{Vec3, Iso3};
     use nalgebra::na;
     use geom::Ball;
@@ -453,7 +455,7 @@ mod test {
         let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
-        let mut to_move = ~[];
+        let mut to_move = Vec::new();
 
         // create a grid
         for i in range(-10, 10) {
@@ -488,10 +490,10 @@ mod test {
         }
 
         for e in to_move.mut_iter() {
-            let mut wa = e.borrow().borrow_mut();
-            let m = wa.get().m().clone();
-            let g = wa.get().g().clone();
-            *wa.get() = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
+            let mut wa = e.borrow_mut();
+            let m      = wa.m().clone();
+            let g      = wa.g().clone();
+            *wa        = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
         }
 
         bf.update();

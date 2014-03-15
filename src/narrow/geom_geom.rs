@@ -2,6 +2,7 @@
 
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
+use std::vec_ng::Vec;
 use collections::HashMap;
 use nalgebra::na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Box, Ball, Capsule, Convex, Cylinder, Compound,
@@ -31,7 +32,7 @@ pub trait GeomGeomCollisionDetector {
     fn num_colls(&self) -> uint;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut ~[Contact]);
+    fn colls(&self, &mut Vec<Contact>);
 }
 
 /// Trait to be implemented by collision detector using dynamic dispatch.
@@ -56,7 +57,7 @@ impl<D: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for DetectorWithoutRedispatch<D> {
     fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) { unreachable!() }
     fn num_colls(&self) -> uint { unreachable!() }
-    fn colls(&self, _: &mut ~[Contact]) { unreachable!() }
+    fn colls(&self, _: &mut Vec<Contact>) { unreachable!() }
     fn toi(_: Option<DetectorWithoutRedispatch<D>>, _: &Matrix, _: &Vector, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
         unreachable!()
     }
@@ -87,7 +88,7 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
     }
 
     #[inline]
-    fn colls(&self, cs: &mut ~[Contact]) {
+    fn colls(&self, cs: &mut Vec<Contact>) {
         self.detector.colls(cs)
     }
 }

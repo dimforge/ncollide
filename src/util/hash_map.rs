@@ -2,7 +2,7 @@
 
 use std::num;
 use std::mem;
-use std::vec;
+use std::vec_ng::Vec;
 use util::hash::HashFun;
 
 /// Entry of an `HashMap`.
@@ -33,10 +33,10 @@ impl<K, Vector> Entry<K, Vector> {
 #[deriving(Clone, Encodable, Decodable)]
 pub struct HashMap<K, Vector, H> {
     priv hash:          H,
-    priv table:         ~[Entry<K, Vector>],
+    priv table:         Vec<Entry<K, Vector>>,
     priv mask:          uint,
-    priv htable:        ~[int],
-    priv next:          ~[int],
+    priv htable:        Vec<int>,
+    priv next:          Vec<int>,
     priv num_elem:      uint, // FIXME: redundent with self.table.len() ?
     priv max_elem:      uint,
     priv real_max_elem: uint
@@ -56,10 +56,10 @@ impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 
         HashMap {
             hash:   h,
-            table:  vec::with_capacity(pow2),
+            table:  Vec::with_capacity(pow2),
             mask:   pow2 - 1,
-            htable: vec::from_elem(pow2, -1),
-            next:   vec::from_elem(pow2, -1),
+            htable: Vec::from_elem(pow2, -1),
+            next:   Vec::from_elem(pow2, -1),
             num_elem: 0,
             max_elem: pow2,
             real_max_elem: ((pow2 as f32) * 0.7) as uint
@@ -71,9 +71,7 @@ impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     /// This is a simple, contiguous array.
     #[inline]
     pub fn elements<'r>(&'r self) -> &'r [Entry<K, Vector>] {
-        let table: &'r [Entry<K, Vector>] = self.table;
-
-        table
+        self.table.as_slice()
     }
 
     /// The elements added to this hash map.
@@ -81,9 +79,7 @@ impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     /// This is a simple, contiguous array.
     #[inline]
     pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, Vector>] {
-        let table: &'r mut [Entry<K, Vector>] = self.table;
-
-        table
+        self.table.as_mut_slice()
     }
 }
 
@@ -97,7 +93,7 @@ impl<K: Eq + Clone, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
             false
         }
         else {
-            let key = self.table[at].key.clone();
+            let key = self.table.get(at).key.clone();
             self.remove(&key)
         }
     }
@@ -108,14 +104,15 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     fn find_entry_id(&self, key: &K) -> int {
         let h = self.hash.hash(key) & self.mask;
 
-        let mut pos = self.htable[h];
+        let mut pos = *self.htable.get(h);
 
-        if pos != -1 && self.table[pos].key != *key {
-            while self.next[pos] != -1 && self.table[self.next[pos]].key != *key {
-                pos = self.next[pos]
+        if pos != -1 && self.table.get(pos as uint).key != *key {
+            while *self.next.get(pos as uint) != -1 &&
+                  self.table.get(*self.next.get(pos as uint) as uint).key != *key {
+                pos = *self.next.get(pos as uint)
             }
 
-            pos = self.next[pos]
+            pos = *self.next.get(pos as uint)
         }
 
         pos
@@ -129,14 +126,14 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 
             self.mask = self.max_elem - 1;
 
-            let mut newhash  = vec::from_elem(self.max_elem, -1);
-            let mut newnext  = vec::from_elem(self.max_elem, -1);
+            let mut newhash  = Vec::from_elem(self.max_elem, -1);
+            let mut newnext  = Vec::from_elem(self.max_elem, -1);
 
             for i in range(0u, self.num_elem) {
-                let h = self.hash.hash(&self.table[i].key) & self.mask;
+                let h = self.hash.hash(&self.table.get(i).key) & self.mask;
 
-                newnext[i] = newhash[h];
-                newhash[h] = i as int;
+                *newnext.get_mut(i) = *newhash.get(h);
+                *newhash.get_mut(h) = i as int;
             }
 
             mem::swap(&mut newhash, &mut self.htable);
@@ -152,8 +149,8 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 
             let h = self.hash.hash(&key) & self.mask;
 
-            self.next[self.num_elem] = self.htable[h];
-            self.htable[h] = self.num_elem as int;
+            *self.next.get_mut(self.num_elem) = *self.htable.get(h);
+            *self.htable.get_mut(h) = self.num_elem as int;
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
 
@@ -161,7 +158,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
         }
         else {
             if replace {
-                self.table[entry].value = value
+                self.table.get_mut(entry as uint).value = value
             }
 
             (false, entry as uint)
@@ -173,26 +170,26 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
         let h = self.hash.hash(key) & self.mask;
 
         let mut obji;
-        let mut o = self.htable[h];
+        let mut o = *self.htable.get(h);
 
         if o != -1 {
-            if self.table[o].key != *key {
-                while self.next[o] != -1 && self.table[self.next[o]].key != *key {
-                    o = self.next[o]
+            if self.table.get(o as uint).key != *key {
+                while *self.next.get(o as uint) != -1 && self.table.get(*self.next.get(o as uint) as uint).key != *key {
+                    o = *self.next.get(o as uint)
                 }
 
-                if self.next[o] == -1 {
+                if *self.next.get(o as uint) == -1 {
                     return None
                 }
 
-                obji            = self.next[o];
-                self.next[o]    = self.next[obji];
-                self.next[obji] = -1;
+                obji                             = *self.next.get(o as uint);
+                *self.next.get_mut(o as uint)    = *self.next.get(obji as uint);
+                *self.next.get_mut(obji as uint) = -1;
             }
             else {
                 obji = o;
-                self.htable[h] = self.next[o];
-                self.next[o]   = -1;
+                *self.htable.get_mut(h)       = *self.next.get(o as uint);
+                *self.next.get_mut(o as uint) = -1;
             }
 
             self.num_elem = self.num_elem - 1;
@@ -200,23 +197,23 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
             let removed = self.table.swap_remove(obji as uint);
 
             if obji != self.num_elem as int {
-                let nh = self.hash.hash(&self.table[obji].key) & self.mask;
+                let nh = self.hash.hash(&self.table.get(obji as uint).key) & self.mask;
 
-                if self.htable[nh] == self.num_elem as int {
-                    self.htable[nh] = obji
+                if *self.htable.get(nh) == self.num_elem as int {
+                    *self.htable.get_mut(nh) = obji
                 }
                 else {
-                    let mut no = self.htable[nh];
+                    let mut no = *self.htable.get(nh);
 
-                    while self.next[no]  != self.num_elem as int {
-                        no = self.next[no]
+                    while *self.next.get(no as uint) != self.num_elem as int {
+                        no = *self.next.get(no as uint)
                     }
 
-                    self.next[no] = obji;
+                    *self.next.get_mut(no as uint) = obji;
                 }
 
-                self.next[obji] = self.next[self.num_elem];
-                self.next[self.num_elem] = -1;
+                *self.next.get_mut(obji as uint)  = *self.next.get(self.num_elem);
+                *self.next.get_mut(self.num_elem) = -1;
             }
 
             removed
@@ -236,15 +233,15 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 
             let h = self.hash.hash(&key) & self.mask;
 
-            self.next[self.num_elem] = self.htable[h];
-            self.htable[h] = self.num_elem as int;
+            *self.next.get_mut(self.num_elem) = *self.htable.get(h);
+            *self.htable.get_mut(h) = self.num_elem as int;
             self.table.push(Entry::new(key, value()));
             self.num_elem = self.num_elem + 1;
 
-            &'a mut self.table[self.num_elem - 1].value
+            &'a mut self.table.get_mut(self.num_elem - 1).value
         }
         else {
-            &'a mut self.table[entry].value
+            &'a mut self.table.get_mut(entry as uint).value
         }
     }
 
@@ -258,7 +255,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     pub fn insert_or_replace<'a>(&'a mut self, key: K, value: Vector, replace: bool) -> &'a mut Vector {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 
-        &'a mut self.table[res].value
+        &'a mut self.table.get_mut(res).value
     }
 }
 
@@ -293,21 +290,22 @@ impl<K: Eq, Vector, H: HashFun<K>> Map<K, Vector> for HashMap<K, Vector, H> {
     fn find<'a>(&'a self, key: &K) -> Option<&'a Vector> {
         let h = self.hash.hash(key) & self.mask;
 
-        let mut pos = self.htable[h];
+        let mut pos = *self.htable.get(h);
 
-        if pos != -1 && self.table[pos].key != *key {
-            while self.next[pos] != -1 && self.table[self.next[pos]].key != *key {
-                pos = self.next[pos]
+        if pos != -1 && self.table.get(pos as uint).key != *key {
+            while *self.next.get(pos as uint) != -1 &&
+                  self.table.get(*self.next.get(pos as uint) as uint).key != *key {
+                pos = *self.next.get(pos as uint)
             }
 
-            pos = self.next[pos]
+            pos = *self.next.get(pos as uint)
         }
 
         if pos == -1 {
             None
         }
         else {
-            Some(&'a self.table[pos].value)
+            Some(&'a self.table.get(pos as uint).value)
         }
     }
 }
@@ -341,7 +339,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
             None
         }
         else {
-            Some(&'a mut self.table[entry].value)
+            Some(&'a mut self.table.get_mut(entry as uint).value)
         }
     }
 }

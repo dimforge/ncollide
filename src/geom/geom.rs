@@ -1,5 +1,6 @@
 //! Enum grouping the most useful geometric shapes.
 
+use std::vec_ng::Vec;
 use std::raw::TraitObject;
 use std::intrinsics::TypeId;
 use std::cast;
@@ -31,9 +32,9 @@ pub trait ConcaveGeom : Geom {
 
     // FIXME: replace those by a visitor?
     /// Computes the indices of every sub-geometry which might intersect a given AABB.
-    fn approx_interferences_with_aabb(&self, &AABB, &mut ~[uint]);
+    fn approx_interferences_with_aabb(&self, &AABB, &mut Vec<uint>);
     /// Computes the indices of every sub-geometry which might intersect a given Ray.
-    fn approx_interferences_with_ray(&self, &Ray, &mut ~[uint]);
+    fn approx_interferences_with_ray(&self, &Ray, &mut Vec<uint>);
     // FIXME: kind of ad-hoc…
     /// Gets the AABB of the geometry identified by the index `i`.
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;

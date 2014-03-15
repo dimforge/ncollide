@@ -1,5 +1,6 @@
 #[doc(hidden)];
 
+use std::vec_ng::Vec;
 use nalgebra::na::{DMat, Inv, FloatVec};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
@@ -7,13 +8,13 @@ use math::Scalar;
 
 #[deriving(Encodable, Decodable)]
 pub struct BruteForceSimplex<_V> {
-    points: ~[_V]
+    points: Vec<_V>
 }
 
 impl<_V: Clone + FloatVec<Scalar>>
 BruteForceSimplex<_V> {
     pub fn new() -> BruteForceSimplex<_V> {
-        BruteForceSimplex { points: ~[] }
+        BruteForceSimplex { points: Vec::new() }
     }
 
     pub fn add_point(&mut self, pt: _V) {
@@ -62,19 +63,19 @@ BruteForceSimplex<_V> {
         }
     }
 
-    fn project_on_subsimplices(points: ~[_V]) -> (_V, ~[_V]) {
+    fn project_on_subsimplices(points: Vec<_V>) -> (_V, Vec<_V>) {
         if points.len() == 1 {
-            (points[0].clone(), points)
+            (points.get(0).clone(), points)
         }
         else {
-            let mut bestproj = BruteForceSimplex::project_on_subsimplex(points);
+            let mut bestproj = BruteForceSimplex::project_on_subsimplex(points.as_slice());
             let mut bestpts  = points.clone();
 
             for i in range(0u, points.len()) {
-                let mut subsimplex = ~[];
+                let mut subsimplex = Vec::new();
                 for j in range(0u, points.len()) {
                     if i != j {
-                        subsimplex.push(points[j].clone())
+                        subsimplex.push(points.get(j).clone())
                     }
                 }
 
@@ -128,7 +129,17 @@ Simplex<_V> for BruteForceSimplex<_V> {
 
     #[inline]
     fn max_sq_len(&self) -> Scalar {
-        self.points.iter().map(|v| na::sqnorm(v)).max().unwrap()
+        let mut max_sq_len = na::zero();
+
+        for p in self.points.iter() {
+            let norm = na::sqnorm(p);
+
+            if norm > max_sq_len {
+                max_sq_len = norm
+            }
+        }
+
+        max_sq_len
     }
 
     #[inline]

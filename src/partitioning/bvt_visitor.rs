@@ -1,5 +1,6 @@
 //! Trait of visitors of bounding volume based tree.
 
+use std::vec_ng::Vec;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 
@@ -29,14 +30,14 @@ pub trait BVTVisitor<B, BV> {
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
 pub struct RayInterferencesCollector<'a, B> {
     priv ray:       &'a Ray,
-    priv collector: &'a mut ~[B]
+    priv collector: &'a mut Vec<B>
 }
 
 impl<'a, B> RayInterferencesCollector<'a, B> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
     pub fn new(ray:    &'a Ray,
-               buffer: &'a mut ~[B])
+               buffer: &'a mut Vec<B>)
                -> RayInterferencesCollector<'a, B> {
         RayInterferencesCollector {
             ray:       ray,
@@ -63,14 +64,14 @@ BVTVisitor<B, BV> for RayInterferencesCollector<'a, B> {
 /// Bounding Volume Tree visitor collecting interferences with a given bounding volume.
 pub struct BoundingVolumeInterferencesCollector<'a, B, BV> {
     priv bv:        &'a BV,
-    priv collector: &'a mut ~[B]
+    priv collector: &'a mut Vec<B>
 }
 
 impl<'a, B, BV> BoundingVolumeInterferencesCollector<'a, B, BV> {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
     #[inline]
     pub fn new(bv:     &'a BV,
-               buffer: &'a mut ~[B])
+               buffer: &'a mut Vec<B>)
                -> BoundingVolumeInterferencesCollector<'a, B, BV> {
         BoundingVolumeInterferencesCollector {
             bv:        bv,

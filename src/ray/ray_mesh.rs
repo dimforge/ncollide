@@ -39,7 +39,7 @@ impl RayCast for Mesh {
         let cast = self.bvt().cast_ray(
             ray,
             &|b, r| {
-                let vs: &[Vector] = *self.vertices().get();
+                let vs: &[Vector] = self.vertices().get().as_slice();
                 let i        = *b * 3;
                 let is       = self.indices().get().slice(i, i + 3);
 
@@ -58,9 +58,9 @@ impl RayCast for Mesh {
                 let is    = self.indices().get().slice(ibest, ibest + 3);
                 let uvs   = self.uvs().as_ref().unwrap().get();
 
-                let (x1, y1, z1) = uvs[is[0]].clone();
-                let (x2, y2, z2) = uvs[is[1]].clone();
-                let (x3, y3, z3) = uvs[is[2]].clone();
+                let (x1, y1, z1) = uvs.get(is[0]).clone();
+                let (x2, y2, z2) = uvs.get(is[1]).clone();
+                let (x3, y3, z3) = uvs.get(is[2]).clone();
 
                 let uvx = x1 * uv.x + x2 * uv.y + x3 * uv.z;
                 let uvy = y1 * uv.x + y2 * uv.y + y3 * uv.z;
@@ -74,9 +74,9 @@ impl RayCast for Mesh {
                     Some(ref ns) => {
                         let ns = ns.get();
 
-                        let n1 = &ns[is[0]];
-                        let n2 = &ns[is[1]];
-                        let n3 = &ns[is[2]];
+                        let n1 = ns.get(is[0]);
+                        let n2 = ns.get(is[1]);
+                        let n3 = ns.get(is[2]);
 
                         let mut n123 = n1 * uv.x + n2 * uv.y + n3 * uv.z;
 

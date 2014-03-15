@@ -18,7 +18,7 @@ impl<T: 'static> HasUid for Gc<T> {
 
 impl<T> HasUid for Rc<T> {
     fn uid(&self) -> uint {
-        self.borrow() as *T as uint
+        &**self as *T as uint
     }
 }
 

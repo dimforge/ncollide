@@ -1,4 +1,5 @@
 use std::num::Zero;
+use std::vec_ng::Vec;
 use nalgebra::na::{Translation, Indexable, Norm};
 use nalgebra::na;
 use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
@@ -80,7 +81,7 @@ impl<S:  Simplex<AnnotatedPoint>,
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         match self.contact {
             Projection(ref c) => out_colls.push(c.clone()),
             _                 => ()

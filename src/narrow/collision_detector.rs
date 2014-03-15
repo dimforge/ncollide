@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use contact::Contact;
 use math::{Scalar, Vector, Matrix};
 
@@ -20,7 +21,7 @@ pub trait CollisionDetector<G1, G2> {
     fn num_colls(&self) -> uint;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut ~[Contact]);
+    fn colls(&self, &mut Vec<Contact>);
 
     /// Computes the time of impact of two objects.
     ///

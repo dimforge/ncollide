@@ -1,4 +1,5 @@
 use std::any::AnyRefExt;
+use std::vec_ng::Vec;
 use nalgebra::na;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
@@ -13,8 +14,8 @@ use math::Matrix;
 /// Collision detector between a concave geometry and another geometry.
 pub struct ConcaveGeomGeom<G1, G2> {
     priv sub_detectors: HashMap<uint, ~GeomGeomCollisionDetector, UintTWHash>,
-    priv to_delete:     ~[uint],
-    priv interferences: ~[uint]
+    priv to_delete:     Vec<uint>,
+    priv interferences: Vec<uint>
 }
 
 impl<G1, G2> ConcaveGeomGeom<G1, G2> {
@@ -22,8 +23,8 @@ impl<G1, G2> ConcaveGeomGeom<G1, G2> {
     pub fn new() -> ConcaveGeomGeom<G1, G2> {
         ConcaveGeomGeom {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
-            to_delete:     ~[],
-            interferences: ~[]
+            to_delete:     Vec::new(),
+            interferences: Vec::new()
         }
     }
 }
@@ -112,7 +113,7 @@ GeomGeomCollisionDetector for ConcaveGeomGeom<G1, G2> {
         res
     }
 
-    fn colls(&self, out: &mut ~[Contact]) {
+    fn colls(&self, out: &mut Vec<Contact>) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.colls(out);
         }
@@ -156,7 +157,7 @@ GeomGeomCollisionDetector for GeomConcaveGeom<G1, G2> {
         self.sub_detector.num_colls()
     }
 
-    fn colls(&self, out: &mut ~[Contact]) {
+    fn colls(&self, out: &mut Vec<Contact>) {
         self.sub_detector.colls(out)
     }
 }

@@ -4,6 +4,7 @@ use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
+use std::vec_ng::Vec;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;
@@ -87,7 +88,7 @@ DBVT<B, BV> {
     ///           is not considered intersecting itself.
     pub fn interferences_with_leaf(&self,
                                    leaf: &DBVTLeaf<B, BV>,
-                                   out:  &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {
+                                   out:  &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
         match self.tree {
             Some(ref tree) => tree.interferences_with_leaf(leaf, out),
             None           => { }
@@ -97,7 +98,7 @@ DBVT<B, BV> {
     /// Finds all interferences between this tree and another one.
     pub fn interferences_with_tree(&self,
                                    leaf: &DBVT<B, BV>,
-                                   out:  &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {
+                                   out:  &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
         match (&self.tree, &leaf.tree) {
             (&Some(ref a), &Some(ref b)) => a.interferences_with_tree(b, out),
             (&None, _) => { },
@@ -456,7 +457,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone, B: 'static + Cl
     /// is not considered intersecting itself.
     fn interferences_with_leaf(&self,
                                to_test: &DBVTLeaf<B, BV>,
-                               out:     &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {
+                               out:     &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(&to_test.bounding_volume, out);
         self.visit(&mut visitor)
     }
@@ -497,7 +498,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone, B: 'static + Cl
     /// Finds all interferences between this tree and another one.
     fn interferences_with_tree(&self,
                                to_test: &DBVTNode<B, BV>,
-                               out:     &mut ~[Gc<RefCell<DBVTLeaf<B, BV>>>]) {
+                               out:     &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
         match (self, to_test) {
             (&Leaf(_), &Leaf(ref lb)) => {
                 let blb = lb.borrow().borrow();
@@ -535,7 +536,7 @@ impl<BV: 'static + BoundingVolume + RayCast<Scalar, Vector> + Translation<Vector
      Vector:  'static + AlgebraicVec<Scalar>,
      Scalar:  Algebraic + Ord>
 DBVTNode<Vector, B, BV> {
-    fn interferences_with_ray(&self, ray: &Ray<Vector>, out: &mut ~[Gc<RefCell<f<Vector, B, BV>>]) {
+    fn interferences_with_ray(&self, ray: &Ray<Vector>, out: &mut Vec<Gc<RefCell<f<Vector, B, BV>>>) {
         match (*self) {
             Internal(ref i) => {
                 if i.bounding_volume.intersects_ray(ray) {

@@ -2,6 +2,7 @@
 //! Geometry composed from the union of primitives.
 //!
 
+use std::vec_ng::Vec;
 use nalgebra::na;
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use ray::Ray;
@@ -16,15 +17,15 @@ use math::Matrix;
 /// the main way of creating a concave geometry from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other geometries.
 pub struct Compound {
-    priv shapes: ~[(Matrix, ~Geom)],
+    priv shapes: Vec<(Matrix, ~Geom)>,
     priv bvt:    BVT<uint, AABB>,
-    priv bvs:    ~[AABB]
+    priv bvs:    Vec<AABB>
 }
 
 impl Clone for Compound {
     fn clone(&self) -> Compound {
         Compound {
-            shapes: self.shapes.map(|&(ref m, ref s)| (m.clone(), s.duplicate())),
+            shapes: self.shapes.iter().map(|&(ref m, ref s)| (m.clone(), s.duplicate())).collect(),
             bvt:    self.bvt.clone(),
             bvs:    self.bvs.clone()
         }
@@ -34,9 +35,9 @@ impl Clone for Compound {
 impl Compound {
     /// Builds a new compound shape from a list of shape with their respective delta
     /// transformation.
-    pub fn new(shapes: ~[(Matrix, ~Geom)]) -> Compound {
-        let mut bvs    = ~[];
-        let mut leaves = ~[];
+    pub fn new(shapes: Vec<(Matrix, ~Geom)>) -> Compound {
+        let mut bvs    = Vec::new();
+        let mut leaves = Vec::new();
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             let bv = shape.aabb(delta).loosened(na::cast(0.04)); // loosen for better persistancy
@@ -59,9 +60,7 @@ impl Compound {
     /// The shapes of this compound geometry.
     #[inline]
     pub fn shapes<'r>(&'r self) -> &'r [(Matrix, ~Geom)] {
-        let res: &'r [(Matrix, ~Geom)] = self.shapes;
-
-        res
+        self.shapes.as_slice()
     }
 
     /// The optimization structure used by this compound geometry.
@@ -73,41 +72,39 @@ impl Compound {
     /// The shapes bounding volumes.
     #[inline]
     pub fn bounding_volumes<'r>(&'r self) -> &'r [AABB] {
-        let res: &'r [AABB] = self.bvs;
-
-        res
+        self.bvs.as_slice()
     }
 }
 
 impl ConcaveGeom for Compound {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&Matrix, &Geom| -> T) -> T{
-        let (ref m, ref g) = self.shapes[i];
+        let &(ref m, ref g) = self.shapes.get(i);
 
         f(m, *g)
     }
 
     #[inline(always)]
     fn map_transformed_part_at<T>(&self, m: &Matrix, i: uint, f: |&Matrix, &Geom| -> T) -> T{
-        let (ref lm, ref g) = self.shapes[i];
+        let &(ref lm, ref g) = self.shapes.get(i);
 
         f(&(m * *lm), *g)
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB, out: &mut ~[uint]) {
+    fn approx_interferences_with_aabb(&self, aabb: &AABB, out: &mut Vec<uint>) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray, out: &mut ~[uint]) {
+    fn approx_interferences_with_ray(&self, ray: &Ray, out: &mut Vec<uint>) {
         let mut visitor = RayInterferencesCollector::new(ray, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
-        &'a self.bvs[i]
+        self.bvs.get(i)
     }
 }

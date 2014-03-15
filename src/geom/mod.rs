@@ -18,7 +18,7 @@ pub use geom::triangle::Triangle;
 pub use geom::geom::{Geom, ConcaveGeom};
 
 // modules
-mod geom;
+pub mod geom;
 mod ball;
 mod plane;
 mod box_geom;

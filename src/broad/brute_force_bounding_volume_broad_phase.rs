@@ -1,6 +1,7 @@
 use std::mem;
 use std::gc::Gc;
 use std::cell::RefCell;
+use std::vec_ng::Vec;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};
@@ -56,13 +57,13 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 ///
 /// Do not use this broad phase.
 pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
-    priv objects:    ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // active   objects
-    priv sobjects:   ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>], // inactive objects
+    priv objects:    Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
+    priv sobjects:   Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
     priv rb2bv:      HashMap<uint, uint, UintTWHash>,
     priv pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
     priv dispatcher: D,
     priv margin:     Scalar,
-    priv to_update:  ~[Gc<RefCell<BoundingVolumeProxy<B, BV>>>],
+    priv to_update:  Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>,
     priv update_off: uint // incremental pairs removal index
 }
 
@@ -74,9 +75,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     /// Creates a new bounding volume based brute force broad phase.
     pub fn new(dispatcher: D, margin: Scalar) -> BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         BruteForceBoundingVolumeBroadPhase {
-            objects:    ~[],
-            sobjects:   ~[],
-            to_update:  ~[],
+            objects:    Vec::new(),
+            sobjects:   Vec::new(),
+            to_update:  Vec::new(),
             rb2bv:      HashMap::new(UintTWHash::new()),
             pairs:      HashMap::new(PairTWHash::new()),
             dispatcher: dispatcher,
@@ -123,9 +124,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 Some(i) => {
                     if active {
                         // remove from sobjects…
-                        let proxy  = self.sobjects[*i];
+                        let proxy  = *self.sobjects.get(*i);
                         let lproxy = self.sobjects.pop().unwrap();
-                        self.sobjects[*i] = lproxy;
+                        *self.sobjects.get_mut(*i) = lproxy;
 
                         // … then add to objects
                         self.objects.push(proxy);
@@ -138,9 +139,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     }
                     else {
                         // remove from objects…
-                        let proxy  = self.objects[*i];
+                        let proxy  = *self.objects.get(*i);
                         let lproxy = self.objects.pop().unwrap();
-                        self.objects[*i] = lproxy;
+                        *self.objects.get_mut(*i) = lproxy;
 
                         // … then add to sobjects
                         self.sobjects.push(proxy);
@@ -224,6 +225,7 @@ mod test {
     use super::BruteForceBoundingVolumeBroadPhase;
     use std::rc::Rc;
     use std::cell::RefCell;
+    use std::vec_ng::Vec;
     use nalgebra::na::{Vec3, Iso3};
     use nalgebra::na;
     use geom::Ball;
@@ -282,7 +284,7 @@ mod test {
         let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
         let ball       = Ball::new(0.3);
 
-        let mut to_move = ~[];
+        let mut to_move = Vec::new();
 
         // create a grid
         for i in range(-10, 10) {
@@ -295,10 +297,10 @@ mod test {
         }
 
         for e in to_move.mut_iter() {
-            let mut pe = e.borrow().borrow_mut();
-            let m      = pe.get().m().clone();
-            let g      = pe.get().g().clone();
-            *pe.get()  = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
+            let mut pe = e.borrow_mut();
+            let m      = pe.m().clone();
+            let g      = pe.g().clone();
+            *pe        = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
         }
 
         bf.update();

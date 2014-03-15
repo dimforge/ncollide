@@ -1,6 +1,7 @@
 #[cfg(not(dim4))]
 use nalgebra::na;
 
+use std::vec_ng::Vec;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
 use math::{Scalar, Vector, Matrix};
@@ -75,7 +76,7 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         self.sub_detector.colls(out_colls)
     }
 

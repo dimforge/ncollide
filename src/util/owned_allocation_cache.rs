@@ -1,11 +1,13 @@
 //! Allocation cache for owned objects.
 
+use std::vec_ng::Vec;
+
 // FIXME: add a limit to the cache?
 /// Cache for owned objects.
 ///
 /// Useful if fast allocation/deallocation of small owned objects is needed.
 pub struct OwnedAllocationCache<T> {
-    priv cache: ~[~T]
+    priv cache: Vec<~T>
 }
 
 impl<T> OwnedAllocationCache<T> {
@@ -13,7 +15,7 @@ impl<T> OwnedAllocationCache<T> {
     #[inline]
     pub fn new() -> OwnedAllocationCache<T> {
         OwnedAllocationCache {
-            cache: ~[]
+            cache: Vec::new()
         }
     }
 

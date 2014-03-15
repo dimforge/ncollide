@@ -12,7 +12,7 @@ pub use ray::ray_ball::ball_toi_with_ray;
 pub use ray::ray_triangle::triangle_ray_intersection;
 
 // modules
-mod ray;
+pub mod ray;
 mod ray_plane;
 mod ray_ball;
 mod ray_box;

@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
 use util::has_uid::HasUid;
@@ -13,7 +14,7 @@ use broad::Dispatcher;
 pub struct BruteForceBroadPhase<B, D, DV> {
     priv dispatcher: D,
     priv pairs:      HashMap<Pair<B>, DV, PairTWHash>,
-    priv objects:    ~[B]
+    priv objects:    Vec<B>
 }
 
 impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {
@@ -22,7 +23,7 @@ impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, 
         BruteForceBroadPhase {
             dispatcher: dispatcher,
             pairs:      HashMap::new(PairTWHash::new()),
-            objects:    ~[],
+            objects:    Vec::new(),
         }
     }
 

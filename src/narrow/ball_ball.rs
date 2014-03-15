@@ -1,4 +1,5 @@
 use std::num::Zero;
+use std::vec_ng::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use geom::Ball;
@@ -54,7 +55,7 @@ BallBall {
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()

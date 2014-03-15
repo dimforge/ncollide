@@ -201,18 +201,16 @@ impl<A: HasAABB> HasBoundingVolume<AABB> for WithAABB<A> {
 impl<A: HasAABB>
 HasBoundingVolume<AABB> for Rc<WithAABB<A>> {
     fn bounding_volume(&self) -> AABB {
-        let bself = self.borrow();
-
-        bself.g().aabb(bself.m())
+        self.g().aabb(self.m())
     }
 }
 
 impl<A: HasAABB>
 HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
     fn bounding_volume(&self) -> AABB {
-        let bself = self.borrow().borrow();
+        let bself = self.borrow();
 
-        bself.get().g().aabb(bself.get().m())
+        bself.g().aabb(bself.m())
     }
 }
 

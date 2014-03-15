@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use nalgebra::na::{Translation, Rotate};
 use nalgebra::na;
 use narrow::CollisionDetector;
@@ -58,7 +59,7 @@ impl<G: Implicit<Vector, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
@@ -124,7 +125,7 @@ impl<G: Implicit<Vector, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()

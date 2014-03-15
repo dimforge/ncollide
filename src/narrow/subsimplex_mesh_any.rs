@@ -1,4 +1,5 @@
 use std::vec;
+use std::vec_ng::Vec;
 use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use nalgebra::na;
 use util::hash_map::HashMap;
@@ -13,8 +14,8 @@ use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 pub struct SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: HashMap<uint, SD, UintTWHash>,
-    priv to_delete:     ~[uint],
-    priv interferences: ~[uint]
+    priv to_delete:     Vec<uint>,
+    priv interferences: Vec<uint>
 }
 
 pub struct AnySubsimplexMesh<Scalar, Vector, Matrix, G, D, SD> {

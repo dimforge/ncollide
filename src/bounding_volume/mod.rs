@@ -9,8 +9,10 @@ pub use bounding_volume::aabb::implicit_shape_aabb;
 pub use bounding_volume::aabb_ball::ball_aabb;
 
 // modules
-mod aabb;
-mod bounding_volume;
+#[doc(hidden)]
+pub mod aabb;
+#[doc(hidden)]
+pub mod bounding_volume;
 
 mod aabb_box;
 mod aabb_cone;

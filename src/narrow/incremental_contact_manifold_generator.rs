@@ -1,3 +1,4 @@
+use std::vec_ng::Vec;
 use nalgebra::na::Transform;
 use nalgebra::na;
 use narrow::CollisionDetector;
@@ -31,8 +32,8 @@ impl ContactWLocals {
 /// contacts).
 #[deriving(Encodable, Decodable, Clone)]
 pub struct IncrementalContactManifoldGenerator<CD> {
-    priv contacts:     ~[ContactWLocals],
-    priv collector:    ~[Contact],
+    priv contacts:     Vec<ContactWLocals>,
+    priv collector:    Vec<Contact>,
     priv prediction:   Scalar,
     priv sub_detector: CD
 }
@@ -44,8 +45,8 @@ impl<CD> IncrementalContactManifoldGenerator<CD> {
     /// * `cd` - collision detection sub-algorithm used to generate the contact points.
     pub fn new(prediction: Scalar, cd: CD) -> IncrementalContactManifoldGenerator<CD> {
         IncrementalContactManifoldGenerator {
-            contacts:     ~[],
-            collector:    ~[],
+            contacts:     Vec::new(),
+            collector:    Vec::new(),
             prediction:   prediction,
             sub_detector: cd
         }
@@ -63,7 +64,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
             None
         }
         else {
-            Some(self.collector[0].clone())
+            Some(self.collector.get(0).clone())
         };
 
         self.collector.clear();
@@ -83,7 +84,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
-                add_reduce_by_variance(self.contacts, c.clone(), m1, m2)
+                add_reduce_by_variance(self.contacts.as_mut_slice(), c.clone(), m1, m2)
             }
             else {
                 self.contacts.push(ContactWLocals::new_with_contact(c.clone(), m1, m2))
@@ -99,7 +100,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
         let mut i = 0;
         while i != self.contacts.len() {
             let remove = {
-                let c      = &mut self.contacts[i];
+                let c      = self.contacts.get_mut(i);
                 let world1 = m1.transform(&c.local1);
                 let world2 = m2.transform(&c.local2);
 
@@ -143,7 +144,7 @@ CollisionDetector<G1, G2> for IncrementalContactManifoldGenerator<CD> {
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut ~[Contact]) {
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
         for c in self.contacts.iter() {
             out_colls.push(c.contact.clone())
         }
