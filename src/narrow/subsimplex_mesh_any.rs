@@ -1,5 +1,5 @@
 use std::vec;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use nalgebra::na;
 use util::hash_map::HashMap;
@@ -11,26 +11,26 @@ use narrow::CollisionDetector;
 use contact::Contact;
 use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 
-pub struct SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD> {
+pub struct SubsimplexMeshAny<Scalar, Vect, Matrix, G, D, SD> {
     priv dispatcher:    D,
     priv sub_detectors: HashMap<uint, SD, UintTWHash>,
     priv to_delete:     Vec<uint>,
     priv interferences: Vec<uint>
 }
 
-pub struct AnySubsimplexMesh<Scalar, Vector, Matrix, G, D, SD> {
-    priv sub_detector: SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD>
+pub struct AnySubsimplexMesh<Scalar, Vect, Matrix, G, D, SD> {
+    priv sub_detector: SubsimplexMeshAny<Scalar, Vect, Matrix, G, D, SD>
 }
 
 impl<'a,
      Scalar:  Algebraic + Primitive + Orderable,
-     Vector:  AlgebraicVecExt<Scalar> + Clone,
-     Matrix:  Inv + Mul<Matrix, Matrix> + Translation<Vector>,
-     G:  HasAABB<Scalar, Vector, Matrix>,
-     D:  Dispatcher<Subsimplex<'a, Scalar, Vector>, G, SD>,
-     SD: CollisionDetector<Scalar, Vector, Matrix, Subsimplex<'a, Scalar, Vector>, G>>
-SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD> {
-    fn do_update(&mut self, m1: &Matrix, g1: &SubsimplexMesh<Scalar, Vector>, m2: &Matrix, g2: &G) {
+     Vect:  AlgebraicVecExt<Scalar> + Clone,
+     Matrix:  Inv + Mul<Matrix, Matrix> + Translation<Vect>,
+     G:  HasAABB<Scalar, Vect, Matrix>,
+     D:  Dispatcher<Subsimplex<'a, Scalar, Vect>, G, SD>,
+     SD: CollisionDetector<Scalar, Vect, Matrix, Subsimplex<'a, Scalar, Vect>, G>>
+SubsimplexMeshAny<Scalar, Vect, Matrix, G, D, SD> {
+    fn do_update(&mut self, m1: &Matrix, g1: &SubsimplexMesh<Scalar, Vect>, m2: &Matrix, g2: &G) {
         // Find new collisions
         let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
@@ -74,11 +74,11 @@ SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD> {
 }
 
 // impl<Scalar
-//      Vector,
+//      Vect,
 //      Matrix,
 //      G,
 //      D,
 //      SD>
-// CollisionDetector<Scalar, Vector, Matrix, SubsimplexMesh<Scalar, Vector>, G>
-// for  SubsimplexMeshAny<Scalar, Vector, Matrix, G, D, SD> {
+// CollisionDetector<Scalar, Vect, Matrix, SubsimplexMesh<Scalar, Vect>, G>
+// for  SubsimplexMeshAny<Scalar, Vect, Matrix, G, D, SD> {
 // }

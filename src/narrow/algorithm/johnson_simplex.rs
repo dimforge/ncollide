@@ -2,7 +2,7 @@
 
 use std::mem;
 use std::num::Bounded;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use std::local_data;
 use sync::Arc;
 use collections::TreeMap;
@@ -289,7 +289,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
         /*
          * second loop: find the subsimplex containing the projection
          */
-        let mut offsets_iter = recursion.offsets.rev_iter();
+        let mut offsets_iter = recursion.offsets.as_slice().rev_iter();
         let     _            = offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
             // for each sub-simplex ...

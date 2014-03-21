@@ -11,7 +11,7 @@ use nalgebra::na::{Vec3, Norm};
 #[cfg(dim3)]
 use nalgebra::na;
 #[cfg(dim3)]
-use math::Vector;
+use math::Vect;
 
 
 impl RayCast for Mesh {
@@ -39,7 +39,7 @@ impl RayCast for Mesh {
         let cast = self.bvt().cast_ray(
             ray,
             &|b, r| {
-                let vs: &[Vector] = self.vertices().get().as_slice();
+                let vs: &[Vect] = self.vertices().get().as_slice();
                 let i        = *b * 3;
                 let is       = self.indices().get().slice(i, i + 3);
 

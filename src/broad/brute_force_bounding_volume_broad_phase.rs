@@ -1,7 +1,7 @@
 use std::mem;
 use std::gc::Gc;
 use std::cell::RefCell;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};
@@ -225,7 +225,7 @@ mod test {
     use super::BruteForceBoundingVolumeBroadPhase;
     use std::rc::Rc;
     use std::cell::RefCell;
-    use std::vec_ng::Vec;
+    use std::vec::Vec;
     use nalgebra::na::{Vec3, Iso3};
     use nalgebra::na;
     use geom::Ball;

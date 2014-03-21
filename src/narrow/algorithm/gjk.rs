@@ -5,7 +5,7 @@ use nalgebra::na;
 use geom::{Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Results of the GJK algorithm.
 #[deriving(Encodable, Decodable, Clone)]
@@ -27,13 +27,13 @@ pub enum GJKResult<_V, Dir> {
 ///               at least one point on the geometries CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
 pub fn closest_points<S:  Simplex<AnnotatedPoint>,
-                      G1: Implicit<Vector, Matrix>,
-                      G2: Implicit<Vector, Matrix>>(
+                      G1: Implicit<Vect, Matrix>,
+                      G2: Implicit<Vect, Matrix>>(
                       m1:      &Matrix,
                       g1:      &G1,
                       m2:      &Matrix,
                       g2:      &G2,
-                      simplex: &mut S) -> Option<(Vector, Vector)> {
+                      simplex: &mut S) -> Option<(Vect, Vect)> {
     let mg1      = GeomWithMargin::new(g1);
     let mg2      = GeomWithMargin::new(g2);
     let reflect2 = Reflection::new(&mg2);
@@ -52,13 +52,13 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 ///               with at least one point on the geometries CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
 pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
-                                     G1: Implicit<Vector, Matrix>,
-                                     G2: Implicit<Vector, Matrix>>(
+                                     G1: Implicit<Vect, Matrix>,
+                                     G2: Implicit<Vect, Matrix>>(
                                      m1:      &Matrix,
                                      g1:      &G1,
                                      m2:      &Matrix,
                                      g2:      &G2,
-                                     simplex: &mut S) -> Option<(Vector, Vector)> {
+                                     simplex: &mut S) -> Option<(Vect, Vect)> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -75,14 +75,14 @@ pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
 ///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///               compute such point.
 pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
-                                                   G1: Implicit<Vector, Matrix>,
-                                                   G2: Implicit<Vector, Matrix>>(
+                                                   G1: Implicit<Vect, Matrix>,
+                                                   G2: Implicit<Vect, Matrix>>(
                                                    m1:       &Matrix,
                                                    g1:       &G1,
                                                    m2:       &Matrix,
                                                    g2:       &G2,
                                                    max_dist: &Scalar,
-                                                   simplex:  &mut S) -> GJKResult<(Vector, Vector), Vector> {
+                                                   simplex:  &mut S) -> GJKResult<(Vect, Vect), Vect> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -114,7 +114,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
     let _eps: Scalar  = Float::epsilon();
     let _eps_tol = _eps * na::cast(100.0);
     let _eps_rel = _eps.sqrt();
-    let _dim     = na::dim::<Vector>();
+    let _dim     = na::dim::<Vect>();
 
     loop {
         if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
@@ -167,7 +167,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Flo
     let _eps: Scalar  = Float::epsilon();
     let _eps_tol = _eps * na::cast(100.0);
     let _eps_rel = _eps.sqrt();
-    let _dim     = na::dim::<Vector>();
+    let _dim     = na::dim::<Vect>();
 
     loop {
         if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {

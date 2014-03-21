@@ -1,4 +1,4 @@
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::{Translation, Rotate};
 use nalgebra::na;
 use narrow::CollisionDetector;
@@ -6,7 +6,7 @@ use geom::Plane;
 use implicit::Implicit;
 use contact::Contact;
 use ray::{Ray, RayCast};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 ///
@@ -39,7 +39,7 @@ impl<G> PlaneImplicit<G> {
     }
 }
 
-impl<G: Implicit<Vector, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
+impl<G: Implicit<Vect, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
     #[inline]
     fn update(&mut self, ma: &Matrix, plane: &Plane, mb: &Matrix, b: &G) {
         self.contact = collide(
@@ -69,7 +69,7 @@ impl<G: Implicit<Vector, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<
     #[inline]
     fn toi(_:     Option<PlaneImplicit<G>>,
            ma:    &Matrix,
-           dir:   &Vector,
+           dir:   &Vect,
            _:     &Scalar,
            plane: &Plane,
            mb:    &Matrix,
@@ -109,7 +109,7 @@ impl<G> ImplicitPlane<G> {
     }
 }
 
-impl<G: Implicit<Vector, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
+impl<G: Implicit<Vect, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
     #[inline]
     fn update(&mut self, ma: &Matrix, a: &G, mb: &Matrix, plane: &Plane) {
         self.contact = collide(mb, plane, ma, a, &self.prediction);
@@ -135,7 +135,7 @@ impl<G: Implicit<Vector, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<
     #[inline]
     fn toi(_:     Option<ImplicitPlane<G>>,
            ma:    &Matrix,
-           dir:   &Vector,
+           dir:   &Vect,
            _:     &Scalar,
            a:     &G,
            mb:    &Matrix,
@@ -149,7 +149,7 @@ impl<G: Implicit<Vector, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<
 /// # Arguments:
 /// * `plane` - the plane to test.
 /// * `other` - the object to test against the plane.
-pub fn collide<G: Implicit<Vector, Matrix>>(
+pub fn collide<G: Implicit<Vect, Matrix>>(
                mplane:     &Matrix,
                plane:      &Plane,
                mother:     &Matrix,
@@ -180,11 +180,11 @@ pub fn collide<G: Implicit<Vector, Matrix>>(
 /// * `mother` - the geometry transform.
 /// * `dir`    - the direction of the other geometry movement.
 /// * `other`  - the other geometry.
-pub fn toi<G: Implicit<Vector, Matrix>>(
+pub fn toi<G: Implicit<Vect, Matrix>>(
            mplane: &Matrix,
            plane:  &Plane,
            mother: &Matrix,
-           dir:    &Vector,
+           dir:    &Vect,
            other:  &G)
            -> Option<Scalar> {
     let plane_normal  = mplane.rotate(&plane.normal());

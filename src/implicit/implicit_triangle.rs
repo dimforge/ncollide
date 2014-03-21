@@ -2,7 +2,7 @@ use nalgebra::na::{Transform, Rotate};
 use nalgebra::na;
 use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Triangle;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 impl HasMargin for Triangle {
     #[inline]
@@ -11,10 +11,10 @@ impl HasMargin for Triangle {
     }
 }
 
-impl<_M: Transform<Vector> + Rotate<Vector>>
-Implicit<Vector, _M> for Triangle {
+impl<_M: Transform<Vect> + Rotate<Vect>>
+Implicit<Vect, _M> for Triangle {
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, dir: &Vector) -> Vector {
+    fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
 
         let d1 = na::dot(self.a(), &local_dir);

@@ -2,7 +2,7 @@ use std::num::Zero;
 use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
 use nalgebra::na;
 use geom::Reflection;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
@@ -115,15 +115,15 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
 #[doc(hidden)]
 #[deriving(Clone, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint {
-    priv orig1: Vector,
-    priv orig2: Vector,
-    priv point: Vector
+    priv orig1: Vect,
+    priv orig2: Vect,
+    priv point: Vect
 }
 
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new(orig1: Vector, orig2: Vector, point: Vector) -> AnnotatedPoint {
+    pub fn new(orig1: Vect, orig2: Vect, point: Vect) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
@@ -133,19 +133,19 @@ impl AnnotatedPoint {
 
     #[doc(hidden)]
     #[inline]
-    pub fn point<'r>(&'r self) -> &'r Vector {
+    pub fn point<'r>(&'r self) -> &'r Vect {
         &'r self.point
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig1<'r>(&'r self) -> &'r Vector {
+    pub fn orig1<'r>(&'r self) -> &'r Vect {
         &'r self.orig1
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig2<'r>(&'r self) -> &'r Vector {
+    pub fn orig2<'r>(&'r self) -> &'r Vect {
         &'r self.orig2
     }
 }
@@ -153,7 +153,7 @@ impl AnnotatedPoint {
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new_invalid(point: Vector) -> AnnotatedPoint {
+    pub fn new_invalid(point: Vect) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: na::zero(),
             orig2: na::zero(),
@@ -203,7 +203,7 @@ impl Neg<AnnotatedPoint> for AnnotatedPoint {
 impl Dim for AnnotatedPoint {
     #[inline]
     fn dim(_: Option<AnnotatedPoint>) -> uint {
-        na::dim::<Vector>()
+        na::dim::<Vect>()
     }
 }
 

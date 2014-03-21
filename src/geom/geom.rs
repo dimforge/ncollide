@@ -1,6 +1,6 @@
 //! Enum grouping the most useful geometric shapes.
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use std::raw::TraitObject;
 use std::intrinsics::TypeId;
 use std::cast;

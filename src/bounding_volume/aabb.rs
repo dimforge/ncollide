@@ -5,7 +5,7 @@ use nalgebra::na::{Translation, Indexable};
 use nalgebra::na;
 use implicit::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Traits of objects that can be approximated by an AABB.
 pub trait HasAABB {
@@ -16,24 +16,24 @@ pub trait HasAABB {
 /// An Axis Aligned Bounding Box.
 ///
 /// # Parameter:
-///   * `Vector` - type of the points of the bounding box. It determines the AABB dimension.
+///   * `Vect` - type of the points of the bounding box. It determines the AABB dimension.
 ///   * `Scalar` - type of the one components of the aabb points.
 #[deriving(Show, Eq, Clone, Encodable, Decodable)]
 pub struct AABB {
-    priv mins: Vector,
-    priv maxs: Vector
+    priv mins: Vect,
+    priv maxs: Vect
 }
 
 impl AABB {
     /// Reference to the AABB point with the smallest components along each axis.
     #[inline]
-    pub fn mins<'r>(&'r self) -> &'r Vector {
+    pub fn mins<'r>(&'r self) -> &'r Vect {
         &'r self.mins
     }
 
     /// Reference to the AABB point with the biggest components along each axis.
     #[inline]
-    pub fn maxs<'r>(&'r self) -> &'r Vector {
+    pub fn maxs<'r>(&'r self) -> &'r Vect {
         &'r self.maxs
     }
 }
@@ -45,7 +45,7 @@ impl AABB {
     ///   * `mins` - position of the point with the smallest coordinates.
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
-    pub fn new(mins: Vector, maxs: Vector) -> AABB {
+    pub fn new(mins: Vect, maxs: Vect) -> AABB {
         assert!(na::partial_le(&mins, &maxs));
 
         AABB {
@@ -59,7 +59,7 @@ impl AABB {
     /// * `maxs = Bounded::max_value()`.
     /// This is useful to build aabb using merges.
     pub fn new_invalid() -> AABB {
-        let _M: Vector = Bounded::max_value();
+        let _M: Vect = Bounded::max_value();
         AABB {
             mins: Bounded::max_value(),
             maxs: -_M,
@@ -95,35 +95,35 @@ impl BoundingVolume for AABB {
     }
 }
 
-impl Translation<Vector> for AABB
+impl Translation<Vect> for AABB
 {
-    fn translation(&self) -> Vector {
+    fn translation(&self) -> Vect {
         (self.mins + self.maxs) * na::cast::<f64, Scalar>(0.5)
     }
 
-    fn inv_translation(&self) -> Vector {
+    fn inv_translation(&self) -> Vect {
         -self.translation()
     }
 
-    fn append_translation(&mut self, dv: &Vector) {
+    fn append_translation(&mut self, dv: &Vect) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
-    fn append_translation_cpy(aabb: &AABB, dv: &Vector) -> AABB {
+    fn append_translation_cpy(aabb: &AABB, dv: &Vect) -> AABB {
         AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
     }
 
-    fn prepend_translation(&mut self, dv: &Vector) {
+    fn prepend_translation(&mut self, dv: &Vect) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
-    fn prepend_translation_cpy(aabb: &AABB, dv: &Vector) -> AABB {
+    fn prepend_translation_cpy(aabb: &AABB, dv: &Vect) -> AABB {
         AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
     }
 
-    fn set_translation(&mut self, v: Vector) {
+    fn set_translation(&mut self, v: Vect) {
         let center = self.translation();
 
         self.mins = self.mins - center + v;
@@ -148,12 +148,12 @@ impl LooseBoundingVolume for AABB {
 }
 
 /// Builds the AABB of an implicit shape.
-pub fn implicit_shape_aabb<I: Implicit<Vector, Matrix>>(m: &Matrix, i: &I) -> AABB {
-        let mut resm:  Vector = na::zero();
-        let mut resM:  Vector = na::zero();
-        let mut basis: Vector = na::zero();
+pub fn implicit_shape_aabb<I: Implicit<Vect, Matrix>>(m: &Matrix, i: &I) -> AABB {
+        let mut resm:  Vect = na::zero();
+        let mut resM:  Vect = na::zero();
+        let mut basis: Vect = na::zero();
 
-        for d in range(0, na::dim::<Vector>()) {
+        for d in range(0, na::dim::<Vect>()) {
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis.set(d, na::one());

@@ -102,7 +102,7 @@ pub mod math {
     pub type Scalar = f32;
 
     /// The vector type.
-    pub type Vector = Vec3<Scalar>;
+    pub type Vect = Vec3<Scalar>;
 
     /// The orientation type.
     pub type Orientation = Vec3<Scalar>;

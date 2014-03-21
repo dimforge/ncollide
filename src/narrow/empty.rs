@@ -1,7 +1,7 @@
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use narrow::CollisionDetector;
 use contact::Contact;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// A collision detector that does nothing.
 #[deriving(Encodable, Decodable)]
@@ -29,7 +29,7 @@ impl<G1, G2> CollisionDetector<G1, G2> for Empty<G1, G2> {
     fn colls(&self, _: &mut Vec<Contact>) {
     }
 
-    fn toi(_: Option<Empty<G1, G2>>, _: &Matrix, _: &Vector, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
+    fn toi(_: Option<Empty<G1, G2>>, _: &Matrix, _: &Vect, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
         None
     }
 }

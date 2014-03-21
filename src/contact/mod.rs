@@ -1,19 +1,19 @@
 //! Main data structure for contacts.
 
 use std::mem;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// Geometric description of a contact.
 #[deriving(Show, Eq, Clone, Encodable, Decodable)]
 pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.
-    world1: Vector,
+    world1: Vect,
 
     /// Position of the contact on the second object. The position is expressed in world space.
-    world2: Vector,
+    world2: Vect,
 
     /// Contact normal
-    normal: Vector,
+    normal: Vect,
 
     /// Penetration depth
     depth:  Scalar
@@ -22,7 +22,7 @@ pub struct Contact {
 impl Contact {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: Vector, world2: Vector, normal: Vector, depth: Scalar) -> Contact {
+    pub fn new(world1: Vect, world2: Vect, normal: Vect, depth: Scalar) -> Contact {
         Contact {
             world1: world1,
             world2: world2,

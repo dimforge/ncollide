@@ -3,14 +3,14 @@ use nalgebra::na::Translation;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 #[cfg(dim3)]
 use nalgebra::na::Vec3;
 
 
 #[cfg(dim3)]
-fn ball_uv(normal: &Vector) -> Option<Vector> {
+fn ball_uv(normal: &Vect) -> Option<Vect> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
     let _0_5:   Scalar = na::cast(0.5);
@@ -58,7 +58,7 @@ impl RayCast for Ball {
 }
 
 /// Computes the time of impact of a ray on a ball.
-pub fn ball_toi_with_ray(center: Vector, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
+pub fn ball_toi_with_ray(center: Vect, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
     let dcenter = ray.orig - center;
 
     let b = na::dot(&dcenter, &ray.dir);

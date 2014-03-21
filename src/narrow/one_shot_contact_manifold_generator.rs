@@ -1,10 +1,10 @@
 #[cfg(not(dim4))]
 use nalgebra::na;
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 #[cfg(not(dim4))]
 use math::Orientation;
@@ -83,7 +83,7 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     #[inline]
     fn toi(_:    Option<OneShotContactManifoldGenerator<CD>>,
            m1:   &Matrix,
-           dir:  &Vector,
+           dir:  &Vect,
            dist: &Scalar,
            g1:   &G1,
            m2:   &Matrix,

@@ -2,7 +2,7 @@
 //! Geometry composed from the union of primitives.
 //!
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na;
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use ray::Ray;

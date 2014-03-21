@@ -1,15 +1,15 @@
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::Transform;
 use nalgebra::na;
 use narrow::CollisionDetector;
 use contact::Contact;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 #[deriving(Encodable, Decodable, Clone)]
 struct ContactWLocals {
-    local1:  Vector,
-    local2:  Vector,
-    center:  Vector,
+    local1:  Vect,
+    local2:  Vect,
+    center:  Vect,
     contact: Contact
 }
 
@@ -80,7 +80,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
         self.sub_detector.colls(&mut self.collector);
 
         // remove duplicates
-        let _max_num_contact = (na::dim::<Vector>() - 1) * 2;
+        let _max_num_contact = (na::dim::<Vect>() - 1) * 2;
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
@@ -153,7 +153,7 @@ CollisionDetector<G1, G2> for IncrementalContactManifoldGenerator<CD> {
     #[inline]
     fn toi(_:    Option<IncrementalContactManifoldGenerator<CD>>,
            m1:   &Matrix,
-           dir:  &Vector,
+           dir:  &Vect,
            dist: &Scalar,
            g1:   &G1,
            m2:   &Matrix,

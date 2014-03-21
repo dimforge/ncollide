@@ -1,5 +1,5 @@
 use std::num::Bounded;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::{ConcaveGeom, Compound};

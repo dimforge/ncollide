@@ -1,21 +1,21 @@
 //! Traits and structure needed to cast rays.
 
 use nalgebra::na::{Rotate, Transform};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// A Ray.
 #[deriving(Show, Encodable, Decodable)]
 pub struct Ray {
     /// Starting point of the ray.
-    orig: Vector,
+    orig: Vect,
     /// Direction of the ray.
-    dir:  Vector
+    dir:  Vect
 }
 
 impl Ray {
     /// Creates a new ray starting from `orig` and with the direction `dir`. `dir` must be
     /// normalized.
-    pub fn new(orig: Vector, dir: Vector) -> Ray {
+    pub fn new(orig: Vect, dir: Vect) -> Ray {
         Ray {
             orig: orig,
             dir:  dir
@@ -33,19 +33,19 @@ pub struct RayIntersection {
     /// The normal at the intersection point.
     ///
     /// If the `toi` is exactly zero, the normal might not be reliable.
-    normal: Vector,
+    normal: Vect,
 
     #[cfg(dim3)]
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    uvs:   Option<Vector>
+    uvs:   Option<Vect>
 }
 
 impl RayIntersection {
     #[cfg(dim3)]
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new_with_uvs(toi: Scalar, normal: Vector, uvs: Option<Vector>) -> RayIntersection {
+    pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Vect>) -> RayIntersection {
         RayIntersection {
             toi:    toi,
             normal: normal,
@@ -56,7 +56,7 @@ impl RayIntersection {
     #[cfg(not(dim3))]
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new(toi: Scalar, normal: Vector) -> RayIntersection {
+    pub fn new(toi: Scalar, normal: Vect) -> RayIntersection {
         RayIntersection {
             toi:    toi,
             normal: normal
@@ -66,7 +66,7 @@ impl RayIntersection {
     #[cfg(dim3)]
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new(toi: Scalar, normal: Vector) -> RayIntersection {
+    pub fn new(toi: Scalar, normal: Vect) -> RayIntersection {
         RayIntersection {
             toi:    toi,
             normal: normal,

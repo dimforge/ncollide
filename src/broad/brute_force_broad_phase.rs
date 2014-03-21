@@ -1,4 +1,4 @@
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use util::hash_map::HashMap;
 use util::pair::{Pair, PairTWHash};
 use util::has_uid::HasUid;

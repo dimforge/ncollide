@@ -5,7 +5,7 @@ use math::Scalar;
 /// Trait of a simplex usable by the GJK algorithm.
 ///
 /// # Parameters:
-///   * `Vector` - type of a point of the simplex.
+///   * `Vect` - type of a point of the simplex.
 pub trait Simplex<_V> {
     /// Replace the point of the simplex by a single one. The simplex is reduced to be
     /// 0-dimensional.

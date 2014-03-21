@@ -1,4 +1,4 @@
-use math::{Scalar, Vector, Orientation, Matrix, AngularInertia};
+use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
 
 #[cfg(dim2)]
 use nalgebra::na::Mat1;
@@ -21,14 +21,14 @@ pub trait InertiaTensor {
     fn to_world_space(&self, &Matrix) -> Self;
 
     /// Computes this inertia tensor relative to a given point.
-    fn to_relative_wrt_point(&self, &Scalar, &Vector) -> Self;
+    fn to_relative_wrt_point(&self, &Scalar, &Vect) -> Self;
 }
 
 /// Trait to be implemented by objects which have a mass, a center of mass, and an inverse
 /// inertia tensor.
 pub trait Volumetric {
     /// Given a density, this computes the mass, center of mass, and inertia tensor of this object.
-    fn mass_properties(&self, &Scalar) -> (Scalar, Vector, AngularInertia);
+    fn mass_properties(&self, &Scalar) -> (Scalar, Vect, AngularInertia);
 }
 
 #[cfg(dim2)]
@@ -44,7 +44,7 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vector) -> AngularInertia {
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vect) -> AngularInertia {
         *self + Mat1::new(mass * na::sqnorm(pt))
     }
 }
@@ -63,7 +63,7 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vector) -> AngularInertia {
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vect) -> AngularInertia {
         let diag  = na::sqnorm(pt);
         let diagm = Mat3::new(
             diag.clone(), na::zero(),   na::zero(),
@@ -88,7 +88,7 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, _: &Scalar, _: &Vector) -> AngularInertia {
+    fn to_relative_wrt_point(&self, _: &Scalar, _: &Vect) -> AngularInertia {
         fail!("Not yet implemented.")
     }
 }

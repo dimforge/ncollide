@@ -22,13 +22,13 @@ impl<T> HasUid for Rc<T> {
     }
 }
 
-impl<T: Freeze + Send> HasUid for Arc<T> {
+impl<T: Share + Send> HasUid for Arc<T> {
     fn uid(&self) -> uint {
         self.get() as *T as uint
     }
 }
 
-impl<T: Freeze + Send> HasUid for RWArc<T> {
+impl<T: Share + Send> HasUid for RWArc<T> {
     fn uid(&self) -> uint {
         self.read(|t| t as *T as uint)
     }

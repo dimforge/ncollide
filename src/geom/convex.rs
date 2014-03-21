@@ -1,14 +1,14 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::Cast;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// Set of point assumed to form a convex polytope.
 #[deriving(Clone)]
 pub struct Convex {
-    priv pts:    Vec<Vector>,
+    priv pts:    Vec<Vect>,
     priv margin: Scalar
 }
 
@@ -16,14 +16,14 @@ impl Convex {
     /// Creates a polytope from a set of point. Those points are assumed to form
     /// a convex polytope: convexity is not checked.
     #[inline]
-    pub fn new(pts: Vec<Vector>) -> Convex {
+    pub fn new(pts: Vec<Vect>) -> Convex {
         Convex::new_with_margin(pts, Cast::from(0.04))
     }
 
     /// Creates a polytope from a set of point and a custom margin. Those points are assumed to
     /// form a convex polytope: convexity is not checked.
     #[inline]
-    pub fn new_with_margin(pts: Vec<Vector>, margin: Scalar) -> Convex {
+    pub fn new_with_margin(pts: Vec<Vect>, margin: Scalar) -> Convex {
         Convex {
             pts:    pts,
             margin: margin
@@ -34,7 +34,7 @@ impl Convex {
 impl Convex {
     /// The list of points of this convex polytope.
     #[inline]
-    pub fn pts<'a>(&'a self) -> &'a [Vector] {
+    pub fn pts<'a>(&'a self) -> &'a [Vect] {
         self.pts.as_slice()
     }
 

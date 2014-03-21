@@ -1,7 +1,7 @@
 use nalgebra::na::Translation;
 use implicit::{PreferedSamplingDirections, Implicit, HasMargin};
 use geom::Ball;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 impl HasMargin for Ball {
     #[inline]
@@ -10,15 +10,15 @@ impl HasMargin for Ball {
     }
 }
 
-impl<_M: Translation<Vector>> Implicit<Vector, _M> for Ball {
+impl<_M: Translation<Vect>> Implicit<Vect, _M> for Ball {
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, _: &Vector) -> Vector {
+    fn support_point_without_margin(&self, m: &_M, _: &Vect) -> Vect {
         m.translation()
     }
 }
 
-impl<_M> PreferedSamplingDirections<Vector, _M> for Ball {
+impl<_M> PreferedSamplingDirections<Vect, _M> for Ball {
     #[inline(always)]
-    fn sample(&self, _: &_M, _: |Vector| -> ()) {
+    fn sample(&self, _: &_M, _: |Vect| -> ()) {
     }
 }

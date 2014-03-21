@@ -1,6 +1,6 @@
 use std::gc::Gc;
 use std::cell::RefCell;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
@@ -13,7 +13,7 @@ use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use ray::{Ray, RayCast};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// Broad phase based on a Dynamic Bounding Volume Tree.
 ///
@@ -34,7 +34,7 @@ pub struct DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 DBVTBroadPhase<B, BV, D, DV> {
@@ -130,7 +130,7 @@ DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + Clone + HasUid,
-     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
@@ -243,7 +243,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
@@ -350,7 +350,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vector> + Clone,
+     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
@@ -371,7 +371,7 @@ BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + RayCast + Translation<Vector> + Clone,
+     BV: 'static + LooseBoundingVolume + RayCast + Translation<Vect> + Clone,
      D:  Dispatcher<B, B, DV>,
      DV>
 RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
@@ -396,7 +396,7 @@ mod test {
     use super::DBVTBroadPhase;
     use std::rc::Rc;
     use std::cell::RefCell;
-    use std::vec_ng::Vec;
+    use std::vec::Vec;
     use nalgebra::na::{Vec3, Iso3};
     use nalgebra::na;
     use geom::Ball;

@@ -2,20 +2,20 @@
 
 use std::num;
 use std::mem;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use util::hash::HashFun;
 
 /// Entry of an `HashMap`.
 #[deriving(Clone, Encodable, Decodable)]
-pub struct Entry<K, Vector> {
+pub struct Entry<K, Vect> {
     /// The key of the entry.
     key:   K,
     /// The value of the entry.
-    value: Vector
+    value: Vect
 }
 
-impl<K, Vector> Entry<K, Vector> {
-    fn new(key: K, value: Vector) -> Entry<K, Vector> {
+impl<K, Vect> Entry<K, Vect> {
+    fn new(key: K, value: Vect) -> Entry<K, Vect> {
         Entry {
             key:   key,
             value: value
@@ -31,9 +31,9 @@ impl<K, Vector> Entry<K, Vector> {
 /// * the hash table is separate from the data. Thus, the vector of entries is tight (no holes
 ///     due to sparse hashing).
 #[deriving(Clone, Encodable, Decodable)]
-pub struct HashMap<K, Vector, H> {
+pub struct HashMap<K, Vect, H> {
     priv hash:          H,
-    priv table:         Vec<Entry<K, Vector>>,
+    priv table:         Vec<Entry<K, Vect>>,
     priv mask:          uint,
     priv htable:        Vec<int>,
     priv next:          Vec<int>,
@@ -44,14 +44,14 @@ pub struct HashMap<K, Vector, H> {
 
 static HASH_CHARGE_FACTOR: f32 = 0.7;
 
-impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
+impl<K, Vect, H: HashFun<K>> HashMap<K, Vect, H> {
     /// Creates a new hash map.
-    pub fn new(h: H) -> HashMap<K, Vector, H> {
+    pub fn new(h: H) -> HashMap<K, Vect, H> {
         HashMap::new_with_capacity(31, h)
     }
 
     /// Creates a new hash map with a given capacity.
-    pub fn new_with_capacity(capacity: uint, h: H) -> HashMap<K, Vector, H> {
+    pub fn new_with_capacity(capacity: uint, h: H) -> HashMap<K, Vect, H> {
         let pow2 = num::next_power_of_two(capacity);
 
         HashMap {
@@ -70,7 +70,7 @@ impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     ///
     /// This is a simple, contiguous array.
     #[inline]
-    pub fn elements<'r>(&'r self) -> &'r [Entry<K, Vector>] {
+    pub fn elements<'r>(&'r self) -> &'r [Entry<K, Vect>] {
         self.table.as_slice()
     }
 
@@ -78,13 +78,13 @@ impl<K, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     ///
     /// This is a simple, contiguous array.
     #[inline]
-    pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, Vector>] {
+    pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, Vect>] {
         self.table.as_mut_slice()
     }
 }
 
 
-impl<K: Eq + Clone, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
+impl<K: Eq + Clone, Vect, H: HashFun<K>> HashMap<K, Vect, H> {
     /// Removes the element at the specified position of the element array.
     ///
     /// If the index is greater than the table length, it returns `false`.
@@ -100,7 +100,7 @@ impl<K: Eq + Clone, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 }
 
 
-impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
+impl<K: Eq, Vect, H: HashFun<K>> HashMap<K, Vect, H> {
     fn find_entry_id(&self, key: &K) -> int {
         let h = self.hash.hash(key) & self.mask;
 
@@ -141,7 +141,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
         }
     }
 
-    fn do_insert_or_replace(&mut self, key: K, value: Vector, replace: bool) -> (bool, uint) {
+    fn do_insert_or_replace(&mut self, key: K, value: Vect, replace: bool) -> (bool, uint) {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -166,7 +166,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     }
 
     /// Removes an element and returns its value if it existed.
-    pub fn get_and_remove(&mut self, key: &K) -> Option<Entry<K, Vector>> {
+    pub fn get_and_remove(&mut self, key: &K) -> Option<Entry<K, Vect>> {
         let h = self.hash.hash(key) & self.mask;
 
         let mut obji;
@@ -225,7 +225,7 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
 
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
     /// called iff. the value does not exist yet.
-    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> Vector) -> &'a mut Vector {
+    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> Vect) -> &'a mut Vect {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -252,21 +252,21 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
     /// * `value` - value to add.
     /// * `replace` - if true the new value will replace the existing value. If false, the old
     ///               value is kept if it exists.
-    pub fn insert_or_replace<'a>(&'a mut self, key: K, value: Vector, replace: bool) -> &'a mut Vector {
+    pub fn insert_or_replace<'a>(&'a mut self, key: K, value: Vect, replace: bool) -> &'a mut Vect {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 
         &'a mut self.table.get_mut(res).value
     }
 }
 
-impl<K, Vector, H: HashFun<K>> Container for HashMap<K, Vector, H> {
+impl<K, Vect, H: HashFun<K>> Container for HashMap<K, Vect, H> {
     #[inline]
     fn len(&self) -> uint {
         self.num_elem
     }
 }
 
-impl<K, Vector, H: HashFun<K>> Mutable for HashMap<K, Vector, H> {
+impl<K, Vect, H: HashFun<K>> Mutable for HashMap<K, Vect, H> {
     fn clear(&mut self) {
         self.table.clear();
         self.num_elem = 0;
@@ -282,12 +282,12 @@ impl<K, Vector, H: HashFun<K>> Mutable for HashMap<K, Vector, H> {
 }
 
 
-impl<K: Eq, Vector, H: HashFun<K>> Map<K, Vector> for HashMap<K, Vector, H> {
+impl<K: Eq, Vect, H: HashFun<K>> Map<K, Vect> for HashMap<K, Vect, H> {
     fn contains_key(&self, key: &K) -> bool {
         self.find(key).is_some()
     }
 
-    fn find<'a>(&'a self, key: &K) -> Option<&'a Vector> {
+    fn find<'a>(&'a self, key: &K) -> Option<&'a Vect> {
         let h = self.hash.hash(key) & self.mask;
 
         let mut pos = *self.htable.get(h);
@@ -310,9 +310,9 @@ impl<K: Eq, Vector, H: HashFun<K>> Map<K, Vector> for HashMap<K, Vector, H> {
     }
 }
 
-impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
+impl<K: Eq, Vect, H: HashFun<K>> HashMap<K, Vect, H> {
     /// Inserts an element on the hash map.
-    pub fn insert(&mut self, key: K, value: Vector) -> bool {
+    pub fn insert(&mut self, key: K, value: Vect) -> bool {
         let (res, _) = self.do_insert_or_replace(key, value, true);
 
         res
@@ -323,16 +323,16 @@ impl<K: Eq, Vector, H: HashFun<K>> HashMap<K, Vector, H> {
         self.get_and_remove(key).is_some()
     }
 
-    // pub fn swap(&mut self, _: K, _: Vector) -> Option<Vector> {
+    // pub fn swap(&mut self, _: K, _: Vect) -> Option<Vect> {
     //     fail!("Not yet implemented.")
     // }
 
-    // pub fn pop(&mut self, _: &K) -> Option<Vector> {
+    // pub fn pop(&mut self, _: &K) -> Option<Vect> {
     //     fail!("Not yet implemented.")
     // }
 
     /// Gets a mutable reference to an element of the hashmap.
-    pub fn find_mut<'a>(&'a mut self, key: &K) -> Option<&'a mut Vector> {
+    pub fn find_mut<'a>(&'a mut self, key: &K) -> Option<&'a mut Vect> {
         let entry = self.find_entry_id(key);
 
         if entry == -1 {

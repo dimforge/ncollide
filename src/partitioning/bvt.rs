@@ -1,6 +1,6 @@
 //! A read-only Bounding Volume Tree.
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use std::num::Bounded;
 use test::stats::Stats;
 use nalgebra::na::{Translation, Indexable};
@@ -8,7 +8,7 @@ use nalgebra::na;
 use ray::{Ray, RayCast};
 use partitioning::bvt_visitor::BVTVisitor;
 use bounding_volume::{BoundingVolume, AABB};
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
@@ -249,7 +249,7 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: Vec<(B, AABB)>) -> (AABB, Bina
         (aabb, Part(b))
     }
     else {
-        let sep_axis = depth % na::dim::<Vector>();
+        let sep_axis = depth % na::dim::<Vect>();
 
         // compute the median along sep_axis
         let mut median = Vec::new();
@@ -268,7 +268,7 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: Vec<(B, AABB)>) -> (AABB, Bina
 
         let mut insert_left = false;
 
-        for (b, aabb) in leaves.move_rev_iter() {
+        for (b, aabb) in leaves.move_iter() {
             bounding_bounding_box.merge(&aabb);
 
             let pos = aabb.translation().at(sep_axis);

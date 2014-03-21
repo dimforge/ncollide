@@ -7,12 +7,12 @@ use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};
 use implicit::Implicit;
 use ray::{Ray, RayCast, RayIntersection};
 use ray;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Cast a ray on a geometry using the GJK algorithm.
-pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vector>,
-                                        G: Implicit<Vector, _M>,
-                                        _M: Translation<Vector>>(
+pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vect>,
+                                        G: Implicit<Vect, _M>,
+                                        _M: Translation<Vect>>(
                                         m:       &_M,
                                         geom:    &G,
                                         simplex: &mut S,
@@ -48,7 +48,7 @@ pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vector>,
     }
 }
 
-fn gjk_toi_and_normal_with_ray<S: Simplex<Vector>, G: Implicit<Vector, _M>, _M: Translation<Vector>>(
+fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Translation<Vect>>(
                                m:       &_M,
                                geom:    &G,
                                simplex: &mut S,
@@ -58,7 +58,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vector>, G: Implicit<Vector, _M>, _M: 
 
     let _eps: Scalar     = Float::epsilon();
     let _eps_tol: Scalar = _eps * na::cast(100.0);
-    let _dim        = na::dim::<Vector>();
+    let _dim        = na::dim::<Vect>();
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
@@ -134,38 +134,38 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vector>, G: Implicit<Vector, _M>, _M: 
 
 impl RayCast for Cylinder {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Cone {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Capsule {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Convex {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 
 impl RayCast for Segment {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        // XXX: optimize if na::dim::<Vector>() == 2 && self.margin().is_zero()
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        // XXX: optimize if na::dim::<Vect>() == 2 && self.margin().is_zero()
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 
-impl<'a, G1: Implicit<Vector, Matrix>, G2: Implicit<Vector, Matrix>>
+impl<'a, G1: Implicit<Vect, Matrix>, G2: Implicit<Vect, Matrix>>
 RayCast for MinkowskiSum<'a, G1, G2> {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vector>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }

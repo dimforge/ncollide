@@ -2,14 +2,14 @@
 
 use nalgebra::na;
 use geom::mesh::MeshElement;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// A segment geometry.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct Segment {
     priv margin: Scalar,
-    priv a:      Vector,
-    priv b:      Vector
+    priv a:      Vect,
+    priv b:      Vect
 }
 
 impl Segment {
@@ -17,14 +17,14 @@ impl Segment {
     ///
     /// The segment will have a default margin of 0.04.
     #[inline]
-    pub fn new(a: Vector, b: Vector) -> Segment {
+    pub fn new(a: Vect, b: Vect) -> Segment {
         Segment::new_with_margin(a, b, na::cast(0.04))
     }
 
     /// Creates a new segment from two points and a custom margin.
     #[inline]
-    pub fn new_with_margin(a: Vector, b: Vector, margin: Scalar) -> Segment {
-        assert!(na::dim::<Vector>() > 1);
+    pub fn new_with_margin(a: Vect, b: Vect, margin: Scalar) -> Segment {
+        assert!(na::dim::<Vect>() > 1);
 
         Segment {
             margin: margin,
@@ -37,13 +37,13 @@ impl Segment {
 impl Segment {
     /// The first point of this segment.
     #[inline]
-    pub fn a<'a>(&'a self) -> &'a Vector {
+    pub fn a<'a>(&'a self) -> &'a Vect {
         &'a self.a
     }
 
     /// The second point of this segment.
     #[inline]
-    pub fn b<'a>(&'a self) -> &'a Vector {
+    pub fn b<'a>(&'a self) -> &'a Vect {
         &'a self.b
     }
 
@@ -61,7 +61,7 @@ impl MeshElement for Segment {
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[Vector], is: &[uint], margin: Scalar) -> Segment {
+    fn new_with_vertices_and_indices(vs: &[Vect], is: &[uint], margin: Scalar) -> Segment {
         assert!(is.len() == 2);
 
         Segment::new_with_margin(vs[is[0]].clone(), vs[is[1]].clone(), margin)

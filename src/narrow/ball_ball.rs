@@ -1,12 +1,12 @@
 use std::num::Zero;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use geom::Ball;
 use narrow::CollisionDetector;
 use contact::Contact;
 use ray::{Ray, ball_toi_with_ray};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Collision detector between two balls.
 #[deriving(Encodable, Decodable)]
@@ -63,7 +63,7 @@ BallBall {
     }
 
     #[inline]
-    fn toi(_: Option<BallBall>, c1: &Matrix, dir: &Vector, _: &Scalar, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
+    fn toi(_: Option<BallBall>, c1: &Matrix, dir: &Vect, _: &Scalar, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
         toi(c1, dir, b1, c2, b2)
     }
 }
@@ -72,7 +72,7 @@ BallBall {
 ///
 /// The balls must penetrate to have contact points.
 #[inline]
-pub fn collide(center1: &Vector, b1: &Ball, center2: &Vector, b2: &Ball, prediction: &Scalar) -> Option<Contact> {
+pub fn collide(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball, prediction: &Scalar) -> Option<Contact> {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
@@ -106,7 +106,7 @@ pub fn collide(center1: &Vector, b1: &Ball, center2: &Vector, b2: &Ball, predict
 ///
 /// If they are intersecting, the points corresponding to the penetration depth are returned.
 #[inline]
-pub fn closest_points(center1: &Vector, b1: &Ball, center2: &Vector, b2: &Ball) -> (Vector, Vector) {
+pub fn closest_points(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball) -> (Vect, Vect) {
     let r1     = b1.radius();
     let r2     = b2.radius();
     let normal = na::normalize(&(center2 - *center1));
@@ -123,7 +123,7 @@ pub fn closest_points(center1: &Vector, b1: &Ball, center2: &Vector, b2: &Ball) 
 /// * `m2`  - the second ball transform.
 /// * `b2`  - the second ball.
 #[inline]
-pub fn toi(c1: &Matrix, dir: &Vector, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
+pub fn toi(c1: &Matrix, dir: &Vect, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
     // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!
     let radius = b1.radius() + b2.radius();
     let center = c1.translation() - c2.translation();

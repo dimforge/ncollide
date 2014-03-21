@@ -4,7 +4,7 @@ use nalgebra::na::{Indexable, Transform, Rotate};
 use nalgebra::na;
 use geom::Box;
 use implicit::{HasMargin, Implicit, PreferedSamplingDirections};
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 impl HasMargin for Box {
     #[inline]
@@ -13,16 +13,16 @@ impl HasMargin for Box {
     }
 }
 
-impl<_M: Rotate<Vector> + Transform<Vector>>
-Implicit<Vector, _M> for Box {
+impl<_M: Rotate<Vect> + Transform<Vect>>
+Implicit<Vect, _M> for Box {
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, dir: &Vector) -> Vector {
+    fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
 
-        let mut vres: Vector = na::zero();
+        let mut vres: Vect = na::zero();
 
         let he = self.half_extents();
-        for i in range(0u, na::dim::<Vector>()) {
+        for i in range(0u, na::dim::<Vect>()) {
             if local_dir.at(i).is_negative() {
                 vres.set(i, -he.at(i));
             }
@@ -35,11 +35,11 @@ Implicit<Vector, _M> for Box {
     }
 }
 
-impl<_M: Rotate<Vector>>
-PreferedSamplingDirections<Vector, _M> for Box {
+impl<_M: Rotate<Vect>>
+PreferedSamplingDirections<Vect, _M> for Box {
     #[inline(always)]
-    fn sample(&self, transform: &_M, f: |Vector| -> ()) {
-        na::canonical_basis(|e: Vector| {
+    fn sample(&self, transform: &_M, f: |Vect| -> ()) {
+        na::canonical_basis(|e: Vect| {
             let re = transform.rotate(&e);
             f(-re);
             f(re);

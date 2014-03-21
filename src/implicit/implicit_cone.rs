@@ -3,7 +3,7 @@ use nalgebra::na::{Indexable, Rotate, Transform, Norm};
 use nalgebra::na;
 use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
 use geom::Cone;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 impl HasMargin for Cone {
     #[inline]
@@ -12,10 +12,10 @@ impl HasMargin for Cone {
     }
 }
 
-impl<_M: Transform<Vector> + Rotate<Vector>>
-Implicit<Vector, _M> for Cone {
+impl<_M: Transform<Vect> + Rotate<Vect>>
+Implicit<Vect, _M> for Cone {
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, dir: &Vector) -> Vector {
+    fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
@@ -46,12 +46,12 @@ Implicit<Vector, _M> for Cone {
     }
 }
 
-impl<_M: Rotate<Vector>>
-PreferedSamplingDirections<Vector, _M> for Cone {
+impl<_M: Rotate<Vect>>
+PreferedSamplingDirections<Vect, _M> for Cone {
     #[inline(always)]
-    fn sample(&self, transform: &_M, f: |Vector| -> ()) {
+    fn sample(&self, transform: &_M, f: |Vect| -> ()) {
         // Sample along the principal axis
-        let mut v: Vector = na::zero();
+        let mut v: Vect = na::zero();
         v.set(0, na::one());
 
         let rv = transform.rotate(&v);

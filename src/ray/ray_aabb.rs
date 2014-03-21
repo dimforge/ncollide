@@ -4,7 +4,7 @@ use nalgebra::na::Indexable;
 use nalgebra::na;
 use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 #[cfg(dim3)]
 use nalgebra::na::Vec3;
@@ -14,7 +14,7 @@ impl RayCast for AABB {
         let mut tmin: Scalar = na::zero();
         let mut tmax: Scalar = Bounded::max_value();
 
-        for i in range(0u, na::dim::<Vector>()) {
+        for i in range(0u, na::dim::<Vect>()) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None
@@ -71,7 +71,7 @@ impl RayCast for AABB {
     }
 }
 
-fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vector, int)> {
+fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> {
     let mut tmax: Scalar   = Bounded::max_value();
     let mut tmin: Scalar   = -tmax;
     let mut near_side = 0;
@@ -79,7 +79,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vector, int)
     let mut near_diag = false;
     let mut far_diag  = false;
 
-    for i in range(0u, na::dim::<Vector>()) {
+    for i in range(0u, na::dim::<Vect>()) {
         if ray.dir.at(i).is_zero() {
             if ray.orig.at(i) < aabb.mins().at(i) || ray.orig.at(i) > aabb.maxs().at(i) {
                 return None
@@ -134,7 +134,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vector, int)
                 Some((tmax, -na::normalize(&ray.dir), far_side))
             }
             else {
-                let mut normal: Vector = na::zero();
+                let mut normal: Vect = na::zero();
 
                 if far_side < 0 {
                     normal.set((-far_side - 1) as uint, -na::one::<Scalar>());
@@ -152,7 +152,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vector, int)
             Some((tmin, -na::normalize(&ray.dir), near_side))
         }
         else {
-            let mut normal: Vector = na::zero();
+            let mut normal: Vect = na::zero();
 
             if near_side < 0 {
                 normal.set((-near_side - 1) as uint, na::one::<Scalar>());

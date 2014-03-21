@@ -3,16 +3,16 @@
 use std::num::Signed;
 use nalgebra::na::Iterable;
 use nalgebra::na;
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 /// Geometry of a box.
 ///
 /// # Parameters:
 ///   * Scalar - type of an extent of the box
-///   * Vector - vector of extents. This determines the box dimension
+///   * Vect - vector of extents. This determines the box dimension
 #[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Box {
-    priv half_extents: Vector,
+    priv half_extents: Vect,
     priv margin:       Scalar
 }
 
@@ -20,14 +20,14 @@ impl Box {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]
-    pub fn new(half_extents: Vector) -> Box {
+    pub fn new(half_extents: Vect) -> Box {
         Box::new_with_margin(half_extents, na::cast(0.04))
     }
 
     /// Creates a new box from its half-extents and its margin. Half-extents are the box half-width
     /// along each axis. Each half-extent must be greater than the margin.
     #[inline]
-    pub fn new_with_margin(half_extents: Vector, margin: Scalar) -> Box {
+    pub fn new_with_margin(half_extents: Vect, margin: Scalar) -> Box {
         let half_extents_wo_margin = half_extents - margin;
         assert!(half_extents_wo_margin.iter().all(|e| e.is_positive()));
 
@@ -41,7 +41,7 @@ impl Box {
 impl Box {
     /// The half-extents of this box. Half-extents are the box half-width along each axis. 
     #[inline]
-    pub fn half_extents(&self) -> Vector {
+    pub fn half_extents(&self) -> Vect {
         self.half_extents.clone()
     }
 

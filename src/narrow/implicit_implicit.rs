@@ -1,5 +1,5 @@
 use std::num::Zero;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::{Translation, Indexable, Norm};
 use nalgebra::na;
 use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
@@ -12,7 +12,7 @@ use narrow::algorithm::minkowski_sampling;
 use narrow::CollisionDetector;
 use contact::Contact;
 use ray::{Ray, RayCast};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Persistent collision detector between two shapes having a support mapping function.
 ///
@@ -22,7 +22,7 @@ use math::{Scalar, Vector, Matrix};
 pub struct ImplicitImplicit<S, G1, G2> {
     priv simplex:       S,
     priv prediction:    Scalar,
-    priv contact:       GJKResult<Contact, Vector>
+    priv contact:       GJKResult<Contact, Vect>
 }
 
 impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {
@@ -51,8 +51,8 @@ impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
 }
 
 impl<S:  Simplex<AnnotatedPoint>,
-     G1: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>,
-     G2: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>>
+     G1: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
+     G2: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>
      CollisionDetector<G1, G2> for ImplicitImplicit<S, G1, G2> {
     #[inline]
     fn update(&mut self, ma: &Matrix, a: &G1, mb: &Matrix, b: &G2) {
@@ -91,7 +91,7 @@ impl<S:  Simplex<AnnotatedPoint>,
     #[inline]
     fn toi(_:   Option<ImplicitImplicit<S, G1, G2>>,
            ma:  &Matrix,
-           dir: &Vector,
+           dir: &Vect,
            _:   &Scalar,
            a:   &G1,
            mb:  &Matrix,
@@ -112,16 +112,16 @@ impl<S:  Simplex<AnnotatedPoint>,
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide<S:  Simplex<AnnotatedPoint>,
-               G1: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>,
-               G2: Implicit<Vector, Matrix> + PreferedSamplingDirections<Vector, Matrix>>(
+               G1: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
+               G2: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
                m1:         &Matrix,
                g1:         &G1,
                m2:         &Matrix,
                g2:         &G2,
                prediction: &Scalar,
                simplex:    &mut S,
-               init_dir:   Option<Vector>)
-               -> GJKResult<Contact, Vector> {
+               init_dir:   Option<Vect>)
+               -> GJKResult<Contact, Vect> {
     let mut dir = 
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
@@ -191,10 +191,10 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<G1: Implicit<Vector, Matrix>,
-           G2: Implicit<Vector, Matrix>>(
+pub fn toi<G1: Implicit<Vect, Matrix>,
+           G2: Implicit<Vect, Matrix>>(
            m1:  &Matrix,
-           dir: &Vector,
+           dir: &Vect,
            g1:  &G1,
            m2:  &Matrix,
            g2:  &G2)

@@ -1,6 +1,6 @@
 use geom::Capsule;
 use volumetric::Volumetric;
-use math::{Scalar, Vector, AngularInertia};
+use math::{Scalar, Vect, AngularInertia};
 
 #[cfg(dim2)]
 use volumetric::cylinder_volume;
@@ -27,7 +27,7 @@ pub fn capsule_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
 }
 
 impl Volumetric for Capsule {
-    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vector, AngularInertia) {
+    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
         fail!("Not yet implemented.")
     }
 }

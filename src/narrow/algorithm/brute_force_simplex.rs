@@ -1,6 +1,6 @@
 #[doc(hidden)];
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use nalgebra::na::{DMat, Inv, FloatVec};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;

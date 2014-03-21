@@ -1,6 +1,6 @@
 //! Allocation cache for owned objects.
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 
 // FIXME: add a limit to the cache?
 /// Cache for owned objects.

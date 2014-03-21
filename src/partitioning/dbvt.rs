@@ -4,13 +4,13 @@ use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
-use math::{Scalar, Vector};
+use math::{Scalar, Vect};
 
 #[deriving(Encodable, Decodable)]
 enum UpdateState {
@@ -38,7 +38,7 @@ impl<B, BV> DBVT<B, BV> {
     }
 }
 
-impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone,
+impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone,
      B:  'static + Clone>
 DBVT<B, BV> {
     /// Removes a leaf from the tree. Fails if the tree is empty.
@@ -119,7 +119,7 @@ struct DBVTInternal<B, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          Vector,
+    center:          Vect,
     /// This node left child.
     left:            DBVTNode<B, BV>,
     /// This node right child.
@@ -130,7 +130,7 @@ struct DBVTInternal<B, BV> {
     state:      UpdateState
 }
 
-impl<BV: Translation<Vector>, B> DBVTInternal<B, BV> {
+impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {
     /// Creates a new internal node.
     fn new(bounding_volume: BV,
            parent:          *mut DBVTInternal<B, BV>,
@@ -184,7 +184,7 @@ pub struct DBVTLeaf<B, BV> {
     /// The bounding volume of this node.
     bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          Vector,
+    center:          Vect,
     /// An user-defined object.
     object:          B,
     /// This node parent.
@@ -218,7 +218,7 @@ impl<B, BV> DBVTInternal<B, BV> {
     }
 }
 
-impl<B: 'static, BV: Translation<Vector> + 'static> DBVTLeaf<B, BV> {
+impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
     /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<B, BV> {
         DBVTLeaf {
@@ -300,7 +300,7 @@ impl<B: 'static, BV: Translation<Vector> + 'static> DBVTLeaf<B, BV> {
 }
 
 impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
-    fn sqdist_to(&self, to: &Vector) -> Scalar {
+    fn sqdist_to(&self, to: &Vect) -> Scalar {
         match *self {
             Internal(ref i) => na::sqnorm(&(i.center - *to)),
             Leaf(ref l)     => {
@@ -324,13 +324,13 @@ impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
     */
 }
 
-impl<BV: 'static + Translation<Vector> + BoundingVolume, B: 'static> DBVTInternal<B, BV> {
-    fn is_closest_to_left(&self, pt: &Vector) -> bool {
+impl<BV: 'static + Translation<Vect> + BoundingVolume, B: 'static> DBVTInternal<B, BV> {
+    fn is_closest_to_left(&self, pt: &Vect) -> bool {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
     }
 
     /*
-    fn is_closest_to_right(&self, pt: &Vector) -> bool {
+    fn is_closest_to_right(&self, pt: &Vect) -> bool {
         !self.is_closest_to_left(pt)
     }
 
@@ -346,7 +346,7 @@ impl<BV: 'static + Translation<Vector> + BoundingVolume, B: 'static> DBVTInterna
     */
 }
 
-impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone, B: 'static + Clone> DBVTNode<B, BV> {
+impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clone> DBVTNode<B, BV> {
     /// Inserts a new leaf on this tree.
     fn insert(self,
               cache:     &mut Cache<B, BV>,
@@ -531,12 +531,12 @@ impl<BV: 'static + BoundingVolume + Translation<Vector> + Clone, B: 'static + Cl
 }
 
 /*
-impl<BV: 'static + BoundingVolume + RayCast<Scalar, Vector> + Translation<Vector>,
+impl<BV: 'static + BoundingVolume + RayCast<Scalar, Vect> + Translation<Vect>,
      B:  'static,
-     Vector:  'static + AlgebraicVec<Scalar>,
+     Vect:  'static + AlgebraicVec<Scalar>,
      Scalar:  Algebraic + Ord>
-DBVTNode<Vector, B, BV> {
-    fn interferences_with_ray(&self, ray: &Ray<Vector>, out: &mut Vec<Gc<RefCell<f<Vector, B, BV>>>) {
+DBVTNode<Vect, B, BV> {
+    fn interferences_with_ray(&self, ray: &Ray<Vect>, out: &mut Vec<Gc<RefCell<f<Vect, B, BV>>>) {
         match (*self) {
             Internal(ref i) => {
                 if i.bounding_volume.intersects_ray(ray) {

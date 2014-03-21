@@ -1,6 +1,6 @@
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use contact::Contact;
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 /// Trait of the algorithms executed during the so-called Narrow Phase.
 ///
@@ -32,5 +32,5 @@ pub trait CollisionDetector<G1, G2> {
     /// * `g1`   - the first object.
     /// * `m2`   - the second object transform.
     /// * `g2`   - the second object.
-    fn toi(unused_self: Option<Self>, m1: &Matrix, dir: &Vector, dist: &Scalar, g1: &G1, m2: &Matrix, g2: &G2) -> Option<Scalar>;
+    fn toi(unused_self: Option<Self>, m1: &Matrix, dir: &Vect, dist: &Scalar, g1: &G1, m2: &Matrix, g2: &G2) -> Option<Scalar>;
 }

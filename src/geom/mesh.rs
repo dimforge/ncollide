@@ -2,7 +2,7 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 //!
 
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use sync::Arc;
 use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;
@@ -12,7 +12,7 @@ use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom};
-use math::{Scalar, Vector, Matrix};
+use math::{Scalar, Vect, Matrix};
 
 #[cfg(dim2)]
 use geom::Segment;
@@ -30,7 +30,7 @@ pub trait MeshElement {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
     /// Creates a new mesh element from a set of vertices and indices and the margin.
-    fn new_with_vertices_and_indices(&[Vector], &[uint], Scalar) -> Self;
+    fn new_with_vertices_and_indices(&[Vect], &[uint], Scalar) -> Self;
 }
 
 #[cfg(dim2)]
@@ -47,10 +47,10 @@ pub struct Mesh {
     priv bvt:      BVT<uint, AABB>,
     priv bvs:      Vec<AABB>,
     priv margin:   Scalar,
-    priv vertices: Arc<Vec<Vector>>,
+    priv vertices: Arc<Vec<Vect>>,
     priv indices:  Arc<Vec<uint>>,
     priv uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
-    priv normals:  Option<Arc<Vec<Vector>>>,
+    priv normals:  Option<Arc<Vec<Vect>>>,
 }
 
 impl Clone for Mesh {
@@ -69,19 +69,19 @@ impl Clone for Mesh {
 
 impl Mesh {
     /// Builds a new mesh with a default margin of 0.04.
-    pub fn new(vertices: Arc<Vec<Vector>>,
+    pub fn new(vertices: Arc<Vec<Vect>>,
                indices:  Arc<Vec<uint>>,
                uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
-               normals:  Option<Arc<Vec<Vector>>>)
+               normals:  Option<Arc<Vec<Vect>>>)
                -> Mesh {
         Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
     }
 
     /// Builds a new mesh with a custom margin.
-    pub fn new_with_margin(vertices: Arc<Vec<Vector>>,
+    pub fn new_with_margin(vertices: Arc<Vec<Vect>>,
                            indices:  Arc<Vec<uint>>,
                            uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
-                           normals:  Option<Arc<Vec<Vector>>>,
+                           normals:  Option<Arc<Vec<Vect>>>,
                            margin:   Scalar)
                            -> Mesh {
         assert!(indices.get().len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
@@ -98,7 +98,7 @@ impl Mesh {
             let is = indices.get();
 
             for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
-                let vs: &[Vector] = vs.as_slice();
+                let vs: &[Vect] = vs.as_slice();
                 let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
                 // loosen for better persistancy
                 let id = na::one();
@@ -125,7 +125,7 @@ impl Mesh {
 impl Mesh {
     /// The vertices of this mesh.
     #[inline]
-    pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Vector>> {
+    pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Vect>> {
         &'a self.vertices
     }
 
@@ -149,7 +149,7 @@ impl Mesh {
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals<'a>(&'a self) -> &'a Option<Arc<Vec<Vector>>> {
+    pub fn normals<'a>(&'a self) -> &'a Option<Arc<Vec<Vect>>> {
         &'a self.normals
     }
 
@@ -170,7 +170,7 @@ impl Mesh {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> MeshPrimitive {
-        let vs: &[Vector] = self.vertices.get().as_slice();
+        let vs: &[Vect] = self.vertices.get().as_slice();
         let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
         let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
