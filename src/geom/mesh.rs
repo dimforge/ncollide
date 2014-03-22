@@ -2,7 +2,6 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 //!
 
-use std::vec::Vec;
 use sync::Arc;
 use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;

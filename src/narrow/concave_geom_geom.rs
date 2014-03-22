@@ -1,5 +1,4 @@
 use std::any::AnyRefExt;
-use std::vec::Vec;
 use nalgebra::na;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;

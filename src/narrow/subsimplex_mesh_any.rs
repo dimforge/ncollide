@@ -1,5 +1,4 @@
 use std::vec;
-use std::vec::Vec;
 use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use nalgebra::na;
 use util::hash_map::HashMap;

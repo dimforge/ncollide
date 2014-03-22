@@ -1,5 +1,4 @@
 use std::num::Zero;
-use std::vec::Vec;
 use nalgebra::na::{Translation, Indexable, Norm};
 use nalgebra::na;
 use geom::{Reflection, AnnotatedPoint, MinkowskiSum};

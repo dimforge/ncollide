@@ -2,7 +2,6 @@
 
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
-use std::vec::Vec;
 use collections::HashMap;
 use nalgebra::na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Box, Ball, Capsule, Convex, Cylinder, Compound,

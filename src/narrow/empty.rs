@@ -1,4 +1,3 @@
-use std::vec::Vec;
 use narrow::CollisionDetector;
 use contact::Contact;
 use math::{Scalar, Vect, Matrix};

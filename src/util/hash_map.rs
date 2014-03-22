@@ -2,7 +2,6 @@
 
 use std::num;
 use std::mem;
-use std::vec::Vec;
 use util::hash::HashFun;
 
 /// Entry of an `HashMap`.

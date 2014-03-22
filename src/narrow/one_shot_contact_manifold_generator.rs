@@ -1,7 +1,6 @@
 #[cfg(not(dim4))]
 use nalgebra::na;
 
-use std::vec::Vec;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
 use contact::Contact;
 use math::{Scalar, Vect, Matrix};

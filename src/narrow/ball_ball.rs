@@ -1,5 +1,4 @@
 use std::num::Zero;
-use std::vec::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use geom::Ball;

@@ -1,4 +1,3 @@
-use std::vec::Vec;
 use ray::Ray;
 
 /// Trait all broad phase must implement.

@@ -1,6 +1,5 @@
 use std::gc::Gc;
 use std::cell::RefCell;
-use std::vec::Vec;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};

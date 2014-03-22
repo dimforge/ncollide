@@ -1,6 +1,5 @@
 //! Trait of visitors of bounding volume based tree.
 
-use std::vec::Vec;
 use bounding_volume::BoundingVolume;
 use ray::{Ray, RayCast};
 

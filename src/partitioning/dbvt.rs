@@ -4,7 +4,6 @@ use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
-use std::vec::Vec;
 use util::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;

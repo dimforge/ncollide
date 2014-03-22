@@ -1,4 +1,3 @@
-use std::vec::Vec;
 use nalgebra::na::{Translation, Rotate};
 use nalgebra::na;
 use narrow::CollisionDetector;

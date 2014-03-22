@@ -1,7 +1,6 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use std::vec::Vec;
 use nalgebra::na::Cast;
 use math::{Scalar, Vect};
 

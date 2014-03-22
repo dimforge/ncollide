@@ -1,7 +1,6 @@
 use std::mem;
 use std::gc::Gc;
 use std::cell::RefCell;
-use std::vec::Vec;
 use util::hash_map::HashMap;
 use util::hash::UintTWHash;
 use util::pair::{Pair, PairTWHash};

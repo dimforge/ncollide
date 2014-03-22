@@ -1,4 +1,3 @@
-use std::vec::Vec;
 use nalgebra::na::Transform;
 use nalgebra::na;
 use narrow::CollisionDetector;
