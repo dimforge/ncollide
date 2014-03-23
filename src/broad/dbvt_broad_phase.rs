@@ -68,17 +68,17 @@ DBVTBroadPhase<B, BV, D, DV> {
         for u in self.to_update.iter() {
             { // scope to avoid dynamic borrow failur.
                 let bu = u.borrow().borrow();
-                self.tree.interferences_with_leaf(bu.get(), &mut self.collector);
-                self.stree.interferences_with_leaf(bu.get(), &mut self.collector);
+                self.tree.interferences_with_leaf(bu.deref(), &mut self.collector);
+                self.stree.interferences_with_leaf(bu.deref(), &mut self.collector);
 
                 // dispatch
                 for i in self.collector.iter() {
                     let bi = i.borrow().borrow();
-                    if self.dispatcher.is_valid(&bu.get().object, &bi.get().object) {
+                    if self.dispatcher.is_valid(&bu.object, &bi.object) {
                         let dispatcher = &mut self.dispatcher;
                         let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(u.clone(), i.clone()),
-                            || dispatcher.dispatch(&bu.get().object, &bi.get().object)
+                            || dispatcher.dispatch(&bu.object, &bi.object)
                             );
 
                         new_colls = new_colls + 1;
@@ -108,7 +108,7 @@ DBVTBroadPhase<B, BV, D, DV> {
 
                     let bf = entry.key.first.borrow().borrow();
                     let bs = entry.key.second.borrow().borrow();
-                    if !bf.get().bounding_volume.intersects(&bs.get().bounding_volume) {
+                    if !bf.bounding_volume.intersects(&bs.bounding_volume) {
                         true
                     }
                     else {
@@ -200,15 +200,15 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
          * Remove all outdated nodes
          */
         for a in self.active2bv.elements_mut().mut_iter() {
-            let mut new_bv = a.value.borrow().with(|o| o.object.bounding_volume());
+            let mut new_bv = a.value.borrow().borrow().object.bounding_volume();
 
-            if !a.value.borrow().with(|v| v.bounding_volume.contains(&new_bv)) {
+            if !a.value.borrow().borrow().bounding_volume.contains(&new_bv) {
                 // need an update!
                 new_bv.loosen(self.margin.clone());
 
                 {
                     let mut bv = a.value.borrow().borrow_mut();
-                    bv.get().bounding_volume = new_bv;
+                    bv.bounding_volume = new_bv;
                 }
 
                 self.tree.remove(&mut a.value);
@@ -223,13 +223,13 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         match self.active2bv.find_mut(&object.uid()) {
             None       => { },
             Some(leaf) => {
-                let mut new_bv = leaf.borrow().with(|l| l.object.bounding_volume());
-                if !leaf.borrow().with(|l| l.bounding_volume.contains(&new_bv)) {
+                let mut new_bv = leaf.borrow().borrow().object.bounding_volume();
+                if !leaf.borrow().borrow().bounding_volume.contains(&new_bv) {
                     // update for real
                     new_bv.loosen(self.margin.clone());
                     {
                         let mut bl = leaf.borrow().borrow_mut();
-                        bl.get().bounding_volume = new_bv;
+                        bl.bounding_volume = new_bv;
                     }
                     self.tree.remove(leaf);
                     self.to_update.push(leaf.clone());
@@ -249,9 +249,9 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
     #[inline(always)]
     fn for_each_pair(&self, f: |&B, &B, &DV| -> ()) {
         for p in self.pairs.elements().iter() {
-            let mut bf = p.key.first.borrow().borrow_mut();
-            let mut bs = p.key.second.borrow().borrow_mut();
-            f(&bf.get().object, &bs.get().object, &p.value)
+            let bf = p.key.first.borrow().borrow_mut();
+            let bs = p.key.second.borrow().borrow_mut();
+            f(&bf.object, &bs.object, &p.value)
         }
     }
 
@@ -260,7 +260,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
         for p in self.pairs.elements_mut().mut_iter() {
             let bf = p.key.first.borrow().borrow();
             let bs = p.key.second.borrow().borrow();
-            f(&bf.get().object, &bs.get().object, &mut p.value)
+            f(&bf.object, &bs.object, &mut p.value)
         }
     }
 
@@ -281,11 +281,11 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
         // Now we find interferences with inactive objects.
         { // scope to avoid dynamic borrow failure
             let bleaf = leaf.borrow().borrow();
-            self.stree.interferences_with_leaf(bleaf.get(), &mut self.collector);
+            self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
 
             for i in self.collector.iter() {
                 let bi = i.borrow().borrow();
-                if self.dispatcher.is_valid(&bleaf.get().object, &bi.get().object) {
+                if self.dispatcher.is_valid(&bleaf.object, &bi.object) {
                     // the intereference should be registered on the spairs already
                     match self.spairs.get_and_remove(&Pair::new(leaf, *i)) {
                         Some(dv) => {
@@ -293,8 +293,8 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                             let value = dv.value;
                             let bdvf  = key.first.borrow().borrow();
                             let bdvs  = key.second.borrow().borrow();
-                            let obj1  = &bdvf.get().object;
-                            let obj2  = &bdvs.get().object;
+                            let obj1  = &bdvf.object;
+                            let obj2  = &bdvs.object;
                             let p     = self.pairs.insert_or_replace(key, value, true);
 
                             f(obj1, obj2, p)
@@ -328,11 +328,11 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
 
         { // scope to avoid dynamic borrow failure of leaf
             let bleaf = leaf.borrow().borrow();
-            self.stree.interferences_with_leaf(bleaf.get(), &mut self.collector);
+            self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
 
             for i in self.collector.iter() {
                 let fi = i.borrow().borrow();
-                if self.dispatcher.is_valid(&bleaf.get().object, &fi.get().object) {
+                if self.dispatcher.is_valid(&bleaf.object, &fi.object) {
                     // the intereference should be registered on the pairs already
                     match self.pairs.get_and_remove(&Pair::new(leaf, *i)) {
                         Some(dv) => { self.spairs.insert(dv.key, dv.value); },
@@ -362,7 +362,7 @@ BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
         }
 
         for l in self.collector.iter() {
-            l.borrow().with(|l| out.push(l.object.clone()))
+            out.push(l.borrow().borrow().object.clone())
         }
 
         self.collector.clear()
@@ -383,7 +383,7 @@ RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         }
 
         for l in self.collector.iter() {
-            l.borrow().with(|l| out.push(l.object.clone()))
+            out.push(l.borrow().borrow().object.clone())
         }
 
         self.collector.clear()

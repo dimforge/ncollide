@@ -163,7 +163,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
         for &b in self.objects.mut_iter() {
             let margin = self.margin;
-            if b.borrow().with_mut(|b| b.update(&margin)) {
+            if b.borrow().borrow_mut().update(&margin) {
                 self.to_update.push(b)
             }
         }
@@ -172,12 +172,12 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
             for &b2 in self.objects.iter() {
                 let bb1 = b1.borrow().borrow();
                 let bb2 = b2.borrow().borrow();
-                if self.dispatcher.is_valid(&bb1.get().body, &bb2.get().body) {
-                    if bb2.get().bounding_volume.intersects(&bb1.get().bounding_volume) {
+                if self.dispatcher.is_valid(&bb1.body, &bb2.body) {
+                    if bb2.bounding_volume.intersects(&bb1.bounding_volume) {
                         let dispatcher = &mut self.dispatcher;
                         let _ = self.pairs.find_or_insert_lazy(
                             Pair::new(b1, b2),
-                            || dispatcher.dispatch(&bb1.get().body, &bb2.get().body)
+                            || dispatcher.dispatch(&bb1.body, &bb2.body)
                         );
 
                         new_colls = new_colls + 1;
@@ -199,7 +199,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
                     let bf = entry.key.first.borrow().borrow();
                     let bs = entry.key.second.borrow().borrow();
-                    if !bf.get().bounding_volume.intersects(&bs.get().bounding_volume) {
+                    if !bf.bounding_volume.intersects(&bs.bounding_volume) {
                         true
                     }
                     else {

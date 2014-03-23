@@ -319,7 +319,7 @@ impl GeomGeomDispatcher {
 
 // FIXME: rename that GeomGeomCollisionDetectorFactory ?
 /// Trait of structures able do build a new collision detector.
-pub trait CollisionDetectorFactory : Send + Freeze {
+pub trait CollisionDetectorFactory : Send {
     /// Builds a new collision detector.
     fn build(&self) -> ~GeomGeomCollisionDetector;
 }
@@ -340,7 +340,7 @@ impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
     }
 }
 
-impl<CD: 'static + Send + Freeze + GeomGeomCollisionDetector + Clone>
+impl<CD: 'static + Send + GeomGeomCollisionDetector + Clone>
 CollisionDetectorFactory for CollisionDetectorCloner<CD> {
     fn build(&self) -> ~GeomGeomCollisionDetector {
         ~self.template.clone() as ~GeomGeomCollisionDetector
