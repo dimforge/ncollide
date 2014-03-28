@@ -39,9 +39,9 @@ impl RayCast for Mesh {
         let cast = self.bvt().cast_ray(
             ray,
             &|b, r| {
-                let vs: &[Vect] = self.vertices().get().as_slice();
+                let vs: &[Vect] = self.vertices().as_slice();
                 let i        = *b * 3;
-                let is       = self.indices().get().slice(i, i + 3);
+                let is       = self.indices().slice(i, i + 3);
 
                 ray::triangle_ray_intersection(&vs[is[0]], &vs[is[1]], &vs[is[2]], r).map(|inter|
                     (inter.toi.clone(), inter)
@@ -55,8 +55,8 @@ impl RayCast for Mesh {
                 let uv  = inter.uvs.unwrap();
 
                 let ibest = *best * 3;
-                let is    = self.indices().get().slice(ibest, ibest + 3);
-                let uvs   = self.uvs().as_ref().unwrap().get();
+                let is    = self.indices().slice(ibest, ibest + 3);
+                let uvs   = self.uvs().as_ref().unwrap();
 
                 let (x1, y1, z1) = uvs.get(is[0]).clone();
                 let (x2, y2, z2) = uvs.get(is[1]).clone();
@@ -72,8 +72,6 @@ impl RayCast for Mesh {
                         Some(RayIntersection::new_with_uvs(toi, n, Some(Vec3::new(uvx, uvy, uvz))))
                     },
                     Some(ref ns) => {
-                        let ns = ns.get();
-
                         let n1 = ns.get(is[0]);
                         let n2 = ns.get(is[1]);
                         let n3 = ns.get(is[2]);

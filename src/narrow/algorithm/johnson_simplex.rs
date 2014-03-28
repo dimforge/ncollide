@@ -198,7 +198,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
         JohnsonSimplex {
             points:             Vec::with_capacity(_dim + 1),
             exchange_points:    Vec::with_capacity(_dim + 1),
-            determinants:       Vec::from_elem(recursion.get().get(_dim).num_determinants, na::zero()),
+            determinants:       Vec::from_elem(recursion.get(_dim).num_determinants, na::zero()),
             recursion_template: recursion
         }
     }
@@ -210,7 +210,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
 
         match recursion {
             Some(r) => {
-                if r.get().len() > na::dim::<_V>() {
+                if r.len() > na::dim::<_V>() {
                     return JohnsonSimplex::new(r)
                 }
             },
@@ -235,7 +235,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
         }
 
         let max_num_pts      = self.points.len();
-        let recursion        = &self.recursion_template.get().get(max_num_pts - 1);
+        let recursion        = &self.recursion_template.get(max_num_pts - 1);
         let mut curr_num_pts = 1u;
         let mut curr         = max_num_pts;
 

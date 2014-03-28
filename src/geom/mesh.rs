@@ -83,18 +83,18 @@ impl Mesh {
                            normals:  Option<Arc<Vec<Vect>>>,
                            margin:   Scalar)
                            -> Mesh {
-        assert!(indices.get().len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
+        assert!(indices.len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
 
         for uvs in uvs.iter() {
-            assert!(uvs.get().len() == vertices.get().len());
+            assert!(uvs.len() == vertices.len());
         }
 
         let mut leaves = Vec::new();
         let mut bvs    = Vec::new();
 
         {
-            let vs = vertices.get();
-            let is = indices.get();
+            let vs = vertices.deref();
+            let is = indices.deref();
 
             for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
                 let vs: &[Vect] = vs.as_slice();
@@ -169,9 +169,9 @@ impl Mesh {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> MeshPrimitive {
-        let vs: &[Vect] = self.vertices.get().as_slice();
+        let vs: &[Vect] = self.vertices.as_slice();
         let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
-        let is       = self.indices.get().slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
+        let is       = self.indices.slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
         MeshElement::new_with_vertices_and_indices(vs, is, self.margin.clone())
     }

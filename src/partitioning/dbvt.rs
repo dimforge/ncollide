@@ -147,6 +147,7 @@ impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {
     }
 }
 
+#[allow(raw_pointer_deriving)]
 #[deriving(Clone)]
 /// State of a leaf.
 pub enum DBVTLeafState<B, BV> {

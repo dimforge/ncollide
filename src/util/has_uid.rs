@@ -2,7 +2,7 @@
 
 use std::gc::Gc;
 use std::rc::Rc;
-use sync::{Arc, RWArc};
+use sync::Arc;
 
 /// Trait of objects having an unique identifier.
 pub trait HasUid {
@@ -24,13 +24,7 @@ impl<T> HasUid for Rc<T> {
 
 impl<T: Share + Send> HasUid for Arc<T> {
     fn uid(&self) -> uint {
-        self.get() as *T as uint
-    }
-}
-
-impl<T: Share + Send> HasUid for RWArc<T> {
-    fn uid(&self) -> uint {
-        self.read(|t| t as *T as uint)
+        self.deref() as *T as uint
     }
 }
 
