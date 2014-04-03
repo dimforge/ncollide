@@ -12,7 +12,7 @@ use math::{Scalar, Vect};
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
 pub struct BVT<B, BV> {
-    priv tree: Option<BVTNode<B, BV>>
+    tree: Option<BVTNode<B, BV>>
 }
 
 #[deriving(Clone, Encodable, Decodable)]

@@ -3,7 +3,7 @@
 /// A reflection is obtained with the central symmetry with regard to the origin.
 #[deriving(Show)]
 pub struct Reflection<'a, G> {
-    priv g: &'a G
+    g: &'a G
 }
 
 impl<'a, G> Reflection<'a, G> {

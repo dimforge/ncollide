@@ -8,9 +8,9 @@ use util::hash::HashFun;
 #[deriving(Clone, Encodable, Decodable)]
 pub struct Entry<K, Vect> {
     /// The key of the entry.
-    key:   K,
+    pub key:   K,
     /// The value of the entry.
-    value: Vect
+    pub value: Vect
 }
 
 impl<K, Vect> Entry<K, Vect> {
@@ -31,14 +31,14 @@ impl<K, Vect> Entry<K, Vect> {
 ///     due to sparse hashing).
 #[deriving(Clone, Encodable, Decodable)]
 pub struct HashMap<K, Vect, H> {
-    priv hash:          H,
-    priv table:         Vec<Entry<K, Vect>>,
-    priv mask:          uint,
-    priv htable:        Vec<int>,
-    priv next:          Vec<int>,
-    priv num_elem:      uint, // FIXME: redundent with self.table.len() ?
-    priv max_elem:      uint,
-    priv real_max_elem: uint
+    hash:          H,
+    table:         Vec<Entry<K, Vect>>,
+    mask:          uint,
+    htable:        Vec<int>,
+    next:          Vec<int>,
+    num_elem:      uint, // FIXME: redundent with self.table.len() ?
+    max_elem:      uint,
+    real_max_elem: uint
 }
 
 static HASH_CHARGE_FACTOR: f32 = 0.7;

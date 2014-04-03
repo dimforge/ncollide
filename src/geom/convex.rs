@@ -7,8 +7,8 @@ use math::{Scalar, Vect};
 /// Set of point assumed to form a convex polytope.
 #[deriving(Clone)]
 pub struct Convex {
-    priv pts:    Vec<Vect>,
-    priv margin: Scalar
+    pts:    Vec<Vect>,
+    margin: Scalar
 }
 
 impl Convex {

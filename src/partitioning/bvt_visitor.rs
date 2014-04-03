@@ -28,8 +28,8 @@ pub trait BVTVisitor<B, BV> {
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
 pub struct RayInterferencesCollector<'a, B> {
-    priv ray:       &'a Ray,
-    priv collector: &'a mut Vec<B>
+    ray:       &'a Ray,
+    collector: &'a mut Vec<B>
 }
 
 impl<'a, B> RayInterferencesCollector<'a, B> {
@@ -62,8 +62,8 @@ BVTVisitor<B, BV> for RayInterferencesCollector<'a, B> {
 
 /// Bounding Volume Tree visitor collecting interferences with a given bounding volume.
 pub struct BoundingVolumeInterferencesCollector<'a, B, BV> {
-    priv bv:        &'a BV,
-    priv collector: &'a mut Vec<B>
+    bv:        &'a BV,
+    collector: &'a mut Vec<B>
 }
 
 impl<'a, B, BV> BoundingVolumeInterferencesCollector<'a, B, BV> {

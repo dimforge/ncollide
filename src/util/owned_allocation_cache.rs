@@ -5,7 +5,7 @@
 ///
 /// Useful if fast allocation/deallocation of small owned objects is needed.
 pub struct OwnedAllocationCache<T> {
-    priv cache: Vec<~T>
+    cache: Vec<~T>
 }
 
 impl<T> OwnedAllocationCache<T> {

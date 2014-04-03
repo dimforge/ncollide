@@ -7,16 +7,16 @@ use math::{Scalar, Vect};
 #[deriving(Show, Eq, Clone, Encodable, Decodable)]
 pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.
-    world1: Vect,
+    pub world1: Vect,
 
     /// Position of the contact on the second object. The position is expressed in world space.
-    world2: Vect,
+    pub world2: Vect,
 
     /// Contact normal
-    normal: Vect,
+    pub normal: Vect,
 
     /// Penetration depth
-    depth:  Scalar
+    pub depth:  Scalar
 }
 
 impl Contact {

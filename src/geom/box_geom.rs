@@ -12,8 +12,8 @@ use math::{Scalar, Vect};
 ///   * Vect - vector of extents. This determines the box dimension
 #[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Box {
-    priv half_extents: Vect,
-    priv margin:       Scalar
+    half_extents: Vect,
+    margin:       Scalar
 }
 
 impl Box {

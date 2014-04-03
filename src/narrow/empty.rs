@@ -5,7 +5,7 @@ use math::{Scalar, Vect, Matrix};
 /// A collision detector that does nothing.
 #[deriving(Encodable, Decodable)]
 pub struct Empty<G1, G2> {
-    priv dummy: uint // FIXME: useless, but zero-sized structure ICE when used cross-crate.
+    dummy: uint // FIXME: useless, but zero-sized structure ICE when used cross-crate.
 }
 
 impl<G1, G2> Empty<G1, G2> {

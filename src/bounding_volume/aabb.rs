@@ -20,8 +20,8 @@ pub trait HasAABB {
 ///   * `Scalar` - type of the one components of the aabb points.
 #[deriving(Show, Eq, Clone, Encodable, Decodable)]
 pub struct AABB {
-    priv mins: Vect,
-    priv maxs: Vect
+    mins: Vect,
+    maxs: Vect
 }
 
 impl AABB {

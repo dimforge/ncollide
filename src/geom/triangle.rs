@@ -7,10 +7,10 @@ use math::{Scalar, Vect};
 /// A triangle geometry.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct Triangle {
-    priv margin: Scalar,
-    priv a:      Vect,
-    priv b:      Vect,
-    priv c:      Vect
+    margin: Scalar,
+    a:      Vect,
+    b:      Vect,
+    c:      Vect
 }
 
 impl Triangle {

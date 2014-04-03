@@ -15,10 +15,10 @@ static KEY_RECURSION_TEMPLATE: local_data::Key<Arc<Vec<RecursionTemplate>>> = &l
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
 pub struct JohnsonSimplex<_V> {
-    priv recursion_template: Arc<Vec<RecursionTemplate>>,
-    priv points:             Vec<_V>,
-    priv exchange_points:    Vec<_V>,
-    priv determinants:       Vec<Scalar>
+    recursion_template: Arc<Vec<RecursionTemplate>>,
+    points:             Vec<_V>,
+    exchange_points:    Vec<_V>,
+    determinants:       Vec<Scalar>
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.

@@ -9,7 +9,7 @@ use math::{Scalar, Vect};
 /// The purpose of this structure as to make the `support_point_without_margin` method return
 /// result of the wrapped geometry `support_point` method instead.
 pub struct GeomWithMargin<'a, G> {
-    priv geom: &'a G
+    geom: &'a G
 }
 
 impl<'a, G> GeomWithMargin<'a, G> {

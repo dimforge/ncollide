@@ -10,7 +10,7 @@ pub trait HashFun<K> {
 
 /// Hash function for pairs of `uint`, using the Tomas Wang hash.
 #[deriving(Clone, Encodable, Decodable)]
-pub struct UintPairTWHash { priv unused: uint }
+pub struct UintPairTWHash { unused: uint }
 
 impl UintPairTWHash {
     /// Creates a new UintPairTWHash.
@@ -35,7 +35,7 @@ impl HashFun<(uint, uint)> for UintPairTWHash {
 
 /// Hash function for `uint`.
 #[deriving(Clone, Encodable, Decodable)]
-pub struct UintTWHash { priv unused: uint } // FIXME: ICE if the struct is zero-sized
+pub struct UintTWHash { unused: uint } // FIXME: ICE if the struct is zero-sized
 
 impl UintTWHash {
     /// Creates a new UintTWHash.

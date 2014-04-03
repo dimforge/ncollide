@@ -15,7 +15,7 @@ use math::Orientation;
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct OneShotContactManifoldGenerator<CD> {
-    priv sub_detector: IncrementalContactManifoldGenerator<CD>
+    sub_detector: IncrementalContactManifoldGenerator<CD>
 }
 
 impl<CD> OneShotContactManifoldGenerator<CD> {

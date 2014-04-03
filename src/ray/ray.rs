@@ -7,9 +7,9 @@ use math::{Scalar, Vect, Matrix};
 #[deriving(Show, Encodable, Decodable)]
 pub struct Ray {
     /// Starting point of the ray.
-    orig: Vect,
+    pub orig: Vect,
     /// Direction of the ray.
-    dir:  Vect
+    pub dir:  Vect
 }
 
 impl Ray {
@@ -28,17 +28,17 @@ pub struct RayIntersection {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
     /// with: `orig + dir * toi` where `orig` is the origin of the ray; `dir` is its direction and
     /// `toi` is the value of this field.
-    toi:    Scalar,
+    pub toi:    Scalar,
 
     /// The normal at the intersection point.
     ///
     /// If the `toi` is exactly zero, the normal might not be reliable.
-    normal: Vect,
+    pub normal: Vect,
 
     #[cfg(dim3)]
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    uvs:   Option<Vect>
+    pub uvs:    Option<Vect>
 }
 
 impl RayIntersection {

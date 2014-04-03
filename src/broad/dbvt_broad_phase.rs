@@ -19,17 +19,17 @@ use math::{Scalar, Vect};
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
 pub struct DBVTBroadPhase<B, BV, D, DV> {
-    priv tree:        DBVT<B, BV>,
-    priv stree:       DBVT<B, BV>,
-    priv active2bv:   HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    priv inactive2bv: HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    priv pairs:       HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
-    priv spairs:      HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
-    priv dispatcher:  D,
-    priv margin:      Scalar,
-    priv collector:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
-    priv to_update:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
-    priv update_off:  uint // incremental pairs removal index
+    tree:        DBVT<B, BV>,
+    stree:       DBVT<B, BV>,
+    active2bv:   HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
+    inactive2bv: HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
+    pairs:       HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
+    spairs:      HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
+    dispatcher:  D,
+    margin:      Scalar,
+    collector:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
+    to_update:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
+    update_off:  uint // incremental pairs removal index
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + Clone,

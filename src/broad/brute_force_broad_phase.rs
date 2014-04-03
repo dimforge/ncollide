@@ -11,9 +11,9 @@ use broad::Dispatcher;
  * objects. Do not use this but for benchmarking the narrow phase.
  */
 pub struct BruteForceBroadPhase<B, D, DV> {
-    priv dispatcher: D,
-    priv pairs:      HashMap<Pair<B>, DV, PairTWHash>,
-    priv objects:    Vec<B>
+    dispatcher: D,
+    pairs:      HashMap<Pair<B>, DV, PairTWHash>,
+    objects:    Vec<B>
 }
 
 impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, DV> {

@@ -7,9 +7,9 @@ use math::{Scalar, Vect};
 /// A segment geometry.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct Segment {
-    priv margin: Scalar,
-    priv a:      Vect,
-    priv b:      Vect
+    margin: Scalar,
+    a:      Vect,
+    b:      Vect
 }
 
 impl Segment {

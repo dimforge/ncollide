@@ -1,4 +1,4 @@
-#[doc(hidden)];
+#![doc(hidden)]
 
 use nalgebra::na::{DMat, Inv, FloatVec};
 use nalgebra::na;

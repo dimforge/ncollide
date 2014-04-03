@@ -21,9 +21,9 @@ type Cache<B, BV> = OwnedAllocationCache<DBVTInternal<B, BV>>;
 
 /// A Dynamic Bounding Volume Tree.
 pub struct DBVT<B, BV> {
-    priv cache: Cache<B, BV>,
-    priv tree:  Option<DBVTNode<B, BV>>,
-    priv len:   uint
+    cache: Cache<B, BV>,
+    tree:  Option<DBVTNode<B, BV>>,
+    len:   uint
 }
 
 impl<B, BV> DBVT<B, BV> {
@@ -182,13 +182,13 @@ impl<B, BV> DBVTLeafState<B, BV> {
 #[deriving(Clone)]
 pub struct DBVTLeaf<B, BV> {
     /// The bounding volume of this node.
-    bounding_volume: BV,
+    pub bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          Vect,
+    pub center:          Vect,
     /// An user-defined object.
-    object:          B,
+    pub object:          B,
     /// This node parent.
-    parent:          DBVTLeafState<B, BV>
+    pub parent:          DBVTLeafState<B, BV>
 }
 
 impl<B, BV> DBVTNode<B, BV> {

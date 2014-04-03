@@ -10,8 +10,8 @@ use math::{Scalar, Vect, Matrix};
 /// Collision detector between two balls.
 #[deriving(Encodable, Decodable)]
 pub struct BallBall {
-    priv prediction: Scalar,
-    priv contact:    Option<Contact>
+    prediction: Scalar,
+    contact:    Option<Contact>
 }
 
 impl Clone for BallBall {

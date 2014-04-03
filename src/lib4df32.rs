@@ -42,18 +42,18 @@ Some common features are still missing:
 - heightmaps
 */
 
-#[crate_id = "ncollide4df32#0.1"];
-#[crate_type = "lib"];
-#[deny(non_camel_case_types)];
-#[deny(unnecessary_parens)];
-#[deny(non_uppercase_statics)];
-#[deny(unnecessary_qualification)];
-#[deny(missing_doc)];
-#[deny(unused_result)];
-#[deny(unnecessary_typecast)];
-#[feature(macro_rules)];
-#[feature(managed_boxes)];
-#[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")];
+#![crate_id = "ncollide4df32#0.1"]
+#![crate_type = "lib"]
+#![deny(non_camel_case_types)]
+#![deny(unnecessary_parens)]
+#![deny(non_uppercase_statics)]
+#![deny(unnecessary_qualification)]
+#![deny(missing_doc)]
+#![deny(unused_result)]
+#![deny(unnecessary_typecast)]
+#![feature(macro_rules)]
+#![feature(managed_boxes)]
+#![doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")]
 
 extern crate std;
 extern crate nalgebra;

@@ -56,14 +56,14 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 ///
 /// Do not use this broad phase.
 pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
-    priv objects:    Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
-    priv sobjects:   Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
-    priv rb2bv:      HashMap<uint, uint, UintTWHash>,
-    priv pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
-    priv dispatcher: D,
-    priv margin:     Scalar,
-    priv to_update:  Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>,
-    priv update_off: uint // incremental pairs removal index
+    objects:    Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
+    sobjects:   Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
+    rb2bv:      HashMap<uint, uint, UintTWHash>,
+    pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
+    dispatcher: D,
+    margin:     Scalar,
+    to_update:  Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>,
+    update_off: uint // incremental pairs removal index
 }
 
 impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,

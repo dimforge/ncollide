@@ -6,9 +6,9 @@ use math::Scalar;
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
 #[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Cone {
-    priv half_height: Scalar,
-    priv radius:      Scalar,
-    priv margin:      Scalar
+    half_height: Scalar,
+    radius:      Scalar,
+    margin:      Scalar
 }
 
 impl Cone {

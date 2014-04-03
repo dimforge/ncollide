@@ -31,10 +31,10 @@ impl ContactWLocals {
 /// contacts).
 #[deriving(Encodable, Decodable, Clone)]
 pub struct IncrementalContactManifoldGenerator<CD> {
-    priv contacts:     Vec<ContactWLocals>,
-    priv collector:    Vec<Contact>,
-    priv prediction:   Scalar,
-    priv sub_detector: CD
+    contacts:     Vec<ContactWLocals>,
+    collector:    Vec<Contact>,
+    prediction:   Scalar,
+    sub_detector: CD
 }
 
 impl<CD> IncrementalContactManifoldGenerator<CD> {

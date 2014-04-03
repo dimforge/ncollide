@@ -43,13 +43,13 @@ pub type MeshPrimitive = Triangle; // XXX: this is wrong
 
 /// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct Mesh {
-    priv bvt:      BVT<uint, AABB>,
-    priv bvs:      Vec<AABB>,
-    priv margin:   Scalar,
-    priv vertices: Arc<Vec<Vect>>,
-    priv indices:  Arc<Vec<uint>>,
-    priv uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
-    priv normals:  Option<Arc<Vec<Vect>>>,
+    bvt:      BVT<uint, AABB>,
+    bvs:      Vec<AABB>,
+    margin:   Scalar,
+    vertices: Arc<Vec<Vect>>,
+    indices:  Arc<Vec<uint>>,
+    uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
+    normals:  Option<Arc<Vec<Vect>>>,
 }
 
 impl Clone for Mesh {

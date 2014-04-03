@@ -19,9 +19,9 @@ use math::{Scalar, Vect, Matrix};
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitImplicit<S, G1, G2> {
-    priv simplex:       S,
-    priv prediction:    Scalar,
-    priv contact:       GJKResult<Contact, Vect>
+    simplex:       S,
+    prediction:    Scalar,
+    contact:       GJKResult<Contact, Vect>
 }
 
 impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {

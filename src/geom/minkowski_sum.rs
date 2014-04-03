@@ -20,10 +20,10 @@ pub type AnnotatedCSO<'a, G1, G2> = AnnotatedMinkowskiSum<'a, G1, Reflection<'a,
  */
 #[deriving(Show)]
 pub struct MinkowskiSum<'a, G1, G2> {
-    priv m1: &'a Matrix,
-    priv g1: &'a G1,
-    priv m2: &'a Matrix,
-    priv g2: &'a G2
+    m1: &'a Matrix,
+    g1: &'a G1,
+    m2: &'a Matrix,
+    g2: &'a G2
 }
 
 impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
@@ -70,10 +70,10 @@ impl<'a, G1, G2> MinkowskiSum<'a, G1, G2> {
  */
 #[deriving(Show)]
 pub struct AnnotatedMinkowskiSum<'a, G1, G2> {
-    priv m1: &'a Matrix,
-    priv g1: &'a G1,
-    priv m2: &'a Matrix,
-    priv g2: &'a G2
+    m1: &'a Matrix,
+    g1: &'a G1,
+    m2: &'a Matrix,
+    g2: &'a G2
 }
 
 impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
@@ -115,9 +115,9 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
 #[doc(hidden)]
 #[deriving(Clone, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint {
-    priv orig1: Vect,
-    priv orig2: Vect,
-    priv point: Vect
+    orig1: Vect,
+    orig2: Vect,
+    point: Vect
 }
 
 impl AnnotatedPoint {

@@ -13,8 +13,8 @@ use math::{Scalar, Vect, Matrix};
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct PlaneImplicit<G> {
-    priv prediction: Scalar,
-    priv contact:    Option<Contact>
+    prediction: Scalar,
+    contact:    Option<Contact>
 }
 
 impl<G> Clone for PlaneImplicit<G> {
@@ -83,8 +83,8 @@ impl<G: Implicit<Vect, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G>
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
 pub struct ImplicitPlane<G> {
-    priv prediction: Scalar,
-    priv contact:    Option<Contact>
+    prediction: Scalar,
+    contact:    Option<Contact>
 }
 
 impl<G> Clone for ImplicitPlane<G> {

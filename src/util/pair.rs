@@ -8,12 +8,12 @@ use util::has_uid::HasUid;
 #[deriving(Clone, Encodable, Decodable)]
 pub struct Pair<B> {
     /// first object of the pair
-    first:  B,
+    pub first:  B,
     /// second object of the pair
-    second: B,
+    pub second: B,
 
-    priv ifirst:  uint,
-    priv isecond: uint
+    ifirst:  uint,
+    isecond: uint
 }
 
 impl<B: HasUid> Pair<B> {
@@ -43,7 +43,7 @@ impl<B> Eq for Pair<B> {
 
 /// Tomas Wang based hash function for a `Pair` object.
 #[deriving(Encodable, Decodable)]
-pub struct PairTWHash { priv unused: uint } // FIXME: ICE with zero-sized structs
+pub struct PairTWHash { unused: uint } // FIXME: ICE with zero-sized structs
 
 impl PairTWHash {
     /// Creates a new PairTWHash

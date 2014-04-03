@@ -94,7 +94,7 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
 
 /// Collision dispatcher between two `~Geom`.
 pub struct GeomGeomDispatcher {
-    priv constructors: HashMap<(TypeId, TypeId), ~CollisionDetectorFactory>
+    constructors: HashMap<(TypeId, TypeId), ~CollisionDetectorFactory>
 }
 
 impl GeomGeomDispatcher {
@@ -326,7 +326,7 @@ pub trait CollisionDetectorFactory : Send {
 
 /// Cloning-based collision detector factory.
 pub struct CollisionDetectorCloner<CD> {
-    priv template: CD
+    template: CD
 }
 
 impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {

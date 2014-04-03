@@ -16,9 +16,9 @@ use math::Matrix;
 /// the main way of creating a concave geometry from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other geometries.
 pub struct Compound {
-    priv shapes: Vec<(Matrix, ~Geom:Send)>,
-    priv bvt:    BVT<uint, AABB>,
-    priv bvs:    Vec<AABB>
+    shapes: Vec<(Matrix, ~Geom:Send)>,
+    bvt:    BVT<uint, AABB>,
+    bvs:    Vec<AABB>
 }
 
 impl Clone for Compound {

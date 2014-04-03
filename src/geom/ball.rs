@@ -7,7 +7,7 @@ use math::Scalar;
 /// A Ball geometry.
 #[deriving(Eq, Show, Clone, Encodable, Decodable)]
 pub struct Ball {
-    priv radius: Scalar
+    radius: Scalar
 }
 
 impl Ball {
