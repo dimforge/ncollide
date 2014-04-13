@@ -480,10 +480,10 @@ mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use narrow::algorithm::simplex::Simplex;
     use nalgebra::na::Vec3;
-    use test::BenchHarness;
+    use test::Bencher;
 
     #[bench]
-    fn bench_johnson_simplex(bh: &mut BenchHarness) {
+    fn bench_johnson_simplex(bh: &mut Bencher) {
         let a = Vec3::new(-0.5, -0.5, -0.5);
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);
@@ -506,7 +506,7 @@ mod test {
     }
 
     #[bench]
-    fn bench_johnson_simplex_tls(bh: &mut BenchHarness) {
+    fn bench_johnson_simplex_tls(bh: &mut Bencher) {
         let a = Vec3::new(-0.5, -0.5, -0.5);
         let b = Vec3::new(0.0, 0.5, 0.0);
         let c = Vec3::new(0.5, -0.5, -0.5);

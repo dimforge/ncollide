@@ -172,7 +172,7 @@ pub fn implicit_shape_aabb<I: Implicit<Vect, Matrix>>(m: &Matrix, i: &I) -> AABB
 // FIXME: remove that to use `Transformed` istead?
 /// Wrapper which implements `HasBoundingVolume<Matrix, AABB>` for objects implementing `HasAABB`.
 #[deriving(Clone, Eq)]
-pub struct WithAABB<A>(Matrix, A);
+pub struct WithAABB<A>(pub Matrix, pub A);
 
 impl<A> WithAABB<A> {
     /// The transformation matrix of this shape.

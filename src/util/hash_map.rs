@@ -347,7 +347,7 @@ impl<K: Eq, Vect, H: HashFun<K>> HashMap<K, Vect, H> {
 mod test {
     use super::HashMap;
     use collections::hashmap;
-    use test::BenchHarness;
+    use test::Bencher;
     use util::hash::{UintTWHash, UintPairTWHash};
 
     // NOTE: some tests are simply copy-pasted from std::hashmap tests.
@@ -425,7 +425,7 @@ mod test {
     }
 
     #[bench]
-    fn bench_insert_this(bh: &mut BenchHarness) {
+    fn bench_insert_this(bh: &mut Bencher) {
         let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
         bh.iter(|| {
@@ -436,7 +436,7 @@ mod test {
     }
 
     #[bench]
-    fn bench_insert_std(bh: &mut BenchHarness) {
+    fn bench_insert_std(bh: &mut Bencher) {
         let mut m = hashmap::HashMap::with_capacity(32);
 
         bh.iter(|| {
@@ -447,7 +447,7 @@ mod test {
     }
 
     #[bench]
-    fn bench_insert_find_remove_this(bh: &mut BenchHarness) {
+    fn bench_insert_find_remove_this(bh: &mut Bencher) {
         let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
         bh.iter(|| {
@@ -486,7 +486,7 @@ mod test {
     }
 
     #[bench]
-    fn bench_insert_find_remove_std(bh: &mut BenchHarness) {
+    fn bench_insert_find_remove_std(bh: &mut Bencher) {
         let mut m = hashmap::HashMap::with_capacity(32);
 
         bh.iter(|| {
