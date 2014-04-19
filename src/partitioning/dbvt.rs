@@ -152,11 +152,11 @@ impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {
 /// State of a leaf.
 pub enum DBVTLeafState<B, BV> {
     /// This leaf is the right child of another node.
-    priv RightChildOf(*mut DBVTInternal<B, BV>),
+    RightChildOf(*mut DBVTInternal<B, BV>),
     /// This leaf is the left child of another node.
-    priv LeftChildOf(*mut DBVTInternal<B, BV>),
+    LeftChildOf(*mut DBVTInternal<B, BV>),
     /// This leaf is detached from any tree.
-    priv Detached
+    Detached
 }
 
 impl<B, BV> DBVTLeafState<B, BV> {
