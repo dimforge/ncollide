@@ -18,14 +18,14 @@ impl RayCast for Mesh {
     fn toi_with_ray(&self, ray: &Ray, _: bool) -> Option<Scalar> {
         self.bvt().cast_ray(
                 ray,
-                &|b, r| self.element_at(*b).toi_with_ray(r, true).map(|t| (t.clone(), t))
+                &mut |b, r| self.element_at(*b).toi_with_ray(r, true).map(|t| (t.clone(), t))
             ).map(|(_, res, _)| res)
     }
 
     fn toi_and_normal_with_ray(&self, ray: &Ray, _: bool) -> Option<RayIntersection> {
         self.bvt().cast_ray(
             ray,
-            &|b, r| self.element_at(*b).toi_and_normal_with_ray(r, true).map(
+            &mut |b, r| self.element_at(*b).toi_and_normal_with_ray(r, true).map(
                 |inter| (inter.toi.clone(), inter))).map(
                     |(_, res, _)| res)
     }
@@ -38,7 +38,7 @@ impl RayCast for Mesh {
 
         let cast = self.bvt().cast_ray(
             ray,
-            &|b, r| {
+            &mut |b, r| {
                 let vs: &[Vect] = self.vertices().as_slice();
                 let i        = *b * 3;
                 let is       = self.indices().slice(i, i + 3);

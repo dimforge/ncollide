@@ -140,7 +140,7 @@ impl<B, BV: RayCast> BVT<B, BV> {
     /// Computes the closest intersection between the objects stored on this tree and a given ray.
     pub fn cast_ray<'a, T>(&'a self,
                            ray:     &Ray,
-                           cast_fn: &|&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
+                           cast_fn: &mut |&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
         match self.tree {
             None        => None,
             Some(ref n) => {
@@ -159,7 +159,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
     fn cast_ray<'a, T>(&'a self,
                        ray:         &Ray,
                        upper_bound: Scalar,
-                       cast_fn:     &|&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
+                       cast_fn:     &mut |&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
         match *self {
             Internal(_, ref left, ref right) => {
                 let left_toi  = left.bounding_volume().toi_with_ray(ray, true);

@@ -7,7 +7,7 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         self.cast_ray(
             ray,
-            &|b, r| b.toi_with_ray(r, solid).map(
+            &mut |b, r| b.toi_with_ray(r, solid).map(
                 |t| (t.clone(), t))).map(
                     |(_, res, _)| res)
     }
@@ -16,7 +16,7 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         self.cast_ray(
             ray,
-            &|b, r| b.toi_and_normal_with_ray(r, solid).map(
+            &mut |b, r| b.toi_and_normal_with_ray(r, solid).map(
                 |inter| (inter.toi.clone(), inter))).map(
                     |(_, res, _)| res)
     }
@@ -26,7 +26,7 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         self.cast_ray(
             ray,
-            &|b, r| b.toi_and_normal_and_uv_with_ray(r, solid).map(
+            &mut |b, r| b.toi_and_normal_and_uv_with_ray(r, solid).map(
                 |inter| (inter.toi.clone(), inter))).map(
                     |(_, res, _)| res)
     }

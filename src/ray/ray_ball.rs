@@ -14,7 +14,7 @@ fn ball_uv(normal: &Vect) -> Option<Vect> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
     let _0_5:   Scalar = na::cast(0.5);
-    let uvx       = _0_5 + normal.z.atan2(&normal.x) / two_pi;
+    let uvx       = _0_5 + normal.z.atan2(normal.x) / two_pi;
     let uvy       = _0_5 - normal.y.asin() / pi;
 
     Some(Vec3::new(uvx, uvy, na::zero())) // XXX: is it a good hard-code the type Vec3 ?
