@@ -4,8 +4,8 @@ use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
 use collections::HashMap;
 use nalgebra::na;
-use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Box, Ball, Capsule, Convex, Cylinder, Compound,
-           Mesh, Triangle, Segment, Plane};
+use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Cuboid, Ball, Capsule, Convex, Cylinder,
+           Compound, Mesh, Triangle, Segment, Plane};
 use implicit::{Implicit, PreferedSamplingDirections};
 use contact::Contact;
 use narrow::algorithm::simplex::Simplex;
@@ -94,7 +94,7 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
 
 /// Collision dispatcher between two `~Geom`.
 pub struct GeomGeomDispatcher {
-    constructors: HashMap<(TypeId, TypeId), ~CollisionDetectorFactory>
+    constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory>>
 }
 
 impl GeomGeomDispatcher {
@@ -114,8 +114,8 @@ impl GeomGeomDispatcher {
                                      &mut self,
                                      d:   D) {
         let key     = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        let factory = ~CollisionDetectorCloner::new(d);
-        self.constructors.insert(key, factory as ~CollisionDetectorFactory);
+        let factory = box CollisionDetectorCloner::new(d);
+        self.constructors.insert(key, factory as Box<CollisionDetectorFactory>);
     }
 
     /// Registers a new collision detector for two geometries.
@@ -134,7 +134,7 @@ impl GeomGeomDispatcher {
     }
 
     /// Creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Geom, b: &Geom) -> ~GeomGeomCollisionDetector {
+    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Box<GeomGeomCollisionDetector> {
         match self.constructors.find(&(a.get_type_id(), b.get_type_id())) {
             Some(f) => f.build(),
             None    => fail!("Unable to find a collision detector.")
@@ -151,7 +151,7 @@ impl GeomGeomDispatcher {
 
         type Simplex  = JohnsonSimplex<AnnotatedPoint>;
         type Self     = GeomGeomDispatcher;
-        type Super    = ~GeomGeomCollisionDetector;
+        type Super    = Box<GeomGeomCollisionDetector>;
 
         /*
          * Involving a Plane
@@ -164,7 +164,7 @@ impl GeomGeomDispatcher {
 
         // Plane vs. Implicit
         res.register_default_plane_implicit_detector::<Ball>(false, prediction);
-        res.register_default_plane_implicit_detector::<Box>(true, prediction);
+        res.register_default_plane_implicit_detector::<Cuboid >(true, prediction);
         res.register_default_plane_implicit_detector::<Cone>(true, prediction);
         res.register_default_plane_implicit_detector::<Cylinder>(true, prediction);
         res.register_default_plane_implicit_detector::<Capsule>(true, prediction);
@@ -174,7 +174,7 @@ impl GeomGeomDispatcher {
 
         // Implicit vs. Implicit
         // NOTE: some pair will be registered twice…
-        res.register_default_implicit_detectors::<Box>(true, prediction);
+        res.register_default_implicit_detectors::<Cuboid>(true, prediction);
         res.register_default_implicit_detectors::<Cone>(true, prediction);
         res.register_default_implicit_detectors::<Cylinder>(true, prediction);
         res.register_default_implicit_detectors::<Capsule>(true, prediction);
@@ -186,7 +186,7 @@ impl GeomGeomDispatcher {
         // Compound vs. Other
         res.register_default_concave_geom_geom_detector::<Compound, Plane>();
         res.register_default_concave_geom_geom_detector::<Compound, Ball>();
-        res.register_default_concave_geom_geom_detector::<Compound, Box>();
+        res.register_default_concave_geom_geom_detector::<Compound, Cuboid>();
         res.register_default_concave_geom_geom_detector::<Compound, Cone>();
         res.register_default_concave_geom_geom_detector::<Compound, Cylinder>();
         res.register_default_concave_geom_geom_detector::<Compound, Capsule>();
@@ -197,7 +197,7 @@ impl GeomGeomDispatcher {
         // TriangleMesh vs. Other
         res.register_default_concave_geom_geom_detector::<Mesh, Plane>();
         res.register_default_concave_geom_geom_detector::<Mesh, Ball>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Box>();
+        res.register_default_concave_geom_geom_detector::<Mesh, Cuboid>();
         res.register_default_concave_geom_geom_detector::<Mesh, Cone>();
         res.register_default_concave_geom_geom_detector::<Mesh, Cylinder>();
         res.register_default_concave_geom_geom_detector::<Mesh, Capsule>();
@@ -268,10 +268,10 @@ impl GeomGeomDispatcher {
 
         // FIXME: find a way to factorize that?
         let key     = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        self.constructors.insert(key, ~f1 as ~CollisionDetectorFactory);
+        self.constructors.insert(key, box f1 as Box<CollisionDetectorFactory>);
 
         let key     = (TypeId::of::<G2>(), TypeId::of::<G1>());
-        self.constructors.insert(key, ~f2 as ~CollisionDetectorFactory);
+        self.constructors.insert(key, box f2 as Box<CollisionDetectorFactory>);
     }
 
     /// Register a given collision detector and adds it a contact manifold generator (a
@@ -307,7 +307,7 @@ impl GeomGeomDispatcher {
         let js = &JohnsonSimplex::new(rt);
 
         self.register_default_implicit_implicit_detector::<Ball, G, Simplex>(false, prediction, js);
-        self.register_default_implicit_implicit_detector::<Box, G, Simplex>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Cuboid, G, Simplex>(generate_manifold, prediction, js);
         self.register_default_implicit_implicit_detector::<Cone, G, Simplex>(generate_manifold, prediction, js);
         self.register_default_implicit_implicit_detector::<Cylinder, G, Simplex>(generate_manifold, prediction, js);
         self.register_default_implicit_implicit_detector::<Capsule, G, Simplex>(generate_manifold, prediction, js);
@@ -321,7 +321,7 @@ impl GeomGeomDispatcher {
 /// Trait of structures able do build a new collision detector.
 pub trait CollisionDetectorFactory : Send {
     /// Builds a new collision detector.
-    fn build(&self) -> ~GeomGeomCollisionDetector;
+    fn build(&self) -> Box<GeomGeomCollisionDetector>;
 }
 
 /// Cloning-based collision detector factory.
@@ -342,7 +342,7 @@ impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
 
 impl<CD: 'static + Send + GeomGeomCollisionDetector + Clone>
 CollisionDetectorFactory for CollisionDetectorCloner<CD> {
-    fn build(&self) -> ~GeomGeomCollisionDetector {
-        ~self.template.clone() as ~GeomGeomCollisionDetector
+    fn build(&self) -> Box<GeomGeomCollisionDetector> {
+        box self.template.clone() as Box<GeomGeomCollisionDetector>
     }
 }

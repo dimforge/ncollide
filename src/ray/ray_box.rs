@@ -2,13 +2,13 @@ use std::num::Zero;
 use nalgebra::na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use bounding_volume::AABB;
-use geom::Box;
+use geom::Cuboid;
 use implicit::HasMargin;
 use ray::{Ray, RayCast, RayIntersection};
 use ray::ray_implicit::implicit_toi_and_normal_with_ray;
 use math::{Scalar, Vect};
 
-impl RayCast for Box {
+impl RayCast for Cuboid {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         if !self.margin().is_zero() {

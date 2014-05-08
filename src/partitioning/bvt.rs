@@ -17,7 +17,7 @@ pub struct BVT<B, BV> {
 
 #[deriving(Clone, Encodable, Decodable)]
 enum BVTNode<B, BV> {
-    Internal(BV, ~BVTNode<B, BV>, ~BVTNode<B, BV>),
+    Internal(BV, Box<BVTNode<B, BV>>, Box<BVTNode<B, BV>>),
     Leaf(BV, B)
 }
 
@@ -304,7 +304,7 @@ fn __new_with_partitioner<B, BV>(depth:       uint,
         Parts(left, right) => {
             let left  = __new_with_partitioner(depth + 1, left, |i, p| partitioner(i, p));
             let right = __new_with_partitioner(depth + 1, right, |i, p| partitioner(i, p));
-            Internal(bv, ~left, ~right)
+            Internal(bv, box left, box right)
         }
     }
 }

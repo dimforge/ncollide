@@ -3,7 +3,7 @@
 // traits and types
 pub use geom::ball::Ball;
 pub use geom::plane::Plane;
-pub use geom::box_geom::Box;
+pub use geom::cuboid::Cuboid;
 pub use geom::capsule::Capsule;
 pub use geom::cone::Cone;
 pub use geom::cylinder::Cylinder;
@@ -21,7 +21,7 @@ pub use geom::geom::{Geom, ConcaveGeom};
 pub mod geom;
 mod ball;
 mod plane;
-mod box_geom;
+mod cuboid;
 mod capsule;
 mod cone;
 mod cylinder;

@@ -1,9 +1,9 @@
 use nalgebra::na::{AbsoluteRotate, Translation};
 use bounding_volume::{HasAABB, AABB};
-use geom::Box;
+use geom::Cuboid;
 use math::Matrix;
 
-impl HasAABB for Box {
+impl HasAABB for Cuboid {
     #[inline]
     fn aabb(&self, m: &Matrix) -> AABB {
         let center          = m.translation();

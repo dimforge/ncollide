@@ -1,6 +1,6 @@
 use nalgebra::na::Iterable;
 use nalgebra::na;
-use geom::Box;
+use geom::Cuboid;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
@@ -11,9 +11,9 @@ use nalgebra::na::Indexable;
 use nalgebra::na::Indexable;
 
 
-/// Computes the volume of a box.
+/// Computes the volume of a cuboid.
 #[inline]
-pub fn box_volume(half_extents: &Vect) -> Scalar {
+pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
     let mut res: Scalar = na::one();
 
     for half_extent in half_extents.iter() {
@@ -24,10 +24,10 @@ pub fn box_volume(half_extents: &Vect) -> Scalar {
 }
 
 #[cfg(dim2)]
-impl Volumetric for Box {
+impl Volumetric for Cuboid {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let half_extents_w_margin = self.half_extents() + self.margin();
-        let mass = box_volume(&half_extents_w_margin) * *density;
+        let mass = cuboid_volume(&half_extents_w_margin) * *density;
 
         let _2: Scalar   = na::cast(2.0);
         let _i12: Scalar = na::cast(1.0 / 12.0);
@@ -44,10 +44,10 @@ impl Volumetric for Box {
 }
 
 #[cfg(dim3)]
-impl Volumetric for Box {
+impl Volumetric for Cuboid {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let half_extents_w_margin = self.half_extents() + self.margin();
-        let mass = box_volume(&half_extents_w_margin) * *density;
+        let mass = cuboid_volume(&half_extents_w_margin) * *density;
 
         let _0: Scalar   = na::zero();
         let _2: Scalar   = na::cast(2.0);
@@ -68,8 +68,8 @@ impl Volumetric for Box {
 }
 
 #[cfg(dim4)]
-impl Volumetric for Box {
+impl Volumetric for Cuboid {
     fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        fail!("mass_properties is not yet implemented for 4d boxes.")
+        fail!("mass_properties is not yet implemented for 4d cuboides.")
     }
 }

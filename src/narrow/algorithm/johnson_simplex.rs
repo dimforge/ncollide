@@ -206,7 +206,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<_V> {
 
-        let recursion = local_data::get(KEY_RECURSION_TEMPLATE, |r| r.map(|rec| rec.clone()));
+        let recursion = KEY_RECURSION_TEMPLATE.get().map(|rec| rec.clone());
 
         match recursion {
             Some(r) => {
@@ -218,7 +218,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
         }
 
         let new_recursion = RecursionTemplate::new(na::dim::<_V>());
-        local_data::set(KEY_RECURSION_TEMPLATE, new_recursion.clone());
+        let _ = KEY_RECURSION_TEMPLATE.replace(Some(new_recursion.clone()));
         JohnsonSimplex::new(new_recursion)
 
     }
@@ -288,7 +288,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
         /*
          * second loop: find the subsimplex containing the projection
          */
-        let mut offsets_iter = recursion.offsets.as_slice().rev_iter();
+        let mut offsets_iter = recursion.offsets.as_slice().iter().rev();
         let     _            = offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
             // for each sub-simplex ...

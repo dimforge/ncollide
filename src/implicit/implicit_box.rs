@@ -2,11 +2,11 @@
 use std::num::Signed;
 use nalgebra::na::{Indexable, Transform, Rotate};
 use nalgebra::na;
-use geom::Box;
+use geom::Cuboid;
 use implicit::{HasMargin, Implicit, PreferedSamplingDirections};
 use math::{Scalar, Vect};
 
-impl HasMargin for Box {
+impl HasMargin for Cuboid {
     #[inline]
     fn margin(&self) -> Scalar {
         self.margin()
@@ -14,7 +14,7 @@ impl HasMargin for Box {
 }
 
 impl<_M: Rotate<Vect> + Transform<Vect>>
-Implicit<Vect, _M> for Box {
+Implicit<Vect, _M> for Cuboid {
     #[inline]
     fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
@@ -36,7 +36,7 @@ Implicit<Vect, _M> for Box {
 }
 
 impl<_M: Rotate<Vect>>
-PreferedSamplingDirections<Vect, _M> for Box {
+PreferedSamplingDirections<Vect, _M> for Cuboid {
     #[inline(always)]
     fn sample(&self, transform: &_M, f: |Vect| -> ()) {
         na::canonical_basis(|e: Vect| {

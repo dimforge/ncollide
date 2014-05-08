@@ -5,7 +5,7 @@
 ///
 /// Useful if fast allocation/deallocation of small owned objects is needed.
 pub struct OwnedAllocationCache<T> {
-    cache: Vec<~T>
+    cache: Vec<Box<T>>
 }
 
 impl<T> OwnedAllocationCache<T> {
@@ -19,7 +19,7 @@ impl<T> OwnedAllocationCache<T> {
 
     /// Box a value into a potentially already allocated box.
     #[inline]
-    pub fn alloc(&mut self, value: T) -> ~T {
+    pub fn alloc(&mut self, value: T) -> Box<T> {
         if !self.cache.is_empty() {
             let mut res = self.cache.pop().unwrap();
             *res = value;
@@ -27,13 +27,13 @@ impl<T> OwnedAllocationCache<T> {
             res
         }
         else {
-            ~value
+            box value
         }
     }
 
     /// Retains a box which can be re-used by the `box` method.
     #[inline]
-    pub fn retain(&mut self, elem: ~T) {
+    pub fn retain(&mut self, elem: Box<T>) {
         self.cache.push(elem)
     }
 

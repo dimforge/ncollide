@@ -108,7 +108,7 @@ DBVT<B, BV> {
 
 /// Node of the Dynamic Bounding Volume Tree.
 enum DBVTNode<B, BV> {
-    Internal(~DBVTInternal<B, BV>),
+    Internal(Box<DBVTInternal<B, BV>>),
     Leaf(Gc<RefCell<DBVTLeaf<B, BV>>>),
     Invalid
 }
@@ -192,7 +192,7 @@ pub struct DBVTLeaf<B, BV> {
 }
 
 impl<B, BV> DBVTNode<B, BV> {
-    fn take_internal(self) -> ~DBVTInternal<B, BV> {
+    fn take_internal(self) -> Box<DBVTInternal<B, BV>> {
         match self {
             Internal(i) => i,
             _ => fail!("DBVT internal error: this is not an internal node.")
@@ -352,7 +352,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
     fn insert(self,
               cache:     &mut Cache<B, BV>,
               to_insert: Gc<RefCell<DBVTLeaf<B, BV>>>)
-              -> ~DBVTInternal<B, BV> {
+              -> Box<DBVTInternal<B, BV>> {
 
         let mut bto_insert = to_insert.borrow().borrow_mut();
         let pto_insert     = bto_insert.deref_mut();

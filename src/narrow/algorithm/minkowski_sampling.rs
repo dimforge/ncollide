@@ -126,15 +126,15 @@ mod test {
     use super::closest_points;
     use nalgebra::na::{Vec2, Iso2};
     use nalgebra::na;
-    use geom::{Box, AnnotatedPoint};
+    use geom::{Cuboid, AnnotatedPoint};
     use implicit;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;
     use narrow::algorithm::simplex::Simplex;
 
     #[test]
     fn test_closest_points() {
-        let a = Box::new(Vec2::new(5.0f32, 1.0));
-        let b = Box::new(Vec2::new(5.0f32, 1.0));
+        let a = Cuboid::new(Vec2::new(5.0f32, 1.0));
+        let b = Cuboid::new(Vec2::new(5.0f32, 1.0));
         let ta = Iso2::new(Vec2::new(0.0f32, 0.0), na::zero());
         let tb = Iso2::new(Vec2::new(7.0f32, 1.0), na::zero());
         let mut splx: JohnsonSimplex<AnnotatedPoint> = JohnsonSimplex::new_w_tls();

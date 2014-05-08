@@ -16,7 +16,7 @@ use math::Matrix;
 /// the main way of creating a concave geometry from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other geometries.
 pub struct Compound {
-    shapes: Vec<(Matrix, ~Geom:Send)>,
+    shapes: Vec<(Matrix, Box<Geom:Send>)>,
     bvt:    BVT<uint, AABB>,
     bvs:    Vec<AABB>
 }
@@ -34,7 +34,7 @@ impl Clone for Compound {
 impl Compound {
     /// Builds a new compound shape from a list of shape with their respective delta
     /// transformation.
-    pub fn new(shapes: Vec<(Matrix, ~Geom:Send)>) -> Compound {
+    pub fn new(shapes: Vec<(Matrix, Box<Geom:Send>)>) -> Compound {
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
@@ -58,7 +58,7 @@ impl Compound {
 impl Compound {
     /// The shapes of this compound geometry.
     #[inline]
-    pub fn shapes<'r>(&'r self) -> &'r [(Matrix, ~Geom)] {
+    pub fn shapes<'r>(&'r self) -> &'r [(Matrix, Box<Geom>)] {
         self.shapes.as_slice()
     }
 
