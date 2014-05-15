@@ -2,7 +2,7 @@
 
 use std::raw::TraitObject;
 use std::intrinsics::TypeId;
-use std::cast;
+use std::mem;
 use std::any::{Any, AnyRefExt};
 use ray::{Ray, RayCast};
 use volumetric::Volumetric;
@@ -64,9 +64,9 @@ impl<'a> AnyRefExt<'a> for &'a Geom {
     fn as_ref<T: 'static>(self) -> Option<&'a T> {
         if self.is::<T>() {
             unsafe {
-                let to: TraitObject = cast::transmute_copy(&self);
+                let to: TraitObject = mem::transmute_copy(&self);
 
-                Some(cast::transmute(to.data))
+                Some(mem::transmute(to.data))
             }
         } else {
             None
