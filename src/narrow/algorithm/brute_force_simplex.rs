@@ -1,6 +1,6 @@
 #![doc(hidden)]
 
-use nalgebra::na::{DMat, Inv, FloatVec};
+use nalgebra::na::{DMat, Inv, FloatVec, Indexable};
 use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
@@ -27,15 +27,13 @@ BruteForceSimplex<_V> {
         let mut mat   = DMat::new_zeros(dim, dim);
 
         for i in range(0u, dim) {
-            mat.set(0u, i, _1.clone())
+            mat.set((0u, i), _1.clone())
         }
 
         for i in range(1u, dim) {
             for j in range(0u, dim) {
-                mat.set(
-                    i,
-                    j,
-                    na::sub_dot(&points[i], &points[0], &points[j])
+                mat.set((i, j),
+                        na::sub_dot(&points[i], &points[0], &points[j])
                 )
             }
         }
@@ -48,8 +46,8 @@ BruteForceSimplex<_V> {
             let mut normalizer: Scalar = na::zero();
 
             for i in range(0u, dim) {
-                if mat.at(i, 0u) > _0 {
-                    let offset = mat.at(i, 0u);
+                if mat.at((i, 0u)) > _0 {
+                    let offset = mat.at((i, 0u));
                     res        = res + points[i] * offset;
                     normalizer = normalizer + offset;
                 }
