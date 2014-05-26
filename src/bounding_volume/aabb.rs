@@ -1,13 +1,12 @@
 use std::num::Bounded;
 use std::rc::Rc;
 use std::cell::RefCell;
-use nalgebra::na::{Translation, Indexable};
+use nalgebra::na::Translation;
 use nalgebra::na;
-use implicit::Implicit;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 use math::{Scalar, Vect, Matrix};
 
-/// Traits of objects that can be approximated by an AABB.
+/// Trait of objects that can be bounded by an AABB.
 pub trait HasAABB {
     /// The object’s AABB.
     fn aabb(&self, &Matrix) -> AABB;
@@ -22,20 +21,6 @@ pub trait HasAABB {
 pub struct AABB {
     mins: Vect,
     maxs: Vect
-}
-
-impl AABB {
-    /// Reference to the AABB point with the smallest components along each axis.
-    #[inline]
-    pub fn mins<'r>(&'r self) -> &'r Vect {
-        &'r self.mins
-    }
-
-    /// Reference to the AABB point with the biggest components along each axis.
-    #[inline]
-    pub fn maxs<'r>(&'r self) -> &'r Vect {
-        &'r self.maxs
-    }
 }
 
 impl AABB {
@@ -65,6 +50,19 @@ impl AABB {
             maxs: -_M,
         }
     }
+
+    /// Reference to the AABB point with the smallest components along each axis.
+    #[inline]
+    pub fn mins<'a>(&'a self) -> &'a Vect {
+        &'a self.mins
+    }
+
+    /// Reference to the AABB point with the biggest components along each axis.
+    #[inline]
+    pub fn maxs<'a>(&'a self) -> &'a Vect {
+        &'a self.maxs
+    }
+
 }
 
 impl BoundingVolume for AABB {
@@ -95,6 +93,22 @@ impl BoundingVolume for AABB {
     }
 }
 
+impl LooseBoundingVolume for AABB {
+    #[inline]
+    fn loosen(&mut self, amount: Scalar) {
+        self.mins = self.mins - amount;
+        self.maxs = self.maxs + amount;
+    }
+
+    #[inline]
+    fn loosened(&self, amount: Scalar) -> AABB {
+        AABB {
+            mins: self.mins - amount,
+            maxs: self.maxs + amount
+        }
+    }
+}
+
 impl Translation<Vect> for AABB
 {
     fn translation(&self) -> Vect {
@@ -115,12 +129,11 @@ impl Translation<Vect> for AABB
     }
 
     fn prepend_translation(&mut self, dv: &Vect) {
-        self.mins = self.mins + *dv;
-        self.maxs = self.maxs + *dv;
+        self.append_translation(dv)
     }
 
     fn prepend_translation_cpy(aabb: &AABB, dv: &Vect) -> AABB {
-        AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
+        Translation::append_translation_cpy(aabb, dv)
     }
 
     fn set_translation(&mut self, v: Vect) {
@@ -129,44 +142,6 @@ impl Translation<Vect> for AABB
         self.mins = self.mins - center + v;
         self.maxs = self.maxs - center + v;
     }
-}
-
-impl LooseBoundingVolume for AABB {
-    #[inline]
-    fn loosen(&mut self, amount: Scalar) {
-        self.mins = self.mins - amount;
-        self.maxs = self.maxs + amount;
-    }
-
-    #[inline]
-    fn loosened(&self, amount: Scalar) -> AABB {
-        AABB {
-            mins: self.mins - amount,
-            maxs: self.maxs + amount
-        }
-    }
-}
-
-/// Builds the AABB of an implicit shape.
-pub fn implicit_shape_aabb<I: Implicit<Vect, Matrix>>(m: &Matrix, i: &I) -> AABB {
-        let mut resm:  Vect = na::zero();
-        let mut resM:  Vect = na::zero();
-        let mut basis: Vect = na::zero();
-
-        for d in range(0, na::dim::<Vect>()) {
-            // FIXME: this could be further improved iterating on `m`'s columns, and passing
-            // Identity as the transformation matrix.
-            basis.set(d, na::one());
-            resM.set(d, i.support_point_without_margin(m, &basis).at(d));
-
-            basis.set(d, -na::one::<Scalar>());
-            resm.set(d, i.support_point_without_margin(m, &basis).at(d));
-
-            basis.set(d, na::zero());
-        }
-
-        let margin = i.margin();
-        AABB::new(resm - margin, resM + margin)
 }
 
 // FIXME: remove that to use `Transformed` istead?
