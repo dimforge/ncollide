@@ -35,7 +35,10 @@ impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, 
     pub fn add(&mut self, b: B) {
         for o in self.objects.iter() {
             if self.dispatcher.is_valid(o, &b) {
-                self.pairs.insert(Pair::new(o.clone(), b.clone()), self.dispatcher.dispatch(o, &b));
+                match self.dispatcher.dispatch(o, &b) {
+                    Some(nf) => { let _ = self.pairs.insert(Pair::new(o.clone(), b.clone()), nf); },
+                    None     => { }
+                }
             }
         }
 

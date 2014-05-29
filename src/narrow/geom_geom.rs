@@ -1,5 +1,6 @@
-//! Collision detector between two `~Geom`.
+//! Collision detector between two `Box<Geom>`.
 
+use std::num::Bounded;
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
 use collections::HashMap;
@@ -11,7 +12,9 @@ use contact::Contact;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
-             ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory};
+             ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
+             BezierSurfaceBall, BallBezierSurface};
+use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use OSCMG = narrow::OneShotContactManifoldGenerator;
 use math::{Scalar, Vect, Matrix};
 
@@ -106,6 +109,20 @@ impl GeomGeomDispatcher {
         }
     }
 
+    /// Registers a new collision detection algorithm factory for a pair of geometries.
+    ///
+    /// This is unsafe because there is no way to check that the factory will really generate
+    /// collision detectors suited for `G1` and `G2`. Whenever possible, use `register_detector` or
+    /// `register_dynamic_detector` instead.
+    pub unsafe fn register_factory<G1: 'static + Any,
+                                   G2: 'static + Any,
+                                   F:  CollisionDetectorFactory>(
+                                   &mut self,
+                                   factory: F) {
+        let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
+        self.constructors.insert(key, box factory as Box<CollisionDetectorFactory>);
+    }
+
     /// Registers a new dynamic collision detector for two geometries.
     pub fn register_dynamic_detector<G1: 'static + Any,
                                      G2: 'static + Any,
@@ -113,9 +130,8 @@ impl GeomGeomDispatcher {
                                          DynamicCollisionDetector<G1, G2>>(
                                      &mut self,
                                      d:   D) {
-        let key     = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        let factory = box CollisionDetectorCloner::new(d);
-        self.constructors.insert(key, factory as Box<CollisionDetectorFactory>);
+        let factory = CollisionDetectorCloner::new(d);
+        unsafe { self.register_factory::<G1, G2, CollisionDetectorCloner<D>>(factory) }
     }
 
     /// Registers a new collision detector for two geometries.
@@ -133,12 +149,9 @@ impl GeomGeomDispatcher {
         self.constructors.remove(&key);
     }
 
-    /// Creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Box<GeomGeomCollisionDetector> {
-        match self.constructors.find(&(a.get_type_id(), b.get_type_id())) {
-            Some(f) => f.build(),
-            None    => fail!("Unable to find a collision detector.")
-        }
+    /// If registered, creates a new collision detector adapted for the two given geometries.
+    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector>> {
+        self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 
@@ -159,8 +172,18 @@ impl GeomGeomDispatcher {
         let prediction: &Scalar = &na::cast(0.1);
 
         // Ball vs. Ball
-        let bb: BallBall = BallBall::new(prediction.clone());
+        let bb = BallBall::new(prediction.clone());
         res.register_detector(bb);
+
+        // Ball vs Surface
+
+        // let mut selector = YesSirSurfaceSelector::new();
+        let selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
+        // let selector = TangentConesSurfaceSelector::new(Bounded::max_value());
+        let bs = BallBezierSurface::new(selector.clone(), prediction.clone());
+        let sb = BezierSurfaceBall::new(selector.clone(), prediction.clone());
+        res.register_detector(bs);
+        res.register_detector(sb);
 
         // Plane vs. Implicit
         res.register_default_plane_implicit_detector::<Ball>(false, prediction);
@@ -267,11 +290,8 @@ impl GeomGeomDispatcher {
         let  f2 = GeomConcaveGeomFactory::<G2, G1>;
 
         // FIXME: find a way to factorize that?
-        let key     = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        self.constructors.insert(key, box f1 as Box<CollisionDetectorFactory>);
-
-        let key     = (TypeId::of::<G2>(), TypeId::of::<G1>());
-        self.constructors.insert(key, box f2 as Box<CollisionDetectorFactory>);
+        unsafe { self.register_factory::<G1, G2, ConcaveGeomGeomFactory<G1, G2>>(f1) }
+        unsafe { self.register_factory::<G2, G1, GeomConcaveGeomFactory<G2, G1>>(f2) }
     }
 
     /// Register a given collision detector and adds it a contact manifold generator (a

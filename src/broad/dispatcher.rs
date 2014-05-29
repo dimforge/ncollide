@@ -4,7 +4,7 @@
 /// narrow phase algorithm.
 pub trait Dispatcher<G1, G2, NF> {
     /// Deduce the narrow phase from two bodies.
-    fn dispatch(&self, &G1, &G2) -> NF;
+    fn dispatch(&self, &G1, &G2) -> Option<NF>;
     /// Tells whether a collision between two bodies can occur.
     fn is_valid(&self, &G1, &G2) -> bool;
 }
@@ -15,8 +15,8 @@ pub trait Dispatcher<G1, G2, NF> {
 pub struct NoIdDispatcher<B>;
 
 impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
-    fn dispatch(&self, _: &B, _: &B) -> () {
-        ()
+    fn dispatch(&self, _: &B, _: &B) -> Option<()> {
+        None
     }
 
     fn is_valid(&self, a: &B, b: &B) -> bool {

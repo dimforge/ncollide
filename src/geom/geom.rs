@@ -6,13 +6,14 @@ use std::mem;
 use std::any::{Any, AnyRefExt};
 use ray::{Ray, RayCast};
 use volumetric::Volumetric;
-use bounding_volume::{HasAABB, AABB};
+use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 use math::Matrix;
 
-/// Trait implemented by each geometry supported by `ncollide`.
-pub trait Geom : Volumetric  +
-                 HasAABB     +
-                 RayCast     +
+/// Trait (that should be) implemented by each geometry supported by `ncollide`.
+pub trait Geom : Volumetric        +
+                 HasAABB           +
+                 HasBoundingSphere +
+                 RayCast           +
                  Any {
     /// Duplicates (clones) this geometry.
     fn duplicate(&self) -> Box<Geom:Send>;
@@ -39,7 +40,7 @@ pub trait ConcaveGeom : Geom {
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
 }
 
-impl<T: 'static + Send + Clone + Volumetric + HasAABB + RayCast + Any>
+impl<T: 'static + Send + Clone + Volumetric + HasAABB + HasBoundingSphere + RayCast + Any>
 Geom for T {
     fn duplicate(&self) -> Box<Geom:Send> {
         (box self.clone()) as Box<Geom:Send>

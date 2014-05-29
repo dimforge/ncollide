@@ -223,24 +223,31 @@ impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
-    /// called iff. the value does not exist yet.
-    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> V) -> &'a mut V {
+    /// called iff. the value does not exist yet. If the functions returns `None`, nothing is
+    /// inserted.
+    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> Option<V>) -> Option<&'a mut V> {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
-            self.may_grow();
+            match value() {
+                Some(v) => {
+                    self.may_grow();
 
-            let h = self.hash.hash(&key) & self.mask;
+                    let h = self.hash.hash(&key) & self.mask;
 
-            *self.next.get_mut(self.num_elem) = *self.htable.get(h);
-            *self.htable.get_mut(h) = self.num_elem as int;
-            self.table.push(Entry::new(key, value()));
-            self.num_elem = self.num_elem + 1;
+                    *self.next.get_mut(self.num_elem) = *self.htable.get(h);
+                    *self.htable.get_mut(h) = self.num_elem as int;
+                    self.table.push(Entry::new(key, v));
+                    self.num_elem = self.num_elem + 1;
 
-            &'a mut self.table.get_mut(self.num_elem - 1).value
+                    Some(&'a mut self.table.get_mut(self.num_elem - 1).value)
+                }
+                None => None
+
+            }
         }
         else {
-            &'a mut self.table.get_mut(entry as uint).value
+            Some(&'a mut self.table.get_mut(entry as uint).value)
         }
     }
 

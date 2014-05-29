@@ -53,7 +53,12 @@ impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
                 }
             });
 
-            let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
+            match detector {
+                Some(detector) => {
+                    let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
+                },
+                None => { }
+            }
         }
 
         self.interferences.clear();

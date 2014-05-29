@@ -50,6 +50,7 @@ Some common features are still missing:
 #![deny(unnecessary_qualification)]
 #![deny(missing_doc)]
 #![deny(unused_result)]
+#![deny(unused_imports)]
 #![deny(unnecessary_typecast)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
@@ -96,7 +97,7 @@ pub mod util;
 /// * `--cfg f64`  - use 64-bit floating point values.
 #[cfg(dim4, f32)]
 pub mod math {
-    use nalgebra::na::{Vec4, Mat4, Iso4};
+    use nalgebra::na::{Vec4, Mat4, Rot4, Iso4};
 
     /// The scalar type.
     pub type Scalar = f32;
@@ -109,6 +110,9 @@ pub mod math {
 
     /// The transformation matrix type.
     pub type Matrix = Iso4<Scalar>;
+
+    /// The rotation matrix type.
+    pub type RotationMatrix = Rot4<Scalar>;
 
     /// The inertia tensor type.
     pub type AngularInertia = Mat4<Scalar>;

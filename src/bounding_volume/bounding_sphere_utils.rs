@@ -1,6 +1,7 @@
 use nalgebra::na;
 use math::{Vect, Scalar};
 
+// FIXME: move this somewhere else
 /// Computes the center of a set of point.
 #[inline]
 pub fn center(pts: &[Vect]) -> Vect {

@@ -22,3 +22,5 @@ mod ray_triangle;
 mod ray_concave;
 mod ray_mesh;
 mod ray_bvt;
+mod ray_bezier_surface;
+mod ray_bezier_curve;

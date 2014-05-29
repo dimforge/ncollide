@@ -7,7 +7,7 @@ use math::Scalar;
 pub struct Capsule {
     half_height: Scalar,
     radius:      Scalar,
-    margin:      Scalar
+    margin:      Scalar // XXX: the margin *is* the radius!
 }
 
 impl Capsule {

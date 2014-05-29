@@ -16,6 +16,8 @@ pub use geom::mesh::{Mesh, MeshElement, MeshPrimitive};
 pub use geom::segment::Segment;
 pub use geom::triangle::Triangle;
 pub use geom::geom::{Geom, ConcaveGeom};
+pub use geom::bezier_surface::{BezierSurface, BezierSurfaceEvaluationCache};
+pub use geom::bezier_curve::{BezierCurve, BezierCurveEvaluationCache};
 
 // modules
 pub mod geom;
@@ -33,3 +35,5 @@ mod segment;
 mod triangle;
 mod geom_with_margin;
 mod mesh;
+mod bezier_curve;
+mod bezier_surface;

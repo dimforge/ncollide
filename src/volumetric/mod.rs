@@ -30,3 +30,5 @@ mod volumetric_plane;
 mod volumetric_mesh;
 mod volumetric_triangle;
 mod volumetric_segment;
+mod volumetric_bezier_surface;
+mod volumetric_bezier_curve;

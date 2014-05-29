@@ -3,7 +3,6 @@
 //!
 
 use sync::Arc;
-use nalgebra::na::{Transform, Translation, AbsoluteRotate};
 use nalgebra::na;
 use ray::Ray;
 use partitioning::BVT;
@@ -207,19 +206,5 @@ impl ConcaveGeom for Mesh {
     #[inline]
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
         self.bvs.get(i)
-    }
-}
-
-// FIXME: move that to aabb_mesh.rs
-impl HasAABB for Mesh {
-    #[inline]
-    fn aabb(&self, m: &Matrix) -> AABB {
-        let bv              = self.bvt.root_bounding_volume().unwrap();
-        let ls_center       = bv.translation();
-        let center          = m.transform(&ls_center);
-        let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f64, Scalar>(2.0);
-        let ws_half_extents = m.absolute_rotate(&half_extents);
-
-        AABB::new(center - ws_half_extents, center + ws_half_extents)
     }
 }
