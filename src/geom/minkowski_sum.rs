@@ -257,7 +257,7 @@ impl Mul<Scalar, AnnotatedPoint> for AnnotatedPoint {
     }
 }
 
-impl Eq for AnnotatedPoint {
+impl PartialEq for AnnotatedPoint {
     #[inline]
     fn eq(&self, other: &AnnotatedPoint) -> bool {
         self.point == other.point

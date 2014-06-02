@@ -140,6 +140,6 @@ mod test {
         let mut splx: JohnsonSimplex<AnnotatedPoint> = JohnsonSimplex::new_w_tls();
         let t = Vec2::new(1.0f32, 1.0);
         splx.reset(implicit::cso_support_point_without_margin(&ta, &a, &tb, &b, t));
-        println!("{:?}", closest_points(&ta, &a, &tb, &b, &mut splx));
+        println!("{}", closest_points(&ta, &a, &tb, &b, &mut splx));
     }
 }

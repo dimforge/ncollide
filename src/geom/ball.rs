@@ -5,7 +5,7 @@
 use math::Scalar;
 
 /// A Ball geometry.
-#[deriving(Eq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Ball {
     radius: Scalar
 }

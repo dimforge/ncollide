@@ -10,7 +10,7 @@ use math::{Scalar, Vect};
 /// # Parameters:
 ///   * Scalar - type of an extent of the box
 ///   * Vect - vector of extents. This determines the box dimension
-#[deriving(Eq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cuboid {
     half_extents: Vect,
     margin:       Scalar

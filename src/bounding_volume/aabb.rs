@@ -17,7 +17,7 @@ pub trait HasAABB {
 /// # Parameter:
 ///   * `Vect` - type of the points of the bounding box. It determines the AABB dimension.
 ///   * `Scalar` - type of the one components of the aabb points.
-#[deriving(Show, Eq, Clone, Encodable, Decodable)]
+#[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct AABB {
     mins: Vect,
     maxs: Vect
@@ -146,7 +146,7 @@ impl Translation<Vect> for AABB
 
 // FIXME: remove that to use `Transformed` istead?
 /// Wrapper which implements `HasBoundingVolume<Matrix, AABB>` for objects implementing `HasAABB`.
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub struct WithAABB<A>(pub Matrix, pub A);
 
 impl<A> WithAABB<A> {

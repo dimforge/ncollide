@@ -12,7 +12,7 @@ pub trait HasBoundingSphere {
 }
 
 /// A bounding sphere.
-#[deriving(Show, Eq, Clone, Encodable, Decodable)]
+#[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct BoundingSphere {
     center: Vect,
     radius: Scalar

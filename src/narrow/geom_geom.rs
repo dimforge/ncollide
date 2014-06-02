@@ -3,6 +3,7 @@
 use std::num::Bounded;
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
+use sync::{Arc, RWLock};
 use collections::HashMap;
 use nalgebra::na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Cuboid, Ball, Capsule, Convex, Cylinder,
@@ -14,7 +15,8 @@ use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
              BezierSurfaceBall, BallBezierSurface};
-use narrow::surface_selector::HyperPlaneSurfaceSelector;
+use narrow::surface_selector::TangentConesSurfaceSelector; // HyperPlaneSurfaceSelector;
+use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use OSCMG = narrow::OneShotContactManifoldGenerator;
 use math::{Scalar, Vect, Matrix};
 
@@ -178,10 +180,11 @@ impl GeomGeomDispatcher {
         // Ball vs Surface
 
         // let mut selector = YesSirSurfaceSelector::new();
-        let selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
-        // let selector = TangentConesSurfaceSelector::new(Bounded::max_value());
-        let bs = BallBezierSurface::new(selector.clone(), prediction.clone());
-        let sb = BezierSurfaceBall::new(selector.clone(), prediction.clone());
+        // let selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
+        let cache    = Arc::new(RWLock::new(SurfaceSubdivisionTreeCache::new()));
+        let selector = TangentConesSurfaceSelector::new(Bounded::max_value());
+        let bs = BallBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
+        let sb = BezierSurfaceBall::new(selector.clone(), prediction.clone(), cache.clone());
         res.register_detector(bs);
         res.register_detector(sb);
 

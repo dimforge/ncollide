@@ -6,7 +6,7 @@ use nalgebra::na::Cast;
 use math::Scalar;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
-#[deriving(Eq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cylinder {
     half_height: Scalar,
     radius:      Scalar,

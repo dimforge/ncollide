@@ -24,7 +24,7 @@ pub struct JohnsonSimplex<_V> {
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-#[deriving(Eq, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Clone, Encodable, Decodable)]
 pub struct RecursionTemplate {
     #[doc(hidden)]
     permutation_list: Vec<uint>,

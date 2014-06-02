@@ -4,7 +4,7 @@ use nalgebra::na;
 use math::Vect;
 
 /// Implicit description of a plane.
-#[deriving(Eq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Plane {
     /// The plane normal.
     normal: Vect

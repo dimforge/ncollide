@@ -157,6 +157,9 @@ impl BezierSurface {
     ///
     /// The union of the two resulting surfaces equals the original one.
     pub fn subdivide_u(&self, u: &Scalar, out1: &mut BezierSurface, out2: &mut BezierSurface) {
+        out1.reset_with_degrees(self.degree_u(), self.degree_v());
+        out2.reset_with_degrees(self.degree_u(), self.degree_v());
+
         for i in range(0, self.nvpoints) {
             bezier_curve::subdivide_bezier_curve_at(&self.slice_u(i), u,
                                                     &mut out1.mut_slice_u(i),
@@ -168,6 +171,9 @@ impl BezierSurface {
     ///
     /// The union of the two resulting surfaces equals the original one.
     pub fn subdivide_v(&self, v: &Scalar, out1: &mut BezierSurface, out2: &mut BezierSurface) {
+        out1.reset_with_degrees(self.degree_u(), self.degree_v());
+        out2.reset_with_degrees(self.degree_u(), self.degree_v());
+
         for i in range(0, self.nupoints) {
             bezier_curve::subdivide_bezier_curve_at(&self.slice_v(i), v,
                                                     &mut out1.mut_slice_v(i),

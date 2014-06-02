@@ -57,5 +57,6 @@ pub mod algorithm
     pub mod minkowski_sampling;
 }
 
-// FIXME: move this module somewhere else!
+// FIXME: move those modules somewhere else!
 pub mod surface_selector;
+pub mod surface_subdivision_tree;

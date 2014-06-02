@@ -71,8 +71,9 @@ mod test {
         bf.add(c);
 
         let pairs = bf.pairs();
+        let len   = pairs.elements().len();
 
-        assert!(pairs.elements().len() == 3);
+        assert!(len == 3, format!("The number of pairs was {} instead of 3.", len));
         assert!(pairs.contains_key(&Pair::new(a, b)));
         assert!(pairs.contains_key(&Pair::new(b, c)));
         assert!(pairs.contains_key(&Pair::new(a, c)));

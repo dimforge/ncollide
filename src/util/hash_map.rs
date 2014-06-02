@@ -83,7 +83,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
 }
 
 
-impl<K: Eq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
+impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Removes the element at the specified position of the element array.
     ///
     /// If the index is greater than the table length, it returns `false`.
@@ -99,7 +99,7 @@ impl<K: Eq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
 }
 
 
-impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
+impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     fn find_entry_id(&self, key: &K) -> int {
         let h = self.hash.hash(key) & self.mask;
 
@@ -288,7 +288,7 @@ impl<K, V, H: HashFun<K>> Mutable for HashMap<K, V, H> {
 }
 
 
-impl<K: Eq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
+impl<K: PartialEq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
     fn contains_key(&self, key: &K) -> bool {
         self.find(key).is_some()
     }
@@ -316,7 +316,7 @@ impl<K: Eq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
     }
 }
 
-impl<K: Eq, V, H: HashFun<K>> HashMap<K, V, H> {
+impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Inserts an element on the hash map.
     pub fn insert(&mut self, key: K, value: V) -> bool {
         let (res, _) = self.do_insert_or_replace(key, value, true);

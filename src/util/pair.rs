@@ -35,7 +35,7 @@ impl<B: HasUid> Pair<B> {
     }
 }
 
-impl<B> Eq for Pair<B> {
+impl<B> PartialEq for Pair<B> {
     fn eq(&self, other: &Pair<B>) -> bool {
         self.ifirst == other.ifirst && self.isecond == other.isecond
     }

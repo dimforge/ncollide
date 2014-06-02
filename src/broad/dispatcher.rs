@@ -16,7 +16,7 @@ pub struct NoIdDispatcher<B>;
 
 impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
     fn dispatch(&self, _: &B, _: &B) -> Option<()> {
-        None
+        Some(())
     }
 
     fn is_valid(&self, a: &B, b: &B) -> bool {
