@@ -4,6 +4,11 @@ use nalgebra::na;
 use util::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
 use math::{Vect, Scalar};
+
+#[cfg(not(dim4))]
+use math::RotationMatrix;
+
+#[cfg(dim4)]
 use bounding_volume;
 
 /// Cache used to evaluate a bezier surface at a given parameter.
@@ -250,6 +255,56 @@ pub fn bezier_surface_at(control_points: &[Vect],
 }
 
 /// Computes an infinite bounding cone of this surface.
+#[cfg(not(dim4))]
+pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
+    let mut axis  = points[0] - *origin;
+    let mut theta = na::zero();
+
+    // FIXME: this is not the best way to handle this (a better solution would be to loop on the
+    // points until a non-zero vector is found).
+    if axis.normalize().is_zero() {
+        axis = na::zero();
+        axis.set(0, na::one());
+    }
+
+    for pt in points.slice_from(1).iter() {
+        let mut dir = *pt - *origin;
+
+        if !dir.normalize().is_zero() {
+            let alpha = na::dot(&dir, &axis).acos();
+
+            if alpha > theta {
+                // We are outside of the bounding cone: enlarge it to wrap both the old bounding
+                // cone and the new point.
+
+                let mut rot_axis = na::cross(&dir, &axis);
+
+                if !rot_axis.normalize().is_zero() {
+                    let dangle   = -(alpha - theta) * na::cast(0.5);
+                    let rot      = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
+
+                    axis  = rot * axis;
+                    theta = (alpha + theta) * na::cast(0.5);
+                }
+                else {
+                    // This happens if alpha ~= 0 or alpha ~= pi.
+                    if alpha > na::one() { // NOTE: 1.0 is just a randomly chosen number in-between 0 and pi.
+                        // alpha ~= pi
+                        theta = alpha;
+                    }
+                    else {
+                        // alpha ~= 0, do nothing.
+                    }
+                }
+            }
+        }
+    }
+
+    (axis, theta)
+}
+
+/// Computes an infinite bounding cone of this surface.
+#[cfg(dim4)] // we cannot use the previous algorithm because it requires a `na::cross`.
 pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
     // FIXME: this is a very coarse approximation
     let mut axis = bounding_volume::center(points) - *origin;
