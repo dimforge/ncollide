@@ -4,13 +4,26 @@ ncollide_rs=src/lib.rs
 ncollide_lib_path=lib
 nalgebra_lib_path=./nalgebra/lib
 
-all:
+all: 2df32 3df32 4df32 2df64 3df64 4df64
+	mkdir -p $(ncollide_lib_path)
+
+2df32:
+	mkdir -p $(ncollide_lib_path)
+	rustc src/lib2df32.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim2 --cfg f32
+3df32:
 	mkdir -p $(ncollide_lib_path)
 	rustc src/lib3df32.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim3 --cfg f32
-	rustc src/lib2df32.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim2 --cfg f32
+4df32:
+	mkdir -p $(ncollide_lib_path)
 	rustc src/lib4df32.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim4 --cfg f32
+2df64:
+	mkdir -p $(ncollide_lib_path)
 	rustc src/lib2df64.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim2 --cfg f64
+3df64:
+	mkdir -p $(ncollide_lib_path)
 	rustc src/lib3df64.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim3 --cfg f64
+4df64:
+	mkdir -p $(ncollide_lib_path)
 	rustc src/lib4df64.rs -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --cfg dim4 --cfg f64
 
 deps:
