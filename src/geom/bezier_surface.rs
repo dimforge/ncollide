@@ -1,6 +1,7 @@
 use std::num::Zero;
 use nalgebra::na::{Norm, Indexable};
 use nalgebra::na;
+use procedural;
 use data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
 use math::{Vect, Scalar};
@@ -9,7 +10,7 @@ use math::{Vect, Scalar};
 use math::RotationMatrix;
 
 #[cfg(dim4)]
-use bounding_volume;
+use utils;
 
 /// Cache used to evaluate a bezier surface at a given parameter.
 ///
@@ -149,13 +150,13 @@ impl BezierSurface {
     /// Evaluates this bezier surface at the given parameter `t`.
     #[inline]
     pub fn at(&self, u: &Scalar, v: &Scalar, cache: &mut BezierSurfaceEvaluationCache) -> Vect {
-        bezier_surface_at(self.control_points.as_slice(),
-                          self.nupoints,
-                          self.nvpoints,
-                          u,
-                          v,
-                          &mut cache.u_cache,
-                          &mut cache.v_cache)
+        procedural::bezier_surface_at(self.control_points.as_slice(),
+                                      self.nupoints,
+                                      self.nvpoints,
+                                      u,
+                                      v,
+                                      &mut cache.u_cache,
+                                      &mut cache.v_cache)
     }
 
     /// Subdivides this bezier at the given isocurve of parameter `u`.
@@ -230,30 +231,6 @@ impl BezierSurface {
     }
 }
 
-/// Evaluates the bezier curve with control points `control_points`.
-pub fn bezier_surface_at(control_points: &[Vect],
-                         nupoints:       uint,
-                         nvpoints:       uint,
-                         u:              &Scalar,
-                         v:              &Scalar,
-                         ucache:         &mut Vec<Vect>,
-                         vcache:         &mut Vec<Vect>)
-                         -> Vect {
-    vcache.grow_set(nvpoints - 1, &na::zero(), na::zero());
-
-    // FIXME: start with u or v, depending on which dimension has more control points.
-    let vcache = vcache.as_mut_slice();
-
-    for i in range(0, nvpoints) {
-        let start = i * nupoints;
-        let end   = start + nupoints;
-
-        vcache[i] = bezier_curve::bezier_curve_at(control_points.slice(start, end), u, ucache);
-    }
-
-    bezier_curve::bezier_curve_at(vcache.slice(0, nvpoints), v, ucache)
-}
-
 /// Computes an infinite bounding cone of this surface.
 #[cfg(not(dim4))]
 pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
@@ -307,7 +284,7 @@ pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scala
 #[cfg(dim4)] // we cannot use the previous algorithm because it requires a `na::cross`.
 pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
     // FIXME: this is a very coarse approximation
-    let mut axis = bounding_volume::center(points) - *origin;
+    let mut axis = utils::center(points) - *origin;
 
     if axis.normalize().is_zero() {
         axis = na::zero();

@@ -1,24 +1,11 @@
+use nalgebra::na::{FloatVec, Cast};
 use nalgebra::na;
-use math::{Vect, Scalar};
-
-// FIXME: move this somewhere else
-/// Computes the center of a set of point.
-#[inline]
-pub fn center(pts: &[Vect]) -> Vect {
-    let mut res       = na::zero::<Vect>();
-    let denom: Scalar = na::cast(1.0 / (pts.len() as f64));
-
-    for pt in pts.iter() {
-        res = res + *pt * denom;
-    }
-
-    res
-}
+use utils;
 
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn bounding_sphere_with_center(pts: &[Vect], center: Vect) -> (Vect, Scalar) {
+pub fn bounding_sphere_with_center<V: FloatVec<N>, N: Float>(pts: &[V], center: V) -> (V, N) {
     let mut sqradius = na::zero();
 
     for pt in pts.iter() {
@@ -36,6 +23,6 @@ pub fn bounding_sphere_with_center(pts: &[Vect], center: Vect) -> (Vect, Scalar)
 /// Computes a bounding sphere of the specified set of point.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn bounding_sphere(pts: &[Vect]) -> (Vect, Scalar) {
-    bounding_sphere_with_center(pts, center(pts))
+pub fn bounding_sphere<V: FloatVec<N>, N: Float + Cast<f64>>(pts: &[V]) -> (V, N) {
+    bounding_sphere_with_center(pts, utils::center(pts))
 }

@@ -1,5 +1,5 @@
 /*!
-ncollide  [![Build Status](https://travis-ci.org/sebcrozet/ncollide.png?branch=master)](https://travis-ci.org/sebcrozet/ncollide)
+ncollide
 ========
 
 **ncollide** is a n-dimensional collision detection library written with the
@@ -75,8 +75,8 @@ pub mod contact;
 pub mod volumetric;
 pub mod implicit;
 pub mod partitioning;
-
-/// Data structure utilities.
+pub mod procedural;
+pub mod utils;
 pub mod data;
 
 // #[cfg(test)]

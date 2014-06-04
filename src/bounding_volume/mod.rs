@@ -9,7 +9,7 @@ pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere};
 // functions
 pub use bounding_volume::aabb_utils::{implicit_shape_aabb, point_cloud_aabb};
 pub use bounding_volume::aabb_ball::ball_aabb;
-pub use bounding_volume::bounding_sphere_utils::{center, bounding_sphere_with_center, bounding_sphere};
+pub use bounding_volume::bounding_sphere_utils::{bounding_sphere_with_center, bounding_sphere};
 
 // modules
 #[doc(hidden)]

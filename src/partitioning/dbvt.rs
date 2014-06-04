@@ -161,6 +161,7 @@ pub enum DBVTLeafState<B, BV> {
 
 impl<B, BV> DBVTLeafState<B, BV> {
     /// Indicates whether this leaf is detached.
+    #[inline]
     pub fn is_detached(&self) -> bool {
         match *self {
             Detached => true,
@@ -169,6 +170,7 @@ impl<B, BV> DBVTLeafState<B, BV> {
     }
 
     /// Returns a pointer to this leaf parent and `true` if it is the left child.
+    #[inline]
     fn unwrap(self) -> (bool, *mut DBVTInternal<B, BV>) {
         match self {
             RightChildOf(p) => (false, p),

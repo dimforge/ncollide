@@ -1,3 +1,5 @@
+//! Data structure utilities.
+
 pub mod pair;
 pub mod hash;
 pub mod hash_map;

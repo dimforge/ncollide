@@ -1,4 +1,5 @@
 use nalgebra::na;
+use procedural;
 use data::vec_slice::{VecSlice, VecSliceMut};
 use math::{Vect, Scalar};
 
@@ -67,7 +68,7 @@ impl BezierCurve {
     /// Evaluates this bezier curve at the given parameter `t`.
     #[inline]
     pub fn at(&self, t: &Scalar, cache: &mut BezierCurveEvaluationCache) -> Vect {
-        bezier_curve_at(self.control_points.as_slice(), t, &mut cache.cache)
+        procedural::bezier_curve_at(self.control_points.as_slice(), t, &mut cache.cache)
     }
 
     /// Subdivides this bezier at the given parameter.
@@ -88,30 +89,6 @@ impl BezierCurve {
 
         diff_bezier_curve(&control_points, &mut slice)
     }
-}
-
-
-/// Evaluates the bezier curve with control points `control_points`.
-pub fn bezier_curve_at(control_points: &[Vect], t: &Scalar, cache: &mut Vec<Vect>) -> Vect {
-    // De-Casteljau algorithm.
-    cache.grow_set(control_points.len() - 1, &na::zero(), na::zero());
-
-    let cache = cache.as_mut_slice();
-
-    let _1: Scalar = na::cast(1.0);
-    let t_1   = _1 - *t;
-
-    unsafe {
-        cache.as_mut_slice().copy_memory(control_points);
-    }
-
-    for i in range(1u, control_points.len()) {
-        for j in range(0u, control_points.len() - i) {
-            cache[j] = cache[j] * t_1 + cache[j + 1] * *t;
-        }
-    }
-
-    cache[0].clone()
 }
 
 /// Subdivides the bezier curve with control points `control_points` at a given parameter `t`.
