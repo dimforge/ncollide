@@ -4,7 +4,7 @@ use std::gc::Gc;
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
-use util::owned_allocation_cache::OwnedAllocationCache;
+use data::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use bounding_volume::BoundingVolume;
@@ -492,7 +492,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
 //            Leaf(ref mut l) => {
 //                l.with_mut_borrow(|l_| visitor.visit_leaf_mut(l, &mut l_.bounding_volume))
 //            },
-//            Invalid => util::unreachable()
+//            Invalid => data::unreachable()
 //        }
 //    }
 

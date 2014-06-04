@@ -1,6 +1,6 @@
-use util::hash_map::HashMap;
-use util::pair::{Pair, PairTWHash};
-use util::has_uid::HasUid;
+use data::hash_map::HashMap;
+use data::pair::{Pair, PairTWHash};
+use data::has_uid::HasUid;
 use broad::Dispatcher;
 
 
@@ -55,7 +55,7 @@ impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, 
 mod test {
     use super::BruteForceBroadPhase;
     use broad::NoIdDispatcher;
-    use util::pair::Pair;
+    use data::pair::Pair;
 
     #[test]
     fn test_bf() {

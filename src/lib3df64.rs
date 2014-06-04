@@ -77,7 +77,7 @@ pub mod implicit;
 pub mod partitioning;
 
 /// Data structure utilities.
-pub mod util;
+pub mod data;
 
 // #[cfg(test)]
 // mod tests {

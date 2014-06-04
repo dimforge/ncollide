@@ -1,7 +1,7 @@
 use std::any::AnyRefExt;
 use nalgebra::na;
-use util::hash_map::HashMap;
-use util::hash::UintTWHash;
+use data::hash_map::HashMap;
+use data::hash::UintTWHash;
 use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;
 use narrow::{CollisionDetector, GeomGeomDispatcher, GeomGeomCollisionDetector,

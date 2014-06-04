@@ -1,5 +1,5 @@
 use nalgebra::na;
-use util::vec_slice::{VecSlice, VecSliceMut};
+use data::vec_slice::{VecSlice, VecSliceMut};
 use math::{Vect, Scalar};
 
 /// Cache used to evaluate a bezier curve at a given parameter.

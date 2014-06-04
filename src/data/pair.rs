@@ -1,8 +1,8 @@
 //! Hashable pair of objects implementing `HasUid`.
 
-use util::hash;
-use util::hash::HashFun;
-use util::has_uid::HasUid;
+use data::hash;
+use data::hash::HashFun;
+use data::has_uid::HasUid;
 
 /// An unordered pair of elements implementing `HasUid`.
 #[deriving(Clone, Encodable, Decodable)]
