@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>compound.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'>  1</span>
+<span id='2'>  2</span>
+<span id='3'>  3</span>
+<span id='4'>  4</span>
+<span id='5'>  5</span>
+<span id='6'>  6</span>
+<span id='7'>  7</span>
+<span id='8'>  8</span>
+<span id='9'>  9</span>
+<span id='10'> 10</span>
+<span id='11'> 11</span>
+<span id='12'> 12</span>
+<span id='13'> 13</span>
+<span id='14'> 14</span>
+<span id='15'> 15</span>
+<span id='16'> 16</span>
+<span id='17'> 17</span>
+<span id='18'> 18</span>
+<span id='19'> 19</span>
+<span id='20'> 20</span>
+<span id='21'> 21</span>
+<span id='22'> 22</span>
+<span id='23'> 23</span>
+<span id='24'> 24</span>
+<span id='25'> 25</span>
+<span id='26'> 26</span>
+<span id='27'> 27</span>
+<span id='28'> 28</span>
+<span id='29'> 29</span>
+<span id='30'> 30</span>
+<span id='31'> 31</span>
+<span id='32'> 32</span>
+<span id='33'> 33</span>
+<span id='34'> 34</span>
+<span id='35'> 35</span>
+<span id='36'> 36</span>
+<span id='37'> 37</span>
+<span id='38'> 38</span>
+<span id='39'> 39</span>
+<span id='40'> 40</span>
+<span id='41'> 41</span>
+<span id='42'> 42</span>
+<span id='43'> 43</span>
+<span id='44'> 44</span>
+<span id='45'> 45</span>
+<span id='46'> 46</span>
+<span id='47'> 47</span>
+<span id='48'> 48</span>
+<span id='49'> 49</span>
+<span id='50'> 50</span>
+<span id='51'> 51</span>
+<span id='52'> 52</span>
+<span id='53'> 53</span>
+<span id='54'> 54</span>
+<span id='55'> 55</span>
+<span id='56'> 56</span>
+<span id='57'> 57</span>
+<span id='58'> 58</span>
+<span id='59'> 59</span>
+<span id='60'> 60</span>
+<span id='61'> 61</span>
+<span id='62'> 62</span>
+<span id='63'> 63</span>
+<span id='64'> 64</span>
+<span id='65'> 65</span>
+<span id='66'> 66</span>
+<span id='67'> 67</span>
+<span id='68'> 68</span>
+<span id='69'> 69</span>
+<span id='70'> 70</span>
+<span id='71'> 71</span>
+<span id='72'> 72</span>
+<span id='73'> 73</span>
+<span id='74'> 74</span>
+<span id='75'> 75</span>
+<span id='76'> 76</span>
+<span id='77'> 77</span>
+<span id='78'> 78</span>
+<span id='79'> 79</span>
+<span id='80'> 80</span>
+<span id='81'> 81</span>
+<span id='82'> 82</span>
+<span id='83'> 83</span>
+<span id='84'> 84</span>
+<span id='85'> 85</span>
+<span id='86'> 86</span>
+<span id='87'> 87</span>
+<span id='88'> 88</span>
+<span id='89'> 89</span>
+<span id='90'> 90</span>
+<span id='91'> 91</span>
+<span id='92'> 92</span>
+<span id='93'> 93</span>
+<span id='94'> 94</span>
+<span id='95'> 95</span>
+<span id='96'> 96</span>
+<span id='97'> 97</span>
+<span id='98'> 98</span>
+<span id='99'> 99</span>
+<span id='100'>100</span>
+<span id='101'>101</span>
+<span id='102'>102</span>
+<span id='103'>103</span>
+<span id='104'>104</span>
+<span id='105'>105</span>
+<span id='106'>106</span>
+<span id='107'>107</span>
+<span id='108'>108</span>
+<span id='109'>109</span>
+<span id='110'>110</span>
+<span id='111'>111</span>
+<span id='112'>112</span>
+<span id='113'>113</span>
+<span id='114'>114</span>
+<span id='115'>115</span>
+<span id='116'>116</span>
+<span id='117'>117</span>
+<span id='118'>118</span>
+<span id='119'>119</span>
+<span id='120'>120</span>
+<span id='121'>121</span>
+<span id='122'>122</span>
+<span id='123'>123</span>
+<span id='124'>124</span>
+</pre><pre class='rust'>//!
+//! Geometry composed from the union of primitives.
+//!
+
+use std::num::Zero;
+use nalgebra::na;
+use nalgebra::na::{AlgebraicVecExt, Cast, Translation, AbsoluteRotate, Transform, Rotate};
+use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
+use volumetric::InertiaTensor;
+use ray::Ray;
+use partitioning::bvt::BVT;
+use partitioning::bvt_visitor::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use partitioning::bvt;
+use geom::{Geom, ConcaveGeom};
+
+/// A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of
+/// the union of several simpler geometry. This is the main way of creating a concave geometry from
+/// convex parts. Each parts can have its own delta transformation to shift or rotate it with
+/// regard to the other geometries.
+pub struct Compound&lt;N, V, M, II&gt; {
+    priv shapes: ~[(M, ~Geom&lt;N, V, M, II&gt;)],
+    priv bvt:    BVT&lt;uint, AABB&lt;N, V&gt;&gt;,
+    priv bvs:    ~[AABB&lt;N, V&gt;]
+}
+
+impl&lt;N: Clone, V: Clone, M: Clone, II&gt; Clone for Compound&lt;N, V, M, II&gt; {
+    fn clone(&amp;self) -&gt; Compound&lt;N, V, M, II&gt; {
+        Compound {
+            shapes: self.shapes.map(|&amp;(ref m, ref s)| (m.clone(), s.duplicate())),
+            bvt:    self.bvt.clone(),
+            bvs:    self.bvs.clone()
+        }
+    }
+}
+
+impl&lt;N: &#39;static + Algebraic + Primitive + Orderable + Signed + Cast&lt;f32&gt; + Clone,
+     V: &#39;static + AlgebraicVecExt&lt;N&gt; + Clone,
+     M,
+     II&gt;
+Compound&lt;N, V, M, II&gt; {
+    /// Builds a new compound shape from a list of shape with their respective delta
+    /// transformation.
+    pub fn new(shapes: ~[(M, ~Geom&lt;N, V, M, II&gt;)]) -&gt; Compound&lt;N, V, M, II&gt; {
+        let mut bvs    = ~[];
+        let mut leaves = ~[];
+
+        for (i, &amp;(ref delta, ref shape)) in shapes.iter().enumerate() {
+            let bv = shape.aabb(delta).loosened(na::cast(0.04)); // loosen for better persistancy
+
+            bvs.push(bv.clone());
+            leaves.push((i, bv));
+        }
+
+        let bvt = BVT::new_with_partitioner(leaves, bvt::kdtree_partitioner);
+
+        Compound {
+            shapes: shapes,
+            bvt:    bvt,
+            bvs:    bvs
+        }
+    }
+}
+
+impl&lt;N, V, M, II&gt; Compound&lt;N, V, M, II&gt; {
+    /// The shapes of this compound geometry.
+    #[inline]
+    pub fn shapes&lt;&#39;r&gt;(&amp;&#39;r self) -&gt; &amp;&#39;r [(M, ~Geom&lt;N, V, M, II&gt;)] {
+        let res: &amp;&#39;r [(M, ~Geom&lt;N, V, M, II&gt;)] = self.shapes;
+
+        res
+    }
+
+    /// The optimization structure used by this compound geometry.
+    #[inline]
+    pub fn bvt&lt;&#39;r&gt;(&amp;&#39;r self) -&gt; &amp;&#39;r BVT&lt;uint, AABB&lt;N, V&gt;&gt; {
+        &amp;&#39;r self.bvt
+    }
+
+    /// The shapes bounding volumes.
+    #[inline]
+    pub fn bounding_volumes&lt;&#39;r&gt;(&amp;&#39;r self) -&gt; &amp;&#39;r [AABB&lt;N, V&gt;] {
+        let res: &amp;&#39;r [AABB&lt;N, V&gt;] = self.bvs;
+
+        res
+    }
+}
+
+impl&lt;N:  Clone + Zero + Num + Primitive + Orderable + Cast&lt;f32&gt; + Algebraic,
+     LV: Clone + Zero + AlgebraicVecExt&lt;N&gt;,
+     AV,
+     M:  Clone + Mul&lt;M, M&gt; + Translation&lt;LV&gt; + AbsoluteRotate&lt;LV&gt; + Transform&lt;LV&gt; + Rotate&lt;LV&gt;,
+     II: Zero + Add&lt;II, II&gt; + InertiaTensor&lt;N, LV, AV, M&gt;&gt;
+ConcaveGeom&lt;N, LV, M, II&gt; for Compound&lt;N, LV, M, II&gt; {
+    #[inline(always)]
+    fn map_part_at(&amp;self, i: uint, f: |&amp;M, &amp;Geom&lt;N, LV, M, II&gt;| -&gt; ()) {
+        let (ref m, ref g) = self.shapes[i];
+
+        f(m, *g)
+    }
+
+    #[inline(always)]
+    fn map_transformed_part_at(&amp;self, m: &amp;M, i: uint, f: |&amp;M, &amp;Geom&lt;N, LV, M, II&gt;| -&gt; ()) {
+        let (ref lm, ref g) = self.shapes[i];
+
+        f(&amp;(m * *lm), *g)
+    }
+
+    #[inline]
+    fn approx_interferences_with_aabb(&amp;self, aabb: &amp;AABB&lt;N, LV&gt;, out: &amp;mut ~[uint]) {
+        let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
+        self.bvt.visit(&amp;mut visitor);
+    }
+
+    #[inline]
+    fn approx_interferences_with_ray(&amp;self, ray: &amp;Ray&lt;LV&gt;, out: &amp;mut ~[uint]) {
+        let mut visitor = RayInterferencesCollector::new(ray, out);
+        self.bvt.visit(&amp;mut visitor);
+    }
+
+    #[inline]
+    fn aabb_at&lt;&#39;a&gt;(&amp;&#39;a self, i: uint) -&gt; &amp;&#39;a AABB&lt;N, LV&gt; {
+        &amp;&#39;a self.bvs[i]
+    }
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

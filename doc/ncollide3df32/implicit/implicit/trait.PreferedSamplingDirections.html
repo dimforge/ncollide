@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The ncollide3df32 library documentation.">
+
+    <title>ncollide3df32::implicit::implicit::PreferedSamplingDirections - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide3df32</a>&#8203;::<a href='../index.html'>implicit</a>&#8203;::<a href='index.html'>implicit</a></p><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.HasMargin.html'>HasMargin</a><br/><a class='trait ' href='trait.Implicit.html'>Implicit</a><br/><a class='trait current' href='trait.PreferedSamplingDirections.html'>PreferedSamplingDirections</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'>Trait <a href='../../index.html'>ncollide3df32</a>::<a href='../index.html'>implicit</a>::<a href='index.html'>implicit</a>::<a class='trait' href=''>PreferedSamplingDirections</a><a class='source' id='src-38225' href='../../../src/ncollide3df32/src/implicit/implicit.rs.html#79-82'>[src]</a></h1>
+<pre class='rust trait'>pub trait PreferedSamplingDirections&lt;Vect, Matrix&gt; {
+    fn <a href='#tymethod.sample' class='fnname'>sample</a>(&amp;self, &amp;Matrix, |Vect|);
+}</pre><div class='docblock'><p>Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.</p>
+
+<p>Those directions are usually the geometry faces normals.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.sample' class='method'><code>fn <a href='#tymethod.sample' class='fnname'>sample</a>(&amp;self, &amp;Matrix, |Vect|)</code></h3><div class='docblock'><p>Applies a function to this geometry with a given transform.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;_M: <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Rotate.html' title='nalgebra::traits::geometry::Rotate'>Rotate</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>&gt;&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Cuboid.html' title='ncollide3df32::geom::Cuboid'>Cuboid</a></code></li>
+<li><code>impl&lt;_M&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Ball.html' title='ncollide3df32::geom::Ball'>Ball</a></code></li>
+<li><code>impl&lt;Vect, _M&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;Vect, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Capsule.html' title='ncollide3df32::geom::Capsule'>Capsule</a></code></li>
+<li><code>impl&lt;_M: <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Rotate.html' title='nalgebra::traits::geometry::Rotate'>Rotate</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>&gt;&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Cone.html' title='ncollide3df32::geom::Cone'>Cone</a></code></li>
+<li><code>impl&lt;_M: <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Rotate.html' title='nalgebra::traits::geometry::Rotate'>Rotate</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>&gt;&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Cylinder.html' title='ncollide3df32::geom::Cylinder'>Cylinder</a></code></li>
+<li><code>impl&lt;_M&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;<a class='type' href='../../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Convex.html' title='ncollide3df32::geom::Convex'>Convex</a></code></li>
+<li><code>impl&lt;_V, _M&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;_V, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Triangle.html' title='ncollide3df32::geom::Triangle'>Triangle</a></code></li>
+<li><code>impl&lt;_V, _M&gt; <a class='trait' href='../../../ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.html' title='ncollide3df32::implicit::implicit::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;_V, _M&gt; for <a class='struct' href='../../../ncollide3df32/geom/struct.Segment.html' title='ncollide3df32::geom::Segment'>Segment</a></code></li>
+</ul><script type="text/javascript" async
+                              src="../../../implementors/ncollide3df32/implicit/implicit/trait.PreferedSamplingDirections.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var rootPath = "../../../";
+        var currentCrate = "ncollide3df32";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script async src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::narrow::algorithm::simplex::Simplex - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../../index.html'>ncollide</a>&#8203;::<a href='../../index.html'>narrow</a>&#8203;::<a href='../index.html'>algorithm</a>&#8203;::<a href='index.html'>simplex</a></p><div class='block trait'><h2>Traits</h2><a class='trait current' href='trait.Simplex.html'>Simplex</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait"><a class='source'
+                       href='../../../../src/ncollide/src/narrow/algorithm/simplex.rs.html#8-35'>[src]</a><h1 class='fqn'>Trait <a href='../../../index.html'>ncollide</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>simplex</a>::<a class='trait' href=''>Simplex</a></h1><pre class='trait'>pub trait Simplex&lt;N, V&gt; {
+    fn <a href='#tymethod.reset'
+                                    class='fnname'>reset</a>(&amp;mut self, V);
+    fn <a href='#tymethod.translate_by'
+                                    class='fnname'>translate_by</a>(&amp;mut self, &amp;V);
+    fn <a href='#tymethod.add_point'
+                                    class='fnname'>add_point</a>(&amp;mut self, V);
+    fn <a href='#tymethod.project_origin_and_reduce'
+                                    class='fnname'>project_origin_and_reduce</a>(&amp;mut self) -&gt; V;
+    fn <a href='#tymethod.project_origin'
+                                    class='fnname'>project_origin</a>(&amp;mut self) -&gt; V;
+    fn <a href='#tymethod.contains_point'
+                                    class='fnname'>contains_point</a>(&amp;self, &amp;V) -&gt; bool;
+    fn <a href='#tymethod.dimension'
+                                    class='fnname'>dimension</a>(&amp;self) -&gt; uint;
+    fn <a href='#tymethod.max_sq_len'
+                                    class='fnname'>max_sq_len</a>(&amp;self) -&gt; N;
+}</pre><div class='docblock'><p>Trait of a simplex usable by the GJK algorithm.</p>
+
+<h1>Parameters:</h1>
+
+<ul>
+<li><code>V</code> - type of a point of the simplex.</li>
+<li><code>N</code> - type of the points norm.</li>
+</ul>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.reset' class='method'><code>fn <span class='fnname'>reset</span>(&amp;mut self, V)</code></h3><div class='docblock'><p>Replace the point of the simplex by a single one. The simplex is reduced to be
+0-dimensional.</p>
+</div><h3 id='tymethod.translate_by' class='method'><code>fn <span class='fnname'>translate_by</span>(&amp;mut self, &amp;V)</code></h3><div class='docblock'><p>Translates each point of this simplex.</p>
+</div><h3 id='tymethod.add_point' class='method'><code>fn <span class='fnname'>add_point</span>(&amp;mut self, V)</code></h3><div class='docblock'><p>Adds a point to the simplex.</p>
+</div><h3 id='tymethod.project_origin_and_reduce' class='method'><code>fn <span class='fnname'>project_origin_and_reduce</span>(&amp;mut self) -&gt; V</code></h3><div class='docblock'><p>Project the origin on the simplex and remove any sub-simplex which does not contain the
+projection.</p>
+</div><h3 id='tymethod.project_origin' class='method'><code>fn <span class='fnname'>project_origin</span>(&amp;mut self) -&gt; V</code></h3><div class='docblock'><p>Projection the origin on the simplex. The simplex itself in unchanged, although it is mutable
+for optimization purpose.</p>
+</div><h3 id='tymethod.contains_point' class='method'><code>fn <span class='fnname'>contains_point</span>(&amp;self, &amp;V) -&gt; bool</code></h3><div class='docblock'><p>Checks whether a given point is already part of the simplex points.</p>
+</div><h3 id='tymethod.dimension' class='method'><code>fn <span class='fnname'>dimension</span>(&amp;self) -&gt; uint</code></h3><div class='docblock'><p>Dimension of the simplex. A simplex with <code>n</code> must be a <code>n - 1</code>-dimensional simplex.</p>
+</div><h3 id='tymethod.max_sq_len' class='method'><code>fn <span class='fnname'>max_sq_len</span>(&amp;self) -&gt; N</code></h3><div class='docblock'><p>The maximum among the simplex point squared lengths.</p>
+</div></div>
+                    <h2 id='implementors'>Implementors</h2>
+                    <ul class='item-list'>
+                <li><code><a class='struct' href='../../../../ncollide/narrow/algorithm/johnson_simplex/struct.JohnsonSimplex.html' title='ncollide::narrow::algorithm::johnson_simplex::JohnsonSimplex'>JohnsonSimplex</a>&lt;N, V&gt;</code></li></ul></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

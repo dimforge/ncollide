@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide3df64::ray::RayCastWithTransform - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../ncollide3df64/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a><br/><a class='trait current' href='trait.RayCastWithTransform.html'>RayCastWithTransform</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><br/><a class='fn ' href='fn.gjk_toi_and_normal_with_ray.html'>gjk_toi_and_normal_with_ray</a><br/><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a><br/><a class='fn ' href='fn.triangle_ray_intersection.html'>triangle_ray_intersection</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait"><a class='source'
+                       href='../../src/ncollide3df64/src/ray/ray.rs.html#27-65'>[src]</a><h1 class='fqn'>Trait <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>ray</a>::<a class='trait' href=''>RayCastWithTransform</a></h1><pre class='trait'>pub trait RayCastWithTransform: <a class='trait' href='../../ncollide3df64/ray/trait.RayCast.html' title='ncollide3df64::ray::RayCast'>RayCast</a> {
+    fn <a href='#method.toi_with_transform_and_ray'
+                                    class='fnname'>toi_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>&gt; { ... }
+    fn <a href='#method.toi_and_normal_with_transform_and_ray'
+                                    class='fnname'>toi_and_normal_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.V.html' title='ncollide3df64::math::V'>V</a>)&gt; { ... }
+    fn <a href='#method.toi_and_normal_and_uv_with_transform_and_ray'
+                                    class='fnname'>toi_and_normal_and_uv_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.V.html' title='ncollide3df64::math::V'>V</a>, <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>)&gt;)&gt; { ... }
+    fn <a href='#method.intersects_with_transform_and_ray'
+                                    class='fnname'>intersects_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; bool { ... }
+}</pre><div class='docblock'><p>Traits of transformable objects which can be tested for intersection with a ray.</p>
+</div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.toi_with_transform_and_ray' class='method'><code>fn <span class='fnname'>toi_with_transform_and_ray</span>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>&gt;</code></h3><div class='docblock'><p>Computes the time of impact between this transform geometry and a ray.</p>
+</div><h3 id='method.toi_and_normal_with_transform_and_ray' class='method'><code>fn <span class='fnname'>toi_and_normal_with_transform_and_ray</span>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.V.html' title='ncollide3df64::math::V'>V</a>)&gt;</code></h3><div class='docblock'><p>Computes the time of impact, and normal between this transformed geometry and a ray.</p>
+</div><h3 id='method.toi_and_normal_and_uv_with_transform_and_ray' class='method'><code>fn <span class='fnname'>toi_and_normal_and_uv_with_transform_and_ray</span>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.V.html' title='ncollide3df64::math::V'>V</a>, <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;(<a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>, <a class='typedef' href='../../ncollide3df64/math/typedef.N.html' title='ncollide3df64::math::N'>N</a>)&gt;)&gt;</code></h3><div class='docblock'><p>Computes time of impact, normal, and texture coordinates (uv) between this transformed
+geometry and a ray.</p>
+</div><h3 id='method.intersects_with_transform_and_ray' class='method'><code>fn <span class='fnname'>intersects_with_transform_and_ray</span>(&amp;self, m: &amp;<a class='typedef' href='../../ncollide3df64/math/typedef.M.html' title='ncollide3df64::math::M'>M</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/ray/struct.Ray.html' title='ncollide3df64::ray::ray::Ray'>Ray</a>) -&gt; bool</code></h3><div class='docblock'><p>Tests whether a ray intersects this transformed geometry.</p>
+</div></div>
+                    <h2 id='implementors'>Implementors</h2>
+                    <ul class='item-list'>
+                <li><code><a class='struct' href='../../ncollide3df64/partitioning/bvt/struct.BVT.html' title='ncollide3df64::partitioning::bvt::BVT'>BVT</a>&lt;B, BV&gt;</code></li><li><code><a class='struct' href='../../ncollide3df64/geom/mesh/struct.Mesh.html' title='ncollide3df64::geom::mesh::Mesh'>Mesh</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/compound/struct.Compound.html' title='ncollide3df64::geom::compound::Compound'>Compound</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/triangle/struct.Triangle.html' title='ncollide3df64::geom::triangle::Triangle'>Triangle</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/minkowski_sum/struct.MinkowskiSum.html' title='ncollide3df64::geom::minkowski_sum::MinkowskiSum'>MinkowskiSum</a>&lt;'a, G1, G2&gt;</code></li><li><code><a class='struct' href='../../ncollide3df64/geom/segment/struct.Segment.html' title='ncollide3df64::geom::segment::Segment'>Segment</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/convex/struct.Convex.html' title='ncollide3df64::geom::convex::Convex'>Convex</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/capsule/struct.Capsule.html' title='ncollide3df64::geom::capsule::Capsule'>Capsule</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/cone/struct.Cone.html' title='ncollide3df64::geom::cone::Cone'>Cone</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/cylinder/struct.Cylinder.html' title='ncollide3df64::geom::cylinder::Cylinder'>Cylinder</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/box_geom/struct.Box.html' title='ncollide3df64::geom::box_geom::Box'>Box</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/ball/struct.Ball.html' title='ncollide3df64::geom::ball::Ball'>Ball</a></code></li><li><code><a class='struct' href='../../ncollide3df64/geom/plane/struct.Plane.html' title='ncollide3df64::geom::plane::Plane'>Plane</a></code></li></ul></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../";
+    </script>
+    <script src="../../ncollide3df64/jquery.js"></script>
+    <script src="../../ncollide3df64/search-index.js"></script>
+    <script src="../../ncollide3df64/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

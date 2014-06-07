@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::narrow::compound_any::CompoundAABBAny - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>narrow</a>&#8203;::<a href='index.html'>compound_any</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnyCompoundAABB.html'>AnyCompoundAABB</a><br/><a class='struct current' href='struct.CompoundAABBAny.html'>CompoundAABBAny</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                       href='../../../src/ncollide/src/narrow/compound_any.rs.html#16-21'>[src]</a><h1 class='fqn'>Struct <a href='../../index.html'>ncollide</a>::<a href='../index.html'>narrow</a>::<a href='index.html'>compound_any</a>::<a class='struct' href=''>CompoundAABBAny</a></h1><pre class='struct'>pub struct CompoundAABBAny&lt;N, V, M, G, D, SD&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Collision detector between a <code>CompoundAABB</code> and any other shape.</p>
+
+<p>This other shape can itself be a <code>CompoundAABB</code> but this is discouraged: use the
+<code>CompoundCompound</code> collision detector istead.</p>
+</div><h2 class='fields'>Fields</h2>
+<table></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N, V, M, G, D, SD&gt; <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <span class='fnname'>new</span>(dispatcher: D, g: &amp;<a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, G&gt;) -&gt; <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h4>
+<div class='docblock'><p>Creates a new CompoundAABBAny collision detector.</p>
+
+<h1>Arguments:</h1>
+
+<ul>
+<li><code>dispatcher</code> - the collision dispatcher to build the collision detectors between the
+compound geometry shapes and the other shape.</li>
+<li><code>g</code> - the compound geometry to be handled by the detector.</li>
+</ul>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Algebraic.html' title='std::num::Algebraic'>Algebraic</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a>, V: 'static + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> + AlgebraicVecExt&lt;N&gt;, M: Inv + <a class='trait' href='http://static.rust-lang.org/doc/master/std/ops/trait.Mul.html' title='std::ops::Mul'>Mul</a>&lt;M, M&gt; + Translation&lt;V&gt;, G: <a class='trait' href='../../../ncollide/bounding_volume/aabb/trait.HasAABB.html' title='ncollide::bounding_volume::aabb::HasAABB'>HasAABB</a>&lt;N, V, M&gt;, D: <a class='trait' href='../../../ncollide/broad/dispatcher/trait.Dispatcher.html' title='ncollide::broad::dispatcher::Dispatcher'>Dispatcher</a>&lt;G, SD&gt;, SD: <a class='trait' href='../../../ncollide/narrow/collision_detector/trait.CollisionDetector.html' title='ncollide::narrow::collision_detector::CollisionDetector'>CollisionDetector</a>&lt;N, V, M, G, G&gt;&gt; <a class='trait' href='../../../ncollide/narrow/collision_detector/trait.CollisionDetector.html' title='ncollide::narrow::collision_detector::CollisionDetector'>CollisionDetector</a>&lt;N, V, M, <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, G&gt;, G&gt; for <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h3><div class='methods'><h4 id='method.update' class='method'><code>fn <span class='fnname'>update</span>(&amp;mut self, m1: &amp;M, g1: &amp;<a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, G&gt;, m2: &amp;M, g2: &amp;G)</code></h4>
+<div class='docblock'><p>Runs the collision detection on two objects. It is assumed that the same
+collision detector (the same structure) is always used with the same
+pair of object.</p>
+</div><h4 id='method.num_colls' class='method'><code>fn <span class='fnname'>num_colls</span>(&amp;self) -&gt; uint</code></h4>
+<div class='docblock'><p>The number of collision detected during the last update.</p>
+</div><h4 id='method.colls' class='method'><code>fn <span class='fnname'>colls</span>(&amp;self, out: &amp;mut ~[<a class='struct' href='../../../ncollide/contact/struct.Contact.html' title='ncollide::contact::Contact'>Contact</a>&lt;N, V&gt;])</code></h4>
+<div class='docblock'><p>Collects the collisions detected during the last update.</p>
+</div><h4 id='method.toi' class='method'><code>fn <span class='fnname'>toi</span>(_: <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;<a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;&gt;, m1: &amp;M, dir: &amp;V, dist: &amp;N, g1: &amp;<a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, G&gt;, m2: &amp;M, g2: &amp;G) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Computes the time of impact of two objects.</p>
+
+<h1>Arguments</h1>
+
+<ul>
+<li><code>m1</code>   - the first object transform.</li>
+<li><code>dir</code>  - the first object displacement direction.</li>
+<li><code>dist</code> - the first object displacement distance.</li>
+<li><code>g1</code>   - the first object.</li>
+<li><code>m2</code>   - the second object transform.</li>
+<li><code>g2</code>   - the second object.</li>
+</ul>
+</div></div><h3 class='impl'><code>impl&lt;N, V, M, G, D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;E&gt;, SD, E: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encoder.html' title='extra::serialize::Encoder'>Encoder</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;E&gt; for <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h3><div class='methods'><h4 id='method.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, encoder: &amp;mut E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N, V, M, G, D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;De&gt;, SD, De: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decoder.html' title='extra::serialize::Decoder'>Decoder</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;De&gt; for <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h3><div class='methods'><h4 id='method.decode' class='method'><code>fn <span class='fnname'>decode</span>(decoder: &amp;mut De) -&gt; <a class='struct' href='../../../ncollide/narrow/compound_any/struct.CompoundAABBAny.html' title='ncollide::narrow::compound_any::CompoundAABBAny'>CompoundAABBAny</a>&lt;N, V, M, G, D, SD&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

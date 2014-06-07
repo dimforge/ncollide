@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::geom::compound::CompoundAABB - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>geom</a>&#8203;::<a href='index.html'>compound</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.CompoundAABB.html'>CompoundAABB</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                       href='../../../src/ncollide/src/geom/compound.rs.html#16-20'>[src]</a><h1 class='fqn'>Struct <a href='../../index.html'>ncollide</a>::<a href='../index.html'>geom</a>::<a href='index.html'>compound</a>::<a class='struct' href=''>CompoundAABB</a></h1><pre class='struct'>pub struct CompoundAABB&lt;N, V, M, S&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>A compound geometry with an aabb bounding volume. A compound geometry is a geometry composed of
+the union of several simpler geometry. This is the main way of creating a concave geometry from
+convex parts. Each parts can have its own delta transformation to shift or rotate it with
+regard to the other geometries.</p>
+</div><h2 class='fields'>Fields</h2>
+<table></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: 'static + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Algebraic.html' title='std::num::Algebraic'>Algebraic</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Signed.html' title='std::num::Signed'>Signed</a> + Cast&lt;f32&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: 'static + AlgebraicVecExt&lt;N&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, M, S: <a class='trait' href='../../../ncollide/bounding_volume/aabb/trait.HasAABB.html' title='ncollide::bounding_volume::aabb::HasAABB'>HasAABB</a>&lt;N, V, M&gt;&gt; <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <span class='fnname'>new</span>(shapes: ~[(M, S)]) -&gt; <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h4>
+<div class='docblock'><p>Builds a new compound shape from a list of shape with their respective delta
+transformation.</p>
+</div></div><h3 class='impl'><code>impl&lt;N, V, M, S&gt; <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='methods'><h4 id='method.shapes' class='method'><code>fn <span class='fnname'>shapes</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r [(M, S)]</code></h4>
+<div class='docblock'><p>The shapes of this compound geometry.</p>
+</div><h4 id='method.bvt' class='method'><code>fn <span class='fnname'>bvt</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../../../ncollide/partitioning/bvt/struct.BVT.html' title='ncollide::partitioning::bvt::BVT'>BVT</a>&lt;uint, <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;&gt;</code></h4>
+<div class='docblock'><p>The optimization structure used by this compound geometry.</p>
+</div><h4 id='method.bounding_volumes' class='method'><code>fn <span class='fnname'>bounding_volumes</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r [<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;]</code></h4>
+<div class='docblock'><p>The shapes bounding volumes.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, M: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, S: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> for <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.clone' class='method'><code>fn <span class='fnname'>clone</span>(&amp;self) -&gt; <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encoder.html' title='extra::serialize::Encoder'>Encoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, M: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, S: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt; for <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decoder.html' title='extra::serialize::Decoder'>Decoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, M: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, S: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt; for <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.decode' class='method'><code>fn <span class='fnname'>decode</span>(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a> + Cast&lt;f32&gt;, V: VecExt&lt;N&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, M: Translation&lt;V&gt; + AbsoluteRotate&lt;V&gt; + Transform&lt;V&gt;, S&gt; <a class='trait' href='../../../ncollide/bounding_volume/aabb/trait.HasAABB.html' title='ncollide::bounding_volume::aabb::HasAABB'>HasAABB</a>&lt;N, V, M&gt; for <a class='struct' href='../../../ncollide/geom/compound/struct.CompoundAABB.html' title='ncollide::geom::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, S&gt;</code></h3><div class='methods'><h4 id='method.aabb' class='method'><code>fn <span class='fnname'>aabb</span>(&amp;self, m: &amp;M) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>The object’s AABB.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

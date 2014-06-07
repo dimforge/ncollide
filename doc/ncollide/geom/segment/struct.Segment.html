@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::geom::segment::Segment - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>geom</a>&#8203;::<a href='index.html'>segment</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.Segment.html'>Segment</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                       href='../../../src/ncollide/src/geom/segment.rs.html#6-10'>[src]</a><h1 class='fqn'>Struct <a href='../../index.html'>ncollide</a>::<a href='../index.html'>geom</a>::<a href='index.html'>segment</a>::<a class='struct' href=''>Segment</a></h1><pre class='struct'>pub struct Segment&lt;N, V&gt; {
+    margin: N,
+    a: V,
+    b: V,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr><td id='structfield.margin'><code>margin</code></td><td></td></tr><tr><td id='structfield.a'><code>a</code></td><td></td></tr><tr><td id='structfield.b'><code>b</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: Cast&lt;f32&gt;, V: Dim&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <span class='fnname'>new</span>(a: V, b: V) -&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h4>
+<h4 id='method.new_with_margin' class='method'><code>fn <span class='fnname'>new_with_margin</span>(a: V, b: V, margin: N) -&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.a' class='method'><code>fn <span class='fnname'>a</span>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a V</code></h4>
+<h4 id='method.b' class='method'><code>fn <span class='fnname'>b</span>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a V</code></h4>
+<h4 id='method.margin' class='method'><code>fn <span class='fnname'>margin</span>(&amp;self) -&gt; N</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Signed.html' title='std::num::Signed'>Signed</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Algebraic.html' title='std::num::Algebraic'>Algebraic</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: AlgebraicVecExt&lt;N&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, M: Rotate&lt;V&gt; + Transform&lt;V&gt;&gt; <a class='trait' href='../../../ncollide/bounding_volume/aabb/trait.HasAABB.html' title='ncollide::bounding_volume::aabb::HasAABB'>HasAABB</a>&lt;N, V, M&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.aabb' class='method'><code>fn <span class='fnname'>aabb</span>(&amp;self, m: &amp;M) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>The object’s AABB.</p>
+</div></div><h3 class='impl'><code>impl&lt;__E: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encoder.html' title='extra::serialize::Encoder'>Encoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decoder.html' title='extra::serialize::Decoder'>Decoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.decode' class='method'><code>fn <span class='fnname'>decode</span>(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.clone' class='method'><code>fn <span class='fnname'>clone</span>(&amp;self) -&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: Cast&lt;f32&gt;, V: Dim + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../../ncollide/geom/mesh/trait.MeshElement.html' title='ncollide::geom::mesh::MeshElement'>MeshElement</a>&lt;N, V&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.nvertices' class='method'><code>fn <span class='fnname'>nvertices</span>(_: <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;<a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;&gt;) -&gt; uint</code></h4>
+<h4 id='method.new_with_vertices_and_indices' class='method'><code>fn <span class='fnname'>new_with_vertices_and_indices</span>(vs: &amp;[V], is: &amp;[uint], margin: N) -&gt; <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Zero.html' title='std::num::Zero'>Zero</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Zero.html' title='std::num::Zero'>Zero</a>, II: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Zero.html' title='std::num::Zero'>Zero</a>&gt; <a class='trait' href='../../../ncollide/volumetric/volumetric/trait.Volumetric.html' title='ncollide::volumetric::volumetric::Volumetric'>Volumetric</a>&lt;N, V, II&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.mass_properties' class='method'><code>fn <span class='fnname'>mass_properties</span>(&amp;self, _: &amp;N) -&gt; (N, V, II)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V&gt; <a class='trait' href='../../../ncollide/implicit/implicit/trait.HasMargin.html' title='ncollide::implicit::implicit::HasMargin'>HasMargin</a>&lt;N&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.margin' class='method'><code>fn <span class='fnname'>margin</span>(&amp;self) -&gt; N</code></h4>
+<div class='docblock'><p>The geometry margin.</p>
+</div></div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Algebraic.html' title='std::num::Algebraic'>Algebraic</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Ord.html' title='std::cmp::Ord'>Ord</a>, V: AlgebraicVec&lt;N&gt;, M: Transform&lt;V&gt; + Rotate&lt;V&gt;&gt; <a class='trait' href='../../../ncollide/implicit/implicit/trait.Implicit.html' title='ncollide::implicit::implicit::Implicit'>Implicit</a>&lt;N, V, M&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.support_point_without_margin' class='method'><code>fn <span class='fnname'>support_point_without_margin</span>(&amp;self, m: &amp;M, dir: &amp;V) -&gt; V</code></h4>
+<div class='docblock'><p>Evaluates the support function of the object. A support function is a
+function associating a vector to the geometry point which maximizes their
+dot product. This does not include the <code>margin</code> of the object. Margins are
+geometry-dependent. Use <code>support_point</code> to sample the complete geometry.</p>
+
+<h1>Arguments:</h1>
+
+<ul>
+<li><code>dir</code> - the input of the support function. It is not required for it to
+       be normalized.</li>
+</ul>
+</div><h4 id='method.support_point' class='method'><code>fn <span class='fnname'>support_point</span>(&amp;self, transform: &amp;M, dir: &amp;V) -&gt; V</code></h4>
+<div class='docblock'><p>Evaluates the support function of the object. A support function is a
+function associating a vector to the geometry point which maximizes their
+dot product.</p>
+
+<h1>Arguments:</h1>
+
+<ul>
+<li><code>dir</code> - the input of the support function. It is not required for it to
+       be normalized.</li>
+</ul>
+</div></div><h3 class='impl'><code>impl&lt;N, V, M&gt; <a class='trait' href='../../../ncollide/narrow/algorithm/minkowski_sampling/trait.PreferedSamplingDirections.html' title='ncollide::narrow::algorithm::minkowski_sampling::PreferedSamplingDirections'>PreferedSamplingDirections</a>&lt;V, M&gt; for <a class='struct' href='../../../ncollide/geom/segment/struct.Segment.html' title='ncollide::geom::segment::Segment'>Segment</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.sample' class='method'><code>fn <span class='fnname'>sample</span>(&amp;self, _: &amp;M, _: |V|)</code></h4>
+<div class='docblock'><p>Applies a function to this geometry with a given transform.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

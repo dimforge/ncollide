@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::geom::private::minkowski_sum::AnnotatedPoint - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../../index.html'>ncollide</a>&#8203;::<a href='../../index.html'>geom</a>&#8203;::<a href='../index.html'>private</a>&#8203;::<a href='index.html'>minkowski_sum</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnnotatedMinkowskiSum.html'>AnnotatedMinkowskiSum</a><br/><a class='struct current' href='struct.AnnotatedPoint.html'>AnnotatedPoint</a><br/><a class='struct ' href='struct.MinkowskiSum.html'>MinkowskiSum</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.cso_support_point.html'>cso_support_point</a><br/><a class='fn ' href='fn.cso_support_point_without_margin.html'>cso_support_point_without_margin</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <input class="search-input" name="search"
+                   autocomplete="off" />
+            <button class="do-search">Search</button>
+        </form>
+    </nav>
+
+    <section class="content struct"><h1 class='fqn'>Struct <a href='../../../index.html'>ncollide</a>::<a href='../../index.html'>geom</a>::<a href='../index.html'>private</a>::<a href='index.html'>minkowski_sum</a>::<a class='struct' href=''>AnnotatedPoint</a></h1><pre class='struct'>pub struct AnnotatedPoint&lt;V&gt; {
+    priv orig1: V,
+    priv orig2: V,
+    priv point: V,
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;V&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.new' class='method'><code>fn new(orig1: V, orig2: V, point: V) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+<h4 id='fn.point' class='method'><code>fn point&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r V</code></h4>
+<h4 id='fn.orig1' class='method'><code>fn orig1&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r V</code></h4>
+<h4 id='fn.orig2' class='method'><code>fn orig2&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r V</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::num::Zero&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.new_invalid' class='method'><code>fn new_invalid(point: V) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;V: std::clone::Clone&gt; std::clone::Clone for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.clone' class='method'><code>fn clone(&amp;self) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::to_str::ToStr&gt; std::to_str::ToStr for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.to_str' class='method'><code>fn to_str(&amp;self) -&gt; ~str</code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: extra::serialize::Encoder, V: extra::serialize::Encodable&gt; extra::serialize::Encodable for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.encode' class='method'><code>fn encode(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: extra::serialize::Decoder, V: extra::serialize::Decodable&gt; extra::serialize::Decodable for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.decode' class='method'><code>fn decode(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::num::Zero&gt; std::num::Zero for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.zero' class='method'><code>fn zero() -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+<h4 id='fn.is_zero' class='method'><code>fn is_zero(&amp;self) -&gt; bool</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::num::One&gt; std::num::One for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.one' class='method'><code>fn one() -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::ops::Sub&gt; std::ops::Sub for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.sub' class='method'><code>fn sub(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::ops::Add&gt; std::ops::Add for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.add' class='method'><code>fn add(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::ops::Neg&gt; std::ops::Neg for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.neg' class='method'><code>fn neg(&amp;self) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: nalgebra::traits::structure::Dim&gt; nalgebra::traits::structure::Dim for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.dim' class='method'><code>fn dim(_: std::option::Option) -&gt; uint</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: nalgebra::traits::structure::Vec, N&gt; nalgebra::traits::geometry::Dot for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.dot' class='method'><code>fn dot(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; N</code></h4>
+<h4 id='fn.sub_dot' class='method'><code>fn sub_dot(&amp;self, sub: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;, dot: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; N</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: std::num::Algebraic, V: nalgebra::traits::geometry::Norm + std::clone::Clone&gt; nalgebra::traits::geometry::Norm for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.norm' class='method'><code>fn norm(&amp;self) -&gt; N</code></h4>
+<h4 id='fn.sqnorm' class='method'><code>fn sqnorm(&amp;self) -&gt; N</code></h4>
+<h4 id='fn.normalized' class='method'><code>fn normalized(&amp;self) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+<div class='docblock'><p>Be careful: only the <code>point</code> is normalized, not <code>orig1</code> nor <code>orig2</code>.</p>
+</div><h4 id='fn.normalize' class='method'><code>fn normalize(&amp;mut self) -&gt; N</code></h4>
+<div class='docblock'><p>Be careful: only the <code>point</code> is normalized, not <code>orig1</code> nor <code>orig2</code>.</p>
+</div></div><h3 class='impl'><code>impl&lt;V: std::ops::Div, N&gt; std::ops::Div for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.div' class='method'><code>fn div(&amp;self, n: &amp;N) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::ops::Mul, N&gt; std::ops::Mul for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.mul' class='method'><code>fn mul(&amp;self, n: &amp;N) -&gt; <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::cmp::Eq&gt; std::cmp::Eq for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.eq' class='method'><code>fn eq(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; bool</code></h4>
+<h4 id='fn.ne' class='method'><code>fn ne(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; bool</code></h4>
+</div><h3 class='impl'><code>impl&lt;V: std::cmp::ApproxEq, N: std::cmp::ApproxEq&gt; std::cmp::ApproxEq for <a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;</code></h3><div class='methods'><h4 id='fn.approx_epsilon' class='method'><code>fn approx_epsilon() -&gt; N</code></h4>
+<h4 id='fn.approx_eq' class='method'><code>fn approx_eq(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;) -&gt; bool</code></h4>
+<h4 id='fn.approx_eq_eps' class='method'><code>fn approx_eq_eps(&amp;self, other: &amp;<a class='struct' href='struct.AnnotatedPoint.html' title='ncollide::geom::private::minkowski_sum::AnnotatedPoint'>AnnotatedPoint</a>&lt;V&gt;, epsilon: &amp;N) -&gt; bool</code></h4>
+</div></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

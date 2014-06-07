@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The ncollide4df32 library documentation.">
+
+    <title>ncollide4df32::broad::DBVTBroadPhase - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>broad</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BoundingVolumeProxy.html'>BoundingVolumeProxy</a><br/><a class='struct ' href='struct.BruteForceBoundingVolumeBroadPhase.html'>BruteForceBoundingVolumeBroadPhase</a><br/><a class='struct ' href='struct.BruteForceBroadPhase.html'>BruteForceBroadPhase</a><br/><a class='struct current' href='struct.DBVTBroadPhase.html'>DBVTBroadPhase</a><br/><a class='struct ' href='struct.NoIdDispatcher.html'>NoIdDispatcher</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolumeBroadPhase.html'>BoundingVolumeBroadPhase</a><br/><a class='trait ' href='trait.BroadPhase.html'>BroadPhase</a><br/><a class='trait ' href='trait.Dispatcher.html'>Dispatcher</a><br/><a class='trait ' href='trait.InterferencesBroadPhase.html'>InterferencesBroadPhase</a><br/><a class='trait ' href='trait.RayCastBroadPhase.html'>RayCastBroadPhase</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>broad</a>::<a class='struct' href=''>DBVTBroadPhase</a><a class='source' id='src-32795' href='../../src/ncollide4df32/src/broad/dbvt_broad_phase.rs.html#21-33'>[src]</a></h1>
+<pre class='rust struct'>pub struct DBVTBroadPhase&lt;B, BV, D, DV&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Broad phase based on a Dynamic Bounding Volume Tree.</p>
+
+<p>It uses two separate trees: one for static objects and which is never updated, and one for
+moving objects.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(dispatcher: D, margin: <a class='type' href='../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>) -&gt; <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h4>
+<div class='docblock'><p>Creates a new broad phase based on a Dynamic Bounding Volume Tree.</p>
+</div><h4 id='method.num_interferences' class='method'><code>fn <a href='#method.num_interferences' class='fnname'>num_interferences</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a></code></h4>
+<div class='docblock'><p>Number of interferences detected by this broad phase.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.BroadPhase.html' title='ncollide4df32::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h3><div class='methods'><h4 id='method.add' class='method'><code>fn <a href='#method.add' class='fnname'>add</a>(&amp;mut self, b: B)</code></h4>
+<h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, b: &amp;B)</code></h4>
+<h4 id='method.update' class='method'><code>fn <a href='#method.update' class='fnname'>update</a>(&amp;mut self)</code></h4>
+<h4 id='method.update_object' class='method'><code>fn <a href='#method.update_object' class='fnname'>update_object</a>(&amp;mut self, object: &amp;B)</code></h4>
+</div><h3 class='impl'><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.InterferencesBroadPhase.html' title='ncollide4df32::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h3><div class='methods'><h4 id='method.for_each_pair' class='method'><code>fn <a href='#method.for_each_pair' class='fnname'>for_each_pair</a>(&amp;self, f: |&amp;B, &amp;B, &amp;DV|)</code></h4>
+<h4 id='method.for_each_pair_mut' class='method'><code>fn <a href='#method.for_each_pair_mut' class='fnname'>for_each_pair_mut</a>(&amp;mut self, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h4>
+<h4 id='method.activate' class='method'><code>fn <a href='#method.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h4>
+<h4 id='method.deactivate' class='method'><code>fn <a href='#method.deactivate' class='fnname'>deactivate</a>(&amp;mut self, body: &amp;B)</code></h4>
+</div><h3 class='impl'><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.BoundingVolumeBroadPhase.html' title='ncollide4df32::broad::BoundingVolumeBroadPhase'>BoundingVolumeBroadPhase</a>&lt;B, BV&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h3><div class='methods'><h4 id='method.interferences_with_bounding_volume' class='method'><code>fn <a href='#method.interferences_with_bounding_volume' class='fnname'>interferences_with_bounding_volume</a>(&amp;mut self, bv: &amp;BV, out: &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h4>
+</div><h3 class='impl'><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='../../ncollide4df32/ray/ray/trait.RayCast.html' title='ncollide4df32::ray::ray::RayCast'>RayCast</a> + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.RayCastBroadPhase.html' title='ncollide4df32::broad::RayCastBroadPhase'>RayCastBroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></h3><div class='methods'><h4 id='method.interferences_with_ray' class='method'><code>fn <a href='#method.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, ray: &amp;<a class='struct' href='../../ncollide4df32/ray/ray/struct.Ray.html' title='ncollide4df32::ray::ray::Ray'>Ray</a>, out: &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var rootPath = "../../";
+        var currentCrate = "ncollide4df32";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    <script async src="../../search-index.js"></script>
+</body>
+</html>

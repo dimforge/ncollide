@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide3df64::ray::Ray - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400,700'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../ncollide3df64/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.Ray.html'>Ray</a><br/><a class='struct ' href='struct.RayIntersection.html'>RayIntersection</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><br/><a class='fn ' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><br/><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a><br/><a class='fn ' href='fn.triangle_ray_intersection.html'>triangle_ray_intersection</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                              href='../../src/ncollide3df64/src/ray/ray.rs.html#8-13'>[src]</a><h1 class='fqn'>Struct <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>ray</a>::<a class='struct' href=''>Ray</a></h1><pre class='rust struct'>pub struct Ray {
+    orig: <a class='typedef' href='../../ncollide3df64/math/typedef.Vector.html' title='ncollide3df64::math::Vector'>Vector</a>,
+    dir: <a class='typedef' href='../../ncollide3df64/math/typedef.Vector.html' title='ncollide3df64::math::Vector'>Vector</a>,
+}</pre><div class='docblock'><p>A Ray.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr><td id='structfield.orig'><code>orig</code></td><td><div class='docblock'><p>Starting point of the ray.</p>
+</div></td></tr><tr><td id='structfield.dir'><code>dir</code></td><td><div class='docblock'><p>Direction of the ray.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(orig: <a class='typedef' href='../../ncollide3df64/math/typedef.Vector.html' title='ncollide3df64::math::Vector'>Vector</a>, dir: <a class='typedef' href='../../ncollide3df64/math/typedef.Vector.html' title='ncollide3df64::math::Vector'>Vector</a>) -&gt; <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h4>
+<div class='docblock'><p>Creates a new ray starting from <code>orig</code> and with the direction <code>dir</code>. <code>dir</code> must be
+normalized.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;__D: Decoder&gt; Decodable&lt;__D&gt; for <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.decode' class='method'><code>fn <a href='#method.decode' class='fnname'>decode</a>(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: Encoder&gt; Encodable&lt;__E&gt; for <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.encode' class='method'><code>fn <a href='#method.encode' class='fnname'>encode</a>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='http://static.rust-lang.org/doc/master/std/fmt/trait.Show.html' title='std::fmt::Show'>Show</a> for <a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a></code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.fmt' class='method'><code>fn <a href='#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='http://static.rust-lang.org/doc/master/std/fmt/struct.Formatter.html' title='std::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/fmt/enum.Result.html' title='std::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../";
+    </script>
+    <script src="../../ncollide3df64/jquery.js"></script>
+    <script src="../../ncollide3df64/search-index.js"></script>
+    <script src="../../ncollide3df64/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>
