@@ -12,7 +12,7 @@ dimensions (never tried).
 An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide2df32/index.html).
 
 ## Compilation
-You will need the last rust compiler from the master branch.
+You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
 If you encounter problems, make sure you have the last version before creating an issue.
 
 The simplest way to build **ncollide** and all its dependencies is to do a
