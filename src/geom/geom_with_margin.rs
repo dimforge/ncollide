@@ -19,6 +19,12 @@ impl<'a, G> GeomWithMargin<'a, G> {
             geom: geom
         }
     }
+
+    /// The wrapped geometry.
+    #[inline]
+    pub fn geom<'b>(&'b self) -> &'b G {
+        self.geom
+    }
 }
 
 impl<'a, G> HasMargin for GeomWithMargin<'a, G> {

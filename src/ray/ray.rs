@@ -3,6 +3,9 @@
 use nalgebra::na::{Rotate, Transform};
 use math::{Scalar, Vect, Matrix};
 
+#[cfg(dim3)]
+use nalgebra::na::Vec2;
+
 /// A Ray.
 #[deriving(Show, Encodable, Decodable)]
 pub struct Ray {
@@ -38,14 +41,14 @@ pub struct RayIntersection {
     #[cfg(dim3)]
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    pub uvs:    Option<Vect>
+    pub uvs:    Option<Vec2<Scalar>>
 }
 
 impl RayIntersection {
     #[cfg(dim3)]
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Vect>) -> RayIntersection {
+    pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Vec2<Scalar>>) -> RayIntersection {
         RayIntersection {
             toi:    toi,
             normal: normal,

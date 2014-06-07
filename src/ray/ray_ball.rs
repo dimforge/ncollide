@@ -6,18 +6,18 @@ use geom::Ball;
 use math::{Scalar, Vect, Matrix};
 
 #[cfg(dim3)]
-use nalgebra::na::Vec3;
+use nalgebra::na::Vec2;
 
 
 #[cfg(dim3)]
-fn ball_uv(normal: &Vect) -> Option<Vect> {
+fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
     let _0_5:   Scalar = na::cast(0.5);
     let uvx       = _0_5 + normal.z.atan2(normal.x) / two_pi;
     let uvy       = _0_5 - normal.y.asin() / pi;
 
-    Some(Vec3::new(uvx, uvy, na::zero())) // XXX: is it a good hard-code the type Vec3 ?
+    Some(Vec2::new(uvx, uvy))
 }
 
 impl RayCast for Ball {

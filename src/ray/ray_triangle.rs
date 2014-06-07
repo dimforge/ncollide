@@ -17,7 +17,7 @@ impl RayCast for Triangle {
     #[cfg(dim3)]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if self.margin().is_zero() {
-            triangle_ray_intersection(self.a(), self.b(), self.c(), ray)
+            triangle_ray_intersection(self.a(), self.b(), self.c(), ray).map(|i| i.val0())
         }
         else {
             implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
@@ -41,7 +41,7 @@ impl RayCast for Triangle {
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
 #[cfg(dim3)]
-pub fn triangle_ray_intersection(a: &Vect, b: &Vect, c: &Vect, ray: &Ray) -> Option<RayIntersection> {
+pub fn triangle_ray_intersection(a: &Vect, b: &Vect, c: &Vect, ray: &Ray) -> Option<(RayIntersection, Vec3<Scalar>)> {
     let ab = *b - *a;
     let ac = *c - *a;
 
@@ -114,5 +114,5 @@ pub fn triangle_ray_intersection(a: &Vect, b: &Vect, c: &Vect, ray: &Ray) -> Opt
         w        = w * invd;
     }
 
-    Some(RayIntersection::new_with_uvs(toi, normal, Some(Vec3::new(-v - w + na::one(), v, w))))
+    Some((RayIntersection::new(toi, normal), Vec3::new(-v - w + na::one(), v, w)))
 }

@@ -7,7 +7,7 @@ use bounding_volume::AABB;
 use math::{Scalar, Vect};
 
 #[cfg(dim3)]
-use nalgebra::na::Vec3;
+use nalgebra::na::Vec2;
 
 impl RayCast for AABB {
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
@@ -59,13 +59,13 @@ impl RayCast for AABB {
             let id  = s.abs();
 
             if id == 1 {
-                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.y.clone(), lpt.z.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.y.clone(), lpt.z.clone())))
             }
             else if id == 2 {
-                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.z.clone(), lpt.x.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.z.clone(), lpt.x.clone())))
             }
             else {
-                RayIntersection::new_with_uvs(t, n, Some(Vec3::new(lpt.x.clone(), lpt.y.clone(), na::zero())))
+                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.x.clone(), lpt.y.clone())))
             }
         })
     }

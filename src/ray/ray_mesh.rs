@@ -3,11 +3,13 @@ use geom::Mesh;
 use math::Scalar;
 
 #[cfg(dim3)]
+use nalgebra::na::Vec2;
+#[cfg(dim3)]
 use ray;
 #[cfg(dim3)]
 use std::num::Zero;
 #[cfg(dim3)]
-use nalgebra::na::{Vec3, Norm};
+use nalgebra::na::Norm;
 #[cfg(dim3)]
 use nalgebra::na;
 #[cfg(dim3)]
@@ -44,32 +46,31 @@ impl RayCast for Mesh {
                 let is       = self.indices().slice(i, i + 3);
 
                 ray::triangle_ray_intersection(&vs[is[0]], &vs[is[1]], &vs[is[2]], r).map(|inter|
-                    (inter.toi.clone(), inter)
+                    (inter.ref0().toi.clone(), inter)
             )});
 
         match cast {
             None                   => None,
             Some((_, inter, best)) => {
-                let toi = inter.toi;
-                let n   = inter.normal;
-                let uv  = inter.uvs.unwrap();
+                let toi = inter.ref0().toi;
+                let n   = inter.ref0().normal;
+                let uv  = inter.val1(); // barycentric coordinates to compute the exact uvs.
 
                 let ibest = *best * 3;
                 let is    = self.indices().slice(ibest, ibest + 3);
                 let uvs   = self.uvs().as_ref().unwrap();
 
-                let (x1, y1, z1) = uvs.get(is[0]).clone();
-                let (x2, y2, z2) = uvs.get(is[1]).clone();
-                let (x3, y3, z3) = uvs.get(is[2]).clone();
+                let uv1 = uvs.get(is[0]).clone();
+                let uv2 = uvs.get(is[1]).clone();
+                let uv3 = uvs.get(is[2]).clone();
 
-                let uvx = x1 * uv.x + x2 * uv.y + x3 * uv.z;
-                let uvy = y1 * uv.x + y2 * uv.y + y3 * uv.z;
-                let uvz = z1 * uv.x + z2 * uv.y + z3 * uv.z;
+                let uvx = uv1.x * uv.x + uv2.x * uv.y + uv3.x * uv.z;
+                let uvy = uv1.y * uv.x + uv2.y * uv.y + uv3.y * uv.z;
 
                 // XXX: this interpolation should be done on the two other ray cast too!
                 match *self.normals() {
                     None         => {
-                        Some(RayIntersection::new_with_uvs(toi, n, Some(Vec3::new(uvx, uvy, uvz))))
+                        Some(RayIntersection::new_with_uvs(toi, n, Some(Vec2::new(uvx, uvy))))
                     },
                     Some(ref ns) => {
                         let n1 = ns.get(is[0]);
@@ -79,14 +80,14 @@ impl RayCast for Mesh {
                         let mut n123 = n1 * uv.x + n2 * uv.y + n3 * uv.z;
 
                         if n123.normalize().is_zero() {
-                            Some(RayIntersection::new_with_uvs(toi, n, Some(Vec3::new(uvx, uvy, uvz))))
+                            Some(RayIntersection::new_with_uvs(toi, n, Some(Vec2::new(uvx, uvy))))
                         }
                         else {
                             if na::dot(&n123, &ray.dir) > na::zero() {
-                                Some(RayIntersection::new_with_uvs(toi, -n123, Some(Vec3::new(uvx, uvy, uvz))))
+                                Some(RayIntersection::new_with_uvs(toi, -n123, Some(Vec2::new(uvx, uvy))))
                             }
                             else {
-                                Some(RayIntersection::new_with_uvs(toi, n123, Some(Vec3::new(uvx, uvy, uvz))))
+                                Some(RayIntersection::new_with_uvs(toi, n123, Some(Vec2::new(uvx, uvy))))
                             }
                         }
                     }

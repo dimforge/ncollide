@@ -4,6 +4,7 @@
 
 use sync::Arc;
 use nalgebra::na;
+use nalgebra::na::Vec2;
 use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
@@ -47,7 +48,7 @@ pub struct Mesh {
     margin:   Scalar,
     vertices: Arc<Vec<Vect>>,
     indices:  Arc<Vec<uint>>,
-    uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
+    uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
     normals:  Option<Arc<Vec<Vect>>>,
 }
 
@@ -69,7 +70,7 @@ impl Mesh {
     /// Builds a new mesh with a default margin of 0.04.
     pub fn new(vertices: Arc<Vec<Vect>>,
                indices:  Arc<Vec<uint>>,
-               uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
+               uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
                normals:  Option<Arc<Vec<Vect>>>)
                -> Mesh {
         Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
@@ -78,7 +79,7 @@ impl Mesh {
     /// Builds a new mesh with a custom margin.
     pub fn new_with_margin(vertices: Arc<Vec<Vect>>,
                            indices:  Arc<Vec<uint>>,
-                           uvs:      Option<Arc<Vec<(Scalar, Scalar, Scalar)>>>,
+                           uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
                            normals:  Option<Arc<Vec<Vect>>>,
                            margin:   Scalar)
                            -> Mesh {
@@ -141,7 +142,7 @@ impl Mesh {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<(Scalar, Scalar, Scalar)>>> {
+    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<Vec2<Scalar>>>> {
         &'a self.uvs
     }
 
