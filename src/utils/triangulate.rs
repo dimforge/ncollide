@@ -1,6 +1,6 @@
 //! Point cloud triangulation.
 
-use collections::hashmap::HashMap;
+use std::collections::hashmap::HashMap;
 use nalgebra::na::{FloatVec, FloatVecExt, Cast, Vec3};
 use nalgebra::na;
 use procedural::{TriMesh, UnifiedIndexBuffer};

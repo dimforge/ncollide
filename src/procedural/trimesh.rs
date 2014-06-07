@@ -1,4 +1,4 @@
-use collections::HashMap;
+use std::collections::HashMap;
 use procedural::utils;
 use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, Vec3, Vec2};
 use nalgebra::na;

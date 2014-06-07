@@ -353,7 +353,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 #[cfg(test)]
 mod test {
     use super::HashMap;
-    use collections::hashmap;
+    use std::collections::hashmap;
     use test::Bencher;
     use data::hash::{UintTWHash, UintPairTWHash};
 

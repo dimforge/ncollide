@@ -1,6 +1,6 @@
 //! Tree used to cache subdivisions of surfaces.
 
-use collections::HashMap;
+use std::collections::HashMap;
 use sync::{Arc, RWLock};
 use geom::BezierSurface;
 
