@@ -45,7 +45,7 @@ impl Volumetric for Cone {
             );
 
         let mut center: Vect = na::zero();
-        center.set(0, -self.half_height() / na::cast(2.0));
+        center.set(1, -self.half_height() / na::cast(2.0));
 
         (mass, center, res)
     }
@@ -65,12 +65,12 @@ impl Volumetric for Cone {
 
         let mut res: AngularInertia = na::zero();
 
-        res.set((0, 0), principal);
-        res.set((1, 1), off_principal.clone());
+        res.set((0, 0), off_principal.clone());
+        res.set((1, 1), principal);
         res.set((2, 2), off_principal);
 
         let mut center: Vect = na::zero();
-        center.set(0, -self.half_height() / na::cast(2.0));
+        center.set(1, -self.half_height() / na::cast(2.0));
 
         (mass, center, res)
     }

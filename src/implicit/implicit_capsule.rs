@@ -19,11 +19,11 @@ Implicit<Vect, _M> for Capsule {
 
         let mut vres: Vect = Zero::zero();
 
-        if local_dir.at(0).is_negative() {
-            vres.set(0, -self.half_height())
+        if local_dir.at(1).is_negative() {
+            vres.set(1, -self.half_height())
         }
         else {
-            vres.set(0, self.half_height())
+            vres.set(1, self.half_height())
         }
 
         m.transform(&vres)

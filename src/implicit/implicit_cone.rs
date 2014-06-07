@@ -20,25 +20,25 @@ Implicit<Vect, _M> for Cone {
 
         let mut vres = local_dir.clone();
 
-        vres.set(0, na::zero());
+        vres.set(1, na::zero());
 
         if vres.normalize().is_zero() {
             vres = na::zero();
 
-            if local_dir.at(0).is_negative() {
-                vres.set(0, -self.half_height())
+            if local_dir.at(1).is_negative() {
+                vres.set(1, -self.half_height())
             }
             else {
-                vres.set(0, self.half_height())
+                vres.set(1, self.half_height())
             }
         }
         else {
             vres = vres * self.radius();
-            vres.set(0, -self.half_height());
+            vres.set(1, -self.half_height());
 
-            if na::dot(&local_dir, &vres) < local_dir.at(0) * self.half_height() {
+            if na::dot(&local_dir, &vres) < local_dir.at(1) * self.half_height() {
                 vres = na::zero();
-                vres.set(0, self.half_height())
+                vres.set(1, self.half_height())
             }
         }
 
@@ -52,7 +52,7 @@ PreferedSamplingDirections<Vect, _M> for Cone {
     fn sample(&self, transform: &_M, f: |Vect| -> ()) {
         // Sample along the principal axis
         let mut v: Vect = na::zero();
-        v.set(0, na::one());
+        v.set(1, na::one());
 
         let rv = transform.rotate(&v);
         f(-rv);

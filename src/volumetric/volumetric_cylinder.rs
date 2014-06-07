@@ -59,8 +59,8 @@ impl Volumetric for Cylinder {
 
         let mut res: AngularInertia = na::zero();
 
-        res.set((0, 0), mass * sq_radius / na::cast(2.0));
-        res.set((1, 1), off_principal.clone());
+        res.set((0, 0), off_principal.clone());
+        res.set((1, 1), mass * sq_radius / na::cast(2.0));
         res.set((2, 2), off_principal);
 
         (mass, na::zero(), res)

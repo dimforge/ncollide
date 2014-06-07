@@ -20,9 +20,9 @@ Implicit<Vect, _M> for Cylinder {
 
         let mut vres = local_dir.clone();
 
-        let negative = local_dir.at(0).is_negative();
+        let negative = local_dir.at(1).is_negative();
 
-        vres.set(0, Zero::zero());
+        vres.set(1, Zero::zero());
 
         if vres.normalize().is_zero() {
             vres = Zero::zero()
@@ -32,10 +32,10 @@ Implicit<Vect, _M> for Cylinder {
         }
 
         if negative {
-            vres.set(0, -self.half_height())
+            vres.set(1, -self.half_height())
         }
         else {
-            vres.set(0, self.half_height())
+            vres.set(1, self.half_height())
         }
 
         m.transform(&vres)
@@ -48,7 +48,7 @@ PreferedSamplingDirections<Vect, _M> for Cylinder {
     fn sample(&self, transform: &_M, f: |Vect| -> ()) {
         // Sample along the principal axis
         let mut v: Vect = na::zero();
-        v.set(0, na::one());
+        v.set(1, na::one());
 
         let rv = transform.rotate(&v);
         f(-rv);

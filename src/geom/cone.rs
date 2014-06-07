@@ -3,7 +3,7 @@
 use nalgebra::na::Cast;
 use math::Scalar;
 
-/// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
+/// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cone {
     half_height: Scalar,
@@ -15,7 +15,7 @@ impl Cone {
     /// Creates a new cone.
     ///
     /// # Arguments:
-    /// * `half_height` - the half length of the cone along the `x` axis.
+    /// * `half_height` - the half length of the cone along the `y` axis.
     /// * `radius` - the length of the cone along all other axis.
     pub fn new(half_height: Scalar, radius: Scalar) -> Cone {
         Cone::new_with_margin(half_height, radius, Cast::from(0.04))
@@ -24,7 +24,7 @@ impl Cone {
     /// Creates a new cone with a custom margin.
     ///
     /// # Arguments:
-    /// * `half_height` - the half length of the cone along the `x` axis.
+    /// * `half_height` - the half length of the cone along the `y` axis.
     /// * `radius` - the length of the cone along all other axis.
     /// * `margin` - the  cone margin.
     pub fn new_with_margin(half_height: Scalar, radius: Scalar, margin: Scalar) -> Cone {
@@ -39,12 +39,12 @@ impl Cone {
 }
 
 impl Cone {
-    /// The cone half length along the `x` axis.
+    /// The cone half length along the `y` axis.
     pub fn half_height(&self) -> Scalar {
         self.half_height.clone()
     }
 
-    /// The radius of the cone along all but the `x` axis.
+    /// The radius of the cone along all but the `y` axis.
     pub fn radius(&self) -> Scalar {
         self.radius.clone()
     }
