@@ -18,11 +18,11 @@ pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: 
 
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
-pub fn push_xy_circle<N: FloatMath, V: Dim + Indexable<uint, N> + Zero>(
-                      radius:  N,
-                      nsubdiv: u32,
-                      dtheta:  N,
-                      out:     &mut Vec<V>) {
+pub fn push_xy_arc<N: FloatMath, V: Dim + Indexable<uint, N> + Zero>(
+                   radius:  N,
+                   nsubdiv: u32,
+                   dtheta:  N,
+                   out:     &mut Vec<V>) {
     assert!(na::dim::<V>() >= 2);
 
     let mut curr_theta: N = na::zero();

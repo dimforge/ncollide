@@ -8,10 +8,10 @@ use math::{Scalar, Vect};
 
 impl ToTriMesh<()> for Cuboid {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
-        assert!(self.margin().is_zero(), "Rounded cube mesh generation is not implemented yet.");
+        assert!(self.margin().is_zero(), "Rounded cuboid mesh generation is not implemented yet.");
         let _2: Scalar = na::cast(2.0);
 
-        procedural::cube(&(self.half_extents() * _2))
+        procedural::cuboid(&(self.half_extents() * _2))
     }
 }
 

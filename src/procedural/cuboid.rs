@@ -1,31 +1,31 @@
 use nalgebra::na;
-use nalgebra::na::{Cast, Vec3, Vec2};
-use procedural::{TriMesh, SplitIndexBuffer};
+use nalgebra::na::{Cast, Indexable, FloatVecExt, Vec3, Vec2};
+use procedural::{TriMesh, SplitIndexBuffer, Polyline};
 
 /**
- * Generates a cube geometry with a split index buffer.
+ * Generates a cuboid geometry with a split index buffer.
  *
  * # Arguments:
- * * `extents` - the extents of the cube.
+ * * `extents` - the extents of the cuboid.
  */
-pub fn cube<N: Float + Clone + Cast<f64>>(extents: &Vec3<N>) -> TriMesh<N, Vec3<N>> {
-    let mut cube = unit_cube();
+pub fn cuboid<N: Float + Clone + Cast<f64>>(extents: &Vec3<N>) -> TriMesh<N, Vec3<N>> {
+    let mut cuboid = unit_cuboid();
 
-    cube.scale_by(extents);
+    cuboid.scale_by(extents);
 
-    cube
+    cuboid
 }
 
 /**
- * Generates a cube geometry with a split index buffer.
+ * Generates a cuboid geometry with a split index buffer.
  *
- * The cube is centered at the origin, and has its half extents set to 0.5.
+ * The cuboid is centered at the origin, and has its half extents set to 0.5.
  */
-pub fn unit_cube<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
-    let mut coords  = Vec::new();
-    let mut uvs     = Vec::new();
-    let mut normals = Vec::new();
-    let mut faces   = Vec::new();
+pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
+    let mut coords  = Vec::with_capacity(8);
+    let mut uvs     = Vec::with_capacity(4);
+    let mut normals = Vec::with_capacity(6);
+    let mut faces   = Vec::with_capacity(12);
 
     let _0_5: N = na::cast(0.5);
     let m0_5: N = -_0_5;
@@ -68,4 +68,31 @@ pub fn unit_cube<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
     faces.push(Vec3::new(Vec3::new(4, 2, 5), Vec3::new(7, 3, 5), Vec3::new(5, 0, 5)));
 
     TriMesh::new(coords, Some(normals), Some(uvs), Some(SplitIndexBuffer(faces)))
+}
+
+/// The contour of a cuboid lying on the x-y plane.
+pub fn rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>(extents: &V) -> Polyline<N, V> {
+    let mut rectangle = unit_rectangle();
+
+    rectangle.scale_by(extents);
+
+    rectangle
+}
+
+/// The contour of a unit cuboid lying on the x-y plane.
+pub fn unit_rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>() -> Polyline<N, V> {
+    let _0_5: N = na::cast(0.5);
+    let m0_5: N = -_0_5;
+
+    let mut p_ul = na::zero::<V>();
+    let mut p_ur = na::zero::<V>();
+    let mut p_dl = na::zero::<V>();
+    let mut p_dr = na::zero::<V>();
+
+    p_ul.set(0, m0_5.clone()); p_ul.set(1, _0_5.clone());
+    p_ur.set(0, _0_5.clone()); p_ur.set(1, _0_5.clone());
+    p_dl.set(0, _0_5.clone()); p_dl.set(1, m0_5.clone());
+    p_dr.set(0, m0_5.clone()); p_dr.set(1, m0_5.clone());
+
+    Polyline::new(vec!(p_ur, p_ul, p_dl, p_dr), None)
 }

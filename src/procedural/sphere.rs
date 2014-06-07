@@ -124,21 +124,21 @@ pub fn unit_hemisphere<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(ntheta
     out
 }
 
-/// Creates a circle contained on the `(x,y)` plane.
+/// Creates a circle lying on the `(x,y)` plane.
 pub fn circle<N: FloatMath + Cast<f64>, V: FloatVecExt<N>>(diameter: &N, nsubdivs: u32) -> Polyline<N, V> {
     let two_pi: N = Float::two_pi();
     let dtheta    = two_pi / na::cast(nsubdivs as f64);
 
     let mut pts = Vec::with_capacity(nsubdivs as uint);
 
-    utils::push_xy_circle(*diameter / na::cast(2.0), nsubdivs, dtheta, &mut pts);
+    utils::push_xy_arc(*diameter / na::cast(2.0), nsubdivs, dtheta, &mut pts);
 
     // FIXME: normals
 
     Polyline::new(pts, None)
 }
 
-/// Creates a circle contained on the `(x,y)` plane.
+/// Creates a circle lying on the `(x,y)` plane.
 pub fn unit_circle<N: FloatMath + Cast<f64>, V: FloatVecExt<N>>(nsubdivs: u32) -> Polyline<N, V> {
     // FIXME: do this the other way round?
     circle(&na::cast(1.0), nsubdivs)

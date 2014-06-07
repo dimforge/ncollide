@@ -1,8 +1,9 @@
-use nalgebra::na::{Translate, Rotate, Transform, FloatVec};
+use nalgebra::na;
+use nalgebra::na::{Translate, Rotate, Transform, FloatVec, Dim, Indexable};
 
 /// Geometric description of a polyline.
 #[deriving(Clone)]
-// XXX: Rename thit `PolyLine` ?
+// XXX: Rename this `PolyLine` ?
 pub struct Polyline<N, V> {
     /// Coordinates of the polyline vertices.
     pub coords:  Vec<V>,
@@ -56,6 +57,21 @@ impl<N, V: FloatVec<N>> Polyline<N, V> {
     pub fn scale_by_scalar(&mut self, s: &N) {
         for c in self.coords.mut_iter() {
             *c = *c * *s
+        }
+        // FIXME: do something for the normals?
+    }
+}
+
+impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> Polyline<N, V> {
+    /// Scales each vertex of this mesh.
+    #[inline]
+    pub fn scale_by(&mut self, s: &V) {
+        for c in self.coords.mut_iter() {
+            for i in range(0, na::dim::<V>()) {
+                let val = c.at(i);
+                let mul = s.at(i);
+                c.set(i, val * mul);
+            }
         }
         // FIXME: do something for the normals?
     }

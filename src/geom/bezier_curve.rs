@@ -13,7 +13,7 @@ pub struct BezierCurveEvaluationCache {
 /// Procedural generator of non-rational Bézier curve.
 #[deriving(Clone)]
 pub struct BezierCurve {
-    control_points: Vec<Vect> // u-major storage.
+    control_points: Vec<Vect>
 }
 
 impl BezierCurve {

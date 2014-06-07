@@ -14,6 +14,7 @@ pub enum IndexBuffer {
 
 impl IndexBuffer {
     /// Returns the unified index buffer data or fails.
+    #[inline]
     pub fn unwrap_unified(self) -> Vec<Vec3<u32>> {
         match self {
             UnifiedIndexBuffer(b) => b,
@@ -22,6 +23,7 @@ impl IndexBuffer {
     }
 
     /// Returns the split index buffer data or fails.
+    #[inline]
     pub fn unwrap_split(self) -> Vec<Vec3<Vec3<u32>>> {
         match self {
             SplitIndexBuffer(b) => b,
@@ -69,6 +71,7 @@ impl<N, V> TriMesh<N, V> {
     }
 
     /// Translates each vertex of this mesh.
+    #[inline]
     pub fn translate_by<T: Translate<V>>(&mut self, t: &T) {
         for c in self.coords.mut_iter() {
             *c = t.translate(c);
@@ -76,6 +79,7 @@ impl<N, V> TriMesh<N, V> {
     }
 
     /// Rotates each vertex and normal of this mesh.
+    #[inline]
     pub fn rotate_by<R: Rotate<V>>(&mut self, r: &R) {
         for c in self.coords.mut_iter() {
             *c = r.rotate(c);
@@ -89,6 +93,7 @@ impl<N, V> TriMesh<N, V> {
     }
 
     /// Transforms each vertex and rotates each normal of this mesh.
+    #[inline]
     pub fn transform_by<T: Transform<V> + Rotate<V>>(&mut self, t: &T) {
         for c in self.coords.mut_iter() {
             *c = t.transform(c);
@@ -104,6 +109,7 @@ impl<N, V> TriMesh<N, V> {
 
 impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
     /// Scales each vertex of this mesh.
+    #[inline]
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.mut_iter() {
             for i in range(0, na::dim::<V>()) {
@@ -118,6 +124,7 @@ impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
 
 impl<N, V: Mul<N, V>> TriMesh<N, V> {
     /// Scales each vertex of this mesh.
+    #[inline]
     pub fn scale_by_scalar(&mut self, s: &N) {
         for c in self.coords.mut_iter() {
             *c = *c * *s
