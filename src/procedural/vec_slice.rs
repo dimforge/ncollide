@@ -12,7 +12,7 @@ pub struct VecSliceMut<'a, T> {
     stride: uint
 }
 
-impl<'a, T> Container for VecSlice<'a, T> {
+impl<'a, T> Collection for VecSlice<'a, T> {
     fn len(&self) -> uint {
         self.length
     }
@@ -22,7 +22,7 @@ impl<'a, T> Container for VecSlice<'a, T> {
     }
 }
 
-impl<'a, T> Container for VecSliceMut<'a, T> {
+impl<'a, T> Collection for VecSliceMut<'a, T> {
     fn len(&self) -> uint {
         self.length
     }

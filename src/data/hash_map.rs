@@ -265,7 +265,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 }
 
-impl<K, V, H: HashFun<K>> Container for HashMap<K, V, H> {
+impl<K, V, H: HashFun<K>> Collection for HashMap<K, V, H> {
     #[inline]
     fn len(&self) -> uint {
         self.num_elem
