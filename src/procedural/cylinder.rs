@@ -28,8 +28,8 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
     utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(0.5),  &mut coords);
 
     utils::push_ring_indices(0, nsubdiv, nsubdiv, &mut indices);
-    utils::push_closed_circle_indices(0, nsubdiv, &mut indices);
-    utils::push_closed_circle_indices(nsubdiv, nsubdiv, &mut indices);
+    utils::push_filled_circle_indices(0, nsubdiv, &mut indices);
+    utils::push_filled_circle_indices(nsubdiv, nsubdiv, &mut indices);
 
     let len             = indices.len();
     let bottom_start_id = len - (nsubdiv as uint - 2);

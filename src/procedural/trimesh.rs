@@ -70,6 +70,18 @@ impl<N, V> TriMesh<N, V> {
         }
     }
 
+    /// Whether or not this triangle mesh has normals.
+    #[inline]
+    pub fn has_normals(&self) -> bool {
+        self.normals.is_some()
+    }
+
+    /// Whether or not this triangle mesh has texture coordinates.
+    #[inline]
+    pub fn has_uvs(&self) -> bool {
+        self.uvs.is_some()
+    }
+
     /// Translates each vertex of this mesh.
     #[inline]
     pub fn translate_by<T: Translate<V>>(&mut self, t: &T) {

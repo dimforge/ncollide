@@ -7,9 +7,10 @@ use procedural::utils;
 /// Generates a UV sphere.
 pub fn sphere<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(diameter:      &N,
                                                                  ntheta_subdiv: u32,
-                                                                 nphi_subdiv:   u32)
+                                                                 nphi_subdiv:   u32,
+                                                                 generate_uvs:  bool)
                                                                  -> TriMesh<N, Vec3<N>> {
-    let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv);
+    let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv, generate_uvs);
 
     sphere.scale_by_scalar(diameter);
 
@@ -17,69 +18,123 @@ pub fn sphere<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(diameter:      
 }
 
 /// Generates a UV sphere centered at the origin and with a unit diameter.
-// FIXME: n{theta,phi}_subdiv are not the right names.
 pub fn unit_sphere<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(ntheta_subdiv: u32,
-                                                                      nphi_subdiv:   u32)
+                                                                      nphi_subdiv:   u32,
+                                                                      generate_uvs:  bool)
                                                                       -> TriMesh<N, Vec3<N>> {
+    if generate_uvs {
+        unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
+    }
+    else {
+        unit_sphere_without_uvs(ntheta_subdiv, nphi_subdiv)
+    }
+}
+
+// FIXME: n{theta,phi}_subdiv are not the right names.
+fn unit_sphere_without_uvs<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(ntheta_subdiv: u32,
+                                                                              nphi_subdiv:   u32)
+                                                                              -> TriMesh<N, Vec3<N>> {
+    let pi: N     = Float::pi();
     let two_pi: N = Float::two_pi();
     let pi_two: N = Float::frac_pi_2();
-    let dtheta    =  two_pi / na::cast(ntheta_subdiv as f64);
-    let dphi      =  pi_two / na::cast(nphi_subdiv as f64);
+    let dtheta    = two_pi / na::cast(ntheta_subdiv as f64);
+    let dphi      = pi / na::cast(nphi_subdiv as f64);
 
-    let mut coords     = Vec::new();
-    let mut curr_phi   = -pi_two + dphi;
+    let mut coords   = Vec::new();
+    let mut curr_phi = -pi_two + dphi;
 
-    coords.push(-Vec3::y());
+    // coords.
+    coords.push(Vec3::new(na::zero(), -na::one::<N>(), na::zero()));
 
-    for _ in range(0, 2 * nphi_subdiv - 1) {
+    for _ in range(0, nphi_subdiv - 1) {
         utils::push_circle(curr_phi.cos(), ntheta_subdiv, dtheta, curr_phi.sin(), &mut coords);
         curr_phi = curr_phi + dphi;
     }
 
-    coords.push(Vec3::y());
+    coords.push(Vec3::new(na::zero(), na::one(), na::zero()));
+
+    // the normals are the same as the coords.
+    let normals = coords.clone();
+
+    // index buffer
+    let mut idx = Vec::new();
+
+    utils::push_degenerate_top_ring_indices(1, 0, ntheta_subdiv, &mut idx);
+
+    utils::reverse_clockwising(idx.as_mut_slice());
+
+    for i in range(0, nphi_subdiv - 2) {
+        let bottom = 1 + i * ntheta_subdiv;
+        let up     = bottom + ntheta_subdiv;
+        utils::push_ring_indices(bottom, up, ntheta_subdiv, &mut idx);
+    }
+
+    utils::push_degenerate_top_ring_indices(1 + (nphi_subdiv - 2) * ntheta_subdiv,
+                                            coords.len() as u32 - 1,
+                                            ntheta_subdiv,
+                                            &mut idx);
+
+    let mut res = TriMesh::new(coords, Some(normals), None, Some(UnifiedIndexBuffer(idx)));
+
+    let _0_5: N = na::cast(0.5);
+
+    res.scale_by_scalar(&_0_5);
+
+    res
+}
+
+fn unit_sphere_with_uvs<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(ntheta_subdiv: u32,
+                                                                           nphi_subdiv:   u32)
+                                                                           -> TriMesh<N, Vec3<N>> {
+    let pi: N     = Float::pi();
+    let two_pi: N = Float::two_pi();
+    let pi_two: N = Float::frac_pi_2();
+    let duvtheta  = na::one::<N>() / na::cast(ntheta_subdiv as f64); // step of uv.x coordinates.
+    let duvphi    = na::one::<N>() / na::cast(nphi_subdiv as f64);   // step of uv.y coordinates.
+    let dtheta    =  two_pi * duvtheta;
+    let dphi      =  pi * duvphi;
+
+    let mut coords   = Vec::new();
+    let mut curr_phi = -pi_two;
+
+    for _ in range(0, nphi_subdiv + 1) {
+        utils::push_circle(curr_phi.cos(), ntheta_subdiv + 1, dtheta, curr_phi.sin(), &mut coords);
+        curr_phi = curr_phi + dphi;
+    }
 
     // the normals are the same as the coords
     let normals = coords.clone();
 
     // index buffer
     let mut idx = Vec::new();
-    utils::push_degenerate_top_ring_indices(1, 0, ntheta_subdiv, &mut idx);
-    utils::reverse_clockwising(idx.as_mut_slice());
 
-    for i in range(0, 2 * nphi_subdiv - 2) {
-        utils::push_ring_indices(1 + i * ntheta_subdiv, 1 + (i + 1) * ntheta_subdiv, ntheta_subdiv, &mut idx);
+    for i in range(0, nphi_subdiv) {
+        let bottom = i * (ntheta_subdiv + 1);
+        let up     = bottom + (ntheta_subdiv + 1);
+        utils::push_open_ring_indices(bottom, up, ntheta_subdiv + 1, &mut idx);
     }
 
-    utils::push_degenerate_top_ring_indices(1 + (2 * nphi_subdiv - 2) * ntheta_subdiv,
-                                            coords.len() as u32 - 1,
-                                            ntheta_subdiv,
-                                            &mut idx);
 
-    // uvs
-    let mut uvs = Vec::new();
+    let mut uvs        = Vec::new();
+    let mut curr_uvphi = na::zero::<N>();
 
-    for coord in coords.iter() {
-        uvs.push(ball_uv(coord));
+    for _ in range(0, nphi_subdiv + 1) {
+        let mut curr_uvtheta = na::zero::<N>();
+
+        for _ in range(0, ntheta_subdiv + 1) {
+            uvs.push(Vec2::new(curr_uvtheta, curr_uvphi));
+            curr_uvtheta = curr_uvtheta + duvtheta; 
+        }
+
+        curr_uvphi = curr_uvphi + duvphi;
     }
 
-    // Result
-    let mut out = TriMesh::new(coords, Some(normals), Some(uvs), Some(UnifiedIndexBuffer(idx)));
+    let mut res = TriMesh::new(coords, Some(normals), Some(uvs), Some(UnifiedIndexBuffer(idx)));
 
-    // set the radius to 0.5
     let _0_5: N = na::cast(0.5);
-    out.scale_by_scalar(&_0_5);
+    res.scale_by_scalar(&_0_5);
 
-    out
-}
-
-fn ball_uv<N: FloatMath + Cast<f64>>(normal: &Vec3<N>) -> Vec2<N> {
-    let two_pi: N = Float::two_pi();
-    let pi:     N = Float::pi();
-    let _0_5:   N = na::cast(0.5f64);
-    let uvx       = _0_5 + normal.z.atan2(normal.x) / two_pi;
-    let uvy       = _0_5 - normal.y.asin() / pi;
-
-    Vec2::new(uvx, uvy)
+    res
 }
 
 /// Creates an hemisphere with a diameter of 1.

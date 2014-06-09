@@ -27,7 +27,7 @@ pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> 
     coords.push(Vec3::new(na::zero(), na::cast(0.5), na::zero()));
 
     utils::push_degenerate_top_ring_indices(0, coords.len() as u32 - 1, nsubdiv, &mut indices);
-    utils::push_closed_circle_indices(0, nsubdiv, &mut indices);
+    utils::push_filled_circle_indices(0, nsubdiv, &mut indices);
 
     /*
      * Normals.
