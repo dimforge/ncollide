@@ -9,8 +9,6 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
-An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide4df64/index.html).
-
 ## Compilation
 You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
 If you encounter problems, make sure you have the last version before creating an issue.
@@ -54,7 +52,7 @@ Some common features are still missing:
 #![deny(unnecessary_typecast)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
-#![doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")]
+#![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate std;
 extern crate nalgebra;

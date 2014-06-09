@@ -1,4 +1,4 @@
-ncollide  [![Build Status](https://travis-ci.org/sebcrozet/ncollide.png?branch=master)](https://travis-ci.org/sebcrozet/ncollide)
+ncollide
 ========
 
 **ncollide** is a n-dimensional collision detection library written with the
@@ -8,7 +8,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
-An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide3df32/index.html).
+An on-line version of this documentation is available [here](http://ncollide.org).
 
 ## Compilation
 You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
@@ -34,8 +34,3 @@ recursive clone:
   yet implemented)
 
 And various traits for collision detectors and broad phase collision detection.
-
-## What is missing
-Some common features are still missing:
-
-- heightmaps

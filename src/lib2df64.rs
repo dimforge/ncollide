@@ -54,7 +54,7 @@ Some common features are still missing:
 #![deny(unnecessary_typecast)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
-#![doc(html_root_url = "http://www.rust-ci.org/sebcrozet/ncollide/doc")]
+#![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate std;
 extern crate nalgebra;
