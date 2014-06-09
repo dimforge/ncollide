@@ -42,10 +42,10 @@ pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
     coords.push(Vec3::new(_0_5.clone(), _0_5.clone(), m0_5.clone()));
     coords.push(Vec3::new(_0_5.clone(), _0_5.clone(), _0_5.clone()));
 
-    uvs.push(Vec2::new(_0.clone(), _0.clone()));
-    uvs.push(Vec2::new(_1.clone(), _0.clone()));
     uvs.push(Vec2::new(_0.clone(), _1.clone()));
     uvs.push(Vec2::new(_1.clone(), _1.clone()));
+    uvs.push(Vec2::new(_0.clone(), _0.clone()));
+    uvs.push(Vec2::new(_1.clone(), _0.clone()));
 
     normals.push(Vec3::new(m1.clone(), _0.clone(), _0.clone()));
     normals.push(Vec3::new(_0.clone(), _0.clone(), m1.clone()));
