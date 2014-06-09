@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>InterferencesBroadPhase</a><a class='source' id='src-31650' href='../../src/ncollide2df64/src/broad/broad_phase.rs.html#22-36'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>InterferencesBroadPhase</a><a class='source' id='src-31543' href='../../src/ncollide2df64/src/broad/broad_phase.rs.html#22-36'>[src]</a></h1>
 <pre class='rust trait'>pub trait InterferencesBroadPhase&lt;B, DV&gt;: <a class='trait' href='../../ncollide2df64/broad/trait.BroadPhase.html' title='ncollide2df64::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
     fn <a href='#tymethod.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|);
     fn <a href='#tymethod.deactivate' class='fnname'>deactivate</a>(&amp;mut self, &amp;B);
@@ -62,7 +62,7 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df64/broad/trait.InterferencesBroadPhase.html' title='ncollide2df64::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df64/broad/struct.DBVTBroadPhase.html' title='ncollide2df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><code>impl&lt;B: 'static + HasBoundingVolume&lt;BV&gt; + <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + LooseBoundingVolume + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df64/broad/trait.InterferencesBroadPhase.html' title='ncollide2df64::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df64/broad/struct.DBVTBroadPhase.html' title='ncollide2df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df64/broad/trait.InterferencesBroadPhase.js">
                       </script></section>
@@ -102,11 +102,13 @@
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide2df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide2df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

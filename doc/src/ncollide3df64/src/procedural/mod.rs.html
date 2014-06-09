@@ -74,6 +74,36 @@
 <span id='34'>34</span>
 <span id='35'>35</span>
 <span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
+<span id='42'>42</span>
+<span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+<span id='49'>49</span>
+<span id='50'>50</span>
+<span id='51'>51</span>
+<span id='52'>52</span>
+<span id='53'>53</span>
+<span id='54'>54</span>
+<span id='55'>55</span>
+<span id='56'>56</span>
+<span id='57'>57</span>
+<span id='58'>58</span>
+<span id='59'>59</span>
+<span id='60'>60</span>
+<span id='61'>61</span>
+<span id='62'>62</span>
+<span id='63'>63</span>
+<span id='64'>64</span>
+<span id='65'>65</span>
+<span id='66'>66</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Procedural mesh generation.
 </span><span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>trimesh</span>::{<span class='ident'>TriMesh</span>, <span class='ident'>IndexBuffer</span>, <span class='ident'>UnifiedIndexBuffer</span>, <span class='ident'>SplitIndexBuffer</span>};
@@ -83,7 +113,7 @@
                              <span class='ident'>bezier_surface_at</span>, <span class='ident'>bezier_curve_at</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>capsule</span>::<span class='ident'>capsule</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>cone</span>::{<span class='ident'>unit_cone</span>, <span class='ident'>cone</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>cube</span>::{<span class='ident'>cube</span>, <span class='ident'>unit_cube</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>cuboid</span>::{<span class='ident'>cuboid</span>, <span class='ident'>unit_cuboid</span>, <span class='ident'>rectangle</span>, <span class='ident'>unit_rectangle</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>cylinder</span>::{<span class='ident'>unit_cylinder</span>, <span class='ident'>cylinder</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>quad</span>::{<span class='ident'>quad</span>, <span class='ident'>unit_quad</span>, <span class='ident'>quad_with_vertices</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>sphere</span>::{<span class='ident'>sphere</span>, <span class='ident'>unit_sphere</span>, <span class='ident'>circle</span>, <span class='ident'>unit_circle</span>};
@@ -98,16 +128,46 @@
 
 <span class='kw'>mod</span> <span class='ident'>to_trimesh</span> {
     <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>ball_to_trimesh</span>;
+    <span class='kw'>mod</span> <span class='ident'>plane_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>bezier_surface_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>capsule_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>cone_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>cuboid_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>cylinder_to_trimesh</span>;
+    <span class='kw'>mod</span> <span class='ident'>geom_with_margin_to_trimesh</span>;
+    <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>mesh_to_trimesh</span>;
+    <span class='kw'>mod</span> <span class='ident'>reflection_to_trimesh</span>;
+    <span class='kw'>mod</span> <span class='ident'>triangle_to_trimesh</span>;
 }
 
 <span class='kw'>mod</span> <span class='ident'>to_polyline</span> {
     <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>ball_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>bezier_curve_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>cuboid_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>geom_with_margin_to_polyline</span>;<span class='comment'>
+    // FIXME: this one is not easy to implement.
+    // #[cfg(dim2)]
+    // mod mesh_to_polyline;
+    </span><span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim2</span>)]</span>
+    <span class='kw'>mod</span> <span class='ident'>plane_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>reflection_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>segment_to_polyline</span>;
+    <span class='kw'>mod</span> <span class='ident'>triangle_to_polyline</span>;
 }
 
 <span class='kw'>mod</span> <span class='ident'>bezier</span>;
 <span class='kw'>mod</span> <span class='ident'>capsule</span>;
 <span class='kw'>mod</span> <span class='ident'>cone</span>;
-<span class='kw'>mod</span> <span class='ident'>cube</span>;
+<span class='kw'>mod</span> <span class='ident'>cuboid</span>;
 <span class='kw'>mod</span> <span class='ident'>cylinder</span>;
 <span class='kw'>mod</span> <span class='ident'>quad</span>;
 <span class='kw'>mod</span> <span class='ident'>sphere</span>;
@@ -149,11 +209,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide3df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide3df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

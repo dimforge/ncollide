@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>Compound</a><a class='source' id='src-8895' href='../../src/ncollide2df64/src/geom/compound.rs.html#18-22'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>Compound</a><a class='source' id='src-8786' href='../../src/ncollide2df64/src/geom/compound.rs.html#18-22'>[src]</a></h1>
 <pre class='rust struct'>pub struct Compound {
     // some fields omitted
 }</pre><div class='docblock'><p>A compound geometry with an aabb bounding volume.</p>
@@ -58,7 +58,7 @@ transformation.</p>
 <div class='docblock'><p>The shapes bounding volumes.</p>
 </div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../ncollide2df64/bounding_volume/trait.HasBoundingSphere.html' title='ncollide2df64::bounding_volume::HasBoundingSphere'>HasBoundingSphere</a> for <a class='struct' href='../../ncollide2df64/geom/struct.Compound.html' title='ncollide2df64::geom::Compound'>Compound</a></code></h3><div class='methods'><h4 id='method.bounding_sphere' class='method'><code>fn <a href='#method.bounding_sphere' class='fnname'>bounding_sphere</a>(&amp;self, m: &amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>) -&gt; <a class='struct' href='../../ncollide2df64/bounding_volume/struct.BoundingSphere.html' title='ncollide2df64::bounding_volume::BoundingSphere'>BoundingSphere</a></code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide2df64/geom/struct.Compound.html' title='ncollide2df64::geom::Compound'>Compound</a></code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide2df64/geom/struct.Compound.html' title='ncollide2df64::geom::Compound'>Compound</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, &amp;Self)</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='../../ncollide2df64/geom/geom/trait.ConcaveGeom.html' title='ncollide2df64::geom::geom::ConcaveGeom'>ConcaveGeom</a> for <a class='struct' href='../../ncollide2df64/geom/struct.Compound.html' title='ncollide2df64::geom::Compound'>Compound</a></code></h3><div class='methods'><h4 id='method.map_part_at' class='method'><code>fn <a href='#method.map_part_at' class='fnname'>map_part_at</a>&lt;T&gt;(&amp;self, i: <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>, f: |&amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>, &amp;<a class='trait' href='../../ncollide2df64/geom/geom/trait.Geom.html' title='ncollide2df64::geom::geom::Geom'>Geom</a>| -&gt; T) -&gt; T</code></h4>
 <h4 id='method.map_transformed_part_at' class='method'><code>fn <a href='#method.map_transformed_part_at' class='fnname'>map_transformed_part_at</a>&lt;T&gt;(&amp;self, m: &amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>, i: <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>, f: |&amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>, &amp;<a class='trait' href='../../ncollide2df64/geom/geom/trait.Geom.html' title='ncollide2df64::geom::geom::Geom'>Geom</a>| -&gt; T) -&gt; T</code></h4>
 <h4 id='method.approx_interferences_with_aabb' class='method'><code>fn <a href='#method.approx_interferences_with_aabb' class='fnname'>approx_interferences_with_aabb</a>(&amp;self, aabb: &amp;AABB, out: &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>&gt;)</code></h4>
@@ -108,11 +108,13 @@ transformation.</p>
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide2df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide2df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

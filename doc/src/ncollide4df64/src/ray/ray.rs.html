@@ -179,11 +179,17 @@
 <span id='139'>139</span>
 <span id='140'>140</span>
 <span id='141'>141</span>
+<span id='142'>142</span>
+<span id='143'>143</span>
+<span id='144'>144</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Traits and structure needed to cast rays.
 </span>
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Rotate</span>, <span class='ident'>Transform</span>};
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+<span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Vec2</span>;
 
 <span class='doccomment'>/// A Ray.
 </span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
@@ -220,14 +226,14 @@
     <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
     <span class='doccomment'>/// The textures coordinates at the intersection point.  This is an `Option` because some shape
 </span>    <span class='doccomment'>/// do not support texture coordinates.
-</span>    <span class='kw'>pub</span> <span class='ident'>uvs</span>:    <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>
+</span>    <span class='kw'>pub</span> <span class='ident'>uvs</span>:    <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>RayIntersection</span> {
     <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='doccomment'>/// Creates a new `RayIntersection`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_uvs</span>(<span class='ident'>toi</span>: <span class='ident'>Scalar</span>, <span class='ident'>normal</span>: <span class='ident'>Vect</span>, <span class='ident'>uvs</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>RayIntersection</span> {
+</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_uvs</span>(<span class='ident'>toi</span>: <span class='ident'>Scalar</span>, <span class='ident'>normal</span>: <span class='ident'>Vect</span>, <span class='ident'>uvs</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>RayIntersection</span> {
         <span class='ident'>RayIntersection</span> {
             <span class='ident'>toi</span>:    <span class='ident'>toi</span>,
             <span class='ident'>normal</span>: <span class='ident'>normal</span>,
@@ -359,11 +365,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide4df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

@@ -66,21 +66,21 @@
 </span><span class='doccomment'>/// A reflection is obtained with the central symmetry with regard to the origin.
 </span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-    <span class='ident'>g</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span>
+    <span class='ident'>geom</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G</span><span class='op'>&gt;</span> <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Build the reflection of a geometry. Since the representation is implicit,
 </span>    <span class='doccomment'>/// the reflection computation is done in constant time.
 </span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>g</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span>) <span class='op'>-&gt;</span> <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-        <span class='ident'>Reflection</span> { <span class='ident'>g</span>: <span class='ident'>g</span> }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>geom</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span>) <span class='op'>-&gt;</span> <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
+        <span class='ident'>Reflection</span> { <span class='ident'>geom</span>: <span class='ident'>geom</span> }
     }
 
     <span class='doccomment'>/// The reflected geometry.
 </span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span> {
-        <span class='self'>self</span>.<span class='ident'>g</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>geom</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G</span> {
+        <span class='self'>self</span>.<span class='ident'>geom</span>
     }
 }
 </pre>
@@ -121,11 +121,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide4df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

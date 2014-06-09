@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>BezierCurve</a><a class='source' id='src-11549' href='../../src/ncollide2df64/src/geom/bezier_curve.rs.html#15-17'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>BezierCurve</a><a class='source' id='src-11442' href='../../src/ncollide2df64/src/geom/bezier_curve.rs.html#15-17'>[src]</a></h1>
 <pre class='rust struct'>pub struct BezierCurve {
     // some fields omitted
 }</pre><div class='docblock'><p>Procedural generator of non-rational Bézier curve.</p>
@@ -80,8 +80,9 @@
 <h4 id='method.toi_and_normal_with_transform_and_ray' class='method'><code>fn <a href='#method.toi_and_normal_with_transform_and_ray' class='fnname'>toi_and_normal_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>, ray: &amp;<a class='struct' href='../../ncollide2df64/ray/ray/struct.Ray.html' title='ncollide2df64::ray::ray::Ray'>Ray</a>, solid: <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../ncollide2df64/ray/ray/struct.RayIntersection.html' title='ncollide2df64::ray::ray::RayIntersection'>RayIntersection</a>&gt;</code></h4>
 <h4 id='method.intersects_with_transform_and_ray' class='method'><code>fn <a href='#method.intersects_with_transform_and_ray' class='fnname'>intersects_with_transform_and_ray</a>(&amp;self, m: &amp;<a class='type' href='../../ncollide2df64/math/type.Matrix.html' title='ncollide2df64::math::Matrix'>Matrix</a>, ray: &amp;<a class='struct' href='../../ncollide2df64/ray/ray/struct.Ray.html' title='ncollide2df64::ray::ray::Ray'>Ray</a>) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='../../ncollide2df64/volumetric/trait.Volumetric.html' title='ncollide2df64::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../ncollide2df64/geom/struct.BezierCurve.html' title='ncollide2df64::geom::BezierCurve'>BezierCurve</a></code></h3><div class='methods'><h4 id='method.mass_properties' class='method'><code>fn <a href='#method.mass_properties' class='fnname'>mass_properties</a>(&amp;self, _: &amp;<a class='type' href='../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>) -&gt; <a href='http://doc.rust-lang.org/std/primitive.tuple.html'>(<a class='type' href='../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>, <a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>, <a class='type' href='../../ncollide2df64/math/type.AngularInertia.html' title='ncollide2df64::math::AngularInertia'>AngularInertia</a>)</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='../../ncollide2df64/procedural/trait.ToPolyline.html' title='ncollide2df64::procedural::ToPolyline'>ToPolyline</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u32.html'>u32</a>&gt; for <a class='struct' href='../../ncollide2df64/geom/struct.BezierCurve.html' title='ncollide2df64::geom::BezierCurve'>BezierCurve</a></code></h3><div class='methods'><h4 id='method.to_polyline' class='method'><code>fn <a href='#method.to_polyline' class='fnname'>to_polyline</a>(&amp;self, nsubdivs: <a href='http://doc.rust-lang.org/std/primitive.u32.html'>u32</a>) -&gt; <a class='struct' href='../../ncollide2df64/procedural/struct.Polyline.html' title='ncollide2df64::procedural::Polyline'>Polyline</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>, <a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt;</code></h4>
 </div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide2df64/geom/struct.BezierCurve.html' title='ncollide2df64::geom::BezierCurve'>BezierCurve</a></code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide2df64/geom/struct.BezierCurve.html' title='ncollide2df64::geom::BezierCurve'>BezierCurve</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, &amp;Self)</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -119,11 +120,13 @@
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide2df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide2df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

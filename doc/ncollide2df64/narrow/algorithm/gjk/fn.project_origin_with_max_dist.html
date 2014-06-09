@@ -39,8 +39,8 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../../../index.html'>ncollide2df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='fn' href=''>project_origin_with_max_dist</a><a class='source' id='src-29393' href='../../../../src/ncollide2df64/src/narrow/algorithm/gjk.rs.html#157-204'>[src]</a></h1>
-<pre class='rust fn'>pub fn project_origin_with_max_dist&lt;S: <a class='trait' href='../../../../ncollide2df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide2df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;_V&gt;, G: <a class='trait' href='../../../../ncollide2df64/implicit/implicit/trait.Implicit.html' title='ncollide2df64::implicit::implicit::Implicit'>Implicit</a>&lt;_V, _M&gt;, _V: <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;<a class='type' href='../../../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>&gt;, _M&gt;(m: &amp;_M, geom: &amp;G, max_dist: &amp;<a class='type' href='../../../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>, simplex: &amp;mut S) -&gt; <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, _V&gt;</pre><div class='docblock'><p>Projects the origin on a geometry using the Separating Axis GJK algorithm.
+<h1 class='fqn'>Function <a href='../../../index.html'>ncollide2df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='fn' href=''>project_origin_with_max_dist</a><a class='source' id='src-29286' href='../../../../src/ncollide2df64/src/narrow/algorithm/gjk.rs.html#157-204'>[src]</a></h1>
+<pre class='rust fn'>pub fn project_origin_with_max_dist&lt;S: <a class='trait' href='../../../../ncollide2df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide2df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;_V&gt;, G: <a class='trait' href='../../../../ncollide2df64/implicit/implicit/trait.Implicit.html' title='ncollide2df64::implicit::implicit::Implicit'>Implicit</a>&lt;_V, _M&gt;, _V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;<a class='type' href='../../../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>&gt;, _M&gt;(m: &amp;_M, geom: &amp;G, max_dist: &amp;<a class='type' href='../../../../ncollide2df64/math/type.Scalar.html' title='ncollide2df64::math::Scalar'>Scalar</a>, simplex: &amp;mut S) -&gt; <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, _V&gt;</pre><div class='docblock'><p>Projects the origin on a geometry using the Separating Axis GJK algorithm.
 The algorithm will stop as soon as the polytope can be proven to be at least <code>max_dist</code> away
 from the origin.</p>
 
@@ -88,11 +88,13 @@ from the origin.</p>
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide2df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide2df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

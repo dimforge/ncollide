@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content type">
-<h1 class='fqn'>Enum <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>partitioning</a>::<a class='type' href=''>DBVTLeafState</a><a class='source' id='src-38645' href='../../src/ncollide4df64/src/partitioning/dbvt.rs.html#153-160'>[src]</a></h1>
+<h1 class='fqn'>Enum <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>partitioning</a>::<a class='type' href=''>DBVTLeafState</a><a class='source' id='src-38538' href='../../src/ncollide4df64/src/partitioning/dbvt.rs.html#153-160'>[src]</a></h1>
 <pre class='rust enum'>pub enum DBVTLeafState&lt;B, BV&gt; {
     RightChildOf(*mut DBVTInternal&lt;B, BV&gt;),
     LeftChildOf(*mut DBVTInternal&lt;B, BV&gt;),
@@ -52,7 +52,7 @@
 </div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;B, BV&gt; <a class='type' href='../../ncollide4df64/partitioning/type.DBVTLeafState.html' title='ncollide4df64::partitioning::DBVTLeafState'>DBVTLeafState</a>&lt;B, BV&gt;</code></h3><div class='methods'><h4 id='method.is_detached' class='method'><code>fn <a href='#method.is_detached' class='fnname'>is_detached</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h4>
 <div class='docblock'><p>Indicates whether this leaf is detached.</p>
 </div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;B: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='type' href='../../ncollide4df64/partitioning/type.DBVTLeafState.html' title='ncollide4df64::partitioning::DBVTLeafState'>DBVTLeafState</a>&lt;B, BV&gt;</code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='type' href='../../ncollide4df64/partitioning/type.DBVTLeafState.html' title='ncollide4df64::partitioning::DBVTLeafState'>DBVTLeafState</a>&lt;B, BV&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, &amp;Self)</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -90,11 +90,13 @@
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide4df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

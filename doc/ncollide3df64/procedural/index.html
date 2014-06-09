@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../index.html'>ncollide3df64</a>::<a class='mod' href=''>procedural</a><a class='source' id='src-44219' href='../../src/ncollide3df64/src/procedural/mod.rs.html#1-36'>[src]</a></h1>
+<h1 class='fqn'>Module <a href='../index.html'>ncollide3df64</a>::<a class='mod' href=''>procedural</a><a class='source' id='src-44100' href='../../src/ncollide3df64/src/procedural/mod.rs.html#1-66'>[src]</a></h1>
 <div class='docblock'><p>Procedural mesh generation.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
 <table><tr><td><code>pub use procedural::trimesh::{<a class='type' href='../../ncollide3df64/procedural/type.IndexBuffer.html' title='ncollide3df64::procedural::IndexBuffer'>UnifiedIndexBuffer</a>, <a class='type' href='../../ncollide3df64/procedural/type.IndexBuffer.html' title='ncollide3df64::procedural::IndexBuffer'>SplitIndexBuffer</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
@@ -121,7 +121,7 @@
                     <tr>
                         <td><a class='fn' href='fn.circle.html'
                                title='ncollide3df64::procedural::circle'>circle</a></td>
-                        <td class='docblock short'><p>Creates a circle contained on the <code>(x,y)</code> plane.</p>
+                        <td class='docblock short'><p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
 </td>
                     </tr>
                 
@@ -133,9 +133,9 @@
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.cube.html'
-                               title='ncollide3df64::procedural::cube'>cube</a></td>
-                        <td class='docblock short'><p>Generates a cube geometry with a split index buffer.</p>
+                        <td><a class='fn' href='fn.cuboid.html'
+                               title='ncollide3df64::procedural::cuboid'>cuboid</a></td>
+                        <td class='docblock short'><p>Generates a cuboid geometry with a split index buffer.</p>
 </td>
                     </tr>
                 
@@ -175,6 +175,13 @@
                     </tr>
                 
                     <tr>
+                        <td><a class='fn' href='fn.rectangle.html'
+                               title='ncollide3df64::procedural::rectangle'>rectangle</a></td>
+                        <td class='docblock short'><p>The contour of a cuboid lying on the x-y plane.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='fn' href='fn.sphere.html'
                                title='ncollide3df64::procedural::sphere'>sphere</a></td>
                         <td class='docblock short'><p>Generates a UV sphere.</p>
@@ -184,7 +191,7 @@
                     <tr>
                         <td><a class='fn' href='fn.unit_circle.html'
                                title='ncollide3df64::procedural::unit_circle'>unit_circle</a></td>
-                        <td class='docblock short'><p>Creates a circle contained on the <code>(x,y)</code> plane.</p>
+                        <td class='docblock short'><p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
 </td>
                     </tr>
                 
@@ -196,9 +203,9 @@
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.unit_cube.html'
-                               title='ncollide3df64::procedural::unit_cube'>unit_cube</a></td>
-                        <td class='docblock short'><p>Generates a cube geometry with a split index buffer.</p>
+                        <td><a class='fn' href='fn.unit_cuboid.html'
+                               title='ncollide3df64::procedural::unit_cuboid'>unit_cuboid</a></td>
+                        <td class='docblock short'><p>Generates a cuboid geometry with a split index buffer.</p>
 </td>
                     </tr>
                 
@@ -213,6 +220,13 @@
                         <td><a class='fn' href='fn.unit_quad.html'
                                title='ncollide3df64::procedural::unit_quad'>unit_quad</a></td>
                         <td class='docblock short'><p>Adds a double-sided quad with unit size to the scene.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='fn' href='fn.unit_rectangle.html'
+                               title='ncollide3df64::procedural::unit_rectangle'>unit_rectangle</a></td>
+                        <td class='docblock short'><p>The contour of a unit cuboid lying on the x-y plane.</p>
 </td>
                     </tr>
                 
@@ -259,11 +273,13 @@
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide3df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide3df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

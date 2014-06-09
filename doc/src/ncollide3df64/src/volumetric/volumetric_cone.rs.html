@@ -170,7 +170,7 @@
             );
 
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>center</span>: <span class='ident'>Vect</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
-        <span class='ident'>center</span>.<span class='ident'>set</span>(<span class='number'>0</span>, <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>half_height</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>));
+        <span class='ident'>center</span>.<span class='ident'>set</span>(<span class='number'>1</span>, <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>half_height</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>));
 
         (<span class='ident'>mass</span>, <span class='ident'>center</span>, <span class='ident'>res</span>)
     }
@@ -190,12 +190,12 @@
 
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span>: <span class='ident'>AngularInertia</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
 
-        <span class='ident'>res</span>.<span class='ident'>set</span>((<span class='number'>0</span>, <span class='number'>0</span>), <span class='ident'>principal</span>);
-        <span class='ident'>res</span>.<span class='ident'>set</span>((<span class='number'>1</span>, <span class='number'>1</span>), <span class='ident'>off_principal</span>.<span class='ident'>clone</span>());
+        <span class='ident'>res</span>.<span class='ident'>set</span>((<span class='number'>0</span>, <span class='number'>0</span>), <span class='ident'>off_principal</span>.<span class='ident'>clone</span>());
+        <span class='ident'>res</span>.<span class='ident'>set</span>((<span class='number'>1</span>, <span class='number'>1</span>), <span class='ident'>principal</span>);
         <span class='ident'>res</span>.<span class='ident'>set</span>((<span class='number'>2</span>, <span class='number'>2</span>), <span class='ident'>off_principal</span>);
 
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>center</span>: <span class='ident'>Vect</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
-        <span class='ident'>center</span>.<span class='ident'>set</span>(<span class='number'>0</span>, <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>half_height</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>));
+        <span class='ident'>center</span>.<span class='ident'>set</span>(<span class='number'>1</span>, <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>half_height</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>));
 
         (<span class='ident'>mass</span>, <span class='ident'>center</span>, <span class='ident'>res</span>)
     }
@@ -245,11 +245,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide3df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide3df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

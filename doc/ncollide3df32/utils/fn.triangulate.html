@@ -39,8 +39,8 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide3df32</a>::<a href='index.html'>utils</a>::<a class='fn' href=''>triangulate</a><a class='source' id='src-53796' href='../../src/ncollide3df32/src/utils/triangulate.rs.html#138-173'>[src]</a></h1>
-<pre class='rust fn'>pub fn triangulate&lt;N: <a class='trait' href='http://doc.rust-lang.org/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a>&gt;, V: <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/traits/structure/trait.FloatVecExt.html' title='nalgebra::traits::structure::FloatVecExt'>FloatVecExt</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt;(pts: &amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[V]</a>) -&gt; <a class='struct' href='../../ncollide3df32/procedural/struct.TriMesh.html' title='ncollide3df32::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;</pre><div class='docblock'><p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
+<h1 class='fqn'>Function <a href='../index.html'>ncollide3df32</a>::<a href='index.html'>utils</a>::<a class='fn' href=''>triangulate</a><a class='source' id='src-55537' href='../../src/ncollide3df32/src/utils/triangulate.rs.html#138-173'>[src]</a></h1>
+<pre class='rust fn'>pub fn triangulate&lt;N: <a class='trait' href='http://doc.rust-lang.org/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a>&gt;, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVecExt.html' title='nalgebra::traits::structure::FloatVecExt'>FloatVecExt</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt;(pts: &amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[V]</a>) -&gt; <a class='struct' href='../../ncollide3df32/procedural/struct.TriMesh.html' title='ncollide3df32::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;</pre><div class='docblock'><p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
 
 <p>If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 attached together in an unnatural way). Though, if they are only slighly perturbated on the
@@ -82,11 +82,13 @@ directions orthogonal to the plane, this should be fine.</p>
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide3df32";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide3df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

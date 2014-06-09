@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide2df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>path</a>::<a class='trait' href=''>StrokePattern</a><a class='source' id='src-44364' href='../../../src/ncollide2df32/src/procedural/path/path.rs.html#25-28'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../../index.html'>ncollide2df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>path</a>::<a class='trait' href=''>StrokePattern</a><a class='source' id='src-44285' href='../../../src/ncollide2df32/src/procedural/path/path.rs.html#25-28'>[src]</a></h1>
 <pre class='rust trait'>pub trait StrokePattern&lt;N, V&gt; {
     fn <a href='#tymethod.stroke' class='fnname'>stroke</a>&lt;C: <a class='trait' href='../../../ncollide2df32/procedural/path/trait.CurveSampler.html' title='ncollide2df32::procedural::path::CurveSampler'>CurveSampler</a>&lt;N, V&gt;&gt;(&amp;mut self, sampler: &amp;mut C) -&gt; <a class='struct' href='../../../ncollide2df32/procedural/struct.TriMesh.html' title='ncollide2df32::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;;
 }</pre><div class='docblock'><p>A pattern that is replicated along a path.</p>
@@ -52,7 +52,7 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='http://doc.rust-lang.org/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/structs/vec/trait.Vec3MulRhs.html' title='nalgebra::structs::vec::Vec3MulRhs'>Vec3MulRhs</a>&lt;N, <a class='struct' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; + <a class='trait' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/structs/vec/trait.Vec3DivRhs.html' title='nalgebra::structs::vec::Vec3DivRhs'>Vec3DivRhs</a>&lt;N, <a class='struct' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt;, C1: <a class='trait' href='../../../ncollide2df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide2df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, C2: <a class='trait' href='../../../ncollide2df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide2df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;&gt; <a class='trait' href='../../../ncollide2df32/procedural/path/trait.StrokePattern.html' title='ncollide2df32::procedural::path::StrokePattern'>StrokePattern</a>&lt;N, <a class='struct' href='http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePattern.html' title='ncollide2df32::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='http://doc.rust-lang.org/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/structs/vec/trait.Vec3MulRhs.html' title='nalgebra::structs::vec::Vec3MulRhs'>Vec3MulRhs</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/structs/vec/trait.Vec3DivRhs.html' title='nalgebra::structs::vec::Vec3DivRhs'>Vec3DivRhs</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt;, C1: <a class='trait' href='../../../ncollide2df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide2df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, C2: <a class='trait' href='../../../ncollide2df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide2df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;&gt; <a class='trait' href='../../../ncollide2df32/procedural/path/trait.StrokePattern.html' title='ncollide2df32::procedural::path::StrokePattern'>StrokePattern</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePattern.html' title='ncollide2df32::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide2df32/procedural/path/trait.StrokePattern.js">
                       </script></section>
@@ -92,11 +92,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../";
-        var currentCrate = "ncollide2df32";
+        window.rootPath = "../../../";
+        window.currentCrate = "ncollide2df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
+    
     <script async src="../../../search-index.js"></script>
 </body>
 </html>

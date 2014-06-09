@@ -235,6 +235,25 @@
 <span id='195'>195</span>
 <span id='196'>196</span>
 <span id='197'>197</span>
+<span id='198'>198</span>
+<span id='199'>199</span>
+<span id='200'>200</span>
+<span id='201'>201</span>
+<span id='202'>202</span>
+<span id='203'>203</span>
+<span id='204'>204</span>
+<span id='205'>205</span>
+<span id='206'>206</span>
+<span id='207'>207</span>
+<span id='208'>208</span>
+<span id='209'>209</span>
+<span id='210'>210</span>
+<span id='211'>211</span>
+<span id='212'>212</span>
+<span id='213'>213</span>
+<span id='214'>214</span>
+<span id='215'>215</span>
+<span id='216'>216</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>utils</span>;
@@ -252,7 +271,8 @@
 
 <span class='kw'>impl</span> <span class='ident'>IndexBuffer</span> {
     <span class='doccomment'>/// Returns the unified index buffer data or fails.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unwrap_unified</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;&gt;</span> {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unwrap_unified</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='ident'>UnifiedIndexBuffer</span>(<span class='ident'>b</span>) <span class='op'>=&gt;</span> <span class='ident'>b</span>,
             _                     <span class='op'>=&gt;</span> <span class='macro'>fail</span><span class='macro'>!</span>(<span class='string'>&quot;Unable to unwrap to an unified buffer.&quot;</span>)
@@ -260,7 +280,8 @@
     }
 
     <span class='doccomment'>/// Returns the split index buffer data or fails.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unwrap_split</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unwrap_split</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='ident'>SplitIndexBuffer</span>(<span class='ident'>b</span>) <span class='op'>=&gt;</span> <span class='ident'>b</span>,
             _                   <span class='op'>=&gt;</span> <span class='macro'>fail</span><span class='macro'>!</span>(<span class='string'>&quot;Unable to unwrap to a split buffer.&quot;</span>)
@@ -306,15 +327,29 @@
         }
     }
 
+    <span class='doccomment'>/// Whether or not this triangle mesh has normals.
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>has_normals</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='ident'>normals</span>.<span class='ident'>is_some</span>()
+    }
+
+    <span class='doccomment'>/// Whether or not this triangle mesh has texture coordinates.
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>has_uvs</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='ident'>uvs</span>.<span class='ident'>is_some</span>()
+    }
+
     <span class='doccomment'>/// Translates each vertex of this mesh.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>translate_by</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>translate_by</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) {
         <span class='kw'>for</span> <span class='ident'>c</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>mut_iter</span>() {
             <span class='op'>*</span><span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>t</span>.<span class='ident'>translate</span>(<span class='ident'>c</span>);
         }
     }
 
     <span class='doccomment'>/// Rotates each vertex and normal of this mesh.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotate_by</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotate_by</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) {
         <span class='kw'>for</span> <span class='ident'>c</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>mut_iter</span>() {
             <span class='op'>*</span><span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>r</span>.<span class='ident'>rotate</span>(<span class='ident'>c</span>);
         }
@@ -327,7 +362,8 @@
     }
 
     <span class='doccomment'>/// Transforms each vertex and rotates each normal of this mesh.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transform_by</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transform_by</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) {
         <span class='kw'>for</span> <span class='ident'>c</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>mut_iter</span>() {
             <span class='op'>*</span><span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>t</span>.<span class='ident'>transform</span>(<span class='ident'>c</span>);
         }
@@ -342,7 +378,8 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>Dim</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>N</span><span class='op'>&gt;&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Scales each vertex of this mesh.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>scale_by</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>scale_by</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) {
         <span class='kw'>for</span> <span class='ident'>c</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>mut_iter</span>() {
             <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>na</span>::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>()) {
                 <span class='kw'>let</span> <span class='ident'>val</span> <span class='op'>=</span> <span class='ident'>c</span>.<span class='ident'>at</span>(<span class='ident'>i</span>);
@@ -356,7 +393,8 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Scales each vertex of this mesh.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>scale_by_scalar</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) {
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>scale_by_scalar</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>s</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) {
         <span class='kw'>for</span> <span class='ident'>c</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>mut_iter</span>() {
             <span class='op'>*</span><span class='ident'>c</span> <span class='op'>=</span> <span class='op'>*</span><span class='ident'>c</span> <span class='op'>*</span> <span class='op'>*</span><span class='ident'>s</span>
         }
@@ -471,11 +509,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide3df32";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide3df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

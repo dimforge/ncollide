@@ -103,7 +103,7 @@
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Cast</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::<span class='ident'>Scalar</span>;
 
-<span class='doccomment'>/// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
+<span class='doccomment'>/// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.
 </span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>PartialEq</span>, <span class='ident'>Show</span>, <span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Cylinder</span> {
     <span class='ident'>half_height</span>: <span class='ident'>Scalar</span>,
@@ -115,7 +115,7 @@
     <span class='doccomment'>/// Creates a new cylinder.
 </span>    <span class='doccomment'>///
 </span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `half_height` - the half length of the cylinder along the `x` axis.
+</span>    <span class='doccomment'>/// * `half_height` - the half length of the cylinder along the `y` axis.
 </span>    <span class='doccomment'>/// * `radius` - the length of the cylinder along all other axis.
 </span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>half_height</span>: <span class='ident'>Scalar</span>, <span class='ident'>radius</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>Cylinder</span> {
         <span class='ident'>Cylinder</span>::<span class='ident'>new_with_margin</span>(<span class='ident'>half_height</span>, <span class='ident'>radius</span>, <span class='ident'>Cast</span>::<span class='ident'>from</span>(<span class='number'>0.04</span>))
@@ -124,7 +124,7 @@
     <span class='doccomment'>/// Creates a new cylinder.
 </span>    <span class='doccomment'>///
 </span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `half_height` - the half length of the cylinder along the `x` axis.
+</span>    <span class='doccomment'>/// * `half_height` - the half length of the cylinder along the `y` axis.
 </span>    <span class='doccomment'>/// * `radius` - the length of the cylinder along all other axis.
 </span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_margin</span>(<span class='ident'>half_height</span>: <span class='ident'>Scalar</span>, <span class='ident'>radius</span>: <span class='ident'>Scalar</span>, <span class='ident'>margin</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>Cylinder</span> {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>half_height</span>.<span class='ident'>is_positive</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>radius</span>.<span class='ident'>is_positive</span>());
@@ -138,12 +138,12 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>Cylinder</span> {
-    <span class='doccomment'>/// The cylinder half length along the `x` axis.
+    <span class='doccomment'>/// The cylinder half length along the `y` axis.
 </span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>half_height</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Scalar</span> {
         <span class='self'>self</span>.<span class='ident'>half_height</span>.<span class='ident'>clone</span>()
     }
 
-    <span class='doccomment'>/// The radius of the cylinder along all but the `x` axis.
+    <span class='doccomment'>/// The radius of the cylinder along all but the `y` axis.
 </span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>radius</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Scalar</span> {
         <span class='self'>self</span>.<span class='ident'>radius</span>.<span class='ident'>clone</span>()
     }
@@ -191,11 +191,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide2df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide2df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

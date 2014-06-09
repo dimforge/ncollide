@@ -39,20 +39,22 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>Reflection</a><a class='source' id='src-8745' href='../../src/ncollide4df32/src/geom/reflection.rs.html#5-7'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>Reflection</a><a class='source' id='src-8636' href='../../src/ncollide4df32/src/geom/reflection.rs.html#5-7'>[src]</a></h1>
 <pre class='rust struct'>pub struct Reflection&lt;'a, G&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Implicit representation of the reflection of a geometry.</p>
 
 <p>A reflection is obtained with the central symmetry with regard to the origin.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, G&gt; <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(g: &amp;'a G) -&gt; <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, G&gt; <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(geom: &amp;'a G) -&gt; <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h4>
 <div class='docblock'><p>Build the reflection of a geometry. Since the representation is implicit,
 the reflection computation is done in constant time.</p>
-</div><h4 id='method.g' class='method'><code>fn <a href='#method.g' class='fnname'>g</a>(&amp;self) -&gt; &amp;'a G</code></h4>
+</div><h4 id='method.geom' class='method'><code>fn <a href='#method.geom' class='fnname'>geom</a>(&amp;self) -&gt; &amp;'a G</code></h4>
 <div class='docblock'><p>The reflected geometry.</p>
 </div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, G: <a class='trait' href='../../ncollide4df32/implicit/implicit/trait.HasMargin.html' title='ncollide4df32::implicit::implicit::HasMargin'>HasMargin</a>&gt; <a class='trait' href='../../ncollide4df32/implicit/implicit/trait.HasMargin.html' title='ncollide4df32::implicit::implicit::HasMargin'>HasMargin</a> for <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.margin' class='method'><code>fn <a href='#method.margin' class='fnname'>margin</a>(&amp;self) -&gt; <a class='type' href='../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a></code></h4>
 </div><h3 class='impl'><code>impl&lt;'a, _M, G: <a class='trait' href='../../ncollide4df32/implicit/implicit/trait.Implicit.html' title='ncollide4df32::implicit::implicit::Implicit'>Implicit</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, _M&gt;&gt; <a class='trait' href='../../ncollide4df32/implicit/implicit/trait.Implicit.html' title='ncollide4df32::implicit::implicit::Implicit'>Implicit</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, _M&gt; for <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.support_point' class='method'><code>fn <a href='#method.support_point' class='fnname'>support_point</a>(&amp;self, m: &amp;_M, dir: &amp;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>) -&gt; <a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a></code></h4>
 <h4 id='method.support_point_without_margin' class='method'><code>fn <a href='#method.support_point_without_margin' class='fnname'>support_point_without_margin</a>(&amp;self, m: &amp;_M, dir: &amp;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>) -&gt; <a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, G: <a class='trait' href='../../ncollide4df32/procedural/trait.ToTriMesh.html' title='ncollide4df32::procedural::ToTriMesh'>ToTriMesh</a>&lt;P&gt;, P&gt; <a class='trait' href='../../ncollide4df32/procedural/trait.ToTriMesh.html' title='ncollide4df32::procedural::ToTriMesh'>ToTriMesh</a>&lt;P&gt; for <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.to_trimesh' class='method'><code>fn <a href='#method.to_trimesh' class='fnname'>to_trimesh</a>(&amp;self, parameter: P) -&gt; <a class='struct' href='../../ncollide4df32/procedural/struct.TriMesh.html' title='ncollide4df32::procedural::TriMesh'>TriMesh</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;'a, G: <a class='trait' href='../../ncollide4df32/procedural/trait.ToPolyline.html' title='ncollide4df32::procedural::ToPolyline'>ToPolyline</a>&lt;P&gt;, P&gt; <a class='trait' href='../../ncollide4df32/procedural/trait.ToPolyline.html' title='ncollide4df32::procedural::ToPolyline'>ToPolyline</a>&lt;P&gt; for <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.to_polyline' class='method'><code>fn <a href='#method.to_polyline' class='fnname'>to_polyline</a>(&amp;self, parameter: P) -&gt; <a class='struct' href='../../ncollide4df32/procedural/struct.Polyline.html' title='ncollide4df32::procedural::Polyline'>Polyline</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt;</code></h4>
 </div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;'a, G: <a class='trait' href='http://doc.rust-lang.org/core/fmt/trait.Show.html' title='core::fmt::Show'>Show</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/fmt/trait.Show.html' title='core::fmt::Show'>Show</a> for <a class='struct' href='../../ncollide4df32/geom/struct.Reflection.html' title='ncollide4df32::geom::Reflection'>Reflection</a>&lt;'a, G&gt;</code></h3><div class='methods'><h4 id='method.fmt' class='method'><code>fn <a href='#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='http://doc.rust-lang.org/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -91,11 +93,13 @@ the reflection computation is done in constant time.</p>
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide4df32";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide4df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

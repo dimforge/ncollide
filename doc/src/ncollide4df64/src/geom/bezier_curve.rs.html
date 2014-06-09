@@ -182,8 +182,8 @@
 <span class='doccomment'>/// Procedural generator of non-rational Bézier curve.
 </span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BezierCurve</span> {
-    <span class='ident'>control_points</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span><span class='comment'> // u-major storage.
-</span>}
+    <span class='ident'>control_points</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>
+}
 
 <span class='kw'>impl</span> <span class='ident'>BezierCurve</span> {
     <span class='doccomment'>/// Creates a new non-rational bézier curve.
@@ -333,11 +333,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide4df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

@@ -183,6 +183,61 @@
 <span id='143'>143</span>
 <span id='144'>144</span>
 <span id='145'>145</span>
+<span id='146'>146</span>
+<span id='147'>147</span>
+<span id='148'>148</span>
+<span id='149'>149</span>
+<span id='150'>150</span>
+<span id='151'>151</span>
+<span id='152'>152</span>
+<span id='153'>153</span>
+<span id='154'>154</span>
+<span id='155'>155</span>
+<span id='156'>156</span>
+<span id='157'>157</span>
+<span id='158'>158</span>
+<span id='159'>159</span>
+<span id='160'>160</span>
+<span id='161'>161</span>
+<span id='162'>162</span>
+<span id='163'>163</span>
+<span id='164'>164</span>
+<span id='165'>165</span>
+<span id='166'>166</span>
+<span id='167'>167</span>
+<span id='168'>168</span>
+<span id='169'>169</span>
+<span id='170'>170</span>
+<span id='171'>171</span>
+<span id='172'>172</span>
+<span id='173'>173</span>
+<span id='174'>174</span>
+<span id='175'>175</span>
+<span id='176'>176</span>
+<span id='177'>177</span>
+<span id='178'>178</span>
+<span id='179'>179</span>
+<span id='180'>180</span>
+<span id='181'>181</span>
+<span id='182'>182</span>
+<span id='183'>183</span>
+<span id='184'>184</span>
+<span id='185'>185</span>
+<span id='186'>186</span>
+<span id='187'>187</span>
+<span id='188'>188</span>
+<span id='189'>189</span>
+<span id='190'>190</span>
+<span id='191'>191</span>
+<span id='192'>192</span>
+<span id='193'>193</span>
+<span id='194'>194</span>
+<span id='195'>195</span>
+<span id='196'>196</span>
+<span id='197'>197</span>
+<span id='198'>198</span>
+<span id='199'>199</span>
+<span id='200'>200</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Cast</span>, <span class='ident'>FloatVecExt</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec2</span>};
@@ -193,9 +248,10 @@
 <span class='doccomment'>/// Generates a UV sphere.
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sphere</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Vec3MulRhs</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>(<span class='ident'>diameter</span>:      <span class='kw-2'>&amp;</span><span class='ident'>N</span>,
                                                                  <span class='ident'>ntheta_subdiv</span>: <span class='ident'>u32</span>,
-                                                                 <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>)
+                                                                 <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>,
+                                                                 <span class='ident'>generate_uvs</span>:  <span class='ident'>bool</span>)
                                                                  <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> {
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>sphere</span> <span class='op'>=</span> <span class='ident'>unit_sphere</span>(<span class='ident'>ntheta_subdiv</span>, <span class='ident'>nphi_subdiv</span>);
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>sphere</span> <span class='op'>=</span> <span class='ident'>unit_sphere</span>(<span class='ident'>ntheta_subdiv</span>, <span class='ident'>nphi_subdiv</span>, <span class='ident'>generate_uvs</span>);
 
     <span class='ident'>sphere</span>.<span class='ident'>scale_by_scalar</span>(<span class='ident'>diameter</span>);
 
@@ -203,69 +259,123 @@
 }
 
 <span class='doccomment'>/// Generates a UV sphere centered at the origin and with a unit diameter.
-</span><span class='comment'>// FIXME: n{theta,phi}_subdiv are not the right names.
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unit_sphere</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Vec3MulRhs</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>(<span class='ident'>ntheta_subdiv</span>: <span class='ident'>u32</span>,
-                                                                      <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>)
+                                                                      <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>,
+                                                                      <span class='ident'>generate_uvs</span>:  <span class='ident'>bool</span>)
                                                                       <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>if</span> <span class='ident'>generate_uvs</span> {
+        <span class='ident'>unit_sphere_with_uvs</span>(<span class='ident'>ntheta_subdiv</span>, <span class='ident'>nphi_subdiv</span>)
+    }
+    <span class='kw'>else</span> {
+        <span class='ident'>unit_sphere_without_uvs</span>(<span class='ident'>ntheta_subdiv</span>, <span class='ident'>nphi_subdiv</span>)
+    }
+}<span class='comment'>
+
+// FIXME: n{theta,phi}_subdiv are not the right names.
+</span><span class='kw'>fn</span> <span class='ident'>unit_sphere_without_uvs</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Vec3MulRhs</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>(<span class='ident'>ntheta_subdiv</span>: <span class='ident'>u32</span>,
+                                                                              <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>)
+                                                                              <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>pi</span>: <span class='ident'>N</span>     <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>pi</span>();
     <span class='kw'>let</span> <span class='ident'>two_pi</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>two_pi</span>();
     <span class='kw'>let</span> <span class='ident'>pi_two</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>frac_pi_2</span>();
-    <span class='kw'>let</span> <span class='ident'>dtheta</span>    <span class='op'>=</span>  <span class='ident'>two_pi</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>ntheta_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);
-    <span class='kw'>let</span> <span class='ident'>dphi</span>      <span class='op'>=</span>  <span class='ident'>pi_two</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>nphi_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);
+    <span class='kw'>let</span> <span class='ident'>dtheta</span>    <span class='op'>=</span> <span class='ident'>two_pi</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>ntheta_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);
+    <span class='kw'>let</span> <span class='ident'>dphi</span>      <span class='op'>=</span> <span class='ident'>pi</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>nphi_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);
 
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>coords</span>     <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curr_phi</span>   <span class='op'>=</span> <span class='op'>-</span><span class='ident'>pi_two</span> <span class='op'>+</span> <span class='ident'>dphi</span>;
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>coords</span>   <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curr_phi</span> <span class='op'>=</span> <span class='op'>-</span><span class='ident'>pi_two</span> <span class='op'>+</span> <span class='ident'>dphi</span>;<span class='comment'>
 
-    <span class='ident'>coords</span>.<span class='ident'>push</span>(<span class='op'>-</span><span class='ident'>Vec3</span>::<span class='ident'>y</span>());
+    // coords.
+    </span><span class='ident'>coords</span>.<span class='ident'>push</span>(<span class='ident'>Vec3</span>::<span class='ident'>new</span>(<span class='ident'>na</span>::<span class='ident'>zero</span>(), <span class='op'>-</span><span class='ident'>na</span>::<span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>(), <span class='ident'>na</span>::<span class='ident'>zero</span>()));
 
-    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='number'>2</span> <span class='op'>*</span> <span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>1</span>) {
+    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>1</span>) {
         <span class='ident'>utils</span>::<span class='ident'>push_circle</span>(<span class='ident'>curr_phi</span>.<span class='ident'>cos</span>(), <span class='ident'>ntheta_subdiv</span>, <span class='ident'>dtheta</span>, <span class='ident'>curr_phi</span>.<span class='ident'>sin</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>coords</span>);
         <span class='ident'>curr_phi</span> <span class='op'>=</span> <span class='ident'>curr_phi</span> <span class='op'>+</span> <span class='ident'>dphi</span>;
     }
 
-    <span class='ident'>coords</span>.<span class='ident'>push</span>(<span class='ident'>Vec3</span>::<span class='ident'>y</span>());<span class='comment'>
+    <span class='ident'>coords</span>.<span class='ident'>push</span>(<span class='ident'>Vec3</span>::<span class='ident'>new</span>(<span class='ident'>na</span>::<span class='ident'>zero</span>(), <span class='ident'>na</span>::<span class='ident'>one</span>(), <span class='ident'>na</span>::<span class='ident'>zero</span>()));<span class='comment'>
+
+    // the normals are the same as the coords.
+    </span><span class='kw'>let</span> <span class='ident'>normals</span> <span class='op'>=</span> <span class='ident'>coords</span>.<span class='ident'>clone</span>();<span class='comment'>
+
+    // index buffer
+    </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+
+    <span class='ident'>utils</span>::<span class='ident'>push_degenerate_top_ring_indices</span>(<span class='number'>1</span>, <span class='number'>0</span>, <span class='ident'>ntheta_subdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
+
+    <span class='ident'>utils</span>::<span class='ident'>reverse_clockwising</span>(<span class='ident'>idx</span>.<span class='ident'>as_mut_slice</span>());
+
+    <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>2</span>) {
+        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='number'>1</span> <span class='op'>+</span> <span class='ident'>i</span> <span class='op'>*</span> <span class='ident'>ntheta_subdiv</span>;
+        <span class='kw'>let</span> <span class='ident'>up</span>     <span class='op'>=</span> <span class='ident'>bottom</span> <span class='op'>+</span> <span class='ident'>ntheta_subdiv</span>;
+        <span class='ident'>utils</span>::<span class='ident'>push_ring_indices</span>(<span class='ident'>bottom</span>, <span class='ident'>up</span>, <span class='ident'>ntheta_subdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
+    }
+
+    <span class='ident'>utils</span>::<span class='ident'>push_degenerate_top_ring_indices</span>(<span class='number'>1</span> <span class='op'>+</span> (<span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>2</span>) <span class='op'>*</span> <span class='ident'>ntheta_subdiv</span>,
+                                            <span class='ident'>coords</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>u32</span> <span class='op'>-</span> <span class='number'>1</span>,
+                                            <span class='ident'>ntheta_subdiv</span>,
+                                            <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
+
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>TriMesh</span>::<span class='ident'>new</span>(<span class='ident'>coords</span>, <span class='prelude-val'>Some</span>(<span class='ident'>normals</span>), <span class='prelude-val'>None</span>, <span class='prelude-val'>Some</span>(<span class='ident'>UnifiedIndexBuffer</span>(<span class='ident'>idx</span>)));
+
+    <span class='kw'>let</span> <span class='ident'>_0_5</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>);
+
+    <span class='ident'>res</span>.<span class='ident'>scale_by_scalar</span>(<span class='kw-2'>&amp;</span><span class='ident'>_0_5</span>);
+
+    <span class='ident'>res</span>
+}
+
+<span class='kw'>fn</span> <span class='ident'>unit_sphere_with_uvs</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Vec3MulRhs</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>(<span class='ident'>ntheta_subdiv</span>: <span class='ident'>u32</span>,
+                                                                           <span class='ident'>nphi_subdiv</span>:   <span class='ident'>u32</span>)
+                                                                           <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>pi</span>: <span class='ident'>N</span>     <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>pi</span>();
+    <span class='kw'>let</span> <span class='ident'>two_pi</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>two_pi</span>();
+    <span class='kw'>let</span> <span class='ident'>pi_two</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>frac_pi_2</span>();
+    <span class='kw'>let</span> <span class='ident'>duvtheta</span>  <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>ntheta_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);<span class='comment'> // step of uv.x coordinates.
+    </span><span class='kw'>let</span> <span class='ident'>duvphi</span>    <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>() <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>nphi_subdiv</span> <span class='kw'>as</span> <span class='ident'>f64</span>);<span class='comment'>   // step of uv.y coordinates.
+    </span><span class='kw'>let</span> <span class='ident'>dtheta</span>    <span class='op'>=</span>  <span class='ident'>two_pi</span> <span class='op'>*</span> <span class='ident'>duvtheta</span>;
+    <span class='kw'>let</span> <span class='ident'>dphi</span>      <span class='op'>=</span>  <span class='ident'>pi</span> <span class='op'>*</span> <span class='ident'>duvphi</span>;
+
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>coords</span>   <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curr_phi</span> <span class='op'>=</span> <span class='op'>-</span><span class='ident'>pi_two</span>;
+
+    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>nphi_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>) {
+        <span class='ident'>utils</span>::<span class='ident'>push_circle</span>(<span class='ident'>curr_phi</span>.<span class='ident'>cos</span>(), <span class='ident'>ntheta_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>, <span class='ident'>dtheta</span>, <span class='ident'>curr_phi</span>.<span class='ident'>sin</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>coords</span>);
+        <span class='ident'>curr_phi</span> <span class='op'>=</span> <span class='ident'>curr_phi</span> <span class='op'>+</span> <span class='ident'>dphi</span>;
+    }<span class='comment'>
 
     // the normals are the same as the coords
     </span><span class='kw'>let</span> <span class='ident'>normals</span> <span class='op'>=</span> <span class='ident'>coords</span>.<span class='ident'>clone</span>();<span class='comment'>
 
     // index buffer
     </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-    <span class='ident'>utils</span>::<span class='ident'>push_degenerate_top_ring_indices</span>(<span class='number'>1</span>, <span class='number'>0</span>, <span class='ident'>ntheta_subdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
-    <span class='ident'>utils</span>::<span class='ident'>reverse_clockwising</span>(<span class='ident'>idx</span>.<span class='ident'>as_mut_slice</span>());
 
-    <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='number'>2</span> <span class='op'>*</span> <span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>2</span>) {
-        <span class='ident'>utils</span>::<span class='ident'>push_ring_indices</span>(<span class='number'>1</span> <span class='op'>+</span> <span class='ident'>i</span> <span class='op'>*</span> <span class='ident'>ntheta_subdiv</span>, <span class='number'>1</span> <span class='op'>+</span> (<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>) <span class='op'>*</span> <span class='ident'>ntheta_subdiv</span>, <span class='ident'>ntheta_subdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
+    <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>nphi_subdiv</span>) {
+        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='ident'>i</span> <span class='op'>*</span> (<span class='ident'>ntheta_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>);
+        <span class='kw'>let</span> <span class='ident'>up</span>     <span class='op'>=</span> <span class='ident'>bottom</span> <span class='op'>+</span> (<span class='ident'>ntheta_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>);
+        <span class='ident'>utils</span>::<span class='ident'>push_open_ring_indices</span>(<span class='ident'>bottom</span>, <span class='ident'>up</span>, <span class='ident'>ntheta_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);
     }
 
-    <span class='ident'>utils</span>::<span class='ident'>push_degenerate_top_ring_indices</span>(<span class='number'>1</span> <span class='op'>+</span> (<span class='number'>2</span> <span class='op'>*</span> <span class='ident'>nphi_subdiv</span> <span class='op'>-</span> <span class='number'>2</span>) <span class='op'>*</span> <span class='ident'>ntheta_subdiv</span>,
-                                            <span class='ident'>coords</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>u32</span> <span class='op'>-</span> <span class='number'>1</span>,
-                                            <span class='ident'>ntheta_subdiv</span>,
-                                            <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>idx</span>);<span class='comment'>
 
-    // uvs
-    </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>uvs</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>uvs</span>        <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curr_uvphi</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>();
 
-    <span class='kw'>for</span> <span class='ident'>coord</span> <span class='kw'>in</span> <span class='ident'>coords</span>.<span class='ident'>iter</span>() {
-        <span class='ident'>uvs</span>.<span class='ident'>push</span>(<span class='ident'>ball_uv</span>(<span class='ident'>coord</span>));
-    }<span class='comment'>
+    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>nphi_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>) {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curr_uvtheta</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>();
 
-    // Result
-    </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>out</span> <span class='op'>=</span> <span class='ident'>TriMesh</span>::<span class='ident'>new</span>(<span class='ident'>coords</span>, <span class='prelude-val'>Some</span>(<span class='ident'>normals</span>), <span class='prelude-val'>Some</span>(<span class='ident'>uvs</span>), <span class='prelude-val'>Some</span>(<span class='ident'>UnifiedIndexBuffer</span>(<span class='ident'>idx</span>)));<span class='comment'>
+        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>ntheta_subdiv</span> <span class='op'>+</span> <span class='number'>1</span>) {
+            <span class='ident'>uvs</span>.<span class='ident'>push</span>(<span class='ident'>Vec2</span>::<span class='ident'>new</span>(<span class='ident'>curr_uvtheta</span>, <span class='ident'>curr_uvphi</span>));
+            <span class='ident'>curr_uvtheta</span> <span class='op'>=</span> <span class='ident'>curr_uvtheta</span> <span class='op'>+</span> <span class='ident'>duvtheta</span>; 
+        }
 
-    // set the radius to 0.5
-    </span><span class='kw'>let</span> <span class='ident'>_0_5</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>);
-    <span class='ident'>out</span>.<span class='ident'>scale_by_scalar</span>(<span class='kw-2'>&amp;</span><span class='ident'>_0_5</span>);
+        <span class='ident'>curr_uvphi</span> <span class='op'>=</span> <span class='ident'>curr_uvphi</span> <span class='op'>+</span> <span class='ident'>duvphi</span>;
+    }
 
-    <span class='ident'>out</span>
-}
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>TriMesh</span>::<span class='ident'>new</span>(<span class='ident'>coords</span>, <span class='prelude-val'>Some</span>(<span class='ident'>normals</span>), <span class='prelude-val'>Some</span>(<span class='ident'>uvs</span>), <span class='prelude-val'>Some</span>(<span class='ident'>UnifiedIndexBuffer</span>(<span class='ident'>idx</span>)));
 
-<span class='kw'>fn</span> <span class='ident'>ball_uv</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span>(<span class='ident'>normal</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>two_pi</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>two_pi</span>();
-    <span class='kw'>let</span> <span class='ident'>pi</span>:     <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>pi</span>();
-    <span class='kw'>let</span> <span class='ident'>_0_5</span>:   <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5f64</span>);
-    <span class='kw'>let</span> <span class='ident'>uvx</span>       <span class='op'>=</span> <span class='ident'>_0_5</span> <span class='op'>+</span> <span class='ident'>normal</span>.<span class='ident'>z</span>.<span class='ident'>atan2</span>(<span class='ident'>normal</span>.<span class='ident'>x</span>) <span class='op'>/</span> <span class='ident'>two_pi</span>;
-    <span class='kw'>let</span> <span class='ident'>uvy</span>       <span class='op'>=</span> <span class='ident'>_0_5</span> <span class='op'>-</span> <span class='ident'>normal</span>.<span class='ident'>y</span>.<span class='ident'>asin</span>() <span class='op'>/</span> <span class='ident'>pi</span>;
+    <span class='kw'>let</span> <span class='ident'>_0_5</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>);
+    <span class='ident'>res</span>.<span class='ident'>scale_by_scalar</span>(<span class='kw-2'>&amp;</span><span class='ident'>_0_5</span>);
 
-    <span class='ident'>Vec2</span>::<span class='ident'>new</span>(<span class='ident'>uvx</span>, <span class='ident'>uvy</span>)
+    <span class='ident'>res</span>
 }
 
 <span class='doccomment'>/// Creates an hemisphere with a diameter of 1.
@@ -310,21 +420,21 @@
     <span class='ident'>out</span>
 }
 
-<span class='doccomment'>/// Creates a circle contained on the `(x,y)` plane.
+<span class='doccomment'>/// Creates a circle lying on the `(x,y)` plane.
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>circle</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>FloatVecExt</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>diameter</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>nsubdivs</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>Polyline</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='kw'>let</span> <span class='ident'>two_pi</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>two_pi</span>();
     <span class='kw'>let</span> <span class='ident'>dtheta</span>    <span class='op'>=</span> <span class='ident'>two_pi</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='ident'>nsubdivs</span> <span class='kw'>as</span> <span class='ident'>f64</span>);
 
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>pts</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>nsubdivs</span> <span class='kw'>as</span> <span class='ident'>uint</span>);
 
-    <span class='ident'>utils</span>::<span class='ident'>push_xy_circle</span>(<span class='op'>*</span><span class='ident'>diameter</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>), <span class='ident'>nsubdivs</span>, <span class='ident'>dtheta</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>pts</span>);<span class='comment'>
+    <span class='ident'>utils</span>::<span class='ident'>push_xy_arc</span>(<span class='op'>*</span><span class='ident'>diameter</span> <span class='op'>/</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>), <span class='ident'>nsubdivs</span>, <span class='ident'>dtheta</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>pts</span>);<span class='comment'>
 
     // FIXME: normals
 
     </span><span class='ident'>Polyline</span>::<span class='ident'>new</span>(<span class='ident'>pts</span>, <span class='prelude-val'>None</span>)
 }
 
-<span class='doccomment'>/// Creates a circle contained on the `(x,y)` plane.
+<span class='doccomment'>/// Creates a circle lying on the `(x,y)` plane.
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unit_circle</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>FloatVecExt</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>nsubdivs</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>Polyline</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {<span class='comment'>
     // FIXME: do this the other way round?
     </span><span class='ident'>circle</span>(<span class='kw-2'>&amp;</span><span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>1.0</span>), <span class='ident'>nsubdivs</span>)
@@ -367,11 +477,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide2df32";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide2df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

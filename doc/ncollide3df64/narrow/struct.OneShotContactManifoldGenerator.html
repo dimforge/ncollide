@@ -39,7 +39,7 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>narrow</a>::<a class='struct' href=''>OneShotContactManifoldGenerator</a><a class='source' id='src-22090' href='../../src/ncollide3df64/src/narrow/one_shot_contact_manifold_generator.rs.html#17-19'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>narrow</a>::<a class='struct' href=''>OneShotContactManifoldGenerator</a><a class='source' id='src-21971' href='../../src/ncollide3df64/src/narrow/one_shot_contact_manifold_generator.rs.html#17-19'>[src]</a></h1>
 <pre class='rust struct'>pub struct OneShotContactManifoldGenerator&lt;CD&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Contact manifold generator producing a full manifold at the first update.</p>
@@ -54,7 +54,7 @@ generated. Then, the manifold is incrementally updated by an
 <h4 id='method.colls' class='method'><code>fn <a href='#method.colls' class='fnname'>colls</a>(&amp;self, out_colls: &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../../ncollide3df64/contact/struct.Contact.html' title='ncollide3df64::contact::Contact'>Contact</a>&gt;)</code></h4>
 <h4 id='method.toi' class='method'><code>fn <a href='#method.toi' class='fnname'>toi</a>(_: <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;&gt;, m1: &amp;<a class='type' href='../../ncollide3df64/math/type.Matrix.html' title='ncollide3df64::math::Matrix'>Matrix</a>, dir: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, dist: &amp;<a class='type' href='../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>, g1: &amp;G1, m2: &amp;<a class='type' href='../../ncollide3df64/math/type.Matrix.html' title='ncollide3df64::math::Matrix'>Matrix</a>, g2: &amp;G2) -&gt; <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>&gt;</code></h4>
 </div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;CD: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;</code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, &amp;Self)</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decoder.html' title='serialize::serialize::Decoder'>Decoder</a>&lt;__E&gt;, __E, CD: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt; for <a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;</code></h3><div class='methods'><h4 id='method.decode' class='method'><code>fn <a href='#method.decode' class='fnname'>decode</a>(__arg_0: &amp;mut __D) -&gt; <a class='type' href='http://doc.rust-lang.org/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;, __E&gt;</code></h4>
 </div><h3 class='impl'><code>impl&lt;__S: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encoder.html' title='serialize::serialize::Encoder'>Encoder</a>&lt;__E&gt;, __E, CD: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt; for <a class='struct' href='../../ncollide3df64/narrow/struct.OneShotContactManifoldGenerator.html' title='ncollide3df64::narrow::OneShotContactManifoldGenerator'>OneShotContactManifoldGenerator</a>&lt;CD&gt;</code></h3><div class='methods'><h4 id='method.encode' class='method'><code>fn <a href='#method.encode' class='fnname'>encode</a>(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='type' href='http://doc.rust-lang.org/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;(), __E&gt;</code></h4>
 </div></section>
@@ -94,11 +94,13 @@ generated. Then, the manifold is incrementally updated by an
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "ncollide3df64";
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide3df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>

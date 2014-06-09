@@ -168,8 +168,8 @@
     <span class='ident'>utils</span>::<span class='ident'>push_circle</span>(<span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>), <span class='ident'>nsubdiv</span>, <span class='ident'>dtheta</span>, <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>),  <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>coords</span>);
 
     <span class='ident'>utils</span>::<span class='ident'>push_ring_indices</span>(<span class='number'>0</span>, <span class='ident'>nsubdiv</span>, <span class='ident'>nsubdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>indices</span>);
-    <span class='ident'>utils</span>::<span class='ident'>push_closed_circle_indices</span>(<span class='number'>0</span>, <span class='ident'>nsubdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>indices</span>);
-    <span class='ident'>utils</span>::<span class='ident'>push_closed_circle_indices</span>(<span class='ident'>nsubdiv</span>, <span class='ident'>nsubdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>indices</span>);
+    <span class='ident'>utils</span>::<span class='ident'>push_filled_circle_indices</span>(<span class='number'>0</span>, <span class='ident'>nsubdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>indices</span>);
+    <span class='ident'>utils</span>::<span class='ident'>push_filled_circle_indices</span>(<span class='ident'>nsubdiv</span>, <span class='ident'>nsubdiv</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>indices</span>);
 
     <span class='kw'>let</span> <span class='ident'>len</span>             <span class='op'>=</span> <span class='ident'>indices</span>.<span class='ident'>len</span>();
     <span class='kw'>let</span> <span class='ident'>bottom_start_id</span> <span class='op'>=</span> <span class='ident'>len</span> <span class='op'>-</span> (<span class='ident'>nsubdiv</span> <span class='kw'>as</span> <span class='ident'>uint</span> <span class='op'>-</span> <span class='number'>2</span>);
@@ -275,11 +275,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide4df64";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

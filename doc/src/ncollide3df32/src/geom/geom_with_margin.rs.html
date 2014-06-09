@@ -81,6 +81,12 @@
 <span id='41'>41</span>
 <span id='42'>42</span>
 <span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+<span id='49'>49</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A geometry enlarged with its margin.
 </span>
@@ -102,6 +108,12 @@
         <span class='ident'>GeomWithMargin</span> {
             <span class='ident'>geom</span>: <span class='ident'>geom</span>
         }
+    }
+
+    <span class='doccomment'>/// The wrapped geometry.
+</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>geom</span><span class='op'>&lt;</span><span class='lifetime'>&#39;b</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>G</span> {
+        <span class='self'>self</span>.<span class='ident'>geom</span>
     }
 }
 
@@ -163,11 +175,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "ncollide3df32";
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide3df32";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>
