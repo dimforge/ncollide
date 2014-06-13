@@ -44,7 +44,7 @@ DBVT<B, BV> {
     pub fn remove(&mut self, leaf: &mut Gc<RefCell<DBVTLeaf<B, BV>>>) {
         let self_tree = self.tree.take_unwrap();
 
-        let mut bleaf = leaf.borrow().borrow_mut();
+        let mut bleaf = leaf.borrow_mut();
         self.tree = bleaf.unlink(&mut self.cache, self_tree);
         self.len  = self.len - 1;
     }
@@ -258,7 +258,7 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
                         Leaf(ref mut l)     => {
                             // FIXME: if deref_mut is not called, the type inference seems to be
                             // buggy
-                            l.borrow().borrow_mut().deref_mut().parent =
+                            l.borrow_mut().deref_mut().parent =
                                 if is_p_right_to_pp { RightChildOf(pp) } else { LeftChildOf(pp) }
                         },
                         Invalid             => unreachable!()
@@ -286,7 +286,7 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
                     Internal(ref mut i) => i.parent = ptr::mut_null(),
                                            // FIXME: if deref_mut is not called, the type inference seems to be
                                            // buggy
-                    Leaf(ref l)         => l.borrow().borrow_mut().deref_mut().parent = Detached,
+                    Leaf(ref l)         => l.borrow_mut().deref_mut().parent = Detached,
                     Invalid             => unreachable!()
                 }
 
@@ -307,7 +307,7 @@ impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
         match *self {
             Internal(ref i) => na::sqnorm(&(i.center - *to)),
             Leaf(ref l)     => {
-                let bl = l.borrow().borrow();
+                let bl = l.borrow();
                 na::sqnorm(&(bl.center - *to))
             },
             Invalid         => unreachable!()
@@ -356,7 +356,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
               to_insert: Gc<RefCell<DBVTLeaf<B, BV>>>)
               -> Box<DBVTInternal<B, BV>> {
 
-        let mut bto_insert = to_insert.borrow().borrow_mut();
+        let mut bto_insert = to_insert.borrow_mut();
         let pto_insert     = bto_insert.deref_mut();
 
         match self {
@@ -404,7 +404,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                                 parent = &mut **ci as *mut DBVTInternal<B, BV>;
                             },
                             Leaf(ref l) => {
-                                let mut bl       = l.borrow().borrow_mut();
+                                let mut bl       = l.borrow_mut();
                                 let     pl       = bl.deref_mut();
                                 let mut internal = cache.alloc(DBVTInternal::new(
                                     pl.bounding_volume.merged(&pto_insert.bounding_volume),
@@ -432,7 +432,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                 mut_internal
             },
             Leaf(l) => {
-                let mut bl = l.borrow().borrow_mut();
+                let mut bl = l.borrow_mut();
                 let     pl = bl.deref_mut();
 
                 // create the root
@@ -474,7 +474,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                 }
             },
             Leaf(ref l) => {
-                let bl = l.borrow().borrow();
+                let bl = l.borrow();
                 visitor.visit_leaf(l, &bl.bounding_volume)
             },
             Invalid => unreachable!()
@@ -504,15 +504,15 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                                out:     &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
         match (self, to_test) {
             (&Leaf(_), &Leaf(ref lb)) => {
-                let blb = lb.borrow().borrow();
+                let blb = lb.borrow();
                 self.interferences_with_leaf(blb.deref(), out)
             },
             (&Leaf(ref la), &Internal(_)) => {
-                let bla = la.borrow().borrow();
+                let bla = la.borrow();
                 to_test.interferences_with_leaf(bla.deref(), out)
             },
             (&Internal(_), &Leaf(ref lb)) => {
-                let blb = lb.borrow().borrow();
+                let blb = lb.borrow();
                 self.interferences_with_leaf(blb.deref(), out)
             },
             (&Internal(ref la), &Internal(ref lb)) => {

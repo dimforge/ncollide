@@ -103,7 +103,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
     /// Adds an element to this broad phase.
     pub fn add(&mut self, rb: B) {
-        let proxy = Gc::new(RefCell::new(BoundingVolumeProxy::new(rb, self.margin.clone())));
+        let proxy = box(GC) RefCell::new(BoundingVolumeProxy::new(rb, self.margin.clone()));
         self.objects.push(proxy);
         self.to_update.push(proxy);
     }
@@ -163,15 +163,15 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
         for &b in self.objects.mut_iter() {
             let margin = self.margin;
-            if b.borrow().borrow_mut().update(&margin) {
+            if b.borrow_mut().update(&margin) {
                 self.to_update.push(b)
             }
         }
 
         for &b1 in self.to_update.iter() {
             for &b2 in self.objects.iter() {
-                let bb1 = b1.borrow().borrow();
-                let bb2 = b2.borrow().borrow();
+                let bb1 = b1.borrow();
+                let bb2 = b2.borrow();
                 if self.dispatcher.is_valid(&bb1.body, &bb2.body) {
                     if bb2.bounding_volume.intersects(&bb1.bounding_volume) {
                         let dispatcher = &mut self.dispatcher;
@@ -197,8 +197,8 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     let elts  = self.pairs.elements();
                     let entry = &elts[id];
 
-                    let bf = entry.key.first.borrow().borrow();
-                    let bs = entry.key.second.borrow().borrow();
+                    let bf = entry.key.first.borrow();
+                    let bs = entry.key.second.borrow();
                     if !bf.bounding_volume.intersects(&bs.bounding_volume) {
                         true
                     }

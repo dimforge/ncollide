@@ -12,7 +12,7 @@ pub trait HasUid {
 
 impl<T: 'static> HasUid for Gc<T> {
     fn uid(&self) -> uint {
-        self.borrow() as *T as uint
+        self.deref() as *T as uint
     }
 }
 
