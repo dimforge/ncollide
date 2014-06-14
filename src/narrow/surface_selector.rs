@@ -93,7 +93,7 @@ impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
             let pt_endpoint = *closest_endpoint - *pt;
 
             for control_point in b.control_points().iter() {
-                if na::dot(&(*control_point - *closest_endpoint), &pt_endpoint) < na::zero() {
+                if na::dot(&(*control_point - *closest_endpoint), &pt_endpoint) <= na::zero() {
                     return true
                 }
             }

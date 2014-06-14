@@ -185,12 +185,21 @@ CollisionDetector<BezierSurface, Ball> for BezierSurfaceBall<S, D> {
     }
 }
 
-fn closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
-                                            b:         &BezierSurface,
-                                            niter:     uint,
-                                            selector:  &mut S,
-                                            max_depth: uint,
-                                            out:       &mut Vec<Vect>) {
+/// Computes the points of a bézier surface `b` closest to `pt`.
+///
+/// # Arguments:
+/// * `pt`        - The point to project.
+/// * `b`         - The bézier surface.
+/// * `niter`     - The number of iteration for the numerical solver.
+/// * `selector`  - The surface selection subalgorithm.
+/// * `max_depth` - The maximum depth of the subdivision tree.
+/// * `out`       - The buffer that will contain the closest points.
+pub fn closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
+                                                b:         &BezierSurface,
+                                                niter:     uint,
+                                                selector:  &mut S,
+                                                max_depth: uint,
+                                                out:       &mut Vec<Vect>) {
     do_closest_points(pt, b, niter, selector, max_depth, out, false)
 }
 
@@ -470,4 +479,36 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
     }
 
     Some(b.at(&uv.x, &uv.y, &mut cache))
+}
+
+#[cfg(test,dim3,f32)]
+mod test {
+    use std::num::Bounded;
+    use nalgebra::na::Vec3;
+    use nalgebra::na;
+    use geom::BezierSurface;
+    use narrow::surface_selector::HyperPlaneSurfaceSelector;
+
+    #[test]
+    fn test_boundary_convergence() {
+        // This is just a plane.
+        let control_points = vec!(
+            Vec3::new(-20.0, -00.0, 020.0), Vec3::new(-10.0, -00.0, 020.0), Vec3::new(00.0, -00.0, 020.0), Vec3::new(10.0, -00.0, 020.0), Vec3::new(20.0, -00.0, 020.0),
+            Vec3::new(-20.0, -00.0, 010.0), Vec3::new(-10.0, -00.0, 010.0), Vec3::new(00.0, 000.0, 010.0), Vec3::new(10.0, -00.0, 010.0), Vec3::new(20.0, -00.0, 010.0),
+            Vec3::new(-20.0, -00.0, 000.0), Vec3::new(-10.0, -00.0, 000.0), Vec3::new(00.0, 000.0, 000.0), Vec3::new(10.0, -00.0, 000.0), Vec3::new(20.0, -00.0, 000.0),
+            Vec3::new(-20.0, -00.0, -10.0), Vec3::new(-10.0, -00.0, -10.0), Vec3::new(00.0, 000.0, -10.0), Vec3::new(10.0, -00.0, -10.0), Vec3::new(20.0, -00.0, -10.0),
+            Vec3::new(-20.0, -00.0, -20.0), Vec3::new(-10.0, -00.0, -20.0), Vec3::new(00.0, -00.0, -20.0), Vec3::new(10.0, -00.0, -20.0), Vec3::new(20.0, -00.0, -20.0),
+    );
+
+        let pt       = Vec3::new(-2.5 * 0.5 * 0.5, 2.5 * 0.5, -2.5 * 0.5 * 0.5);
+        let bezier   = BezierSurface::new(control_points, 5, 5);
+
+        let mut selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
+        let mut pts      = Vec::new();
+
+        super::closest_points(&pt, &bezier, 5, &mut selector, 15, &mut pts);
+
+        assert!(pts.len() >= 1);
+        assert!(na::approx_eq(pts.get(0), &Vec3::new(-2.5 * 0.5 * 0.5, 0.0, -2.5 * 0.5 * 0.5)));
+    }
 }
