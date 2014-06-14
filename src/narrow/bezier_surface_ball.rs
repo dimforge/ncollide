@@ -83,7 +83,7 @@ CollisionDetector<Ball, BezierSurface> for BallBezierSurface<S, D> {
 
 
         let max_depth = 15;
-        let niter     = 10;
+        let niter     = 5;
         let pt        = na::inv_transform(mb, &ma.translation());
 
         closest_points(&pt, b, niter, &mut self.selector, max_depth, &mut self.points);
