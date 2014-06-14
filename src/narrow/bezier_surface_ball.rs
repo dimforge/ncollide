@@ -471,6 +471,12 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
         }
 
         uv = uv - inv_j * f;
+
+        // we allow smalls steps outside of the domain boundaries.
+        if uv.x < na::cast(-1.0) || uv.y < na::cast(-1.0) ||
+           uv.x > na::cast(2.0)  || uv.y > na::cast(2.0) {
+                return None
+        }
     }
 
     if uv.x < na::zero() || uv.y < na::zero() ||
