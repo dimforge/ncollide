@@ -1,3 +1,5 @@
+//! Traits to compute inertial properties.
+
 use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
 
 #[cfg(dim2)]

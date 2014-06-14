@@ -39,9 +39,9 @@ impl Volumetric for Ball {
         let volume  = ball_volume(&self.radius());
         let mass    = volume * *density;
         let diag: Scalar = mass                *
-                      na::cast(2.0 / 5.0) *
-                      self.radius()       *
-                      self.radius();
+                           na::cast(2.0 / 5.0) *
+                           self.radius()       *
+                           self.radius();
 
         let mut res: AngularInertia = na::zero();
 

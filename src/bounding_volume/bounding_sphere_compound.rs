@@ -6,7 +6,7 @@ use math::Matrix;
 impl HasBoundingSphere for Compound {
     #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
-        let shapes = self.shapes();
+        let shapes = self.geoms();
 
         let mut res = shapes[0].ref1().bounding_sphere(shapes[0].ref0());
 

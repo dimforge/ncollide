@@ -10,7 +10,7 @@ pub use geom::cylinder::Cylinder;
 pub use geom::convex::Convex;
 pub use geom::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};
 pub use geom::reflection::Reflection;
-pub use geom::compound::Compound;
+pub use geom::compound::{Compound, CompoundData};
 pub use geom::geom_with_margin::GeomWithMargin;
 pub use geom::mesh::{Mesh, MeshElement, MeshPrimitive};
 pub use geom::segment::Segment;
