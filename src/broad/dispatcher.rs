@@ -15,10 +15,12 @@ pub trait Dispatcher<G1, G2, NF> {
 pub struct NoIdDispatcher<B>;
 
 impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
+    #[inline]
     fn dispatch(&self, _: &B, _: &B) -> Option<()> {
         Some(())
     }
 
+    #[inline]
     fn is_valid(&self, a: &B, b: &B) -> bool {
         a as *B != b as *B
     }

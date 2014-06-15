@@ -19,20 +19,24 @@ pub struct VecSliceMut<'a, T> {
 }
 
 impl<'a, T> Collection for VecSlice<'a, T> {
+    #[inline]
     fn len(&self) -> uint {
         self.length
     }
 
+    #[inline]
     fn is_empty(&self) -> bool {
         self.length != 0
     }
 }
 
 impl<'a, T> Collection for VecSliceMut<'a, T> {
+    #[inline]
     fn len(&self) -> uint {
         self.length
     }
 
+    #[inline]
     fn is_empty(&self) -> bool {
         self.length != 0
     }
@@ -109,6 +113,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     }
 
     /// Creates an immutable slice from this mutable slice.
+    #[inline]
     pub fn as_slice<'b>(&'b self) -> VecSlice<'b, T> {
         unsafe {
             VecSlice::new_unsafe(self.data, self.length, self.stride)

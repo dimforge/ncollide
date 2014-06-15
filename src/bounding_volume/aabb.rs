@@ -111,31 +111,38 @@ impl LooseBoundingVolume for AABB {
 
 impl Translation<Vect> for AABB
 {
+    #[inline]
     fn translation(&self) -> Vect {
         (self.mins + self.maxs) * na::cast::<f64, Scalar>(0.5)
     }
 
+    #[inline]
     fn inv_translation(&self) -> Vect {
         -self.translation()
     }
 
+    #[inline]
     fn append_translation(&mut self, dv: &Vect) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
+    #[inline]
     fn append_translation_cpy(aabb: &AABB, dv: &Vect) -> AABB {
         AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
     }
 
+    #[inline]
     fn prepend_translation(&mut self, dv: &Vect) {
         self.append_translation(dv)
     }
 
+    #[inline]
     fn prepend_translation_cpy(aabb: &AABB, dv: &Vect) -> AABB {
         Translation::append_translation_cpy(aabb, dv)
     }
 
+    #[inline]
     fn set_translation(&mut self, v: Vect) {
         let center = self.translation();
 
@@ -151,6 +158,7 @@ pub struct WithAABB<A>(pub Matrix, pub A);
 
 impl<A> WithAABB<A> {
     /// The transformation matrix of this shape.
+    #[inline]
     pub fn m<'a>(&'a self) -> &'a Matrix {
         let WithAABB(ref t, _) = *self;
 
@@ -158,6 +166,7 @@ impl<A> WithAABB<A> {
     }
 
     /// The local-space geometry of this shape.
+    #[inline]
     pub fn g<'a>(&'a self) -> &'a A {
         let WithAABB(_, ref g) = *self;
 
@@ -166,6 +175,7 @@ impl<A> WithAABB<A> {
 }
 
 impl<A: HasAABB> HasBoundingVolume<AABB> for WithAABB<A> {
+    #[inline]
     fn bounding_volume(&self) -> AABB {
         let WithAABB(ref t, ref g) = *self;
 
@@ -175,6 +185,7 @@ impl<A: HasAABB> HasBoundingVolume<AABB> for WithAABB<A> {
 
 impl<A: HasAABB>
 HasBoundingVolume<AABB> for Rc<WithAABB<A>> {
+    #[inline]
     fn bounding_volume(&self) -> AABB {
         self.g().aabb(self.m())
     }
@@ -182,6 +193,7 @@ HasBoundingVolume<AABB> for Rc<WithAABB<A>> {
 
 impl<A: HasAABB>
 HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
+    #[inline]
     fn bounding_volume(&self) -> AABB {
         let bself = self.borrow();
 

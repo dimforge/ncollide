@@ -55,6 +55,7 @@ DBVTBroadPhase<B, BV, D, DV> {
     }
 
     /// Number of interferences detected by this broad phase.
+    #[inline]
     pub fn num_interferences(&self) -> uint {
         self.pairs.len()
     }

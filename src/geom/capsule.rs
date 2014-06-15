@@ -27,11 +27,13 @@ impl Capsule {
 
 impl Capsule {
     /// The capsule half length along the `y` axis.
+    #[inline]
     pub fn half_height(&self) -> Scalar {
         self.half_height.clone()
     }
 
     /// The radius of the capsule's rounded part.
+    #[inline]
     pub fn radius(&self) -> Scalar {
         self.radius.clone()
     }

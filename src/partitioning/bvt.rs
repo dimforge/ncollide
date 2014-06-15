@@ -93,6 +93,7 @@ impl<B> BVT<B, AABB> {
 }
 
 impl<B, BV> BVTNode<B, BV> {
+    #[inline]
     pub fn bounding_volume<'a>(&'a self) -> &'a BV {
         match *self {
             Internal(ref bv, _, _) => bv,

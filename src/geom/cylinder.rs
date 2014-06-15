@@ -41,16 +41,19 @@ impl Cylinder {
 
 impl Cylinder {
     /// The cylinder half length along the `y` axis.
+    #[inline]
     pub fn half_height(&self) -> Scalar {
         self.half_height.clone()
     }
 
     /// The radius of the cylinder along all but the `y` axis.
+    #[inline]
     pub fn radius(&self) -> Scalar {
         self.radius.clone()
     }
 
     /// Size of the margin around the cylinder.
+    #[inline]
     pub fn margin(&self) -> Scalar {
         self.margin.clone()
     }

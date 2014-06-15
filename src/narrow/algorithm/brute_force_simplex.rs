@@ -16,6 +16,7 @@ BruteForceSimplex<_V> {
         BruteForceSimplex { points: Vec::new() }
     }
 
+    #[inline]
     pub fn add_point(&mut self, pt: _V) {
         self.points.push(pt)
     }

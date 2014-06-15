@@ -42,12 +42,12 @@ impl RayCast for Mesh {
             ray,
             &mut |b, r| {
                 let vs: &[Vect] = self.vertices().as_slice();
-                let i        = *b * 3;
-                let is       = self.indices().slice(i, i + 3);
+                let i           = *b * 3;
+                let is          = self.indices().slice(i, i + 3);
 
                 ray::triangle_ray_intersection(&vs[is[0]], &vs[is[1]], &vs[is[2]], r).map(|inter|
-                    (inter.ref0().toi.clone(), inter)
-            )});
+                    (inter.ref0().toi.clone(), inter))
+            });
 
         match cast {
             None                   => None,

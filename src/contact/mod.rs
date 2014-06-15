@@ -34,6 +34,7 @@ impl Contact {
 
 impl Contact {
     /// Reverts the contact normal and swaps `world1` and `world2`.
+    #[inline]
     pub fn flip(&mut self) {
         mem::swap(&mut self.world1, &mut self.world2);
         self.normal = -self.normal;

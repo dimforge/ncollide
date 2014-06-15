@@ -5,6 +5,7 @@ use geom::Mesh;
 use math::Matrix;
 
 impl HasBoundingSphere for Mesh {
+    #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
         let (center, radius) = bounding_volume::bounding_sphere(self.vertices().as_slice());
 

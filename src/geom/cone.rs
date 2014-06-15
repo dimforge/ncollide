@@ -40,16 +40,19 @@ impl Cone {
 
 impl Cone {
     /// The cone half length along the `y` axis.
+    #[inline]
     pub fn half_height(&self) -> Scalar {
         self.half_height.clone()
     }
 
     /// The radius of the cone along all but the `y` axis.
+    #[inline]
     pub fn radius(&self) -> Scalar {
         self.radius.clone()
     }
 
     /// The margin around the cone.
+    #[inline]
     pub fn margin(&self) -> Scalar {
         self.margin.clone()
     }

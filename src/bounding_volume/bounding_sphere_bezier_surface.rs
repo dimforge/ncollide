@@ -5,6 +5,7 @@ use geom::BezierSurface;
 use math::Matrix;
 
 impl HasBoundingSphere for BezierSurface {
+    #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
         let (center, radius) = bounding_volume::bounding_sphere(self.control_points());
 

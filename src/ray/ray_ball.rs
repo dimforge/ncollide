@@ -58,6 +58,7 @@ impl RayCast for Ball {
 }
 
 /// Computes the time of impact of a ray on a ball.
+#[inline]
 pub fn ball_toi_with_ray(center: Vect, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
     let dcenter = ray.orig - center;
 

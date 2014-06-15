@@ -36,6 +36,7 @@ impl<B: HasUid> Pair<B> {
 }
 
 impl<B> PartialEq for Pair<B> {
+    #[inline]
     fn eq(&self, other: &Pair<B>) -> bool {
         self.ifirst == other.ifirst && self.isecond == other.isecond
     }
@@ -53,6 +54,7 @@ impl PairTWHash {
 }
 
 impl<B> HashFun<Pair<B>> for PairTWHash {
+    #[inline]
     fn hash(&self, p: &Pair<B>) -> uint {
         hash::tomas_wang_hash(
             hash::key_from_pair(

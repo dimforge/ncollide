@@ -40,6 +40,7 @@ pub trait ConcaveGeom : Geom {
 
 impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + Any>
 Geom for T {
+    #[inline]
     fn duplicate(&self) -> Box<Geom:Send> {
         (box self.clone()) as Box<Geom:Send>
     }

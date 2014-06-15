@@ -4,6 +4,7 @@ use geom::Ball;
 use math::{Scalar, Vect, Matrix};
 
 /// Computes the Axis-Aligned Bounding Box of a ball.
+#[inline]
 pub fn ball_aabb(center: &Vect, radius: &Scalar) -> AABB {
     AABB::new(center - *radius, center + *radius)
 }

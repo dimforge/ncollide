@@ -206,26 +206,31 @@ impl BezierSurface {
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
+    #[inline]
     pub fn endpoint_00<'a>(&'a self) -> &'a Vect {
         self.control_points.get(0)
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 1`.
+    #[inline]
     pub fn endpoint_01<'a>(&'a self) -> &'a Vect {
         self.control_points.get(self.nupoints() - 1)
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
+    #[inline]
     pub fn endpoint_10<'a>(&'a self) -> &'a Vect {
         self.control_points.get(self.control_points.len() - self.nupoints())
     }
 
     /// Gets the endpoint at parameters `u = 1` and `v = 1`.
+    #[inline]
     pub fn endpoint_11<'a>(&'a self) -> &'a Vect {
         self.control_points.last().unwrap()
     }
 
     /// Computes an infinite bounding cone of this surface.
+    #[inline]
     pub fn bounding_cone_with_origin(&self, origin: &Vect) -> (Vect, Scalar) {
         bounding_cone_with_origin(self.control_points.as_slice(), origin)
     }

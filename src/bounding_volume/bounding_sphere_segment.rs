@@ -5,6 +5,7 @@ use geom::Segment;
 use math::Matrix;
 
 impl HasBoundingSphere for Segment {
+    #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
         let pts = [ self.a().clone(), self.b().clone() ];
         let (center, radius) = bounding_volume::bounding_sphere(pts.as_slice());

@@ -4,6 +4,7 @@ use geom::Plane;
 use math::{Matrix, Vect};
 
 impl HasAABB for Plane {
+    #[inline]
     fn aabb(&self, _: &Matrix) -> AABB {
         let _m: Vect = Bounded::max_value();
 

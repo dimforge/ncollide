@@ -47,6 +47,7 @@ impl RayCast for AABB {
         }
     }
 
+    #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         ray_aabb(self, ray, solid).map(|(t, n, _)| RayIntersection::new(t, n))
     }

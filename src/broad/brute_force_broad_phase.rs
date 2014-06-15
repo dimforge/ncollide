@@ -27,6 +27,7 @@ impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, 
     }
 
     /// The pair manager of this broad phase.
+    #[inline]
     pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<B>, DV, PairTWHash> {
         &'r self.pairs
     }
