@@ -31,7 +31,7 @@ impl RayCast for AABB {
                 }
 
                 tmin = tmin.max(inter_with_near_plane);
-                tmax = tmax.max(inter_with_far_plane);
+                tmax = tmax.min(inter_with_far_plane);
 
                 if tmin > tmax {
                     return None;

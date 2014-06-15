@@ -101,7 +101,7 @@ impl Mesh {
                 let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
                 // loosen for better persistancy
                 let id = na::one();
-                let bv= element.aabb(&id).loosened(margin);
+                let bv = element.aabb(&id).loosened(margin);
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
