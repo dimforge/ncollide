@@ -1,5 +1,5 @@
 use std::mem;
-use std::gc::Gc;
+use std::gc::{GC, Gc};
 use std::cell::RefCell;
 use data::hash_map::HashMap;
 use data::hash::UintTWHash;

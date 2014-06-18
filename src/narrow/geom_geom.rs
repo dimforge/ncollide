@@ -14,7 +14,7 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
-             BezierSurfaceBall, BallBezierSurface};
+             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use OSCMG = narrow::OneShotContactManifoldGenerator;
@@ -177,16 +177,17 @@ impl GeomGeomDispatcher {
         let bb = BallBall::new(prediction.clone());
         res.register_detector(bb);
 
-        // Ball vs Surface
-
-        // let mut selector = YesSirSurfaceSelector::new();
+        // Ball vs Bézier
         let selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
         let cache    = Arc::new(RWLock::new(SurfaceSubdivisionTreeCache::new()));
-        // let selector = TangentConesSurfaceSelector::new(Bounded::max_value());
-        let bs = BallBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
-        let sb = BezierSurfaceBall::new(selector.clone(), prediction.clone(), cache.clone());
+        let bs       = BallBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
+        let sb       = BezierSurfaceBall::new(selector.clone(), prediction.clone(), cache.clone());
         res.register_detector(bs);
         res.register_detector(sb);
+
+        // Bézier vs. Bézier
+        let ss = BezierSurfaceBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
+        res.register_detector(ss);
 
         // Plane vs. Implicit
         res.register_default_plane_implicit_detector::<Ball>(false, prediction);

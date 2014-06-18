@@ -17,7 +17,7 @@ use math::{Scalar, Vect, Matrix, AngularInertia};
 ///
 /// This accumulates the geometries and their volumetric properties.
 pub struct CompoundData {
-    geoms: Vec<(Matrix, Rc<Box<Geom:Send>>)>,
+    geoms: Vec<(Matrix, Rc<Box<Geom + Send>>)>,
     props: Vec<(Scalar, Vect, AngularInertia)>
 }
 
@@ -44,14 +44,14 @@ impl CompoundData {
                                                           delta: Matrix,
                                                           geom:  S,
                                                           props: (Scalar, Vect, AngularInertia)) {
-        self.push_shared_geom_with_mass_properties(delta, Rc::new(box geom as Box<Geom:Send>), props)
+        self.push_shared_geom_with_mass_properties(delta, Rc::new(box geom as Box<Geom + Send>), props)
     }
 
     /// Adds a new shared geometry with the given mass properties.
     #[inline]
     pub fn push_shared_geom_with_mass_properties(&mut self,
                                                  delta: Matrix,
-                                                 geom:  Rc<Box<Geom:Send>>,
+                                                 geom:  Rc<Box<Geom + Send>>,
                                                  props: (Scalar, Vect, AngularInertia)) {
         self.geoms.push((delta, geom));
         self.props.push(props);
@@ -59,7 +59,7 @@ impl CompoundData {
 
     /// The geometries stored by this `CompoundData`.
     #[inline]
-    pub fn geoms<'r>(&'r self) -> &'r [(Matrix, Rc<Box<Geom:Send>>)] {
+    pub fn geoms<'r>(&'r self) -> &'r [(Matrix, Rc<Box<Geom + Send>>)] {
         self.geoms.as_slice()
     }
 
@@ -81,7 +81,7 @@ pub struct Compound {
     mass:    Scalar,
     inertia: AngularInertia,
     com:     Vect,
-    geoms:   Vec<(Matrix, Rc<Box<Geom:Send>>)>,
+    geoms:   Vec<(Matrix, Rc<Box<Geom + Send>>)>,
     bvt:     BVT<uint, AABB>,
     bvs:     Vec<AABB>
 }
@@ -117,7 +117,7 @@ impl Compound {
 impl Compound {
     /// The geometries of this compound geometry.
     #[inline]
-    pub fn geoms<'r>(&'r self) -> &'r [(Matrix, Rc<Box<Geom:Send>>)] {
+    pub fn geoms<'r>(&'r self) -> &'r [(Matrix, Rc<Box<Geom + Send>>)] {
         self.geoms.as_slice()
     }
 

@@ -20,13 +20,6 @@ pub struct BallBezierSurface<S, D> {
     timestamp:  uint
 }
 
-#[unsafe_destructor]
-impl<S, D> Drop for BallBezierSurface<S, D> {
-    fn drop(&mut self) {
-        // XXX: we need to decrement the refcounts here.
-    }
-}
-
 impl<S: Clone, D: Send> Clone for BallBezierSurface<S, D> {
     fn clone(&self) -> BallBezierSurface<S, D> {
         BallBezierSurface {
@@ -122,13 +115,18 @@ CollisionDetector<Ball, BezierSurface> for BallBezierSurface<S, D> {
 
     #[inline]
     fn colls(&self, out_colls: &mut Vec<Contact>) {
-        for c in self.contacts.iter() {
-            out_colls.push(c.clone())
-        }
+        out_colls.push_all(self.contacts.as_slice());
     }
 
     #[inline]
-    fn toi(_: Option<BallBezierSurface<S, D>>, _: &Matrix, _: &Vect, _: &Scalar, _: &Ball, _: &Matrix, _: &BezierSurface) -> Option<Scalar> {
+    fn toi(_: Option<BallBezierSurface<S, D>>,
+           _: &Matrix,
+           _: &Vect,
+           _: &Scalar,
+           _: &Ball,
+           _: &Matrix,
+           _: &BezierSurface)
+           -> Option<Scalar> {
         None
     }
 }

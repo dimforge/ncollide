@@ -14,7 +14,7 @@ pub trait Geom : HasAABB           +
                  RayCast           +
                  Any {
     /// Duplicates (clones) this geometry.
-    fn duplicate(&self) -> Box<Geom:Send>;
+    fn duplicate(&self) -> Box<Geom + Send>;
 }
 
 /// Trait implemented by concave, composite geometries supported by `ncollide`.
@@ -41,8 +41,8 @@ pub trait ConcaveGeom : Geom {
 impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + Any>
 Geom for T {
     #[inline]
-    fn duplicate(&self) -> Box<Geom:Send> {
-        (box self.clone()) as Box<Geom:Send>
+    fn duplicate(&self) -> Box<Geom + Send> {
+        (box self.clone()) as Box<Geom + Send>
     }
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not

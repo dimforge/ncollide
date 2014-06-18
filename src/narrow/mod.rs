@@ -13,6 +13,7 @@ pub use narrow::geom_geom::{DynamicCollisionDetector, GeomGeomCollisionDetector,
 pub use narrow::concave_geom_geom::{ConcaveGeomGeom, GeomConcaveGeom, ConcaveGeomGeomFactory,
                                     GeomConcaveGeomFactory};
 pub use narrow::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
+pub use narrow::bezier_surface_bezier_surface::{BezierSurfaceBezierSurface};
 
 // functions
 /// Functions to compute the time of impact between two geometries.
@@ -45,6 +46,7 @@ mod one_shot_contact_manifold_generator;
 mod concave_geom_geom;
 mod geom_geom;
 mod bezier_surface_ball;
+mod bezier_surface_bezier_surface;
 
 // FIXME: move this module somewhere else!
 /// Algorithms needed for distance and penetration depth computation.

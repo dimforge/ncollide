@@ -1,4 +1,4 @@
-use std::gc::Gc;
+use std::gc::{GC, Gc};
 use std::cell::RefCell;
 use nalgebra::na::Translation;
 use nalgebra::na;
