@@ -52,6 +52,7 @@ Some common features are still missing:
 #![deny(unnecessary_typecast)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
+#![feature(unsafe_destructor)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate std;
