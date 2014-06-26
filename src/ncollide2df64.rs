@@ -9,6 +9,8 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
+An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide3df64/index.html).
+
 ## Compilation
 You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
 If you encounter problems, make sure you have the last version before creating an issue.
@@ -40,7 +42,7 @@ Some common features are still missing:
 - heightmaps
 */
 
-#![crate_id = "ncollide4df32#0.1"]
+#![crate_id = "ncollide2df64#0.1"]
 #![crate_type = "lib"]
 #![deny(non_camel_case_types)]
 #![deny(unnecessary_parens)]
@@ -92,27 +94,24 @@ pub mod data;
 /// * `--cfg dim2` - use 2d vectors and matrices.
 /// * `--cfg dim3` - use 3d vectors and matrices.
 /// * `--cfg dim4` - use 4d vectors and matrices.
-/// * `--cfg f32`  - use 32-bit floating point values.
-/// * `--cfg f64`  - use 64-bit floating point values.
-#[cfg(dim4, f32)]
 pub mod math {
-    use nalgebra::na::{Vec4, Mat4, Rot4, Iso4};
+    use nalgebra::na::{Vec1, Vec2, Mat1, Rot2, Iso2};
 
     /// The scalar type.
-    pub type Scalar = f32;
+    pub type Scalar = f64;
 
     /// The vector type.
-    pub type Vect = Vec4<Scalar>;
+    pub type Vect = Vec2<Scalar>;
 
     /// The orientation type.
-    pub type Orientation = Vec4<Scalar>;
+    pub type Orientation = Vec1<Scalar>;
 
     /// The transformation matrix type.
-    pub type Matrix = Iso4<Scalar>;
+    pub type Matrix = Iso2<Scalar>;
 
     /// The rotation matrix type.
-    pub type RotationMatrix = Rot4<Scalar>;
+    pub type RotationMatrix = Rot2<Scalar>;
 
     /// The inertia tensor type.
-    pub type AngularInertia = Mat4<Scalar>;
+    pub type AngularInertia = Mat1<Scalar>;
 }

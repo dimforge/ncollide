@@ -20,14 +20,14 @@ use nalgebra::na;
 #[inline]
 pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     // same as a isosceles triangle
-    *radius * *half_height * na::cast(2.0)
+    *radius * *half_height * na::cast(2.0f64)
 }
 
 /// Computes the volume of a cone.
 #[cfg(dim3)]
 #[inline]
 pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
-    *radius * *radius * Float::pi() * *half_height * na::cast(2.0 / 3.0)
+    *radius * *radius * Float::pi() * *half_height * na::cast(2.0f64 / 3.0)
 }
 
 #[cfg(dim2)]
@@ -41,11 +41,11 @@ impl Volumetric for Cone {
         res.set(
             (0, 0),
             self.radius() * self.half_height() * self.half_height() * self.half_height()
-            / na::cast(3.0)
+            / na::cast(3.0f64)
             );
 
         let mut center: Vect = na::zero();
-        center.set(1, -self.half_height() / na::cast(2.0));
+        center.set(1, -self.half_height() / na::cast(2.0f64));
 
         (mass, center, res)
     }
@@ -57,11 +57,11 @@ impl Volumetric for Cone {
         let mass        = cone_volume(&self.half_height(), &self.radius()) * *density;
         let m_sq_radius = mass * self.radius() * self.radius();
         let m_sq_height = mass * self.half_height() * self.half_height() *
-                          na::cast(4.0);
-        let off_principal = m_sq_radius * na::cast(3.0 / 20.0) +
-                            m_sq_height * na::cast(3.0 / 5.0);
+                          na::cast(4.0f64);
+        let off_principal = m_sq_radius * na::cast(3.0f64 / 20.0) +
+                            m_sq_height * na::cast(3.0f64 / 5.0);
 
-        let principal = m_sq_radius * na::cast(3.0 / 10.0);
+        let principal = m_sq_radius * na::cast(3.0f64 / 10.0);
 
         let mut res: AngularInertia = na::zero();
 
@@ -70,7 +70,7 @@ impl Volumetric for Cone {
         res.set((2, 2), off_principal);
 
         let mut center: Vect = na::zero();
-        center.set(1, -self.half_height() / na::cast(2.0));
+        center.set(1, -self.half_height() / na::cast(2.0f64));
 
         (mass, center, res)
     }

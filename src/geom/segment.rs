@@ -18,7 +18,7 @@ impl Segment {
     /// The segment will have a default margin of 0.04.
     #[inline]
     pub fn new(a: Vect, b: Vect) -> Segment {
-        Segment::new_with_margin(a, b, na::cast(0.04))
+        Segment::new_with_margin(a, b, na::cast(0.04f64))
     }
 
     /// Creates a new segment from two points and a custom margin.

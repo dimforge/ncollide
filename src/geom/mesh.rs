@@ -73,7 +73,7 @@ impl Mesh {
                uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
                normals:  Option<Arc<Vec<Vect>>>)
                -> Mesh {
-        Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04))
+        Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04f64))
     }
 
     /// Builds a new mesh with a custom margin.

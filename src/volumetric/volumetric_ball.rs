@@ -23,7 +23,7 @@ impl Volumetric for Ball {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let volume = ball_volume(&self.radius());
         let mass   = volume * *density;
-        let diag   = self.radius() * self.radius() * mass / na::cast(2.0);
+        let diag   = self.radius() * self.radius() * mass / na::cast(2.0f64);
 
         let mut res: AngularInertia = na::zero();
 
@@ -39,7 +39,7 @@ impl Volumetric for Ball {
         let volume  = ball_volume(&self.radius());
         let mass    = volume * *density;
         let diag: Scalar = mass                *
-                           na::cast(2.0 / 5.0) *
+                           na::cast(2.0f64 / 5.0) *
                            self.radius()       *
                            self.radius();
 

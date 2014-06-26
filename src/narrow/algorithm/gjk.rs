@@ -112,7 +112,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
     let mut sq_len_dir = na::sqnorm(&proj);
 
     let _eps: Scalar  = Float::epsilon();
-    let _eps_tol = _eps * na::cast(100.0);
+    let _eps_tol = _eps * na::cast(100.0f64);
     let _eps_rel = _eps.sqrt();
     let _dim     = na::dim::<Vect>();
 
@@ -165,7 +165,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Flo
     let mut sq_len_dir = na::sqnorm(&proj);
 
     let _eps: Scalar  = Float::epsilon();
-    let _eps_tol = _eps * na::cast(100.0);
+    let _eps_tol = _eps * na::cast(100.0f64);
     let _eps_rel = _eps.sqrt();
     let _dim     = na::dim::<Vect>();
 

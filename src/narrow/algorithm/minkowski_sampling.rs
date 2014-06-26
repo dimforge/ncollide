@@ -111,7 +111,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
             //                       |             |
             //                       +-------------+
             let dist_err  = na::norm(&(p2 - p1)) - g1.margin() - g2.margin();
-            let _2: Scalar     = na::cast(2.0);
+            let _2: Scalar     = na::cast(2.0f64);
             let center: Vect = (p1 + p2) / _2;
 
             let p2 = center - best_dir * if dist_err > na::zero() { min_dist - dist_err } else { min_dist };

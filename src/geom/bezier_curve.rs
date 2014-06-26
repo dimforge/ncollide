@@ -99,7 +99,7 @@ pub fn subdivide_bezier_curve_at(control_points: &VecSlice<Vect>,
     assert!(control_points.len() == out_left.len(), "The result vector must have the same length as the input.");
     assert!(control_points.len() == out_right.len(), "The result vector must have the same length as the input.");
 
-    let _1: Scalar = na::cast(1.0);
+    let _1: Scalar = na::one();
     let t_1   = _1 - *t;
 
     out_right.copy_from(control_points);

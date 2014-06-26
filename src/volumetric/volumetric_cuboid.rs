@@ -17,7 +17,7 @@ pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
     let mut res: Scalar = na::one();
 
     for half_extent in half_extents.iter() {
-        res = res * *half_extent * na::cast(2.0)
+        res = res * *half_extent * na::cast(2.0f64)
     }
 
     res
@@ -29,8 +29,8 @@ impl Volumetric for Cuboid {
         let half_extents_w_margin = self.half_extents() + self.margin();
         let mass = cuboid_volume(&half_extents_w_margin) * *density;
 
-        let _2: Scalar   = na::cast(2.0);
-        let _i12: Scalar = na::cast(1.0 / 12.0);
+        let _2: Scalar   = na::cast(2.0f64);
+        let _i12: Scalar = na::cast(1.0f64 / 12.0);
         let w       = _i12 * mass * _2 * _2;
         let ix      = w * half_extents_w_margin.at(0) * half_extents_w_margin.at(0);
         let iy      = w * half_extents_w_margin.at(1) * half_extents_w_margin.at(1);
@@ -50,8 +50,8 @@ impl Volumetric for Cuboid {
         let mass = cuboid_volume(&half_extents_w_margin) * *density;
 
         let _0: Scalar   = na::zero();
-        let _2: Scalar   = na::cast(2.0);
-        let _i12: Scalar = na::cast(1.0 / 12.0);
+        let _2: Scalar   = na::cast(2.0f64);
+        let _i12: Scalar = na::cast(1.0f64 / 12.0);
         let w       = _i12 * mass * _2 * _2;
         let ix      = w * half_extents_w_margin.at(0) * half_extents_w_margin.at(0);
         let iy      = w * half_extents_w_margin.at(1) * half_extents_w_margin.at(1);

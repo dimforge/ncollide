@@ -92,9 +92,6 @@ pub mod data;
 /// * `--cfg dim2` - use 2d vectors and matrices.
 /// * `--cfg dim3` - use 3d vectors and matrices.
 /// * `--cfg dim4` - use 4d vectors and matrices.
-/// * `--cfg f32`  - use 32-bit floating point values.
-/// * `--cfg f64`  - use 64-bit floating point values.
-#[cfg(dim4, f64)]
 pub mod math {
     use nalgebra::na::{Vec4, Mat4, Rot4, Iso4};
 

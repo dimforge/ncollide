@@ -21,7 +21,7 @@ impl Cuboid {
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]
     pub fn new(half_extents: Vect) -> Cuboid {
-        Cuboid::new_with_margin(half_extents, na::cast(0.04))
+        Cuboid::new_with_margin(half_extents, na::cast(0.04f64))
     }
 
     /// Creates a new box from its half-extents and its margin. Half-extents are the box half-width

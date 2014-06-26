@@ -13,7 +13,7 @@ use nalgebra::na::Vec2;
 fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
-    let _0_5:   Scalar = na::cast(0.5);
+    let _0_5:   Scalar = na::cast(0.5f64);
     let uvx       = _0_5 + normal.z.atan2(normal.x) / two_pi;
     let uvy       = _0_5 - normal.y.asin() / pi;
 

@@ -2,7 +2,7 @@
 //! Support mapping based Cylinder geometry.
 //!
 
-use nalgebra::na::Cast;
+use nalgebra::na;
 use math::Scalar;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.
@@ -20,7 +20,7 @@ impl Cylinder {
     /// * `half_height` - the half length of the cylinder along the `y` axis.
     /// * `radius` - the length of the cylinder along all other axis.
     pub fn new(half_height: Scalar, radius: Scalar) -> Cylinder {
-        Cylinder::new_with_margin(half_height, radius, Cast::from(0.04))
+        Cylinder::new_with_margin(half_height, radius, na::cast(0.04f64))
     }
 
     /// Creates a new cylinder.

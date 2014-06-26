@@ -19,7 +19,7 @@ impl Triangle {
     /// The triangle is created with a default margin of 0.04.
     #[inline]
     pub fn new(a: Vect, b: Vect, c: Vect) -> Triangle {
-        Triangle::new_with_margin(a, b, c, na::cast(0.04))
+        Triangle::new_with_margin(a, b, c, na::cast(0.04f64))
     }
 
     /// Creates a triangle from three points and a default margin.

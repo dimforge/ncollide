@@ -171,7 +171,7 @@ impl GeomGeomDispatcher {
         /*
          * Involving a Plane
          */
-        let prediction: &Scalar = &na::cast(0.1);
+        let prediction: &Scalar = &na::cast(0.1f64);
 
         // Ball vs. Ball
         let bb = BallBall::new(prediction.clone());

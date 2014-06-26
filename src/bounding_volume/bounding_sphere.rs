@@ -62,7 +62,7 @@ impl BoundingVolume for BoundingSphere {
 
     #[inline]
     fn merge(&mut self, other: &BoundingSphere) {
-        let _0_5: Scalar = na::cast(0.5);
+        let _0_5: Scalar = na::cast(0.5f64);
         let a            = self.center;
         let b            = other.center;
         let new_center   = (a + b) * _0_5;

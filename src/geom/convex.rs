@@ -1,7 +1,7 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use nalgebra::na::Cast;
+use nalgebra::na;
 use math::{Scalar, Vect};
 
 /// Set of point assumed to form a convex polytope.
@@ -16,7 +16,7 @@ impl Convex {
     /// a convex polytope: convexity is not checked.
     #[inline]
     pub fn new(pts: Vec<Vect>) -> Convex {
-        Convex::new_with_margin(pts, Cast::from(0.04))
+        Convex::new_with_margin(pts, na::cast(0.04f64))
     }
 
     /// Creates a polytope from a set of point and a custom margin. Those points are assumed to

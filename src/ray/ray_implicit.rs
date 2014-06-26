@@ -28,7 +28,7 @@ pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vect>,
                 if inter.toi == na::zero() {
                     // the ray is inside of the shape.
                     let supp    = geom.support_point(m, &ray.dir);
-                    let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001);
+                    let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001f64);
                     let new_ray = Ray::new(ray.orig + ray.dir * shift, -ray.dir);
 
                     simplex.reset(supp - new_ray.orig); // FIXME: replace by? : simplex.translate_by(&(ray.orig - new_ray.orig));
@@ -57,7 +57,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Tran
     let mut ltoi: Scalar = na::zero();
 
     let _eps: Scalar     = Float::epsilon();
-    let _eps_tol: Scalar = _eps * na::cast(100.0);
+    let _eps_tol: Scalar = _eps * na::cast(100.0f64);
     let _dim        = na::dim::<Vect>();
 
     // initialization

@@ -7,7 +7,7 @@ use nalgebra::na::Indexable;
 
 impl ToPolyline<()> for Plane {
     fn to_polyline(&self, _: ()) -> Polyline<Scalar, Vect> {
-        let _0_5: Scalar = na::cast(0.5);
+        let _0_5: Scalar = na::cast(0.5f64);
         let m0_5         = -_0_5;
 
         let mut res = Polyline::new(vec!(Vec2::new(m0_5, na::zero()), Vec2::new(_0_5, na::zero())), None);

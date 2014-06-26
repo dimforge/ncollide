@@ -57,8 +57,8 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
             hash:   h,
             table:  Vec::with_capacity(pow2),
             mask:   pow2 - 1,
-            htable: Vec::from_elem(pow2, -1),
-            next:   Vec::from_elem(pow2, -1),
+            htable: Vec::from_elem(pow2, -1i),
+            next:   Vec::from_elem(pow2, -1i),
             num_elem: 0,
             max_elem: pow2,
             real_max_elem: ((pow2 as f32) * 0.7) as uint
@@ -125,8 +125,8 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             self.mask = self.max_elem - 1;
 
-            let mut newhash  = Vec::from_elem(self.max_elem, -1);
-            let mut newnext  = Vec::from_elem(self.max_elem, -1);
+            let mut newhash  = Vec::from_elem(self.max_elem, -1i);
+            let mut newnext  = Vec::from_elem(self.max_elem, -1i);
 
             for i in range(0u, self.num_elem) {
                 let h = self.hash.hash(&self.table.get(i).key) & self.mask;

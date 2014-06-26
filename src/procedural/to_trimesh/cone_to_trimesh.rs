@@ -11,8 +11,8 @@ impl ToTriMesh<u32> for Cone {
 
         // FIXME, inconsistancy we should be able to work directly with the radius.
         // FIXME, inconsistancy we should be able to work directly with the half height.
-        let diameter = self.radius() * na::cast(2.0);
-        let height   = self.half_height() * na::cast(2.0);
+        let diameter = self.radius() * na::cast(2.0f64);
+        let height   = self.half_height() * na::cast(2.0f64);
 
         procedural::cone(diameter, height, nsubdiv)
     }

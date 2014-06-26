@@ -93,7 +93,7 @@ impl Compound {
         let mut leaves = Vec::new();
 
         for (i, &(ref delta, ref geom)) in data.geoms().iter().enumerate() {
-            let bv = geom.aabb(delta).loosened(na::cast(0.04)); // loosen for better persistancy
+            let bv = geom.aabb(delta).loosened(na::cast(0.04f64)); // loosen for better persistancy
 
             bvs.push(bv.clone());
             leaves.push((i, bv));

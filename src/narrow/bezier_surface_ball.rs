@@ -224,10 +224,10 @@ fn do_closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
         let mut right = BezierSurface::new_with_degrees(b.degree_u(), b.degree_v());
 
         if odd {
-            b.subdivide_u(&na::cast(0.5), &mut left, &mut right);
+            b.subdivide_u(&na::cast(0.5f64), &mut left, &mut right);
         }
         else {
-            b.subdivide_v(&na::cast(0.5), &mut left, &mut right);
+            b.subdivide_v(&na::cast(0.5f64), &mut left, &mut right);
         }
 
         do_closest_points(pt, &left,  niter, selector, max_depth - 1, out, !odd);
@@ -311,10 +311,10 @@ fn closest_points_with_subdivision_tree<S: SurfaceSelector<D>, D: Send + Share>(
                 let mut right = BezierSurface::new_with_degrees(0, 0);
 
                 if max_depth % 2 == 0 {
-                    w_to_visit.surface().subdivide_u(&na::cast(0.5), &mut left, &mut right);
+                    w_to_visit.surface().subdivide_u(&na::cast(0.5f64), &mut left, &mut right);
                 }
                 else {
-                    w_to_visit.surface().subdivide_v(&na::cast(0.5), &mut left, &mut right);
+                    w_to_visit.surface().subdivide_v(&na::cast(0.5f64), &mut left, &mut right);
                 }
 
                 let ldata = selector.create_test_data(&left);
@@ -438,7 +438,7 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
     /*
      * Newton method.
      */
-    let mut uv: Vec2<Scalar> = Vec2::new(na::cast(0.5), na::cast(0.5));
+    let mut uv: Vec2<Scalar> = Vec2::new(na::cast(0.5f64), na::cast(0.5f64));
 
     let mut cache = BezierSurface::new_evaluation_cache();
 
@@ -471,8 +471,8 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
         uv = uv - inv_j * f;
 
         // we allow smalls steps outside of the domain boundaries.
-        if uv.x < na::cast(-1.0) || uv.y < na::cast(-1.0) ||
-           uv.x > na::cast(2.0)  || uv.y > na::cast(2.0) {
+        if uv.x < na::cast(-1.0f64) || uv.y < na::cast(-1.0f64) ||
+           uv.x > na::cast(2.0f64)  || uv.y > na::cast(2.0f64) {
                 return None
         }
     }

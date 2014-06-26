@@ -40,7 +40,7 @@ Some common features are still missing:
 - heightmaps
 */
 
-#![crate_id = "ncollide3df32#0.1"]
+#![crate_id = "ncollide2df32#0.1"]
 #![crate_type = "lib"]
 #![deny(non_camel_case_types)]
 #![deny(unnecessary_parens)]
@@ -85,34 +85,31 @@ pub mod data;
 //     mod algo;
 // }
 
-/// Compilation flags dependent aliases for mathematical types.
+/// Compilation-flags-dependent aliases for mathematical types.
 ///
 /// The aliases are selected, depending on the compilation flags. The possible flags are:
 ///
 /// * `--cfg dim2` - use 2d vectors and matrices.
 /// * `--cfg dim3` - use 3d vectors and matrices.
 /// * `--cfg dim4` - use 4d vectors and matrices.
-/// * `--cfg f32`  - use 32-bit floating point values.
-/// * `--cfg f64`  - use 64-bit floating point values.
-#[cfg(dim3, f32)]
 pub mod math {
-    use nalgebra::na::{Vec3, Mat3, Rot3, Iso3};
+    use nalgebra::na::{Vec1, Vec2, Mat1, Rot2, Iso2};
 
     /// The scalar type.
     pub type Scalar = f32;
 
     /// The vector type.
-    pub type Vect = Vec3<Scalar>;
+    pub type Vect = Vec2<Scalar>;
 
     /// The orientation type.
-    pub type Orientation = Vec3<Scalar>;
+    pub type Orientation = Vec1<Scalar>;
 
     /// The transformation matrix type.
-    pub type Matrix = Iso3<Scalar>;
+    pub type Matrix = Iso2<Scalar>;
 
     /// The rotation matrix type.
-    pub type RotationMatrix = Rot3<Scalar>;
+    pub type RotationMatrix = Rot2<Scalar>;
 
     /// The inertia tensor type.
-    pub type AngularInertia = Mat3<Scalar>;
+    pub type AngularInertia = Mat1<Scalar>;
 }

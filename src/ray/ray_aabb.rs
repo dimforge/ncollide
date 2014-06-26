@@ -125,7 +125,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> 
         }
     }
 
-    if tmin < na::cast(0.0) {
+    if tmin < na::cast(0.0f64) {
         // the ray starts inside of the box
         if solid {
             Some((na::zero(), na::zero(), far_side))
