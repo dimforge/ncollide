@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -347,6 +346,11 @@
 <span id='307'>307</span>
 <span id='308'>308</span>
 <span id='309'>309</span>
+<span id='310'>310</span>
+<span id='311'>311</span>
+<span id='312'>312</span>
+<span id='313'>313</span>
+<span id='314'>314</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Zero</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Norm</span>, <span class='ident'>Indexable</span>};
@@ -362,16 +366,16 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim4</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>utils</span>;
 
-<span class='doccomment'>/// Cache used to evaluate a bezier surface at a given parameter.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// The same cache can be used for multiple evaluations (that is the whole point of this).
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BezierSurfaceEvaluationCache</span> {
+<span class='doccomment'>/// Cache used to evaluate a bezier surface at a given parameter.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// The same cache can be used for multiple evaluations (that is the whole point of this).</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BezierSurfaceEvaluationCache</span> {
     <span class='ident'>u_cache</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>,
     <span class='ident'>v_cache</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>
 }
 
-<span class='doccomment'>/// Procedural generator of non-rational Bézier surfaces.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// Procedural generator of non-rational Bézier surfaces.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BezierSurface</span> {
     <span class='ident'>control_points</span>:     <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>,<span class='comment'> // u-major storage.
     </span><span class='ident'>nupoints</span>:           <span class='ident'>uint</span>,
@@ -379,17 +383,17 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>BezierSurface</span> {
-    <span class='doccomment'>/// Creates a new procedural generator of non-rational bézier surfaces.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Parameters:
-</span>    <span class='doccomment'>/// * `control_points`: The control points of the bézier surface.
-</span>    <span class='doccomment'>/// * `nupoints`:       The number of control points per u-iso-curve.
-</span>    <span class='doccomment'>/// * `nvpoints`:       The number of control points per v-iso-curve.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Failures:
-</span>    <span class='doccomment'>/// Fails if the vector of control points does not contain exactly `nupoints * nvpoints`
-</span>    <span class='doccomment'>/// elements.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>control_points</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>, <span class='ident'>nupoints</span>: <span class='ident'>uint</span>, <span class='ident'>nvpoints</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>BezierSurface</span> {
+    <span class='doccomment'>/// Creates a new procedural generator of non-rational bézier surfaces.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Parameters:</span>
+    <span class='doccomment'>/// * `control_points`: The control points of the bézier surface.</span>
+    <span class='doccomment'>/// * `nupoints`:       The number of control points per u-iso-curve.</span>
+    <span class='doccomment'>/// * `nvpoints`:       The number of control points per v-iso-curve.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Failures:</span>
+    <span class='doccomment'>/// Fails if the vector of control points does not contain exactly `nupoints * nvpoints`</span>
+    <span class='doccomment'>/// elements.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>control_points</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>, <span class='ident'>nupoints</span>: <span class='ident'>uint</span>, <span class='ident'>nvpoints</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>BezierSurface</span> {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>nupoints</span> <span class='op'>*</span> <span class='ident'>nvpoints</span> <span class='op'>==</span> <span class='ident'>control_points</span>.<span class='ident'>len</span>());
 
         <span class='ident'>BezierSurface</span> {
@@ -399,28 +403,28 @@
         }
     }
 
-    <span class='doccomment'>/// Creates a new bézier curve of degrees `u_degree x v_degree`.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// Its control points are initialized to zero.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_degrees</span>(<span class='ident'>degree_u</span>: <span class='ident'>uint</span>, <span class='ident'>degree_v</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>BezierSurface</span> {
+    <span class='doccomment'>/// Creates a new bézier curve of degrees `u_degree x v_degree`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Its control points are initialized to zero.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_degrees</span>(<span class='ident'>degree_u</span>: <span class='ident'>uint</span>, <span class='ident'>degree_v</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>BezierSurface</span> {
         <span class='kw'>let</span> <span class='ident'>nupoints</span> <span class='op'>=</span> <span class='ident'>degree_u</span> <span class='op'>+</span> <span class='number'>1</span>;
         <span class='kw'>let</span> <span class='ident'>nvpoints</span> <span class='op'>=</span> <span class='ident'>degree_v</span> <span class='op'>+</span> <span class='number'>1</span>;
         <span class='ident'>BezierSurface</span>::<span class='ident'>new</span>(<span class='ident'>Vec</span>::<span class='ident'>from_elem</span>(<span class='ident'>nupoints</span> <span class='op'>*</span> <span class='ident'>nvpoints</span>, <span class='ident'>na</span>::<span class='ident'>zero</span>()), <span class='ident'>nupoints</span>, <span class='ident'>nvpoints</span>)
     }
 
-    <span class='doccomment'>/// Creates a cache to avaluate a bezier surface.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_evaluation_cache</span>() <span class='op'>-&gt;</span> <span class='ident'>BezierSurfaceEvaluationCache</span> {
+    <span class='doccomment'>/// Creates a cache to avaluate a bezier surface.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_evaluation_cache</span>() <span class='op'>-&gt;</span> <span class='ident'>BezierSurfaceEvaluationCache</span> {
         <span class='ident'>BezierSurfaceEvaluationCache</span> {
             <span class='ident'>u_cache</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
             <span class='ident'>v_cache</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>()
         }
     }
 
-    <span class='doccomment'>/// Changes the degree of this surface and reset its control points to zero.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// If the surface already has the specified degrees, nothing is changed, and `false` is
-</span>    <span class='doccomment'>/// returned. Otherwise `true` is returned.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reset_with_degrees</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>degree_u</span>: <span class='ident'>uint</span>, <span class='ident'>degree_v</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='doccomment'>/// Changes the degree of this surface and reset its control points to zero.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// If the surface already has the specified degrees, nothing is changed, and `false` is</span>
+    <span class='doccomment'>/// returned. Otherwise `true` is returned.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reset_with_degrees</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>degree_u</span>: <span class='ident'>uint</span>, <span class='ident'>degree_v</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>let</span> <span class='ident'>nupoints</span> <span class='op'>=</span> <span class='ident'>degree_u</span> <span class='op'>+</span> <span class='number'>1</span>;
         <span class='kw'>let</span> <span class='ident'>nvpoints</span> <span class='op'>=</span> <span class='ident'>degree_v</span> <span class='op'>+</span> <span class='number'>1</span>;
 
@@ -437,68 +441,68 @@
         }
     }
 
-    <span class='doccomment'>/// The control points of this bézier surface.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The control points of this bézier surface.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>control_points</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>Vect</span>] {
         <span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>as_slice</span>()
     }
 
-    <span class='doccomment'>/// The number of control points per u-iso-curve.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The number of control points per u-iso-curve.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>nupoints</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='self'>self</span>.<span class='ident'>nupoints</span>
     }
 
-    <span class='doccomment'>/// The number of control points per v-iso-curve.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The number of control points per v-iso-curve.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>nvpoints</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='self'>self</span>.<span class='ident'>nvpoints</span>
     }
 
-    <span class='doccomment'>/// The degree of u-iso-curves.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The degree of u-iso-curves.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>degree_u</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='self'>self</span>.<span class='ident'>nupoints</span> <span class='op'>-</span> <span class='number'>1</span>
     }
 
-    <span class='doccomment'>/// The degree of v-iso-curves.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The degree of v-iso-curves.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>degree_v</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='self'>self</span>.<span class='ident'>nvpoints</span> <span class='op'>-</span> <span class='number'>1</span>
     }
 
-    <span class='doccomment'>/// Get the `i`-th set of control points along the `u` parametric direction.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Get the `i`-th set of control points along the `u` parametric direction.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>slice_u</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>VecSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span> {
         <span class='ident'>VecSlice</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>slice_from</span>(<span class='ident'>i</span> <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>nupoints</span>),
                       <span class='self'>self</span>.<span class='ident'>nupoints</span>,
                       <span class='number'>1</span>)
     }
 
-    <span class='doccomment'>/// Get the `i`-th set of control points along the `v` parametric direction.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Get the `i`-th set of control points along the `v` parametric direction.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>slice_v</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>VecSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span> {
         <span class='ident'>VecSlice</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>slice_from</span>(<span class='ident'>i</span>), <span class='self'>self</span>.<span class='ident'>nvpoints</span>, <span class='self'>self</span>.<span class='ident'>nupoints</span>)
     }
 
-    <span class='doccomment'>/// Mutably get the `i`-th set of control points along the `u` parametric direction.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Mutably get the `i`-th set of control points along the `u` parametric direction.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mut_slice_u</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>VecSliceMut</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span> {
         <span class='ident'>VecSliceMut</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>mut_slice_from</span>(<span class='ident'>i</span> <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>nupoints</span>),
                          <span class='self'>self</span>.<span class='ident'>nupoints</span>,
                          <span class='number'>1</span>)
     }
 
-    <span class='doccomment'>/// Mutably get the `i`-th set of control points along the `v` parametric direction.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Mutably get the `i`-th set of control points along the `v` parametric direction.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mut_slice_v</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>VecSliceMut</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span> {
         <span class='ident'>VecSliceMut</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>mut_slice_from</span>(<span class='ident'>i</span>), <span class='self'>self</span>.<span class='ident'>nvpoints</span>, <span class='self'>self</span>.<span class='ident'>nupoints</span>)
     }
 }
 
 <span class='kw'>impl</span> <span class='ident'>BezierSurface</span> {
-    <span class='doccomment'>/// Evaluates this bezier surface at the given parameter `t`.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Evaluates this bezier surface at the given parameter `t`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>at</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>cache</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurfaceEvaluationCache</span>) <span class='op'>-&gt;</span> <span class='ident'>Vect</span> {
         <span class='ident'>procedural</span>::<span class='ident'>bezier_surface_at</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>as_slice</span>(),
                                       <span class='self'>self</span>.<span class='ident'>nupoints</span>,
@@ -509,10 +513,10 @@
                                       <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>cache</span>.<span class='ident'>v_cache</span>)
     }
 
-    <span class='doccomment'>/// Subdivides this bezier at the given isocurve of parameter `u`.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// The union of the two resulting surfaces equals the original one.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subdivide_u</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>out1</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>, <span class='ident'>out2</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
+    <span class='doccomment'>/// Subdivides this bezier at the given isocurve of parameter `u`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// The union of the two resulting surfaces equals the original one.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subdivide_u</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>u</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>out1</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>, <span class='ident'>out2</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
         <span class='ident'>out1</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>(), <span class='self'>self</span>.<span class='ident'>degree_v</span>());
         <span class='ident'>out2</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>(), <span class='self'>self</span>.<span class='ident'>degree_v</span>());
 
@@ -523,10 +527,10 @@
         }
     }
 
-    <span class='doccomment'>/// Subdivides this bezier at the given isocurve of parameter `v`.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// The union of the two resulting surfaces equals the original one.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subdivide_v</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>out1</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>, <span class='ident'>out2</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
+    <span class='doccomment'>/// Subdivides this bezier at the given isocurve of parameter `v`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// The union of the two resulting surfaces equals the original one.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>subdivide_v</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>, <span class='ident'>out1</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>, <span class='ident'>out2</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
         <span class='ident'>out1</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>(), <span class='self'>self</span>.<span class='ident'>degree_v</span>());
         <span class='ident'>out2</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>(), <span class='self'>self</span>.<span class='ident'>degree_v</span>());
 
@@ -537,8 +541,8 @@
         }
     }
 
-    <span class='doccomment'>/// Computes the derivative wrt. `u` of this bezier surface.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diff_u</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>out</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
+    <span class='doccomment'>/// Computes the derivative wrt. `u` of this bezier surface.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diff_u</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>out</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
         <span class='ident'>out</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>() <span class='op'>-</span> <span class='number'>1</span>, <span class='self'>self</span>.<span class='ident'>degree_v</span>());
 
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0u</span>, <span class='self'>self</span>.<span class='ident'>nvpoints</span>) {
@@ -546,8 +550,8 @@
         }
     }
 
-    <span class='doccomment'>/// Computes the derivative wrt. `v` of this bezier surface.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diff_v</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>out</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
+    <span class='doccomment'>/// Computes the derivative wrt. `v` of this bezier surface.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diff_v</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>out</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>BezierSurface</span>) {
         <span class='ident'>out</span>.<span class='ident'>reset_with_degrees</span>(<span class='self'>self</span>.<span class='ident'>degree_u</span>(), <span class='self'>self</span>.<span class='ident'>degree_v</span>() <span class='op'>-</span> <span class='number'>1</span>);
 
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0u</span>, <span class='self'>self</span>.<span class='ident'>nupoints</span>) {
@@ -555,34 +559,39 @@
         }
     }
 
-    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 0`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_00</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 0`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_00</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
         <span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>get</span>(<span class='number'>0</span>)
     }
 
-    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 1`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_01</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 1`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_01</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
         <span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>get</span>(<span class='self'>self</span>.<span class='ident'>nupoints</span>() <span class='op'>-</span> <span class='number'>1</span>)
     }
 
-    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 0`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_10</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+    <span class='doccomment'>/// Gets the endpoint at parameters `u = 0` and `v = 0`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_10</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
         <span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>get</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>nupoints</span>())
     }
 
-    <span class='doccomment'>/// Gets the endpoint at parameters `u = 1` and `v = 1`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_11</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+    <span class='doccomment'>/// Gets the endpoint at parameters `u = 1` and `v = 1`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>endpoint_11</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
         <span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>last</span>().<span class='ident'>unwrap</span>()
     }
 
-    <span class='doccomment'>/// Computes an infinite bounding cone of this surface.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_cone_with_origin</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>origin</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> (<span class='ident'>Vect</span>, <span class='ident'>Scalar</span>) {
+    <span class='doccomment'>/// Computes an infinite bounding cone of this surface.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_cone_with_origin</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>origin</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> (<span class='ident'>Vect</span>, <span class='ident'>Scalar</span>) {
         <span class='ident'>bounding_cone_with_origin</span>(<span class='self'>self</span>.<span class='ident'>control_points</span>.<span class='ident'>as_slice</span>(), <span class='ident'>origin</span>)
     }
 }
 
-<span class='doccomment'>/// Computes an infinite bounding cone of this surface.
-</span><span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>dim4</span>))]</span>
+<span class='doccomment'>/// Computes an infinite bounding cone of this surface.</span>
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>dim4</span>))]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_cone_with_origin</span>(<span class='ident'>points</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Vect</span>], <span class='ident'>origin</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> (<span class='ident'>Vect</span>, <span class='ident'>Scalar</span>) {
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>axis</span>  <span class='op'>=</span> <span class='ident'>points</span>[<span class='number'>0</span>] <span class='op'>-</span> <span class='op'>*</span><span class='ident'>origin</span>;
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>theta</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();<span class='comment'>
@@ -607,11 +616,11 @@
                 </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rot_axis</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cross</span>(<span class='kw-2'>&amp;</span><span class='ident'>dir</span>, <span class='kw-2'>&amp;</span><span class='ident'>axis</span>);
 
                 <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>rot_axis</span>.<span class='ident'>normalize</span>().<span class='ident'>is_zero</span>() {
-                    <span class='kw'>let</span> <span class='ident'>dangle</span>   <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>alpha</span> <span class='op'>-</span> <span class='ident'>theta</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>);
+                    <span class='kw'>let</span> <span class='ident'>dangle</span>   <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>alpha</span> <span class='op'>-</span> <span class='ident'>theta</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5f64</span>);
                     <span class='kw'>let</span> <span class='ident'>rot</span>      <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='ident'>na</span>::<span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>RotationMatrix</span><span class='op'>&gt;</span>(), <span class='kw-2'>&amp;</span>(<span class='ident'>rot_axis</span> <span class='op'>*</span> <span class='ident'>dangle</span>));
 
                     <span class='ident'>axis</span>  <span class='op'>=</span> <span class='ident'>rot</span> <span class='op'>*</span> <span class='ident'>axis</span>;
-                    <span class='ident'>theta</span> <span class='op'>=</span> (<span class='ident'>alpha</span> <span class='op'>+</span> <span class='ident'>theta</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5</span>);
+                    <span class='ident'>theta</span> <span class='op'>=</span> (<span class='ident'>alpha</span> <span class='op'>+</span> <span class='ident'>theta</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.5f64</span>);
                 }
                 <span class='kw'>else</span> {<span class='comment'>
                     // This happens if alpha ~= 0 or alpha ~= pi.
@@ -630,8 +639,8 @@
     (<span class='ident'>axis</span>, <span class='ident'>theta</span>)
 }
 
-<span class='doccomment'>/// Computes an infinite bounding cone of this surface.
-</span><span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim4</span>)]</span><span class='comment'> // we cannot use the previous algorithm because it requires a `na::cross`.
+<span class='doccomment'>/// Computes an infinite bounding cone of this surface.</span>
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim4</span>)]</span><span class='comment'> // we cannot use the previous algorithm because it requires a `na::cross`.
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_cone_with_origin</span>(<span class='ident'>points</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Vect</span>], <span class='ident'>origin</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> (<span class='ident'>Vect</span>, <span class='ident'>Scalar</span>) {<span class='comment'>
     // FIXME: this is a very coarse approximation
     </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>axis</span> <span class='op'>=</span> <span class='ident'>utils</span>::<span class='ident'>center</span>(<span class='ident'>points</span>) <span class='op'>-</span> <span class='op'>*</span><span class='ident'>origin</span>;
@@ -671,9 +680,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

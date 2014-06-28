@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -347,10 +346,9 @@
 <span id='307'>307</span>
 <span id='308'>308</span>
 <span id='309'>309</span>
-<span id='310'>310</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! A read-only Bounding Volume Tree.
-</span>
+<span class='doccomment'>//! A read-only Bounding Volume Tree.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Bounded</span>;
 <span class='kw'>use</span> <span class='ident'>test</span>::<span class='ident'>stats</span>::<span class='ident'>Stats</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Translation</span>, <span class='ident'>Indexable</span>};
@@ -360,8 +358,8 @@
 <span class='kw'>use</span> <span class='ident'>bounding_volume</span>::{<span class='ident'>BoundingVolume</span>, <span class='ident'>AABB</span>};
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
-<span class='doccomment'>/// A Boundig Volume Tree.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
+<span class='doccomment'>/// A Boundig Volume Tree.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
     <span class='ident'>tree</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>BVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>
 }
@@ -372,18 +370,18 @@
     <span class='ident'>Leaf</span>(<span class='ident'>BV</span>, <span class='ident'>B</span>)
 }
 
-<span class='doccomment'>/// Result of a binary partitioning.
-</span><span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BinaryPartition</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Result of the partitioning of one element.
-</span>    <span class='ident'>Part</span>(<span class='ident'>B</span>),
-    <span class='doccomment'>/// Result of the partitioning of several elements.
-</span>    <span class='ident'>Parts</span>(<span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>, <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>)
+<span class='doccomment'>/// Result of a binary partition.</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BinaryPartition</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Result of the partitioning of one element.</span>
+    <span class='ident'>Part</span>(<span class='ident'>B</span>),
+    <span class='doccomment'>/// Result of the partitioning of several elements.</span>
+    <span class='ident'>Parts</span>(<span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>, <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>)
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {<span class='comment'>
     // FIXME: add higher level constructors ?
-    </span><span class='doccomment'>/// Builds a bounding volume tree using an user-defined construction function.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_partitioner</span>(<span class='ident'>leaves</span>:      <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>,
+    </span><span class='doccomment'>/// Builds a bounding volume tree using an user-defined construction function.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_partitioner</span>(<span class='ident'>leaves</span>:      <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span>,
                                 <span class='ident'>partitioner</span>: <span class='op'>|</span><span class='ident'>uint</span>, <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>BV</span>)<span class='op'>&gt;</span><span class='op'>|</span> <span class='op'>-&gt;</span> (<span class='ident'>BV</span>, <span class='ident'>BinaryPartition</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>))
                                 <span class='op'>-&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>leaves</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
@@ -398,24 +396,24 @@
         }
     }
 
-    <span class='doccomment'>/// Visit this tree using… a visitor!
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
+    <span class='doccomment'>/// Visit this tree using… a visitor!</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>t</span>) <span class='op'>=&gt;</span> <span class='ident'>t</span>.<span class='ident'>visit</span>(<span class='ident'>visitor</span>),
             <span class='prelude-val'>None</span>        <span class='op'>=&gt;</span> { }
         }
     }
 
-    <span class='doccomment'>/// Visit this tree using… a visitor! Visitor arguments are mutable.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit_mut</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
+    <span class='doccomment'>/// Visit this tree using… a visitor! Visitor arguments are mutable.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit_mut</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>t</span>) <span class='op'>=&gt;</span> <span class='ident'>t</span>.<span class='ident'>visit_mut</span>(<span class='ident'>visitor</span>),
             <span class='prelude-val'>None</span>            <span class='op'>=&gt;</span> { }
         }
     }
 
-    <span class='doccomment'>/// Reference to the bounding volume of the tree root.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>root_bounding_volume</span><span class='op'>&lt;</span><span class='lifetime'>&#39;r</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Reference to the bounding volume of the tree root.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>root_bounding_volume</span><span class='op'>&lt;</span><span class='lifetime'>&#39;r</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>BV</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>n</span>) <span class='op'>=&gt;</span> {
                 <span class='kw'>match</span> <span class='op'>*</span><span class='ident'>n</span> {
@@ -427,8 +425,8 @@
         }
     }
 
-    <span class='doccomment'>/// Computes the depth of this tree.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>depth</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
+    <span class='doccomment'>/// Computes the depth of this tree.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>depth</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>n</span>) <span class='op'>=&gt;</span> <span class='ident'>n</span>.<span class='ident'>depth</span>(),
             <span class='prelude-val'>None</span>        <span class='op'>=&gt;</span> <span class='number'>0</span>
@@ -437,13 +435,14 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span><span class='op'>&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new kdtree.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_kdtree</span>(<span class='ident'>leaves</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>AABB</span>)<span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new kdtree.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_kdtree</span>(<span class='ident'>leaves</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>AABB</span>)<span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span> {
         <span class='ident'>BVT</span>::<span class='ident'>new_with_partitioner</span>(<span class='ident'>leaves</span>, <span class='ident'>kdtree_partitioner</span>)
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='ident'>BVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_volume</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>BV</span> {
         <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
             <span class='ident'>Internal</span>(<span class='kw-2'>ref</span> <span class='ident'>bv</span>, _, _) <span class='op'>=&gt;</span> <span class='ident'>bv</span>,
@@ -488,8 +487,8 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>: <span class='ident'>RayCast</span><span class='op'>&gt;</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Computes the closest intersection between the objects stored on this tree and a given ray.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cast_ray</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>,
+    <span class='doccomment'>/// Computes the closest intersection between the objects stored on this tree and a given ray.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cast_ray</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>,
                            <span class='ident'>ray</span>:     <span class='kw-2'>&amp;</span><span class='ident'>Ray</span>,
                            <span class='ident'>cast_fn</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='kw-2'>&amp;</span><span class='ident'>Ray</span><span class='op'>|</span> <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>(<span class='ident'>Scalar</span>, <span class='ident'>T</span>)<span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>(<span class='ident'>Scalar</span>, <span class='ident'>T</span>, <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>B</span>)<span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
@@ -586,10 +585,8 @@
     }
 }
 
-<span class='doccomment'>/// Construction function for a kdree.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Use this as a parameter of `new_with_partitioner`.
-</span><span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unnecessary_typecast</span>)]</span>
+<span class='doccomment'>/// Construction function for a kdree to be used with `BVT::new_with_partitioner`.</span>
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unnecessary_typecast</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>kdtree_partitioner</span><span class='op'>&lt;</span><span class='ident'>B</span><span class='op'>&gt;</span>(<span class='ident'>depth</span>: <span class='ident'>uint</span>, <span class='ident'>leaves</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>(<span class='ident'>B</span>, <span class='ident'>AABB</span>)<span class='op'>&gt;</span>) <span class='op'>-&gt;</span> (<span class='ident'>AABB</span>, <span class='ident'>BinaryPartition</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span>) {
     <span class='kw'>if</span> <span class='ident'>leaves</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
         <span class='macro'>fail</span><span class='macro'>!</span>(<span class='string'>&quot;Cannot build a tree without leaves.&quot;</span>);
@@ -673,9 +670,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

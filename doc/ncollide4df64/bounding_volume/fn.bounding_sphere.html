@@ -23,8 +23,7 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BoundingSphere.html'>BoundingSphere</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.HasBoundingSphere.html'>HasBoundingSphere</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><br/><a class='fn current' href='fn.bounding_sphere.html'>bounding_sphere</a><br/><a class='fn ' href='fn.bounding_sphere_with_center.html'>bounding_sphere_with_center</a><br/><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><br/><a class='fn ' href='fn.point_cloud_aabb.html'>point_cloud_aabb</a><br/></div>
+        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AABB.html'>AABB</a><a class='struct ' href='struct.BoundingSphere.html'>BoundingSphere</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolume.html'>BoundingVolume</a><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><a class='trait ' href='trait.HasBoundingSphere.html'>HasBoundingSphere</a><a class='trait ' href='trait.HasBoundingVolume.html'>HasBoundingVolume</a><a class='trait ' href='trait.LooseBoundingVolume.html'>LooseBoundingVolume</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><a class='fn current' href='fn.bounding_sphere.html'>bounding_sphere</a><a class='fn ' href='fn.bounding_sphere_with_center.html'>bounding_sphere_with_center</a><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><a class='fn ' href='fn.point_cloud_aabb.html'>point_cloud_aabb</a></div>
     </section>
 
     <nav class="sub">
@@ -32,14 +31,14 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>bounding_volume</a>::<a class='fn' href=''>bounding_sphere</a><a class='source' id='src-3611' href='../../src/ncollide4df64/src/bounding_volume/bounding_sphere_utils.rs.html#26-28'>[src]</a></h1>
+<h1 class='fqn'>Function <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>bounding_volume</a>::<a class='fn' href=''>bounding_sphere</a><a class='source' id='src-3606' href='../../src/ncollide4df64/src/bounding_volume/bounding_sphere_utils.rs.html#26-28'>[src]</a></h1>
 <pre class='rust fn'>pub fn bounding_sphere&lt;V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt;, N: <a class='trait' href='http://doc.rust-lang.org/core/num/trait.Float.html' title='core::num::Float'>Float</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a>&gt;&gt;(pts: &amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[V]</a>) -&gt; <a href='http://doc.rust-lang.org/std/primitive.tuple.html'>(V, N)</a></pre><div class='docblock'><p>Computes a bounding sphere of the specified set of point.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -54,9 +53,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

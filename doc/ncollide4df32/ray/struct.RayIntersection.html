@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The ncollide4df32 library documentation.">
+
     <title>ncollide4df32::ray::RayIntersection - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400,700'
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
           rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="../../ncollide4df32/main.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
 </head>
@@ -20,26 +23,25 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><br/><a class='struct current' href='struct.RayIntersection.html'>RayIntersection</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><br/><a class='fn ' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><br/><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a><br/></div>
+        <p class='location'><a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><a class='struct current' href='struct.RayIntersection.html'>RayIntersection</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><a class='fn ' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a></div>
     </section>
 
     <nav class="sub">
         <form class="search-form js-only">
-            <button class="do-search">Search</button>
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
-                       type="search" />
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
             </div>
         </form>
     </nav>
 
-    <section id='main' class="content struct"><a class='source'
-                              href='../../src/ncollide4df32/src/ray/ray.rs.html#27-42'>[src]</a><h1 class='fqn'>Struct <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>ray</a>::<a class='struct' href=''>RayIntersection</a></h1><pre class='rust struct'>pub struct RayIntersection {
-    toi: <a class='typedef' href='../../ncollide4df32/math/typedef.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>,
-    normal: <a class='typedef' href='../../ncollide4df32/math/typedef.Vector.html' title='ncollide4df32::math::Vector'>Vector</a>,
+    <section id='main' class="content struct">
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>ray</a>::<a class='struct' href=''>RayIntersection</a><a class='source' id='src-13604' href='../../src/ncollide4df32/src/ray/ray.rs.html#30-45'>[src]</a></h1>
+<pre class='rust struct'>pub struct RayIntersection {
+    pub toi: <a class='type' href='../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>,
+    pub normal: <a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>,
 }</pre><div class='docblock'><p>Structure containing the result of a successful ray cast.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr><td id='structfield.toi'><code>toi</code></td><td><div class='docblock'><p>The time of impact of the ray with the object.  The exact contact point can be computed
@@ -48,19 +50,10 @@ with: <code>orig + dir * toi</code> where <code>orig</code> is the origin of the
 </div></td></tr><tr><td id='structfield.normal'><code>normal</code></td><td><div class='docblock'><p>The normal at the intersection point.</p>
 
 <p>If the <code>toi</code> is exactly zero, the normal might not be reliable.</p>
-</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../ncollide4df32/ray/struct.RayIntersection.html' title='ncollide4df32::ray::RayIntersection'>RayIntersection</a></code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(toi: <a class='typedef' href='../../ncollide4df32/math/typedef.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, normal: <a class='typedef' href='../../ncollide4df32/math/typedef.Vector.html' title='ncollide4df32::math::Vector'>Vector</a>) -&gt; <a class='struct' href='../../ncollide4df32/ray/struct.RayIntersection.html' title='ncollide4df32::ray::RayIntersection'>RayIntersection</a></code></h4>
-<div class='docblock'><p>Creates a new <code>RayIntersection</code>.</p>
-</div></div></section>
+</div></td></tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
-
-    <script>
-        var rootPath = "../../";
-    </script>
-    <script src="../../ncollide4df32/jquery.js"></script>
-    <script src="../../ncollide4df32/search-index.js"></script>
-    <script src="../../ncollide4df32/main.js"></script>
 
     <div id="help" class="hidden">
         <div class="shortcuts">
@@ -70,9 +63,9 @@ with: <code>orig + dir * toi</code> where <code>orig</code> is the origin of the
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -92,5 +85,15 @@ with: <code>orig + dir * toi</code> where <code>orig</code> is the origin of the
             </p>
         </div>
     </div>
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide4df32";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script async src="../../search-index.js"></script>
 </body>
 </html>

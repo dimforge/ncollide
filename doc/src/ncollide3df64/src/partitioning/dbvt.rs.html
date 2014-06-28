@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -600,8 +599,8 @@
 <span id='560'>560</span>
 <span id='561'>561</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! A Dynamic Bounding Volume Tree.
-</span>
+<span class='doccomment'>//! A Dynamic Bounding Volume Tree.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>gc</span>::<span class='ident'>Gc</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>RefCell</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ptr</span>;
@@ -621,16 +620,16 @@
 
 <span class='kw'>type</span> <span class='ident'>Cache</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>OwnedAllocationCache</span><span class='op'>&lt;</span><span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>;
 
-<span class='doccomment'>/// A Dynamic Bounding Volume Tree.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// A Dynamic Bounding Volume Tree.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
     <span class='ident'>cache</span>: <span class='ident'>Cache</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
     <span class='ident'>tree</span>:  <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>,
     <span class='ident'>len</span>:   <span class='ident'>uint</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new Dynamic Bounding Volume Tree.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new Dynamic Bounding Volume Tree.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
         <span class='ident'>DBVT</span> {
             <span class='ident'>cache</span>: <span class='ident'>OwnedAllocationCache</span>::<span class='ident'>new</span>(),
             <span class='ident'>tree</span>:  <span class='prelude-val'>None</span>,
@@ -642,17 +641,17 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>BV</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>BoundingVolume</span> <span class='op'>+</span> <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span>,
      <span class='ident'>B</span>:  <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>
 <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Removes a leaf from the tree. Fails if the tree is empty.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>leaf</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>) {
+    <span class='doccomment'>/// Removes a leaf from the tree. Fails if the tree is empty.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>leaf</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>) {
         <span class='kw'>let</span> <span class='ident'>self_tree</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>tree</span>.<span class='ident'>take_unwrap</span>();
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow_mut</span>();
         <span class='self'>self</span>.<span class='ident'>tree</span> <span class='op'>=</span> <span class='ident'>bleaf</span>.<span class='ident'>unlink</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>cache</span>, <span class='ident'>self_tree</span>);
         <span class='self'>self</span>.<span class='ident'>len</span>  <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>len</span> <span class='op'>-</span> <span class='number'>1</span>;
     }
 
-    <span class='doccomment'>/// Inserts a leaf to the tree.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>insert</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>leaf</span>: <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>) {
+    <span class='doccomment'>/// Inserts a leaf to the tree.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>insert</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>leaf</span>: <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>) {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>self_tree</span> <span class='op'>=</span> <span class='prelude-val'>None</span>;
         <span class='ident'>mem</span>::<span class='ident'>swap</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>self_tree</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>tree</span>);
 
@@ -664,8 +663,8 @@
         <span class='self'>self</span>.<span class='ident'>len</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>len</span> <span class='op'>+</span> <span class='number'>1</span>;
     }
 
-    <span class='doccomment'>/// Visit this tree using… a visitor!
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
+    <span class='doccomment'>/// Visit this tree using… a visitor!</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>visit</span><span class='op'>&lt;</span><span class='ident'>Vis</span>: <span class='ident'>BVTVisitor</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>visitor</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vis</span>) {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>t</span>) <span class='op'>=&gt;</span> <span class='ident'>t</span>.<span class='ident'>visit</span>(<span class='ident'>visitor</span>),
             <span class='prelude-val'>None</span>        <span class='op'>=&gt;</span> { }
@@ -680,14 +679,14 @@
 //        }
 //    }
 
-    </span><span class='doccomment'>/// Finds all leaves which have their bounding boxes intersecting a specific leave&#39;s bounding
-</span>    <span class='doccomment'>/// volume.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `to_test` - the leaf to check interferences with.
-</span>    <span class='doccomment'>/// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-</span>    <span class='doccomment'>///           is not considered intersecting itself.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>interferences_with_leaf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
+    </span><span class='doccomment'>/// Finds all leaves which have their bounding boxes intersecting a specific leave&#39;s bounding</span>
+    <span class='doccomment'>/// volume.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>/// * `to_test` - the leaf to check interferences with.</span>
+    <span class='doccomment'>/// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`</span>
+    <span class='doccomment'>///           is not considered intersecting itself.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>interferences_with_leaf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
                                    <span class='ident'>leaf</span>: <span class='kw-2'>&amp;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
                                    <span class='ident'>out</span>:  <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>) {
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>tree</span> {
@@ -696,8 +695,8 @@
         }
     }
 
-    <span class='doccomment'>/// Finds all interferences between this tree and another one.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>interferences_with_tree</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
+    <span class='doccomment'>/// Finds all interferences between this tree and another one.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>interferences_with_tree</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
                                    <span class='ident'>leaf</span>: <span class='kw-2'>&amp;</span><span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
                                    <span class='ident'>out</span>:  <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>) {
         <span class='kw'>match</span> (<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>tree</span>, <span class='kw-2'>&amp;</span><span class='ident'>leaf</span>.<span class='ident'>tree</span>) {
@@ -708,32 +707,32 @@
     }
 }
 
-<span class='doccomment'>/// Node of the Dynamic Bounding Volume Tree.
-</span><span class='kw'>enum</span> <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Node of the Dynamic Bounding Volume Tree.</span>
+<span class='kw'>enum</span> <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
     <span class='ident'>Internal</span>(<span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span>),
     <span class='ident'>Leaf</span>(<span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>),
     <span class='ident'>Invalid</span>
 }
 
-<span class='doccomment'>/// Internal node of a DBVT. An internal node always has two children.
-</span><span class='kw'>struct</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The bounding volume of this node. It always encloses both its children bounding volumes.
-</span>    <span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
-    <span class='doccomment'>/// The center of this node bounding volume.
-</span>    <span class='ident'>center</span>:          <span class='ident'>Vect</span>,
-    <span class='doccomment'>/// This node left child.
-</span>    <span class='ident'>left</span>:            <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
-    <span class='doccomment'>/// This node right child.
-</span>    <span class='ident'>right</span>:           <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
-    <span class='doccomment'>/// This node parent.
-</span>    <span class='ident'>parent</span>:          <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Internal node of a DBVT. An internal node always has two children.</span>
+<span class='kw'>struct</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// The bounding volume of this node. It always encloses both its children bounding volumes.</span>
+    <span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
+    <span class='doccomment'>/// The center of this node bounding volume.</span>
+    <span class='ident'>center</span>:          <span class='ident'>Vect</span>,
+    <span class='doccomment'>/// This node left child.</span>
+    <span class='ident'>left</span>:            <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// This node right child.</span>
+    <span class='ident'>right</span>:           <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// This node parent.</span>
+    <span class='ident'>parent</span>:          <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
 
     <span class='ident'>state</span>:      <span class='ident'>UpdateState</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>BV</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>, <span class='ident'>B</span><span class='op'>&gt;</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new internal node.
-</span>    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
+    <span class='doccomment'>/// Creates a new internal node.</span>
+    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
            <span class='ident'>parent</span>:          <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
            <span class='ident'>left</span>:            <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
            <span class='ident'>right</span>:           <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>)
@@ -751,19 +750,19 @@
 
 <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>raw_pointer_deriving</span>)]</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
-<span class='doccomment'>/// State of a leaf.
-</span><span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>DBVTLeafState</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// This leaf is the right child of another node.
-</span>    <span class='ident'>RightChildOf</span>(<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>),
-    <span class='doccomment'>/// This leaf is the left child of another node.
-</span>    <span class='ident'>LeftChildOf</span>(<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>),
-    <span class='doccomment'>/// This leaf is detached from any tree.
-</span>    <span class='ident'>Detached</span>
+<span class='doccomment'>/// State of a leaf.</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>DBVTLeafState</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// This leaf is the right child of another node.</span>
+    <span class='ident'>RightChildOf</span>(<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>),
+    <span class='doccomment'>/// This leaf is the left child of another node.</span>
+    <span class='ident'>LeftChildOf</span>(<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>),
+    <span class='doccomment'>/// This leaf is detached from any tree.</span>
+    <span class='ident'>Detached</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='ident'>DBVTLeafState</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Indicates whether this leaf is detached.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Indicates whether this leaf is detached.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_detached</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
             <span class='ident'>Detached</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
@@ -771,8 +770,8 @@
         }
     }
 
-    <span class='doccomment'>/// Returns a pointer to this leaf parent and `true` if it is the left child.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Returns a pointer to this leaf parent and `true` if it is the left child.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>unwrap</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>bool</span>, <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>) {
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='ident'>RightChildOf</span>(<span class='ident'>p</span>) <span class='op'>=&gt;</span> (<span class='boolval'>false</span>, <span class='ident'>p</span>),
@@ -782,17 +781,17 @@
     }
 }
 
-<span class='doccomment'>/// Leaf of a Dynamic Bounding Volume Tree.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// Leaf of a Dynamic Bounding Volume Tree.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The bounding volume of this node.
-</span>    <span class='kw'>pub</span> <span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
-    <span class='doccomment'>/// The center of this node bounding volume.
-</span>    <span class='kw'>pub</span> <span class='ident'>center</span>:          <span class='ident'>Vect</span>,
-    <span class='doccomment'>/// An user-defined object.
-</span>    <span class='kw'>pub</span> <span class='ident'>object</span>:          <span class='ident'>B</span>,
-    <span class='doccomment'>/// This node parent.
-</span>    <span class='kw'>pub</span> <span class='ident'>parent</span>:          <span class='ident'>DBVTLeafState</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>
+    <span class='doccomment'>/// The bounding volume of this node.</span>
+    <span class='kw'>pub</span> <span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>,
+    <span class='doccomment'>/// The center of this node bounding volume.</span>
+    <span class='kw'>pub</span> <span class='ident'>center</span>:          <span class='ident'>Vect</span>,
+    <span class='doccomment'>/// An user-defined object.</span>
+    <span class='kw'>pub</span> <span class='ident'>object</span>:          <span class='ident'>B</span>,
+    <span class='doccomment'>/// This node parent.</span>
+    <span class='kw'>pub</span> <span class='ident'>parent</span>:          <span class='ident'>DBVTLeafState</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
@@ -823,8 +822,8 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>B</span>: <span class='lifetime'>&#39;static</span>, <span class='ident'>BV</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='lifetime'>&#39;static</span><span class='op'>&gt;</span> <span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new leaf.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>, <span class='ident'>object</span>: <span class='ident'>B</span>) <span class='op'>-&gt;</span> <span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new leaf.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>bounding_volume</span>: <span class='ident'>BV</span>, <span class='ident'>object</span>: <span class='ident'>B</span>) <span class='op'>-&gt;</span> <span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
         <span class='ident'>DBVTLeaf</span> {
             <span class='ident'>center</span>:          <span class='ident'>bounding_volume</span>.<span class='ident'>translation</span>(),
             <span class='ident'>bounding_volume</span>: <span class='ident'>bounding_volume</span>,
@@ -833,13 +832,13 @@
         }
     }
 
-    <span class='doccomment'>/// Removes this leaf from the tree.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// Returns the new root of the tree.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `curr_root`: current root of the tree.
-</span>    <span class='kw'>fn</span> <span class='ident'>unlink</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
+    <span class='doccomment'>/// Removes this leaf from the tree.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Returns the new root of the tree.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>/// * `curr_root`: current root of the tree.</span>
+    <span class='kw'>fn</span> <span class='ident'>unlink</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
               <span class='ident'>cache</span>:     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Cache</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
               <span class='ident'>curr_root</span>: <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>if</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>parent</span>.<span class='ident'>is_detached</span>() {
@@ -860,7 +859,7 @@
                         <span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>l</span>)     <span class='op'>=&gt;</span> {<span class='comment'>
                             // FIXME: if deref_mut is not called, the type inference seems to be
                             // buggy
-                            </span><span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>().<span class='ident'>deref_mut</span>().<span class='ident'>parent</span> <span class='op'>=</span>
+                            </span><span class='ident'>l</span>.<span class='ident'>borrow_mut</span>().<span class='ident'>deref_mut</span>().<span class='ident'>parent</span> <span class='op'>=</span>
                                 <span class='kw'>if</span> <span class='ident'>is_p_right_to_pp</span> { <span class='ident'>RightChildOf</span>(<span class='ident'>pp</span>) } <span class='kw'>else</span> { <span class='ident'>LeftChildOf</span>(<span class='ident'>pp</span>) }
                         },
                         <span class='ident'>Invalid</span>             <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>()
@@ -888,7 +887,7 @@
                     <span class='ident'>Internal</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>i</span>) <span class='op'>=&gt;</span> <span class='ident'>i</span>.<span class='ident'>parent</span> <span class='op'>=</span> <span class='ident'>ptr</span>::<span class='ident'>mut_null</span>(),<span class='comment'>
                                            // FIXME: if deref_mut is not called, the type inference seems to be
                                            // buggy
-                    </span><span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>)         <span class='op'>=&gt;</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>().<span class='ident'>deref_mut</span>().<span class='ident'>parent</span> <span class='op'>=</span> <span class='ident'>Detached</span>,
+                    </span><span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>)         <span class='op'>=&gt;</span> <span class='ident'>l</span>.<span class='ident'>borrow_mut</span>().<span class='ident'>deref_mut</span>().<span class='ident'>parent</span> <span class='op'>=</span> <span class='ident'>Detached</span>,
                     <span class='ident'>Invalid</span>             <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>()
                 }
 
@@ -909,7 +908,7 @@
         <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
             <span class='ident'>Internal</span>(<span class='kw-2'>ref</span> <span class='ident'>i</span>) <span class='op'>=&gt;</span> <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>i</span>.<span class='ident'>center</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>to</span>)),
             <span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>)     <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>();
                 <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>bl</span>.<span class='ident'>center</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>to</span>))
             },
             <span class='ident'>Invalid</span>         <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>()
@@ -952,13 +951,13 @@
 </span>}
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>BV</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>BoundingVolume</span> <span class='op'>+</span> <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span>, <span class='ident'>B</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Inserts a new leaf on this tree.
-</span>    <span class='kw'>fn</span> <span class='ident'>insert</span>(<span class='self'>self</span>,
+    <span class='doccomment'>/// Inserts a new leaf on this tree.</span>
+    <span class='kw'>fn</span> <span class='ident'>insert</span>(<span class='self'>self</span>,
               <span class='ident'>cache</span>:     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Cache</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
               <span class='ident'>to_insert</span>: <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>)
               <span class='op'>-&gt;</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span> {
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bto_insert</span> <span class='op'>=</span> <span class='ident'>to_insert</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bto_insert</span> <span class='op'>=</span> <span class='ident'>to_insert</span>.<span class='ident'>borrow_mut</span>();
         <span class='kw'>let</span> <span class='ident'>pto_insert</span>     <span class='op'>=</span> <span class='ident'>bto_insert</span>.<span class='ident'>deref_mut</span>();
 
         <span class='kw'>match</span> <span class='self'>self</span> {
@@ -1006,7 +1005,7 @@
                                 <span class='ident'>parent</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='op'>*</span><span class='ident'>ci</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>DBVTInternal</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>;
                             },
                             <span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>) <span class='op'>=&gt;</span> {
-                                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span>       <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+                                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span>       <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow_mut</span>();
                                 <span class='kw'>let</span>     <span class='ident'>pl</span>       <span class='op'>=</span> <span class='ident'>bl</span>.<span class='ident'>deref_mut</span>();
                                 <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>internal</span> <span class='op'>=</span> <span class='ident'>cache</span>.<span class='ident'>alloc</span>(<span class='ident'>DBVTInternal</span>::<span class='ident'>new</span>(
                                     <span class='ident'>pl</span>.<span class='ident'>bounding_volume</span>.<span class='ident'>merged</span>(<span class='kw-2'>&amp;</span><span class='ident'>pto_insert</span>.<span class='ident'>bounding_volume</span>),
@@ -1034,7 +1033,7 @@
                 <span class='ident'>mut_internal</span>
             },
             <span class='ident'>Leaf</span>(<span class='ident'>l</span>) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow_mut</span>();
                 <span class='kw'>let</span>     <span class='ident'>pl</span> <span class='op'>=</span> <span class='ident'>bl</span>.<span class='ident'>deref_mut</span>();<span class='comment'>
 
                 // create the root
@@ -1053,14 +1052,14 @@
         }
     }
 
-    <span class='doccomment'>/// Finds all leaves which have their bounding boxes intersecting a specific leave&#39;s bounding
-</span>    <span class='doccomment'>/// volume.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `to_test` - the leaf to check interference with.
-</span>    <span class='doccomment'>/// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-</span>    <span class='doccomment'>/// is not considered intersecting itself.
-</span>    <span class='kw'>fn</span> <span class='ident'>interferences_with_leaf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
+    <span class='doccomment'>/// Finds all leaves which have their bounding boxes intersecting a specific leave&#39;s bounding</span>
+    <span class='doccomment'>/// volume.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>/// * `to_test` - the leaf to check interference with.</span>
+    <span class='doccomment'>/// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`</span>
+    <span class='doccomment'>/// is not considered intersecting itself.</span>
+    <span class='kw'>fn</span> <span class='ident'>interferences_with_leaf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
                                <span class='ident'>to_test</span>: <span class='kw-2'>&amp;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
                                <span class='ident'>out</span>:     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>) {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>visitor</span> <span class='op'>=</span> <span class='ident'>BoundingVolumeInterferencesCollector</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>to_test</span>.<span class='ident'>bounding_volume</span>, <span class='ident'>out</span>);
@@ -1076,7 +1075,7 @@
                 }
             },
             <span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>l</span>) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>l</span>.<span class='ident'>borrow</span>();
                 <span class='ident'>visitor</span>.<span class='ident'>visit_leaf</span>(<span class='ident'>l</span>, <span class='kw-2'>&amp;</span><span class='ident'>bl</span>.<span class='ident'>bounding_volume</span>)
             },
             <span class='ident'>Invalid</span> <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>()
@@ -1100,21 +1099,21 @@
 //        }
 //    }
 
-    </span><span class='doccomment'>/// Finds all interferences between this tree and another one.
-</span>    <span class='kw'>fn</span> <span class='ident'>interferences_with_tree</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
+    </span><span class='doccomment'>/// Finds all interferences between this tree and another one.</span>
+    <span class='kw'>fn</span> <span class='ident'>interferences_with_tree</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>,
                                <span class='ident'>to_test</span>: <span class='kw-2'>&amp;</span><span class='ident'>DBVTNode</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
                                <span class='ident'>out</span>:     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>) {
         <span class='kw'>match</span> (<span class='self'>self</span>, <span class='ident'>to_test</span>) {
             (<span class='kw-2'>&amp;</span><span class='ident'>Leaf</span>(_), <span class='kw-2'>&amp;</span><span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>lb</span>)) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='ident'>blb</span> <span class='op'>=</span> <span class='ident'>lb</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>blb</span> <span class='op'>=</span> <span class='ident'>lb</span>.<span class='ident'>borrow</span>();
                 <span class='self'>self</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>blb</span>.<span class='ident'>deref</span>(), <span class='ident'>out</span>)
             },
             (<span class='kw-2'>&amp;</span><span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>la</span>), <span class='kw-2'>&amp;</span><span class='ident'>Internal</span>(_)) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='ident'>bla</span> <span class='op'>=</span> <span class='ident'>la</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>bla</span> <span class='op'>=</span> <span class='ident'>la</span>.<span class='ident'>borrow</span>();
                 <span class='ident'>to_test</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>bla</span>.<span class='ident'>deref</span>(), <span class='ident'>out</span>)
             },
             (<span class='kw-2'>&amp;</span><span class='ident'>Internal</span>(_), <span class='kw-2'>&amp;</span><span class='ident'>Leaf</span>(<span class='kw-2'>ref</span> <span class='ident'>lb</span>)) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='ident'>blb</span> <span class='op'>=</span> <span class='ident'>lb</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>blb</span> <span class='op'>=</span> <span class='ident'>lb</span>.<span class='ident'>borrow</span>();
                 <span class='self'>self</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>blb</span>.<span class='ident'>deref</span>(), <span class='ident'>out</span>)
             },
             (<span class='kw-2'>&amp;</span><span class='ident'>Internal</span>(<span class='kw-2'>ref</span> <span class='ident'>la</span>), <span class='kw-2'>&amp;</span><span class='ident'>Internal</span>(<span class='kw-2'>ref</span> <span class='ident'>lb</span>)) <span class='op'>=&gt;</span> {<span class='comment'>
@@ -1175,9 +1174,9 @@ DBVTNode&lt;Vect, B, BV&gt; {
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

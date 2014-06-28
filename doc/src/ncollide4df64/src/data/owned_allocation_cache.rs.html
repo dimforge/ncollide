@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -84,27 +83,27 @@
 <span id='44'>44</span>
 <span id='45'>45</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Allocation cache for owned objects.
-</span><span class='comment'>
+<span class='doccomment'>//! Allocation cache for owned objects.</span><span class='comment'>
+
 // FIXME: add a limit to the cache?
-</span><span class='doccomment'>/// Cache for owned objects.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Useful if fast allocation/deallocation of small owned objects is needed.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>OwnedAllocationCache</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
+</span><span class='doccomment'>/// Cache for owned objects.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Useful if fast allocation/deallocation of small owned objects is needed.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>OwnedAllocationCache</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
     <span class='ident'>cache</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>OwnedAllocationCache</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Initializes the cache.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Initializes the cache.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>OwnedAllocationCache</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
         <span class='ident'>OwnedAllocationCache</span> {
             <span class='ident'>cache</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>()
         }
     }
 
-    <span class='doccomment'>/// Box a value into a potentially already allocated box.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Box a value into a potentially already allocated box.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>alloc</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>value</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>cache</span>.<span class='ident'>is_empty</span>() {
             <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>cache</span>.<span class='ident'>pop</span>().<span class='ident'>unwrap</span>();
@@ -117,14 +116,14 @@
         }
     }
 
-    <span class='doccomment'>/// Retains a box which can be re-used by the `box` method.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Retains a box which can be re-used by the `box` method.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>retain</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>elem</span>: <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>) {
         <span class='self'>self</span>.<span class='ident'>cache</span>.<span class='ident'>push</span>(<span class='ident'>elem</span>)
     }
 
-    <span class='doccomment'>/// Clears the cache, destroying any stored pointer.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Clears the cache, destroying any stored pointer.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clear</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
         <span class='self'>self</span>.<span class='ident'>cache</span>.<span class='ident'>clear</span>()
     }
@@ -143,9 +142,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -54,14 +53,14 @@
 <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>TriMesh</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
-<span class='doccomment'>/// Trait implemented by geometries that can be approximated by a triangle mesh.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ToTriMesh</span><span class='op'>&lt;</span><span class='ident'>I</span><span class='op'>&gt;</span>
+<span class='doccomment'>/// Trait implemented by geometries that can be approximated by a triangle mesh.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ToTriMesh</span><span class='op'>&lt;</span><span class='ident'>I</span><span class='op'>&gt;</span>
 {
-    <span class='doccomment'>/// Builds a triangle mesh from this geometry.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `i` - the discretization parameters.
-</span>    <span class='kw'>fn</span> <span class='ident'>to_trimesh</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>Scalar</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span>;
+    <span class='doccomment'>/// Builds a triangle mesh from this geometry.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>/// * `i` - the discretization parameters.</span>
+    <span class='kw'>fn</span> <span class='ident'>to_trimesh</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>Scalar</span>, <span class='ident'>Vect</span><span class='op'>&gt;</span>;
 }
 </pre>
 </section>
@@ -77,9 +76,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

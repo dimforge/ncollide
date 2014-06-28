@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -249,11 +248,14 @@
 <span id='209'>209</span>
 <span id='210'>210</span>
 <span id='211'>211</span>
+<span id='212'>212</span>
+<span id='213'>213</span>
+<span id='214'>214</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//!
-</span><span class='doccomment'>//! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
-</span><span class='doccomment'>//!
-</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.</span>
+<span class='doccomment'>//!</span>
+
 <span class='kw'>use</span> <span class='ident'>sync</span>::<span class='ident'>Arc</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Vec2</span>;
@@ -272,29 +274,32 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim4</span>)]</span><span class='comment'> // XXX: this is wrong
 </span><span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>Triangle</span>;
 
-<span class='doccomment'>/// Trait implemented by elements usable on the Mesh.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Note that this trait is not useful per se since the Mesh is not parameterized by
-</span><span class='doccomment'>/// the element type. However, types implementing this trait is valid as a type
-</span><span class='doccomment'>/// alias for `MeshPrimitive`.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>MeshElement</span> {
-    <span class='doccomment'>/// The number of vertices of this mesh element.
-</span>    <span class='kw'>fn</span> <span class='ident'>nvertices</span>(<span class='ident'>unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span>;
-    <span class='doccomment'>/// Creates a new mesh element from a set of vertices and indices and the margin.
-</span>    <span class='kw'>fn</span> <span class='ident'>new_with_vertices_and_indices</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>Vect</span>], <span class='kw-2'>&amp;</span>[<span class='ident'>uint</span>], <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+<span class='doccomment'>/// Trait implemented by elements usable on the Mesh.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Note that this trait is not useful per se since the Mesh is not parameterized by</span>
+<span class='doccomment'>/// the element type. However, types implementing this trait is valid as a type</span>
+<span class='doccomment'>/// alias for `MeshPrimitive`.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>MeshElement</span> {
+    <span class='doccomment'>/// The number of vertices of this mesh element.</span>
+    <span class='kw'>fn</span> <span class='ident'>nvertices</span>(<span class='ident'>unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span>;
+    <span class='doccomment'>/// Creates a new mesh element from a set of vertices and indices and the margin.</span>
+    <span class='kw'>fn</span> <span class='ident'>new_with_vertices_and_indices</span>(<span class='kw-2'>&amp;</span>[<span class='ident'>Vect</span>], <span class='kw-2'>&amp;</span>[<span class='ident'>uint</span>], <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 }
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim2</span>)]</span>
+<span class='doccomment'>/// The primitive geometry used by a `Mesh`.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>MeshPrimitive</span> <span class='op'>=</span> <span class='ident'>Segment</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+<span class='doccomment'>/// The primitive geometry used by a `Mesh`.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>MeshPrimitive</span> <span class='op'>=</span> <span class='ident'>Triangle</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim4</span>)]</span>
+<span class='doccomment'>/// The primitive geometry used by a `Mesh`.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>MeshPrimitive</span> <span class='op'>=</span> <span class='ident'>Triangle</span>;<span class='comment'> // XXX: this is wrong
 
-</span><span class='doccomment'>/// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Mesh</span> {
+</span><span class='doccomment'>/// Geometry commonly known as a 2d line strip or a 3d triangle mesh.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Mesh</span> {
     <span class='ident'>bvt</span>:      <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span>,
     <span class='ident'>bvs</span>:      <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>AABB</span><span class='op'>&gt;</span>,
     <span class='ident'>margin</span>:   <span class='ident'>Scalar</span>,
@@ -319,17 +324,17 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>Mesh</span> {
-    <span class='doccomment'>/// Builds a new mesh with a default margin of 0.04.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>vertices</span>: <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span>,
+    <span class='doccomment'>/// Builds a new mesh with a default margin of 0.04.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>vertices</span>: <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span>,
                <span class='ident'>indices</span>:  <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;&gt;</span>,
                <span class='ident'>uvs</span>:      <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>,
                <span class='ident'>normals</span>:  <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>)
                <span class='op'>-&gt;</span> <span class='ident'>Mesh</span> {
-        <span class='ident'>Mesh</span>::<span class='ident'>new_with_margin</span>(<span class='ident'>vertices</span>, <span class='ident'>indices</span>, <span class='ident'>uvs</span>, <span class='ident'>normals</span>, <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.04</span>))
+        <span class='ident'>Mesh</span>::<span class='ident'>new_with_margin</span>(<span class='ident'>vertices</span>, <span class='ident'>indices</span>, <span class='ident'>uvs</span>, <span class='ident'>normals</span>, <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.04f64</span>))
     }
 
-    <span class='doccomment'>/// Builds a new mesh with a custom margin.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_margin</span>(<span class='ident'>vertices</span>: <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span>,
+    <span class='doccomment'>/// Builds a new mesh with a custom margin.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_margin</span>(<span class='ident'>vertices</span>: <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span>,
                            <span class='ident'>indices</span>:  <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;&gt;</span>,
                            <span class='ident'>uvs</span>:      <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span>,
                            <span class='ident'>normals</span>:  <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>,
@@ -353,7 +358,7 @@
                 <span class='kw'>let</span> <span class='ident'>element</span>: <span class='ident'>MeshPrimitive</span> <span class='op'>=</span> <span class='ident'>MeshElement</span>::<span class='ident'>new_with_vertices_and_indices</span>(<span class='ident'>vs</span>, <span class='ident'>is</span>, <span class='ident'>margin</span>.<span class='ident'>clone</span>());<span class='comment'>
                 // loosen for better persistancy
                 </span><span class='kw'>let</span> <span class='ident'>id</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>one</span>();
-                <span class='kw'>let</span> <span class='ident'>bv</span><span class='op'>=</span> <span class='ident'>element</span>.<span class='ident'>aabb</span>(<span class='kw-2'>&amp;</span><span class='ident'>id</span>).<span class='ident'>loosened</span>(<span class='ident'>margin</span>);
+                <span class='kw'>let</span> <span class='ident'>bv</span> <span class='op'>=</span> <span class='ident'>element</span>.<span class='ident'>aabb</span>(<span class='kw-2'>&amp;</span><span class='ident'>id</span>).<span class='ident'>loosened</span>(<span class='ident'>margin</span>);
                 <span class='ident'>leaves</span>.<span class='ident'>push</span>((<span class='ident'>i</span>, <span class='ident'>bv</span>.<span class='ident'>clone</span>()));
                 <span class='ident'>bvs</span>.<span class='ident'>push</span>(<span class='ident'>bv</span>);
             }
@@ -374,52 +379,52 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>Mesh</span> {
-    <span class='doccomment'>/// The vertices of this mesh.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The vertices of this mesh.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>vertices</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span> {
         <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>vertices</span>
     }
 
-    <span class='doccomment'>/// Bounding volumes of the subsimplices.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Bounding volumes of the subsimplices.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bounding_volumes</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> [<span class='ident'>AABB</span>] {
         <span class='self'>self</span>.<span class='ident'>bvs</span>.<span class='ident'>as_slice</span>()
     }
 
-    <span class='doccomment'>/// The indices of this mesh.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The indices of this mesh.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>indices</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;&gt;</span> {
         <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>indices</span>
     }
 
-    <span class='doccomment'>/// The texture coordinates of this mesh.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The texture coordinates of this mesh.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>uvs</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span> {
         <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>uvs</span>
     }
 
-    <span class='doccomment'>/// The normals of this mesh.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The normals of this mesh.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>normals</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
         <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>normals</span>
     }
 
-    <span class='doccomment'>/// The acceleration structure used for efficient collision detection and ray casting.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The acceleration structure used for efficient collision detection and ray casting.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bvt</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span> {
         <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>bvt</span>
     }
 
-    <span class='doccomment'>/// The collision margin used by this mesh.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The collision margin used by this mesh.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>margin</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Scalar</span> {
         <span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>()
     }
 }
 
 <span class='kw'>impl</span> <span class='ident'>Mesh</span> {
-    <span class='doccomment'>/// Gets the i-th mesh element.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+    <span class='doccomment'>/// Gets the i-th mesh element.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>element_at</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>MeshPrimitive</span> {
         <span class='kw'>let</span> <span class='ident'>vs</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>Vect</span>] <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vertices</span>.<span class='ident'>as_slice</span>();
         <span class='kw'>let</span> <span class='ident'>i</span>        <span class='op'>=</span> <span class='ident'>i</span> <span class='op'>*</span> <span class='ident'>MeshElement</span>::<span class='ident'>nvertices</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='ident'>MeshPrimitive</span><span class='op'>&gt;</span>);
@@ -475,9 +480,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

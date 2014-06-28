@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -243,8 +242,8 @@
 <span id='203'>203</span>
 <span id='204'>204</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! The Gilbert–Johnson–Keerthi distance algorithm.
-</span>
+<span class='doccomment'>//! The Gilbert–Johnson–Keerthi distance algorithm.</span>
+
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>FloatVec</span>, <span class='ident'>Identity</span>};
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>geom</span>::{<span class='ident'>Reflection</span>, <span class='ident'>GeomWithMargin</span>, <span class='ident'>AnnotatedPoint</span>, <span class='ident'>AnnotatedMinkowskiSum</span>};
@@ -252,26 +251,26 @@
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>algorithm</span>::<span class='ident'>simplex</span>::<span class='ident'>Simplex</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Results of the GJK algorithm.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// Results of the GJK algorithm.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>GJKResult</span><span class='op'>&lt;</span><span class='ident'>_V</span>, <span class='ident'>Dir</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Result of the GJK algorithm when the origin is inside of the polytope.
-</span>    <span class='ident'>Intersection</span>,
-    <span class='doccomment'>/// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-</span>    <span class='ident'>Projection</span>(<span class='ident'>_V</span>),
-    <span class='doccomment'>/// Result of the GJK algorithm when the origin is to far away from the polytope.
-</span>    <span class='ident'>NoIntersection</span>(<span class='ident'>Dir</span>)
+    <span class='doccomment'>/// Result of the GJK algorithm when the origin is inside of the polytope.</span>
+    <span class='ident'>Intersection</span>,
+    <span class='doccomment'>/// Result of the GJK algorithm when a projection of the origin on the polytope is found.</span>
+    <span class='ident'>Projection</span>(<span class='ident'>_V</span>),
+    <span class='doccomment'>/// Result of the GJK algorithm when the origin is to far away from the polytope.</span>
+    <span class='ident'>NoIntersection</span>(<span class='ident'>Dir</span>)
 }
 
-<span class='doccomment'>/// Computes the closest points between two convex geometries unsing the GJK algorithm.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Arguments:
-</span><span class='doccomment'>/// * `g1`      - first geometry.
-</span><span class='doccomment'>/// * `g2`      - second geometry.
-</span><span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized with
-</span><span class='doccomment'>///               at least one point on the geometries CSO. See `minkowski_sum::cso_support_point`
-</span><span class='doccomment'>///               to compute such point.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Computes the closest points between two convex geometries unsing the GJK algorithm.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Arguments:</span>
+<span class='doccomment'>/// * `g1`      - first geometry.</span>
+<span class='doccomment'>/// * `g2`      - second geometry.</span>
+<span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized with</span>
+<span class='doccomment'>///               at least one point on the geometries CSO. See `minkowski_sum::cso_support_point`</span>
+<span class='doccomment'>///               to compute such point.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
                       <span class='ident'>G1</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>,
                       <span class='ident'>G2</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                       <span class='ident'>m1</span>:      <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
@@ -287,16 +286,16 @@
     <span class='ident'>project_origin</span>(<span class='kw-2'>&amp;</span><span class='ident'>Identity</span>::<span class='ident'>new</span>(), <span class='kw-2'>&amp;</span><span class='ident'>cso</span>, <span class='ident'>simplex</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>p</span><span class='op'>|</span> (<span class='ident'>p</span>.<span class='ident'>orig1</span>().<span class='ident'>clone</span>(), <span class='op'>-</span><span class='ident'>p</span>.<span class='ident'>orig2</span>()))
 }
 
-<span class='doccomment'>/// Computes the closest points between two convex geometries without their margins unsing the GJK
-</span><span class='doccomment'>/// algorithm.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Arguments:
-</span><span class='doccomment'>/// * `g1`      - first geometry.
-</span><span class='doccomment'>/// * `g2`      - second geometry.
-</span><span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-</span><span class='doccomment'>///               with at least one point on the geometries CSO. See
-</span><span class='doccomment'>///               `minkowski_sum::cso_support_point` to compute such point.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points_without_margin</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Computes the closest points between two convex geometries without their margins unsing the GJK</span>
+<span class='doccomment'>/// algorithm.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Arguments:</span>
+<span class='doccomment'>/// * `g1`      - first geometry.</span>
+<span class='doccomment'>/// * `g2`      - second geometry.</span>
+<span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized</span>
+<span class='doccomment'>///               with at least one point on the geometries CSO. See</span>
+<span class='doccomment'>///               `minkowski_sum::cso_support_point` to compute such point.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points_without_margin</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
                                      <span class='ident'>G1</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>,
                                      <span class='ident'>G2</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                                      <span class='ident'>m1</span>:      <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
@@ -310,16 +309,16 @@
     <span class='ident'>project_origin</span>(<span class='kw-2'>&amp;</span><span class='ident'>Identity</span>::<span class='ident'>new</span>(), <span class='kw-2'>&amp;</span><span class='ident'>cso</span>, <span class='ident'>simplex</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>p</span><span class='op'>|</span> (<span class='ident'>p</span>.<span class='ident'>orig1</span>().<span class='ident'>clone</span>(), <span class='op'>-</span><span class='ident'>p</span>.<span class='ident'>orig2</span>()))
 }
 
-<span class='doccomment'>/// Computes the closest points between two convex geometries without their margins unsing the GJK
-</span><span class='doccomment'>/// algorithm.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Arguments:
-</span><span class='doccomment'>/// * `g1`      - first geometry.
-</span><span class='doccomment'>/// * `g2`      - second geometry.
-</span><span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-</span><span class='doccomment'>///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
-</span><span class='doccomment'>///               compute such point.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points_without_margin_with_max_dist</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Computes the closest points between two convex geometries without their margins unsing the GJK</span>
+<span class='doccomment'>/// algorithm.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Arguments:</span>
+<span class='doccomment'>/// * `g1`      - first geometry.</span>
+<span class='doccomment'>/// * `g2`      - second geometry.</span>
+<span class='doccomment'>/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized</span>
+<span class='doccomment'>///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to</span>
+<span class='doccomment'>///               compute such point.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points_without_margin_with_max_dist</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
                                                    <span class='ident'>G1</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>,
                                                    <span class='ident'>G2</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                                                    <span class='ident'>m1</span>:       <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
@@ -341,13 +340,13 @@
 /*
  * Distance GJK
  */
-</span><span class='doccomment'>/// Projects the origin on a geometry unsing the GJK algorithm.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Arguments:
-</span><span class='doccomment'>/// * geom - the geometry to project the origin on
-</span><span class='doccomment'>/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-</span><span class='doccomment'>///             with at least one point on the geometry boundary.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_origin</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>_V</span><span class='op'>&gt;</span>, <span class='ident'>G</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>_V</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>, <span class='ident'>_V</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>(
+</span><span class='doccomment'>/// Projects the origin on a geometry unsing the GJK algorithm.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Arguments:</span>
+<span class='doccomment'>/// * geom - the geometry to project the origin on</span>
+<span class='doccomment'>/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized</span>
+<span class='doccomment'>///             with at least one point on the geometry boundary.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_origin</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>_V</span><span class='op'>&gt;</span>, <span class='ident'>G</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>_V</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>, <span class='ident'>_V</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>(
                       <span class='ident'>m</span>:       <span class='kw-2'>&amp;</span><span class='ident'>_M</span>,
                       <span class='ident'>geom</span>:    <span class='kw-2'>&amp;</span><span class='ident'>G</span>,
                       <span class='ident'>simplex</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>S</span>)
@@ -357,7 +356,7 @@
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>sq_len_dir</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span><span class='ident'>proj</span>);
 
     <span class='kw'>let</span> <span class='ident'>_eps</span>: <span class='ident'>Scalar</span>  <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>epsilon</span>();
-    <span class='kw'>let</span> <span class='ident'>_eps_tol</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0</span>);
+    <span class='kw'>let</span> <span class='ident'>_eps_tol</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0f64</span>);
     <span class='kw'>let</span> <span class='ident'>_eps_rel</span> <span class='op'>=</span> <span class='ident'>_eps</span>.<span class='ident'>sqrt</span>();
     <span class='kw'>let</span> <span class='ident'>_dim</span>     <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>();
 
@@ -391,15 +390,15 @@
 /*
  * Separating Axis GJK
  */
-</span><span class='doccomment'>/// Projects the origin on a geometry using the Separating Axis GJK algorithm.
-</span><span class='doccomment'>/// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away
-</span><span class='doccomment'>/// from the origin.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Arguments:
-</span><span class='doccomment'>/// * geom - the geometry to project the origin on
-</span><span class='doccomment'>/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-</span><span class='doccomment'>///             with at least one point on the geometry boundary.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_origin_with_max_dist</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>_V</span><span class='op'>&gt;</span>, <span class='ident'>G</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>_V</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>, <span class='ident'>_V</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>(
+</span><span class='doccomment'>/// Projects the origin on a geometry using the Separating Axis GJK algorithm.</span>
+<span class='doccomment'>/// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away</span>
+<span class='doccomment'>/// from the origin.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Arguments:</span>
+<span class='doccomment'>/// * geom - the geometry to project the origin on</span>
+<span class='doccomment'>/// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized</span>
+<span class='doccomment'>///             with at least one point on the geometry boundary.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_origin_with_max_dist</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>_V</span><span class='op'>&gt;</span>, <span class='ident'>G</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>_V</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>, <span class='ident'>_V</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>(
                                     <span class='ident'>m</span>:        <span class='kw-2'>&amp;</span><span class='ident'>_M</span>,
                                     <span class='ident'>geom</span>:     <span class='kw-2'>&amp;</span><span class='ident'>G</span>,
                                     <span class='ident'>max_dist</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>,
@@ -410,7 +409,7 @@
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>sq_len_dir</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span><span class='ident'>proj</span>);
 
     <span class='kw'>let</span> <span class='ident'>_eps</span>: <span class='ident'>Scalar</span>  <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>epsilon</span>();
-    <span class='kw'>let</span> <span class='ident'>_eps_tol</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0</span>);
+    <span class='kw'>let</span> <span class='ident'>_eps_tol</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0f64</span>);
     <span class='kw'>let</span> <span class='ident'>_eps_rel</span> <span class='op'>=</span> <span class='ident'>_eps</span>.<span class='ident'>sqrt</span>();
     <span class='kw'>let</span> <span class='ident'>_dim</span>     <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>();
 
@@ -461,9 +460,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

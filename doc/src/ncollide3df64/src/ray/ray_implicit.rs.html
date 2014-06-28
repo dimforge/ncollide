@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -221,8 +220,8 @@
 <span class='kw'>use</span> <span class='ident'>ray</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Cast a ray on a geometry using the GJK algorithm.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>implicit_toi_and_normal_with_ray</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Cast a ray on a geometry using the GJK algorithm.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>implicit_toi_and_normal_with_ray</span><span class='op'>&lt;</span><span class='ident'>S</span>: <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>,
                                         <span class='ident'>G</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>_M</span><span class='op'>&gt;</span>,
                                         <span class='ident'>_M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span>(
                                         <span class='ident'>m</span>:       <span class='kw-2'>&amp;</span><span class='ident'>_M</span>,
@@ -240,7 +239,7 @@
                 <span class='kw'>if</span> <span class='ident'>inter</span>.<span class='ident'>toi</span> <span class='op'>==</span> <span class='ident'>na</span>::<span class='ident'>zero</span>() {<span class='comment'>
                     // the ray is inside of the shape.
                     </span><span class='kw'>let</span> <span class='ident'>supp</span>    <span class='op'>=</span> <span class='ident'>geom</span>.<span class='ident'>support_point</span>(<span class='ident'>m</span>, <span class='kw-2'>&amp;</span><span class='ident'>ray</span>.<span class='ident'>dir</span>);
-                    <span class='kw'>let</span> <span class='ident'>shift</span>   <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>supp</span> <span class='op'>-</span> <span class='ident'>ray</span>.<span class='ident'>orig</span>), <span class='kw-2'>&amp;</span><span class='ident'>ray</span>.<span class='ident'>dir</span>) <span class='op'>+</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.001</span>);
+                    <span class='kw'>let</span> <span class='ident'>shift</span>   <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>supp</span> <span class='op'>-</span> <span class='ident'>ray</span>.<span class='ident'>orig</span>), <span class='kw-2'>&amp;</span><span class='ident'>ray</span>.<span class='ident'>dir</span>) <span class='op'>+</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.001f64</span>);
                     <span class='kw'>let</span> <span class='ident'>new_ray</span> <span class='op'>=</span> <span class='ident'>Ray</span>::<span class='ident'>new</span>(<span class='ident'>ray</span>.<span class='ident'>orig</span> <span class='op'>+</span> <span class='ident'>ray</span>.<span class='ident'>dir</span> <span class='op'>*</span> <span class='ident'>shift</span>, <span class='op'>-</span><span class='ident'>ray</span>.<span class='ident'>dir</span>);
 
                     <span class='ident'>simplex</span>.<span class='ident'>reset</span>(<span class='ident'>supp</span> <span class='op'>-</span> <span class='ident'>new_ray</span>.<span class='ident'>orig</span>);<span class='comment'> // FIXME: replace by? : simplex.translate_by(&amp;(ray.orig - new_ray.orig));
@@ -269,7 +268,7 @@
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ltoi</span>: <span class='ident'>Scalar</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
 
     <span class='kw'>let</span> <span class='ident'>_eps</span>: <span class='ident'>Scalar</span>     <span class='op'>=</span> <span class='ident'>Float</span>::<span class='ident'>epsilon</span>();
-    <span class='kw'>let</span> <span class='ident'>_eps_tol</span>: <span class='ident'>Scalar</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0</span>);
+    <span class='kw'>let</span> <span class='ident'>_eps_tol</span>: <span class='ident'>Scalar</span> <span class='op'>=</span> <span class='ident'>_eps</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>100.0f64</span>);
     <span class='kw'>let</span> <span class='ident'>_dim</span>        <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span>();<span class='comment'>
 
     // initialization
@@ -395,9 +394,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

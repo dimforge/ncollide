@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -410,8 +409,8 @@
 <span id='370'>370</span>
 <span id='371'>371</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Collision detector between two `Box&lt;Geom&gt;`.
-</span>
+<span class='doccomment'>//! Collision detector between two `Box&lt;Geom&gt;`.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Bounded</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>intrinsics</span>::<span class='ident'>TypeId</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>any</span>::{<span class='ident'>Any</span>, <span class='ident'>AnyRefExt</span>};
@@ -421,40 +420,39 @@
 <span class='kw'>use</span> <span class='ident'>geom</span>::{<span class='ident'>AnnotatedPoint</span>, <span class='ident'>Geom</span>, <span class='ident'>ConcaveGeom</span>, <span class='ident'>Cone</span>, <span class='ident'>Cuboid</span>, <span class='ident'>Ball</span>, <span class='ident'>Capsule</span>, <span class='ident'>Convex</span>, <span class='ident'>Cylinder</span>,
            <span class='ident'>Compound</span>, <span class='ident'>Mesh</span>, <span class='ident'>Triangle</span>, <span class='ident'>Segment</span>, <span class='ident'>Plane</span>};
 <span class='kw'>use</span> <span class='ident'>implicit</span>::{<span class='ident'>Implicit</span>, <span class='ident'>PreferedSamplingDirections</span>};
-<span class='kw'>use</span> <span class='ident'>contact</span>::<span class='ident'>Contact</span>;
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>algorithm</span>::<span class='ident'>simplex</span>::<span class='ident'>Simplex</span>;
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>algorithm</span>::<span class='ident'>johnson_simplex</span>::{<span class='ident'>JohnsonSimplex</span>, <span class='ident'>RecursionTemplate</span>};
 <span class='kw'>use</span> <span class='ident'>narrow</span>::{<span class='ident'>CollisionDetector</span>, <span class='ident'>ImplicitImplicit</span>, <span class='ident'>BallBall</span>,
              <span class='ident'>ImplicitPlane</span>, <span class='ident'>PlaneImplicit</span>, <span class='ident'>ConcaveGeomGeomFactory</span>, <span class='ident'>GeomConcaveGeomFactory</span>,
-             <span class='ident'>BezierSurfaceBall</span>, <span class='ident'>BallBezierSurface</span>};
+             <span class='ident'>BezierSurfaceBall</span>, <span class='ident'>BallBezierSurface</span>, <span class='ident'>BezierSurfaceBezierSurface</span>, <span class='ident'>Contact</span>};
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>surface_selector</span>::<span class='ident'>HyperPlaneSurfaceSelector</span>;
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>surface_subdivision_tree</span>::<span class='ident'>SurfaceSubdivisionTreeCache</span>;
 <span class='kw'>use</span> <span class='ident'>OSCMG</span> <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>OneShotContactManifoldGenerator</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>GeomGeomCollisionDetector</span> {
-    <span class='doccomment'>/// Runs the collision detection on two objects. It is assumed that the same
-</span>    <span class='doccomment'>/// collision detector (the same structure) is always used with the same
-</span>    <span class='doccomment'>/// pair of object.
-</span>    <span class='kw'>fn</span> <span class='ident'>update</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
+<span class='doccomment'>/// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>GeomGeomCollisionDetector</span> {
+    <span class='doccomment'>/// Runs the collision detection on two objects. It is assumed that the same</span>
+    <span class='doccomment'>/// collision detector (the same structure) is always used with the same</span>
+    <span class='doccomment'>/// pair of object.</span>
+    <span class='kw'>fn</span> <span class='ident'>update</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
               <span class='kw-2'>&amp;</span><span class='ident'>GeomGeomDispatcher</span>,
               <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
               <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>,
               <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
               <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>);
 
-    <span class='doccomment'>/// The number of collision detected during the last update.
-</span>    <span class='kw'>fn</span> <span class='ident'>num_colls</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span>;
+    <span class='doccomment'>/// The number of collision detected during the last update.</span>
+    <span class='kw'>fn</span> <span class='ident'>num_colls</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span>;
 
-    <span class='doccomment'>/// Collects the collisions detected during the last update.
-</span>    <span class='kw'>fn</span> <span class='ident'>colls</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Contact</span><span class='op'>&gt;</span>);
+    <span class='doccomment'>/// Collects the collisions detected during the last update.</span>
+    <span class='kw'>fn</span> <span class='ident'>colls</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Contact</span><span class='op'>&gt;</span>);
 }
 
-<span class='doccomment'>/// Trait to be implemented by collision detector using dynamic dispatch.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is used to know the exact type of the geometries.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>DynamicCollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>: <span class='ident'>GeomGeomCollisionDetector</span> { }
+<span class='doccomment'>/// Trait to be implemented by collision detector using dynamic dispatch.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is used to know the exact type of the geometries.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>DynamicCollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>: <span class='ident'>GeomGeomCollisionDetector</span> { }
 
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>struct</span> <span class='ident'>DetectorWithoutRedispatch</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;</span> {
@@ -509,26 +507,26 @@
     }
 }
 
-<span class='doccomment'>/// Collision dispatcher between two `~Geom`.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomGeomDispatcher</span> {
+<span class='doccomment'>/// Collision dispatcher between two `~Geom`.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomGeomDispatcher</span> {
     <span class='ident'>constructors</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span>(<span class='ident'>TypeId</span>, <span class='ident'>TypeId</span>), <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>CollisionDetectorFactory</span><span class='op'>&gt;&gt;</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>GeomGeomDispatcher</span> {
-    <span class='doccomment'>/// Creates a new `GeomGeomDispatcher` without the default set of collision detectors
-</span>    <span class='doccomment'>/// factories.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_without_default</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomGeomDispatcher</span> {
+    <span class='doccomment'>/// Creates a new `GeomGeomDispatcher` without the default set of collision detectors</span>
+    <span class='doccomment'>/// factories.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_without_default</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomGeomDispatcher</span> {
         <span class='ident'>GeomGeomDispatcher</span> {
             <span class='ident'>constructors</span>: <span class='ident'>HashMap</span>::<span class='ident'>new</span>()
         }
     }
 
-    <span class='doccomment'>/// Registers a new collision detection algorithm factory for a pair of geometries.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// This is unsafe because there is no way to check that the factory will really generate
-</span>    <span class='doccomment'>/// collision detectors suited for `G1` and `G2`. Whenever possible, use `register_detector` or
-</span>    <span class='doccomment'>/// `register_dynamic_detector` instead.
-</span>    <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>register_factory</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
+    <span class='doccomment'>/// Registers a new collision detection algorithm factory for a pair of geometries.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// This is unsafe because there is no way to check that the factory will really generate</span>
+    <span class='doccomment'>/// collision detectors suited for `G1` and `G2`. Whenever possible, use `register_detector` or</span>
+    <span class='doccomment'>/// `register_dynamic_detector` instead.</span>
+    <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>register_factory</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                    <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                    <span class='ident'>F</span>:  <span class='ident'>CollisionDetectorFactory</span><span class='op'>&gt;</span>(
                                    <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
@@ -537,8 +535,8 @@
         <span class='self'>self</span>.<span class='ident'>constructors</span>.<span class='ident'>insert</span>(<span class='ident'>key</span>, <span class='kw'>box</span> <span class='ident'>factory</span> <span class='kw'>as</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>CollisionDetectorFactory</span><span class='op'>&gt;</span>);
     }
 
-    <span class='doccomment'>/// Registers a new dynamic collision detector for two geometries.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_dynamic_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
+    <span class='doccomment'>/// Registers a new dynamic collision detector for two geometries.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_dynamic_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                      <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                      <span class='ident'>D</span>:  <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Send</span> <span class='op'>+</span> <span class='ident'>Clone</span> <span class='op'>+</span>
                                          <span class='ident'>DynamicCollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;&gt;</span>(
@@ -548,8 +546,8 @@
         <span class='kw'>unsafe</span> { <span class='self'>self</span>.<span class='ident'>register_factory</span>::<span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span>, <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;&gt;</span>(<span class='ident'>factory</span>) }
     }
 
-    <span class='doccomment'>/// Registers a new collision detector for two geometries.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
+    <span class='doccomment'>/// Registers a new collision detector for two geometries.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                              <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                              <span class='ident'>D</span>:  <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Send</span> <span class='op'>+</span> <span class='ident'>CollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(
                              <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
@@ -557,23 +555,23 @@
         <span class='self'>self</span>.<span class='ident'>register_dynamic_detector</span>(<span class='ident'>DetectorWithoutRedispatch</span>::<span class='ident'>new</span>(<span class='ident'>d</span>));
     }
 
-    <span class='doccomment'>/// Unregister the collision detector for a givem pair of geometries.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unregister_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>, <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
+    <span class='doccomment'>/// Unregister the collision detector for a givem pair of geometries.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unregister_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>, <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
         <span class='kw'>let</span> <span class='ident'>key</span> <span class='op'>=</span> (<span class='ident'>TypeId</span>::<span class='ident'>of</span>::<span class='op'>&lt;</span><span class='ident'>G1</span><span class='op'>&gt;</span>(), <span class='ident'>TypeId</span>::<span class='ident'>of</span>::<span class='op'>&lt;</span><span class='ident'>G2</span><span class='op'>&gt;</span>());
         <span class='self'>self</span>.<span class='ident'>constructors</span>.<span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='ident'>key</span>);
     }
 
-    <span class='doccomment'>/// If registered, creates a new collision detector adapted for the two given geometries.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dispatch</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>GeomGeomCollisionDetector</span><span class='op'>&gt;&gt;</span> {
+    <span class='doccomment'>/// If registered, creates a new collision detector adapted for the two given geometries.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dispatch</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Geom</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>GeomGeomCollisionDetector</span><span class='op'>&gt;&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>constructors</span>.<span class='ident'>find</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>a</span>.<span class='ident'>get_type_id</span>(), <span class='ident'>b</span>.<span class='ident'>get_type_id</span>())).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>f</span><span class='op'>|</span> <span class='ident'>f</span>.<span class='ident'>build</span>())
     }
 }
 
 <span class='kw'>impl</span> <span class='ident'>GeomGeomDispatcher</span> {<span class='comment'>
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
-    </span><span class='doccomment'>/// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
-</span>    <span class='doccomment'>/// geometries supported by `ncollide`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomGeomDispatcher</span> {
+    </span><span class='doccomment'>/// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of</span>
+    <span class='doccomment'>/// geometries supported by `ncollide`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomGeomDispatcher</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>GeomGeomDispatcher</span>::<span class='ident'>new_without_default</span>();
 
         <span class='kw'>type</span> <span class='ident'>Simplex</span>  <span class='op'>=</span> <span class='ident'>JohnsonSimplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>;
@@ -583,22 +581,23 @@
         /*
          * Involving a Plane
          */
-        </span><span class='kw'>let</span> <span class='ident'>prediction</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.1</span>);<span class='comment'>
+        </span><span class='kw'>let</span> <span class='ident'>prediction</span>: <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.1f64</span>);<span class='comment'>
 
         // Ball vs. Ball
         </span><span class='kw'>let</span> <span class='ident'>bb</span> <span class='op'>=</span> <span class='ident'>BallBall</span>::<span class='ident'>new</span>(<span class='ident'>prediction</span>.<span class='ident'>clone</span>());
         <span class='ident'>res</span>.<span class='ident'>register_detector</span>(<span class='ident'>bb</span>);<span class='comment'>
 
-        // Ball vs Surface
-
-        // let mut selector = YesSirSurfaceSelector::new();
+        // Ball vs Bézier
         </span><span class='kw'>let</span> <span class='ident'>selector</span> <span class='op'>=</span> <span class='ident'>HyperPlaneSurfaceSelector</span>::<span class='ident'>new</span>(<span class='ident'>Bounded</span>::<span class='ident'>max_value</span>());
-        <span class='kw'>let</span> <span class='ident'>cache</span>    <span class='op'>=</span> <span class='ident'>Arc</span>::<span class='ident'>new</span>(<span class='ident'>RWLock</span>::<span class='ident'>new</span>(<span class='ident'>SurfaceSubdivisionTreeCache</span>::<span class='ident'>new</span>()));<span class='comment'>
-        // let selector = TangentConesSurfaceSelector::new(Bounded::max_value());
-        </span><span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>BallBezierSurface</span>::<span class='ident'>new</span>(<span class='ident'>selector</span>.<span class='ident'>clone</span>(), <span class='ident'>prediction</span>.<span class='ident'>clone</span>(), <span class='ident'>cache</span>.<span class='ident'>clone</span>());
-        <span class='kw'>let</span> <span class='ident'>sb</span> <span class='op'>=</span> <span class='ident'>BezierSurfaceBall</span>::<span class='ident'>new</span>(<span class='ident'>selector</span>.<span class='ident'>clone</span>(), <span class='ident'>prediction</span>.<span class='ident'>clone</span>(), <span class='ident'>cache</span>.<span class='ident'>clone</span>());
+        <span class='kw'>let</span> <span class='ident'>cache</span>    <span class='op'>=</span> <span class='ident'>Arc</span>::<span class='ident'>new</span>(<span class='ident'>RWLock</span>::<span class='ident'>new</span>(<span class='ident'>SurfaceSubdivisionTreeCache</span>::<span class='ident'>new</span>()));
+        <span class='kw'>let</span> <span class='ident'>bs</span>       <span class='op'>=</span> <span class='ident'>BallBezierSurface</span>::<span class='ident'>new</span>(<span class='ident'>selector</span>.<span class='ident'>clone</span>(), <span class='ident'>prediction</span>.<span class='ident'>clone</span>(), <span class='ident'>cache</span>.<span class='ident'>clone</span>());
+        <span class='kw'>let</span> <span class='ident'>sb</span>       <span class='op'>=</span> <span class='ident'>BezierSurfaceBall</span>::<span class='ident'>new</span>(<span class='ident'>selector</span>.<span class='ident'>clone</span>(), <span class='ident'>prediction</span>.<span class='ident'>clone</span>(), <span class='ident'>cache</span>.<span class='ident'>clone</span>());
         <span class='ident'>res</span>.<span class='ident'>register_detector</span>(<span class='ident'>bs</span>);
         <span class='ident'>res</span>.<span class='ident'>register_detector</span>(<span class='ident'>sb</span>);<span class='comment'>
+
+        // Bézier vs. Bézier
+        </span><span class='kw'>let</span> <span class='ident'>ss</span> <span class='op'>=</span> <span class='ident'>BezierSurfaceBezierSurface</span>::<span class='ident'>new</span>(<span class='ident'>selector</span>.<span class='ident'>clone</span>(), <span class='ident'>prediction</span>.<span class='ident'>clone</span>(), <span class='ident'>cache</span>.<span class='ident'>clone</span>());
+        <span class='ident'>res</span>.<span class='ident'>register_detector</span>(<span class='ident'>ss</span>);<span class='comment'>
 
         // Plane vs. Implicit
         </span><span class='ident'>res</span>.<span class='ident'>register_default_plane_implicit_detector</span>::<span class='op'>&lt;</span><span class='ident'>Ball</span><span class='op'>&gt;</span>(<span class='boolval'>false</span>, <span class='ident'>prediction</span>);
@@ -650,8 +649,8 @@
         <span class='ident'>res</span>
     }
 
-    <span class='doccomment'>/// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_plane_implicit_detector</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
+    <span class='doccomment'>/// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_plane_implicit_detector</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                                                     <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
                                                     <span class='ident'>generate_manifold</span>: <span class='ident'>bool</span>,
                                                     <span class='ident'>prediction</span>:        <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>) {
@@ -670,8 +669,8 @@
         }
     }
 
-    <span class='doccomment'>/// Register an `ImplicitImplicit` collision detector between two implicit geometries.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_implicit_implicit_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span>            <span class='op'>+</span>
+    <span class='doccomment'>/// Register an `ImplicitImplicit` collision detector between two implicit geometries.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_implicit_implicit_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span>            <span class='op'>+</span>
                                                            <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span> <span class='op'>+</span>
                                                            <span class='ident'>PreferedSamplingDirections</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>,
                                                        <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span>            <span class='op'>+</span>
@@ -697,9 +696,9 @@
         }
     }
 
-    <span class='doccomment'>/// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a
-</span>    <span class='doccomment'>/// given geometry.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_concave_geom_geom_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>ConcaveGeom</span>,
+    <span class='doccomment'>/// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a</span>
+    <span class='doccomment'>/// given geometry.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_concave_geom_geom_detector</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>ConcaveGeom</span>,
                                                        <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Geom</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
         <span class='kw'>let</span>  <span class='ident'>f1</span> <span class='op'>=</span> <span class='ident'>ConcaveGeomGeomFactory</span>::<span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>;
         <span class='kw'>let</span>  <span class='ident'>f2</span> <span class='op'>=</span> <span class='ident'>GeomConcaveGeomFactory</span>::<span class='op'>&lt;</span><span class='ident'>G2</span>, <span class='ident'>G1</span><span class='op'>&gt;</span>;<span class='comment'>
@@ -709,9 +708,9 @@
         <span class='kw'>unsafe</span> { <span class='self'>self</span>.<span class='ident'>register_factory</span>::<span class='op'>&lt;</span><span class='ident'>G2</span>, <span class='ident'>G1</span>, <span class='ident'>GeomConcaveGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G2</span>, <span class='ident'>G1</span><span class='op'>&gt;&gt;</span>(<span class='ident'>f2</span>) }
     }
 
-    <span class='doccomment'>/// Register a given collision detector and adds it a contact manifold generator (a
-</span>    <span class='doccomment'>/// `OneShotContactManifoldGenerator`).
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_detector_with_contact_manifold_generator</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
+    <span class='doccomment'>/// Register a given collision detector and adds it a contact manifold generator (a</span>
+    <span class='doccomment'>/// `OneShotContactManifoldGenerator`).</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_detector_with_contact_manifold_generator</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                                              <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Any</span>,
                                                              <span class='ident'>D</span>:  <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Send</span> <span class='op'>+</span>
                                                                  <span class='ident'>CollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='op'>+</span>
@@ -729,9 +728,9 @@
     }
     */
 
-    </span><span class='doccomment'>/// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
-</span>    <span class='doccomment'>/// geometry supported by `ncollide`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_implicit_detectors</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>PreferedSamplingDirections</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
+    </span><span class='doccomment'>/// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit</span>
+    <span class='doccomment'>/// geometry supported by `ncollide`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>register_default_implicit_detectors</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>PreferedSamplingDirections</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                                                <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>,
                                                <span class='ident'>generate_manifold</span>: <span class='ident'>bool</span>,
                                                <span class='ident'>prediction</span>:        <span class='kw-2'>&amp;</span><span class='ident'>Scalar</span>) {
@@ -753,22 +752,22 @@
 }<span class='comment'>
 
 // FIXME: rename that GeomGeomCollisionDetectorFactory ?
-</span><span class='doccomment'>/// Trait of structures able do build a new collision detector.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>CollisionDetectorFactory</span> : <span class='ident'>Send</span> {
-    <span class='doccomment'>/// Builds a new collision detector.
-</span>    <span class='kw'>fn</span> <span class='ident'>build</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>GeomGeomCollisionDetector</span><span class='op'>&gt;</span>;
+</span><span class='doccomment'>/// Trait of structures able do build a new collision detector.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>CollisionDetectorFactory</span> : <span class='ident'>Send</span> {
+    <span class='doccomment'>/// Builds a new collision detector.</span>
+    <span class='kw'>fn</span> <span class='ident'>build</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>GeomGeomCollisionDetector</span><span class='op'>&gt;</span>;
 }
 
-<span class='doccomment'>/// Cloning-based collision detector factory.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Cloning-based collision detector factory.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
     <span class='ident'>template</span>: <span class='ident'>CD</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>CD</span>: <span class='ident'>GeomGeomCollisionDetector</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new `CollisionDetectorCloner`.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// The cloned detector is `CD`.
-</span>    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>detector</span>: <span class='ident'>CD</span>) <span class='op'>-&gt;</span> <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new `CollisionDetectorCloner`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// The cloned detector is `CD`.</span>
+    <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>detector</span>: <span class='ident'>CD</span>) <span class='op'>-&gt;</span> <span class='ident'>CollisionDetectorCloner</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
         <span class='ident'>CollisionDetectorCloner</span> {
             <span class='ident'>template</span>: <span class='ident'>detector</span>
         }
@@ -795,9 +794,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

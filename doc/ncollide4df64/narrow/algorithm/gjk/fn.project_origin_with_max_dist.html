@@ -23,8 +23,7 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../../../index.html'>ncollide4df64</a>&#8203;::<a href='../../index.html'>narrow</a>&#8203;::<a href='../index.html'>algorithm</a>&#8203;::<a href='index.html'>gjk</a></p><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.closest_points.html'>closest_points</a><br/><a class='fn ' href='fn.closest_points_without_margin.html'>closest_points_without_margin</a><br/><a class='fn ' href='fn.closest_points_without_margin_with_max_dist.html'>closest_points_without_margin_with_max_dist</a><br/><a class='fn ' href='fn.project_origin.html'>project_origin</a><br/><a class='fn current' href='fn.project_origin_with_max_dist.html'>project_origin_with_max_dist</a><br/></div>
+        <p class='location'><a href='../../../index.html'>ncollide4df64</a>&#8203;::<a href='../../index.html'>narrow</a>&#8203;::<a href='../index.html'>algorithm</a>&#8203;::<a href='index.html'>gjk</a></p><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.closest_points.html'>closest_points</a><a class='fn ' href='fn.closest_points_without_margin.html'>closest_points_without_margin</a><a class='fn ' href='fn.closest_points_without_margin_with_max_dist.html'>closest_points_without_margin_with_max_dist</a><a class='fn ' href='fn.project_origin.html'>project_origin</a><a class='fn current' href='fn.project_origin_with_max_dist.html'>project_origin_with_max_dist</a></div>
     </section>
 
     <nav class="sub">
@@ -32,15 +31,15 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../../../index.html'>ncollide4df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='fn' href=''>project_origin_with_max_dist</a><a class='source' id='src-29095' href='../../../../src/ncollide4df64/src/narrow/algorithm/gjk.rs.html#157-204'>[src]</a></h1>
-<pre class='rust fn'>pub fn project_origin_with_max_dist&lt;S: <a class='trait' href='../../../../ncollide4df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide4df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;_V&gt;, G: <a class='trait' href='../../../../ncollide4df64/implicit/implicit/trait.Implicit.html' title='ncollide4df64::implicit::implicit::Implicit'>Implicit</a>&lt;_V, _M&gt;, _V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;<a class='type' href='../../../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>&gt;, _M&gt;(m: &amp;_M, geom: &amp;G, max_dist: &amp;<a class='type' href='../../../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>, simplex: &amp;mut S) -&gt; <a class='type' href='../../../../ncollide4df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide4df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, _V&gt;</pre><div class='docblock'><p>Projects the origin on a geometry using the Separating Axis GJK algorithm.
+<h1 class='fqn'>Function <a href='../../../index.html'>ncollide4df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='fn' href=''>project_origin_with_max_dist</a><a class='source' id='src-30437' href='../../../../src/ncollide4df64/src/narrow/algorithm/gjk.rs.html#157-204'>[src]</a></h1>
+<pre class='rust fn'>pub fn project_origin_with_max_dist&lt;S: <a class='trait' href='../../../../ncollide4df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide4df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;_V&gt;, G: <a class='trait' href='../../../../ncollide4df64/implicit/trait.Implicit.html' title='ncollide4df64::implicit::Implicit'>Implicit</a>&lt;_V, _M&gt;, _V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;<a class='type' href='../../../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>&gt;, _M&gt;(m: &amp;_M, geom: &amp;G, max_dist: &amp;<a class='type' href='../../../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>, simplex: &amp;mut S) -&gt; <a class='type' href='../../../../ncollide4df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide4df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, _V&gt;</pre><div class='docblock'><p>Projects the origin on a geometry using the Separating Axis GJK algorithm.
 The algorithm will stop as soon as the polytope can be proven to be at least <code>max_dist</code> away
 from the origin.</p>
 
@@ -64,9 +63,9 @@ from the origin.</p>
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

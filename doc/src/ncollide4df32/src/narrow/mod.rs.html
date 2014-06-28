@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -100,11 +99,15 @@
 <span id='60'>60</span>
 <span id='61'>61</span>
 <span id='62'>62</span>
+<span id='63'>63</span>
+<span id='64'>64</span>
+<span id='65'>65</span>
+<span id='66'>66</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Narrow phases.
-</span><span class='comment'>
+<span class='doccomment'>//! Narrow phases.</span><span class='comment'>
+
 // types and traits
-</span><span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>collision_detector</span>::<span class='ident'>CollisionDetector</span>;
+</span><span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>collision_detector</span>::{<span class='ident'>CollisionDetector</span>, <span class='ident'>Contact</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>empty</span>::<span class='ident'>Empty</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>ball_ball</span>::<span class='ident'>BallBall</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>plane_implicit</span>::{<span class='ident'>PlaneImplicit</span>, <span class='ident'>ImplicitPlane</span>};
@@ -115,25 +118,28 @@
                             <span class='ident'>CollisionDetectorFactory</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>concave_geom_geom</span>::{<span class='ident'>ConcaveGeomGeom</span>, <span class='ident'>GeomConcaveGeom</span>, <span class='ident'>ConcaveGeomGeomFactory</span>,
                                     <span class='ident'>GeomConcaveGeomFactory</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>bezier_surface_ball</span>::{<span class='ident'>BallBezierSurface</span>, <span class='ident'>BezierSurfaceBall</span>};<span class='comment'>
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>bezier_surface_ball</span>::{<span class='ident'>BallBezierSurface</span>, <span class='ident'>BezierSurfaceBall</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>bezier_surface_bezier_surface</span>::{<span class='ident'>BezierSurfaceBezierSurface</span>};<span class='comment'>
 
 // functions
-</span><span class='doccomment'>/// Functions to compute the time of impact between two geometries.
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>toi</span> {
+</span><span class='doccomment'>/// Functions to compute the time of impact between two geometries.</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>toi</span> {
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ball_ball</span>         <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>ball_ball</span>::<span class='ident'>toi</span>;
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>plane_implicit</span>    <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>plane_implicit</span>::<span class='ident'>toi</span>;
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit_implicit</span> <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>implicit_implicit</span>::<span class='ident'>toi</span>;
+    <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit_implicit</span> <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>implicit_implicit</span>::<span class='ident'>toi</span>;
+    <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit_implicit</span> <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>implicit_implicit</span>::<span class='ident'>toi_and_normal</span>;
 }
 
-<span class='doccomment'>/// Functions to compute one contact point between two geometries.
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>collide</span> {
+<span class='doccomment'>/// Functions to compute one contact point between two geometries.</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>collide</span> {
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ball_ball</span>         <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>ball_ball</span>::<span class='ident'>collide</span>;
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>plane_implicit</span>    <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>plane_implicit</span>::<span class='ident'>collide</span>;
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit_implicit</span> <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>implicit_implicit</span>::<span class='ident'>collide</span>;
 }
 
-<span class='doccomment'>/// Functions to compute the closest points between two geometries.
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>closest_points</span> {
+<span class='doccomment'>/// Functions to compute the closest points between two geometries.</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>closest_points</span> {
     <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ball_ball</span>         <span class='op'>=</span> <span class='ident'>narrow</span>::<span class='ident'>ball_ball</span>::<span class='ident'>closest_points</span>;
 }<span class='comment'>
 
@@ -147,11 +153,12 @@
 <span class='kw'>mod</span> <span class='ident'>one_shot_contact_manifold_generator</span>;
 <span class='kw'>mod</span> <span class='ident'>concave_geom_geom</span>;
 <span class='kw'>mod</span> <span class='ident'>geom_geom</span>;
-<span class='kw'>mod</span> <span class='ident'>bezier_surface_ball</span>;<span class='comment'>
+<span class='kw'>mod</span> <span class='ident'>bezier_surface_ball</span>;
+<span class='kw'>mod</span> <span class='ident'>bezier_surface_bezier_surface</span>;<span class='comment'>
 
 // FIXME: move this module somewhere else!
-</span><span class='doccomment'>/// Algorithms needed for distance and penetration depth computation.
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>algorithm</span>
+</span><span class='doccomment'>/// Algorithms needed for distance and penetration depth computation.</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>algorithm</span>
 {
     <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>simplex</span>;
     <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>johnson_simplex</span>;
@@ -177,9 +184,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

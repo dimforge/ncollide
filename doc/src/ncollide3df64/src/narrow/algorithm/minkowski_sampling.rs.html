@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -184,8 +183,8 @@
 <span id='144'>144</span>
 <span id='145'>145</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Penetration depth computation algorithm approximating the Minkowskis sum.
-</span>
+<span class='doccomment'>//! Penetration depth computation algorithm approximating the Minkowskis sum.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Bounded</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Identity</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
@@ -195,9 +194,9 @@
 <span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>algorithm</span>::<span class='ident'>simplex</span>::<span class='ident'>Simplex</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
-</span><span class='doccomment'>/// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
+<span class='doccomment'>/// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the</span>
+<span class='doccomment'>/// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>closest_points</span><span class='op'>&lt;</span><span class='ident'>S</span>:  <span class='ident'>Simplex</span><span class='op'>&lt;</span><span class='ident'>AnnotatedPoint</span><span class='op'>&gt;</span>,
                       <span class='ident'>G1</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>PreferedSamplingDirections</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>,
                       <span class='ident'>G2</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>PreferedSamplingDirections</span><span class='op'>&lt;</span><span class='ident'>Vect</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(
                       <span class='ident'>m1</span>:      <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>,
@@ -297,7 +296,7 @@
             //                       |             |
             //                       +-------------+
             </span><span class='kw'>let</span> <span class='ident'>dist_err</span>  <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>norm</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>p2</span> <span class='op'>-</span> <span class='ident'>p1</span>)) <span class='op'>-</span> <span class='ident'>g1</span>.<span class='ident'>margin</span>() <span class='op'>-</span> <span class='ident'>g2</span>.<span class='ident'>margin</span>();
-            <span class='kw'>let</span> <span class='ident'>_2</span>: <span class='ident'>Scalar</span>     <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>);
+            <span class='kw'>let</span> <span class='ident'>_2</span>: <span class='ident'>Scalar</span>     <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0f64</span>);
             <span class='kw'>let</span> <span class='ident'>center</span>: <span class='ident'>Vect</span> <span class='op'>=</span> (<span class='ident'>p1</span> <span class='op'>+</span> <span class='ident'>p2</span>) <span class='op'>/</span> <span class='ident'>_2</span>;
 
             <span class='kw'>let</span> <span class='ident'>p2</span> <span class='op'>=</span> <span class='ident'>center</span> <span class='op'>-</span> <span class='ident'>best_dir</span> <span class='op'>*</span> <span class='kw'>if</span> <span class='ident'>dist_err</span> <span class='op'>&gt;</span> <span class='ident'>na</span>::<span class='ident'>zero</span>() { <span class='ident'>min_dist</span> <span class='op'>-</span> <span class='ident'>dist_err</span> } <span class='kw'>else</span> { <span class='ident'>min_dist</span> };
@@ -343,9 +342,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

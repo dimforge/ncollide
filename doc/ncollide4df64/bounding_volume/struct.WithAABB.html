@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The ncollide4df64 library documentation.">
+
     <title>ncollide4df64::bounding_volume::WithAABB - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400,700'
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
           rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="../../ncollide4df64/main.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
 </head>
@@ -20,46 +23,27 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AABB.html'>AABB</a><br/><a class='struct current' href='struct.WithAABB.html'>WithAABB</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolume.html'>BoundingVolume</a><br/><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><br/><a class='trait ' href='trait.HasBoundingVolume.html'>HasBoundingVolume</a><br/><a class='trait ' href='trait.LooseBoundingVolume.html'>LooseBoundingVolume</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><br/><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><br/></div>
+        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AABB.html'>AABB</a><a class='struct ' href='struct.BoundingSphere.html'>BoundingSphere</a><a class='struct current' href='struct.WithAABB.html'>WithAABB</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolume.html'>BoundingVolume</a><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><a class='trait ' href='trait.HasBoundingSphere.html'>HasBoundingSphere</a><a class='trait ' href='trait.HasBoundingVolume.html'>HasBoundingVolume</a><a class='trait ' href='trait.LooseBoundingVolume.html'>LooseBoundingVolume</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><a class='fn ' href='fn.bounding_sphere.html'>bounding_sphere</a><a class='fn ' href='fn.bounding_sphere_with_center.html'>bounding_sphere_with_center</a><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><a class='fn ' href='fn.point_cloud_aabb.html'>point_cloud_aabb</a></div>
     </section>
 
     <nav class="sub">
         <form class="search-form js-only">
-            <button class="do-search">Search</button>
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
-                       type="search" />
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
             </div>
         </form>
     </nav>
 
-    <section id='main' class="content struct"><a class='source'
-                              href='../../src/ncollide4df64/src/bounding_volume/aabb.rs.html#175'>[src]</a><h1 class='fqn'>Struct <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>bounding_volume</a>::<a class='struct' href=''>WithAABB</a></h1><pre class='rust struct'>pub struct WithAABB&lt;A&gt;(<a class='typedef' href='../../ncollide4df64/math/typedef.Matrix.html' title='ncollide4df64::math::Matrix'>Matrix</a>, A);</pre><div class='docblock'><p>Wrapper which implements <code>HasBoundingVolume&lt;Matrix, AABB&gt;</code> for objects implementing <code>HasAABB</code>.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;A&gt; <a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;</code></h3><div class='methods'><h4 id='method.m' class='method'><code>fn <a href='#method.m' class='fnname'>m</a>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a <a class='typedef' href='../../ncollide4df64/math/typedef.Matrix.html' title='ncollide4df64::math::Matrix'>Matrix</a></code></h4>
-<div class='docblock'><p>The transformation matrix of this shape.</p>
-</div><h4 id='method.g' class='method'><code>fn <a href='#method.g' class='fnname'>g</a>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a A</code></h4>
-<div class='docblock'><p>The local-space geometry of this shape.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;A: <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Eq.html' title='std::cmp::Eq'>Eq</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Eq.html' title='std::cmp::Eq'>Eq</a> for <a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
-</div><div class='methods'><h4 id='method.eq' class='method'><code>fn <a href='#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;) -&gt; bool</code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;) -&gt; bool</code></h4>
-</div><h3 class='impl'><code>impl&lt;A: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
-</div><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;</code></h4>
-</div><h3 class='impl'><code>impl&lt;A: <a class='trait' href='../../ncollide4df64/bounding_volume/aabb/trait.HasAABB.html' title='ncollide4df64::bounding_volume::aabb::HasAABB'>HasAABB</a>&gt; <a class='trait' href='../../ncollide4df64/bounding_volume/bounding_volume/trait.HasBoundingVolume.html' title='ncollide4df64::bounding_volume::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;<a class='struct' href='../../ncollide4df64/bounding_volume/struct.AABB.html' title='ncollide4df64::bounding_volume::AABB'>AABB</a>&gt; for <a class='struct' href='../../ncollide4df64/bounding_volume/struct.WithAABB.html' title='ncollide4df64::bounding_volume::WithAABB'>WithAABB</a>&lt;A&gt;</code></h3><div class='methods'><h4 id='method.bounding_volume' class='method'><code>fn <a href='#method.bounding_volume' class='fnname'>bounding_volume</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide4df64/bounding_volume/struct.AABB.html' title='ncollide4df64::bounding_volume::AABB'>AABB</a></code></h4>
-<div class='docblock'><p>The object bounding volume.</p>
-</div></div></section>
+    <section id='main' class="content struct">
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>bounding_volume</a>::<a class='struct' href=''>WithAABB</a><a class='source' id='src-936' href='../../src/ncollide4df64/src/bounding_volume/aabb.rs.html#157'>[src]</a></h1>
+<pre class='rust struct'>pub struct WithAABB&lt;A&gt;(pub <a class='type' href='../../ncollide4df64/math/type.Matrix.html' title='ncollide4df64::math::Matrix'>Matrix</a>, pub A);</pre><div class='docblock'><p>Wrapper which implements <code>HasBoundingVolume&lt;AABB&gt;</code> for objects implementing <code>HasAABB</code>.</p>
+</div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
-
-    <script>
-        var rootPath = "../../";
-    </script>
-    <script src="../../ncollide4df64/jquery.js"></script>
-    <script src="../../ncollide4df64/search-index.js"></script>
-    <script src="../../ncollide4df64/main.js"></script>
 
     <div id="help" class="hidden">
         <div class="shortcuts">
@@ -69,9 +53,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -91,5 +75,15 @@
             </p>
         </div>
     </div>
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "ncollide4df64";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script async src="../../search-index.js"></script>
 </body>
 </html>

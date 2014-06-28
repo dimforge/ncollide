@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -243,12 +242,10 @@
 <span id='203'>203</span>
 <span id='204'>204</span>
 <span id='205'>205</span>
-<span id='206'>206</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Transform</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
-<span class='kw'>use</span> <span class='ident'>narrow</span>::<span class='ident'>CollisionDetector</span>;
-<span class='kw'>use</span> <span class='ident'>contact</span>::<span class='ident'>Contact</span>;
+<span class='kw'>use</span> <span class='ident'>narrow</span>::{<span class='ident'>CollisionDetector</span>, <span class='ident'>Contact</span>};
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>)]</span>
@@ -270,13 +267,13 @@
         }
 }
 
-<span class='doccomment'>/// Contact manifold generator which keeps track of several contacts.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// One contact is added per update until the maximum number of contact is reached. When the
-</span><span class='doccomment'>/// maximum number of contact is reached, each time a new contact is created, the new manifold is
-</span><span class='doccomment'>/// computed by maximizing the variance along each canonical axis (of the space in which leaves the
-</span><span class='doccomment'>/// contacts).
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// Contact manifold generator which keeps track of several contacts.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// One contact is added per update until the maximum number of contact is reached. When the</span>
+<span class='doccomment'>/// maximum number of contact is reached, each time a new contact is created, the new manifold is</span>
+<span class='doccomment'>/// computed by maximizing the variance along each canonical axis (of the space in which leaves the</span>
+<span class='doccomment'>/// contacts).</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>IncrementalContactManifoldGenerator</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
     <span class='ident'>contacts</span>:     <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>ContactWLocals</span><span class='op'>&gt;</span>,
     <span class='ident'>collector</span>:    <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Contact</span><span class='op'>&gt;</span>,
@@ -285,11 +282,11 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> <span class='ident'>IncrementalContactManifoldGenerator</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new incremental contact manifold generator.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>/// * `cd` - collision detection sub-algorithm used to generate the contact points.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>prediction</span>: <span class='ident'>Scalar</span>, <span class='ident'>cd</span>: <span class='ident'>CD</span>) <span class='op'>-&gt;</span> <span class='ident'>IncrementalContactManifoldGenerator</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new incremental contact manifold generator.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>/// * `cd` - collision detection sub-algorithm used to generate the contact points.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>prediction</span>: <span class='ident'>Scalar</span>, <span class='ident'>cd</span>: <span class='ident'>CD</span>) <span class='op'>-&gt;</span> <span class='ident'>IncrementalContactManifoldGenerator</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
         <span class='ident'>IncrementalContactManifoldGenerator</span> {
             <span class='ident'>contacts</span>:     <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
             <span class='ident'>collector</span>:    <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
@@ -300,9 +297,9 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>CD</span>: <span class='ident'>CollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='ident'>IncrementalContactManifoldGenerator</span><span class='op'>&lt;</span><span class='ident'>CD</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Gets a collision from the sub-detector used by this manifold generator. This does not
-</span>    <span class='doccomment'>/// update the manifold itself.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_sub_collision</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='ident'>G2</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Contact</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Gets a collision from the sub-detector used by this manifold generator. This does not</span>
+    <span class='doccomment'>/// update the manifold itself.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_sub_collision</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='ident'>G2</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Contact</span><span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>sub_detector</span>.<span class='ident'>update</span>(<span class='ident'>m1</span>, <span class='ident'>g1</span>, <span class='ident'>m2</span>, <span class='ident'>g2</span>);
         <span class='self'>self</span>.<span class='ident'>sub_detector</span>.<span class='ident'>colls</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>collector</span>);
 
@@ -318,8 +315,8 @@
         <span class='ident'>res</span>
     }
 
-    <span class='doccomment'>/// Updates the current manifold by adding one point.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_new_contacts</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='ident'>G2</span>) {<span class='comment'>
+    <span class='doccomment'>/// Updates the current manifold by adding one point.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_new_contacts</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='ident'>G2</span>) {<span class='comment'>
         // add the new ones
         </span><span class='self'>self</span>.<span class='ident'>sub_detector</span>.<span class='ident'>update</span>(<span class='ident'>m1</span>, <span class='ident'>g1</span>, <span class='ident'>m2</span>, <span class='ident'>g2</span>);
 
@@ -340,8 +337,8 @@
         <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>clear</span>();
     }
 
-    <span class='doccomment'>/// Updates the contacts already existing on this manifold.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>update_contacts</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>) {<span class='comment'>
+    <span class='doccomment'>/// Updates the contacts already existing on this manifold.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>update_contacts</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>) {<span class='comment'>
         // cleanup existing contacts
         </span><span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='number'>0</span>;
         <span class='kw'>while</span> <span class='ident'>i</span> <span class='op'>!=</span> <span class='self'>self</span>.<span class='ident'>contacts</span>.<span class='ident'>len</span>() {
@@ -354,7 +351,7 @@
                 <span class='kw'>let</span> <span class='ident'>depth</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='ident'>dw</span>, <span class='kw-2'>&amp;</span><span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>normal</span>);
 
                 <span class='kw'>if</span> <span class='ident'>depth</span> <span class='op'>&gt;=</span> <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>prediction</span> <span class='op'>&amp;&amp;</span>
-                   <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>dw</span> <span class='op'>-</span> <span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>normal</span> <span class='op'>*</span> <span class='ident'>depth</span>)) <span class='op'>&lt;=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.01</span>) {
+                   <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span>(<span class='ident'>dw</span> <span class='op'>-</span> <span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>normal</span> <span class='op'>*</span> <span class='ident'>depth</span>)) <span class='op'>&lt;=</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.01f64</span>) {
                         <span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>depth</span>  <span class='op'>=</span> <span class='ident'>depth</span>;
                         <span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>world1</span> <span class='op'>=</span> <span class='ident'>world1</span>;
                         <span class='ident'>c</span>.<span class='ident'>contact</span>.<span class='ident'>world2</span> <span class='op'>=</span> <span class='ident'>world2</span>;
@@ -465,9 +462,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

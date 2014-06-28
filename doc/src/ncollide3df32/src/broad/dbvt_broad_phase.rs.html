@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -562,8 +561,9 @@
 <span id='522'>522</span>
 <span id='523'>523</span>
 <span id='524'>524</span>
+<span id='525'>525</span>
 </pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>gc</span>::<span class='ident'>Gc</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>gc</span>::{<span class='ident'>GC</span>, <span class='ident'>Gc</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>RefCell</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Translation</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
@@ -579,11 +579,11 @@
 <span class='kw'>use</span> <span class='ident'>partitioning</span>::{<span class='ident'>BoundingVolumeInterferencesCollector</span>, <span class='ident'>RayInterferencesCollector</span>};
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
-<span class='doccomment'>/// Broad phase based on a Dynamic Bounding Volume Tree.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// It uses two separate trees: one for static objects and which is never updated, and one for
-</span><span class='doccomment'>/// moving objects.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DBVTBroadPhase</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>, <span class='ident'>D</span>, <span class='ident'>DV</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Broad phase based on a Dynamic Bounding Volume Tree.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// It uses two separate trees: one for static objects and which is never updated, and one for</span>
+<span class='doccomment'>/// moving objects.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DBVTBroadPhase</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>, <span class='ident'>D</span>, <span class='ident'>DV</span><span class='op'>&gt;</span> {
     <span class='ident'>tree</span>:        <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
     <span class='ident'>stree</span>:       <span class='ident'>DBVT</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;</span>,
     <span class='ident'>active2bv</span>:   <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>Gc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>DBVTLeaf</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>, <span class='ident'>UintTWHash</span><span class='op'>&gt;</span>,
@@ -602,8 +602,8 @@
      <span class='ident'>D</span>:  <span class='ident'>Dispatcher</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>B</span>, <span class='ident'>DV</span><span class='op'>&gt;</span>,
      <span class='ident'>DV</span><span class='op'>&gt;</span>
 <span class='ident'>DBVTBroadPhase</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>, <span class='ident'>D</span>, <span class='ident'>DV</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>dispatcher</span>: <span class='ident'>D</span>, <span class='ident'>margin</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>DBVTBroadPhase</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>, <span class='ident'>D</span>, <span class='ident'>DV</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new broad phase based on a Dynamic Bounding Volume Tree.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>dispatcher</span>: <span class='ident'>D</span>, <span class='ident'>margin</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>DBVTBroadPhase</span><span class='op'>&lt;</span><span class='ident'>B</span>, <span class='ident'>BV</span>, <span class='ident'>D</span>, <span class='ident'>DV</span><span class='op'>&gt;</span> {
         <span class='ident'>DBVTBroadPhase</span> {
             <span class='ident'>tree</span>:        <span class='ident'>DBVT</span>::<span class='ident'>new</span>(),
             <span class='ident'>stree</span>:       <span class='ident'>DBVT</span>::<span class='ident'>new</span>(),
@@ -619,8 +619,9 @@
         }
     }
 
-    <span class='doccomment'>/// Number of interferences detected by this broad phase.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>num_interferences</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
+    <span class='doccomment'>/// Number of interferences detected by this broad phase.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>num_interferences</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
         <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>len</span>()
     }
 
@@ -632,13 +633,13 @@
 
         <span class='kw'>for</span> <span class='ident'>u</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>to_update</span>.<span class='ident'>iter</span>() {
             {<span class='comment'> // scope to avoid dynamic borrow failur.
-                </span><span class='kw'>let</span> <span class='ident'>bu</span> <span class='op'>=</span> <span class='ident'>u</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                </span><span class='kw'>let</span> <span class='ident'>bu</span> <span class='op'>=</span> <span class='ident'>u</span>.<span class='ident'>borrow</span>();
                 <span class='self'>self</span>.<span class='ident'>tree</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>bu</span>.<span class='ident'>deref</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>collector</span>);
                 <span class='self'>self</span>.<span class='ident'>stree</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>bu</span>.<span class='ident'>deref</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>collector</span>);<span class='comment'>
 
                 // dispatch
                 </span><span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>iter</span>() {
-                    <span class='kw'>let</span> <span class='ident'>bi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                    <span class='kw'>let</span> <span class='ident'>bi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>();
                     <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>dispatcher</span>.<span class='ident'>is_valid</span>(<span class='kw-2'>&amp;</span><span class='ident'>bu</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>bi</span>.<span class='ident'>object</span>) {
                         <span class='kw'>let</span> <span class='ident'>dispatcher</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>dispatcher</span>;
                         <span class='kw'>let</span> _ <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>find_or_insert_lazy</span>(
@@ -671,8 +672,8 @@
                     <span class='kw'>let</span> <span class='ident'>elts</span>  <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>elements</span>();
                     <span class='kw'>let</span> <span class='ident'>entry</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>elts</span>[<span class='ident'>id</span>];
 
-                    <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>entry</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
-                    <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>entry</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                    <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>entry</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>();
+                    <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>entry</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>();
                     <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>bf</span>.<span class='ident'>bounding_volume</span>.<span class='ident'>intersects</span>(<span class='kw-2'>&amp;</span><span class='ident'>bs</span>.<span class='ident'>bounding_volume</span>) {
                         <span class='boolval'>true</span>
                     }
@@ -701,7 +702,7 @@
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>add</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>b</span>: <span class='ident'>B</span>) {
         <span class='kw'>let</span> <span class='ident'>id</span>   <span class='op'>=</span> <span class='ident'>b</span>.<span class='ident'>uid</span>();
-        <span class='kw'>let</span> <span class='ident'>leaf</span> <span class='op'>=</span> <span class='ident'>Gc</span>::<span class='ident'>new</span>(<span class='ident'>RefCell</span>::<span class='ident'>new</span>(<span class='ident'>DBVTLeaf</span>::<span class='ident'>new</span>(<span class='ident'>b</span>.<span class='ident'>bounding_volume</span>().<span class='ident'>loosened</span>(<span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>()), <span class='ident'>b</span>)));
+        <span class='kw'>let</span> <span class='ident'>leaf</span> <span class='op'>=</span> <span class='kw'>box</span>(<span class='ident'>GC</span>) <span class='ident'>RefCell</span>::<span class='ident'>new</span>(<span class='ident'>DBVTLeaf</span>::<span class='ident'>new</span>(<span class='ident'>b</span>.<span class='ident'>bounding_volume</span>().<span class='ident'>loosened</span>(<span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>()), <span class='ident'>b</span>));
 
         <span class='self'>self</span>.<span class='ident'>to_update</span>.<span class='ident'>push</span>(<span class='ident'>leaf</span>);
         <span class='self'>self</span>.<span class='ident'>update_updatable</span>();
@@ -765,14 +766,14 @@
          * Remove all outdated nodes
          */
         </span><span class='kw'>for</span> <span class='ident'>a</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>active2bv</span>.<span class='ident'>elements_mut</span>().<span class='ident'>mut_iter</span>() {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>new_bv</span> <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>bounding_volume</span>();
+            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>new_bv</span> <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>bounding_volume</span>();
 
-            <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>bounding_volume</span>.<span class='ident'>contains</span>(<span class='kw-2'>&amp;</span><span class='ident'>new_bv</span>) {<span class='comment'>
+            <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow</span>().<span class='ident'>bounding_volume</span>.<span class='ident'>contains</span>(<span class='kw-2'>&amp;</span><span class='ident'>new_bv</span>) {<span class='comment'>
                 // need an update!
                 </span><span class='ident'>new_bv</span>.<span class='ident'>loosen</span>(<span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>());
 
                 {
-                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bv</span> <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bv</span> <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>value</span>.<span class='ident'>borrow_mut</span>();
                     <span class='ident'>bv</span>.<span class='ident'>bounding_volume</span> <span class='op'>=</span> <span class='ident'>new_bv</span>;
                 }
 
@@ -788,12 +789,12 @@
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>active2bv</span>.<span class='ident'>find_mut</span>(<span class='kw-2'>&amp;</span><span class='ident'>object</span>.<span class='ident'>uid</span>()) {
             <span class='prelude-val'>None</span>       <span class='op'>=&gt;</span> { },
             <span class='prelude-val'>Some</span>(<span class='ident'>leaf</span>) <span class='op'>=&gt;</span> {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>new_bv</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>bounding_volume</span>();
-                <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>bounding_volume</span>.<span class='ident'>contains</span>(<span class='kw-2'>&amp;</span><span class='ident'>new_bv</span>) {<span class='comment'>
+                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>new_bv</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>bounding_volume</span>();
+                <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>bounding_volume</span>.<span class='ident'>contains</span>(<span class='kw-2'>&amp;</span><span class='ident'>new_bv</span>) {<span class='comment'>
                     // update for real
                     </span><span class='ident'>new_bv</span>.<span class='ident'>loosen</span>(<span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>());
                     {
-                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>bl</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow_mut</span>();
                         <span class='ident'>bl</span>.<span class='ident'>bounding_volume</span> <span class='op'>=</span> <span class='ident'>new_bv</span>;
                     }
                     <span class='self'>self</span>.<span class='ident'>tree</span>.<span class='ident'>remove</span>(<span class='ident'>leaf</span>);
@@ -814,8 +815,8 @@
     <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
     <span class='kw'>fn</span> <span class='ident'>for_each_pair</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='op'>|</span><span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='kw-2'>&amp;</span><span class='ident'>DV</span><span class='op'>|</span> <span class='op'>-&gt;</span> ()) {
         <span class='kw'>for</span> <span class='ident'>p</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>elements</span>().<span class='ident'>iter</span>() {
-            <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
-            <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow_mut</span>();
+            <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow_mut</span>();
+            <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow_mut</span>();
             <span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='ident'>bf</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>bs</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>p</span>.<span class='ident'>value</span>)
         }
     }
@@ -823,8 +824,8 @@
     <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
     <span class='kw'>fn</span> <span class='ident'>for_each_pair_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>f</span>: <span class='op'>|</span><span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>DV</span><span class='op'>|</span> <span class='op'>-&gt;</span> ()) {
         <span class='kw'>for</span> <span class='ident'>p</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>elements_mut</span>().<span class='ident'>mut_iter</span>() {
-            <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
-            <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+            <span class='kw'>let</span> <span class='ident'>bf</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>();
+            <span class='kw'>let</span> <span class='ident'>bs</span> <span class='op'>=</span> <span class='ident'>p</span>.<span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>();
             <span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='ident'>bf</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>bs</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>p</span>.<span class='ident'>value</span>)
         }
     }
@@ -845,19 +846,19 @@
 
         // Now we find interferences with inactive objects.
         </span>{<span class='comment'> // scope to avoid dynamic borrow failure
-            </span><span class='kw'>let</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+            </span><span class='kw'>let</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>();
             <span class='self'>self</span>.<span class='ident'>stree</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>bleaf</span>.<span class='ident'>deref</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>collector</span>);
 
             <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>iter</span>() {
-                <span class='kw'>let</span> <span class='ident'>bi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>bi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>();
                 <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>dispatcher</span>.<span class='ident'>is_valid</span>(<span class='kw-2'>&amp;</span><span class='ident'>bleaf</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>bi</span>.<span class='ident'>object</span>) {<span class='comment'>
                     // the intereference should be registered on the spairs already
                     </span><span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>spairs</span>.<span class='ident'>get_and_remove</span>(<span class='kw-2'>&amp;</span><span class='ident'>Pair</span>::<span class='ident'>new</span>(<span class='ident'>leaf</span>, <span class='op'>*</span><span class='ident'>i</span>)) {
                         <span class='prelude-val'>Some</span>(<span class='ident'>dv</span>) <span class='op'>=&gt;</span> {
                             <span class='kw'>let</span> <span class='ident'>key</span>   <span class='op'>=</span> <span class='ident'>dv</span>.<span class='ident'>key</span>;
                             <span class='kw'>let</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>dv</span>.<span class='ident'>value</span>;
-                            <span class='kw'>let</span> <span class='ident'>bdvf</span>  <span class='op'>=</span> <span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
-                            <span class='kw'>let</span> <span class='ident'>bdvs</span>  <span class='op'>=</span> <span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                            <span class='kw'>let</span> <span class='ident'>bdvf</span>  <span class='op'>=</span> <span class='ident'>key</span>.<span class='ident'>first</span>.<span class='ident'>borrow</span>();
+                            <span class='kw'>let</span> <span class='ident'>bdvs</span>  <span class='op'>=</span> <span class='ident'>key</span>.<span class='ident'>second</span>.<span class='ident'>borrow</span>();
                             <span class='kw'>let</span> <span class='ident'>obj1</span>  <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>bdvf</span>.<span class='ident'>object</span>;
                             <span class='kw'>let</span> <span class='ident'>obj2</span>  <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='ident'>bdvs</span>.<span class='ident'>object</span>;
                             <span class='kw'>let</span> <span class='ident'>p</span>     <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>insert_or_replace</span>(<span class='ident'>key</span>, <span class='ident'>value</span>, <span class='boolval'>true</span>);
@@ -892,11 +893,11 @@
         </span><span class='self'>self</span>.<span class='ident'>tree</span>.<span class='ident'>remove</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>leaf</span>);
 
         {<span class='comment'> // scope to avoid dynamic borrow failure of leaf
-            </span><span class='kw'>let</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+            </span><span class='kw'>let</span> <span class='ident'>bleaf</span> <span class='op'>=</span> <span class='ident'>leaf</span>.<span class='ident'>borrow</span>();
             <span class='self'>self</span>.<span class='ident'>stree</span>.<span class='ident'>interferences_with_leaf</span>(<span class='ident'>bleaf</span>.<span class='ident'>deref</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>collector</span>);
 
             <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>iter</span>() {
-                <span class='kw'>let</span> <span class='ident'>fi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+                <span class='kw'>let</span> <span class='ident'>fi</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>borrow</span>();
                 <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>dispatcher</span>.<span class='ident'>is_valid</span>(<span class='kw-2'>&amp;</span><span class='ident'>bleaf</span>.<span class='ident'>object</span>, <span class='kw-2'>&amp;</span><span class='ident'>fi</span>.<span class='ident'>object</span>) {<span class='comment'>
                     // the intereference should be registered on the pairs already
                     </span><span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>pairs</span>.<span class='ident'>get_and_remove</span>(<span class='kw-2'>&amp;</span><span class='ident'>Pair</span>::<span class='ident'>new</span>(<span class='ident'>leaf</span>, <span class='op'>*</span><span class='ident'>i</span>)) {
@@ -927,7 +928,7 @@
         }
 
         <span class='kw'>for</span> <span class='ident'>l</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>iter</span>() {
-            <span class='ident'>out</span>.<span class='ident'>push</span>(<span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>clone</span>())
+            <span class='ident'>out</span>.<span class='ident'>push</span>(<span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>clone</span>())
         }
 
         <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>clear</span>()
@@ -948,7 +949,7 @@
         }
 
         <span class='kw'>for</span> <span class='ident'>l</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>iter</span>() {
-            <span class='ident'>out</span>.<span class='ident'>push</span>(<span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>clone</span>())
+            <span class='ident'>out</span>.<span class='ident'>push</span>(<span class='ident'>l</span>.<span class='ident'>borrow</span>().<span class='ident'>object</span>.<span class='ident'>clone</span>())
         }
 
         <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>clear</span>()
@@ -1101,9 +1102,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

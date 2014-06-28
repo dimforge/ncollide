@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -77,9 +76,11 @@
 <span id='37'>37</span>
 <span id='38'>38</span>
 <span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Geometric primitives.
-</span><span class='comment'>
+<span class='doccomment'>//! Geometric primitives.</span><span class='comment'>
+
 // traits and types
 </span><span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>ball</span>::<span class='ident'>Ball</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>plane</span>::<span class='ident'>Plane</span>;
@@ -90,17 +91,19 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>convex</span>::<span class='ident'>Convex</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>minkowski_sum</span>::{<span class='ident'>MinkowskiSum</span>, <span class='ident'>AnnotatedMinkowskiSum</span>, <span class='ident'>AnnotatedPoint</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>reflection</span>::<span class='ident'>Reflection</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>compound</span>::<span class='ident'>Compound</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>compound</span>::{<span class='ident'>Compound</span>, <span class='ident'>CompoundData</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>geom_with_margin</span>::<span class='ident'>GeomWithMargin</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>mesh</span>::{<span class='ident'>Mesh</span>, <span class='ident'>MeshElement</span>, <span class='ident'>MeshPrimitive</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>segment</span>::<span class='ident'>Segment</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>triangle</span>::<span class='ident'>Triangle</span>;
+<span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>inline</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>geom</span>::{<span class='ident'>Geom</span>, <span class='ident'>ConcaveGeom</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>bezier_surface</span>::{<span class='ident'>BezierSurface</span>, <span class='ident'>BezierSurfaceEvaluationCache</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>bezier_curve</span>::{<span class='ident'>BezierCurve</span>, <span class='ident'>BezierCurveEvaluationCache</span>};<span class='comment'>
 
 // modules
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>geom</span>;
+</span><span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>geom</span>;
 <span class='kw'>mod</span> <span class='ident'>ball</span>;
 <span class='kw'>mod</span> <span class='ident'>plane</span>;
 <span class='kw'>mod</span> <span class='ident'>cuboid</span>;
@@ -131,9 +134,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

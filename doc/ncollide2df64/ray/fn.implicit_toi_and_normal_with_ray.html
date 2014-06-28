@@ -23,8 +23,7 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>ncollide2df64</a>&#8203;::<a href='index.html'>ray</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='ray/index.html'>ray</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><br/><a class='fn current' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><br/><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a><br/></div>
+        <p class='location'><a href='../index.html'>ncollide2df64</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><a class='struct ' href='struct.RayIntersection.html'>RayIntersection</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><a class='fn current' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a></div>
     </section>
 
     <nav class="sub">
@@ -32,15 +31,15 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>ray</a>::<a class='fn' href=''>implicit_toi_and_normal_with_ray</a><a class='source' id='src-14917' href='../../src/ncollide2df64/src/ray/ray_implicit.rs.html#13-49'>[src]</a></h1>
-<pre class='rust fn'>pub fn implicit_toi_and_normal_with_ray&lt;S: <a class='trait' href='../../ncollide2df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide2df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt;, G: <a class='trait' href='../../ncollide2df64/implicit/implicit/trait.Implicit.html' title='ncollide2df64::implicit::implicit::Implicit'>Implicit</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>, _M&gt;, _M: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt;&gt;(m: &amp;_M, geom: &amp;G, simplex: &amp;mut S, ray: &amp;<a class='struct' href='../../ncollide2df64/ray/ray/struct.Ray.html' title='ncollide2df64::ray::ray::Ray'>Ray</a>, solid: <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../ncollide2df64/ray/ray/struct.RayIntersection.html' title='ncollide2df64::ray::ray::RayIntersection'>RayIntersection</a>&gt;</pre><div class='docblock'><p>Cast a ray on a geometry using the GJK algorithm.</p>
+<h1 class='fqn'>Function <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>ray</a>::<a class='fn' href=''>implicit_toi_and_normal_with_ray</a><a class='source' id='src-15207' href='../../src/ncollide2df64/src/ray/ray_implicit.rs.html#13-49'>[src]</a></h1>
+<pre class='rust fn'>pub fn implicit_toi_and_normal_with_ray&lt;S: <a class='trait' href='../../ncollide2df64/narrow/algorithm/simplex/trait.Simplex.html' title='ncollide2df64::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt;, G: <a class='trait' href='../../ncollide2df64/implicit/trait.Implicit.html' title='ncollide2df64::implicit::Implicit'>Implicit</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>, _M&gt;, _M: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt;&gt;(m: &amp;_M, geom: &amp;G, simplex: &amp;mut S, ray: &amp;<a class='struct' href='../../ncollide2df64/ray/struct.Ray.html' title='ncollide2df64::ray::Ray'>Ray</a>, solid: <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../ncollide2df64/ray/struct.RayIntersection.html' title='ncollide2df64::ray::RayIntersection'>RayIntersection</a>&gt;</pre><div class='docblock'><p>Cast a ray on a geometry using the GJK algorithm.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -54,9 +53,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

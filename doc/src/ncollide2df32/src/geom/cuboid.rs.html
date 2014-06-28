@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -96,35 +95,35 @@
 <span id='56'>56</span>
 <span id='57'>57</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Support mapping based Cuboid geometry.
-</span>
+<span class='doccomment'>//! Support mapping based Cuboid geometry.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Signed</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Iterable</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
-<span class='doccomment'>/// Geometry of a box.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Parameters:
-</span><span class='doccomment'>///   * Scalar - type of an extent of the box
-</span><span class='doccomment'>///   * Vect - vector of extents. This determines the box dimension
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>PartialEq</span>, <span class='ident'>Show</span>, <span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
+<span class='doccomment'>/// Geometry of a box.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Parameters:</span>
+<span class='doccomment'>///   * Scalar - type of an extent of the box</span>
+<span class='doccomment'>///   * Vect - vector of extents. This determines the box dimension</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>PartialEq</span>, <span class='ident'>Show</span>, <span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Cuboid</span> {
     <span class='ident'>half_extents</span>: <span class='ident'>Vect</span>,
     <span class='ident'>margin</span>:       <span class='ident'>Scalar</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>Cuboid</span> {
-    <span class='doccomment'>/// Creates a new box from its half-extents. Half-extents are the box half-width along each
-</span>    <span class='doccomment'>/// axis. Each half-extent must be greater than 0.04.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Creates a new box from its half-extents. Half-extents are the box half-width along each</span>
+    <span class='doccomment'>/// axis. Each half-extent must be greater than 0.04.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>half_extents</span>: <span class='ident'>Vect</span>) <span class='op'>-&gt;</span> <span class='ident'>Cuboid</span> {
-        <span class='ident'>Cuboid</span>::<span class='ident'>new_with_margin</span>(<span class='ident'>half_extents</span>, <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.04</span>))
+        <span class='ident'>Cuboid</span>::<span class='ident'>new_with_margin</span>(<span class='ident'>half_extents</span>, <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>0.04f64</span>))
     }
 
-    <span class='doccomment'>/// Creates a new box from its half-extents and its margin. Half-extents are the box half-width
-</span>    <span class='doccomment'>/// along each axis. Each half-extent must be greater than the margin.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Creates a new box from its half-extents and its margin. Half-extents are the box half-width</span>
+    <span class='doccomment'>/// along each axis. Each half-extent must be greater than the margin.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_margin</span>(<span class='ident'>half_extents</span>: <span class='ident'>Vect</span>, <span class='ident'>margin</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>Cuboid</span> {
         <span class='kw'>let</span> <span class='ident'>half_extents_wo_margin</span> <span class='op'>=</span> <span class='ident'>half_extents</span> <span class='op'>-</span> <span class='ident'>margin</span>;
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>half_extents_wo_margin</span>.<span class='ident'>iter</span>().<span class='ident'>all</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>is_positive</span>()));
@@ -137,18 +136,18 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>Cuboid</span> {
-    <span class='doccomment'>/// The half-extents of this box. Half-extents are the box half-width along each axis. 
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The half-extents of this box. Half-extents are the box half-width along each axis. </span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>half_extents</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vect</span> {
         <span class='self'>self</span>.<span class='ident'>half_extents</span>.<span class='ident'>clone</span>()
     }
 
-    <span class='doccomment'>/// The margin surrounding this box.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// Note that unlike most other geometries, a box has an interior margin. Therefore, the
-</span>    <span class='doccomment'>/// real extents of the box (those that have been passed to the Cuboid constructor) equal the sum
-</span>    <span class='doccomment'>/// of the margin and its half-extents (as returned by the `half_extents` method).
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The margin surrounding this box.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// Note that unlike most other geometries, a box has an interior margin. Therefore, the</span>
+    <span class='doccomment'>/// real extents of the box (those that have been passed to the Cuboid constructor) equal the sum</span>
+    <span class='doccomment'>/// of the margin and its half-extents (as returned by the `half_extents` method).</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>margin</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Scalar</span> {
         <span class='self'>self</span>.<span class='ident'>margin</span>.<span class='ident'>clone</span>()
     }
@@ -167,9 +166,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

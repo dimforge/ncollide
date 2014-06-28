@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -79,12 +78,12 @@
 <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>Polyline</span>;
 <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>path</span>::<span class='ident'>PolylineCompatibleCap</span>;
 
-<span class='doccomment'>/// A cap that renders nothing.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>NoCap</span>;
+<span class='doccomment'>/// A cap that renders nothing.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>NoCap</span>;
 
 <span class='kw'>impl</span> <span class='ident'>NoCap</span> {
-    <span class='doccomment'>/// Creates a new `NoCap`.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Creates a new `NoCap`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>NoCap</span> {
         <span class='ident'>NoCap</span>
     }
@@ -125,9 +124,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

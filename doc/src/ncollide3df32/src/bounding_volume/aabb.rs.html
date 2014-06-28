@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The ncollide3df32 library documentation.">
+
     <title>aabb.rs.html -- source</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400,700'
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
           rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="../../../../ncollide3df32/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
 </head>
@@ -20,18 +23,16 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
     <nav class="sub">
         <form class="search-form js-only">
-            <button class="do-search">Search</button>
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
-                       type="search" />
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
             </div>
         </form>
     </nav>
@@ -256,69 +257,40 @@
 <span id='218'>218</span>
 <span id='219'>219</span>
 <span id='220'>220</span>
-<span id='221'>221</span>
-<span id='222'>222</span>
-<span id='223'>223</span>
-<span id='224'>224</span>
-<span id='225'>225</span>
-<span id='226'>226</span>
-<span id='227'>227</span>
-<span id='228'>228</span>
-<span id='229'>229</span>
-<span id='230'>230</span>
-<span id='231'>231</span>
-<span id='232'>232</span>
-<span id='233'>233</span>
-<span id='234'>234</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Bounded</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cell</span>::<span class='ident'>RefCell</span>;
-<span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Translation</span>, <span class='ident'>Indexable</span>};
+<span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::<span class='ident'>Translation</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
-<span class='kw'>use</span> <span class='ident'>implicit</span>::<span class='ident'>Implicit</span>;
 <span class='kw'>use</span> <span class='ident'>bounding_volume</span>::{<span class='ident'>HasBoundingVolume</span>, <span class='ident'>BoundingVolume</span>, <span class='ident'>LooseBoundingVolume</span>};
-<span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vector</span>, <span class='ident'>Matrix</span>};
+<span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Traits of objects that can be approximated by an AABB.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>HasAABB</span> {
-    <span class='doccomment'>/// The object’s AABB.
-</span>    <span class='kw'>fn</span> <span class='ident'>aabb</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span>;
+<span class='doccomment'>/// Trait of objects that can be bounded by an AABB.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>HasAABB</span> {
+    <span class='doccomment'>/// The object’s AABB.</span>
+    <span class='kw'>fn</span> <span class='ident'>aabb</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span>;
 }
 
-<span class='doccomment'>/// An Axis Aligned Bounding Box.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Parameter:
-</span><span class='doccomment'>///   * `Vector` - type of the points of the bounding box. It determines the AABB dimension.
-</span><span class='doccomment'>///   * `Scalar` - type of the one components of the aabb points.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>, <span class='ident'>Eq</span>, <span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
+<span class='doccomment'>/// An Axis Aligned Bounding Box.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Parameter:</span>
+<span class='doccomment'>///   * `Vect` - type of the points of the bounding box. It determines the AABB dimension.</span>
+<span class='doccomment'>///   * `Scalar` - type of the one components of the aabb points.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>AABB</span> {
-    <span class='kw'>priv</span> <span class='ident'>mins</span>: <span class='ident'>Vector</span>,
-    <span class='kw'>priv</span> <span class='ident'>maxs</span>: <span class='ident'>Vector</span>
+    <span class='ident'>mins</span>: <span class='ident'>Vect</span>,
+    <span class='ident'>maxs</span>: <span class='ident'>Vect</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>AABB</span> {
-    <span class='doccomment'>/// Reference to the AABB point with the smallest components along each axis.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mins</span><span class='op'>&lt;</span><span class='lifetime'>&#39;r</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>Vector</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>.<span class='ident'>mins</span>
-    }
-
-    <span class='doccomment'>/// Reference to the AABB point with the biggest components along each axis.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>maxs</span><span class='op'>&lt;</span><span class='lifetime'>&#39;r</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='ident'>Vector</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;r</span> <span class='self'>self</span>.<span class='ident'>maxs</span>
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>AABB</span> {
-    <span class='doccomment'>/// Creates a new AABB.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments:
-</span>    <span class='doccomment'>///   * `mins` - position of the point with the smallest coordinates.
-</span>    <span class='doccomment'>///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
-</span>    <span class='doccomment'>///   must be smaller than the related components of `maxs`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>mins</span>: <span class='ident'>Vector</span>, <span class='ident'>maxs</span>: <span class='ident'>Vector</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
+    <span class='doccomment'>/// Creates a new AABB.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments:</span>
+    <span class='doccomment'>///   * `mins` - position of the point with the smallest coordinates.</span>
+    <span class='doccomment'>///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`</span>
+    <span class='doccomment'>///   must be smaller than the related components of `maxs`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>mins</span>: <span class='ident'>Vect</span>, <span class='ident'>maxs</span>: <span class='ident'>Vect</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>na</span>::<span class='ident'>partial_le</span>(<span class='kw-2'>&amp;</span><span class='ident'>mins</span>, <span class='kw-2'>&amp;</span><span class='ident'>maxs</span>));
 
         <span class='ident'>AABB</span> {
@@ -327,17 +299,30 @@
         }
     }
 
-    <span class='doccomment'>/// Creates an invalid AABB with:
-</span>    <span class='doccomment'>/// * `mins = Bounded::max_value()`
-</span>    <span class='doccomment'>/// * `maxs = Bounded::max_value()`.
-</span>    <span class='doccomment'>/// This is useful to build aabb using merges.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_invalid</span>() <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='kw'>let</span> <span class='ident'>_M</span>: <span class='ident'>Vector</span> <span class='op'>=</span> <span class='ident'>Bounded</span>::<span class='ident'>max_value</span>();
+    <span class='doccomment'>/// Creates an invalid AABB with:</span>
+    <span class='doccomment'>/// * `mins = Bounded::max_value()`</span>
+    <span class='doccomment'>/// * `maxs = Bounded::max_value()`.</span>
+    <span class='doccomment'>/// This is useful to build aabb using merges.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_invalid</span>() <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
+        <span class='kw'>let</span> <span class='ident'>_M</span>: <span class='ident'>Vect</span> <span class='op'>=</span> <span class='ident'>Bounded</span>::<span class='ident'>max_value</span>();
         <span class='ident'>AABB</span> {
             <span class='ident'>mins</span>: <span class='ident'>Bounded</span>::<span class='ident'>max_value</span>(),
             <span class='ident'>maxs</span>: <span class='op'>-</span><span class='ident'>_M</span>,
         }
     }
+
+    <span class='doccomment'>/// Reference to the AABB point with the smallest components along each axis.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mins</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>mins</span>
+    }
+
+    <span class='doccomment'>/// Reference to the AABB point with the biggest components along each axis.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>maxs</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Vect</span> {
+        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>maxs</span>
+    }
+
 }
 
 <span class='kw'>impl</span> <span class='ident'>BoundingVolume</span> <span class='kw'>for</span> <span class='ident'>AABB</span> {
@@ -368,42 +353,6 @@
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vector</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>AABB</span>
-{
-    <span class='kw'>fn</span> <span class='ident'>translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vector</span> {
-        (<span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>maxs</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>::<span class='op'>&lt;</span><span class='ident'>f64</span>, <span class='ident'>Scalar</span><span class='op'>&gt;</span>(<span class='number'>0.5</span>)
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>inv_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vector</span> {
-        <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>translation</span>()
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vector</span>) {
-        <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
-        <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>append_translation_cpy</span>(<span class='ident'>aabb</span>: <span class='kw-2'>&amp;</span><span class='ident'>AABB</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vector</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='ident'>AABB</span>::<span class='ident'>new</span>(<span class='ident'>aabb</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>, <span class='ident'>aabb</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>)
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vector</span>) {
-        <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
-        <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation_cpy</span>(<span class='ident'>aabb</span>: <span class='kw-2'>&amp;</span><span class='ident'>AABB</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vector</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='ident'>AABB</span>::<span class='ident'>new</span>(<span class='ident'>aabb</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>, <span class='ident'>aabb</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>)
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>set_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>v</span>: <span class='ident'>Vector</span>) {
-        <span class='kw'>let</span> <span class='ident'>center</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>translation</span>();
-
-        <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>-</span> <span class='ident'>center</span> <span class='op'>+</span> <span class='ident'>v</span>;
-        <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>-</span> <span class='ident'>center</span> <span class='op'>+</span> <span class='ident'>v</span>;
-    }
-}
-
 <span class='kw'>impl</span> <span class='ident'>LooseBoundingVolume</span> <span class='kw'>for</span> <span class='ident'>AABB</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>loosen</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>amount</span>: <span class='ident'>Scalar</span>) {
@@ -420,43 +369,66 @@
     }
 }
 
-<span class='doccomment'>/// Builds the AABB of an implicit shape.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>implicit_shape_aabb</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vector</span>, <span class='ident'>Matrix</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>Matrix</span>, <span class='ident'>i</span>: <span class='kw-2'>&amp;</span><span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>resm</span>:  <span class='ident'>Vector</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>resM</span>:  <span class='ident'>Vector</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>basis</span>: <span class='ident'>Vector</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
+<span class='kw'>impl</span> <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>AABB</span>
+{
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vect</span> {
+        (<span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>maxs</span>) <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>::<span class='op'>&lt;</span><span class='ident'>f64</span>, <span class='ident'>Scalar</span><span class='op'>&gt;</span>(<span class='number'>0.5</span>)
+    }
 
-        <span class='kw'>for</span> <span class='ident'>d</span> <span class='kw'>in</span> <span class='ident'>range</span>(<span class='number'>0</span>, <span class='ident'>na</span>::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>Vector</span><span class='op'>&gt;</span>()) {<span class='comment'>
-            // FIXME: this could be further improved iterating on `m`&#39;s columns, and passing
-            // Identity as the transformation matrix.
-            </span><span class='ident'>basis</span>.<span class='ident'>set</span>(<span class='ident'>d</span>, <span class='ident'>na</span>::<span class='ident'>one</span>());
-            <span class='ident'>resM</span>.<span class='ident'>set</span>(<span class='ident'>d</span>, <span class='ident'>i</span>.<span class='ident'>support_point_without_margin</span>(<span class='ident'>m</span>, <span class='kw-2'>&amp;</span><span class='ident'>basis</span>).<span class='ident'>at</span>(<span class='ident'>d</span>));
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>inv_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vect</span> {
+        <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>translation</span>()
+    }
 
-            <span class='ident'>basis</span>.<span class='ident'>set</span>(<span class='ident'>d</span>, <span class='op'>-</span><span class='ident'>na</span>::<span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>());
-            <span class='ident'>resm</span>.<span class='ident'>set</span>(<span class='ident'>d</span>, <span class='ident'>i</span>.<span class='ident'>support_point_without_margin</span>(<span class='ident'>m</span>, <span class='kw-2'>&amp;</span><span class='ident'>basis</span>).<span class='ident'>at</span>(<span class='ident'>d</span>));
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) {
+        <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
+        <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>;
+    }
 
-            <span class='ident'>basis</span>.<span class='ident'>set</span>(<span class='ident'>d</span>, <span class='ident'>na</span>::<span class='ident'>zero</span>());
-        }
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>append_translation_cpy</span>(<span class='ident'>aabb</span>: <span class='kw-2'>&amp;</span><span class='ident'>AABB</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
+        <span class='ident'>AABB</span>::<span class='ident'>new</span>(<span class='ident'>aabb</span>.<span class='ident'>mins</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>, <span class='ident'>aabb</span>.<span class='ident'>maxs</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>dv</span>)
+    }
 
-        <span class='kw'>let</span> <span class='ident'>margin</span> <span class='op'>=</span> <span class='ident'>i</span>.<span class='ident'>margin</span>();
-        <span class='ident'>AABB</span>::<span class='ident'>new</span>(<span class='ident'>resm</span> <span class='op'>-</span> <span class='ident'>margin</span>, <span class='ident'>resM</span> <span class='op'>+</span> <span class='ident'>margin</span>)
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) {
+        <span class='self'>self</span>.<span class='ident'>append_translation</span>(<span class='ident'>dv</span>)
+    }
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>prepend_translation_cpy</span>(<span class='ident'>aabb</span>: <span class='kw-2'>&amp;</span><span class='ident'>AABB</span>, <span class='ident'>dv</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
+        <span class='ident'>Translation</span>::<span class='ident'>append_translation_cpy</span>(<span class='ident'>aabb</span>, <span class='ident'>dv</span>)
+    }
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>set_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>v</span>: <span class='ident'>Vect</span>) {
+        <span class='kw'>let</span> <span class='ident'>center</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>translation</span>();
+
+        <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>mins</span> <span class='op'>-</span> <span class='ident'>center</span> <span class='op'>+</span> <span class='ident'>v</span>;
+        <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>maxs</span> <span class='op'>-</span> <span class='ident'>center</span> <span class='op'>+</span> <span class='ident'>v</span>;
+    }
 }<span class='comment'>
 
 // FIXME: remove that to use `Transformed` istead?
-</span><span class='doccomment'>/// Wrapper which implements `HasBoundingVolume&lt;Matrix, AABB&gt;` for objects implementing `HasAABB`.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span>(<span class='ident'>Matrix</span>, <span class='ident'>A</span>);
+</span><span class='doccomment'>/// Wrapper which implements `HasBoundingVolume&lt;AABB&gt;` for objects implementing `HasAABB`.</span>
+<span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>Matrix</span>, <span class='kw'>pub</span> <span class='ident'>A</span>);
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span> <span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The transformation matrix of this shape.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
+    <span class='doccomment'>/// The transformation matrix of this shape.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
         <span class='kw'>let</span> <span class='ident'>WithAABB</span>(<span class='kw-2'>ref</span> <span class='ident'>t</span>, _) <span class='op'>=</span> <span class='op'>*</span><span class='self'>self</span>;
 
         <span class='ident'>t</span>
     }
 
-    <span class='doccomment'>/// The local-space geometry of this shape.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>A</span> {
+    <span class='doccomment'>/// The local-space geometry of this shape.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>A</span> {
         <span class='kw'>let</span> <span class='ident'>WithAABB</span>(_, <span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=</span> <span class='op'>*</span><span class='self'>self</span>;
 
         <span class='ident'>g</span>
@@ -464,6 +436,7 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>HasAABB</span><span class='op'>&gt;</span> <span class='ident'>HasBoundingVolume</span><span class='op'>&lt;</span><span class='ident'>AABB</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>bounding_volume</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
         <span class='kw'>let</span> <span class='ident'>WithAABB</span>(<span class='kw-2'>ref</span> <span class='ident'>t</span>, <span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=</span> <span class='op'>*</span><span class='self'>self</span>;
 
@@ -473,19 +446,19 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>HasAABB</span><span class='op'>&gt;</span>
 <span class='ident'>HasBoundingVolume</span><span class='op'>&lt;</span><span class='ident'>AABB</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>bounding_volume</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='kw'>let</span> <span class='ident'>bself</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>borrow</span>();
-
-        <span class='ident'>bself</span>.<span class='ident'>g</span>().<span class='ident'>aabb</span>(<span class='ident'>bself</span>.<span class='ident'>m</span>())
+        <span class='self'>self</span>.<span class='ident'>g</span>().<span class='ident'>aabb</span>(<span class='self'>self</span>.<span class='ident'>m</span>())
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>HasAABB</span><span class='op'>&gt;</span>
 <span class='ident'>HasBoundingVolume</span><span class='op'>&lt;</span><span class='ident'>AABB</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>RefCell</span><span class='op'>&lt;</span><span class='ident'>WithAABB</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>bounding_volume</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>AABB</span> {
-        <span class='kw'>let</span> <span class='ident'>bself</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>borrow</span>().<span class='ident'>borrow</span>();
+        <span class='kw'>let</span> <span class='ident'>bself</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>borrow</span>();
 
-        <span class='ident'>bself</span>.<span class='ident'>get</span>().<span class='ident'>g</span>().<span class='ident'>aabb</span>(<span class='ident'>bself</span>.<span class='ident'>get</span>().<span class='ident'>m</span>())
+        <span class='ident'>bself</span>.<span class='ident'>g</span>().<span class='ident'>aabb</span>(<span class='ident'>bself</span>.<span class='ident'>m</span>())
     }
 }
 
@@ -511,13 +484,6 @@
 
     <section class="footer"></section>
 
-    <script>
-        var rootPath = "../../../../";
-    </script>
-    <script src="../../../../ncollide3df32/jquery.js"></script>
-    <script src="../../../../ncollide3df32/search-index.js"></script>
-    <script src="../../../../ncollide3df32/main.js"></script>
-
     <div id="help" class="hidden">
         <div class="shortcuts">
             <h1>Keyboard shortcuts</h1>
@@ -526,9 +492,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -548,5 +514,15 @@
             </p>
         </div>
     </div>
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "ncollide3df32";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../main.js"></script>
+    
+    <script async src="../../../../search-index.js"></script>
 </body>
 </html>

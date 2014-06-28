@@ -23,8 +23,7 @@
 
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>ncollide2df64</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='../bounding_volume/index.html'>bounding_volume</a><br/><a class='mod ' href='../broad/index.html'>broad</a><br/><a class='mod ' href='../contact/index.html'>contact</a><br/><a class='mod ' href='../data/index.html'>data</a><br/><a class='mod current' href='../geom/index.html'>geom</a><br/><a class='mod ' href='../implicit/index.html'>implicit</a><br/><a class='mod ' href='../math/index.html'>math</a><br/><a class='mod ' href='../narrow/index.html'>narrow</a><br/><a class='mod ' href='../partitioning/index.html'>partitioning</a><br/><a class='mod ' href='../procedural/index.html'>procedural</a><br/><a class='mod ' href='../ray/index.html'>ray</a><br/><a class='mod ' href='../utils/index.html'>utils</a><br/><a class='mod ' href='../volumetric/index.html'>volumetric</a><br/></div>
+        <p class='location'><a href='../index.html'>ncollide2df64</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='../bounding_volume/index.html'>bounding_volume</a><a class='mod ' href='../broad/index.html'>broad</a><a class='mod ' href='../data/index.html'>data</a><a class='mod current' href='../geom/index.html'>geom</a><a class='mod ' href='../implicit/index.html'>implicit</a><a class='mod ' href='../math/index.html'>math</a><a class='mod ' href='../narrow/index.html'>narrow</a><a class='mod ' href='../partitioning/index.html'>partitioning</a><a class='mod ' href='../procedural/index.html'>procedural</a><a class='mod ' href='../ray/index.html'>ray</a><a class='mod ' href='../utils/index.html'>utils</a><a class='mod ' href='../volumetric/index.html'>volumetric</a></div>
     </section>
 
     <nav class="sub">
@@ -32,25 +31,16 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../index.html'>ncollide2df64</a>::<a class='mod' href=''>geom</a><a class='source' id='src-3639' href='../../src/ncollide2df64/src/geom/mod.rs.html#1-39'>[src]</a></h1>
+<h1 class='fqn'>Module <a href='../index.html'>ncollide2df64</a>::<a class='mod' href=''>geom</a><a class='source' id='src-3671' href='../../src/ncollide2df64/src/geom/mod.rs.html#1-41'>[src]</a></h1>
 <div class='docblock'><p>Geometric primitives.</p>
-</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub use geom::geom::{<a class='trait' href='../../ncollide2df64/geom/geom/trait.Geom.html' title='ncollide2df64::geom::geom::Geom'>Geom</a>, <a class='trait' href='../../ncollide2df64/geom/geom/trait.ConcaveGeom.html' title='ncollide2df64::geom::geom::ConcaveGeom'>ConcaveGeom</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
-<table>
-                    <tr>
-                        <td><a class='mod' href='geom/index.html'
-                               title='ncollide2df64::geom::geom'>geom</a></td>
-                        <td class='docblock short'><p>Enum grouping the most useful geometric shapes.</p>
-</td>
-                    </tr>
-                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr>
                         <td><a class='struct' href='struct.AnnotatedMinkowskiSum.html'
@@ -106,6 +96,13 @@ original supports points from the two wrapped geometries.</p>
                         <td><a class='struct' href='struct.Compound.html'
                                title='ncollide2df64::geom::Compound'>Compound</a></td>
                         <td class='docblock short'><p>A compound geometry with an aabb bounding volume.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='struct' href='struct.CompoundData.html'
+                               title='ncollide2df64::geom::CompoundData'>CompoundData</a></td>
+                        <td class='docblock short'><p>Structure used to build a <code>Compound</code> geometry.</p>
 </td>
                     </tr>
                 
@@ -188,6 +185,20 @@ original supports points from the two wrapped geometries.</p>
                 </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                     <tr>
+                        <td><a class='trait' href='trait.ConcaveGeom.html'
+                               title='ncollide2df64::geom::ConcaveGeom'>ConcaveGeom</a></td>
+                        <td class='docblock short'><p>Trait implemented by concave, composite geometries.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='trait' href='trait.Geom.html'
+                               title='ncollide2df64::geom::Geom'>Geom</a></td>
+                        <td class='docblock short'><p>Trait (that should be) implemented by every geometry.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='trait' href='trait.MeshElement.html'
                                title='ncollide2df64::geom::MeshElement'>MeshElement</a></td>
                         <td class='docblock short'><p>Trait implemented by elements usable on the Mesh.</p>
@@ -198,7 +209,8 @@ original supports points from the two wrapped geometries.</p>
                     <tr>
                         <td><a class='type' href='type.MeshPrimitive.html'
                                title='ncollide2df64::geom::MeshPrimitive'>MeshPrimitive</a></td>
-                        <td class='docblock short'></td>
+                        <td class='docblock short'><p>The primitive geometry used by a <code>Mesh</code>.</p>
+</td>
                     </tr>
                 </table></section>
     <section id='search' class="content hidden"></section>
@@ -213,9 +225,9 @@ original supports points from the two wrapped geometries.</p>
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

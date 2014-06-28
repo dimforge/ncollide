@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -229,34 +228,34 @@
 <span id='189'>189</span>
 <span id='190'>190</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Heuristics to select surface containing the projection of a point.
-</span>
+<span class='doccomment'>//! Heuristics to select surface containing the projection of a point.</span>
+
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>bounding_volume</span>::{<span class='ident'>HasBoundingSphere</span>, <span class='ident'>BoundingVolume</span>, <span class='ident'>BoundingSphere</span>};
 <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>BezierSurface</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
-<span class='doccomment'>/// Trait implemented by the heristics for surface selection during collision detection.
-</span><span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SurfaceSelector</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Sets the maximum local minimal distance.
-</span>    <span class='kw'>fn</span> <span class='ident'>set_max_lmd</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>);
-    <span class='doccomment'>/// Tells whether a surface is flat enough to run a numerical resolution algorithm.
-</span>    <span class='kw'>fn</span> <span class='ident'>is_flat</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>surf</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>, <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
-    <span class='doccomment'>/// Tells whether a surface might contain a closest point or not.
-</span>    <span class='kw'>fn</span> <span class='ident'>may_contain_a_closest_point</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>, <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
-    <span class='doccomment'>/// Allocates data used to test flatnass and closest point containment.
-</span>    <span class='kw'>fn</span> <span class='ident'>create_test_data</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>) <span class='op'>-&gt;</span> <span class='ident'>D</span>;
+<span class='doccomment'>/// Trait implemented by the heristics for surface selection during collision detection.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SurfaceSelector</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Sets the maximum local minimal distance.</span>
+    <span class='kw'>fn</span> <span class='ident'>set_max_lmd</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>);
+    <span class='doccomment'>/// Tells whether a surface is flat enough to run a numerical resolution algorithm.</span>
+    <span class='kw'>fn</span> <span class='ident'>is_flat</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>surf</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>, <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='doccomment'>/// Tells whether a surface might contain a closest point or not.</span>
+    <span class='kw'>fn</span> <span class='ident'>may_contain_a_closest_point</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>, <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='doccomment'>/// Allocates data used to test flatnass and closest point containment.</span>
+    <span class='kw'>fn</span> <span class='ident'>create_test_data</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>BezierSurface</span>) <span class='op'>-&gt;</span> <span class='ident'>D</span>;
 }
 
-<span class='doccomment'>/// A selector that does not filter out any surface.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Do not use this.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// A selector that does not filter out any surface.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Do not use this.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>YesSirSurfaceSelector</span>;
 
 <span class='kw'>impl</span> <span class='ident'>YesSirSurfaceSelector</span> {
-    <span class='doccomment'>/// Creates a new `YesSirSurfaceSelector`.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>YesSirSurfaceSelector</span> {
+    <span class='doccomment'>/// Creates a new `YesSirSurfaceSelector`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>YesSirSurfaceSelector</span> {
         <span class='ident'>YesSirSurfaceSelector</span>
     }
 }
@@ -278,18 +277,18 @@
     }
 }
 
-<span class='doccomment'>/// A selector that tries to project the point on one of the extremal point of the surface.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the criteria from `Improved algorithms for the projection of points on NURBS curves and
-</span><span class='doccomment'>/// surfaces`, Ilijas Selimovic.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// A selector that tries to project the point on one of the extremal point of the surface.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the criteria from `Improved algorithms for the projection of points on NURBS curves and</span>
+<span class='doccomment'>/// surfaces`, Ilijas Selimovic.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>HyperPlaneSurfaceSelector</span> {
     <span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>
 }
 
 <span class='kw'>impl</span> <span class='ident'>HyperPlaneSurfaceSelector</span> {
-    <span class='doccomment'>/// Creates a new hyperplane-based surface selector.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>HyperPlaneSurfaceSelector</span> {
+    <span class='doccomment'>/// Creates a new hyperplane-based surface selector.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>HyperPlaneSurfaceSelector</span> {
         <span class='ident'>HyperPlaneSurfaceSelector</span> {
             <span class='ident'>max_lmd</span>: <span class='ident'>max_lmd</span>
         }
@@ -324,7 +323,7 @@
             <span class='kw'>let</span> <span class='ident'>pt_endpoint</span> <span class='op'>=</span> <span class='op'>*</span><span class='ident'>closest_endpoint</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>pt</span>;
 
             <span class='kw'>for</span> <span class='ident'>control_point</span> <span class='kw'>in</span> <span class='ident'>b</span>.<span class='ident'>control_points</span>().<span class='ident'>iter</span>() {
-                <span class='kw'>if</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>control_point</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>closest_endpoint</span>), <span class='kw-2'>&amp;</span><span class='ident'>pt_endpoint</span>) <span class='op'>&lt;</span> <span class='ident'>na</span>::<span class='ident'>zero</span>() {
+                <span class='kw'>if</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>control_point</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>closest_endpoint</span>), <span class='kw-2'>&amp;</span><span class='ident'>pt_endpoint</span>) <span class='op'>&lt;=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>() {
                     <span class='kw'>return</span> <span class='boolval'>true</span>
                 }
             }
@@ -339,11 +338,11 @@
 
 }
 
-<span class='doccomment'>/// A selector that tests the orthogonality condition using the surface tangent cone.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the criteria from `Distance Extrema for Spline Models Using Tangent Cones`, Ilijas
-</span><span class='doccomment'>/// Selimovic.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='doccomment'>/// A selector that tests the orthogonality condition using the surface tangent cone.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the criteria from `Distance Extrema for Spline Models Using Tangent Cones`, Ilijas</span>
+<span class='doccomment'>/// Selimovic.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>TangentConesSurfaceSelector</span> {
     <span class='ident'>diff_u</span>:  <span class='ident'>BezierSurface</span>,
     <span class='ident'>diff_v</span>:  <span class='ident'>BezierSurface</span>,
@@ -351,8 +350,8 @@
 }
 
 <span class='kw'>impl</span> <span class='ident'>TangentConesSurfaceSelector</span> {
-    <span class='doccomment'>/// Creates a new tangent-cone based surface detector. 
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>TangentConesSurfaceSelector</span> {
+    <span class='doccomment'>/// Creates a new tangent-cone based surface detector. </span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>max_lmd</span>: <span class='ident'>Scalar</span>) <span class='op'>-&gt;</span> <span class='ident'>TangentConesSurfaceSelector</span> {
         <span class='ident'>TangentConesSurfaceSelector</span> {
             <span class='ident'>diff_u</span>:  <span class='ident'>BezierSurface</span>::<span class='ident'>new_with_degrees</span>(<span class='number'>0</span>, <span class='number'>0</span>),
             <span class='ident'>diff_v</span>:  <span class='ident'>BezierSurface</span>::<span class='ident'>new_with_degrees</span>(<span class='number'>0</span>, <span class='number'>0</span>),
@@ -361,8 +360,8 @@
     }
 }
 
-<span class='doccomment'>/// Data used by the `TangentconesSurfaceSelector` to test orthogonality and flatness.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>TangentConesSurfaceSelectorTestData</span> {
+<span class='doccomment'>/// Data used by the `TangentconesSurfaceSelector` to test orthogonality and flatness.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>TangentConesSurfaceSelectorTestData</span> {
     <span class='ident'>bounding_sphere</span>: <span class='ident'>BoundingSphere</span>,
     <span class='ident'>spread_u</span>:        <span class='ident'>Scalar</span>,
     <span class='ident'>spread_v</span>:        <span class='ident'>Scalar</span>,
@@ -433,9 +432,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

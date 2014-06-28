@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -237,7 +236,6 @@
 <span id='197'>197</span>
 <span id='198'>198</span>
 <span id='199'>199</span>
-<span id='200'>200</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>any</span>::<span class='ident'>AnyRefExt</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
@@ -246,21 +244,20 @@
 <span class='kw'>use</span> <span class='ident'>bounding_volume</span>::{<span class='ident'>BoundingVolume</span>, <span class='ident'>HasAABB</span>};
 <span class='kw'>use</span> <span class='ident'>broad</span>::<span class='ident'>Dispatcher</span>;
 <span class='kw'>use</span> <span class='ident'>narrow</span>::{<span class='ident'>CollisionDetector</span>, <span class='ident'>GeomGeomDispatcher</span>, <span class='ident'>GeomGeomCollisionDetector</span>,
-             <span class='ident'>DynamicCollisionDetector</span>, <span class='ident'>CollisionDetectorFactory</span>};
-<span class='kw'>use</span> <span class='ident'>contact</span>::<span class='ident'>Contact</span>;
+             <span class='ident'>DynamicCollisionDetector</span>, <span class='ident'>CollisionDetectorFactory</span>, <span class='ident'>Contact</span>};
 <span class='kw'>use</span> <span class='ident'>geom</span>::{<span class='ident'>Geom</span>, <span class='ident'>ConcaveGeom</span>};
 <span class='kw'>use</span> <span class='ident'>math</span>::<span class='ident'>Matrix</span>;
 
-<span class='doccomment'>/// Collision detector between a concave geometry and another geometry.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Collision detector between a concave geometry and another geometry.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
     <span class='ident'>sub_detectors</span>: <span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>GeomGeomCollisionDetector</span><span class='op'>&gt;</span>, <span class='ident'>UintTWHash</span><span class='op'>&gt;</span>,
     <span class='ident'>to_delete</span>:     <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;</span>,
     <span class='ident'>interferences</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new collision detector between a concave geometry and another geometry.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new collision detector between a concave geometry and another geometry.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
         <span class='ident'>ConcaveGeomGeom</span> {
             <span class='ident'>sub_detectors</span>: <span class='ident'>HashMap</span>::<span class='ident'>new_with_capacity</span>(<span class='number'>5</span>, <span class='ident'>UintTWHash</span>::<span class='ident'>new</span>()),
             <span class='ident'>to_delete</span>:     <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
@@ -368,14 +365,14 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='ident'>ConcaveGeom</span>, <span class='ident'>G2</span>: <span class='ident'>Geom</span><span class='op'>&gt;</span>
 <span class='ident'>DynamicCollisionDetector</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> { }
 
-<span class='doccomment'>/// Collision detector between a geometry and a concave geometry.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomConcaveGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Collision detector between a geometry and a concave geometry.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomConcaveGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
     <span class='ident'>sub_detector</span>: <span class='ident'>ConcaveGeomGeom</span><span class='op'>&lt;</span><span class='ident'>G2</span>, <span class='ident'>G1</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='ident'>GeomConcaveGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new collision detector between a geometry and a concave geometry.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomConcaveGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new collision detector between a geometry and a concave geometry.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>GeomConcaveGeom</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
         <span class='ident'>GeomConcaveGeom</span> {
             <span class='ident'>sub_detector</span>: <span class='ident'>ConcaveGeomGeom</span>::<span class='ident'>new</span>()
         }
@@ -415,9 +412,9 @@
  * Custom factories
  *
  */
-</span><span class='doccomment'>/// Structure implementing `CollisionDetectorFactory` in order to create a new `ConcaveGeomGeom`
-</span><span class='doccomment'>/// collision detector.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ConcaveGeomGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>;
+</span><span class='doccomment'>/// Structure implementing `CollisionDetectorFactory` in order to create a new `ConcaveGeomGeom`</span>
+<span class='doccomment'>/// collision detector.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ConcaveGeomGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>;
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>ConcaveGeom</span>, <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Geom</span><span class='op'>&gt;</span>
 <span class='ident'>CollisionDetectorFactory</span> <span class='kw'>for</span> <span class='ident'>ConcaveGeomGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
@@ -427,9 +424,9 @@
     }
 }
 
-<span class='doccomment'>/// Structure implementing `CollisionDetectorFactory` in order to create a new `GeomConcaveGeom`
-</span><span class='doccomment'>/// collision detector.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomConcaveGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>;
+<span class='doccomment'>/// Structure implementing `CollisionDetectorFactory` in order to create a new `GeomConcaveGeom`</span>
+<span class='doccomment'>/// collision detector.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>GeomConcaveGeomFactory</span><span class='op'>&lt;</span><span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span>;
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>G1</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>Geom</span>,
      <span class='ident'>G2</span>: <span class='lifetime'>&#39;static</span> <span class='op'>+</span> <span class='ident'>ConcaveGeom</span><span class='op'>&gt;</span>
@@ -453,9 +450,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

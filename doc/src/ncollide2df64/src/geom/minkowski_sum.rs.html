@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -327,9 +326,9 @@
 <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>Reflection</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>, <span class='ident'>Matrix</span>};
 
-<span class='doccomment'>/// Type of an implicit representation of the Configuration Space Obstacle
-</span><span class='doccomment'>/// formed by two geometric objects.
-</span><span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>CSO</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>MinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G2</span><span class='op'>&gt;&gt;</span>;
+<span class='doccomment'>/// Type of an implicit representation of the Configuration Space Obstacle</span>
+<span class='doccomment'>/// formed by two geometric objects.</span>
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>CSO</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>MinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G2</span><span class='op'>&gt;&gt;</span>;
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>AnnotatedCSO</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>AnnotatedMinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>Reflection</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G2</span><span class='op'>&gt;&gt;</span>;
 
 <span class='doccomment'>/**
@@ -340,8 +339,8 @@
  *
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
- */
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
+ */</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>MinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
     <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>,
     <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span>,
@@ -353,32 +352,32 @@
     <span class='doccomment'>/**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
-     */
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+     */</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G2</span>) <span class='op'>-&gt;</span> <span class='ident'>MinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
         <span class='ident'>MinkowskiSum</span> { <span class='ident'>m1</span>: <span class='ident'>m1</span>, <span class='ident'>g1</span>: <span class='ident'>g1</span>, <span class='ident'>m2</span>: <span class='ident'>m2</span>, <span class='ident'>g2</span>: <span class='ident'>g2</span> }
     }
 
-    <span class='doccomment'>/// The transformation matrix of the first geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The transformation matrix of the first geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m1</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
         <span class='self'>self</span>.<span class='ident'>m1</span>
     }
 
-    <span class='doccomment'>/// The transformation matrix of the second geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The transformation matrix of the second geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m2</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
         <span class='self'>self</span>.<span class='ident'>m2</span>
     }
 
-    <span class='doccomment'>/// The first geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The first geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g1</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span> {
         <span class='self'>self</span>.<span class='ident'>g1</span>
     }
 
-    <span class='doccomment'>/// The second geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The second geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g2</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G2</span> {
         <span class='self'>self</span>.<span class='ident'>g2</span>
     }
@@ -390,8 +389,8 @@
  *
  * * `G1`: type of the first object involved on the sum.
  * * `G2`: type of the second object involved on the sum.
- */
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
+ */</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>AnnotatedMinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
     <span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>,
     <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span>,
@@ -403,32 +402,32 @@
     <span class='doccomment'>/**
      * Builds the Minkowski sum of two geometries. Since the representation is
      * implicit, this is done in constant time.
-     */
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+     */</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>m1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>, <span class='ident'>g1</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span>, <span class='ident'>m2</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span>, <span class='ident'>g2</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G2</span>) <span class='op'>-&gt;</span> <span class='ident'>AnnotatedMinkowskiSum</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>G1</span>, <span class='ident'>G2</span><span class='op'>&gt;</span> {
         <span class='ident'>AnnotatedMinkowskiSum</span> { <span class='ident'>m1</span>: <span class='ident'>m1</span>, <span class='ident'>g1</span>: <span class='ident'>g1</span>, <span class='ident'>m2</span>: <span class='ident'>m2</span>, <span class='ident'>g2</span>: <span class='ident'>g2</span> }
     }
 
-    <span class='doccomment'>/// The transformation matrix of the first geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The transformation matrix of the first geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m1</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
         <span class='self'>self</span>.<span class='ident'>m1</span>
     }
 
-    <span class='doccomment'>/// The transformation matrix of the second geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The transformation matrix of the second geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>m2</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Matrix</span> {
         <span class='self'>self</span>.<span class='ident'>m2</span>
     }
 
-    <span class='doccomment'>/// The first geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The first geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g1</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G1</span> {
         <span class='self'>self</span>.<span class='ident'>g1</span>
     }
 
-    <span class='doccomment'>/// The second geometry of this Minkowski Sum.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// The second geometry of this Minkowski Sum.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>g2</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>G2</span> {
         <span class='self'>self</span>.<span class='ident'>g2</span>
     }
@@ -553,14 +552,14 @@
         <span class='ident'>na</span>::<span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span><span class='ident'>v</span>.<span class='ident'>point</span>)
     }
 
-    <span class='doccomment'>/// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>normalize_cpy</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>AnnotatedPoint</span>) <span class='op'>-&gt;</span> <span class='ident'>AnnotatedPoint</span> {
         <span class='ident'>AnnotatedPoint</span>::<span class='ident'>new</span>(<span class='ident'>v</span>.<span class='ident'>orig1</span>.<span class='ident'>clone</span>(), <span class='ident'>v</span>.<span class='ident'>orig2</span>.<span class='ident'>clone</span>(), <span class='ident'>na</span>::<span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='ident'>v</span>.<span class='ident'>point</span>))
     }
 
-    <span class='doccomment'>/// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='doccomment'>/// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Scalar</span> {
         <span class='self'>self</span>.<span class='ident'>point</span>.<span class='ident'>normalize</span>()
     }
@@ -617,9 +616,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>

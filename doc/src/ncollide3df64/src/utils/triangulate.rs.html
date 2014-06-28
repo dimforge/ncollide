@@ -23,7 +23,6 @@
 
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +31,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -212,8 +211,8 @@
 <span id='172'>172</span>
 <span id='173'>173</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Point cloud triangulation.
-</span>
+<span class='doccomment'>//! Point cloud triangulation.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>hashmap</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>FloatVec</span>, <span class='ident'>FloatVecExt</span>, <span class='ident'>Cast</span>, <span class='ident'>Vec3</span>};
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
@@ -248,16 +247,16 @@
     }
 }
 
-<span class='doccomment'>/// Incremental triangulation utility.
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Triangulator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='doccomment'>/// Incremental triangulation utility.</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Triangulator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='ident'>vertices</span>:  <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>,
     <span class='ident'>triangles</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Triangle</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;&gt;</span>,
     <span class='ident'>edges</span>:     <span class='ident'>HashMap</span><span class='op'>&lt;</span>(<span class='ident'>uint</span>, <span class='ident'>uint</span>), <span class='ident'>uint</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Float</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> <span class='ident'>Triangulator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new Triangulator.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>supertriangle_a</span>: <span class='ident'>V</span>, <span class='ident'>supertriangle_b</span>: <span class='ident'>V</span>, <span class='ident'>supertriangle_c</span>: <span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Triangulator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Creates a new Triangulator.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>supertriangle_a</span>: <span class='ident'>V</span>, <span class='ident'>supertriangle_b</span>: <span class='ident'>V</span>, <span class='ident'>supertriangle_c</span>: <span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Triangulator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>vertices</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>supertriangle_a</span>, <span class='ident'>supertriangle_b</span>, <span class='ident'>supertriangle_c</span>);
 
         <span class='ident'>Triangulator</span> {
@@ -267,8 +266,8 @@
         }
     }
 
-    <span class='doccomment'>/// Adds a point to the triangulated set.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_point</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pt</span>: <span class='ident'>V</span>) {
+    <span class='doccomment'>/// Adds a point to the triangulated set.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>add_point</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pt</span>: <span class='ident'>V</span>) {
         <span class='self'>self</span>.<span class='ident'>remove_containing_triangles_and_register_edges</span>(<span class='kw-2'>&amp;</span><span class='ident'>pt</span>);
 
         <span class='kw'>let</span> <span class='ident'>ipt</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vertices</span>.<span class='ident'>len</span>();
@@ -283,8 +282,8 @@
         }
     }
 
-    <span class='doccomment'>/// Returns the result of the triangulation.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_trimesh</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Returns the result of the triangulation.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_trimesh</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='self'>self</span>.<span class='ident'>triangles</span>.<span class='ident'>len</span>());
 
         <span class='kw'>let</span> _ <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>vertices</span>.<span class='ident'>swap_remove</span>(<span class='number'>2</span>);
@@ -344,14 +343,14 @@
     }
 }
 
-<span class='doccomment'>/// Triangulates a set of point (sort of) lying on the same 2d plane.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
-</span><span class='doccomment'>/// attached together in an unnatural way). Though, if they are only slighly perturbated on the
-</span><span class='doccomment'>/// directions orthogonal to the plane, this should be fine.
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>triangulate</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>FloatVecExt</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='ident'>pts</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>V</span>]) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {<span class='comment'>
+<span class='doccomment'>/// Triangulates a set of point (sort of) lying on the same 2d plane.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If the points do not lie on the same 2d plane, strange things might happends (triangle might be</span>
+<span class='doccomment'>/// attached together in an unnatural way). Though, if they are only slighly perturbated on the</span>
+<span class='doccomment'>/// directions orthogonal to the plane, this should be fine.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>triangulate</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>FloatVecExt</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span><span class='op'>&gt;</span>(<span class='ident'>pts</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>V</span>]) <span class='op'>-&gt;</span> <span class='ident'>TriMesh</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {<span class='comment'>
     //// Compute the super-triangle
-    </span><span class='kw'>let</span> (<span class='ident'>center</span>, <span class='ident'>radius</span>) <span class='op'>=</span> <span class='ident'>bounding_volume</span>::<span class='ident'>bounding_sphere</span>(<span class='ident'>pts</span>);
+    </span><span class='kw'>let</span> (<span class='ident'>center</span>, <span class='ident'>radius</span>) <span class='op'>=</span> <span class='ident'>bounding_volume</span>::<span class='ident'>point_cloud_bounding_sphere</span>(<span class='ident'>pts</span>);
     <span class='kw'>let</span> <span class='ident'>radius</span>           <span class='op'>=</span> <span class='ident'>radius</span> <span class='op'>*</span> <span class='ident'>na</span>::<span class='ident'>cast</span>(<span class='number'>2.0</span>);<span class='comment'>
 
     // Compute a triangle with (center, radius) as its inscribed circle.
@@ -399,9 +398,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
