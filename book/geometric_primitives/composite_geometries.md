@@ -80,7 +80,6 @@ for geometries that implement both the `Geom` **and** `Volumetric` traits. In
 
 ###### 2d example:
 ```rust
-```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -5.0), na::zero());
 let delta2 = Iso2::new(Vec2::new(-5.0f32, 0.0), na::zero());
@@ -112,7 +111,7 @@ let cuboid = Cuboid::new(Vec2::new(0.75f32, 5.0);
 // Make ncollide compute the mass properties of the cuboid.
 let mass_properties = cuboid.mass_properties();
 // Build the shared geometry.
-let shared_cuboid = Rc::new(box  as Box<Cuboid>));
+let shared_cuboid = Rc::new(box as Box<Cuboid>));
 // Add the geometry to the compound data.
 compound_data.push_geom(delta3, shared_cuboid.clone(), mass_properties);
 // `shared_cuboid` can still be used thereafter…

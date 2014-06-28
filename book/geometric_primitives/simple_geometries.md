@@ -17,7 +17,7 @@ let ball = Ball::new(1.0);
 assert!(ball.radius() == 1.0);
 ```
 
-![fixme](ball2d) ![fixme](ball3d)
+![3d ball](../img/ball3d.png) ![fixme](ball3d)
 
 
 ## The Cuboid
@@ -35,17 +35,17 @@ equal to the margin.
 
 ###### 3D example:
 ```rust
-let cuboid = Cuboid::new(Vec3::new(1.0, 2.0, 3.0));
-assert!(cuboid.margin() == 0.04); // default margin.
+let cuboid = Cuboid::new_with_margin(Vec3::new(1.0, 2.0, 3.0), 0.2);
+assert!(cuboid.margin() == 0.2); // user-defined margin
 
 ```
 
- ![fixme](cuboid3d)
+ ![3d cuboid](../img/cuboid3d.png)
 
 ###### 2D example:
 ```rust
-let cuboid = Cuboid::new_with_margin(Vec2::new(1.0, 2.0), 0.2);
-assert!(cuboid.margin() == 0.2); // user-defined margin
+let cuboid = Cuboid::new(Vec2::new(1.0, 2.0));
+assert!(cuboid.margin() == 0.04); // default margin
 ```
 
 ![fixme](cuboid2d)
@@ -65,15 +65,19 @@ instead), or a cylinder in three dimensions. The principal axis is the positive
 
 ###### 3D example:
 ```rust
-let cylinder1 = Cylinder::new(1.0, 0.5);
-let cylinder2 = Cylinder::new_with_margin(1.0, 0.5, 0.1);
+let cylinder1 = Cylinder::new(0.5, 1.0);
+let cylinder2 = Cylinder::new_with_margin(0.5, 1.0, 0.2);
 
 assert!(cylinder1.margin() == 0.04); // default margin
-assert!(cylinder2.margin() == 0.1);  // user-defined margin
+assert!(cylinder2.margin() == 0.2);  // user-defined margin
 ```
 
-![fixme](cylinder3d_1)
-![fixme](cylinder3d_2)
+<table cellspacing="0" cellpadding="0" align="center" style="border:none;outline:none;">
+<tr style="border:none;outline:none;">
+<td style="border:none;outline:none;"><img src="../img/cylinder3d.png" title="margin = 0.04" alt="margin = 0.04" /></td>
+<td style="border:none;outline:none;"><img src="../img/cylinder3d_margin.png" title="margin = 0.2" alt="margin = 0.2" /></td>
+</tr>
+</table>
 
 
 ## The Cone
@@ -90,14 +94,19 @@ The principal axis is the positive `y` axis.
 
 ###### 3D example:
 ```rust
-let cone1 = Cone::new(1.0, 0.5);
-let cone2 = Cone::new_with_margin(1.0, 0.5, 0.1);
+let cone1 = Cone::new(0.5, 0.75);
+let cone2 = Cone::new_with_margin(0.5, 0.75, 0.1);
 
 assert!(cone1.margin() == 0.04); // default margin
 assert!(cone2.margin() == 0.1);  // user-defined margin
 ```
 
-![fixme](cone2d) ![fixme](cone3d)
+<table cellspacing="0" cellpadding="0" align="center" style="border:none;outline:none;">
+<tr style="border:none;outline:none;">
+<td style="border:none;outline:none;"><img src="../img/cone3d.png" title="margin = 0.04" alt="margin = 0.04" /></td>
+<td style="border:none;outline:none;"><img src="../img/cone3d_margin.png" title="margin = 0.2" alt="margin = 0.2" /></td>
+</tr>
+</table>
 
 ## The Capsule
 The `Capsule` structure describes the minkowski sum of a segment and a ball. In
