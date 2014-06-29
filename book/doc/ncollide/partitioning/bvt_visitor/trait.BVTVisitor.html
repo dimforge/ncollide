@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::partitioning::bvt_visitor::BVTVisitor - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>partitioning</a>&#8203;::<a href='index.html'>bvt_visitor</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BoundingVolumeInterferencesCollector.html'>BoundingVolumeInterferencesCollector</a><br/><a class='struct ' href='struct.RayInterferencesCollector.html'>RayInterferencesCollector</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait current' href='trait.BVTVisitor.html'>BVTVisitor</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait"><a class='source'
+                       href='../../../src/ncollide/src/partitioning/bvt_visitor.rs.html#9-29'>[src]</a><h1 class='fqn'>Trait <a href='../../index.html'>ncollide</a>::<a href='../index.html'>partitioning</a>::<a href='index.html'>bvt_visitor</a>::<a class='trait' href=''>BVTVisitor</a></h1><pre class='trait'>pub trait BVTVisitor&lt;B, BV&gt; {
+    fn <a href='#tymethod.visit_internal'
+                                    class='fnname'>visit_internal</a>(&amp;mut self, &amp;BV) -&gt; bool;
+    fn <a href='#tymethod.visit_leaf'
+                                    class='fnname'>visit_leaf</a>(&amp;mut self, &amp;B, &amp;BV);
+
+    fn <a href='#method.visit_internal_mut'
+                                    class='fnname'>visit_internal_mut</a>(&amp;mut self, bv: &amp;mut BV) -&gt; bool { ... }
+    fn <a href='#method.visit_leaf_mut'
+                                    class='fnname'>visit_leaf_mut</a>(&amp;mut self, b: &amp;mut B, bv: &amp;mut BV) { ... }
+}</pre><div class='docblock'><p>Visitor of Bounding Volume Trees.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.visit_internal' class='method'><code>fn <span class='fnname'>visit_internal</span>(&amp;mut self, &amp;BV) -&gt; bool</code></h3><div class='docblock'><p>Visits an internal node. Returns <code>true</code> if the internal node children have to be visited
+too.</p>
+</div><h3 id='tymethod.visit_leaf' class='method'><code>fn <span class='fnname'>visit_leaf</span>(&amp;mut self, &amp;B, &amp;BV)</code></h3><div class='docblock'><p>Visits a leaf.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.visit_internal_mut' class='method'><code>fn <span class='fnname'>visit_internal_mut</span>(&amp;mut self, bv: &amp;mut BV) -&gt; bool</code></h3><div class='docblock'><p>Visits an internal node. Returns <code>true</code> if the internal node children have to be visited
+too.</p>
+</div><h3 id='method.visit_leaf_mut' class='method'><code>fn <span class='fnname'>visit_leaf_mut</span>(&amp;mut self, b: &amp;mut B, bv: &amp;mut BV)</code></h3><div class='docblock'><p>Visits a leaf.</p>
+</div></div>
+                    <h2 id='implementors'>Implementors</h2>
+                    <ul class='item-list'>
+                <li><code><a class='struct' href='../../../ncollide/partitioning/bvt_visitor/struct.BoundingVolumeInterferencesCollector.html' title='ncollide::partitioning::bvt_visitor::BoundingVolumeInterferencesCollector'>BoundingVolumeInterferencesCollector</a>&lt;'a, B, BV&gt;</code></li><li><code><a class='struct' href='../../../ncollide/partitioning/bvt_visitor/struct.RayInterferencesCollector.html' title='ncollide::partitioning::bvt_visitor::RayInterferencesCollector'>RayInterferencesCollector</a>&lt;'a, V, B&gt;</code></li></ul></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

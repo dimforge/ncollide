@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::util::hash_map::Entry - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>util</a>&#8203;::<a href='index.html'>hash_map</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.Entry.html'>Entry</a><br/><a class='struct ' href='struct.HashMap.html'>HashMap</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                       href='../../../src/ncollide/src/util/hash_map.rs.html#10-15'>[src]</a><h1 class='fqn'>Struct <a href='../../index.html'>ncollide</a>::<a href='../index.html'>util</a>::<a href='index.html'>hash_map</a>::<a class='struct' href=''>Entry</a></h1><pre class='struct'>pub struct Entry&lt;K, V&gt; {
+    key: K,
+    value: V,
+}</pre><div class='docblock'><p>Entry of an <code>HashMap</code>.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr><td id='structfield.key'><code>key</code></td><td><div class='docblock'><p>The key of the entry.</p>
+</div></td></tr><tr><td id='structfield.value'><code>value</code></td><td><div class='docblock'><p>The value of the entry.</p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;K: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> for <a class='struct' href='../../../ncollide/util/hash_map/struct.Entry.html' title='ncollide::util::hash_map::Entry'>Entry</a>&lt;K, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.clone' class='method'><code>fn <span class='fnname'>clone</span>(&amp;self) -&gt; <a class='struct' href='../../../ncollide/util/hash_map/struct.Entry.html' title='ncollide::util::hash_map::Entry'>Entry</a>&lt;K, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encoder.html' title='extra::serialize::Encoder'>Encoder</a>, K: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt; for <a class='struct' href='../../../ncollide/util/hash_map/struct.Entry.html' title='ncollide::util::hash_map::Entry'>Entry</a>&lt;K, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decoder.html' title='extra::serialize::Decoder'>Decoder</a>, K: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt; for <a class='struct' href='../../../ncollide/util/hash_map/struct.Entry.html' title='ncollide::util::hash_map::Entry'>Entry</a>&lt;K, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.decode' class='method'><code>fn <span class='fnname'>decode</span>(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='../../../ncollide/util/hash_map/struct.Entry.html' title='ncollide::util::hash_map::Entry'>Entry</a>&lt;K, V&gt;</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

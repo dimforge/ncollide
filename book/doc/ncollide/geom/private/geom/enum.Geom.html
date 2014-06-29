@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::geom::private::geom::Geom - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../../index.html'>ncollide</a>&#8203;::<a href='../../index.html'>geom</a>&#8203;::<a href='../index.html'>private</a>&#8203;::<a href='index.html'>geom</a></p><div class='block enum'><h2>Enums</h2><a class='enum current' href='enum.Geom.html'>Geom</a><br/><a class='enum ' href='enum.IGeom.html'>IGeom</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <input class="search-input" name="search"
+                   autocomplete="off" />
+            <button class="do-search">Search</button>
+        </form>
+    </nav>
+
+    <section class="content enum"><h1 class='fqn'>Enum <a href='../../../index.html'>ncollide</a>::<a href='../../index.html'>geom</a>::<a href='../index.html'>private</a>::<a href='index.html'>geom</a>::<a class='enum' href=''>Geom</a></h1><pre class='enum'>pub enum Geom&lt;N, V, M, II&gt; {
+    <a name='variant.PlaneGeom'>PlaneGeom</a>(<a class='struct' href='../plane/struct.Plane.html' title='ncollide::geom::private::plane::Plane'>Plane</a>&lt;N, V&gt;),
+    <a name='variant.CompoundGeom'>CompoundGeom</a>(@<a class='struct' href='../compound/struct.CompoundAABB.html' title='ncollide::geom::private::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;&gt;),
+    <a name='variant.ImplicitGeom'>ImplicitGeom</a>(<a class='enum' href='enum.IGeom.html' title='ncollide::geom::private::geom::IGeom'>IGeom</a>&lt;N, V, M&gt;),
+}</pre><div class='docblock'><p>Enumeration grouping all common shapes. Used to simplify collision detection
+dispatch.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: std::num::One + std::to_str::ToStr, V: std::to_str::ToStr, M, II: std::to_str::ToStr&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.new_plane' class='method'><code>fn <span class='fnname'>new_plane</span>(p: <a class='struct' href='../plane/struct.Plane.html' title='ncollide::geom::private::plane::Plane'>Plane</a>&lt;N, V&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a plane.</p>
+</div><h4 id='fn.new_compound' class='method'><code>fn <span class='fnname'>new_compound</span>(c: @<a class='struct' href='../compound/struct.CompoundAABB.html' title='ncollide::geom::private::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a compound geometry.</p>
+</div><h4 id='fn.new_ball' class='method'><code>fn <span class='fnname'>new_ball</span>(b: <a class='struct' href='../ball/struct.Ball.html' title='ncollide::geom::private::ball::Ball'>Ball</a>&lt;N&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a ball.</p>
+</div><h4 id='fn.new_cylinder' class='method'><code>fn <span class='fnname'>new_cylinder</span>(b: <a class='struct' href='../cylinder/struct.Cylinder.html' title='ncollide::geom::private::cylinder::Cylinder'>Cylinder</a>&lt;N&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a cylinder.</p>
+</div><h4 id='fn.new_box' class='method'><code>fn <span class='fnname'>new_box</span>(b: <a class='struct' href='../box/struct.Box.html' title='ncollide::geom::private::box::Box'>Box</a>&lt;N, V&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a box.</p>
+</div><h4 id='fn.new_cone' class='method'><code>fn <span class='fnname'>new_cone</span>(b: <a class='struct' href='../cone/struct.Cone.html' title='ncollide::geom::private::cone::Cone'>Cone</a>&lt;N&gt;) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>Geom</code> from a cone.</p>
+</div></div><h3 class='impl'><code>impl&lt;N, V, M, II&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.plane' class='method'><code>fn <span class='fnname'>plane</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../plane/struct.Plane.html' title='ncollide::geom::private::plane::Plane'>Plane</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a plane from the enumation. Fails if the
+pattern <code>Plane(_)</code> is not matched.</p>
+</div><h4 id='fn.compound' class='method'><code>fn <span class='fnname'>compound</span>(&amp;self) -&gt; @<a class='struct' href='../compound/struct.CompoundAABB.html' title='ncollide::geom::private::compound::CompoundAABB'>CompoundAABB</a>&lt;N, V, M, <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a compound geometry from the enumation. Fails if the
+pattern <code>Compound(_)</code> is not matched.</p>
+</div><h4 id='fn.implicit' class='method'><code>fn <span class='fnname'>implicit</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='enum' href='enum.IGeom.html' title='ncollide::geom::private::geom::IGeom'>IGeom</a>&lt;N, V, M&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract an implicit geometry from the enumation. Fails if the
+pattern <code>Implicit(_)</code> is not matched.</p>
+</div><h4 id='fn.ball' class='method'><code>fn <span class='fnname'>ball</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../ball/struct.Ball.html' title='ncollide::geom::private::ball::Ball'>Ball</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a ball from the enumation. Fails if the
+pattern <code>Implicit(Ball(_))</code> is not matched.</p>
+</div><h4 id='fn.cone' class='method'><code>fn <span class='fnname'>cone</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../cone/struct.Cone.html' title='ncollide::geom::private::cone::Cone'>Cone</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a cone from the enumation. Fails if the
+pattern <code>Implicit(Cone(_))</code> is not matched.</p>
+</div><h4 id='fn.cylinder' class='method'><code>fn <span class='fnname'>cylinder</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../cylinder/struct.Cylinder.html' title='ncollide::geom::private::cylinder::Cylinder'>Cylinder</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a cylinder from the enumation. Fails if the
+pattern <code>Implicit(Cylinder(_))</code> is not matched.</p>
+</div><h4 id='fn.box' class='method'><code>fn <span class='fnname'>box</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../box/struct.Box.html' title='ncollide::geom::private::box::Box'>Box</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Convenience method to extract a box from the enumation. Fails if the
+pattern <code>Implicit(Box(_))</code> is not matched.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: std::clone::Clone, V: std::clone::Clone, M: std::clone::Clone, II: std::clone::Clone&gt; std::clone::Clone for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.clone' class='method'><code>fn <span class='fnname'>clone</span>(&amp;self) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: extra::serialize::Encoder, N: extra::serialize::Encodable, V: extra::serialize::Encodable, M: extra::serialize::Encodable, II: extra::serialize::Encodable&gt; extra::serialize::Encodable for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: extra::serialize::Decoder, N: extra::serialize::Decodable, V: extra::serialize::Decodable, M: extra::serialize::Decodable, II: extra::serialize::Decodable&gt; extra::serialize::Decodable for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.decode' class='method'><code>fn <span class='fnname'>decode</span>(__arg_0: &amp;mut __D) -&gt; <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: std::num::NumCast + std::num::Primitive + std::num::Orderable + std::num::Algebraic + std::num::Signed + std::clone::Clone + std::to_str::ToStr, V: nalgebra::traits::structure::AlgebraicVecExt + std::clone::Clone + std::to_str::ToStr, M: nalgebra::traits::geometry::Translation + nalgebra::traits::geometry::Rotate + nalgebra::traits::geometry::Transform + std::ops::Mul + nalgebra::traits::geometry::AbsoluteRotate, II&gt; <a class='trait' href='../../../bounding_volume/aabb/trait.HasAABB.html' title='ncollide::bounding_volume::aabb::HasAABB'>HasAABB</a>&lt;N, V, M&gt; for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.aabb' class='method'><code>fn <span class='fnname'>aabb</span>(&amp;self, m: &amp;M) -&gt; <a class='struct' href='../../../bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>The object’s AABB.</p>
+</div></div><h3 class='impl'><code>impl&lt;N: std::num::Algebraic + std::num::Bounded + std::num::Orderable + std::num::Primitive + std::num::Float + std::clone::Clone + std::to_str::ToStr, V: 'static + nalgebra::traits::structure::AlgebraicVecExt + std::clone::Clone + std::to_str::ToStr, M: nalgebra::traits::geometry::Rotate + nalgebra::traits::geometry::Transform, II&gt; <a class='trait' href='../../../ray/private/ray/trait.RayCast.html' title='ncollide::ray::private::ray::RayCast'>RayCast</a>&lt;N, V&gt; for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'><h4 id='fn.toi_with_ray' class='method'><code>fn <span class='fnname'>toi_with_ray</span>(&amp;self, ray: &amp;<a class='struct' href='../../../ray/private/ray/struct.Ray.html' title='ncollide::ray::private::ray::Ray'>Ray</a>&lt;V&gt;) -&gt; std::option::Option</code></h4>
+<div class='docblock'><p>Computes the time of impact between this geometry and a ray</p>
+</div></div><h3 class='impl'><code>impl&lt;N: std::num::Algebraic + std::num::Bounded + std::num::Orderable + std::num::Primitive + std::num::Float + std::clone::Clone + std::to_str::ToStr, V: 'static + nalgebra::traits::structure::AlgebraicVecExt + std::clone::Clone + std::to_str::ToStr, M: nalgebra::traits::geometry::Rotate + nalgebra::traits::geometry::Transform, II&gt; <a class='trait' href='../../../ray/private/ray/trait.RayCastWithTransform.html' title='ncollide::ray::private::ray::RayCastWithTransform'>RayCastWithTransform</a>&lt;N, V, M&gt; for <a class='enum' href='enum.Geom.html' title='ncollide::geom::private::geom::Geom'>Geom</a>&lt;N, V, M, II&gt;</code></h3><div class='methods'></div></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

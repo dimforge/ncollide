@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::bounding_volume::aabb::AABB - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>bounding_volume</a>&#8203;::<a href='index.html'>aabb</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.AABB.html'>AABB</a><br/><a class='struct ' href='struct.WithAABB.html'>WithAABB</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct"><a class='source'
+                       href='../../../src/ncollide/src/bounding_volume/aabb.rs.html#19-22'>[src]</a><h1 class='fqn'>Struct <a href='../../index.html'>ncollide</a>::<a href='../index.html'>bounding_volume</a>::<a href='index.html'>aabb</a>::<a class='struct' href=''>AABB</a></h1><pre class='struct'>pub struct AABB&lt;N, V&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>An Axis Aligned Bounding Box.</p>
+
+<h1>Parameter:</h1>
+
+<ul>
+<li><code>V</code> - type of the points of the bounding box. It determines the AABB dimension.</li>
+<li><code>N</code> - type of the one components of the aabb points.</li>
+</ul>
+</div><h2 class='fields'>Fields</h2>
+<table></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N, V&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.mins' class='method'><code>fn <span class='fnname'>mins</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r V</code></h4>
+<div class='docblock'><p>Reference to the AABB point with the smallest components along each axis.</p>
+</div><h4 id='method.maxs' class='method'><code>fn <span class='fnname'>maxs</span>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r V</code></h4>
+<div class='docblock'><p>Reference to the AABB point with the bigest components along each axis.</p>
+</div></div><h3 class='impl'><code>impl&lt;V: VecExt&lt;N&gt;, N&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <span class='fnname'>new</span>(mins: V, maxs: V) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Creates a new AABB.</p>
+
+<h1>Arguments:</h1>
+
+<ul>
+<li><code>mins</code> - position of the point with the smallest coordinates.</li>
+<li><code>maxs</code> - position of the point with the highest coordinates. Each component of <code>mins</code>
+must be smaller than the related components of <code>maxs</code>.</li>
+</ul>
+</div><h4 id='method.new_invalid' class='method'><code>fn <span class='fnname'>new_invalid</span>() -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Creates an invalid AABB with:
+    * <code>mins = Bounded::max_value()</code>
+    * <code>maxs = Bounded::max_value()</code>.
+This is useful to build aabb using merges.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/to_str/trait.ToStr.html' title='std::to_str::ToStr'>ToStr</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/to_str/trait.ToStr.html' title='std::to_str::ToStr'>ToStr</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/to_str/trait.ToStr.html' title='std::to_str::ToStr'>ToStr</a> for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.to_str' class='method'><code>fn <span class='fnname'>to_str</span>(&amp;self) -&gt; ~str</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Eq.html' title='std::cmp::Eq'>Eq</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Eq.html' title='std::cmp::Eq'>Eq</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Eq.html' title='std::cmp::Eq'>Eq</a> for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.eq' class='method'><code>fn <span class='fnname'>eq</span>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;) -&gt; bool</code></h4>
+<h4 id='method.ne' class='method'><code>fn <span class='fnname'>ne</span>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;) -&gt; bool</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, V: <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.clone' class='method'><code>fn <span class='fnname'>clone</span>(&amp;self) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;__E: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encoder.html' title='extra::serialize::Encoder'>Encoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Encodable.html' title='extra::serialize::Encodable'>Encodable</a>&lt;__E&gt; for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.encode' class='method'><code>fn <span class='fnname'>encode</span>(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decoder.html' title='extra::serialize::Decoder'>Decoder</a>, N: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;, V: <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt;&gt; <a class='trait' href='http://static.rust-lang.org/doc/master/extra/serialize/trait.Decodable.html' title='extra::serialize::Decodable'>Decodable</a>&lt;__D&gt; for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='docblock'><p>Automatically derived.</p>
+</div><div class='methods'><h4 id='method.decode' class='method'><code>fn <span class='fnname'>decode</span>(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a>, V: VecExt&lt;N&gt;&gt; <a class='trait' href='../../../ncollide/bounding_volume/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::bounding_volume::BoundingVolume'>BoundingVolume</a> for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.intersects' class='method'><code>fn <span class='fnname'>intersects</span>(&amp;self, other: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;) -&gt; bool</code></h4>
+<div class='docblock'><p>Checks if this bounding volume intersect with another one.</p>
+</div><h4 id='method.contains' class='method'><code>fn <span class='fnname'>contains</span>(&amp;self, other: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;) -&gt; bool</code></h4>
+<div class='docblock'><p>Checks if this bounding volume contains another one.</p>
+</div><h4 id='method.merge' class='method'><code>fn <span class='fnname'>merge</span>(&amp;mut self, other: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;)</code></h4>
+<div class='docblock'><p>Merges this bounding volume with another one. The merge is done in-place.</p>
+</div><h4 id='method.merged' class='method'><code>fn <span class='fnname'>merged</span>(&amp;self, other: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Merges this bounding volume with another one.</p>
+</div></div><h3 class='impl'><code>impl&lt;V: VecExt&lt;N&gt;, N: Cast&lt;f32&gt;&gt; Translation&lt;V&gt; for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.translation' class='method'><code>fn <span class='fnname'>translation</span>(&amp;self) -&gt; V</code></h4>
+<h4 id='method.inv_translation' class='method'><code>fn <span class='fnname'>inv_translation</span>(&amp;self) -&gt; V</code></h4>
+<h4 id='method.append_translation' class='method'><code>fn <span class='fnname'>append_translation</span>(&amp;mut self, dv: &amp;V)</code></h4>
+<h4 id='method.append_translation_cpy' class='method'><code>fn <span class='fnname'>append_translation_cpy</span>(aabb: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;, dv: &amp;V) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<h4 id='method.prepend_translation' class='method'><code>fn <span class='fnname'>prepend_translation</span>(&amp;mut self, dv: &amp;V)</code></h4>
+<h4 id='method.prepend_translation_cpy' class='method'><code>fn <span class='fnname'>prepend_translation_cpy</span>(aabb: &amp;<a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;, dv: &amp;V) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<h4 id='method.set_translation' class='method'><code>fn <span class='fnname'>set_translation</span>(&amp;mut self, v: V)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Primitive.html' title='std::num::Primitive'>Primitive</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Orderable.html' title='std::num::Orderable'>Orderable</a>, V: VecExt&lt;N&gt;&gt; <a class='trait' href='../../../ncollide/bounding_volume/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide::bounding_volume::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a>&lt;N&gt; for <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='method.loosen' class='method'><code>fn <span class='fnname'>loosen</span>(&amp;mut self, amount: N)</code></h4>
+<div class='docblock'><p>Enlarges this bounding volume.</p>
+</div><h4 id='method.loosened' class='method'><code>fn <span class='fnname'>loosened</span>(&amp;self, amount: N) -&gt; <a class='struct' href='../../../ncollide/bounding_volume/aabb/struct.AABB.html' title='ncollide::bounding_volume::aabb::AABB'>AABB</a>&lt;N, V&gt;</code></h4>
+<div class='docblock'><p>Creates a new, enlarged version, of this bounding volume.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

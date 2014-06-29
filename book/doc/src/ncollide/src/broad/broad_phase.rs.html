@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>broad_phase.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'> 1</span>
+<span id='2'> 2</span>
+<span id='3'> 3</span>
+<span id='4'> 4</span>
+<span id='5'> 5</span>
+<span id='6'> 6</span>
+<span id='7'> 7</span>
+<span id='8'> 8</span>
+<span id='9'> 9</span>
+<span id='10'>10</span>
+<span id='11'>11</span>
+<span id='12'>12</span>
+<span id='13'>13</span>
+<span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
+<span id='18'>18</span>
+<span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
+<span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+<span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
+<span id='42'>42</span>
+<span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+</pre><pre class='rust'>use ray::Ray;
+
+/// Trait all broad phase must implement.
+///
+/// This does not do much per se. Useful features are provided by the
+/// traits: `InterferencesBroadPhase`, `BoundingVolumeBroadPhase`, and `RayCastBroadPhase`.
+pub trait BroadPhase&lt;B&gt; {
+    /// Adds an element to this broad phase.
+    fn add(&amp;mut self, @mut B);
+    /// Removes an element from this broad phase.
+    fn remove(&amp;mut self, @mut B);
+
+    /// Updates the collision pairs based on the objects bounding volumes.
+    fn update(&amp;mut self);
+    /// Updates the collision pairs involving one specific object.
+    fn update_object(&amp;mut self, @mut B);
+}
+
+/// Broad phase which check for pairwise interferences.
+///
+/// This is the most common feature provided by broad phases.
+pub trait InterferencesBroadPhase&lt;B, DV&gt; : BroadPhase&lt;B&gt; {
+    /// Marks and object as active.
+    ///
+    /// Active objects are checked for interferences at each update.
+    fn activate(&amp;mut self, body: @mut B, f: |@mut B, @mut B, &amp;mut DV| -&gt; ());
+    /// Marks and object as inactive.
+    ///
+    /// Inactive objects are assumed to be static and not tested for mutual interferences.
+    fn deactivate(&amp;mut self, @mut B);
+
+    /// Execute a function on each interefence detected by the broad phase.
+    fn for_each_pair(&amp;self, f: |@mut B, @mut B, &amp;DV| -&gt; ());
+    /// Execute a function on each interefence detected by the broad phase.
+    fn for_each_pair_mut(&amp;mut self, f: |@mut B, @mut B, &amp;mut DV| -&gt; ());
+}
+
+/// Trait of broad phases working with bounding volume.
+pub trait BoundingVolumeBroadPhase&lt;B, BV&gt; : BroadPhase&lt;B&gt; {
+    /// Collects every object which might intersect a given bounding volume.
+    fn interferences_with_bounding_volume(&amp;mut self, &amp;BV, &amp;mut ~[@mut B]);
+}
+
+/// Traits of broad phase able to run fast ray-cast queries.
+pub trait RayCastBroadPhase&lt;V, B&gt; : BroadPhase&lt;B&gt; {
+    /// Collects every object which might intersect a ray.
+    fn interferences_with_ray(&amp;mut self, &amp;Ray&lt;V&gt;, &amp;mut ~[@mut B]);
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

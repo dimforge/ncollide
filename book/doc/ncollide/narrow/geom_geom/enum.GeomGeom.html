@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::narrow::geom_geom::GeomGeom - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>ncollide</a>&#8203;::<a href='../index.html'>narrow</a>&#8203;::<a href='index.html'>geom_geom</a></p><div class='block enum'><h2>Enums</h2><a class='enum current' href='enum.GeomGeom.html'>GeomGeom</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.toi.html'>toi</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum"><a class='source'
+                       href='../../../src/ncollide/src/narrow/geom_geom.rs.html#26-52'>[src]</a><h1 class='fqn'>Enum <a href='../../index.html'>ncollide</a>::<a href='../index.html'>narrow</a>::<a href='index.html'>geom_geom</a>::<a class='enum' href=''>GeomGeom</a></h1><pre class='enum'>pub enum GeomGeom&lt;N, LV, AV, M&gt; {
+    BallBall(<a class='struct' href='../../../ncollide/narrow/ball_ball/struct.BallBall.html' title='ncollide::narrow::ball_ball::BallBall'>BallBall</a>&lt;N, LV, M&gt;),
+    BallPlane(<a class='struct' href='../../../ncollide/narrow/plane_implicit/struct.ImplicitPlane.html' title='ncollide::narrow::plane_implicit::ImplicitPlane'>ImplicitPlane</a>&lt;N, LV, M, <a class='struct' href='../../../ncollide/geom/ball/struct.Ball.html' title='ncollide::geom::ball::Ball'>Ball</a>&lt;N&gt;&gt;),
+    PlaneBall(<a class='struct' href='../../../ncollide/narrow/plane_implicit/struct.PlaneImplicit.html' title='ncollide::narrow::plane_implicit::PlaneImplicit'>PlaneImplicit</a>&lt;N, LV, M, <a class='struct' href='../../../ncollide/geom/ball/struct.Ball.html' title='ncollide::geom::ball::Ball'>Ball</a>&lt;N&gt;&gt;),
+    BallImplicit(<a class='struct' href='../../../ncollide/narrow/implicit_implicit/struct.ImplicitImplicit.html' title='ncollide::narrow::implicit_implicit::ImplicitImplicit'>ImplicitImplicit</a>&lt;S&lt;N, LV&gt;, <a class='struct' href='../../../ncollide/geom/ball/struct.Ball.html' title='ncollide::geom::ball::Ball'>Ball</a>&lt;N&gt;, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;, N, LV&gt;),
+    ImplicitBall(<a class='struct' href='../../../ncollide/narrow/implicit_implicit/struct.ImplicitImplicit.html' title='ncollide::narrow::implicit_implicit::ImplicitImplicit'>ImplicitImplicit</a>&lt;S&lt;N, LV&gt;, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;, <a class='struct' href='../../../ncollide/geom/ball/struct.Ball.html' title='ncollide::geom::ball::Ball'>Ball</a>&lt;N&gt;, N, LV&gt;),
+    PlaneImplicit(<a class='struct' href='../../../ncollide/narrow/one_shot_contact_manifold_generator/struct.OneShotContactManifoldGenerator.html' title='ncollide::narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator'>OSCMG</a>&lt;<a class='struct' href='../../../ncollide/narrow/plane_implicit/struct.PlaneImplicit.html' title='ncollide::narrow::plane_implicit::PlaneImplicit'>PlaneImplicit</a>&lt;N, LV, M, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;&gt;, N, LV, AV, M&gt;),
+    ImplicitPlane(<a class='struct' href='../../../ncollide/narrow/one_shot_contact_manifold_generator/struct.OneShotContactManifoldGenerator.html' title='ncollide::narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator'>OSCMG</a>&lt;<a class='struct' href='../../../ncollide/narrow/plane_implicit/struct.ImplicitPlane.html' title='ncollide::narrow::plane_implicit::ImplicitPlane'>ImplicitPlane</a>&lt;N, LV, M, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;&gt;, N, LV, AV, M&gt;),
+    ImplicitImplicit(<a class='struct' href='../../../ncollide/narrow/one_shot_contact_manifold_generator/struct.OneShotContactManifoldGenerator.html' title='ncollide::narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator'>OSCMG</a>&lt;<a class='struct' href='../../../ncollide/narrow/implicit_implicit/struct.ImplicitImplicit.html' title='ncollide::narrow::implicit_implicit::ImplicitImplicit'>ImplicitImplicit</a>&lt;S&lt;N, LV&gt;, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;, <a class='enum' href='../../../ncollide/geom/geom/enum.IGeom.html' title='ncollide::geom::geom::IGeom'>IGeom</a>&lt;N, LV, M&gt;, N, LV&gt;, N, LV, AV, M&gt;),
+    CompoundCompound(<a class='struct' href='../../../ncollide/narrow/compound_compound/struct.CompoundAABBCompoundAABB.html' title='ncollide::narrow::compound_compound::CompoundAABBCompoundAABB'>CompoundAABBCompoundAABB</a>&lt;N, LV, M, <a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, Dispatcher&lt;N, LV, AV, M&gt;, <a class='enum' href='../../../ncollide/narrow/geom_geom/enum.GeomGeom.html' title='ncollide::narrow::geom_geom::GeomGeom'>GeomGeom</a>&lt;N, LV, AV, M&gt;&gt;),
+    CompoundAny(CA&lt;N, LV, AV, M&gt;),
+    AnyCompound(AC&lt;N, LV, AV, M&gt;),
+}</pre><div class='docblock'><p>Enum grouping collision detectors.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.BallBall'><code>BallBall</code></td><td><div class='docblock'><p>Ball vs. ball collision detector.</p>
+</div></td></tr><tr><td id='variant.BallPlane'><code>BallPlane</code></td><td><div class='docblock'><p>Ball vs. plane collision detector.</p>
+</div></td></tr><tr><td id='variant.PlaneBall'><code>PlaneBall</code></td><td><div class='docblock'><p>Plane vs. ball collision detector.</p>
+</div></td></tr><tr><td id='variant.BallImplicit'><code>BallImplicit</code></td><td><div class='docblock'><p>Ball vs. implicit geometry collision detector.</p>
+</div></td></tr><tr><td id='variant.ImplicitBall'><code>ImplicitBall</code></td><td><div class='docblock'><p>Implicit geometry vs. ball collision detector.</p>
+</div></td></tr><tr><td id='variant.PlaneImplicit'><code>PlaneImplicit</code></td><td><div class='docblock'><p>Plane vs. implicit geometry collision detector.</p>
+</div></td></tr><tr><td id='variant.ImplicitPlane'><code>ImplicitPlane</code></td><td><div class='docblock'><p>Implicit geometry vs. plane collision detector.</p>
+</div></td></tr><tr><td id='variant.ImplicitImplicit'><code>ImplicitImplicit</code></td><td><div class='docblock'><p>Implicit geometry vs. implicit geometry collision detector.</p>
+</div></td></tr><tr><td id='variant.CompoundCompound'><code>CompoundCompound</code></td><td><div class='docblock'><p>Compound geometry vs. compound geometry collision detector.</p>
+</div></td></tr><tr><td id='variant.CompoundAny'><code>CompoundAny</code></td><td><div class='docblock'><p>Compound geometry vs. any other geometry collision detector.</p>
+</div></td></tr><tr><td id='variant.AnyCompound'><code>AnyCompound</code></td><td><div class='docblock'><p>Any geometry vs. compound geometry collision detector.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Zero.html' title='std::num::Zero'>Zero</a> + Cast&lt;f32&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, LV: <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a>, AV, M: <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a>&gt; <a class='enum' href='../../../ncollide/narrow/geom_geom/enum.GeomGeom.html' title='ncollide::narrow::geom_geom::GeomGeom'>GeomGeom</a>&lt;N, LV, AV, M&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <span class='fnname'>new</span>(g1: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, g2: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, s: &amp;<a class='struct' href='../../../ncollide/narrow/algorithm/johnson_simplex/struct.JohnsonSimplex.html' title='ncollide::narrow::algorithm::johnson_simplex::JohnsonSimplex'>JohnsonSimplex</a>&lt;N, AnnotatedPoint&lt;LV&gt;&gt;) -&gt; <a class='enum' href='../../../ncollide/narrow/geom_geom/enum.GeomGeom.html' title='ncollide::narrow::geom_geom::GeomGeom'>GeomGeom</a>&lt;N, LV, AV, M&gt;</code></h4>
+<div class='docblock'><p>Creates a new Geom vs Geom collision detector.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.ApproxEq.html' title='std::cmp::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Num.html' title='std::num::Num'>Num</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Real.html' title='std::num::Real'>Real</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Float.html' title='std::num::Float'>Float</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.Ord.html' title='std::cmp::Ord'>Ord</a> + Cast&lt;f32&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.Algebraic.html' title='std::num::Algebraic'>Algebraic</a>, LV: 'static + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a> + AlgebraicVecExt&lt;N&gt; + Cross&lt;AV&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/cmp/trait.ApproxEq.html' title='std::cmp::ApproxEq'>ApproxEq</a>&lt;N&gt; + Translation&lt;LV&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/clone/trait.Clone.html' title='std::clone::Clone'>Clone</a> + Rotate&lt;LV&gt; + Transform&lt;LV&gt;, AV: Vec&lt;N&gt;, M: <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Send.html' title='std::kinds::Send'>Send</a> + <a class='trait' href='http://static.rust-lang.org/doc/master/std/kinds/trait.Freeze.html' title='std::kinds::Freeze'>Freeze</a> + Rotation&lt;AV&gt; + Rotate&lt;LV&gt; + Translation&lt;LV&gt; + Transform&lt;LV&gt; + AbsoluteRotate&lt;LV&gt; + <a class='trait' href='http://static.rust-lang.org/doc/master/std/ops/trait.Mul.html' title='std::ops::Mul'>Mul</a>&lt;M, M&gt; + Inv + <a class='trait' href='http://static.rust-lang.org/doc/master/std/num/trait.One.html' title='std::num::One'>One</a>&gt; <a class='trait' href='../../../ncollide/narrow/collision_detector/trait.CollisionDetector.html' title='ncollide::narrow::collision_detector::CollisionDetector'>CollisionDetector</a>&lt;N, LV, M, <a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, <a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;&gt; for <a class='enum' href='../../../ncollide/narrow/geom_geom/enum.GeomGeom.html' title='ncollide::narrow::geom_geom::GeomGeom'>GeomGeom</a>&lt;N, LV, AV, M&gt;</code></h3><div class='docblock'><p>Collision detector between two <code>Geometry</code>. Note that this is only a
+wrapper on the collision detector specific to each geometry.</p>
+</div><div class='methods'><h4 id='method.update' class='method'><code>fn <span class='fnname'>update</span>(&amp;mut self, m1: &amp;M, g1: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, m2: &amp;M, g2: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;)</code></h4>
+<div class='docblock'><p>Runs the collision detection on two objects. It is assumed that the same
+collision detector (the same structure) is always used with the same
+pair of object.</p>
+</div><h4 id='method.num_colls' class='method'><code>fn <span class='fnname'>num_colls</span>(&amp;self) -&gt; uint</code></h4>
+<div class='docblock'><p>The number of collision detected during the last update.</p>
+</div><h4 id='method.colls' class='method'><code>fn <span class='fnname'>colls</span>(&amp;self, out_colls: &amp;mut ~[<a class='struct' href='../../../ncollide/contact/struct.Contact.html' title='ncollide::contact::Contact'>Contact</a>&lt;N, LV&gt;])</code></h4>
+<div class='docblock'><p>Collects the collisions detected during the last update.</p>
+</div><h4 id='method.toi' class='method'><code>fn <span class='fnname'>toi</span>(_: <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;<a class='enum' href='../../../ncollide/narrow/geom_geom/enum.GeomGeom.html' title='ncollide::narrow::geom_geom::GeomGeom'>GeomGeom</a>&lt;N, LV, AV, M&gt;&gt;, m1: &amp;M, dir: &amp;LV, dist: &amp;N, g1: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;, m2: &amp;M, g2: &amp;<a class='enum' href='../../../ncollide/geom/geom/enum.Geom.html' title='ncollide::geom::geom::Geom'>Geom</a>&lt;N, LV, M&gt;) -&gt; <a class='enum' href='http://static.rust-lang.org/doc/master/std/option/enum.Option.html' title='std::option::Option'>Option</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Computes the time of impact of two objects.</p>
+
+<h1>Arguments</h1>
+
+<ul>
+<li><code>m1</code>   - the first object transform.</li>
+<li><code>dir</code>  - the first object displacement direction.</li>
+<li><code>dist</code> - the first object displacement distance.</li>
+<li><code>g1</code>   - the first object.</li>
+<li><code>m2</code>   - the second object transform.</li>
+<li><code>g2</code>   - the second object.</li>
+</ul>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

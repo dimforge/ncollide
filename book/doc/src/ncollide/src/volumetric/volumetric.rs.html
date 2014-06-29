@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>volumetric.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'> 1</span>
+<span id='2'> 2</span>
+<span id='3'> 3</span>
+<span id='4'> 4</span>
+<span id='5'> 5</span>
+<span id='6'> 6</span>
+<span id='7'> 7</span>
+<span id='8'> 8</span>
+<span id='9'> 9</span>
+<span id='10'>10</span>
+<span id='11'>11</span>
+<span id='12'>12</span>
+<span id='13'>13</span>
+<span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
+<span id='18'>18</span>
+<span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
+<span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+<span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
+<span id='42'>42</span>
+<span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+<span id='49'>49</span>
+<span id='50'>50</span>
+<span id='51'>51</span>
+<span id='52'>52</span>
+<span id='53'>53</span>
+<span id='54'>54</span>
+<span id='55'>55</span>
+<span id='56'>56</span>
+<span id='57'>57</span>
+<span id='58'>58</span>
+<span id='59'>59</span>
+</pre><pre class='rust'>use nalgebra::na;
+use nalgebra::na::{Vec1, Vec2, Vec3, Mat1, Iso2, Mat3, Iso3};
+use nalgebra::structs::mat::Mat3MulRhs;
+
+pub trait InertiaTensor&lt;N, V, AV, M&gt; {
+    fn apply(&amp;self, a: &amp;AV) -&gt; AV;
+    fn to_world_space(&amp;self, &amp;M) -&gt; Self;
+    fn to_relative_wrt_point(&amp;self, &amp;N, &amp;V) -&gt; Self;
+}
+
+pub trait Volumetric&lt;N, V, II&gt; {
+    fn mass_properties(&amp;self, &amp;N) -&gt; (N, V, II);
+}
+
+/// NOTE: it is a bit unfortunate to have to specialize that for the raw types.
+impl&lt;N: Clone + Num + Algebraic&gt;
+InertiaTensor&lt;N, Vec2&lt;N&gt;, Vec1&lt;N&gt;, Iso2&lt;N&gt;&gt; for Mat1&lt;N&gt; {
+    #[inline]
+    fn apply(&amp;self, av: &amp;Vec1&lt;N&gt;) -&gt; Vec1&lt;N&gt; {
+        *self * *av
+    }
+
+    #[inline]
+    fn to_world_space(&amp;self, _: &amp;Iso2&lt;N&gt;) -&gt; Mat1&lt;N&gt; {
+        self.clone()
+    }
+
+    #[inline]
+    fn to_relative_wrt_point(&amp;self, mass: &amp;N, pt: &amp;Vec2&lt;N&gt;) -&gt; Mat1&lt;N&gt; {
+        *self + Mat1::new(mass * na::sqnorm(pt))
+    }
+}
+
+/// NOTE: it is a bit unfortunate to have to specialize that for the raw types.
+impl&lt;N: Num + Algebraic + Clone + Mat3MulRhs&lt;N, Mat3&lt;N&gt;&gt;&gt;
+InertiaTensor&lt;N, Vec3&lt;N&gt;, Vec3&lt;N&gt;, Iso3&lt;N&gt;&gt; for Mat3&lt;N&gt; {
+    #[inline]
+    fn apply(&amp;self, av: &amp;Vec3&lt;N&gt;) -&gt; Vec3&lt;N&gt; {
+        *self * *av
+    }
+
+    #[inline]
+    fn to_world_space(&amp;self, t: &amp;Iso3&lt;N&gt;) -&gt; Mat3&lt;N&gt; {
+        let inv = na::inv(&amp;t.rotation).unwrap();
+        *t.rotation.submat() * *self * *inv.submat()
+    }
+
+    #[inline]
+    fn to_relative_wrt_point(&amp;self, mass: &amp;N, pt: &amp;Vec3&lt;N&gt;) -&gt; Mat3&lt;N&gt; {
+        let diag  = na::sqnorm(pt);
+        let diagm = Mat3::new(
+            diag.clone(), na::zero(),   na::zero(),
+            na::zero(),   diag.clone(), na::zero(),
+            na::zero(),   na::zero(),   diag
+        );
+
+        *self + (diagm - na::outer(pt, pt)) * *mass
+    }
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

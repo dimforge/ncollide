@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>aliases.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'> 1</span>
+<span id='2'> 2</span>
+<span id='3'> 3</span>
+<span id='4'> 4</span>
+<span id='5'> 5</span>
+<span id='6'> 6</span>
+<span id='7'> 7</span>
+<span id='8'> 8</span>
+<span id='9'> 9</span>
+<span id='10'>10</span>
+<span id='11'>11</span>
+<span id='12'>12</span>
+<span id='13'>13</span>
+<span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
+<span id='18'>18</span>
+<span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
+<span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+<span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
+<span id='42'>42</span>
+<span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+<span id='49'>49</span>
+<span id='50'>50</span>
+<span id='51'>51</span>
+<span id='52'>52</span>
+<span id='53'>53</span>
+<span id='54'>54</span>
+<span id='55'>55</span>
+<span id='56'>56</span>
+<span id='57'>57</span>
+<span id='58'>58</span>
+<span id='59'>59</span>
+<span id='60'>60</span>
+<span id='61'>61</span>
+<span id='62'>62</span>
+<span id='63'>63</span>
+<span id='64'>64</span>
+<span id='65'>65</span>
+<span id='66'>66</span>
+<span id='67'>67</span>
+<span id='68'>68</span>
+<span id='69'>69</span>
+<span id='70'>70</span>
+<span id='71'>71</span>
+</pre><pre class='rust'>pub mod dim4 {
+    use bounding_volume::AABB;
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
+    use nalgebra::na::{Vec4, Mat4, Iso4};
+
+    type LV&lt;N&gt; = Vec4&lt;N&gt;;
+    type II&lt;N&gt; = Mat4&lt;N&gt;;
+    type M&lt;N&gt;  = Iso4&lt;N&gt;;
+
+    pub type Ball4d&lt;N&gt;         = Ball&lt;N&gt;;
+    pub type Box4d&lt;N&gt;          = Box&lt;N, LV&lt;N&gt;&gt;;
+    pub type Cylinder4d&lt;N&gt;     = Cylinder&lt;N&gt;;
+    pub type Cone4d&lt;N&gt;         = Cone&lt;N&gt;;
+    pub type Plane4d&lt;N&gt;        = Plane&lt;N, LV&lt;N&gt;&gt;;
+    pub type Compound4d&lt;N&gt;     = Compound&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Triangle4d&lt;N&gt;     = Triangle&lt;N, LV&lt;N&gt;&gt;;
+    pub type Segment4d&lt;N&gt;      = Segment&lt;N, LV&lt;N&gt;&gt;;
+    pub type TriangleMesh4d&lt;N&gt; = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Triangle4d&lt;N&gt;&gt;;
+    pub type LineStrip4d&lt;N&gt;    = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Segment4d&lt;N&gt;&gt;;
+    pub type Geom4dRef&lt;&#39;a, N&gt;  = &amp;&#39;a Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Geom4d&lt;N&gt;         = ~Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type AABB4d&lt;N&gt;         = AABB&lt;N, LV&lt;N&gt;&gt;;
+}
+
+pub mod dim3 {
+    use bounding_volume::AABB;
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
+    use nalgebra::na::{Vec3, Mat3, Iso3};
+
+    type LV&lt;N&gt; = Vec3&lt;N&gt;;
+    type II&lt;N&gt; = Mat3&lt;N&gt;;
+    type M&lt;N&gt;  = Iso3&lt;N&gt;;
+
+    pub type Ball3d&lt;N&gt;         = Ball&lt;N&gt;;
+    pub type Box3d&lt;N&gt;          = Box&lt;N, LV&lt;N&gt;&gt;;
+    pub type Cylinder3d&lt;N&gt;     = Cylinder&lt;N&gt;;
+    pub type Cone3d&lt;N&gt;         = Cone&lt;N&gt;;
+    pub type Plane3d&lt;N&gt;        = Plane&lt;N, LV&lt;N&gt;&gt;;
+    pub type Compound3d&lt;N&gt;     = Compound&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Triangle3d&lt;N&gt;     = Triangle&lt;N, LV&lt;N&gt;&gt;;
+    pub type Segment3d&lt;N&gt;      = Segment&lt;N, LV&lt;N&gt;&gt;;
+    pub type TriangleMesh3d&lt;N&gt; = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Triangle3d&lt;N&gt;&gt;;
+    pub type LineStrip3d&lt;N&gt;    = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Segment3d&lt;N&gt;&gt;;
+    pub type Geom3dRef&lt;&#39;a, N&gt;  = &amp;&#39;a Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Geom3d&lt;N&gt;         = ~Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type AABB3d&lt;N&gt;         = AABB&lt;N, LV&lt;N&gt;&gt;;
+}
+
+pub mod dim2 {
+    use bounding_volume::AABB;
+    use geom::{Ball, Box, Cylinder, Cone, Plane, Compound, Triangle, Mesh, Geom, Segment};
+    use nalgebra::na::{Mat1, Vec2, Iso2};
+
+    type LV&lt;N&gt; = Vec2&lt;N&gt;;
+    type II&lt;N&gt; = Mat1&lt;N&gt;;
+    type M&lt;N&gt;  = Iso2&lt;N&gt;;
+
+    pub type Ball2d&lt;N&gt;         = Ball&lt;N&gt;;
+    pub type Box2d&lt;N&gt;          = Box&lt;N, LV&lt;N&gt;&gt;;
+    pub type Cylinder2d&lt;N&gt;     = Cylinder&lt;N&gt;;
+    pub type Cone2d&lt;N&gt;         = Cone&lt;N&gt;;
+    pub type Plane2d&lt;N&gt;        = Plane&lt;N, LV&lt;N&gt;&gt;;
+    pub type Compound2d&lt;N&gt;     = Compound&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Triangle2d&lt;N&gt;     = Triangle&lt;N, LV&lt;N&gt;&gt;;
+    pub type Segment2d&lt;N&gt;      = Segment&lt;N, LV&lt;N&gt;&gt;;
+    pub type TriangleMesh2d&lt;N&gt; = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Triangle2d&lt;N&gt;&gt;;
+    pub type LineStrip2d&lt;N&gt;    = Mesh&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;, Segment2d&lt;N&gt;&gt;;
+    pub type Geom2dRef&lt;&#39;a, N&gt;  = &amp;&#39;a Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type Geom2d&lt;N&gt;         = ~Geom&lt;N, LV&lt;N&gt;, M&lt;N&gt;, II&lt;N&gt;&gt;;
+    pub type AABB2d&lt;N&gt;         = AABB&lt;N, LV&lt;N&gt;&gt;;
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../";
+    </script>
+    <script src="../../../ncollide/jquery.js"></script>
+    <script src="../../../ncollide/search-index.js"></script>
+    <script src="../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

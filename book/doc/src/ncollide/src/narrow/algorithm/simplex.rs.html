@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>simplex.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'> 1</span>
+<span id='2'> 2</span>
+<span id='3'> 3</span>
+<span id='4'> 4</span>
+<span id='5'> 5</span>
+<span id='6'> 6</span>
+<span id='7'> 7</span>
+<span id='8'> 8</span>
+<span id='9'> 9</span>
+<span id='10'>10</span>
+<span id='11'>11</span>
+<span id='12'>12</span>
+<span id='13'>13</span>
+<span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
+<span id='18'>18</span>
+<span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
+<span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+</pre><pre class='rust'>//! Abstract definition of a simplex usable by the GJK algorithm.
+
+/// Trait of a simplex usable by the GJK algorithm.
+///
+/// # Parameters:
+///   * `V` - type of a point of the simplex.
+///   * `N` - type of the points norm.
+pub trait Simplex&lt;N, V&gt; {
+    /// Replace the point of the simplex by a single one. The simplex is reduced to be
+    /// 0-dimensional.
+    fn reset(&amp;mut self, V);
+
+    /// Translates each point of this simplex.
+    fn translate_by(&amp;mut self, &amp;V);
+
+    /// Adds a point to the simplex.
+    fn add_point(&amp;mut self, V);
+
+    /// Project the origin on the simplex and remove any sub-simplex which does not contain the
+    /// projection.
+    fn project_origin_and_reduce(&amp;mut self) -&gt; V;
+
+    /// Projection the origin on the simplex. The simplex itself in unchanged, although it is mutable
+    /// for optimization purpose.
+    fn project_origin(&amp;mut self) -&gt; V;
+
+    /// Checks whether a given point is already part of the simplex points.
+    fn contains_point(&amp;self, &amp;V) -&gt; bool;
+
+    /// Dimension of the simplex. A simplex with `n` must be a `n - 1`-dimensional simplex.
+    fn dimension(&amp;self) -&gt; uint;
+
+    /// The maximum among the simplex point squared lengths.
+    fn max_sq_len(&amp;self) -&gt; N;
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../../";
+    </script>
+    <script src="../../../../../ncollide/jquery.js"></script>
+    <script src="../../../../../ncollide/search-index.js"></script>
+    <script src="../../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

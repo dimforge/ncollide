@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../../index.html'>ncollide</a>&#8203;::<a href='../../index.html'>narrow</a>&#8203;::<a href='../index.html'>algorithm</a>&#8203;::<a href='index.html'>brute_force_simplex</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.BruteForceSimplex.html'>BruteForceSimplex</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <input class="search-input" name="search"
+                   autocomplete="off" />
+            <button class="do-search">Search</button>
+        </form>
+    </nav>
+
+    <section class="content struct"><h1 class='fqn'>Struct <a href='../../../index.html'>ncollide</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>brute_force_simplex</a>::<a class='struct' href=''>BruteForceSimplex</a></h1><pre class='struct'>pub struct BruteForceSimplex&lt;N, V&gt; {
+    points: ~[V],
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: std::cmp::Ord + std::clone::Clone + std::num::Num + std::num::Algebraic, V: std::clone::Clone + nalgebra::traits::structure::AlgebraicVec&gt; <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='fn.new' class='method'><code>fn new() -&gt; <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h4>
+<h4 id='fn.add_point' class='method'><code>fn add_point(&amp;mut self, pt: V)</code></h4>
+<h4 id='fn.project_on_subsimplex' class='method'><code>fn project_on_subsimplex(points: &amp;[V]) -&gt; std::option::Option</code></h4>
+<h4 id='fn.project_on_subsimplices' class='method'><code>fn project_on_subsimplices(points: ~[V]) -&gt; (V, ~[V])</code></h4>
+<h4 id='fn.do_project_origin' class='method'><code>fn do_project_origin(&amp;mut self, reduce: bool) -&gt; V</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;__E: extra::serialize::Encoder, N: extra::serialize::Encodable, V: extra::serialize::Encodable&gt; extra::serialize::Encodable for <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='fn.encode' class='method'><code>fn encode(&amp;self, __arg_0: &amp;mut __E)</code></h4>
+</div><h3 class='impl'><code>impl&lt;__D: extra::serialize::Decoder, N: extra::serialize::Decodable, V: extra::serialize::Decodable&gt; extra::serialize::Decodable for <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='fn.decode' class='method'><code>fn decode(__arg_0: &amp;mut __D) -&gt; <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: std::cmp::Ord + std::clone::Clone + std::num::Num + std::num::Algebraic, V: std::clone::Clone + nalgebra::traits::structure::AlgebraicVec&gt; <a class='trait' href='../simplex/trait.Simplex.html' title='ncollide::narrow::algorithm::simplex::Simplex'>Simplex</a>&lt;N, V&gt; for <a class='struct' href='struct.BruteForceSimplex.html' title='ncollide::narrow::algorithm::brute_force_simplex::BruteForceSimplex'>BruteForceSimplex</a>&lt;N, V&gt;</code></h3><div class='methods'><h4 id='fn.reset' class='method'><code>fn reset(&amp;mut self, initial_point: V)</code></h4>
+<div class='docblock'><p>Replace the point of the simplex by a single one. The simplex is reduced to be 0-dimensional.</p>
+</div><h4 id='fn.dimension' class='method'><code>fn dimension(&amp;self) -&gt; uint</code></h4>
+<div class='docblock'><p>Dimension of the simplex. A simplex with <code>n</code> must be a <code>n - 1</code>-dimensional simplex.</p>
+</div><h4 id='fn.max_sq_len' class='method'><code>fn max_sq_len(&amp;self) -&gt; N</code></h4>
+<div class='docblock'><p>The maximum among the simplex point squared lengths.</p>
+</div><h4 id='fn.contains_point' class='method'><code>fn contains_point(&amp;self, pt: &amp;V) -&gt; bool</code></h4>
+<div class='docblock'><p>Checks whether a given point is already part of the simplex points.</p>
+</div><h4 id='fn.add_point' class='method'><code>fn add_point(&amp;mut self, pt: V)</code></h4>
+<div class='docblock'><p>Adds a point to the simplex.</p>
+</div><h4 id='fn.project_origin_and_reduce' class='method'><code>fn project_origin_and_reduce(&amp;mut self) -&gt; V</code></h4>
+<div class='docblock'><p>Project the origin on the simplex and remove any sub-simplex which does not contain the projection.</p>
+</div><h4 id='fn.project_origin' class='method'><code>fn project_origin(&amp;mut self) -&gt; V</code></h4>
+<div class='docblock'><p>Projection the origin on the simplex. The simplex itself in unchanged, although it is mutable for optimization purpose.</p>
+</div></div></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>

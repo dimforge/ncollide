@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>cylinder.rs.html -- source</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700|Inconsolata:400'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../../ncollide/main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <button class="do-search">Search</button>
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search" />
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class='line-numbers'><span id='1'> 1</span>
+<span id='2'> 2</span>
+<span id='3'> 3</span>
+<span id='4'> 4</span>
+<span id='5'> 5</span>
+<span id='6'> 6</span>
+<span id='7'> 7</span>
+<span id='8'> 8</span>
+<span id='9'> 9</span>
+<span id='10'>10</span>
+<span id='11'>11</span>
+<span id='12'>12</span>
+<span id='13'>13</span>
+<span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
+<span id='18'>18</span>
+<span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
+<span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+<span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
+<span id='42'>42</span>
+<span id='43'>43</span>
+<span id='44'>44</span>
+<span id='45'>45</span>
+<span id='46'>46</span>
+<span id='47'>47</span>
+<span id='48'>48</span>
+<span id='49'>49</span>
+<span id='50'>50</span>
+<span id='51'>51</span>
+<span id='52'>52</span>
+<span id='53'>53</span>
+<span id='54'>54</span>
+<span id='55'>55</span>
+<span id='56'>56</span>
+</pre><pre class='rust'>//!
+//! Support mapping based Cylinder geometry.
+//!
+
+use nalgebra::na::Cast;
+
+/// Implicit description of a cylinder geometry with its principal axis aligned with the `x` axis.
+#[deriving(Eq, ToStr, Clone, Encodable, Decodable)]
+pub struct Cylinder&lt;N&gt; {
+    priv half_height: N,
+    priv radius:      N,
+    priv margin:      N
+}
+
+impl&lt;N: Signed + Cast&lt;f32&gt;&gt; Cylinder&lt;N&gt; {
+    /// Creates a new cylinder.
+    ///
+    /// # Arguments:
+    ///     * `half_height` - the half length of the cylinder along the `x` axis.
+    ///     * `radius` - the length of the cylinder along all other axis.
+    pub fn new(half_height: N, radius: N) -&gt; Cylinder&lt;N&gt; {
+        Cylinder::new_with_margin(half_height, radius, Cast::from(0.04))
+    }
+
+    /// Creates a new cylinder.
+    ///
+    /// # Arguments:
+    ///     * `half_height` - the half length of the cylinder along the `x` axis.
+    ///     * `radius` - the length of the cylinder along all other axis.
+    pub fn new_with_margin(half_height: N, radius: N, margin: N) -&gt; Cylinder&lt;N&gt; {
+        assert!(half_height.is_positive() &amp;&amp; radius.is_positive());
+
+        Cylinder {
+            half_height: half_height,
+            radius:      radius,
+            margin:      margin
+        }
+    }
+}
+
+impl&lt;N: Clone&gt; Cylinder&lt;N&gt; {
+    /// The cylinder half length along the `x` axis.
+    pub fn half_height(&amp;self) -&gt; N {
+        self.half_height.clone()
+    }
+
+    /// The radius of the cylinder along all but the `x` axis.
+    pub fn radius(&amp;self) -&gt; N {
+        self.radius.clone()
+    }
+
+    /// Size of the margin around the cylinder.
+    pub fn margin(&amp;self) -&gt; N {
+        self.margin.clone()
+    }
+}
+</pre></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <script>
+        var rootPath = "../../../../";
+    </script>
+    <script src="../../../../ncollide/jquery.js"></script>
+    <script src="../../../../ncollide/search-index.js"></script>
+    <script src="../../../../ncollide/main.js"></script>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+</body>
+</html>
