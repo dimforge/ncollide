@@ -119,6 +119,9 @@
 <span id='80'>80</span>
 <span id='81'>81</span>
 <span id='82'>82</span>
+<span id='83'>83</span>
+<span id='84'>84</span>
+<span id='85'>85</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Traits for support mapping based geometries.</span>
 
@@ -146,8 +149,11 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Parameters:</span>
 <span class='doccomment'>///   * Vect - type of the support mapping direction argument and of the returned point.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>: <span class='ident'>HasMargin</span> {
-    <span class='doccomment'>/**
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Implicit</span><span class='op'>&lt;</span><span class='ident'>Vect</span>: <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;</span>, <span class='ident'>Matrix</span><span class='op'>&gt;</span>: <span class='ident'>HasMargin</span> {<span class='comment'>
+    // FIXME: add methods that takes a unit `dir` in argument.
+    // This might be useful to avoid useless normalizations.
+
+    </span><span class='doccomment'>/**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their
      * dot product.
