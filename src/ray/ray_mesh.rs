@@ -1,3 +1,4 @@
+use std::num::Zero;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Mesh;
 use math::Scalar;
@@ -17,25 +18,29 @@ use math::Vect;
 
 
 impl RayCast for Mesh {
-    fn toi_with_ray(&self, ray: &Ray, _: bool) -> Option<Scalar> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
+        let solid = solid || self.margin().is_zero(); // The `solid` flag is useless if we have no margin.
+
         self.bvt().cast_ray(
                 ray,
-                &mut |b, r| self.element_at(*b).toi_with_ray(r, true).map(|t| (t.clone(), t))
+                &mut |b, r| self.element_at(*b).toi_with_ray(r, solid).map(|t| (t.clone(), t))
             ).map(|(_, res, _)| res)
     }
 
-    fn toi_and_normal_with_ray(&self, ray: &Ray, _: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+        let solid = solid || self.margin().is_zero();
+
         self.bvt().cast_ray(
             ray,
-            &mut |b, r| self.element_at(*b).toi_and_normal_with_ray(r, true).map(
+            &mut |b, r| self.element_at(*b).toi_and_normal_with_ray(r, solid).map(
                 |inter| (inter.toi.clone(), inter))).map(
                     |(_, res, _)| res)
     }
 
     #[cfg(dim3)]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, _: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if !self.margin().is_zero() || self.uvs().is_none() {
-            return self.toi_and_normal_with_ray(ray, true);
+            return self.toi_and_normal_with_ray(ray, solid);
         }
 
         let cast = self.bvt().cast_ray(
