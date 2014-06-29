@@ -33,12 +33,15 @@ pub trait MeshElement {
 }
 
 #[cfg(dim2)]
+/// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Segment;
 
 #[cfg(dim3)]
+/// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle;
 
 #[cfg(dim4)]
+/// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle; // XXX: this is wrong
 
 /// Geometry commonly known as a 2d line strip or a 3d triangle mesh.

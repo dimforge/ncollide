@@ -5,8 +5,7 @@ use data::hash::UintTWHash;
 use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;
 use narrow::{CollisionDetector, GeomGeomDispatcher, GeomGeomCollisionDetector,
-             DynamicCollisionDetector, CollisionDetectorFactory};
-use contact::Contact;
+             DynamicCollisionDetector, CollisionDetectorFactory, Contact};
 use geom::{Geom, ConcaveGeom};
 use math::Matrix;
 

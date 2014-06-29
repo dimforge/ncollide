@@ -8,8 +8,6 @@ use nalgebra::na::Vec2;
 #[cfg(dim3)]
 use ray;
 #[cfg(dim3)]
-use std::num::Zero;
-#[cfg(dim3)]
 use nalgebra::na::Norm;
 #[cfg(dim3)]
 use nalgebra::na;

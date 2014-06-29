@@ -1,7 +1,6 @@
 use nalgebra::na::Transform;
 use nalgebra::na;
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use math::{Scalar, Vect, Matrix};
 
 #[deriving(Encodable, Decodable, Clone)]

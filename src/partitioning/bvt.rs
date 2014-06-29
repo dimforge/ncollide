@@ -21,7 +21,7 @@ enum BVTNode<B, BV> {
     Leaf(BV, B)
 }
 
-/// Result of a binary partitioning.
+/// Result of a binary partition.
 pub enum BinaryPartition<B, BV> {
     /// Result of the partitioning of one element.
     Part(B),
@@ -236,9 +236,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
     }
 }
 
-/// Construction function for a kdree.
-///
-/// Use this as a parameter of `new_with_partitioner`.
+/// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
 pub fn kdtree_partitioner<B>(depth: uint, leaves: Vec<(B, AABB)>) -> (AABB, BinaryPartition<B, AABB>) {
     if leaves.len() == 0 {

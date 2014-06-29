@@ -8,8 +8,7 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
 use narrow::algorithm::minkowski_sampling;
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use ray::{Ray, RayCast};
 use math::{Scalar, Vect, Matrix};
 
@@ -202,4 +201,26 @@ pub fn toi<G1: Implicit<Vect, Matrix>,
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
     cso.toi_with_ray(&Ray::new(na::zero(), -dir), true)
+}
+
+/// Computes the Time Of Impact of two geometries.
+///
+/// # Arguments:
+/// * `m1`  - the first geometry transform.
+/// * `dir` - the direction of the first geometry movement.
+/// * `g1`  - the first geometry.
+/// * `m2`  - the second geometry transform.
+/// * `g2`  - the second geometry.
+pub fn toi_and_normal<G1: Implicit<Vect, Matrix>,
+                      G2: Implicit<Vect, Matrix>>(
+                      m1:  &Matrix,
+                      dir: &Vect,
+                      g1:  &G1,
+                      m2:  &Matrix,
+                      g2:  &G2)
+                      -> Option<(Scalar, Vect)> {
+    let rg2 = Reflection::new(g2);
+    let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
+
+    cso.toi_and_normal_with_ray(&Ray::new(na::zero(), -dir), true).map(|i| (i.toi, -i.normal))
 }

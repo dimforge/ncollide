@@ -1,7 +1,9 @@
 //! Bounding volumes.
 
 // Types and traits
+#[doc(inline)]
 pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
+#[doc(inline)]
 pub use bounding_volume::aabb::{HasAABB, AABB, WithAABB};
 pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere};
 
@@ -9,7 +11,7 @@ pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere};
 // functions
 pub use bounding_volume::aabb_utils::{implicit_shape_aabb, point_cloud_aabb};
 pub use bounding_volume::aabb_ball::ball_aabb;
-pub use bounding_volume::bounding_sphere_utils::{bounding_sphere_with_center, bounding_sphere};
+pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere_with_center, point_cloud_bounding_sphere};
 
 // modules
 #[doc(hidden)]

@@ -1,7 +1,7 @@
 //! Narrow phases.
 
 // types and traits
-pub use narrow::collision_detector::CollisionDetector;
+pub use narrow::collision_detector::{CollisionDetector, Contact};
 pub use narrow::empty::Empty;
 pub use narrow::ball_ball::BallBall;
 pub use narrow::plane_implicit::{PlaneImplicit, ImplicitPlane};
@@ -21,6 +21,8 @@ pub mod toi {
     pub use ball_ball         = narrow::ball_ball::toi;
     pub use plane_implicit    = narrow::plane_implicit::toi;
     pub use implicit_implicit = narrow::implicit_implicit::toi;
+    pub use implicit_implicit = narrow::implicit_implicit::toi;
+    pub use implicit_implicit = narrow::implicit_implicit::toi_and_normal;
 }
 
 /// Functions to compute one contact point between two geometries.

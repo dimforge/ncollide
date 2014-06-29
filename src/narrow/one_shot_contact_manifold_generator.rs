@@ -1,8 +1,7 @@
 #[cfg(not(dim4))]
 use nalgebra::na;
 
-use narrow::{CollisionDetector, IncrementalContactManifoldGenerator};
-use contact::Contact;
+use narrow::{CollisionDetector, IncrementalContactManifoldGenerator, Contact};
 use math::{Scalar, Vect, Matrix};
 
 #[cfg(not(dim4))]

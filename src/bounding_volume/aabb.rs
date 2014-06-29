@@ -152,7 +152,8 @@ impl Translation<Vect> for AABB
 }
 
 // FIXME: remove that to use `Transformed` istead?
-/// Wrapper which implements `HasBoundingVolume<Matrix, AABB>` for objects implementing `HasAABB`.
+/// Wrapper which implements `HasBoundingVolume<AABB>` for objects implementing `HasAABB`.
+#[doc(hidden)]
 #[deriving(Clone, PartialEq)]
 pub struct WithAABB<A>(pub Matrix, pub A);
 

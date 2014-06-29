@@ -1,9 +1,8 @@
 use nalgebra::na::{Translation, Rotate};
 use nalgebra::na;
-use narrow::CollisionDetector;
+use narrow::{CollisionDetector, Contact};
 use geom::Plane;
 use implicit::Implicit;
-use contact::Contact;
 use ray::{Ray, RayCast};
 use math::{Scalar, Vect, Matrix};
 

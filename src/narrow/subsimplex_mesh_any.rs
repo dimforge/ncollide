@@ -6,8 +6,7 @@ use data::hash::UintTWHash;
 use geom::subsimplex_mesh::{Subsimplex, SubsimplexMesh};
 use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use partitioning::bvt_visitor::BoundingVolumeInterferencesCollector;
 
 pub struct SubsimplexMeshAny<Scalar, Vect, Matrix, G, D, SD> {

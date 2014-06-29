@@ -9,12 +9,11 @@ use nalgebra::na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Cuboid, Ball, Capsule, Convex, Cylinder,
            Compound, Mesh, Triangle, Segment, Plane};
 use implicit::{Implicit, PreferedSamplingDirections};
-use contact::Contact;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
-             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface};
+             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface, Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use OSCMG = narrow::OneShotContactManifoldGenerator;

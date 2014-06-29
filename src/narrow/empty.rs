@@ -1,5 +1,4 @@
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use math::{Scalar, Vect, Matrix};
 
 /// A collision detector that does nothing.

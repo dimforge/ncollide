@@ -1,8 +1,7 @@
 use sync::{Arc, RWLock};
 use math::{Scalar, Vect, Matrix};
 use geom::BezierSurface;
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use narrow::surface_selector::SurfaceSelector;
 use narrow::surface_subdivision_tree::{SurfaceSubdivisionTreeRef, SurfaceSubdivisionTreeCache};
 

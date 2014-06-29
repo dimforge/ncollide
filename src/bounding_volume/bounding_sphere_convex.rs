@@ -7,7 +7,7 @@ use math::Matrix;
 impl HasBoundingSphere for Convex {
     #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
-        let (center, radius) = bounding_volume::bounding_sphere(self.pts().as_slice());
+        let (center, radius) = bounding_volume::point_cloud_bounding_sphere(self.pts().as_slice());
 
         BoundingSphere::new(m.transform(&center), radius + self.margin())
     }

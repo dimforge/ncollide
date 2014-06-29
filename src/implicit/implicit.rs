@@ -25,6 +25,9 @@ impl<'a> HasMargin for &'a HasMargin {
 /// # Parameters:
 ///   * Vect - type of the support mapping direction argument and of the returned point.
 pub trait Implicit<Vect: FloatVec<Scalar>, Matrix>: HasMargin {
+    // FIXME: add methods that takes a unit `dir` in argument.
+    // This might be useful to avoid useless normalizations.
+
     /**
      * Evaluates the support function of the object. A support function is a
      * function associating a vector to the geometry point which maximizes their

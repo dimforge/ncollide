@@ -72,7 +72,6 @@ pub mod geom;
 pub mod ray;
 pub mod narrow;
 pub mod broad;
-pub mod contact;
 pub mod volumetric;
 pub mod implicit;
 pub mod partitioning;

@@ -91,19 +91,6 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         self.pairs.len()
     }
 
-    /// The pair manager of this broad phase.
-    #[inline]
-    pub fn pairs<'r>(&'r self) -> &'r HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash> {
-        &'r self.pairs
-    }
-
-    /// The pair manager of this broad phase.
-    #[inline]
-    pub fn pairs_mut<'r>(&'r mut self)
-                         -> &'r mut HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash> {
-        &'r mut self.pairs
-    }
-
     /// Adds an element to this broad phase.
     #[inline]
     pub fn add(&mut self, rb: B) {

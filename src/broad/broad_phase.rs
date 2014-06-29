@@ -16,7 +16,7 @@ pub trait BroadPhase<B> {
     fn update_object(&mut self, &B);
 }
 
-/// Broad phase which check for pairwise interferences.
+/// Thait of broad phases which check for pairwise interferences.
 ///
 /// This is the most common feature provided by broad phases.
 pub trait InterferencesBroadPhase<B, DV> : BroadPhase<B> {

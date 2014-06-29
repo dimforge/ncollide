@@ -15,11 +15,13 @@ pub use geom::geom_with_margin::GeomWithMargin;
 pub use geom::mesh::{Mesh, MeshElement, MeshPrimitive};
 pub use geom::segment::Segment;
 pub use geom::triangle::Triangle;
+#[doc(inline)]
 pub use geom::geom::{Geom, ConcaveGeom};
 pub use geom::bezier_surface::{BezierSurface, BezierSurfaceEvaluationCache};
 pub use geom::bezier_curve::{BezierCurve, BezierCurveEvaluationCache};
 
 // modules
+#[doc(hidden)]
 pub mod geom;
 mod ball;
 mod plane;

@@ -5,7 +5,7 @@ use broad::Dispatcher;
 
 
 /**
- * The broad phase which does nothing.
+ * Broad phase with quadratic complexity.
  *
  * It always returns false positives since it assumes that all object is in collision with all
  * objects. Do not use this but for benchmarking the narrow phase.

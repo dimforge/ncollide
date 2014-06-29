@@ -4,8 +4,7 @@ use nalgebra::na;
 use nalgebra::na::{Vec2, Mat2, Translation, Inv, Norm};
 use math::{Scalar, Vect, Matrix};
 use geom::{Ball, BezierSurface};
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use narrow::surface_selector::SurfaceSelector;
 use narrow::surface_subdivision_tree::{SurfaceSubdivisionTreeRef, SurfaceSubdivisionTree, SurfaceSubdivisionTreeCache};
 

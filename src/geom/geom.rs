@@ -1,5 +1,3 @@
-//! Enum grouping the most useful geometric shapes.
-
 use std::raw::TraitObject;
 use std::intrinsics::TypeId;
 use std::mem;
@@ -8,7 +6,7 @@ use ray::{Ray, RayCast};
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 use math::Matrix;
 
-/// Trait (that should be) implemented by each geometry supported by `ncollide`.
+/// Trait (that should be) implemented by every geometry.
 pub trait Geom : HasAABB           +
                  HasBoundingSphere +
                  RayCast           +
@@ -17,7 +15,7 @@ pub trait Geom : HasAABB           +
     fn duplicate(&self) -> Box<Geom + Send>;
 }
 
-/// Trait implemented by concave, composite geometries supported by `ncollide`.
+/// Trait implemented by concave, composite geometries.
 ///
 /// A composite geometry is composed of several `Geom`. Typically, it is a convex decomposition of
 /// a concave geometry.

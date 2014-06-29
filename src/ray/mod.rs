@@ -1,6 +1,7 @@
 //! Ray casting utilities.
 
 // types an traits
+#[doc(inline)]
 pub use ray::ray::{Ray, RayCast, RayIntersection};
 
 // functions
@@ -12,6 +13,7 @@ pub use ray::ray_ball::ball_toi_with_ray;
 pub use ray::ray_triangle::triangle_ray_intersection;
 
 // modules
+#[doc(hidden)]
 pub mod ray;
 mod ray_plane;
 mod ray_ball;

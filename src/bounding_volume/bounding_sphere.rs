@@ -11,7 +11,7 @@ pub trait HasBoundingSphere {
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere;
 }
 
-/// A bounding sphere.
+/// A Bounding Sphere.
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct BoundingSphere {
     center: Vect,
@@ -83,7 +83,7 @@ impl BoundingVolume for BoundingSphere {
                 other.center - dir * other.radius
             ];
 
-            let (center, radius) = bounding_volume::bounding_sphere_with_center(pts, new_center);
+            let (center, radius) = bounding_volume::point_cloud_bounding_sphere_with_center(pts, new_center);
 
             self.center = center;
             self.radius = radius ;

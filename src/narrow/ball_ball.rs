@@ -2,8 +2,7 @@ use std::num::Zero;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use geom::Ball;
-use narrow::CollisionDetector;
-use contact::Contact;
+use narrow::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};
 use math::{Scalar, Vect, Matrix};
 

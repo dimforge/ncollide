@@ -58,7 +58,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Tran
 
     let _eps: Scalar     = Float::epsilon();
     let _eps_tol: Scalar = _eps * na::cast(100.0f64);
-    let _dim        = na::dim::<Vect>();
+    let _dim             = na::dim::<Vect>();
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());

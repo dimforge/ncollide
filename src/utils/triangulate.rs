@@ -137,7 +137,7 @@ impl<N: Float + Cast<f64>, V: FloatVec<N>> Triangulator<N, V> {
 /// directions orthogonal to the plane, this should be fine.
 pub fn triangulate<N: FloatMath + Cast<f64>, V: FloatVecExt<N> + Clone>(pts: &[V]) -> TriMesh<N, V> {
     //// Compute the super-triangle
-    let (center, radius) = bounding_volume::bounding_sphere(pts);
+    let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius           = radius * na::cast(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
