@@ -1,8 +1,6 @@
 # Summary
 
 * [Getting started](getting_started/README.md)
-   * [Compilation](getting_started/compilation.md)
-   * [Usage](getting_started/usage.md)
 * [Geometric definitions](geometric_definitions/README.md)
    * [Simple geometries](geometric_definitions/simple_geometries.md)
    * [Composite geometries](geometric_definitions/composite_geometries.md)
@@ -13,10 +11,11 @@
    * [Narrow phase](collision_detection/narrow_phase.md)
    * [Broad phase](collision_detection/broad_phase.md)
    * [Time of Impact](collision_detection/time_of_impact.md)
-* [Procedural generation](chapter_2/README.md)
-   * [Primitives](chapter_2/primitives.md)
-   * [Paths](chapter_2/paths.md)
+* [Procedural generation](procedural_generation/README.md)
+   * [Primitives](procedural_generation/primitives.md)
+   * [Paths](procedural_generation/paths.md)
 * [Ray casting](ray_casting/README.md)
 * [Traits](traits/README.md)
+* [How to contribute](how_to_contribute/README.md)
 * [FAQ](faq/README.md)
 
