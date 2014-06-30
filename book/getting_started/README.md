@@ -2,7 +2,7 @@
 
 ## Compilation
 1. Download and install the latest nightly distribution of the [rust
-   compiler](http://rust-lang.org). **ncollide** is often kept up to date with
+   compiler](http://rust-lang.org). **ncollide** is regularly kept up to date with
    those releases. If it is not, this is a bug that you can file on
    [github](https://github.com/sebcrozet/ncollide/issues).
 2. Recursively clone the repository of ncollide:
@@ -16,7 +16,7 @@ Performing a recursive clone as such will automatically clone the rust library
 cd ncollide
 make deps
 ```
-4. Finally compile the library itself.
+4. Finally compile the library itself:
 ```
 make
 ```
@@ -36,14 +36,14 @@ example, to compile the 3d version using 32-bits floating point numbers, use
 The full documentation of the api can be built manually using rustdoc or with
 `make doc`.
 
-## Use ncollide on your project
-You can use **ncollide** like any rust library. You first have to import the
-crate that you are interested in:
+## Using ncollide on your project
+You can use **ncollide** like any other rust library. You first have to import
+the crate that you are interested in:
 ```rust
 extern crate ncollide3df32
 ```
 Then, you have to compile your project, making sure that the imported crate is
-in the library path using rustc's `-L $(your_path_to_ncollide)` option.
+in the library search path using rustc's `-L $(your_path_to_ncollide)` option.
 
 Having to write the dimension and the precision used by the library every time
 you import one of its functionality might be very cumbersome: `use
@@ -54,7 +54,7 @@ extern crate ncollide = "ncollide3df32"
 ```
 This way, you only have to write `use ncollide::geom::Cuboid;`.
 
-###### Working example:
+###### Working example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/getting_started.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
 ```rust
 extern crate nalgebra;
 extern crate ncollide = "ncollide3df32";
