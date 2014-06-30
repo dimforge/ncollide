@@ -13,21 +13,21 @@ pub trait HasUid {
 impl<T: 'static> HasUid for Gc<T> {
     #[inline]
     fn uid(&self) -> uint {
-        self.deref() as *T as uint
+        self.deref() as *const T as uint
     }
 }
 
 impl<T> HasUid for Rc<T> {
     #[inline]
     fn uid(&self) -> uint {
-        &**self as *T as uint
+        &**self as *const T as uint
     }
 }
 
 impl<T: Share + Send> HasUid for Arc<T> {
     #[inline]
     fn uid(&self) -> uint {
-        self.deref() as *T as uint
+        self.deref() as *const T as uint
     }
 }
 

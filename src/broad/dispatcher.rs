@@ -22,6 +22,6 @@ impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
 
     #[inline]
     fn is_valid(&self, a: &B, b: &B) -> bool {
-        a as *B != b as *B
+        a as *const B != b as *const B
     }
 }

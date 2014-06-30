@@ -214,7 +214,7 @@ impl<B, BV> DBVTInternal<B, BV> {
     fn is_right_internal_node(&self, r: &mut DBVTInternal<B, BV>) -> bool
     {
         match self.right {
-            Internal(ref i) => &**i as *DBVTInternal<B, BV> == &*r as *DBVTInternal<B, BV>,
+            Internal(ref i) => &**i as *const DBVTInternal<B, BV> == &*r as *const DBVTInternal<B, BV>,
             _ => false
         }
     }
@@ -519,7 +519,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                 // FIXME: la.partial_optimise();
                 // FIXME: lb.partial_optimise();
 
-                if (&**la as *DBVTInternal<B, BV> != &**lb as *DBVTInternal<B, BV>) &&
+                if (&**la as *const DBVTInternal<B, BV> != &**lb as *const DBVTInternal<B, BV>) &&
                     la.bounding_volume.intersects(&lb.bounding_volume)
                 {
                     la.right.interferences_with_tree(&lb.right, out);

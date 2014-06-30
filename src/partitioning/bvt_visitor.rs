@@ -88,7 +88,7 @@ BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
 
     #[inline]
     fn visit_leaf(&mut self, b: &B, bv: &BV) {
-        if (self.bv as *BV) != (bv as *BV) && bv.intersects(self.bv) {
+        if (self.bv as *const BV) != (bv as *const BV) && bv.intersects(self.bv) {
             self.collector.push(b.clone())
         }
     }

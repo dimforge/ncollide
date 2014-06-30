@@ -41,7 +41,7 @@ impl<D: Send + Share> Clone for SurfaceSubdivisionTreeRef<D> {
 impl<D> SurfaceSubdivisionTreeRef<D> {
     /// Tests if this references the subdivision tree of the bézier surface `b`.
     pub fn is_the_subdivision_tree_of(&self, b: &BezierSurface) -> bool {
-        self.key == (b as *BezierSurface as uint)
+        self.key == (b as *const BezierSurface as uint)
     }
 }
 
@@ -86,7 +86,7 @@ impl<D: Send + Share> SurfaceSubdivisionTreeCache<D> {
                                b:     &BezierSurface,
                                data:  || -> D)
                                -> SurfaceSubdivisionTreeRef<D> {
-        let key = b as *BezierSurface as uint;
+        let key = b as *const BezierSurface as uint;
 
         let parent_cache = cache.clone();
 
@@ -233,8 +233,8 @@ impl<D: Send + Share> SurfaceSubdivisionTree<D> {
     pub fn is_right_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<D>>>) -> bool {
         match self.rchild {
             None         => false,
-            Some(ref rc) => child.deref() as *RWLock<SurfaceSubdivisionTree<D>> as uint ==
-                            rc.deref()    as *RWLock<SurfaceSubdivisionTree<D>> as uint
+            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<D>> as uint ==
+                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<D>> as uint
         }
     }
 
@@ -243,8 +243,8 @@ impl<D: Send + Share> SurfaceSubdivisionTree<D> {
     pub fn is_left_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<D>>>) -> bool {
         match self.lchild {
             None         => false,
-            Some(ref rc) => child.deref() as *RWLock<SurfaceSubdivisionTree<D>> as uint ==
-                            rc.deref()    as *RWLock<SurfaceSubdivisionTree<D>> as uint
+            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<D>> as uint ==
+                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<D>> as uint
         }
     }
 
