@@ -31,7 +31,7 @@ _real-life_ situations using three other rust projects:
 </p>
 2. [kiss3d](http://kiss3d.org) − a 3d graphics engine. It relies on the
    procedural generation of geometries to render everything that is not
-   triangular (sphere, cone, bezier surfaces, etc.). In particular it has a
+   triangular (sphere, cone, bézier surfaces, etc.). In particular it has a
    [demo](https://github.com/sebcrozet/kiss3d/blob/master/examples/procedural.rs)
    that uses most procedural generation algorithms of **ncollide**. In fact,
    every single 3d illustration of the [Procedural

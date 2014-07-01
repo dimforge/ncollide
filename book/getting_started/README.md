@@ -5,18 +5,24 @@
    compiler](http://rust-lang.org). **ncollide** is regularly kept up to date with
    those releases. If it is not, this is a bug that you can file on
    [github](https://github.com/sebcrozet/ncollide/issues).
+<p>
 2. Recursively clone the repository of ncollide:
+</p>
 ```sh
 git clone --recursive git://github.com/sebcrozet/ncollide.git
 ```
 Performing a recursive clone as such will automatically clone the rust library
 [nalgebra](http://nalgebra.org) that **ncollide** uses for linear algebra.
+<p>
 3. Go to the root of the repository and compile the dependencies:
+</p>
 ```sh
 cd ncollide
 make deps
 ```
-4. Finally compile the library itself:
+<p>
+4. Finally, compile the library itself:
+</p>
 ```
 make
 ```
