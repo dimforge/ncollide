@@ -1,4 +1,5 @@
-use nalgebra::na::{Cast, FloatVec};
+use std::num::Zero;
+use nalgebra::na::{Cast, FloatVec, Cross};
 use nalgebra::na;
 
 /// Computes the circumcircle of a triangle.
@@ -19,4 +20,13 @@ pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V
     let radius = na::norm(&(*pa - center));
 
     (center, radius)
+}
+
+/// Tests if three points are exactly aligned.
+pub fn is_affinely_dependent_triangle<V: Sub<V, V> + Cross<AV>, AV: Zero>(p1: &V, p2: &V, p3: &V) -> bool
+{
+    let p1p2 = *p2 - *p1;
+    let p1p3 = *p3 - *p1;
+
+    na::cross(&p1p2, &p1p3).is_zero()
 }
