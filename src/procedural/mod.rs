@@ -10,6 +10,7 @@ pub use procedural::cuboid::{cuboid, unit_cuboid, rectangle, unit_rectangle};
 pub use procedural::cylinder::{unit_cylinder, cylinder};
 pub use procedural::quad::{quad, unit_quad, quad_with_vertices};
 pub use procedural::sphere::{sphere, unit_sphere, circle, unit_circle};
+pub use procedural::convex_hull::convex_hull3d;
 pub use procedural::to_trimesh::to_trimesh::ToTriMesh;
 pub use procedural::to_polyline::to_polyline::ToPolyline;
 
@@ -64,3 +65,4 @@ mod cuboid;
 mod cylinder;
 mod quad;
 mod sphere;
+mod convex_hull;
