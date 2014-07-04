@@ -72,7 +72,7 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Tran
 
     let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
-    let mut niter = 0;
+    let mut niter = 0u;
     loop {
         niter = niter + 1;
 
