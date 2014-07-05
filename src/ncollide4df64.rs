@@ -72,6 +72,7 @@ pub mod narrow;
 pub mod broad;
 pub mod volumetric;
 pub mod implicit;
+pub mod parametric;
 pub mod partitioning;
 pub mod procedural;
 pub mod utils;
