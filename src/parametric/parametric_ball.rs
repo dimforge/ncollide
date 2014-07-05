@@ -3,6 +3,7 @@ use nalgebra::na;
 use math::{Scalar, Vect};
 use geom::Ball;
 use parametric::ParametricSurface;
+use utils;
 
 /// Parametrization of the ball and its derivatives:
 ///
@@ -110,4 +111,15 @@ impl ParametricSurface for Ball {
             Vec3::new( r_su_sv, na::zero(),  r_cu_sv)
         )
     }
+
+    fn at_uv_nk(&self, u: Scalar, v: Scalar, n: uint, k: uint) -> Vect {
+        let r = self.radius();
+        let x =  r * utils::dcos(n, u) * utils::dcos(k, v);
+        let z = -r * utils::dsin(n, u) * utils::dcos(k, u);
+        let y = if n != 0 { r * utils::dsin(k, v) } else { na::zero() };
+
+        Vec3::new(x, y, z)
+    }
+
+    // FIXME: implement explicitely `at_uv_n` to prevent repeted evulation of `dcos` and `dsin`.
 }
