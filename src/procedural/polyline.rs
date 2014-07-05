@@ -3,7 +3,6 @@ use nalgebra::na::{Translate, Rotate, Transform, FloatVec, Dim, Indexable};
 
 /// Geometric description of a polyline.
 #[deriving(Clone)]
-// XXX: Rename this `PolyLine` ?
 pub struct Polyline<N, V> {
     /// Coordinates of the polyline vertices.
     pub coords:  Vec<V>,

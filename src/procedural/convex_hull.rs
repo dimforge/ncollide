@@ -1,9 +1,9 @@
-use std::num::Zero;
-use nalgebra::na::{Vec3, Norm};
+use std::num::{Bounded, Zero};
+use nalgebra::na::{Vec2, Vec3, Norm, FloatVec};
 use nalgebra::na;
 use math::Scalar;
 use utils;
-use procedural::{TriMesh, UnifiedIndexBuffer};
+use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 
 /// Computes the convex hull of a set of 3d points.
 pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
@@ -46,13 +46,13 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
                                        triangles.as_mut_slice());
                 }
 
-                attach_and_push_facets(horizon_loop_facets.as_slice(),
-                                       horizon_loop_ids.as_slice(),
-                                       point,
-                                       points,
-                                       &mut triangles,
-                                       removed_facets.as_slice(),
-                                       &mut undecidable_points);
+                attach_and_push_facets_3d(horizon_loop_facets.as_slice(),
+                                          horizon_loop_ids.as_slice(),
+                                          point,
+                                          points,
+                                          &mut triangles,
+                                          removed_facets.as_slice(),
+                                          &mut undecidable_points);
             },
             None => { }
         }
@@ -60,7 +60,7 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
         i = i + 1;
     }
 
-    let     pts = Vec::from_slice(points);
+    let mut pts = Vec::from_slice(points);
     let mut idx = Vec::new();
 
     for facet in triangles.iter() {
@@ -69,13 +69,15 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
         }
     }
 
+    utils::remove_unused_points(&mut pts, idx.as_mut_slice());
+
     TriMesh::new(pts, None, None, Some(UnifiedIndexBuffer(idx)))
 }
 
 fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec<TriangleFacet> {
     let mut res = Vec::new();
 
-    // NOTE: we assume there is not duplicate point
+    // NOTE: we assume that there is not duplicate point
     assert!(points.len() >= 3);
 
     let p1 = 0;
@@ -94,15 +96,15 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
         p3 = p3 + 1;
     }
 
-    // build two facets with opposite normals
+    // Build two facets with opposite normals
     let mut f1 = TriangleFacet::new(p1, p2, p3, points);
     let mut f2 = TriangleFacet::new(p2, p1, p3, points);
 
-    // link facets together
+    // Link the facets together
     f1.set_facets_adjascency(1, 1, 1, 0, 2, 1);
     f2.set_facets_adjascency(0, 0, 0, 0, 2, 1);
 
-    // attribute points to each facets
+    // Attribute points to each facet.
     for i in range(2, points.len()) {
         if i == p3 {
             continue;
@@ -124,18 +126,37 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
     verify_facet_links(0, res.as_slice());
     verify_facet_links(1, res.as_slice());
 
-    return res;
+    res
 }
 
-fn support_point(direction: &Vec3<Scalar>, points : &[Vec3<Scalar>], idx: &[uint]) -> Option<uint> {
+fn support_point<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], idx: &[uint]) -> Option<uint> {
     let mut argmax = None;
-    let mut max    = na::zero();
+    let _M: N      = Bounded::max_value();
+    let mut max    = -_M;
 
     for i in idx.iter() {
         let dot = na::dot(direction, &points[*i]);
 
         if dot > max {
             argmax = Some(*i);
+            max    = dot;
+        }
+    }
+
+    argmax
+}
+
+// FIXME: uggly, find a way to refactor all the support point functions!
+fn support_point_2<N: Float, V: FloatVec<N>>(direction: &V, points : &[V]) -> Option<uint> {
+    let mut argmax = None;
+    let _M: N      = Bounded::max_value();
+    let mut max    = -_M;
+
+    for (id, pt) in points.iter().enumerate() {
+        let dot = na::dot(direction, pt);
+
+        if dot > max {
+            argmax = Some(id);
             max    = dot;
         }
     }
@@ -193,13 +214,13 @@ fn verify_facet_links(ifacet: uint, facets: &[TriangleFacet]) {
     }
 }
 
-fn attach_and_push_facets(horizon_loop_facets: &[uint],
-                          horizon_loop_ids:    &[uint],
-                          point:               uint,
-                          points:              &[Vec3<Scalar>],
-                          triangles:           &mut Vec<TriangleFacet>,
-                          removed_facets:      &[uint],
-                          undecidable:         &mut Vec<uint>) {
+fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
+                             horizon_loop_ids:    &[uint],
+                             point:               uint,
+                             points:              &[Vec3<Scalar>],
+                             triangles:           &mut Vec<TriangleFacet>,
+                             removed_facets:      &[uint],
+                             undecidable:         &mut Vec<uint>) {
     // horizon is built to be in CCW order
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
@@ -356,5 +377,232 @@ impl TriangleFacet {
         !utils::is_affinely_dependent_triangle(p0, p1, pt) &&
         !utils::is_affinely_dependent_triangle(p0, p2, pt) &&
         !utils::is_affinely_dependent_triangle(p1, p2, pt)
+    }
+}
+
+
+/// Computes the convex hull of a set of 2d points.
+pub fn convex_hull2d(points: &[Vec2<Scalar>]) -> Polyline<Scalar, Vec2<Scalar>> {
+    let mut undecidable_points = Vec::new();
+    let mut segments           = get_initial_polyline(points, &mut undecidable_points);
+
+    let mut i = 0;
+    while i != segments.len() {
+        if !segments.get(i).valid {
+            i = i + 1;
+            continue;
+        }
+
+        let pt_id = support_point(&segments.get(i).normal,
+                                  points,
+                                  segments.get(i).visible_points.as_slice());
+
+        match pt_id {
+            Some(point) => {
+                segments.get_mut(i).valid = false;
+
+                attach_and_push_facets_2d(segments.get(i).prev,
+                                          segments.get(i).next,
+                                          point,
+                                          points.as_slice(),
+                                          &mut segments,
+                                          i,
+                                          &mut undecidable_points);
+            },
+            None => { }
+        }
+
+        i = i + 1;
+    }
+
+    let mut pts        = Vec::new();
+    let mut curr_facet = 0;
+
+    while !segments.get(curr_facet).valid {
+        curr_facet = curr_facet + 1
+    }
+
+    let first_facet = curr_facet;
+
+    loop {
+        let curr = segments.get(curr_facet);
+
+        assert!(curr.valid);
+
+        pts.push(points[curr.pts[0]].clone());
+
+        curr_facet = curr.next;
+
+        if curr_facet == first_facet {
+            break;
+        }
+    }
+
+    Polyline::new(pts, None)
+}
+
+pub fn get_initial_polyline(points: &[Vec2<Scalar>], undecidable: &mut Vec<uint>) -> Vec<SegmentFacet> {
+    let mut res = Vec::new();
+
+    assert!(points.len() >= 2);
+
+    let p1     = support_point_2(&Vec2::x(), points).unwrap();
+    let mut p2 = p1;
+
+    let direction = [
+        -Vec2::x(),
+        Vec2::y(),
+        -Vec2::y()
+    ];
+
+    for dir in direction.iter() {
+        p2 = support_point_2(dir, points).unwrap();
+
+        let p1p2 = points[p2] - points[p1];
+
+        if !na::sqnorm(&p1p2).is_zero() {
+            break;
+        }
+    }
+
+    assert!(p1 != p2, "Failed to build the 2d convex hull of this point cloud.");
+
+    // Build two facets with opposite normals.
+    let mut f1 = SegmentFacet::new(p1, p2, 1, 1, points);
+    let mut f2 = SegmentFacet::new(p2, p1, 0, 0, points);
+
+    // Attribute points to each facet.
+    for i in range(1, points.len()) {
+        if i == p2 {
+            continue;
+        }
+        if f1.can_be_seen_by(i, points) {
+            f1.visible_points.push(i);
+        }
+        else if f2.can_be_seen_by(i, points) {
+            f2.visible_points.push(i);
+        }
+        else { // the point is colinear.
+            undecidable.push(i);
+        }
+    }
+
+    res.push(f1);
+    res.push(f2);
+
+    res
+}
+
+fn attach_and_push_facets_2d(prev_facet:    uint,
+                             next_facet:    uint,
+                             point:         uint,
+                             points:        &[Vec2<Scalar>],
+                             segments:      &mut Vec<SegmentFacet>,
+                             removed_facet: uint,
+                             undecidable:   &mut Vec<uint>) {
+
+    let new_facet1_id = segments.len();
+    let new_facet2_id = new_facet1_id + 1;
+    let prev_pt       = segments.get(prev_facet).pts[1];
+    let next_pt       = segments.get(next_facet).pts[0];
+
+    let mut new_facet1 = SegmentFacet::new(prev_pt, point, prev_facet, new_facet2_id, points);
+    let mut new_facet2 = SegmentFacet::new(point, next_pt, new_facet1_id, next_facet, points);
+
+    segments.get_mut(prev_facet).next = new_facet1_id;
+    segments.get_mut(next_facet).prev = new_facet2_id;
+
+    // Assign to each facets some of the points which can see it.
+    for visible_point in segments.get(removed_facet).visible_points.iter() {
+        if *visible_point == point {
+            continue;
+        }
+
+        if new_facet1.can_be_seen_by(*visible_point, points) {
+            new_facet1.visible_points.push(*visible_point);
+        }
+        else if new_facet2.can_be_seen_by(*visible_point, points) {
+            new_facet2.visible_points.push(*visible_point);
+        }
+        // If none of the facet can be seen from the point, it is naturally deleted.
+    }
+
+    // Try to assign collinear points to one of the new facets
+    let mut i = 0;
+
+    while i != undecidable.len() {
+        if new_facet1.can_be_seen_by(*undecidable.get(i), points) {
+            new_facet1.visible_points.push(*undecidable.get(i));
+            let _ = undecidable.swap_remove(i);
+        }
+        else if new_facet2.can_be_seen_by(*undecidable.get(i), points) {
+            new_facet2.visible_points.push(*undecidable.get(i));
+            let _ = undecidable.swap_remove(i);
+        }
+        else {
+            i = i + 1;
+        }
+    }
+
+    segments.push(new_facet1);
+    segments.push(new_facet2);
+}
+
+struct SegmentFacet {
+    pub valid:          bool,
+    pub normal:         Vec2<Scalar>,
+    pub next:           uint,
+    pub prev:           uint,
+    pub pts:            [uint, ..2],
+    pub dto:            Scalar,
+    pub visible_points: Vec<uint>
+}
+
+impl SegmentFacet {
+    pub fn new(p1: uint, p2: uint, prev: uint, next: uint, points: &[Vec2<Scalar>]) -> SegmentFacet {
+        let p1p2 = points[p2] - points[p1];
+
+        let mut normal = Vec2::new(-p1p2.y, p1p2.x);
+        if normal.normalize().is_zero() {
+            fail!("A facet must not be affinely dependent.");
+        }
+
+        let dto = na::dot(&points[p1], &normal);
+
+        SegmentFacet {
+            valid:          true,
+            normal:         normal,
+            prev:           prev,
+            next:           next,
+            pts:            [p1, p2],
+            dto:            dto,
+            visible_points: Vec::new()
+        }
+    }
+
+    pub fn can_be_seen_by(&self, point: uint, points: &[Vec2<Scalar>]) -> bool {
+        let pt = &points[point];
+
+        na::dot(pt, &self.normal) > self.dto
+    }
+}
+
+
+
+#[cfg(test)]
+mod test {
+    use nalgebra::na::Vec2;
+
+    #[test]
+    fn test_simple_convex_hull2d() {
+        let points = [
+            Vec2::new(4.723881, 3.597233),
+            Vec2::new(3.333363, 3.429991),
+            Vec2::new(3.137215, 2.812263)
+            ];
+
+        let chull = super::convex_hull2d(points);
+
+        assert!(chull.coords.len() == 3);
     }
 }

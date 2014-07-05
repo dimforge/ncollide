@@ -4,7 +4,7 @@ ncollide_rs=src/lib.rs
 ncollide_lib_path=lib
 nalgebra_lib_path=./nalgebra/lib
 
-all: 2df32 3df32 4df32 2df64 3df64 4df64
+all: 3df32 2df32 4df32 2df64 3df64 4df64
 	mkdir -p $(ncollide_lib_path)
 
 2df32:
