@@ -128,7 +128,7 @@ impl Mesh {
     /// The vertices of this mesh.
     #[inline]
     pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Vect>> {
-        &'a self.vertices
+        &self.vertices
     }
 
     /// Bounding volumes of the subsimplices.
@@ -140,25 +140,25 @@ impl Mesh {
     /// The indices of this mesh.
     #[inline]
     pub fn indices<'a>(&'a self) -> &'a Arc<Vec<uint>> {
-        &'a self.indices
+        &self.indices
     }
 
     /// The texture coordinates of this mesh.
     #[inline]
     pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<Vec2<Scalar>>>> {
-        &'a self.uvs
+        &self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
     pub fn normals<'a>(&'a self) -> &'a Option<Arc<Vec<Vect>>> {
-        &'a self.normals
+        &self.normals
     }
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
     pub fn bvt<'a>(&'a self) -> &'a BVT<uint, AABB> {
-        &'a self.bvt
+        &self.bvt
     }
 
     /// The collision margin used by this mesh.

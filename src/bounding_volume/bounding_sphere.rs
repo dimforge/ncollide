@@ -30,7 +30,7 @@ impl BoundingSphere {
     /// The bounding sphere center.
     #[inline]
     pub fn center<'a>(&'a self) -> &'a Vect {
-        &'a self.center
+        &self.center
     }
 
     /// The bounding sphere radius.

@@ -40,19 +40,19 @@ impl Triangle {
     /// The fist point of this triangle.
     #[inline]
     pub fn a<'a>(&'a self) -> &'a Vect {
-        &'a self.a
+        &self.a
     }
 
     /// The second point of this triangle.
     #[inline]
     pub fn b<'a>(&'a self) -> &'a Vect {
-        &'a self.b
+        &self.b
     }
 
     /// The third point of this triangle.
     #[inline]
     pub fn c<'a>(&'a self) -> &'a Vect {
-        &'a self.c
+        &self.c
     }
 
     /// The margin surrounding this triangle.

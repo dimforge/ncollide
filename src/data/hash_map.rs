@@ -240,14 +240,14 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                     self.table.push(Entry::new(key, v));
                     self.num_elem = self.num_elem + 1;
 
-                    Some(&'a mut self.table.get_mut(self.num_elem - 1).value)
+                    Some(&mut self.table.get_mut(self.num_elem - 1).value)
                 }
                 None => None
 
             }
         }
         else {
-            Some(&'a mut self.table.get_mut(entry as uint).value)
+            Some(&mut self.table.get_mut(entry as uint).value)
         }
     }
 
@@ -261,7 +261,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn insert_or_replace<'a>(&'a mut self, key: K, value: V, replace: bool) -> &'a mut V {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 
-        &'a mut self.table.get_mut(res).value
+        &mut self.table.get_mut(res).value
     }
 }
 
@@ -311,7 +311,7 @@ impl<K: PartialEq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
             None
         }
         else {
-            Some(&'a self.table.get(pos as uint).value)
+            Some(&self.table.get(pos as uint).value)
         }
     }
 }
@@ -345,7 +345,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             None
         }
         else {
-            Some(&'a mut self.table.get_mut(entry as uint).value)
+            Some(&mut self.table.get_mut(entry as uint).value)
         }
     }
 }
@@ -364,7 +364,7 @@ mod test {
         assert!(m.find(&1).is_none());
         m.insert(1, 2);
         match m.find(&1) {
-            None => fail!(),
+            None    => fail!(),
             Some(v) => assert!(*v == 2)
         }
     }

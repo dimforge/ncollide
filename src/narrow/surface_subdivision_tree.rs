@@ -47,7 +47,7 @@ impl<D> SurfaceSubdivisionTreeRef<D> {
 
 impl<D> Deref<Arc<RWLock<SurfaceSubdivisionTree<D>>>> for SurfaceSubdivisionTreeRef<D> {
     fn deref<'a>(&'a self) -> &'a Arc<RWLock<SurfaceSubdivisionTree<D>>> {
-        &'a self.value
+        &self.value
     }
 }
 
@@ -151,19 +151,19 @@ impl<D: Send + Share> SurfaceSubdivisionTree<D> {
     /// The surface contained by this node.
     #[inline]
     pub fn surface<'a>(&'a self) -> &'a BezierSurface {
-        &'a self.surface
+        &self.surface
     }
 
     /// Reference to the data contained by this node.
     #[inline]
     pub fn data<'a>(&'a self) -> &'a D {
-        &'a self.data
+        &self.data
     }
 
     /// Mutable reference to the data contained by this node.
     #[inline]
     pub fn data_mut<'a>(&'a mut self) -> &'a mut D {
-        &'a mut self.data
+        &mut self.data
     }
 
     /// The timestamp of this tree node.

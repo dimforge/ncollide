@@ -134,19 +134,19 @@ impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
     pub fn point<'r>(&'r self) -> &'r Vect {
-        &'r self.point
+        &self.point
     }
 
     #[doc(hidden)]
     #[inline]
     pub fn orig1<'r>(&'r self) -> &'r Vect {
-        &'r self.orig1
+        &self.orig1
     }
 
     #[doc(hidden)]
     #[inline]
     pub fn orig2<'r>(&'r self) -> &'r Vect {
-        &'r self.orig2
+        &self.orig2
     }
 }
 

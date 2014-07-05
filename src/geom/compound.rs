@@ -124,7 +124,7 @@ impl Compound {
     /// The optimization structure used by this compound geometry.
     #[inline]
     pub fn bvt<'r>(&'r self) -> &'r BVT<uint, AABB> {
-        &'r self.bvt
+        &self.bvt
     }
 
     /// The geometries bounding volumes.
@@ -142,13 +142,13 @@ impl Compound {
     #[doc(hidden)]
     #[inline]
     pub fn angular_inertia<'r>(&'r self) -> &'r AngularInertia {
-        &'r self.inertia
+        &self.inertia
     }
 
     #[doc(hidden)]
     #[inline]
     pub fn center_of_mass<'r>(&'r self) -> &'r Vect {
-        &'r self.com
+        &self.com
     }
 }
 

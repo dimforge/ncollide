@@ -38,13 +38,13 @@ impl Segment {
     /// The first point of this segment.
     #[inline]
     pub fn a<'a>(&'a self) -> &'a Vect {
-        &'a self.a
+        &self.a
     }
 
     /// The second point of this segment.
     #[inline]
     pub fn b<'a>(&'a self) -> &'a Vect {
-        &'a self.b
+        &self.b
     }
 
     /// The margin surrounding this segment.

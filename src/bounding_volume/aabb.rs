@@ -54,13 +54,13 @@ impl AABB {
     /// Reference to the AABB point with the smallest components along each axis.
     #[inline]
     pub fn mins<'a>(&'a self) -> &'a Vect {
-        &'a self.mins
+        &self.mins
     }
 
     /// Reference to the AABB point with the biggest components along each axis.
     #[inline]
     pub fn maxs<'a>(&'a self) -> &'a Vect {
-        &'a self.maxs
+        &self.maxs
     }
 
 }
