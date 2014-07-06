@@ -33,9 +33,8 @@ implemented because it is meaningless.
 ## Support map
 **ncollide** supports generic algorithms that work for any (possibly
 user-defined) shape defined by a support map. Those algorithms include
-collision detection algorithms, and ray casting.  The support map is a function
-that returns the point that maximises the dot product with a given
-direction:
+collision detection and ray casting algorithms.  The support map is a function
+that returns the point that maximises the dot product with a given direction:
 <p>
 <img src="../img/support_fun_formula.svg" style="width:25%;height:25%"/>
 </p>
@@ -76,7 +75,7 @@ The next chapter describes each shape and shows how they are affected by the
 margin. The illustrations will use two colors. The blue geometry is the one
 that is affected by the internal margins (if applicable). The yellow geometry
 is the one that is affected by the margin. For example, the `Cone` has an
-external margin, so the yellow envelope is bigger and more "rounded" than the
+external margin, so the yellow envelope is bigger and more "curved" than the
 blue one (which is the exact cone):
 
 ![cone with a margin on 0.2](../img/cone3d_margin.png)
