@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>utils</a></p><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.center.html'>center</a><a class='fn ' href='fn.circumcircle.html'>circumcircle</a><a class='fn ' href='fn.is_affinely_dependent_triangle.html'>is_affinely_dependent_triangle</a><a class='fn ' href='fn.project_homogeneous.html'>project_homogeneous</a><a class='fn ' href='fn.project_homogeneous_to.html'>project_homogeneous_to</a><a class='fn ' href='fn.remove_unused_points.html'>remove_unused_points</a><a class='fn current' href='fn.triangulate.html'>triangulate</a></div>
+        <p class='location'><a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>utils</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='symbolic/index.html'>symbolic</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.binom.html'>binom</a><a class='fn ' href='fn.center.html'>center</a><a class='fn ' href='fn.circumcircle.html'>circumcircle</a><a class='fn ' href='fn.dcos.html'>dcos</a><a class='fn ' href='fn.dsin.html'>dsin</a><a class='fn ' href='fn.is_affinely_dependent_triangle.html'>is_affinely_dependent_triangle</a><a class='fn ' href='fn.project_homogeneous.html'>project_homogeneous</a><a class='fn ' href='fn.project_homogeneous_to.html'>project_homogeneous_to</a><a class='fn ' href='fn.remove_unused_points.html'>remove_unused_points</a><a class='fn current' href='fn.triangulate.html'>triangulate</a></div>
     </section>
 
     <nav class="sub">
@@ -41,7 +41,7 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>utils</a>::<a class='fn' href=''>triangulate</a><a class='source' id='src-56287' href='../../src/ncollide4df32/src/utils/triangulate.rs.html#138-173'>[src]</a></h1>
+<h1 class='fqn'>Function <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>utils</a>::<a class='fn' href=''>triangulate</a><a class='source' id='src-70451' href='../../src/ncollide4df32/src/utils/triangulate.rs.html#138-173'>[src]</a></h1>
 <pre class='rust fn'>pub fn triangulate&lt;N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.f64.html'>f64</a>&gt;, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVecExt.html' title='nalgebra::traits::structure::FloatVecExt'>FloatVecExt</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt;(pts: &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[V]</a>) -&gt; <a class='struct' href='../../ncollide4df32/procedural/struct.TriMesh.html' title='ncollide4df32::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;</pre><div class='docblock'><p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
 
 <p>If the points do not lie on the same 2d plane, strange things might happends (triangle might be

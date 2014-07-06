@@ -54,6 +54,9 @@
 <span id='12'>12</span>
 <span id='13'>13</span>
 <span id='14'>14</span>
+<span id='15'>15</span>
+<span id='16'>16</span>
+<span id='17'>17</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Miscelaneous, unsorted generic geometric utilities.</span>
 
@@ -62,13 +65,16 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>utils</span>::<span class='ident'>project_homogeneous</span>::{<span class='ident'>project_homogeneous</span>, <span class='ident'>project_homogeneous_to</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>utils</span>::<span class='ident'>triangle_utils</span>::{<span class='ident'>circumcircle</span>, <span class='ident'>is_affinely_dependent_triangle</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>utils</span>::<span class='ident'>cleanup</span>::<span class='ident'>remove_unused_points</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>utils</span>::<span class='ident'>derivatives</span>::{<span class='ident'>dcos</span>, <span class='ident'>dsin</span>, <span class='ident'>binom</span>};
 
 
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>symbolic</span>;
 <span class='kw'>mod</span> <span class='ident'>center</span>;
 <span class='kw'>mod</span> <span class='ident'>triangulate</span>;
 <span class='kw'>mod</span> <span class='ident'>project_homogeneous</span>;
 <span class='kw'>mod</span> <span class='ident'>triangle_utils</span>;
 <span class='kw'>mod</span> <span class='ident'>cleanup</span>;
+<span class='kw'>mod</span> <span class='ident'>derivatives</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

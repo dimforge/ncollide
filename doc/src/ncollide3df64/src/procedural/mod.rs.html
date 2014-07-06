@@ -108,11 +108,17 @@
 <span id='66'>66</span>
 <span id='67'>67</span>
 <span id='68'>68</span>
+<span id='69'>69</span>
+<span id='70'>70</span>
+<span id='71'>71</span>
+<span id='72'>72</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Procedural mesh generation.</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>trimesh</span>::{<span class='ident'>TriMesh</span>, <span class='ident'>IndexBuffer</span>, <span class='ident'>UnifiedIndexBuffer</span>, <span class='ident'>SplitIndexBuffer</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>polyline</span>::<span class='ident'>Polyline</span>;
 
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>parametric_surface</span>::<span class='ident'>parametric_surface_uniform</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>bezier</span>::{<span class='ident'>bezier_surface</span>, <span class='ident'>rational_bezier_surface</span>, <span class='ident'>bezier_curve</span>, <span class='ident'>rational_bezier_curve</span>,
                              <span class='ident'>bezier_surface_at</span>, <span class='ident'>bezier_curve_at</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>capsule</span>::<span class='ident'>capsule</span>;
@@ -177,6 +183,8 @@
 <span class='kw'>mod</span> <span class='ident'>quad</span>;
 <span class='kw'>mod</span> <span class='ident'>sphere</span>;
 <span class='kw'>mod</span> <span class='ident'>convex_hull</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>dim3</span>)]</span>
+<span class='kw'>mod</span> <span class='ident'>parametric_surface</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
