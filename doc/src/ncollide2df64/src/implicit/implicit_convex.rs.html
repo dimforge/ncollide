@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -68,24 +71,10 @@
 <span id='29'>29</span>
 <span id='30'>30</span>
 <span id='31'>31</span>
-<span id='32'>32</span>
-<span id='33'>33</span>
-<span id='34'>34</span>
-<span id='35'>35</span>
-<span id='36'>36</span>
-<span id='37'>37</span>
-<span id='38'>38</span>
-<span id='39'>39</span>
-<span id='40'>40</span>
-<span id='41'>41</span>
-<span id='42'>42</span>
-<span id='43'>43</span>
-<span id='44'>44</span>
 </pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::<span class='ident'>Bounded</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Transform</span>, <span class='ident'>Rotate</span>};
-<span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>implicit</span>::{<span class='ident'>Implicit</span>, <span class='ident'>HasMargin</span>, <span class='ident'>PreferedSamplingDirections</span>};
+<span class='kw'>use</span> <span class='ident'>implicit</span>;
 <span class='kw'>use</span> <span class='ident'>geom</span>::<span class='ident'>Convex</span>;
 <span class='kw'>use</span> <span class='ident'>math</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Vect</span>};
 
@@ -102,21 +91,9 @@
     <span class='kw'>fn</span> <span class='ident'>support_point_without_margin</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>_M</span>, <span class='ident'>dir</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vect</span>) <span class='op'>-&gt;</span> <span class='ident'>Vect</span> {
         <span class='kw'>let</span> <span class='ident'>local_dir</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>inv_rotate</span>(<span class='ident'>dir</span>);
 
-        <span class='kw'>let</span> <span class='ident'>_max</span>: <span class='ident'>Scalar</span> <span class='op'>=</span> <span class='ident'>Bounded</span>::<span class='ident'>max_value</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>best_dot</span> <span class='op'>=</span> <span class='op'>-</span><span class='ident'>_max</span>;
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>best_pt</span>  <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>pts</span>()[<span class='number'>0</span>];
+        <span class='kw'>let</span> <span class='ident'>best_pt</span> <span class='op'>=</span> <span class='ident'>implicit</span>::<span class='ident'>point_cloud_support_point</span>(<span class='kw-2'>&amp;</span><span class='ident'>local_dir</span>, <span class='self'>self</span>.<span class='ident'>pts</span>());
 
-        <span class='kw'>for</span> <span class='ident'>p</span> <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>pts</span>().<span class='ident'>iter</span>() {
-            <span class='kw'>let</span> <span class='ident'>dot</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>dot</span>(<span class='ident'>p</span>, <span class='kw-2'>&amp;</span><span class='ident'>local_dir</span>);
-
-            <span class='kw'>if</span> <span class='ident'>dot</span> <span class='op'>&gt;</span> <span class='ident'>best_dot</span> {
-                <span class='ident'>best_dot</span> <span class='op'>=</span> <span class='ident'>dot</span>;
-                <span class='ident'>best_pt</span>  <span class='op'>=</span> <span class='ident'>p</span>;
-            }
-        }
-
-
-        <span class='ident'>m</span>.<span class='ident'>transform</span>(<span class='ident'>best_pt</span>)
+        <span class='ident'>m</span>.<span class='ident'>transform</span>(<span class='kw-2'>&amp;</span><span class='ident'>best_pt</span>)
     }
 }
 
@@ -162,6 +139,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

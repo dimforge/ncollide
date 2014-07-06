@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,7 +41,7 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide3df64</a>::<a href='../index.html'>volumetric</a>::<a href='index.html'>volumetric</a>::<a class='trait' href=''>InertiaTensor</a><a class='source' id='src-37205' href='../../../src/ncollide3df64/src/volumetric/volumetric.rs.html#16-27'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../../index.html'>ncollide3df64</a>::<a href='../index.html'>volumetric</a>::<a href='index.html'>volumetric</a>::<a class='trait' href=''>InertiaTensor</a><a class='source' id='src-37213' href='../../../src/ncollide3df64/src/volumetric/volumetric.rs.html#16-27'>[src]</a></h1>
 <pre class='rust trait'>pub trait InertiaTensor {
     fn <a href='#tymethod.apply' class='fnname'>apply</a>(&amp;self, a: &amp;<a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a>) -&gt; <a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a>;
     fn <a href='#tymethod.to_world_space' class='fnname'>to_world_space</a>(&amp;self, &amp;<a class='type' href='../../../ncollide3df64/math/type.Matrix.html' title='ncollide3df64::math::Matrix'>Matrix</a>) -&gt; Self;
@@ -47,15 +50,15 @@
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.apply' class='method'><code>fn <a href='#tymethod.apply' class='fnname'>apply</a>(&amp;self, a: &amp;<a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a>) -&gt; <a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a></code></h3><div class='docblock'><p>Applies this inertia tensor to a vector.</p>
+        <h3 id='tymethod.apply' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.apply' class='fnname'>apply</a>(&amp;self, a: &amp;<a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a>) -&gt; <a class='type' href='../../../ncollide3df64/math/type.Orientation.html' title='ncollide3df64::math::Orientation'>Orientation</a></code></h3><div class='docblock'><p>Applies this inertia tensor to a vector.</p>
 
 <p>This is usually done by a matrix-vector multiplication.</p>
-</div><h3 id='tymethod.to_world_space' class='method'><code>fn <a href='#tymethod.to_world_space' class='fnname'>to_world_space</a>(&amp;self, &amp;<a class='type' href='../../../ncollide3df64/math/type.Matrix.html' title='ncollide3df64::math::Matrix'>Matrix</a>) -&gt; Self</code></h3><div class='docblock'><p>Transforms this inertia tensor from local space to world space.</p>
-</div><h3 id='tymethod.to_relative_wrt_point' class='method'><code>fn <a href='#tymethod.to_relative_wrt_point' class='fnname'>to_relative_wrt_point</a>(&amp;self, &amp;<a class='type' href='../../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>, &amp;<a class='type' href='../../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>) -&gt; Self</code></h3><div class='docblock'><p>Computes this inertia tensor relative to a given point.</p>
+</div><h3 id='tymethod.to_world_space' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.to_world_space' class='fnname'>to_world_space</a>(&amp;self, &amp;<a class='type' href='../../../ncollide3df64/math/type.Matrix.html' title='ncollide3df64::math::Matrix'>Matrix</a>) -&gt; Self</code></h3><div class='docblock'><p>Transforms this inertia tensor from local space to world space.</p>
+</div><h3 id='tymethod.to_relative_wrt_point' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.to_relative_wrt_point' class='fnname'>to_relative_wrt_point</a>(&amp;self, &amp;<a class='type' href='../../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>, &amp;<a class='type' href='../../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>) -&gt; Self</code></h3><div class='docblock'><p>Computes this inertia tensor relative to a given point.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../../ncollide3df64/volumetric/volumetric/trait.InertiaTensor.html' title='ncollide3df64::volumetric::volumetric::InertiaTensor'>InertiaTensor</a> for <a class='type' href='../../../ncollide3df64/math/type.AngularInertia.html' title='ncollide3df64::math::AngularInertia'>AngularInertia</a></code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide3df64/volumetric/volumetric/trait.InertiaTensor.html' title='ncollide3df64::volumetric::volumetric::InertiaTensor'>InertiaTensor</a> for <a class='type' href='../../../ncollide3df64/math/type.AngularInertia.html' title='ncollide3df64::math::AngularInertia'>AngularInertia</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide3df64/volumetric/volumetric/trait.InertiaTensor.js">
                       </script></section>
@@ -93,6 +96,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../";

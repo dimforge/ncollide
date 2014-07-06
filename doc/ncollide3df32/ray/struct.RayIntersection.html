@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,20 +41,20 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df32</a>::<a href='index.html'>ray</a>::<a class='struct' href=''>RayIntersection</a><a class='source' id='src-13680' href='../../src/ncollide3df32/src/ray/ray.rs.html#30-45'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df32</a>::<a href='index.html'>ray</a>::<a class='struct' href=''>RayIntersection</a><a class='source' id='src-13688' href='../../src/ncollide3df32/src/ray/ray.rs.html#30-45'>[src]</a></h1>
 <pre class='rust struct'>pub struct RayIntersection {
     pub toi: <a class='type' href='../../ncollide3df32/math/type.Scalar.html' title='ncollide3df32::math::Scalar'>Scalar</a>,
     pub normal: <a class='type' href='../../ncollide3df32/math/type.Vect.html' title='ncollide3df32::math::Vect'>Vect</a>,
-    pub uvs: <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec2.html' title='nalgebra::structs::vec::Vec2'>Vec2</a>&lt;<a class='type' href='../../ncollide3df32/math/type.Scalar.html' title='ncollide3df32::math::Scalar'>Scalar</a>&gt;&gt;,
+    pub uvs: <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec2.html' title='nalgebra::structs::vec::Vec2'>Vec2</a>&lt;<a class='type' href='../../ncollide3df32/math/type.Scalar.html' title='ncollide3df32::math::Scalar'>Scalar</a>&gt;&gt;,
 }</pre><div class='docblock'><p>Structure containing the result of a successful ray cast.</p>
 </div><h2 class='fields'>Fields</h2>
-<table><tr><td id='structfield.toi'><code>toi</code></td><td><div class='docblock'><p>The time of impact of the ray with the object.  The exact contact point can be computed
+<table><tr><td id='structfield.toi'><a class='stability Unmarked' title='No stability level'></a><code>toi</code></td><td><div class='docblock'><p>The time of impact of the ray with the object.  The exact contact point can be computed
 with: <code>orig + dir * toi</code> where <code>orig</code> is the origin of the ray; <code>dir</code> is its direction and
 <code>toi</code> is the value of this field.</p>
-</div></td></tr><tr><td id='structfield.normal'><code>normal</code></td><td><div class='docblock'><p>The normal at the intersection point.</p>
+</div></td></tr><tr><td id='structfield.normal'><a class='stability Unmarked' title='No stability level'></a><code>normal</code></td><td><div class='docblock'><p>The normal at the intersection point.</p>
 
 <p>If the <code>toi</code> is exactly zero, the normal might not be reliable.</p>
-</div></td></tr><tr><td id='structfield.uvs'><code>uvs</code></td><td><div class='docblock'><p>The textures coordinates at the intersection point.  This is an <code>Option</code> because some shape
+</div></td></tr><tr><td id='structfield.uvs'><a class='stability Unmarked' title='No stability level'></a><code>uvs</code></td><td><div class='docblock'><p>The textures coordinates at the intersection point.  This is an <code>Option</code> because some shape
 do not support texture coordinates.</p>
 </div></td></tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -88,6 +91,8 @@ do not support texture coordinates.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -40,8 +43,8 @@
     <section id='main' class="content trait">
 <h1 class='fqn'>Trait <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>bounding_volume</a>::<a class='trait' href=''>BoundingVolume</a><a class='source' id='src-1218' href='../../src/ncollide2df64/src/bounding_volume/bounding_volume.rs.html#14-23'>[src]</a></h1>
 <pre class='rust trait'>pub trait BoundingVolume {
-    fn <a href='#tymethod.intersects' class='fnname'>intersects</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>;
-    fn <a href='#tymethod.contains' class='fnname'>contains</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.intersects' class='fnname'>intersects</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.contains' class='fnname'>contains</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a>;
     fn <a href='#tymethod.merge' class='fnname'>merge</a>(&amp;mut self, &amp;Self);
     fn <a href='#tymethod.merged' class='fnname'>merged</a>(&amp;self, &amp;Self) -&gt; Self;
 }</pre><div class='docblock'><p>Trait of bounding volumes.</p>
@@ -52,14 +55,14 @@ bounding volume.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.intersects' class='method'><code>fn <a href='#tymethod.intersects' class='fnname'>intersects</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Checks if this bounding volume intersect with another one.</p>
-</div><h3 id='tymethod.contains' class='method'><code>fn <a href='#tymethod.contains' class='fnname'>contains</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Checks if this bounding volume contains another one.</p>
-</div><h3 id='tymethod.merge' class='method'><code>fn <a href='#tymethod.merge' class='fnname'>merge</a>(&amp;mut self, &amp;Self)</code></h3><div class='docblock'><p>Merges this bounding volume with another one. The merge is done in-place.</p>
-</div><h3 id='tymethod.merged' class='method'><code>fn <a href='#tymethod.merged' class='fnname'>merged</a>(&amp;self, &amp;Self) -&gt; Self</code></h3><div class='docblock'><p>Merges this bounding volume with another one.</p>
+        <h3 id='tymethod.intersects' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.intersects' class='fnname'>intersects</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Checks if this bounding volume intersect with another one.</p>
+</div><h3 id='tymethod.contains' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.contains' class='fnname'>contains</a>(&amp;self, &amp;Self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Checks if this bounding volume contains another one.</p>
+</div><h3 id='tymethod.merge' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.merge' class='fnname'>merge</a>(&amp;mut self, &amp;Self)</code></h3><div class='docblock'><p>Merges this bounding volume with another one. The merge is done in-place.</p>
+</div><h3 id='tymethod.merged' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.merged' class='fnname'>merged</a>(&amp;self, &amp;Self) -&gt; Self</code></h3><div class='docblock'><p>Merges this bounding volume with another one.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../ncollide2df64/bounding_volume/trait.BoundingVolume.html' title='ncollide2df64::bounding_volume::BoundingVolume'>BoundingVolume</a> for <a class='struct' href='../../ncollide2df64/bounding_volume/struct.BoundingSphere.html' title='ncollide2df64::bounding_volume::BoundingSphere'>BoundingSphere</a></code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../ncollide2df64/bounding_volume/trait.BoundingVolume.html' title='ncollide2df64::bounding_volume::BoundingVolume'>BoundingVolume</a> for <a class='struct' href='../../ncollide2df64/bounding_volume/struct.BoundingSphere.html' title='ncollide2df64::bounding_volume::BoundingSphere'>BoundingSphere</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df64/bounding_volume/trait.BoundingVolume.js">
                       </script></section>
@@ -97,6 +100,8 @@ bounding volume.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

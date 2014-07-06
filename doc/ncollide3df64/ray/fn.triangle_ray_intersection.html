@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,8 +41,8 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>ray</a>::<a class='fn' href=''>triangle_ray_intersection</a><a class='source' id='src-16414' href='../../src/ncollide3df64/src/ray/ray_triangle.rs.html#47-121'>[src]</a></h1>
-<pre class='rust fn'>pub fn triangle_ray_intersection(a: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, b: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, c: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.tuple.html'>(<a class='struct' href='../../ncollide3df64/ray/struct.RayIntersection.html' title='ncollide3df64::ray::RayIntersection'>RayIntersection</a>, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>&gt;)</a>&gt;</pre><div class='docblock'><p>Computes the intersection between a triangle and a ray.</p>
+<h1 class='fqn'>Function <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>ray</a>::<a class='fn' href=''>triangle_ray_intersection</a><a class='source' id='src-16422' href='../../src/ncollide3df64/src/ray/ray_triangle.rs.html#47-121'>[src]</a></h1>
+<pre class='rust fn'>pub fn triangle_ray_intersection(a: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, b: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, c: &amp;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>, ray: &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(<a class='struct' href='../../ncollide3df64/ray/struct.RayIntersection.html' title='ncollide3df64::ray::RayIntersection'>RayIntersection</a>, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Scalar.html' title='ncollide3df64::math::Scalar'>Scalar</a>&gt;)</a>&gt;</pre><div class='docblock'><p>Computes the intersection between a triangle and a ray.</p>
 
 <p>If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 the intersection point are returned.</p>
@@ -78,6 +81,8 @@ the intersection point are returned.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

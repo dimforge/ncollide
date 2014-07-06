@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -382,7 +385,7 @@
     <span class='doccomment'>/// The vertices of this mesh.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>vertices</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>vertices</span>
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vertices</span>
     }
 
     <span class='doccomment'>/// Bounding volumes of the subsimplices.</span>
@@ -394,25 +397,25 @@
     <span class='doccomment'>/// The indices of this mesh.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>indices</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>uint</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>indices</span>
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>indices</span>
     }
 
     <span class='doccomment'>/// The texture coordinates of this mesh.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>uvs</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>Scalar</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>uvs</span>
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>uvs</span>
     }
 
     <span class='doccomment'>/// The normals of this mesh.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>normals</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Arc</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Vect</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>normals</span>
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>normals</span>
     }
 
     <span class='doccomment'>/// The acceleration structure used for efficient collision detection and ray casting.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bvt</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>BVT</span><span class='op'>&lt;</span><span class='ident'>uint</span>, <span class='ident'>AABB</span><span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>.<span class='ident'>bvt</span>
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>bvt</span>
     }
 
     <span class='doccomment'>/// The collision margin used by this mesh.</span>
@@ -502,6 +505,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

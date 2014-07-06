@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,20 +41,20 @@
     </nav>
 
     <section id='main' class="content type">
-<h1 class='fqn'>Enum <a href='../../../index.html'>ncollide2df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='type' href=''>GJKResult</a><a class='source' id='src-29826' href='../../../../src/ncollide2df64/src/narrow/algorithm/gjk.rs.html#12-19'>[src]</a></h1>
+<h1 class='fqn'>Enum <a href='../../../index.html'>ncollide2df64</a>::<a href='../../index.html'>narrow</a>::<a href='../index.html'>algorithm</a>::<a href='index.html'>gjk</a>::<a class='type' href=''>GJKResult</a><a class='source' id='src-29834' href='../../../../src/ncollide2df64/src/narrow/algorithm/gjk.rs.html#12-19'>[src]</a></h1>
 <pre class='rust enum'>pub enum GJKResult&lt;_V, Dir&gt; {
     Intersection,
     Projection(_V),
     NoIntersection(Dir),
 }</pre><div class='docblock'><p>Results of the GJK algorithm.</p>
 </div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.Intersection'><code>Intersection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when the origin is inside of the polytope.</p>
-</div></td></tr><tr><td id='variant.Projection'><code>Projection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when a projection of the origin on the polytope is found.</p>
-</div></td></tr><tr><td id='variant.NoIntersection'><code>NoIntersection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when the origin is to far away from the polytope.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;_V: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, Dir: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl&lt;__D: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decoder.html' title='serialize::serialize::Decoder'>Decoder</a>&lt;__E&gt;, __E, _V: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt;, Dir: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt; for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='methods'><h4 id='method.decode' class='method'><code>fn <a href='#method.decode' class='fnname'>decode</a>(__arg_0: &amp;mut __D) -&gt; <a class='type' href='http://doc.rust-lang.org/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;<a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;, __E&gt;</code></h4>
-</div><h3 class='impl'><code>impl&lt;__S: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encoder.html' title='serialize::serialize::Encoder'>Encoder</a>&lt;__E&gt;, __E, _V: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt;, Dir: <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt; for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='methods'><h4 id='method.encode' class='method'><code>fn <a href='#method.encode' class='fnname'>encode</a>(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='type' href='http://doc.rust-lang.org/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;(), __E&gt;</code></h4>
+<table><tr><td id='variant.Intersection'><a class='stability Unmarked' title='No stability level'></a><code>Intersection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when the origin is inside of the polytope.</p>
+</div></td></tr><tr><td id='variant.Projection'><a class='stability Unmarked' title='No stability level'></a><code>Projection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when a projection of the origin on the polytope is found.</p>
+</div></td></tr><tr><td id='variant.NoIntersection'><a class='stability Unmarked' title='No stability level'></a><code>NoIntersection</code></td><td><div class='docblock'><p>Result of the GJK algorithm when the origin is to far away from the polytope.</p>
+</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;_V: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, Dir: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='impl-methods'><h4 id='method.clone' class='method'><a class='stability Unstable' title='Unstable'></a><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><a class='stability Experimental' title='Experimental: this function is mostly unused'></a><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;__D: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Decoder.html' title='serialize::serialize::Decoder'>Decoder</a>&lt;__E&gt;, __E, _V: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt;, Dir: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Decodable.html' title='serialize::serialize::Decodable'>Decodable</a>&lt;__D, __E&gt; for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='impl-methods'><h4 id='method.decode' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.decode' class='fnname'>decode</a>(__arg_0: &amp;mut __D) -&gt; <a class='type' href='http://doc.rust-lang.org/0.11.0/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;<a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;, __E&gt;</code></h4>
+</div><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;__S: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Encoder.html' title='serialize::serialize::Encoder'>Encoder</a>&lt;__E&gt;, __E, _V: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt;, Dir: <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt;&gt; <a class='trait' href='http://doc.rust-lang.org/0.11.0/serialize/serialize/trait.Encodable.html' title='serialize::serialize::Encodable'>Encodable</a>&lt;__S, __E&gt; for <a class='type' href='../../../../ncollide2df64/narrow/algorithm/gjk/type.GJKResult.html' title='ncollide2df64::narrow::algorithm::gjk::GJKResult'>GJKResult</a>&lt;_V, Dir&gt;</code></h3><div class='impl-methods'><h4 id='method.encode' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.encode' class='fnname'>encode</a>(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='type' href='http://doc.rust-lang.org/0.11.0/core/result/type.Result.html' title='core::result::Result'>Result</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.unit.html'>()</a>, __E&gt;</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -87,6 +90,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

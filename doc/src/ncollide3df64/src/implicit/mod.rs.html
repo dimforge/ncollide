@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -56,16 +59,20 @@
 <span id='17'>17</span>
 <span id='18'>18</span>
 <span id='19'>19</span>
+<span id='20'>20</span>
+<span id='21'>21</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Definition of support functions.</span>
 
 <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>inline</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit</span>::<span class='ident'>implicit</span>::{<span class='ident'>Implicit</span>, <span class='ident'>HasMargin</span>, <span class='ident'>PreferedSamplingDirections</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit</span>::<span class='ident'>implicit_minkowski_sum</span>::{<span class='ident'>cso_support_point</span>, <span class='ident'>cso_support_point_without_margin</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>implicit</span>::<span class='ident'>implicit_utils</span>::{<span class='ident'>point_cloud_support_point</span>};
 
 <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>implicit</span>;
 
+<span class='kw'>mod</span> <span class='ident'>implicit_utils</span>;
 <span class='kw'>mod</span> <span class='ident'>implicit_box</span>;
 <span class='kw'>mod</span> <span class='ident'>implicit_ball</span>;
 <span class='kw'>mod</span> <span class='ident'>implicit_capsule</span>;
@@ -112,6 +119,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

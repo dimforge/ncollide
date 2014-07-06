@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -103,6 +106,8 @@
 <span id='64'>64</span>
 <span id='65'>65</span>
 <span id='66'>66</span>
+<span id='67'>67</span>
+<span id='68'>68</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Procedural mesh generation.</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>trimesh</span>::{<span class='ident'>TriMesh</span>, <span class='ident'>IndexBuffer</span>, <span class='ident'>UnifiedIndexBuffer</span>, <span class='ident'>SplitIndexBuffer</span>};
@@ -116,6 +121,7 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>cylinder</span>::{<span class='ident'>unit_cylinder</span>, <span class='ident'>cylinder</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>quad</span>::{<span class='ident'>quad</span>, <span class='ident'>unit_quad</span>, <span class='ident'>quad_with_vertices</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>sphere</span>::{<span class='ident'>sphere</span>, <span class='ident'>unit_sphere</span>, <span class='ident'>circle</span>, <span class='ident'>unit_circle</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>convex_hull</span>::{<span class='ident'>convex_hull3d</span>, <span class='ident'>convex_hull2d</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>to_trimesh</span>::<span class='ident'>to_trimesh</span>::<span class='ident'>ToTriMesh</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>procedural</span>::<span class='ident'>to_polyline</span>::<span class='ident'>to_polyline</span>::<span class='ident'>ToPolyline</span>;
 
@@ -170,6 +176,7 @@
 <span class='kw'>mod</span> <span class='ident'>cylinder</span>;
 <span class='kw'>mod</span> <span class='ident'>quad</span>;
 <span class='kw'>mod</span> <span class='ident'>sphere</span>;
+<span class='kw'>mod</span> <span class='ident'>convex_hull</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -206,6 +213,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

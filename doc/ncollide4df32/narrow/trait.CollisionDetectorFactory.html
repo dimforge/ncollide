@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,19 +41,19 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>narrow</a>::<a class='trait' href=''>CollisionDetectorFactory</a><a class='source' id='src-24173' href='../../src/ncollide4df32/src/narrow/geom_geom.rs.html#345-348'>[src]</a></h1>
-<pre class='rust trait'>pub trait CollisionDetectorFactory: <a class='trait' href='http://doc.rust-lang.org/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a> {
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>narrow</a>::<a class='trait' href=''>CollisionDetectorFactory</a><a class='source' id='src-24181' href='../../src/ncollide4df32/src/narrow/geom_geom.rs.html#345-348'>[src]</a></h1>
+<pre class='rust trait'>pub trait CollisionDetectorFactory: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a> {
     fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;<a class='trait' href='../../ncollide4df32/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide4df32::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;;
 }</pre><div class='docblock'><p>Trait of structures able do build a new collision detector.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.build' class='method'><code>fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;<a class='trait' href='../../ncollide4df32/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide4df32::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;</code></h3><div class='docblock'><p>Builds a new collision detector.</p>
+        <h3 id='tymethod.build' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;<a class='trait' href='../../ncollide4df32/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide4df32::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;</code></h3><div class='docblock'><p>Builds a new collision detector.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;G1: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.ConcaveGeom.html' title='ncollide4df32::geom::ConcaveGeom'>ConcaveGeom</a>, G2: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.Geom.html' title='ncollide4df32::geom::Geom'>Geom</a>&gt; <a class='trait' href='../../ncollide4df32/narrow/trait.CollisionDetectorFactory.html' title='ncollide4df32::narrow::CollisionDetectorFactory'>CollisionDetectorFactory</a> for <a class='struct' href='../../ncollide4df32/narrow/struct.ConcaveGeomGeomFactory.html' title='ncollide4df32::narrow::ConcaveGeomGeomFactory'>ConcaveGeomGeomFactory</a>&lt;G1, G2&gt;</code></li>
-<li><code>impl&lt;G1: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.Geom.html' title='ncollide4df32::geom::Geom'>Geom</a>, G2: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.ConcaveGeom.html' title='ncollide4df32::geom::ConcaveGeom'>ConcaveGeom</a>&gt; <a class='trait' href='../../ncollide4df32/narrow/trait.CollisionDetectorFactory.html' title='ncollide4df32::narrow::CollisionDetectorFactory'>CollisionDetectorFactory</a> for <a class='struct' href='../../ncollide4df32/narrow/struct.GeomConcaveGeomFactory.html' title='ncollide4df32::narrow::GeomConcaveGeomFactory'>GeomConcaveGeomFactory</a>&lt;G1, G2&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;G1: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.ConcaveGeom.html' title='ncollide4df32::geom::ConcaveGeom'>ConcaveGeom</a>, G2: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.Geom.html' title='ncollide4df32::geom::Geom'>Geom</a>&gt; <a class='trait' href='../../ncollide4df32/narrow/trait.CollisionDetectorFactory.html' title='ncollide4df32::narrow::CollisionDetectorFactory'>CollisionDetectorFactory</a> for <a class='struct' href='../../ncollide4df32/narrow/struct.ConcaveGeomGeomFactory.html' title='ncollide4df32::narrow::ConcaveGeomGeomFactory'>ConcaveGeomGeomFactory</a>&lt;G1, G2&gt;</code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;G1: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.Geom.html' title='ncollide4df32::geom::Geom'>Geom</a>, G2: 'static + <a class='trait' href='../../ncollide4df32/geom/trait.ConcaveGeom.html' title='ncollide4df32::geom::ConcaveGeom'>ConcaveGeom</a>&gt; <a class='trait' href='../../ncollide4df32/narrow/trait.CollisionDetectorFactory.html' title='ncollide4df32::narrow::CollisionDetectorFactory'>CollisionDetectorFactory</a> for <a class='struct' href='../../ncollide4df32/narrow/struct.GeomConcaveGeomFactory.html' title='ncollide4df32::narrow::GeomConcaveGeomFactory'>GeomConcaveGeomFactory</a>&lt;G1, G2&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide4df32/narrow/trait.CollisionDetectorFactory.js">
                       </script></section>
@@ -88,6 +91,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

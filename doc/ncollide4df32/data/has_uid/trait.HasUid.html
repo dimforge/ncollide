@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,22 +41,22 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide4df32</a>::<a href='../index.html'>data</a>::<a href='index.html'>has_uid</a>::<a class='trait' href=''>HasUid</a><a class='source' id='src-57416' href='../../../src/ncollide4df32/src/data/has_uid.rs.html#8-11'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../../index.html'>ncollide4df32</a>::<a href='../index.html'>data</a>::<a href='index.html'>has_uid</a>::<a class='trait' href=''>HasUid</a><a class='source' id='src-60591' href='../../../src/ncollide4df32/src/data/has_uid.rs.html#8-11'>[src]</a></h1>
 <pre class='rust trait'>pub trait HasUid {
-    fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>;
+    fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>;
 }</pre><div class='docblock'><p>Trait of objects having an unique identifier.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.uid' class='method'><code>fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>An unique identifier. It should be O(1).</p>
+        <h3 id='tymethod.uid' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>An unique identifier. It should be O(1).</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;T: 'static&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/std/gc/struct.Gc.html' title='std::gc::Gc'>Gc</a>&lt;T&gt;</code></li>
-<li><code>impl&lt;T&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;T&gt;</code></li>
-<li><code>impl&lt;T: <a class='trait' href='http://doc.rust-lang.org/core/kinds/trait.Share.html' title='core::kinds::Share'>Share</a> + <a class='trait' href='http://doc.rust-lang.org/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a>&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/arc/struct.Arc.html' title='alloc::arc::Arc'>Arc</a>&lt;T&gt;</code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/std/primitive.int.html'>int</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a></code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: 'static&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/0.11.0/std/gc/struct.Gc.html' title='std::gc::Gc'>Gc</a>&lt;T&gt;</code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;T&gt;</code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Share.html' title='core::kinds::Share'>Share</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a>&gt; <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/arc/struct.Arc.html' title='alloc::arc::Arc'>Arc</a>&lt;T&gt;</code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/0.11.0/std/primitive.int.html'>int</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide4df32/data/has_uid/trait.HasUid.js">
                       </script></section>
@@ -91,6 +94,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../";

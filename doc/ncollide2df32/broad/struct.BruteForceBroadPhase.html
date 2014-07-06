@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,20 +41,20 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='struct' href=''>BruteForceBroadPhase</a><a class='source' id='src-33150' href='../../src/ncollide2df32/src/broad/brute_force_broad_phase.rs.html#13-17'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='struct' href=''>BruteForceBroadPhase</a><a class='source' id='src-33158' href='../../src/ncollide2df32/src/broad/brute_force_broad_phase.rs.html#13-17'>[src]</a></h1>
 <pre class='rust struct'>pub struct BruteForceBroadPhase&lt;B, D, DV&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Broad phase with quadratic complexity.</p>
 
 <p>It always returns false positives since it assumes that all object is in collision with all
 objects. Do not use this but for benchmarking the narrow phase.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;B: <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='struct' href='../../ncollide2df32/broad/struct.BruteForceBroadPhase.html' title='ncollide2df32::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(dispatcher: D) -&gt; <a class='struct' href='../../ncollide2df32/broad/struct.BruteForceBroadPhase.html' title='ncollide2df32::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='struct' href='../../ncollide2df32/broad/struct.BruteForceBroadPhase.html' title='ncollide2df32::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(dispatcher: D) -&gt; <a class='struct' href='../../ncollide2df32/broad/struct.BruteForceBroadPhase.html' title='ncollide2df32::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h4>
 <div class='docblock'><p>Builds a new brute force broad phase.</p>
-</div><h4 id='method.pairs' class='method'><code>fn <a href='#method.pairs' class='fnname'>pairs</a>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../../ncollide2df32/data/hash_map/struct.HashMap.html' title='ncollide2df32::data::hash_map::HashMap'>HashMap</a>&lt;<a class='struct' href='../../ncollide2df32/data/pair/struct.Pair.html' title='ncollide2df32::data::pair::Pair'>Pair</a>&lt;B&gt;, DV, <a class='struct' href='../../ncollide2df32/data/pair/struct.PairTWHash.html' title='ncollide2df32::data::pair::PairTWHash'>PairTWHash</a>&gt;</code></h4>
+</div><h4 id='method.pairs' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.pairs' class='fnname'>pairs</a>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../../ncollide2df32/data/hash_map/struct.HashMap.html' title='ncollide2df32::data::hash_map::HashMap'>HashMap</a>&lt;<a class='struct' href='../../ncollide2df32/data/pair/struct.Pair.html' title='ncollide2df32::data::pair::Pair'>Pair</a>&lt;B&gt;, DV, <a class='struct' href='../../ncollide2df32/data/pair/struct.PairTWHash.html' title='ncollide2df32::data::pair::PairTWHash'>PairTWHash</a>&gt;</code></h4>
 <div class='docblock'><p>The pair manager of this broad phase.</p>
-</div><h4 id='method.add' class='method'><code>fn <a href='#method.add' class='fnname'>add</a>(&amp;mut self, b: B)</code></h4>
+</div><h4 id='method.add' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.add' class='fnname'>add</a>(&amp;mut self, b: B)</code></h4>
 <div class='docblock'><p>Adds an element to this broad phase.</p>
-</div><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, _: &amp;B)</code></h4>
+</div><h4 id='method.remove' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, _: &amp;B)</code></h4>
 <div class='docblock'><p>Removes an element from this broad phase.</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
@@ -88,6 +91,8 @@ objects. Do not use this but for benchmarking the narrow phase.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

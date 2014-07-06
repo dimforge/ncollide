@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,25 +41,25 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide4df32</a>::<a href='../index.html'>volumetric</a>::<a href='index.html'>volumetric</a>::<a class='trait' href=''>Volumetric</a><a class='source' id='src-35788' href='../../../src/ncollide4df32/src/volumetric/volumetric.rs.html#31-34'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../../index.html'>ncollide4df32</a>::<a href='../index.html'>volumetric</a>::<a href='index.html'>volumetric</a>::<a class='trait' href=''>Volumetric</a><a class='source' id='src-35796' href='../../../src/ncollide4df32/src/volumetric/volumetric.rs.html#31-34'>[src]</a></h1>
 <pre class='rust trait'>pub trait Volumetric {
-    fn <a href='#tymethod.mass_properties' class='fnname'>mass_properties</a>(&amp;self, &amp;<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>) -&gt; <a href='http://doc.rust-lang.org/std/primitive.tuple.html'>(<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, <a class='type' href='../../../ncollide4df32/math/type.AngularInertia.html' title='ncollide4df32::math::AngularInertia'>AngularInertia</a>)</a>;
+    fn <a href='#tymethod.mass_properties' class='fnname'>mass_properties</a>(&amp;self, &amp;<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, <a class='type' href='../../../ncollide4df32/math/type.AngularInertia.html' title='ncollide4df32::math::AngularInertia'>AngularInertia</a>)</a>;
 }</pre><div class='docblock'><p>Trait to be implemented by objects which have a mass, a center of mass, and an inverse
 inertia tensor.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.mass_properties' class='method'><code>fn <a href='#tymethod.mass_properties' class='fnname'>mass_properties</a>(&amp;self, &amp;<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>) -&gt; <a href='http://doc.rust-lang.org/std/primitive.tuple.html'>(<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, <a class='type' href='../../../ncollide4df32/math/type.AngularInertia.html' title='ncollide4df32::math::AngularInertia'>AngularInertia</a>)</a></code></h3><div class='docblock'><p>Given a density, this computes the mass, center of mass, and inertia tensor of this object.</p>
+        <h3 id='tymethod.mass_properties' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.mass_properties' class='fnname'>mass_properties</a>(&amp;self, &amp;<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(<a class='type' href='../../../ncollide4df32/math/type.Scalar.html' title='ncollide4df32::math::Scalar'>Scalar</a>, <a class='type' href='../../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>, <a class='type' href='../../../ncollide4df32/math/type.AngularInertia.html' title='ncollide4df32::math::AngularInertia'>AngularInertia</a>)</a></code></h3><div class='docblock'><p>Given a density, this computes the mass, center of mass, and inertia tensor of this object.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Ball.html' title='ncollide4df32::geom::Ball'>Ball</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cylinder.html' title='ncollide4df32::geom::Cylinder'>Cylinder</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cuboid.html' title='ncollide4df32::geom::Cuboid'>Cuboid</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cone.html' title='ncollide4df32::geom::Cone'>Cone</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Capsule.html' title='ncollide4df32::geom::Capsule'>Capsule</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.CompoundData.html' title='ncollide4df32::geom::CompoundData'>CompoundData</a></code></li>
-<li><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Compound.html' title='ncollide4df32::geom::Compound'>Compound</a></code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Ball.html' title='ncollide4df32::geom::Ball'>Ball</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cylinder.html' title='ncollide4df32::geom::Cylinder'>Cylinder</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cuboid.html' title='ncollide4df32::geom::Cuboid'>Cuboid</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Cone.html' title='ncollide4df32::geom::Cone'>Cone</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Capsule.html' title='ncollide4df32::geom::Capsule'>Capsule</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.CompoundData.html' title='ncollide4df32::geom::CompoundData'>CompoundData</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide4df32/volumetric/volumetric/trait.Volumetric.html' title='ncollide4df32::volumetric::volumetric::Volumetric'>Volumetric</a> for <a class='struct' href='../../../ncollide4df32/geom/struct.Compound.html' title='ncollide4df32::geom::Compound'>Compound</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide4df32/volumetric/volumetric/trait.Volumetric.js">
                       </script></section>
@@ -94,6 +97,8 @@ inertia tensor.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../";

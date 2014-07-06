@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,18 +41,18 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>BoundingVolumeBroadPhase</a><a class='source' id='src-32993' href='../../src/ncollide2df32/src/broad/broad_phase.rs.html#39-42'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>BoundingVolumeBroadPhase</a><a class='source' id='src-33001' href='../../src/ncollide2df32/src/broad/broad_phase.rs.html#39-42'>[src]</a></h1>
 <pre class='rust trait'>pub trait BoundingVolumeBroadPhase&lt;B, BV&gt;: <a class='trait' href='../../ncollide2df32/broad/trait.BroadPhase.html' title='ncollide2df32::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
-    fn <a href='#tymethod.interferences_with_bounding_volume' class='fnname'>interferences_with_bounding_volume</a>(&amp;mut self, &amp;BV, &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
+    fn <a href='#tymethod.interferences_with_bounding_volume' class='fnname'>interferences_with_bounding_volume</a>(&amp;mut self, &amp;BV, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
 }</pre><div class='docblock'><p>Trait of broad phases working with bounding volume.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.interferences_with_bounding_volume' class='method'><code>fn <a href='#tymethod.interferences_with_bounding_volume' class='fnname'>interferences_with_bounding_volume</a>(&amp;mut self, &amp;BV, &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a given bounding volume.</p>
+        <h3 id='tymethod.interferences_with_bounding_volume' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.interferences_with_bounding_volume' class='fnname'>interferences_with_bounding_volume</a>(&amp;mut self, &amp;BV, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a given bounding volume.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df32/broad/trait.BoundingVolumeBroadPhase.html' title='ncollide2df32::broad::BoundingVolumeBroadPhase'>BoundingVolumeBroadPhase</a>&lt;B, BV&gt; for <a class='struct' href='../../ncollide2df32/broad/struct.DBVTBroadPhase.html' title='ncollide2df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df32/broad/trait.BoundingVolumeBroadPhase.html' title='ncollide2df32::broad::BoundingVolumeBroadPhase'>BoundingVolumeBroadPhase</a>&lt;B, BV&gt; for <a class='struct' href='../../ncollide2df32/broad/struct.DBVTBroadPhase.html' title='ncollide2df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df32/broad/trait.BoundingVolumeBroadPhase.js">
                       </script></section>
@@ -87,6 +90,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

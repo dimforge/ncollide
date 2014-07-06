@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -223,7 +226,7 @@
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>visit_leaf</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>B</span>, <span class='ident'>bv</span>: <span class='kw-2'>&amp;</span><span class='ident'>BV</span>) {
-        <span class='kw'>if</span> (<span class='self'>self</span>.<span class='ident'>bv</span> <span class='kw'>as</span> <span class='op'>*</span><span class='ident'>BV</span>) <span class='op'>!=</span> (<span class='ident'>bv</span> <span class='kw'>as</span> <span class='op'>*</span><span class='ident'>BV</span>) <span class='op'>&amp;&amp;</span> <span class='ident'>bv</span>.<span class='ident'>intersects</span>(<span class='self'>self</span>.<span class='ident'>bv</span>) {
+        <span class='kw'>if</span> (<span class='self'>self</span>.<span class='ident'>bv</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>BV</span>) <span class='op'>!=</span> (<span class='ident'>bv</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>BV</span>) <span class='op'>&amp;&amp;</span> <span class='ident'>bv</span>.<span class='ident'>intersects</span>(<span class='self'>self</span>.<span class='ident'>bv</span>) {
             <span class='self'>self</span>.<span class='ident'>collector</span>.<span class='ident'>push</span>(<span class='ident'>b</span>.<span class='ident'>clone</span>())
         }
     }
@@ -264,6 +267,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

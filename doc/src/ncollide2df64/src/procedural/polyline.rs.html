@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -114,15 +117,13 @@
 <span id='75'>75</span>
 <span id='76'>76</span>
 <span id='77'>77</span>
-<span id='78'>78</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='ident'>na</span>::{<span class='ident'>Translate</span>, <span class='ident'>Rotate</span>, <span class='ident'>Transform</span>, <span class='ident'>FloatVec</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>};
 
 <span class='doccomment'>/// Geometric description of a polyline.</span>
-<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span><span class='comment'>
-// XXX: Rename this `PolyLine` ?
-</span><span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Polyline</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Clone</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Polyline</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Coordinates of the polyline vertices.</span>
     <span class='kw'>pub</span> <span class='ident'>coords</span>:  <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>,
     <span class='doccomment'>/// Coordinates of the polyline normals.</span>
@@ -230,6 +231,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

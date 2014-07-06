@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,15 +41,15 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../../index.html'>ncollide2df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>path</a>::<a class='struct' href=''>PolylinePath</a><a class='source' id='src-45315' href='../../../src/ncollide2df32/src/procedural/path/polyline_path.rs.html#8-14'>[src]</a></h1>
+<h1 class='fqn'>Struct <a href='../../index.html'>ncollide2df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>path</a>::<a class='struct' href=''>PolylinePath</a><a class='source' id='src-45364' href='../../../src/ncollide2df32/src/procedural/path/polyline_path.rs.html#8-14'>[src]</a></h1>
 <pre class='rust struct'>pub struct PolylinePath&lt;'a, N, V&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>A path with its sample points given by a polyline.</p>
 
 <p>This will return sequencially each vertex of the polyline.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, N: <a class='trait' href='http://doc.rust-lang.org/core/num/trait.Float.html' title='core::num::Float'>Float</a>, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h3><div class='methods'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(polyline: &amp;'a <a class='struct' href='../../../ncollide2df32/procedural/struct.Polyline.html' title='ncollide2df32::procedural::Polyline'>Polyline</a>&lt;N, V&gt;) -&gt; <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/num/trait.Float.html' title='core::num::Float'>Float</a>, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(polyline: &amp;'a <a class='struct' href='../../../ncollide2df32/procedural/struct.Polyline.html' title='ncollide2df32::procedural::Polyline'>Polyline</a>&lt;N, V&gt;) -&gt; <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h4>
 <div class='docblock'><p>Creates a new polyline-based path.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, N: <a class='trait' href='http://doc.rust-lang.org/core/num/trait.Float.html' title='core::num::Float'>Float</a>, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../../ncollide2df32/procedural/path/trait.CurveSampler.html' title='ncollide2df32::procedural::path::CurveSampler'>CurveSampler</a>&lt;N, V&gt; for <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h3><div class='methods'><h4 id='method.next' class='method'><code>fn <a href='#method.next' class='fnname'>next</a>(&amp;mut self) -&gt; <a class='type' href='../../../ncollide2df32/procedural/path/type.PathSample.html' title='ncollide2df32::procedural::path::PathSample'>PathSample</a>&lt;V&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/num/trait.Float.html' title='core::num::Float'>Float</a>, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../../ncollide2df32/procedural/path/trait.CurveSampler.html' title='ncollide2df32::procedural::path::CurveSampler'>CurveSampler</a>&lt;N, V&gt; for <a class='struct' href='../../../ncollide2df32/procedural/path/struct.PolylinePath.html' title='ncollide2df32::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, N, V&gt;</code></h3><div class='impl-methods'><h4 id='method.next' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.next' class='fnname'>next</a>(&amp;mut self) -&gt; <a class='type' href='../../../ncollide2df32/procedural/path/type.PathSample.html' title='ncollide2df32::procedural::path::PathSample'>PathSample</a>&lt;V&gt;</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -82,6 +85,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../";

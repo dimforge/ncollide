@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,7 +41,7 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>InterferencesBroadPhase</a><a class='source' id='src-32900' href='../../src/ncollide2df32/src/broad/broad_phase.rs.html#22-36'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>InterferencesBroadPhase</a><a class='source' id='src-32908' href='../../src/ncollide2df32/src/broad/broad_phase.rs.html#22-36'>[src]</a></h1>
 <pre class='rust trait'>pub trait InterferencesBroadPhase&lt;B, DV&gt;: <a class='trait' href='../../ncollide2df32/broad/trait.BroadPhase.html' title='ncollide2df32::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
     fn <a href='#tymethod.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|);
     fn <a href='#tymethod.deactivate' class='fnname'>deactivate</a>(&amp;mut self, &amp;B);
@@ -50,18 +53,18 @@
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.activate' class='method'><code>fn <a href='#tymethod.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h3><div class='docblock'><p>Marks and object as active.</p>
+        <h3 id='tymethod.activate' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h3><div class='docblock'><p>Marks and object as active.</p>
 
 <p>Active objects are checked for interferences at each update.</p>
-</div><h3 id='tymethod.deactivate' class='method'><code>fn <a href='#tymethod.deactivate' class='fnname'>deactivate</a>(&amp;mut self, &amp;B)</code></h3><div class='docblock'><p>Marks and object as inactive.</p>
+</div><h3 id='tymethod.deactivate' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.deactivate' class='fnname'>deactivate</a>(&amp;mut self, &amp;B)</code></h3><div class='docblock'><p>Marks and object as inactive.</p>
 
 <p>Inactive objects are assumed to be static and not tested for mutual interferences.</p>
-</div><h3 id='tymethod.for_each_pair' class='method'><code>fn <a href='#tymethod.for_each_pair' class='fnname'>for_each_pair</a>(&amp;self, f: |&amp;B, &amp;B, &amp;DV|)</code></h3><div class='docblock'><p>Execute a function on each interference detected by the broad phase.</p>
-</div><h3 id='tymethod.for_each_pair_mut' class='method'><code>fn <a href='#tymethod.for_each_pair_mut' class='fnname'>for_each_pair_mut</a>(&amp;mut self, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h3><div class='docblock'><p>Execute a function on each interference detected by the broad phase.</p>
+</div><h3 id='tymethod.for_each_pair' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.for_each_pair' class='fnname'>for_each_pair</a>(&amp;self, f: |&amp;B, &amp;B, &amp;DV|)</code></h3><div class='docblock'><p>Execute a function on each interference detected by the broad phase.</p>
+</div><h3 id='tymethod.for_each_pair_mut' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.for_each_pair_mut' class='fnname'>for_each_pair_mut</a>(&amp;mut self, f: |&amp;B, &amp;B, &amp;mut DV|)</code></h3><div class='docblock'><p>Execute a function on each interference detected by the broad phase.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df32/broad/trait.InterferencesBroadPhase.html' title='ncollide2df32::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df32/broad/struct.DBVTBroadPhase.html' title='ncollide2df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df32/data/has_uid/trait.HasUid.html' title='ncollide2df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df32/broad/trait.Dispatcher.html' title='ncollide2df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df32/broad/trait.InterferencesBroadPhase.html' title='ncollide2df32::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df32/broad/struct.DBVTBroadPhase.html' title='ncollide2df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df32/broad/trait.InterferencesBroadPhase.js">
                       </script></section>
@@ -99,6 +102,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

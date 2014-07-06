@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,10 +41,10 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>geom</a>::<a class='trait' href=''>MeshElement</a><a class='source' id='src-10844' href='../../src/ncollide2df32/src/geom/mesh.rs.html#28-33'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>geom</a>::<a class='trait' href=''>MeshElement</a><a class='source' id='src-10852' href='../../src/ncollide2df32/src/geom/mesh.rs.html#28-33'>[src]</a></h1>
 <pre class='rust trait'>pub trait MeshElement {
-    fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>;
-    fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>) -&gt; Self;
+    fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>;
+    fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>) -&gt; Self;
 }</pre><div class='docblock'><p>Trait implemented by elements usable on the Mesh.</p>
 
 <p>Note that this trait is not useful per se since the Mesh is not parameterized by
@@ -50,13 +53,13 @@ alias for <code>MeshPrimitive</code>.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.nvertices' class='method'><code>fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>The number of vertices of this mesh element.</p>
-</div><h3 id='tymethod.new_with_vertices_and_indices' class='method'><code>fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>) -&gt; Self</code></h3><div class='docblock'><p>Creates a new mesh element from a set of vertices and indices and the margin.</p>
+        <h3 id='tymethod.nvertices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>The number of vertices of this mesh element.</p>
+</div><h3 id='tymethod.new_with_vertices_and_indices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>) -&gt; Self</code></h3><div class='docblock'><p>Creates a new mesh element from a set of vertices and indices and the margin.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../ncollide2df32/geom/trait.MeshElement.html' title='ncollide2df32::geom::MeshElement'>MeshElement</a> for <a class='struct' href='../../ncollide2df32/geom/struct.Segment.html' title='ncollide2df32::geom::Segment'>Segment</a></code></li>
-<li><code>impl <a class='trait' href='../../ncollide2df32/geom/trait.MeshElement.html' title='ncollide2df32::geom::MeshElement'>MeshElement</a> for <a class='struct' href='../../ncollide2df32/geom/struct.Triangle.html' title='ncollide2df32::geom::Triangle'>Triangle</a></code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../ncollide2df32/geom/trait.MeshElement.html' title='ncollide2df32::geom::MeshElement'>MeshElement</a> for <a class='struct' href='../../ncollide2df32/geom/struct.Segment.html' title='ncollide2df32::geom::Segment'>Segment</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../ncollide2df32/geom/trait.MeshElement.html' title='ncollide2df32::geom::MeshElement'>MeshElement</a> for <a class='struct' href='../../ncollide2df32/geom/struct.Triangle.html' title='ncollide2df32::geom::Triangle'>Triangle</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df32/geom/trait.MeshElement.js">
                       </script></section>
@@ -94,6 +97,8 @@ alias for <code>MeshPrimitive</code>.</p>
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
 <body>
     <!--[if lte IE 8]>
@@ -20,6 +21,8 @@
         things.
     </div>
     <![endif]-->
+
+    
 
     <section class="sidebar">
         
@@ -38,18 +41,18 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>RayCastBroadPhase</a><a class='source' id='src-34276' href='../../src/ncollide3df64/src/broad/broad_phase.rs.html#45-48'>[src]</a></h1>
+<h1 class='fqn'>Trait <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>RayCastBroadPhase</a><a class='source' id='src-34284' href='../../src/ncollide3df64/src/broad/broad_phase.rs.html#45-48'>[src]</a></h1>
 <pre class='rust trait'>pub trait RayCastBroadPhase&lt;B&gt;: <a class='trait' href='../../ncollide3df64/broad/trait.BroadPhase.html' title='ncollide3df64::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
-    fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
+    fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
 }</pre><div class='docblock'><p>Traits of broad phase able to run fast ray-cast queries.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.interferences_with_ray' class='method'><code>fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a ray.</p>
+        <h3 id='tymethod.interferences_with_ray' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide3df64/ray/struct.Ray.html' title='ncollide3df64::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a ray.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide3df64/bounding_volume/trait.HasBoundingVolume.html' title='ncollide3df64::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide3df64/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide3df64::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='../../ncollide3df64/ray/trait.RayCast.html' title='ncollide3df64::ray::RayCast'>RayCast</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide3df64/broad/trait.Dispatcher.html' title='ncollide3df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide3df64/broad/trait.RayCastBroadPhase.html' title='ncollide3df64::broad::RayCastBroadPhase'>RayCastBroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide3df64/broad/struct.DBVTBroadPhase.html' title='ncollide3df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide3df64/bounding_volume/trait.HasBoundingVolume.html' title='ncollide3df64::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide3df64/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide3df64::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='../../ncollide3df64/ray/trait.RayCast.html' title='ncollide3df64::ray::RayCast'>RayCast</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide3df64/broad/trait.Dispatcher.html' title='ncollide3df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide3df64/broad/trait.RayCastBroadPhase.html' title='ncollide3df64::broad::RayCastBroadPhase'>RayCastBroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide3df64/broad/struct.DBVTBroadPhase.html' title='ncollide3df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide3df64/broad/trait.RayCastBroadPhase.js">
                       </script></section>
@@ -87,6 +90,8 @@
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";
