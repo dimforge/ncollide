@@ -5,37 +5,16 @@ ncollide_lib_path=lib
 nalgebra_lib_path=./nalgebra/lib
 compile=rustc -L$(nalgebra_lib_path) --out-dir $(ncollide_lib_path) --opt-level 3 --crate-type rlib --crate-type dylib
 
-all: 3df32 2df32 4df32 2df64 3df64 4df64
-	mkdir -p $(ncollide_lib_path)
-
-2df32:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide2df32.rs --cfg dim2
-3df32:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide3df32.rs --cfg dim3
-4df32:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide4df32.rs --cfg dim4
-2df64:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide2df64.rs --cfg dim2
-3df64:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide3df64.rs --cfg dim3
-4df64:
-	mkdir -p $(ncollide_lib_path)
-	$(compile) src/ncollide4df64.rs --cfg dim4
-
-deps:
-	make -C nalgebra
+all:
+	cargo build -u --release
 
 test:
-	mkdir -p $(ncollide_lib_path)
-	rustc -L$(nalgebra_lib_path) --test src/ncollide3df32.rs -g --cfg dim3 -o test~ && ./test~
-	rustc -L$(nalgebra_lib_path) --test src/ncollide2df32.rs --opt-level 3 --cfg dim2 -o test~ && ./test~
-	rustc -L$(nalgebra_lib_path) --test src/ncollide3df64.rs --opt-level 3 --cfg dim3 -o test~ && ./test~
-	rustc -L$(nalgebra_lib_path) --test src/ncollide2df64.rs --opt-level 3 --cfg dim2 -o test~ && ./test~
+	cd build/ncollide2df32; cargo test
+	cd build/ncollide3df32; cargo test
+	cd build/ncollide4df32; cargo test
+	cd build/ncollide2df64; cargo test
+	cd build/ncollide3df64; cargo test
+	cd build/ncollide4df64; cargo test
 
 bench:
 	mkdir -p $(ncollide_lib_path)
@@ -47,12 +26,8 @@ bench:
 
 distcheck:
 	rm -rf $(tmp)
-	git clone --recursive . $(tmp)
-	make -C $(tmp) deps
+	git clone . $(tmp)
 	make -C $(tmp)
-	make -C $(tmp) test
-	make -C $(tmp) bench
-	make -C $(tmp) doc
 	rm -rf $(tmp)
 
 doc:
