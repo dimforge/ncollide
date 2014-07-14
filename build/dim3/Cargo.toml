@@ -4,6 +4,6 @@ version = "1.0.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [[lib]]
-name       = "dim3"
-crate_type = [ "dylib" ]
-path       = "lib.rs"
+name   = "dim3"
+plugin = true
+path   = "lib.rs"

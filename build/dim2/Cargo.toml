@@ -1,11 +1,9 @@
 [package]
-
 name    = "dim2"
 version = "1.0.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [[lib]]
-
-name       = "dim2"
-crate_type = [ "dylib" ]
-path       = "lib.rs"
+name   = "dim2"
+plugin = true
+path   = "lib.rs"
