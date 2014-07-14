@@ -10,17 +10,15 @@ As its name suggests, it is generic wrt the dimension: it works with both
 dimensions (never tried).
 
 ## Compilation
-You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
-If you encounter problems, make sure you have the last version before creating an issue.
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
-The simplest way to build **ncollide** and all its dependencies is to do a
-recursive clone:
+Simply add the following to your `Cargo.toml` file:
 
-
-    git clone --recursive git://github.com/sebcrozet/ncollide.git
-    cd ncollide
-    make deps
-    make
+```
+[dependencies.ncollide2df32]
+git = "https://github.com/sebcrozet/ncollide"
+```
 
 ## Features
 - dynamic bounding volume tree based broad phase

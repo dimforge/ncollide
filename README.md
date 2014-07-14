@@ -11,17 +11,27 @@ dimensions (never tried).
 An on-line version of this documentation is available [here](http://ncollide.org).
 
 ## Compilation
-You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
-If you encounter problems, make sure you have the last version before creating an issue.
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
-The simplest way to build **ncollide** and all its dependencies is to do a
-recursive clone:
+Simply add the following to your `Cargo.toml` file if you want the 3d version
+of ncollide, using 32-bits foalting point numbers:
 
+```
+[dependencies.ncollide3df32]
+git = "https://github.com/sebcrozet/ncollide"
+```
 
-    git clone --recursive git://github.com/sebcrozet/ncollide.git
-    cd ncollide
-    make deps
-    make
+Depending on the accuracy or the dimension that you need, `ncollide3df32` may
+be replaced by:
+
+* `ncollide2df32` − for 2d collision detection and 32 bits precision.
+* `ncollide3df32` − for 3d collision detection and 32 bits precision.
+* `ncollide4df32` − for 4d collision detection and 32 bits precision.
+* `ncollide2df64` − for 2d collision detection and 64 bits precision.
+* `ncollide3df64` − for 3d collision detection and 64 bits precision.
+* `ncollide4df64` − for 4d collision detection and 64 bits precision.
+
 
 ## Features
 - dynamic bounding volume tree based broad phase

@@ -12,17 +12,15 @@ dimensions (never tried).
 An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/ncollide/doc/ncollide3df64/index.html).
 
 ## Compilation
-You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
-If you encounter problems, make sure you have the last version before creating an issue.
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
-The simplest way to build **ncollide** and all its dependencies is to do a
-recursive clone:
+Simply add the following to your `Cargo.toml` file:
 
-
-    git clone --recursive git://github.com/sebcrozet/ncollide.git
-    cd ncollide
-    make deps
-    make
+```
+[dependencies.ncollide2df64]
+git = "https://github.com/sebcrozet/ncollide"
+```
 
 ## Features
 - dynamic bounding volume tree based broad phase
