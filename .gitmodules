@@ -1,3 +1,0 @@
-[submodule "nalgebra"]
-	path = nalgebra
-	url = git://github.com/sebcrozet/nalgebra
