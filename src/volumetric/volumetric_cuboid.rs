@@ -4,10 +4,10 @@ use geom::Cuboid;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na::Indexable;
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Indexable;
 
 
@@ -23,7 +23,7 @@ pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
     res
 }
 
-#[cfg(dim2)]
+#[dim2]
 impl Volumetric for Cuboid {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let half_extents_w_margin = self.half_extents() + self.margin();
@@ -43,7 +43,7 @@ impl Volumetric for Cuboid {
     }
 }
 
-#[cfg(dim3)]
+#[dim3]
 impl Volumetric for Cuboid {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let half_extents_w_margin = self.half_extents() + self.margin();
@@ -67,7 +67,7 @@ impl Volumetric for Cuboid {
     }
 }
 
-#[cfg(dim4)]
+#[dim4]
 impl Volumetric for Cuboid {
     fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
         fail!("mass_properties is not yet implemented for 4d cuboides.")

@@ -21,7 +21,7 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
                     |(_, res, _)| res)
     }
 
-    #[cfg(dim3)]
+    #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         self.cast_ray(

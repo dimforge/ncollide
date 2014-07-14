@@ -51,66 +51,40 @@ Some common features are still missing:
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
 #![feature(unsafe_destructor)]
-#![feature(phase)]
+#![feature(globs)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-#[phase(plugin)] extern crate dim3;
+extern crate ncollide2df32;
+extern crate ncollide3df32;
+extern crate ncollide4df32;
+extern crate ncollide2df64;
+extern crate ncollide3df64;
+extern crate ncollide4df64;
 
-extern crate std;
-extern crate nalgebra;
-extern crate sync;
-extern crate serialize;
-extern crate collections;
-extern crate test;
+mod f32 {
+    mod d2 {
+        pub use ncollide2df32::*;
+    }
 
-// #[cfg(test)]
-// extern crate rand;
+    mod d3 {
+        pub use ncollide3df32::*;
+    }
 
-pub mod bounding_volume;
-pub mod geom;
-pub mod ray;
-pub mod narrow;
-pub mod broad;
-pub mod volumetric;
-pub mod implicit;
-pub mod parametric;
-pub mod partitioning;
-pub mod procedural;
-pub mod utils;
-pub mod data;
+    mod d4 {
+        pub use ncollide4df32::*;
+    }
+}
 
-// #[cfg(test)]
-// mod tests {
-//     mod geom;
-//     mod narrow;
-//     mod algo;
-// }
+mod f64 {
+    mod d2 {
+        pub use ncollide2df64::*;
+    }
 
-/// Compilation flags dependent aliases for mathematical types.
-///
-/// The aliases are selected, depending on the compilation flags. The possible flags are:
-///
-/// * `--cfg dim2` - use 2d vectors and matrices.
-/// * `--cfg dim3` - use 3d vectors and matrices.
-/// * `--cfg dim4` - use 4d vectors and matrices.
-pub mod math {
-    use nalgebra::na::{Vec3, Mat3, Rot3, Iso3};
+    mod d3 {
+        pub use ncollide3df64::*;
+    }
 
-    /// The scalar type.
-    pub type Scalar = f32;
-
-    /// The vector type.
-    pub type Vect = Vec3<Scalar>;
-
-    /// The orientation type.
-    pub type Orientation = Vec3<Scalar>;
-
-    /// The transformation matrix type.
-    pub type Matrix = Iso3<Scalar>;
-
-    /// The rotation matrix type.
-    pub type RotationMatrix = Rot3<Scalar>;
-
-    /// The inertia tensor type.
-    pub type AngularInertia = Mat3<Scalar>;
+    mod d4 {
+        pub use ncollide4df64::*;
+    }
 }

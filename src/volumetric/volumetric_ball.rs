@@ -5,10 +5,10 @@ use geom::Ball;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na::Indexable;
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Indexable;
 
 /// Computes the volume of a ball.
@@ -18,7 +18,7 @@ pub fn ball_volume(radius: &Scalar) -> Scalar {
     _pi * num::pow(radius.clone(), na::dim::<Vect>())
 }
 
-#[cfg(dim2)]
+#[dim2]
 impl Volumetric for Ball {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let volume = ball_volume(&self.radius());
@@ -33,7 +33,7 @@ impl Volumetric for Ball {
     }
 }
 
-#[cfg(dim3)]
+#[dim3]
 impl Volumetric for Ball {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let volume  = ball_volume(&self.radius());
@@ -53,7 +53,7 @@ impl Volumetric for Ball {
     }
 }
 
-#[cfg(dim4)]
+#[dim4]
 impl Volumetric for Ball {
     fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
         fail!("mass_properties is not yet implemented for 4d balls")

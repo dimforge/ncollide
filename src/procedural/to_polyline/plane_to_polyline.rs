@@ -5,6 +5,7 @@ use procedural::{ToPolyline, Polyline};
 use math::{Scalar, Vect};
 use nalgebra::na::Indexable;
 
+#[dim2]
 impl ToPolyline<()> for Plane {
     fn to_polyline(&self, _: ()) -> Polyline<Scalar, Vect> {
         let _0_5: Scalar = na::cast(0.5f64);

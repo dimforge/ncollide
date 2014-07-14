@@ -5,7 +5,7 @@ use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-
+#[dim3]
 impl ToTriMesh<()> for Cuboid {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
         assert!(self.margin().is_zero(), "Rounded cuboid mesh generation is not implemented yet.");

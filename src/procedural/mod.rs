@@ -2,7 +2,7 @@
 pub use procedural::trimesh::{TriMesh, IndexBuffer, UnifiedIndexBuffer, SplitIndexBuffer};
 pub use procedural::polyline::Polyline;
 
-#[cfg(dim3)]
+// XXX: #[dim3]
 pub use procedural::parametric_surface::parametric_surface_uniform;
 pub use procedural::bezier::{bezier_surface, rational_bezier_surface, bezier_curve, rational_bezier_curve,
                              bezier_surface_at, bezier_curve_at};
@@ -24,21 +24,14 @@ mod polyline;
 
 mod to_trimesh {
     pub mod to_trimesh;
-    #[cfg(dim3)]
     mod ball_to_trimesh;
     mod plane_to_trimesh;
-    #[cfg(dim3)]
     mod bezier_surface_to_trimesh;
-    #[cfg(dim3)]
     mod capsule_to_trimesh;
-    #[cfg(dim3)]
     mod cone_to_trimesh;
-    #[cfg(dim3)]
     mod cuboid_to_trimesh;
-    #[cfg(dim3)]
     mod cylinder_to_trimesh;
     mod geom_with_margin_to_trimesh;
-    #[cfg(dim3)]
     mod mesh_to_trimesh;
     mod reflection_to_trimesh;
     mod triangle_to_trimesh;
@@ -51,9 +44,8 @@ mod to_polyline {
     mod cuboid_to_polyline;
     mod geom_with_margin_to_polyline;
     // FIXME: this one is not easy to implement.
-    // #[cfg(dim2)]
+    // #[dim2]
     // mod mesh_to_polyline;
-    #[cfg(dim2)]
     mod plane_to_polyline;
     mod reflection_to_polyline;
     mod segment_to_polyline;
@@ -68,5 +60,4 @@ mod cylinder;
 mod quad;
 mod sphere;
 mod convex_hull;
-#[cfg(dim3)]
 mod parametric_surface;

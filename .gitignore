@@ -3,3 +3,4 @@
 *.html
 BENCH
 lib
+target

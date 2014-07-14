@@ -6,7 +6,7 @@ use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Scalar, Vect};
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Vec2;
 
 impl RayCast for AABB {
@@ -52,24 +52,34 @@ impl RayCast for AABB {
         ray_aabb(self, ray, solid).map(|(t, n, _)| RayIntersection::new(t, n))
     }
 
-    #[cfg(dim3)]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        ray_aabb(self, ray, solid).map(|(t, n, s)| {
-            let pt  = ray.orig + ray.dir * t;
-            let lpt = (pt - *self.mins()) / (self.maxs() - *self.mins());
-            let id  = s.abs();
-
-            if id == 1 {
-                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.y.clone(), lpt.z.clone())))
-            }
-            else if id == 2 {
-                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.z.clone(), lpt.x.clone())))
-            }
-            else {
-                RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.x.clone(), lpt.y.clone())))
-            }
-        })
+        do_toi_and_normal_and_uv_with_ray(self, ray, solid)
     }
+
+}
+
+#[not_dim3]
+fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    aabb.toi_and_normal_with_ray(ray, solid)
+}
+
+#[dim3]
+fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    ray_aabb(aabb, ray, solid).map(|(t, n, s)| {
+        let pt  = ray.orig + ray.dir * t;
+        let lpt = (pt - *aabb.mins()) / (aabb.maxs() - *aabb.mins());
+        let id  = s.abs();
+
+        if id == 1 {
+            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.y.clone(), lpt.z.clone())))
+        }
+        else if id == 2 {
+            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.z.clone(), lpt.x.clone())))
+        }
+        else {
+            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.x.clone(), lpt.y.clone())))
+        }
+    })
 }
 
 fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> {

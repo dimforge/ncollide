@@ -2,14 +2,14 @@
 
 use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
 
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na::Mat1;
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na;
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Mat3;
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na;
 
 /// Trait to be implemented by inertia tensors.
@@ -33,7 +33,7 @@ pub trait Volumetric {
     fn mass_properties(&self, &Scalar) -> (Scalar, Vect, AngularInertia);
 }
 
-#[cfg(dim2)]
+#[dim2]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, av: &Orientation) -> Orientation {
@@ -51,7 +51,7 @@ impl InertiaTensor for AngularInertia {
     }
 }
 
-#[cfg(dim3)]
+#[dim3]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, av: &Orientation) -> Orientation {
@@ -77,7 +77,7 @@ impl InertiaTensor for AngularInertia {
     }
 }
 
-#[cfg(dim4)]
+#[dim4]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, _: &Orientation) -> Orientation {

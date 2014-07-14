@@ -1,0 +1,18 @@
+[package]
+name    = "ncollide4df32"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[[lib]]
+name       = "ncollide4df32"
+crate_type = [ "dylib", "rlib" ]
+path       = "../../src/ncollide4df32.rs"
+
+[dependencies.dim4]
+version = "1.0.0"
+path    = "../dim4"
+
+[dependencies.nalgebra]
+version = "0.1.0"
+path    = "../../nalgebra"
+git     = "https://github.com/sebcrozet/nalgebra"

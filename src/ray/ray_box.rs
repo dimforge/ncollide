@@ -39,7 +39,7 @@ impl RayCast for Cuboid {
         }
     }
 
-    #[cfg(dim3)]
+    #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if self.margin().is_zero() {

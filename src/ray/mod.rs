@@ -8,8 +8,6 @@ pub use ray::ray::{Ray, RayCast, RayIntersection};
 pub use ray::ray_plane::plane_toi_with_ray;
 pub use ray::ray_implicit::implicit_toi_and_normal_with_ray;
 pub use ray::ray_ball::ball_toi_with_ray;
-
-#[cfg(dim3)]
 pub use ray::ray_triangle::triangle_ray_intersection;
 
 // modules

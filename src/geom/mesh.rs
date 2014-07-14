@@ -13,11 +13,11 @@ use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom};
 use math::{Scalar, Vect, Matrix};
 
-#[cfg(dim2)]
+#[dim2]
 use geom::Segment;
-#[cfg(dim3)]
+#[dim3]
 use geom::Triangle;
-#[cfg(dim4)] // XXX: this is wrong
+#[dim4] // XXX: this is wrong
 use geom::Triangle;
 
 /// Trait implemented by elements usable on the Mesh.
@@ -32,15 +32,15 @@ pub trait MeshElement {
     fn new_with_vertices_and_indices(&[Vect], &[uint], Scalar) -> Self;
 }
 
-#[cfg(dim2)]
+#[dim2]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Segment;
 
-#[cfg(dim3)]
+#[dim3]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle;
 
-#[cfg(dim4)]
+#[dim4]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle; // XXX: this is wrong
 

@@ -4,10 +4,10 @@ use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Indexable;
 
-#[cfg(dim3)]
+#[dim3]
 impl ToTriMesh<(u32, u32)> for Plane {
     fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
         let mut res = procedural::quad(na::one(), na::one(), nwidth_subdiv as uint, nheight_subdiv as uint);
@@ -27,7 +27,7 @@ impl ToTriMesh<(u32, u32)> for Plane {
     }
 }
 
-#[cfg(not(dim3))]
+#[not_dim3]
 impl ToTriMesh<(u32, u32)> for Plane {
     fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
         procedural::quad(na::one(), na::one(), nwidth_subdiv as uint, nheight_subdiv as uint)

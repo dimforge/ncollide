@@ -5,6 +5,7 @@ use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
+#[dim3]
 impl ToTriMesh<u32> for Cylinder {
     fn to_trimesh(&self, nsubdivs: u32) -> TriMesh<Scalar, Vect> {
         assert!(self.margin().is_zero(), "Mesh generation of cylinders with rounded corners are not implemented yet.");

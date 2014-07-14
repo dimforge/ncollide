@@ -2,20 +2,20 @@ use geom::Cylinder;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na::Indexable;
-#[cfg(dim2)]
+#[dim2]
 use nalgebra::na;
 
-#[cfg(dim3)]
+#[dim3]
 use std::num::Float;
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Indexable;
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na;
 
 /// Computes the volume of a cylinder.
-#[cfg(dim2)]
+#[dim2]
 #[inline]
 pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     // same as a rectangle
@@ -24,13 +24,21 @@ pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
 
     
 /// Computes the volume of a cylinder.
-#[cfg(dim3)]
+#[dim3]
 #[inline]
 pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     half_height * *radius * *radius * Float::pi() * na::cast(2.0f64)
 }
 
-#[cfg(dim2)]
+/// Not yet implemented in 4d.
+#[dim4]
+#[inline]
+pub fn cylinder_volume(_: &Scalar, _: &Scalar) -> Scalar {
+    fail!("Not yet implemented in 4d.")
+}
+
+
+#[dim2]
 impl Volumetric for Cylinder {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let mass = cylinder_volume(&self.half_height(), &self.radius()) * *density;
@@ -49,7 +57,7 @@ impl Volumetric for Cylinder {
     }
 }
 
-#[cfg(dim3)]
+#[dim3]
 impl Volumetric for Cylinder {
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
         let mass = cylinder_volume(&self.half_height(), &self.radius()) * *density;
@@ -67,7 +75,7 @@ impl Volumetric for Cylinder {
     }
 }
 
-#[cfg(dim4)]
+#[dim4]
 impl Volumetric for Cylinder {
     fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
         fail!("mass_properties is not yet implemented for 4d cylinders.")

@@ -1,10 +1,6 @@
-#[cfg(not(dim4))]
 use nalgebra::na;
-
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator, Contact};
 use math::{Scalar, Vect, Matrix};
-
-#[cfg(not(dim4))]
 use math::Orientation;
 
 /// Contact manifold generator producing a full manifold at the first update.
@@ -26,9 +22,9 @@ impl<CD> OneShotContactManifoldGenerator<CD> {
     }
 }
 
+#[not_dim4]
 impl<CD: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
-    #[cfg(not(dim4))]
     fn update(&mut self, m1: &Matrix, g1: &G1, m2: &Matrix, g2: &G2) {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
@@ -63,7 +59,31 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
         }
     }
 
-    #[cfg(dim4)]
+    #[inline]
+    fn num_colls(&self) -> uint {
+        self.sub_detector.num_colls()
+    }
+
+    #[inline]
+    fn colls(&self, out_colls: &mut Vec<Contact>) {
+        self.sub_detector.colls(out_colls)
+    }
+
+    #[inline]
+    fn toi(_:    Option<OneShotContactManifoldGenerator<CD>>,
+           m1:   &Matrix,
+           dir:  &Vect,
+           dist: &Scalar,
+           g1:   &G1,
+           m2:   &Matrix,
+           g2:   &G2) -> Option<Scalar> {
+        CollisionDetector::toi(None::<CD>, m1, dir, dist, g1, m2, g2)
+    }
+}
+
+#[dim4]
+impl<CD: CollisionDetector<G1, G2>, G1, G2>
+CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) {
         fail!("Not yet implemented.")
     }

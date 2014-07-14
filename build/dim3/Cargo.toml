@@ -1,0 +1,9 @@
+[package]
+name    = "dim3"
+version = "1.0.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[[lib]]
+name       = "dim3"
+crate_type = [ "dylib" ]
+path       = "lib.rs"

@@ -3,15 +3,15 @@ use ray::{Ray, RayCast, RayIntersection};
 use geom::Mesh;
 use math::Scalar;
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Vec2;
-#[cfg(dim3)]
+#[dim3]
 use ray;
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Norm;
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na;
-#[cfg(dim3)]
+#[dim3]
 use math::Vect;
 
 
@@ -35,7 +35,7 @@ impl RayCast for Mesh {
                     |(_, res, _)| res)
     }
 
-    #[cfg(dim3)]
+    #[dim3]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if !self.margin().is_zero() || self.uvs().is_none() {
             return self.toi_and_normal_with_ray(ray, solid);

@@ -3,7 +3,7 @@
 use nalgebra::na::{Rotate, Transform};
 use math::{Scalar, Vect, Matrix};
 
-#[cfg(dim3)]
+#[dim3]
 use nalgebra::na::Vec2;
 
 /// A Ray.
@@ -38,14 +38,12 @@ pub struct RayIntersection {
     /// If the `toi` is exactly zero, the normal might not be reliable.
     pub normal: Vect,
 
-    #[cfg(dim3)]
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
     pub uvs:    Option<Vec2<Scalar>>
 }
 
 impl RayIntersection {
-    #[cfg(dim3)]
     #[inline]
     /// Creates a new `RayIntersection`.
     pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Vec2<Scalar>>) -> RayIntersection {
@@ -56,17 +54,6 @@ impl RayIntersection {
         }
     }
 
-    #[cfg(not(dim3))]
-    #[inline]
-    /// Creates a new `RayIntersection`.
-    pub fn new(toi: Scalar, normal: Vect) -> RayIntersection {
-        RayIntersection {
-            toi:    toi,
-            normal: normal
-        }
-    }
-
-    #[cfg(dim3)]
     #[inline]
     /// Creates a new `RayIntersection`.
     pub fn new(toi: Scalar, normal: Vect) -> RayIntersection {
@@ -91,7 +78,7 @@ pub trait RayCast {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection>;
 
     /// Computes the intersection point and normal between this geometry and a ray.
-    #[cfg(dim3)]
+    // XXX: does not work #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         self.toi_and_normal_with_ray(ray, solid)
@@ -124,7 +111,7 @@ pub trait RayCast {
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// geometry and a ray.
-    #[cfg(dim3)]
+    #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &Matrix, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));

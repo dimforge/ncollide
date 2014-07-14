@@ -5,6 +5,7 @@ use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
+#[dim3]
 impl ToTriMesh<u32> for Cone {
     fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<Scalar, Vect> {
         assert!(self.margin().is_zero(), "Mesh generation of a cone with a margin is not yet implemented.");

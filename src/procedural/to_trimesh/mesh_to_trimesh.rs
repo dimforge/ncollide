@@ -4,6 +4,7 @@ use procedural::{ToTriMesh, TriMesh, UnifiedIndexBuffer};
 use geom::Mesh;
 use math::{Scalar, Vect};
 
+#[dim3]
 impl ToTriMesh<()> for Mesh {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
         assert!(self.margin().is_zero(), "Mesh generation with non zero margin is not implemented yet.");

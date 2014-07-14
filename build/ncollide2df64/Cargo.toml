@@ -1,0 +1,18 @@
+[package]
+name    = "ncollide2df64"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[[lib]]
+name       = "ncollide2df64"
+crate_type = [ "dylib", "rlib" ]
+path       = "../../src/ncollide2df64.rs"
+
+[dependencies.dim2]
+version = "1.0.0"
+path    = "../dim2"
+
+[dependencies.nalgebra]
+version = "0.1.0"
+path    = "../../nalgebra"
+git     = "https://github.com/sebcrozet/nalgebra"
