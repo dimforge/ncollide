@@ -8,6 +8,7 @@ use math::{Scalar, Vect};
 ///
 /// The parametrization space is assumed to be `[0.0, 1.0] x [0.0, 1.0]`.
 pub trait ParametricSurface {
+    // FIXME: rename those d0, du, etc. ? (just like in the `symbolic` module.
     /// Evaluates the parametric surface.
     fn at(&self, u: Scalar, v: Scalar) -> Vect;
 

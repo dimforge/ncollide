@@ -51,7 +51,7 @@ impl<S: SurfaceSelector<D>, D> BezierSurfaceBezierSurface<S, D> {
 
 impl<S: SurfaceSelector<D>, D>
 CollisionDetector<BezierSurface, BezierSurface> for BezierSurfaceBezierSurface<S, D> {
-    fn update(&mut self, ma: &Matrix, a: &BezierSurface, mb: &Matrix, b: &BezierSurface) {
+    fn update(&mut self, _: &Matrix, _: &BezierSurface, _: &Matrix, _: &BezierSurface) {
         self.points.clear();
         self.contacts.clear();
         self.selector.set_max_lmd(self.prediction);
