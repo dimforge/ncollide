@@ -6,6 +6,7 @@ pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, Lo
 #[doc(inline)]
 pub use bounding_volume::aabb::{HasAABB, AABB, WithAABB};
 pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere};
+pub use bounding_volume::spacialized_cone::SpacializedCone;
 
 
 // functions
@@ -47,3 +48,5 @@ mod bounding_sphere_segment;
 mod bounding_sphere_mesh;
 mod bounding_sphere_bezier_surface;
 mod bounding_sphere_utils;
+
+mod spacialized_cone;

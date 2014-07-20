@@ -262,8 +262,8 @@ pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scala
                 let mut rot_axis = na::cross(&dir, &axis);
 
                 if !rot_axis.normalize().is_zero() {
-                    let dangle   = -(alpha - theta) * na::cast(0.5f64);
-                    let rot      = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
+                    let dangle = -(alpha - theta) * na::cast(0.5f64);
+                    let rot    = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
 
                     axis  = rot * axis;
                     theta = (alpha + theta) * na::cast(0.5f64);

@@ -112,8 +112,7 @@ impl LooseBoundingVolume for BoundingSphere {
     }
 }
 
-impl Translation<Vect> for BoundingSphere
-{
+impl Translation<Vect> for BoundingSphere {
     #[inline]
     fn translation(&self) -> Vect {
         self.center.clone()
@@ -130,8 +129,8 @@ impl Translation<Vect> for BoundingSphere
     }
 
     #[inline]
-    fn append_translation_cpy(aabb: &BoundingSphere, dv: &Vect) -> BoundingSphere {
-        BoundingSphere::new(aabb.center + *dv, aabb.radius)
+    fn append_translation_cpy(bs: &BoundingSphere, dv: &Vect) -> BoundingSphere {
+        BoundingSphere::new(bs.center + *dv, bs.radius)
     }
 
     #[inline]
@@ -140,8 +139,8 @@ impl Translation<Vect> for BoundingSphere
     }
 
     #[inline]
-    fn prepend_translation_cpy(aabb: &BoundingSphere, dv: &Vect) -> BoundingSphere {
-        Translation::append_translation_cpy(aabb, dv)
+    fn prepend_translation_cpy(bs: &BoundingSphere, dv: &Vect) -> BoundingSphere {
+        Translation::append_translation_cpy(bs, dv)
     }
 
     #[inline]
