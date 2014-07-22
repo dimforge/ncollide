@@ -1,56 +1,62 @@
-use nalgebra::na::Translation;
+use std::num::Zero;
+use nalgebra::na::{Norm, Translation};
 use nalgebra::na;
 use math::{Scalar, Vect, RotationMatrix};
 use bounding_volume::{BoundingVolume, BoundingSphere};
 
 // FIXME: make a structure 'cone' ?
-struct SpacializedCone {
+#[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
+/// A normal cone with a bounding sphere.
+pub struct SpacializedCone {
     sphere:  BoundingSphere,
     axis:    Vect,
-    angle:   Scalar,
-    changle: Scalar,
-    shangle: Scalar
+    hangle:  Scalar,
 }
 
 impl SpacializedCone {
-    pub fn new(sphere: BoundingSphere, axis: Vect, angle: Scalar) -> SpacializedCone {
+    /// Creates a new spacialized cone with a given bounding sphere, axis, and half-angle.
+    pub fn new(sphere: BoundingSphere, axis: Vect, hangle: Scalar) -> SpacializedCone {
         let axis = na::normalize(&axis);
 
         SpacializedCone {
             sphere:  sphere,
             axis:    axis,
-            angle:   angle,
-            changle: angle.cos(),
-            shangle: angle.sin(),
+            hangle:   hangle
         }
     }
 
+    /// The bounding sphere of this spacialized cone.
     #[inline]
     pub fn sphere<'a>(&'a self) -> &'a BoundingSphere {
         &self.sphere
     }
 
+    /// This cone axis.
     #[inline]
     pub fn axis<'a>(&'a self) -> &'a Vect {
         &self.axis
     }
 
+    /// This cone half angle.
     #[inline]
     pub fn hangle(&self) -> Scalar {
         self.hangle.clone()
     }
 }
 
+#[not_dim4]
 impl BoundingVolume for SpacializedCone {
     #[inline]
     fn intersects(&self, other: &SpacializedCone) -> bool {
         if self.sphere.intersects(&other.sphere) {
-            let cangle = na::dot(&self.axis, &(-other.axis));
+            let dangle = na::dot(&self.axis, &(-other.axis));
+            println!("dot: {}", dangle);
+            let dangle = na::clamp(dangle, -na::one::<Scalar>(), na::one()).acos();
+            let angsum = self.hangle + other.hangle;
 
-            // cos(a + b) = cos(b) cos(b) + sin(a) sin(b)
-            let angsum = self.changle * other.changle - self.shangle * other.shangle;
+            println!("c: {} a: {}", dangle, angsum);
 
-            cangle >= angsum
+            dangle <= angsum
         }
         else {
             false
@@ -59,10 +65,8 @@ impl BoundingVolume for SpacializedCone {
 
     #[inline]
     fn contains(&self, other: &SpacializedCone) -> bool {
-        if self.sphere.contains(&other.sphere) && self.changle >= other.changle {
-            let cangle = na::dot(&self.axis, &other.axis);
-
-            cangle >= self.changle
+        if self.sphere.contains(&other.sphere) {
+            fail!("Not yet implemented.")
         }
         else {
             false
@@ -71,25 +75,30 @@ impl BoundingVolume for SpacializedCone {
 
     #[inline]
     fn merge(&mut self, other: &SpacializedCone) {
-        self.sphere.merge(other.sphere);
+        self.sphere.merge(&other.sphere);
 
         // merge the cone
-        let alpha = na::dot(&self.axis, &other.axis).acos();
+        let alpha = na::clamp(na::dot(&self.axis, &other.axis), -na::one::<Scalar>(), na::one()).acos();
 
         let mut rot_axis = na::cross(&self.axis, &other.axis);
         if !rot_axis.normalize().is_zero() {
-            let dangle = (alpha - self.angle + other.angle) * na::cast(0.5f64);
+            let dangle = (alpha - self.hangle + other.hangle) * na::cast(0.5f64);
             let rot    = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
 
             self.axis    = rot * self.axis;
-            self.angle   = na::clamp(self.angle + other.angle + alpha, na::zero(), Float::pi());
-            self.changle = self.angle.cos();
-            self.shangle = self.angle.sin();
+            self.hangle  = na::clamp(self.hangle + other.hangle + alpha, na::zero(), Float::pi());
+
+            // println!("merged {} {} with hangle: {}", *self, *other, self.hangle);
         }
         else {
-            self.angle   = Float::pi();
-            self.changle = -na::one::<Scalar>();
-            self.shangle = na::zero();
+            // This happens if alpha ~= 0 or alpha ~= pi.
+            if alpha > na::one() { // NOTE: 1.0 is just a randomly chosen number in-between 0 and pi.
+                // alpha ~= pi
+                self.hangle = alpha;
+            }
+            else {
+                // alpha ~= 0, do nothing.
+            }
         }
     }
 
@@ -106,7 +115,7 @@ impl BoundingVolume for SpacializedCone {
 impl Translation<Vect> for SpacializedCone {
     #[inline]
     fn translation(&self) -> Vect {
-        self.sphere.center.clone()
+        self.sphere.center().clone()
     }
 
     #[inline]
@@ -116,15 +125,15 @@ impl Translation<Vect> for SpacializedCone {
 
     #[inline]
     fn append_translation(&mut self, dv: &Vect) {
-        self.sphere.center = self.sphere.center + *dv
+        self.sphere.append_translation(dv);
     }
 
     #[inline]
     fn append_translation_cpy(sc: &SpacializedCone, dv: &Vect) -> SpacializedCone {
         SpacializedCone::new(
-            BoundingSphere::new(sc.sphere.center + *dv, sc.sphere.radius),
+            Translation::append_translation_cpy(&sc.sphere, dv),
             sc.axis.clone(),
-            sc.angle.clone())
+            sc.hangle.clone())
     }
 
     #[inline]
@@ -139,6 +148,6 @@ impl Translation<Vect> for SpacializedCone {
 
     #[inline]
     fn set_translation(&mut self, v: Vect) {
-        self.sphere.center = v
+        self.sphere.set_translation(v)
     }
 }
