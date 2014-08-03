@@ -4,29 +4,23 @@ version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [[lib]]
-name    = "ncollide"
-path    = "src/lib.rs"
+name = "ncollide"
+path = "src/lib.rs"
 
 [dependencies.ncollide2df32]
-version = "0.1.0"
-path    = "build/ncollide2df32"
+path = "build/ncollide2df32"
 
 [dependencies.ncollide3df32]
-version = "0.1.0"
-path    = "build/ncollide3df32"
+path = "build/ncollide3df32"
 
 [dependencies.ncollide4df32]
-version = "0.1.0"
-path    = "build/ncollide4df32"
+path = "build/ncollide4df32"
 
 [dependencies.ncollide2df64]
-version = "0.1.0"
-path    = "build/ncollide2df64"
+path = "build/ncollide2df64"
 
 [dependencies.ncollide3df64]
-version = "0.1.0"
-path    = "build/ncollide3df64"
+path = "build/ncollide3df64"
 
 [dependencies.ncollide4df64]
-version = "0.1.0"
-path    = "build/ncollide4df64"
+path = "build/ncollide4df64"

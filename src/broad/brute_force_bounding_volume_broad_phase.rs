@@ -115,7 +115,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 Some(i) => {
                     if active {
                         // remove from sobjects…
-                        let proxy  = *self.sobjects.get(*i);
+                        let proxy  = self.sobjects[*i];
                         let lproxy = self.sobjects.pop().unwrap();
                         *self.sobjects.get_mut(*i) = lproxy;
 
@@ -130,7 +130,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     }
                     else {
                         // remove from objects…
-                        let proxy  = *self.objects.get(*i);
+                        let proxy  = self.objects[*i];
                         let lproxy = self.objects.pop().unwrap();
                         *self.objects.get_mut(*i) = lproxy;
 
@@ -153,10 +153,10 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     pub fn update(&mut self) {
         let mut new_colls = 0u;
 
-        for &b in self.objects.mut_iter() {
+        for b in self.objects.mut_iter() {
             let margin = self.margin;
             if b.borrow_mut().update(&margin) {
-                self.to_update.push(b)
+                self.to_update.push(b.clone())
             }
         }
 

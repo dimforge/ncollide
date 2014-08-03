@@ -4,13 +4,13 @@ use geom::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::Vect;
 
-#[dim3]
+// #[dim3]
 use nalgebra::na;
-#[dim3]
+// #[dim3]
 use nalgebra::na::Vec3;
-#[dim3]
+// #[dim3]
 use std::num::Zero;
-#[dim3]
+// #[dim3]
 use math::Scalar;
 
 #[dim3]

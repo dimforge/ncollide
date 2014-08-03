@@ -92,7 +92,7 @@ impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
             false
         }
         else {
-            let key = self.table.get(at).key.clone();
+            let key = self.table[at].key.clone();
             self.remove(&key)
         }
     }
@@ -103,15 +103,15 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     fn find_entry_id(&self, key: &K) -> int {
         let h = self.hash.hash(key) & self.mask;
 
-        let mut pos = *self.htable.get(h);
+        let mut pos = self.htable[h];
 
-        if pos != -1 && self.table.get(pos as uint).key != *key {
-            while *self.next.get(pos as uint) != -1 &&
-                  self.table.get(*self.next.get(pos as uint) as uint).key != *key {
-                pos = *self.next.get(pos as uint)
+        if pos != -1 && self.table[pos as uint].key != *key {
+            while self.next[pos as uint] != -1 &&
+                  self.table[self.next[pos as uint] as uint].key != *key {
+                pos = self.next[pos as uint]
             }
 
-            pos = *self.next.get(pos as uint)
+            pos = self.next[pos as uint]
         }
 
         pos
@@ -129,9 +129,9 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             let mut newnext  = Vec::from_elem(self.max_elem, -1i);
 
             for i in range(0u, self.num_elem) {
-                let h = self.hash.hash(&self.table.get(i).key) & self.mask;
+                let h = self.hash.hash(&self.table[i].key) & self.mask;
 
-                *newnext.get_mut(i) = *newhash.get(h);
+                *newnext.get_mut(i) = newhash[h];
                 *newhash.get_mut(h) = i as int;
             }
 
@@ -148,7 +148,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             let h = self.hash.hash(&key) & self.mask;
 
-            *self.next.get_mut(self.num_elem) = *self.htable.get(h);
+            *self.next.get_mut(self.num_elem) = self.htable[h];
             *self.htable.get_mut(h) = self.num_elem as int;
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
@@ -169,25 +169,25 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         let h = self.hash.hash(key) & self.mask;
 
         let mut obji;
-        let mut o = *self.htable.get(h);
+        let mut o = self.htable[h];
 
         if o != -1 {
-            if self.table.get(o as uint).key != *key {
-                while *self.next.get(o as uint) != -1 && self.table.get(*self.next.get(o as uint) as uint).key != *key {
-                    o = *self.next.get(o as uint)
+            if self.table[o as uint].key != *key {
+                while self.next[o as uint] != -1 && self.table[self.next[o as uint] as uint].key != *key {
+                    o = self.next[o as uint]
                 }
 
-                if *self.next.get(o as uint) == -1 {
+                if self.next[o as uint] == -1 {
                     return None
                 }
 
-                obji                             = *self.next.get(o as uint);
-                *self.next.get_mut(o as uint)    = *self.next.get(obji as uint);
+                obji                             = self.next[o as uint];
+                *self.next.get_mut(o as uint)    = self.next[obji as uint];
                 *self.next.get_mut(obji as uint) = -1;
             }
             else {
                 obji = o;
-                *self.htable.get_mut(h)       = *self.next.get(o as uint);
+                *self.htable.get_mut(h)       = self.next[o as uint];
                 *self.next.get_mut(o as uint) = -1;
             }
 
@@ -196,22 +196,22 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             let removed = self.table.swap_remove(obji as uint);
 
             if obji != self.num_elem as int {
-                let nh = self.hash.hash(&self.table.get(obji as uint).key) & self.mask;
+                let nh = self.hash.hash(&self.table[obji as uint].key) & self.mask;
 
-                if *self.htable.get(nh) == self.num_elem as int {
+                if self.htable[nh] == self.num_elem as int {
                     *self.htable.get_mut(nh) = obji
                 }
                 else {
-                    let mut no = *self.htable.get(nh);
+                    let mut no = self.htable[nh];
 
-                    while *self.next.get(no as uint) != self.num_elem as int {
-                        no = *self.next.get(no as uint)
+                    while self.next[no as uint] != self.num_elem as int {
+                        no = self.next[no as uint]
                     }
 
                     *self.next.get_mut(no as uint) = obji;
                 }
 
-                *self.next.get_mut(obji as uint)  = *self.next.get(self.num_elem);
+                *self.next.get_mut(obji as uint)  = self.next[self.num_elem];
                 *self.next.get_mut(self.num_elem) = -1;
             }
 
@@ -235,7 +235,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
                     let h = self.hash.hash(&key) & self.mask;
 
-                    *self.next.get_mut(self.num_elem) = *self.htable.get(h);
+                    *self.next.get_mut(self.num_elem) = self.htable[h];
                     *self.htable.get_mut(h) = self.num_elem as int;
                     self.table.push(Entry::new(key, v));
                     self.num_elem = self.num_elem + 1;
@@ -296,22 +296,22 @@ impl<K: PartialEq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
     fn find<'a>(&'a self, key: &K) -> Option<&'a V> {
         let h = self.hash.hash(key) & self.mask;
 
-        let mut pos = *self.htable.get(h);
+        let mut pos = self.htable[h];
 
-        if pos != -1 && self.table.get(pos as uint).key != *key {
-            while *self.next.get(pos as uint) != -1 &&
-                  self.table.get(*self.next.get(pos as uint) as uint).key != *key {
-                pos = *self.next.get(pos as uint)
+        if pos != -1 && self.table[pos as uint].key != *key {
+            while self.next[pos as uint] != -1 &&
+                  self.table[self.next[pos as uint] as uint].key != *key {
+                pos = self.next[pos as uint]
             }
 
-            pos = *self.next.get(pos as uint)
+            pos = self.next[pos as uint]
         }
 
         if pos == -1 {
             None
         }
         else {
-            Some(&self.table.get(pos as uint).value)
+            Some(&self.table[pos as uint].value)
         }
     }
 }

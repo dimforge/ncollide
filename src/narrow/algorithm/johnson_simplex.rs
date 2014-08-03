@@ -109,13 +109,13 @@ impl RecursionTemplate {
                     // then extract the sub-simplex
                     for k in range(0u, last_num_points) {
                         // we remove the j'th point
-                        if *pts.get(curr + j) != *pts.get(curr + k) {
-                            sublist.push(*pts.get(curr + k));
+                        if pts[curr + j] != pts[curr + k] {
+                            sublist.push(pts[curr + k]);
                         }
                     }
 
                     // keep a trace of the removed point
-                    sublist.push(*pts.get(curr + j));
+                    sublist.push(pts[curr + j]);
 
                     match map.find(&sublist) {
                         Some(&v) => sub_determinants.push(v),
@@ -133,7 +133,7 @@ impl RecursionTemplate {
 
                 let mut parent = Vec::new();
                 for k in range(0u, last_num_points + 1) {
-                    parent.push(*pts.get(curr + k))
+                    parent.push(pts[curr + k])
                 }
 
 
@@ -164,12 +164,12 @@ impl RecursionTemplate {
         }
 
         // end to begin offsets
-        offsets.unshift(0u);
+        offsets.insert(0, 0u);
         offsets.reverse();
         let _ = offsets.pop();
 
         let rev_offsets: Vec<uint> = offsets.iter().map(|&e| pts.len() - e).collect();
-        let num_leaves = *rev_offsets.get(0);
+        let num_leaves = rev_offsets[0];
 
         // reverse points and detereminants
         pts.reverse();
@@ -183,7 +183,7 @@ impl RecursionTemplate {
         RecursionTemplate {
             offsets:          rev_offsets,
             permutation_list: pts,
-            num_determinants: *sub_determinants.get(0) + 1,
+            num_determinants: sub_determinants[0] + 1,
             sub_determinants: sub_determinants,
             num_leaves:       num_leaves
         }
@@ -198,7 +198,7 @@ impl<_V: Dim> JohnsonSimplex<_V> {
         JohnsonSimplex {
             points:             Vec::with_capacity(_dim + 1),
             exchange_points:    Vec::with_capacity(_dim + 1),
-            determinants:       Vec::from_elem(recursion.get(_dim).num_determinants, na::zero()),
+            determinants:       Vec::from_elem(recursion.deref()[_dim].num_determinants, na::zero()),
             recursion_template: recursion
         }
     }
@@ -231,11 +231,11 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
         }
 
         if self.points.len() == 1 {
-            return self.points.get(0).clone();
+            return self.points[0].clone();
         }
 
         let max_num_pts      = self.points.len();
-        let recursion        = &self.recursion_template.get(max_num_pts - 1);
+        let recursion        = &self.recursion_template.deref()[max_num_pts - 1];
         let mut curr_num_pts = 1u;
         let mut curr         = max_num_pts;
 

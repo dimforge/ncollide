@@ -50,6 +50,7 @@ Some common features are still missing:
 #![feature(managed_boxes)]
 #![feature(unsafe_destructor)]
 #![feature(phase)]
+#![allow(unused_imports)] // FIXME should be denied.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 #[phase(plugin)] extern crate dim3;

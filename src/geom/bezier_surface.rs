@@ -5,11 +5,7 @@ use procedural;
 use data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
 use math::{Vect, Scalar};
-
-#[not_dim4]
 use math::RotationMatrix;
-
-#[dim4]
 use utils;
 
 /// Cache used to evaluate a bezier surface at a given parameter.
@@ -208,19 +204,19 @@ impl BezierSurface {
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
     pub fn endpoint_00<'a>(&'a self) -> &'a Vect {
-        self.control_points.get(0)
+        &self.control_points[0]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 1`.
     #[inline]
     pub fn endpoint_01<'a>(&'a self) -> &'a Vect {
-        self.control_points.get(self.nupoints() - 1)
+        &self.control_points[self.nupoints() - 1]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
     pub fn endpoint_10<'a>(&'a self) -> &'a Vect {
-        self.control_points.get(self.control_points.len() - self.nupoints())
+        &self.control_points[self.control_points.len() - self.nupoints()]
     }
 
     /// Gets the endpoint at parameters `u = 1` and `v = 1`.

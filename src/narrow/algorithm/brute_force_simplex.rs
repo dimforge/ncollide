@@ -63,7 +63,7 @@ BruteForceSimplex<_V> {
 
     fn project_on_subsimplices(points: Vec<_V>) -> (_V, Vec<_V>) {
         if points.len() == 1 {
-            (points.get(0).clone(), points)
+            (points[0].clone(), points)
         }
         else {
             let mut bestproj = BruteForceSimplex::project_on_subsimplex(points.as_slice());
@@ -73,7 +73,7 @@ BruteForceSimplex<_V> {
                 let mut subsimplex = Vec::new();
                 for j in range(0u, points.len()) {
                     if i != j {
-                        subsimplex.push(points.get(j).clone())
+                        subsimplex.push(points[j].clone())
                     }
                 }
 

@@ -1,7 +1,3 @@
-//!
-//! Support mapping based Ball geometry.
-//!
-
 use math::Scalar;
 
 /// A Ball geometry.

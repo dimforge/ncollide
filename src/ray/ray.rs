@@ -1,10 +1,7 @@
 //! Traits and structure needed to cast rays.
 
-use nalgebra::na::{Rotate, Transform};
+use nalgebra::na::{Rotate, Transform, Vec2};
 use math::{Scalar, Vect, Matrix};
-
-#[dim3]
-use nalgebra::na::Vec2;
 
 /// A Ray.
 #[deriving(Show, Encodable, Decodable)]
@@ -111,7 +108,7 @@ pub trait RayCast {
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// geometry and a ray.
-    #[dim3]
+    // #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &Matrix, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));

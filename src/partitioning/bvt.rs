@@ -2,10 +2,10 @@
 
 use std::num::Bounded;
 use test::stats::Stats;
-use nalgebra::na::{Translation, Indexable};
+use nalgebra::na::{Translation, Indexable, FloatVecExt};
 use nalgebra::na;
 use ray::{Ray, RayCast};
-use partitioning::bvt_visitor::BVTVisitor;
+use partitioning::{BVTVisitor, BVTTVisitor};
 use bounding_volume::{BoundingVolume, AABB};
 use math::{Scalar, Vect};
 
@@ -15,9 +15,13 @@ pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>
 }
 
+/// A node of the bounding volume tree.
 #[deriving(Clone, Encodable, Decodable)]
-enum BVTNode<B, BV> {
+pub enum BVTNode<B, BV> {
+    // XXX: give a faster access to the BV
+    /// An internal node.
     Internal(BV, Box<BVTNode<B, BV>>, Box<BVTNode<B, BV>>),
+    /// A leaf.
     Leaf(BV, B)
 }
 
@@ -63,13 +67,21 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
+    /// Visits the bounding volume traversal tree implicitely formed with `other`.
+    pub fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVT<B, BV>, visitor: &mut Vis) {
+        match (&self.tree, &other.tree) {
+            (&Some(ref ta), &Some(ref tb)) => ta.visit_bvtt(tb, visitor),
+            _ => { }
+        }
+    }
+
     /// Reference to the bounding volume of the tree root.
     pub fn root_bounding_volume<'r>(&'r self) -> Option<&'r BV> {
         match self.tree {
             Some(ref n) => {
                 match *n {
                     Internal(ref bv, _, _) => Some(bv),
-                    Leaf(ref bv, _)     => Some(bv)
+                    Leaf(ref bv, _) => Some(bv)
                 }
             },
             None => None
@@ -85,14 +97,15 @@ impl<B, BV> BVT<B, BV> {
     }
 }
 
-impl<B> BVT<B, AABB> {
+impl<B, BV: Translation<Vect> + BoundingVolume + Clone> BVT<B, BV> {
     /// Creates a new kdtree.
-    pub fn new_kdtree(leaves: Vec<(B, AABB)>) -> BVT<B, AABB> {
+    pub fn new_kdtree(leaves: Vec<(B, BV)>) -> BVT<B, BV> {
         BVT::new_with_partitioner(leaves, kdtree_partitioner)
     }
 }
 
 impl<B, BV> BVTNode<B, BV> {
+    /// The bounding volume of this node.
     #[inline]
     pub fn bounding_volume<'a>(&'a self) -> &'a BV {
         match *self {
@@ -125,6 +138,34 @@ impl<B, BV> BVTNode<B, BV> {
             },
             Leaf(ref mut bv, ref mut b) => {
                 visitor.visit_leaf_mut(b, bv);
+            }
+        }
+    }
+
+    fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVTNode<B, BV>, visitor: &mut Vis) {
+        match (self, other) {
+            (&Internal(ref bva, ref la, ref ra), &Internal(ref bvb, ref lb, ref rb)) => {
+                if visitor.visit_internal_internal(bva, bvb) {
+                    la.visit_bvtt(&**lb, visitor);
+                    la.visit_bvtt(&**rb, visitor);
+                    ra.visit_bvtt(&**lb, visitor);
+                    ra.visit_bvtt(&**rb, visitor);
+                }
+            },
+            (&Internal(ref bva, ref la, ref ra), &Leaf(ref bvb, ref bb)) => {
+                if visitor.visit_internal_leaf(bva, bb, bvb) {
+                    la.visit_bvtt(other, visitor);
+                    ra.visit_bvtt(other, visitor);
+                }
+            },
+            (&Leaf(ref bva, ref ba), &Internal(ref bvb, ref lb, ref rb)) => {
+                if visitor.visit_leaf_internal(ba, bva, bvb) {
+                    self.visit_bvtt(&**lb, visitor);
+                    self.visit_bvtt(&**rb, visitor);
+                }
+            },
+            (&Leaf(ref bva, ref ba), &Leaf(ref bvb, ref bb)) => {
+                visitor.visit_leaf_leaf(ba, bva, bb, bvb)
             }
         }
     }
@@ -238,23 +279,27 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn kdtree_partitioner<B>(depth: uint, leaves: Vec<(B, AABB)>) -> (AABB, BinaryPartition<B, AABB>) {
+pub fn kdtree_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVecExt<Scalar>>(
+                                       depth:  uint,
+                                       leaves: Vec<(B, BV)>,
+                                       center: &mut |&B, &BV| -> V)
+                                       -> (BV, BinaryPartition<B, BV>) {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }
     else if leaves.len() == 1 {
-        let (b, aabb) = leaves.move_iter().next().unwrap();
-        (aabb, Part(b))
+        let (b, bv) = leaves.move_iter().next().unwrap();
+        (bv, Part(b))
     }
     else {
-        let sep_axis = depth % na::dim::<Vect>();
+        let sep_axis = depth % na::dim::<V>();
 
         // compute the median along sep_axis
         let mut median = Vec::new();
 
         for l in leaves.iter() {
-            let center = l.ref1().translation();
-            median.push(center.at(sep_axis) as f64);
+            let c = (*center)(l.ref0(), l.ref1());
+            median.push(c.at(sep_axis) as f64);
         }
 
         let median = na::cast(median.as_slice().median());
@@ -262,27 +307,36 @@ pub fn kdtree_partitioner<B>(depth: uint, leaves: Vec<(B, AABB)>) -> (AABB, Bina
         // build the partitions
         let mut right = Vec::new();
         let mut left  = Vec::new();
-        let mut bounding_bounding_box = AABB::new_invalid();
+        let mut bounding_bounding_volume = leaves[0].ref1().clone();
 
         let mut insert_left = false;
 
-        for (b, aabb) in leaves.move_iter() {
-            bounding_bounding_box.merge(&aabb);
+        for (b, bv) in leaves.move_iter() {
+            bounding_bounding_volume.merge(&bv);
 
-            let pos = aabb.translation().at(sep_axis);
+            let pos = (*center)(&b, &bv).at(sep_axis);
 
             if pos < median || (pos == median && insert_left) {
-                left.push((b, aabb));
+                left.push((b, bv));
                 insert_left = false;
             }
             else {
-                right.push((b, aabb));
+                right.push((b, bv));
                 insert_left = true;
             }
         }
 
-        (bounding_bounding_box, Parts(left, right))
+        (bounding_bounding_volume, Parts(left, right))
     }
+}
+
+/// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
+#[allow(unnecessary_typecast)]
+pub fn kdtree_partitioner<B, BV: Translation<Vect> + BoundingVolume + Clone>(
+                          depth:  uint,
+                          leaves: Vec<(B, BV)>)
+                          -> (BV, BinaryPartition<B, BV>) {
+    kdtree_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }
 
 fn _new_with_partitioner<B, BV>(depth:       uint,
@@ -299,7 +353,7 @@ fn __new_with_partitioner<B, BV>(depth:       uint,
     let (bv, partitions) = partitioner(depth, leaves);
 
     match partitions {
-        Part(b)      => Leaf(bv, b),
+        Part(b)            => Leaf(bv, b),
         Parts(left, right) => {
             let left  = __new_with_partitioner(depth + 1, left, |i, p| partitioner(i, p));
             let right = __new_with_partitioner(depth + 1, right, |i, p| partitioner(i, p));

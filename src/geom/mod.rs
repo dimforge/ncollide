@@ -19,6 +19,8 @@ pub use geom::triangle::Triangle;
 pub use geom::geom::{Geom, ConcaveGeom};
 pub use geom::bezier_surface::{BezierSurface, BezierSurfaceEvaluationCache};
 pub use geom::bezier_curve::{BezierCurve, BezierCurveEvaluationCache};
+pub use geom::torus::Torus;
+// pub use geom::reparametrized_surface::ReparametrizedSurface;
 
 // modules
 #[doc(hidden)]
@@ -39,3 +41,5 @@ mod geom_with_margin;
 mod mesh;
 mod bezier_curve;
 mod bezier_surface;
+mod torus;
+// mod reparametrized_surface;

@@ -13,7 +13,8 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
-             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface, Contact};
+             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface,
+             Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use OSCMG = narrow::OneShotContactManifoldGenerator;
@@ -152,7 +153,7 @@ impl GeomGeomDispatcher {
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
     pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector>> {
-        self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
+        self.constructors.find(&(a.get_dyn_type_id(), b.get_dyn_type_id())).map(|f| f.build())
     }
 }
 

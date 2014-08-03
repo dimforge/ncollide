@@ -155,14 +155,14 @@ impl Compound {
 impl ConcaveGeom for Compound {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&Matrix, &Geom| -> T) -> T{
-        let &(ref m, ref g) = self.geoms.get(i);
+        let &(ref m, ref g) = &self.geoms[i];
 
         f(m, **g)
     }
 
     #[inline(always)]
     fn map_transformed_part_at<T>(&self, m: &Matrix, i: uint, f: |&Matrix, &Geom| -> T) -> T{
-        let &(ref lm, ref g) = self.geoms.get(i);
+        let &(ref lm, ref g) = &self.geoms[i];
 
         f(&(m * *lm), **g)
     }
@@ -181,6 +181,6 @@ impl ConcaveGeom for Compound {
 
     #[inline]
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
-        self.bvs.get(i)
+        &self.bvs[i]
     }
 }

@@ -4,10 +4,10 @@ use geom::Cuboid;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[dim2]
+// #[dim2]
 use nalgebra::na::Indexable;
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Indexable;
 
 

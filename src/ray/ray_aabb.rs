@@ -6,7 +6,7 @@ use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Scalar, Vect};
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Vec2;
 
 impl RayCast for AABB {

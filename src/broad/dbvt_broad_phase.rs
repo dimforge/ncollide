@@ -96,7 +96,7 @@ DBVTBroadPhase<B, BV, D, DV> {
          */
         // NOTE: the exact same code is used on `brute_force_bounding_volume_broad_phase.rs`.
         // Refactor that?
-        if new_colls != 0 {
+        if new_colls != 0 && self.pairs.len() != 0 {
             let len          = self.pairs.len();
             let num_removals = na::clamp(new_colls, len / 10, len);
 

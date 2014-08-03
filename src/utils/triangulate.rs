@@ -13,7 +13,7 @@ struct Triangle<N, V> {
     circumcircle_sq_radius: N
 }
 
-impl<N: Float + Cast<f64>, V: FloatVec<N>> Triangle<N, V> {
+impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangle<N, V> {
     pub fn new(idx: Vec3<uint>, pts: &[V]) -> Triangle<N, V> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
@@ -41,7 +41,7 @@ pub struct Triangulator<N, V> {
     edges:     HashMap<(uint, uint), uint>
 }
 
-impl<N: Float + Cast<f64>, V: FloatVec<N>> Triangulator<N, V> {
+impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
     /// Creates a new Triangulator.
     pub fn new(supertriangle_a: V, supertriangle_b: V, supertriangle_c: V) -> Triangulator<N, V> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
@@ -108,9 +108,9 @@ impl<N: Float + Cast<f64>, V: FloatVec<N>> Triangulator<N, V> {
         let mut i = 0;
 
         while i != self.triangles.len() { // the len might change inside of the loop
-            if self.triangles.get(i).circumcircle_contains_point(pt) {
+            if self.triangles[i].circumcircle_contains_point(pt) {
                 {
-                    let t = self.triangles.get(i);
+                    let t = &self.triangles[i];
 
                     fn s(a: uint, b: uint) -> (uint, uint) {
                         if a > b { (b, a) } else { (a, b) }

@@ -2,16 +2,16 @@ use geom::Cylinder;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[dim2]
+// #[dim2]
 use nalgebra::na::Indexable;
-#[dim2]
+// #[dim2]
 use nalgebra::na;
 
-#[dim3]
+// #[dim3]
 use std::num::Float;
-#[dim3]
+// #[dim3]
 use nalgebra::na::Indexable;
-#[dim3]
+// #[dim3]
 use nalgebra::na;
 
 /// Computes the volume of a cylinder.

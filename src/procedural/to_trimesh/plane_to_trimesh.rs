@@ -4,7 +4,7 @@ use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Indexable;
 
 #[dim3]

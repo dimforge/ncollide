@@ -18,13 +18,13 @@ impl<'a, N: Float, V: FloatVec<N> + Clone> PolylinePath<'a, N, V> {
     pub fn new(polyline: &'a Polyline<N, V>) -> PolylinePath<'a, N, V> {
         assert!(polyline.coords.len() > 1, "The polyline must have at least two points.");
 
-        let mut dir = *polyline.coords.get(1) - *polyline.coords.get(0);
+        let mut dir = polyline.coords[1] - polyline.coords[0];
         let len     = dir.normalize();
         PolylinePath {
             curr_len:               len,
             curr_dir:               dir,
             curr_pt_id:             0,
-            curr_pt:                polyline.coords.get(0).clone(),
+            curr_pt:                polyline.coords[0].clone(),
             polyline:               polyline
         }
     }
@@ -49,11 +49,11 @@ impl<'a, N: Float, V: FloatVec<N> + Clone> CurveSampler<N, V>  for PolylinePath<
         self.curr_pt_id = self.curr_pt_id + 1;
 
         if self.curr_pt_id < self.polyline.coords.len() {
-            self.curr_pt = self.polyline.coords.get(self.curr_pt_id).clone();
+            self.curr_pt = self.polyline.coords[self.curr_pt_id].clone();
 
             if self.curr_pt_id < self.polyline.coords.len() - 1 {
-                let mut curr_diff = *self.polyline.coords.get(self.curr_pt_id + 1) -
-                    *self.polyline.coords.get(self.curr_pt_id);
+                let mut curr_diff = self.polyline.coords[self.curr_pt_id + 1] -
+                                    self.polyline.coords[self.curr_pt_id];
                 self.curr_len = curr_diff.normalize();
                 self.curr_dir = curr_diff;
             }

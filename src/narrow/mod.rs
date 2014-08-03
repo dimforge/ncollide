@@ -13,7 +13,7 @@ pub use narrow::geom_geom::{DynamicCollisionDetector, GeomGeomCollisionDetector,
 pub use narrow::concave_geom_geom::{ConcaveGeomGeom, GeomConcaveGeom, ConcaveGeomGeomFactory,
                                     GeomConcaveGeomFactory};
 pub use narrow::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
-pub use narrow::bezier_surface_bezier_surface::{BezierSurfaceBezierSurface};
+pub use narrow::bezier_surface_bezier_surface::BezierSurfaceBezierSurface;
 
 // functions
 /// Functions to compute the time of impact between two geometries.

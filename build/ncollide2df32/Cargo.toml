@@ -8,10 +8,7 @@ name = "ncollide2df32"
 path = "../../src/ncollide2df32.rs"
 
 [dependencies.dim2]
-version = "1.0.0"
-path    = "../dim2"
+path = "../dim2"
 
 [dependencies.nalgebra]
-version = "0.1.0"
-path    = "../../nalgebra"
-git     = "https://github.com/sebcrozet/nalgebra"
+git  = "https://github.com/sebcrozet/nalgebra"

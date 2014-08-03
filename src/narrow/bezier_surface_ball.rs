@@ -19,7 +19,7 @@ pub struct BallBezierSurface<S, D> {
     timestamp:  uint
 }
 
-impl<S: Clone, D: Send> Clone for BallBezierSurface<S, D> {
+impl<S: Clone, D: Send + Share> Clone for BallBezierSurface<S, D> {
     fn clone(&self) -> BallBezierSurface<S, D> {
         BallBezierSurface {
             cache:      self.cache.clone(),
@@ -135,7 +135,7 @@ pub struct BezierSurfaceBall<S, D> {
     detector: BallBezierSurface<S, D>
 }
 
-impl<S: Clone, D: Send> Clone for BezierSurfaceBall<S, D> {
+impl<S: Clone, D: Send + Share> Clone for BezierSurfaceBall<S, D> {
     fn clone(&self) -> BezierSurfaceBall<S, D> {
         BezierSurfaceBall {
             detector: self.detector.clone()

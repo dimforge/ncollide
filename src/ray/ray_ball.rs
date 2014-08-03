@@ -5,7 +5,7 @@ use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
 use math::{Scalar, Vect, Matrix};
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Vec2;
 
 
@@ -21,7 +21,7 @@ fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
 }
 
 #[not_dim3]
-fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
+fn ball_uv(_: &Vect) -> Option<Vec2<Scalar>> {
     None
 }
 
@@ -42,7 +42,7 @@ impl RayCast for Ball {
         })
     }
 
-    #[dim3]
+    // #[dim3]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);

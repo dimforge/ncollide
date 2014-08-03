@@ -6,10 +6,25 @@ use ray::{Ray, RayCast};
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 use math::Matrix;
 
+pub trait AnyPrivate {
+    /// The type id of `Self`.
+    ///
+    /// NOTE: this exists only because `Any::get_type_id()` is private for some reason…
+    fn get_dyn_type_id(&self) -> TypeId;
+}
+
+impl<T: 'static> AnyPrivate for T {
+    #[inline]
+    fn get_dyn_type_id(&self) -> TypeId {
+        TypeId::of::<T>()
+    }
+}
+
 /// Trait (that should be) implemented by every geometry.
 pub trait Geom : HasAABB           +
                  HasBoundingSphere +
                  RayCast           +
+                 AnyPrivate        +
                  Any {
     /// Duplicates (clones) this geometry.
     fn duplicate(&self) -> Box<Geom + Send>;
@@ -36,7 +51,7 @@ pub trait ConcaveGeom : Geom {
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
 }
 
-impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + Any>
+impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + AnyPrivate + Any>
 Geom for T {
     #[inline]
     fn duplicate(&self) -> Box<Geom + Send> {
@@ -52,14 +67,14 @@ impl<'a> AnyRefExt<'a> for &'a Geom {
         let t = TypeId::of::<T>();
 
         // Get TypeId of the type in the trait object
-        let boxed = self.get_type_id();
+        let boxed = self.get_dyn_type_id();
 
         // Compare both TypeIds on equality
         t == boxed
     }
 
     #[inline]
-    fn as_ref<T: 'static>(self) -> Option<&'a T> {
+    fn downcast_ref<T: 'static>(self) -> Option<&'a T> {
         if self.is::<T>() {
             unsafe {
                 let to: TraitObject = mem::transmute_copy(&self);

@@ -3,15 +3,15 @@ use ray::{Ray, RayCast, RayIntersection};
 use geom::Mesh;
 use math::Scalar;
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Vec2;
-#[dim3]
+// #[dim3]
 use ray;
-#[dim3]
+// #[dim3]
 use nalgebra::na::Norm;
-#[dim3]
+// #[dim3]
 use nalgebra::na;
-#[dim3]
+// #[dim3]
 use math::Vect;
 
 
@@ -35,7 +35,7 @@ impl RayCast for Mesh {
                     |(_, res, _)| res)
     }
 
-    #[dim3]
+    // #[dim3]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         if !self.margin().is_zero() || self.uvs().is_none() {
             return self.toi_and_normal_with_ray(ray, solid);
@@ -63,9 +63,9 @@ impl RayCast for Mesh {
                 let is    = self.indices().slice(ibest, ibest + 3);
                 let uvs   = self.uvs().as_ref().unwrap();
 
-                let uv1 = uvs.get(is[0]).clone();
-                let uv2 = uvs.get(is[1]).clone();
-                let uv3 = uvs.get(is[2]).clone();
+                let uv1 = uvs.deref()[is[0]];
+                let uv2 = uvs.deref()[is[1]];
+                let uv3 = uvs.deref()[is[2]];
 
                 let uvx = uv1.x * uv.x + uv2.x * uv.y + uv3.x * uv.z;
                 let uvy = uv1.y * uv.x + uv2.y * uv.y + uv3.y * uv.z;
@@ -76,9 +76,9 @@ impl RayCast for Mesh {
                         Some(RayIntersection::new_with_uvs(toi, n, Some(Vec2::new(uvx, uvy))))
                     },
                     Some(ref ns) => {
-                        let n1 = ns.get(is[0]);
-                        let n2 = ns.get(is[1]);
-                        let n3 = ns.get(is[2]);
+                        let n1 = ns.deref()[is[0]];
+                        let n2 = ns.deref()[is[1]];
+                        let n3 = ns.deref()[is[2]];
 
                         let mut n123 = n1 * uv.x + n2 * uv.y + n3 * uv.z;
 

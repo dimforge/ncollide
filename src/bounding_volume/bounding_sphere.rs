@@ -38,6 +38,12 @@ impl BoundingSphere {
     pub fn radius(&self) -> Scalar {
         self.radius.clone()
     }
+
+    /// Transforms this bounding sphere by `m`.
+    #[inline]
+    pub fn transform_by(&self, m: &Matrix) -> BoundingSphere {
+        BoundingSphere::new(m * self.center, self.radius)
+    }
 }
 
 impl BoundingVolume for BoundingSphere {
@@ -65,7 +71,6 @@ impl BoundingVolume for BoundingSphere {
         let _0_5: Scalar = na::cast(0.5f64);
         let a            = self.center;
         let b            = other.center;
-        let new_center   = (a + b) * _0_5;
 
         let mut dir = b - a;
         let norm    = dir.normalize();
@@ -76,17 +81,28 @@ impl BoundingVolume for BoundingSphere {
             }
         }
         else {
-            let pts = [
-                self.center  + dir * self.radius,
-                self.center  - dir * self.radius,
-                other.center + dir * other.radius,
-                other.center - dir * other.radius
-            ];
+            let s_center_dir = na::dot(&self.center, &dir);
+            let o_center_dir = na::dot(&other.center, &dir);
 
-            let (center, radius) = bounding_volume::point_cloud_bounding_sphere_with_center(pts, new_center);
+            let right;
+            let left;
 
-            self.center = center;
-            self.radius = radius ;
+            if s_center_dir + self.radius > o_center_dir + other.radius {
+                right = self.center + dir * self.radius;
+            }
+            else {
+                right = other.center + dir * other.radius;
+            }
+
+            if -s_center_dir + self.radius > -o_center_dir + other.radius {
+                left = self.center - dir * self.radius;
+            }
+            else {
+                left = other.center - dir * other.radius;
+            }
+
+            self.center = (left + right) * _0_5;
+            self.radius = na::norm(&(right - self.center));
         }
     }
 

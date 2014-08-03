@@ -50,6 +50,8 @@ Some common features are still missing:
 #![feature(managed_boxes)]
 #![feature(unsafe_destructor)]
 #![feature(phase)]
+#![allow(unused_attribute)]
+#![allow(unused_imports)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 #[phase(plugin)] extern crate dim2;

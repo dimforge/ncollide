@@ -2,14 +2,14 @@
 
 use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
 
-#[dim2]
+// #[dim2]
 use nalgebra::na::Mat1;
-#[dim2]
+// #[dim2]
 use nalgebra::na;
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Mat3;
-#[dim3]
+// #[dim3]
 use nalgebra::na;
 
 /// Trait to be implemented by inertia tensors.

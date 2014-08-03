@@ -105,9 +105,6 @@ pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &
 
     let _1: Scalar = na::one();
 
-    println!("m1: {}, m2: {}, m3: {}", ms[0], ms[1], ms[2]);
-    println!("Found: n: {}, m: {}", n, m);
-
     // FIXME: round instead of `as`?
     parametric_surface_uniform(s, n.ceil() as uint, m.ceil() as uint)
 }

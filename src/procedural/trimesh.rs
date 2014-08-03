@@ -166,10 +166,10 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
                             None    => {
                                 let idx = resc.len() as u32;
 
-                                resc.push(self.coords.get(point.x as uint).clone());
+                                resc.push(self.coords[point.x as uint].clone());
 
-                                let _ = resu.as_mut().map(|l| l.push(self.uvs.get_ref().get(point.y as uint).clone()));
-                                let _ = resn.as_mut().map(|l| l.push(self.normals.get_ref().get(point.z as uint).clone()));
+                                let _ = resu.as_mut().map(|l| l.push(self.uvs.get_ref()[point.y as uint].clone()));
+                                let _ = resn.as_mut().map(|l| l.push(self.normals.get_ref()[point.z as uint].clone()));
 
                                 resi.push(idx);
 

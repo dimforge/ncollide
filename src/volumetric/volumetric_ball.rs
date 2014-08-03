@@ -5,10 +5,10 @@ use geom::Ball;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
-#[dim2]
+// #[dim2]
 use nalgebra::na::Indexable;
 
-#[dim3]
+// #[dim3]
 use nalgebra::na::Indexable;
 
 /// Computes the volume of a ball.

@@ -48,7 +48,7 @@ impl ParametricSurface for Ball {
 
     fn at_uu(&self, u: Scalar, v: Scalar) -> Vect {
         let _2_pi    = Float::two_pi();
-        let u        = u * _2_pi * _2_pi;
+        let u        = u * _2_pi;
         let v        = (v - na::cast(0.5f64)) * Float::pi();
         let (su, cu) = u.sin_cos();
         let cv       = v.cos();

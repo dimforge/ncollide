@@ -62,7 +62,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
             None
         }
         else {
-            Some(self.collector.get(0).clone())
+            Some(self.collector[0])
         };
 
         self.collector.clear();

@@ -10,15 +10,8 @@ use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use implicit::HasMargin;
-use geom::{Geom, ConcaveGeom};
+use geom::{Geom, ConcaveGeom, Segment, Triangle};
 use math::{Scalar, Vect, Matrix};
-
-#[dim2]
-use geom::Segment;
-#[dim3]
-use geom::Triangle;
-#[dim4] // XXX: this is wrong
-use geom::Triangle;
 
 /// Trait implemented by elements usable on the Mesh.
 ///
@@ -209,6 +202,6 @@ impl ConcaveGeom for Mesh {
 
     #[inline]
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
-        self.bvs.get(i)
+        &self.bvs[i]
     }
 }
