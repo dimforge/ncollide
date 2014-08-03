@@ -8,6 +8,8 @@ pub use utils::cleanup::remove_unused_points;
 pub use utils::derivatives::{dcos, dsin, binom};
 pub use utils::optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
                               LineSearch, BacktrackingLineSearch};
+#[doc(inline)]
+pub use utils::any_private::AnyPrivate;
 
 
 pub mod symbolic;
@@ -18,3 +20,5 @@ mod triangle_utils;
 mod cleanup;
 mod derivatives;
 mod optimization;
+#[doc(hidden)]
+pub mod any_private;
