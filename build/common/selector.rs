@@ -6,13 +6,14 @@ use syntax::parse;
 use syntax::parse::attr::ParserAttr;
 
 
-pub fn expand_hidden(cx: &mut base::ExtCtxt, _: codemap::Span,
+pub fn expand_hidden(cx: &mut base::ExtCtxt, span: codemap::Span,
                      _: Gc<ast::MetaItem>, input_item: Gc<ast::Item>)
     -> Gc<ast::Item>
 {
+    let filename = cx.parse_sess.span_diagnostic.cm.span_to_filename(span);
     let dummy_cfg = "#[cfg(_a_cfg_that_you_should_never_pass_to_rustc_because_it_breaks_things_)]";
     let mut dummy_attr_generator = parse::new_parser_from_source_str(cx.parse_sess(), cx.cfg(),
-                                                                     "dummy".to_string(),
+                                                                     filename,
                                                                      dummy_cfg.to_string());
     let attrs = dummy_attr_generator.parse_outer_attributes();
 
