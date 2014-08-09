@@ -19,7 +19,7 @@ pub struct BallBezierSurface<S, D> {
     timestamp:  uint
 }
 
-impl<S: Clone, D: Send + Share> Clone for BallBezierSurface<S, D> {
+impl<S: Clone, D: Send + Sync> Clone for BallBezierSurface<S, D> {
     fn clone(&self) -> BallBezierSurface<S, D> {
         BallBezierSurface {
             cache:      self.cache.clone(),
@@ -51,7 +51,7 @@ impl<S: SurfaceSelector<D>, D> BallBezierSurface<S, D> {
     }
 }
 
-impl<S: SurfaceSelector<D>, D: Send + Share>
+impl<S: SurfaceSelector<D>, D: Send + Sync>
 CollisionDetector<Ball, BezierSurface> for BallBezierSurface<S, D> {
     fn update(&mut self, ma: &Matrix, a: &Ball, mb: &Matrix, b: &BezierSurface) {
         self.points.clear();
@@ -135,7 +135,7 @@ pub struct BezierSurfaceBall<S, D> {
     detector: BallBezierSurface<S, D>
 }
 
-impl<S: Clone, D: Send + Share> Clone for BezierSurfaceBall<S, D> {
+impl<S: Clone, D: Send + Sync> Clone for BezierSurfaceBall<S, D> {
     fn clone(&self) -> BezierSurfaceBall<S, D> {
         BezierSurfaceBall {
             detector: self.detector.clone()
@@ -155,7 +155,7 @@ impl<S: SurfaceSelector<D>, D> BezierSurfaceBall<S, D> {
     }
 }
 
-impl<S: SurfaceSelector<D>, D: Send + Share>
+impl<S: SurfaceSelector<D>, D: Send + Sync>
 CollisionDetector<BezierSurface, Ball> for BezierSurfaceBall<S, D> {
     fn update(&mut self, ma: &Matrix, a: &BezierSurface, mb: &Matrix, b: &Ball) {
         self.detector.update(mb, b, ma, a);
@@ -239,7 +239,7 @@ fn do_closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
 // FIXME: too bad this cannot be safely exposed to the user (because of the need to pass a valid
 // timestamp).
 #[allow(dead_code)] // FIXME: this might be useful in the future, it the subdivision tree becomes handy.
-fn closest_points_with_subdivision_tree<S: SurfaceSelector<D>, D: Send + Share>(
+fn closest_points_with_subdivision_tree<S: SurfaceSelector<D>, D: Send + Sync>(
                                         pt:             &Vect,
                                         to_visit:       &Arc<RWLock<SurfaceSubdivisionTree<D>>>,
                                         selector:       &mut S,
@@ -353,7 +353,7 @@ fn closest_points_with_subdivision_tree<S: SurfaceSelector<D>, D: Send + Share>(
 }
 
 #[allow(dead_code)] // FIXME: this might be useful in the future, it the subdivision tree becomes handy.
-fn cleanup_subdivision_tree<D: Send + Share>(root:            &Arc<RWLock<SurfaceSubdivisionTree<D>>>,
+fn cleanup_subdivision_tree<D: Send + Sync>(root:            &Arc<RWLock<SurfaceSubdivisionTree<D>>>,
                                              valid_timestamp: uint)
                                              -> uint {
     // NOTE: we are keeping a read-write-lock on the root, to make sure we are alone during the
@@ -379,7 +379,7 @@ fn cleanup_subdivision_tree<D: Send + Share>(root:            &Arc<RWLock<Surfac
 }
 
 #[allow(dead_code)] // FIXME: this might be useful in the future, it the subdivision tree becomes handy.
-fn do_cleanup_subdivision_tree<D: Send + Share>(tree: &Arc<RWLock<SurfaceSubdivisionTree<D>>>, valid_timestamp: uint) {
+fn do_cleanup_subdivision_tree<D: Send + Sync>(tree: &Arc<RWLock<SurfaceSubdivisionTree<D>>>, valid_timestamp: uint) {
     // >>>>> Read-only lock on `tree`.
     {
         let r_tree = tree.read();

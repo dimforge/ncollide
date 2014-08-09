@@ -17,7 +17,7 @@ pub struct BezierSurfaceBezierSurface<S, D> {
     timestamp:  uint
 }
 
-impl<S: Clone, D: Send + Share> Clone for BezierSurfaceBezierSurface<S, D> {
+impl<S: Clone, D: Send + Sync> Clone for BezierSurfaceBezierSurface<S, D> {
     fn clone(&self) -> BezierSurfaceBezierSurface<S, D> {
         BezierSurfaceBezierSurface {
             cache:      self.cache.clone(),

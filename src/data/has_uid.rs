@@ -24,7 +24,7 @@ impl<T> HasUid for Rc<T> {
     }
 }
 
-impl<T: Share + Send> HasUid for Arc<T> {
+impl<T: Sync + Send> HasUid for Arc<T> {
     #[inline]
     fn uid(&self) -> uint {
         self.deref() as *const T as uint

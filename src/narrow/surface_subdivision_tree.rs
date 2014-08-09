@@ -26,7 +26,7 @@ pub struct SurfaceSubdivisionTreeRef<D> {
     key:          uint
 }
 
-impl<D: Send + Share> Clone for SurfaceSubdivisionTreeRef<D> {
+impl<D: Send + Sync> Clone for SurfaceSubdivisionTreeRef<D> {
     fn clone(&self) -> SurfaceSubdivisionTreeRef<D> {
         self.parent_cache.write().inc_ref_count(self.key);
 
@@ -52,7 +52,7 @@ impl<D> Deref<Arc<RWLock<SurfaceSubdivisionTree<D>>>> for SurfaceSubdivisionTree
 }
 
 #[unsafe_destructor]
-impl<D: Send + Share> Drop for SurfaceSubdivisionTreeRef<D> {
+impl<D: Send + Sync> Drop for SurfaceSubdivisionTreeRef<D> {
     fn drop(&mut self) {
         self.parent_cache.write().release_key(self.key)
     }
@@ -67,7 +67,7 @@ pub struct SurfaceSubdivisionTreeCache<D> {
 }
 
 // FIXME: could this kind of cache be useful elsewhere?
-impl<D: Send + Share> SurfaceSubdivisionTreeCache<D> {
+impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
     /// Creates a new surface subdivision tree cache.
     pub fn new() -> SurfaceSubdivisionTreeCache<D> {
         SurfaceSubdivisionTreeCache {
@@ -135,7 +135,7 @@ pub struct SurfaceSubdivisionTree<D> {
     surface:   BezierSurface
 }
 
-impl<D: Send + Share> SurfaceSubdivisionTree<D> {
+impl<D: Send + Sync> SurfaceSubdivisionTree<D> {
     /// Creates a new tree with no parent nor children.
     #[inline]
     pub fn new_orphan(b: BezierSurface, data: D, timestamp: uint) -> SurfaceSubdivisionTree<D> {
