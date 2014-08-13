@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::hash::Hash;
 use procedural::utils;
 use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, Vec3, Vec2};
 use nalgebra::na;
@@ -117,6 +118,15 @@ impl<N, V> TriMesh<N, V> {
             }
         }
     }
+
+    /// The number of triangles on this mesh.
+    #[inline]
+    pub fn num_triangles(&self) -> uint {
+        match self.indices {
+            UnifiedIndexBuffer(ref idx) => idx.len(),
+            SplitIndexBuffer(ref idx)   => idx.len()
+        }
+    }
 }
 
 impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
@@ -199,12 +209,27 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
 
         let _ = new_indices.map(|nids| self.indices = nids);
     }
+}
 
+impl<N: Clone, V: Clone + PartialEq + Hash> TriMesh<N, V> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
-    pub fn split_index_buffer(&mut self) {
+    ///
+    /// If `recover_topology` is true, this will merge exactly identical vertices together.
+    pub fn split_index_buffer(&mut self, recover_topology: bool) {
         let new_indices = match self.indices {
             UnifiedIndexBuffer(ref ids) => {
-                let resi = utils::split_index_buffer(ids.as_slice());
+                let resi;
+
+                if recover_topology {
+                    let (idx, coords) = utils::split_index_buffer_and_recover_topology(
+                                           ids.as_slice(),
+                                           self.coords.as_slice());
+                    self.coords = coords;
+                    resi = idx;
+                }
+                else {
+                    resi = utils::split_index_buffer(ids.as_slice());
+                }
 
                 Some(SplitIndexBuffer(resi))
             },

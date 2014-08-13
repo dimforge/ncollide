@@ -15,6 +15,7 @@ pub use procedural::sphere::{sphere, unit_sphere, circle, unit_circle};
 pub use procedural::convex_hull::{convex_hull3d, convex_hull2d};
 pub use procedural::to_trimesh::to_trimesh::ToTriMesh;
 pub use procedural::to_polyline::to_polyline::ToPolyline;
+pub use procedural::hacd::hacd;
 
 
 pub mod utils;
@@ -60,4 +61,5 @@ mod cylinder;
 mod quad;
 mod sphere;
 mod convex_hull;
+mod hacd;
 mod parametric_surface;

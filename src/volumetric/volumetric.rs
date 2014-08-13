@@ -24,11 +24,36 @@ pub trait InertiaTensor {
     fn to_relative_wrt_point(&self, &Scalar, &Vect) -> Self;
 }
 
-/// Trait to be implemented by objects which have a mass, a center of mass, and an inverse
-/// inertia tensor.
+/// Trait to be implemented by objects which have a mass, a center of mass, and an inertia tensor.
 pub trait Volumetric {
-    /// Given a density, this computes the mass, center of mass, and inertia tensor of this object.
-    fn mass_properties(&self, &Scalar) -> (Scalar, Vect, AngularInertia);
+    /// Computes the volume of this object.
+    fn volume(&self) -> Scalar;
+
+    /// Computes the center of mass of this object.
+    fn center_of_mass(&self) -> Vect;
+
+    /// Computes the angular inertia tensor of this object.
+    fn unit_angular_inertia(&self) -> AngularInertia;
+
+    /// Given its density, this computes the mass of this object.
+    fn mass(&self, density: &Scalar) -> Scalar {
+        self.volume()  * *density
+    }
+
+    /// Given its mass, this computes the angular inertia of this object.
+    fn angular_inertia(&self, mass: &Scalar) -> AngularInertia {
+        self.unit_angular_inertia() * *mass
+    }
+
+    /// Given its density, this computes the mass, center of mass, and inertia tensor of this object.
+    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
+        let mass = self.mass(density);
+        let com  = self.center_of_mass();
+        let ai   = self.angular_inertia(&mass);
+
+        (mass, com, ai)
+    }
+
 }
 
 #[dim2]

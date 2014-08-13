@@ -15,7 +15,7 @@ and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
 Simply add the following to your `Cargo.toml` file:
 
-```
+```.ignore
 [dependencies.ncollide3df32]
 git = "https://github.com/sebcrozet/ncollide"
 ```
@@ -46,6 +46,7 @@ Some common features are still missing:
 #![deny(unused_result)]
 #![warn(unused_imports)]
 #![deny(unnecessary_typecast)]
+#![feature(default_type_params)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
 #![feature(unsafe_destructor)]

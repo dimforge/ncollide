@@ -126,7 +126,7 @@ struct DBVTInternal<B, BV> {
     /// This node parent.
     parent:          *mut DBVTInternal<B, BV>,
 
-    state:      UpdateState
+    state:           UpdateState
 }
 
 impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {

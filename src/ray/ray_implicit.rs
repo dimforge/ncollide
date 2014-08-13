@@ -76,7 +76,10 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Tran
     loop {
         niter = niter + 1;
 
-        let _             = dir.normalize();
+        if dir.normalize().is_zero() {
+            return Some(RayIntersection::new(ltoi, ldir))
+        }
+
         let support_point = geom.support_point(m, &dir);
 
         // Clip the ray on the support plane (None <=> t < 0)

@@ -81,19 +81,37 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
     assert!(points.len() >= 3);
 
     let p1 = 0;
-    let p2 = 1;
+    let mut p2 = 1;
     let mut p3 = 2;
+
+    while p2 != points.len() {
+        let p1p2 = points[p2] - points[p1];
+
+        if !na::approx_eq(&p1p2, &na::zero()) { // FIXME: use a smaller threshold?
+            break;
+        }
+
+        p2 = p2 + 1;
+    }
+
+    if p2 == points.len() {
+        fail!("Could not build the convex hull: all point are superimposed.");
+    }
 
     let p1p2 = points[p2] - points[p1];
 
     while p3 != points.len() {
         let p1p3 = points[p3] - points[p1];
 
-        if !na::cross(&p1p2, &p1p3).is_zero() {
+        if !na::approx_eq(&na::cross(&p1p2, &p1p3), &na::zero()) { // FIXME: use a smaller threshold?
             break;
         }
 
         p3 = p3 + 1;
+    }
+
+    if p3 == points.len() {
+        fail!("Could not build the convex hull: all point are colinears.");
     }
 
     // Build two facets with opposite normals
@@ -320,6 +338,20 @@ impl TriangleFacet {
 
         let mut normal = na::cross(&p1p2, &p1p3);
         if normal.normalize().is_zero() {
+            println!("p1: {} {}, p2: {} {}, p3: {} {}", p1, points[p1],
+                                                        p2, points[p2],
+                                                        p3, points[p3]);
+            let p7 = points[p1];
+            let p4 = points[p2];
+            let p1 = points[p3];
+
+            println!("{}", utils::is_affinely_dependent_triangle(&p7, &p4, &p1));
+            println!("{}", utils::is_affinely_dependent_triangle(&p7, &p1, &p4));
+            println!("{}", utils::is_affinely_dependent_triangle(&p1, &p4, &p7));
+            println!("{}", utils::is_affinely_dependent_triangle(&p1, &p7, &p4));
+            println!("{}", utils::is_affinely_dependent_triangle(&p4, &p7, &p1));
+            println!("{}", utils::is_affinely_dependent_triangle(&p4, &p1, &p7));
+
             fail!("A facet must not be affinely dependent.");
         }
 
@@ -482,7 +514,7 @@ pub fn get_initial_polyline(points: &[Vec2<Scalar>], undecidable: &mut Vec<uint>
         else if f2.can_be_seen_by(i, points) {
             f2.visible_points.push(i);
         }
-        else { // the point is colinear.
+        else { // The point is collinear.
             undecidable.push(i);
         }
     }
@@ -592,6 +624,7 @@ impl SegmentFacet {
 #[cfg(test)]
 mod test {
     use nalgebra::na::Vec2;
+    use procedural;
 
     #[test]
     fn test_simple_convex_hull2d() {
@@ -604,5 +637,16 @@ mod test {
         let chull = super::convex_hull2d(points);
 
         assert!(chull.coords.len() == 3);
+    }
+
+    #[test]
+    fn test_ball_convex_hull() {
+        // This trigerred a failure to an affinely dependent facet.
+        let sphere = procedural::sphere(&0.4f32, 20, 20, true);
+        let points = sphere.coords;
+        let chull  = procedural::convex_hull3d(points.as_slice());
+
+        // dummy test, we are just checking that the construction did not fail.
+        assert!(chull.coords.len() == chull.coords.len());
     }
 }

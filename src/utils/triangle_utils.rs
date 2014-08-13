@@ -1,7 +1,19 @@
 use std::num::Zero;
-use nalgebra::na::{Cast, FloatVec, Cross};
+use nalgebra::na::{Cast, FloatVec, Cross, ApproxEq, Norm};
 use nalgebra::na;
 use bounding_volume;
+
+/// Computes the area of a triangle.
+pub fn triangle_area<N: Float + Cast<f64>, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N {
+    // Heron's formula.
+    let sqa = na::sqnorm(&(*pa - *pb));
+    let sqb = na::sqnorm(&(*pb - *pc));
+    let sqc = na::sqnorm(&(*pc - *pa));
+
+    let sum = sqa + sqb + sqc;
+
+    ((sum * sum) - (sqa * sqa + sqb * sqb + sqc * sqc) * na::cast(2.0f64)).sqrt() * na::cast(0.25f64)
+}
 
 /// Computes the circumcircle of a triangle.
 pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N> + Clone>(pa: &V, pb: &V, pc: &V) -> (V, N) {
@@ -32,12 +44,21 @@ pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N> + Clone>(pa: &V, pb: &V
 }
 
 /// Tests if three points are exactly aligned.
-pub fn is_affinely_dependent_triangle<V: Sub<V, V> + Cross<AV>, AV: Zero>(p1: &V, p2: &V, p3: &V) -> bool
-{
+pub fn is_affinely_dependent_triangle<V:  Sub<V, V> + Cross<AV> + Norm<N>,
+                                      AV: Norm<N>,
+                                      N:  ApproxEq<N> + Float + Cast<f64>>(
+                                      p1: &V,
+                                      p2: &V,
+                                      p3: &V)
+                                      -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
-    na::cross(&p1p2, &p1p3).is_zero()
+    // FIXME: use this as nalgebra standard epsilon?
+    let _eps: N = Float::epsilon();
+    let _eps_tol = _eps * na::cast(100.0f64);
+
+    na::approx_eq_eps(&na::sqnorm(&na::cross(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
 }
 
 /// Tests if a point is inside of a triangle.
@@ -57,4 +78,19 @@ pub fn is_point_in_triangle<N: Float, V: FloatVec<N>>(p: &V, p1: &V, p2: &V, p3:
     d11 >= na::zero() && d11 <= na::sqnorm(&p1p2) &&
     d12 >= na::zero() && d12 <= na::sqnorm(&p2p3) &&
     d13 >= na::zero() && d13 <= na::sqnorm(&p3p1)
+}
+
+#[cfg(test)]
+mod test {
+    use nalgebra::na;
+    use nalgebra::na::Vec3;
+
+    #[test]
+    fn test_triangle_area() {
+        let pa = Vec3::new(0.0f64, 5.0, 0.0);
+        let pb = Vec3::new(0.0f64, 0.0, 0.0);
+        let pc = Vec3::new(0.0f64, 0.0, 4.0);
+
+        assert!(na::approx_eq(&super::triangle_area(&pa, &pb, &pc), &10.0));
+    }
 }

@@ -31,36 +31,50 @@ pub fn cone_volume(_: &Scalar, _: &Scalar) -> Scalar {
 
 #[dim2]
 impl Volumetric for Cone {
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        let mass = cone_volume(&self.half_height(), &self.radius()) * *density;
+    fn volume(&self) -> Scalar {
+        cone_volume(&self.half_height(), &self.radius())
+    }
 
+    fn center_of_mass(&self) -> Vect {
+        let mut com: Vect = na::zero();
+        com.set(1, -self.half_height() / na::cast(2.0f64));
+
+        com
+    }
+
+    fn unit_angular_inertia(&self) -> AngularInertia {
         // FIXME: not sure about that…
         let mut res: AngularInertia = na::zero();
 
-        res.set(
-            (0, 0),
-            self.radius() * self.half_height() * self.half_height() * self.half_height()
-            / na::cast(3.0f64)
-            );
+        res.set((0, 0),
+                self.radius() * self.half_height() * self.half_height() * self.half_height()
+                / na::cast(3.0f64));
 
-        let mut center: Vect = na::zero();
-        center.set(1, -self.half_height() / na::cast(2.0f64));
-
-        (mass, center, res)
+        res
     }
 }
 
 #[dim3]
 impl Volumetric for Cone {
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        let mass        = cone_volume(&self.half_height(), &self.radius()) * *density;
-        let m_sq_radius = mass * self.radius() * self.radius();
-        let m_sq_height = mass * self.half_height() * self.half_height() *
-                          na::cast(4.0f64);
-        let off_principal = m_sq_radius * na::cast(3.0f64 / 20.0) +
-                            m_sq_height * na::cast(3.0f64 / 5.0);
+    fn volume(&self) -> Scalar {
+        cone_volume(&self.half_height(), &self.radius())
+    }
 
-        let principal = m_sq_radius * na::cast(3.0f64 / 10.0);
+    fn center_of_mass(&self) -> Vect {
+        let mut com: Vect = na::zero();
+        com.set(1, -self.half_height() / na::cast(2.0f64));
+
+        com
+    }
+
+    fn unit_angular_inertia(&self) -> AngularInertia {
+        let sq_radius = self.radius() * self.radius();
+        let sq_height = self.half_height() * self.half_height() *
+                          na::cast(4.0f64);
+        let off_principal = sq_radius * na::cast(3.0f64 / 20.0) +
+                            sq_height * na::cast(3.0f64 / 5.0);
+
+        let principal = sq_radius * na::cast(3.0f64 / 10.0);
 
         let mut res: AngularInertia = na::zero();
 
@@ -68,16 +82,6 @@ impl Volumetric for Cone {
         res.set((1, 1), principal);
         res.set((2, 2), off_principal);
 
-        let mut center: Vect = na::zero();
-        center.set(1, -self.half_height() / na::cast(2.0f64));
-
-        (mass, center, res)
-    }
-}
-
-#[dim4]
-impl Volumetric for Cone {
-    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        fail!("mass_properties is not yet implemented for cones.")
+        res
     }
 }

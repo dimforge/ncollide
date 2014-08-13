@@ -15,3 +15,4 @@ mod volumetric_cuboid;
 mod volumetric_cone;
 mod volumetric_capsule;
 mod volumetric_compound;
+mod volumetric_convex;

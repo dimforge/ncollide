@@ -15,28 +15,41 @@ pub fn ball_volume(radius: &Scalar) -> Scalar {
 
 #[dim2]
 impl Volumetric for Ball {
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        let volume = ball_volume(&self.radius());
-        let mass   = volume * *density;
-        let diag   = self.radius() * self.radius() * mass / na::cast(2.0f64);
+    #[inline]
+    fn volume(&self) -> Scalar {
+        ball_volume(&self.radius())
+    }
+
+    #[inline]
+    fn center_of_mass(&self) -> Vect {
+        na::zero()
+    }
+
+    fn unit_angular_inertia(&self) -> AngularInertia {
+        let diag = self.radius() * self.radius() / na::cast(2.0f64);
 
         let mut res: AngularInertia = na::zero();
 
         res.set((0, 0), diag);
 
-        (mass, na::zero(), res)
+        res
     }
 }
 
 #[dim3]
 impl Volumetric for Ball {
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        let volume  = ball_volume(&self.radius());
-        let mass    = volume * *density;
-        let diag: Scalar = mass                *
-                           na::cast(2.0f64 / 5.0) *
-                           self.radius()       *
-                           self.radius();
+    #[inline]
+    fn volume(&self) -> Scalar {
+        ball_volume(&self.radius())
+    }
+
+    #[inline]
+    fn center_of_mass(&self) -> Vect {
+        na::zero()
+    }
+
+    fn unit_angular_inertia(&self) -> AngularInertia {
+        let diag: Scalar = self.radius() * self.radius() * na::cast(2.0f64 / 5.0);
 
         let mut res: AngularInertia = na::zero();
 
@@ -44,14 +57,6 @@ impl Volumetric for Ball {
         res.set((1, 1), diag.clone());
         res.set((2, 2), diag.clone());
 
-        (mass, na::zero(), res)
+        res
     }
 }
-
-#[dim4]
-impl Volumetric for Ball {
-    fn mass_properties(&self, _: &Scalar) -> (Scalar, Vect, AngularInertia) {
-        fail!("mass_properties is not yet implemented for 4d balls")
-    }
-}
-

@@ -11,8 +11,7 @@ impl HasMargin for Convex {
     }
 }
 
-impl<_M: Transform<Vect> + Rotate<Vect>>
-Implicit<Vect, _M> for Convex {
+impl<_M: Transform<Vect> + Rotate<Vect>> Implicit<Vect, _M> for Convex {
     #[inline]
     fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);

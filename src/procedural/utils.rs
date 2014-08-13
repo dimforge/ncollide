@@ -1,9 +1,12 @@
 //! Utilities useful for various generations tasks.
 
 use std::num::Zero;
+use std::collections::HashMap;
 use std::mem;
+use std::hash::Hash;
 use nalgebra::na;
 use nalgebra::na::{Vec3, Dim, Indexable};
+use utils::PartialEqToEq;
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
@@ -142,4 +145,54 @@ pub fn split_index_buffer(indices: &[Vec3<u32>]) -> Vec<Vec3<Vec3<u32>>> {
     }
 
     resi
+}
+
+/// Duplicates the indices of each triangle on the given index buffer, giving the same id to each
+/// identical vertex.
+#[inline]
+pub fn split_index_buffer_and_recover_topology<V: PartialEq + Hash + Clone>(
+                                               indices: &[Vec3<u32>],
+                                               coords:  &[V])
+                                               -> (Vec<Vec3<Vec3<u32>>>, Vec<V>) {
+    let mut vtx_to_id  = HashMap::new();
+    let mut new_coords = Vec::with_capacity(coords.len());
+    let mut out        = Vec::with_capacity(indices.len());
+
+    fn resolve_coord_id<V: PartialEq + Hash + Clone>(
+                        coord:      &V,
+                        vtx_to_id:  &mut HashMap<PartialEqToEq<V>, u32>,
+                        new_coords: &mut Vec<V>)
+                        -> u32 {
+        let key = unsafe { PartialEqToEq::new(coord.clone()) };
+        let id = vtx_to_id.find_or_insert(key, new_coords.len() as u32);
+
+        if *id == new_coords.len() as u32 {
+            new_coords.push(coord.clone());
+        }
+
+        *id
+    }
+
+    for t in indices.iter() {
+        let va = resolve_coord_id(&coords[t.x as uint], &mut vtx_to_id, &mut new_coords);
+        let oa = t.x;
+
+        let vb = resolve_coord_id(&coords[t.y as uint], &mut vtx_to_id, &mut new_coords);
+        let ob = t.y;
+
+        let vc = resolve_coord_id(&coords[t.z as uint], &mut vtx_to_id, &mut new_coords);
+        let oc = t.z;
+
+        out.push(
+            Vec3::new(
+                Vec3::new(va, oa, oa),
+                Vec3::new(vb, ob, ob),
+                Vec3::new(vc, oc, oc)
+                )
+            );
+    }
+
+    new_coords.shrink_to_fit();
+
+    (out, new_coords)
 }
