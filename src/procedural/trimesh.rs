@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use procedural::utils;
 use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, Vec3, Vec2};
 use nalgebra::na;
+use procedural::utils;
+use utils::AsBytes;
 
 /// Different representations of the index buffer.
 #[deriving(Clone, Show)]
@@ -211,7 +212,7 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
     }
 }
 
-impl<N: Clone, V: Clone + PartialEq + Hash> TriMesh<N, V> {
+impl<N: Clone, V: Clone + PartialEq + AsBytes> TriMesh<N, V> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.

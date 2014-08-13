@@ -4,7 +4,7 @@ use nalgebra::na::{Rotate, Transform, Vec2};
 use math::{Scalar, Vect, Matrix};
 
 /// A Ray.
-#[deriving(Show, Encodable, Decodable)]
+#[deriving(Show, Encodable, Decodable, Clone)]
 pub struct Ray {
     /// Starting point of the ray.
     pub orig: Vect,

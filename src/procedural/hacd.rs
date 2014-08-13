@@ -33,21 +33,28 @@ pub fn hacd(mesh: &Polyline<Scalar, Vec2<Scalar>>, error: Scalar) -> Vec<Polylin
 
 /// Approximate convex decomposition of a triangle mesh.
 #[dim3]
-pub fn hacd(mesh: &TriMesh<Scalar, Vec3<Scalar>>, error: Scalar, min_components: uint, max_vertex_per_hull: uint) -> Vec<Convex> {
+pub fn hacd(mesh:                &TriMesh<Scalar, Vec3<Scalar>>,
+            error:               Scalar,
+            min_components:      uint,
+            max_vertex_per_hull: uint)
+            -> Vec<Convex> {
     assert!(mesh.normals.is_some(), "Vertex normals are required to compute the convex decomposition.");
 
     let mut edges      = PriorityQueue::new();
-    let mut dual_graph = compute_dual_graph(mesh);
+    let (rays, raymap) = compute_rays(mesh);
+    let mut dual_graph = compute_dual_graph(mesh, &raymap);
 
     /*
      * Initialize the priority queue.
      */
-    for (i, v) in dual_graph.iter().enumerate() {
-        for n in v.neighbors.as_ref().expect("Internal error: 1").iter() {
-            if i < *n {
-                let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice());
+    if max_vertex_per_hull >= 4 {
+        for (i, v) in dual_graph.iter().enumerate() {
+            for n in v.neighbors.as_ref().expect("Internal error: 1").iter() {
+                if i < *n {
+                    let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice());
 
-                edges.push(edge);
+                    edges.push(edge);
+                }
             }
         }
     }
@@ -117,7 +124,7 @@ pub fn hacd(mesh: &TriMesh<Scalar, Vec3<Scalar>>, error: Scalar, min_components:
                     }
 
                     // Compute a bounded decimation cost.
-                    top.compute_decimation_cost(dual_graph.as_slice(), mesh, -top_cost);
+                    top.compute_decimation_cost(dual_graph.as_slice(), rays.as_slice(), -top_cost);
 
                     exact_computations = exact_computations + 1;
 
@@ -130,7 +137,7 @@ pub fn hacd(mesh: &TriMesh<Scalar, Vec3<Scalar>>, error: Scalar, min_components:
                 }
 
                 // Ensure the exact decimation cost has been computed.
-                top.compute_decimation_cost(dual_graph.as_slice(), mesh, Bounded::max_value());
+                top.compute_decimation_cost(dual_graph.as_slice(), rays.as_slice(), Bounded::max_value());
 
                 if -top.mcost > error {
                     break;
@@ -199,13 +206,15 @@ struct DualGraphVertex {
 
 #[dim3]
 impl DualGraphVertex {
-    pub fn new(ancestor: uint, mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> DualGraphVertex {
-        let idx =
+    pub fn new(ancestor: uint,
+               mesh:     &TriMesh<Scalar, Vec3<Scalar>>,
+               raymap:   &HashMap<(u32, u32), uint>) -> DualGraphVertex {
+        let (idx, ns) =
             match mesh.indices {
-                UnifiedIndexBuffer(ref idx) => idx[ancestor].clone(),
+                UnifiedIndexBuffer(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
                 SplitIndexBuffer(ref idx) => {
                     let t = idx[ancestor];
-                    Vec3::new(t.x.x, t.y.x, t.z.x)
+                    (Vec3::new(t.x.x, t.y.x, t.z.x), Vec3::new(t.x.y, t.y.y, t.z.y))
                 }
             };
 
@@ -217,11 +226,15 @@ impl DualGraphVertex {
             Convex::new_with_convex_mesh(TriMesh::new(triangle, None, None, None), na::zero())
         };
 
-        let mut rng       = IsaacRng::new_unseeded();
+        let r1 = raymap.find(&(idx.x, ns.x)).unwrap().clone();
+        let r2 = raymap.find(&(idx.y, ns.y)).unwrap().clone();
+        let r3 = raymap.find(&(idx.z, ns.z)).unwrap().clone();
+
+        let mut rng   = IsaacRng::new_unseeded();
         let ancestors = vec!(
-            VertexWithConcavity::new(idx.x as uint, na::zero()),
-            VertexWithConcavity::new(idx.y as uint, na::zero()),
-            VertexWithConcavity::new(idx.z as uint, na::zero())
+            VertexWithConcavity::new(r1, na::zero()),
+            VertexWithConcavity::new(r2, na::zero()),
+            VertexWithConcavity::new(r3, na::zero())
         );
 
         DualGraphVertex {
@@ -247,7 +260,7 @@ impl DualGraphVertex {
             if *neighbor != valid {
                 let ga = &mut graph[*neighbor];
 
-                // replace `other` by `valid`.
+                // Replace `other` by `valid`.
                 ga.neighbors.as_mut().expect("Internal error: 6").remove(&other);
                 ga.neighbors.as_mut().expect("Internal error: 7").insert(valid);
             }
@@ -260,7 +273,7 @@ impl DualGraphVertex {
             match edge.ancestors.pop() {
                 None => break,
                 Some(ancestor) => {
-                    // remove duplicates
+                    // Remove duplicates on the go.
                     if last_ancestor != ancestor.id {
                         last_ancestor = ancestor.id;
                         new_ancestors.push(ancestor)
@@ -326,7 +339,7 @@ impl DualGraphEdge {
 
     pub fn compute_decimation_cost(&mut self,
                                    dual_graph:    &[DualGraphVertex],
-                                   mesh:          &TriMesh<Scalar, Vec3<Scalar>>,
+                                   rays:          &[Ray],
                                    max_concavity: Scalar) {
         assert!(self.is_valid(dual_graph));
 
@@ -359,12 +372,6 @@ impl DualGraphEdge {
         let a1 = v1.ancestors.as_ref().unwrap();
         let a2 = v2.ancestors.as_ref().unwrap();
 
-        let normals = mesh.normals.as_ref().expect("Internal error: 12").as_slice();
-        let coords  = mesh.coords.as_slice();
-        // if self.iv1 != a1.len() || self.iv2 != a2.len() {
-        //     println!("Computing concavity (max: {}):", max_concavity);
-        // }
-
         while (self.iv1 != a1.len() || self.iv2 != a2.len()) && concavity <= max_concavity {
             let id;
 
@@ -377,22 +384,21 @@ impl DualGraphEdge {
                 self.iv2 = self.iv2 + 1;
             }
 
-            let mut n = normals[id].clone();
+            let ray = &rays[id].clone();
 
-            if n.normalize().is_zero() {
+            if ray.dir.is_zero() { // the ray was set to zero if it was invalid.
+                self.ancestors.push(VertexWithConcavity::new(id, na::zero()));
                 continue;
             }
 
-            let v = &coords[id];
-
-            let sv   = chull.support_point(&Identity::new(), &n);
-            let dist = na::dot(&sv, &n);
+            let sv   = chull.support_point(&Identity::new(), &ray.dir);
+            let dist = na::dot(&sv, &ray.dir);
 
             if !na::approx_eq(&dist, &na::zero()) {
                 let shift: Scalar = na::cast(0.1f64);
-                let outside_point = *v + n * (dist + shift);
+                let outside_point = ray.orig + ray.dir * (dist + shift);
 
-                match chull.toi_with_ray(&Ray::new(outside_point, -n), true) {
+                match chull.toi_with_ray(&Ray::new(outside_point, -ray.dir), true) {
                     None      => {
                         // println!("{}", 0.0f32);
                         self.ancestors.push(VertexWithConcavity::new(id, na::zero()))
@@ -406,6 +412,9 @@ impl DualGraphEdge {
                         }
                     }
                 }
+            }
+            else {
+                self.ancestors.push(VertexWithConcavity::new(id, na::zero()));
             }
         }
 
@@ -523,10 +532,57 @@ fn edge(a: u32, b: u32) -> Vec2<uint> {
 }
 
 #[dim3]
-fn compute_dual_graph(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> Vec<DualGraphVertex> {
+fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32, u32), uint>) {
+    let mut rays   = Vec::new();
+    let mut raymap = HashMap::new();
+
+    {
+        let coords  = mesh.coords.as_slice();
+        let normals = mesh.normals.as_ref().unwrap().as_slice();
+
+        let add_ray = |coord: u32, normal: u32| {
+            let existing = raymap.find_or_insert((coord, normal), rays.len());
+
+            if *existing == rays.len() {
+                let coord = coords[coord as uint].clone();
+                let mut normal = normals[normal as uint].clone();
+
+                if normal.normalize().is_zero() {
+                    normal = na::zero();
+                }
+
+                rays.push(Ray::new(coord, normal));
+            }
+        };
+
+        match mesh.indices {
+            UnifiedIndexBuffer(ref b) => {
+                for t in b.iter() {
+                    add_ray(t.x, t.x);
+                    add_ray(t.y, t.y);
+                    add_ray(t.z, t.z);
+                }
+            },
+            SplitIndexBuffer(ref b) => {
+                for t in b.iter() {
+                    add_ray(t.x.x, t.x.y);
+                    add_ray(t.y.x, t.y.y);
+                    add_ray(t.z.x, t.z.y);
+                }
+            }
+        }
+    }
+
+    (rays, raymap)
+}
+
+#[dim3]
+fn compute_dual_graph(mesh:   &TriMesh<Scalar, Vec3<Scalar>>,
+                      raymap: &HashMap<(u32, u32), uint>)
+                      -> Vec<DualGraphVertex> {
     let mut rng           = IsaacRng::new_unseeded();
     let mut prim_edges    = HashMap::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()));
-    let mut dual_vertices = Vec::from_fn(mesh.num_triangles(), |i| DualGraphVertex::new(i, mesh));
+    let mut dual_vertices = Vec::from_fn(mesh.num_triangles(), |i| DualGraphVertex::new(i, mesh, raymap));
 
     {
         let add_triangle_edges = |i: uint, t: &Vec3<u32>| {

@@ -83,6 +83,8 @@ impl Convex {
             None      => { }
         }
 
+        assert!(mesh.coords.len() > 0, "A convex geometry must have at least one vertex.");
+
         Convex {
             mesh:   mesh,
             margin: margin

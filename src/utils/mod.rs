@@ -9,9 +9,11 @@ pub use utils::cleanup::remove_unused_points;
 pub use utils::derivatives::{dcos, dsin, binom};
 pub use utils::optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
                               LineSearch, BacktrackingLineSearch};
-pub use utils::partial_eq_to_eq::PartialEqToEq;
+pub use utils::hashable_partial_eq::HashablePartialEq;
 #[doc(inline)]
 pub use utils::any_private::AnyPrivate;
+#[doc(inline)]
+pub use utils::as_bytes::AsBytes;
 
 
 pub mod symbolic;
@@ -22,6 +24,8 @@ mod triangle_utils;
 mod cleanup;
 mod derivatives;
 mod optimization;
+mod hashable_partial_eq;
 #[doc(hidden)]
 pub mod any_private;
-mod partial_eq_to_eq;
+#[doc(hidden)]
+pub mod as_bytes;

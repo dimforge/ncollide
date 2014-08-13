@@ -426,8 +426,8 @@ impl TriangleFacet {
         let p2 = &points[self.pts[2]];
         let pt = &points[point];
 
-        na::dot(pt, &self.normal) > self.dto               &&
-        na::dot(&(*pt - *p0), &self.normal) > 0.0          &&
+        na::dot(pt, &self.normal) >= self.dto              &&
+        na::dot(&(*pt - *p0), &self.normal) >= 0.0         &&
         !utils::is_affinely_dependent_triangle(p0, p1, pt) &&
         !utils::is_affinely_dependent_triangle(p0, p2, pt) &&
         !utils::is_affinely_dependent_triangle(p1, p2, pt)
