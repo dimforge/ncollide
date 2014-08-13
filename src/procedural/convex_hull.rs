@@ -4,15 +4,23 @@ use nalgebra::na;
 use math::Scalar;
 use utils;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
+use implicit;
 
 /// Computes the convex hull of a set of 3d points.
 pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
+    assert!(points.len() != 0, "Cannot compute the convex hull of an empty set of point.");
+
     let mut undecidable_points  = Vec::new();
     let mut horizon_loop_facets = Vec::new();
     let mut horizon_loop_ids    = Vec::new();
-    let mut triangles           = get_initial_mesh(points, &mut undecidable_points);
     let mut removed_facets      = Vec::new();
 
+    let mut triangles;
+    
+    match get_initial_mesh(points, &mut undecidable_points) {
+        Facets(facets)   => triangles = facets,
+        ResultMesh(mesh) => return mesh
+    }
 
     let mut i = 0;
     while i != triangles.len() {
@@ -46,6 +54,17 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
                                        triangles.as_mut_slice());
                 }
 
+                if horizon_loop_facets.is_empty() {
+                    // Due to inaccuracies, the silhouette could not be computed
+                    // (the point seems to be visible from… every triangle).
+                    // Force it to be at least the curren tiangle adjascent faces.
+                    // FIXME: check that this is OK even in weird cases of coplanarity…
+                    for j in range(0, 3) {
+                        horizon_loop_facets.push(triangles[i].adj[j]);
+                        horizon_loop_ids.push(triangles[i].indirect_adj_id[j]);
+                    }
+                }
+
                 attach_and_push_facets_3d(horizon_loop_facets.as_slice(),
                                           horizon_loop_ids.as_slice(),
                                           point,
@@ -71,14 +90,35 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
 
     utils::remove_unused_points(&mut pts, idx.as_mut_slice());
 
+    assert!(pts.len() != 0, "Internal error: empty output mesh.");
+
     TriMesh::new(pts, None, None, Some(UnifiedIndexBuffer(idx)))
 }
 
-fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec<TriangleFacet> {
-    let mut res = Vec::new();
+enum InitialMesh {
+    Facets(Vec<TriangleFacet>),
+    ResultMesh(TriMesh<Scalar, Vec3<Scalar>>)
+}
 
-    // NOTE: we assume that there is not duplicate point
-    assert!(points.len() >= 3);
+fn build_degenerate_mesh_point(point: Vec3<Scalar>) -> TriMesh<Scalar, Vec3<Scalar>> {
+    let ta = Vec3::new(0u32, 0, 0);
+    let tb = Vec3::new(0u32, 0, 0);
+
+    TriMesh::new(vec!(point), None, None, Some(UnifiedIndexBuffer(vec!(ta, tb))))
+}
+
+fn build_degenerate_mesh_segment(dir: &Vec3<Scalar>, points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
+    let a = implicit::point_cloud_support_point(dir, points);
+    let b = implicit::point_cloud_support_point(&-dir, points);
+
+    let ta = Vec3::new(0u32, 1, 0);
+    let tb = Vec3::new(1u32, 0, 0);
+
+    TriMesh::new(vec!(a, b), None, None, Some(UnifiedIndexBuffer(vec!(ta, tb))))
+}
+
+fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> InitialMesh {
+    let mut res = Vec::new();
 
     let p1 = 0;
     let mut p2 = 1;
@@ -95,15 +135,11 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
     }
 
     if p2 == points.len() {
-        fail!("Could not build the convex hull: all point are superimposed.");
+        return ResultMesh(build_degenerate_mesh_point(points[p1]));
     }
 
-    let p1p2 = points[p2] - points[p1];
-
     while p3 != points.len() {
-        let p1p3 = points[p3] - points[p1];
-
-        if !na::approx_eq(&na::cross(&p1p2, &p1p3), &na::zero()) { // FIXME: use a smaller threshold?
+        if !utils::is_affinely_dependent_triangle(&points[p1], &points[p2], &points[p3]) {
             break;
         }
 
@@ -111,7 +147,7 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
     }
 
     if p3 == points.len() {
-        fail!("Could not build the convex hull: all point are colinears.");
+        return ResultMesh(build_degenerate_mesh_segment(&(points[p2] - points[p1]), points));
     }
 
     // Build two facets with opposite normals
@@ -144,7 +180,7 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Vec
     verify_facet_links(0, res.as_slice());
     verify_facet_links(1, res.as_slice());
 
-    res
+    Facets(res)
 }
 
 fn support_point<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], idx: &[uint]) -> Option<uint> {
@@ -191,7 +227,7 @@ fn compute_silhouette(facet:          uint,
                       removedFacets : &mut Vec<uint>,
                       triangles:      &mut [TriangleFacet]) {
     if triangles[facet].valid {
-        if !triangles[facet].can_be_seen_by(point, points) {
+        if !triangles[facet].can_be_seen_by_or_is_degenerate(point, points) {
             out_facets.push(facet);
             out_adj_idx.push(indirectID);
         }
@@ -338,20 +374,6 @@ impl TriangleFacet {
 
         let mut normal = na::cross(&p1p2, &p1p3);
         if normal.normalize().is_zero() {
-            println!("p1: {} {}, p2: {} {}, p3: {} {}", p1, points[p1],
-                                                        p2, points[p2],
-                                                        p3, points[p3]);
-            let p7 = points[p1];
-            let p4 = points[p2];
-            let p1 = points[p3];
-
-            println!("{}", utils::is_affinely_dependent_triangle(&p7, &p4, &p1));
-            println!("{}", utils::is_affinely_dependent_triangle(&p7, &p1, &p4));
-            println!("{}", utils::is_affinely_dependent_triangle(&p1, &p4, &p7));
-            println!("{}", utils::is_affinely_dependent_triangle(&p1, &p7, &p4));
-            println!("{}", utils::is_affinely_dependent_triangle(&p4, &p7, &p1));
-            println!("{}", utils::is_affinely_dependent_triangle(&p4, &p1, &p7));
-
             fail!("A facet must not be affinely dependent.");
         }
 
@@ -409,6 +431,21 @@ impl TriangleFacet {
         !utils::is_affinely_dependent_triangle(p0, p1, pt) &&
         !utils::is_affinely_dependent_triangle(p0, p2, pt) &&
         !utils::is_affinely_dependent_triangle(p1, p2, pt)
+    }
+
+    // Same as `can_be_seen_by` but returns `true` if the point could be a source of an affinely
+    // dependent triangle.
+    pub fn can_be_seen_by_or_is_degenerate(&self, point: uint, points: &[Vec3<Scalar>]) -> bool {
+        let p0 = &points[self.pts[0]];
+        let p1 = &points[self.pts[1]];
+        let p2 = &points[self.pts[2]];
+        let pt = &points[point];
+
+        (na::dot(pt, &self.normal) > self.dto             &&
+         na::dot(&(*pt - *p0), &self.normal) > 0.0)       ||
+        utils::is_affinely_dependent_triangle(p0, p1, pt) ||
+        utils::is_affinely_dependent_triangle(p0, p2, pt) ||
+        utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
 }
 
