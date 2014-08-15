@@ -25,7 +25,7 @@ pub fn implicit_toi_and_normal_with_ray<S: Simplex<Vect>,
         match inter {
             None        => None,
             Some(inter) => {
-                if inter.toi == na::zero() {
+                if inter.toi.is_zero() {
                     // the ray is inside of the shape.
                     let supp    = geom.support_point(m, &ray.dir);
                     let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001f64);

@@ -34,6 +34,11 @@ pub fn cylinder_volume(_: &Scalar, _: &Scalar) -> Scalar {
 #[dim2]
 impl Volumetric for Cylinder {
     #[inline]
+    fn surface(&self) -> Scalar {
+        (self.half_height() + self.radius()) * na::cast(2.0f64)
+    }
+
+    #[inline]
     fn volume(&self) -> Scalar {
         cylinder_volume(&self.half_height(), &self.radius())
     }
@@ -61,6 +66,15 @@ impl Volumetric for Cylinder {
 
 #[dim3]
 impl Volumetric for Cylinder {
+    #[inline]
+    fn surface(&self) -> Scalar {
+        let _pi: Scalar = Float::pi();
+        let basis = self.radius() * self.radius() * _pi;
+        let side  = _pi * self.radius() * (self.half_height() + self.half_height()) * na::cast(2.0f64);
+
+        side + basis + basis
+    }
+
     #[inline]
     fn volume(&self) -> Scalar {
         cylinder_volume(&self.half_height(), &self.radius())

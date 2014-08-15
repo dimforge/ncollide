@@ -31,6 +31,13 @@ pub fn cone_volume(_: &Scalar, _: &Scalar) -> Scalar {
 
 #[dim2]
 impl Volumetric for Cone {
+    fn surface(&self) -> Scalar {
+        let height = self.half_height() * na::cast(2.0);
+        let side   = (height * height + self.radius() * self.radius()).sqrt();
+
+        self.radius * na::cast(2.0f64) + side
+    }
+
     fn volume(&self) -> Scalar {
         cone_volume(&self.half_height(), &self.radius())
     }
@@ -56,6 +63,14 @@ impl Volumetric for Cone {
 
 #[dim3]
 impl Volumetric for Cone {
+    fn surface(&self) -> Scalar {
+        let _pi    = Float::pi();
+        let height = self.half_height() + self.half_height();
+        let side   = (height * height + self.radius() * self.radius()).sqrt();
+
+        self.radius() * self.radius() *_pi + side * self.radius() * _pi
+    }
+
     fn volume(&self) -> Scalar {
         cone_volume(&self.half_height(), &self.radius())
     }

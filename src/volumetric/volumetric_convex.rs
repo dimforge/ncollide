@@ -101,6 +101,25 @@ pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
 
 #[dim3]
 impl Volumetric for Convex {
+    fn surface(&self) -> Scalar {
+        let mut surface = na::zero::<Scalar>();
+
+        match self.mesh().indices {
+            UnifiedIndexBuffer(ref idx) => {
+                for t in idx.iter() {
+                    let p1 = &self.mesh().coords[t.x as uint];
+                    let p2 = &self.mesh().coords[t.y as uint];
+                    let p3 = &self.mesh().coords[t.z as uint];
+
+                    surface = surface + utils::triangle_area(p1, p2, p3);
+                }
+            },
+            SplitIndexBuffer(_) => fail!("This should not be happening: index buffer not split!")
+        }
+
+        surface
+    }
+
     fn volume(&self) -> Scalar {
         convex_volume_and_center(self).val0()
     }

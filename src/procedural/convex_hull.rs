@@ -159,8 +159,8 @@ fn get_initial_mesh(points: &[Vec3<Scalar>], undecidable: &mut Vec<uint>) -> Ini
     f2.set_facets_adjascency(0, 0, 0, 0, 2, 1);
 
     // Attribute points to each facet.
-    for i in range(2, points.len()) {
-        if i == p3 {
+    for i in range(1, points.len()) {
+        if i == p2 || i == p3 {
             continue;
         }
         if f1.can_be_seen_by(i, points) {
@@ -227,7 +227,7 @@ fn compute_silhouette(facet:          uint,
                       removedFacets : &mut Vec<uint>,
                       triangles:      &mut [TriangleFacet]) {
     if triangles[facet].valid {
-        if !triangles[facet].can_be_seen_by_or_is_degenerate(point, points) {
+        if !triangles[facet].can_be_seen_by(point, points) {
             out_facets.push(facet);
             out_adj_idx.push(indirectID);
         }
@@ -362,7 +362,6 @@ struct TriangleFacet {
     pub adj:             [uint, ..3],
     pub indirect_adj_id: [uint, ..3],
     pub pts:             [uint, ..3],
-    pub dto:             Scalar, // distance to origin
     pub visible_points:  Vec<uint>
 }
 
@@ -377,15 +376,12 @@ impl TriangleFacet {
             fail!("A facet must not be affinely dependent.");
         }
 
-        let dto = na::dot(&points[p1], &normal);
-
         TriangleFacet {
             valid:           true,
             normal:          normal,
             adj:             [0, 0, 0],
             indirect_adj_id: [0, 0, 0],
             pts:             [p1, p2, p3],
-            dto:             dto,
             visible_points:  Vec::new()
         }
     }
@@ -426,26 +422,12 @@ impl TriangleFacet {
         let p2 = &points[self.pts[2]];
         let pt = &points[point];
 
-        na::dot(pt, &self.normal) >= self.dto              &&
-        na::dot(&(*pt - *p0), &self.normal) >= 0.0         &&
+        let _eps: Scalar = Float::epsilon();
+
+        na::dot(&(*pt - *p0), &self.normal) > _eps * na::cast(100.0f64) &&
         !utils::is_affinely_dependent_triangle(p0, p1, pt) &&
         !utils::is_affinely_dependent_triangle(p0, p2, pt) &&
         !utils::is_affinely_dependent_triangle(p1, p2, pt)
-    }
-
-    // Same as `can_be_seen_by` but returns `true` if the point could be a source of an affinely
-    // dependent triangle.
-    pub fn can_be_seen_by_or_is_degenerate(&self, point: uint, points: &[Vec3<Scalar>]) -> bool {
-        let p0 = &points[self.pts[0]];
-        let p1 = &points[self.pts[1]];
-        let p2 = &points[self.pts[2]];
-        let pt = &points[point];
-
-        (na::dot(pt, &self.normal) > self.dto             &&
-         na::dot(&(*pt - *p0), &self.normal) > 0.0)       ||
-        utils::is_affinely_dependent_triangle(p0, p1, pt) ||
-        utils::is_affinely_dependent_triangle(p0, p2, pt) ||
-        utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
 }
 

@@ -16,6 +16,12 @@ pub fn ball_volume(radius: &Scalar) -> Scalar {
 #[dim2]
 impl Volumetric for Ball {
     #[inline]
+    fn surface(&self) -> Scalar {
+        let _pi: Scalar = Float::pi();
+        _pi * self.radius() * na::cast(2.0f64)
+    }
+
+    #[inline]
     fn volume(&self) -> Scalar {
         ball_volume(&self.radius())
     }
@@ -38,6 +44,12 @@ impl Volumetric for Ball {
 
 #[dim3]
 impl Volumetric for Ball {
+    #[inline]
+    fn surface(&self) -> Scalar {
+        let _pi: Scalar = Float::pi();
+        _pi * self.radius() * self.radius() * na::cast(4.0f64)
+    }
+
     #[inline]
     fn volume(&self) -> Scalar {
         ball_volume(&self.radius())

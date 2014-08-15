@@ -81,9 +81,9 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
               g2: &Geom) {
         self.detector.update(
             m1,
-            g1.as_ref::<G1>().expect("Invalid geometry."),
+            g1.downcast_ref::<G1>().expect("Invalid geometry."),
             m2,
-            g2.as_ref::<G2>().expect("Invalid geometry."))
+            g2.downcast_ref::<G2>().expect("Invalid geometry."))
     }
 
     #[inline]

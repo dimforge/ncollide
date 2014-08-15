@@ -18,7 +18,7 @@ use math::{Scalar, Vect, Matrix, AngularInertia};
 /// This accumulates the geometries and their volumetric properties.
 pub struct CompoundData {
     geoms: Vec<(Matrix, Arc<Box<Geom + Send + Sync>>)>,
-    props: Vec<(Scalar, Vect, AngularInertia)>
+    props: Vec<(Scalar, Scalar, Vect, AngularInertia)>
 }
 
 impl CompoundData {
@@ -33,17 +33,18 @@ impl CompoundData {
     /// Adds a new geometry; its mass properties are automatically computed.
     #[inline]
     pub fn push_geom<S: Geom + Volumetric + Send + Sync>(&mut self, delta: Matrix, geom: S, density: Scalar) {
-        let props = geom.mass_properties(&density);
+        let (m, c, i) = geom.mass_properties(&density);
+        let s         = geom.surface();
 
-        self.push_geom_with_mass_properties(delta, geom, props)
+        self.push_geom_with_mass_properties(delta, geom, (s, m, c, i))
     }
 
     /// Adds a new geometry with the given mass properties.
     #[inline]
     pub fn push_geom_with_mass_properties<S: Geom + Send + Sync>(&mut self,
-                                                                  delta: Matrix,
-                                                                  geom:  S,
-                                                                  props: (Scalar, Vect, AngularInertia)) {
+                                                                 delta: Matrix,
+                                                                 geom:  S,
+                                                                 props: (Scalar, Scalar, Vect, AngularInertia)) {
         self.push_shared_geom_with_mass_properties(delta, Arc::new(box geom as Box<Geom + Send + Sync>), props)
     }
 
@@ -52,7 +53,7 @@ impl CompoundData {
     pub fn push_shared_geom_with_mass_properties(&mut self,
                                                  delta: Matrix,
                                                  geom:  Arc<Box<Geom + Send + Sync>>,
-                                                 props: (Scalar, Vect, AngularInertia)) {
+                                                 props: (Scalar, Scalar, Vect, AngularInertia)) {
         self.geoms.push((delta, geom));
         self.props.push(props);
     }
@@ -66,7 +67,7 @@ impl CompoundData {
     // FIXME: this is not a very good name.
     /// The geometries stored by this `CompoundData`.
     #[inline]
-    pub fn mass_properties_list<'r>(&'r self) -> &'r [(Scalar, Vect, AngularInertia)] {
+    pub fn mass_properties_list<'r>(&'r self) -> &'r [(Scalar, Scalar, Vect, AngularInertia)] {
         self.props.as_slice()
     }
 }
@@ -78,6 +79,7 @@ impl CompoundData {
 /// delta transformation to shift or rotate it with regard to the other geometries.
 #[deriving(Clone)]
 pub struct Compound {
+    surface: Scalar,
     mass:    Scalar,
     inertia: AngularInertia,
     com:     Vect,
@@ -102,8 +104,10 @@ impl Compound {
         let bvt = BVT::new_kdtree(leaves);
 
         let (mass, com, inertia) = data.mass_properties(&na::one());
+        let surface = data.surface();
 
         Compound {
+            surface: surface,
             mass:    mass,
             inertia: inertia,
             com:     com,
@@ -132,6 +136,13 @@ impl Compound {
     pub fn bounding_volumes<'r>(&'r self) -> &'r [AABB] {
         self.bvs.as_slice()
     }
+
+    #[doc(hidden)]
+    #[inline]
+    pub fn surface(&self) -> Scalar {
+        self.surface.clone()
+    }
+
 
     #[doc(hidden)]
     #[inline]

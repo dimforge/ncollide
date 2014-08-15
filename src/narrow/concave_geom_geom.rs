@@ -100,9 +100,9 @@ GeomGeomCollisionDetector for ConcaveGeomGeom<G1, G2> {
               g2:         &Geom) {
         self.do_update(dispatcher,
                        m1,
-                       g1.as_ref::<G1>().expect("Invalid geometry."),
+                       g1.downcast_ref::<G1>().expect("Invalid geometry."),
                        m2,
-                       g2.as_ref::<G2>().expect("Invalid geometry."),
+                       g2.downcast_ref::<G2>().expect("Invalid geometry."),
                        false);
     }
 
@@ -150,9 +150,9 @@ GeomGeomCollisionDetector for GeomConcaveGeom<G1, G2> {
               g2:         &Geom) {
         self.sub_detector.do_update(dispatcher,
                                     m2,
-                                    g2.as_ref::<G2>().expect("Invalid geometry."),
+                                    g2.downcast_ref::<G2>().expect("Invalid geometry."),
                                     m1,
-                                    g1.as_ref::<G1>().expect("Invalid geometry."),
+                                    g1.downcast_ref::<G1>().expect("Invalid geometry."),
                                     true);
     }
 

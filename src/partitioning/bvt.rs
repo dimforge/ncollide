@@ -228,7 +228,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
                         }
 
                         if closest > upper_bound {
-                            // a better solution has already been found
+                            // A better solution has already been found.
                             return None;
                         }
 
@@ -260,7 +260,7 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
                 }
             },
             Leaf(_, ref b) => {
-                // do not test the bounding volume: this has been done by the parent node.
+                // Do not test the bounding volume: this has been done by the parent node.
                 match (*cast_fn)(b, ray) {
                     None         => None,
                     Some((t, d)) => {
@@ -324,6 +324,14 @@ pub fn kdtree_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
                 right.push((b, bv));
                 insert_left = true;
             }
+        }
+
+        // XXX: hack to avoid degeneracies.
+        if left.len() == 0 {
+            left.push(right.pop().unwrap());
+        }
+        else if right.len() == 0 {
+            right.push(left.pop().unwrap());
         }
 
         (bounding_bounding_volume, Parts(left, right))

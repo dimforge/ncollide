@@ -12,6 +12,7 @@ use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollect
 use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom, Segment, Triangle};
 use math::{Scalar, Vect, Matrix};
+use procedural::TriMesh;
 
 /// Trait implemented by elements usable on the Mesh.
 ///
@@ -114,6 +115,31 @@ impl Mesh {
             uvs:      uvs,
             normals:  normals
         }
+    }
+}
+
+#[dim3]
+impl Mesh {
+    /// Builds a new mesh from a triangle mesh.
+    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>, margin: Scalar) -> Mesh {
+        let mut trimesh = trimesh;
+
+        trimesh.unify_index_buffer();
+        let coords  = Arc::new(trimesh.coords);
+        let indices = trimesh.indices.unwrap_unified();
+
+        let mut flat_indices = Vec::with_capacity(indices.len() * 3);
+
+        for t in indices.iter() {
+            flat_indices.push(t.x as uint);
+            flat_indices.push(t.y as uint);
+            flat_indices.push(t.z as uint);
+        }
+
+        let normals = trimesh.normals.map(|ns| Arc::new(ns));
+        let uvs     = trimesh.uvs.map(|uvs| Arc::new(uvs));
+
+        Mesh::new_with_margin(coords, Arc::new(flat_indices), uvs, normals, margin)
     }
 }
 

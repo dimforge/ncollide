@@ -4,13 +4,26 @@ use geom::{Compound, CompoundData};
 use math::{Scalar, Vect, AngularInertia};
 
 impl Volumetric for CompoundData {
+    fn surface(&self) -> Scalar {
+        let mut stot: Scalar = na::zero();
+
+        let geoms = self.geoms();
+        let props = self.mass_properties_list();
+
+        for (_, &(ref spart, _, _, _)) in geoms.iter().zip(props.iter()) {
+            stot = stot + *spart;
+        }
+
+        stot
+    }
+
     fn volume(&self) -> Scalar {
         let mut mtot: Scalar = na::zero();
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
+        for (_, &(_, ref mpart, _, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
         }
 
@@ -24,7 +37,7 @@ impl Volumetric for CompoundData {
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + m * *cpart * *mpart;
         }
@@ -39,7 +52,7 @@ impl Volumetric for CompoundData {
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
             itot = itot + ipart.to_world_space(m).to_relative_wrt_point(mpart, &(m * *cpart - com));
         }
 
@@ -58,14 +71,14 @@ impl Volumetric for CompoundData {
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + m * *cpart * *mpart;
         }
 
         ctot = ctot / mtot;
 
-        for (&(ref m, _), &(ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
             itot = itot + ipart.to_world_space(m).to_relative_wrt_point(mpart, &(m * *cpart - ctot));
         }
 
@@ -74,6 +87,10 @@ impl Volumetric for CompoundData {
 }
 
 impl Volumetric for Compound {
+    fn surface(&self) -> Scalar {
+        self.surface()
+    }
+
     fn volume(&self) -> Scalar {
         self.mass()
     }

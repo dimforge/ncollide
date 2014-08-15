@@ -26,6 +26,9 @@ pub trait InertiaTensor {
 
 /// Trait to be implemented by objects which have a mass, a center of mass, and an inertia tensor.
 pub trait Volumetric {
+    /// Computes the surface of this object.
+    fn surface(&self) -> Scalar;
+
     /// Computes the volume of this object.
     fn volume(&self) -> Scalar;
 

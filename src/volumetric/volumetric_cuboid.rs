@@ -21,6 +21,11 @@ pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
 #[dim2]
 impl Volumetric for Cuboid {
     #[inline]
+    fn surface(&self) -> Scalar {
+        (self.half_extents().x + self.half_extents().y) * na::cast(4.0f64)
+    }
+
+    #[inline]
     fn volume(&self) -> Scalar {
         let half_extents_w_margin = self.half_extents() + self.margin();
 
@@ -52,6 +57,20 @@ impl Volumetric for Cuboid {
 
 #[dim3]
 impl Volumetric for Cuboid {
+    #[inline]
+    fn surface(&self) -> Scalar {
+        let he = self.half_extents();
+        let xx = he.x + he.x;
+        let yy = he.y + he.y;
+        let zz = he.z + he.z;
+
+        let side_xy = xx * yy;
+        let side_xz = xx * zz;
+        let side_yz = yy * zz;
+
+        (side_xy + side_xz + side_yz) * na::cast(2.0f64)
+    }
+
     #[inline]
     fn volume(&self) -> Scalar {
         let half_extents_w_margin = self.half_extents() + self.margin();

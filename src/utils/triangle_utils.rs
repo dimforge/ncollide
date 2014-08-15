@@ -15,6 +15,11 @@ pub fn triangle_area<N: Float + Cast<f64>, V: FloatVec<N>>(pa: &V, pb: &V, pc: &
     ((sum * sum) - (sqa * sqa + sqb * sqb + sqc * sqc) * na::cast(2.0f64)).sqrt() * na::cast(0.25f64)
 }
 
+/// Computes the perimeter of a triangle.
+pub fn triangle_perimeter<N: Float, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N {
+    na::norm(&(*pa - *pb)) + na::norm(&(*pb - *pc)) + na::norm(&(*pc - *pa))
+}
+
 /// Computes the circumcircle of a triangle.
 pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N> + Clone>(pa: &V, pb: &V, pc: &V) -> (V, N) {
     let a = *pa - *pc;
