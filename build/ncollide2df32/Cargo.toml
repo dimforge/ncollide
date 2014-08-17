@@ -3,7 +3,7 @@ name    = "ncollide2df32"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
-[[lib]]
+[lib]
 name = "ncollide2df32"
 path = "../../src/ncollide2df32.rs"
 

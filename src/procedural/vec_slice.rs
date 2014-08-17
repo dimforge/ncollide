@@ -61,7 +61,7 @@ impl<'a, T> VecSlice<'a, T> {
 
     #[inline]
     pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_ref(self.id(i))
+        self.data.unsafe_get(self.id(i))
     }
 }
 
@@ -103,7 +103,7 @@ impl<'a, T> VecSliceMut<'a, T> {
 
     #[inline]
     pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_ref(self.id(i))
+        self.data.unsafe_get(self.id(i))
     }
 
     #[inline]

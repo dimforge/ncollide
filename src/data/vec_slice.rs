@@ -86,7 +86,7 @@ impl<'a, T> VecSlice<'a, T> {
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
     pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_ref(self.id(i))
+        self.data.unsafe_get(self.id(i))
     }
 }
 
@@ -154,7 +154,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
     pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_ref(self.id(i))
+        self.data.unsafe_get(self.id(i))
     }
 
     /// Gets a mutable reference to the i-th element of the slice without bound-checking.

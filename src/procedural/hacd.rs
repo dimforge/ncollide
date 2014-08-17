@@ -36,15 +36,18 @@ pub fn hacd(mesh: &Polyline<Scalar, Vec2<Scalar>>, error: Scalar) -> Vec<Polylin
 
 /// Approximate convex decomposition of a triangle mesh.
 #[dim3]
-pub fn hacd(mesh:           &TriMesh<Scalar, Vec3<Scalar>>,
+pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
             error:          Scalar,
             min_components: uint)
             -> (Vec<Convex>, Vec<Vec<uint>>) {
     assert!(mesh.normals.is_some(), "Vertex normals are required to compute the convex decomposition.");
 
+    let mut mesh = mesh;
+
     let mut edges      = PriorityQueue::new();
-    let (rays, raymap) = compute_rays(mesh);
-    let mut dual_graph = compute_dual_graph(mesh, &raymap);
+    let (center, diag) = normalize(&mut mesh);
+    let (rays, raymap) = compute_rays(&mesh);
+    let mut dual_graph = compute_dual_graph(&mesh, &raymap);
     let bvt            = compute_ray_bvt(rays.as_slice());
 
     /*
@@ -174,12 +177,35 @@ pub fn hacd(mesh:           &TriMesh<Scalar, Vec3<Scalar>>,
 
     for vertex in dual_graph.move_iter() {
         if vertex.timestamp != Bounded::max_value() {
-            result.push(vertex.chull.expect("Internal error: 5"));
+            let mut chull = vertex.chull.expect("Internal error: 5");
+
+            denormalize(chull.mesh_mut(), &center, &diag);
+            result.push(chull);
             parts.push(vertex.parts.unwrap());
         }
     }
 
     (result, parts)
+}
+
+#[dim3]
+fn normalize(mesh: &mut TriMesh<Scalar, Vect>) -> (Vect, Scalar) {
+    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
+    let diag = na::norm(&(maxs - mins));
+    let _2: Scalar = na::cast(2.0f64);
+    let center: Vect = (mins + maxs) / _2;
+
+    mesh.translate_by(&(-center));
+    let _1: Scalar = na::one();
+    mesh.scale_by_scalar(&(_1 / diag));
+
+    (center, diag)
+}
+
+#[dim3]
+fn denormalize(mesh: &mut TriMesh<Scalar, Vec3<Scalar>>, center: &Vect, diag: &Scalar) {
+    mesh.scale_by_scalar(diag);
+    mesh.translate_by(center);
 }
 
 #[dim3]
@@ -386,9 +412,15 @@ impl DualGraphEdge {
         // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
         let chull  = Convex::new_with_margin(vtx1.as_slice(), na::zero());
         let volume = chull.volume();
+        let area = chull.surface();
+        let cov = utils::cov(chull.mesh().coords.as_slice());
+        let (_, eigenvalues) = na::eigen_qr(&cov, &na::cast(1.0e-5f64), 20);
+        let volume = eigenvalues.x * eigenvalues.y * eigenvalues.z * na::cast(8.0f64);
+        let area = (eigenvalues.x * eigenvalues.y +
+                    eigenvalues.y * eigenvalues.z +
+                    eigenvalues.z * eigenvalues.x) * na::cast(8.0f64);
 
         // FIXME: refactor this.
-        let area = chull.surface();
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
         let diagonal = na::norm(&(*aabb.maxs() - *aabb.mins()));
         let shape_cost;
@@ -405,7 +437,7 @@ impl DualGraphEdge {
         DualGraphEdge {
             v1:        v1,
             v2:        v2,
-            mcost:     -(approx_concavity + max_concavity * shape_cost / na::cast(10.0f64)),
+            mcost:     -(approx_concavity + max_concavity * shape_cost),
             exact:     false,
             timestamp: timestamp,
             ancestors: PriorityQueue::with_capacity(0),
@@ -458,7 +490,7 @@ impl DualGraphEdge {
         let a1 = v1.ancestors.as_ref().unwrap();
         let a2 = v2.ancestors.as_ref().unwrap();
 
-        let max_concavity = max_concavity.min(max_cost - max_concavity * shape_cost / na::cast(10.0f64));
+        let max_concavity = max_concavity.min(max_cost - max_concavity * shape_cost);
 
         fn cast_ray<'a>(chull:      &ConvexPair<'a>,
                         ray:        &Ray,
@@ -549,7 +581,7 @@ impl DualGraphEdge {
             }
         }
 
-        self.mcost = -(self.concavity + max_concavity * shape_cost / na::cast(10.0f64));
+        self.mcost = -(self.concavity + max_concavity * shape_cost);
         self.exact = self.iv1 == a1.len() && self.iv2 == a2.len();
     }
 }

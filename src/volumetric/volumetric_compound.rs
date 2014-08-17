@@ -1,3 +1,4 @@
+use std::num::Zero;
 use nalgebra::na;
 use volumetric::{Volumetric, InertiaTensor};
 use geom::{Compound, CompoundData};
@@ -33,6 +34,7 @@ impl Volumetric for CompoundData {
     fn center_of_mass(&self) -> Vect {
         let mut mtot: Scalar = na::zero();
         let mut ctot: Vect   = na::zero();
+        let mut gtot: Vect   = na::zero(); // geometric center.
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
@@ -40,9 +42,15 @@ impl Volumetric for CompoundData {
         for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + m * *cpart * *mpart;
+            gtot = gtot + m * *cpart;
         }
 
-        ctot / mtot
+        if mtot.is_zero() {
+            gtot
+        }
+        else {
+            ctot / mtot
+        }
     }
 
     fn unit_angular_inertia(&self) -> AngularInertia {
@@ -67,6 +75,7 @@ impl Volumetric for CompoundData {
         let mut mtot: Scalar         = na::zero();
         let mut itot: AngularInertia = na::zero();
         let mut ctot: Vect           = na::zero();
+        let mut gtot: Vect           = na::zero(); // egometric center.
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
@@ -74,9 +83,15 @@ impl Volumetric for CompoundData {
         for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + m * *cpart * *mpart;
+            gtot = gtot + m * *cpart;
         }
 
-        ctot = ctot / mtot;
+        if mtot.is_zero() {
+            ctot = gtot;
+        }
+        else {
+            ctot = ctot / mtot;
+        }
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
             itot = itot + ipart.to_world_space(m).to_relative_wrt_point(mpart, &(m * *cpart - ctot));

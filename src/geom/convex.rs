@@ -97,6 +97,12 @@ impl Convex {
         &self.mesh
     }
 
+    /// The mutable convex mesh of this geometry.
+    #[inline]
+    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut TriMesh<Scalar, Vect> {
+        &mut self.mesh
+    }
+
     /// The convex mesh of this geometry.
     #[inline]
     pub fn unwrap(self) -> TriMesh<Scalar, Vect> {
@@ -144,6 +150,12 @@ impl Convex {
     #[inline]
     pub fn mesh<'a>(&'a self) -> &'a Polyline<Scalar, Vect> {
         &self.mesh
+    }
+
+    /// The mutable convex polyline of this geometry.
+    #[inline]
+    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut Polyline<Scalar, Vect> {
+        &mut self.mesh
     }
 
     /// The convex polyline of this geometry.

@@ -2,17 +2,23 @@ use std::num::Zero;
 use nalgebra::na::{Cast, FloatVec, Cross, ApproxEq, Norm};
 use nalgebra::na;
 use bounding_volume;
+use utils;
 
 /// Computes the area of a triangle.
 pub fn triangle_area<N: Float + Cast<f64>, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N {
-    // Heron's formula.
-    let sqa = na::sqnorm(&(*pa - *pb));
-    let sqb = na::sqnorm(&(*pb - *pc));
-    let sqc = na::sqnorm(&(*pc - *pa));
+    // Kahan's formula.
+    let mut a = na::norm(&(*pa - *pb));
+    let mut b = na::norm(&(*pb - *pc));
+    let mut c = na::norm(&(*pc - *pa));
 
-    let sum = sqa + sqb + sqc;
+    let (c, b, a) = utils::sort3(&mut a, &mut b, &mut c);
+    let a = *a;
+    let b = *b;
+    let c = *c;
 
-    ((sum * sum) - (sqa * sqa + sqb * sqb + sqc * sqc) * na::cast(2.0f64)).sqrt() * na::cast(0.25f64)
+    let sqr = (a + (b + c)) * (c - (a - b)) * (c + (a - b)) * (a + (b - c));
+
+    sqr.sqrt() * na::cast(0.25)
 }
 
 /// Computes the perimeter of a triangle.

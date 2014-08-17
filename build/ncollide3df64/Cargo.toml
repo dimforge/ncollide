@@ -3,7 +3,7 @@ name    = "ncollide3df64"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
-[[lib]]
+[lib]
 name = "ncollide3df64"
 path = "../../src/ncollide3df64.rs"
 

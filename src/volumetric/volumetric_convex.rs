@@ -1,3 +1,4 @@
+use std::num::Zero;
 use nalgebra::na::Mat3;
 use nalgebra::na;
 use utils;
@@ -5,27 +6,6 @@ use procedural::{SplitIndexBuffer, UnifiedIndexBuffer};
 use geom::Convex;
 use volumetric::{Volumetric, InertiaTensor};
 use math::{Scalar, Vect, AngularInertia};
-
-// FIXME: expose this to the user on the `utils` module?
-#[dim3]
-fn tetrahedron_volume(p1: &Vect, p2: &Vect, p3: &Vect, p4: &Vect) -> Scalar {
-    let p1p2 = p2 - *p1;
-    let p1p3 = p3 - *p1;
-    let p1p4 = p4 - *p1;
-
-    let mat = Mat3::new(p1p2.x, p1p3.x, p1p4.x,
-                        p1p2.y, p1p3.y, p1p4.y,
-                        p1p2.z, p1p3.z, p1p4.z);
-
-    na::det(&mat).abs() / na::cast(6.0f64)
-
-}
-
-// FIXME: expose this to the user on the `utils` module?
-#[dim3]
-fn tetrahedron_center(p1: &Vect, p2: &Vect, p3: &Vect, p4: &Vect) -> Vect {
-    utils::center(&[ p1.clone(), p2.clone(), p3.clone(), p4.clone() ])
-}
 
 #[dim3]
 fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Vect, p1: &Vect, p2: &Vect, p3: &Vect, p4: &Vect) -> AngularInertia {
@@ -86,17 +66,22 @@ pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
                 let p3 = &convex.mesh().coords[t.y as uint];
                 let p4 = &convex.mesh().coords[t.z as uint];
 
-                let volume = tetrahedron_volume(&geometric_center, p2, p3, p4);
-                let center = tetrahedron_center(&geometric_center, p2, p3, p4);
+                let volume = utils::tetrahedron_volume(&geometric_center, p2, p3, p4);
+                let center = utils::tetrahedron_center(&geometric_center, p2, p3, p4);
 
                 res = res + center * volume;
                 vol = vol + volume;
             }
         },
-        SplitIndexBuffer(_) => fail!("This should not be happening: index buffer not split!")
+        SplitIndexBuffer(_) => unreachable!()
     }
 
-    (vol, res / vol)
+    if vol.is_zero() {
+        (vol, geometric_center)
+    }
+    else {
+        (vol, res / vol)
+    }
 }
 
 #[dim3]
@@ -114,7 +99,7 @@ impl Volumetric for Convex {
                     surface = surface + utils::triangle_area(p1, p2, p3);
                 }
             },
-            SplitIndexBuffer(_) => fail!("This should not be happening: index buffer not split!")
+            SplitIndexBuffer(_) => unreachable!()
         }
 
         surface
@@ -131,7 +116,12 @@ impl Volumetric for Convex {
     fn unit_angular_inertia(&self) -> AngularInertia {
         let (volume, _, i) = self.mass_properties(&na::one());
 
-        i / volume
+        if volume.is_zero() {
+            na::zero()
+        }
+        else {
+            i / volume
+        }
     }
 
     fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
@@ -146,13 +136,13 @@ impl Volumetric for Convex {
                     let p3 = &self.mesh().coords[t.y as uint];
                     let p4 = &self.mesh().coords[t.z as uint];
 
-                    let vol   = tetrahedron_volume(&com, p2, p3, p4);
+                    let vol   = utils::tetrahedron_volume(&com, p2, p3, p4);
                     let ipart = tetrahedron_unit_inertia_tensor_wrt_point(&com, &com, p2, p3, p4);
 
                     itot = itot + ipart * vol;
                 }
             },
-            SplitIndexBuffer(_) => fail!("This should not be happening: index buffer not split!")
+            SplitIndexBuffer(_) => unreachable!()
         }
 
         (volume * *density, com, itot * *density)
