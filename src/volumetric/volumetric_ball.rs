@@ -1,7 +1,7 @@
 use std::num::Float;
 use std::num;
-use nalgebra::na;
 use nalgebra::na::Indexable;
+use nalgebra::na;
 use geom::Ball;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};

@@ -88,6 +88,7 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
                 }
 
                 if horizon_loop_facets.is_empty() {
+                    println!("empty horizon.");
                     // Due to inaccuracies, the silhouette could not be computed
                     // (the point seems to be visible from… every triangle).
                     // Force it to be at least the curren tiangle adjascent faces.
@@ -257,8 +258,11 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
             assert!(p3 != Bounded::max_value(), "Internal convex hull error: no triangle found.");
 
             // Build two facets with opposite normals
+            println!(">>> Initializing.");
             let mut f1 = TriangleFacet::new(p1, p2, p3, points);
             let mut f2 = TriangleFacet::new(p2, p1, p3, points);
+
+            println!("<<< Initialized.");
 
             // Link the facets together
             f1.set_facets_adjascency(1, 1, 1, 0, 2, 1);

@@ -1,11 +1,9 @@
+use std::num::Float;
+use nalgebra::na::Indexable;
+use nalgebra::na;
 use geom::Cone;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
-use nalgebra::na;
-use nalgebra::na::Indexable;
-
-// #[dim3]
-use std::num::Float;
 
 /// Computes the volume of a cone.
 #[dim2]

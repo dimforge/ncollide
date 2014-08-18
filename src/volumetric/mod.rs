@@ -3,7 +3,6 @@
 pub use volumetric::volumetric::{Volumetric, InertiaTensor};
 pub use volumetric::volumetric_ball::ball_volume;
 pub use volumetric::volumetric_cuboid::cuboid_volume;
-
 pub use volumetric::volumetric_cone::cone_volume;
 pub use volumetric::volumetric_capsule::capsule_volume;
 pub use volumetric::volumetric_cylinder::cylinder_volume;

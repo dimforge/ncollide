@@ -1,5 +1,4 @@
-use nalgebra::na::Indexable;
-use nalgebra::na::Iterable;
+use nalgebra::na::{Iterable, Indexable};
 use nalgebra::na;
 use geom::Cuboid;
 use volumetric::Volumetric;
