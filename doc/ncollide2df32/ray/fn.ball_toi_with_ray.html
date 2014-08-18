@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide2df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ball_toi_with_ray` fn in crate `ncollide2df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ball_toi_with_ray">
 
     <title>ncollide2df32::ray::ball_toi_with_ray - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><a class='struct ' href='struct.RayIntersection.html'>RayIntersection</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a></div><div class='block fn'><h2>Functions</h2><a class='fn current' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><a class='fn ' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a></div>
+        <p class='location'><a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>ray</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Ray.html'>Ray</a><a class='struct ' href='struct.RayIntersection.html'>RayIntersection</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.RayCast.html'>RayCast</a></div><div class='block fn'><h2>Functions</h2><a class='fn current' href='fn.ball_toi_with_ray.html'>ball_toi_with_ray</a><a class='fn ' href='fn.implicit_toi_and_normal_with_ray.html'>implicit_toi_and_normal_with_ray</a><a class='fn ' href='fn.plane_toi_with_ray.html'>plane_toi_with_ray</a><a class='fn ' href='fn.triangle_ray_intersection.html'>triangle_ray_intersection</a></div>
     </section>
 
     <nav class="sub">
@@ -41,8 +41,11 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>ray</a>::<a class='fn' href=''>ball_toi_with_ray</a><a class='source' id='src-14228' href='../../src/ncollide2df32/src/ray/ray_ball.rs.html#62-95'>[src]</a></h1>
-<pre class='rust fn'>pub fn ball_toi_with_ray(center: <a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>, radius: <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>, ray: &amp;<a class='struct' href='../../ncollide2df32/ray/struct.Ray.html' title='ncollide2df32::ray::Ray'>Ray</a>, solid: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a>) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(<a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a>, <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>&gt;)</a></pre><div class='docblock'><p>Computes the time of impact of a ray on a ball.</p>
+<h1 class='fqn'><div class='in-band'>Function <a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>ray</a>&#8203;::<a class='fn' href=''>ball_toi_with_ray</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-16635' href='../../src/ncollide2df32/up/up/src/ray/ray_ball.rs.html#67-100'>[src]</a></div></h1>
+<pre class='rust fn'>pub fn ball_toi_with_ray(center: <a class='type' href='../../ncollide2df32/math/type.Vect.html' title='ncollide2df32::math::Vect'>Vect</a>, radius: <a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>, ray: &amp;<a class='struct' href='../../ncollide2df32/ray/struct.Ray.html' title='ncollide2df32::ray::Ray'>Ray</a>, solid: <a href='http://doc.rust-lang.org/master/std/primitive.bool.html'>bool</a>) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.tuple.html'>(<a href='http://doc.rust-lang.org/master/std/primitive.bool.html'>bool</a>, <a class='type' href='http://doc.rust-lang.org/master/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;<a class='type' href='../../ncollide2df32/math/type.Scalar.html' title='ncollide2df32::math::Scalar'>Scalar</a>&gt;)</a></pre><div class='docblock'><p>Computes the time of impact of a ray on a ball.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -72,7 +75,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

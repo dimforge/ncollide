@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `procedural` mod in crate `ncollide4df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, procedural">
 
     <title>ncollide4df64::procedural - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../index.html'>ncollide4df64</a>::<a class='mod' href=''>procedural</a><a class='source' id='src-42941' href='../../src/ncollide4df64/src/procedural/mod.rs.html#1-72'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Module <a href='../index.html'>ncollide4df64</a>&#8203;::<a class='mod' href=''>procedural</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-46218' href='../../src/ncollide4df64/up/up/src/procedural/mod.rs.html#1-65'>[src]</a></div></h1>
 <div class='docblock'><p>Procedural mesh generation.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
 <table><tr><td><code>pub use procedural::trimesh::{<a class='type' href='../../ncollide4df64/procedural/type.IndexBuffer.html' title='ncollide4df64::procedural::IndexBuffer'>UnifiedIndexBuffer</a>, <a class='type' href='../../ncollide4df64/procedural/type.IndexBuffer.html' title='ncollide4df64::procedural::IndexBuffer'>SplitIndexBuffer</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
@@ -142,6 +145,14 @@
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.convex_hull2d_idx.html'
+                               title='ncollide4df64::procedural::convex_hull2d_idx'>convex_hull2d_idx</a></td>
+                        <td class='docblock short'><p>Computes the convex hull of a set of 2d points and returns only the indices of the hull
+vertices.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.convex_hull3d.html'
                                title='ncollide4df64::procedural::convex_hull3d'>convex_hull3d</a></td>
                         <td class='docblock short'><p>Computes the convex hull of a set of 3d points.</p>
@@ -159,6 +170,20 @@
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cylinder.html'
                                title='ncollide4df64::procedural::cylinder'>cylinder</a></td>
                         <td class='docblock short'><p>Generates a cylinder with a given height and diameter.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.parametric_surface_uniform.html'
+                               title='ncollide4df64::procedural::parametric_surface_uniform'>parametric_surface_uniform</a></td>
+                        <td class='docblock short'><p>Not yet implemented in dimensions other than 3.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.parametric_surface_uniform_with_distance_error.html'
+                               title='ncollide4df64::procedural::parametric_surface_uniform_with_distance_error'>parametric_surface_uniform_with_distance_error</a></td>
+                        <td class='docblock short'><p>Uniformly triangulates the parametric space.</p>
 </td>
                     </tr>
                 
@@ -281,7 +306,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `HasUid` trait in crate `ncollide3df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, HasUid">
 
     <title>ncollide3df64::data::has_uid::HasUid - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,22 +41,25 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide3df64</a>::<a href='../index.html'>data</a>::<a href='index.html'>has_uid</a>::<a class='trait' href=''>HasUid</a><a class='source' id='src-78588' href='../../../src/ncollide3df64/src/data/has_uid.rs.html#8-11'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Trait <a href='../../index.html'>ncollide3df64</a>&#8203;::<a href='../index.html'>data</a>&#8203;::<a href='index.html'>has_uid</a>&#8203;::<a class='trait' href=''>HasUid</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-91838' href='../../../src/ncollide3df64/up/up/src/data/has_uid.rs.html#8-11'>[src]</a></div></h1>
 <pre class='rust trait'>pub trait HasUid {
-    fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>;
+    fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>;
 }</pre><div class='docblock'><p>Trait of objects having an unique identifier.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.uid' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>An unique identifier. It should be O(1).</p>
+        <h3 id='tymethod.uid' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.uid' class='fnname'>uid</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>An unique identifier. It should be O(1).</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: 'static&gt; <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/0.11.0/std/gc/struct.Gc.html' title='std::gc::Gc'>Gc</a>&lt;T&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: 'static&gt; <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/master/std/gc/struct.Gc.html' title='std::gc::Gc'>Gc</a>&lt;T&gt;</code></li>
 <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T&gt; <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;T&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Share.html' title='core::kinds::Share'>Share</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a>&gt; <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/arc/struct.Arc.html' title='alloc::arc::Arc'>Arc</a>&lt;T&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/0.11.0/std/primitive.int.html'>int</a></code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T: <a class='trait' href='http://doc.rust-lang.org/master/core/kinds/trait.Sync.html' title='core::kinds::Sync'>Sync</a> + <a class='trait' href='http://doc.rust-lang.org/master/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a>&gt; <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a class='struct' href='http://doc.rust-lang.org/alloc/arc/struct.Arc.html' title='alloc::arc::Arc'>Arc</a>&lt;T&gt;</code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/master/std/primitive.int.html'>int</a></code></li>
+<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../../../ncollide3df64/data/has_uid/trait.HasUid.html' title='ncollide3df64::data::has_uid::HasUid'>HasUid</a> for <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a></code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide3df64/data/has_uid/trait.HasUid.js">
                       </script></section>
@@ -88,7 +91,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

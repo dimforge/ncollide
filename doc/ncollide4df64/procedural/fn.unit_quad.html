@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `unit_quad` fn in crate `ncollide4df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, unit_quad">
 
     <title>ncollide4df64::procedural::unit_quad - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>procedural</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='path/index.html'>path</a><a class='mod ' href='utils/index.html'>utils</a></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Polyline.html'>Polyline</a><a class='struct ' href='struct.TriMesh.html'>TriMesh</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ToPolyline.html'>ToPolyline</a><a class='trait ' href='trait.ToTriMesh.html'>ToTriMesh</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.bezier_curve.html'>bezier_curve</a><a class='fn ' href='fn.bezier_surface.html'>bezier_surface</a><a class='fn ' href='fn.capsule.html'>capsule</a><a class='fn ' href='fn.circle.html'>circle</a><a class='fn ' href='fn.cone.html'>cone</a><a class='fn ' href='fn.convex_hull2d.html'>convex_hull2d</a><a class='fn ' href='fn.convex_hull3d.html'>convex_hull3d</a><a class='fn ' href='fn.cuboid.html'>cuboid</a><a class='fn ' href='fn.cylinder.html'>cylinder</a><a class='fn ' href='fn.quad.html'>quad</a><a class='fn ' href='fn.quad_with_vertices.html'>quad_with_vertices</a><a class='fn ' href='fn.rational_bezier_curve.html'>rational_bezier_curve</a><a class='fn ' href='fn.rational_bezier_surface.html'>rational_bezier_surface</a><a class='fn ' href='fn.rectangle.html'>rectangle</a><a class='fn ' href='fn.sphere.html'>sphere</a><a class='fn ' href='fn.unit_circle.html'>unit_circle</a><a class='fn ' href='fn.unit_cone.html'>unit_cone</a><a class='fn ' href='fn.unit_cuboid.html'>unit_cuboid</a><a class='fn ' href='fn.unit_cylinder.html'>unit_cylinder</a><a class='fn current' href='fn.unit_quad.html'>unit_quad</a><a class='fn ' href='fn.unit_rectangle.html'>unit_rectangle</a><a class='fn ' href='fn.unit_sphere.html'>unit_sphere</a></div>
+        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>procedural</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='path/index.html'>path</a><a class='mod ' href='utils/index.html'>utils</a></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.Polyline.html'>Polyline</a><a class='struct ' href='struct.TriMesh.html'>TriMesh</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ToPolyline.html'>ToPolyline</a><a class='trait ' href='trait.ToTriMesh.html'>ToTriMesh</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.bezier_curve.html'>bezier_curve</a><a class='fn ' href='fn.bezier_surface.html'>bezier_surface</a><a class='fn ' href='fn.capsule.html'>capsule</a><a class='fn ' href='fn.circle.html'>circle</a><a class='fn ' href='fn.cone.html'>cone</a><a class='fn ' href='fn.convex_hull2d.html'>convex_hull2d</a><a class='fn ' href='fn.convex_hull2d_idx.html'>convex_hull2d_idx</a><a class='fn ' href='fn.convex_hull3d.html'>convex_hull3d</a><a class='fn ' href='fn.cuboid.html'>cuboid</a><a class='fn ' href='fn.cylinder.html'>cylinder</a><a class='fn ' href='fn.parametric_surface_uniform.html'>parametric_surface_uniform</a><a class='fn ' href='fn.parametric_surface_uniform_with_distance_error.html'>parametric_surface_uniform_with_distance_error</a><a class='fn ' href='fn.quad.html'>quad</a><a class='fn ' href='fn.quad_with_vertices.html'>quad_with_vertices</a><a class='fn ' href='fn.rational_bezier_curve.html'>rational_bezier_curve</a><a class='fn ' href='fn.rational_bezier_surface.html'>rational_bezier_surface</a><a class='fn ' href='fn.rectangle.html'>rectangle</a><a class='fn ' href='fn.sphere.html'>sphere</a><a class='fn ' href='fn.unit_circle.html'>unit_circle</a><a class='fn ' href='fn.unit_cone.html'>unit_cone</a><a class='fn ' href='fn.unit_cuboid.html'>unit_cuboid</a><a class='fn ' href='fn.unit_cylinder.html'>unit_cylinder</a><a class='fn current' href='fn.unit_quad.html'>unit_quad</a><a class='fn ' href='fn.unit_rectangle.html'>unit_rectangle</a><a class='fn ' href='fn.unit_sphere.html'>unit_sphere</a></div>
     </section>
 
     <nav class="sub">
@@ -41,8 +41,11 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>procedural</a>::<a class='fn' href=''>unit_quad</a><a class='source' id='src-51463' href='../../src/ncollide4df64/src/procedural/quad.rs.html#72-125'>[src]</a></h1>
-<pre class='rust fn'>pub fn unit_quad&lt;N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/num/trait.Float.html' title='core::num::Float'>Float</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.f64.html'>f64</a>&gt;, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVecExt.html' title='nalgebra::traits::structure::FloatVecExt'>FloatVecExt</a>&lt;N&gt;&gt;(usubdivs: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>, vsubdivs: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../ncollide4df64/procedural/struct.TriMesh.html' title='ncollide4df64::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;</pre><div class='docblock'><p>Adds a double-sided quad with unit size to the scene.</p>
+<h1 class='fqn'><div class='in-band'>Function <a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>procedural</a>&#8203;::<a class='fn' href=''>unit_quad</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-54470' href='../../src/ncollide4df64/up/up/src/procedural/quad.rs.html#72-125'>[src]</a></div></h1>
+<pre class='rust fn'>pub fn unit_quad&lt;N: <a class='trait' href='http://doc.rust-lang.org/master/core/num/trait.Float.html' title='core::num::Float'>Float</a> + <a class='trait' href='../../nalgebra/traits/structure/trait.Cast.html' title='nalgebra::traits::structure::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/master/std/primitive.f64.html'>f64</a>&gt;, V: <a class='trait' href='../../nalgebra/traits/structure/trait.FloatVecExt.html' title='nalgebra::traits::structure::FloatVecExt'>FloatVecExt</a>&lt;N&gt;&gt;(usubdivs: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>, vsubdivs: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../ncollide4df64/procedural/struct.TriMesh.html' title='ncollide4df64::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;</pre><div class='docblock'><p>Adds a double-sided quad with unit size to the scene.</p>
 
 <p>The quad is initially centered at (0, 0, 0). Its normal is the <code>z</code> axis. The quad itself is
 composed of a user-defined number of triangles regularly spaced on a grid. This is the main way
@@ -85,7 +88,7 @@ which will be placed vertically on each line. Must not be <code>0</code>.</li>
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

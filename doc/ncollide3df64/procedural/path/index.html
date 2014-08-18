@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `path` mod in crate `ncollide3df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, path">
 
     <title>ncollide3df64::procedural::path - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../../index.html'>ncollide3df64</a>&#8203;::<a href='../index.html'>procedural</a></p><div class='block mod'><h2>Modules</h2><a class='mod current' href='../path/index.html'>path</a><a class='mod ' href='../utils/index.html'>utils</a></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='../struct.Polyline.html'>Polyline</a><a class='struct ' href='../struct.TriMesh.html'>TriMesh</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='../trait.ToPolyline.html'>ToPolyline</a><a class='trait ' href='../trait.ToTriMesh.html'>ToTriMesh</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='../fn.bezier_curve.html'>bezier_curve</a><a class='fn ' href='../fn.bezier_surface.html'>bezier_surface</a><a class='fn ' href='../fn.capsule.html'>capsule</a><a class='fn ' href='../fn.circle.html'>circle</a><a class='fn ' href='../fn.cone.html'>cone</a><a class='fn ' href='../fn.convex_hull2d.html'>convex_hull2d</a><a class='fn ' href='../fn.convex_hull3d.html'>convex_hull3d</a><a class='fn ' href='../fn.cuboid.html'>cuboid</a><a class='fn ' href='../fn.cylinder.html'>cylinder</a><a class='fn ' href='../fn.parametric_surface_uniform.html'>parametric_surface_uniform</a><a class='fn ' href='../fn.quad.html'>quad</a><a class='fn ' href='../fn.quad_with_vertices.html'>quad_with_vertices</a><a class='fn ' href='../fn.rational_bezier_curve.html'>rational_bezier_curve</a><a class='fn ' href='../fn.rational_bezier_surface.html'>rational_bezier_surface</a><a class='fn ' href='../fn.rectangle.html'>rectangle</a><a class='fn ' href='../fn.sphere.html'>sphere</a><a class='fn ' href='../fn.unit_circle.html'>unit_circle</a><a class='fn ' href='../fn.unit_cone.html'>unit_cone</a><a class='fn ' href='../fn.unit_cuboid.html'>unit_cuboid</a><a class='fn ' href='../fn.unit_cylinder.html'>unit_cylinder</a><a class='fn ' href='../fn.unit_quad.html'>unit_quad</a><a class='fn ' href='../fn.unit_rectangle.html'>unit_rectangle</a><a class='fn ' href='../fn.unit_sphere.html'>unit_sphere</a></div>
+        <p class='location'><a href='../../index.html'>ncollide3df64</a>&#8203;::<a href='../index.html'>procedural</a></p><div class='block mod'><h2>Modules</h2><a class='mod current' href='../path/index.html'>path</a><a class='mod ' href='../utils/index.html'>utils</a></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='../struct.Polyline.html'>Polyline</a><a class='struct ' href='../struct.TriMesh.html'>TriMesh</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='../trait.ToPolyline.html'>ToPolyline</a><a class='trait ' href='../trait.ToTriMesh.html'>ToTriMesh</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='../fn.bezier_curve.html'>bezier_curve</a><a class='fn ' href='../fn.bezier_surface.html'>bezier_surface</a><a class='fn ' href='../fn.capsule.html'>capsule</a><a class='fn ' href='../fn.circle.html'>circle</a><a class='fn ' href='../fn.cone.html'>cone</a><a class='fn ' href='../fn.convex_hull2d.html'>convex_hull2d</a><a class='fn ' href='../fn.convex_hull2d_idx.html'>convex_hull2d_idx</a><a class='fn ' href='../fn.convex_hull3d.html'>convex_hull3d</a><a class='fn ' href='../fn.cuboid.html'>cuboid</a><a class='fn ' href='../fn.cylinder.html'>cylinder</a><a class='fn ' href='../fn.hacd.html'>hacd</a><a class='fn ' href='../fn.parametric_surface_uniform.html'>parametric_surface_uniform</a><a class='fn ' href='../fn.parametric_surface_uniform_with_distance_error.html'>parametric_surface_uniform_with_distance_error</a><a class='fn ' href='../fn.quad.html'>quad</a><a class='fn ' href='../fn.quad_with_vertices.html'>quad_with_vertices</a><a class='fn ' href='../fn.rational_bezier_curve.html'>rational_bezier_curve</a><a class='fn ' href='../fn.rational_bezier_surface.html'>rational_bezier_surface</a><a class='fn ' href='../fn.rectangle.html'>rectangle</a><a class='fn ' href='../fn.sphere.html'>sphere</a><a class='fn ' href='../fn.unit_circle.html'>unit_circle</a><a class='fn ' href='../fn.unit_cone.html'>unit_cone</a><a class='fn ' href='../fn.unit_cuboid.html'>unit_cuboid</a><a class='fn ' href='../fn.unit_cylinder.html'>unit_cylinder</a><a class='fn ' href='../fn.unit_quad.html'>unit_quad</a><a class='fn ' href='../fn.unit_rectangle.html'>unit_rectangle</a><a class='fn ' href='../fn.unit_sphere.html'>unit_sphere</a></div>
     </section>
 
     <nav class="sub">
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../../index.html'>ncollide3df64</a>::<a href='../index.html'>procedural</a>::<a class='mod' href=''>path</a><a class='source' id='src-46673' href='../../../src/ncollide3df64/src/procedural/path/mod.rs.html#1-14'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Module <a href='../../index.html'>ncollide3df64</a>&#8203;::<a href='../index.html'>procedural</a>&#8203;::<a class='mod' href=''>path</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-51996' href='../../../src/ncollide3df64/up/up/src/procedural/path/mod.rs.html#1-14'>[src]</a></div></h1>
 <div class='docblock'><p>Path generation.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
 <table><tr><td><code>pub use procedural::path::path::{<a class='type' href='../../../ncollide3df64/procedural/path/type.PathSample.html' title='ncollide3df64::procedural::path::PathSample'>StartPoint</a>, <a class='type' href='../../../ncollide3df64/procedural/path/type.PathSample.html' title='ncollide3df64::procedural::path::PathSample'>InnerPoint</a>, <a class='type' href='../../../ncollide3df64/procedural/path/type.PathSample.html' title='ncollide3df64::procedural::path::PathSample'>EndPoint</a>, <a class='type' href='../../../ncollide3df64/procedural/path/type.PathSample.html' title='ncollide3df64::procedural::path::PathSample'>EndOfSample</a>};</code></td></tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
@@ -132,7 +135,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

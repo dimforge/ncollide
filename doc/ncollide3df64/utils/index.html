@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `utils` mod in crate `ncollide3df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, utils">
 
     <title>ncollide3df64::utils - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../index.html'>ncollide3df64</a>::<a class='mod' href=''>utils</a><a class='source' id='src-59630' href='../../src/ncollide3df64/src/utils/mod.rs.html#1-17'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Module <a href='../index.html'>ncollide3df64</a>&#8203;::<a class='mod' href=''>utils</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-69993' href='../../src/ncollide3df64/up/up/src/utils/mod.rs.html#1-37'>[src]</a></div></h1>
 <div class='docblock'><p>Miscelaneous, unsorted generic geometric utilities.</p>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
@@ -51,8 +54,52 @@
                         <td class='docblock short'><p>Basic symbolic computation system.</p>
 </td>
                     </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.BacktrackingLineSearch.html'
+                               title='ncollide3df64::utils::BacktrackingLineSearch'>BacktrackingLineSearch</a></td>
+                        <td class='docblock short'><p>The backtracking line search method.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.HashablePartialEq.html'
+                               title='ncollide3df64::utils::HashablePartialEq'>HashablePartialEq</a></td>
+                        <td class='docblock short'><p>A structure that implements <code>Eq</code> and is hashable even if the wrapped data implements only
+<code>PartialEq</code>.</p>
+</td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AnyPrivate.html'
+                               title='ncollide3df64::utils::AnyPrivate'>AnyPrivate</a></td>
+                        <td class='docblock short'></td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AsBytes.html'
+                               title='ncollide3df64::utils::AsBytes'>AsBytes</a></td>
+                        <td class='docblock short'><p>Trait that transforms thing to a slice of u8.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.LineSearch.html'
+                               title='ncollide3df64::utils::LineSearch'>LineSearch</a></td>
+                        <td class='docblock short'><p>Trait for line search methods.</p>
+</td>
+                    </tr>
                 </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.bfgs.html'
+                               title='ncollide3df64::utils::bfgs'>bfgs</a></td>
+                        <td class='docblock short'><p>Minimizes a function using the quasi-newton BFGS method.</p>
+</td>
+                    </tr>
+                
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.binom.html'
                                title='ncollide3df64::utils::binom'>binom</a></td>
@@ -68,9 +115,30 @@
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.center_reduce.html'
+                               title='ncollide3df64::utils::center_reduce'>center_reduce</a></td>
+                        <td class='docblock short'><p>Centers and reduces a set of data.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.circumcircle.html'
                                title='ncollide3df64::utils::circumcircle'>circumcircle</a></td>
                         <td class='docblock short'><p>Computes the circumcircle of a triangle.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cov.html'
+                               title='ncollide3df64::utils::cov'>cov</a></td>
+                        <td class='docblock short'><p>Computes the convariance matrix of a set of points.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cov_and_center.html'
+                               title='ncollide3df64::utils::cov_and_center'>cov_and_center</a></td>
+                        <td class='docblock short'><p>Computes the covariance matrix and center of a set of points.</p>
 </td>
                     </tr>
                 
@@ -96,6 +164,34 @@
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.is_point_in_triangle.html'
+                               title='ncollide3df64::utils::is_point_in_triangle'>is_point_in_triangle</a></td>
+                        <td class='docblock short'><p>Tests if a point is inside of a triangle.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.maximize_with_newton.html'
+                               title='ncollide3df64::utils::maximize_with_newton'>maximize_with_newton</a></td>
+                        <td class='docblock short'><p>Maximizes a real function using the Newton method.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.minimize_with_bfgs.html'
+                               title='ncollide3df64::utils::minimize_with_bfgs'>minimize_with_bfgs</a></td>
+                        <td class='docblock short'><p>Minimizes a function using the bfgs method.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.newton.html'
+                               title='ncollide3df64::utils::newton'>newton</a></td>
+                        <td class='docblock short'><p>Finds the root of a function using the Newton method.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.project_homogeneous.html'
                                title='ncollide3df64::utils::project_homogeneous'>project_homogeneous</a></td>
                         <td class='docblock short'><p>Project n-d point to a (n-1)-d space, dividing each vector by its <code>w</code> component.</p>
@@ -113,6 +209,48 @@
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.remove_unused_points.html'
                                title='ncollide3df64::utils::remove_unused_points'>remove_unused_points</a></td>
                         <td class='docblock short'><p>Given an index buffer, remove from <code>points</code> every point that is not indexed.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sort3.html'
+                               title='ncollide3df64::utils::sort3'>sort3</a></td>
+                        <td class='docblock short'><p>Sorts a set of three values in increasing order.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.tetrahedron_center.html'
+                               title='ncollide3df64::utils::tetrahedron_center'>tetrahedron_center</a></td>
+                        <td class='docblock short'><p>Computes the center of a tetrahedron.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.tetrahedron_signed_volume.html'
+                               title='ncollide3df64::utils::tetrahedron_signed_volume'>tetrahedron_signed_volume</a></td>
+                        <td class='docblock short'><p>Computes the signed volume of a tetrahedron.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.tetrahedron_volume.html'
+                               title='ncollide3df64::utils::tetrahedron_volume'>tetrahedron_volume</a></td>
+                        <td class='docblock short'><p>Computes the volume of a tetrahedron.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.triangle_area.html'
+                               title='ncollide3df64::utils::triangle_area'>triangle_area</a></td>
+                        <td class='docblock short'><p>Computes the area of a triangle.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.triangle_perimeter.html'
+                               title='ncollide3df64::utils::triangle_perimeter'>triangle_perimeter</a></td>
+                        <td class='docblock short'><p>Computes the perimeter of a triangle.</p>
 </td>
                     </tr>
                 
@@ -151,7 +289,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide2df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `point_cloud_aabb` fn in crate `ncollide2df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, point_cloud_aabb">
 
     <title>ncollide2df32::bounding_volume::point_cloud_aabb - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AABB.html'>AABB</a><a class='struct ' href='struct.BoundingSphere.html'>BoundingSphere</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolume.html'>BoundingVolume</a><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><a class='trait ' href='trait.HasBoundingSphere.html'>HasBoundingSphere</a><a class='trait ' href='trait.HasBoundingVolume.html'>HasBoundingVolume</a><a class='trait ' href='trait.LooseBoundingVolume.html'>LooseBoundingVolume</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><a class='fn current' href='fn.point_cloud_aabb.html'>point_cloud_aabb</a><a class='fn ' href='fn.point_cloud_bounding_sphere.html'>point_cloud_bounding_sphere</a><a class='fn ' href='fn.point_cloud_bounding_sphere_with_center.html'>point_cloud_bounding_sphere_with_center</a></div>
+        <p class='location'><a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>bounding_volume</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AABB.html'>AABB</a><a class='struct ' href='struct.BoundingSphere.html'>BoundingSphere</a><a class='struct ' href='struct.SpacializedCone.html'>SpacializedCone</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BoundingVolume.html'>BoundingVolume</a><a class='trait ' href='trait.HasAABB.html'>HasAABB</a><a class='trait ' href='trait.HasBoundingSphere.html'>HasBoundingSphere</a><a class='trait ' href='trait.HasBoundingVolume.html'>HasBoundingVolume</a><a class='trait ' href='trait.LooseBoundingVolume.html'>LooseBoundingVolume</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.ball_aabb.html'>ball_aabb</a><a class='fn ' href='fn.implicit_shape_aabb.html'>implicit_shape_aabb</a><a class='fn current' href='fn.point_cloud_aabb.html'>point_cloud_aabb</a><a class='fn ' href='fn.point_cloud_bounding_sphere.html'>point_cloud_bounding_sphere</a><a class='fn ' href='fn.point_cloud_bounding_sphere_with_center.html'>point_cloud_bounding_sphere_with_center</a></div>
     </section>
 
     <nav class="sub">
@@ -41,8 +41,11 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../index.html'>ncollide2df32</a>::<a href='index.html'>bounding_volume</a>::<a class='fn' href=''>point_cloud_aabb</a><a class='source' id='src-1979' href='../../src/ncollide2df32/src/bounding_volume/aabb_utils.rs.html#32-44'>[src]</a></h1>
-<pre class='rust fn'>pub fn point_cloud_aabb&lt;N, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/operations/trait.PartialOrd.html' title='nalgebra::traits::operations::PartialOrd'>PartialOrd</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, M: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Transform.html' title='nalgebra::traits::geometry::Transform'>Transform</a>&lt;V&gt;&gt;(m: &amp;M, pts: &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[V]</a>) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(V, V)</a></pre><div class='docblock'><p>Computes the AABB of a set of point.</p>
+<h1 class='fqn'><div class='in-band'>Function <a href='../index.html'>ncollide2df32</a>&#8203;::<a href='index.html'>bounding_volume</a>&#8203;::<a class='fn' href=''>point_cloud_aabb</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-2054' href='../../src/ncollide2df32/up/up/src/bounding_volume/aabb_utils.rs.html#32-44'>[src]</a></div></h1>
+<pre class='rust fn'>pub fn point_cloud_aabb&lt;N, V: <a class='trait' href='../../nalgebra/traits/operations/trait.PartialOrd.html' title='nalgebra::traits::operations::PartialOrd'>PartialOrd</a> + <a class='trait' href='../../nalgebra/traits/structure/trait.FloatVec.html' title='nalgebra::traits::structure::FloatVec'>FloatVec</a>&lt;N&gt; + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, M: <a class='trait' href='../../nalgebra/traits/geometry/trait.Transform.html' title='nalgebra::traits::geometry::Transform'>Transform</a>&lt;V&gt;&gt;(m: &amp;M, pts: &amp;<a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[V]</a>) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.tuple.html'>(V, V)</a></pre><div class='docblock'><p>Computes the AABB of a set of point.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -72,7 +75,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

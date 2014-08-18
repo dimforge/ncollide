@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide2df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `InterferencesBroadPhase` trait in crate `ncollide2df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, InterferencesBroadPhase">
 
     <title>ncollide2df64::broad::InterferencesBroadPhase - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>InterferencesBroadPhase</a><a class='source' id='src-32908' href='../../src/ncollide2df64/src/broad/broad_phase.rs.html#22-36'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Trait <a href='../index.html'>ncollide2df64</a>&#8203;::<a href='index.html'>broad</a>&#8203;::<a class='trait' href=''>InterferencesBroadPhase</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-35700' href='../../src/ncollide2df64/up/up/src/broad/broad_phase.rs.html#22-36'>[src]</a></div></h1>
 <pre class='rust trait'>pub trait InterferencesBroadPhase&lt;B, DV&gt;: <a class='trait' href='../../ncollide2df64/broad/trait.BroadPhase.html' title='ncollide2df64::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
     fn <a href='#tymethod.activate' class='fnname'>activate</a>(&amp;mut self, body: &amp;B, f: |&amp;B, &amp;B, &amp;mut DV|);
     fn <a href='#tymethod.deactivate' class='fnname'>deactivate</a>(&amp;mut self, &amp;B);
@@ -64,7 +67,7 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df64/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df64::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df64/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df64::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df64/broad/trait.InterferencesBroadPhase.html' title='ncollide2df64::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df64/broad/struct.DBVTBroadPhase.html' title='ncollide2df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide2df64/bounding_volume/trait.HasBoundingVolume.html' title='ncollide2df64::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide2df64/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide2df64::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='../../nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide2df64/math/type.Vect.html' title='ncollide2df64::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide2df64/broad/trait.InterferencesBroadPhase.html' title='ncollide2df64::broad::InterferencesBroadPhase'>InterferencesBroadPhase</a>&lt;B, DV&gt; for <a class='struct' href='../../ncollide2df64/broad/struct.DBVTBroadPhase.html' title='ncollide2df64::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide2df64/broad/trait.InterferencesBroadPhase.js">
                       </script></section>
@@ -96,7 +99,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

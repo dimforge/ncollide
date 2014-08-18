@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `BinaryPartition` type in crate `ncollide4df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, BinaryPartition">
 
     <title>ncollide4df64::partitioning::BinaryPartition - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>partitioning</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BVT.html'>BVT</a><a class='struct ' href='struct.BoundingVolumeInterferencesCollector.html'>BoundingVolumeInterferencesCollector</a><a class='struct ' href='struct.DBVT.html'>DBVT</a><a class='struct ' href='struct.DBVTLeaf.html'>DBVTLeaf</a><a class='struct ' href='struct.RayInterferencesCollector.html'>RayInterferencesCollector</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BVTVisitor.html'>BVTVisitor</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.kdtree_partitioner.html'>kdtree_partitioner</a></div>
+        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>partitioning</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BVT.html'>BVT</a><a class='struct ' href='struct.BoundingVolumeInterferencesCollector.html'>BoundingVolumeInterferencesCollector</a><a class='struct ' href='struct.DBVT.html'>DBVT</a><a class='struct ' href='struct.DBVTLeaf.html'>DBVTLeaf</a><a class='struct ' href='struct.RayInterferencesCollector.html'>RayInterferencesCollector</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BVTTVisitor.html'>BVTTVisitor</a><a class='trait ' href='trait.BVTVisitor.html'>BVTVisitor</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.kdtree_partitioner.html'>kdtree_partitioner</a><a class='fn ' href='fn.kdtree_partitioner_with_centers.html'>kdtree_partitioner_with_centers</a></div>
     </section>
 
     <nav class="sub">
@@ -41,10 +41,13 @@
     </nav>
 
     <section id='main' class="content type">
-<h1 class='fqn'>Enum <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>partitioning</a>::<a class='type' href=''>BinaryPartition</a><a class='source' id='src-41484' href='../../src/ncollide4df64/src/partitioning/bvt.rs.html#25-30'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Enum <a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>partitioning</a>&#8203;::<a class='type' href=''>BinaryPartition</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-44322' href='../../src/ncollide4df64/up/up/src/partitioning/bvt.rs.html#29-34'>[src]</a></div></h1>
 <pre class='rust enum'>pub enum BinaryPartition&lt;B, BV&gt; {
     Part(B),
-    Parts(<a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(B, BV)</a>&gt;, <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.tuple.html'>(B, BV)</a>&gt;),
+    Parts(<a class='struct' href='http://doc.rust-lang.org/master/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/master/std/primitive.tuple.html'>(B, BV)</a>&gt;, <a class='struct' href='http://doc.rust-lang.org/master/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='http://doc.rust-lang.org/master/std/primitive.tuple.html'>(B, BV)</a>&gt;),
 }</pre><div class='docblock'><p>Result of a binary partition.</p>
 </div><h2 class='variants'>Variants</h2>
 <table><tr><td id='variant.Part'><a class='stability Unmarked' title='No stability level'></a><code>Part</code></td><td><div class='docblock'><p>Result of the partitioning of one element.</p>
@@ -78,7 +81,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

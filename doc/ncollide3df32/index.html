@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ncollide3df32` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ncollide3df32">
 
     <title>ncollide3df32 - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Crate <a class='mod' href=''>ncollide3df32</a><a class='source' id='src-0' href='../src/ncollide3df32/src/ncollide3df32.rs.html#1-115'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Crate <a class='mod' href=''>ncollide3df32</a>&#8203;</div><div class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-0' href='../src/ncollide3df32/up/up/src/ncollide3df32.rs.html#1-115'>[src]</a></div></h1>
 <div class='docblock'>
 <h1 id="ncollide" class='section-header'><a
                            href="#ncollide">ncollide</a></h1>
@@ -54,16 +57,13 @@ dimensions (never tried).</p>
 
 <h2 id="compilation" class='section-header'><a
                            href="#compilation">Compilation</a></h2>
-<p>You will need the last nightly build of the rust compiler available <a href="http://www.rust-lang.org">here</a>.
-If you encounter problems, make sure you have the last version before creating an issue.</p>
+<p>You will need the last nightly build of the <a href="http://www.rust-lang.org">rust compiler</a>
+and the official package manager: <a href="https://github.com/rust-lang/cargo">cargo</a>.</p>
 
-<p>The simplest way to build <strong>ncollide</strong> and all its dependencies is to do a
-recursive clone:</p>
+<p>Simply add the following to your <code>Cargo.toml</code> file:</p>
 <pre class='rust '>
-<span class='ident'>git</span> <span class='ident'>clone</span> <span class='op'>-</span><span class='op'>-</span><span class='ident'>recursive</span> <span class='ident'>git</span>:<span class='comment'>//github.com/sebcrozet/ncollide.git
-</span><span class='ident'>cd</span> <span class='ident'>ncollide</span>
-<span class='ident'>make</span> <span class='ident'>deps</span>
-<span class='ident'>make</span>
+[<span class='ident'>dependencies</span>.<span class='ident'>ncollide3df32</span>]
+<span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/sebcrozet/ncollide&quot;</span>
 </pre>
 
 <h2 id="features" class='section-header'><a
@@ -209,7 +209,7 @@ yet implemented)</li>
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

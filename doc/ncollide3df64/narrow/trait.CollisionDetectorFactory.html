@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `CollisionDetectorFactory` trait in crate `ncollide3df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, CollisionDetectorFactory">
 
     <title>ncollide3df64::narrow::CollisionDetectorFactory - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,14 +41,17 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>narrow</a>::<a class='trait' href=''>CollisionDetectorFactory</a><a class='source' id='src-25632' href='../../src/ncollide3df64/src/narrow/geom_geom.rs.html#345-348'>[src]</a></h1>
-<pre class='rust trait'>pub trait CollisionDetectorFactory: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a> {
-    fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;<a class='trait' href='../../ncollide3df64/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide3df64::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;;
+<h1 class='fqn'><div class='in-band'>Trait <a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>narrow</a>&#8203;::<a class='trait' href=''>CollisionDetectorFactory</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-28114' href='../../src/ncollide3df64/up/up/src/narrow/geom_geom.rs.html#346-349'>[src]</a></div></h1>
+<pre class='rust trait'>pub trait CollisionDetectorFactory: <a class='trait' href='http://doc.rust-lang.org/master/core/kinds/trait.Send.html' title='core::kinds::Send'>Send</a> {
+    fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../../ncollide3df64/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide3df64::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;;
 }</pre><div class='docblock'><p>Trait of structures able do build a new collision detector.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.build' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;<a class='trait' href='../../ncollide3df64/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide3df64::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;</code></h3><div class='docblock'><p>Builds a new collision detector.</p>
+        <h3 id='tymethod.build' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.build' class='fnname'>build</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../../ncollide3df64/narrow/trait.GeomGeomCollisionDetector.html' title='ncollide3df64::narrow::GeomGeomCollisionDetector'>GeomGeomCollisionDetector</a>&gt;</code></h3><div class='docblock'><p>Builds a new collision detector.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
@@ -85,7 +88,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

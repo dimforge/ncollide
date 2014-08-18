@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide2df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `BruteForceBroadPhase` struct in crate `ncollide2df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, BruteForceBroadPhase">
 
     <title>ncollide2df64::broad::BruteForceBroadPhase - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,14 +41,17 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide2df64</a>::<a href='index.html'>broad</a>::<a class='struct' href=''>BruteForceBroadPhase</a><a class='source' id='src-33158' href='../../src/ncollide2df64/src/broad/brute_force_broad_phase.rs.html#13-17'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Struct <a href='../index.html'>ncollide2df64</a>&#8203;::<a href='index.html'>broad</a>&#8203;::<a class='struct' href=''>BruteForceBroadPhase</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-35966' href='../../src/ncollide2df64/up/up/src/broad/brute_force_broad_phase.rs.html#13-17'>[src]</a></div></h1>
 <pre class='rust struct'>pub struct BruteForceBroadPhase&lt;B, D, DV&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Broad phase with quadratic complexity.</p>
 
 <p>It always returns false positives since it assumes that all object is in collision with all
 objects. Do not use this but for benchmarking the narrow phase.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='struct' href='../../ncollide2df64/broad/struct.BruteForceBroadPhase.html' title='ncollide2df64::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(dispatcher: D) -&gt; <a class='struct' href='../../ncollide2df64/broad/struct.BruteForceBroadPhase.html' title='ncollide2df64::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: <a class='trait' href='../../ncollide2df64/data/has_uid/trait.HasUid.html' title='ncollide2df64::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide2df64/broad/trait.Dispatcher.html' title='ncollide2df64::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='struct' href='../../ncollide2df64/broad/struct.BruteForceBroadPhase.html' title='ncollide2df64::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(dispatcher: D) -&gt; <a class='struct' href='../../ncollide2df64/broad/struct.BruteForceBroadPhase.html' title='ncollide2df64::broad::BruteForceBroadPhase'>BruteForceBroadPhase</a>&lt;B, D, DV&gt;</code></h4>
 <div class='docblock'><p>Builds a new brute force broad phase.</p>
 </div><h4 id='method.pairs' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.pairs' class='fnname'>pairs</a>&lt;'r&gt;(&amp;'r self) -&gt; &amp;'r <a class='struct' href='../../ncollide2df64/data/hash_map/struct.HashMap.html' title='ncollide2df64::data::hash_map::HashMap'>HashMap</a>&lt;<a class='struct' href='../../ncollide2df64/data/pair/struct.Pair.html' title='ncollide2df64::data::pair::Pair'>Pair</a>&lt;B&gt;, DV, <a class='struct' href='../../ncollide2df64/data/pair/struct.PairTWHash.html' title='ncollide2df64::data::pair::PairTWHash'>PairTWHash</a>&gt;</code></h4>
 <div class='docblock'><p>The pair manager of this broad phase.</p>
@@ -85,7 +88,7 @@ objects. Do not use this but for benchmarking the narrow phase.</p>
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

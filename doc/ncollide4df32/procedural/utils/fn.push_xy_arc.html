@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `push_xy_arc` fn in crate `ncollide4df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, push_xy_arc">
 
     <title>ncollide4df32::procedural::utils::push_xy_arc - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../../index.html'>ncollide4df32</a>&#8203;::<a href='../index.html'>procedural</a>&#8203;::<a href='index.html'>utils</a></p><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.push_circle.html'>push_circle</a><a class='fn ' href='fn.push_degenerate_open_top_ring_indices.html'>push_degenerate_open_top_ring_indices</a><a class='fn ' href='fn.push_degenerate_top_ring_indices.html'>push_degenerate_top_ring_indices</a><a class='fn ' href='fn.push_filled_circle_indices.html'>push_filled_circle_indices</a><a class='fn ' href='fn.push_open_ring_indices.html'>push_open_ring_indices</a><a class='fn ' href='fn.push_rectangle_indices.html'>push_rectangle_indices</a><a class='fn ' href='fn.push_ring_indices.html'>push_ring_indices</a><a class='fn current' href='fn.push_xy_arc.html'>push_xy_arc</a><a class='fn ' href='fn.reverse_clockwising.html'>reverse_clockwising</a><a class='fn ' href='fn.split_index_buffer.html'>split_index_buffer</a></div>
+        <p class='location'><a href='../../index.html'>ncollide4df32</a>&#8203;::<a href='../index.html'>procedural</a>&#8203;::<a href='index.html'>utils</a></p><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.push_circle.html'>push_circle</a><a class='fn ' href='fn.push_degenerate_open_top_ring_indices.html'>push_degenerate_open_top_ring_indices</a><a class='fn ' href='fn.push_degenerate_top_ring_indices.html'>push_degenerate_top_ring_indices</a><a class='fn ' href='fn.push_filled_circle_indices.html'>push_filled_circle_indices</a><a class='fn ' href='fn.push_open_ring_indices.html'>push_open_ring_indices</a><a class='fn ' href='fn.push_rectangle_indices.html'>push_rectangle_indices</a><a class='fn ' href='fn.push_ring_indices.html'>push_ring_indices</a><a class='fn current' href='fn.push_xy_arc.html'>push_xy_arc</a><a class='fn ' href='fn.reverse_clockwising.html'>reverse_clockwising</a><a class='fn ' href='fn.split_index_buffer.html'>split_index_buffer</a><a class='fn ' href='fn.split_index_buffer_and_recover_topology.html'>split_index_buffer_and_recover_topology</a></div>
     </section>
 
     <nav class="sub">
@@ -41,8 +41,11 @@
     </nav>
 
     <section id='main' class="content fn">
-<h1 class='fqn'>Function <a href='../../index.html'>ncollide4df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>utils</a>::<a class='fn' href=''>push_xy_arc</a><a class='source' id='src-43074' href='../../../src/ncollide4df32/src/procedural/utils.rs.html#23-41'>[src]</a></h1>
-<pre class='rust fn'>pub fn push_xy_arc&lt;N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a>, V: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Dim.html' title='nalgebra::traits::structure::Dim'>Dim</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/structure/trait.Indexable.html' title='nalgebra::traits::structure::Indexable'>Indexable</a>&lt;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>, N&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/num/trait.Zero.html' title='core::num::Zero'>Zero</a>&gt;(radius: N, nsubdiv: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.u32.html'>u32</a>, dtheta: N, out: &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;V&gt;)</pre><div class='docblock'><p>Pushes a discretized counterclockwise circle to a buffer.
+<h1 class='fqn'><div class='in-band'>Function <a href='../../index.html'>ncollide4df32</a>&#8203;::<a href='../index.html'>procedural</a>&#8203;::<a href='index.html'>utils</a>&#8203;::<a class='fn' href=''>push_xy_arc</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-46344' href='../../../src/ncollide4df32/up/up/src/procedural/utils.rs.html#26-44'>[src]</a></div></h1>
+<pre class='rust fn'>pub fn push_xy_arc&lt;N: <a class='trait' href='http://doc.rust-lang.org/master/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a>, V: <a class='trait' href='../../../nalgebra/traits/structure/trait.Dim.html' title='nalgebra::traits::structure::Dim'>Dim</a> + <a class='trait' href='../../../nalgebra/traits/structure/trait.Indexable.html' title='nalgebra::traits::structure::Indexable'>Indexable</a>&lt;<a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>, N&gt; + <a class='trait' href='http://doc.rust-lang.org/master/core/num/trait.Zero.html' title='core::num::Zero'>Zero</a>&gt;(radius: N, nsubdiv: <a href='http://doc.rust-lang.org/master/std/primitive.u32.html'>u32</a>, dtheta: N, out: &amp;mut <a class='struct' href='http://doc.rust-lang.org/master/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;V&gt;)</pre><div class='docblock'><p>Pushes a discretized counterclockwise circle to a buffer.
 The circle is contained on the plane spanned by the <code>x</code> and <code>y</code> axis.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -73,7 +76,7 @@ The circle is contained on the plane spanned by the <code>x</code> and <code>y</
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

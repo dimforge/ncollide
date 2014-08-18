@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `BezierSurfaceEvaluationCache` struct in crate `ncollide3df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, BezierSurfaceEvaluationCache">
 
     <title>ncollide3df32::geom::BezierSurfaceEvaluationCache - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide3df32</a>&#8203;::<a href='index.html'>geom</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnnotatedMinkowskiSum.html'>AnnotatedMinkowskiSum</a><a class='struct ' href='struct.Ball.html'>Ball</a><a class='struct ' href='struct.BezierCurve.html'>BezierCurve</a><a class='struct ' href='struct.BezierCurveEvaluationCache.html'>BezierCurveEvaluationCache</a><a class='struct ' href='struct.BezierSurface.html'>BezierSurface</a><a class='struct current' href='struct.BezierSurfaceEvaluationCache.html'>BezierSurfaceEvaluationCache</a><a class='struct ' href='struct.Capsule.html'>Capsule</a><a class='struct ' href='struct.Compound.html'>Compound</a><a class='struct ' href='struct.CompoundData.html'>CompoundData</a><a class='struct ' href='struct.Cone.html'>Cone</a><a class='struct ' href='struct.Convex.html'>Convex</a><a class='struct ' href='struct.Cuboid.html'>Cuboid</a><a class='struct ' href='struct.Cylinder.html'>Cylinder</a><a class='struct ' href='struct.GeomWithMargin.html'>GeomWithMargin</a><a class='struct ' href='struct.Mesh.html'>Mesh</a><a class='struct ' href='struct.MinkowskiSum.html'>MinkowskiSum</a><a class='struct ' href='struct.Plane.html'>Plane</a><a class='struct ' href='struct.Reflection.html'>Reflection</a><a class='struct ' href='struct.Segment.html'>Segment</a><a class='struct ' href='struct.Triangle.html'>Triangle</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ConcaveGeom.html'>ConcaveGeom</a><a class='trait ' href='trait.Geom.html'>Geom</a><a class='trait ' href='trait.MeshElement.html'>MeshElement</a></div>
+        <p class='location'><a href='../index.html'>ncollide3df32</a>&#8203;::<a href='index.html'>geom</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnnotatedMinkowskiSum.html'>AnnotatedMinkowskiSum</a><a class='struct ' href='struct.Ball.html'>Ball</a><a class='struct ' href='struct.BezierCurve.html'>BezierCurve</a><a class='struct ' href='struct.BezierCurveEvaluationCache.html'>BezierCurveEvaluationCache</a><a class='struct ' href='struct.BezierSurface.html'>BezierSurface</a><a class='struct current' href='struct.BezierSurfaceEvaluationCache.html'>BezierSurfaceEvaluationCache</a><a class='struct ' href='struct.Capsule.html'>Capsule</a><a class='struct ' href='struct.Compound.html'>Compound</a><a class='struct ' href='struct.CompoundData.html'>CompoundData</a><a class='struct ' href='struct.Cone.html'>Cone</a><a class='struct ' href='struct.Convex.html'>Convex</a><a class='struct ' href='struct.Cuboid.html'>Cuboid</a><a class='struct ' href='struct.Cylinder.html'>Cylinder</a><a class='struct ' href='struct.GeomWithMargin.html'>GeomWithMargin</a><a class='struct ' href='struct.Mesh.html'>Mesh</a><a class='struct ' href='struct.MinkowskiSum.html'>MinkowskiSum</a><a class='struct ' href='struct.Plane.html'>Plane</a><a class='struct ' href='struct.Reflection.html'>Reflection</a><a class='struct ' href='struct.Segment.html'>Segment</a><a class='struct ' href='struct.Torus.html'>Torus</a><a class='struct ' href='struct.Triangle.html'>Triangle</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ConcaveGeom.html'>ConcaveGeom</a><a class='trait ' href='trait.Geom.html'>Geom</a><a class='trait ' href='trait.MeshElement.html'>MeshElement</a></div>
     </section>
 
     <nav class="sub">
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df32</a>::<a href='index.html'>geom</a>::<a class='struct' href=''>BezierSurfaceEvaluationCache</a><a class='source' id='src-12340' href='../../src/ncollide3df32/src/geom/bezier_surface.rs.html#18-21'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Struct <a href='../index.html'>ncollide3df32</a>&#8203;::<a href='index.html'>geom</a>&#8203;::<a class='struct' href=''>BezierSurfaceEvaluationCache</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-14281' href='../../src/ncollide3df32/up/up/src/geom/bezier_surface.rs.html#14-17'>[src]</a></div></h1>
 <pre class='rust struct'>pub struct BezierSurfaceEvaluationCache {
     // some fields omitted
 }</pre><div class='docblock'><p>Cache used to evaluate a bezier surface at a given parameter.</p>
@@ -76,7 +79,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

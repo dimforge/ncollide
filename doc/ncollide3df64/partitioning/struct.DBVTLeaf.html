@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `DBVTLeaf` struct in crate `ncollide3df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, DBVTLeaf">
 
     <title>ncollide3df64::partitioning::DBVTLeaf - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>partitioning</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BVT.html'>BVT</a><a class='struct ' href='struct.BoundingVolumeInterferencesCollector.html'>BoundingVolumeInterferencesCollector</a><a class='struct ' href='struct.DBVT.html'>DBVT</a><a class='struct current' href='struct.DBVTLeaf.html'>DBVTLeaf</a><a class='struct ' href='struct.RayInterferencesCollector.html'>RayInterferencesCollector</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BVTVisitor.html'>BVTVisitor</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.kdtree_partitioner.html'>kdtree_partitioner</a></div>
+        <p class='location'><a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>partitioning</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.BVT.html'>BVT</a><a class='struct ' href='struct.BoundingVolumeInterferencesCollector.html'>BoundingVolumeInterferencesCollector</a><a class='struct ' href='struct.DBVT.html'>DBVT</a><a class='struct current' href='struct.DBVTLeaf.html'>DBVTLeaf</a><a class='struct ' href='struct.RayInterferencesCollector.html'>RayInterferencesCollector</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.BVTTVisitor.html'>BVTTVisitor</a><a class='trait ' href='trait.BVTVisitor.html'>BVTVisitor</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.kdtree_partitioner.html'>kdtree_partitioner</a><a class='fn ' href='fn.kdtree_partitioner_with_centers.html'>kdtree_partitioner_with_centers</a></div>
     </section>
 
     <nav class="sub">
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../index.html'>ncollide3df64</a>::<a href='index.html'>partitioning</a>::<a class='struct' href=''>DBVTLeaf</a><a class='source' id='src-42322' href='../../src/ncollide3df64/src/partitioning/dbvt.rs.html#185-194'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Struct <a href='../index.html'>ncollide3df64</a>&#8203;::<a href='index.html'>partitioning</a>&#8203;::<a class='struct' href=''>DBVTLeaf</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-46878' href='../../src/ncollide3df64/up/up/src/partitioning/dbvt.rs.html#185-194'>[src]</a></div></h1>
 <pre class='rust struct'>pub struct DBVTLeaf&lt;B, BV&gt; {
     pub bounding_volume: BV,
     pub center: <a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>,
@@ -53,9 +56,9 @@
 </div></td></tr><tr><td id='structfield.center'><a class='stability Unmarked' title='No stability level'></a><code>center</code></td><td><div class='docblock'><p>The center of this node bounding volume.</p>
 </div></td></tr><tr><td id='structfield.object'><a class='stability Unmarked' title='No stability level'></a><code>object</code></td><td><div class='docblock'><p>An user-defined object.</p>
 </div></td></tr><tr><td id='structfield.parent'><a class='stability Unmarked' title='No stability level'></a><code>parent</code></td><td><div class='docblock'><p>This node parent.</p>
-</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static, BV: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>&gt; + 'static&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(bounding_volume: BV, object: B) -&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h4>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static, BV: <a class='trait' href='../../nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide3df64/math/type.Vect.html' title='ncollide3df64::math::Vect'>Vect</a>&gt; + 'static&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(bounding_volume: BV, object: B) -&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h4>
 <div class='docblock'><p>Creates a new leaf.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h3><div class='impl-methods'><h4 id='method.clone' class='method'><a class='stability Unstable' title='Unstable'></a><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h3><div class='impl-methods'><h4 id='method.clone' class='method'><a class='stability Unstable' title='Unstable'></a><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide3df64/partitioning/struct.DBVTLeaf.html' title='ncollide3df64::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;B, BV&gt;</code></h4>
 <h4 id='method.clone_from' class='method'><a class='stability Experimental' title='Experimental: this function is mostly unused'></a><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -86,7 +89,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `StrokePattern` trait in crate `ncollide3df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, StrokePattern">
 
     <title>ncollide3df32::procedural::path::StrokePattern - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../../index.html'>ncollide3df32</a>::<a href='../index.html'>procedural</a>::<a href='index.html'>path</a>::<a class='trait' href=''>StrokePattern</a><a class='source' id='src-47386' href='../../../src/ncollide3df32/src/procedural/path/path.rs.html#25-28'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Trait <a href='../../index.html'>ncollide3df32</a>&#8203;::<a href='../index.html'>procedural</a>&#8203;::<a href='index.html'>path</a>&#8203;::<a class='trait' href=''>StrokePattern</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-52725' href='../../../src/ncollide3df32/up/up/src/procedural/path/path.rs.html#25-28'>[src]</a></div></h1>
 <pre class='rust trait'>pub trait StrokePattern&lt;N, V&gt; {
     fn <a href='#tymethod.stroke' class='fnname'>stroke</a>&lt;C: <a class='trait' href='../../../ncollide3df32/procedural/path/trait.CurveSampler.html' title='ncollide3df32::procedural::path::CurveSampler'>CurveSampler</a>&lt;N, V&gt;&gt;(&amp;mut self, sampler: &amp;mut C) -&gt; <a class='struct' href='../../../ncollide3df32/procedural/struct.TriMesh.html' title='ncollide3df32::procedural::TriMesh'>TriMesh</a>&lt;N, V&gt;;
 }</pre><div class='docblock'><p>A pattern that is replicated along a path.</p>
@@ -54,7 +57,7 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/structs/vec/trait.Vec3MulRhs.html' title='nalgebra::structs::vec::Vec3MulRhs'>Vec3MulRhs</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/structs/vec/trait.Vec3DivRhs.html' title='nalgebra::structs::vec::Vec3DivRhs'>Vec3DivRhs</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt;, C1: <a class='trait' href='../../../ncollide3df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide3df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, C2: <a class='trait' href='../../../ncollide3df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide3df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;&gt; <a class='trait' href='../../../ncollide3df32/procedural/path/trait.StrokePattern.html' title='ncollide3df32::procedural::path::StrokePattern'>StrokePattern</a>&lt;N, <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../../../ncollide3df32/procedural/path/struct.PolylinePattern.html' title='ncollide3df32::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='http://doc.rust-lang.org/master/std/num/trait.FloatMath.html' title='std::num::FloatMath'>FloatMath</a> + <a class='trait' href='../../../nalgebra/structs/vec/trait.Vec3MulRhs.html' title='nalgebra::structs::vec::Vec3MulRhs'>Vec3MulRhs</a>&lt;N, <a class='struct' href='../../../nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; + <a class='trait' href='../../../nalgebra/structs/vec/trait.Vec3DivRhs.html' title='nalgebra::structs::vec::Vec3DivRhs'>Vec3DivRhs</a>&lt;N, <a class='struct' href='../../../nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt;, C1: <a class='trait' href='../../../ncollide3df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide3df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, C2: <a class='trait' href='../../../ncollide3df32/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide3df32::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;&gt; <a class='trait' href='../../../ncollide3df32/procedural/path/trait.StrokePattern.html' title='ncollide3df32::procedural::path::StrokePattern'>StrokePattern</a>&lt;N, <a class='struct' href='../../../nalgebra/structs/vec/struct.Vec3.html' title='nalgebra::structs::vec::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../../../ncollide3df32/procedural/path/struct.PolylinePattern.html' title='ncollide3df32::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../../implementors/ncollide3df32/procedural/path/trait.StrokePattern.js">
                       </script></section>
@@ -86,7 +89,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df64 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `MeshElement` trait in crate `ncollide4df64`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, MeshElement">
 
     <title>ncollide4df64::geom::MeshElement - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>geom</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnnotatedMinkowskiSum.html'>AnnotatedMinkowskiSum</a><a class='struct ' href='struct.Ball.html'>Ball</a><a class='struct ' href='struct.BezierCurve.html'>BezierCurve</a><a class='struct ' href='struct.BezierCurveEvaluationCache.html'>BezierCurveEvaluationCache</a><a class='struct ' href='struct.BezierSurface.html'>BezierSurface</a><a class='struct ' href='struct.BezierSurfaceEvaluationCache.html'>BezierSurfaceEvaluationCache</a><a class='struct ' href='struct.Capsule.html'>Capsule</a><a class='struct ' href='struct.Compound.html'>Compound</a><a class='struct ' href='struct.CompoundData.html'>CompoundData</a><a class='struct ' href='struct.Cone.html'>Cone</a><a class='struct ' href='struct.Convex.html'>Convex</a><a class='struct ' href='struct.Cuboid.html'>Cuboid</a><a class='struct ' href='struct.Cylinder.html'>Cylinder</a><a class='struct ' href='struct.GeomWithMargin.html'>GeomWithMargin</a><a class='struct ' href='struct.Mesh.html'>Mesh</a><a class='struct ' href='struct.MinkowskiSum.html'>MinkowskiSum</a><a class='struct ' href='struct.Plane.html'>Plane</a><a class='struct ' href='struct.Reflection.html'>Reflection</a><a class='struct ' href='struct.Segment.html'>Segment</a><a class='struct ' href='struct.Triangle.html'>Triangle</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ConcaveGeom.html'>ConcaveGeom</a><a class='trait ' href='trait.Geom.html'>Geom</a><a class='trait current' href='trait.MeshElement.html'>MeshElement</a></div>
+        <p class='location'><a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>geom</a></p><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.AnnotatedMinkowskiSum.html'>AnnotatedMinkowskiSum</a><a class='struct ' href='struct.Ball.html'>Ball</a><a class='struct ' href='struct.BezierCurve.html'>BezierCurve</a><a class='struct ' href='struct.BezierCurveEvaluationCache.html'>BezierCurveEvaluationCache</a><a class='struct ' href='struct.BezierSurface.html'>BezierSurface</a><a class='struct ' href='struct.BezierSurfaceEvaluationCache.html'>BezierSurfaceEvaluationCache</a><a class='struct ' href='struct.Capsule.html'>Capsule</a><a class='struct ' href='struct.Compound.html'>Compound</a><a class='struct ' href='struct.CompoundData.html'>CompoundData</a><a class='struct ' href='struct.Cone.html'>Cone</a><a class='struct ' href='struct.Convex.html'>Convex</a><a class='struct ' href='struct.Cuboid.html'>Cuboid</a><a class='struct ' href='struct.Cylinder.html'>Cylinder</a><a class='struct ' href='struct.GeomWithMargin.html'>GeomWithMargin</a><a class='struct ' href='struct.Mesh.html'>Mesh</a><a class='struct ' href='struct.MinkowskiSum.html'>MinkowskiSum</a><a class='struct ' href='struct.Plane.html'>Plane</a><a class='struct ' href='struct.Reflection.html'>Reflection</a><a class='struct ' href='struct.Segment.html'>Segment</a><a class='struct ' href='struct.Torus.html'>Torus</a><a class='struct ' href='struct.Triangle.html'>Triangle</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.ConcaveGeom.html'>ConcaveGeom</a><a class='trait ' href='trait.Geom.html'>Geom</a><a class='trait current' href='trait.MeshElement.html'>MeshElement</a></div>
     </section>
 
     <nav class="sub">
@@ -41,10 +41,13 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide4df64</a>::<a href='index.html'>geom</a>::<a class='trait' href=''>MeshElement</a><a class='source' id='src-10852' href='../../src/ncollide4df64/src/geom/mesh.rs.html#28-33'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Trait <a href='../index.html'>ncollide4df64</a>&#8203;::<a href='index.html'>geom</a>&#8203;::<a class='trait' href=''>MeshElement</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-12156' href='../../src/ncollide4df64/up/up/src/geom/mesh.rs.html#22-27'>[src]</a></div></h1>
 <pre class='rust trait'>pub trait MeshElement {
-    fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>;
-    fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a class='type' href='../../ncollide4df64/math/type.Vect.html' title='ncollide4df64::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>) -&gt; Self;
+    fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/master/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>;
+    fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[<a class='type' href='../../ncollide4df64/math/type.Vect.html' title='ncollide4df64::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>) -&gt; Self;
 }</pre><div class='docblock'><p>Trait implemented by elements usable on the Mesh.</p>
 
 <p>Note that this trait is not useful per se since the Mesh is not parameterized by
@@ -53,8 +56,8 @@ alias for <code>MeshPrimitive</code>.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.nvertices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/0.11.0/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>The number of vertices of this mesh element.</p>
-</div><h3 id='tymethod.new_with_vertices_and_indices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a class='type' href='../../ncollide4df64/math/type.Vect.html' title='ncollide4df64::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>) -&gt; Self</code></h3><div class='docblock'><p>Creates a new mesh element from a set of vertices and indices and the margin.</p>
+        <h3 id='tymethod.nvertices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.nvertices' class='fnname'>nvertices</a>(unused: <a class='type' href='http://doc.rust-lang.org/master/core/option/type.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a></code></h3><div class='docblock'><p>The number of vertices of this mesh element.</p>
+</div><h3 id='tymethod.new_with_vertices_and_indices' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.new_with_vertices_and_indices' class='fnname'>new_with_vertices_and_indices</a>(&amp;<a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[<a class='type' href='../../ncollide4df64/math/type.Vect.html' title='ncollide4df64::math::Vect'>Vect</a>]</a>, &amp;<a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[<a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>]</a>, <a class='type' href='../../ncollide4df64/math/type.Scalar.html' title='ncollide4df64::math::Scalar'>Scalar</a>) -&gt; Self</code></h3><div class='docblock'><p>Creates a new mesh element from a set of vertices and indices and the margin.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
@@ -91,7 +94,7 @@ alias for <code>MeshPrimitive</code>.</p>
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide3df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `VecSlice` struct in crate `ncollide3df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, VecSlice">
 
     <title>ncollide3df32::data::vec_slice::VecSlice - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,26 +41,29 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../../index.html'>ncollide3df32</a>::<a href='../index.html'>data</a>::<a href='index.html'>vec_slice</a>::<a class='struct' href=''>VecSlice</a><a class='source' id='src-78699' href='../../../src/ncollide3df32/src/data/vec_slice.rs.html#6-10'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Struct <a href='../../index.html'>ncollide3df32</a>&#8203;::<a href='../index.html'>data</a>&#8203;::<a href='index.html'>vec_slice</a>&#8203;::<a class='struct' href=''>VecSlice</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-91961' href='../../../src/ncollide3df32/up/up/src/data/vec_slice.rs.html#6-10'>[src]</a></div></h1>
 <pre class='rust struct'>pub struct VecSlice&lt;'a, T&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>A vector slice with a specific length and stride.</p>
 
 <p>The stride is the number of index increments between two elements.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, T&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(data: &amp;'a <a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[T]</a>, length: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>, stride: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h4>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, T&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>(data: &amp;'a <a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[T]</a>, length: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>, stride: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h4>
 <div class='docblock'><p>Creates a new immutable slice.</p>
-</div><h4 id='method.new_unsafe' class='method'><a class='stability Unmarked' title='No stability level'></a><code>unsafe fn <a href='#method.new_unsafe' class='fnname'>new_unsafe</a>(data: &amp;'a <a href='http://doc.rust-lang.org/0.11.0/std/primitive.slice.html'>[T]</a>, length: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>, stride: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h4>
+</div><h4 id='method.new_unsafe' class='method'><a class='stability Unmarked' title='No stability level'></a><code>unsafe fn <a href='#method.new_unsafe' class='fnname'>new_unsafe</a>(data: &amp;'a <a href='http://doc.rust-lang.org/master/std/primitive.slice.html'>[T]</a>, length: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>, stride: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>) -&gt; <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h4>
 <div class='docblock'><p>Creates a new immutable slice. The size of the data buffer is not checked.</p>
-</div><h4 id='method.get' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get' class='fnname'>get</a>&lt;'b&gt;(&amp;'b self, i: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>) -&gt; &amp;'b T</code></h4>
+</div><h4 id='method.get' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.get' class='fnname'>get</a>&lt;'b&gt;(&amp;'b self, i: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>) -&gt; &amp;'b T</code></h4>
 <div class='docblock'><p>Gets the i-th element of the slice.</p>
 
 <p>This is the same as the <code>i * self.stride</code>-th element of the wrapped vector.</p>
-</div><h4 id='method.unsafe_get' class='method'><a class='stability Unmarked' title='No stability level'></a><code>unsafe fn <a href='#method.unsafe_get' class='fnname'>unsafe_get</a>&lt;'b&gt;(&amp;'b self, i: <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a>) -&gt; &amp;'b T</code></h4>
+</div><h4 id='method.unsafe_get' class='method'><a class='stability Unmarked' title='No stability level'></a><code>unsafe fn <a href='#method.unsafe_get' class='fnname'>unsafe_get</a>&lt;'b&gt;(&amp;'b self, i: <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a>) -&gt; &amp;'b T</code></h4>
 <div class='docblock'><p>Gets the i-th element of the slice without bound-checking.</p>
 
 <p>This is the same as the <code>i * self.stride</code>-th element of the wrapped vector.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, T&gt; <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/collections/trait.Collection.html' title='core::collections::Collection'>Collection</a> for <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h3><div class='impl-methods'><h4 id='method.len' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.uint.html'>uint</a></code></h4>
-<h4 id='method.is_empty' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/0.11.0/std/primitive.bool.html'>bool</a></code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a, T&gt; <a class='trait' href='http://doc.rust-lang.org/master/core/collections/trait.Collection.html' title='core::collections::Collection'>Collection</a> for <a class='struct' href='../../../ncollide3df32/data/vec_slice/struct.VecSlice.html' title='ncollide3df32::data::vec_slice::VecSlice'>VecSlice</a>&lt;'a, T&gt;</code></h3><div class='impl-methods'><h4 id='method.len' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.uint.html'>uint</a></code></h4>
+<h4 id='method.is_empty' class='method'><a class='stability Experimental' title='Experimental'></a><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a href='http://doc.rust-lang.org/master/std/primitive.bool.html'>bool</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -90,7 +93,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

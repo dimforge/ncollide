@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide4df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `RayCastBroadPhase` trait in crate `ncollide4df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, RayCastBroadPhase">
 
     <title>ncollide4df32::broad::RayCastBroadPhase - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,18 +41,21 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'>Trait <a href='../index.html'>ncollide4df32</a>::<a href='index.html'>broad</a>::<a class='trait' href=''>RayCastBroadPhase</a><a class='source' id='src-32833' href='../../src/ncollide4df32/src/broad/broad_phase.rs.html#45-48'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Trait <a href='../index.html'>ncollide4df32</a>&#8203;::<a href='index.html'>broad</a>&#8203;::<a class='trait' href=''>RayCastBroadPhase</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-35249' href='../../src/ncollide4df32/up/up/src/broad/broad_phase.rs.html#45-48'>[src]</a></div></h1>
 <pre class='rust trait'>pub trait RayCastBroadPhase&lt;B&gt;: <a class='trait' href='../../ncollide4df32/broad/trait.BroadPhase.html' title='ncollide4df32::broad::BroadPhase'>BroadPhase</a>&lt;B&gt; {
-    fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide4df32/ray/struct.Ray.html' title='ncollide4df32::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
+    fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide4df32/ray/struct.Ray.html' title='ncollide4df32::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/master/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;);
 }</pre><div class='docblock'><p>Traits of broad phase able to run fast ray-cast queries.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.interferences_with_ray' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide4df32/ray/struct.Ray.html' title='ncollide4df32::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/0.11.0/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a ray.</p>
+        <h3 id='tymethod.interferences_with_ray' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.interferences_with_ray' class='fnname'>interferences_with_ray</a>(&amp;mut self, &amp;<a class='struct' href='../../ncollide4df32/ray/struct.Ray.html' title='ncollide4df32::ray::Ray'>Ray</a>, &amp;mut <a class='struct' href='http://doc.rust-lang.org/master/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;)</code></h3><div class='docblock'><p>Collects every object which might intersect a ray.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide4df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide4df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide4df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide4df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='../../ncollide4df32/ray/trait.RayCast.html' title='ncollide4df32::ray::RayCast'>RayCast</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/0.11.0/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.RayCastBroadPhase.html' title='ncollide4df32::broad::RayCastBroadPhase'>RayCastBroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
+    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;B: 'static + <a class='trait' href='../../ncollide4df32/bounding_volume/trait.HasBoundingVolume.html' title='ncollide4df32::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;BV&gt; + <a class='trait' href='../../ncollide4df32/data/has_uid/trait.HasUid.html' title='ncollide4df32::data::has_uid::HasUid'>HasUid</a> + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide4df32/bounding_volume/trait.LooseBoundingVolume.html' title='ncollide4df32::bounding_volume::LooseBoundingVolume'>LooseBoundingVolume</a> + <a class='trait' href='../../ncollide4df32/ray/trait.RayCast.html' title='ncollide4df32::ray::RayCast'>RayCast</a> + <a class='trait' href='../../nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;<a class='type' href='../../ncollide4df32/math/type.Vect.html' title='ncollide4df32::math::Vect'>Vect</a>&gt; + <a class='trait' href='http://doc.rust-lang.org/master/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, D: <a class='trait' href='../../ncollide4df32/broad/trait.Dispatcher.html' title='ncollide4df32::broad::Dispatcher'>Dispatcher</a>&lt;B, B, DV&gt;, DV&gt; <a class='trait' href='../../ncollide4df32/broad/trait.RayCastBroadPhase.html' title='ncollide4df32::broad::RayCastBroadPhase'>RayCastBroadPhase</a>&lt;B&gt; for <a class='struct' href='../../ncollide4df32/broad/struct.DBVTBroadPhase.html' title='ncollide4df32::broad::DBVTBroadPhase'>DBVTBroadPhase</a>&lt;B, BV, D, DV&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../../implementors/ncollide4df32/broad/trait.RayCastBroadPhase.js">
                       </script></section>
@@ -84,7 +87,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>

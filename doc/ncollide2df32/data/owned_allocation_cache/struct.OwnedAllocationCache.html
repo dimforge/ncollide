@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The ncollide2df32 library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `OwnedAllocationCache` struct in crate `ncollide2df32`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, OwnedAllocationCache">
 
     <title>ncollide2df32::data::owned_allocation_cache::OwnedAllocationCache - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
     
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +41,10 @@
     </nav>
 
     <section id='main' class="content struct">
-<h1 class='fqn'>Struct <a href='../../index.html'>ncollide2df32</a>::<a href='../index.html'>data</a>::<a href='index.html'>owned_allocation_cache</a>::<a class='struct' href=''>OwnedAllocationCache</a><a class='source' id='src-75477' href='../../../src/ncollide2df32/src/data/owned_allocation_cache.rs.html#7-9'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Struct <a href='../../index.html'>ncollide2df32</a>&#8203;::<a href='../index.html'>data</a>&#8203;::<a href='index.html'>owned_allocation_cache</a>&#8203;::<a class='struct' href=''>OwnedAllocationCache</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-84016' href='../../../src/ncollide2df32/up/up/src/data/owned_allocation_cache.rs.html#7-9'>[src]</a></div></h1>
 <pre class='rust struct'>pub struct OwnedAllocationCache&lt;T&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>Cache for owned objects.</p>
@@ -49,9 +52,9 @@
 <p>Useful if fast allocation/deallocation of small owned objects is needed.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;T&gt; <a class='struct' href='../../../ncollide2df32/data/owned_allocation_cache/struct.OwnedAllocationCache.html' title='ncollide2df32::data::owned_allocation_cache::OwnedAllocationCache'>OwnedAllocationCache</a>&lt;T&gt;</code></h3><div class='impl-methods'><h4 id='method.new' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../../../ncollide2df32/data/owned_allocation_cache/struct.OwnedAllocationCache.html' title='ncollide2df32::data::owned_allocation_cache::OwnedAllocationCache'>OwnedAllocationCache</a>&lt;T&gt;</code></h4>
 <div class='docblock'><p>Initializes the cache.</p>
-</div><h4 id='method.alloc' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.alloc' class='fnname'>alloc</a>(&amp;mut self, value: T) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;T&gt;</code></h4>
+</div><h4 id='method.alloc' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.alloc' class='fnname'>alloc</a>(&amp;mut self, value: T) -&gt; <a class='struct' href='http://doc.rust-lang.org/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;T&gt;</code></h4>
 <div class='docblock'><p>Box a value into a potentially already allocated box.</p>
-</div><h4 id='method.retain' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.retain' class='fnname'>retain</a>(&amp;mut self, elem: <a class='struct' href='http://doc.rust-lang.org/alloc/owned/struct.Box.html' title='alloc::owned::Box'>Box</a>&lt;T&gt;)</code></h4>
+</div><h4 id='method.retain' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.retain' class='fnname'>retain</a>(&amp;mut self, elem: <a class='struct' href='http://doc.rust-lang.org/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;T&gt;)</code></h4>
 <div class='docblock'><p>Retains a box which can be re-used by the <code>box</code> method.</p>
 </div><h4 id='method.clear' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.clear' class='fnname'>clear</a>(&amp;mut self)</code></h4>
 <div class='docblock'><p>Clears the cache, destroying any stored pointer.</p>
@@ -84,7 +87,7 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>
