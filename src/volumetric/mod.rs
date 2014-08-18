@@ -4,18 +4,8 @@ pub use volumetric::volumetric::{Volumetric, InertiaTensor};
 pub use volumetric::volumetric_ball::ball_volume;
 pub use volumetric::volumetric_cuboid::cuboid_volume;
 
-// #[dim3]
 pub use volumetric::volumetric_cone::cone_volume;
-// #[dim3]
 pub use volumetric::volumetric_capsule::capsule_volume;
-// #[dim3]
-pub use volumetric::volumetric_cylinder::cylinder_volume;
-
-// #[dim2]
-pub use volumetric::volumetric_cone::cone_volume;
-// #[dim2]
-pub use volumetric::volumetric_capsule::capsule_volume;
-// #[dim2]
 pub use volumetric::volumetric_cylinder::cylinder_volume;
 
 pub mod volumetric;

@@ -1,14 +1,9 @@
+use nalgebra::na::Indexable;
 use nalgebra::na::Iterable;
 use nalgebra::na;
 use geom::Cuboid;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
-
-// #[dim2]
-use nalgebra::na::Indexable;
-
-// #[dim3]
-use nalgebra::na::Indexable;
 
 
 /// Computes the volume of a cuboid.

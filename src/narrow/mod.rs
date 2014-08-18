@@ -21,8 +21,7 @@ pub mod toi {
     pub use ball_ball         = narrow::ball_ball::toi;
     pub use plane_implicit    = narrow::plane_implicit::toi;
     pub use implicit_implicit = narrow::implicit_implicit::toi;
-    pub use implicit_implicit = narrow::implicit_implicit::toi;
-    pub use implicit_implicit = narrow::implicit_implicit::toi_and_normal;
+    pub use implicit_implicit_and_normal = narrow::implicit_implicit::toi_and_normal;
 }
 
 /// Functions to compute one contact point between two geometries.

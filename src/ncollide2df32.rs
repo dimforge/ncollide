@@ -56,7 +56,6 @@ Some common features are still missing:
 
 #[phase(plugin)] extern crate dim2;
 
-extern crate std;
 extern crate nalgebra;
 extern crate sync;
 extern crate serialize;
