@@ -413,12 +413,12 @@ impl DualGraphEdge {
         let chull  = Convex::new_with_margin(vtx1.as_slice(), na::zero());
         let volume = chull.volume();
         let area = chull.surface();
-        let cov = utils::cov(chull.mesh().coords.as_slice());
-        let (_, eigenvalues) = na::eigen_qr(&cov, &na::cast(1.0e-5f64), 20);
-        let volume = eigenvalues.x * eigenvalues.y * eigenvalues.z * na::cast(8.0f64);
-        let area = (eigenvalues.x * eigenvalues.y +
-                    eigenvalues.y * eigenvalues.z +
-                    eigenvalues.z * eigenvalues.x) * na::cast(8.0f64);
+        // let cov = utils::cov(chull.mesh().coords.as_slice());
+        // let (_, eigenvalues) = na::eigen_qr(&cov, &na::cast(1.0e-5f64), 20);
+        // let volume = eigenvalues.x * eigenvalues.y * eigenvalues.z * na::cast(8.0f64);
+        // let area = (eigenvalues.x * eigenvalues.y +
+        //             eigenvalues.y * eigenvalues.z +
+        //             eigenvalues.z * eigenvalues.x) * na::cast(8.0f64);
 
         // FIXME: refactor this.
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
@@ -544,6 +544,7 @@ impl DualGraphEdge {
             cast_ray(&chull, ray, id, &mut self.concavity, &mut self.ancestors);
         }
 
+        // FIXME: (optimization) find a way to stop the cast if we exceed the max concavity.
         if self.iv1 == a1.len() && self.iv2 == a2.len() {
             let mut internal_rays = Vec::new();
 
@@ -568,7 +569,7 @@ impl DualGraphEdge {
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(ray, false) {
+                    match chull.toi_with_ray(ray, true) {
                         None        => continue,
                         Some(inter) => {
                             if inter.is_zero() {
