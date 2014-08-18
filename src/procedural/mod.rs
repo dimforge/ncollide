@@ -2,16 +2,10 @@
 pub use procedural::trimesh::{TriMesh, IndexBuffer, UnifiedIndexBuffer, SplitIndexBuffer};
 pub use procedural::polyline::Polyline;
 
-// XXX: #[dim3]
 pub use procedural::parametric_surface::{parametric_surface_uniform,
                                          parametric_surface_uniform_with_distance_error};
 pub use procedural::bezier::{bezier_surface, rational_bezier_surface, bezier_curve, rational_bezier_curve,
                              bezier_surface_at, bezier_curve_at};
-// XXX: #[dim3]
-pub use procedural::parametric_surface::{parametric_surface_uniform,
-                                         parametric_surface_uniform_with_distance_error};
-pub use procedural::bezier::{bezier_surface, rational_bezier_surface, bezier_curve,
-                             rational_bezier_curve, bezier_surface_at, bezier_curve_at};
 pub use procedural::capsule::capsule;
 pub use procedural::cone::{unit_cone, cone};
 pub use procedural::cuboid::{cuboid, unit_cuboid, rectangle, unit_rectangle};

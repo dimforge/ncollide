@@ -1,15 +1,10 @@
 use std::num::Float;
 use std::num;
 use nalgebra::na;
+use nalgebra::na::Indexable;
 use geom::Ball;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
-
-// #[dim2]
-use nalgebra::na::Indexable;
-
-// #[dim3]
-use nalgebra::na::Indexable;
 
 /// Computes the volume of a ball.
 #[inline]
