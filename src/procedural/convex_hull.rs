@@ -65,6 +65,7 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
             continue;
         }
 
+        // FIXME: use triangles[i].furthest_point instead.
         let pt_id = support_point(&triangles[i].normal,
                                   points.as_slice(),
                                   triangles[i].visible_points.as_slice());
@@ -88,15 +89,22 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
                 }
 
                 if horizon_loop_facets.is_empty() {
-                    println!("empty horizon.");
                     // Due to inaccuracies, the silhouette could not be computed
                     // (the point seems to be visible from… every triangle).
-                    // Force it to be at least the curren tiangle adjascent faces.
-                    // FIXME: check that this is OK even in weird cases of coplanarity…
-                    for j in range(0, 3) {
-                        horizon_loop_facets.push(triangles[i].adj[j]);
-                        horizon_loop_ids.push(triangles[i].indirect_adj_id[j]);
+                    let mut any_valid = false;
+                    for j in range(i + 1, triangles.len()) {
+                        if triangles[j].valid {
+                            any_valid = true;
+                        }
                     }
+
+                    if any_valid {
+                        println!("Warning: exitting an unfinished work.");
+                    }
+
+                    // FIXME: this is verry harsh.
+                    triangles.get_mut(i).valid = true;
+                    break;
                 }
 
                 attach_and_push_facets_3d(horizon_loop_facets.as_slice(),
@@ -258,11 +266,8 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
             assert!(p3 != Bounded::max_value(), "Internal convex hull error: no triangle found.");
 
             // Build two facets with opposite normals
-            println!(">>> Initializing.");
             let mut f1 = TriangleFacet::new(p1, p2, p3, points);
             let mut f2 = TriangleFacet::new(p2, p1, p3, points);
-
-            println!("<<< Initialized.");
 
             // Link the facets together
             f1.set_facets_adjascency(1, 1, 1, 0, 2, 1);
@@ -293,7 +298,7 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
                 }
 
                 if furthest != Bounded::max_value() {
-                    facets.get_mut(furthest).visible_points.push(point);
+                    facets.get_mut(furthest).add_visible_point(point, points);
                 }
                 else {
                     undecidable.push(point);
@@ -470,7 +475,7 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
             }
 
             if furthest != Bounded::max_value() {
-                new_facets.get_mut(furthest).visible_points.push(*visible_point);
+                new_facets.get_mut(furthest).add_visible_point(*visible_point, points);
             }
 
             // If none of the facet can be seen from the point, it is naturally deleted.
@@ -497,7 +502,7 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
         }
 
         if furthest != Bounded::max_value() {
-            new_facets.get_mut(furthest).visible_points.push(undecidable_point);
+            new_facets.get_mut(furthest).add_visible_point(undecidable_point, points);
             let _ = undecidable.swap_remove(i);
         }
         else {
@@ -514,12 +519,14 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
 
 
 struct TriangleFacet {
-    pub valid:           bool,
-    pub normal:          Vec3<Scalar>,
-    pub adj:             [uint, ..3],
-    pub indirect_adj_id: [uint, ..3],
-    pub pts:             [uint, ..3],
-    pub visible_points:  Vec<uint>
+    valid:             bool,
+    normal:            Vec3<Scalar>,
+    adj:               [uint, ..3],
+    indirect_adj_id:   [uint, ..3],
+    pts:               [uint, ..3],
+    visible_points:    Vec<uint>,
+    furthest_point:    uint,
+    furthest_distance: Scalar
 }
 
 
@@ -546,13 +553,26 @@ impl TriangleFacet {
         }
 
         TriangleFacet {
-            valid:           true,
-            normal:          normal,
-            adj:             [0, 0, 0],
-            indirect_adj_id: [0, 0, 0],
-            pts:             [p1, p2, p3],
-            visible_points:  Vec::new()
+            valid:             true,
+            normal:            normal,
+            adj:               [0, 0, 0],
+            indirect_adj_id:   [0, 0, 0],
+            pts:               [p1, p2, p3],
+            visible_points:    Vec::new(),
+            furthest_point:    Bounded::max_value(),
+            furthest_distance: na::zero()
         }
+    }
+
+    pub fn add_visible_point(&mut self, pid: uint, points: &[Vec3<Scalar>]) {
+        let dist = self.distance_to_point(pid, points);
+
+        if dist > self.furthest_distance {
+            self.furthest_distance = dist;
+            self.furthest_point    = pid;
+        }
+
+        self.visible_points.push(pid);
     }
 
     pub fn distance_to_point(&self, point: uint, points: &[Vec3<Scalar>]) -> Scalar {
