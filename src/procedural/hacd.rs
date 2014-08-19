@@ -1,4 +1,5 @@
 use std::num::Zero;
+use std::iter::AdditiveIterator;
 use std::mem;
 use std::collections::{HashMap, HashSet, PriorityQueue};
 use std::rand::{IsaacRng, Rng};
@@ -56,7 +57,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
     for (i, v) in dual_graph.iter().enumerate() {
         for n in v.neighbors.as_ref().unwrap().iter() {
             if i < *n {
-                let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice(), error);
+                let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice(), mesh.coords.as_slice(), error);
 
                 edges.push(edge);
             }
@@ -141,7 +142,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
         };
 
         for n in dual_graph[to_add].neighbors.as_ref().unwrap().iter() {
-            let edge = DualGraphEdge::new(curr_time, to_add, *n, dual_graph.as_slice(), error);
+            let edge = DualGraphEdge::new(curr_time, to_add, *n, dual_graph.as_slice(), mesh.coords.as_slice(), error);
 
             edges.push(edge);
         }
@@ -191,6 +192,7 @@ struct DualGraphVertex {
     neighbors:  Option<HashSet<uint, SipHasher>>, // vertices adjascent to this one.
     ancestors:  Option<Vec<VertexWithConcavity>>, // faces from the original surface.
     uancestors: Option<HashSet<uint, SipHasher>>,
+    border:     Option<HashSet<Vec2<uint>>>,
     chull:      Option<Convex>,
     parts:      Option<Vec<uint>>,
     timestamp:  uint,
@@ -241,11 +243,17 @@ impl DualGraphVertex {
         uancestors.insert(r2);
         uancestors.insert(r3);
 
+        let mut border = HashSet::new();
+        border.insert(edge(idx.x, idx.y));
+        border.insert(edge(idx.y, idx.z));
+        border.insert(edge(idx.z, idx.x));
+
         DualGraphVertex {
             neighbors:  Some(HashSet::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()))),
             ancestors:  Some(ancestors),
             uancestors: Some(uancestors),
             parts:      Some(vec!(ancestor)),
+            border:     Some(border),
             timestamp:  0,
             chull:      Some(chull),
             concavity:  na::zero(),
@@ -329,6 +337,13 @@ impl DualGraphVertex {
         let chull = Convex::new_with_margin(vtx1.as_slice(), na::zero());
 
         /*
+         * Merge borders.
+         */
+        let valid_border = graph[valid].border.take_unwrap();
+        let other_border = graph[other].border.take_unwrap();
+        let new_border   = valid_border.symmetric_difference(&other_border).map(|e| *e).collect();
+
+        /*
          * Finalize.
          */
         let new_aabb   = graph[valid].aabb.merged(&graph[other].aabb);
@@ -344,6 +359,7 @@ impl DualGraphVertex {
         gvalid.area = gvalid.area + other_area;
         gvalid.concavity = edge.concavity;
         gvalid.uancestors = Some(valid_uancestors);
+        gvalid.border = Some(new_border);
     }
 }
 
@@ -357,8 +373,7 @@ struct DualGraphEdge {
     ancestors: PriorityQueue<VertexWithConcavity>,
     iv1:       uint,
     iv2:       uint,
-    volume:    Scalar,
-    area:      Scalar,
+    shape:     Scalar,
     concavity: Scalar,
     iray_cast: bool
 }
@@ -369,6 +384,7 @@ impl DualGraphEdge {
                v1:            uint,
                v2:            uint,
                dual_graph:    &[DualGraphVertex],
+               coords:        &[Vect],
                max_concavity: Scalar)
                -> DualGraphEdge {
         let mut v1 = v1;
@@ -378,37 +394,21 @@ impl DualGraphEdge {
             mem::swap(&mut v1, &mut v2);
         }
 
-        /*
-         * Compute the convex hull.
-         */
-        let chull_1 = dual_graph[v1].chull.as_ref().unwrap();
-        let chull_2 = dual_graph[v2].chull.as_ref().unwrap();
-
-        let mut vtx1 = chull_1.mesh().coords.clone();
-
-        vtx1.push_all(chull_2.mesh().coords.as_slice());
-
-        // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
-        let chull  = Convex::new_with_margin(vtx1.as_slice(), na::zero());
-        let volume = chull.volume();
-        let area = chull.surface();
-        // let cov = utils::cov(chull.mesh().coords.as_slice());
-        // let (_, eigenvalues) = na::eigen_qr(&cov, &na::cast(1.0e-5f64), 20);
-        // let volume = eigenvalues.x * eigenvalues.y * eigenvalues.z * na::cast(8.0f64);
-        // let area = (eigenvalues.x * eigenvalues.y +
-        //             eigenvalues.y * eigenvalues.z +
-        //             eigenvalues.z * eigenvalues.x) * na::cast(8.0f64);
+        let border_1 = dual_graph[v1].border.as_ref().unwrap();
+        let border_2 = dual_graph[v2].border.as_ref().unwrap();
+        let perimeter = border_1.symmetric_difference(border_2).map(|e| na::norm(&(coords[e.x] - coords[e.y]))).sum();
+        let area = dual_graph[v1].area + dual_graph[v2].area;
 
         // FIXME: refactor this.
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
         let diagonal = na::norm(&(*aabb.maxs() - *aabb.mins()));
         let shape_cost;
 
-        if volume.is_zero() {
-            shape_cost = diagonal * area * area / na::cast(1.0e-4f64); // we dont like flat surfaces.
+        if area.is_zero() || diagonal.is_zero() {
+            shape_cost = perimeter * perimeter;
         }
         else {
-            shape_cost = diagonal * area * area / volume;
+            shape_cost = diagonal * perimeter * perimeter / area;
         }
 
         let approx_concavity = dual_graph[v1].concavity.max(dual_graph[v2].concavity);
@@ -422,8 +422,7 @@ impl DualGraphEdge {
             ancestors: PriorityQueue::with_capacity(0),
             iv1:       0,
             iv2:       0,
-            area:      area,
-            volume:    volume,
+            shape:     shape_cost,
             concavity: approx_concavity,
             iray_cast: false
         }
@@ -442,22 +441,8 @@ impl DualGraphEdge {
                                    max_concavity: Scalar) {
         assert!(self.is_valid(dual_graph));
 
-        let v1       = &dual_graph[self.v1];
-        let v2       = &dual_graph[self.v2];
-        let aabb     = v1.aabb.merged(&v2.aabb);
-        let diagonal = na::norm(&(*aabb.maxs() - *aabb.mins()));
-
-        /*
-         * Aspect ratio.
-         */
-        let shape_cost;
-
-        if self.volume.is_zero() {
-            shape_cost = diagonal * self.area * self.area / na::cast(1.0e-4f64)
-        }
-        else {
-            shape_cost = diagonal * self.area * self.area /  self.volume;
-        }
+        let v1 = &dual_graph[self.v1];
+        let v2 = &dual_graph[self.v2];
 
         /*
          * Estimate the concavity.
@@ -470,7 +455,7 @@ impl DualGraphEdge {
         let a1 = v1.ancestors.as_ref().unwrap();
         let a2 = v2.ancestors.as_ref().unwrap();
 
-        let max_concavity = max_concavity.min(max_cost - max_concavity * shape_cost);
+        let max_concavity = max_concavity.min(max_cost - max_concavity * self.shape);
 
         fn cast_ray<'a>(chull:      &ConvexPair<'a>,
                         ray:        &Ray,
@@ -563,7 +548,7 @@ impl DualGraphEdge {
             }
         }
 
-        self.mcost = -(self.concavity + max_concavity * shape_cost);
+        self.mcost = -(self.concavity + max_concavity * self.shape);
         self.exact = self.iv1 == a1.len() && self.iv2 == a2.len();
     }
 }
