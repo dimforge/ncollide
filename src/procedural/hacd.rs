@@ -54,7 +54,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
      * Initialize the priority queue.
      */
     for (i, v) in dual_graph.iter().enumerate() {
-        for n in v.neighbors.as_ref().expect("Internal error: 1").iter() {
+        for n in v.neighbors.as_ref().unwrap().iter() {
             if i < *n {
                 let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice(), error);
 
@@ -67,23 +67,12 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
      * Decimation.
      */
     let mut curr_time = 0;
-    let mut useful_optim = 0u;
-    let mut exact_computations = 0u;
-    let mut rejected_exact = 0u;
-    let mut pushedback_exact = 0u;
-    let mut accepted_exact = 0u;
 
     while dual_graph.len() - curr_time > min_components {
         let to_add = match edges.pop() {
             None          => break,
             Some(mut top) => {
                 if !top.is_valid(dual_graph.as_slice()) {
-                    if !top.exact {
-                        useful_optim  = useful_optim + 1;
-                    }
-                    else {
-                        rejected_exact = rejected_exact + 1;
-                    }
                     continue; // this edge has been invalidated.
                 }
 
@@ -97,12 +86,6 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
                             None        => false,
                             Some(ref e) => {
                                 if !top.is_valid(dual_graph.as_slice()) {
-                                    if !e.exact {
-                                        useful_optim = useful_optim + 1;
-                                    }
-                                    else {
-                                        rejected_exact = rejected_exact + 1;
-                                    }
                                     true
                                 }
                                 else {
@@ -123,8 +106,6 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
                     // Compute a bounded decimation cost.
                     top.compute_decimation_cost(dual_graph.as_slice(), rays.as_slice(), &bvt, -top_cost, error);
 
-                    exact_computations = exact_computations + 1;
-
                     if top.concavity > error {
                         continue;
                     }
@@ -132,7 +113,6 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
                     if top.mcost < top_cost {
                         // we are not the greatest cost any more.
                         edges.push(top);
-                        pushedback_exact = pushedback_exact + 1;
                         continue;
                     }
                 }
@@ -143,8 +123,6 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
                 if top.concavity > error {
                     continue;
                 }
-
-                accepted_exact = accepted_exact + 1;
 
                 curr_time = curr_time + 1;
 
@@ -162,7 +140,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
             }
         };
 
-        for n in dual_graph[to_add].neighbors.as_ref().expect("Internal error: 4").iter() {
+        for n in dual_graph[to_add].neighbors.as_ref().unwrap().iter() {
             let edge = DualGraphEdge::new(curr_time, to_add, *n, dual_graph.as_slice(), error);
 
             edges.push(edge);
@@ -177,7 +155,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
 
     for vertex in dual_graph.move_iter() {
         if vertex.timestamp != Bounded::max_value() {
-            let mut chull = vertex.chull.expect("Internal error: 5");
+            let mut chull = vertex.chull.unwrap();
 
             denormalize(chull.mesh_mut(), &center, &diag);
             result.push(chull);
@@ -295,8 +273,8 @@ impl DualGraphVertex {
                 let ga = &mut graph[*neighbor];
 
                 // Replace `other` by `valid`.
-                ga.neighbors.as_mut().expect("Internal error: 6").remove(&other);
-                ga.neighbors.as_mut().expect("Internal error: 7").insert(valid);
+                ga.neighbors.as_mut().unwrap().remove(&other);
+                ga.neighbors.as_mut().unwrap().insert(valid);
             }
         }
 
@@ -359,9 +337,9 @@ impl DualGraphVertex {
         gvalid.parts.as_mut().unwrap().push_all_move(other_parts);
         gvalid.chull = Some(chull);
         gvalid.aabb = new_aabb;
-        gvalid.neighbors.as_mut().expect("Internal error: 9").extend(other_neighbors.move_iter());
-        gvalid.neighbors.as_mut().expect("Internal error: 10").remove(&other);
-        gvalid.neighbors.as_mut().expect("Internal error: 11").remove(&valid);
+        gvalid.neighbors.as_mut().unwrap().extend(other_neighbors.move_iter());
+        gvalid.neighbors.as_mut().unwrap().remove(&other);
+        gvalid.neighbors.as_mut().unwrap().remove(&valid);
         gvalid.ancestors = Some(new_ancestors);
         gvalid.area = gvalid.area + other_area;
         gvalid.concavity = edge.concavity;
@@ -382,6 +360,7 @@ struct DualGraphEdge {
     volume:    Scalar,
     area:      Scalar,
     concavity: Scalar,
+    iray_cast: bool
 }
 
 #[dim3]
@@ -446,6 +425,7 @@ impl DualGraphEdge {
             area:      area,
             volume:    volume,
             concavity: approx_concavity,
+            iray_cast: false
         }
     }
 
@@ -545,7 +525,8 @@ impl DualGraphEdge {
         }
 
         // FIXME: (optimization) find a way to stop the cast if we exceed the max concavity.
-        if self.iv1 == a1.len() && self.iv2 == a2.len() {
+        if !self.iray_cast && self.iv1 == a1.len() && self.iv2 == a2.len() {
+            self.iray_cast = true;
             let mut internal_rays = Vec::new();
 
             {
@@ -765,8 +746,8 @@ fn compute_dual_graph(mesh:   &TriMesh<Scalar, Vec3<Scalar>>,
 
                 if *other != i {
                     // register the adjascency.
-                    dual_vertices.get_mut(i).neighbors.as_mut().expect("Internal error: 13").insert(*other);
-                    dual_vertices.get_mut(*other).neighbors.as_mut().expect("Internal error: 14").insert(i);
+                    dual_vertices.get_mut(i).neighbors.as_mut().unwrap().insert(*other);
+                    dual_vertices.get_mut(*other).neighbors.as_mut().unwrap().insert(i);
                 }
             }
         };
