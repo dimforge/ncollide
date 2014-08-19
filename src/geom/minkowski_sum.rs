@@ -112,6 +112,7 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
 }
 
 // FIXME: AnnotatedPoint is not a good name.
+// XXX: do not hide the documentation!
 #[doc(hidden)]
 #[deriving(Clone, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint {

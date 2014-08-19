@@ -1,6 +1,6 @@
 //! A Dynamic Bounding Volume Tree.
 
-use std::gc::Gc;
+use std::gc::{Gc, GC};
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
@@ -47,6 +47,17 @@ DBVT<B, BV> {
         let mut bleaf = leaf.borrow_mut();
         self.tree = bleaf.unlink(&mut self.cache, self_tree);
         self.len  = self.len - 1;
+    }
+
+    // FIXME: it feels strange that this method takes (B, BV) in this order while the leaves
+    // constructor takes (BV, B)…
+    /// Creates, inserts, and returns a new leaf with the given content.
+    pub fn insert_new(&mut self, b: B, bv: BV) -> Gc<RefCell<DBVTLeaf<B, BV>>> {
+        let leaf = box(GC) RefCell::new(DBVTLeaf::new(bv, b));
+
+        self.insert(leaf.clone());
+
+        leaf
     }
 
     /// Inserts a leaf to the tree.
