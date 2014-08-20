@@ -17,7 +17,7 @@ use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
              Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
-use OSCMG = narrow::OneShotContactManifoldGenerator;
+use narrow::OneShotContactManifoldGenerator as OSCMG;
 use math::{Scalar, Vect, Matrix};
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.

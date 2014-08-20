@@ -18,22 +18,22 @@ pub use narrow::bezier_surface_bezier_surface::BezierSurfaceBezierSurface;
 // functions
 /// Functions to compute the time of impact between two geometries.
 pub mod toi {
-    pub use ball_ball         = narrow::ball_ball::toi;
-    pub use plane_implicit    = narrow::plane_implicit::toi;
-    pub use implicit_implicit = narrow::implicit_implicit::toi;
-    pub use implicit_implicit_and_normal = narrow::implicit_implicit::toi_and_normal;
+    pub use narrow::ball_ball::toi                    as ball_ball;
+    pub use narrow::plane_implicit::toi               as plane_implicit;
+    pub use narrow::implicit_implicit::toi            as implicit_implicit;
+    pub use narrow::implicit_implicit::toi_and_normal as implicit_implicit_and_normal;
 }
 
 /// Functions to compute one contact point between two geometries.
 pub mod collide {
-    pub use ball_ball         = narrow::ball_ball::collide;
-    pub use plane_implicit    = narrow::plane_implicit::collide;
-    pub use implicit_implicit = narrow::implicit_implicit::collide;
+    pub use narrow::ball_ball::collide         as ball_ball;
+    pub use narrow::plane_implicit::collide    as plane_implicit;
+    pub use narrow::implicit_implicit::collide as implicit_implicit;
 }
 
 /// Functions to compute the closest points between two geometries.
 pub mod closest_points {
-    pub use ball_ball         = narrow::ball_ball::closest_points;
+    pub use narrow::ball_ball::closest_points as ball_ball;
 }
 
 // modules
