@@ -11,7 +11,7 @@ use math::Matrix;
 
 /// Collision detector between a concave geometry and another geometry.
 pub struct ConcaveGeomGeom<G1, G2> {
-    sub_detectors: HashMap<uint, Box<GeomGeomCollisionDetector>, UintTWHash>,
+    sub_detectors: HashMap<uint, Box<GeomGeomCollisionDetector+Send>, UintTWHash>,
     to_delete:     Vec<uint>,
     interferences: Vec<uint>
 }
@@ -179,9 +179,9 @@ pub struct ConcaveGeomGeomFactory<G1, G2>;
 
 impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
 CollisionDetectorFactory for ConcaveGeomGeomFactory<G1, G2> {
-    fn build(&self) -> Box<GeomGeomCollisionDetector> {
+    fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
         let res: ConcaveGeomGeom<G1, G2> = ConcaveGeomGeom::new();
-        box res as Box<GeomGeomCollisionDetector>
+        box res as Box<GeomGeomCollisionDetector + Send>
     }
 }
 
@@ -192,8 +192,8 @@ pub struct GeomConcaveGeomFactory<G1, G2>;
 impl<G1: 'static + Geom,
      G2: 'static + ConcaveGeom>
 CollisionDetectorFactory for GeomConcaveGeomFactory<G1, G2> {
-    fn build(&self) -> Box<GeomGeomCollisionDetector> {
+    fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
         let res: GeomConcaveGeom<G1, G2> = GeomConcaveGeom::new();
-        box res as Box<GeomGeomCollisionDetector>
+        box res as Box<GeomGeomCollisionDetector + Send>
     }
 }

@@ -152,7 +152,7 @@ impl GeomGeomDispatcher {
     }
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector>> {
+    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector + Send>> {
         self.constructors.find(&(a.get_dyn_type_id(), b.get_dyn_type_id())).map(|f| f.build())
     }
 }
@@ -166,7 +166,7 @@ impl GeomGeomDispatcher {
 
         type Simplex  = JohnsonSimplex<AnnotatedPoint>;
         type Self     = GeomGeomDispatcher;
-        type Super    = Box<GeomGeomCollisionDetector>;
+        type Super    = Box<GeomGeomCollisionDetector + Send>;
 
         /*
          * Involving a Plane
@@ -345,7 +345,7 @@ impl GeomGeomDispatcher {
 /// Trait of structures able do build a new collision detector.
 pub trait CollisionDetectorFactory : Send {
     /// Builds a new collision detector.
-    fn build(&self) -> Box<GeomGeomCollisionDetector>;
+    fn build(&self) -> Box<GeomGeomCollisionDetector + Send>;
 }
 
 /// Cloning-based collision detector factory.
@@ -366,7 +366,7 @@ impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
 
 impl<CD: 'static + Send + GeomGeomCollisionDetector + Clone>
 CollisionDetectorFactory for CollisionDetectorCloner<CD> {
-    fn build(&self) -> Box<GeomGeomCollisionDetector> {
-        box self.template.clone() as Box<GeomGeomCollisionDetector>
+    fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
+        box self.template.clone() as Box<GeomGeomCollisionDetector + Send>
     }
 }

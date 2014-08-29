@@ -5,7 +5,7 @@ use procedural::Polyline;
 /// A path with its sample points given by a polyline.
 ///
 /// This will return sequencially each vertex of the polyline.
-pub struct PolylinePath<'a, N, V> {
+pub struct PolylinePath<'a, N, V: 'a> {
     curr_len:               N,
     curr_dir:               V,
     curr_pt_id:             uint,

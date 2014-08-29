@@ -111,7 +111,11 @@ impl<G: Implicit<Vect, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G>
     #[inline]
     fn update(&mut self, ma: &Matrix, a: &G, mb: &Matrix, plane: &Plane) {
         self.contact = collide(mb, plane, ma, a, &self.prediction);
-        self.contact.mutate(|mut c| { c.flip(); c });
+
+        match self.contact {
+            Some(ref mut c) => c.flip(),
+            None            => { }
+        }
     }
 
     #[inline]

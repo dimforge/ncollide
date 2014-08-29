@@ -14,7 +14,7 @@ pub trait HasMargin {
     fn margin(&self) -> Scalar;
 }
 
-impl<'a> HasMargin for &'a HasMargin {
+impl<'a> HasMargin for &'a HasMargin + 'a {
     fn margin(&self) -> Scalar {
         self.margin()
     }
@@ -57,14 +57,14 @@ pub trait Implicit<Vect: FloatVec<Scalar>, Matrix>: HasMargin {
     fn support_point_without_margin(&self, transform: &Matrix, dir: &Vect) -> Vect;
 }
 
-impl<'a, Vect: FloatVec<Scalar>, Matrix> HasMargin for &'a Implicit<Vect, Matrix> {
+impl<'a, Vect: FloatVec<Scalar>, Matrix> HasMargin for &'a Implicit<Vect, Matrix> + 'a {
     #[inline]
     fn margin(&self) -> Scalar {
         self.margin()
     }
 }
 
-impl<'a, Vect: FloatVec<Scalar>, Matrix> Implicit<Vect, Matrix> for &'a Implicit<Vect, Matrix> {
+impl<'a, Vect: FloatVec<Scalar>, Matrix> Implicit<Vect, Matrix> for &'a Implicit<Vect, Matrix> + 'a {
     #[inline]
     fn support_point(&self, transform: &Matrix, dir: &Vect) -> Vect {
         self.support_point(transform, dir)

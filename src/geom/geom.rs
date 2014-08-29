@@ -47,7 +47,7 @@ Geom for T {
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not
 // seem possible to convert a &Geom to a &Any…
-impl<'a> AnyRefExt<'a> for &'a Geom {
+impl<'a> AnyRefExt<'a> for &'a Geom + 'a {
     #[inline]
     fn is<T: 'static>(self) -> bool {
         // Get TypeId of the type this function is instantiated with

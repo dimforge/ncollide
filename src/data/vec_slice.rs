@@ -3,7 +3,7 @@
 /// A vector slice with a specific length and stride.
 ///
 /// The stride is the number of index increments between two elements.
-pub struct VecSlice<'a, T> {
+pub struct VecSlice<'a, T: 'a> {
     data:   &'a [T],
     length: uint,
     stride: uint
@@ -12,7 +12,7 @@ pub struct VecSlice<'a, T> {
 /// A mutable vector slice with a specific length and stride.
 ///
 /// The stride is the number of index increments between two elements.
-pub struct VecSliceMut<'a, T> {
+pub struct VecSliceMut<'a, T: 'a> {
     data:   &'a mut [T],
     length: uint,
     stride: uint

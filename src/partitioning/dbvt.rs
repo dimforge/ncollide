@@ -42,7 +42,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone,
 DBVT<B, BV> {
     /// Removes a leaf from the tree. Fails if the tree is empty.
     pub fn remove(&mut self, leaf: &mut Gc<RefCell<DBVTLeaf<B, BV>>>) {
-        let self_tree = self.tree.take_unwrap();
+        let self_tree = self.tree.take().unwrap();
 
         let mut bleaf = leaf.borrow_mut();
         self.tree = bleaf.unlink(&mut self.cache, self_tree);

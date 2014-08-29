@@ -83,7 +83,7 @@ impl<'a, N: Copy, O, T: UnivariateFn<N, O>> UnivariateFn<N, O> for &'a T {
     }
 }
 
-impl<'a, N: Copy, O> UnivariateFn<N, O> for &'a UnivariateFn<N, O> {
+impl<'a, N: Copy, O> UnivariateFn<N, O> for &'a UnivariateFn<N, O> + 'a {
     #[inline]
     fn d0(&self, t: N) -> O {
         (*self).d0(t)

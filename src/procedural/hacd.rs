@@ -270,8 +270,8 @@ impl DualGraphVertex {
 
         graph[other].ancestors = None;
 
-        let other_neighbors = graph[other].neighbors.take_unwrap();
-        let other_parts     = graph[other].parts.take_unwrap();
+        let other_neighbors = graph[other].neighbors.take().unwrap();
+        let other_parts     = graph[other].parts.take().unwrap();
 
         /*
          * Merge neighbors.
@@ -308,8 +308,8 @@ impl DualGraphVertex {
         /*
          * Merge ancestors sets.
          */
-        let mut other_uancestors = graph[other].uancestors.take_unwrap();
-        let mut valid_uancestors = graph[valid].uancestors.take_unwrap();
+        let mut other_uancestors = graph[other].uancestors.take().unwrap();
+        let mut valid_uancestors = graph[valid].uancestors.take().unwrap();
 
         // We will push the smallest one to the biggest.
         if other_uancestors.len() > valid_uancestors.len() {
@@ -325,8 +325,8 @@ impl DualGraphVertex {
         /*
          * Compute the convex hull.
          */
-        let valid_chull = graph[valid].chull.take_unwrap();
-        let other_chull = graph[other].chull.take_unwrap();
+        let valid_chull = graph[valid].chull.take().unwrap();
+        let other_chull = graph[other].chull.take().unwrap();
 
         let mut vtx1 = valid_chull.unwrap().coords;
         let     vtx2 = other_chull.unwrap().coords;
@@ -339,8 +339,8 @@ impl DualGraphVertex {
         /*
          * Merge borders.
          */
-        let valid_border = graph[valid].border.take_unwrap();
-        let other_border = graph[other].border.take_unwrap();
+        let valid_border = graph[valid].border.take().unwrap();
+        let other_border = graph[other].border.take().unwrap();
         let new_border   = valid_border.symmetric_difference(&other_border).map(|e| *e).collect();
 
         /*

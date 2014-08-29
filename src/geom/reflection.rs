@@ -2,7 +2,7 @@
 ///
 /// A reflection is obtained with the central symmetry with regard to the origin.
 #[deriving(Show)]
-pub struct Reflection<'a, G> {
+pub struct Reflection<'a, G: 'a> {
     geom: &'a G
 }
 

@@ -89,7 +89,7 @@ impl<'a, N: Copy, O: Clone, T: BivariateFn<N, O>> BivariateFn<N, O> for &'a T {
     }
 }
 
-impl<'a, N: Copy, O: Clone> BivariateFn<N, O> for &'a BivariateFn<N, O> {
+impl<'a, N: Copy, O: Clone> BivariateFn<N, O> for &'a BivariateFn<N, O> + 'a {
     #[inline]
     fn d0(&self, u: N, v: N) -> O {
         (*self).d0(u, v)
