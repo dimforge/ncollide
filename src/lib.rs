@@ -9,19 +9,6 @@ As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
 
-## Compilation
-You will need the last nightly build of the rust compiler available [here](http://www.rust-lang.org).
-If you encounter problems, make sure you have the last version before creating an issue.
-
-The simplest way to build **ncollide** and all its dependencies is to do a
-recursive clone:
-
-
-    git clone --recursive git://github.com/sebcrozet/ncollide.git
-    cd ncollide
-    make deps
-    make
-
 ## Features
 - dynamic bounding volume tree based broad phase
 - ball vs. ball collision detection,
