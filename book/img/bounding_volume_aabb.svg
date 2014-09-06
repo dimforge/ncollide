@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="32 138 104.61447 100.65738"
+   width="130.76808"
+   height="125.82172"
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="bounding_volume_aabb.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1918"
+     inkscape:window-height="1078"
+     id="namedview40"
+     showgrid="false"
+     inkscape:zoom="2.2886076"
+     inkscape:cx="50.597937"
+     inkscape:cy="73.414583"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g8"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata4">
+    <dc:date>2013-02-01 03:46Z</dc:date>
+    <!-- Produced by OmniGraffle Professional 5.4.2 -->
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6" />
+  <g
+     id="g8"
+     style="fill:none;stroke:none"
+     transform="translate(-186.42857,-23.117889)">
+    <title
+       id="title10">Canvas 1</title>
+    <rect
+       style="stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect18"
+       height="99.657372"
+       width="103.61446"
+       y="161.61789"
+       x="218.92857" />
+    <path
+       style="fill:#ffffff"
+       inkscape:connector-curvature="0"
+       id="path26"
+       d="m 229.16954,221.25646 -10.24096,26.78366 34.58126,13.23515 30.17777,-26.16339 -44.14328,16.18907 15.22762,-13.47823 -18.55274,6.76475 86.32383,-82.96957 z" />
+    <path
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       inkscape:connector-curvature="0"
+       id="path28"
+       d="m 229.16954,221.25646 -10.24096,26.78366 34.58126,13.23515 30.17777,-26.16339 -44.14328,16.18907 15.22762,-13.47823 -18.55274,6.76475 86.32383,-82.96957 z" />
+  </g>
+</svg>

@@ -1,64 +1,44 @@
 # Getting started
-
-## Compilation
-1. Download and install the latest nightly distribution of the [rust
-   compiler](http://rust-lang.org). **ncollide** is regularly kept up to date with
-   those releases. If it is not, this is a bug that you can file on
-   [github](https://github.com/sebcrozet/ncollide/issues).
-<p>
-2. Recursively clone the repository of ncollide:
-</p>
-```sh
-git clone --recursive git://github.com/sebcrozet/ncollide.git
-```
-Performing a recursive clone as such will automatically clone the rust library
-[nalgebra](http://nalgebra.org) that **ncollide** uses for linear algebra.
-<p>
-3. Go to the root of the repository and compile the dependencies:
-</p>
-```sh
-cd ncollide
-make deps
-```
-<p>
-4. Finally, compile the library itself:
-</p>
-```
-make
-```
-This will output six libraries to the `lib` subdirectory:
-    * **ncollide2df32** for 2d collision detection using single-precision numbers.
-    * **ncollide3df32** for 3d collision detection using single-precision numbers.
-    * **ncollide4df32** for 4d collision detection using single-precision numbers.
-    * **ncollide2df64** for 2d collision detection using double-precision numbers.
-    * **ncollide3df64** for 3d collision detection using double-precision numbers.
-    * **ncollide4df64** for 4d collision detection using double-precision numbers.
-
-If you are not interested in all the variants of **ncollide**, you can
-selectively compile one of them using `make <dimension>df<precision>`. For
-example, to compile the 3d version using 32-bits floating point numbers, use
-`make 3df32`.
-
-The full documentation of the api can be built manually using rustdoc or with
-`make doc`.
-
-## Using ncollide on your project
-You can use **ncollide** like any other rust library. You first have to import
-the crate that you are interested in:
+**ncollide** uses the official Rust package manager [cargo](http://crates.io)
+for compilation and dependency resolution. Therefore, making **ncollide**
+ready to be used by your project is simply a matter of adding a new dependency
+to your `Cargo.toml` file (you do not even have to clone the repository
+yourself!):
 ```rust
-extern crate ncollide3df32
+[dependencies.ncollide3df32]
+git = "https://github.com/sebcrozet/ncollide"
 ```
-Then, you have to compile your project, making sure that the imported crate is
-in the library search path using rustc's `-L $(your_path_to_ncollide)` option.
 
-Having to write the dimension and the precision used by the library every time
-you import one of its functionality might be very cumbersome: `use
-ncollide3df32::geom::Cuboid;`. A nicer route is to use an alias when the crate
-is imported:
+Keep in mind that **ncollide** comes in multiple flavours. You might want to
+adapt the previous dependency entry to selected another version. For example,
+for 32-bit, 2D collision detection, use the following instead:
 ```rust
-extern crate ncollide = "ncollide3df32"
+[dependencies.ncollide2df32]
+git = "https://github.com/sebcrozet/ncollide"
 ```
-This way, you only have to write `use ncollide::geom::Cuboid;`.
+
+Once your `Cargo.toml` file is set up, the corresponding crate must be imported
+by your project using the regular `extern crate` directive:
+```rust
+extern crate ncollide3df32;
+```
+
+Again, if you want 32-bit, 2D collision detection, the adaptation is
+straightforward:
+```rust
+extern crate ncollide2df32;
+```
+
+
+Having to write the dimension and the floating point precision used by the
+library every time you import one of its functionality (e.g. `use
+ncollide3df32::geom::Cuboid;`) might be very cumbersome. A nicer route is to
+use an alias when the crate is imported:
+```rust
+extern crate ncollide = "ncollide3df32";
+```
+
+This way, you only have to write statements like `use ncollide::geom::Cuboid;`.
 
 ###### Working example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/getting_started.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
 ```rust
