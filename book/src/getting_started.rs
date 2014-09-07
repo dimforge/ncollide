@@ -1,5 +1,5 @@
 extern crate nalgebra;
-extern crate ncollide = "ncollide3df32";
+extern crate "ncollide3df32" as ncollide;
 
 use nalgebra::na::Vec3;
 use ncollide::geom::Cuboid;

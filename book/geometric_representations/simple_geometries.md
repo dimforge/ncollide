@@ -10,14 +10,16 @@ dimensions this is a sphere, centered at the origin.
 | --          | --       | --    |
 | The radius of the ball | `b.radius()` | User-defined with `Ball::new` |
 
-###### 2D and 3D example <span style="float:right;"><button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/ball2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>2D</b></button> <button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/ball3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>3D</b></button></span>
+###### 2D and 3D example <div class="d3" onclick="window.open('../src/ball3d.rs')" /></div><div class="sp"></div><div class="d2" onclick="window.open('../src/ball2d.rs')"></div>
 
 ```rust
 let ball = Ball::new(1.0);
 assert!(ball.radius() == 1.0);
 ```
 
+<center>
 ![3d ball](../img/ball3d.png) ![fixme](ball3d)
+</center>
 
 
 ## Cuboid
@@ -26,14 +28,14 @@ three dimensions. A cuboid is defined by its _half extents_ − that is − its
 half length along each coordinate axis. For performance and accuracy reasons,
 each cuboid has an _internal margin_. This means that the actual geometry used
 for collision detection is a cuboid with rounded corners with a radius equal to
-    the margin.
+the margin.
 
 | Description | Accessor | Value |
 | --          | --       | --    |
 | The half extents of the cuboid | `c.half_extents()` | User-defined with `Cuboid::new` |
 | The internal margin of the cuboid | `c.margin()` | `0.04` or user-defined with `Cuboid::new_with_margin` |
 
-###### 3D example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/cuboid3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3D example <div class="d3" onclick="window.open('../src/cuboid3d.rs')"></div>
 ```rust
 let cuboid = Cuboid::new_with_margin(Vec3::new(2.0, 1.0, 3.0), 0.2);
 assert!(cuboid.margin() == 0.2); // user-defined margin
@@ -42,13 +44,15 @@ assert!(cuboid.margin() == 0.2); // user-defined margin
 
  ![3d cuboid](../img/cuboid3d.png)
 
-###### 2D example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/cuboid2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 2D example <div class="d2" onclick="window.open('../src/cuboid2d.rs')"></div>
 ```rust
 let cuboid = Cuboid::new(Vec2::new(2.0, 1.0));
 assert!(cuboid.margin() == 0.04); // default margin
 ```
 
+<center>
 ![fixme](cuboid2d)
+</center>
 
 
 ## Cylinder
@@ -63,7 +67,7 @@ instead), or a cylinder in three dimensions. The principal axis is the positive
 | The radius of the cylinder basis | `c.radius()` | User-defined with `Cylinder::new` |
 | The external margin of the cylinder | `c.margin()` | `0.04` or user-defined with `Cylinder::new_with_margin` |
 
-###### 3D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/cylinder3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3D example<div class="d3" onclick="window.open('../src/cylinder3d.rs')"></div>
 ```rust
 let cylinder1 = Cylinder::new(0.5, 1.0);
 let cylinder2 = Cylinder::new_with_margin(0.5, 1.0, 0.2);
@@ -92,7 +96,7 @@ The principal axis is the positive `y` axis.
 | The radius of the cone basis | `c.radius()`     | User-defined with `Cone::new` |
 | The external margin of the cone | `c.margin()`           | `0.04` or user-defined with `Cone::new_with_margin` |
 
-###### 3D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/cone3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3D example<div class="d3" onclick="window.open('../src/cone3d.rs')"></div>
 ```rust
 let cone1 = Cone::new(0.5, 0.75);
 let cone2 = Cone::new_with_margin(0.5, 0.75, 0.1);
@@ -119,7 +123,7 @@ The principal axis is the positive `y` axis.
 | The half height of the capsule | `c.half_height()` | User-defined with `Capsule::new` |
 | The radius of the capsule extremities | `c.radius()` | User-defined with `Capsule::new` |
 
-###### 2D and 3D example <span style="float:right;"><button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/capsule2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>2D</b></button> <button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/capsule3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>3D</b></button></span>
+###### 2D and 3D example <div class="d3" onclick="window.open('../src/capsule3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/capsule2d.rs')"></div>
 ```rust
 let capsule = Capsule::new(0.5, 0.75);
 
@@ -127,8 +131,12 @@ assert!(capsule.half_height() == 0.5);
 assert!(capsule.radius() == 0.75);
 ```
 
+<center>
 ![3d capsule](../img/capsule3d.png)
 ![fixme](capsule2d) 
+</center>
+
+## Convex polytope
 
 ## Plane
 The `Plane` structure describes a solid closed half-space. A plane is defined
@@ -140,7 +148,7 @@ _outside_ of the plane.
 | --          | --        | --    |
 | The normal of the plane | `p.normal()` | User-defined with `Plane::new` |
 
-###### 2D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/plane2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 2D example<div class="d2" onclick="window.open('../src/plane2d.rs')"></div>
 ```rust
 let plane = Plane::new(Vec2::new(0.0, 1.0));
 
@@ -148,7 +156,7 @@ assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
 ```
 
-###### 3D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/plane3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3D example<div class="d3" onclick="window.open('../src/plane3d.rs')"></div>
 ```rust
 let plane = Plane::new(Vec3::new(0.0, 1.0, 0.0));
 
@@ -176,7 +184,7 @@ using an AABB tree.
 | The bounding volume of each primitive (segment or triangle) | `m.bounding_volumes()` | Automatically computed |
 | The space-partitioning acceleration structure used by the mesh | `m.bvt()` | Automatically computed |
 
-###### 3D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/mesh3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3D example<div class="d3" onclick="window.open('../src/mesh3d.rs')"></div>
 ```rust
 let points = vec!(
     Vec3::new(0.0, 1.0, 0.0),   Vec3::new(-1.0, -0.5, 0.0),
@@ -193,9 +201,11 @@ let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 assert!(mesh.margin() == 0.04); // Meshes have a margin too!
 ```
 
+<center>
 ![3d mesh](../img/mesh3d.png)
+</center>
 
-###### 2D example<button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/mesh2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 2D example<div class="d2" onclick="window.open('../src/mesh2d.rs')"></div>
 ```rust
 let points = vec!(
     Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -0.5),
@@ -213,4 +223,6 @@ let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 assert!(mesh.margin() == 0.04); // Meshes have a margin too!
 ```
 
+<center>
 ![2d mesh](../img/mesh2d.png)
+</center>

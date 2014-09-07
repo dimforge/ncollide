@@ -1,4 +1,4 @@
-extern crate ncollide = "ncollide3df32";
+extern crate "ncollide3df32" as ncollide;
 
 use ncollide::geom::Ball;
 

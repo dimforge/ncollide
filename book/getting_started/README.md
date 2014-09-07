@@ -40,7 +40,7 @@ extern crate ncollide = "ncollide3df32";
 
 This way, you only have to write statements like `use ncollide::geom::Cuboid;`.
 
-###### Working example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/getting_started.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### Working example <span class="btn-primary" onclick="window.open('../src/getting_started.rs')"></span>
 ```rust
 extern crate nalgebra;
 extern crate ncollide = "ncollide3df32";

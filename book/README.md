@@ -8,9 +8,10 @@ running.  To prevent others from spending significant amount of time re-writing
 collision detection algorithms, **ncollide** is available open-source on
 [github](http://github.com/sebcrozet/ncollide) and is released under the
 permissive [BSD-3](http://opensource.org/licenses/BSD-3-Clause) licence. Feel
-free to use (even commercially), modify, and redistribute **ncollide**! To get
-started contributing to the project, see [How to
-contribute](how_to_contribute/README.html).
+free to use (even commercially), modify, and redistribute **ncollide**! See
+the [How to contribute](how_to_contribute/README.html) section to learn more
+about the authors of this library and about the different methods of
+contribution.
 
 **ncollide** does not have any dedicated chat room or forum yet. However, do
 not hesitate to contact directly the authors by
@@ -39,7 +40,9 @@ _real-life_ situations using three other rust projects:
    generation](procedural_generation/README.html) chapter has been rendered by
    **kiss3d**.
 <p>
+<center>
 ![Procedural generation rendered by kiss3d](img/kiss3d.png)
+</center>
 </p>
 <p>
 3. [nrays](https://github.com/sebcrozet/nrays) − a 3d and 4d ray tracer in
@@ -48,11 +51,14 @@ _real-life_ situations using three other rust projects:
    by **nrays**.
 </p>
 <p>
+<center>
 ![Ray tracing demo](img/demo_ray_tracer.png)
+</center>
 </p>
 
 ## About this guide
-This reference guide intends to illustrate most feature of **ncollide**:
+This guide intends to give a shallow description of most features available on
+**ncollide**:
 * [Collision detection](collision_detection/README.html) with optional [time of
   impact](collision_detection/time_of_impact.html) computation to perform
   _continuous collision detection_. [Space

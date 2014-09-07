@@ -21,7 +21,9 @@ bounding bounding volumes.
 The following figure shows a 2D polygon bounded by a Bounding Sphere, an Axis
 Aligned Bounding Box (AABB), an Oriented Bounding Box (OBB), and a Convex Hull:
 
+<center>
 ![bounding volumes](../img/bounding_volumes.svg)
+</center>
 
 Currently, **ncollide** only supports [Bounding
 Spheres](../bounding_volumes/bounding_sphere.html) and
@@ -36,20 +38,20 @@ transformation matrix) and they do not have a margin.
 Bounding volumes must implement the `bounding_volume::BoundingVolume` trait:
 
 
-| Method           | Description |
-|--                | --          |
-| `intersects(bv)` | Checks `self` for intersection with `bv`.              |
-| `contains(bv)`   | Returns `true` if `bv` is completely inside of `self`. |
-| `merge(bv)`      | Merge `self` and `bv` in place. |
-| `merged(bv)`     | Returns a bounding volume, result of the merge of `self` with `bv`. |
+| Method            | Description |
+|--                 | --          |
+| `.intersects(bv)` | Checks `self` for intersection with `bv`.              |
+| `.contains(bv)`   | Returns `true` if `bv` is completely inside of `self`. |
+| `.merge(bv)`      | Merge `self` and `bv` in place. |
+| `.merged(bv)`     | Returns a bounding volume, result of the merge of `self` with `bv`. |
 
 Some bounding volume may also implement the
 `bounding_volume::LooseBoundingVolume` trait. This gives the ability to enlarge
-the volume by a given thickness, which is useful to optimize some [broad
+the volume by a given thickness which is useful to optimize some [broad
 phase](../collision_detection/broad_phase.html) algorithms:
 
 
-| Method        | Description                               |
-|--             | --                                        |
-| `loosen(m)`   | Enlarges `self` by `m` in place.          |
-| `loosened(m)` | Returns a copy of `self` enlarged by `m`. |
+| Method         | Description                               |
+|--              | --                                        |
+| `.loosen(m)`   | Enlarges `self` by `m` in place.          |
+| `.loosened(m)` | Returns a copy of `self` enlarged by `m`. |

@@ -39,3 +39,26 @@ static method `::new_with_margin(..., 0.0)`, the zero margin being the last
 argument. Refer to the [geometry
 definitions](../geometric_representations/simple_geometries.html) for more
 details.
+
+## Traits
+
+The `ray::RayCast` trait is implemented by shapes that can be intersected by a
+ray:
+
+| Method | Description |
+|--      | --          |
+| `.toi_and_normal_with_ray(ray, solid)`                 | Computes the point and normal of the intersection between `ray` and `self`. |
+| `.toi_with_ray(ray, solid)`                            | Computes the point of the intersection between `ray` and `self`. |
+| `.toi_and_normal_and_uv_with_ray(ray, solid)`          | Computes the point, normal, and texture coordinates of the intersection between `ray` and `self`. |
+| `.intersects_ray(ray)`                                 | Tests whether `ray` intersects `self`. |
+| `.toi_with_transform_and_ray(m, ray, solid)`           | Computes the point and normal of the intersection between `ray` and `self` transformed by `m`. |
+| `.toi_and_normal_with_transform_and_ray(m, ray, solid)`| Computes the point of the intersection between `ray` and `self` transformed by `m`. |
+| `.toi_and_normal_and_uv_with_transform_and_ray(...)`   | Computes the point, normal, and texture coordinates of the intersection between `ray` and `self` transformed by `m`. |
+| `.intersects_with_transform_and_ray(m, ray)`           | Tests whether `ray` intersects `self` transformed by `m`. |
+
+Note that if you implement this trait for your own geometry, only the first
+method is required. The other ones are automatically inferred (but, for
+optimization purpose you might want to specialize the other methods too).
+
+More details about the `solid` flag can be found in
+[Solid Ray Cast](../ray_casting/solid_ray_cast.html).

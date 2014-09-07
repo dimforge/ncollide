@@ -1,3 +1,749 @@
-<?xml version="1.0"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" viewBox="87 233 385 412" width="385pt" height="412pt"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:date>2013-02-01 06:29Z</dc:date><!-- Produced by OmniGraffle Professional 5.4.2 --></metadata><defs><font-face font-family="Helvetica" font-size="12" units-per-em="1000" underline-position="-75.683594" underline-thickness="49.316406" slope="0" x-height="522.94922" cap-height="717.28516" ascent="770.01953" descent="-229.98047" font-weight="500"><font-face-src><font-face-name name="Helvetica"/></font-face-src></font-face><marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black"><g><path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/></g></marker><font-face font-family="Helvetica" font-size="7" units-per-em="1000" underline-position="-75.683594" underline-thickness="49.316406" slope="0" x-height="522.94922" cap-height="717.28516" ascent="770.01953" descent="-229.98047" font-weight="500"><font-face-src><font-face-name name="Helvetica"/></font-face-src></font-face><font-face font-family="Apple Symbols" font-size="7" panose-1="2 0 0 0 0 0 0 0 0 0" units-per-em="1000" underline-position="-73.242188" underline-thickness="48.828125" slope="0" x-height="392.57812" cap-height="546.38672" ascent="666.5039" descent="-250" font-weight="500"><font-face-src><font-face-name name="AppleSymbols"/></font-face-src></font-face></defs><g stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1"><title>Canvas 1</title><g><title>Layer 1</title><path d="M 89.791203 235.97123 L 469.4088 235.97123 L 469.4088 433.6088 L 89.791203 433.6088 Z" stroke="#616161" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="1,4"/><path d="M 262.21114 300.23527 L 387.79253 300.23527 L 387.79253 415.93295 L 262.21114 415.93295 Z" stroke="#2a2a2a" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="16,9"/><path d="M 252.2912 244.79001 L 448.96383 244.79001 L 448.96383 424.79003 L 252.2912 424.79003 Z" stroke="#383838" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="4,4"/><rect x="389.5478" y="251.75478" width="48.666222" height="46.02076" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(394.5478 267.76516)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="15.331158" y="11" textLength="8.0039062">E</tspan></text><rect x="268.47668" y="306.15383" width="65.397926" height="46.02076" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(273.47668 322.1642)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="23.365955" y="11" textLength="8.6660156">C</tspan></text><rect x="312.47467" y="333.14345" width="65.397926" height="74.394463" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(317.47467 363.34068)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="23.365955" y="11" textLength="8.6660156">D</tspan></text><ellipse cx="301.17564" cy="328.5579" rx="27.000044" ry="18.000029" stroke="#963" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="274.17564" y="310.55793" width="54" height="36" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 352.11746 338.18631 L 372.29387 388.27536 L 338.90118 401.7263 L 318.72476 351.63726 Z" stroke="#963" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="318.50932" y="338.18631" width="54" height="63.539986" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 413.88092 256.76515 L 431.88092 274.76515 L 413.88092 292.76515 L 395.88092 274.76515 Z" stroke="#963" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="395.88093" y="256.76515" width="36" height="36" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 106.75323 286.67452 L 219.19593 286.67452 L 219.19593 402.3722 L 106.75323 402.3722 Z" stroke="#2a2a2a" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="8,5"/><rect x="140.65282" y="348.10164" width="65.397926" height="46.02076" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(145.65282 364.11202)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="23.69701" y="11" textLength="8.0039062">B</tspan></text><rect x="115.12458" y="294.99491" width="48.666222" height="46.02076" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(120.12458 311.00529)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="15.331158" y="11" textLength="8.0039062">A</tspan></text><path d="M 121.45704 300.0053 L 157.45704 318.0053 L 121.45704 336.0053 Z" stroke="#963" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="121.45704" y="300.0053" width="36" height="36" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 146.35178 371.6121 L 159.85178 353.6121 L 186.85178 353.6121 L 200.35178 371.6121 L 186.85178 389.6121 L 159.85178 389.6121 Z" stroke="#963" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="146.35176" y="353.61211" width="54" height="36" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/></g><g><title>Layer 2</title><line x1="351.87573" y1="592.1952" x2="344.06331" y2="604.2341" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="371.51164" y1="592.1952" x2="379.32406" y2="604.2341" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="296.01873" y1="541.67342" x2="296.01873" y2="551.9558" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="315.50636" y1="541.4786" x2="334.36389" y2="556.00826" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="210.85616" y1="541.4786" x2="191.99863" y2="556.00826" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="230.34377" y1="541.67342" x2="230.34377" y2="551.9558" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="253.3633" y1="490.9905" x2="245.55088" y2="503.02938" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="272.99922" y1="490.9905" x2="280.81163" y2="503.02938" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="212.28693" y="461.15108" width="101.78865" height="29.419978" fill="white"/><path d="M 212.28693 461.15108 L 314.07558 461.15108 L 314.07558 490.57106 L 212.28693 490.57106 Z" stroke="#120012" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="1,4"/><text transform="translate(217.28693 471.36107)" fill="black"><tspan font-family="Helvetica" font-size="7" font-weight="500" x="2.1203986" y="6" textLength="33.844727">LAABB(A) </tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="35.965125" y="6" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="40.4495" y="6" textLength="10.8896484"> … </tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="51.33915" y="6" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="55.823524" y="6" textLength="33.844727"> LAABB(E)</tspan></text><rect x="202.51541" y="511.75345" width="55.65674" height="29.419978" fill="white"/><path d="M 202.51541 511.75345 L 258.17215 511.75345 L 258.17215 541.17342 L 202.51541 541.17342 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="8,5"/><text transform="translate(207.51541 517.96344)" fill="black"><tspan font-family="Helvetica" font-size="7" font-weight="500" x="4.636231" y="6" textLength="31.899902">LAABB(A)</tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="36.536133" y="6" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="41.020508" y="6" textLength="1.9448242"> </tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="6.8784186" y="15" textLength="31.899902">LAABB(B)</tspan></text><rect x="268.19036" y="511.75345" width="55.65674" height="29.419978" fill="white"/><path d="M 268.19036 511.75345 L 323.8471 511.75345 L 323.8471 541.17342 L 268.19036 541.17342 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="8,5"/><text transform="translate(273.19036 513.46344)" fill="black"><tspan font-family="Helvetica" font-size="7" font-weight="500" x="3.4707037" y="6" textLength="34.230957">LAABB(C) </tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="37.70166" y="6" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="42.186036" y="6" textLength="1.9448242"> </tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="3.4707037" y="15" textLength="34.230957">LAABB(D) </tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="37.70166" y="15" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="42.186036" y="15" textLength="1.9448242"> </tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="6.8784186" y="24" textLength="31.899902">LAABB(E)</tspan></text><rect x="136.84046" y="562.3558" width="55.65674" height="29.419978" fill="white"/><rect x="136.84046" y="562.3558" width="55.65674" height="29.419978" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(141.84046 570.0658)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="18.826417" y="11" textLength="8.0039062">A</tspan></text><rect x="202.51541" y="562.3558" width="55.65674" height="29.419978" fill="white"/><rect x="202.51541" y="562.3558" width="55.65674" height="29.419978" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(207.51541 570.0658)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="18.826417" y="11" textLength="8.0039062">B</tspan></text><rect x="268.19036" y="562.3558" width="55.65674" height="29.419978" fill="white"/><rect x="268.19036" y="562.3558" width="55.65674" height="29.419978" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(273.19036 570.0658)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="18.495362" y="11" textLength="8.6660156">C</tspan></text><rect x="333.86532" y="562.3558" width="55.65674" height="29.419978" fill="white"/><path d="M 333.86532 562.3558 L 389.52206 562.3558 L 389.52206 591.7758 L 333.86532 591.7758 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke-dasharray="16,9"/><text transform="translate(338.86532 568.5658)" fill="black"><tspan font-family="Helvetica" font-size="7" font-weight="500" x="3.4707037" y="6" textLength="34.230957">LAABB(D) </tspan><tspan font-family="Apple Symbols" font-size="7" font-weight="500" x="37.70166" y="6" textLength="4.484375">⋃</tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="42.186036" y="6" textLength="1.9448242"> </tspan><tspan font-family="Helvetica" font-size="7" font-weight="500" x="6.8784186" y="15" textLength="31.899902">LAABB(E)</tspan></text><rect x="301.02784" y="612.95817" width="55.65674" height="29.419978" fill="white"/><rect x="301.02784" y="612.95817" width="55.65674" height="29.419978" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(306.02784 620.66816)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="18.495362" y="11" textLength="8.6660156">D</tspan></text><rect x="366.7028" y="612.95817" width="55.65674" height="29.419978" fill="white"/><rect x="366.7028" y="612.95817" width="55.65674" height="29.419978" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><text transform="translate(371.7028 620.66816)" fill="#963"><tspan font-family="Helvetica" font-size="12" font-weight="500" fill="#963" x="18.826417" y="11" textLength="8.0039062">E</tspan></text></g></g></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="87 233 385 412"
+   width="385pt"
+   height="412pt"
+   id="svg5637"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="AABB_tree.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1918"
+     inkscape:window-height="1061"
+     id="namedview5856"
+     showgrid="false"
+     inkscape:zoom="5.1845344"
+     inkscape:cx="88.858831"
+     inkscape:cy="375.73201"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg5637" />
+  <metadata
+     id="metadata5639">
+    <dc:date>2013-02-01 06:29Z</dc:date>
+    <!-- Produced by OmniGraffle Professional 5.4.2 -->
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5641">
+    <font-face
+       font-family="Helvetica"
+       font-size="12"
+       units-per-em="1000"
+       underline-position="-75.683594"
+       underline-thickness="49.316406"
+       slope="0"
+       x-height="522.94922"
+       cap-height="717.28516"
+       ascent="770.01953"
+       descent="-229.98047"
+       font-weight="500"
+       id="font-face5643">
+      <font-face-src
+         id="font-face-src5645">
+        <font-face-name
+           name="Helvetica"
+           id="font-face-name5647" />
+      </font-face-src>
+    </font-face>
+    <marker
+       orient="auto"
+       overflow="visible"
+       markerUnits="strokeWidth"
+       id="FilledArrow_Marker"
+       viewBox="-1 -4 10 8"
+       markerWidth="10"
+       markerHeight="8"
+       color="black">
+      <g
+         id="g5650">
+        <path
+           d="M 8 0 L 0 -3 L 0 3 Z"
+           fill="currentColor"
+           stroke="currentColor"
+           stroke-width="1"
+           id="path5652" />
+      </g>
+    </marker>
+    <font-face
+       font-family="Helvetica"
+       font-size="7"
+       units-per-em="1000"
+       underline-position="-75.683594"
+       underline-thickness="49.316406"
+       slope="0"
+       x-height="522.94922"
+       cap-height="717.28516"
+       ascent="770.01953"
+       descent="-229.98047"
+       font-weight="500"
+       id="font-face5654">
+      <font-face-src
+         id="font-face-src5656">
+        <font-face-name
+           name="Helvetica"
+           id="font-face-name5658" />
+      </font-face-src>
+    </font-face>
+    <font-face
+       font-family="Apple Symbols"
+       font-size="7"
+       panose-1="2 0 0 0 0 0 0 0 0 0"
+       units-per-em="1000"
+       underline-position="-73.242188"
+       underline-thickness="48.828125"
+       slope="0"
+       x-height="392.57812"
+       cap-height="546.38672"
+       ascent="666.5039"
+       descent="-250"
+       font-weight="500"
+       id="font-face5660">
+      <font-face-src
+         id="font-face-src5662">
+        <font-face-name
+           name="AppleSymbols"
+           id="font-face-name5664" />
+      </font-face-src>
+    </font-face>
+  </defs>
+  <path
+     d="m 89.791203,235.97123 379.617597,0 0,197.63757 -379.617597,0 z"
+     id="path5674"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#616161;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1, 4" />
+  <path
+     d="m 262.21114,300.23527 125.58139,0 0,115.69768 -125.58139,0 z"
+     id="path5676"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#2a2a2a;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:16, 9" />
+  <path
+     d="m 252.2912,244.79001 196.67263,0 0,180.00002 -196.67263,0 z"
+     id="path5678"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#383838;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4, 4" />
+  <rect
+     x="389.54779"
+     y="251.75478"
+     width="48.666222"
+     height="46.02076"
+     id="rect5680"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5682"
+     style="fill:#996633;stroke:none"
+     x="394.54779"
+     y="267.76517">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="409.87897"
+       y="278.76517"
+       textLength="8.0039062"
+       id="tspan5684"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">E</tspan>
+  </text>
+  <rect
+     x="268.47668"
+     y="306.15384"
+     width="65.397926"
+     height="46.02076"
+     id="rect5686"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5688"
+     style="fill:#996633;stroke:none"
+     x="273.47668"
+     y="322.16422">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="296.84262"
+       y="333.16422"
+       textLength="8.6660156"
+       id="tspan5690"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">C</tspan>
+  </text>
+  <rect
+     x="312.47467"
+     y="333.14346"
+     width="65.397926"
+     height="74.394463"
+     id="rect5692"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5694"
+     style="fill:#996633;stroke:none"
+     x="317.47467"
+     y="363.34067">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="340.84064"
+       y="374.34067"
+       textLength="8.6660156"
+       id="tspan5696"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">D</tspan>
+  </text>
+  <ellipse
+     cx="301.17563"
+     cy="328.55789"
+     rx="27.000044"
+     ry="18.000029"
+     id="ellipse5698"
+     sodipodi:cx="301.17563"
+     sodipodi:cy="328.55789"
+     sodipodi:rx="27.000044"
+     sodipodi:ry="18.000029"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="274.17563"
+     y="310.55792"
+     width="54"
+     height="36"
+     id="rect5700"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 352.11746,338.18631 20.17641,50.08905 -33.39269,13.45094 -20.17642,-50.08904 z"
+     id="path5702"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="318.50931"
+     y="338.18631"
+     width="54"
+     height="63.539986"
+     id="rect5704"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 413.88092,256.76515 18,18 -18,18 -18,-18 z"
+     id="path5706"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="395.88092"
+     y="256.76514"
+     width="36"
+     height="36"
+     id="rect5708"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 106.75323,286.67452 112.4427,0 0,115.69768 -112.4427,0 z"
+     id="path5710"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#2a2a2a;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8, 5" />
+  <rect
+     x="140.65282"
+     y="348.10165"
+     width="65.397926"
+     height="46.02076"
+     id="rect5712"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5714"
+     style="fill:#996633;stroke:none"
+     x="145.65282"
+     y="364.11203">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="169.34982"
+       y="375.11203"
+       textLength="8.0039062"
+       id="tspan5716"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">B</tspan>
+  </text>
+  <rect
+     x="115.12458"
+     y="294.9949"
+     width="48.666222"
+     height="46.02076"
+     id="rect5718"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5720"
+     style="fill:#996633;stroke:none"
+     x="113.18085"
+     y="311.00528">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="128.51201"
+       y="322.00528"
+       textLength="8.0039062"
+       id="tspan5722"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">A</tspan>
+  </text>
+  <path
+     d="m 121.45704,300.0053 36,18 -36,18 z"
+     id="path5724"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="121.45704"
+     y="300.00531"
+     width="36"
+     height="36"
+     id="rect5726"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 146.35178,371.6121 13.5,-18 27,0 13.5,18 -13.5,18 -27,0 z"
+     id="path5728"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="146.35176"
+     y="353.61212"
+     width="54"
+     height="36"
+     id="rect5730"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <g
+     style="fill:none;stroke:none"
+     id="g5732">
+    <title
+       id="title5734">Layer 2</title>
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5736"
+       y2="604.23407"
+       x2="344.06332"
+       y1="592.19519"
+       x1="351.87573" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5738"
+       y2="604.23407"
+       x2="379.32407"
+       y1="592.19519"
+       x1="371.51163" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5740"
+       y2="551.95581"
+       x2="296.01874"
+       y1="541.6734"
+       x1="296.01874" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5742"
+       y2="556.00824"
+       x2="334.36389"
+       y1="541.47858"
+       x1="315.50635" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5744"
+       y2="556.00824"
+       x2="191.99863"
+       y1="541.47858"
+       x1="210.85616" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5746"
+       y2="551.95581"
+       x2="230.34377"
+       y1="541.6734"
+       x1="230.34377" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5748"
+       y2="503.02939"
+       x2="245.55087"
+       y1="490.99051"
+       x1="253.3633" />
+    <line
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)"
+       id="line5750"
+       y2="503.02939"
+       x2="280.81161"
+       y1="490.99051"
+       x1="272.99921" />
+    <rect
+       style="fill:#ffffff"
+       id="rect5752"
+       height="29.419977"
+       width="101.78865"
+       y="461.15109"
+       x="212.28693" />
+    <path
+       style="stroke:#120012;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1, 4"
+       inkscape:connector-curvature="0"
+       id="path5754"
+       d="m 212.28693,461.15108 101.78865,0 0,29.41998 -101.78865,0 z" />
+    <text
+       style="fill:#000000"
+       id="text5756"
+       transform="translate(217.28693,471.36107)">
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5758"
+         textLength="33.844727"
+         y="6"
+         x="2.1203985"
+         font-weight="500"
+         font-size="7">LAABB(A)</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5760"
+         textLength="4.484375"
+         y="6"
+         x="35.965126"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5762"
+         textLength="10.8896484"
+         y="6"
+         x="40.449501"
+         font-weight="500"
+         font-size="7">…</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5764"
+         textLength="4.484375"
+         y="6"
+         x="51.339149"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5766"
+         textLength="33.844727"
+         y="6"
+         x="55.823524"
+         font-weight="500"
+         font-size="7">LAABB(E)</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5768"
+       height="29.419977"
+       width="55.656738"
+       y="511.75345"
+       x="202.51541" />
+    <path
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8, 5"
+       inkscape:connector-curvature="0"
+       id="path5770"
+       d="m 202.51541,511.75345 55.65674,0 0,29.41997 -55.65674,0 z" />
+    <text
+       style="fill:#000000"
+       id="text5772"
+       transform="translate(207.51541,517.96344)">
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5774"
+         textLength="31.899902"
+         y="6"
+         x="4.6362309"
+         font-weight="500"
+         font-size="7">LAABB(A)</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5776"
+         textLength="4.484375"
+         y="6"
+         x="36.536133"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5778"
+         textLength="1.9448242"
+         y="6"
+         x="41.020508"
+         font-weight="500"
+         font-size="7" />
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5780"
+         textLength="31.899902"
+         y="15"
+         x="6.8784184"
+         font-weight="500"
+         font-size="7">LAABB(B)</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5782"
+       height="29.419977"
+       width="55.656738"
+       y="511.75345"
+       x="268.19037" />
+    <path
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8, 5"
+       inkscape:connector-curvature="0"
+       id="path5784"
+       d="m 268.19036,511.75345 55.65674,0 0,29.41997 -55.65674,0 z" />
+    <text
+       style="fill:#000000"
+       id="text5786"
+       transform="translate(273.19036,513.46344)">
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5788"
+         textLength="34.230957"
+         y="6"
+         x="3.4707036"
+         font-weight="500"
+         font-size="7">LAABB(C)</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5790"
+         textLength="4.484375"
+         y="6"
+         x="37.70166"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5792"
+         textLength="1.9448242"
+         y="6"
+         x="42.186035"
+         font-weight="500"
+         font-size="7" />
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5794"
+         textLength="34.230957"
+         y="15"
+         x="3.4707036"
+         font-weight="500"
+         font-size="7">LAABB(D)</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5796"
+         textLength="4.484375"
+         y="15"
+         x="37.70166"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5798"
+         textLength="1.9448242"
+         y="15"
+         x="42.186035"
+         font-weight="500"
+         font-size="7" />
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5800"
+         textLength="31.899902"
+         y="24"
+         x="6.8784184"
+         font-weight="500"
+         font-size="7">LAABB(E)</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5802"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="136.84045" />
+    <rect
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect5804"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="136.84045" />
+    <text
+       style="fill:#996633"
+       id="text5806"
+       transform="translate(141.84046,570.0658)">
+      <tspan
+         style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica"
+         id="tspan5808"
+         textLength="8.0039062"
+         y="11"
+         x="18.826418"
+         font-weight="500"
+         font-size="12">A</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5810"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="202.51541" />
+    <rect
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect5812"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="202.51541" />
+    <text
+       style="fill:#996633"
+       id="text5814"
+       transform="translate(207.51541,570.0658)">
+      <tspan
+         style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica"
+         id="tspan5816"
+         textLength="8.0039062"
+         y="11"
+         x="18.826418"
+         font-weight="500"
+         font-size="12">B</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5818"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="268.19037" />
+    <rect
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect5820"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="268.19037" />
+    <text
+       style="fill:#996633"
+       id="text5822"
+       transform="translate(273.19036,570.0658)">
+      <tspan
+         style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica"
+         id="tspan5824"
+         textLength="8.6660156"
+         y="11"
+         x="18.495361"
+         font-weight="500"
+         font-size="12">C</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5826"
+       height="29.419977"
+       width="55.656738"
+       y="562.35577"
+       x="333.86533" />
+    <path
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:16, 9"
+       inkscape:connector-curvature="0"
+       id="path5828"
+       d="m 333.86532,562.3558 55.65674,0 0,29.42 -55.65674,0 z" />
+    <text
+       style="fill:#000000"
+       id="text5830"
+       transform="translate(338.86532,568.5658)">
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5832"
+         textLength="34.230957"
+         y="6"
+         x="3.4707036"
+         font-weight="500"
+         font-size="7">LAABB(D)</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Apple Symbols"
+         id="tspan5834"
+         textLength="4.484375"
+         y="6"
+         x="37.70166"
+         font-weight="500"
+         font-size="7">⋃</tspan>
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5836"
+         textLength="1.9448242"
+         y="6"
+         x="42.186035"
+         font-weight="500"
+         font-size="7" />
+      <tspan
+         style="font-size:7px;font-weight:500;font-family:Helvetica"
+         id="tspan5838"
+         textLength="31.899902"
+         y="15"
+         x="6.8784184"
+         font-weight="500"
+         font-size="7">LAABB(E)</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5840"
+       height="29.419977"
+       width="55.656738"
+       y="612.95819"
+       x="301.02783" />
+    <rect
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect5842"
+       height="29.419977"
+       width="55.656738"
+       y="612.95819"
+       x="301.02783" />
+    <text
+       style="fill:#996633"
+       id="text5844"
+       transform="translate(306.02784,620.66816)">
+      <tspan
+         style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica"
+         id="tspan5846"
+         textLength="8.6660156"
+         y="11"
+         x="18.495361"
+         font-weight="500"
+         font-size="12">D</tspan>
+    </text>
+    <rect
+       style="fill:#ffffff"
+       id="rect5848"
+       height="29.419977"
+       width="55.656738"
+       y="612.95819"
+       x="366.70279" />
+    <rect
+       style="stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+       id="rect5850"
+       height="29.419977"
+       width="55.656738"
+       y="612.95819"
+       x="366.70279" />
+    <text
+       style="fill:#996633"
+       id="text5852"
+       transform="translate(371.7028,620.66816)">
+      <tspan
+         style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica"
+         id="tspan5854"
+         textLength="8.0039062"
+         y="11"
+         x="18.826418"
+         font-weight="500"
+         font-size="12">E</tspan>
+    </text>
+  </g>
+</svg>

@@ -1,1 +1,1 @@
-# Time of Impact
+# Continuous Collision Detection

@@ -15,7 +15,7 @@ structure:
 
 
 Here, _absolute coordinate system_ (sometimes called _world coordinate system_)
-is the basis that is not relative to any object.
+designs the set of axises that are not relative to any object.
 
 
 The last field requires some explanations. Sometimes, the objects in
@@ -25,7 +25,9 @@ the two objects are superimposed. This penetration can be expressed in several
 forms: the penetration volume, the minimal translational + rotational distance,
 and the minimal translational distance:
 
+<center>
 ![penetration depth](../img/penetration_depth.svg)
+</center>
 
 **ncollide** implements the last one: the minimal translational distance, aka.
 the _penetration depth_. This is the smallest translation along the contact

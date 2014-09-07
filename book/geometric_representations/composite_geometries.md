@@ -22,7 +22,7 @@ create a `Compound` geometry:
 | The AABBs of the geometries composing the compound | `c.bounding_volumes()` | Automatically computed |
 | The space-partitioning acceleration structure used by the compound | `c.bvt()` | Automatically computed |
 
-###### 2d example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/compound2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 2d example <div class="d2" onclick="window.open('../src/compound2d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
@@ -41,9 +41,11 @@ let compound = Compound::new(compound_data);
 assert!(compound.geoms().len() == 3)
 ```
 
+<center>
 ![fixme](example2d)
+</center>
 
-###### 3d example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/compound3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 3d example <div calss="d3" onclick="window.open('../src/compound3d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso3::new(Vec3::new(0.0f32, -1.5, 0.0), na::zero());
@@ -62,7 +64,9 @@ let compound = Compound::new(compound_data);
 assert!(compound.geoms().len() == 3)
 ```
 
+<center>
 ![3d compound](../img/compound3d.png)
+</center>
 
 #### More about `CompoundData`
 The previous examples show the simplest way of initializing the `CompoundData`
@@ -82,7 +86,7 @@ Therefore, there are three ways of adding a geometry to a `CompoundData`:
    `Volumetric` trait, the object mass, center of mass and angular inertia
    tensor must be provided.
 
-###### 2d example <button style="float:right;" class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/compound_data2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" /></button>
+###### 2d example <div class="d2" onclick="window.open('../src/compound_data2d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
@@ -132,7 +136,9 @@ let compound = Compound::new(compound_data);
 assert!(compound.geoms().len() == 3);
 ```
 
+<center>
 ![fixme](example2d)
+</center>
 
 ## Reflection
 The `Reflection` structure describes the reflection of another geometry with
@@ -143,7 +149,7 @@ itself are lifetime-bound.
 | --          | --        | --    |
 | The geometry affected by the reflection | `r.geom()` | User-defined with `Reflection::new` |
 
-###### 2D and 3D example <span style="float:right;"><button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/reflection2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>2D</b></button> <button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/reflection3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>3D</b></button></span>
+###### 2D and 3D example <div class="d3" onclick="window.open('../src/reflection3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/reflection2d.rs')"></div>
 ```rust
 let cone       = Cone::new(0.5, 0.75);
 let reflection = Reflection::new(&cone);
@@ -152,8 +158,10 @@ let reflection = Reflection::new(&cone);
 assert!(reflection.margin() == 0.04);
 ```
 
+<center>
 ![reflected 3d cone](../img/refl3d.png)
 ![reflected 2d cone](../img/refl2d.png) 
+</center>
 
 ## Minkowski Sum
 The `MinkowskiSum` structure describes the Minkoswki sum of two geometries
@@ -171,8 +179,7 @@ the so-called Configuration Space Obstacle.
 | The **first** geometry involved in the sum.  | `m.g1()` | User-defined with `MinkowskiSum::new` |
 | The **second** geometry involved in the sum.  | `m.g2()` | User-defined with `MinkowskiSum::new` |
 
-###### 2D and 3D example <span style="float:right;"><button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/minkowski_sum2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>2D</b></button> <button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/minkowski_sum3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>3D</b></button></span>
-
+###### 2D and 3D example <div class="d3" onclick="window.open('../src/minkowski_sum3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/minkowski_sum2d.rs')"></div>
 ```rust
 let cylinder = Cylinder::new(0.5, 0.75);
 let cone     = Cone::new_with_margin(0.75, 0.75, 0.1);
@@ -186,10 +193,12 @@ let sum = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 assert!(sum.margin() == 0.14);
 ```
 
+<center>
 ![cylinder + cone](../img/msum3d.png)
 ![fixme](sum2d) 
+</center>
 
-###### Configuration Space Obstacle construction example <span style="float:right;"><button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/configuration_space_obstacle2d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>2D</b></button> <button class="btn btn-primary" type="button" id="download-code" onclick="window.open('../src/configuration_space_obstacle3d.rs')"><img style="float:left;width:20px;height:20px;" src="../img/d.svg" />&nbsp;<b>3D</b></button></span>
+###### Configuration Space Obstacle construction example <div class="d3" onclick="window.open('../src/configuration_space_obstacle3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/configuration_space_obstacle2d.rs')"></div>
 The Configuration Space Obstacle is the same as the Minkowski sum of the first
 geometry with the reflection of the second one.
 
@@ -207,5 +216,7 @@ let cso = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection
 assert!(cso.margin() == 0.14);
 ```
 
+<center>
 ![cylinder - cone](../img/cso3d.png) 
 ![cylinder - cone](../img/cso2d.png) 
+</center>

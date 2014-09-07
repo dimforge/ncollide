@@ -1,4 +1,4 @@
-extern crate ncollide = "ncollide2df32";
+extern crate "ncollide2df32" as ncollide;
 
 use ncollide::implicit::HasMargin;
 use ncollide::geom::{Cone, Reflection};

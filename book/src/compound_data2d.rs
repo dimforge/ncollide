@@ -1,7 +1,7 @@
 extern crate nalgebra;
-extern crate ncollide = "ncollide2df32";
+extern crate "ncollide2df32" as ncollide;
 
-use std::rc::Rc;
+use std::sync::Arc;
 use nalgebra::na::{Iso2, Vec2};
 use nalgebra::na;
 use ncollide::geom::{Geom, Plane, Cuboid, Compound, CompoundData};
@@ -26,13 +26,14 @@ fn main() {
     /*
      * push_geom_with_mass_properties
      */
-    // mass = 10.0
-    // center of mass = the origin (na::zero())
+    // area                   = 1.0
+    // mass                   = 10.0
+    // center of mass         = the origin (na::zero())
     // angular inertia tensor = identity matrix (na::one())
     compound_data.push_geom_with_mass_properties(
         delta2,
         Plane::new(Vec2::new(1f32, 0.0)),
-        (10.0f32, na::zero(), na::one()));
+        (na::one(), 10.0f32, na::one(), na::one()));
 
     /*
      * push_shared_geom_with_mass_properties
@@ -40,14 +41,15 @@ fn main() {
     // The geometry we want to share.
     let cuboid = Cuboid::new(Vec2::new(0.75f32, 1.5));
     // Make ncollide compute the mass properties of the cuboid.
-    let mass_properties = cuboid.mass_properties(&1.0); // density = 1.0
+    let (c_mass, c_com, c_tensor) = cuboid.mass_properties(&1.0); // density = 1.0
+    let c_area                    = cuboid.surface();
     // Build the shared geometry.
-    let shared_cuboid = Rc::new(box cuboid as Box<Geom + Send>);
+    let shared_cuboid = Arc::new(box cuboid as Box<Geom + Send + Sync>);
     // Add the geometry to the compound data.
     compound_data.push_shared_geom_with_mass_properties(
         delta3,
         shared_cuboid.clone(),
-        mass_properties);
+        (c_area, c_mass, c_com, c_tensor));
     // `shared_cuboid` can still be used thereafter…
 
     // 2) create the compound geometry.

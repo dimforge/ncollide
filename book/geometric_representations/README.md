@@ -29,26 +29,30 @@ implemented because it is meaningless.
 ## Support map
 **ncollide** supports generic algorithms that work for any (possibly
 user-defined) shape defined by a support map. Those include collision detection
-and ray casting algorithms.  The support map is a function that returns the
-point that maximises the dot product with a given direction:
-<p>
-<img src="../img/support_fun_formula.svg" style="width:25%;height:25%"/>
-</p>
+and ray casting algorithms.  The support map of a shape $$\mathcal{A}$$ is a
+function that returns the point $$\mathbf{p}$$ that maximises its dot product
+with a given direction $$\mathbf{v}$$:
+
+$$
+s_\mathcal{A}(\mathbf{v}) = \arg \max\limits_{\mathbf{p} \in \mathcal{A}} \left< \mathbf{p}, \mathbf{v} \right>
+$$
+
 This can be seen as a function that returns a point of the support mapped shape
 which is _the furthest on the given direction_. Such a function is enough to
 describe completely a convex object.  Here is an example of support points for
-the shapes $\mathcal{A}, \mathcal{B}$ and $\mathcal{C}$, given two directions
-($\bf u$ and $\bf v$):
-<p>
-<img src="../img/support_fun_simple.svg" style="width:50%;height:50%"/>
-</p>
+the shapes $$\mathcal{A}, \mathcal{B}$$ and $$\mathcal{C}$$, given two directions
+($$\bf u$$ and $$\bf v$$):
+
+<center>
+![Support function](../img/support_fun_simple.svg)
+</center>
 
 The support mapping function is exposed by the `implicit::Implicit` trait.
 
-| Method                           | Description |
-|--                                | --          |
-| `support_point(m, v)`            | Computes the support point of the caller transformed by the transformation matrix `m`, in the direction `v`. |
-| `support_point_with_margin(...)` | Same as `support_point(...)` but ignores the object's margin if it has one. |
+| Method                            | Description |
+|--                                 | --          |
+| `.support_point(m, v)`            | Computes the support point of the caller transformed by the transformation matrix `m`, in the direction `v`. |
+| `.support_point_with_margin(...)` | Same as `support_point(...)` but ignores the object's margin if it has one. |
 
 
 Some of those methods refer to the notion of _margin_. This is explained by the
@@ -73,4 +77,6 @@ is the one that is affected by the margin. For example, the `Cone` has an
 external margin, so the yellow envelope is bigger and more "curved" than the
 blue one (which is the exact cone):
 
+<center>
 ![cone with a margin on 0.2](../img/cone3d_margin.png)
+</center>
