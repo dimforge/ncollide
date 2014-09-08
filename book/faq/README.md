@@ -11,19 +11,20 @@ _collide_ `/kəˈlaɪd/`.
 
 --------
 
-#### What are the units used by **ncollide**?
+#### Which units are used by **ncollide**?
 
-The units used by **ncollide** are left to your imagination. They can as well
-be kilometers, miles, litters, luxes, or zablotrixes. It all depends on your
-application. Just try to choose your units such that the quantities (especially
-distances) remain close to 1.0. Therefore it is generally a **very bad idea**
-to choose pixels are your principal distance unit. In addition, huge size
-ratios (_big_ objects interacting with _small_ objects) should be avoided. This
-is very prone to rounding errors.
+This is left to your imagination. They can as well be kilometers, miles,
+litters, lumens, or nyan cats. It all depends on your application. Just try to
+choose your units such that the quantities (especially sizes) remain close
+to 1.0. Therefore it is generally a **very bad idea** to choose one pixel as
+your principal distance unit! In addition, significant size ratios (_big_
+objects interacting with _small_ objects) should be avoided as they are very
+prone to generate rounding errors.
 
 The recommended units are those given by the [International System of
 Units](http://en.wikipedia.org/wiki/International_System_of_Units) − that is −
-meters, kilograms, seconds, and so on.
+meters, kilograms, seconds, and so on. But again, it depends on your
+application!
 
 --------
 
@@ -43,7 +44,7 @@ fn main() {
 
     ball.to_trimesh();
     //   ^^^^^^^^^^
-    // Type `Ball` does not implement any method in scope named `to_trimesh`.
+    // Error: type `Ball` does not implement any method in scope named `to_trimesh`.
 }
 ```
 
@@ -64,16 +65,17 @@ fn main() {
 ```
 
 If this fails, then the method might as well not exist. Double check the [API
-documentation](../index.html#about_this_guide) then feel free to open an issue
+documentation](../index.html#about_this_guide) and feel free to open an issue
 if this is a missing feature!
 
 --------
 
-#### Do I need any kind permission to reuse the figures of this guide?
+#### Do I need some kind of permission to reuse the figures of this guide?
 
-Nope! All of them were created by hand using
-[Inkscape](http://www.inkscape.org/), or generated with
-[nrays](http://github.com/sebcrozet/nrays) or
-[kiss3d](http://github.com/sebcrozet/kiss3d). We know how time-consuming
-creating those kind of illustration can be so feel free to modify/publish them
-anywhere you want without asking or telling anybody.
+Nope! The were all created using [Inkscape](http://www.inkscape.org/) or
+generated with [nrays](http://github.com/sebcrozet/nrays),
+[kiss3d](http://github.com/sebcrozet/kiss3d), and
+[rust-sfml](http://github.com/JeremyLetang/rust-sfml). We know how
+time-consuming creating those kinds of illustrations can be so feel free to
+modify, publish, and redistribute them anywhere you want without asking or even
+telling anybody.

@@ -1,5 +1,9 @@
 {
-    "plugins": [ "additional-styles" ],
+    "plugins": [
+        "additional-styles",
+        "-mixpanel"
+    ],
+
     "pluginsConfig": {
         "additional-styles": {}
     }

@@ -1,10 +1,114 @@
 # How to contribute
 
-#### Technical contribution
+### Technical contribution
+
+You are of course welcome to contribute to the source code of **ncollide** and to
+this guide. Simply make sure to [open an
+issue](https://github.com/sebcrozet/ncollide/issues) on GitHub if you intend to
+perform a large contribution. This should prevent other people from stepping
+silently on your toes and should ensure your work is going to be merged when it
+is ready.
+
+###### Working on the rust project
+
+If you intend to work on the source code of **ncollide**, you should start by
+[forking](https://help.github.com/articles/fork-a-repo) the
+[repository](https://github.com/sebcrozet/ncollide). All the main developments
+are done on the `master` branch.  Once you are done making modifications to
+your own copy of **ncollide**, you have to [create a
+pull⁻request](https://help.github.com/articles/creating-a-pull-request) so that
+your contribution can be reviewed, commented, and merged.
 
 
+If you read this guide completely, you may have noticed that the first rule of
+development is to expose each feature by a trait located on its own module.
+Thus, you will usually find one folder per major feature. Each folder contains
+a similarly named file which declares the relevant traits. Finally, those
+traits are implemented for the relevant structures on explicitly named files
+located on the very same folder.  For example, the `Implicit` trait is declared
+on the `implicit/implicit.rs` file and its implementation for e.g.  the `Ball`
+geometry is located on `implicit/implicit_ball.rs` while its implementation for
+e.g. the `Cuboid` geometry is located on `implicit/implicit_cuboid.rs`. You
+will find similar naming patterns for most features.
 
-#### Financial contribution
+
+Another rule is to never use explicit scalar types like `f32` and `f64`.
+Explicit vector and matrix types should be avoided too when possible. Instead,
+use the aliases defined by the `math` module. They automatically change
+depending on the version of **ncollide** chosen by the user:
+
+| Alias name | Value for 2df32 | Value for 2df64 | Value for 3df32 | Value for 3df64 |
+| --         | --              | --              | --              | --              |
+| `Scalar`         | `f32`           | `f64`           | `f32`           | `f64` |
+| `Vect`           | `Vec2<f32>`     | `Vec2<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
+| `Orientation`    | `Vec1<f32>`     | `Vec1<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
+| `Matrix`         | `Iso2<f32>`     | `Iso2<f64>`     | `Iso3<f32>`     | `Iso3<f64>` |
+| `RotationMatrix` | `Rot2<f32>`     | `Rot2<f64>`     | `Rot3<f32>`     | `Rot3<f64>` |
+| `AngularInertia` | `Mat1<f32>`     | `Mat1<f64>`     | `Mat3<f32>`     | `Mat3<f64>` |
+
+If you need to convert a constant like `42.24` to a `math::Scalar`, use the
+function `na::cast` from nalgebra:
+
+```rust
+let value: Scalar = na::cast(42.24);
+```
+
+
+Finally, if you need to implement something that is dimension-specific (i.e.
+2D-only or 3D-only), use one (and only one) of the following attributes with
+your `fn`, `impl`, `struct` and `trait` definitions:
+
+| Attribute | Effect |
+| --        | --     |
+| `#[dim2]` | Compiles the affected code only for the 2D version of **ncollide**. |
+| `#[dim3]` | Compiles the affected code only for the 3D version of **ncollide**. |
+| `#[dim4]` | Compiles the affected code only for the 4D version of **ncollide**. |
+| `#[not_dim2]` | Compiles the affected code only for all but the 2D version of **ncollide**. |
+| `#[not_dim3]` | Compiles the affected code only for all but the 3D version of **ncollide**. |
+| `#[not_dim4]` | Compiles the affected code only for all but the 4D version of **ncollide**. |
+
+Here is an example of dummy code using those attributes:
+
+```rust
+use nalgebra::na;
+use math::Vect; // no `ncollide::`, we assume file is on the source tree of ncollide.
+
+#[dim2]
+fn doit() { // compile this implementation for the 2D case.
+    assert!(na::dim::<Vect>() == 2);
+}
+
+#[dim3]
+fn doit() { // compile this implementation for the 3D case.
+    assert!(na::dim::<Vect>() == 3);
+}
+
+#[dim4]
+fn doit() { // compile this implementation for the 4D case.
+    assert!(na::dim::<Vect>() == 4);
+}
+```
+
+Note that those attributes will not work on `use` statements. Thus, you might
+end up with _legitimate_ unused import warnings (we will not blame you for
+letting them).
+
+
+###### Working on this guide
+
+You can also contribute to this user guide by completing and correcting it. Do
+not hesitate to correct even the smallest, insignificant detail (especially
+English mistakes). We love nitpicking!
+This guide is composed of a set of markdown files located on the
+[gh-pages](https://github.com/sebcrozet/ncollide/tree/gh-pages) branch of the
+main **ncollide** repository. It is compiled manually using
+[GitBook](https://www.gitbook.io/). As explained before, you need to fork, fix,
+and create a pull request to make your contribution upstreamable. There are no
+specific rules, except that all compilable and downloadable examples must be
+located on the `src` folder.
+
+
+### Financial contribution
 
 Donations made to the lead developer (more informations about him bellow)
 are also appreciated. However, do not forget that **donating is not a
@@ -59,5 +163,5 @@ Except me, here are the known contributors (including donors) to the
 
 If your name should or should not be on this list, or if it should link to
 another website, please send me an [email](mailto:developer@crozet.re) or open
-a pull request to let me know.
+an issue to let me know.
 

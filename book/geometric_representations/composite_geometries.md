@@ -80,11 +80,12 @@ Therefore, there are three ways of adding a geometry to a `CompoundData`:
    *not* have to be shared.
 2. `push_geom_with_mass_properties(...)`: use this if your geometry does *not*
    implement `Volumetric` and does *not* have to be shared. This time, the
-   object mass, center of mass and angular inertia tensor must be provided.
+   object surface, mass, center of mass and angular inertia tensor must be
+   provided.
 3. `push_shared_geom_with_mass_properties(...)`: use this if your geometry has
    to be shared.  This time, even if `shared_geometry` did implement the
-   `Volumetric` trait, the object mass, center of mass and angular inertia
-   tensor must be provided.
+   `Volumetric` trait, the object surface, mass, center of mass and angular
+   inertia tensor must be provided.
 
 ###### 2d example <div class="d2" onclick="window.open('../src/compound_data2d.rs')"></div>
 ```rust

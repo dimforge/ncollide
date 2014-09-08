@@ -1,8 +1,6 @@
-all: Cargo.toml
-	cargo build
-
-Cargo.toml:
+all:
 	./configure
+	cargo build
 
 clean:
 	cargo clean

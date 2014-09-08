@@ -56,7 +56,7 @@ computed along the direction of the vertex normal:
 </center>
 
 Then, to make this concavity measure kind of independent from the whole shape
-aspect-ratio, it is divided by the object AABB diagonal $$D$$:
+dimensions, it is divided by the object AABB diagonal $$D$$:
 
 <center>
 ![Concavity normalizer](../img/concavity_normalizer.svg)

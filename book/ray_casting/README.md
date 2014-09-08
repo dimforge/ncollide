@@ -23,7 +23,7 @@ structure:
 
 | Field         | Description                               |
 |--             | --                                        |
-| `toi`         | The _time of impact_ of the ray on the object. Using this the exact intersection point can be computed using: `ray.orig + ray.dir * result.toi` |
+| `toi`         | The _time of impact_ of the ray on the object. Using this, the exact intersection point can be computed using: `ray.orig + ray.dir * result.toi` |
 | `normal` | The normal of the hit shape at the intersection point.  |
 | `uvs`    | If available, the texture coordinates of the hit shape at the intersection point. If the texture coordinates information is not computable, this is set to `None`. |
 

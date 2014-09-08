@@ -8,7 +8,7 @@ triangles):
 ![rungholt](../img/rungholt.png)
 </center>
 
-If your objects can move, you should use a [broad
+If your objects can move, you may use a [broad
 phase](../contact_determination/broad_phase.html) that implements the
 `broad::RayCastBroadPhase` trait. A lighter, often simpler, alternative is to
 use the `spacial_partitionning::DBVT` structure directly (it is used by one
@@ -37,10 +37,9 @@ be enough to get good performances.
 
 #### Using a BVT
 
-## Complete working example
+## Example
 
-Here is an example that sets up a scene using a `BVT`, and casts some rays on
-it.
+Here is an example that sets up a `BVT`, and casts some rays on it.
 
 ##### 3D
 
