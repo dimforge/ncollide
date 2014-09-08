@@ -1,6 +1,7 @@
 all:
 	./configure
-	cargo build
+	cargo build --release
+	sh run.sh
 
 clean:
 	cargo clean

@@ -10,12 +10,28 @@ git = "http://github.com/sebcrozet/ncollide"
 git = "http://github.com/sebcrozet/ncollide"
 
 [[bin]]
+name = "aabb2d"
+path = "./aabb2d.rs"
+
+[[bin]]
+name = "aabb3d"
+path = "./aabb3d.rs"
+
+[[bin]]
 name = "ball2d"
 path = "./ball2d.rs"
 
 [[bin]]
 name = "ball3d"
 path = "./ball3d.rs"
+
+[[bin]]
+name = "bounding_sphere2d"
+path = "./bounding_sphere2d.rs"
+
+[[bin]]
+name = "bounding_sphere3d"
+path = "./bounding_sphere3d.rs"
 
 [[bin]]
 name = "capsule2d"
@@ -62,8 +78,16 @@ name = "cylinder3d"
 path = "./cylinder3d.rs"
 
 [[bin]]
+name = "dsl"
+path = "./dsl.rs"
+
+[[bin]]
 name = "getting_started"
 path = "./getting_started.rs"
+
+[[bin]]
+name = "hacd3d"
+path = "./hacd3d.rs"
 
 [[bin]]
 name = "mesh2d"
@@ -96,3 +120,11 @@ path = "./reflection2d.rs"
 [[bin]]
 name = "reflection3d"
 path = "./reflection3d.rs"
+
+[[bin]]
+name = "solid_ray_cast2d"
+path = "./solid_ray_cast2d.rs"
+
+[[bin]]
+name = "solid_ray_cast3d"
+path = "./solid_ray_cast3d.rs"

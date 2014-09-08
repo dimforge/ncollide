@@ -2,8 +2,8 @@
 
 #### How should I write and pronounce **ncollide**?
 
-It is written without capitals (no _Ncollide_, _nCollide_, nor _NcOlLiDe_),
-without dashes (no _n-collide_), and without spaces (no _n collide_): it is
+It is written without capitals (not _Ncollide_, _nCollide_, or _NcOlLiDe_),
+without dashes (not _n-collide_), and without spaces (not _n collide_): it is
 just as simple as **ncollide**.
 
 It is pronounced starting with the letter _n_ `/ɛn/` followed by the world
@@ -64,9 +64,9 @@ fn main() {
 }
 ```
 
-If this fails, then the method might as well not exist. Double check the [API
-documentation](../index.html#about_this_guide) and feel free to open an issue
-if this is a missing feature!
+If doing so does not work, double check the [API
+documentation](../index.html#about_this_guide). You might just have mispelled
+the method name.
 
 --------
 

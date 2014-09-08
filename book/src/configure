@@ -13,10 +13,14 @@ git = "http://github.com/sebcrozet/ncollide"
 git = "http://github.com/sebcrozet/ncollide"
 EOF
 
+echo -n > run.sh
+
 for file in `ls *.rs`
 do
     echo ""                      >> Cargo.toml
     echo "[[bin]]"               >> Cargo.toml
     echo "name = \"${file%.*}\"" >> Cargo.toml
     echo "path = \"./${file}\""  >> Cargo.toml
+    echo "echo \"Running ${file%.*}.\""   >> run.sh
+    echo "./target/release/${file%.*}"   >> run.sh
 done

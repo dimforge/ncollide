@@ -22,7 +22,7 @@ create a `Compound` geometry:
 | The AABBs of the geometries composing the compound | `c.bounding_volumes()` | Automatically computed |
 | The space-partitioning acceleration structure used by the compound | `c.bvt()` | Automatically computed |
 
-###### 2d example <div class="d2" onclick="window.open('../src/compound2d.rs')"></div>
+###### 2D example <div class="d2" onclick="window.open('../src/compound2d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
@@ -45,7 +45,7 @@ assert!(compound.geoms().len() == 3)
 ![fixme](example2d)
 </center>
 
-###### 3d example <div calss="d3" onclick="window.open('../src/compound3d.rs')"></div>
+###### 3D example <div class="d3" onclick="window.open('../src/compound3d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso3::new(Vec3::new(0.0f32, -1.5, 0.0), na::zero());
@@ -87,7 +87,7 @@ Therefore, there are three ways of adding a geometry to a `CompoundData`:
    `Volumetric` trait, the object surface, mass, center of mass and angular
    inertia tensor must be provided.
 
-###### 2d example <div class="d2" onclick="window.open('../src/compound_data2d.rs')"></div>
+###### 2D example <div class="d2" onclick="window.open('../src/compound_data2d.rs')"></div>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());

@@ -51,8 +51,53 @@ This is the simplest way to compute the AABB of a geometry defined by
 allowed call this method `use ncollide::bounding_volume::HasAABB`!
 
 ## Working example
-The following example computes an AABB of two balls, merges them together and
+
+The following examples compute the AABB of a cone and a cylinder,
+merges them together, creates an enlarged version of the cylinder AABB, and
 performs some tests.
 
-##### 3D
-##### 2D
+###### 2D example <div class="d2" onclick="window.open('../src/aabb2d.rs')"></div>
+```rust
+let cone     = Cone::new(0.5, 0.5);
+let cylinder = Cylinder::new(1.0, 0.5);
+
+let cone_pos     = Iso2::new(Vec2::y(), na::zero());
+let cylinder_pos = na::one();
+
+let aabb_cone     = cone.aabb(&cone_pos);
+let aabb_cylinder = cylinder.aabb(&cylinder_pos);
+
+let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
+
+let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
+
+assert!(aabb_cone.intersects(&aabb_cylinder));
+assert!(bounding_aabb.contains(&aabb_cone));
+assert!(bounding_aabb.contains(&aabb_cylinder));
+assert!(!aabb_cylinder.contains(&bounding_aabb));
+assert!(!aabb_cone.contains(&bounding_aabb));
+assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
+```
+
+###### 3D example <div class="d3" onclick="window.open('../src/aabb3d.rs')"></div>
+```rust
+let cone     = Cone::new(0.5, 0.5);
+let cylinder = Cylinder::new(1.0, 0.5);
+
+let cone_pos     = Iso3::new(Vec3::z(), na::zero());
+let cylinder_pos = na::one();
+
+let aabb_cone     = cone.aabb(&cone_pos);
+let aabb_cylinder = cylinder.aabb(&cylinder_pos);
+
+let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
+
+let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
+
+assert!(aabb_cone.intersects(&aabb_cylinder));
+assert!(bounding_aabb.contains(&aabb_cone));
+assert!(bounding_aabb.contains(&aabb_cylinder));
+assert!(!aabb_cylinder.contains(&bounding_aabb));
+assert!(!aabb_cone.contains(&bounding_aabb));
+assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
+```

@@ -46,11 +46,11 @@ depending on the version of **ncollide** chosen by the user:
 | `RotationMatrix` | `Rot2<f32>`     | `Rot2<f64>`     | `Rot3<f32>`     | `Rot3<f64>` |
 | `AngularInertia` | `Mat1<f32>`     | `Mat1<f64>`     | `Mat3<f32>`     | `Mat3<f64>` |
 
-If you need to convert a constant like `42.24` to a `math::Scalar`, use the
+If you need to convert a constant like `42.0` to a `math::Scalar`, use the
 function `na::cast` from nalgebra:
 
 ```rust
-let value: Scalar = na::cast(42.24);
+let value: Scalar = na::cast(42.0);
 ```
 
 

@@ -32,7 +32,7 @@ implemented in 2D.
 
 ## HACD
 
-The HACD is a simply a clustering algorithm based on a concavity criterion to
+The HACD is simply a clustering algorithm based on a concavity criterion to
 separate the different groups. It will group triangles together until the
 directional distances between their vertices and their convex hull do not
 exceeding an user-defined limit.
@@ -66,17 +66,51 @@ We call the ratio $$\frac{d}{D}$$ the _normalized concavity_. In this example,
 it is equal to $$\frac{6.0}{10.0} = 0.6$$.
 
 
-The `procedural::hacd` function returns a tuple. The fist member of this
+The `procedural::hacd` function returns a tuple. The first member of this
 result is the set of convex objects that approximate the input mesh. The second
 member is the set of indices of the triangles used to compute each convex
 object.
 
-PICTURE: original − convex objects − coloured triangles
 
-## Example
+The following figure shows a tube (left), the result of the clustering done by
+the HACD algorithm (middle), and the resulting convex decomposition (right):
 
-The following example creates a concave object using
+![hacd](../img/hacd.png)
+
+## Example <div class="d3" onclick="window.open('../src/hacd3d.rs')" /></div>
+
+The following example creates a concave object using a
 [path-based](../mesh_generation/paths.md) mesh generation and approximates it
 using the HACD algorithm. Together with
 [kiss3d](http://github.com/sebcrozet/kiss3d), this code was used to generate
-the last three images.
+the last figure.
+
+```rust
+let control_points = [
+    Vec3::new(0.0f32, 1.0, 0.0),
+    Vec3::new(2.0f32, 4.0, 2.0),
+    Vec3::new(2.0f32, 1.0, 4.0),
+    Vec3::new(4.0f32, 4.0, 6.0),
+    Vec3::new(2.0f32, 1.0, 8.0),
+    Vec3::new(2.0f32, 4.0, 10.0),
+    Vec3::new(0.0f32, 1.0, 12.0),
+    Vec3::new(-2.0f32, 4.0, 10.0),
+    Vec3::new(-2.0f32, 1.0, 8.0),
+    Vec3::new(-4.0f32, 4.0, 6.0),
+    Vec3::new(-2.0f32, 1.0, 4.0),
+    Vec3::new(-2.0f32, 4.0, 2.0),
+];
+let bezier      = procedural::bezier_curve(control_points, 100);
+let mut path    = PolylinePath::new(&bezier);
+let pattern     = procedural::unit_circle(100);
+let mut pattern = PolylinePattern::new(&pattern, true, NoCap::new(), NoCap::new());
+let mut trimesh = pattern.stroke(&mut path);
+
+trimesh.recompute_normals();
+
+let (decomp, partitioning) = procedural::hacd(trimesh.clone(), 0.03, 0);
+
+// We end up with 7 convex parts.
+assert!(decomp.len() == 7);
+assert!(partitioning.len() == 7);
+```
