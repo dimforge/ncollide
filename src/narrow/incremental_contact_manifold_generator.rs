@@ -107,12 +107,12 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
 
                 if depth >= -self.prediction &&
                    na::sqnorm(&(dw - c.contact.normal * depth)) <= na::cast(0.01f64) {
-                        c.contact.depth  = depth;
-                        c.contact.world1 = world1;
-                        c.contact.world2 = world2;
+                   c.contact.depth  = depth;
+                   c.contact.world1 = world1;
+                   c.contact.world2 = world2;
 
-                        false
-                    }
+                   false
+                }
                 else {
                     true
                 }

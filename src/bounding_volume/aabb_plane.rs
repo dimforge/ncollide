@@ -1,13 +1,18 @@
 use std::num::Bounded;
+use nalgebra::na;
 use bounding_volume::{HasAABB, AABB};
 use geom::Plane;
-use math::{Matrix, Vect};
+use math::{Matrix, Vect, Scalar};
 
 impl HasAABB for Plane {
     #[inline]
     fn aabb(&self, _: &Matrix) -> AABB {
-        let _m: Vect = Bounded::max_value();
+        // we divide by 2.0  so that we can still make some operations with it (like loosening)
+        // without breaking the box.
+        let max:  Vect     = Bounded::max_value();
+        let half: Scalar   = na::cast(0.5f64);
+        let half_max: Vect = max * half;
 
-        AABB::new(-_m, Bounded::max_value())
+        AABB::new(-half_max, half_max)
     }
 }

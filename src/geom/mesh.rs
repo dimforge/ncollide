@@ -67,16 +67,6 @@ impl Mesh {
                uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
                normals:  Option<Arc<Vec<Vect>>>) // a loosening margin for the BVT.
                -> Mesh {
-        Mesh::new_with_prediction(vertices, indices, uvs, normals, na::cast(0.04f64))
-    }
-
-    /// Builds a new mesh.
-    pub fn new_with_prediction(vertices:   Arc<Vec<Vect>>,
-                               indices:    Arc<Vec<uint>>,
-                               uvs:        Option<Arc<Vec<Vec2<Scalar>>>>,
-                               normals:    Option<Arc<Vec<Vect>>>,
-                               prediction: Scalar)
-                               -> Mesh {
         assert!(indices.len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
 
         for uvs in uvs.iter() {
@@ -95,7 +85,7 @@ impl Mesh {
                 let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
                 let id = na::one();
-                let bv = element.aabb(&id).loosened(prediction);
+                let bv = element.aabb(&id);
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
@@ -117,7 +107,7 @@ impl Mesh {
 #[dim3]
 impl Mesh {
     /// Builds a new mesh from a triangle mesh.
-    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>, prediction: Scalar) -> Mesh {
+    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>) -> Mesh {
         let mut trimesh = trimesh;
 
         trimesh.unify_index_buffer();
@@ -135,7 +125,7 @@ impl Mesh {
         let normals = trimesh.normals.map(|ns| Arc::new(ns));
         let uvs     = trimesh.uvs.map(|uvs| Arc::new(uvs));
 
-        Mesh::new_with_prediction(coords, Arc::new(flat_indices), uvs, normals, prediction)
+        Mesh::new(coords, Arc::new(flat_indices), uvs, normals)
     }
 }
 

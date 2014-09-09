@@ -2,15 +2,16 @@ use std::any::AnyRefExt;
 use nalgebra::na;
 use data::hash_map::HashMap;
 use data::hash::UintTWHash;
-use bounding_volume::{BoundingVolume, HasAABB};
+use bounding_volume::{BoundingVolume, LooseBoundingVolume, HasAABB};
 use broad::Dispatcher;
 use narrow::{CollisionDetector, GeomGeomDispatcher, GeomGeomCollisionDetector,
              DynamicCollisionDetector, CollisionDetectorFactory, Contact};
 use geom::{Geom, ConcaveGeom};
-use math::Matrix;
+use math::{Scalar, Matrix};
 
 /// Collision detector between a concave geometry and another geometry.
 pub struct ConcaveGeomGeom<G1, G2> {
+    prediction:    Scalar,
     sub_detectors: HashMap<uint, Box<GeomGeomCollisionDetector+Send>, UintTWHash>,
     to_delete:     Vec<uint>,
     interferences: Vec<uint>
@@ -18,8 +19,9 @@ pub struct ConcaveGeomGeom<G1, G2> {
 
 impl<G1, G2> ConcaveGeomGeom<G1, G2> {
     /// Creates a new collision detector between a concave geometry and another geometry.
-    pub fn new() -> ConcaveGeomGeom<G1, G2> {
+    pub fn new(prediction: Scalar) -> ConcaveGeomGeom<G1, G2> {
         ConcaveGeomGeom {
+            prediction:    prediction,
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete:     Vec::new(),
             interferences: Vec::new()
@@ -37,7 +39,7 @@ impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
                  swap:       bool) {
         // Find new collisions
         let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
-        let ls_aabb2 = g2.aabb(&ls_m2);
+        let ls_aabb2 = g2.aabb(&ls_m2).loosened(self.prediction);
         let g2       = g2 as &Geom;
 
         g1.approx_interferences_with_aabb(&ls_aabb2, &mut self.interferences);
@@ -133,9 +135,9 @@ pub struct GeomConcaveGeom<G1, G2> {
 
 impl<G1, G2> GeomConcaveGeom<G1, G2> {
     /// Creates a new collision detector between a geometry and a concave geometry.
-    pub fn new() -> GeomConcaveGeom<G1, G2> {
+    pub fn new(prediction: Scalar) -> GeomConcaveGeom<G1, G2> {
         GeomConcaveGeom {
-            sub_detector: ConcaveGeomGeom::new()
+            sub_detector: ConcaveGeomGeom::new(prediction)
         }
     }
 }
@@ -175,25 +177,46 @@ DynamicCollisionDetector<G1, G2> for GeomConcaveGeom<G1, G2> { }
  */
 /// Structure implementing `CollisionDetectorFactory` in order to create a new `ConcaveGeomGeom`
 /// collision detector.
-pub struct ConcaveGeomGeomFactory<G1, G2>;
+pub struct ConcaveGeomGeomFactory<G1, G2> {
+    prediction: Scalar
+}
+
+impl<G1, G2> ConcaveGeomGeomFactory<G1, G2> {
+    /// Creates a `ConcaveGeomGeomFactory` with a given prediction length.
+    pub fn new(prediction: Scalar) -> ConcaveGeomGeomFactory<G1, G2> {
+        ConcaveGeomGeomFactory {
+            prediction: prediction
+        }
+    }
+}
 
 impl<G1: 'static + ConcaveGeom, G2: 'static + Geom>
 CollisionDetectorFactory for ConcaveGeomGeomFactory<G1, G2> {
     fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
-        let res: ConcaveGeomGeom<G1, G2> = ConcaveGeomGeom::new();
+        let res: ConcaveGeomGeom<G1, G2> = ConcaveGeomGeom::new(self.prediction.clone());
         box res as Box<GeomGeomCollisionDetector + Send>
     }
 }
 
 /// Structure implementing `CollisionDetectorFactory` in order to create a new `GeomConcaveGeom`
 /// collision detector.
-pub struct GeomConcaveGeomFactory<G1, G2>;
+pub struct GeomConcaveGeomFactory<G1, G2> {
+    prediction: Scalar
+}
 
-impl<G1: 'static + Geom,
-     G2: 'static + ConcaveGeom>
+impl<G1, G2> GeomConcaveGeomFactory<G1, G2> {
+    /// Creates a `GeomConcaveGeomFactory` with a given prediction length.
+    pub fn new(prediction: Scalar) -> GeomConcaveGeomFactory<G1, G2> {
+        GeomConcaveGeomFactory {
+            prediction: prediction
+        }
+    }
+}
+
+impl<G1: 'static + Geom, G2: 'static + ConcaveGeom>
 CollisionDetectorFactory for GeomConcaveGeomFactory<G1, G2> {
     fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
-        let res: GeomConcaveGeom<G1, G2> = GeomConcaveGeom::new();
+        let res: GeomConcaveGeom<G1, G2> = GeomConcaveGeom::new(self.prediction.clone());
         box res as Box<GeomGeomCollisionDetector + Send>
     }
 }

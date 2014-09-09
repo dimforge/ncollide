@@ -209,30 +209,30 @@ impl GeomGeomDispatcher {
 
         // FIXME: refactor the three following blocks?
         // Compound vs. Other
-        res.register_default_concave_geom_geom_detector::<Compound, Plane>();
-        res.register_default_concave_geom_geom_detector::<Compound, Ball>();
-        res.register_default_concave_geom_geom_detector::<Compound, Cuboid>();
-        res.register_default_concave_geom_geom_detector::<Compound, Cone>();
-        res.register_default_concave_geom_geom_detector::<Compound, Cylinder>();
-        res.register_default_concave_geom_geom_detector::<Compound, Capsule>();
-        res.register_default_concave_geom_geom_detector::<Compound, Convex>();
-        res.register_default_concave_geom_geom_detector::<Compound, Triangle>();
-        res.register_default_concave_geom_geom_detector::<Compound, Segment>();
+        res.register_default_concave_geom_geom_detector::<Compound, Plane>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Ball>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Cuboid>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Cone>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Cylinder>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Capsule>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Convex>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Triangle>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound, Segment>(&prediction);
 
         // TriangleMesh vs. Other
-        res.register_default_concave_geom_geom_detector::<Mesh, Plane>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Ball>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Cuboid>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Cone>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Cylinder>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Capsule>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Convex>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Triangle>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Segment>();
+        res.register_default_concave_geom_geom_detector::<Mesh, Plane>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Ball>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Cuboid>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Cone>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Cylinder>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Capsule>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Convex>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Triangle>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Segment>(&prediction);
 
         // FIXME: implement a ConcaveGeomConcaveGeom detector?
-        res.register_default_concave_geom_geom_detector::<Compound, Compound>();
-        res.register_default_concave_geom_geom_detector::<Mesh, Compound>();
+        res.register_default_concave_geom_geom_detector::<Compound, Compound>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh, Compound>(&prediction);
 
         res
     }
@@ -242,10 +242,8 @@ impl GeomGeomDispatcher {
                                                     &mut self,
                                                     generate_manifold: bool,
                                                     prediction:        &Scalar) {
-        let p = if generate_manifold { na::zero() } else { prediction.clone() };
-
-        let d1 = ImplicitPlane::<I>::new(p.clone());
-        let d2 = PlaneImplicit::<I>::new(p.clone());
+        let d1 = ImplicitPlane::<I>::new(prediction.clone());
+        let d2 = PlaneImplicit::<I>::new(prediction.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -269,10 +267,8 @@ impl GeomGeomDispatcher {
                                                        generate_manifold: bool,
                                                        prediction:        &Scalar,
                                                        simplex:           &S) {
-        let p = if generate_manifold { na::zero() } else { prediction.clone() };
-
-        let d1 = ImplicitImplicit::<S, G1, G2>::new(p.clone(), simplex.clone());
-        let d2 = ImplicitImplicit::<S, G2, G1>::new(p.clone(), simplex.clone());
+        let d1 = ImplicitImplicit::<S, G1, G2>::new(prediction.clone(), simplex.clone());
+        let d2 = ImplicitImplicit::<S, G2, G1>::new(prediction.clone(), simplex.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -287,9 +283,10 @@ impl GeomGeomDispatcher {
     /// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a
     /// given geometry.
     pub fn register_default_concave_geom_geom_detector<G1: 'static + ConcaveGeom,
-                                                       G2: 'static + Geom>(&mut self) {
-        let  f1 = ConcaveGeomGeomFactory::<G1, G2>;
-        let  f2 = GeomConcaveGeomFactory::<G2, G1>;
+                                                       G2: 'static + Geom>(&mut self,
+                                                                           prediction: &Scalar) {
+        let  f1 = ConcaveGeomGeomFactory::<G1, G2>::new(prediction.clone());
+        let  f2 = GeomConcaveGeomFactory::<G2, G1>::new(prediction.clone());
 
         // FIXME: find a way to factorize that?
         unsafe { self.register_factory::<G1, G2, ConcaveGeomGeomFactory<G1, G2>>(f1) }
