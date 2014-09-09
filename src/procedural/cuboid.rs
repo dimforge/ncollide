@@ -94,10 +94,10 @@ pub fn unit_rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>() -> Poly
     let mut p_dl = na::zero::<V>();
     let mut p_dr = na::zero::<V>();
 
-    p_ul.set(0, m0_5.clone()); p_ul.set(1, _0_5.clone());
+    p_dl.set(0, m0_5.clone()); p_dl.set(1, m0_5.clone());
+    p_dr.set(0, _0_5.clone()); p_dr.set(1, m0_5.clone());
     p_ur.set(0, _0_5.clone()); p_ur.set(1, _0_5.clone());
-    p_dl.set(0, _0_5.clone()); p_dl.set(1, m0_5.clone());
-    p_dr.set(0, m0_5.clone()); p_dr.set(1, m0_5.clone());
+    p_ul.set(0, m0_5.clone()); p_ul.set(1, _0_5.clone());
 
     Polyline::new(vec!(p_ur, p_ul, p_dl, p_dr), None)
 }

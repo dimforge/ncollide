@@ -43,6 +43,9 @@ mod to_polyline {
     mod ball_to_polyline;
     mod bezier_curve_to_polyline;
     mod cuboid_to_polyline;
+    mod cylinder_to_polyline;
+    mod cone_to_polyline;
+    mod capsule_to_polyline;
     // FIXME: this one is not easy to implement.
     // #[dim2]
     // mod mesh_to_polyline;
