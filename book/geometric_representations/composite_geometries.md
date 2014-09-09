@@ -151,12 +151,12 @@ itself are lifetime-bound.
 | The geometry affected by the reflection | `r.geom()` | User-defined with `Reflection::new` |
 
 ###### 2D and 3D example <div class="d3" onclick="window.open('../src/reflection3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/reflection2d.rs')"></div>
-```rust
-let cone       = Cone::new(0.5, 0.75);
-let reflection = Reflection::new(&cone);
 
-// the reflection will inherit the cone's default margin of 0.04
-assert!(reflection.margin() == 0.04);
+```rust
+let cone = Cone::new(0.5, 0.75);
+
+// Build the reflection.
+let _ = Reflection::new(&cone);
 ```
 
 <center>
@@ -167,11 +167,10 @@ assert!(reflection.margin() == 0.04);
 ## Minkowski Sum
 The `MinkowskiSum` structure describes the Minkoswki sum of two geometries
 implementing the `Implicit` trait. This is extremely useful for discrete and
-continuous collision detection. The Minkowski sum has a margin equal to the
-sum of the margins of the geometries involved in the sum.  Note that the
-geometries forming the Minkowski sum are lifetime-bound with the Minkowski sum
-herself. `MinkoswkiSum`, used in pair with `Reflection` makes it easy to build
-the so-called Configuration Space Obstacle.
+continuous collision detection.  Note that the geometries forming the Minkowski
+sum are lifetime-bound with the Minkowski sum herself. `MinkoswkiSum`, used in
+pair with `Reflection` makes it easy to build the so-called Configuration Space
+Obstacle.
 
 | Description | Accessors | Value |
 | --          | --        | --    |
@@ -181,17 +180,15 @@ the so-called Configuration Space Obstacle.
 | The **second** geometry involved in the sum.  | `m.g2()` | User-defined with `MinkowskiSum::new` |
 
 ###### 2D and 3D example <div class="d3" onclick="window.open('../src/minkowski_sum3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/minkowski_sum2d.rs')"></div>
+
 ```rust
 let cylinder = Cylinder::new(0.5, 0.75);
-let cone     = Cone::new_with_margin(0.75, 0.75, 0.1);
+let cone     = Cone::new(0.75, 0.75);
 
 let delta_cylinder = na::one(); // identity matrix.
 let delta_cone     = na::one(); // identity matrix.
 
-// Build the Minkowski sum. It will have a total margin of 0.04 + 0.1.
-let sum = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
-
-assert!(sum.margin() == 0.14);
+let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 ```
 
 <center>
@@ -205,16 +202,13 @@ geometry with the reflection of the second one.
 
 ```rust
 let cylinder   = Cylinder::new(0.5, 0.75);
-let cone       = Cone::new_with_margin(0.75, 0.75, 0.1);
+let cone       = Cone::new(0.75, 0.75);
 let reflection = Reflection::new(&cone); // take the reflection of the cone.
 
 let delta_cylinder = na::one(); // identity matrix.
 let delta_cone     = na::one(); // identity matrix.
 
-// Build the Configuration Space Obstacle.
-let cso = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
-
-assert!(cso.margin() == 0.14);
+let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
 ```
 
 <center>

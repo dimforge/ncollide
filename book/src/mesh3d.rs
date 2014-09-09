@@ -18,5 +18,5 @@ fn main() {
     // Build the mesh.
     let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
-    assert!(mesh.margin() == 0.04); // Meshes have a margin too!
+    assert!(mesh.vertices().len() == 4);
 }

@@ -3,9 +3,8 @@ extern crate "ncollide3df32" as ncollide;
 use ncollide::geom::Cone;
 
 fn main() {
-    let cone1 = Cone::new(0.5, 0.75);
-    let cone2 = Cone::new_with_margin(0.5, 0.75, 0.1);
+    let cone = Cone::new(0.5, 0.75);
 
-    assert!(cone1.margin() == 0.04); // default margin
-    assert!(cone2.margin() == 0.1);  // user-defined margin
+    assert!(cone.half_height() == 0.5);
+    assert!(cone.radius() == 0.75);
 }

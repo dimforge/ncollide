@@ -161,7 +161,7 @@ Except me, here are the known contributors (including donors) to the
 * [Brandon Waskiewicz](https://github.com/brandonw)
 * [Peter Nguyen](https://github.com/cacteye)
 
-If your name should or should not be on this list, or if it should link to
-another website, please send me an [email](mailto:developer@crozet.re) or open
-an issue to let me know.
+If your name should or should not be on this list, or if it should be linked
+with another website, please send me an [email](mailto:developer@crozet.re) or
+open an issue to let me know.
 

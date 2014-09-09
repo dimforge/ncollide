@@ -88,10 +88,3 @@ that implements the trait. For example, a `Ball` requires two integers (one for
 the subdivision of each spherical coordinate) to be transformed to a `TriMesh`;
 the `Cuboid` however requires a parameter equal to `()` because it does not
 require any user-defined informations to be discretized.
-
-##### Beware the margins!
-
-Be careful with the object
-[margin](../geometric_representations/README.html#Margins). If it is not zero
-it will either fail because it is will not yet implemented, or you will end up
-with a rounded mesh.

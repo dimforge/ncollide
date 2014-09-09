@@ -25,30 +25,32 @@ assert!(ball.radius() == 1.0);
 ## Cuboid
 The `Cuboid` structure describes a rectangle in two dimensions, or a cuboid in
 three dimensions. A cuboid is defined by its _half extents_ − that is − its
-half length along each coordinate axis. For performance and accuracy reasons,
-each cuboid has an _internal margin_. This means that the actual geometry used
-for collision detection is a cuboid with rounded corners with a radius equal to
-the margin.
+half length along each coordinate axis.
 
 | Description | Accessor | Value |
 | --          | --       | --    |
 | The half extents of the cuboid | `c.half_extents()` | User-defined with `Cuboid::new` |
-| The internal margin of the cuboid | `c.margin()` | `0.04` or user-defined with `Cuboid::new_with_margin` |
+
+###### 2D example <div class="d2" onclick="window.open('../src/cuboid2d.rs')"></div>
+
+```rust
+let cuboid = Cuboid::new(Vec2::new(2.0, 1.0));
+
+assert!(cuboid.half_extents().x == 2.0);
+assert!(cuboid.half_extents().y == 1.0);
+```
 
 ###### 3D example <div class="d3" onclick="window.open('../src/cuboid3d.rs')"></div>
-```rust
-let cuboid = Cuboid::new_with_margin(Vec3::new(2.0, 1.0, 3.0), 0.2);
-assert!(cuboid.margin() == 0.2); // user-defined margin
 
+```rust
+let cuboid = Cuboid::new(Vec3::new(2.0, 1.0, 3.0));
+
+assert!(cuboid.half_extents().x == 2.0);
+assert!(cuboid.half_extents().y == 1.0);
+assert!(cuboid.half_extents().z == 3.0);
 ```
 
  ![3d cuboid](../img/cuboid3d.png)
-
-###### 2D example <div class="d2" onclick="window.open('../src/cuboid2d.rs')"></div>
-```rust
-let cuboid = Cuboid::new(Vec2::new(2.0, 1.0));
-assert!(cuboid.margin() == 0.04); // default margin
-```
 
 <center>
 ![fixme](cuboid2d)
@@ -65,15 +67,13 @@ instead), or a cylinder in three dimensions. The principal axis is the positive
 | --          | --       | --    |
 | The half height of the cylinder | `c.half_height()` | User-defined with `Cylinder::new` |
 | The radius of the cylinder basis | `c.radius()` | User-defined with `Cylinder::new` |
-| The external margin of the cylinder | `c.margin()` | `0.04` or user-defined with `Cylinder::new_with_margin` |
 
 ###### 3D example<div class="d3" onclick="window.open('../src/cylinder3d.rs')"></div>
 ```rust
-let cylinder1 = Cylinder::new(0.5, 1.0);
-let cylinder2 = Cylinder::new_with_margin(0.5, 1.0, 0.2);
+let cylinder = Cylinder::new(0.5, 1.0);
 
-assert!(cylinder1.margin() == 0.04); // default margin
-assert!(cylinder2.margin() == 0.2);  // user-defined margin
+assert!(cylinder.half_height() == 0.5);
+assert!(cylinder.radius() == 1.0);
 ```
 
 <table cellspacing="0" cellpadding="0" align="center" style="border:none;outline:none;">
@@ -94,15 +94,14 @@ The principal axis is the positive `y` axis.
 | --          | --       | --    |
 | The half height of the cone | `c.half_height()` | User-defined with `Cone::new` |
 | The radius of the cone basis | `c.radius()`     | User-defined with `Cone::new` |
-| The external margin of the cone | `c.margin()`           | `0.04` or user-defined with `Cone::new_with_margin` |
 
 ###### 3D example<div class="d3" onclick="window.open('../src/cone3d.rs')"></div>
-```rust
-let cone1 = Cone::new(0.5, 0.75);
-let cone2 = Cone::new_with_margin(0.5, 0.75, 0.1);
 
-assert!(cone1.margin() == 0.04); // default margin
-assert!(cone2.margin() == 0.1);  // user-defined margin
+```rust
+let cone = Cone::new(0.5, 0.75);
+
+assert!(cone.half_height() == 0.5);
+assert!(cone.radius() == 0.75);
 ```
 
 <table cellspacing="0" cellpadding="0" align="center" style="border:none;outline:none;">
@@ -180,37 +179,16 @@ using an AABB tree.
 | The index  buffer | `m.indiced()`  | User-defined with `Mesh::new` |
 | The normals buffer | `m.normals()` | Optionally user-defined with `Mesh::new` |
 | The texture coordinates buffer | `m.uvs()` | Optionally user-defined with `Mesh::new` |
-| The margin of the mesh | `m.margin()` | `0.04` or user-defined with `Mesh::new_with_margin` |
 | The bounding volume of each primitive (segment or triangle) | `m.bounding_volumes()` | Automatically computed |
 | The space-partitioning acceleration structure used by the mesh | `m.bvt()` | Automatically computed |
 
-###### 3D example<div class="d3" onclick="window.open('../src/mesh3d.rs')"></div>
-```rust
-let points = vec!(
-    Vec3::new(0.0, 1.0, 0.0),   Vec3::new(-1.0, -0.5, 0.0),
-    Vec3::new(0.0, -0.5, -1.0), Vec3::new(1.0, -0.5, 0.0)
-);
-
-let indices = vec!(0u, 1, 2,
-                   0,  2, 3,
-                   0,  3, 1);
-
-// Build the mesh.
-let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
-
-assert!(mesh.margin() == 0.04); // Meshes have a margin too!
-```
-
-<center>
-![3d mesh](../img/mesh3d.png)
-</center>
-
 ###### 2D example<div class="d2" onclick="window.open('../src/mesh2d.rs')"></div>
+
 ```rust
 let points = vec!(
     Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -0.5),
     Vec2::new(0.0, -0.5), Vec2::new(1.0, -0.5)
-);
+    );
 
 let indices = vec!(0u, 1,
                    1,  2,
@@ -220,9 +198,33 @@ let indices = vec!(0u, 1,
 // Build the mesh.
 let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
-assert!(mesh.margin() == 0.04); // Meshes have a margin too!
+assert!(mesh.vertices().len() == 4);
 ```
 
 <center>
 ![2d mesh](../img/mesh2d.png)
 </center>
+
+
+###### 3D example<div class="d3" onclick="window.open('../src/mesh3d.rs')"></div>
+
+```rust
+let points = vec!(
+    Vec3::new(0.0, 1.0, 0.0),   Vec3::new(-1.0, -0.5, 0.0),
+    Vec3::new(0.0, -0.5, -1.0), Vec3::new(1.0, -0.5, 0.0)
+    );
+
+let indices = vec!(0u, 1, 2,
+                   0,  2, 3,
+                   0,  3, 1);
+
+// Build the mesh.
+let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
+
+assert!(mesh.vertices().len() == 4);
+```
+
+<center>
+![3d mesh](../img/mesh3d.png)
+</center>
+

@@ -30,7 +30,7 @@ Spheres](../bounding_volumes/bounding_sphere.html) and
 [AABB](../bounding_volumes/aabb.html). Also note that bounding volumes are very
 different from regular geometries: their position in space is completely
 contained by the bounding volume structure (no need to use it together with a
-transformation matrix) and they do not have a margin. 
+transformation matrix).
 
 
 ## Traits
@@ -47,7 +47,7 @@ Bounding volumes must implement the `bounding_volume::BoundingVolume` trait:
 
 Some bounding volume may also implement the
 `bounding_volume::LooseBoundingVolume` trait. This gives the ability to enlarge
-the volume by a given thickness which is useful to optimize some [broad
+the volume by a given margin which is useful to optimize some [broad
 phase](../collision_detection/broad_phase.html) algorithms:
 
 

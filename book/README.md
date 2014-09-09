@@ -1,6 +1,6 @@
 # ncollide
 **ncollide** is a 2-dimensional and 3-dimensional collision detection library.
-It is 100% written using Mozilla's [rust](http://rust-lang.org) programming
+It is 100% written using Mozilla [Rust](http://rust-lang.org) programming
 language.  Collision detection and computational geometry in general are
 ubiquitous in computer physics, graphics and animation. The involved algorithms
 are usually non-trivial and require a great amount of time to get up and
@@ -21,7 +21,7 @@ not hesitate to contact directly the authors by
 ## How do we test ncollide?
 **ncollide** does not have a lot of unit tests. But that does not mean it is
 not tested at all! In the contrary, everything is thoroughly tested in
-_real-life_ situations using three other rust projects:
+_real-life_ situations using three other Rust projects:
 
 1. [nphysics](http://nphysics-dev.org) − a 2d and 3d physics engine. It relies
    a lot on collision detection. It has at least one example using each
@@ -46,7 +46,7 @@ _real-life_ situations using three other rust projects:
 </p>
 <p>
 3. [nrays](https://github.com/sebcrozet/nrays) − a 3d and 4d ray tracer in
-   rust. Obviously, it is used to test the ray-casting capabilities of
+   Rust. Obviously, it is used to test the ray-casting capabilities of
    **ncollide**. In fact, most 3d illustration of this guide have been rendered
    by **nrays**.
 </p>

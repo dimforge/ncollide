@@ -32,8 +32,7 @@ the type of bounding volume (e.g. we could use bounding spheres instead).
 
 Note that the `geom::Mesh` geometry uses a BVT filled with AABB intenally.
 Therefore, if your scene is composed of triangles only, grouping them all into
-a `Mesh` with a custom margin of zero (using `Mesh::new_with_margin`) should
-be enough to get good performances.
+a `Mesh` should be enough to get good performances.
 
 #### Using a BVT
 

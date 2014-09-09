@@ -27,19 +27,6 @@ structure:
 | `normal` | The normal of the hit shape at the intersection point.  |
 | `uvs`    | If available, the texture coordinates of the hit shape at the intersection point. If the texture coordinates information is not computable, this is set to `None`. |
 
-##### Beware the margins!
-
-Do not forget that **ncollide** geometries (excluding bounding volumes) have a
-[margin](../geometric_representations/README.html#margins). It is taken in
-account when casting rays! This can significantly slow down the ray-casting
-operation: for example, casting a ray on a triangle mesh with a non-zero margin
-is much slower than on a mesh without margin. Remember that, most of the time,
-creating a geometry without the default margin is done using the corresponding
-static method `::new_with_margin(..., 0.0)`, the zero margin being the last
-argument. Refer to the [geometry
-definitions](../geometric_representations/simple_geometries.html) for more
-details.
-
 ## Traits
 
 The `ray::RayCast` trait is implemented by shapes that can be intersected by a

@@ -18,7 +18,7 @@ each coordinate axis):
 
 
 The AABB implements the `LooseBoundingVolume` trait so it can be enlarged by an
-arbitrary thickness $$m$$:
+arbitrary margin $$m$$:
 
 <center>
 ![loose aabb](../img/bounding_volume_aabb_loose.svg)
@@ -47,8 +47,8 @@ trait implemented by any `Geom`:
 | `aabb(m)` | Computes the AABB of `self` transformed by `m`. |
 
 This is the simplest way to compute the AABB of a geometry defined by
-**ncollide**. Do not forget to explicitly `use` the trait in order to be
-allowed call this method `use ncollide::bounding_volume::HasAABB`!
+**ncollide**. Do not forget to explicitly import the trait in order to be
+allowed call this method: `use ncollide::bounding_volume::HasAABB`!
 
 ## Working example
 
