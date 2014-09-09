@@ -319,8 +319,8 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
 
 fn support_point<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], idx: &[uint]) -> Option<uint> {
     let mut argmax = None;
-    let _M: N      = Bounded::max_value();
-    let mut max    = -_M;
+    let _max: N      = Bounded::max_value();
+    let mut max    = -_max;
 
     for i in idx.iter() {
         let dot = na::dot(direction, &points[*i]);
@@ -337,8 +337,8 @@ fn support_point<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], idx: &[
 // FIXME: uggly, find a way to refactor all the support point functions!
 fn support_point_2<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], except: &[uint]) -> Option<uint> {
     let mut argmax = None;
-    let _M: N      = Bounded::max_value();
-    let mut max    = -_M;
+    let _max: N      = Bounded::max_value();
+    let mut max    = -_max;
 
     for (id, pt) in points.iter().enumerate() {
         if except.contains(&id) {
@@ -357,37 +357,37 @@ fn support_point_2<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], excep
 }
 
 fn compute_silhouette(facet:          uint,
-                      indirectID :    uint,
+                      indirect_id :   uint,
                       point:          uint,
                       out_facets:     &mut Vec<uint>,
                       out_adj_idx:    &mut Vec<uint>,
                       points:         &[Vec3<Scalar>],
-                      removedFacets : &mut Vec<uint>,
+                      removed_facets: &mut Vec<uint>,
                       triangles:      &mut [TriangleFacet]) {
     if triangles[facet].valid {
-        if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(point, points, indirectID) {
+        if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(point, points, indirect_id) {
             out_facets.push(facet);
-            out_adj_idx.push(indirectID);
+            out_adj_idx.push(indirect_id);
         }
         else {
             triangles[facet].valid = false; // The facet must be removed from the convex hull.
-            removedFacets.push(facet);
+            removed_facets.push(facet);
 
-            compute_silhouette(triangles[facet].adj[(indirectID + 1) % 3],
-                               triangles[facet].indirect_adj_id[(indirectID + 1) % 3],
+            compute_silhouette(triangles[facet].adj[(indirect_id + 1) % 3],
+                               triangles[facet].indirect_adj_id[(indirect_id + 1) % 3],
                                point,
                                out_facets,
                                out_adj_idx,
                                points,
-                               removedFacets,
+                               removed_facets,
                                triangles);
-            compute_silhouette(triangles[facet].adj[(indirectID + 2) % 3],
-                               triangles[facet].indirect_adj_id[(indirectID + 2) % 3],
+            compute_silhouette(triangles[facet].adj[(indirect_id + 2) % 3],
+                               triangles[facet].indirect_adj_id[(indirect_id + 2) % 3],
                                point,
                                out_facets,
                                out_adj_idx,
                                points,
-                               removedFacets,
+                               removed_facets,
                                triangles);
         }
     }
@@ -418,15 +418,15 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
 
     // Create new facets.
     let mut adj_facet:  uint;
-    let mut indirectId: uint;
+    let mut indirect_id: uint;
 
     for i in range(0, horizon_loop_facets.len()) {
         adj_facet  = horizon_loop_facets[i];
-        indirectId = horizon_loop_ids[i];
+        indirect_id = horizon_loop_ids[i];
 
         let facet = TriangleFacet::new(point,
-                                       (*triangles)[adj_facet].second_point_from_edge(indirectId),
-                                       (*triangles)[adj_facet].first_point_from_edge(indirectId),
+                                       (*triangles)[adj_facet].second_point_from_edge(indirect_id),
+                                       (*triangles)[adj_facet].first_point_from_edge(indirect_id),
                                        points);
         new_facets.push(facet);
     }
@@ -583,12 +583,12 @@ impl TriangleFacet {
                                  adj1:   uint,
                                  adj2:   uint,
                                  adj3:   uint,
-                                 idAdj1: uint,
-                                 idAdj2: uint,
-                                 idAdj3: uint) {
-        self.indirect_adj_id[0] = idAdj1;
-        self.indirect_adj_id[1] = idAdj2;
-        self.indirect_adj_id[2] = idAdj3;
+                                 id_adj1: uint,
+                                 id_adj2: uint,
+                                 id_adj3: uint) {
+        self.indirect_adj_id[0] = id_adj1;
+        self.indirect_adj_id[1] = id_adj2;
+        self.indirect_adj_id[2] = id_adj3;
 
         self.adj[0] = adj1;
         self.adj[1] = adj2;

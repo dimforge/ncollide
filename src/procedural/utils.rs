@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::mem;
 use std::hash::Hash;
 use nalgebra::na;
-use nalgebra::na::{Vec3, Dim, Indexable};
+use nalgebra::na::{Vec3, Dim, Indexable, FloatVec, Cross};
 use utils::{HashablePartialEq, AsBytes};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
@@ -195,4 +195,53 @@ pub fn split_index_buffer_and_recover_topology<V: PartialEq + AsBytes + Clone>(
     new_coords.shrink_to_fit();
 
     (out, new_coords)
+}
+
+/// Computes the normals of a set of vertices.
+#[inline]
+pub fn compute_normals<N: Float, V: FloatVec<N> + Cross<V> + Clone>(coordinates: &[V],
+                                                                    faces:       &[Vec3<u32>],
+                                                                    normals:     &mut Vec<V>) {
+    let mut divisor: Vec<N> = Vec::from_elem(coordinates.len(), na::zero());
+
+    // Shrink the output buffer if it is too big.
+    if normals.len() > coordinates.len() {
+        normals.truncate(coordinates.len())
+    }
+
+    // Reinit all normals to zero.
+    for n in normals.mut_iter() {
+        *n = na::zero()
+    }
+
+    // Grow the output buffer if it is too small.
+    normals.grow_set(coordinates.len() - 1, &na::zero(), na::zero());
+
+    // Accumulate normals ...
+    for f in faces.iter() {
+        let edge1  = coordinates[f.y as uint] - coordinates[f.x as uint];
+        let edge2  = coordinates[f.z as uint] - coordinates[f.x as uint];
+        let cross  = na::cross(&edge1, &edge2);
+        let normal;
+
+        if !cross.is_zero() {
+            normal = na::normalize(&cross)
+        }
+        else {
+            normal = cross
+        }
+
+        *normals.get_mut(f.x as uint) = (*normals)[f.x as uint] + normal;
+        *normals.get_mut(f.y as uint) = (*normals)[f.y as uint] + normal;
+        *normals.get_mut(f.z as uint) = (*normals)[f.z as uint] + normal;
+
+        *divisor.get_mut(f.x as uint) = divisor[f.x as uint] + na::one();
+        *divisor.get_mut(f.y as uint) = divisor[f.y as uint] + na::one();
+        *divisor.get_mut(f.z as uint) = divisor[f.z as uint] + na::one();
+    }
+
+    // ... and compute the mean
+    for (n, divisor) in normals.mut_iter().zip(divisor.iter()) {
+        *n = *n / *divisor
+    }
 }

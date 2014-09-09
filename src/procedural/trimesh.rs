@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, Vec3, Vec2};
+use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, Vec3, Vec2};
 use nalgebra::na;
 use procedural::utils;
 use utils::AsBytes;
@@ -130,6 +130,35 @@ impl<N, V> TriMesh<N, V> {
     }
 }
 
+impl<N: Float, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, V> {
+    /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
+    /// infered from the index buffer.
+    #[inline]
+    pub fn recompute_normals(&mut self) {
+        let mut new_normals = Vec::new();
+
+        match self.indices {
+            UnifiedIndexBuffer(ref idx) => {
+                utils::compute_normals(self.coords.as_slice(),
+                                       idx.as_slice(),
+                                       &mut new_normals);
+            },
+            SplitIndexBuffer(ref idx) => {
+                // XXX: too bad we have to reconstruct the index buffer here.
+                // The utils::recompute_normals function should be generic wrt. the index buffer
+                // type (it could use an iterator instead).
+                let coord_idx: Vec<Vec3<u32>> = idx.iter().map(|t| Vec3::new(t.x.x, t.y.x, t.z.x)).collect();
+
+                utils::compute_normals(self.coords.as_slice(),
+                                       coord_idx.as_slice(),
+                                       &mut new_normals);
+            }
+        }
+
+        self.normals = Some(new_normals);
+    }
+}
+
 impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
     /// Scales each vertex of this mesh.
     #[inline]
@@ -196,14 +225,14 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
                 self.normals = resn;
                 self.uvs     = resu;
 
-                let mut batchedIndices = Vec::new();
+                let mut batched_indices = Vec::new();
 
                 assert!(resi.len() % 3 == 0);
                 for f in resi.as_slice().chunks(3) {
-                    batchedIndices.push(Vec3::new(f[0], f[1], f[2]));
+                    batched_indices.push(Vec3::new(f[0], f[1], f[2]));
                 }
 
-                Some(UnifiedIndexBuffer(batchedIndices))
+                Some(UnifiedIndexBuffer(batched_indices))
             }
             _ => None
         };

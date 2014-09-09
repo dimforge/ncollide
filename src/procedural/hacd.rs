@@ -79,8 +79,8 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
 
                 if !top.exact {
                     // the cost is just an upper bound.
-                    let _M: Scalar = Bounded::max_value();
-                    let mut top_cost = -_M;
+                    let _max: Scalar = Bounded::max_value();
+                    let mut top_cost = -_max;
 
                     loop {
                         let remove = match edges.top() {
@@ -220,9 +220,9 @@ impl DualGraphVertex {
                             mesh.coords[idx.y as uint],
                             mesh.coords[idx.z as uint]);
 
-        let area     = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let (vm, vM) = bounding_volume::point_cloud_aabb(&Identity::new(), triangle.as_slice());
-        let aabb     = AABB::new(vm, vM);
+        let area         = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
+        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Identity::new(), triangle.as_slice());
+        let aabb         = AABB::new(vmin, vmax);
 
         let chull = unsafe {;
             Convex::new_with_convex_mesh(TriMesh::new(triangle, None, None, None), na::zero())
@@ -450,7 +450,7 @@ impl DualGraphEdge {
         let chull1 = v1.chull.as_ref().unwrap();
         let chull2 = v2.chull.as_ref().unwrap();
         let chull  = ConvexPair::new(chull1, chull2);
-        let _M: Scalar = Bounded::max_value();
+        let _max: Scalar = Bounded::max_value();
 
         let a1 = v1.ancestors.as_ref().unwrap();
         let a2 = v2.ancestors.as_ref().unwrap();

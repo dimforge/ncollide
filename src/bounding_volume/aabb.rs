@@ -44,10 +44,10 @@ impl AABB {
     /// * `maxs = Bounded::max_value()`.
     /// This is useful to build aabb using merges.
     pub fn new_invalid() -> AABB {
-        let _M: Vect = Bounded::max_value();
+        let _max: Vect = Bounded::max_value();
         AABB {
             mins: Bounded::max_value(),
-            maxs: -_M,
+            maxs: -_max,
         }
     }
 

@@ -1,3 +1,5 @@
+#![allow(non_snake_case)] // For alignment sake.
+
 use nalgebra::na::Vec3;
 use nalgebra::na;
 use math::{Scalar, Vect};

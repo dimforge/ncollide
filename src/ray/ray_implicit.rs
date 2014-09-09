@@ -99,8 +99,8 @@ fn gjk_toi_and_normal_with_ray<S: Simplex<Vect>, G: Implicit<Vect, _M>, _M: Tran
                     curr_ray.orig = ray.orig + ray.dir * ltoi;
                     dir = curr_ray.orig - support_point;
                     simplex.reset(-dir); // FIXME: could we simply translate the simpex by old_orig - new_orig ?
-                    let _M: Scalar = Bounded::max_value();
-                    old_sq_len = _M;
+                    let _max: Scalar = Bounded::max_value();
+                    old_sq_len = _max;
                     continue
                 }
             },
