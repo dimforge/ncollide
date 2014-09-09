@@ -10,6 +10,6 @@ impl HasBoundingSphere for Segment {
         let pts = [ self.a().clone(), self.b().clone() ];
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts.as_slice());
 
-        BoundingSphere::new(m.transform(&center), radius + self.margin())
+        BoundingSphere::new(m.transform(&center), radius)
     }
 }

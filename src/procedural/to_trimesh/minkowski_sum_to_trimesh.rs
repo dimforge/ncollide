@@ -5,11 +5,11 @@ use math::{Scalar, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-#[dim2]
+#[dim3]
 impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for MinkowskiSum<'a, G1, G2> {
-    fn to_polyline(&self, (a, b): (A, B)) -> TriMesh<Scalar, Vect> {
-        let poly1 = self.g1().to_polyline(a);
-        let poly2 = self.g2().to_polyline(b);
+    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<Scalar, Vect> {
+        let poly1 = self.g1().to_trimesh(a);
+        let poly2 = self.g2().to_trimesh(b);
 
         // FIXME: this will work only for convex polyhedras.
         let mut all_points = Vec::with_capacity(poly1.coords.len() * poly2.coords.len());

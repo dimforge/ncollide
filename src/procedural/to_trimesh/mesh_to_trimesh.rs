@@ -7,8 +7,6 @@ use math::{Scalar, Vect};
 #[dim3]
 impl ToTriMesh<()> for Mesh {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
-        assert!(self.margin().is_zero(), "Mesh generation with non zero margin is not implemented yet.");
-
         let mut formated_index_buffer = Vec::with_capacity(self.indices().len() / 3);
 
         for ids in self.indices().as_slice().chunks(3) {

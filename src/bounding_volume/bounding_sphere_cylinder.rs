@@ -10,6 +10,6 @@ impl HasBoundingSphere for Cone {
         let center = m.translation();
         let radius = (self.radius() * self.radius() + self.half_height() * self.half_height()).sqrt();
 
-        BoundingSphere::new(center, radius + self.margin())
+        BoundingSphere::new(center, radius)
     }
 }

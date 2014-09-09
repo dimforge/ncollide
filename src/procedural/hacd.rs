@@ -9,7 +9,7 @@ use nalgebra::na;
 use nalgebra::na::{Vec2, Vec3, Identity, Iterable, Norm};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use math::{Scalar, Vect};
-use implicit::{HasMargin, Implicit};
+use implicit::Implicit;
 use implicit;
 use volumetric::Volumetric;
 use ray::{Ray, RayCast, RayIntersection};
@@ -225,7 +225,7 @@ impl DualGraphVertex {
         let aabb         = AABB::new(vmin, vmax);
 
         let chull = unsafe {;
-            Convex::new_with_convex_mesh(TriMesh::new(triangle, None, None, None), na::zero())
+            Convex::new_with_convex_mesh(TriMesh::new(triangle, None, None, None))
         };
 
         let r1 = raymap.find(&(idx.x, ns.x)).unwrap().clone();
@@ -334,7 +334,7 @@ impl DualGraphVertex {
         vtx1.push_all_move(vtx2);
 
         // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
-        let chull = Convex::new_with_margin(vtx1.as_slice(), na::zero());
+        let chull = Convex::new(vtx1.as_slice());
 
         /*
          * Merge borders.
@@ -769,14 +769,8 @@ impl<'a> ConvexPair<'a> {
     }
 }
 
-impl<'a> HasMargin for ConvexPair<'a> {
-    fn margin(&self) -> Scalar {
-        na::zero()
-    }
-}
-
 impl<'a> Implicit<Vect, Identity> for ConvexPair<'a> {
-    fn support_point_without_margin(&self, transform: &Identity, dir: &Vect) -> Vect {
+    fn support_point(&self, transform: &Identity, dir: &Vect) -> Vect {
         let sa = self.a.support_point(transform, dir);
         let sb = self.b.support_point(transform, dir);
 
@@ -786,10 +780,6 @@ impl<'a> Implicit<Vect, Identity> for ConvexPair<'a> {
         else {
             sb
         }
-    }
-
-    fn support_point(&self, transform: &Identity, dir: &Vect) -> Vect {
-        self.support_point_without_margin(transform, dir)
     }
 }
 

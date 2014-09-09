@@ -17,12 +17,7 @@ use math::Scalar;
 impl RayCast for Triangle {
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        if self.margin().is_zero() {
-            triangle_ray_intersection(self.a(), self.b(), self.c(), ray).map(|i| i.val0())
-        }
-        else {
-            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
-        }
+        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Vect>::new_w_tls(), ray, solid)
     }
 }
 

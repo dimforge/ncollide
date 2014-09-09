@@ -11,21 +11,18 @@ use procedural;
 #[not_dim2]
 pub struct Convex {
     mesh:   TriMesh<Scalar, Vect>,
-    margin: Scalar
 }
 
 /// Set of point assumed to form a convex polyline.
 #[dim2]
 pub struct Convex {
     mesh:   Polyline<Scalar, Vect>,
-    margin: Scalar
 }
 
 impl Clone for Convex {
     fn clone(&self) -> Convex {
         Convex {
-            mesh:   self.mesh.clone(),
-            margin: self.margin.clone()
+            mesh: self.mesh.clone(),
         }
     }
 }
@@ -37,22 +34,14 @@ impl Convex {
     /// This computes the convex hull of the set of points internally.
     #[inline]
     pub fn new(points: &[Vect]) -> Convex {
-        Convex::new_with_margin(points, na::cast(0.04f64))
-    }
-
-    /// Creates a polytope from a set of point.
-    ///
-    /// This computes the convex hull of the set of points internally.
-    #[inline]
-    pub fn new_with_margin(points: &[Vect], margin: Scalar) -> Convex {
         unsafe {
-            Convex::new_with_convex_mesh(procedural::convex_hull3d(points), margin)
+            Convex::new_with_convex_mesh(procedural::convex_hull3d(points))
         }
     }
 
     /// Creates a polytope from a convex mesh. The convexity is __not__ checked.
     #[inline]
-    pub unsafe fn new_with_convex_mesh(mesh: TriMesh<Scalar, Vect>, margin: Scalar) -> Convex {
+    pub unsafe fn new_with_convex_mesh(mesh: TriMesh<Scalar, Vect>) -> Convex {
         let mut mesh = mesh;
 
         /*
@@ -86,8 +75,7 @@ impl Convex {
         assert!(mesh.coords.len() > 0, "A convex geometry must have at least one vertex.");
 
         Convex {
-            mesh:   mesh,
-            margin: margin
+            mesh: mesh
         }
     }
 
@@ -117,22 +105,14 @@ impl Convex {
     /// This computes the convex hull of the set of points internally.
     #[inline]
     pub fn new(points: &[Vect]) -> Convex {
-        Convex::new_with_margin(points, na::cast(0.04f64))
-    }
-
-    /// Creates a polytope from a set of point.
-    ///
-    /// This computes the convex hull of the set of points internally.
-    #[inline]
-    pub fn new_with_margin(points: &[Vect], margin: Scalar) -> Convex {
         unsafe {
-            Convex::new_with_convex_polyline(procedural::convex_hull2d(points), margin)
+            Convex::new_with_convex_polyline(procedural::convex_hull2d(points))
         }
     }
 
     /// Creates a polytope from a convex polyline. The convexity is __not__ checked.
     #[inline]
-    pub unsafe fn new_with_convex_polyline(mesh: Polyline<Scalar, Vect>, margin: Scalar) -> Convex {
+    pub unsafe fn new_with_convex_polyline(mesh: Polyline<Scalar, Vect>) -> Convex {
         let mut mesh = mesh;
 
         /*
@@ -141,8 +121,7 @@ impl Convex {
         mesh.normals = None;
 
         Convex {
-            mesh:   mesh,
-            margin: margin
+            mesh: mesh
         }
     }
 
@@ -170,11 +149,5 @@ impl Convex {
     #[inline]
     pub fn pts<'a>(&'a self) -> &'a [Vect] { // FIXME: naming: `pts` vs. `points`?
         self.mesh.coords.as_slice()
-    }
-
-    /// The margin surrounding this convex polytope.
-    #[inline]
-    pub fn margin(&self) -> Scalar {
-        self.margin.clone()
     }
 }

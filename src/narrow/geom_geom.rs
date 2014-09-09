@@ -161,7 +161,7 @@ impl GeomGeomDispatcher {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
     /// geometries supported by `ncollide`.
-    pub fn new() -> GeomGeomDispatcher {
+    pub fn new(prediction: Scalar) -> GeomGeomDispatcher {
         let mut res = GeomGeomDispatcher::new_without_default();
 
         type Simplex  = JohnsonSimplex<AnnotatedPoint>;
@@ -171,8 +171,6 @@ impl GeomGeomDispatcher {
         /*
          * Involving a Plane
          */
-        let prediction: &Scalar = &na::cast(0.1f64);
-
         // Ball vs. Ball
         let bb = BallBall::new(prediction.clone());
         res.register_detector(bb);
@@ -190,24 +188,24 @@ impl GeomGeomDispatcher {
         res.register_detector(ss);
 
         // Plane vs. Implicit
-        res.register_default_plane_implicit_detector::<Ball>(false, prediction);
-        res.register_default_plane_implicit_detector::<Cuboid >(true, prediction);
-        res.register_default_plane_implicit_detector::<Cone>(true, prediction);
-        res.register_default_plane_implicit_detector::<Cylinder>(true, prediction);
-        res.register_default_plane_implicit_detector::<Capsule>(true, prediction);
-        res.register_default_plane_implicit_detector::<Convex>(true, prediction);
-        res.register_default_plane_implicit_detector::<Triangle>(true, prediction);
-        res.register_default_plane_implicit_detector::<Segment>(true, prediction);
+        res.register_default_plane_implicit_detector::<Ball>(false, &prediction);
+        res.register_default_plane_implicit_detector::<Cuboid>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Cone>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Cylinder>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Capsule>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Convex>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Triangle>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Segment>(true, &prediction);
 
         // Implicit vs. Implicit
         // NOTE: some pair will be registered twice…
-        res.register_default_implicit_detectors::<Cuboid>(true, prediction);
-        res.register_default_implicit_detectors::<Cone>(true, prediction);
-        res.register_default_implicit_detectors::<Cylinder>(true, prediction);
-        res.register_default_implicit_detectors::<Capsule>(true, prediction);
-        res.register_default_implicit_detectors::<Convex>(true, prediction);
-        res.register_default_implicit_detectors::<Triangle>(true, prediction);
-        res.register_default_implicit_detectors::<Segment>(true, prediction);
+        res.register_default_implicit_detectors::<Cuboid>(true, &prediction);
+        res.register_default_implicit_detectors::<Cone>(true, &prediction);
+        res.register_default_implicit_detectors::<Cylinder>(true, &prediction);
+        res.register_default_implicit_detectors::<Capsule>(true, &prediction);
+        res.register_default_implicit_detectors::<Convex>(true, &prediction);
+        res.register_default_implicit_detectors::<Triangle>(true, &prediction);
+        res.register_default_implicit_detectors::<Segment>(true, &prediction);
 
         // FIXME: refactor the three following blocks?
         // Compound vs. Other

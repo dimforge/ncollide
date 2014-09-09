@@ -15,16 +15,15 @@ pub fn implicit_shape_aabb<I: Implicit<Vect, Matrix>>(m: &Matrix, i: &I) -> AABB
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis.set(d, na::one());
-            max.set(d, i.support_point_without_margin(m, &basis).at(d));
+            max.set(d, i.support_point(m, &basis).at(d));
 
             basis.set(d, -na::one::<Scalar>());
-            min.set(d, i.support_point_without_margin(m, &basis).at(d));
+            min.set(d, i.support_point(m, &basis).at(d));
 
             basis.set(d, na::zero());
         }
 
-        let margin = i.margin();
-        AABB::new(min - margin, max + margin)
+        AABB::new(min, max)
 }
 
 // FIXME: return an AABB?

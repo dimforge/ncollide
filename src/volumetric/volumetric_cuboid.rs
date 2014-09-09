@@ -26,9 +26,7 @@ impl Volumetric for Cuboid {
 
     #[inline]
     fn volume(&self) -> Scalar {
-        let half_extents_w_margin = self.half_extents() + self.margin();
-
-        cuboid_volume(&half_extents_w_margin)
+        cuboid_volume(&self.half_extents())
     }
 
     #[inline]
@@ -38,13 +36,11 @@ impl Volumetric for Cuboid {
 
     #[inline]
     fn unit_angular_inertia(&self) -> AngularInertia {
-        let half_extents_w_margin = self.half_extents() + self.margin();
-
         let _2: Scalar   = na::cast(2.0f64);
         let _i12: Scalar = na::cast(1.0f64 / 12.0);
         let w       = _i12 * _2 * _2;
-        let ix      = w * half_extents_w_margin.at(0) * half_extents_w_margin.at(0);
-        let iy      = w * half_extents_w_margin.at(1) * half_extents_w_margin.at(1);
+        let ix      = w * self.half_extents().at(0) * self.half_extents().at(0);
+        let iy      = w * self.half_extents().at(1) * self.half_extents().at(1);
 
         let mut res: AngularInertia = na::zero();
 
@@ -72,9 +68,7 @@ impl Volumetric for Cuboid {
 
     #[inline]
     fn volume(&self) -> Scalar {
-        let half_extents_w_margin = self.half_extents() + self.margin();
-
-        cuboid_volume(&half_extents_w_margin)
+        cuboid_volume(&self.half_extents())
     }
 
     #[inline]
@@ -84,15 +78,13 @@ impl Volumetric for Cuboid {
 
     #[inline]
     fn unit_angular_inertia(&self) -> AngularInertia {
-        let half_extents_w_margin = self.half_extents() + self.margin();
-
         let _0: Scalar   = na::zero();
         let _2: Scalar   = na::cast(2.0f64);
         let _i12: Scalar = na::cast(1.0f64 / 12.0);
         let w       = _i12 * _2 * _2;
-        let ix      = w * half_extents_w_margin.at(0) * half_extents_w_margin.at(0);
-        let iy      = w * half_extents_w_margin.at(1) * half_extents_w_margin.at(1);
-        let iz      = w * half_extents_w_margin.at(2) * half_extents_w_margin.at(2);
+        let ix      = w * self.half_extents().at(0) * self.half_extents().at(0);
+        let iy      = w * self.half_extents().at(1) * self.half_extents().at(1);
+        let iz      = w * self.half_extents().at(2) * self.half_extents().at(2);
 
         let mut res: AngularInertia = na::zero();
 

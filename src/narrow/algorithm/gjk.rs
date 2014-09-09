@@ -2,7 +2,7 @@
 
 use nalgebra::na::{FloatVec, Identity};
 use nalgebra::na;
-use geom::{Reflection, GeomWithMargin, AnnotatedPoint, AnnotatedMinkowskiSum};
+use geom::{Reflection, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
 use math::{Scalar, Vect, Matrix};
@@ -18,31 +18,7 @@ pub enum GJKResult<_V, Dir> {
     NoIntersection(Dir)
 }
 
-/// Computes the closest points between two convex geometries unsing the GJK algorithm.
-///
-/// # Arguments:
-/// * `g1`      - first geometry.
-/// * `g2`      - second geometry.
-/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized with
-///               at least one point on the geometries CSO. See `minkowski_sum::cso_support_point`
-///               to compute such point.
-pub fn closest_points<S:  Simplex<AnnotatedPoint>,
-                      G1: Implicit<Vect, Matrix>,
-                      G2: Implicit<Vect, Matrix>>(
-                      m1:      &Matrix,
-                      g1:      &G1,
-                      m2:      &Matrix,
-                      g2:      &G2,
-                      simplex: &mut S) -> Option<(Vect, Vect)> {
-    let mg1      = GeomWithMargin::new(g1);
-    let mg2      = GeomWithMargin::new(g2);
-    let reflect2 = Reflection::new(&mg2);
-    let cso      = AnnotatedMinkowskiSum::new(m1, &mg1, m2, &reflect2);
-
-    project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
-}
-
-/// Computes the closest points between two convex geometries without their margins unsing the GJK
+/// Computes the closest points between two convex geometries unsing the GJK
 /// algorithm.
 ///
 /// # Arguments:
@@ -51,14 +27,14 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the geometries CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
-pub fn closest_points_without_margin<S:  Simplex<AnnotatedPoint>,
-                                     G1: Implicit<Vect, Matrix>,
-                                     G2: Implicit<Vect, Matrix>>(
-                                     m1:      &Matrix,
-                                     g1:      &G1,
-                                     m2:      &Matrix,
-                                     g2:      &G2,
-                                     simplex: &mut S) -> Option<(Vect, Vect)> {
+pub fn closest_points<S:  Simplex<AnnotatedPoint>,
+                      G1: Implicit<Vect, Matrix>,
+                      G2: Implicit<Vect, Matrix>>(
+                      m1:      &Matrix,
+                      g1:      &G1,
+                      m2:      &Matrix,
+                      g2:      &G2,
+                      simplex: &mut S) -> Option<(Vect, Vect)> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -121,7 +97,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
             return None // point inside of the cso
         }
 
-        let support_point = geom.support_point_without_margin(m, &-proj);
+        let support_point = geom.support_point(m, &-proj);
 
         if sq_len_dir - na::dot(&proj, &support_point) <= _eps_rel * sq_len_dir {
             return Some(proj) // the distance found has a good enough precision 
@@ -174,7 +150,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Flo
             return Intersection // point inside of the cso
         }
 
-        let support_point = geom.support_point_without_margin(m, &-proj);
+        let support_point = geom.support_point(m, &-proj);
 
         let dot = na::dot(&proj, &support_point);
 

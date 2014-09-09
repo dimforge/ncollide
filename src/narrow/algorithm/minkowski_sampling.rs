@@ -1,7 +1,7 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
-use std::num::Bounded;
-use nalgebra::na::Identity;
+use std::num::{Zero, Bounded};
+use nalgebra::na::{Identity, Norm};
 use nalgebra::na;
 use geom::{Reflection, MinkowskiSum, AnnotatedPoint};
 use implicit::{Implicit, PreferedSamplingDirections};
@@ -19,7 +19,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
                       m2:      &Matrix,
                       g2:      &G2,
                       simplex: &mut S)
-                      -> Option<(Vect, Vect)> {
+                      -> Option<(Vect, Vect, Vect)> {
     let _0: Scalar     = na::zero();
     let _1m: Matrix    = na::one();
     let reflect2  = Reflection::new(g2);
@@ -66,13 +66,14 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
         return None
     }
 
-    let shift = best_dir * min_dist;
+    let extra_shift = na::cast(0.01f64); // FIXME: do not hard-code the extra shift?
+    let shift       = best_dir * (min_dist + extra_shift);
 
     let tm2 = na::append_translation(m2, &shift);
 
     simplex.translate_by(&AnnotatedPoint::new(na::zero(), -shift, -shift));
 
-    match gjk::closest_points_without_margin(m1, g1, &tm2, g2, simplex) {
+    match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
             // NOTE: at this point, p1 must *not* be concidered as a good contact point for the
@@ -110,13 +111,23 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
             //                       |    obj1     |
             //                       |             |
             //                       +-------------+
-            let dist_err  = na::norm(&(p2 - p1)) - g1.margin() - g2.margin();
-            let _2: Scalar     = na::cast(2.0f64);
-            let center: Vect = (p1 + p2) / _2;
+            let mut normal = p2 - p1;
+            let dist_err   = normal.normalize();
 
-            let p2 = center - best_dir * if dist_err > na::zero() { min_dist - dist_err } else { min_dist };
+            if !dist_err.is_zero() {
+                let _2: Scalar   = na::cast(2.0f64);
+                let p2 = p2 - shift;
+                let center: Vect = (p1 + p2) / _2;
+                let nmin_dist = na::dot(&normal, &best_dir) * min_dist;
 
-            Some((center, p2))
+                let p2 = center - normal * if dist_err > na::zero() { nmin_dist - dist_err } else { nmin_dist };
+
+                Some((center, p2, normal))
+            }
+            else {
+                // FIXME: something went wrong here.
+                None
+            }
         }
     }
 }

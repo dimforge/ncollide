@@ -9,7 +9,6 @@ use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use implicit::HasMargin;
 use geom::{Geom, ConcaveGeom, Segment, Triangle};
 use math::{Scalar, Vect, Matrix};
 use procedural::TriMesh;
@@ -22,8 +21,8 @@ use procedural::TriMesh;
 pub trait MeshElement {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
-    /// Creates a new mesh element from a set of vertices and indices and the margin.
-    fn new_with_vertices_and_indices(&[Vect], &[uint], Scalar) -> Self;
+    /// Creates a new mesh element from a set of vertices and indice.
+    fn new_with_vertices_and_indices(&[Vect], &[uint]) -> Self;
 }
 
 #[dim2]
@@ -42,7 +41,6 @@ pub type MeshPrimitive = Triangle; // XXX: this is wrong
 pub struct Mesh {
     bvt:      BVT<uint, AABB>,
     bvs:      Vec<AABB>,
-    margin:   Scalar,
     vertices: Arc<Vec<Vect>>,
     indices:  Arc<Vec<uint>>,
     uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
@@ -54,7 +52,6 @@ impl Clone for Mesh {
         Mesh {
             bvt:      self.bvt.clone(),
             bvs:      self.bvs.clone(),
-            margin:   self.margin.clone(),
             vertices: self.vertices.clone(),
             indices:  self.indices.clone(),
             uvs:      self.uvs.clone(),
@@ -64,22 +61,22 @@ impl Clone for Mesh {
 }
 
 impl Mesh {
-    /// Builds a new mesh with a default margin of 0.04.
+    /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<Vect>>,
                indices:  Arc<Vec<uint>>,
                uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
-               normals:  Option<Arc<Vec<Vect>>>)
+               normals:  Option<Arc<Vec<Vect>>>) // a loosening margin for the BVT.
                -> Mesh {
-        Mesh::new_with_margin(vertices, indices, uvs, normals, na::cast(0.04f64))
+        Mesh::new_with_prediction(vertices, indices, uvs, normals, na::cast(0.04f64))
     }
 
-    /// Builds a new mesh with a custom margin.
-    pub fn new_with_margin(vertices: Arc<Vec<Vect>>,
-                           indices:  Arc<Vec<uint>>,
-                           uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
-                           normals:  Option<Arc<Vec<Vect>>>,
-                           margin:   Scalar)
-                           -> Mesh {
+    /// Builds a new mesh.
+    pub fn new_with_prediction(vertices:   Arc<Vec<Vect>>,
+                               indices:    Arc<Vec<uint>>,
+                               uvs:        Option<Arc<Vec<Vec2<Scalar>>>>,
+                               normals:    Option<Arc<Vec<Vect>>>,
+                               prediction: Scalar)
+                               -> Mesh {
         assert!(indices.len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
 
         for uvs in uvs.iter() {
@@ -95,10 +92,10 @@ impl Mesh {
 
             for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
                 let vs: &[Vect] = vs.as_slice();
-                let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is, margin.clone());
+                let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
                 let id = na::one();
-                let bv = element.aabb(&id).loosened(margin);
+                let bv = element.aabb(&id).loosened(prediction);
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
@@ -109,7 +106,6 @@ impl Mesh {
         Mesh {
             bvt:      bvt,
             bvs:      bvs,
-            margin:   margin,
             vertices: vertices,
             indices:  indices,
             uvs:      uvs,
@@ -121,7 +117,7 @@ impl Mesh {
 #[dim3]
 impl Mesh {
     /// Builds a new mesh from a triangle mesh.
-    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>, margin: Scalar) -> Mesh {
+    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>, prediction: Scalar) -> Mesh {
         let mut trimesh = trimesh;
 
         trimesh.unify_index_buffer();
@@ -139,7 +135,7 @@ impl Mesh {
         let normals = trimesh.normals.map(|ns| Arc::new(ns));
         let uvs     = trimesh.uvs.map(|uvs| Arc::new(uvs));
 
-        Mesh::new_with_margin(coords, Arc::new(flat_indices), uvs, normals, margin)
+        Mesh::new_with_prediction(coords, Arc::new(flat_indices), uvs, normals, prediction)
     }
 }
 
@@ -179,12 +175,6 @@ impl Mesh {
     pub fn bvt<'a>(&'a self) -> &'a BVT<uint, AABB> {
         &self.bvt
     }
-
-    /// The collision margin used by this mesh.
-    #[inline]
-    pub fn margin(&self) -> Scalar {
-        self.margin.clone()
-    }
 }
 
 impl Mesh {
@@ -195,7 +185,7 @@ impl Mesh {
         let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
         let is       = self.indices.slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
-        MeshElement::new_with_vertices_and_indices(vs, is, self.margin.clone())
+        MeshElement::new_with_vertices_and_indices(vs, is)
     }
 }
 

@@ -32,7 +32,6 @@ mod to_trimesh {
     mod cone_to_trimesh;
     mod cuboid_to_trimesh;
     mod cylinder_to_trimesh;
-    mod geom_with_margin_to_trimesh;
     mod mesh_to_trimesh;
     mod reflection_to_trimesh;
     mod triangle_to_trimesh;
@@ -44,7 +43,6 @@ mod to_polyline {
     mod ball_to_polyline;
     mod bezier_curve_to_polyline;
     mod cuboid_to_polyline;
-    mod geom_with_margin_to_polyline;
     // FIXME: this one is not easy to implement.
     // #[dim2]
     // mod mesh_to_polyline;

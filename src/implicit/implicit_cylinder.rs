@@ -1,21 +1,14 @@
 use std::num::Zero;
 use nalgebra::na::{Indexable, Rotate, Transform, Norm};
 use nalgebra::na;
-use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
+use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cylinder;
 use math::{Scalar, Vect};
 
 
-impl HasMargin for Cylinder {
-    #[inline]
-    fn margin(&self) -> Scalar {
-        self.margin()
-    }
-}
-
 impl<_M: Transform<Vect> + Rotate<Vect>>
 Implicit<Vect, _M> for Cylinder {
-    fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
+    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();

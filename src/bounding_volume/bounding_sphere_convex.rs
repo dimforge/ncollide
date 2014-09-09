@@ -9,6 +9,6 @@ impl HasBoundingSphere for Convex {
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(self.pts());
 
-        BoundingSphere::new(m.transform(&center), radius + self.margin())
+        BoundingSphere::new(m.transform(&center), radius)
     }
 }

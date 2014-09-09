@@ -7,27 +7,17 @@ use math::{Scalar, Vect};
 /// A segment geometry.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct Segment {
-    margin: Scalar,
     a:      Vect,
     b:      Vect
 }
 
 impl Segment {
     /// Creates a new segment from two points.
-    ///
-    /// The segment will have a default margin of 0.04.
     #[inline]
     pub fn new(a: Vect, b: Vect) -> Segment {
-        Segment::new_with_margin(a, b, na::cast(0.04f64))
-    }
-
-    /// Creates a new segment from two points and a custom margin.
-    #[inline]
-    pub fn new_with_margin(a: Vect, b: Vect, margin: Scalar) -> Segment {
         assert!(na::dim::<Vect>() > 1);
 
         Segment {
-            margin: margin,
             a:      a,
             b:      b
         }
@@ -46,12 +36,6 @@ impl Segment {
     pub fn b<'a>(&'a self) -> &'a Vect {
         &self.b
     }
-
-    /// The margin surrounding this segment.
-    #[inline]
-    pub fn margin(&self) -> Scalar {
-        self.margin.clone()
-    }
 }
 
 impl MeshElement for Segment {
@@ -61,9 +45,9 @@ impl MeshElement for Segment {
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[Vect], is: &[uint], margin: Scalar) -> Segment {
+    fn new_with_vertices_and_indices(vs: &[Vect], is: &[uint]) -> Segment {
         assert!(is.len() == 2);
 
-        Segment::new_with_margin(vs[is[0]].clone(), vs[is[1]].clone(), margin)
+        Segment::new(vs[is[0]].clone(), vs[is[1]].clone())
     }
 }

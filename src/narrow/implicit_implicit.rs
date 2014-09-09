@@ -130,13 +130,9 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
         dir.set(0, na::one());
     }
 
-    simplex.reset(implicit::cso_support_point_without_margin(m1, g1, m2, g2, dir));
+    simplex.reset(implicit::cso_support_point(m1, g1, m2, g2, dir));
 
-    let margin1  = g1.margin();
-    let margin2  = g2.margin();
-    let max_dist = margin1 + margin2 + *prediction;
-
-    match gjk::closest_points_without_margin_with_max_dist(m1, g1, m2, g2, &max_dist, simplex) {
+    match gjk::closest_points_without_margin_with_max_dist(m1, g1, m2, g2, &*prediction, simplex) {
         Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);
@@ -145,13 +141,7 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
                 let mut normal = p1p2;
                 let depth      = normal.normalize();
 
-                return Projection(
-                    Contact::new(
-                        p1 + normal * margin1,
-                        p2 + normal * (-margin2),
-                        normal,
-                        margin1 + margin2 - depth)
-                    );
+                return Projection(Contact::new(p1, p2, normal, -depth));
             }
         },
         NoIntersection(dir) => return NoIntersection(dir),
@@ -160,20 +150,10 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 
     // The point is inside of the CSO: use the fallback algorithm
     match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
-        Some((p1, p2)) => {
-            let mut normal = p1 - p2;
-            let depth      = normal.normalize();
+        Some((p1, p2, normal)) => {
+            let depth = na::dot(&(p1 - p2), &normal);
 
-            if depth.is_zero() {
-                // FIXME: this seems to happend on some very rare cases which makes the johnson
-                // simplex fail.
-                // This might be an implementation bug…
-                // … as a workaround we just act as if nothing happended…
-                NoIntersection(na::zero())
-            }
-            else {
-                Projection(Contact::new(p1, p2, normal, depth))
-            }
+            Projection(Contact::new(p1, p2, normal, depth))
         }
         None => {
             NoIntersection(na::zero()) // fail!("Both GJK and fallback algorithm failed.")

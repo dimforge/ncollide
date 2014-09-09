@@ -1,20 +1,14 @@
 use std::num::Zero;
+use nalgebra::na;
 use nalgebra::na::{Indexable, Rotate, Transform};
-use implicit::{Implicit, HasMargin, PreferedSamplingDirections};
+use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Capsule;
 use math::{Scalar, Vect};
-
-impl HasMargin for Capsule {
-    #[inline]
-    fn margin(&self) -> Scalar {
-        self.radius().clone()
-    }
-}
 
 impl<_M: Transform<Vect> + Rotate<Vect>>
 Implicit<Vect, _M> for Capsule {
     #[inline]
-    fn support_point_without_margin(&self, m: &_M, dir: &Vect) -> Vect {
+    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres: Vect = Zero::zero();
@@ -26,7 +20,7 @@ Implicit<Vect, _M> for Capsule {
             vres.set(1, self.half_height())
         }
 
-        m.transform(&vres)
+        m.transform(&(vres + na::normalize(&local_dir) * self.radius()))
     }
 }
 
