@@ -52,6 +52,7 @@ mod to_polyline {
     mod reflection_to_polyline;
     mod segment_to_polyline;
     mod triangle_to_polyline;
+    mod minkowski_sum_to_polyline;
 }
 
 mod bezier;
