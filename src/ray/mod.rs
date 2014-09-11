@@ -17,6 +17,7 @@ mod ray_plane;
 mod ray_ball;
 mod ray_box;
 mod ray_aabb;
+mod ray_bounding_sphere;
 mod ray_implicit;
 mod ray_triangle;
 mod ray_concave;
