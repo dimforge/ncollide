@@ -91,7 +91,7 @@ impl Mesh {
             }
         }
 
-        let bvt = BVT::new_kdtree(leaves);
+        let bvt = BVT::new_balanced(leaves);
 
         Mesh {
             bvt:      bvt,

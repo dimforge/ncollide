@@ -665,7 +665,7 @@ fn edge(a: u32, b: u32) -> Vec2<uint> {
 fn compute_ray_bvt(rays: &[Ray]) -> BVT<uint, AABB> {
     let aabbs = rays.iter().enumerate().map(|(i, r)| (i, AABB::new(r.orig, r.orig))).collect();
 
-    BVT::new_kdtree(aabbs)
+    BVT::new_balanced(aabbs)
 }
 
 #[dim3]

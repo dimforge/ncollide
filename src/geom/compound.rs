@@ -101,7 +101,7 @@ impl Compound {
             leaves.push((i, bv));
         }
 
-        let bvt = BVT::new_kdtree(leaves);
+        let bvt = BVT::new_balanced(leaves);
 
         let (mass, com, inertia) = data.mass_properties(&na::one());
         let surface = data.surface();

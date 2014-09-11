@@ -98,9 +98,9 @@ impl<B, BV> BVT<B, BV> {
 }
 
 impl<B, BV: Translation<Vect> + BoundingVolume + Clone> BVT<B, BV> {
-    /// Creates a new kdtree.
-    pub fn new_kdtree(leaves: Vec<(B, BV)>) -> BVT<B, BV> {
-        BVT::new_with_partitioner(leaves, kdtree_partitioner)
+    /// Creates a balanced `BVT`.
+    pub fn new_balanced(leaves: Vec<(B, BV)>) -> BVT<B, BV> {
+        BVT::new_with_partitioner(leaves, median_partitioner)
     }
 }
 
@@ -279,11 +279,11 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn kdtree_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVecExt<Scalar>>(
-                                       depth:  uint,
-                                       leaves: Vec<(B, BV)>,
-                                       center: &mut |&B, &BV| -> V)
-                                       -> (BV, BinaryPartition<B, BV>) {
+pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVecExt<Scalar>>(
+                                     depth:  uint,
+                                     leaves: Vec<(B, BV)>,
+                                     center: &mut |&B, &BV| -> V)
+                                     -> (BV, BinaryPartition<B, BV>) {
     if leaves.len() == 0 {
         fail!("Cannot build a tree without leaves.");
     }
@@ -340,11 +340,11 @@ pub fn kdtree_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn kdtree_partitioner<B, BV: Translation<Vect> + BoundingVolume + Clone>(
+pub fn median_partitioner<B, BV: Translation<Vect> + BoundingVolume + Clone>(
                           depth:  uint,
                           leaves: Vec<(B, BV)>)
                           -> (BV, BinaryPartition<B, BV>) {
-    kdtree_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
+    median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }
 
 fn _new_with_partitioner<B, BV>(depth:       uint,

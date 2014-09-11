@@ -12,9 +12,7 @@ impl Ball {
     pub fn new(radius: Scalar) -> Ball {
         Ball { radius: radius }
     }
-}
 
-impl Ball {
     /// The ball radius.
     #[inline]
     pub fn radius(&self) -> Scalar {
