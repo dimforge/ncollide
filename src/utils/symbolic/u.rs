@@ -13,7 +13,7 @@ pub fn u() -> U {
     U
 }
 
-impl<N: Zero + One + Clone> BivariateFn<N, N> for U {
+impl<N: Zero + One + Copy + Clone> BivariateFn<N, N> for U {
     #[inline]
     fn d0(&self, u: N, _: N) -> N {
         u

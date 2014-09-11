@@ -5,7 +5,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn};
 
 macro_rules! fn_impl(
     ($t: ident) => (
-        impl<N, O: Zero + Cast<$t>> UnivariateFn<N, O> for $t {
+        impl<N: Copy, O: Zero + Cast<$t>> UnivariateFn<N, O> for $t {
             #[inline]
             fn d0(&self, _: N) -> O {
                 na::cast(*self)
@@ -32,7 +32,7 @@ macro_rules! fn_impl(
             }
         }
 
-        impl<N, O: Clone + Zero + Cast<$t>> BivariateFn<N, O> for $t {
+        impl<N: Copy, O: Zero + Cast<$t> + Clone> BivariateFn<N, O> for $t {
             #[inline]
             fn d0(&self, _: N, _: N) -> O {
                 na::cast(*self)

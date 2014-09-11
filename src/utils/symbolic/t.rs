@@ -13,7 +13,7 @@ pub fn t() -> T {
     T
 }
 
-impl<N: Zero + One + Clone> UnivariateFn<N, N> for T {
+impl<N: Zero + One + Copy> UnivariateFn<N, N> for T {
     #[inline]
     fn d0(&self, t: N) -> N {
         t
