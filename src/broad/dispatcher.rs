@@ -14,6 +14,13 @@ pub trait Dispatcher<G1, G2, NF> {
 /// It has no result.
 pub struct NoIdDispatcher<B>;
 
+impl<B> NoIdDispatcher<B> {
+    /// Creates a new `NoIdDispatcher`.
+    pub fn new() -> NoIdDispatcher<B> {
+        NoIdDispatcher
+    }
+}
+
 impl<B> Dispatcher<B, B, ()> for NoIdDispatcher<B> {
     #[inline]
     fn dispatch(&self, _: &B, _: &B) -> Option<()> {
