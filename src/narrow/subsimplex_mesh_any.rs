@@ -1,8 +1,8 @@
 use std::vec;
 use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
 use nalgebra::na;
-use data::hash_map::HashMap;
-use data::hash::UintTWHash;
+use utils::data::hash_map::HashMap;
+use utils::data::hash::UintTWHash;
 use geom::subsimplex_mesh::{Subsimplex, SubsimplexMesh};
 use bounding_volume::{BoundingVolume, HasAABB};
 use broad::Dispatcher;

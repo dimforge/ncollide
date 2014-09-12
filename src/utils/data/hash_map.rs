@@ -2,7 +2,7 @@
 
 use std::num;
 use std::mem;
-use data::hash::HashFun;
+use utils::data::hash::HashFun;
 
 /// Entry of an `HashMap`.
 #[deriving(Clone, Encodable, Decodable)]
@@ -355,7 +355,7 @@ mod test {
     use super::HashMap;
     use std::collections::hashmap;
     use test::Bencher;
-    use data::hash::{UintTWHash, UintPairTWHash};
+    use utils::data::hash::{UintTWHash, UintPairTWHash};
 
     // NOTE: some tests are simply copy-pasted from std::hashmap tests.
     #[test]

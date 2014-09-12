@@ -4,7 +4,7 @@ use std::gc::{Gc, GC};
 use std::cell::RefCell;
 use std::ptr;
 use std::mem;
-use data::owned_allocation_cache::OwnedAllocationCache;
+use utils::data::owned_allocation_cache::OwnedAllocationCache;
 use nalgebra::na::Translation;
 use nalgebra::na;
 use bounding_volume::BoundingVolume;

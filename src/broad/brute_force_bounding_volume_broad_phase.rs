@@ -1,10 +1,10 @@
 use std::mem;
 use std::gc::{GC, Gc};
 use std::cell::RefCell;
-use data::hash_map::HashMap;
-use data::hash::UintTWHash;
-use data::pair::{Pair, PairTWHash};
-use data::has_uid::HasUid;
+use utils::data::hash_map::HashMap;
+use utils::data::hash::UintTWHash;
+use utils::data::pair::{Pair, PairTWHash};
+use utils::data::has_uid::HasUid;
 use nalgebra::na;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};

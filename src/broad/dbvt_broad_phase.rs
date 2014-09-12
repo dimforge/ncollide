@@ -4,10 +4,10 @@ use nalgebra::na::Translation;
 use nalgebra::na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::{DBVT, DBVTLeaf};
-use data::hash::UintTWHash;
-use data::hash_map::HashMap;
-use data::pair::{Pair, PairTWHash};
-use data::has_uid::HasUid;
+use utils::data::hash::UintTWHash;
+use utils::data::hash_map::HashMap;
+use utils::data::pair::{Pair, PairTWHash};
+use utils::data::has_uid::HasUid;
 use broad::Dispatcher;
 use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
 use ray::{Ray, RayCast};
@@ -67,7 +67,7 @@ DBVTBroadPhase<B, BV, D, DV> {
         let mut new_colls = 0u;
 
         for u in self.to_update.iter() {
-            { // scope to avoid dynamic borrow failur.
+            { // scope to avoid dynamic borrow failure.
                 let bu = u.borrow();
                 self.tree.interferences_with_leaf(bu.deref(), &mut self.collector);
                 self.stree.interferences_with_leaf(bu.deref(), &mut self.collector);
@@ -92,7 +92,7 @@ DBVTBroadPhase<B, BV, D, DV> {
         }
 
         /*
-         * Remove outdated collisions
+         * Remove some of the outdated collisions.
          */
         // NOTE: the exact same code is used on `brute_force_bounding_volume_broad_phase.rs`.
         // Refactor that?

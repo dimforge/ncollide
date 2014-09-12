@@ -77,7 +77,6 @@ pub mod parametric;
 pub mod partitioning;
 pub mod procedural;
 pub mod utils;
-pub mod data;
 
 // #[cfg(test)]
 // mod tests {

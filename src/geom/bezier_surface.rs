@@ -2,7 +2,7 @@ use std::num::Zero;
 use nalgebra::na::{Norm, Indexable};
 use nalgebra::na;
 use procedural;
-use data::vec_slice::{VecSlice, VecSliceMut};
+use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
 use math::{Vect, Scalar};
 use math::RotationMatrix;

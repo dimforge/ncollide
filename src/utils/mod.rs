@@ -20,6 +20,7 @@ pub use utils::sort::sort3;
 
 
 pub mod symbolic;
+pub mod data;
 mod center;
 mod triangulate;
 mod project_homogeneous;
