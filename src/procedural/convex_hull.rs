@@ -248,8 +248,8 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
                 *point = icov * *point;
             }
 
-            let p1 = support_point_2(eigpairs[0].ref0(), points, [].as_slice()).unwrap();
-            let p2 = support_point_2(&-eigpairs[0].val0(), points, [].as_slice()).unwrap();
+            let p1 = support_point_2(eigpairs[0].ref0(), points).unwrap();
+            let p2 = support_point_2(&-eigpairs[0].val0(), points).unwrap();
 
             let mut max_area = na::zero();
             let mut p3       = Bounded::max_value();
@@ -335,16 +335,12 @@ fn support_point<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], idx: &[
 }
 
 // FIXME: uggly, find a way to refactor all the support point functions!
-fn support_point_2<N: Float, V: FloatVec<N>>(direction: &V, points : &[V], except: &[uint]) -> Option<uint> {
+fn support_point_2<N: Float, V: FloatVec<N>>(direction: &V, points : &[V]) -> Option<uint> {
     let mut argmax = None;
     let _max: N      = Bounded::max_value();
     let mut max    = -_max;
 
     for (id, pt) in points.iter().enumerate() {
-        if except.contains(&id) {
-            continue;
-        }
-
         let dot = na::dot(direction, pt);
 
         if dot > max {
@@ -721,7 +717,7 @@ pub fn get_initial_polyline(points: &[Vec2<Scalar>], undecidable: &mut Vec<uint>
 
     assert!(points.len() >= 2);
 
-    let p1     = support_point_2(&Vec2::x(), points, [].as_slice()).unwrap();
+    let p1     = support_point_2(&Vec2::x(), points).unwrap();
     let mut p2 = p1;
 
     let direction = [
@@ -731,7 +727,7 @@ pub fn get_initial_polyline(points: &[Vec2<Scalar>], undecidable: &mut Vec<uint>
     ];
 
     for dir in direction.iter() {
-        p2 = support_point_2(dir, points, [].as_slice()).unwrap();
+        p2 = support_point_2(dir, points).unwrap();
 
         let p1p2 = points[p2] - points[p1];
 
@@ -747,8 +743,8 @@ pub fn get_initial_polyline(points: &[Vec2<Scalar>], undecidable: &mut Vec<uint>
     let mut f2 = SegmentFacet::new(p2, p1, 0, 0, points);
 
     // Attribute points to each facet.
-    for i in range(1, points.len()) {
-        if i == p2 {
+    for i in range(0, points.len()) {
+        if i == p1 || i == p2 {
             continue;
         }
         if f1.can_be_seen_by(i, points) {
