@@ -1,0 +1,11 @@
+[package]
+name    = "example-using-ncollide3d"
+version = "0.0.0"
+authors = [ "You" ]
+
+[dependencies.ncollide3df32]
+git = "http://github.com/sebcrozet/ncollide"
+
+[[bin]]
+name = "example3d"
+path = "./example3d.rs"

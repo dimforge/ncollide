@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="87 233 327.42798 393.34922"
+   width="409.28497"
+   height="491.68652"
+   id="svg5637"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="AABB_tree_DBVT.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1918"
+     inkscape:window-height="1061"
+     id="namedview5856"
+     showgrid="true"
+     inkscape:zoom="1"
+     inkscape:cx="290.72361"
+     inkscape:cy="300.31883"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg5637"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:snap-global="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3942"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       originx="-29.656255px"
+       originy="-1.8466646e-05px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5639">
+    <dc:date>2013-02-01 06:29Z</dc:date>
+    <!-- Produced by OmniGraffle Professional 5.4.2 -->
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5641">
+    <font-face
+       font-family="Helvetica"
+       font-size="12"
+       units-per-em="1000"
+       underline-position="-75.683594"
+       underline-thickness="49.316406"
+       slope="0"
+       x-height="522.94922"
+       cap-height="717.28516"
+       ascent="770.01953"
+       descent="-229.98047"
+       font-weight="500"
+       id="font-face5643"
+       stemv="0"
+       stemh="0"
+       accent-height="0"
+       ideographic="0"
+       alphabetic="0"
+       mathematical="0"
+       hanging="0"
+       v-ideographic="0"
+       v-alphabetic="0"
+       v-mathematical="0"
+       v-hanging="0"
+       strikethrough-position="0"
+       strikethrough-thickness="0"
+       overline-position="0"
+       overline-thickness="0">
+      <font-face-src
+         id="font-face-src5645">
+        <font-face-name
+           name="Helvetica"
+           id="font-face-name5647" />
+      </font-face-src>
+    </font-face>
+    <marker
+       orient="auto"
+       overflow="visible"
+       markerUnits="strokeWidth"
+       id="FilledArrow_Marker"
+       viewBox="-1 -4 10 8"
+       markerWidth="10"
+       markerHeight="8"
+       style="color:#000000;overflow:visible">
+      <g
+         id="g5650">
+        <path
+           d="M 8,0 0,-3 0,3 z"
+           id="path5652"
+           inkscape:connector-curvature="0"
+           style="fill:currentColor;stroke:currentColor;stroke-width:1" />
+      </g>
+    </marker>
+    <font-face
+       font-family="Helvetica"
+       font-size="7"
+       units-per-em="1000"
+       underline-position="-75.683594"
+       underline-thickness="49.316406"
+       slope="0"
+       x-height="522.94922"
+       cap-height="717.28516"
+       ascent="770.01953"
+       descent="-229.98047"
+       font-weight="500"
+       id="font-face5654"
+       stemv="0"
+       stemh="0"
+       accent-height="0"
+       ideographic="0"
+       alphabetic="0"
+       mathematical="0"
+       hanging="0"
+       v-ideographic="0"
+       v-alphabetic="0"
+       v-mathematical="0"
+       v-hanging="0"
+       strikethrough-position="0"
+       strikethrough-thickness="0"
+       overline-position="0"
+       overline-thickness="0">
+      <font-face-src
+         id="font-face-src5656">
+        <font-face-name
+           name="Helvetica"
+           id="font-face-name5658" />
+      </font-face-src>
+    </font-face>
+    <font-face
+       font-family="Apple Symbols"
+       font-size="7"
+       panose-1="2 0 0 0 0 0 0 0 0 0"
+       units-per-em="1000"
+       underline-position="-73.242188"
+       underline-thickness="48.828125"
+       slope="0"
+       x-height="392.57812"
+       cap-height="546.38672"
+       ascent="666.5039"
+       descent="-250"
+       font-weight="500"
+       id="font-face5660"
+       stemv="0"
+       stemh="0"
+       accent-height="0"
+       ideographic="0"
+       alphabetic="0"
+       mathematical="0"
+       hanging="0"
+       v-ideographic="0"
+       v-alphabetic="0"
+       v-mathematical="0"
+       v-hanging="0"
+       strikethrough-position="0"
+       strikethrough-thickness="0"
+       overline-position="0"
+       overline-thickness="0">
+      <font-face-src
+         id="font-face-src5662">
+        <font-face-name
+           name="AppleSymbols"
+           id="font-face-name5664" />
+      </font-face-src>
+    </font-face>
+  </defs>
+  <path
+     d="m 87.417626,233.41763 326.592734,0 0,160.26692 -326.592734,0 z"
+     id="path5674"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#800000;stroke-width:0.83525163;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <path
+     d="m 240.70635,234.29131 172.42747,0 0,158.5232 -172.42747,0 z"
+     id="path5678"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#008000;stroke-width:0.87870151;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <path
+     d="m 241.55436,288.69273 111.20577,0 0,103.2479 -111.20577,0 z"
+     id="path5676"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#800080;stroke-width:0.88895398;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="363.53159"
+     y="235.22583"
+     width="48.666222"
+     height="46.02076"
+     id="rect5680"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5682"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="368.53159"
+     y="251.23624">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="383.86276"
+       y="262.23624"
+       textLength="8.0039062"
+       id="tspan5684"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">E</tspan>
+  </text>
+  <rect
+     x="242.46048"
+     y="289.62491"
+     width="65.397926"
+     height="46.02076"
+     id="rect5686"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5688"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="247.46048"
+     y="305.63528">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="270.82642"
+       y="316.63528"
+       textLength="8.6660156"
+       id="tspan5690"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">C</tspan>
+  </text>
+  <rect
+     x="286.45847"
+     y="316.61453"
+     width="65.397926"
+     height="74.394463"
+     id="rect5692"
+     style="fill:#ffffff;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5694"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="291.45847"
+     y="346.81174">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="314.82443"
+       y="357.81174"
+       textLength="8.6660156"
+       id="tspan5696"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">D</tspan>
+  </text>
+  <ellipse
+     cx="301.17563"
+     cy="328.55789"
+     rx="27.000044"
+     ry="18.000029"
+     id="ellipse5698"
+     sodipodi:cx="301.17563"
+     sodipodi:cy="328.55789"
+     sodipodi:rx="27.000044"
+     sodipodi:ry="18.000029"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+     transform="translate(-26.016207,-16.528935)" />
+  <rect
+     x="248.15942"
+     y="294.02899"
+     width="54"
+     height="36"
+     id="rect5700"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 326.10126,321.65738 20.17641,50.08905 -33.39269,13.45094 -20.17642,-50.08904 z"
+     id="path5702"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="292.4931"
+     y="321.65738"
+     width="54"
+     height="63.539986"
+     id="rect5704"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 387.86472,240.23622 18,18 -18,18 -18,-18 z"
+     id="path5706"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="369.86472"
+     y="240.23619"
+     width="36"
+     height="36"
+     id="rect5708"
+     style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 88.215426,277.55828 92.742624,0 0,100.95909 -92.742624,0 z"
+     id="path5710"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#008000;stroke-width:0.84836829;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="114.63661"
+     y="331.57272"
+     width="65.397926"
+     height="46.02076"
+     id="rect5712"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5714"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="119.63661"
+     y="347.5831">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="143.33362"
+       y="358.5831"
+       textLength="8.0039062"
+       id="tspan5716"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">B</tspan>
+  </text>
+  <rect
+     x="89.10836"
+     y="278.46597"
+     width="48.666222"
+     height="46.02076"
+     id="rect5718"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5720"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="87.164635"
+     y="294.47635">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="102.4958"
+       y="305.47635"
+       textLength="8.0039062"
+       id="tspan5722"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">A</tspan>
+  </text>
+  <path
+     d="m 95.440836,283.47637 36.000004,18 -36.000004,18 z"
+     id="path5724"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="94.539917"
+     y="282.52094"
+     width="37.85635"
+     height="37.965458"
+     id="rect5726"
+     style="fill:none;stroke:#ff0000;stroke-width:1.05307961;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 120.33558,355.08317 13.5,-18 27,0 13.5,18 -13.5,18 -27,0 z"
+     id="path5728"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#996633;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="119.3542"
+     y="336.25613"
+     width="55.962696"
+     height="37.808392"
+     id="rect5730"
+     style="fill:none;stroke:#ff0000;stroke-width:1.04326665;stroke-linecap:round;stroke-linejoin:round" />
+  <line
+     x1="325.85953"
+     y1="575.66626"
+     x2="318.04712"
+     y2="587.70514"
+     id="line5736"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="345.49542"
+     y1="575.66626"
+     x2="353.30786"
+     y2="587.70514"
+     id="line5738"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="270.00253"
+     y1="525.14447"
+     x2="270.00253"
+     y2="535.42688"
+     id="line5740"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="289.49014"
+     y1="524.94965"
+     x2="308.34769"
+     y2="539.47931"
+     id="line5742"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="184.83995"
+     y1="524.94965"
+     x2="165.98242"
+     y2="539.47931"
+     id="line5744"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="204.32756"
+     y1="525.14447"
+     x2="204.32756"
+     y2="535.42688"
+     id="line5746"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="227.34709"
+     y1="474.46158"
+     x2="219.53467"
+     y2="486.50046"
+     id="line5748"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <line
+     x1="246.983"
+     y1="474.46158"
+     x2="254.79541"
+     y2="486.50046"
+     id="line5750"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#FilledArrow_Marker)" />
+  <rect
+     x="186.27072"
+     y="444.62216"
+     width="101.78865"
+     height="29.419977"
+     id="rect5752"
+     style="fill:#ffffff;stroke:none" />
+  <path
+     d="m 186.27073,444.62215 101.78865,0 0,29.41998 -101.78865,0 z"
+     id="path5754"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#800000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="176.49921"
+     y="495.22452"
+     width="55.656738"
+     height="29.419977"
+     id="rect5768"
+     style="fill:#ffffff;stroke:none" />
+  <path
+     d="m 176.49921,495.22452 55.65674,0 0,29.41997 -55.65674,0 z"
+     id="path5770"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#008000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="242.17416"
+     y="495.22452"
+     width="55.656738"
+     height="29.419977"
+     id="rect5782"
+     style="fill:#ffffff;stroke:none" />
+  <path
+     d="m 242.17416,495.22452 55.65674,0 0,29.41997 -55.65674,0 z"
+     id="path5784"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#008000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="110.82425"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5802"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     x="110.82425"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5804"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5806"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="115.82425"
+     y="553.53687">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="134.65068"
+       y="564.53687"
+       textLength="8.0039062"
+       id="tspan5808"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">A</tspan>
+  </text>
+  <rect
+     x="176.49921"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5810"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     x="176.49921"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5812"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5814"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="181.49921"
+     y="553.53687">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="200.32562"
+       y="564.53687"
+       textLength="8.0039062"
+       id="tspan5816"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">B</tspan>
+  </text>
+  <rect
+     x="242.17416"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5818"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     x="242.17416"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5820"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5822"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="247.17416"
+     y="553.53687">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="265.66953"
+       y="564.53687"
+       textLength="8.6660156"
+       id="tspan5824"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">C</tspan>
+  </text>
+  <rect
+     x="307.84912"
+     y="545.82684"
+     width="55.656738"
+     height="29.419977"
+     id="rect5826"
+     style="fill:#ffffff;stroke:none" />
+  <path
+     d="m 307.84912,545.82687 55.65674,0 0,29.42 -55.65674,0 z"
+     id="path5828"
+     inkscape:connector-curvature="0"
+     style="fill:#000000;fill-opacity:0;stroke:#800080;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <rect
+     x="275.01163"
+     y="596.42926"
+     width="55.656738"
+     height="29.419977"
+     id="rect5840"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     x="275.01163"
+     y="596.42926"
+     width="55.656738"
+     height="29.419977"
+     id="rect5842"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5844"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="280.01163"
+     y="604.13922">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="298.50699"
+       y="615.13922"
+       textLength="8.6660156"
+       id="tspan5846"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">D</tspan>
+  </text>
+  <rect
+     x="340.68658"
+     y="596.42926"
+     width="55.656738"
+     height="29.419977"
+     id="rect5848"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     x="340.68658"
+     y="596.42926"
+     width="55.656738"
+     height="29.419977"
+     id="rect5850"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round" />
+  <text
+     id="text5852"
+     style="font-size:12px;fill:#996633;stroke:none"
+     x="345.68658"
+     y="604.13922">
+    <tspan
+       font-size="12"
+       font-weight="500"
+       x="364.513"
+       y="615.13922"
+       textLength="8.0039062"
+       id="tspan5854"
+       style="font-size:12px;font-weight:500;fill:#996633;font-family:Helvetica">E</tspan>
+  </text>
+</svg>

@@ -1,0 +1,27 @@
+# newmtl blue
+# Ns 100
+# Ka 0.05 0.36 0.91
+# Kd 0.05 0.36 0.91
+
+newmtl blue
+Ns 1000000000
+Ka 0.05 0.36 0.91
+Kd 0.05 0.36 0.91
+
+newmtl orange
+d  0.35
+Ns 100
+Ka 1.0 0.65 0.0
+Kd 1.0 0.65 0.0
+
+newmtl blue2
+d  0.35
+Ns 100
+Ka 0.05 0.36 0.91
+Kd 0.05 0.36 0.91
+
+newmtl orange2
+Ns 100
+Ka 1.0 0.65 0.0
+Kd 1.0 0.65 0.0
+

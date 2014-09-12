@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="167.25"
-   height="123.33929"
+   width="371.20071"
+   height="124.25992"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -22,9 +22,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="57.717878"
-     inkscape:cy="71.557724"
+     inkscape:zoom="3.959798"
+     inkscape:cx="169.70912"
+     inkscape:cy="57.9484"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -37,7 +37,9 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:snap-global="false">
+     inkscape:snap-global="true"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="false">
     <inkscape:grid
        type="xygrid"
        id="grid2985"
@@ -45,8 +47,8 @@
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true"
-       originx="-822.375px"
-       originy="-1650.375px" />
+       originx="-618.42427px"
+       originy="-1649.4544px" />
   </sodipodi:namedview>
   <defs
      id="defs4" />
@@ -58,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -66,7 +68,7 @@
      inkscape:label="Calque 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-441.04123,-119.88901)">
+     transform="translate(-237.0905,-119.88901)">
     <path
        style="fill:#ffd5d5;stroke:#000000;stroke-width:1.25;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 0.3116,0.69457085 77,49.00000015 27.76562,-49.08928586 z"
@@ -81,5 +83,11 @@
        inkscape:connector-curvature="0"
        transform="translate(441.35463,119.90872)"
        sodipodi:nodetypes="ccccc" />
+    <path
+       sodipodi:nodetypes="cccccc"
+       inkscape:connector-curvature="0"
+       id="path2987-8"
+       d="m 315.04182,170.48172 -77.40569,-49.09854 104.76011,0 61.11005,61.11006 -69.84006,61.11006 z"
+       style="fill:#f2f2f2;stroke:#000000;stroke-width:1.09125113;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
   </g>
 </svg>

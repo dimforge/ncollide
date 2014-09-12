@@ -7,8 +7,8 @@ use ncollide::geom::Mesh;
 
 fn main() {
     let points = vec!(
-        Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -0.5),
-        Vec2::new(0.0, -0.5), Vec2::new(1.0, -0.5)
+        Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -1.0),
+        Vec2::new(0.0, -0.5), Vec2::new(1.0, -1.0)
         );
 
     let indices = vec!(0u, 1,

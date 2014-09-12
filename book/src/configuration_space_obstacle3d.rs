@@ -7,7 +7,7 @@ use ncollide::geom::{Cone, Cylinder, Reflection, MinkowskiSum};
 fn main() {
     let cylinder   = Cylinder::new(0.5, 0.75);
     let cone       = Cone::new(0.75, 0.75);
-    let reflection = Reflection::new(&cone); // take the reflection of the cone.
+    let reflection = Reflection::new(&cone); // Take the reflection of the cone.
 
     let delta_cylinder = na::one(); // identity matrix.
     let delta_cone     = na::one(); // identity matrix.

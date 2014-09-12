@@ -1,0 +1,28 @@
+mtllib materials.mtl
+
+camera
+    output out.png
+    resolution 200 200
+    eye  -2.5 2.0 -1.5
+    at   0.0 0.0 0.0
+    fovy 45.0
+    aa   100 2.0
+
+light
+    pos  -10.0 10.0 -20.0
+    color 1.0 1.0 1.0
+    radius 0.1
+    nsample 10
+
+geometry
+    cylinder 0.5 1.0
+    ball  0.2
+    pos   0.0 0.0 0.0
+    angle 0.0 0.0 0.0
+    material orange
+
+geometry
+    cylinder 0.5 1.0
+    pos   0.0 0.0 0.0
+    angle 0.0 0.0 0.0
+    material blue

@@ -1,0 +1,14 @@
+[package]
+name    = "ncollide-user-guide-simple_geometries"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[dependencies.ncollide2df32]
+git = "http://github.com/sebcrozet/ncollide"
+
+[dependencies.rust-sfml]
+git = "http://github.com/sebcrozet/rust-sfml"
+
+[[bin]]
+name = "simple_geometries2d"
+path = "./simple_geometries2d.rs"

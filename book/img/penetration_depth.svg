@@ -1,3 +1,126 @@
-<?xml version="1.0"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" viewBox="186 313 284 103" width="284pt" height="103pt"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:date>2013-02-01 13:17Z</dc:date><!-- Produced by OmniGraffle Professional 5.4.2 --></metadata><defs><marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="red"><g><path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/></g></marker></defs><g stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1"><title>Canvas 1</title><g><title>Layer 1</title><path d="M 324 387 L 288 351 L 324 315 L 360 351 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="189" y="366.17647" width="81" height="47.823532" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 225 387 L 189 351 L 225 315 L 261 351 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 245.82353 366.17647 L 204.17647 366.17647 L 225 387 Z" fill="#fc000d"/><path d="M 245.82353 366.17647 L 204.17647 366.17647 L 225 387 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><rect x="288" y="366.17647" width="81" height="47.823532" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="324.033" y1="380" x2="324.0156" y2="374.19998" marker-end="url(#StickArrow_Marker)" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/><rect x="387" y="366.17647" width="81" height="47.823532" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><path d="M 423 387 L 387 351 L 423 315 L 459 351 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/><line x1="422.93407" y1="387.02198" x2="422.90967" y2="372.23295" marker-end="url(#StickArrow_Marker)" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/><path d="M 323.99316 346.5055 L 323.99201 346.5055 C 322.76305 346.5055 321.60566 347.0273 320.77376 347.9193 L 319.43196 347.13202 L 319.42858 352.1115 L 323.68293 349.62489 L 322.30561 348.8176 C 322.7822 348.4388 323.37216 348.22198 323.9926 348.22198 L 323.99316 348.22198 C 325.50584 348.22198 326.73652 349.47099 326.73652 351.00607 C 326.73652 352.5406 325.50584 353.78906 323.99316 353.78906 C 323.13472 353.78906 322.34173 353.3931 321.81661 352.70195 C 321.53177 352.32774 320.99994 352.25681 320.62994 352.5469 C 320.25992 352.83584 320.19111 353.3748 320.47652 353.75014 C 321.32424 354.86584 322.60624 355.5055 323.99316 355.5055 C 326.43873 355.5055 328.42858 353.48696 328.42858 351.00607 C 328.42858 348.52407 326.43873 346.5055 323.99316 346.5055 Z" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width=".25"/></g></g></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="186 313 375.2816 142.69155"
+   width="469.10199"
+   height="178.36444"
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="penetration_depth.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1918"
+     inkscape:window-height="1078"
+     id="namedview43"
+     showgrid="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="1.6851052"
+     inkscape:cx="272.74484"
+     inkscape:cy="77.040059"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3044"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       originx="-2.8560144px"
+       originy="-4.1166614px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4">
+    <dc:date>2013-02-01 13:17Z</dc:date>
+    <!-- Produced by OmniGraffle Professional 5.4.2 -->
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6">
+    <marker
+       orient="auto"
+       overflow="visible"
+       markerUnits="strokeWidth"
+       id="StickArrow_Marker"
+       viewBox="-1 -4 10 8"
+       markerWidth="10"
+       markerHeight="8"
+       style="color:#ff0000;overflow:visible">
+      <g
+         id="g9">
+        <path
+           d="M 8,0 0,0 M 0,-3 8,0 0,3"
+           id="path11"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:currentColor;stroke-width:1" />
+      </g>
+    </marker>
+  </defs>
+  <rect
+     x="186.71519"
+     y="386.74652"
+     width="115.57707"
+     height="68.238319"
+     id="rect23"
+     style="fill:none;stroke:#000000;stroke-width:1.4268775;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 238.08278,416.45916 -51.36759,-51.36759 51.36759,-51.36759 51.36758,51.36759 z"
+     id="path25"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:1.4268775;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 267.7954,386.74653 -59.42525,0 29.71263,29.71263 z"
+     id="path27"
+     inkscape:connector-curvature="0"
+     style="fill:#fc000d;stroke:none" />
+  <path
+     d="m 267.7954,386.74653 -59.42525,0 29.71263,29.71263 z"
+     id="path29"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:1.4268775;stroke-linecap:round;stroke-linejoin:round" />
+  <rect
+     x="444.97998"
+     y="386.74652"
+     width="115.57707"
+     height="68.238319"
+     id="rect35"
+     style="fill:none;stroke:#000000;stroke-width:1.4268775;stroke-linecap:round;stroke-linejoin:round" />
+  <path
+     d="m 496.3476,416.45914 -51.36758,-51.36759 51.36758,-51.36758 51.36759,51.36758 z"
+     id="path37"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:1.4268775;stroke-linecap:round;stroke-linejoin:round" />
+  <line
+     x1="496.25351"
+     y1="416.49048"
+     x2="496.21866"
+     y2="395.38837"
+     id="line39"
+     style="fill:none;stroke:#ff0000;stroke-width:0.71343875;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#StickArrow_Marker)" />
+</svg>

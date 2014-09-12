@@ -1,0 +1,6 @@
+*.swp
+*.swo
+*.swa
+_*
+Cargo.lock
+target
