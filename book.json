@@ -1,0 +1,11 @@
+{
+    "title": "ncollide",
+    "plugins": [
+        "additional-styles",
+        "-mixpanel"
+    ],
+
+    "pluginsConfig": {
+        "additional-styles": {}
+    }
+}

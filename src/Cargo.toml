@@ -1,0 +1,166 @@
+[package]
+name    = "ncollide-user-guide"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[dependencies.ncollide2df32]
+git = "http://github.com/sebcrozet/ncollide"
+
+[dependencies.ncollide3df32]
+git = "http://github.com/sebcrozet/ncollide"
+
+[[bin]]
+name = "aabb2d"
+path = "./aabb2d.rs"
+
+[[bin]]
+name = "aabb3d"
+path = "./aabb3d.rs"
+
+[[bin]]
+name = "ball2d"
+path = "./ball2d.rs"
+
+[[bin]]
+name = "ball3d"
+path = "./ball3d.rs"
+
+[[bin]]
+name = "bounding_sphere2d"
+path = "./bounding_sphere2d.rs"
+
+[[bin]]
+name = "bounding_sphere3d"
+path = "./bounding_sphere3d.rs"
+
+[[bin]]
+name = "capsule2d"
+path = "./capsule2d.rs"
+
+[[bin]]
+name = "capsule3d"
+path = "./capsule3d.rs"
+
+[[bin]]
+name = "compound2d"
+path = "./compound2d.rs"
+
+[[bin]]
+name = "compound3d"
+path = "./compound3d.rs"
+
+[[bin]]
+name = "compound_data2d"
+path = "./compound_data2d.rs"
+
+[[bin]]
+name = "cone3d"
+path = "./cone3d.rs"
+
+[[bin]]
+name = "configuration_space_obstacle2d"
+path = "./configuration_space_obstacle2d.rs"
+
+[[bin]]
+name = "configuration_space_obstacle3d"
+path = "./configuration_space_obstacle3d.rs"
+
+[[bin]]
+name = "convex2d"
+path = "./convex2d.rs"
+
+[[bin]]
+name = "convex3d"
+path = "./convex3d.rs"
+
+[[bin]]
+name = "cuboid2d"
+path = "./cuboid2d.rs"
+
+[[bin]]
+name = "cuboid3d"
+path = "./cuboid3d.rs"
+
+[[bin]]
+name = "cylinder3d"
+path = "./cylinder3d.rs"
+
+[[bin]]
+name = "dbvt_broad_phase2d"
+path = "./dbvt_broad_phase2d.rs"
+
+[[bin]]
+name = "dbvt_broad_phase3d"
+path = "./dbvt_broad_phase3d.rs"
+
+[[bin]]
+name = "dsl"
+path = "./dsl.rs"
+
+[[bin]]
+name = "getting_started"
+path = "./getting_started.rs"
+
+[[bin]]
+name = "hacd3d"
+path = "./hacd3d.rs"
+
+[[bin]]
+name = "mesh2d"
+path = "./mesh2d.rs"
+
+[[bin]]
+name = "mesh3d"
+path = "./mesh3d.rs"
+
+[[bin]]
+name = "minkowski_sum2d"
+path = "./minkowski_sum2d.rs"
+
+[[bin]]
+name = "minkowski_sum3d"
+path = "./minkowski_sum3d.rs"
+
+[[bin]]
+name = "path"
+path = "./path.rs"
+
+[[bin]]
+name = "plane2d"
+path = "./plane2d.rs"
+
+[[bin]]
+name = "plane3d"
+path = "./plane3d.rs"
+
+[[bin]]
+name = "primitives2d"
+path = "./primitives2d.rs"
+
+[[bin]]
+name = "primitives3d"
+path = "./primitives3d.rs"
+
+[[bin]]
+name = "ray_bvt2d"
+path = "./ray_bvt2d.rs"
+
+[[bin]]
+name = "ray_bvt3d"
+path = "./ray_bvt3d.rs"
+
+[[bin]]
+name = "reflection2d"
+path = "./reflection2d.rs"
+
+[[bin]]
+name = "reflection3d"
+path = "./reflection3d.rs"
+
+[[bin]]
+name = "solid_ray_cast2d"
+path = "./solid_ray_cast2d.rs"
+
+[[bin]]
+name = "solid_ray_cast3d"
+path = "./solid_ray_cast3d.rs"

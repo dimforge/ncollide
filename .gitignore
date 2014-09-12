@@ -2,3 +2,6 @@
 *.swo
 *.swa
 _*
+Cargo.lock
+target
+run.sh
