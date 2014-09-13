@@ -7,5 +7,12 @@
 
     "pluginsConfig": {
         "additional-styles": {}
+    },
+
+    "links": {
+        "sidebar": {
+            "View on GitHub": "https://github.com/sebcrozet/ncollide",
+            "Post an issue": "https://github.com/sebcrozet/ncollide/issues"
+        }
     }
 }

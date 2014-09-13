@@ -5,3 +5,4 @@ _*
 Cargo.lock
 target
 run.sh
+doc

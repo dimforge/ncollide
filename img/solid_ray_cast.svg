@@ -11,8 +11,8 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="406.25"
-   height="179.91765"
+   width="411.30975"
+   height="177.51521"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8"
-     inkscape:cx="180.7376"
-     inkscape:cy="83.589273"
+     inkscape:cx="142.72361"
+     inkscape:cy="104.03962"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -39,7 +39,8 @@
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
-     fit-margin-bottom="0">
+     fit-margin-bottom="0"
+     inkscape:snap-global="false">
     <inkscape:grid
        snapvisiblegridlinesonly="true"
        enabled="true"
@@ -48,7 +49,7 @@
        id="grid2985"
        type="xygrid"
        originx="-294.375px"
-       originy="-691.00001px" />
+       originy="-693.40244px" />
   </sodipodi:namedview>
   <defs
      id="defs4">
@@ -350,7 +351,7 @@
       </g>
     </g>
     <path
-       d="m 316,342.36218 c 0,0.55229 -0.44772,1 -1,1 -0.55228,0 -1,-0.44771 -1,-1 0,-0.55228 0.44772,-1 1,-1 0.55228,0 1,0.44772 1,1 z"
+       d="m 316,342.36218 a 1,1 0 1 1 -2,0 1,1 0 1 1 2,0 z"
        sodipodi:ry="1"
        sodipodi:rx="1"
        sodipodi:cy="342.36218"
@@ -362,13 +363,13 @@
     <text
        sodipodi:linespacing="125%"
        id="text4545"
-       y="357.99246"
-       x="327.51074"
-       style="font-size:162.00001526px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       y="354.32651"
+       x="311.60715"
+       style="font-size:21.81999969px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        xml:space="preserve"><tspan
-         style="font-size:16.20000076px"
-         y="357.99246"
-         x="327.51074"
+         style="font-size:21.81999969px"
+         y="354.32651"
+         x="311.60715"
          id="tspan4547"
          sodipodi:role="line">Solid ray cast</tspan></text>
     <rect
@@ -680,7 +681,7 @@
       </g>
     </g>
     <path
-       d="m 316,342.36218 c 0,0.55229 -0.44772,1 -1,1 -0.55228,0 -1,-0.44771 -1,-1 0,-0.55228 0.44772,-1 1,-1 0.55228,0 1,0.44772 1,1 z"
+       d="m 316,342.36218 a 1,1 0 1 1 -2,0 1,1 0 1 1 2,0 z"
        sodipodi:ry="1"
        sodipodi:rx="1"
        sodipodi:cy="342.36218"
@@ -692,13 +693,13 @@
     <text
        sodipodi:linespacing="125%"
        id="text4545-9"
-       y="357.99246"
-       x="536.4101"
+       y="354.42102"
+       x="509.62439"
        style="font-size:162.00001526px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        xml:space="preserve"><tspan
-         style="font-size:16.20000076px"
-         y="357.99246"
-         x="536.4101"
+         style="font-size:21.81999969px"
+         y="354.42102"
+         x="509.62439"
          id="tspan4547-4"
          sodipodi:role="line">Non-solid ray cast</tspan></text>
     <path
