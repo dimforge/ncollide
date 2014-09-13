@@ -101,7 +101,7 @@ The following example creates four balls, adds to a `DBVTBroadPhase`,
 deactivate, reactivate and remove them. The `bounding_volume::WithAABB`
 structure associates a position to a shape that implement the `HasAABB` trait.
 
-###### 2D example <div class="d2" onclick="window.open('../src/dbvt_broad_phase2d.rs')" /></div>
+###### 2D example <span class="d2" onclick="window.open('../src/dbvt_broad_phase2d.rs')" ></span>
 ```rust
 type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
 
@@ -165,7 +165,7 @@ bf.update();
 assert!(bf.num_interferences() == 1)
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/dbvt_broad_phase3d.rs')" /></div>
+###### 3D example <span class="d3" onclick="window.open('../src/dbvt_broad_phase3d.rs')" ></span>
 ```rust
 type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
 

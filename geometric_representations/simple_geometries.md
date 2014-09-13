@@ -10,7 +10,7 @@ dimensions this is a sphere, centered at the origin.
 | --          | --       |
 | `.radius()` | The radius of the ball. |
 
-###### 2D and 3D example <div class="d3" onclick="window.open('../src/ball3d.rs')" /></div><div class="sp"></div><div class="d2" onclick="window.open('../src/ball2d.rs')"></div>
+###### 2D and 3D example <span class="d3" onclick="window.open('../src/ball3d.rs')" ></span><span class="sp"></span><span class="d2" onclick="window.open('../src/ball2d.rs')"></span>
 
 ```rust
 let ball = Ball::new(1.0);
@@ -32,7 +32,7 @@ half length along each coordinate axis.
 | --          | --       |
 | `.half_extents()` | The half extents of the cuboid. |
 
-###### 2D example <div class="d2" onclick="window.open('../src/cuboid2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/cuboid2d.rs')"></span>
 
 ```rust
 let cuboid = Cuboid::new(Vec2::new(2.0, 1.0));
@@ -41,7 +41,7 @@ assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/cuboid3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/cuboid3d.rs')"></span>
 
 ```rust
 let cuboid = Cuboid::new(Vec3::new(2.0, 1.0, 3.0));
@@ -68,7 +68,7 @@ instead), or a cylinder in three dimensions. The principal axis is the positive
 | `.half_height()` | The half height of the cylinder. |
 | `.radius()` | The radius of the cylinder basis. |
 
-###### 3D example<div class="d3" onclick="window.open('../src/cylinder3d.rs')"></div>
+###### 3D example<span class="d3" onclick="window.open('../src/cylinder3d.rs')"></span>
 ```rust
 let cylinder = Cylinder::new(0.5, 1.0);
 
@@ -92,7 +92,7 @@ The principal axis is the positive `y` axis.
 | `.half_height()` | The half height of the cone. |
 | `.radius()` | The radius of the cone basis. |
 
-###### 3D example<div class="d3" onclick="window.open('../src/cone3d.rs')"></div>
+###### 3D example<span class="d3" onclick="window.open('../src/cone3d.rs')"></span>
 
 ```rust
 let cone = Cone::new(0.5, 0.75);
@@ -116,7 +116,7 @@ The principal axis is the positive `y` axis.
 | `.half_height()` | The half height of the capsule. |
 | `.radius()` | The radius of the capsule extremities. |
 
-###### 2D and 3D example <div class="d3" onclick="window.open('../src/capsule3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/capsule2d.rs')"></div>
+###### 2D and 3D example <span class="d3" onclick="window.open('../src/capsule3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/capsule2d.rs')"></span>
 ```rust
 let capsule = Capsule::new(0.5, 0.75);
 
@@ -151,7 +151,7 @@ provided mesh is not checked.
 | `.pts()`  | The points of the convex mesh. |
 | `.unwrap()` | Moves the contained `TriMesh` or `Polyline` out of the `Convex` structure. |
 
-###### 2D example<div class="d2" onclick="window.open('../src/convex2d.rs')"></div>
+###### 2D example<span class="d2" onclick="window.open('../src/convex2d.rs')"></span>
 ```rust
 let points = [
     Vec2::new(-1.0, 1.0), Vec2::new(-0.5, -0.5),
@@ -167,7 +167,7 @@ assert!(convex.pts().len() == 4);
 ![2d convex](../img/convex2d.png)
 </center>
 
-###### 3D example<div class="d3" onclick="window.open('../src/convex3d.rs')"></div>
+###### 3D example<span class="d3" onclick="window.open('../src/convex3d.rs')"></span>
 ```rust
 let points = [
     Vec3::new(0.0, 0.0, 1.0),
@@ -197,7 +197,7 @@ _outside_ of the plane.
 | --          | --        |
 | `.normal()` | The normal of the plane. |
 
-###### 2D example<div class="d2" onclick="window.open('../src/plane2d.rs')"></div>
+###### 2D example<span class="d2" onclick="window.open('../src/plane2d.rs')"></span>
 ```rust
 let plane = Plane::new(Vec2::new(0.0, 1.0));
 
@@ -205,7 +205,7 @@ assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
 ```
 
-###### 3D example<div class="d3" onclick="window.open('../src/plane3d.rs')"></div>
+###### 3D example<span class="d3" onclick="window.open('../src/plane3d.rs')"></span>
 ```rust
 let plane = Plane::new(Vec3::new(0.0, 1.0, 0.0));
 
@@ -232,7 +232,7 @@ using an AABB tree.
 | `.bounding_volumes()` | The bounding volume of each primitive (segment or triangle). |
 | `.bvt()` | The space-partitioning acceleration structure used by the mesh. |
 
-###### 2D example<div class="d2" onclick="window.open('../src/mesh2d.rs')"></div>
+###### 2D example<span class="d2" onclick="window.open('../src/mesh2d.rs')"></span>
 
 ```rust
 let points = vec!(
@@ -256,7 +256,7 @@ assert!(mesh.vertices().len() == 4);
 </center>
 
 
-###### 3D example<div class="d3" onclick="window.open('../src/mesh3d.rs')"></div>
+###### 3D example<span class="d3" onclick="window.open('../src/mesh3d.rs')"></span>
 
 ```rust
 let points = vec!(

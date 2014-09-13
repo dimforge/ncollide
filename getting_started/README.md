@@ -45,7 +45,7 @@ You may use one of those `Cargo.toml` files to compile the download examples of
 this guide. Simply replace the words `example2d` and `example3d` by the real
 name of the example.
 
-###### 2D example <div class="d2" onclick="window.open('../src/cargo_2d/Cargo.toml')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/cargo_2d/Cargo.toml')"></span>
 ```rust
 [package]
 name    = "example-using-ncollide2d"
@@ -60,7 +60,7 @@ name = "example2d"
 path = "./example2d.rs"
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/cargo_3d/Cargo.toml')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/cargo_3d/Cargo.toml')"></span>
 ```rust
 [package]
 name    = "example-using-ncollide3d"

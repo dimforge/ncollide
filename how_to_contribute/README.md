@@ -116,7 +116,7 @@ are also appreciated. However, do not forget that **donating is not a
 requirement**. You are, and will always be free to use **ncollide** for any
 purpose, including commercial applications, without paying anything (see the
 [BSD-3 licence](https://github.com/sebcrozet/ncollide/blob/master/LICENSE)).
-<div style="float:right">
+<span style="float:right">
 <table style="border-style:none" align="center">
 <tr style="border-style:none">
 <td style="border-style:none">
@@ -134,7 +134,7 @@ purpose, including commercial applications, without paying anything (see the
 </center>
 </td>
 </table>
-</div>
+</span>
 
 # Contributors
 

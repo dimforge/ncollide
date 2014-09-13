@@ -46,7 +46,7 @@ The following examples compute the bounding spheres of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder bounding
 sphere, and performs some tests.
 
-###### 2D example <div class="d2" onclick="window.open('../src/bounding_sphere2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/bounding_sphere2d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
@@ -69,7 +69,7 @@ assert!(!bounding_sphere_cone.contains(&bounding_bounding_sphere));
 assert!(loose_bounding_sphere_cylinder.contains(&bounding_sphere_cylinder));
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/bounding_sphere3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/bounding_sphere3d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);

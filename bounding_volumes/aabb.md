@@ -56,7 +56,7 @@ The following examples compute the AABB of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder AABB, and
 performs some tests.
 
-###### 2D example <div class="d2" onclick="window.open('../src/aabb2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/aabb2d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
@@ -79,7 +79,7 @@ assert!(!aabb_cone.contains(&bounding_aabb));
 assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/aabb3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/aabb3d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);

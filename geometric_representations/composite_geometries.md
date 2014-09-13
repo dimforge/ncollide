@@ -22,7 +22,7 @@ create a `Compound` geometry:
 | `.bounding_volumes()` | The AABBs of the geometries composing the compound. |
 | `.bvt()` | The space-partitioning acceleration structure used by the compound. |
 
-###### 2D example <div class="d2" onclick="window.open('../src/compound2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/compound2d.rs')"></span>
 ```rust
 // Delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
@@ -45,7 +45,7 @@ assert!(compound.geoms().len() == 3)
 ![fixme](../img/compound2d.png)
 </center>
 
-###### 3D example <div class="d3" onclick="window.open('../src/compound3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/compound3d.rs')"></span>
 ```rust
 // Delta transformation matrices.
 let delta1 = Iso3::new(Vec3::new(0.0f32, -1.5, 0.0), na::zero());
@@ -87,7 +87,7 @@ Therefore, there are three ways of adding a geometry to a `CompoundData`:
    `Volumetric` trait, the object surface, mass, center of mass and angular
    inertia tensor must be provided.
 
-###### 2D example <div class="d2" onclick="window.open('../src/compound_data2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/compound_data2d.rs')"></span>
 ```rust
 // delta transformation matrices.
 let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
@@ -151,7 +151,7 @@ Note that the reflected geometry and the reflection itself are lifetime-bound.
 | --       | --        |
 | `.geom()` | The geometry affected by the reflection. |
 
-###### 2D and 3D example <div class="d3" onclick="window.open('../src/reflection3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/reflection2d.rs')"></div>
+###### 2D and 3D example <span class="d3" onclick="window.open('../src/reflection3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/reflection2d.rs')"></span>
 
 ```rust
 let cone = Cone::new(0.5, 0.75);
@@ -186,7 +186,7 @@ the Minkowski sum are lifetime-bound with the Minkowski sum herself.
 | `.g1()` | The **first** geometry involved in the sum. |
 | `.g2()` | The **second** geometry involved in the sum. |
 
-###### 2D and 3D example <div class="d3" onclick="window.open('../src/minkowski_sum3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/minkowski_sum2d.rs')"></div>
+###### 2D and 3D example <span class="d3" onclick="window.open('../src/minkowski_sum3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/minkowski_sum2d.rs')"></span>
 
 ```rust
 let cylinder = Cylinder::new(0.5, 0.75);
@@ -203,7 +203,7 @@ let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 ![cylinder + cone](../img/msum3d.png)
 </center>
 
-###### Configuration Space Obstacle construction example <div class="d3" onclick="window.open('../src/configuration_space_obstacle3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('../src/configuration_space_obstacle2d.rs')"></div>
+###### Configuration Space Obstacle construction example <span class="d3" onclick="window.open('../src/configuration_space_obstacle3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/configuration_space_obstacle2d.rs')"></span>
 The Configuration Space Obstacle is the same as the Minkowski sum of the first
 geometry with the reflection of the second one:
 

@@ -38,7 +38,7 @@ correctly to form a topologically valid `TriMesh`. This allows you to easily
 stroke paths with possibly very different shapes and connectivity, using the
 same pattern.
 
-## Example <div class="d3" onclick="window.open('../src/path.rs')"></div>
+## Example <span class="d3" onclick="window.open('../src/path.rs')"></span>
 The following example uses the `procedural::path::PolylinePath` together with
 the `procedural::path::PolylinePattern` to stroke the arrowed Bézier curve
 shown at the beginning of this section.

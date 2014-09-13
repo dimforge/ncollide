@@ -77,7 +77,7 @@ The following examples creates four geometries, sets up a `BVT` to associate
 indices to their bounding spheres, and casts some rays on it using the
 `.ray_cast(...)` method and the `RayInterferencesCollector` visitor.
 
-###### 2D example <div class="d2" onclick="window.open('../src/ray_bvt2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/ray_bvt2d.rs')"></span>
 ```rust
 let ball = Ball::new(0.5);
 let caps = Capsule::new(0.5, 0.75);
@@ -138,7 +138,7 @@ assert!(collector_hit.len()  == 3);
 assert!(collector_miss.len() == 0);
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/ray_bvt3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/ray_bvt3d.rs')"></span>
 ```rust
 let ball = Ball::new(0.5);
 let caps = Capsule::new(0.5, 0.75);

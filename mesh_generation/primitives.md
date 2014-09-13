@@ -24,7 +24,7 @@ but only on the indices of the vertices contained by the convex hull, use the
 Le following example creates 100,000 random points and compute their
 convex hull.
 
-###### 2D example <div class="d2" onclick="window.open('../src/primitives2d.rs')"></div>
+###### 2D example <span class="d2" onclick="window.open('../src/primitives2d.rs')"></span>
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {
@@ -34,7 +34,7 @@ for _ in range(0u, 100000) {
 let convex_hull = procedural::convex_hull2d(points.as_slice());
 ```
 
-###### 3D example <div class="d3" onclick="window.open('../src/primitives3d.rs')"></div>
+###### 3D example <span class="d3" onclick="window.open('../src/primitives3d.rs')"></span>
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {

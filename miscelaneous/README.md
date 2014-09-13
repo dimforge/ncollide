@@ -99,7 +99,7 @@ Note that this implementation is very naive and does performs any kind of
 simplification or memoization. In the future it might be reimplemented using
 macros.
 
-###### Example <div class="btn-primary" onclick="window.open('../src/dsl.rs')"></div>
+###### Example <span class="btn-primary" onclick="window.open('../src/dsl.rs')"></span>
 
 ```rust
 let u = u();
