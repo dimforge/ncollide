@@ -6,24 +6,24 @@ determination algorithms between two shapes with a type known at compile-time:
 
 | Method | Description |
 |--      | --          |
-| `.update(...)`  | Given the two shapes and their position, determines their contact geometry without returning them. |
+| `.update(...)`  | Given the two shapes and their position, determines their contact geometry without returning it. |
 | `.num_colls() ` | The number of contacts detected by the last `.update(...)`.  |
-| `.colls(out)`   | Collects to `out` the contacts detected by the last `.update(...)` |
+| `.colls(out)`   | Collects to `out` the contacts detected by the last `.update(...)`. |
 
 A typical use of this kind of detector is to first `.update(...)` it and then collect its
-result with a vector with `.colls(...)`.
+result with a vector using `.colls(...)`.
 
 
-However, a collision detector that works with a composite geometry like e.g.
-the `Compound`, has to be able to perform himself some sort of mini-broad phase
-so to find collision pairs between its individual parts. Those individual parts
-having an exact type unknown at runtime, it is necessary to perform some sort
-of redispatch to find the correct contact determination sub-algorithm.  This is
-allowed by the `narrow::GeomGeomCollisionDetector`.
+However, a collision detector that works with a composite shape like e.g.
+the `Compound` has to be able to perform himself some sort of mini-broad phase
+to find collision pairs between its individual parts. Those individual parts
+having an exact type unknown at compile-time, it is necessary to perform some
+sort of redispatch to find the correct contact determination sub-algorithm.
+This is allowed by the `narrow::GeomGeomCollisionDetector` trait:
 
 | Method | Description |
 |--      | --          |
-| `.update(dispatch, ...)`  | Given the two shapes and their position, determines their contact geometry without returning them. If a collision algorithm redispatch is necessary, use the first argument `dispatch`. |
+| `.update(dispatch, ...)`  | Given the two shapes and their position, determines their contact geometry without returning it. If a collision algorithm redispatch is necessary, use the first argument `dispatch`. |
 | `.num_colls() ` | The number of contacts detected by the last `.update(...)`.  |
 | `.colls(out)`   | Collects to `out` the contacts detected by the last `.update(...)` |
 
@@ -38,7 +38,7 @@ but only by the exact contact determination algorithms, the
 collision detection algorithm, depending on your geometries:
 
 ```rust
-let dispatcher = GeomGeom::Dispatcher::new(0.10);
+let dispatcher = GeomGeomDispatcher::new(0.10);
 let geom1 = Ball::new(0.5);
 let geom2 = Cylinder::new(0.5, 1.0);
 let geom3 = Cone::new(0.5, 1.0);
@@ -99,7 +99,7 @@ cube is penetrating the plane and the physics engine will try to correct this
 situation by applying a force to the contact point. This forces the object to
 (unrealistically) rotate, moving the contact point to the over side.  This
 alternation between two contact points due to unwanted rotations makes the
-simulation instable and unrealistic. **ncollide** provides contact
+simulation instable and unrealistic. That is why **ncollide** provides contact
 determination algorithms wrappers that can generate a full contact manifold
 either incrementally or in a single shot.
 
@@ -112,21 +112,19 @@ contact move. After a few updates, a full manifold will be created:
 ![](../img/acc_contact.svg)
 </center>
 
-Obviously, storing the contacts points at each update indefinitely is costly
+Obviously, storing the contact points at each update indefinitely is costly
 and not necessary. This is why if more than 2 (resp. 4) contacts in 2D (resp.
 3D) are stored, the surplus will be removed. This removal is smart enough to
-maximize the size of the area spanned by the remaining contact points. For
-example, the red contact has been removed from the last part of the previous
-figure because it is less significant than the two others.
+maximize the area spanned by the remaining contact points. For example, the red
+contact has been removed from the last part of the previous figure because it
+is less significant than the two others.
 
 The `IncrementalContactManifoldGenerator` can be used to wrap any structure
 that implements the `CollisionDetector` trait and that generates a single
 contact point:
 ```rust
-let ball_vs_cube:  ImplicitImplicit<Ball, Cuboid> = ImplicitImplicit::new(0.04);
-let plane_vs_ball: PlaneImplicit<Plane, Ball>     = PlaneImplicit::new(0.04);
+let plane_vs_ball: PlaneImplicit<Ball> = PlaneImplicit::new(0.04);
 
-let full_manifold_ball_vs_cube  = IncrementalContactManifoldGenerator::new(0.04, ball_vs_cube);
 let full_manifold_plane_vs_ball = IncrementalContactManifoldGenerator::new(0.04, plane_vs_ball);
 ```
 
@@ -136,7 +134,8 @@ the `IncrementalContactManifoldGenerator` as it is able to generate a full
 manifold as soon as only one contact has been detected. This is done by
 applying small artificial rotations to one of the object in contact, and
 accumulating the new points generated by the wrapped collision detector.
-Therefore, from the user point of view, a full manifold has been generated:
+Therefore, from the user point of view, a full manifold has been generated at
+once:
 <center>
 ![](../img/one_shot_contact.svg)
 </center>
@@ -149,9 +148,7 @@ The `OneShotContactManifoldGenerator` can be used to wrap any structure
 that implements the `CollisionDetector` trait and that generates a single
 contact point:
 ```rust
-let ball_vs_cube:  ImplicitImplicit<Ball, Cuboid> = ImplicitImplicit::new(0.04);
-let plane_vs_ball: PlaneImplicit<Plane, Ball>     = PlaneImplicit::new(0.04);
+let plane_vs_ball: PlaneImplicit<Ball> = PlaneImplicit::new(0.04);
 
-let full_manifold_ball_vs_cube  = OneShotContactManifoldGenerator::new(0.04, ball_vs_cube);
 let full_manifold_plane_vs_ball = OneShotContactManifoldGenerator::new(0.04, plane_vs_ball);
 ```

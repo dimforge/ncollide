@@ -1,7 +1,7 @@
 # Bounding Sphere
 
 The `bounding_volume::BoundingSphere` is a sphere that contains completely the
-bounded geometry.
+bounded shape.
 
 <center>
 ![bounding sphere](../img/bounding_volume_bounding_sphere.svg)
@@ -23,6 +23,9 @@ enlarged by an arbitrary margin $$m$$:
 ![loose bounding sphere](../img/bounding_volume_bounding_sphere_loose.svg)
 </center>
 
+Finally, note that a bounding sphere supports ray casting as described by the
+[RayCast](../ray_casting/README.html) trait.
+
 ## Creating a Bounding Sphere
 
 There are two ways to create a bounding sphere. The main one is to use the usual
@@ -36,13 +39,17 @@ implemented by any `Geom`:
 |--                     | --                                                         |
 | `.bounding_sphere(m)` | Computes the bounding sphere of `self` transformed by `m`. |
 
-This is the simplest way to compute the bounding sphere of a geometry defined
+This is the simplest way to compute the bounding sphere of a shape defined
 by **ncollide**. Do not forget to explicitly import the trait in order to be
-allowed call this method: `use ncollide::bounding_volume::HasBoundingSphere`!
+allowed to call this method:
+
+```rust
+use ncollide::bounding_volume::HasBoundingSphere;
+```
 
 ## Example
 
-The following examples compute the bounding spheres of a cone and a cylinder,
+The following example computes the bounding spheres of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder bounding
 sphere, and performs some tests.
 

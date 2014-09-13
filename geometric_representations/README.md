@@ -1,15 +1,15 @@
 # Geometric representation
 Different representations of geometric objects will lead to different
-algorithms. At the moment **ncollide** relies a lot on convex geometries
-described by a support function.  However, working exclusively this kind of
-shape is too restrictive. This is why **ncollide** provides the
-[Compound](geometric_definitions/composite_geometries.html) geometry that
-allows the construction of a concave geometry from its convex parts, and
-[Meshes](geometric_definitions/composite_geometries.html) that allow the
-construction of a concave shape from triangles (in 3d) or segments (in 2d).
+algorithms. At the moment **ncollide** relies a lot on convex shapes
+described by a support function.  However, working exclusively with this kind
+of shape is too restrictive. This is why **ncollide** provides the
+[Compound](../geometric_representations/composite_shapes.html#compound) shape
+that allows the construction of a concave shape from its convex parts, and
+[Meshes](../geometric_representations/simple_shapes.html#mesh) that allows
+the construction of a concave shape from triangles (in 3D) or segments (in 2D).
 
 ## Traits
-The main trait that is implemented by every single geometry is the `Geom`
+The main trait that is implemented by every single shape is the `Geom`
 trait. It requires each implementor to implement some other traits:
 * `HasAABB` − an [Axis Aligned Bounding Box](../bounding_volumes/aabb.html) must
   be computable for the implementor.
@@ -21,7 +21,7 @@ trait. It requires each implementor to implement some other traits:
 
 
 The `Volumetric` trait, though not required by `Geom`, is implemented for most
-geometry. It exposes methods that compute the mass, center of mass, and angular
+shape. It exposes methods that compute the mass, center of mass, and angular
 inertia tensor of the implementor. For some shape like the `Plane` it is not
 implemented because it is meaningless.
 

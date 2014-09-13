@@ -10,7 +10,7 @@ this feature is still extremely immature and at most incomplete. Use with care.
 
 The path-based mesh generation API is based on two traits. The
 `procedural::path::CurveSampler` trait is implemented by a structure that is
-capable of generating a path (i-e. a set of points assumed to form a polyline).
+capable of generating a path (i.e. a set of points assumed to form a polyline).
 
 
 | Method    | Description                         |
@@ -19,7 +19,7 @@ capable of generating a path (i-e. a set of points assumed to form a polyline).
 
 The returned point may be either a `procedural::path::StartPoint`, an
 `InnerPoint` or an `EndPoint`. If `EndOfSample` is returned, then the
-path generation is assumed to be done. There may be several pair of
+path generation is assumed to be completed. There may be several pairs of
 `StartPoint, InnerPoint` inside of the same path. This allows patterns like
 dashed lines.
 
@@ -33,9 +33,9 @@ point of the path. Such pattern must implement the
 | `stroke(path)` | Strokes the `path` using `self` as the pattern. |
 
 The stroke pattern is responsible for the mesh generation itself. It has to
-duplicate its pattern at each point of the path, and link those duplicates
-correctly to form a topologically valid `TriMesh`. This allows you to easily
-stroke paths with possibly very different shapes and connectivity, using the
+duplicate its pattern at each point of the path, and to link those duplicates
+correctly to form a topologically sound `TriMesh`. This allows you to easily
+stroke paths with possibly very different shapes and connectivity using the
 same pattern.
 
 ## Example <span class="d3" onclick="window.open('../src/path.rs')"></span>

@@ -41,9 +41,9 @@ extern crate "ncollide3df32" as ncollide;
 This way, you only have to write statements like `use ncollide::geom::Cuboid;`.
 
 ## Cargo example
-You may use one of those `Cargo.toml` files to compile the download examples of
-this guide. Simply replace the words `example2d` and `example3d` by the real
-name of the example.
+You may use one of those `Cargo.toml` files to compile the downloadable
+examples of this guide. Simply replace the words `example2d` or `example3d` by
+the real name of the example.
 
 ###### 2D example <span class="d2" onclick="window.open('../src/cargo_2d/Cargo.toml')"></span>
 ```rust

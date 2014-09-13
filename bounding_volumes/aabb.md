@@ -46,13 +46,17 @@ trait implemented by any `Geom`:
 |--         | --                                              |
 | `.aabb(m)` | Computes the AABB of `self` transformed by `m`. |
 
-This is the simplest way to compute the AABB of a geometry defined by
+This is the simplest way to compute the AABB of a shape defined by
 **ncollide**. Do not forget to explicitly import the trait in order to be
-allowed call this method: `use ncollide::bounding_volume::HasAABB`!
+allowed call this method:
+
+```rust
+use ncollide::bounding_volume::HasAABB;
+```
 
 ## Example
 
-The following examples compute the AABB of a cone and a cylinder,
+The following example computes the AABB of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder AABB, and
 performs some tests.
 

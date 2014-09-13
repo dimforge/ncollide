@@ -10,7 +10,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="709.79535"
-   height="213.37802"
+   height="210.46188"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -361,9 +361,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="226.1566"
-     inkscape:cy="42.418244"
+     inkscape:zoom="1.979899"
+     inkscape:cx="259.5685"
+     inkscape:cy="69.99814"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -386,7 +386,7 @@
        enabled="true"
        snapvisiblegridlinesonly="true"
        originx="-200.09828px"
-       originy="-745.83392px" />
+       originy="-748.75005px" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -728,14 +728,14 @@
     <text
        xml:space="preserve"
        style="font-size:12.91613197px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c8b7b7;fill-opacity:1;stroke:none;font-family:Sans"
-       x="460.03784"
-       y="303.84158"
+       x="454.98447"
+       y="300.92545"
        id="text4727"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4729"
-         x="460.03784"
-         y="303.84158"
+         x="454.98447"
+         y="300.92545"
          style="font-size:12.91613197px;fill:#c8b7b7;fill-opacity:1">Triangle</tspan></text>
     <flowRoot
        xml:space="preserve"

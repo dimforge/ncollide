@@ -2,20 +2,20 @@
 
 As you might have noticed, a large variety of objects supported by **ncollide**
 are convex. This is so because
-[convex](../geometric_representations/simple_geometries.html#convex) objects
+[convex](../geometric_representations/simple_shapes.html#convex) objects
 have nice properties that help designing efficient algorithms. However, studies
 show that using only convex objects leads to very boring applications! That is
 why **ncollide** allows the description of concave objects from its convex
 parts using the
-[Compound](../geometric_representations/composite_geometries.html#Compoind)
-geometry. For example, one could describe the following object as the union of
+[`Compound`](../geometric_representations/composite_shapes.html#compound)
+shape. For example, one could describe the following object as the union of
 two convex parts:
 
 <center>
 ![Convex decomposition](../img/concave_decomposed.svg)
 </center>
 
-But decomposing manually a concave polyhedra in its convex parts is a very
+But decomposing manually a concave polyhedra into its convex parts is a very
 tedious task and computing an exact convex decomposition is often not
 necessary. That is why **ncollide** implements Khaled Mamou 3D
 [HACD](http://kmamou.blogspot.fr/2011/10/hacd-hierarchical-approximate-convex.html)
@@ -35,7 +35,7 @@ function. It takes three arguments:
 
 | Argument         | Description |
 | --               | --          |
-| `mesh`           | The `TriMesh` to decompose. It must have normals. Also, disconnected components of the mesh will not be merged together. |
+| `mesh`           | The `TriMesh` to decompose. It must have normals. Disconnected components of the mesh will not be merged together. |
 | `error`          | The maximum _normalized concavity_ per cluster. It must **not** be close to a limit value like `Bounded::max_value()`. Values around 0.03 seems to give fine results for most objects. |
 | `min_components` | Force the algorithm not to generate more than `min_components` convex parts. |
 
@@ -60,7 +60,7 @@ it is equal to $$\frac{6.0}{10.0} = 0.6$$.
 
 
 The `procedural::hacd` function returns a tuple. The first member of this
-result is the set of convex objects that approximate the input mesh. The second
+result is the set of convex objects that approximate the input mesh. Its second
 member is the set of indices of the triangles used to compute each convex
 object.
 
@@ -76,7 +76,7 @@ The following example creates a concave object using a
 [path-based](../mesh_generation/paths.md) mesh generation and approximates it
 using the HACD algorithm. Together with
 [kiss3d](http://github.com/sebcrozet/kiss3d), this code was used to generate
-the last figure:
+the last figure.
 
 ```rust
 let control_points = [

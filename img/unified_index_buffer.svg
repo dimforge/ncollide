@@ -401,9 +401,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="289.57878"
-     inkscape:cy="97.662765"
+     inkscape:zoom="2.0000001"
+     inkscape:cx="279.99259"
+     inkscape:cy="115.38721"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -427,7 +427,7 @@
        enabled="true"
        snapvisiblegridlinesonly="true"
        originx="-200.09828px"
-       originy="-749.75005px" />
+       originy="-749.75004px" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -437,7 +437,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -939,13 +939,13 @@
     <text
        xml:space="preserve"
        style="font-size:12.91613197px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c8b7b7;fill-opacity:1;stroke:none;font-family:Sans"
-       x="348.12631"
+       x="350.98447"
        y="299.92545"
        id="text4727"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4729"
-         x="348.12631"
+         x="350.98447"
          y="299.92545"
          style="font-size:12.91613197px;fill:#c8b7b7;fill-opacity:1">Triangle</tspan></text>
     <flowRoot
@@ -959,7 +959,7 @@
            height="154.28572"
            x="-79.285713"
            y="-16.534569" /></flowRegion><flowPara
-         id="flowPara4772"></flowPara></flowRoot>    <path
+         id="flowPara4772" /></flowRoot>    <path
        style="fill:#c8b7b7;fill-opacity:1;stroke:#c8b7b7;stroke-width:1.93741977;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 328,267.36216 32,0"
        id="path4723-8"

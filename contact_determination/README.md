@@ -22,7 +22,7 @@ The last field requires some explanations. Sometimes, the objects in contact
 are penetrating each other. Notably, if you are using **ncollide** for physical
 simulation, this is an unrealistic configuration where the matter of the two
 objects are superimposed. This penetration can be expressed in several forms,
-including the penetration volume (left), and the minimal translational distance
+including the penetration volume (left) and the minimal translational distance
 (right):
 
 <center>
@@ -43,10 +43,10 @@ intersection is a $$O(n^2)$$ process which is not practicable in real-time.
 To avoid this, the collision detection pipeline is usually decomposed into two
 steps: the [broad phase](../contact_determination/broad_phase.html) and the
 [narrow phase](../contact_determination/narrow_phase.html). The first one is
-aware of the position of every object (i-e. not only two) so it can uses
+aware of the position of every object (i.e. not only two) so it can uses
 spacial partitioning with conservative interference detection algorithms to
 find all the potential collision pairs. The second phase iterates on all those
 pairs and performs the exact contact determination. Note that the two objects
 paired by the broad phase may not actually be in contact (_false positives_).
 On the other hand, a broad phase is guaranteed not to produce _false
-negatives_. Thus, two interfering objects are guaranteed to be paired.
+negatives_: two interfering objects are guaranteed to be paired.

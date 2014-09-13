@@ -8,7 +8,7 @@ use ncollide::geom::{Cone, Cylinder};
 
 fn main() {
     /*
-     * Initialize the geometries.
+     * Initialize the shapes.
      */
     let cone     = Cone::new(0.5, 0.5);
     let cylinder = Cylinder::new(1.0, 0.5);

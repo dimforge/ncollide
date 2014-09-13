@@ -1,9 +1,15 @@
-# Simple geometries
+# Simple shapes
+
+Those are the most basic geometric primitives supported by **ncollide**. They
+are defined on the `geom` module. A geometric primitive does not have a
+position in space. Instead, they are always positioned relative to some
+absolute frame. Thus, one usually has to store a transformation matrix
+separately from the shape itself.
 
 ## Ball
 Mathematically speaking, the `Ball` structure describes a closed ball on the
 _n_-dimensional euclidean space. In two dimensions this is a disk, and in three
-dimensions this is a sphere, centered at the origin.
+dimensions a sphere, centered at the origin.
 
 
 | Method | Description |
@@ -59,8 +65,8 @@ assert!(cuboid.half_extents().z == 3.0);
 
 ## Cylinder
 The `Cylinder` structure describes a rectangle in two dimensions (use `Cuboid`
-instead), or a cylinder in three dimensions. The principal axis is the positive
-`y` axis.
+instead), or a cylinder in three dimensions. Its principal axis is the
+positive $$\bf y$$ axis.
 
 
 | Method | Description |
@@ -85,7 +91,7 @@ assert!(cylinder.radius() == 1.0);
 The `Cone` structure describes an isosceles triangle in two dimensions, or a
 cone of revolution in tree dimensions. A cone is defined by the _radius_ of its
 basis and its _half height_ − the half distance between the basis and the apex.
-The principal axis is the positive `y` axis.
+Its principal axis is the positive $$\bf y$$ axis.
 
 | Method | Description |
 | --          | --       |
@@ -109,7 +115,7 @@ assert!(cone.radius() == 0.75);
 The `Capsule` structure describes the Minkowski sum of a segment and a ball. In
 other words, this is a cylinder with its flat extremities replaced by balls. A
 capsule is defined by its _half height_ and the _radius_ of its extremities.
-The principal axis is the positive `y` axis.
+Its principal axis is the positive $$\bf y$$ axis.
 
 | Method | Description |
 | --          | --       |
@@ -138,7 +144,7 @@ joining two of its points:
 ![Convex, concave, crossed](../img/convex_concave_crossing.svg)
 </center>
 
-There are two ways to create a `Convex` geometry. Using the usual constructor
+There are two ways to create a `Convex` shape. Using the usual constructor
 `::new(...)` will automatically compute the convex hull of the given array of
 points.  However, if you already have a convex set of point, you may skip the
 automatic convex hull computation using the unsafe constructor
@@ -216,10 +222,10 @@ assert!(plane.normal().z == 0.0);
 
 ## Mesh
 The `Mesh` structure describes a polyline in two dimensions, or a triangle mesh
-in three dimensions. A mesh is defined by a set of vertices, and a set of
+in three dimensions. A mesh is defined by an array of vertices and an array of
 indices. Each segment (resp. triangle) in 2d (resp. 3d) is identified by two
 (resp. three) indices. It is also possible to provide one normal and one
-texture coordinate per vertex. Those are not used for the collision detection
+texture coordinate per vertex. Those are not used for the contact determination
 but are useful for ray-casting. Internally, collision detection is accelerated
 using an AABB tree.
 
@@ -227,7 +233,7 @@ using an AABB tree.
 | --          | --       |
 | `.vertices()` | The vertex buffer. |
 | `.indices()` | The index  buffer.  |
-| `.normals()` | The normals buffer. |
+| `.normals()` | The normal buffer. |
 | `.uvs()` | The texture coordinates buffer. |
 | `.bounding_volumes()` | The bounding volume of each primitive (segment or triangle). |
 | `.bvt()` | The space-partitioning acceleration structure used by the mesh. |
@@ -245,7 +251,6 @@ let indices = vec!(0u, 1,
                    2,  3,
                    3,  1);
 
-// Build the mesh.
 let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
@@ -268,7 +273,6 @@ let indices = vec!(0u, 1, 2,
                    0,  2, 3,
                    0,  3, 1);
 
-// Build the mesh.
 let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);

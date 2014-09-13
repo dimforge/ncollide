@@ -27,18 +27,18 @@ corresponding AABB Tree (one color per depth):
 ![BVT with AABB](../img/AABB_tree_BVT.svg)
 </center>
 
-Note that, even if this example uses AABB, the `BVT` is generic with regard to
-the type of bounding volume (e.g. we could use bounding spheres instead).
+Note that even if this example uses AABB, the `BVT` is generic with regard to
+the type of bounding volume (we could use e.g. bounding spheres instead).
 
 #### Creating a BVT
 Because the BVT is an immutable data structure, it must be created at once and
 cannot be modified after. The `::new_with_partitioner(...)` is its main
 constructor and requires a list of tuples containing the objects that will be
 stored on the BVT leaves and their bounding volumes. The objects themselves do
-not have to implement any specific trait. The other requirement is a
+not have to implement any specific trait. The other argument is a
 partitioning scheme that will, given an array of bounding volumes, split them
 into two groups. This splitting process is known as the _top-down_ tree
-construction approach. One example of such partitioning scheme is
+construction approach. One example of such partitioning scheme is the
 `partitioning::balanced_partitionner(...)` that will distribute the objects
 depending on their bounding volumes position along one axis relative to their
 median. This will generate a balanced tree.
@@ -64,16 +64,16 @@ let intersections = Vec::new();
 // Now `intersections` contains the list of all objects which bounding volume intersects the ray.
 ```
 
-If you are not interested in the whole set of objects that intersect the ray
+If you are not interested in the complete set of objects that intersect the ray
 but only the closest one, using the BVT `.cast_ray(...)` method will be far
 more efficient. It requires a closure that is able to cast a ray on the
-objects and returns a tuple containing the associated time of impact (in any)
+objects and returns a tuple containing the associated time of impact (if any)
 and an user-defined result. The end-result is the user-defined one that had the
 smallest time of impact.
 
 ## Example
 
-The following examples creates four geometries, sets up a `BVT` to associate
+The following example creates four shapes, sets up a `BVT` to associate
 indices to their bounding spheres, and casts some rays on it using the
 `.ray_cast(...)` method and the `RayInterferencesCollector` visitor.
 

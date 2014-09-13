@@ -1,23 +1,25 @@
 # How to contribute
 
+Contribution are greatly appreciated and can be technical as well as financial.
+
 ### Technical contribution
 
-You are of course welcome to contribute to the source code of **ncollide** and to
-this guide. Simply make sure to [open an
+You are of course welcome to contribute to the source code of **ncollide** and
+to this guide. Simply make sure to [open an
 issue](https://github.com/sebcrozet/ncollide/issues) on GitHub if you intend to
 perform a large contribution. This should prevent other people from stepping
-silently on your toes and should ensure your work is going to be merged when it
-is ready.
+silently on your toes and ensure your work is going to be merged when it is
+ready.
 
 
 ###### Working on this guide
 
-You can also contribute to this user guide by completing and correcting it. Do
-not hesitate to correct even the smallest, insignificant detail (especially
-English mistakes). We love nitpicking!
-This guide is composed of a set of markdown files located on the
+You can contribute to this user guide by completing, improving, and correcting
+it. Do not hesitate to correct even the smallest, insignificant detail
+(especially English mistakes including typography). We love nitpicking!  This
+guide is composed of a set of markdown files located on the
 [gh-pages](https://github.com/sebcrozet/ncollide/tree/gh-pages) branch of the
-main **ncollide** repository. It is compiled manually using
+main **ncollide** repository. It is compiled using
 [GitBook](https://www.gitbook.io/). As explained in the next section, you need
 to fork, fix, and create a pull request to make your contribution upstreamable.
 There are no specific rules, except that all compilable code to generate
@@ -42,8 +44,8 @@ a similarly named file which declares the relevant traits. Finally, those
 traits are implemented for the relevant structures on explicitly named files
 located on the very same folder.  For example, the `Implicit` trait is declared
 on the `implicit/implicit.rs` file and its implementation for e.g.  the `Ball`
-geometry is located on `implicit/implicit_ball.rs` while its implementation for
-e.g. the `Cuboid` geometry is located on `implicit/implicit_cuboid.rs`. You
+shape is located on `implicit/implicit_ball.rs` while its implementation for
+e.g. the `Cuboid` shape is located on `implicit/implicit_cuboid.rs`. You
 will find similar naming patterns for most features.
 
 
@@ -62,7 +64,8 @@ depending on the version of **ncollide** chosen by the user:
 | `AngularInertia` | `Mat1<f32>`     | `Mat1<f64>`     | `Mat3<f32>`     | `Mat3<f64>` |
 
 If you need to convert a constant like `42.0` to a `math::Scalar`, use the
-function `na::cast` from nalgebra:
+function `na::cast` from
+[nalgebra](http://nalgebra.org/doc/nalgebra/na/fn.cast.html):
 
 ```rust
 let value: Scalar = na::cast(42.0);
@@ -116,7 +119,7 @@ are also appreciated. However, do not forget that **donating is not a
 requirement**. You are, and will always be free to use **ncollide** for any
 purpose, including commercial applications, without paying anything (see the
 [BSD-3 licence](https://github.com/sebcrozet/ncollide/blob/master/LICENSE)).
-<span style="float:right">
+<div style="float:right">
 <table style="border-style:none" align="center">
 <tr style="border-style:none">
 <td style="border-style:none">
@@ -134,7 +137,7 @@ purpose, including commercial applications, without paying anything (see the
 </center>
 </td>
 </table>
-</span>
+</div>
 
 # Contributors
 

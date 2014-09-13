@@ -17,7 +17,7 @@ fn main() {
     compound_data.push_geom(delta2, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
     compound_data.push_geom(delta3, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
 
-    // 2) Create the compound geometry.
+    // 2) Create the compound shape.
     let compound = Compound::new(compound_data);
 
     assert!(compound.geoms().len() == 3)

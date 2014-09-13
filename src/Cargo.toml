@@ -122,6 +122,10 @@ name = "minkowski_sum3d"
 path = "./minkowski_sum3d.rs"
 
 [[bin]]
+name = "misc"
+path = "./misc.rs"
+
+[[bin]]
 name = "path"
 path = "./path.rs"
 

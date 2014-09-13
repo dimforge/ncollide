@@ -1,7 +1,7 @@
 # Mesh generation
 
 While not directly part of the collision detection problem, mesh generation is
-useful to extend the range of geometries supported by **ncollide** by
+useful to extend the range of shapes supported by **ncollide** by
 discretizing them such that they can be approximated with a `geom::Mesh`, a
 `geom::Convex`, and/or a `geom::Compound`. It is also useful to obtain a
 renderer-compliant representation of non-polyhedral models such that balls,
@@ -26,10 +26,10 @@ normals and texture coordinates:
 
 The index buffer may take two forms. In its `procedural::UnifiedIndexBuffer`
 form, the index of a triangle vertex is the same as the index identifying its
-normal and uvs. This means that the coordinate, normals and texture coordinate
+normal and uvs. This implies that the coordinate, normals and texture coordinate
 buffers should have the same size. While not very memory-efficient, this is the
 required representation for renderers based on e.g. OpenGL. In the following
-figure, each disc corresponds to one index (i-e. one integer):
+figure, each disc corresponds to one index (i.e. one integer):
 
 ![Unified index buffer](../img/unified_index_buffer.svg)
 
@@ -61,33 +61,33 @@ have an index or texture coordinates buffer:
 | `normals` | The vertex normals.     |
 
 Since it does not have an index buffer `coords` is assumed to be a line strip,
-and there is no way to let two different vertices share the same normal. This
-structure is not very practical to model complex 2D shapes. That is why it
-should be changed to a more traditional index-buffer based representation in
-future version of **ncollide**.
+and there is no way to let two different vertices share the same normal in
+memore. This structure is not very practical to model complex 2D shapes. That
+is why it should be changed to a more traditional index-buffer based
+representation in future versions of **ncollide**.
 
 
 ## Traits
 
-The `procedural` module exposes two traits that allows the conversion from
+The `procedural` module exposes two traits that allow the conversion from
 non-polyhedral geometries to triangle meshes or polylines. First, the
 `procedural::ToTriMesh` allows the creation of a `TriMesh` for an instance of
 the implementor:
 
-| Method           | Description                                    |
-|--                | --                                             |
-| `.to_trimesh(i)` | Creates a polyhedral representation of `self`. |
+| Method             | Description                                    |
+|--                  | --                                             |
+| `.to_trimesh(...)` | Creates a polyhedral representation of `self`. |
 
 Similarly, import the `procedural::ToPolyline` trait to generate a `Polyline`
 from an instance of the implementor:
 
-| Method            | Description                                      |
-|--                 | --                                               |
-| `.to_polyline(i)` | Creates a polylineical representation of `self`. |
+| Method              | Description                                      |
+|--                   | --                                               |
+| `.to_polyline(...)` | Creates a polylineical representation of `self`. |
 
 Note that those methods require a parameter that allows you to control the
 discretization process. The exact type of this parameter depends on the type
 that implements the trait. For example, a `Ball` requires two integers (one for
-the subdivision of each spherical coordinate) to be transformed to a `TriMesh`;
-the `Cuboid` however requires a parameter equal to `()` because it does not
-need any user-defined information in order to be discretized.
+the number of subdivisions of each spherical coordinate) to be transformed to a
+`TriMesh`; the `Cuboid` however requires a parameter equal to `()` because it
+does not need any user-defined information in order to be discretized.

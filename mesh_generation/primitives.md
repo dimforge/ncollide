@@ -7,7 +7,7 @@ those accessible by the two former traits.
 It also exposes functions to compute the convex hull of a set of point using
 the [QuickHull algorithm](http://en.wikipedia.org/wiki/QuickHull) which has an
 average $$O(n \log{n})$$ time complexity.  Because computing the convex hull of
-2d and 3d geometries is so common, two functions are always available, no
+2d and 3d shapes is so common, two functions are always available no
 matter the number of dimensions you chose to compile **ncollide** for:
 
 | Function             | Description                                     |
@@ -15,10 +15,9 @@ matter the number of dimensions you chose to compile **ncollide** for:
 | `convex_hull2d(...)` | Computes the convex hull of a set of 2D points. |
 | `convex_hull3d(...)` | Computes the convex hull of a set of 3D points. |
 
-If you are not interested on the `TriMesh` representation of the convex hull,
-but only on the indices of the vertices contained by the convex hull, use the
-`_idx` variant of those functions, namely `convex_hull2d_idx(...)` and
-`convex_hull3d_idx(...)`.
+If you are not interested in the `Polyline` representation of the 2D convex
+hull but only on the original indices of the vertices it contains, use the
+`_idx` variant of the function − namely `convex_hull2d_idx(...)`.
 
 ## Example
 Le following example creates 100,000 random points and compute their

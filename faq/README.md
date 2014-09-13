@@ -22,15 +22,15 @@ objects interacting with _small_ objects) should be avoided as they are very
 prone to generate rounding errors.
 
 The recommended units are those given by the [International System of
-Units](http://en.wikipedia.org/wiki/International_System_of_Units) − that is −
-meters, kilograms, seconds, and so on. But again, it depends on your
+Units](http://en.wikipedia.org/wiki/International_System_of_Units)−that
+is−meters, kilograms, seconds, and so on. But again, it depends on your
 application!
 
 --------
 
 #### The compiler claims the trait method `.foo(...)` does not exists!
 
-Make sure to import the trait if you use at least one of its methods!  For
+Make sure to `use` the trait if you use at least one of its methods! For
 example, the following cannot work:
 
 
@@ -48,8 +48,8 @@ fn main() {
 }
 ```
 
-To help the compiler find `to_trimesh`, the `procedural::ToTriMesh` trait must
-be imported explicitly:
+To help the compiler find `.to_trimesh()`, the `procedural::ToTriMesh` trait
+must be imported explicitly:
 
 ```rust
 extern crate "ncollide3df32" as ncollide;

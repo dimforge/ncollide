@@ -9,7 +9,7 @@ removed and updated:
 | `.add(geom)`           | Adds `geom` to this broad phase algorithm.      |
 | `.remove(geom)`        | Removes `geom` from this broad phase algorithm. |
 | `.update()`            | Updates this broad phase algorithm.             |
-| `.update_object(geom)` | Notifies this broad phase algorithm that `geom` changed somehow (position, shape, etc.). |
+| `.update_object(geom)` | Partially updates this broad phase algohithm so that all the pairs involving `geom` are detected. |
 
 Because the `BroadPhase` trait itself does not expose any collision-detection
 related features, it is quite useless if implemented alone. If you are
@@ -28,7 +28,7 @@ then use a broad phase that implements the `broad::RayCastBroadPhase` trait:
 |--                     | --                                              |
 | `.interferences_with_ray(ray, result)` | Clones to `result` any object that intersects the bounding volume `bv` |
 
-Of course, the objects you add to this kind of broad phase algorithm must
+Of course, the objects you add to this kind of broad phase algorithms must
 implement the [RayCast trait](../ray_casting/README.html).
 
 
@@ -93,12 +93,12 @@ pairs involving slow-moving objects: the DBVT is updated only when the
 displacement of an object is large enough to make its exact bounding volume
 move out of the loosened version stored on the tree. That way objects moving at
 high frequency but low amplitude will almost never trigger an update, at the
-cost of a less tight bounding volume for interference detection (i-e. more
-false-positives).
+cost of a less tight bounding volume for interference detection (i.e. more
+false positives).
 
 ## Example
-The following example creates four balls, adds to a `DBVTBroadPhase`,
-deactivate, reactivate and remove them. The `bounding_volume::WithAABB`
+The following example creates four balls, adds them to a `DBVTBroadPhase`,
+deactivates, reactivates, and removes them. The `bounding_volume::WithAABB`
 structure associates a position to a shape that implement the `HasAABB` trait.
 
 ###### 2D example <span class="d2" onclick="window.open('../src/dbvt_broad_phase2d.rs')" ></span>

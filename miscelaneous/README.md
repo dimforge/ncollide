@@ -1,10 +1,10 @@
 # Miscelanous
 
 Besides the main collision detection and mesh generation related features,
-**ncollide** exposes a number of unclassified geometric operations that are
-used internally by the library. Those operations are exported by the `utils`
-module. Here are listed the most useful operations, most of them being
-dimension-generic (no matter which version of **ncollide** you use):
+**ncollide** exposes a number of unclassified operations that are used
+internally by the library. Those operations are exported by the `utils` module.
+Here are listed some useful operations. Most of them are dimension-generic (no
+matter which version of **ncollide** you use):
 
 | Function                    | Description                                          |
 |--                           | --                                                   |
@@ -64,7 +64,7 @@ optimized for low-order derivatives:
 | `.d1(t)`             | Evaluates the first derivative at the point `t`.  |
 | `.d2(t)`             | Evaluates the second derivative at the point `t`. |
 | `.dn(t, n)`          | Evaluates the `n`th derivative at the point `t`. |
-| `.ueval(t)`          | Same as `.d0(t)`. Use this to avoid clashes when the `UnivariateFn` and the `BivariateFn` traits are imported simultaneously. |
+| `.ueval(t)`          | Same as `.d0(t)`. Use this to avoid clashes when the `UnivariateFn` and `BivariateFn` traits are imported simultaneously. |
 | `.d0_1(t)`           | Evaluates simultaneously the function and its first derivative at the point `t`. |
 | `.d0_1_2(t)`         | Evaluates simultaneously the function and its first two derivatives at the point `t`. |
 | `.dn_all(t, n, out)` | Evaluates simultaneously the function and all its first `n`th derivatives at the point `t`. The values are output to the vector `out`. |
@@ -92,12 +92,12 @@ To use the method `.duv_nk(...)`, the `BivariateFn` must be imported:
 | `.dvv(u, v)`                   | Evaluates the second partial derivative wrt. `v` at the point `u, v`. |
 | `.duv(u, v)`                   | Evaluates the first partial derivative wrt. `u` and `v` at the point `u, v`. |
 | `.duv_nk(u, v, n, k)`          | Evaluates the `n`th (resp. `k`th) partial derivative wrt. `u` (resp. `v`) at the point `u, v`. |
-| `.beval(u, v)`                 | Same as `.d0(u, v)`. Use this to avoid clashes when the `UnivariateFn` and the `BivariateFn` traits are imported simultaneously. |
+| `.beval(u, v)`                 | Same as `.d0(u, v)`. Use this to avoid clashes when the `UnivariateFn` and `BivariateFn` traits are imported simultaneously. |
 | `.duv_nk_all(u, v, n, k, out)` | Computes all the `n`th (resp. `k`th) partial derivatives wrt. `u` (resp. `v`) at the point `u, v`. The result is output to the matrix `out`. Its $$i$$th (resp. $$j$$th) row (resp. column) corresponds to the $$i$$th (resp. $$j$$th) partial derivative wrt. `u` (resp. `v`).|
 
-Note that this implementation is very naive and does performs any kind of
-simplification or memoization. In the future it might be reimplemented using
-macros.
+Note that this implementation is very naive and does not perform any kind of
+simplification or memoization. In the future it might be reimplemented more
+efficiently using macros.
 
 ###### Example <span class="btn-primary" onclick="window.open('../src/dsl.rs')"></span>
 

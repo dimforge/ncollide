@@ -38,21 +38,21 @@ fn main() {
     /*
      * push_shared_geom_with_mass_properties
      */
-    // The geometry we want to share.
+    // The shape we want to share.
     let cuboid = Cuboid::new(Vec2::new(0.75f32, 1.5));
     // Make ncollide compute the mass properties of the cuboid.
     let (c_mass, c_com, c_tensor) = cuboid.mass_properties(&1.0); // density = 1.0
     let c_area                    = cuboid.surface();
-    // Build the shared geometry.
+    // Build the shared shape.
     let shared_cuboid = Arc::new(box cuboid as Box<Geom + Send + Sync>);
-    // Add the geometry to the compound data.
+    // Add the shape to the compound data.
     compound_data.push_shared_geom_with_mass_properties(
         delta3,
         shared_cuboid.clone(),
         (c_area, c_mass, c_com, c_tensor));
     // `shared_cuboid` can still be used thereafter…
 
-    // 2) create the compound geometry.
+    // 2) create the compound shape.
     let compound = Compound::new(compound_data);
 
     assert!(compound.geoms().len() == 3);
