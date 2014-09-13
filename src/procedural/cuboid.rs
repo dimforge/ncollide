@@ -54,23 +54,23 @@ pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
     normals.push(Vec3::new(_0.clone(), m1.clone(), _0.clone()));
     normals.push(Vec3::new(_0.clone(), _1.clone(), _0.clone()));
 
-    faces.push(Vec3::new(Vec3::new(4, 0, 0), Vec3::new(5, 1, 0), Vec3::new(0, 2, 0)));
-    faces.push(Vec3::new(Vec3::new(5, 1, 0), Vec3::new(1, 3, 0), Vec3::new(0, 2, 0)));
-
-    faces.push(Vec3::new(Vec3::new(5, 0, 1), Vec3::new(6, 1, 1), Vec3::new(1, 2, 1)));
-    faces.push(Vec3::new(Vec3::new(6, 1, 1), Vec3::new(2, 3, 1), Vec3::new(1, 2, 1)));
-
-    faces.push(Vec3::new(Vec3::new(6, 1, 2), Vec3::new(7, 0, 2), Vec3::new(3, 2, 2)));
-    faces.push(Vec3::new(Vec3::new(2, 3, 2), Vec3::new(6, 1, 2), Vec3::new(3, 2, 2)));
-
-    faces.push(Vec3::new(Vec3::new(7, 1, 3), Vec3::new(4, 0, 3), Vec3::new(0, 2, 3)));
-    faces.push(Vec3::new(Vec3::new(3, 3, 3), Vec3::new(7, 1, 3), Vec3::new(0, 2, 3)));
-
-    faces.push(Vec3::new(Vec3::new(0, 2, 4), Vec3::new(1, 0, 4), Vec3::new(2, 1, 4)));
-    faces.push(Vec3::new(Vec3::new(3, 3, 4), Vec3::new(0, 2, 4), Vec3::new(2, 1, 4)));
-
-    faces.push(Vec3::new(Vec3::new(7, 3, 5), Vec3::new(6, 1, 5), Vec3::new(5, 0, 5)));
-    faces.push(Vec3::new(Vec3::new(4, 2, 5), Vec3::new(7, 3, 5), Vec3::new(5, 0, 5)));
+    faces.push(Vec3::new(Vec3::new(4, 0, 0), Vec3::new(5, 0, 1), Vec3::new(0, 0, 2)));
+    faces.push(Vec3::new(Vec3::new(5, 0, 1), Vec3::new(1, 0, 3), Vec3::new(0, 0, 2)));
+                                                                                  
+    faces.push(Vec3::new(Vec3::new(5, 1, 0), Vec3::new(6, 1, 1), Vec3::new(1, 1, 2)));
+    faces.push(Vec3::new(Vec3::new(6, 1, 1), Vec3::new(2, 1, 3), Vec3::new(1, 1, 2)));
+                                                                                  
+    faces.push(Vec3::new(Vec3::new(6, 2, 1), Vec3::new(7, 2, 0), Vec3::new(3, 2, 2)));
+    faces.push(Vec3::new(Vec3::new(2, 2, 3), Vec3::new(6, 2, 1), Vec3::new(3, 2, 2)));
+                                                                                  
+    faces.push(Vec3::new(Vec3::new(7, 3, 1), Vec3::new(4, 3, 0), Vec3::new(0, 3, 2)));
+    faces.push(Vec3::new(Vec3::new(3, 3, 3), Vec3::new(7, 3, 1), Vec3::new(0, 3, 2)));
+                                                                                  
+    faces.push(Vec3::new(Vec3::new(0, 4, 2), Vec3::new(1, 4, 0), Vec3::new(2, 4, 1)));
+    faces.push(Vec3::new(Vec3::new(3, 4, 3), Vec3::new(0, 4, 2), Vec3::new(2, 4, 1)));
+                                                                                  
+    faces.push(Vec3::new(Vec3::new(7, 5, 3), Vec3::new(6, 5, 1), Vec3::new(5, 5, 0)));
+    faces.push(Vec3::new(Vec3::new(4, 5, 2), Vec3::new(7, 5, 3), Vec3::new(5, 5, 0)));
 
     TriMesh::new(coords, Some(normals), Some(uvs), Some(SplitIndexBuffer(faces)))
 }

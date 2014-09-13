@@ -72,27 +72,27 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
     let top_start_id = len - 2 * (nsubdiv as uint - 2);
 
     for i in indices.mut_slice_to(top_start_id).mut_iter() {
-        if i.x.z >= nsubdiv {
-            i.x.z = i.x.z - nsubdiv;
+        if i.x.y >= nsubdiv {
+            i.x.y = i.x.y - nsubdiv;
         }
-        if i.y.z >= nsubdiv {
-            i.y.z = i.y.z - nsubdiv;
+        if i.y.y >= nsubdiv {
+            i.y.y = i.y.y - nsubdiv;
         }
-        if i.z.z >= nsubdiv {
-            i.z.z = i.z.z - nsubdiv;
+        if i.z.y >= nsubdiv {
+            i.z.y = i.z.y - nsubdiv;
         }
     }
 
     for i in indices.mut_slice(top_start_id, bottom_start_id).mut_iter() {
-        i.x.z = nlen - 2;
-        i.y.z = nlen - 2;
-        i.z.z = nlen - 2;
+        i.x.y = nlen - 2;
+        i.y.y = nlen - 2;
+        i.z.y = nlen - 2;
     }
 
     for i in indices.mut_slice_from(bottom_start_id).mut_iter() {
-        i.x.z = nlen - 1;
-        i.y.z = nlen - 1;
-        i.z.z = nlen - 1;
+        i.x.y = nlen - 1;
+        i.y.y = nlen - 1;
+        i.z.y = nlen - 1;
     }
 
     TriMesh::new(coords, Some(normals), Some(uvs), Some(SplitIndexBuffer(indices)))

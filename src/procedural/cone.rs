@@ -51,13 +51,13 @@ pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> 
     let ilen = indices.len();
     let nlen = normals.len() as u32;
     for (id, i) in indices.mut_slice_to(ilen - (nsubdiv as uint - 2)).mut_iter().enumerate() {
-        i.y.z = id as u32;
+        i.y.y = id as u32;
     }
 
     for i in indices.mut_slice_from(ilen - (nsubdiv as uint - 2)).mut_iter() {
-        i.x.z = nlen - 1;
-        i.y.z = nlen - 1;
-        i.z.z = nlen - 1;
+        i.x.y = nlen - 1;
+        i.y.y = nlen - 1;
+        i.z.y = nlen - 1;
     }
 
     // normal for the body

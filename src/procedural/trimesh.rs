@@ -208,8 +208,8 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
 
                                 resc.push(self.coords[point.x as uint].clone());
 
-                                let _ = resu.as_mut().map(|l| l.push(self.uvs.as_ref().unwrap()[point.y as uint].clone()));
-                                let _ = resn.as_mut().map(|l| l.push(self.normals.as_ref().unwrap()[point.z as uint].clone()));
+                                let _ = resn.as_mut().map(|l| l.push(self.normals.as_ref().unwrap()[point.y as uint].clone()));
+                                let _ = resu.as_mut().map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as uint].clone()));
 
                                 resi.push(idx);
 
