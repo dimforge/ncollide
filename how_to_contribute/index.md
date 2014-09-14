@@ -163,6 +163,7 @@ Except me, here are the known contributors (including donors) to the
 * [Alexander Mistakidis](https://github.com/aamistak)
 * [Ben Foppa](https://github.com/bfops)
 * [Brandon Waskiewicz](https://github.com/brandonw)
+* [Corey Richardson](https://github.com/cmr)
 * [Peter Nguyen](https://github.com/cacteye)
 
 If your name should or should not be on this list, or if it should be linked
