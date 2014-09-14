@@ -14,14 +14,14 @@ significant amount of time re-writing collision detection algorithms,
 [github](http://github.com/sebcrozet/ncollide) and is released under the
 permissive [BSD-3](http://opensource.org/licenses/BSD-3-Clause) licence. Feel
 free to use (even commercially), modify, and redistribute **ncollide**! See the
-[How to contribute](how_to_contribute/README.html) section to learn more about
+[How to contribute](how_to_contribute/index.html) section to learn more about
 the authors of this library and the different methods of contribution.
 
 **ncollide** does not have any dedicated chat room or forum yet. However, do
 not hesitate to contact directly the authors by
 [email](mailto:developer@crozet.re), or to open an
 [issue](http://github.com/sebcrozet/ncollide/issues). You may also find the
-answer of common questions on the [FAQ](faq/README.html).
+answer of common questions on the [FAQ](faq/index.html).
 
 ## How do we test ncollide?
 **ncollide** does not have a lot of unit tests. But that does not mean it is
@@ -41,7 +41,7 @@ _real-life_ situations using three other Rust projects:
    surfaces, etc.). In particular it has a
    [demo](https://github.com/sebcrozet/kiss3d/blob/master/examples/procedural.rs)
    that uses most mesh generation algorithms of **ncollide**. In fact, every
-   single 3d illustration of the [Mesh generation](mesh_generation/README.html)
+   single 3d illustration of the [Mesh generation](mesh_generation/index.html)
    section has been rendered by **kiss3d**.
 <p>
 <center>
@@ -63,17 +63,17 @@ _real-life_ situations using three other Rust projects:
 ## About this guide
 This guide intends to give a shallow description of most features available on
 **ncollide**:
-* [Contact determination](contact_determination/README.html) with [spacial
+* [Contact determination](contact_determination/index.html) with [spacial
   partitioning](contact_determination/broad_phase.html) techniques are used to
   allow geometric queries on scenes with thousands of objects.
-* [Ray casting](ray_casting/README.html) against most shapes supported by
+* [Ray casting](ray_casting/index.html) against most shapes supported by
   the library.
-* [Mesh generation](mesh_generation/README.html) from the shapes
+* [Mesh generation](mesh_generation/index.html) from the shapes
   supported by the library. This is the process of transforming the implicit
   representation of **ncollide** shapes to triangle-meshes or line strips
   that can be efficiently rendered by the GPU.
 
-[Getting started](getting_started/README.md) explains how to download and
+[Getting started](getting_started/index.md) explains how to download and
 compile **ncollide** from its source code. It also gives the Cargo files needed
 to compile the downloadable examples given by this guide.
 

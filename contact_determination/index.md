@@ -36,14 +36,14 @@ contact normal needed to remove any overlap between the two objects interiors.
 ## Large scale contact determination
 While detecting contacts between only two objects might be useful, we are often
 interested to work with complex scenes involving thousands of objects that may
-move. Iterating though each pair of object and testing each of them for
+move. Iterating through each pair of object and testing each of them for
 intersection is a $$O(n^2)$$ process which is not practicable in real-time.
 
 
 To avoid this, the collision detection pipeline is usually decomposed into two
 steps: the [broad phase](../contact_determination/broad_phase.html) and the
 [narrow phase](../contact_determination/narrow_phase.html). The first one is
-aware of the position of every object (i.e. not only two) so it can uses
+aware of the position of every object (i.e. not only two) so it can use
 spacial partitioning with conservative interference detection algorithms to
 find all the potential collision pairs. The second phase iterates on all those
 pairs and performs the exact contact determination. Note that the two objects

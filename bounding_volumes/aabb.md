@@ -25,7 +25,7 @@ arbitrary margin $$m$$:
 </center>
 
 Finally, note that an AABB supports ray casting as described by the
-[RayCast](../ray_casting/README.html) trait.
+[RayCast](../ray_casting/index.html) trait.
 
 ## Creating an AABB
 There are three ways to create an AABB. The main one is to use the usual

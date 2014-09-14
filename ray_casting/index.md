@@ -5,7 +5,7 @@ detection. Besides the fact it can be used for rendering (using ray-tracing
 like methods), it is useful for e.g. continuous collision detection and
 navigation on a virtual environment. Therefore **ncollide** has efficient ray
 casting algorithms for arbitrary
-[support-mapped](../geometric_representations/README.html#support-map) convex
+[support-mapped](../geometric_representations/index.html#support-map) convex
 shapes, triangle meshes (in 3D), and line strips (in 2D).
 
 

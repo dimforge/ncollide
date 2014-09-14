@@ -29,7 +29,7 @@ then use a broad phase that implements the `broad::RayCastBroadPhase` trait:
 | `.interferences_with_ray(ray, result)` | Clones to `result` any object that intersects the bounding volume `bv` |
 
 Of course, the objects you add to this kind of broad phase algorithms must
-implement the [RayCast trait](../ray_casting/README.html).
+implement the [RayCast trait](../ray_casting/index.html).
 
 
 Finally, if you need a broad phase algorithm that is able to find which pairs of

@@ -1,4 +1,4 @@
-# Geometric representation
+# Geometric representations
 Different representations of geometric objects will lead to different
 algorithms. At the moment **ncollide** relies a lot on convex shapes
 described by a support function.  However, working exclusively with this kind
@@ -16,7 +16,7 @@ trait. It requires each implementor to implement some other traits:
 * `HasBoundingSphere` − a
   [BoundingSphere](../bounding_volumes/bounding_sphere.html) must be computable
   for the implementor.
-* `RayCast` − the computation of [intersections](../ray_casting/README.html)
+* `RayCast` − the computation of [intersections](../ray_casting/index.html)
   between a ray and the implementor must be possible.
 
 

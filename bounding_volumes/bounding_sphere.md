@@ -24,7 +24,7 @@ enlarged by an arbitrary margin $$m$$:
 </center>
 
 Finally, note that a bounding sphere supports ray casting as described by the
-[RayCast](../ray_casting/README.html) trait.
+[RayCast](../ray_casting/index.html) trait.
 
 ## Creating a Bounding Sphere
 
