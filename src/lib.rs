@@ -2,8 +2,8 @@
 ncollide
 ========
 
-**ncollide** is a n-dimensional collision detection library written with the
-rust programming language.
+**ncollide** is a 2 and 3-dimensional collision detection library written with the rust programming
+language.
 
 As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
