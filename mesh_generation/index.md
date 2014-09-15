@@ -62,7 +62,7 @@ have an index or texture coordinates buffer:
 
 Since it does not have an index buffer `coords` is assumed to be a line strip,
 and there is no way to let two different vertices share the same normal in
-memore. This structure is not very practical to model complex 2D shapes. That
+memory. This structure is not very practical to model complex 2D shapes. That
 is why it should be changed to a more traditional index-buffer based
 representation in future versions of **ncollide**.
 
