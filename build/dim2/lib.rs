@@ -8,6 +8,7 @@ extern crate syntax;
 use rustc::plugin::Registry;
 use syntax::parse::token;
 use syntax::ext::base;
+use selector::{ExpandId, ExpandHidden};
 
 #[path="../common/selector.rs"]
 mod selector;
@@ -16,15 +17,15 @@ mod selector;
 #[doc(hidden)]
 pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_syntax_extension(token::intern("dim2"),
-        base::ItemModifier(selector::expand_id));
+        base::ItemModifier(box ExpandId::new()));
     reg.register_syntax_extension(token::intern("dim3"),
-        base::ItemModifier(selector::expand_hidden));
+        base::ItemModifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("dim4"),
-        base::ItemModifier(selector::expand_hidden));
+        base::ItemModifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("not_dim2"),
-        base::ItemModifier(selector::expand_hidden));
+        base::ItemModifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("not_dim3"),
-        base::ItemModifier(selector::expand_id));
+        base::ItemModifier(box ExpandId::new()));
     reg.register_syntax_extension(token::intern("not_dim4"),
-        base::ItemModifier(selector::expand_id));
+        base::ItemModifier(box ExpandId::new()));
 }
