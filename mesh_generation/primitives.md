@@ -20,7 +20,7 @@ hull but only on the original indices of the vertices it contains, use the
 `_idx` variant of the function − namely `convex_hull2d_idx(...)`.
 
 ## Example
-Le following example creates 100,000 random points and compute their
+The following example creates 100,000 random points and compute their
 convex hull.
 
 ###### 2D example <span class="d2" onclick="window.open('../src/primitives2d.rs')"></span>
