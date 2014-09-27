@@ -97,7 +97,7 @@ StrokePattern<N, Vec3<N>> for PolylinePattern<N, C1, C2> {
 
                     let new_start_id = vertices.len() as u32;
 
-                    vertices.push_all_move(new_polyline.coords);
+                    vertices.extend(new_polyline.coords.into_iter());
 
                     if new_start_id != 0 {
                         if self.closed {

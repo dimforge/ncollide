@@ -23,7 +23,7 @@ impl ItemModifier for ExpandHidden {
         let attrs = dummy_attr_generator.parse_outer_attributes();
 
         let mut new_item = item.deref().clone();
-        new_item.attrs.push_all_move(attrs);
+        new_item.attrs.extend(attrs.into_iter());
 
         P(new_item)
     }

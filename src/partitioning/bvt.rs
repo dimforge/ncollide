@@ -288,7 +288,7 @@ pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
         fail!("Cannot build a tree without leaves.");
     }
     else if leaves.len() == 1 {
-        let (b, bv) = leaves.move_iter().next().unwrap();
+        let (b, bv) = leaves.into_iter().next().unwrap();
         (bv, Part(b))
     }
     else {
@@ -311,7 +311,7 @@ pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
 
         let mut insert_left = false;
 
-        for (b, bv) in leaves.move_iter() {
+        for (b, bv) in leaves.into_iter() {
             bounding_bounding_volume.merge(&bv);
 
             let pos = (*center)(&b, &bv).at(sep_axis);

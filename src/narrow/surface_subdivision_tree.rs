@@ -1,6 +1,7 @@
 //! Tree used to cache subdivisions of surfaces.
 
-use std::collections::HashMap;
+use std::collections::{HashMap};
+use std::collections::hashmap::{Occupied, Vacant};
 use sync::{Arc, RWLock};
 use geom::BezierSurface;
 
@@ -91,9 +92,12 @@ impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
         let parent_cache = cache.clone();
 
         let mut wcache = cache.write();
-        let elt        = wcache.cache.find_or_insert_with(
-            key,
-            |_| (0, Arc::new(RWLock::new(SurfaceSubdivisionTree::new_orphan(b.clone(), data(), 1)))));
+        let elt        =
+            match wcache.cache.entry(key) {
+                Occupied(entry) => entry.into_mut(),
+                Vacant(entry)   => entry.set((0, Arc::new(RWLock::new(SurfaceSubdivisionTree::new_orphan(b.clone(), data(), 1)))))
+            
+            };
 
         // augment the ref-count.
         *elt.mut0() += 1;

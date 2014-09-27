@@ -2,6 +2,7 @@ use std::num::Zero;
 use std::iter::AdditiveIterator;
 use std::mem;
 use std::collections::{HashMap, HashSet, PriorityQueue};
+use std::collections::hashmap::{Occupied, Vacant};
 use std::rand::{IsaacRng, Rng};
 use std::num::Bounded;
 use std::hash::sip::SipHasher;
@@ -154,7 +155,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
     let mut result = Vec::with_capacity(dual_graph.len() - curr_time);
     let mut parts  = Vec::with_capacity(dual_graph.len() - curr_time);
 
-    for vertex in dual_graph.move_iter() {
+    for vertex in dual_graph.into_iter() {
         if vertex.timestamp != Bounded::max_value() {
             let mut chull = vertex.chull.unwrap();
 
@@ -331,7 +332,7 @@ impl DualGraphVertex {
         let mut vtx1 = valid_chull.unwrap().coords;
         let     vtx2 = other_chull.unwrap().coords;
 
-        vtx1.push_all_move(vtx2);
+        vtx1.extend(vtx2.into_iter());
 
         // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
         let chull = Convex::new(vtx1.as_slice());
@@ -349,10 +350,10 @@ impl DualGraphVertex {
         let new_aabb   = graph[valid].aabb.merged(&graph[other].aabb);
         let other_area = graph[other].area;
         let gvalid     = &mut graph[valid];
-        gvalid.parts.as_mut().unwrap().push_all_move(other_parts);
+        gvalid.parts.as_mut().unwrap().extend(other_parts.into_iter());
         gvalid.chull = Some(chull);
         gvalid.aabb = new_aabb;
-        gvalid.neighbors.as_mut().unwrap().extend(other_neighbors.move_iter());
+        gvalid.neighbors.as_mut().unwrap().extend(other_neighbors.into_iter());
         gvalid.neighbors.as_mut().unwrap().remove(&other);
         gvalid.neighbors.as_mut().unwrap().remove(&valid);
         gvalid.ancestors = Some(new_ancestors);
@@ -678,7 +679,10 @@ fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32
         let normals = mesh.normals.as_ref().unwrap().as_slice();
 
         let add_ray = |coord: u32, normal: u32| {
-            let existing = raymap.find_or_insert((coord, normal), rays.len());
+            let existing = match raymap.entry((coord, normal)) {
+                Occupied(entry) => entry.into_mut(),
+                Vacant(entry)   => entry.set(rays.len())
+            };
 
             if *existing == rays.len() {
                 let coord = coords[coord as uint].clone();
@@ -727,7 +731,10 @@ fn compute_dual_graph(mesh:   &TriMesh<Scalar, Vec3<Scalar>>,
             let es = [ edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x) ];
 
             for e in es.iter() {
-                let other = prim_edges.find_or_insert(e.clone(), i);
+                let other = match prim_edges.entry(e.clone()) {
+                    Occupied(entry) => entry.into_mut(),
+                    Vacant(entry)   => entry.set(i)
+                };
 
                 if *other != i {
                     // register the adjascency.

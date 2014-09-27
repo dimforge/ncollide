@@ -77,7 +77,7 @@ pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
 
 /// The contour of a cuboid lying on the x-y plane.
 pub fn rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>(extents: &V) -> Polyline<N, V> {
-    let mut rectangle = unit_rectangle();
+    let mut rectangle = unit_rectangle::<N, V>();
 
     rectangle.scale_by(extents);
 

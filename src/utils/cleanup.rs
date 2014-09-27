@@ -25,7 +25,7 @@ pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Vec3<u32>]) {
         }
     }
 
-    for id in idx.mut_iter() {
+    for id in idx.iter_mut() {
         id.x = remap[id.x as uint] as u32;
         id.y = remap[id.y as uint] as u32;
         id.z = remap[id.z as uint] as u32;

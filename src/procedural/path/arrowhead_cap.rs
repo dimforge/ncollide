@@ -64,7 +64,7 @@ ArrowheadCap<N> {
 
             new_pattern.transform_by(&transform);
 
-            coords.push_all_move(new_pattern.coords);
+            coords.extend(new_pattern.coords.into_iter());
 
             if closed {
                 utils::push_ring_indices(attach_id, start_id, npts, indices)
@@ -99,7 +99,7 @@ PolylineCompatibleCap<N> for ArrowheadCap<N> {
         let start_indices_id = indices.len();
 
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, false, coords, indices);
-        utils::reverse_clockwising(indices.mut_slice_from(start_indices_id))
+        utils::reverse_clockwising(indices.slice_from_mut(start_indices_id))
     }
 
     fn gen_start_cap(&self,

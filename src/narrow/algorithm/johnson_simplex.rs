@@ -10,7 +10,7 @@ use nalgebra::na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
 
-static KEY_RECURSION_TEMPLATE: local_data::Key<Arc<Vec<RecursionTemplate>>> = &local_data::Key;
+local_data_key!(KEY_RECURSION_TEMPLATE: Arc<Vec<RecursionTemplate>>)
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
@@ -240,7 +240,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
         let mut curr         = max_num_pts;
 
         let ndets = self.determinants.len();
-        for c in self.determinants.mut_slice(recursion.num_determinants - max_num_pts, ndets).mut_iter() {
+        for c in self.determinants.slice_mut(recursion.num_determinants - max_num_pts, ndets).iter_mut() {
             *c = na::one();
         }
 
@@ -276,7 +276,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
                         determinant = determinant + delta;
                     }
 
-                    self.determinants.as_mut_slice().unsafe_set(*recursion.sub_determinants.as_slice().unsafe_get(curr), determinant);
+                    *self.determinants.as_mut_ptr().offset(*recursion.sub_determinants.as_slice().unsafe_get(curr) as int) = determinant;
 
                     curr = curr + curr_num_pts + 1; // points + removed point + determinant id
                 }
@@ -308,7 +308,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
                                 let subdetid = *recursion.sub_determinants.as_slice().unsafe_get(det_id + 1);
 
                                 if *self.determinants.as_slice().unsafe_get(subdetid) > na::zero() {
-                                    self.determinants.as_mut_slice().unsafe_set(subdetid, Bounded::max_value())
+                                    *self.determinants.as_mut_ptr().offset(subdetid as int) = Bounded::max_value()
                                 }
                             }
 
@@ -423,7 +423,7 @@ Simplex<_V> for JohnsonSimplex<_V> {
 
     #[inline]
     fn translate_by(&mut self, v: &_V) {
-        for p in self.points.mut_iter() {
+        for p in self.points.iter_mut() {
             *p = *p + *v;
         }
     }

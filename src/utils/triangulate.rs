@@ -1,6 +1,7 @@
 //! Point cloud triangulation.
 
-use std::collections::hashmap::HashMap;
+use std::collections::HashMap;
+use std::collections::hashmap::{Vacant, Occupied};
 use nalgebra::na::{FloatVec, FloatVecExt, Cast, Vec3};
 use nalgebra::na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
@@ -116,9 +117,14 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
                         if a > b { (b, a) } else { (a, b) }
                     }
 
-                    *self.edges.find_or_insert(s(t.idx.x, t.idx.y), 0) += 1;
-                    *self.edges.find_or_insert(s(t.idx.y, t.idx.z), 0) += 1;
-                    *self.edges.find_or_insert(s(t.idx.z, t.idx.x), 0) += 1;
+                    let edge_keys = [ s(t.idx.x, t.idx.y), s(t.idx.y, t.idx.z), s(t.idx.z, t.idx.x) ];
+
+                    for edge_key in edge_keys.iter() {
+                        match self.edges.entry(edge_key.clone()) {
+                            Occupied(mut entry) => *entry.get_mut() += 1,
+                            Vacant(entry)       => { let _ = entry.set(1); }
+                        };
+                    }
                 }
 
                 let _ = self.triangles.swap_remove(i);

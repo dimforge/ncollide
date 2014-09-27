@@ -44,7 +44,7 @@ pub fn center_reduce<N: Cast<f64>,
     match na::inv(&cov) {
         None => (cov, center, false),
         Some(icov) => {
-            for pt in pts.mut_iter() {
+            for pt in pts.iter_mut() {
                 *pt = icov.rmul(&(*pt - center));
             }
 

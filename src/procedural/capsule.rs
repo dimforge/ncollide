@@ -25,37 +25,37 @@ pub fn capsule<N: FloatMath + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(caps_diameter:
     let half_height = *cylinder_height * na::cast(0.5);
 
     // shift the top
-    for coord in top_coords.mut_iter() {
+    for coord in top_coords.iter_mut() {
         coord.x = coord.x * *caps_diameter;
         coord.y = coord.y * *caps_diameter + half_height;
         coord.z = coord.z * *caps_diameter;
     }
 
     // flip + shift the bottom
-    for coord in bottom_coords.mut_iter() {
+    for coord in bottom_coords.iter_mut() {
         coord.x = coord.x * *caps_diameter;
         coord.y = -(coord.y * *caps_diameter) - half_height;
         coord.z = coord.z * *caps_diameter;
     }
 
     // flip the bottom normals
-    for normal in bottom_normals.mut_iter() {
+    for normal in bottom_normals.iter_mut() {
         normal.y = -normal.y;
     }
 
     // shift the top index buffer
     let base_top_coords = bottom_coords.len() as u32;
 
-    for idx in top_indices.mut_iter() {
+    for idx in top_indices.iter_mut() {
         idx.x = idx.x + base_top_coords;
         idx.y = idx.y + base_top_coords;
         idx.z = idx.z + base_top_coords;
     }
 
     // merge all buffers
-    bottom_coords.push_all_move(top_coords);
-    bottom_normals.push_all_move(top_normals);
-    bottom_indices.push_all_move(top_indices);
+    bottom_coords.extend(top_coords.into_iter());
+    bottom_normals.extend(top_normals.into_iter());
+    bottom_indices.extend(top_indices.into_iter());
 
     // attach the two caps
     utils::push_ring_indices(0, base_top_coords, ntheta_subdiv, &mut bottom_indices);

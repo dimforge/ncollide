@@ -200,7 +200,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         /*
          * Remove all outdated nodes
          */
-        for a in self.active2bv.elements_mut().mut_iter() {
+        for a in self.active2bv.elements_mut().iter_mut() {
             let mut new_bv = a.value.borrow().object.bounding_volume();
 
             if !a.value.borrow().bounding_volume.contains(&new_bv) {
@@ -258,7 +258,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
 
     #[inline(always)]
     fn for_each_pair_mut(&mut self, f: |&B, &B, &mut DV| -> ()) {
-        for p in self.pairs.elements_mut().mut_iter() {
+        for p in self.pairs.elements_mut().iter_mut() {
             let bf = p.key.first.borrow();
             let bs = p.key.second.borrow();
             f(&bf.object, &bs.object, &mut p.value)
@@ -470,7 +470,7 @@ mod test {
         bf.update();
 
         // test deactivations followed by activations: this should not changes anything
-        for e in to_move.mut_iter() {
+        for e in to_move.iter_mut() {
             bf.deactivate(e);
         }
 
@@ -479,17 +479,17 @@ mod test {
         // … because it has been transfered to spairs. NOTE: `spairs` is used for test only here,
         // there is no explicit way for the user to access it.
 
-        for e in to_move.mut_iter() {
+        for e in to_move.iter_mut() {
             bf.activate(e, |_, _, _| { });
         }
 
         // test one deactivation followed by one activation: this should not change anything
-        for e in to_move.mut_iter() {
+        for e in to_move.iter_mut() {
             bf.deactivate(e);
             bf.activate(e, |_, _, _| { });
         }
 
-        for e in to_move.mut_iter() {
+        for e in to_move.iter_mut() {
             let mut wa = e.borrow_mut();
             let m      = wa.m().clone();
             let g      = wa.g().clone();

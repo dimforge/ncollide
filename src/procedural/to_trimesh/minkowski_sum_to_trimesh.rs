@@ -32,7 +32,7 @@ impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for Minkows
 
             cpy.translate_by(pt);
 
-            all_points.push_all_move(cpy.coords);
+            all_points.extend(cpy.coords.into_iter());
         }
 
         procedural::convex_hull3d(all_points.as_slice())

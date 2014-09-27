@@ -1,3 +1,4 @@
+use std::ptr;
 use nalgebra::na;
 use nalgebra::na::{Cast, FloatVec, FloatVecExt, FromHomogeneous};
 use procedural::{TriMesh, Polyline};
@@ -12,7 +13,10 @@ pub fn bezier_curve_at<N: Float + Clone + Cast<f64>,
                        t:              &N,
                        cache:          &mut Vec<V>)
                        -> V {
-    cache.grow_set(control_points.len() - 1, &na::zero(), na::zero());
+    if control_points.len() > cache.len() {
+        let diff = control_points.len() - cache.len(); 
+        cache.grow(diff, na::zero())
+    }
 
     let cache = cache.as_mut_slice();
 
@@ -20,7 +24,7 @@ pub fn bezier_curve_at<N: Float + Clone + Cast<f64>,
     let t_1   = _1 - *t;
 
     unsafe {
-        cache.as_mut_slice().copy_memory(control_points);
+        ptr::copy_memory(cache.as_mut_ptr(), control_points.as_ptr(), control_points.len());
     }
 
     for i in range(1u, control_points.len()) {
@@ -44,7 +48,10 @@ pub fn bezier_surface_at<N: Float + Clone + Cast<f64>,
                          ucache:         &mut Vec<V>,
                          vcache:         &mut Vec<V>)
                          -> V {
-    vcache.grow_set(nvpoints - 1, &na::zero(), na::zero());
+    if vcache.len() < nvpoints {
+        let diff = nvpoints - vcache.len();
+        vcache.grow(diff, na::zero());
+    }
 
     // FIXME: start with u or v, depending on which dimension has more control points.
     let vcache = vcache.as_mut_slice();

@@ -21,19 +21,19 @@ impl<N, V: FloatVec<N>> Polyline<N, V> {
 
     /// Translates each vertex of this polyline.
     pub fn translate_by<T: Translate<V>>(&mut self, t: &T) {
-        for c in self.coords.mut_iter() {
+        for c in self.coords.iter_mut() {
             *c = t.translate(c);
         }
     }
 
     /// Rotates each vertex and normal of this polyline.
     pub fn rotate_by<R: Rotate<V>>(&mut self, r: &R) {
-        for c in self.coords.mut_iter() {
+        for c in self.coords.iter_mut() {
             *c = r.rotate(c);
         }
 
-        for n in self.normals.mut_iter() {
-            for n in n.mut_iter() {
+        for n in self.normals.iter_mut() {
+            for n in n.iter_mut() {
                 *n = r.rotate(n);
             }
         }
@@ -41,12 +41,12 @@ impl<N, V: FloatVec<N>> Polyline<N, V> {
 
     /// Transforms each vertex and rotates each normal of this polyline.
     pub fn transform_by<T: Transform<V> + Rotate<V>>(&mut self, t: &T) {
-        for c in self.coords.mut_iter() {
+        for c in self.coords.iter_mut() {
             *c = t.transform(c);
         }
 
-        for n in self.normals.mut_iter() {
-            for n in n.mut_iter() {
+        for n in self.normals.iter_mut() {
+            for n in n.iter_mut() {
                 *n = t.rotate(n);
             }
         }
@@ -54,7 +54,7 @@ impl<N, V: FloatVec<N>> Polyline<N, V> {
 
     /// Scales each vertex of this polyline.
     pub fn scale_by_scalar(&mut self, s: &N) {
-        for c in self.coords.mut_iter() {
+        for c in self.coords.iter_mut() {
             *c = *c * *s
         }
         // FIXME: do something for the normals?
@@ -65,7 +65,7 @@ impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> Polyline<N, V> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
-        for c in self.coords.mut_iter() {
+        for c in self.coords.iter_mut() {
             for i in range(0, na::dim::<V>()) {
                 let val = c.at(i);
                 let mul = s.at(i);

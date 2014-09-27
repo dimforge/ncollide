@@ -75,7 +75,7 @@ impl BezierSurface {
         }
         else {
             self.control_points.clear();
-            self.control_points.grow_set(nupoints * nvpoints - 1, &na::zero(), na::zero());
+            self.control_points.grow(nupoints * nvpoints, na::zero());
             self.nupoints = nupoints;
             self.nvpoints = nvpoints;
 
@@ -130,7 +130,7 @@ impl BezierSurface {
     /// Mutably get the `i`-th set of control points along the `u` parametric direction.
     #[inline]
     pub fn mut_slice_u<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Vect> {
-        VecSliceMut::new(self.control_points.mut_slice_from(i * self.nupoints),
+        VecSliceMut::new(self.control_points.slice_from_mut(i * self.nupoints),
                          self.nupoints,
                          1)
     }
@@ -138,7 +138,7 @@ impl BezierSurface {
     /// Mutably get the `i`-th set of control points along the `v` parametric direction.
     #[inline]
     pub fn mut_slice_v<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Vect> {
-        VecSliceMut::new(self.control_points.mut_slice_from(i), self.nvpoints, self.nupoints)
+        VecSliceMut::new(self.control_points.slice_from_mut(i), self.nvpoints, self.nupoints)
     }
 }
 

@@ -153,7 +153,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     pub fn update(&mut self) {
         let mut new_colls = 0u;
 
-        for b in self.objects.mut_iter() {
+        for b in self.objects.iter_mut() {
             let margin = self.margin;
             if b.borrow_mut().update(&margin) {
                 self.to_update.push(b.clone())
@@ -287,7 +287,7 @@ mod test {
             }
         }
 
-        for e in to_move.mut_iter() {
+        for e in to_move.iter_mut() {
             let mut pe = e.borrow_mut();
             let m      = pe.m().clone();
             let g      = pe.g().clone();

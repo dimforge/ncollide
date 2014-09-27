@@ -37,7 +37,7 @@ pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> 
     // adjust the normals:
     let shift: N = na::cast(0.05 / 0.475);
     let div = (shift * shift + na::cast(0.25)).sqrt();
-    for n in normals.mut_iter() {
+    for n in normals.iter_mut() {
         n.y = n.y + shift;
         // FIXME: n / div does not work?
         n.x = n.x / div;
@@ -50,11 +50,11 @@ pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> 
 
     let ilen = indices.len();
     let nlen = normals.len() as u32;
-    for (id, i) in indices.mut_slice_to(ilen - (nsubdiv as uint - 2)).mut_iter().enumerate() {
+    for (id, i) in indices.slice_to_mut(ilen - (nsubdiv as uint - 2)).iter_mut().enumerate() {
         i.y.y = id as u32;
     }
 
-    for i in indices.mut_slice_from(ilen - (nsubdiv as uint - 2)).mut_iter() {
+    for i in indices.slice_from_mut(ilen - (nsubdiv as uint - 2)).iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;

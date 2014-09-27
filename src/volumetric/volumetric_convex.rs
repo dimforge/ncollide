@@ -160,18 +160,18 @@ mod test {
     #[test]
     #[dim3]
     fn test_inertia_tensor() {
-        let excentricity = 10.0f32;
+        let excentricity = 10.0;
 
-        let mut shape = procedural::cuboid(&Vec3::new(2.0f32 - 0.08, 2.0 - 0.08, 2.0 - 0.08));
+        let mut shape = procedural::cuboid(&Vec3::new(2.0 - 0.08, 2.0 - 0.08, 2.0 - 0.08));
 
-        for c in shape.coords.mut_iter() {
+        for c in shape.coords.iter_mut() {
             c.x = c.x + excentricity;
             c.y = c.y + excentricity;
             c.z = c.z + excentricity;
         }
 
         let actual   = Convex::new(shape.coords.as_slice()).unit_angular_inertia();
-        let expected = Cuboid::new(Vec3::new(0.96f32, 0.96, 0.96)).unit_angular_inertia();
+        let expected = Cuboid::new(Vec3::new(0.96, 0.96, 0.96)).unit_angular_inertia();
 
         assert!(na::approx_eq(&actual, &expected),
                 format!("Inertia tensors do not match: actual {}, expected: {}.", actual, expected));

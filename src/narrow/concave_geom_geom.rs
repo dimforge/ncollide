@@ -65,7 +65,7 @@ impl<G1: ConcaveGeom, G2: Geom> ConcaveGeomGeom<G1, G2> {
         self.interferences.clear();
 
         // Update all collisions
-        for detector in self.sub_detectors.elements_mut().mut_iter() {
+        for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
             if ls_aabb2.intersects(g1.aabb_at(key)) {
                 g1.map_transformed_part_at(m1, key, |m1, g1| {

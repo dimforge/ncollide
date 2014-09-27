@@ -14,7 +14,7 @@ fn normalize(coords: &mut [Vec3<Scalar>]) -> (Vec3<Scalar>, Scalar) {
     let _2: Scalar = na::cast(2.0f64);
     let center: Vec3<Scalar> = (mins + maxs) / _2;
 
-    for c in coords.mut_iter() {
+    for c in coords.iter_mut() {
         *c = (*c - center) / diag;
     }
 
@@ -22,7 +22,7 @@ fn normalize(coords: &mut [Vec3<Scalar>]) -> (Vec3<Scalar>, Scalar) {
 }
 
 fn denormalize(coords: &mut [Vec3<Scalar>], center: &Vec3<Scalar>, diag: &Scalar) {
-    for c in coords.mut_iter() {
+    for c in coords.iter_mut() {
         *c = *c * *diag + *center;
     }
 }
@@ -32,7 +32,7 @@ fn denormalize(coords: &mut [Vec3<Scalar>], center: &Vec3<Scalar>, diag: &Scalar
 pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
     assert!(points.len() != 0, "Cannot compute the convex hull of an empty set of point.");
 
-    let mut points = Vec::from_slice(points);
+    let mut points = points.to_vec();
 
     let (norm_center, norm_diag) = normalize(points.as_mut_slice());
 
@@ -133,7 +133,7 @@ pub fn convex_hull3d(points: &[Vec3<Scalar>]) -> TriMesh<Scalar, Vec3<Scalar>> {
 
     assert!(points.len() != 0, "Internal error: empty output mesh.");
 
-    for point in points.mut_iter() {
+    for point in points.iter_mut() {
         *point = denormalizer * *point;
     }
 
@@ -225,7 +225,7 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
 
             // Finalize the result, triangulating the polyline.
             let npoints = idx.len();
-            let coords  = idx.move_iter().map(|i| points[i].clone()).collect();
+            let coords  = idx.into_iter().map(|i| points[i].clone()).collect();
             let mut triangles = Vec::with_capacity(npoints + npoints - 4);
 
             let a = 0u32;
@@ -244,7 +244,7 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
             let diag: Mat3<Scalar> = Diag::from_diag(&Vec3::new(_1 / eigval.x, _1 / eigval.y, _1 / eigval.z));
             let icov = eigvec * diag * na::transpose(&eigvec);
 
-            for point in points.mut_iter() {
+            for point in points.iter_mut() {
                 *point = icov * *point;
             }
 
@@ -255,7 +255,7 @@ fn get_initial_mesh(points: &mut [Vec3<Scalar>], undecidable: &mut Vec<uint>) ->
             let mut p3       = Bounded::max_value();
 
             for (i, point) in points.iter().enumerate() {
-                let area = utils::triangle_area(&points[p1], &points[p2], &points[i]);
+                let area = utils::triangle_area(&points[p1], &points[p2], point);
 
                 if area > max_area {
                     max_area = area ;
@@ -459,7 +459,7 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
             let mut furthest      = Bounded::max_value();
             let mut furthest_dist = na::zero();
 
-            for (i, curr_facet) in new_facets.mut_iter().enumerate() {
+            for (i, curr_facet) in new_facets.iter_mut().enumerate() {
                 if curr_facet.can_be_seen_by(*visible_point, points) {
                     let dist = curr_facet.distance_to_point(*visible_point, points);
 
@@ -486,7 +486,7 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
         let mut furthest_dist = na::zero();
         let undecidable_point = (*undecidable)[i];
 
-        for (j, curr_facet) in new_facets.mut_iter().enumerate() {
+        for (j, curr_facet) in new_facets.iter_mut().enumerate() {
             if curr_facet.can_be_seen_by(undecidable_point, points) {
                 let dist = curr_facet.distance_to_point(undecidable_point, points);
 
@@ -508,7 +508,7 @@ fn attach_and_push_facets_3d(horizon_loop_facets: &[uint],
 
     // Push facets.
     // FIXME: can we avoid the tmp vector `new_facets` ?
-    for curr_facet in new_facets.move_iter() {
+    for curr_facet in new_facets.into_iter() {
         triangles.push(curr_facet);
     }
 }
@@ -644,7 +644,7 @@ pub fn convex_hull2d(points: &[Vec2<Scalar>]) -> Polyline<Scalar, Vec2<Scalar>> 
     let idx     = convex_hull2d_idx(points);
     let mut pts = Vec::new();
 
-    for id in idx.move_iter() {
+    for id in idx.into_iter() {
         pts.push(points[id].clone());
     }
 
@@ -880,7 +880,7 @@ mod test {
     #[test]
     fn test_ball_convex_hull() {
         // This trigerred a failure to an affinely dependent facet.
-        let sphere = procedural::sphere(&0.4f32, 20, 20, true);
+        let sphere = procedural::sphere(&0.4, 20, 20, true);
         let points = sphere.coords;
         let chull  = procedural::convex_hull3d(points.as_slice());
 

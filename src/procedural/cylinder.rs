@@ -33,7 +33,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
 
     let len             = indices.len();
     let bottom_start_id = len - (nsubdiv as uint - 2);
-    utils::reverse_clockwising(indices.mut_slice_from(bottom_start_id));
+    utils::reverse_clockwising(indices.slice_from_mut(bottom_start_id));
 
     let mut indices = utils::split_index_buffer(indices.as_slice());
 
@@ -59,7 +59,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
     /*
      * Adjust normals.
      */
-    for n in normals.mut_iter() {
+    for n in normals.iter_mut() {
         n.x = n.x * na::cast(2.0);
         n.y = na::zero();
         n.z = n.z * na::cast(2.0);
@@ -71,7 +71,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
 
     let top_start_id = len - 2 * (nsubdiv as uint - 2);
 
-    for i in indices.mut_slice_to(top_start_id).mut_iter() {
+    for i in indices.slice_to_mut(top_start_id).iter_mut() {
         if i.x.y >= nsubdiv {
             i.x.y = i.x.y - nsubdiv;
         }
@@ -83,13 +83,13 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
         }
     }
 
-    for i in indices.mut_slice(top_start_id, bottom_start_id).mut_iter() {
+    for i in indices.slice_mut(top_start_id, bottom_start_id).iter_mut() {
         i.x.y = nlen - 2;
         i.y.y = nlen - 2;
         i.z.y = nlen - 2;
     }
 
-    for i in indices.mut_slice_from(bottom_start_id).mut_iter() {
+    for i in indices.slice_from_mut(bottom_start_id).iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;

@@ -160,7 +160,7 @@ CollisionDetector<BezierSurface, Ball> for BezierSurfaceBall<S, D> {
     fn update(&mut self, ma: &Matrix, a: &BezierSurface, mb: &Matrix, b: &Ball) {
         self.detector.update(mb, b, ma, a);
 
-        for c in self.detector.contacts.mut_iter() {
+        for c in self.detector.contacts.iter_mut() {
             c.flip();
         }
     }

@@ -163,7 +163,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     #[inline]
     pub unsafe fn unsafe_get_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
         let id = self.id(i);
-        self.data.unsafe_mut_ref(id)
+        self.data.unsafe_mut(id)
     }
 }
 

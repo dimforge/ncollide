@@ -20,7 +20,7 @@ pub fn quad<N: Float + Cast<f64>, V: FloatVecExt<N>>(width:    N,
                                                      usubdivs: uint,
                                                      vsubdivs: uint)
                                                      -> TriMesh<N, V> {
-    let mut quad = unit_quad(usubdivs, vsubdivs);
+    let mut quad = unit_quad::<N, V>(usubdivs, vsubdivs);
 
     let mut s = na::zero::<V>();
     s.set(0, width);
@@ -51,7 +51,7 @@ pub fn quad_with_vertices<N: Float + Cast<f64> + Clone, V: FloatVecExt<N> + Clon
 
     let mut res: TriMesh<N, V> = unit_quad(nhpoints - 1, nvpoints - 1);
 
-    for (dest, src) in res.coords.mut_iter().zip(vertices.iter()) {
+    for (dest, src) in res.coords.iter_mut().zip(vertices.iter()) {
         *dest = src.clone();
     }
 

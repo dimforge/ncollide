@@ -167,7 +167,7 @@ Simplex<_V> for BruteForceSimplex<_V> {
 
     #[inline]
     fn translate_by(&mut self, v: &_V) {
-        for p in self.points.mut_iter() {
+        for p in self.points.iter_mut() {
             *p = *p + *v;
         }
     }

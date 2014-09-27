@@ -161,7 +161,7 @@ impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {
 #[allow(raw_pointer_deriving)]
 #[deriving(Clone)]
 /// State of a leaf.
-pub enum DBVTLeafState<B, BV> {
+enum DBVTLeafState<B, BV> {
     /// This leaf is the right child of another node.
     RightChildOf(*mut DBVTInternal<B, BV>),
     /// This leaf is the left child of another node.
@@ -201,7 +201,7 @@ pub struct DBVTLeaf<B, BV> {
     /// An user-defined object.
     pub object:          B,
     /// This node parent.
-    pub parent:          DBVTLeafState<B, BV>
+    parent:              DBVTLeafState<B, BV>
 }
 
 impl<B, BV> DBVTNode<B, BV> {
@@ -294,7 +294,7 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
             else {
                 // the root changes to the other child
                 match other {
-                    Internal(ref mut i) => i.parent = ptr::mut_null(),
+                    Internal(ref mut i) => i.parent = ptr::null_mut(),
                                            // FIXME: if deref_mut is not called, the type inference seems to be
                                            // buggy
                     Leaf(ref l)         => l.borrow_mut().deref_mut().parent = Detached,
@@ -449,7 +449,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                 // create the root
                 let mut root = cache.alloc(DBVTInternal::new(
                     pl.bounding_volume.merged(&pto_insert.bounding_volume),
-                    ptr::mut_null(),
+                    ptr::null_mut(),
                     Leaf(l),
                     Leaf(to_insert.clone())));
 

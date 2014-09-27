@@ -2,6 +2,7 @@
 
 use std::num::Zero;
 use std::collections::HashMap;
+use std::collections::hashmap::{Occupied, Vacant};
 use std::mem;
 use std::hash::Hash;
 use nalgebra::na;
@@ -122,7 +123,7 @@ pub fn push_rectangle_indices<T: Clone>(ul: T, ur: T, dl: T, dr: T, out: &mut Ve
 /// Reverses the clockwising of a set of faces.
 #[inline]
 pub fn reverse_clockwising(indices: &mut [Vec3<u32>]) {
-    for i in indices.mut_iter() {
+    for i in indices.iter_mut() {
         mem::swap(&mut i.x, &mut i.y);
     }
 }
@@ -164,7 +165,10 @@ pub fn split_index_buffer_and_recover_topology<V: PartialEq + AsBytes + Clone>(
                         new_coords: &mut Vec<V>)
                         -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
-        let id = vtx_to_id.find_or_insert(key, new_coords.len() as u32);
+        let id = match vtx_to_id.entry(key) {
+            Occupied(entry) => entry.into_mut(),
+            Vacant(entry)   => entry.set(new_coords.len() as u32)
+        };
 
         if *id == new_coords.len() as u32 {
             new_coords.push(coord.clone());
@@ -210,12 +214,8 @@ pub fn compute_normals<N: Float, V: FloatVec<N> + Cross<V> + Clone>(coordinates:
     }
 
     // Reinit all normals to zero.
-    for n in normals.mut_iter() {
-        *n = na::zero()
-    }
-
-    // Grow the output buffer if it is too small.
-    normals.grow_set(coordinates.len() - 1, &na::zero(), na::zero());
+    normals.clear();
+    normals.grow(coordinates.len(), na::zero());
 
     // Accumulate normals ...
     for f in faces.iter() {
@@ -241,7 +241,7 @@ pub fn compute_normals<N: Float, V: FloatVec<N> + Cross<V> + Clone>(coordinates:
     }
 
     // ... and compute the mean
-    for (n, divisor) in normals.mut_iter().zip(divisor.iter()) {
+    for (n, divisor) in normals.iter_mut().zip(divisor.iter()) {
         *n = *n / *divisor
     }
 }

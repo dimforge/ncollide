@@ -17,15 +17,15 @@ mod selector;
 #[doc(hidden)]
 pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_syntax_extension(token::intern("dim2"),
-        base::ItemModifier(box ExpandHidden::new()));
+        base::Modifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("dim3"),
-        base::ItemModifier(box ExpandId::new()));
+        base::Modifier(box ExpandId::new()));
     reg.register_syntax_extension(token::intern("dim4"),
-        base::ItemModifier(box ExpandHidden::new()));
+        base::Modifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("not_dim2"),
-        base::ItemModifier(box ExpandId::new()));
+        base::Modifier(box ExpandId::new()));
     reg.register_syntax_extension(token::intern("not_dim3"),
-        base::ItemModifier(box ExpandHidden::new()));
+        base::Modifier(box ExpandHidden::new()));
     reg.register_syntax_extension(token::intern("not_dim4"),
-        base::ItemModifier(box ExpandId::new()));
+        base::Modifier(box ExpandId::new()));
 }

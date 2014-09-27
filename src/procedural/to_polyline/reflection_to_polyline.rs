@@ -7,7 +7,7 @@ impl<'a, G: ToPolyline<P>, P> ToPolyline<P> for Reflection<'a, G> {
     fn to_polyline(&self, parameter: P) -> Polyline<Scalar, Vect> {
         let mut res = self.geom().to_polyline(parameter);
 
-        for c in res.coords.mut_iter() {
+        for c in res.coords.iter_mut() {
             *c = -*c;
         }
 
