@@ -1,4 +1,4 @@
-# Miscelanous
+# Miscellaneous
 
 Besides the main collision detection and mesh generation related features,
 **ncollide** exposes a number of unclassified operations that are used

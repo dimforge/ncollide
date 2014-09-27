@@ -17,6 +17,6 @@
    * [Primitives](mesh_generation/primitives.md)
    * [Paths](mesh_generation/paths.md)
    * [Convex decomposition](mesh_generation/convex_decomposition.md)
-* [Miscelaneous](miscelaneous/index.md)
+* [Miscellaneous](miscellaneous/index.md)
 * [How to contribute](how_to_contribute/index.md)
 * [FAQ](faq/index.md)
