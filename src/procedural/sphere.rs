@@ -1,6 +1,6 @@
-use nalgebra::na;
-use nalgebra::na::{Cast, FloatVecExt, Vec3, Vec2};
-use nalgebra::na::overload::Vec3MulRhs;
+use na;
+use na::{Cast, FloatVecExt, Vec3, Vec2};
+use na::overload::Vec3MulRhs;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 use procedural::utils;
 

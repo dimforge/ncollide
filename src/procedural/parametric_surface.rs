@@ -1,5 +1,5 @@
-use nalgebra::na::Vec2;
-use nalgebra::na;
+use na::Vec2;
+use na;
 use math::{Scalar, Vect};
 use utils;
 use parametric::ParametricSurface;

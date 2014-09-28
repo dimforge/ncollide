@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na::Vec3;
+use na::Vec3;
 use procedural::{ToTriMesh, TriMesh, UnifiedIndexBuffer};
 use geom::Mesh;
 use math::{Scalar, Vect};

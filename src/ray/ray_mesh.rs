@@ -4,13 +4,13 @@ use geom::Mesh;
 use math::Scalar;
 
 // #[dim3]
-use nalgebra::na::Vec2;
+use na::Vec2;
 // #[dim3]
 use ray;
 // #[dim3]
-use nalgebra::na::Norm;
+use na::Norm;
 // #[dim3]
-use nalgebra::na;
+use na;
 // #[dim3]
 use math::Vect;
 

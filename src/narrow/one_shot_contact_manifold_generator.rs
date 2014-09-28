@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator, Contact};
 use math::{Scalar, Vect, Matrix};
 use math::Orientation;

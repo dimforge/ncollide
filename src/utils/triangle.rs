@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Cast, FloatVec, Cross, ApproxEq, Norm};
-use nalgebra::na;
+use na::{Cast, FloatVec, Cross, ApproxEq, Norm};
+use na;
 use bounding_volume;
 use utils;
 
@@ -93,8 +93,8 @@ pub fn is_point_in_triangle<N: Float, V: FloatVec<N>>(p: &V, p1: &V, p2: &V, p3:
 
 #[cfg(test)]
 mod test {
-    use nalgebra::na;
-    use nalgebra::na::Vec3;
+    use na;
+    use na::Vec3;
 
     #[test]
     fn test_triangle_area() {

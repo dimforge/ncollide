@@ -1,7 +1,7 @@
 #![doc(hidden)]
 
-use nalgebra::na::{DMat, Inv, FloatVec, Indexable};
-use nalgebra::na;
+use na::{DMat, Inv, FloatVec, Indexable};
+use na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
 

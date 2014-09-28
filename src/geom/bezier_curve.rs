@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use math::{Vect, Scalar};

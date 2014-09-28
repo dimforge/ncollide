@@ -1,6 +1,6 @@
-use nalgebra::na::{Vec2, Vec3, Iso3};
-use nalgebra::na::overload::{Vec3MulRhs, Vec3DivRhs};
-use nalgebra::na;
+use na::{Vec2, Vec3, Iso3};
+use na::overload::{Vec3MulRhs, Vec3DivRhs};
+use na;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 use procedural::utils;
 use procedural::path::{StrokePattern, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};

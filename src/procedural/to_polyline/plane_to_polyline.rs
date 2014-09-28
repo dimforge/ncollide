@@ -1,9 +1,9 @@
-use nalgebra::na::Vec2;
-use nalgebra::na;
+use na::Vec2;
+use na;
 use geom::Plane;
 use procedural::{ToPolyline, Polyline};
 use math::{Scalar, Vect};
-use nalgebra::na::Indexable;
+use na::Indexable;
 
 #[dim2]
 impl ToPolyline<()> for Plane {

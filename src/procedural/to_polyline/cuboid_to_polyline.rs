@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na;
+use na;
 use geom::Cuboid;
 use procedural::{Polyline, ToPolyline};
 use procedural;

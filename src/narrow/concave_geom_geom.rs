@@ -1,5 +1,5 @@
 use std::any::AnyRefExt;
-use nalgebra::na;
+use na;
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use bounding_volume::{BoundingVolume, LooseBoundingVolume, HasAABB};

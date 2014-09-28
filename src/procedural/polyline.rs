@@ -1,5 +1,5 @@
-use nalgebra::na;
-use nalgebra::na::{Translate, Rotate, Transform, FloatVec, Dim, Indexable};
+use na;
+use na::{Translate, Rotate, Transform, FloatVec, Dim, Indexable};
 
 /// Geometric description of a polyline.
 #[deriving(Clone)]

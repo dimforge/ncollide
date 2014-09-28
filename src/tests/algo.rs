@@ -1,6 +1,6 @@
 use rand;
-use nalgebra::na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use nalgebra::na;
+use na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use na;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;

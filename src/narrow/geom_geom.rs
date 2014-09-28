@@ -5,7 +5,7 @@ use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
 use std::collections::HashMap;
 use sync::{Arc, RWLock};
-use nalgebra::na;
+use na;
 use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Cuboid, Ball, Capsule, Convex, Cylinder,
            Compound, Mesh, Triangle, Segment, Plane};
 use implicit::{Implicit, PreferedSamplingDirections};

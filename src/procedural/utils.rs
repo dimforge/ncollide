@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use std::collections::hashmap::{Occupied, Vacant};
 use std::mem;
 use std::hash::Hash;
-use nalgebra::na;
-use nalgebra::na::{Vec3, Dim, Indexable, FloatVec, Cross};
+use na;
+use na::{Vec3, Dim, Indexable, FloatVec, Cross};
 use utils::{HashablePartialEq, AsBytes};
 
 // FIXME: remove that in favor of `push_xy_circle` ?

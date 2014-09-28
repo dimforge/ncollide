@@ -1,4 +1,4 @@
-use nalgebra::na::Cast;
+use na::Cast;
 use utils;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;

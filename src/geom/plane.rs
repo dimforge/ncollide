@@ -1,6 +1,6 @@
 //! Support mapping based Plane geometry.
 
-use nalgebra::na;
+use na;
 use math::Vect;
 
 /// Implicit description of a plane.

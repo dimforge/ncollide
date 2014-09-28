@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Dot, Norm, Dim, ApproxEq};
-use nalgebra::na;
+use na::{Dot, Norm, Dim, ApproxEq};
+use na;
 use geom::Reflection;
 use math::{Scalar, Vect, Matrix};
 

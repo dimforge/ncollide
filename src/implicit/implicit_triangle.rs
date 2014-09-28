@@ -1,5 +1,5 @@
-use nalgebra::na::{Transform, Rotate};
-use nalgebra::na;
+use na::{Transform, Rotate};
+use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Triangle;
 use math::{Scalar, Vect};

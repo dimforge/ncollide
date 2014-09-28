@@ -1,5 +1,5 @@
-use nalgebra::na;
-use nalgebra::na::{Cast, Indexable, FloatVecExt, Vec3, Vec2};
+use na;
+use na::{Cast, Indexable, FloatVecExt, Vec3, Vec2};
 use procedural::{TriMesh, SplitIndexBuffer, Polyline};
 
 /**

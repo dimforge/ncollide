@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Cast, Dot};
-use nalgebra::na;
+use na::{Cast, Dot};
+use na;
 
 // FIXME: move this − renamed `mean` − to nalgebra?
 

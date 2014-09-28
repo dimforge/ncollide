@@ -1,8 +1,8 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
 use std::num::{Zero, Bounded};
-use nalgebra::na::{Identity, Norm};
-use nalgebra::na;
+use na::{Identity, Norm};
+use na;
 use geom::{Reflection, MinkowskiSum, AnnotatedPoint};
 use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::gjk;
@@ -135,8 +135,8 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 #[cfg(dim2, f32, test)]
 mod test {
     use super::closest_points;
-    use nalgebra::na::{Vec2, Iso2};
-    use nalgebra::na;
+    use na::{Vec2, Iso2};
+    use na;
     use geom::{Cuboid, AnnotatedPoint};
     use implicit;
     use narrow::algorithm::johnson_simplex::JohnsonSimplex;

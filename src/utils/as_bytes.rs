@@ -1,5 +1,5 @@
 use std::mem;
-use nalgebra::na::{Vec2, Vec3};
+use na::{Vec2, Vec3};
 
 /// Trait that transforms thing to a slice of u8.
 pub trait AsBytes {

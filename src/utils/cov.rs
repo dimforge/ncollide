@@ -1,7 +1,7 @@
 use std::fmt::Show;
 use std::num::Zero;
-use nalgebra::na::{Cast, Outer, FloatVec, RMul, Inv};
-use nalgebra::na;
+use na::{Cast, Outer, FloatVec, RMul, Inv};
+use na;
 use utils;
 
 // FIXME: move this to nalgebra?

@@ -1,8 +1,8 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use nalgebra::na::Vec3;
-use nalgebra::na;
+use na::Vec3;
+use na;
 use math::{Scalar, Vect};
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer, SplitIndexBuffer};
 use procedural;

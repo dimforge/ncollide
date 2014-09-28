@@ -1,6 +1,6 @@
-use nalgebra::na;
-use nalgebra::na::{Cast, Vec3};
-use nalgebra::na::overload::Vec3MulRhs;
+use na;
+use na::{Cast, Vec3};
+use na::overload::Vec3MulRhs;
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use procedural::{sphere, utils};
 

@@ -1,4 +1,4 @@
-use nalgebra::na::{DMat, Indexable};
+use na::{DMat, Indexable};
 use math::{Scalar, Vect};
 
 

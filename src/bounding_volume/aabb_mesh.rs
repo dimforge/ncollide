@@ -1,5 +1,5 @@
-use nalgebra::na::{Translation, Transform, AbsoluteRotate};
-use nalgebra::na;
+use na::{Translation, Transform, AbsoluteRotate};
+use na;
 use bounding_volume::{AABB, HasAABB};
 use geom::Mesh;
 use math::{Scalar, Matrix};

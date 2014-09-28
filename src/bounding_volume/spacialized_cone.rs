@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Norm, Translation};
-use nalgebra::na;
+use na::{Norm, Translation};
+use na;
 use math::{Scalar, Vect, RotationMatrix, Matrix};
 use bounding_volume::{BoundingVolume, BoundingSphere};
 
@@ -173,8 +173,8 @@ impl Translation<Vect> for SpacializedCone {
 
 #[cfg(test)]
 mod test {
-    use nalgebra::na::Vec3;
-    use nalgebra::na;
+    use na::Vec3;
+    use na;
     use super::SpacializedCone;
     use bounding_volume::{BoundingVolume, BoundingSphere};
     use math::Scalar;

@@ -5,8 +5,8 @@ use std::num::Bounded;
 use std::local_data;
 use sync::Arc;
 use collections::TreeMap;
-use nalgebra::na::{FloatVec, Dim};
-use nalgebra::na;
+use na::{FloatVec, Dim};
+use na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
 
@@ -479,7 +479,7 @@ Simplex<_V> for JohnsonSimplex<_V> {
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use narrow::algorithm::simplex::Simplex;
-    use nalgebra::na::Vec3;
+    use na::Vec3;
     use test::Bencher;
 
     #[bench]

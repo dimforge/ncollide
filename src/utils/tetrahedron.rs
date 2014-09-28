@@ -1,6 +1,6 @@
-use nalgebra::na::{Vec3, Mat3, Cast};
-use nalgebra::na::overload::Vec3MulRhs;
-use nalgebra::na;
+use na::{Vec3, Mat3, Cast};
+use na::overload::Vec3MulRhs;
+use na;
 use utils;
 
 /// Computes the volume of a tetrahedron.

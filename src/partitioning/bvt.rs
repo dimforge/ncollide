@@ -2,8 +2,8 @@
 
 use std::num::Bounded;
 use test::stats::Stats;
-use nalgebra::na::{Translation, Indexable, FloatVecExt};
-use nalgebra::na;
+use na::{Translation, Indexable, FloatVecExt};
+use na;
 use ray::{Ray, RayCast};
 use partitioning::{BVTVisitor, BVTTVisitor};
 use bounding_volume::{BoundingVolume, AABB};

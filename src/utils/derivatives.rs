@@ -1,5 +1,5 @@
-use nalgebra::na::Cast;
-use nalgebra::na;
+use na::Cast;
+use na;
 
 /// Computes the n-th derivative of the cosinus function.
 pub fn dcos<N: FloatMath + Cast<f64>>(n: uint, x: N) -> N {

@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Translation, Norm};
-use nalgebra::na;
+use na::{Translation, Norm};
+use na;
 use math::{Scalar, Vect, Matrix};
 use bounding_volume::{BoundingVolume, LooseBoundingVolume};
 use bounding_volume;

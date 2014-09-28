@@ -1,7 +1,7 @@
 use std::gc::{GC, Gc};
 use std::cell::RefCell;
-use nalgebra::na::Translation;
-use nalgebra::na;
+use na::Translation;
+use na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
 use partitioning::{DBVT, DBVTLeaf};
 use utils::data::hash::UintTWHash;
@@ -397,8 +397,8 @@ mod test {
     use std::rc::Rc;
     use std::cell::RefCell;
     use std::vec::Vec;
-    use nalgebra::na::{Vec3, Iso3};
-    use nalgebra::na;
+    use na::{Vec3, Iso3};
+    use na;
     use geom::Ball;
     use bounding_volume::WithAABB;
     use broad::{NoIdDispatcher, BroadPhase, InterferencesBroadPhase};

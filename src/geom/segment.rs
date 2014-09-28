@@ -1,6 +1,6 @@
 //! Definition of the segment geometry.
 
-use nalgebra::na;
+use na;
 use geom::mesh::MeshElement;
 use math::{Scalar, Vect};
 

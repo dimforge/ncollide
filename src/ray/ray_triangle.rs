@@ -1,13 +1,13 @@
-use nalgebra::na::Identity;
+use na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::Vect;
 
 // #[dim3]
-use nalgebra::na;
+use na;
 // #[dim3]
-use nalgebra::na::Vec3;
+use na::Vec3;
 // #[dim3]
 use std::num::Zero;
 // #[dim3]

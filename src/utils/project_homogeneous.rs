@@ -1,5 +1,5 @@
-use nalgebra::na::FromHomogeneous;
-use nalgebra::na;
+use na::FromHomogeneous;
+use na;
 
 /// Project n-d point to a (n-1)-d space, dividing each vector by its `w` component.
 pub fn project_homogeneous<V: FromHomogeneous<VHomo>, VHomo>(pts: &mut [VHomo]) -> Vec<V> {

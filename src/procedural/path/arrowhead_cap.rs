@@ -1,6 +1,6 @@
-use nalgebra::na::{Vec3, Iso3, Cast};
-use nalgebra::na::overload::{Vec3MulRhs, Vec3DivRhs};
-use nalgebra::na;
+use na::{Vec3, Iso3, Cast};
+use na::overload::{Vec3MulRhs, Vec3DivRhs};
+use na;
 use procedural::path::PolylineCompatibleCap;
 use procedural::Polyline;
 use procedural::utils;

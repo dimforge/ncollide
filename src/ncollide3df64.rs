@@ -55,7 +55,7 @@ Some common features are still missing:
 
 #[phase(plugin)] extern crate dim3;
 
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate sync;
 extern crate serialize;
 extern crate collections;
@@ -92,7 +92,7 @@ pub mod utils;
 /// * `--cfg dim3` - use 3d vectors and matrices.
 /// * `--cfg dim4` - use 4d vectors and matrices.
 pub mod math {
-    use nalgebra::na::{Vec3, Mat3, Rot3, Iso3};
+    use na::{Vec3, Mat3, Rot3, Iso3};
 
     /// The scalar type.
     pub type Scalar = f64;

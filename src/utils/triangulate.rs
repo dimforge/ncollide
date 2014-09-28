@@ -2,8 +2,8 @@
 
 use std::collections::HashMap;
 use std::collections::hashmap::{Vacant, Occupied};
-use nalgebra::na::{FloatVec, FloatVecExt, Cast, Vec3};
-use nalgebra::na;
+use na::{FloatVec, FloatVecExt, Cast, Vec3};
+use na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use utils;
 use bounding_volume;

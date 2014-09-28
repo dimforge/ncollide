@@ -1,4 +1,4 @@
-use nalgebra::na::Transform;
+use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingSphere};
 use bounding_volume;
 use geom::Mesh;

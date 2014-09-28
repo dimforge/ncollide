@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na;
+use na;
 use geom::{Cone, Ball, MinkowskiSum};
 use procedural::{TriMesh, ToTriMesh};
 use procedural;

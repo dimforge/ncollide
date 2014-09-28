@@ -1,5 +1,5 @@
-use nalgebra::na::Translation;
-use nalgebra::na;
+use na::Translation;
+use na;
 use math::Matrix;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use geom::Cuboid;

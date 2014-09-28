@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use nalgebra::na;
+use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg};
 use utils::symbolic;
 

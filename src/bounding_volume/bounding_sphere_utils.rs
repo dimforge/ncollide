@@ -1,5 +1,5 @@
-use nalgebra::na::{FloatVec, Cast};
-use nalgebra::na;
+use na::{FloatVec, Cast};
+use na;
 use utils;
 
 /// Computes the bounding sphere of a set of point, given its center.

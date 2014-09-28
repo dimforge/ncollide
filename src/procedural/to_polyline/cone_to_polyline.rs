@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::Vec2;
-use nalgebra::na;
+use na::Vec2;
+use na;
 use geom::Cone;
 use procedural::{Polyline, ToPolyline};
 use procedural;

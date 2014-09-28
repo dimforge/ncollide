@@ -1,4 +1,4 @@
-use nalgebra::na::Vec3;
+use na::Vec3;
 use procedural::Polyline;
 use procedural::path::PolylineCompatibleCap;
 

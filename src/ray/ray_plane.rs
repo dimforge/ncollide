@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Plane;
 use math::{Scalar, Vect};

@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
-use nalgebra::na::Cast;
-use nalgebra::na;
+use na::Cast;
+use na;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;
 

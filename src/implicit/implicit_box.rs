@@ -1,7 +1,7 @@
 
 use std::num::Signed;
-use nalgebra::na::{Indexable, Transform, Rotate};
-use nalgebra::na;
+use na::{Indexable, Transform, Rotate};
+use na;
 use geom::Cuboid;
 use implicit::{Implicit, PreferedSamplingDirections};
 use math::{Scalar, Vect};

@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use geom::Ball;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;

@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Norm, Indexable};
-use nalgebra::na;
+use na::{Norm, Indexable};
+use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;

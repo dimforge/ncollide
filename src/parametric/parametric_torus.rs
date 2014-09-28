@@ -1,5 +1,5 @@
-use nalgebra::na::Vec3;
-use nalgebra::na;
+use na::Vec3;
+use na;
 use math::{Scalar, Vect};
 use geom::Torus;
 use parametric::ParametricSurface;

@@ -2,8 +2,8 @@ use std::num::{Zero, One};
 use std::cmp;
 use std::rand::Rand;
 use std::rand;
-use nalgebra::na::{Inv, PartialOrd, Mat, Outer, Cast, Dot, RMul, ScalarMul, Indexable, FloatVec};
-use nalgebra::na;
+use na::{Inv, PartialOrd, Mat, Outer, Cast, Dot, RMul, ScalarMul, Indexable, FloatVec};
+use na;
 
 
 // FIXME: implement a proper metaheuristic.
@@ -212,8 +212,8 @@ pub fn bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float,
 #[cfg(test)]
 mod test {
     use utils::symbolic::{BivariateFn, U, V, sin, cos};
-    use nalgebra::na::{Vec2, Mat2};
-    use nalgebra::na;
+    use na::{Vec2, Mat2};
+    use na;
     use super::{BacktrackingLineSearch, bfgs};
 
     #[test]

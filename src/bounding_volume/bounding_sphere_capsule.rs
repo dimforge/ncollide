@@ -1,4 +1,4 @@
-use nalgebra::na::Translation;
+use na::Translation;
 use math::Matrix;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use geom::Capsule;

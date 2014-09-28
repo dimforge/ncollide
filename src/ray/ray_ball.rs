@@ -1,12 +1,12 @@
 use std::num::Float;
-use nalgebra::na::Translation;
-use nalgebra::na;
+use na::Translation;
+use na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
 use math::{Scalar, Vect, Matrix};
 
 // #[dim3]
-use nalgebra::na::Vec2;
+use na::Vec2;
 
 
 #[dim3]

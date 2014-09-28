@@ -1,6 +1,6 @@
 use std::vec;
-use nalgebra::na::{Translation, Inv, AlgebraicVecExt};
-use nalgebra::na;
+use na::{Translation, Inv, AlgebraicVecExt};
+use na;
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use geom::subsimplex_mesh::{Subsimplex, SubsimplexMesh};

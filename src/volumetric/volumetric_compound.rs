@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na;
+use na;
 use volumetric::{Volumetric, InertiaTensor};
 use geom::{Compound, CompoundData};
 use math::{Scalar, Vect, AngularInertia};

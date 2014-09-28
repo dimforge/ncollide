@@ -1,6 +1,6 @@
 use std::ptr;
-use nalgebra::na;
-use nalgebra::na::{Cast, FloatVec, FloatVecExt, FromHomogeneous};
+use na;
+use na::{Cast, FloatVec, FloatVecExt, FromHomogeneous};
 use procedural::{TriMesh, Polyline};
 use procedural;
 

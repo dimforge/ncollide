@@ -1,7 +1,7 @@
 //! Traits to compute inertial properties.
 
-use nalgebra::na::{Mat1, Mat3};
-use nalgebra::na;
+use na::{Mat1, Mat3};
+use na;
 use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
 
 /// Trait to be implemented by inertia tensors.

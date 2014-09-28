@@ -1,13 +1,13 @@
 use std::num::{Zero, Bounded};
 use std::mem;
-use nalgebra::na::Indexable;
-use nalgebra::na;
+use na::Indexable;
+use na;
 use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Scalar, Vect};
 
 // #[dim3]
-use nalgebra::na::Vec2;
+use na::Vec2;
 
 impl RayCast for AABB {
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {

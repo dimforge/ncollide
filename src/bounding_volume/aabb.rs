@@ -1,8 +1,8 @@
 use std::num::Bounded;
 use std::rc::Rc;
 use std::cell::RefCell;
-use nalgebra::na::Translation;
-use nalgebra::na;
+use na::Translation;
+use na;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
 use math::{Scalar, Vect, Matrix};
 
@@ -206,7 +206,7 @@ HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
 mod test {
     use super::AABB;
     use bounding_volume::BoundingVolume;
-    use nalgebra::na::Vec3;
+    use na::Vec3;
 
     #[test]
     fn test_merge() {

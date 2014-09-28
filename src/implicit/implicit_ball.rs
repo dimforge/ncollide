@@ -1,5 +1,5 @@
-use nalgebra::na;
-use nalgebra::na::Translation;
+use na;
+use na::Translation;
 use implicit::{PreferedSamplingDirections, Implicit};
 use geom::Ball;
 use math::{Scalar, Vect};

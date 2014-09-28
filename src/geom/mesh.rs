@@ -3,8 +3,8 @@
 //!
 
 use sync::Arc;
-use nalgebra::na;
-use nalgebra::na::Vec2;
+use na;
+use na::Vec2;
 use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};

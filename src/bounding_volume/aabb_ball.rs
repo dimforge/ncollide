@@ -1,4 +1,4 @@
-use nalgebra::na::Translation;
+use na::Translation;
 use bounding_volume::{HasAABB, AABB};
 use geom::Ball;
 use math::{Scalar, Vect, Matrix};

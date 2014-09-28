@@ -3,7 +3,7 @@
 //!
 
 use std::sync::Arc;
-use nalgebra::na;
+use na;
 use bounding_volume::{LooseBoundingVolume, AABB, HasAABB};
 use ray::Ray;
 use volumetric::Volumetric;

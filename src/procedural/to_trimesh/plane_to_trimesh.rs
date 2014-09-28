@@ -1,11 +1,11 @@
-use nalgebra::na;
+use na;
 use geom::Plane;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
 // #[dim3]
-use nalgebra::na::Indexable;
+use na::Indexable;
 
 #[dim3]
 impl ToTriMesh<(u32, u32)> for Plane {

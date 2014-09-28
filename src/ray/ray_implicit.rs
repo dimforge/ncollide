@@ -1,6 +1,6 @@
 use std::num::{Zero, Bounded};
-use nalgebra::na::{Identity, Translation, Indexable, Norm};
-use nalgebra::na;
+use na::{Identity, Translation, Indexable, Norm};
+use na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::{Cylinder, Cone, Capsule, MinkowskiSum, Convex, Segment};

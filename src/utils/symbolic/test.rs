@@ -1,5 +1,5 @@
 use std::rand;
-use nalgebra::na;
+use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, U, V, T, sin, cos, exp};
 
 #[test]

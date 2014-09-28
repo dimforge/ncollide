@@ -1,4 +1,4 @@
-use nalgebra::na::Vec3;
+use na::Vec3;
 
 /// Given an index buffer, remove from `points` every point that is not indexed.
 pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Vec3<u32>]) {

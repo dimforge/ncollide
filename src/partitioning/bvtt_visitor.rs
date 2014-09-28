@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use math::Matrix;
 
 /// Visitor for the Bounding Volume Traversal Tree.

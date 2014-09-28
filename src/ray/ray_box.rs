@@ -1,5 +1,5 @@
 use std::num::Zero;
-use nalgebra::na::Identity;
+use na::Identity;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use bounding_volume::AABB;
 use geom::Cuboid;

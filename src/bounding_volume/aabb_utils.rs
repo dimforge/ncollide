@@ -1,5 +1,5 @@
-use nalgebra::na::{Indexable, Transform, FloatVec, PartialOrd};
-use nalgebra::na;
+use na::{Indexable, Transform, FloatVec, PartialOrd};
+use na;
 use implicit::Implicit;
 use bounding_volume::AABB;
 use math::{Scalar, Vect, Matrix};

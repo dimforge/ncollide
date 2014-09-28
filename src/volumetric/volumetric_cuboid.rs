@@ -1,5 +1,5 @@
-use nalgebra::na::{Iterable, Indexable};
-use nalgebra::na;
+use na::{Iterable, Indexable};
+use na;
 use geom::Cuboid;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};

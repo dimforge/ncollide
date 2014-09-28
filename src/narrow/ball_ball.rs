@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::Translation;
-use nalgebra::na;
+use na::Translation;
+use na;
 use geom::Ball;
 use narrow::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};

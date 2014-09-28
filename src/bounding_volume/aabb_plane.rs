@@ -1,5 +1,5 @@
 use std::num::Bounded;
-use nalgebra::na;
+use na;
 use bounding_volume::{HasAABB, AABB};
 use geom::Plane;
 use math::{Matrix, Vect, Scalar};

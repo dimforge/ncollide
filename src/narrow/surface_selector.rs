@@ -1,6 +1,6 @@
 //! Heuristics to select surface containing the projection of a point.
 
-use nalgebra::na;
+use na;
 use bounding_volume::{HasBoundingSphere, BoundingVolume, BoundingSphere};
 use geom::BezierSurface;
 use math::{Scalar, Vect};

@@ -1,6 +1,6 @@
 use std::num::{Bounded, Zero};
-use nalgebra::na::{Identity, Vec2, Vec3, Rot3, Mat3, Norm, FloatVec, Col, Diag};
-use nalgebra::na;
+use na::{Identity, Vec2, Vec3, Rot3, Mat3, Norm, FloatVec, Col, Diag};
+use na;
 use math::Scalar;
 use utils;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
@@ -861,7 +861,7 @@ impl SegmentFacet {
 
 #[cfg(test)]
 mod test {
-    use nalgebra::na::Vec2;
+    use na::Vec2;
     use procedural;
 
     #[test]

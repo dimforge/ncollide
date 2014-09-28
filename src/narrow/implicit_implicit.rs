@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Translation, Indexable, Norm};
-use nalgebra::na;
+use na::{Translation, Indexable, Norm};
+use na;
 use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;

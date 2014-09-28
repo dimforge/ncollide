@@ -1,5 +1,5 @@
-use nalgebra::na::Transform;
-use nalgebra::na;
+use na::Transform;
+use na;
 use narrow::{CollisionDetector, Contact};
 use math::{Scalar, Vect, Matrix};
 

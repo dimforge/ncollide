@@ -1,4 +1,4 @@
-use nalgebra::na::Transform;
+use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingSphere, BoundingVolume};
 use geom::Compound;
 use math::Matrix;

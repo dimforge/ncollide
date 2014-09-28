@@ -1,6 +1,6 @@
 use std::num::Bounded;
-use nalgebra::na::FloatVec;
-use nalgebra::na;
+use na::FloatVec;
+use na;
 
 // FIXME: move this to `utils::`?
 /// Computes the support point of a cloud of points.

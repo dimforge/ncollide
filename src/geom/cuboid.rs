@@ -1,8 +1,8 @@
 //! Support mapping based Cuboid geometry.
 
 use std::num::Signed;
-use nalgebra::na::Iterable;
-use nalgebra::na;
+use na::Iterable;
+use na;
 use math::{Scalar, Vect};
 
 /// Geometry of a box.

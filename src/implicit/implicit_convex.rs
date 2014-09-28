@@ -1,4 +1,4 @@
-use nalgebra::na::{Transform, Rotate};
+use na::{Transform, Rotate};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use geom::Convex;

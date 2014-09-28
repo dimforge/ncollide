@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use nalgebra::na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, Vec3, Vec2};
-use nalgebra::na;
+use na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, Vec3, Vec2};
+use na;
 use procedural::utils;
 use utils::AsBytes;
 

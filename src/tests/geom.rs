@@ -1,6 +1,6 @@
 use std::cmp::ApproxEq;
-use nalgebra::na::Vec3;
-use nalgebra::na;
+use na::Vec3;
+use na;
 use geom::{Ball, MinkowskiSum};
 use implicit::Implicit;
 

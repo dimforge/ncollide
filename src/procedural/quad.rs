@@ -1,5 +1,5 @@
-use nalgebra::na;
-use nalgebra::na::{Cast, FloatVecExt, Vec3, Vec2};
+use na;
+use na::{Cast, FloatVecExt, Vec3, Vec2};
 use procedural::{TriMesh, UnifiedIndexBuffer};
 
 /// Adds a double-sided quad to the scene.

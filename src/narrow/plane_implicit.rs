@@ -1,5 +1,5 @@
-use nalgebra::na::{Translation, Rotate};
-use nalgebra::na;
+use na::{Translation, Rotate};
+use na;
 use narrow::{CollisionDetector, Contact};
 use geom::Plane;
 use implicit::Implicit;

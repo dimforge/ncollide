@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use nalgebra::na::{FloatVec, Identity};
-use nalgebra::na;
+use na::{FloatVec, Identity};
+use na;
 use geom::{Reflection, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;

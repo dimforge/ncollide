@@ -1,4 +1,4 @@
-use nalgebra::na::{AbsoluteRotate, Translation};
+use na::{AbsoluteRotate, Translation};
 use bounding_volume::{HasAABB, AABB};
 use geom::Cuboid;
 use math::Matrix;

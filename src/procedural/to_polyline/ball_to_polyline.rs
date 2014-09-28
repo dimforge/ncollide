@@ -1,4 +1,4 @@
-use nalgebra::na;
+use na;
 use geom::Ball;
 use procedural::{ToPolyline, Polyline};
 use procedural;

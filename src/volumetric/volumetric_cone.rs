@@ -1,6 +1,6 @@
 use std::num::Float;
-use nalgebra::na::Indexable;
-use nalgebra::na;
+use na::Indexable;
+use na;
 use geom::Cone;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};

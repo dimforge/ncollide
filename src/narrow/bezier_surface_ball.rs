@@ -1,7 +1,7 @@
 use std::rand;
 use sync::{Arc, RWLock};
-use nalgebra::na;
-use nalgebra::na::{Vec2, Mat2, Translation, Inv, Norm};
+use na;
+use na::{Vec2, Mat2, Translation, Inv, Norm};
 use math::{Scalar, Vect, Matrix};
 use geom::{Ball, BezierSurface};
 use narrow::{CollisionDetector, Contact};
@@ -487,8 +487,8 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
 #[cfg(test,dim3,f32)]
 mod test {
     use std::num::Bounded;
-    use nalgebra::na::Vec3;
-    use nalgebra::na;
+    use na::Vec3;
+    use na;
     use geom::BezierSurface;
     use narrow::surface_selector::HyperPlaneSurfaceSelector;
 

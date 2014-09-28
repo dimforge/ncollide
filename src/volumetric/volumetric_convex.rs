@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::Mat3;
-use nalgebra::na;
+use na::Mat3;
+use na;
 use utils;
 use procedural::{SplitIndexBuffer, UnifiedIndexBuffer};
 use geom::Convex;
@@ -151,8 +151,8 @@ impl Volumetric for Convex {
 
 #[cfg(test)]
 mod test {
-    use nalgebra::na::Vec3;
-    use nalgebra::na;
+    use na::Vec3;
+    use na;
     use geom::{Convex, Cuboid};
     use procedural;
     use volumetric::Volumetric;

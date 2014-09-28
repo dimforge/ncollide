@@ -1,4 +1,4 @@
-use nalgebra::na::FloatVec;
+use na::FloatVec;
 use procedural::path::{PathSample, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
 use procedural::Polyline;
 

@@ -1,6 +1,6 @@
 use std::num::Zero;
-use nalgebra::na::{Indexable, Rotate, Transform, Norm};
-use nalgebra::na;
+use na::{Indexable, Rotate, Transform, Norm};
+use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cylinder;
 use math::{Scalar, Vect};

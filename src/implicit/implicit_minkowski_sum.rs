@@ -1,4 +1,4 @@
-use nalgebra::na::Identity;
+use na::Identity;
 use geom::Reflection;
 use implicit::Implicit;
 use geom::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};

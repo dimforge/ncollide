@@ -1,4 +1,4 @@
-use nalgebra::na::{DMat, Indexable};
+use na::{DMat, Indexable};
 
 /// Trait implemented by smooth bivariate functions.
 pub trait BivariateFn<N: Copy, O: Clone> {
