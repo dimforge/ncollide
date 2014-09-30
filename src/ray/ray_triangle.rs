@@ -1,19 +1,15 @@
-use na::Identity;
+use na::{Vec3, Identity};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
-use math::Vect;
+use math::{Scalar, Vect};
 
-// #[dim3]
+#[cfg(feature = "3d")]
 use na;
-// #[dim3]
-use na::Vec3;
-// #[dim3]
+#[cfg(feature = "3d")]
 use std::num::Zero;
-// #[dim3]
-use math::Scalar;
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl RayCast for Triangle {
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
@@ -21,7 +17,7 @@ impl RayCast for Triangle {
     }
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl RayCast for Triangle {
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
@@ -30,7 +26,7 @@ impl RayCast for Triangle {
     }
 }
 
-#[dim4]
+#[cfg(feature = "4d")]
 impl RayCast for Triangle {
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
@@ -39,7 +35,7 @@ impl RayCast for Triangle {
 }
 
 /// Not yet implemented in dimensions other than 3.
-#[not_dim3]
+#[cfg(not(feature = "3d"))]
 pub fn triangle_ray_intersection(_: &Vect, _: &Vect, _: &Vect, _: &Ray) -> Option<(RayIntersection, Vec3<Scalar>)> {
     fail!("`triangle_ray_intersection` is not yet implemented for dimensions other than 3.")
 }
@@ -48,7 +44,7 @@ pub fn triangle_ray_intersection(_: &Vect, _: &Vect, _: &Vect, _: &Ray) -> Optio
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
-#[dim3]
+#[cfg(feature = "3d")]
 pub fn triangle_ray_intersection(a: &Vect, b: &Vect, c: &Vect, ray: &Ray) -> Option<(RayIntersection, Vec3<Scalar>)> {
     let ab = *b - *a;
     let ac = *c - *a;

@@ -6,7 +6,7 @@ use na::{Translation, Indexable, FloatVecExt};
 use na;
 use ray::{Ray, RayCast};
 use partitioning::{BVTVisitor, BVTTVisitor};
-use bounding_volume::{BoundingVolume, AABB};
+use bounding_volume::BoundingVolume;
 use math::{Scalar, Vect};
 
 /// A Boundig Volume Tree.

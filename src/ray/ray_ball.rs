@@ -5,11 +5,11 @@ use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
 use math::{Scalar, Vect, Matrix};
 
-// #[dim3]
+// #[cfg(feature = "3d")]
 use na::Vec2;
 
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
@@ -20,7 +20,7 @@ fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
     Some(Vec2::new(uvx, uvy))
 }
 
-#[not_dim3]
+#[cfg(not(feature = "3d"))]
 fn ball_uv(_: &Vect) -> Option<Vec2<Scalar>> {
     None
 }
@@ -42,7 +42,7 @@ impl RayCast for Ball {
         })
     }
 
-    // #[dim3]
+    // #[cfg(feature = "3d")]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);

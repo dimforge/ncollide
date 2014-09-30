@@ -1,10 +1,9 @@
-use std::num::Zero;
 use na::Vec3;
 use procedural::{ToTriMesh, TriMesh, UnifiedIndexBuffer};
 use geom::Mesh;
 use math::{Scalar, Vect};
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl ToTriMesh<()> for Mesh {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
         let mut formated_index_buffer = Vec::with_capacity(self.indices().len() / 3);

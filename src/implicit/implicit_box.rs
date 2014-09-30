@@ -4,7 +4,7 @@ use na::{Indexable, Transform, Rotate};
 use na;
 use geom::Cuboid;
 use implicit::{Implicit, PreferedSamplingDirections};
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Rotate<Vect> + Transform<Vect>>
 Implicit<Vect, _M> for Cuboid {

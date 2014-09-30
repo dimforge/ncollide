@@ -11,33 +11,17 @@ use na::{Vec2, Vec3, Identity, Iterable, Norm};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use math::{Scalar, Vect};
 use implicit::Implicit;
-use implicit;
-use volumetric::Volumetric;
 use ray::{Ray, RayCast, RayIntersection};
 use ray;
-use procedural::{Polyline, TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
-use procedural;
+use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
 use utils;
 use bounding_volume::{AABB, BoundingVolume};
 use bounding_volume;
-use geom::{Triangle, Convex};
+use geom::Convex;
 use partitioning::{BVT, BoundingVolumeInterferencesCollector};
 
-/// Not implemented.
-#[dim4]
-#[doc(hidden)]
-pub fn hacd(mesh: &TriMesh<Scalar, Vec3<Scalar>>, error: Scalar) -> Vec<TriMesh<Scalar, Vec3<Scalar>>> {
-    fail!("Not yet implemented.")
-}
-
-/// Approximate convex decomposition of a polyline.
-#[dim2]
-pub fn hacd(mesh: &Polyline<Scalar, Vec2<Scalar>>, error: Scalar) -> Vec<Polyline<Scalar, Vec2<Scalar>>> {
-    fail!("Not yet implemented.")
-}
-
 /// Approximate convex decomposition of a triangle mesh.
-#[dim3]
+#[cfg(feature = "3d")]
 pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
             error:          Scalar,
             min_components: uint)
@@ -168,7 +152,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
     (result, parts)
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn normalize(mesh: &mut TriMesh<Scalar, Vect>) -> (Vect, Scalar) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
     let diag = na::norm(&(maxs - mins));
@@ -182,13 +166,13 @@ fn normalize(mesh: &mut TriMesh<Scalar, Vect>) -> (Vect, Scalar) {
     (center, diag)
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn denormalize(mesh: &mut TriMesh<Scalar, Vec3<Scalar>>, center: &Vect, diag: &Scalar) {
     mesh.scale_by_scalar(diag);
     mesh.translate_by(center);
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 struct DualGraphVertex {
     neighbors:  Option<HashSet<uint, SipHasher>>, // vertices adjascent to this one.
     ancestors:  Option<Vec<VertexWithConcavity>>, // faces from the original surface.
@@ -202,7 +186,7 @@ struct DualGraphVertex {
     aabb:       AABB
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl DualGraphVertex {
     pub fn new(ancestor: uint,
                mesh:     &TriMesh<Scalar, Vec3<Scalar>>,
@@ -364,7 +348,7 @@ impl DualGraphVertex {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 struct DualGraphEdge {
     v1:        uint,
     v2:        uint,
@@ -379,7 +363,7 @@ struct DualGraphEdge {
     iray_cast: bool
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl DualGraphEdge {
     pub fn new(timestamp:     uint,
                v1:            uint,
@@ -554,7 +538,7 @@ impl DualGraphEdge {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl PartialEq for DualGraphEdge {
     #[inline]
     fn eq(&self, other: &DualGraphEdge) -> bool {
@@ -562,11 +546,11 @@ impl PartialEq for DualGraphEdge {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Eq for DualGraphEdge {
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl PartialOrd for DualGraphEdge {
     #[inline]
     fn partial_cmp(&self, other: &DualGraphEdge) -> Option<Ordering> {
@@ -574,7 +558,7 @@ impl PartialOrd for DualGraphEdge {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Ord for DualGraphEdge {
     #[inline]
     fn cmp(&self, other: &DualGraphEdge) -> Ordering {
@@ -590,13 +574,13 @@ impl Ord for DualGraphEdge {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 struct VertexWithConcavity {
     id:        uint,
     concavity: Scalar
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl VertexWithConcavity {
     #[inline]
     pub fn new(id: uint, concavity: Scalar) -> VertexWithConcavity {
@@ -607,7 +591,7 @@ impl VertexWithConcavity {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl PartialEq for VertexWithConcavity {
     #[inline]
     fn eq(&self, other: &VertexWithConcavity) -> bool {
@@ -615,11 +599,11 @@ impl PartialEq for VertexWithConcavity {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Eq for VertexWithConcavity {
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl PartialOrd for VertexWithConcavity {
     #[inline]
     fn partial_cmp(&self, other: &VertexWithConcavity) -> Option<Ordering> {
@@ -635,7 +619,7 @@ impl PartialOrd for VertexWithConcavity {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Ord for VertexWithConcavity {
     #[inline]
     fn cmp(&self, other: &VertexWithConcavity) -> Ordering {
@@ -651,7 +635,7 @@ impl Ord for VertexWithConcavity {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 #[inline]
 fn edge(a: u32, b: u32) -> Vec2<uint> {
     if a > b {
@@ -662,14 +646,14 @@ fn edge(a: u32, b: u32) -> Vec2<uint> {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn compute_ray_bvt(rays: &[Ray]) -> BVT<uint, AABB> {
     let aabbs = rays.iter().enumerate().map(|(i, r)| (i, AABB::new(r.orig, r.orig))).collect();
 
     BVT::new_balanced(aabbs)
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32, u32), uint>) {
     let mut rays   = Vec::new();
     let mut raymap = HashMap::new();
@@ -718,7 +702,7 @@ fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32
 }
 
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn compute_dual_graph(mesh:   &TriMesh<Scalar, Vec3<Scalar>>,
                       raymap: &HashMap<(u32, u32), uint>)
                       -> Vec<DualGraphVertex> {

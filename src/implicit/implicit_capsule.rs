@@ -3,7 +3,7 @@ use na;
 use na::{Indexable, Rotate, Transform};
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Capsule;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Transform<Vect> + Rotate<Vect>>
 Implicit<Vect, _M> for Capsule {

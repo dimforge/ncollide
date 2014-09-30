@@ -1,10 +1,12 @@
 use std::num::Float;
 use std::num;
-use na::Indexable;
 use na;
 use geom::Ball;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
+
+#[cfg(not(feature = "4d"))]
+use na::Indexable;
 
 /// Computes the volume of a ball.
 #[inline]
@@ -13,7 +15,7 @@ pub fn ball_volume(radius: &Scalar) -> Scalar {
     _pi * num::pow(radius.clone(), na::dim::<Vect>())
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl Volumetric for Ball {
     #[inline]
     fn surface(&self) -> Scalar {
@@ -42,7 +44,7 @@ impl Volumetric for Ball {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Volumetric for Ball {
     #[inline]
     fn surface(&self) -> Scalar {

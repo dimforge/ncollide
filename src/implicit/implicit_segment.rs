@@ -2,7 +2,7 @@ use na::{Transform, Rotate};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Segment;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Transform<Vect> + Rotate<Vect>>
 Implicit<Vect, _M> for Segment {

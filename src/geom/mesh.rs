@@ -7,11 +7,19 @@ use na;
 use na::Vec2;
 use ray::Ray;
 use partitioning::BVT;
-use bounding_volume::{HasAABB, AABB, LooseBoundingVolume};
+use bounding_volume::{HasAABB, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use geom::{Geom, ConcaveGeom, Segment, Triangle};
+use geom::{Geom, ConcaveGeom};
 use math::{Scalar, Vect, Matrix};
+
+#[cfg(not(feature = "2d"))]
+use geom::Triangle;
+
+#[cfg(feature = "3d")]
 use procedural::TriMesh;
+
+#[cfg(feature = "2d")]
+use geom::Segment;
 
 /// Trait implemented by elements usable on the Mesh.
 ///
@@ -25,15 +33,15 @@ pub trait MeshElement {
     fn new_with_vertices_and_indices(&[Vect], &[uint]) -> Self;
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Segment;
 
-#[dim3]
+#[cfg(feature = "3d")]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle;
 
-#[dim4]
+#[cfg(feature = "4d")]
 /// The primitive geometry used by a `Mesh`.
 pub type MeshPrimitive = Triangle; // XXX: this is wrong
 
@@ -104,7 +112,7 @@ impl Mesh {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Mesh {
     /// Builds a new mesh from a triangle mesh.
     pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>) -> Mesh {

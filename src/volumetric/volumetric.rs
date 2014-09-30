@@ -1,8 +1,15 @@
 //! Traits to compute inertial properties.
 
-use na::{Mat1, Mat3};
-use na;
 use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
+
+#[cfg(not(feature = "4d"))]
+use na;
+
+#[cfg(feature = "3d")]
+use na::Mat3;
+
+#[cfg(feature = "2d")]
+use na::Mat1;
 
 /// Trait to be implemented by inertia tensors.
 pub trait InertiaTensor {
@@ -53,7 +60,7 @@ pub trait Volumetric {
 
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, av: &Orientation) -> Orientation {
@@ -71,7 +78,7 @@ impl InertiaTensor for AngularInertia {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, av: &Orientation) -> Orientation {
@@ -97,7 +104,7 @@ impl InertiaTensor for AngularInertia {
     }
 }
 
-#[dim4]
+#[cfg(feature = "4d")]
 impl InertiaTensor for AngularInertia {
     #[inline]
     fn apply(&self, _: &Orientation) -> Orientation {

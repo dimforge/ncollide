@@ -3,24 +3,23 @@ name    = "ncollide"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+[features]
+f32 = []
+f64 = []
+2d  = []
+3d  = []
+4d  = []
+
+2df32 = [ "2d", "f32" ]
+2df64 = [ "2d", "f64" ]
+3df32 = [ "3d", "f32" ]
+3df64 = [ "3d", "f64" ]
+4df32 = [ "4d", "f32" ]
+4df64 = [ "4d", "f64" ]
+
 [lib]
 name = "ncollide"
 path = "src/lib.rs"
 
-[dependencies.ncollide2df32]
-path = "build/ncollide2df32"
-
-[dependencies.ncollide3df32]
-path = "build/ncollide3df32"
-
-[dependencies.ncollide4df32]
-path = "build/ncollide4df32"
-
-[dependencies.ncollide2df64]
-path = "build/ncollide2df64"
-
-[dependencies.ncollide3df64]
-path = "build/ncollide3df64"
-
-[dependencies.ncollide4df64]
-path = "build/ncollide4df64"
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"

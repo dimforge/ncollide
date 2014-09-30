@@ -1,11 +1,10 @@
-use std::num::Zero;
 use na;
-use geom::{Cuboid, Ball, MinkowskiSum};
+use geom::Cuboid;
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl ToTriMesh<()> for Cuboid {
     fn to_trimesh(&self, _: ()) -> TriMesh<Scalar, Vect> {
         let _2: Scalar = na::cast(2.0f64);

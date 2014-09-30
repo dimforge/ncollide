@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na;
 use geom::Cuboid;
 use procedural::{Polyline, ToPolyline};

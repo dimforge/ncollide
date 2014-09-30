@@ -1,12 +1,14 @@
-use std::num::Float;
 use na::Indexable;
 use na;
 use geom::Cylinder;
 use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
+#[cfg(feature = "3d")]
+use std::num::Float;
+
 /// Computes the volume of a cylinder.
-#[dim2]
+#[cfg(feature = "2d")]
 #[inline]
 pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     // same as a rectangle
@@ -15,21 +17,21 @@ pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
 
     
 /// Computes the volume of a cylinder.
-#[dim3]
+#[cfg(feature = "3d")]
 #[inline]
 pub fn cylinder_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     half_height * *radius * *radius * Float::pi() * na::cast(2.0f64)
 }
 
 /// Not yet implemented in 4d.
-#[dim4]
+#[cfg(feature = "4d")]
 #[inline]
 pub fn cylinder_volume(_: &Scalar, _: &Scalar) -> Scalar {
     fail!("Not yet implemented in 4d.")
 }
 
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl Volumetric for Cylinder {
     #[inline]
     fn surface(&self) -> Scalar {
@@ -62,7 +64,7 @@ impl Volumetric for Cylinder {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Volumetric for Cylinder {
     #[inline]
     fn surface(&self) -> Scalar {

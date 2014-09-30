@@ -1,4 +1,3 @@
-use std::num::Zero;
 use procedural::{ToPolyline, Polyline};
 use geom::Segment;
 use math::{Scalar, Vect};

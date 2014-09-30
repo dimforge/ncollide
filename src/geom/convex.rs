@@ -1,20 +1,31 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use na::Vec3;
-use na;
 use math::{Scalar, Vect};
-use procedural::{Polyline, TriMesh, UnifiedIndexBuffer, SplitIndexBuffer};
+
+#[cfg(not(feature = "4d"))]
 use procedural;
 
+#[cfg(not(feature = "2d"))]
+use procedural::TriMesh;
+
+#[cfg(feature = "3d")]
+use na::Vec3;
+
+#[cfg(feature = "2d")]
+use procedural::Polyline;
+
+#[cfg(feature = "3d")]
+use procedural::{UnifiedIndexBuffer, SplitIndexBuffer};
+
 /// Set of point assumed to form a convex polytope.
-#[not_dim2]
+#[cfg(not(feature = "2d"))]
 pub struct Convex {
     mesh:   TriMesh<Scalar, Vect>,
 }
 
 /// Set of point assumed to form a convex polyline.
-#[dim2]
+#[cfg(feature = "2d")]
 pub struct Convex {
     mesh:   Polyline<Scalar, Vect>,
 }
@@ -27,7 +38,7 @@ impl Clone for Convex {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Convex {
     /// Creates a polytope from a set of point.
     ///
@@ -98,7 +109,7 @@ impl Convex {
     }
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl Convex {
     /// Creates a polytope from a set of point.
     ///

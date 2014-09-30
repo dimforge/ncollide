@@ -1,13 +1,23 @@
-use std::num::Zero;
-use na::Mat3;
-use na;
-use utils;
-use procedural::{SplitIndexBuffer, UnifiedIndexBuffer};
-use geom::Convex;
-use volumetric::{Volumetric, InertiaTensor};
-use math::{Scalar, Vect, AngularInertia};
+// XXX: implement this for 2d too.
 
-#[dim3]
+#[cfg(feature = "3d")]
+use na::Mat3;
+#[cfg(feature = "3d")]
+use na;
+#[cfg(feature = "3d")]
+use utils;
+#[cfg(feature = "3d")]
+use procedural::{SplitIndexBuffer, UnifiedIndexBuffer};
+#[cfg(feature = "3d")]
+use geom::Convex;
+#[cfg(feature = "3d")]
+use volumetric::Volumetric;
+#[cfg(feature = "3d")]
+use math::{Scalar, Vect, AngularInertia};
+#[cfg(feature = "3d")]
+use std::num::Zero;
+
+#[cfg(feature = "3d")]
 fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Vect, p1: &Vect, p2: &Vect, p3: &Vect, p4: &Vect) -> AngularInertia {
     let p1 = *p1 - *point;
     let p2 = *p2 - *point;
@@ -52,7 +62,7 @@ fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Vect, p1: &Vect, p2: &Vect,
     )
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
     let geometric_center = utils::center(convex.pts());
 
@@ -84,7 +94,7 @@ pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Volumetric for Convex {
     fn surface(&self) -> Scalar {
         let mut surface = na::zero::<Scalar>();
@@ -158,7 +168,7 @@ mod test {
     use volumetric::Volumetric;
 
     #[test]
-    #[dim3]
+    #[cfg(feature = "3d")]
     fn test_inertia_tensor() {
         let excentricity = 10.0;
 

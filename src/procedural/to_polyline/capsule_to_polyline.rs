@@ -5,7 +5,7 @@ use procedural::{ToPolyline, Polyline};
 use procedural::utils;
 use math::{Scalar, Vect};
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl ToPolyline<u32> for Capsule {
     fn to_polyline(&self, nsubdivs: u32) -> Polyline<Scalar, Vect> {
         let pi: Scalar = Float::pi();

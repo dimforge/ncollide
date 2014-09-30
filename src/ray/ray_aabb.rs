@@ -6,7 +6,7 @@ use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Scalar, Vect};
 
-// #[dim3]
+#[cfg(feature = "3d")]
 use na::Vec2;
 
 impl RayCast for AABB {
@@ -58,12 +58,12 @@ impl RayCast for AABB {
 
 }
 
-#[not_dim3]
+#[cfg(not(feature = "3d"))]
 fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
     aabb.toi_and_normal_with_ray(ray, solid)
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
     ray_aabb(aabb, ray, solid).map(|(t, n, s)| {
         let pt  = ray.orig + ray.dir * t;

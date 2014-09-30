@@ -1,6 +1,4 @@
-use std::num::Zero;
-use na;
-use geom::{Triangle, Ball, MinkowskiSum};
+use geom::Triangle;
 use procedural::{ToTriMesh, TriMesh};
 use math::{Scalar, Vect};
 

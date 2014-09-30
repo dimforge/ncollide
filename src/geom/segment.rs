@@ -2,7 +2,7 @@
 
 use na;
 use geom::mesh::MeshElement;
-use math::{Scalar, Vect};
+use math::Vect;
 
 /// A segment geometry.
 #[deriving(Encodable, Decodable, Clone)]

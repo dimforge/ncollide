@@ -5,7 +5,7 @@ use math::{Scalar, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-#[dim3]
+#[cfg(feature = "3d")]
 impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for MinkowskiSum<'a, G1, G2> {
     fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<Scalar, Vect> {
         let poly1 = self.g1().to_trimesh(a);

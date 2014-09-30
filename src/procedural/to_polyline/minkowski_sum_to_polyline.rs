@@ -5,7 +5,7 @@ use math::{Scalar, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-#[dim2]
+#[cfg(feature = "2d")]
 impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for MinkowskiSum<'a, G1, G2> {
     fn to_polyline(&self, (a, b): (A, B)) -> Polyline<Scalar, Vect> {
         let poly1 = self.g1().to_polyline(a);
@@ -31,7 +31,7 @@ impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for Mink
 
             cpy.translate_by(pt);
 
-            all_points.push_all_move(cpy.coords);
+            all_points.extend(cpy.coords.into_iter());
         }
 
         procedural::convex_hull2d(all_points.as_slice())

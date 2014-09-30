@@ -1,6 +1,3 @@
-use na;
-use math::Matrix;
-
 /// Visitor for the Bounding Volume Traversal Tree.
 // FIXME: make this more generic using <B1, BV1, B2, BV2> ?
 pub trait BVTTVisitor<B, BV> {

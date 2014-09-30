@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na::Vec2;
 use na;
 use geom::Cylinder;
@@ -7,7 +6,7 @@ use procedural;
 use math::{Scalar, Vect};
 
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl ToPolyline<()> for Cylinder {
     fn to_polyline(&self, _: ()) -> Polyline<Scalar, Vect> {
         let _2: Scalar = na::cast(2.0f64);

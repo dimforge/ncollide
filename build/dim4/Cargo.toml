@@ -1,9 +1,0 @@
-[package]
-name    = "dim4"
-version = "1.0.0"
-authors = [ "Sébastien Crozet <developer@crozet.re>" ]
-
-[lib]
-name   = "dim4"
-plugin = true
-path   = "lib.rs"

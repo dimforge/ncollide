@@ -6,7 +6,7 @@ use volumetric::Volumetric;
 use math::{Scalar, Vect, AngularInertia};
 
 /// Computes the volume of a cone.
-#[dim2]
+#[cfg(feature = "2d")]
 #[inline]
 pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     // same as a isosceles triangle
@@ -14,20 +14,20 @@ pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
 }
 
 /// Computes the volume of a cone.
-#[dim3]
+#[cfg(feature = "3d")]
 #[inline]
 pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
     *radius * *radius * Float::pi() * *half_height * na::cast(2.0f64 / 3.0)
 }
 
 /// Not yet implemented in 4d.
-#[dim4]
+#[cfg(feature = "4d")]
 #[inline]
 pub fn cone_volume(_: &Scalar, _: &Scalar) -> Scalar {
     fail!("Not yet impelmented in 4d.")
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl Volumetric for Cone {
     fn surface(&self) -> Scalar {
         let height = self.half_height() * na::cast(2.0f64);
@@ -59,7 +59,7 @@ impl Volumetric for Cone {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Volumetric for Cone {
     fn surface(&self) -> Scalar {
         let _pi    = Float::pi();

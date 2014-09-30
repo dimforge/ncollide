@@ -1,4 +1,4 @@
-use bounding_volume::{AABB, HasAABB, LooseBoundingVolume};
+use bounding_volume::{AABB, HasAABB};
 use bounding_volume::aabb_utils;
 use geom::Convex;
 use math::Matrix;

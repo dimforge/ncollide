@@ -3,7 +3,7 @@ use na::{Indexable, Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cone;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Transform<Vect> + Rotate<Vect>>
 Implicit<Vect, _M> for Cone {

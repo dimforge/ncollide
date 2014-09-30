@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::hash::Hash;
 use na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, Vec3, Vec2};
 use na;
 use procedural::utils;

@@ -1,8 +1,19 @@
-use std::num::Zero;
-use na::{Norm, Translation};
+use na::Translation;
 use na;
-use math::{Scalar, Vect, RotationMatrix, Matrix};
-use bounding_volume::{BoundingVolume, BoundingSphere};
+use math::{Scalar, Vect, Matrix};
+use bounding_volume::BoundingSphere;
+
+#[cfg(not(feature = "4d"))]
+use std::num::Zero;
+
+#[cfg(not(feature = "4d"))]
+use na::Norm;
+
+#[cfg(not(feature = "4d"))]
+use math::RotationMatrix;
+
+#[cfg(not(feature = "4d"))]
+use bounding_volume::BoundingVolume;
 
 // FIXME: make a structure 'cone' ?
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
@@ -68,7 +79,7 @@ impl SpacializedCone {
     }
 }
 
-#[not_dim4]
+#[cfg(not(feature = "4d"))]
 impl BoundingVolume for SpacializedCone {
     #[inline]
     fn intersects(&self, other: &SpacializedCone) -> bool {
@@ -180,7 +191,7 @@ mod test {
     use math::Scalar;
 
     #[test]
-    #[dim3]
+    #[cfg(feature = "3d")]
     fn test_merge_vee() {
         let sp   = BoundingSphere::new(na::zero(), na::one());
         let pi: Scalar = Float::pi();

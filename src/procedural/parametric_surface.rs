@@ -4,9 +4,11 @@ use math::{Scalar, Vect};
 use utils;
 use parametric::ParametricSurface;
 use procedural::TriMesh;
+
+#[cfg(feature = "3d")]
 use procedural;
 
-#[dim3]
+#[cfg(feature = "3d")]
 /// Meshing algorithm that uniformly triangulates the parametric space.
 pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
                                                         usubdivs: uint,
@@ -36,7 +38,7 @@ pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
     surface
 }
 
-#[not_dim3]
+#[cfg(not(feature = "3d"))]
 /// Not yet implemented in dimensions other than 3.
 pub fn parametric_surface_uniform<S: ParametricSurface>(_: &S, _: uint, _: uint) -> TriMesh<Scalar, Vect> {
     fail!("`parametric_surface_uniform` is not yet implemented for dimensions other than 3.")

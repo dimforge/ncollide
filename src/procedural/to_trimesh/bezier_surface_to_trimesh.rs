@@ -3,7 +3,7 @@ use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl ToTriMesh<(u32, u32)> for BezierSurface {
     fn to_trimesh(&self, (nusubdivs, nvsubdivs): (u32, u32)) -> TriMesh<Scalar, Vect> {
         procedural::bezier_surface(self.control_points(),

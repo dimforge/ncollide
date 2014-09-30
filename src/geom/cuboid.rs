@@ -2,14 +2,9 @@
 
 use std::num::Signed;
 use na::Iterable;
-use na;
-use math::{Scalar, Vect};
+use math::Vect;
 
 /// Geometry of a box.
-///
-/// # Parameters:
-///   * Scalar - type of an extent of the box
-///   * Vect - vector of extents. This determines the box dimension
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cuboid {
     half_extents: Vect,

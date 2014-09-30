@@ -4,7 +4,6 @@ use std::num::Zero;
 use std::collections::HashMap;
 use std::collections::hashmap::{Occupied, Vacant};
 use std::mem;
-use std::hash::Hash;
 use na;
 use na::{Vec3, Dim, Indexable, FloatVec, Cross};
 use utils::{HashablePartialEq, AsBytes};

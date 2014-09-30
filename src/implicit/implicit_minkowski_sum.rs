@@ -2,7 +2,7 @@ use na::Identity;
 use geom::Reflection;
 use implicit::Implicit;
 use geom::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};
-use math::{Scalar, Vect, Matrix};
+use math::{Vect, Matrix};
 
 impl<'a, G1: Implicit<Vect, Matrix>, G2: Implicit<Vect, Matrix>>
 Implicit<Vect, Identity> for MinkowskiSum<'a, G1, G2> {

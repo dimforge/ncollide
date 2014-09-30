@@ -5,7 +5,11 @@ use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
 use math::{Vect, Scalar};
+
+#[cfg(not(feature = "4d"))]
 use math::RotationMatrix;
+
+#[cfg(feature = "4d")]
 use utils;
 
 /// Cache used to evaluate a bezier surface at a given parameter.
@@ -233,7 +237,7 @@ impl BezierSurface {
 }
 
 /// Computes an infinite bounding cone of this surface.
-#[not_dim4]
+#[cfg(not(feature = "4d"))]
 pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
     let mut axis  = points[0] - *origin;
     let mut theta = na::zero();
@@ -282,7 +286,7 @@ pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scala
 }
 
 /// Computes an infinite bounding cone of this surface.
-#[dim4] // we cannot use the previous algorithm because it requires a `na::cross`.
+#[cfg(feature = "4d")] // we cannot use the previous algorithm because it requires a `na::cross`.
 pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
     // FIXME: this is a very coarse approximation
     let mut axis = utils::center(points) - *origin;

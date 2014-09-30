@@ -5,7 +5,7 @@ use procedural::{ToPolyline, Polyline};
 use math::{Scalar, Vect};
 use na::Indexable;
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl ToPolyline<()> for Plane {
     fn to_polyline(&self, _: ()) -> Polyline<Scalar, Vect> {
         let _0_5: Scalar = na::cast(0.5f64);

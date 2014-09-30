@@ -3,7 +3,7 @@ use na::{Indexable, Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cylinder;
-use math::{Scalar, Vect};
+use math::Vect;
 
 
 impl<_M: Transform<Vect> + Rotate<Vect>>

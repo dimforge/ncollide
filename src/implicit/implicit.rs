@@ -1,7 +1,6 @@
 //! Traits for support mapping based geometries.
 
 use na::FloatVec;
-use na;
 use math::Scalar;
 
 /// Traits of convex geometries representable by a support mapping function.

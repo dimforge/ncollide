@@ -2,12 +2,23 @@
 ncollide
 ========
 
-**ncollide** is a 2 and 3-dimensional collision detection library written with the rust programming
-language.
+**ncollide** is a 2 and 3-dimensional collision detection library written with the
+rust programming language.
 
 As its name suggests, it is generic wrt the dimension: it works with both
 2-dimensional and 3-dimensional geometries.  It might work with higher
 dimensions (never tried).
+
+## Compilation
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
+
+Simply add the following to your `Cargo.toml` file:
+
+```.ignore
+[dependencies.ncollide3df32]
+git = "https://github.com/sebcrozet/ncollide"
+```
 
 ## Features
 - dynamic bounding volume tree based broad phase
@@ -35,43 +46,121 @@ Some common features are still missing:
 #![deny(unused_result)]
 #![warn(unused_imports)]
 #![deny(unnecessary_typecast)]
+#![feature(default_type_params)]
 #![feature(macro_rules)]
 #![feature(managed_boxes)]
 #![feature(unsafe_destructor)]
-#![feature(globs)]
+#![feature(phase)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-extern crate ncollide2df32;
-extern crate ncollide3df32;
-extern crate ncollide4df32;
-extern crate ncollide2df64;
-extern crate ncollide3df64;
-extern crate ncollide4df64;
+extern crate "nalgebra" as na;
+extern crate sync;
+extern crate serialize;
+extern crate collections;
+extern crate test;
 
-mod f32 {
-    mod d2 {
-        pub use ncollide2df32::*;
-    }
+pub mod bounding_volume;
+pub mod geom;
+pub mod ray;
+pub mod narrow;
+pub mod broad;
+pub mod implicit;
+pub mod parametric;
+pub mod partitioning;
+pub mod procedural;
+pub mod utils;
+pub mod volumetric;
 
-    mod d3 {
-        pub use ncollide3df32::*;
-    }
+// #[cfg(test)]
+// mod tests {
+//     mod geom;
+//     mod narrow;
+//     mod algo;
+// }
 
-    mod d4 {
-        pub use ncollide4df32::*;
-    }
+/// Compilation flags dependent aliases for mathematical types.
+#[cfg(feature = "3d")]
+pub mod math {
+    use na::{Vec3, Mat3, Rot3, Iso3};
+
+    /// The scalar type.
+    #[cfg(feature = "f32")]
+    pub type Scalar = f32;
+
+    /// The scalar type.
+    #[cfg(feature = "f64")]
+    pub type Scalar = f64;
+
+    /// The vector type.
+    pub type Vect = Vec3<Scalar>;
+
+    /// The orientation type.
+    pub type Orientation = Vec3<Scalar>;
+
+    /// The transformation matrix type.
+    pub type Matrix = Iso3<Scalar>;
+
+    /// The rotation matrix type.
+    pub type RotationMatrix = Rot3<Scalar>;
+
+    /// The inertia tensor type.
+    pub type AngularInertia = Mat3<Scalar>;
 }
 
-mod f64 {
-    mod d2 {
-        pub use ncollide2df64::*;
-    }
+/// Compilation flags dependent aliases for mathematical types.
+#[cfg(feature = "2d")]
+pub mod math {
+    use na::{Vec1, Vec2, Mat1, Rot2, Iso2};
 
-    mod d3 {
-        pub use ncollide3df64::*;
-    }
+    /// The scalar type.
+    #[cfg(feature = "f32")]
+    pub type Scalar = f32;
 
-    mod d4 {
-        pub use ncollide4df64::*;
-    }
+    /// The scalar type.
+    #[cfg(feature = "f64")]
+    pub type Scalar = f64;
+
+    /// The vector type.
+    pub type Vect = Vec2<Scalar>;
+
+    /// The orientation type.
+    pub type Orientation = Vec1<Scalar>;
+
+    /// The transformation matrix type.
+    pub type Matrix = Iso2<Scalar>;
+
+    /// The rotation matrix type.
+    pub type RotationMatrix = Rot2<Scalar>;
+
+    /// The inertia tensor type.
+    pub type AngularInertia = Mat1<Scalar>;
+}
+
+/// Compilation flags dependent aliases for mathematical types.
+#[cfg(feature = "4d")]
+pub mod math {
+    use na::{Vec4, Mat4, Rot4, Iso4};
+
+    /// The scalar type.
+    #[cfg(feature = "f32")]
+    pub type Scalar = f32;
+
+    /// The scalar type.
+    #[cfg(feature = "f64")]
+    pub type Scalar = f64;
+
+    /// The vector type.
+    pub type Vect = Vec4<Scalar>;
+
+    /// The orientation type.
+    pub type Orientation = Vec4<Scalar>;
+
+    /// The transformation matrix type.
+    pub type Matrix = Iso4<Scalar>;
+
+    /// The rotation matrix type.
+    pub type RotationMatrix = Rot4<Scalar>;
+
+    /// The inertia tensor type.
+    pub type AngularInertia = Mat4<Scalar>;
 }

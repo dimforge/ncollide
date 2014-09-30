@@ -1,6 +1,4 @@
-use geom::Capsule;
-use volumetric::Volumetric;
-use math::{Scalar, Vect, AngularInertia};
+use math::Scalar;
 use volumetric::cylinder_volume;
 use volumetric::ball_volume;
 

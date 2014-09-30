@@ -2,7 +2,6 @@
 
 use std::mem;
 use std::num::Bounded;
-use std::local_data;
 use sync::Arc;
 use collections::TreeMap;
 use na::{FloatVec, Dim};

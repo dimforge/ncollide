@@ -1,5 +1,5 @@
 use std::num::{Bounded, Zero};
-use na::{Identity, Vec2, Vec3, Rot3, Mat3, Norm, FloatVec, Col, Diag};
+use na::{Identity, Vec2, Vec3, Mat3, Norm, FloatVec, Col, Diag};
 use na;
 use math::Scalar;
 use utils;

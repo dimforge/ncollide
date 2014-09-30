@@ -1,6 +1,6 @@
 use implicit::Implicit;
 use geom::Reflection;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<'a, _M, G: Implicit<Vect, _M>> Implicit<Vect, _M> for Reflection<'a, G> {
     #[inline]

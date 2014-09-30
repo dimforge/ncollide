@@ -1,6 +1,5 @@
 //! Support mapping based Cone geometry.
 
-use na;
 use math::Scalar;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.

@@ -75,7 +75,7 @@ pub trait RayCast {
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection>;
 
     /// Computes the intersection point and normal between this geometry and a ray.
-    // XXX: does not work #[dim3]
+    // XXX: does not work #[cfg(feature = "3d")]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         self.toi_and_normal_with_ray(ray, solid)
@@ -108,7 +108,7 @@ pub trait RayCast {
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// geometry and a ray.
-    // #[dim3]
+    // #[cfg(feature = "3d")]
     #[inline]
     fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &Matrix, ray: &Ray, solid: bool) -> Option<RayIntersection> {
         let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));

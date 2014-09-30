@@ -2,7 +2,7 @@ use na;
 use na::Translation;
 use implicit::{PreferedSamplingDirections, Implicit};
 use geom::Ball;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Translation<Vect>> Implicit<Vect, _M> for Ball {
     #[inline]

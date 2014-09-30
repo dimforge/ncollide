@@ -1,6 +1,10 @@
-use na;
 use narrow::{CollisionDetector, IncrementalContactManifoldGenerator, Contact};
 use math::{Scalar, Vect, Matrix};
+
+#[cfg(not(feature = "4d"))]
+use na;
+
+#[cfg(not(feature = "4d"))]
 use math::Orientation;
 
 /// Contact manifold generator producing a full manifold at the first update.
@@ -22,7 +26,7 @@ impl<CD> OneShotContactManifoldGenerator<CD> {
     }
 }
 
-#[not_dim4]
+#[cfg(not(feature = "4d"))]
 impl<CD: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     fn update(&mut self, m1: &Matrix, g1: &G1, m2: &Matrix, g2: &G2) {
@@ -81,7 +85,7 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     }
 }
 
-#[dim4]
+#[cfg(feature = "4d")]
 impl<CD: CollisionDetector<G1, G2>, G1, G2>
 CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
     fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) {

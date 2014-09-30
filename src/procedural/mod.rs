@@ -15,6 +15,8 @@ pub use procedural::sphere::{sphere, unit_sphere, circle, unit_circle};
 pub use procedural::convex_hull::{convex_hull3d, convex_hull2d, convex_hull2d_idx};
 pub use procedural::to_trimesh::to_trimesh::ToTriMesh;
 pub use procedural::to_polyline::to_polyline::ToPolyline;
+
+#[cfg(feature = "3d")]
 pub use procedural::hacd::hacd;
 
 
@@ -25,16 +27,24 @@ mod polyline;
 
 mod to_trimesh {
     pub mod to_trimesh;
+    #[cfg(feature = "3d")]
     mod ball_to_trimesh;
     mod plane_to_trimesh;
+    #[cfg(feature = "3d")]
     mod bezier_surface_to_trimesh;
+    #[cfg(feature = "3d")]
     mod capsule_to_trimesh;
+    #[cfg(feature = "3d")]
     mod cone_to_trimesh;
+    #[cfg(feature = "3d")]
     mod cuboid_to_trimesh;
+    #[cfg(feature = "3d")]
     mod cylinder_to_trimesh;
+    #[cfg(feature = "3d")]
     mod mesh_to_trimesh;
     mod reflection_to_trimesh;
     mod triangle_to_trimesh;
+    #[cfg(feature = "3d")]
     mod minkowski_sum_to_trimesh;
 }
 
@@ -43,16 +53,21 @@ mod to_polyline {
     mod ball_to_polyline;
     mod bezier_curve_to_polyline;
     mod cuboid_to_polyline;
+    #[cfg(feature = "2d")]
     mod cylinder_to_polyline;
+    #[cfg(feature = "2d")]
     mod cone_to_polyline;
+    #[cfg(feature = "2d")]
     mod capsule_to_polyline;
     // FIXME: this one is not easy to implement.
-    // #[dim2]
+    // #[cfg(feature = "2d")]
     // mod mesh_to_polyline;
+    #[cfg(feature = "2d")]
     mod plane_to_polyline;
     mod reflection_to_polyline;
     mod segment_to_polyline;
     mod triangle_to_polyline;
+    #[cfg(feature = "2d")]
     mod minkowski_sum_to_polyline;
 }
 
@@ -64,5 +79,6 @@ mod cylinder;
 mod quad;
 mod sphere;
 mod convex_hull;
-mod hacd;
 mod parametric_surface;
+#[cfg(feature = "3d")]
+mod hacd;

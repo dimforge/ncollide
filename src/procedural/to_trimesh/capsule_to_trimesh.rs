@@ -4,7 +4,7 @@ use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl ToTriMesh<(u32, u32)> for Capsule {
     fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
         let diameter = self.radius() * na::cast(2.0f64);
@@ -16,7 +16,7 @@ impl ToTriMesh<(u32, u32)> for Capsule {
 }
 
 /*
-#[cfg(not(dim3))]
+#[cfg(not(3d))]
 impl ToTriMesh<uint> for Capsule
 {
     fn to_trimesh(&self, ntheta_subdiv: uint) -> TriMesh<Scalar, Vect>

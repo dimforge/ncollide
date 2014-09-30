@@ -2,7 +2,7 @@ use na::{Transform, Rotate};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use geom::Convex;
-use math::{Scalar, Vect};
+use math::Vect;
 
 impl<_M: Transform<Vect> + Rotate<Vect>> Implicit<Vect, _M> for Convex {
     #[inline]

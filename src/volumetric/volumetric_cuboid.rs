@@ -17,7 +17,7 @@ pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
     res
 }
 
-#[dim2]
+#[cfg(feature = "2d")]
 impl Volumetric for Cuboid {
     #[inline]
     fn surface(&self) -> Scalar {
@@ -50,7 +50,7 @@ impl Volumetric for Cuboid {
     }
 }
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl Volumetric for Cuboid {
     #[inline]
     fn surface(&self) -> Scalar {

@@ -1,11 +1,10 @@
-use std::num::Zero;
 use na;
-use geom::{Cylinder, Ball, MinkowskiSum};
+use geom::Cylinder;
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Vect};
 
-#[dim3]
+#[cfg(feature = "3d")]
 impl ToTriMesh<u32> for Cylinder {
     fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<Scalar, Vect> {
         let diameter = self.radius() * na::cast(2.0f64);
