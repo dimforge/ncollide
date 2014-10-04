@@ -48,7 +48,6 @@ Some common features are still missing:
 #![deny(unnecessary_typecast)]
 #![feature(default_type_params)]
 #![feature(macro_rules)]
-#![feature(managed_boxes)]
 #![feature(unsafe_destructor)]
 #![feature(phase)]
 #![doc(html_root_url = "http://ncollide.org/doc")]

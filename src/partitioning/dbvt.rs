@@ -1,7 +1,7 @@
 //! A Dynamic Bounding Volume Tree.
 
-use std::gc::{Gc, GC};
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::ptr;
 use std::mem;
 use utils::data::owned_allocation_cache::OwnedAllocationCache;
@@ -41,7 +41,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone,
      B:  'static + Clone>
 DBVT<B, BV> {
     /// Removes a leaf from the tree. Fails if the tree is empty.
-    pub fn remove(&mut self, leaf: &mut Gc<RefCell<DBVTLeaf<B, BV>>>) {
+    pub fn remove(&mut self, leaf: &mut Rc<RefCell<DBVTLeaf<B, BV>>>) {
         let self_tree = self.tree.take().unwrap();
 
         let mut bleaf = leaf.borrow_mut();
@@ -52,8 +52,8 @@ DBVT<B, BV> {
     // FIXME: it feels strange that this method takes (B, BV) in this order while the leaves
     // constructor takes (BV, B)…
     /// Creates, inserts, and returns a new leaf with the given content.
-    pub fn insert_new(&mut self, b: B, bv: BV) -> Gc<RefCell<DBVTLeaf<B, BV>>> {
-        let leaf = box(GC) RefCell::new(DBVTLeaf::new(bv, b));
+    pub fn insert_new(&mut self, b: B, bv: BV) -> Rc<RefCell<DBVTLeaf<B, BV>>> {
+        let leaf = Rc::new(RefCell::new(DBVTLeaf::new(bv, b)));
 
         self.insert(leaf.clone());
 
@@ -61,7 +61,7 @@ DBVT<B, BV> {
     }
 
     /// Inserts a leaf to the tree.
-    pub fn insert(&mut self, leaf: Gc<RefCell<DBVTLeaf<B, BV>>>) {
+    pub fn insert(&mut self, leaf: Rc<RefCell<DBVTLeaf<B, BV>>>) {
         let mut self_tree = None;
         mem::swap(&mut self_tree, &mut self.tree);
 
@@ -74,7 +74,7 @@ DBVT<B, BV> {
     }
 
     /// Visit this tree using… a visitor!
-    pub fn visit<Vis: BVTVisitor<Gc<RefCell<DBVTLeaf<B, BV>>>, BV>>(&self, visitor: &mut Vis) {
+    pub fn visit<Vis: BVTVisitor<Rc<RefCell<DBVTLeaf<B, BV>>>, BV>>(&self, visitor: &mut Vis) {
         match self.tree {
             Some(ref t) => t.visit(visitor),
             None        => { }
@@ -98,7 +98,7 @@ DBVT<B, BV> {
     ///           is not considered intersecting itself.
     pub fn interferences_with_leaf(&self,
                                    leaf: &DBVTLeaf<B, BV>,
-                                   out:  &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
+                                   out:  &mut Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>) {
         match self.tree {
             Some(ref tree) => tree.interferences_with_leaf(leaf, out),
             None           => { }
@@ -108,7 +108,7 @@ DBVT<B, BV> {
     /// Finds all interferences between this tree and another one.
     pub fn interferences_with_tree(&self,
                                    leaf: &DBVT<B, BV>,
-                                   out:  &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
+                                   out:  &mut Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>) {
         match (&self.tree, &leaf.tree) {
             (&Some(ref a), &Some(ref b)) => a.interferences_with_tree(b, out),
             (&None, _) => { },
@@ -120,7 +120,7 @@ DBVT<B, BV> {
 /// Node of the Dynamic Bounding Volume Tree.
 enum DBVTNode<B, BV> {
     Internal(Box<DBVTInternal<B, BV>>),
-    Leaf(Gc<RefCell<DBVTLeaf<B, BV>>>),
+    Leaf(Rc<RefCell<DBVTLeaf<B, BV>>>),
     Invalid
 }
 
@@ -364,7 +364,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
     /// Inserts a new leaf on this tree.
     fn insert(self,
               cache:     &mut Cache<B, BV>,
-              to_insert: Gc<RefCell<DBVTLeaf<B, BV>>>)
+              to_insert: Rc<RefCell<DBVTLeaf<B, BV>>>)
               -> Box<DBVTInternal<B, BV>> {
 
         let mut bto_insert = to_insert.borrow_mut();
@@ -443,7 +443,8 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
                 mut_internal
             },
             Leaf(l) => {
-                let mut bl = l.borrow_mut();
+                let     cl = l.clone();
+                let mut bl = cl.borrow_mut();
                 let     pl = bl.deref_mut();
 
                 // create the root
@@ -471,12 +472,12 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
     /// is not considered intersecting itself.
     fn interferences_with_leaf(&self,
                                to_test: &DBVTLeaf<B, BV>,
-                               out:     &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
+                               out:     &mut Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(&to_test.bounding_volume, out);
         self.visit(&mut visitor)
     }
 
-    fn visit<Vis: BVTVisitor<Gc<RefCell<DBVTLeaf<B, BV>>>, BV>>(&self, visitor: &mut Vis) {
+    fn visit<Vis: BVTVisitor<Rc<RefCell<DBVTLeaf<B, BV>>>, BV>>(&self, visitor: &mut Vis) {
         match *self {
             Internal(ref i) => {
                 if visitor.visit_internal(&i.bounding_volume) {
@@ -512,7 +513,7 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
     /// Finds all interferences between this tree and another one.
     fn interferences_with_tree(&self,
                                to_test: &DBVTNode<B, BV>,
-                               out:     &mut Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>) {
+                               out:     &mut Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>) {
         match (self, to_test) {
             (&Leaf(_), &Leaf(ref lb)) => {
                 let blb = lb.borrow();

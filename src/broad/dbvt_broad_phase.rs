@@ -1,5 +1,5 @@
-use std::gc::{GC, Gc};
 use std::cell::RefCell;
+use std::rc::Rc;
 use na::Translation;
 use na;
 use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
@@ -21,14 +21,14 @@ use math::{Scalar, Vect};
 pub struct DBVTBroadPhase<B, BV, D, DV> {
     tree:        DBVT<B, BV>,
     stree:       DBVT<B, BV>,
-    active2bv:   HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    inactive2bv: HashMap<uint, Gc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    pairs:       HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
-    spairs:      HashMap<Pair<Gc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
+    active2bv:   HashMap<uint, Rc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
+    inactive2bv: HashMap<uint, Rc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
+    pairs:       HashMap<Pair<Rc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
+    spairs:      HashMap<Pair<Rc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
     dispatcher:  D,
     margin:      Scalar,
-    collector:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
-    to_update:   Vec<Gc<RefCell<DBVTLeaf<B, BV>>>>,
+    collector:   Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>,
+    to_update:   Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>,
     update_off:  uint // incremental pairs removal index
 }
 
@@ -88,7 +88,7 @@ DBVTBroadPhase<B, BV, D, DV> {
             }
 
             self.collector.clear();
-            self.tree.insert(*u);
+            self.tree.insert(u.clone());
         }
 
         /*
@@ -137,9 +137,9 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
     #[inline]
     fn add(&mut self, b: B) {
         let id   = b.uid();
-        let leaf = box(GC) RefCell::new(DBVTLeaf::new(b.bounding_volume().loosened(self.margin.clone()), b));
+        let leaf = Rc::new(RefCell::new(DBVTLeaf::new(b.bounding_volume().loosened(self.margin.clone()), b)));
 
-        self.to_update.push(leaf);
+        self.to_update.push(leaf.clone());
         self.update_updatable();
 
         self.active2bv.insert(id, leaf);
@@ -173,7 +173,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         // remove every pair involving b
         for elt in self.pairs.elements().iter() {
             if elt.key.first.uid() == leaf.uid() || elt.key.second.uid() == leaf.uid() {
-                keys_to_remove.push(elt.key);
+                keys_to_remove.push(elt.key.clone());
             }
         }
 
@@ -186,7 +186,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
         // remove every "sleeping" pair involving b
         for elt in self.spairs.elements().iter() {
             if elt.key.first.uid() == leaf.uid() || elt.key.second.uid() == leaf.uid() {
-                keys_to_remove.push(elt.key);
+                keys_to_remove.push(elt.key.clone());
             }
         }
 
@@ -213,7 +213,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
                 }
 
                 self.tree.remove(&mut a.value);
-                self.to_update.push(a.value);
+                self.to_update.push(a.value.clone());
             }
         }
 
@@ -274,13 +274,14 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                 Some(l) => l.value
             };
 
-        self.active2bv.insert(body.uid(), leaf);
+        self.active2bv.insert(body.uid(), leaf.clone());
 
         // remove from the inactive tree
         self.stree.remove(&mut leaf);
 
         // Now we find interferences with inactive objects.
         { // scope to avoid dynamic borrow failure
+            let leaf = leaf.clone();
             let bleaf = leaf.borrow();
             self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
 
@@ -288,12 +289,13 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                 let bi = i.borrow();
                 if self.dispatcher.is_valid(&bleaf.object, &bi.object) {
                     // the intereference should be registered on the spairs already
-                    match self.spairs.get_and_remove(&Pair::new(leaf, *i)) {
+                    match self.spairs.get_and_remove(&Pair::new(leaf.clone(), i.clone())) {
                         Some(dv) => {
-                            let key   = dv.key;
+                            let key   = dv.key.clone();
                             let value = dv.value;
                             let bdvf  = key.first.borrow();
                             let bdvs  = key.second.borrow();
+                            let key   = dv.key;
                             let obj1  = &bdvf.object;
                             let obj2  = &bdvs.object;
                             let p     = self.pairs.insert_or_replace(key, value, true);
@@ -319,7 +321,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                 Some(l) => l.value
             };
 
-        self.inactive2bv.insert(body.uid(), leaf);
+        self.inactive2bv.insert(body.uid(), leaf.clone());
 
         // Now transfer all collisions involving `leaf` and deactivated objects from `pairs` to
         // `spairs`.
@@ -328,14 +330,15 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
         self.tree.remove(&mut leaf);
 
         { // scope to avoid dynamic borrow failure of leaf
-            let bleaf = leaf.borrow();
+            let cleaf = leaf.clone();
+            let bleaf = cleaf.borrow();
             self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
 
             for i in self.collector.iter() {
                 let fi = i.borrow();
                 if self.dispatcher.is_valid(&bleaf.object, &fi.object) {
                     // the intereference should be registered on the pairs already
-                    match self.pairs.get_and_remove(&Pair::new(leaf, *i)) {
+                    match self.pairs.get_and_remove(&Pair::new(leaf.clone(), i.clone())) {
                         Some(dv) => { self.spairs.insert(dv.key, dv.value); },
                         None     => fail!("Internal error: found a new collision during the deactivation.")
                     }
