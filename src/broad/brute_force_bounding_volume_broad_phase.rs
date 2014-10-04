@@ -211,7 +211,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     }
 }
 
-#[cfg(test, dim3, f64)]
+#[cfg(all(test, dim3, f64))]
 mod test {
     use super::BruteForceBoundingVolumeBroadPhase;
     use std::rc::Rc;

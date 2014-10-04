@@ -202,7 +202,7 @@ HasBoundingVolume<AABB> for Rc<RefCell<WithAABB<A>>> {
     }
 }
 
-#[cfg(dim3, f64, test)]
+#[cfg(all(dim3, f64, test))]
 mod test {
     use super::AABB;
     use bounding_volume::BoundingVolume;
