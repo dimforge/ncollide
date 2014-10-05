@@ -132,7 +132,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     }
 }
 
-#[cfg(dim2, f32, test)]
+#[cfg(all(dim2, f32, test))]
 mod test {
     use super::closest_points;
     use na::{Vec2, Iso2};

@@ -394,7 +394,7 @@ RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
     }
 }
 
-#[cfg(test, dim3, f64)]
+#[cfg(all(test, dim3, f64))]
 mod test {
     use super::DBVTBroadPhase;
     use std::rc::Rc;

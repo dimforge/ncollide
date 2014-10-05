@@ -484,7 +484,7 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
     Some(b.at(&uv.x, &uv.y, &mut cache))
 }
 
-#[cfg(dim3, test, f32)]
+#[cfg(all(dim3, test, f32))]
 mod test {
     use std::num::Bounded;
     use na::Vec3;

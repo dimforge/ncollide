@@ -474,7 +474,7 @@ Simplex<_V> for JohnsonSimplex<_V> {
 //     }
 // }
 
-#[cfg(dim3, f64, test)]
+#[cfg(all(dim3, f64, test))]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use narrow::algorithm::simplex::Simplex;
