@@ -1,6 +1,6 @@
 use std::mem;
-use std::gc::{GC, Gc};
 use std::cell::RefCell;
+use std::rc::Rc;
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use utils::data::pair::{Pair, PairTWHash};
@@ -56,13 +56,13 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 ///
 /// Do not use this broad phase.
 pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
-    objects:    Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
-    sobjects:   Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
+    objects:    Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
+    sobjects:   Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
     rb2bv:      HashMap<uint, uint, UintTWHash>,
-    pairs:      HashMap<Pair<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
+    pairs:      HashMap<Pair<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
     dispatcher: D,
     margin:     Scalar,
-    to_update:  Vec<Gc<RefCell<BoundingVolumeProxy<B, BV>>>>,
+    to_update:  Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>,
     update_off: uint // incremental pairs removal index
 }
 
@@ -94,8 +94,8 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     /// Adds an element to this broad phase.
     #[inline]
     pub fn add(&mut self, rb: B) {
-        let proxy = box(GC) RefCell::new(BoundingVolumeProxy::new(rb, self.margin.clone()));
-        self.objects.push(proxy);
+        let proxy = Rc::new(RefCell::new(BoundingVolumeProxy::new(rb, self.margin.clone())));
+        self.objects.push(proxy.clone());
         self.to_update.push(proxy);
     }
 
@@ -115,9 +115,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                 Some(i) => {
                     if active {
                         // remove from sobjects…
-                        let proxy  = self.sobjects[*i];
+                        let proxy  = self.sobjects[*i].clone();
                         let lproxy = self.sobjects.pop().unwrap();
-                        *self.sobjects.get_mut(*i) = lproxy;
+                        *self.sobjects.get_mut(*i) = lproxy.clone();
 
                         // … then add to objects
                         self.objects.push(proxy);
@@ -130,9 +130,9 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
                     }
                     else {
                         // remove from objects…
-                        let proxy  = self.objects[*i];
+                        let proxy  = self.objects[*i].clone();
                         let lproxy = self.objects.pop().unwrap();
-                        *self.objects.get_mut(*i) = lproxy;
+                        *self.objects.get_mut(*i) = lproxy.clone();
 
                         // … then add to sobjects
                         self.sobjects.push(proxy);
@@ -160,15 +160,15 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
             }
         }
 
-        for &b1 in self.to_update.iter() {
-            for &b2 in self.objects.iter() {
+        for b1 in self.to_update.iter() {
+            for b2 in self.objects.iter() {
                 let bb1 = b1.borrow();
                 let bb2 = b2.borrow();
                 if self.dispatcher.is_valid(&bb1.body, &bb2.body) {
                     if bb2.bounding_volume.intersects(&bb1.bounding_volume) {
                         let dispatcher = &mut self.dispatcher;
                         let _ = self.pairs.find_or_insert_lazy(
-                            Pair::new(b1, b2),
+                            Pair::new(b1.clone(), b2.clone()),
                             || dispatcher.dispatch(&bb1.body, &bb2.body)
                         );
 
