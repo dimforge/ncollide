@@ -1,0 +1,16 @@
+[package]
+name    = "ncollide3df32"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[features]
+default = [ "3d", "f32" ]
+f32     = []
+3d      = []
+
+[lib]
+name = "ncollide3df32"
+path = "../../src/lib.rs"
+
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"

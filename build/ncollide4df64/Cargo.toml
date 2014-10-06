@@ -1,0 +1,16 @@
+[package]
+name    = "ncollide4df64"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[features]
+default = [ "4d", "f64" ]
+f64     = []
+4d      = []
+
+[lib]
+name = "ncollide4df64"
+path = "../../src/lib.rs"
+
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"

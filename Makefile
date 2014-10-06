@@ -7,6 +7,12 @@ all:
 	cargo build --release --features "2df64"
 	cargo build --release --features "3df64"
 	cargo build --release --features "4df64"
+	cd build/ncollide2df32; cargo build --release
+	cd build/ncollide2df64; cargo build --release
+	cd build/ncollide3df32; cargo build --release
+	cd build/ncollide3df64; cargo build --release
+	cd build/ncollide4df32; cargo build --release
+	cd build/ncollide4df64; cargo build --release
 
 test:
 	cargo test --features "3df32"
