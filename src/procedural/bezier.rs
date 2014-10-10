@@ -103,7 +103,7 @@ pub fn bezier_surface<N: Float + Clone + Cast<f64>,
                       -> TriMesh<N, P, V> {
     assert!(nupoints * nvpoints == control_points.len());
 
-    let mut surface = procedural::unit_quad(usubdivs, vsubdivs);
+    let mut surface = procedural::unit_quad::<N, P, V>(usubdivs, vsubdivs);
 
     {
         let uvs    = surface.uvs.as_ref().unwrap().as_slice();

@@ -5,11 +5,12 @@ use bounding_volume;
 use utils;
 
 /// Computes the area of a triangle.
+#[inline]
 pub fn triangle_area<N: Float + Cast<f64>, P: FloatPnt<N, V>, V: FloatVec<N>>(pa: &P, pb: &P, pc: &P) -> N {
     // Kahan's formula.
-    let mut a = na::norm(&(*pa - *pb));
-    let mut b = na::norm(&(*pb - *pc));
-    let mut c = na::norm(&(*pc - *pa));
+    let mut a = na::dist(pa, pb);
+    let mut b = na::dist(pb, pc);
+    let mut c = na::dist(pc, pa);
 
     let (c, b, a) = utils::sort3(&mut a, &mut b, &mut c);
     let a = *a;
@@ -22,8 +23,9 @@ pub fn triangle_area<N: Float + Cast<f64>, P: FloatPnt<N, V>, V: FloatVec<N>>(pa
 }
 
 /// Computes the perimeter of a triangle.
-pub fn triangle_perimeter<N: Float, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N {
-    na::norm(&(*pa - *pb)) + na::norm(&(*pb - *pc)) + na::norm(&(*pc - *pa))
+#[inline]
+pub fn triangle_perimeter<N: Float, P: FloatPnt<N, V>, V: FloatVec<N>>(pa: &P, pb: &P, pc: &P) -> N {
+    na::dist(pa, pb) + na::dist(pb, pc) + na::dist(pc, pa)
 }
 
 /// Computes the circumcircle of a triangle.

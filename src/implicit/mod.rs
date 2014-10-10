@@ -9,7 +9,7 @@ pub use implicit::implicit_utils::{point_cloud_support_point};
 pub mod implicit;
 
 mod implicit_utils;
-mod implicit_box;
+mod implicit_cuboid;
 mod implicit_ball;
 mod implicit_capsule;
 mod implicit_cone;

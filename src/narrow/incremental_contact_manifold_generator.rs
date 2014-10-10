@@ -16,7 +16,7 @@ impl ContactWLocals {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + *contact.world2.as_vec()) * na::cast::<f32, Scalar>(0.5),
+                center: na::center(&contact.world1, &contact.world2),
                 contact: contact
             }
         }
@@ -179,7 +179,7 @@ fn add_reduce_by_variance(pts: &mut [ContactWLocals], to_add: Contact, m1: &Matr
 
 fn approx_variance(pts: &[ContactWLocals], to_add: &Contact, to_ignore: uint) -> Scalar {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + *to_add.world2.as_vec()) * na::cast::<f32, Scalar>(0.5);
+    let to_add_center = na::center(&to_add.world1, &to_add.world2);
 
     let mut mean = to_add_center.clone();
 

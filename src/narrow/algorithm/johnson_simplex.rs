@@ -386,7 +386,7 @@ impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> Simplex<P> for Johnson
         let mut max_sq_len = na::zero();
 
         for p in self.points.iter() {
-            let norm = na::norm(p.as_vec());
+            let norm = na::sqnorm(p.as_vec());
 
             if norm > max_sq_len {
                 max_sq_len = norm

@@ -10,7 +10,7 @@ use implicit;
 // FIXME: factorize with the one on hacd.
 fn normalize(coords: &mut [Pnt3<Scalar>]) -> (Pnt3<Scalar>, Scalar) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), coords.as_slice());
-    let diag   = na::norm(&(maxs - mins));
+    let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
     for c in coords.iter_mut() {

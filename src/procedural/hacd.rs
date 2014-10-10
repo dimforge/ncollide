@@ -155,7 +155,7 @@ pub fn hacd(mesh:           TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>,
 #[cfg(feature = "3d")]
 fn normalize(mesh: &mut TriMesh<Scalar, Point, Vect>) -> (Point, Scalar) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
-    let diag   = na::norm(&(maxs - mins));
+    let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
     mesh.translate_by(&(-*center.as_vec()));
@@ -380,12 +380,12 @@ impl DualGraphEdge {
 
         let border_1 = dual_graph[v1].border.as_ref().unwrap();
         let border_2 = dual_graph[v2].border.as_ref().unwrap();
-        let perimeter = border_1.symmetric_difference(border_2).map(|e| na::norm(&(coords[e.x] - coords[e.y]))).sum();
+        let perimeter = border_1.symmetric_difference(border_2).map(|e| na::dist(&coords[e.x], &coords[e.y])).sum();
         let area = dual_graph[v1].area + dual_graph[v2].area;
 
         // FIXME: refactor this.
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
-        let diagonal = na::norm(&(*aabb.maxs() - *aabb.mins()));
+        let diagonal = na::dist(aabb.mins(), aabb.maxs());
         let shape_cost;
 
         if area.is_zero() || diagonal.is_zero() {

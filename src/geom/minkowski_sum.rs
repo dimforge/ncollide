@@ -164,18 +164,6 @@ impl AnnotatedPoint {
     }
 }
 
-impl AnnotatedPoint {
-    #[doc(hidden)]
-    #[inline]
-    pub fn new_invalid(point: Point) -> AnnotatedPoint {
-        AnnotatedPoint {
-            orig1: na::orig(),
-            orig2: na::orig(),
-            point: point
-        }
-    }
-}
-
 impl PntAsVec<Vect> for AnnotatedPoint {
     #[inline]
     fn to_vec(self) -> Vect {

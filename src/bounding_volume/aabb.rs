@@ -16,7 +16,7 @@ pub trait HasAABB {
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct AABB {
     mins: Point,
-    maxs: Point 
+    maxs: Point
 }
 
 impl AABB {
@@ -109,7 +109,7 @@ impl Translation<Vect> for AABB
 {
     #[inline]
     fn translation(&self) -> Vect {
-        (*self.mins.as_vec() + *self.maxs.as_vec()) * na::cast::<f64, Scalar>(0.5)
+        na::center(&self.mins, &self.maxs).to_vec()
     }
 
     #[inline]

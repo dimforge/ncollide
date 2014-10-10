@@ -312,10 +312,10 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
 impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
     fn sqdist_to(&self, to: &Point) -> Scalar {
         match *self {
-            Internal(ref i) => na::sqnorm(&(i.center - *to)),
+            Internal(ref i) => na::sqdist(&i.center, to),
             Leaf(ref l)     => {
                 let bl = l.borrow();
-                na::sqnorm(&(bl.center - *to))
+                na::sqdist(&bl.center, to)
             },
             Invalid         => unreachable!()
         }
