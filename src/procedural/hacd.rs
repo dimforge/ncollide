@@ -155,9 +155,8 @@ pub fn hacd(mesh:           TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>,
 #[cfg(feature = "3d")]
 fn normalize(mesh: &mut TriMesh<Scalar, Point, Vect>) -> (Point, Scalar) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
-    let diag = na::norm(&(maxs - mins));
-    let _2: Scalar = na::cast(2.0f64);
-    let center: Point = (mins + *maxs.as_vec()) / _2;
+    let diag   = na::norm(&(maxs - mins));
+    let center = na::center(&mins, &maxs);
 
     mesh.translate_by(&(-*center.as_vec()));
     let _1: Scalar = na::one();
