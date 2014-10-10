@@ -2,12 +2,12 @@ use na;
 use na::Translation;
 use implicit::{PreferedSamplingDirections, Implicit};
 use geom::Ball;
-use math::Vect;
+use math::{Point, Vect};
 
-impl<_M: Translation<Vect>> Implicit<Vect, _M> for Ball {
+impl<_M: Translation<Vect>> Implicit<Point, Vect, _M> for Ball {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
-        m.translation() + na::normalize(dir) * self.radius()
+    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
+        m.translation().as_pnt() + na::normalize(dir) * self.radius()
     }
 }
 

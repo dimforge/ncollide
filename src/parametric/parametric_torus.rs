@@ -1,13 +1,13 @@
-use na::Vec3;
+use na::{Pnt3, Vec3};
 use na;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 use geom::Torus;
 use parametric::ParametricSurface;
 use utils;
 
 /// Parametrization of the torus.
 impl ParametricSurface for Torus {
-    fn at(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at(&self, u: Scalar, v: Scalar) -> Point {
         let u        = u * Float::two_pi();
         let v        = v * Float::two_pi();
         let (su, cu) = u.sin_cos();
@@ -15,7 +15,7 @@ impl ParametricSurface for Torus {
         let r        = self.minor_radius();
         let mr       = self.major_radius();
 
-        Vec3::new(mr * cu, na::zero(), -mr * su) +
+        Pnt3::new(mr * cu, na::zero(), -mr * su) +
         Vec3::new(r * cu * cv, r * sv, -r * su * cv)
     }
 

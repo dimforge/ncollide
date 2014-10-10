@@ -1,6 +1,6 @@
 use na::Vec2;
 use na;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 use utils;
 use parametric::ParametricSurface;
 use procedural::TriMesh;
@@ -13,7 +13,7 @@ use procedural;
 pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
                                                         usubdivs: uint,
                                                         vsubdivs: uint)
-                                                        -> TriMesh<Scalar, Vect> {
+                                                        -> TriMesh<Scalar, Point, Vect> {
     assert!(usubdivs > 0);
     assert!(vsubdivs > 0);
 
@@ -40,7 +40,7 @@ pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
 
 #[cfg(not(feature = "3d"))]
 /// Not yet implemented in dimensions other than 3.
-pub fn parametric_surface_uniform<S: ParametricSurface>(_: &S, _: uint, _: uint) -> TriMesh<Scalar, Vect> {
+pub fn parametric_surface_uniform<S: ParametricSurface>(_: &S, _: uint, _: uint) -> TriMesh<Scalar, Point, Vect> {
     fail!("`parametric_surface_uniform` is not yet implemented for dimensions other than 3.")
 }
 
@@ -50,7 +50,7 @@ pub fn parametric_surface_uniform<S: ParametricSurface>(_: &S, _: uint, _: uint)
 /// piecewise linear approximation and the parametric surface is bellow `error`.
 ///
 /// See: "Surface algorithms using bounds on derivatives", D. Filip, R. Magedson, R. Markot
-pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &S, error: Scalar) -> TriMesh<Scalar, Vect> {
+pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &S, error: Scalar) -> TriMesh<Scalar, Point, Vect> {
     let mut ms: [Scalar, ..3] = [ na::zero(), na::zero(), na::zero() ];
 
     for (mi, &(i, j)) in [ (2u, 0u), (1, 1), (0, 2) ].iter().enumerate() {

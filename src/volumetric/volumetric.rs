@@ -1,6 +1,6 @@
 //! Traits to compute inertial properties.
 
-use math::{Scalar, Vect, Orientation, Matrix, AngularInertia};
+use math::{Scalar, Point, Orientation, Matrix, AngularInertia};
 
 #[cfg(not(feature = "4d"))]
 use na;
@@ -22,7 +22,7 @@ pub trait InertiaTensor {
     fn to_world_space(&self, &Matrix) -> Self;
 
     /// Computes this inertia tensor relative to a given point.
-    fn to_relative_wrt_point(&self, &Scalar, &Vect) -> Self;
+    fn to_relative_wrt_point(&self, &Scalar, &Point) -> Self;
 }
 
 /// Trait to be implemented by objects which have a mass, a center of mass, and an inertia tensor.
@@ -34,7 +34,7 @@ pub trait Volumetric {
     fn volume(&self) -> Scalar;
 
     /// Computes the center of mass of this object.
-    fn center_of_mass(&self) -> Vect;
+    fn center_of_mass(&self) -> Point;
 
     /// Computes the angular inertia tensor of this object.
     fn unit_angular_inertia(&self) -> AngularInertia;
@@ -50,7 +50,7 @@ pub trait Volumetric {
     }
 
     /// Given its density, this computes the mass, center of mass, and inertia tensor of this object.
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
+    fn mass_properties(&self, density: &Scalar) -> (Scalar, Point, AngularInertia) {
         let mass = self.mass(density);
         let com  = self.center_of_mass();
         let ai   = self.angular_inertia(&mass);
@@ -73,8 +73,8 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vect) -> AngularInertia {
-        *self + Mat1::new(mass * na::sqnorm(pt))
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Point) -> AngularInertia {
+        *self + Mat1::new(mass * na::sqnorm(pt.as_vec()))
     }
 }
 
@@ -92,15 +92,15 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Vect) -> AngularInertia {
-        let diag  = na::sqnorm(pt);
+    fn to_relative_wrt_point(&self, mass: &Scalar, pt: &Point) -> AngularInertia {
+        let diag  = na::sqnorm(pt.as_vec());
         let diagm = Mat3::new(
             diag.clone(), na::zero(),   na::zero(),
             na::zero(),   diag.clone(), na::zero(),
             na::zero(),   na::zero(),   diag
         );
 
-        *self + (diagm - na::outer(pt, pt)) * *mass
+        *self + (diagm - na::outer(pt.as_vec(), pt.as_vec())) * *mass
     }
 }
 
@@ -117,7 +117,7 @@ impl InertiaTensor for AngularInertia {
     }
 
     #[inline]
-    fn to_relative_wrt_point(&self, _: &Scalar, _: &Vect) -> AngularInertia {
+    fn to_relative_wrt_point(&self, _: &Scalar, _: &Point) -> AngularInertia {
         fail!("Not yet implemented.")
     }
 }

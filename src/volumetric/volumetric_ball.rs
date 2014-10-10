@@ -3,7 +3,7 @@ use std::num;
 use na;
 use geom::Ball;
 use volumetric::Volumetric;
-use math::{Scalar, Vect, AngularInertia};
+use math::{Scalar, Point, AngularInertia};
 
 #[cfg(not(feature = "4d"))]
 use na::Indexable;
@@ -12,7 +12,7 @@ use na::Indexable;
 #[inline]
 pub fn ball_volume(radius: &Scalar) -> Scalar {
     let _pi: Scalar = Float::pi();
-    _pi * num::pow(radius.clone(), na::dim::<Vect>())
+    _pi * num::pow(radius.clone(), na::dim::<Point>())
 }
 
 #[cfg(feature = "2d")]
@@ -29,8 +29,8 @@ impl Volumetric for Ball {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     fn unit_angular_inertia(&self) -> AngularInertia {
@@ -58,8 +58,8 @@ impl Volumetric for Ball {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     fn unit_angular_inertia(&self) -> AngularInertia {

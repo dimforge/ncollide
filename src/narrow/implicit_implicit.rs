@@ -10,7 +10,7 @@ use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection
 use narrow::algorithm::minkowski_sampling;
 use narrow::{CollisionDetector, Contact};
 use ray::{Ray, RayCast};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Persistent collision detector between two shapes having a support mapping function.
 ///
@@ -49,8 +49,8 @@ impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
 }
 
 impl<S:  Simplex<AnnotatedPoint>,
-     G1: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
-     G2: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>
+     G1: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
+     G2: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>
      CollisionDetector<G1, G2> for ImplicitImplicit<S, G1, G2> {
     #[inline]
     fn update(&mut self, ma: &Matrix, a: &G1, mb: &Matrix, b: &G2) {
@@ -110,8 +110,8 @@ impl<S:  Simplex<AnnotatedPoint>,
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
 pub fn collide<S:  Simplex<AnnotatedPoint>,
-               G1: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
-               G2: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
+               G1: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
+               G2: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
                m1:         &Matrix,
                g1:         &G1,
                m2:         &Matrix,
@@ -169,8 +169,8 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<G1: Implicit<Vect, Matrix>,
-           G2: Implicit<Vect, Matrix>>(
+pub fn toi<G1: Implicit<Point, Vect, Matrix>,
+           G2: Implicit<Point, Vect, Matrix>>(
            m1:  &Matrix,
            dir: &Vect,
            g1:  &G1,
@@ -180,7 +180,7 @@ pub fn toi<G1: Implicit<Vect, Matrix>,
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_with_ray(&Ray::new(na::zero(), -dir), true)
+    cso.toi_with_ray(&Ray::new(na::orig(), -dir), true)
 }
 
 /// Computes the Time Of Impact of two geometries.
@@ -191,8 +191,8 @@ pub fn toi<G1: Implicit<Vect, Matrix>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi_and_normal<G1: Implicit<Vect, Matrix>,
-                      G2: Implicit<Vect, Matrix>>(
+pub fn toi_and_normal<G1: Implicit<Point, Vect, Matrix>,
+                      G2: Implicit<Point, Vect, Matrix>>(
                       m1:  &Matrix,
                       dir: &Vect,
                       g1:  &G1,
@@ -202,5 +202,5 @@ pub fn toi_and_normal<G1: Implicit<Vect, Matrix>,
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_and_normal_with_ray(&Ray::new(na::zero(), -dir), true).map(|i| (i.toi, -i.normal))
+    cso.toi_and_normal_with_ray(&Ray::new(na::orig(), -dir), true).map(|i| (i.toi, -i.normal))
 }

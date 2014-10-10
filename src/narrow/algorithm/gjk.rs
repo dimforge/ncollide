@@ -1,21 +1,21 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use na::{FloatVec, Identity};
+use na::{FloatVec, Identity, AnyPnt};
 use na;
 use geom::{Reflection, AnnotatedPoint, AnnotatedMinkowskiSum};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Results of the GJK algorithm.
 #[deriving(Encodable, Decodable, Clone)]
-pub enum GJKResult<_V, Dir> {
+pub enum GJKResult<P, V> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-    Projection(_V),
+    Projection(P),
     /// Result of the GJK algorithm when the origin is to far away from the polytope.
-    NoIntersection(Dir)
+    NoIntersection(V)
 }
 
 /// Computes the closest points between two convex geometries unsing the GJK
@@ -28,13 +28,13 @@ pub enum GJKResult<_V, Dir> {
 ///               with at least one point on the geometries CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
 pub fn closest_points<S:  Simplex<AnnotatedPoint>,
-                      G1: Implicit<Vect, Matrix>,
-                      G2: Implicit<Vect, Matrix>>(
+                      G1: Implicit<Point, Vect, Matrix>,
+                      G2: Implicit<Point, Vect, Matrix>>(
                       m1:      &Matrix,
                       g1:      &G1,
                       m2:      &Matrix,
                       g2:      &G2,
-                      simplex: &mut S) -> Option<(Vect, Vect)> {
+                      simplex: &mut S) -> Option<(Point, Point)> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -51,21 +51,21 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 ///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///               compute such point.
 pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
-                                                   G1: Implicit<Vect, Matrix>,
-                                                   G2: Implicit<Vect, Matrix>>(
+                                                   G1: Implicit<Point, Vect, Matrix>,
+                                                   G2: Implicit<Point, Vect, Matrix>>(
                                                    m1:       &Matrix,
                                                    g1:       &G1,
                                                    m2:       &Matrix,
                                                    g2:       &G2,
                                                    max_dist: &Scalar,
-                                                   simplex:  &mut S) -> GJKResult<(Vect, Vect), Vect> {
+                                                   simplex:  &mut S) -> GJKResult<(Point, Point), Vect> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
     match project_origin_with_max_dist(&Identity::new(), &cso, max_dist, simplex) {
         Projection(p)       => Projection((p.orig1().clone(), -p.orig2())),
         Intersection        => Intersection,
-        NoIntersection(dir) => NoIntersection(dir.point().clone())
+        NoIntersection(dir) => NoIntersection(dir.clone())
     }
 }
 
@@ -78,14 +78,14 @@ pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
 /// * geom - the geometry to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the geometry boundary.
-pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>, _M>(
-                      m:       &_M,
+pub fn project_origin<S: Simplex<P>, G: Implicit<P, V, M>, P: AnyPnt<Scalar, V>, V: FloatVec<Scalar>, M>(
+                      m:       &M,
                       geom:    &G,
                       simplex: &mut S)
-                      -> Option<_V> {
+                      -> Option<P> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
-    let mut sq_len_dir = na::sqnorm(&proj);
+    let mut sq_len_dir = na::sqnorm(proj.as_vec());
 
     let _eps: Scalar  = Float::epsilon();
     let _eps_tol = _eps * na::cast(100.0f64);
@@ -97,9 +97,9 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
             return None // point inside of the cso
         }
 
-        let support_point = geom.support_point(m, &-proj);
+        let support_point = geom.support_point(m, &-*proj.as_vec());
 
-        if sq_len_dir - na::dot(&proj, &support_point) <= _eps_rel * sq_len_dir {
+        if sq_len_dir - na::dot(proj.as_vec(), support_point.as_vec()) <= _eps_rel * sq_len_dir {
             return Some(proj) // the distance found has a good enough precision 
         }
 
@@ -111,7 +111,7 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
 
         let old_sq_len_dir = sq_len_dir;
 
-        sq_len_dir = na::sqnorm(&proj);
+        sq_len_dir = na::sqnorm(proj.as_vec());
 
         if sq_len_dir >= old_sq_len_dir {
             return Some(old_proj) // upper bounds inconsistencies
@@ -130,15 +130,15 @@ pub fn project_origin<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>,
 /// * geom - the geometry to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the geometry boundary.
-pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: FloatVec<Scalar>, _M>(
-                                    m:        &_M,
+pub fn project_origin_with_max_dist<S: Simplex<P>, G: Implicit<P, V, M>, P: AnyPnt<Scalar, V>, V: FloatVec<Scalar>, M>(
+                                    m:        &M,
                                     geom:     &G,
                                     max_dist: &Scalar,
                                     simplex:  &mut S)
-                                    -> GJKResult<_V, _V> {
+                                    -> GJKResult<P, V> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
-    let mut sq_len_dir = na::sqnorm(&proj);
+    let mut sq_len_dir = na::sqnorm(proj.as_vec());
 
     let _eps: Scalar  = Float::epsilon();
     let _eps_tol = _eps * na::cast(100.0f64);
@@ -150,13 +150,13 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Flo
             return Intersection // point inside of the cso
         }
 
-        let support_point = geom.support_point(m, &-proj);
+        let support_point = geom.support_point(m, &-*proj.as_vec());
 
-        let dot = na::dot(&proj, &support_point);
+        let dot = na::dot(proj.as_vec(), support_point.as_vec());
 
         // FIXME: find a way to avoid the sqrt here
-        if dot > *max_dist * na::norm(&proj) {
-            return NoIntersection(proj);
+        if dot > *max_dist * na::norm(proj.as_vec()) {
+            return NoIntersection(proj.to_vec());
         }
 
         if sq_len_dir - dot <= _eps_rel * sq_len_dir {
@@ -171,7 +171,7 @@ pub fn project_origin_with_max_dist<S: Simplex<_V>, G: Implicit<_V, _M>, _V: Flo
 
         let old_sq_len_dir = sq_len_dir;
 
-        sq_len_dir = na::sqnorm(&proj);
+        sq_len_dir = na::sqnorm(proj.as_vec());
 
         if sq_len_dir >= old_sq_len_dir {
             return Projection(old_proj) // upper bounds inconsistencies

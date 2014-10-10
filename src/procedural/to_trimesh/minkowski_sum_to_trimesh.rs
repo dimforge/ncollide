@@ -1,13 +1,13 @@
 use geom::MinkowskiSum;
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
 #[cfg(feature = "3d")]
 impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for MinkowskiSum<'a, G1, G2> {
-    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<Scalar, Vect> {
+    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<Scalar, Point, Vect> {
         let poly1 = self.g1().to_trimesh(a);
         let poly2 = self.g2().to_trimesh(b);
 
@@ -30,7 +30,7 @@ impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for Minkows
         for pt in p2.coords.iter() {
             let mut cpy = p1.clone();
 
-            cpy.translate_by(pt);
+            cpy.translate_by(pt.as_vec());
 
             all_points.extend(cpy.coords.into_iter());
         }

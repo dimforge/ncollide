@@ -1,7 +1,7 @@
 use std::num::Zero;
 use na::{Translation, Norm};
 use na;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 use bounding_volume::{BoundingVolume, LooseBoundingVolume};
 
 /// Trait implemented by objects having a bounding sphere.
@@ -13,13 +13,13 @@ pub trait HasBoundingSphere {
 /// A Bounding Sphere.
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct BoundingSphere {
-    center: Vect,
+    center: Point,
     radius: Scalar
 }
 
 impl BoundingSphere {
     /// Creates a new bounding sphere.
-    pub fn new(center: Vect, radius: Scalar) -> BoundingSphere {
+    pub fn new(center: Point, radius: Scalar) -> BoundingSphere {
         BoundingSphere {
             center: center,
             radius: radius
@@ -28,7 +28,7 @@ impl BoundingSphere {
 
     /// The bounding sphere center.
     #[inline]
-    pub fn center<'a>(&'a self) -> &'a Vect {
+    pub fn center<'a>(&'a self) -> &'a Point {
         &self.center
     }
 
@@ -80,8 +80,8 @@ impl BoundingVolume for BoundingSphere {
             }
         }
         else {
-            let s_center_dir = na::dot(&self.center, &dir);
-            let o_center_dir = na::dot(&other.center, &dir);
+            let s_center_dir = na::dot(self.center.as_vec(), &dir);
+            let o_center_dir = na::dot(other.center.as_vec(), &dir);
 
             let right;
             let left;
@@ -100,8 +100,8 @@ impl BoundingVolume for BoundingSphere {
                 left = other.center - dir * other.radius;
             }
 
-            self.center = (left + right) * _0_5;
-            self.radius = na::norm(&(right - self.center));
+            self.center = (left.as_vec() + *right.as_vec()).as_pnt() * _0_5;
+            self.radius = na::dist(&right, &self.center);
         }
     }
 
@@ -130,7 +130,7 @@ impl LooseBoundingVolume for BoundingSphere {
 impl Translation<Vect> for BoundingSphere {
     #[inline]
     fn translation(&self) -> Vect {
-        self.center.clone()
+        self.center.as_vec().clone()
     }
 
     #[inline]
@@ -160,6 +160,6 @@ impl Translation<Vect> for BoundingSphere {
 
     #[inline]
     fn set_translation(&mut self, v: Vect) {
-        self.center = v
+        self.center = v.as_pnt().clone()
     }
 }

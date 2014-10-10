@@ -40,12 +40,12 @@ CollisionDetector<G1, G2> for OneShotContactManifoldGenerator<CD> {
                         // first perturbation
                         rot_axis = rot_axis * na::cast::<f32, Scalar>(0.01);
 
-                        let rot_mat: Matrix = na::append_rotation_wrt_point(m1, &rot_axis, &coll.world1);
+                        let rot_mat: Matrix = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vec());
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 
                         // second perturbation (opposite direction)
-                        let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, &coll.world1);
+                        let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, coll.world1.as_vec());
 
                         self.sub_detector.add_new_contacts(&rot_mat, g1, m2, g2);
 

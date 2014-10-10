@@ -55,7 +55,6 @@ pub mod algorithm
 {
     pub mod simplex;
     pub mod johnson_simplex;
-    pub mod brute_force_simplex;
     pub mod gjk;
     pub mod minkowski_sampling;
 }

@@ -1,13 +1,13 @@
 //! Traits and structure needed to cast rays.
 
-use na::{Rotate, Transform, Vec2};
-use math::{Scalar, Vect, Matrix};
+use na::{Rotate, Transform, Pnt2};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// A Ray.
 #[deriving(Show, Encodable, Decodable, Clone)]
 pub struct Ray {
     /// Starting point of the ray.
-    pub orig: Vect,
+    pub orig: Point,
     /// Direction of the ray.
     pub dir:  Vect
 }
@@ -15,7 +15,7 @@ pub struct Ray {
 impl Ray {
     /// Creates a new ray starting from `orig` and with the direction `dir`. `dir` must be
     /// normalized.
-    pub fn new(orig: Vect, dir: Vect) -> Ray {
+    pub fn new(orig: Point, dir: Vect) -> Ray {
         Ray {
             orig: orig,
             dir:  dir
@@ -37,13 +37,13 @@ pub struct RayIntersection {
 
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    pub uvs:    Option<Vec2<Scalar>>
+    pub uvs:    Option<Pnt2<Scalar>>
 }
 
 impl RayIntersection {
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Vec2<Scalar>>) -> RayIntersection {
+    pub fn new_with_uvs(toi: Scalar, normal: Vect, uvs: Option<Pnt2<Scalar>>) -> RayIntersection {
         RayIntersection {
             toi:    toi,
             normal: normal,

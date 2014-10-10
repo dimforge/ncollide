@@ -7,19 +7,19 @@ use geom::{Reflection, MinkowskiSum, AnnotatedPoint};
 use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
 pub fn closest_points<S:  Simplex<AnnotatedPoint>,
-                      G1: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
-                      G2: Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
+                      G1: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
+                      G2: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
                       m1:      &Matrix,
                       g1:      &G1,
                       m2:      &Matrix,
                       g2:      &G2,
                       simplex: &mut S)
-                      -> Option<(Vect, Vect, Vect)> {
+                      -> Option<(Point, Point, Vect)> {
     let _0: Scalar     = na::zero();
     let _1m: Matrix    = na::one();
     let reflect2  = Reflection::new(g2);
@@ -32,7 +32,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     // FIXME: avoid code duplication for the closure
     g1.sample(m1, |sample: Vect| {
         let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, &support);
+        let dist    = na::dot(&sample, support.as_vec());
 
         if dist < min_dist {
             best_dir = sample;
@@ -43,7 +43,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     // FIXME: avoid code duplication for the closure
     g2.sample(m2, |sample: Vect| {
         let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, &support);
+        let dist    = na::dot(&sample, support.as_vec());
 
         if dist < min_dist {
             best_dir = sample;
@@ -54,7 +54,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     // FIXME: avoid code duplication for the closure
     na::sample_sphere(|sample: Vect| {
         let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, &support);
+        let dist    = na::dot(&sample, support.as_vec());
 
         if dist < min_dist {
             best_dir = sample;
@@ -71,7 +71,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 
     let tm2 = na::append_translation(m2, &shift);
 
-    simplex.translate_by(&AnnotatedPoint::new(na::zero(), -shift, -shift));
+    simplex.modify_pnts(|pt| pt.translate_2(&(-shift)));
 
     match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
         None => None, // fail!("Internal error: the origin was inside of the Simplex during phase 1."),
@@ -115,9 +115,9 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
             let dist_err   = normal.normalize();
 
             if !dist_err.is_zero() {
-                let _2: Scalar   = na::cast(2.0f64);
+                let _0_5: Scalar   = na::cast(0.5f64);
                 let p2 = p2 - shift;
-                let center: Vect = (p1 + p2) / _2;
+                let center = (p1 + *p2.as_vec()) * _0_5;
                 let nmin_dist = na::dot(&normal, &best_dir) * min_dist;
 
                 let p2 = center - normal * if dist_err > na::zero() { nmin_dist - dist_err } else { nmin_dist };

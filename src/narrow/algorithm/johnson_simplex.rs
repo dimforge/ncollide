@@ -4,7 +4,7 @@ use std::mem;
 use std::num::Bounded;
 use sync::Arc;
 use collections::TreeMap;
-use na::{FloatVec, Dim};
+use na::{FloatPnt, FloatVec, Dim};
 use na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
@@ -13,10 +13,10 @@ local_data_key!(KEY_RECURSION_TEMPLATE: Arc<Vec<RecursionTemplate>>)
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
-pub struct JohnsonSimplex<_V> {
+pub struct JohnsonSimplex<P, V> {
     recursion_template: Arc<Vec<RecursionTemplate>>,
-    points:             Vec<_V>,
-    exchange_points:    Vec<_V>,
+    points:             Vec<P>,
+    exchange_points:    Vec<P>,
     determinants:       Vec<Scalar>
 }
 
@@ -189,10 +189,10 @@ impl RecursionTemplate {
     }
 }
 
-impl<_V: Dim> JohnsonSimplex<_V> {
+impl<P: Dim, V> JohnsonSimplex<P, V> {
     /// Creates a new, empty, Johnson simplex.
-    pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<_V> {
-        let _dim = na::dim::<_V>();
+    pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<P, V> {
+        let _dim = na::dim::<P>();
 
         JohnsonSimplex {
             points:             Vec::with_capacity(_dim + 1),
@@ -203,28 +203,28 @@ impl<_V: Dim> JohnsonSimplex<_V> {
     }
 
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
-    pub fn new_w_tls() -> JohnsonSimplex<_V> {
+    pub fn new_w_tls() -> JohnsonSimplex<P, V> {
 
         let recursion = KEY_RECURSION_TEMPLATE.get().map(|rec| rec.clone());
 
         match recursion {
             Some(r) => {
-                if r.len() > na::dim::<_V>() {
+                if r.len() > na::dim::<P>() {
                     return JohnsonSimplex::new(r)
                 }
             },
             _ => { }
         }
 
-        let new_recursion = RecursionTemplate::new(na::dim::<_V>());
+        let new_recursion = RecursionTemplate::new(na::dim::<P>());
         let _ = KEY_RECURSION_TEMPLATE.replace(Some(new_recursion.clone()));
         JohnsonSimplex::new(new_recursion)
 
     }
 }
 
-impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
-    fn do_project_origin(&mut self, reduce: bool) -> _V {
+impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
+    fn do_project_origin(&mut self, reduce: bool) -> P {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
         }
@@ -270,7 +270,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
                         let i_pid = *recursion.permutation_list.as_slice().unsafe_get(i);
                         let sub_determinant = (*self.determinants.as_slice().unsafe_get(
                                                 *recursion.sub_determinants.as_slice().unsafe_get(i))).clone();
-                        let delta = sub_determinant * na::sub_dot(&kpt, &jpt, &*self.points.as_slice().unsafe_get(i_pid));
+                        let delta = sub_determinant * na::dot(&(kpt - jpt), self.points.as_slice().unsafe_get(i_pid).as_vec());
 
                         determinant = determinant + delta;
                     }
@@ -328,7 +328,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
                     let mut total_det: Scalar = na::zero();
-                    let mut proj: _V     = na::zero();
+                    let mut proj: P           = na::orig();
 
                     unsafe {
                         for i in range(0u, curr_num_pts) { // FIXME: change this when decreasing loops are implemented
@@ -339,9 +339,7 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
                                               .unsafe_get(*recursion.sub_determinants.as_slice().unsafe_get(id))).clone();
 
                             total_det = total_det + det;
-                            proj = proj +
-                                   *self.points.as_slice().unsafe_get(*recursion.permutation_list
-                                                                      .as_slice().unsafe_get(id)) * det;
+                            proj = proj + *self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(id)).as_vec() * det;
                         }
 
                         if reduce {
@@ -367,14 +365,13 @@ impl<_V: Clone + FloatVec<Scalar>> JohnsonSimplex<_V> {
             curr_num_pts = curr_num_pts - 1;
         }
 
-        na::zero()
+        na::orig()
     }
 }
 
-impl<_V: Clone + FloatVec<Scalar>>
-Simplex<_V> for JohnsonSimplex<_V> {
+impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> Simplex<P> for JohnsonSimplex<P, V> {
     #[inline]
-    fn reset(&mut self, pt: _V) {
+    fn reset(&mut self, pt: P) {
         self.points.clear();
         self.points.push(pt);
     }
@@ -389,7 +386,7 @@ Simplex<_V> for JohnsonSimplex<_V> {
         let mut max_sq_len = na::zero();
 
         for p in self.points.iter() {
-            let norm = na::sqnorm(p);
+            let norm = na::norm(p.as_vec());
 
             if norm > max_sq_len {
                 max_sq_len = norm
@@ -400,30 +397,30 @@ Simplex<_V> for JohnsonSimplex<_V> {
     }
 
     #[inline]
-    fn contains_point(&self, pt: &_V) -> bool {
+    fn contains_point(&self, pt: &P) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
     #[inline]
-    fn add_point(&mut self, pt: _V) {
+    fn add_point(&mut self, pt: P) {
         self.points.push(pt);
-        assert!(self.points.len() <= na::dim::<_V>() + 1);
+        assert!(self.points.len() <= na::dim::<P>() + 1);
     }
 
     #[inline]
-    fn project_origin_and_reduce(&mut self) -> _V {
+    fn project_origin_and_reduce(&mut self) -> P {
         self.do_project_origin(true)
     }
 
     #[inline]
-    fn project_origin(&mut self) -> _V {
+    fn project_origin(&mut self) -> P {
         self.do_project_origin(false)
     }
 
-    #[inline]
-    fn translate_by(&mut self, v: &_V) {
-        for p in self.points.iter_mut() {
-            *p = *p + *v;
+    #[inline(always)]
+    fn modify_pnts(&mut self, f: |&mut P|) {
+        for pt in self.points.iter_mut() {
+            f(pt)
         }
     }
 }

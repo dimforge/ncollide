@@ -1,13 +1,13 @@
 use na::Transform;
 use na;
 use narrow::{CollisionDetector, Contact};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 #[deriving(Encodable, Decodable, Clone)]
 struct ContactWLocals {
-    local1:  Vect,
-    local2:  Vect,
-    center:  Vect,
+    local1:  Point,
+    local2:  Point,
+    center:  Point,
     contact: Contact
 }
 
@@ -16,7 +16,7 @@ impl ContactWLocals {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
-                center: (contact.world1 + contact.world2) * na::cast::<f32, Scalar>(0.5),
+                center: (contact.world1 + *contact.world2.as_vec()) * na::cast::<f32, Scalar>(0.5),
                 contact: contact
             }
         }
@@ -78,7 +78,7 @@ impl<CD: CollisionDetector<G1, G2>, G1, G2> IncrementalContactManifoldGenerator<
         self.sub_detector.colls(&mut self.collector);
 
         // remove duplicates
-        let _max_num_contact = (na::dim::<Vect>() - 1) * 2;
+        let _max_num_contact = (na::dim::<Point>() - 1) * 2;
 
         for c in self.collector.iter() {
             if self.contacts.len() == _max_num_contact {
@@ -179,13 +179,13 @@ fn add_reduce_by_variance(pts: &mut [ContactWLocals], to_add: Contact, m1: &Matr
 
 fn approx_variance(pts: &[ContactWLocals], to_add: &Contact, to_ignore: uint) -> Scalar {
     // first: compute the mean
-    let to_add_center = (to_add.world1 + to_add.world2) * na::cast::<f32, Scalar>(0.5);
+    let to_add_center = (to_add.world1 + *to_add.world2.as_vec()) * na::cast::<f32, Scalar>(0.5);
 
     let mut mean = to_add_center.clone();
 
     for i in range(0u, pts.len()) {
         if i != to_ignore {
-            mean = mean + pts[i].center
+            mean = mean + *pts[i].center.as_vec()
         }
     }
 

@@ -4,7 +4,7 @@ use std::cell::RefCell;
 use na::Translation;
 use na;
 use bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Trait of objects that can be bounded by an AABB.
 pub trait HasAABB {
@@ -13,14 +13,10 @@ pub trait HasAABB {
 }
 
 /// An Axis Aligned Bounding Box.
-///
-/// # Parameter:
-///   * `Vect` - type of the points of the bounding box. It determines the AABB dimension.
-///   * `Scalar` - type of the one components of the aabb points.
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct AABB {
-    mins: Vect,
-    maxs: Vect
+    mins: Point,
+    maxs: Point 
 }
 
 impl AABB {
@@ -30,7 +26,7 @@ impl AABB {
     ///   * `mins` - position of the point with the smallest coordinates.
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
-    pub fn new(mins: Vect, maxs: Vect) -> AABB {
+    pub fn new(mins: Point, maxs: Point) -> AABB {
         assert!(na::partial_le(&mins, &maxs));
 
         AABB {
@@ -44,7 +40,7 @@ impl AABB {
     /// * `maxs = Bounded::max_value()`.
     /// This is useful to build aabb using merges.
     pub fn new_invalid() -> AABB {
-        let _max: Vect = Bounded::max_value();
+        let _max: Point = Bounded::max_value();
         AABB {
             mins: Bounded::max_value(),
             maxs: -_max,
@@ -53,13 +49,13 @@ impl AABB {
 
     /// Reference to the AABB point with the smallest components along each axis.
     #[inline]
-    pub fn mins<'a>(&'a self) -> &'a Vect {
+    pub fn mins<'a>(&'a self) -> &'a Point {
         &self.mins
     }
 
     /// Reference to the AABB point with the biggest components along each axis.
     #[inline]
-    pub fn maxs<'a>(&'a self) -> &'a Vect {
+    pub fn maxs<'a>(&'a self) -> &'a Point {
         &self.maxs
     }
 
@@ -113,7 +109,7 @@ impl Translation<Vect> for AABB
 {
     #[inline]
     fn translation(&self) -> Vect {
-        (self.mins + self.maxs) * na::cast::<f64, Scalar>(0.5)
+        (*self.mins.as_vec() + *self.maxs.as_vec()) * na::cast::<f64, Scalar>(0.5)
     }
 
     #[inline]

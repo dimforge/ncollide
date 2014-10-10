@@ -4,17 +4,17 @@ use na::Indexable;
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[cfg(feature = "3d")]
-use na::Vec2;
+use na::Pnt2;
 
 impl RayCast for AABB {
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
         let mut tmin: Scalar = na::zero();
         let mut tmax: Scalar = Bounded::max_value();
 
-        for i in range(0u, na::dim::<Vect>()) {
+        for i in range(0u, na::dim::<Point>()) {
             if ray.dir.at(i).is_zero() {
                 if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
                     return None
@@ -71,13 +71,13 @@ fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Opt
         let id  = s.abs();
 
         if id == 1 {
-            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.y.clone(), lpt.z.clone())))
+            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.y.clone(), lpt.z.clone())))
         }
         else if id == 2 {
-            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.z.clone(), lpt.x.clone())))
+            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.z.clone(), lpt.x.clone())))
         }
         else {
-            RayIntersection::new_with_uvs(t, n, Some(Vec2::new(lpt.x.clone(), lpt.y.clone())))
+            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.x.clone(), lpt.y.clone())))
         }
     })
 }
@@ -90,7 +90,7 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> 
     let mut near_diag = false;
     let mut far_diag  = false;
 
-    for i in range(0u, na::dim::<Vect>()) {
+    for i in range(0u, na::dim::<Point>()) {
         if ray.dir.at(i).is_zero() {
             if ray.orig.at(i) < aabb.mins().at(i) || ray.orig.at(i) > aabb.maxs().at(i) {
                 return None

@@ -1,5 +1,5 @@
 use na;
-use na::{Cast, FloatVecExt, Vec3, Vec2};
+use na::{Cast, FloatVecExt, PntExt, Vec3, Pnt2};
 use procedural::{TriMesh, UnifiedIndexBuffer};
 
 /// Adds a double-sided quad to the scene.
@@ -15,12 +15,12 @@ use procedural::{TriMesh, UnifiedIndexBuffer};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<N: Float + Cast<f64>, V: FloatVecExt<N>>(width:    N,
-                                                     height:   N,
-                                                     usubdivs: uint,
-                                                     vsubdivs: uint)
-                                                     -> TriMesh<N, V> {
-    let mut quad = unit_quad::<N, V>(usubdivs, vsubdivs);
+pub fn quad<N: Float + Cast<f64>, P: PntExt<N, V>, V: FloatVecExt<N>>(width:    N,
+                                                                      height:   N,
+                                                                      usubdivs: uint,
+                                                                      vsubdivs: uint)
+                                                                      -> TriMesh<N, P, V> {
+    let mut quad = unit_quad::<N, P, V>(usubdivs, vsubdivs);
 
     let mut s = na::zero::<V>();
     s.set(0, width);
@@ -42,14 +42,14 @@ pub fn quad<N: Float + Cast<f64>, V: FloatVecExt<N>>(width:    N,
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<N: Float + Cast<f64> + Clone, V: FloatVecExt<N> + Clone>(
-                          vertices: &[V],
+pub fn quad_with_vertices<N: Float + Cast<f64> + Clone, P: PntExt<N, V> + Clone, V: FloatVecExt<N> + Clone>(
+                          vertices: &[P],
                           nhpoints: uint,
                           nvpoints: uint)
-                          -> TriMesh<N, V> {
+                          -> TriMesh<N, P, V> {
     assert!(nhpoints > 1 && nvpoints > 1, "The number of points must be at least 2 in each dimension.");
 
-    let mut res: TriMesh<N, V> = unit_quad(nhpoints - 1, nvpoints - 1);
+    let mut res: TriMesh<N, P, V> = unit_quad(nhpoints - 1, nvpoints - 1);
 
     for (dest, src) in res.coords.iter_mut().zip(vertices.iter()) {
         *dest = src.clone();
@@ -69,7 +69,7 @@ pub fn quad_with_vertices<N: Float + Cast<f64> + Clone, V: FloatVecExt<N> + Clon
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn unit_quad<N: Float + Cast<f64>, V: FloatVecExt<N>>(usubdivs: uint, vsubdivs: uint) -> TriMesh<N, V> {
+pub fn unit_quad<N: Float + Cast<f64>, P: PntExt<N, V>, V: FloatVecExt<N>>(usubdivs: uint, vsubdivs: uint) -> TriMesh<N, P, V> {
     assert!(usubdivs > 0 && vsubdivs > 0, "The number of subdivisions cannot be zero");
     assert!(na::dim::<V>() >= 2);
 
@@ -89,11 +89,11 @@ pub fn unit_quad<N: Float + Cast<f64>, V: FloatVecExt<N>>(usubdivs: uint, vsubdi
             let ni: N = na::cast(i as f64);
             let nj: N = na::cast(j as f64);
 
-            let mut v = na::zero::<V>();
+            let mut v = na::orig::<P>();
             v.set(0, nj * wstep - cw);
             v.set(1, ni * hstep - ch);
             vertices.push(v);
-            tex_coords.push(Vec2::new(na::one::<N>() - nj * wstep, na::one::<N>() - ni * hstep))
+            tex_coords.push(Pnt2::new(na::one::<N>() - nj * wstep, na::one::<N>() - ni * hstep))
         }
     }
 

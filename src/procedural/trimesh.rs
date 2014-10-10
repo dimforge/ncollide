@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, Vec3, Vec2};
+use na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, AnyPnt, Vec3, Pnt2};
 use na;
 use procedural::utils;
 use utils::AsBytes;
@@ -35,27 +35,27 @@ impl IndexBuffer {
 
 #[deriving(Clone, Show)]
 /// Geometric description of a mesh.
-pub struct TriMesh<N, V> {
+pub struct TriMesh<N, P, V> {
     // FIXME: those should *not* be public.
     /// Coordinates of the mesh vertices.
-    pub coords:  Vec<V>,
+    pub coords:  Vec<P>,
     /// Coordinates of the mesh normals.
     pub normals: Option<Vec<V>>,
     /// Textures coordinates of the mesh.
-    pub uvs:     Option<Vec<Vec2<N>>>,
+    pub uvs:     Option<Vec<Pnt2<N>>>,
     /// Index buffer of the mesh.
     pub indices: IndexBuffer
 }
 
-impl<N, V> TriMesh<N, V> {
+impl<N, P, V> TriMesh<N, P, V> {
     /// Creates a new `TriMesh`.
     ///
     /// If no `indices` is provided, trivial, sequential indices are generated.
-    pub fn new(coords:  Vec<V>,
+    pub fn new(coords:  Vec<P>,
                normals: Option<Vec<V>>,
-               uvs:     Option<Vec<Vec2<N>>>,
+               uvs:     Option<Vec<Pnt2<N>>>,
                indices: Option<IndexBuffer>)
-               -> TriMesh<N, V> {
+               -> TriMesh<N, P, V> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(||
            UnifiedIndexBuffer(
@@ -85,29 +85,15 @@ impl<N, V> TriMesh<N, V> {
 
     /// Translates each vertex of this mesh.
     #[inline]
-    pub fn translate_by<T: Translate<V>>(&mut self, t: &T) {
+    pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
             *c = t.translate(c);
         }
     }
 
-    /// Rotates each vertex and normal of this mesh.
-    #[inline]
-    pub fn rotate_by<R: Rotate<V>>(&mut self, r: &R) {
-        for c in self.coords.iter_mut() {
-            *c = r.rotate(c);
-        }
-
-        for n in self.normals.iter_mut() {
-            for n in n.iter_mut() {
-                *n = r.rotate(n);
-            }
-        }
-    }
-
     /// Transforms each vertex and rotates each normal of this mesh.
     #[inline]
-    pub fn transform_by<T: Transform<V> + Rotate<V>>(&mut self, t: &T) {
+    pub fn transform_by<T: Transform<P> + Rotate<V>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
             *c = t.transform(c);
         }
@@ -129,7 +115,27 @@ impl<N, V> TriMesh<N, V> {
     }
 }
 
-impl<N: Float, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, V> {
+impl<N, P: AnyPnt<N, V>, V> TriMesh<N, P, V> {
+    /// Rotates each vertex and normal of this mesh.
+    #[inline]
+    // XXX: we should use Rotate<P> instead of the .set_coord.
+    // Wa cannot make it a Rotate because the `Rotate` bound cannot appear twice… we have, again,
+    // to wait for the trait reform.
+    pub fn rotate_by<R: Rotate<V>>(&mut self, r: &R) {
+        for c in self.coords.iter_mut() {
+            let rc = r.rotate(c.as_vec());
+            c.set_coords(rc);
+        }
+
+        for n in self.normals.iter_mut() {
+            for n in n.iter_mut() {
+                *n = r.rotate(n);
+            }
+        }
+    }
+}
+
+impl<N: Float, P: AnyPnt<N, V>, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, P, V> {
     /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
     /// infered from the index buffer.
     #[inline]
@@ -158,7 +164,7 @@ impl<N: Float, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, V> {
     }
 }
 
-impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
+impl<N: Mul<N, N>, P: Indexable<uint, N>, V: Dim + Indexable<uint, N>> TriMesh<N, P, V> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
@@ -173,7 +179,7 @@ impl<N: Mul<N, N>, V: Dim + Indexable<uint, N>> TriMesh<N, V> {
     }
 }
 
-impl<N, V: Mul<N, V>> TriMesh<N, V> {
+impl<N, P: Mul<N, P>, V> TriMesh<N, P, V> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by_scalar(&mut self, s: &N) {
@@ -183,7 +189,7 @@ impl<N, V: Mul<N, V>> TriMesh<N, V> {
     }
 }
 
-impl<N: Clone, V: Clone> TriMesh<N, V> {
+impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
     // FIXME: looks very similar to the `reformat` on obj.rs
     /// Force the mesh to use the same index for vertices, normals and uvs.
     ///
@@ -194,9 +200,9 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
             SplitIndexBuffer(ref ids) => {
                 let mut vt2id:HashMap<Vec3<u32>, u32> = HashMap::new();
                 let mut resi: Vec<u32>                = Vec::new();
-                let mut resc: Vec<V>                  = Vec::new();
+                let mut resc: Vec<P>                  = Vec::new();
                 let mut resn: Option<Vec<V>>          = self.normals.as_ref().map(|_| Vec::new());
-                let mut resu: Option<Vec<Vec2<N>>>    = self.uvs.as_ref().map(|_| Vec::new());
+                let mut resu: Option<Vec<Pnt2<N>>>    = self.uvs.as_ref().map(|_| Vec::new());
 
                 for triangle in ids.iter() {
                     for point in triangle.iter() {
@@ -240,7 +246,7 @@ impl<N: Clone, V: Clone> TriMesh<N, V> {
     }
 }
 
-impl<N: Clone, V: Clone + PartialEq + AsBytes> TriMesh<N, V> {
+impl<N: Clone, P: AsBytes + PartialEq + Clone, V> TriMesh<N, P, V> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.

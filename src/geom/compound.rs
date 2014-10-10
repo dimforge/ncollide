@@ -10,7 +10,7 @@ use volumetric::Volumetric;
 use partitioning::BVT;
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use geom::{Geom, ConcaveGeom};
-use math::{Scalar, Vect, Matrix, AngularInertia};
+use math::{Scalar, Point, Matrix, AngularInertia};
 
 #[deriving(Clone)]
 /// Structure used to build a `Compound` geometry.
@@ -18,7 +18,7 @@ use math::{Scalar, Vect, Matrix, AngularInertia};
 /// This accumulates the geometries and their volumetric properties.
 pub struct CompoundData {
     geoms: Vec<(Matrix, Arc<Box<Geom + Send + Sync>>)>,
-    props: Vec<(Scalar, Scalar, Vect, AngularInertia)>
+    props: Vec<(Scalar, Scalar, Point, AngularInertia)>
 }
 
 impl CompoundData {
@@ -44,7 +44,7 @@ impl CompoundData {
     pub fn push_geom_with_mass_properties<S: Geom + Send + Sync>(&mut self,
                                                                  delta: Matrix,
                                                                  geom:  S,
-                                                                 props: (Scalar, Scalar, Vect, AngularInertia)) {
+                                                                 props: (Scalar, Scalar, Point, AngularInertia)) {
         self.push_shared_geom_with_mass_properties(delta, Arc::new(box geom as Box<Geom + Send + Sync>), props)
     }
 
@@ -53,7 +53,7 @@ impl CompoundData {
     pub fn push_shared_geom_with_mass_properties(&mut self,
                                                  delta: Matrix,
                                                  geom:  Arc<Box<Geom + Send + Sync>>,
-                                                 props: (Scalar, Scalar, Vect, AngularInertia)) {
+                                                 props: (Scalar, Scalar, Point, AngularInertia)) {
         self.geoms.push((delta, geom));
         self.props.push(props);
     }
@@ -67,7 +67,7 @@ impl CompoundData {
     // FIXME: this is not a very good name.
     /// The geometries stored by this `CompoundData`.
     #[inline]
-    pub fn mass_properties_list<'r>(&'r self) -> &'r [(Scalar, Scalar, Vect, AngularInertia)] {
+    pub fn mass_properties_list<'r>(&'r self) -> &'r [(Scalar, Scalar, Point, AngularInertia)] {
         self.props.as_slice()
     }
 }
@@ -82,7 +82,7 @@ pub struct Compound {
     surface: Scalar,
     mass:    Scalar,
     inertia: AngularInertia,
-    com:     Vect,
+    com:     Point,
     geoms:   Vec<(Matrix, Arc<Box<Geom + Send + Sync>>)>,
     bvt:     BVT<uint, AABB>,
     bvs:     Vec<AABB>
@@ -158,7 +158,7 @@ impl Compound {
 
     #[doc(hidden)]
     #[inline]
-    pub fn center_of_mass<'r>(&'r self) -> &'r Vect {
+    pub fn center_of_mass<'r>(&'r self) -> &'r Point {
         &self.com
     }
 }

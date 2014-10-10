@@ -4,7 +4,7 @@ use geom::Mesh;
 use math::Scalar;
 
 // #[cfg(feature = "3d")]
-use na::Vec2;
+use na::Pnt2;
 // #[cfg(feature = "3d")]
 use ray;
 // #[cfg(feature = "3d")]
@@ -12,7 +12,7 @@ use na::Norm;
 // #[cfg(feature = "3d")]
 use na;
 // #[cfg(feature = "3d")]
-use math::Vect;
+use math::Point;
 
 
 impl RayCast for Mesh {
@@ -40,9 +40,9 @@ impl RayCast for Mesh {
         let cast = self.bvt().cast_ray(
             ray,
             &mut |b, r| {
-                let vs: &[Vect] = self.vertices().as_slice();
-                let i           = *b * 3;
-                let is          = self.indices().slice(i, i + 3);
+                let vs: &[Point] = self.vertices().as_slice();
+                let i            = *b * 3;
+                let is           = self.indices().slice(i, i + 3);
 
                 ray::triangle_ray_intersection(&vs[is[0]], &vs[is[1]], &vs[is[2]], r).map(|inter|
                     (inter.ref0().toi.clone(), inter))
@@ -69,7 +69,7 @@ impl RayCast for Mesh {
                 // XXX: this interpolation should be done on the two other ray cast too!
                 match *self.normals() {
                     None         => {
-                        Some(RayIntersection::new_with_uvs(toi, n, Some(Vec2::new(uvx, uvy))))
+                        Some(RayIntersection::new_with_uvs(toi, n, Some(Pnt2::new(uvx, uvy))))
                     },
                     Some(ref ns) => {
                         let n1 = ns.deref()[is[0]];
@@ -79,14 +79,14 @@ impl RayCast for Mesh {
                         let mut n123 = n1 * uv.x + n2 * uv.y + n3 * uv.z;
 
                         if n123.normalize().is_zero() {
-                            Some(RayIntersection::new_with_uvs(toi, n, Some(Vec2::new(uvx, uvy))))
+                            Some(RayIntersection::new_with_uvs(toi, n, Some(Pnt2::new(uvx, uvy))))
                         }
                         else {
                             if na::dot(&n123, &ray.dir) > na::zero() {
-                                Some(RayIntersection::new_with_uvs(toi, -n123, Some(Vec2::new(uvx, uvy))))
+                                Some(RayIntersection::new_with_uvs(toi, -n123, Some(Pnt2::new(uvx, uvy))))
                             }
                             else {
-                                Some(RayIntersection::new_with_uvs(toi, n123, Some(Vec2::new(uvx, uvy))))
+                                Some(RayIntersection::new_with_uvs(toi, n123, Some(Pnt2::new(uvx, uvy))))
                             }
                         }
                     }

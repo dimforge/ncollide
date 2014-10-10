@@ -3,7 +3,7 @@
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingVolume, BoundingSphere};
 use geom::BezierSurface;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 /// Trait implemented by the heristics for surface selection during collision detection.
 pub trait SurfaceSelector<D> {
@@ -12,7 +12,7 @@ pub trait SurfaceSelector<D> {
     /// Tells whether a surface is flat enough to run a numerical resolution algorithm.
     fn is_flat(&mut self, surf: &BezierSurface, data: &D) -> bool;
     /// Tells whether a surface might contain a closest point or not.
-    fn may_contain_a_closest_point(&mut self, pt: &Vect, b: &BezierSurface, data: &D) -> bool;
+    fn may_contain_a_closest_point(&mut self, pt: &Point, b: &BezierSurface, data: &D) -> bool;
     /// Allocates data used to test flatnass and closest point containment.
     fn create_test_data(&mut self, b: &BezierSurface) -> D;
 }
@@ -38,7 +38,7 @@ impl SurfaceSelector<()> for YesSirSurfaceSelector {
         false
     }
 
-    fn may_contain_a_closest_point(&mut self, _: &Vect, _: &BezierSurface, _: &()) -> bool {
+    fn may_contain_a_closest_point(&mut self, _: &Point, _: &BezierSurface, _: &()) -> bool {
         true
     }
 
@@ -74,7 +74,7 @@ impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
         false
     }
 
-    fn may_contain_a_closest_point(&mut self, pt: &Vect, b: &BezierSurface, bs: &BoundingSphere) -> bool {
+    fn may_contain_a_closest_point(&mut self, pt: &Point, b: &BezierSurface, bs: &BoundingSphere) -> bool {
         if bs.intersects(&BoundingSphere::new(pt.clone(), self.max_lmd)) {
             let endpoints = [ b.endpoint_01(), b.endpoint_10(), b.endpoint_11() ];
 
@@ -149,7 +149,7 @@ impl SurfaceSelector<TangentConesSurfaceSelectorTestData> for TangentConesSurfac
     }
 
     fn may_contain_a_closest_point(&mut self,
-                                   pt: &Vect,
+                                   pt: &Point,
                                    b:  &BezierSurface,
                                    d:  &TangentConesSurfaceSelectorTestData)
                                    -> bool {
@@ -175,8 +175,8 @@ impl SurfaceSelector<TangentConesSurfaceSelectorTestData> for TangentConesSurfac
         b.diff_u(&mut self.diff_u);
         b.diff_v(&mut self.diff_v);
 
-        let (axis_u, spread_u) = self.diff_u.bounding_cone_with_origin(&na::zero());
-        let (axis_v, spread_v) = self.diff_v.bounding_cone_with_origin(&na::zero());
+        let (axis_u, spread_u) = self.diff_u.bounding_cone_with_origin(&na::orig());
+        let (axis_v, spread_v) = self.diff_v.bounding_cone_with_origin(&na::orig());
 
         TangentConesSurfaceSelectorTestData {
             bounding_sphere: bounding_sphere,

@@ -1,5 +1,5 @@
 use na;
-use na::{Cast, Indexable, FloatVecExt, Vec3, Vec2};
+use na::{Cast, Indexable, FloatVecExt, FloatPntExt, Vec3, Pnt2, Pnt3};
 use procedural::{TriMesh, SplitIndexBuffer, Polyline};
 
 /**
@@ -8,7 +8,7 @@ use procedural::{TriMesh, SplitIndexBuffer, Polyline};
  * # Arguments:
  * * `extents` - the extents of the cuboid.
  */
-pub fn cuboid<N: Float + Clone + Cast<f64>>(extents: &Vec3<N>) -> TriMesh<N, Vec3<N>> {
+pub fn cuboid<N: Float + Clone + Cast<f64>>(extents: &Vec3<N>) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let mut cuboid = unit_cuboid();
 
     cuboid.scale_by(extents);
@@ -21,7 +21,7 @@ pub fn cuboid<N: Float + Clone + Cast<f64>>(extents: &Vec3<N>) -> TriMesh<N, Vec
  *
  * The cuboid is centered at the origin, and has its half extents set to 0.5.
  */
-pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
+pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let mut coords  = Vec::with_capacity(8);
     let mut uvs     = Vec::with_capacity(4);
     let mut normals = Vec::with_capacity(6);
@@ -33,19 +33,19 @@ pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
     let m1:   N = -_1;
     let _0:   N = na::zero();
 
-    coords.push(Vec3::new(m0_5.clone(), m0_5.clone(), _0_5.clone()));
-    coords.push(Vec3::new(m0_5.clone(), m0_5.clone(), m0_5.clone()));
-    coords.push(Vec3::new(_0_5.clone(), m0_5.clone(), m0_5.clone()));
-    coords.push(Vec3::new(_0_5.clone(), m0_5.clone(), _0_5.clone()));
-    coords.push(Vec3::new(m0_5.clone(), _0_5.clone(), _0_5.clone()));
-    coords.push(Vec3::new(m0_5.clone(), _0_5.clone(), m0_5.clone()));
-    coords.push(Vec3::new(_0_5.clone(), _0_5.clone(), m0_5.clone()));
-    coords.push(Vec3::new(_0_5.clone(), _0_5.clone(), _0_5.clone()));
+    coords.push(Pnt3::new(m0_5.clone(), m0_5.clone(), _0_5.clone()));
+    coords.push(Pnt3::new(m0_5.clone(), m0_5.clone(), m0_5.clone()));
+    coords.push(Pnt3::new(_0_5.clone(), m0_5.clone(), m0_5.clone()));
+    coords.push(Pnt3::new(_0_5.clone(), m0_5.clone(), _0_5.clone()));
+    coords.push(Pnt3::new(m0_5.clone(), _0_5.clone(), _0_5.clone()));
+    coords.push(Pnt3::new(m0_5.clone(), _0_5.clone(), m0_5.clone()));
+    coords.push(Pnt3::new(_0_5.clone(), _0_5.clone(), m0_5.clone()));
+    coords.push(Pnt3::new(_0_5.clone(), _0_5.clone(), _0_5.clone()));
 
-    uvs.push(Vec2::new(_0.clone(), _1.clone()));
-    uvs.push(Vec2::new(_1.clone(), _1.clone()));
-    uvs.push(Vec2::new(_0.clone(), _0.clone()));
-    uvs.push(Vec2::new(_1.clone(), _0.clone()));
+    uvs.push(Pnt2::new(_0.clone(), _1.clone()));
+    uvs.push(Pnt2::new(_1.clone(), _1.clone()));
+    uvs.push(Pnt2::new(_0.clone(), _0.clone()));
+    uvs.push(Pnt2::new(_1.clone(), _0.clone()));
 
     normals.push(Vec3::new(m1.clone(), _0.clone(), _0.clone()));
     normals.push(Vec3::new(_0.clone(), _0.clone(), m1.clone()));
@@ -76,8 +76,8 @@ pub fn unit_cuboid<N: Float + Clone + Cast<f64>>() -> TriMesh<N, Vec3<N>> {
 }
 
 /// The contour of a cuboid lying on the x-y plane.
-pub fn rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>(extents: &V) -> Polyline<N, V> {
-    let mut rectangle = unit_rectangle::<N, V>();
+pub fn rectangle<N: Float + Clone + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>(extents: &V) -> Polyline<N, P, V> {
+    let mut rectangle = unit_rectangle::<N, P, V>();
 
     rectangle.scale_by(extents);
 
@@ -85,14 +85,14 @@ pub fn rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>(extents: &V) -
 }
 
 /// The contour of a unit cuboid lying on the x-y plane.
-pub fn unit_rectangle<N: Float + Clone + Cast<f64>, V: FloatVecExt<N>>() -> Polyline<N, V> {
+pub fn unit_rectangle<N: Float + Clone + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>() -> Polyline<N, P, V> {
     let _0_5: N = na::cast(0.5);
     let m0_5: N = -_0_5;
 
-    let mut p_ul = na::zero::<V>();
-    let mut p_ur = na::zero::<V>();
-    let mut p_dl = na::zero::<V>();
-    let mut p_dr = na::zero::<V>();
+    let mut p_ul = na::orig::<P>();
+    let mut p_ur = na::orig::<P>();
+    let mut p_dl = na::orig::<P>();
+    let mut p_dr = na::orig::<P>();
 
     p_dl.set(0, m0_5.clone()); p_dl.set(1, m0_5.clone());
     p_dr.set(0, _0_5.clone()); p_dr.set(1, m0_5.clone());

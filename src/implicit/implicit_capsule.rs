@@ -1,26 +1,25 @@
-use std::num::Zero;
 use na;
 use na::{Indexable, Rotate, Transform};
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Capsule;
-use math::Vect;
+use math::{Point, Vect};
 
-impl<_M: Transform<Vect> + Rotate<Vect>>
-Implicit<Vect, _M> for Capsule {
+impl<_M: Transform<Point> + Rotate<Vect>>
+Implicit<Point, Vect, _M> for Capsule {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
+    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
         let local_dir = m.inv_rotate(dir);
 
-        let mut vres: Vect = Zero::zero();
+        let mut pres: Point = na::orig();
 
         if local_dir.at(1).is_negative() {
-            vres.set(1, -self.half_height())
+            pres[1] = -self.half_height()
         }
         else {
-            vres.set(1, self.half_height())
+            pres[1] = self.half_height()
         }
 
-        m.transform(&(vres + na::normalize(&local_dir) * self.radius()))
+        m.transform(&(pres + na::normalize(&local_dir) * self.radius()))
     }
 }
 

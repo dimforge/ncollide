@@ -3,35 +3,35 @@ use na::{Indexable, Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cylinder;
-use math::Vect;
+use math::{Point, Vect};
 
 
-impl<_M: Transform<Vect> + Rotate<Vect>>
-Implicit<Vect, _M> for Cylinder {
-    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
+impl<_M: Transform<Point> + Rotate<Vect>>
+Implicit<Point, Vect, _M> for Cylinder {
+    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
 
         let negative = local_dir.at(1).is_negative();
 
-        vres.set(1, Zero::zero());
+        vres[1]  = na::zero();
 
         if vres.normalize().is_zero() {
-            vres = Zero::zero()
+            vres = na::zero()
         }
         else {
             vres = vres * self.radius();
         }
 
         if negative {
-            vres.set(1, -self.half_height())
+            vres[1] = -self.half_height()
         }
         else {
-            vres.set(1, self.half_height())
+            vres[1] = self.half_height()
         }
 
-        m.transform(&vres)
+        m.transform(vres.as_pnt())
     }
 }
 

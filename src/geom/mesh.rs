@@ -4,13 +4,13 @@
 
 use sync::Arc;
 use na;
-use na::Vec2;
+use na::Pnt2;
 use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use geom::{Geom, ConcaveGeom};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Vect, Point, Matrix};
 
 #[cfg(not(feature = "2d"))]
 use geom::Triangle;
@@ -30,7 +30,7 @@ pub trait MeshElement {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
     /// Creates a new mesh element from a set of vertices and indice.
-    fn new_with_vertices_and_indices(&[Vect], &[uint]) -> Self;
+    fn new_with_vertices_and_indices(&[Point], &[uint]) -> Self;
 }
 
 #[cfg(feature = "2d")]
@@ -49,9 +49,9 @@ pub type MeshPrimitive = Triangle; // XXX: this is wrong
 pub struct Mesh {
     bvt:      BVT<uint, AABB>,
     bvs:      Vec<AABB>,
-    vertices: Arc<Vec<Vect>>,
+    vertices: Arc<Vec<Point>>,
     indices:  Arc<Vec<uint>>,
-    uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
+    uvs:      Option<Arc<Vec<Pnt2<Scalar>>>>,
     normals:  Option<Arc<Vec<Vect>>>,
 }
 
@@ -70,9 +70,9 @@ impl Clone for Mesh {
 
 impl Mesh {
     /// Builds a new mesh.
-    pub fn new(vertices: Arc<Vec<Vect>>,
+    pub fn new(vertices: Arc<Vec<Point>>,
                indices:  Arc<Vec<uint>>,
-               uvs:      Option<Arc<Vec<Vec2<Scalar>>>>,
+               uvs:      Option<Arc<Vec<Pnt2<Scalar>>>>,
                normals:  Option<Arc<Vec<Vect>>>) // a loosening margin for the BVT.
                -> Mesh {
         assert!(indices.len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
@@ -89,7 +89,7 @@ impl Mesh {
             let is = indices.deref();
 
             for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
-                let vs: &[Vect] = vs.as_slice();
+                let vs: &[Point] = vs.as_slice();
                 let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
                 let id = na::one();
@@ -115,7 +115,7 @@ impl Mesh {
 #[cfg(feature = "3d")]
 impl Mesh {
     /// Builds a new mesh from a triangle mesh.
-    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Vect>) -> Mesh {
+    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Point, Vect>) -> Mesh {
         let mut trimesh = trimesh;
 
         trimesh.unify_index_buffer();
@@ -140,7 +140,7 @@ impl Mesh {
 impl Mesh {
     /// The vertices of this mesh.
     #[inline]
-    pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Vect>> {
+    pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Point>> {
         &self.vertices
     }
 
@@ -158,7 +158,7 @@ impl Mesh {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<Vec2<Scalar>>>> {
+    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<Pnt2<Scalar>>>> {
         &self.uvs
     }
 
@@ -179,9 +179,9 @@ impl Mesh {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: uint) -> MeshPrimitive {
-        let vs: &[Vect] = self.vertices.as_slice();
-        let i        = i * MeshElement::nvertices(None::<MeshPrimitive>);
-        let is       = self.indices.slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
+        let vs: &[Point] = self.vertices.as_slice();
+        let i            = i * MeshElement::nvertices(None::<MeshPrimitive>);
+        let is           = self.indices.slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
 
         MeshElement::new_with_vertices_and_indices(vs, is)
     }

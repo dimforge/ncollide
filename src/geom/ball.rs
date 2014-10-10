@@ -10,7 +10,9 @@ impl Ball {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: Scalar) -> Ball {
-        Ball { radius: radius }
+        Ball {
+            radius: radius
+        }
     }
 
     /// The ball radius.

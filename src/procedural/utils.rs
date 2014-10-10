@@ -5,17 +5,17 @@ use std::collections::HashMap;
 use std::collections::hashmap::{Occupied, Vacant};
 use std::mem;
 use na;
-use na::{Vec3, Dim, Indexable, FloatVec, Cross};
+use na::{Pnt3, Vec3, Dim, Indexable, FloatVec, Cross, Orig, AnyPnt};
 use utils::{HashablePartialEq, AsBytes};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[inline]
-pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Vec3<N>>) {
+pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Pnt3<N>>) {
     let mut curr_theta: N = na::zero();
 
     for _ in range(0, nsubdiv) {
-        out.push(Vec3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
+        out.push(Pnt3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
         curr_theta = curr_theta + dtheta;
     }
 }
@@ -23,17 +23,17 @@ pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: 
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N: FloatMath, V: Dim + Indexable<uint, N> + Zero>(
+pub fn push_xy_arc<N: FloatMath, P: Dim + Indexable<uint, N> + Orig>(
                    radius:  N,
                    nsubdiv: u32,
                    dtheta:  N,
-                   out:     &mut Vec<V>) {
-    assert!(na::dim::<V>() >= 2);
+                   out:     &mut Vec<P>) {
+    assert!(na::dim::<P>() >= 2);
 
     let mut curr_theta: N = na::zero();
 
     for _ in range(0, nsubdiv) {
-        let mut pt = na::zero::<V>();
+        let mut pt = na::orig::<P>();
 
         pt.set(0, curr_theta.cos() * radius);
         pt.set(1, curr_theta.sin() * radius);
@@ -150,18 +150,18 @@ pub fn split_index_buffer(indices: &[Vec3<u32>]) -> Vec<Vec3<Vec3<u32>>> {
 /// Duplicates the indices of each triangle on the given index buffer, giving the same id to each
 /// identical vertex.
 #[inline]
-pub fn split_index_buffer_and_recover_topology<V: PartialEq + AsBytes + Clone>(
+pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
                                                indices: &[Vec3<u32>],
-                                               coords:  &[V])
-                                               -> (Vec<Vec3<Vec3<u32>>>, Vec<V>) {
+                                               coords:  &[P])
+                                               -> (Vec<Vec3<Vec3<u32>>>, Vec<P>) {
     let mut vtx_to_id  = HashMap::new();
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out        = Vec::with_capacity(indices.len());
 
-    fn resolve_coord_id<V: PartialEq + AsBytes + Clone>(
-                        coord:      &V,
-                        vtx_to_id:  &mut HashMap<HashablePartialEq<V>, u32>,
-                        new_coords: &mut Vec<V>)
+    fn resolve_coord_id<P: PartialEq + AsBytes + Clone>(
+                        coord:      &P,
+                        vtx_to_id:  &mut HashMap<HashablePartialEq<P>, u32>,
+                        new_coords: &mut Vec<P>)
                         -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
         let id = match vtx_to_id.entry(key) {
@@ -202,9 +202,12 @@ pub fn split_index_buffer_and_recover_topology<V: PartialEq + AsBytes + Clone>(
 
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<N: Float, V: FloatVec<N> + Cross<V> + Clone>(coordinates: &[V],
-                                                                    faces:       &[Vec3<u32>],
-                                                                    normals:     &mut Vec<V>) {
+pub fn compute_normals<N: Float,
+                       P: AnyPnt<N, V>,
+                       V: FloatVec<N> + Cross<V> + Clone>(
+                       coordinates: &[P],
+                       faces:       &[Vec3<u32>],
+                       normals:     &mut Vec<V>) {
     let mut divisor: Vec<N> = Vec::from_elem(coordinates.len(), na::zero());
 
     // Shrink the output buffer if it is too big.

@@ -145,7 +145,7 @@ impl BoundingVolume for SpacializedCone {
 impl Translation<Vect> for SpacializedCone {
     #[inline]
     fn translation(&self) -> Vect {
-        self.sphere.center().clone()
+        self.sphere.center().as_vec().clone()
     }
 
     #[inline]
@@ -193,7 +193,7 @@ mod test {
     #[test]
     #[cfg(feature = "3d")]
     fn test_merge_vee() {
-        let sp   = BoundingSphere::new(na::zero(), na::one());
+        let sp   = BoundingSphere::new(na::orig(), na::one());
         let pi: Scalar = Float::pi();
         let pi_12 = pi / na::cast(12.0f64);
         let a    = SpacializedCone::new(sp.clone(), Vec3::new(1.0, 1.0, 0.0), pi_12);

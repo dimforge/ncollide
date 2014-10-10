@@ -4,14 +4,12 @@ use std::mem;
 use std::any::{Any, AnyRefExt};
 use ray::{Ray, RayCast};
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
-use utils::AnyPrivate;
 use math::Matrix;
 
 /// Trait (that should be) implemented by every geometry.
 pub trait Geom : HasAABB           +
                  HasBoundingSphere +
                  RayCast           +
-                 AnyPrivate        +
                  Any {
     /// Duplicates (clones) this geometry.
     fn duplicate(&self) -> Box<Geom + Send>;
@@ -38,7 +36,7 @@ pub trait ConcaveGeom : Geom {
     fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
 }
 
-impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + AnyPrivate + Any>
+impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + Any>
 Geom for T {
     #[inline]
     fn duplicate(&self) -> Box<Geom + Send> {
@@ -54,7 +52,7 @@ impl<'a> AnyRefExt<'a> for &'a Geom + 'a {
         let t = TypeId::of::<T>();
 
         // Get TypeId of the type in the trait object
-        let boxed = self.get_dyn_type_id();
+        let boxed = self.get_type_id();
 
         // Compare both TypeIds on equality
         t == boxed

@@ -8,7 +8,7 @@ use geom::Plane;
 impl HasBoundingSphere for Plane {
     #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
-        let center = m.translation();
+        let center = m.translation().to_pnt();
         let radius = Bounded::max_value(); // FIXME: is this a good idea?
 
         BoundingSphere::new(center, radius)

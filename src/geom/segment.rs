@@ -2,20 +2,20 @@
 
 use na;
 use geom::mesh::MeshElement;
-use math::Vect;
+use math::Point;
 
 /// A segment geometry.
 #[deriving(Encodable, Decodable, Clone)]
 pub struct Segment {
-    a:      Vect,
-    b:      Vect
+    a:      Point,
+    b:      Point
 }
 
 impl Segment {
     /// Creates a new segment from two points.
     #[inline]
-    pub fn new(a: Vect, b: Vect) -> Segment {
-        assert!(na::dim::<Vect>() > 1);
+    pub fn new(a: Point, b: Point) -> Segment {
+        assert!(na::dim::<Point>() > 1);
 
         Segment {
             a:      a,
@@ -27,13 +27,13 @@ impl Segment {
 impl Segment {
     /// The first point of this segment.
     #[inline]
-    pub fn a<'a>(&'a self) -> &'a Vect {
+    pub fn a<'a>(&'a self) -> &'a Point {
         &self.a
     }
 
     /// The second point of this segment.
     #[inline]
-    pub fn b<'a>(&'a self) -> &'a Vect {
+    pub fn b<'a>(&'a self) -> &'a Point {
         &self.b
     }
 }
@@ -45,7 +45,7 @@ impl MeshElement for Segment {
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[Vect], is: &[uint]) -> Segment {
+    fn new_with_vertices_and_indices(vs: &[Point], is: &[uint]) -> Segment {
         assert!(is.len() == 2);
 
         Segment::new(vs[is[0]].clone(), vs[is[1]].clone())

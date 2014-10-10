@@ -1,11 +1,11 @@
 use std::num::Zero;
-use na::{Cast, FloatVec, Cross, ApproxEq, Norm};
+use na::{Cast, FloatVec, FloatPnt, Cross, ApproxEq, Norm};
 use na;
 use bounding_volume;
 use utils;
 
 /// Computes the area of a triangle.
-pub fn triangle_area<N: Float + Cast<f64>, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N {
+pub fn triangle_area<N: Float + Cast<f64>, P: FloatPnt<N, V>, V: FloatVec<N>>(pa: &P, pb: &P, pc: &P) -> N {
     // Kahan's formula.
     let mut a = na::norm(&(*pa - *pb));
     let mut b = na::norm(&(*pb - *pc));
@@ -27,7 +27,9 @@ pub fn triangle_perimeter<N: Float, V: FloatVec<N>>(pa: &V, pb: &V, pc: &V) -> N
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N> + Clone>(pa: &V, pb: &V, pc: &V) -> (V, N) {
+pub fn circumcircle<N: Float + Cast<f64>,
+                    P: FloatPnt<N, V> + Clone,
+                    V: FloatVec<N>>(pa: &P, pb: &P, pc: &P) -> (P, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
@@ -47,20 +49,21 @@ pub fn circumcircle<N: Float + Cast<f64>, V: FloatVec<N> + Clone>(pa: &V, pb: &V
     else {
         let k = b * na - a * nb;
 
-        let center = (a * na::dot(&k, &b) - b * na::dot(&k, &a)) / denom + *pc;
-        let radius = na::norm(&(*pa - center));
+        let center = *pc + (a * na::dot(&k, &b) - b * na::dot(&k, &a)) / denom;
+        let radius = na::dist(pa, &center);
 
         (center, radius)
     }
 }
 
 /// Tests if three points are exactly aligned.
-pub fn is_affinely_dependent_triangle<V:  Sub<V, V> + Cross<AV> + Norm<N>,
+pub fn is_affinely_dependent_triangle<P:  Sub<P, V>,
+                                      V:  Cross<AV> + Norm<N>,
                                       AV: Norm<N>,
                                       N:  ApproxEq<N> + Float + Cast<f64>>(
-                                      p1: &V,
-                                      p2: &V,
-                                      p3: &V)
+                                      p1: &P,
+                                      p2: &P,
+                                      p3: &P)
                                       -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
@@ -73,7 +76,7 @@ pub fn is_affinely_dependent_triangle<V:  Sub<V, V> + Cross<AV> + Norm<N>,
 }
 
 /// Tests if a point is inside of a triangle.
-pub fn is_point_in_triangle<N: Float, V: FloatVec<N>>(p: &V, p1: &V, p2: &V, p3: &V) -> bool {
+pub fn is_point_in_triangle<N: Float, P: Sub<P, V>, V: FloatVec<N>>(p: &P, p1: &P, p2: &P, p3: &P) -> bool {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;
@@ -94,13 +97,13 @@ pub fn is_point_in_triangle<N: Float, V: FloatVec<N>>(p: &V, p1: &V, p2: &V, p3:
 #[cfg(test)]
 mod test {
     use na;
-    use na::Vec3;
+    use na::Pnt3;
 
     #[test]
     fn test_triangle_area() {
-        let pa = Vec3::new(0.0f64, 5.0, 0.0);
-        let pb = Vec3::new(0.0f64, 0.0, 0.0);
-        let pc = Vec3::new(0.0f64, 0.0, 4.0);
+        let pa = Pnt3::new(0.0f64, 5.0, 0.0);
+        let pb = Pnt3::new(0.0f64, 0.0, 0.0);
+        let pc = Pnt3::new(0.0f64, 0.0, 4.0);
 
         assert!(na::approx_eq(&super::triangle_area(&pa, &pb, &pc), &10.0));
     }

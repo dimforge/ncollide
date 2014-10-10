@@ -2,14 +2,14 @@ use na;
 use geom::Plane;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[cfg(feature = "3d")]
 use na::Indexable;
 
 #[cfg(feature = "3d")]
 impl ToTriMesh<(u32, u32)> for Plane {
-    fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
+    fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Point,Vect> {
         let mut res = procedural::quad(na::one(), na::one(), nwidth_subdiv as uint, nheight_subdiv as uint);
         //                                           ^^^^^^^                 ^^^^^^^
         //                                    FIXME: This is not very consistant with
@@ -29,7 +29,7 @@ impl ToTriMesh<(u32, u32)> for Plane {
 
 #[cfg(not(feature = "3d"))]
 impl ToTriMesh<(u32, u32)> for Plane {
-    fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
+    fn to_trimesh(&self, (nwidth_subdiv, nheight_subdiv): (u32, u32)) -> TriMesh<Scalar, Point,Vect> {
         procedural::quad(na::one(), na::one(), nwidth_subdiv as uint, nheight_subdiv as uint)
     }
 }

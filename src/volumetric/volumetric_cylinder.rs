@@ -2,7 +2,7 @@ use na::Indexable;
 use na;
 use geom::Cylinder;
 use volumetric::Volumetric;
-use math::{Scalar, Vect, AngularInertia};
+use math::{Scalar, Point, AngularInertia};
 
 #[cfg(feature = "3d")]
 use std::num::Float;
@@ -44,8 +44,8 @@ impl Volumetric for Cylinder {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     fn unit_angular_inertia(&self) -> AngularInertia {
@@ -81,8 +81,8 @@ impl Volumetric for Cylinder {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     fn unit_angular_inertia(&self) -> AngularInertia {

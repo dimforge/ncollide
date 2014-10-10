@@ -18,7 +18,7 @@ use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use narrow::OneShotContactManifoldGenerator as OSCMG;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
 pub trait GeomGeomCollisionDetector {
@@ -153,7 +153,7 @@ impl GeomGeomDispatcher {
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
     pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector + Send>> {
-        self.constructors.find(&(a.get_dyn_type_id(), b.get_dyn_type_id())).map(|f| f.build())
+        self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 
@@ -164,7 +164,7 @@ impl GeomGeomDispatcher {
     pub fn new(prediction: Scalar) -> GeomGeomDispatcher {
         let mut res = GeomGeomDispatcher::new_without_default();
 
-        type Simplex  = JohnsonSimplex<AnnotatedPoint>;
+        type Simplex  = JohnsonSimplex<AnnotatedPoint, Vect>;
         type Self     = GeomGeomDispatcher;
         type Super    = Box<GeomGeomCollisionDetector + Send>;
 
@@ -238,7 +238,7 @@ impl GeomGeomDispatcher {
     }
 
     /// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
-    pub fn register_default_plane_implicit_detector<I: 'static + Implicit<Vect, Matrix>>(
+    pub fn register_default_plane_implicit_detector<I: 'static + Implicit<Point, Vect, Matrix>>(
                                                     &mut self,
                                                     generate_manifold: bool,
                                                     prediction:        &Scalar) {
@@ -257,10 +257,10 @@ impl GeomGeomDispatcher {
 
     /// Register an `ImplicitImplicit` collision detector between two implicit geometries.
     pub fn register_default_implicit_implicit_detector<G1: 'static            +
-                                                           Implicit<Vect, Matrix> +
+                                                           Implicit<Point, Vect, Matrix> +
                                                            PreferedSamplingDirections<Vect, Matrix>,
                                                        G2: 'static            +
-                                                           Implicit<Vect, Matrix> +
+                                                           Implicit<Point, Vect, Matrix> +
                                                            PreferedSamplingDirections<Vect, Matrix>,
                                                        S:  Send + Clone + Simplex<AnnotatedPoint>>(
                                                        &mut self,
@@ -315,11 +315,11 @@ impl GeomGeomDispatcher {
 
     /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
     /// geometry supported by `ncollide`.
-    pub fn register_default_implicit_detectors<G: 'static + Implicit<Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
+    pub fn register_default_implicit_detectors<G: 'static + Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
                                                &mut self,
                                                generate_manifold: bool,
                                                prediction:        &Scalar) {
-        type Simplex  = JohnsonSimplex<AnnotatedPoint>;
+        type Simplex  = JohnsonSimplex<AnnotatedPoint, Vect>;
 
         // Implicit vs. Implicit
         let rt = RecursionTemplate::new(na::dim::<Vect>());

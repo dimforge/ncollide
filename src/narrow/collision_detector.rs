@@ -1,14 +1,14 @@
 use std::mem;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Geometric description of a contact.
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct Contact {
     /// Position of the contact on the first object. The position is expressed in world space.
-    pub world1: Vect,
+    pub world1: Point,
 
     /// Position of the contact on the second object. The position is expressed in world space.
-    pub world2: Vect,
+    pub world2: Point,
 
     /// Contact normal
     pub normal: Vect,
@@ -20,7 +20,7 @@ pub struct Contact {
 impl Contact {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: Vect, world2: Vect, normal: Vect, depth: Scalar) -> Contact {
+    pub fn new(world1: Point, world2: Point, normal: Vect, depth: Scalar) -> Contact {
         Contact {
             world1: world1,
             world2: world2,

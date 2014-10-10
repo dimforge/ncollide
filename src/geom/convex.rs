@@ -1,7 +1,7 @@
 //! 
 //! Support mapping based Convex polytope.
 //!
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[cfg(not(feature = "4d"))]
 use procedural;
@@ -21,13 +21,13 @@ use procedural::{UnifiedIndexBuffer, SplitIndexBuffer};
 /// Set of point assumed to form a convex polytope.
 #[cfg(not(feature = "2d"))]
 pub struct Convex {
-    mesh:   TriMesh<Scalar, Vect>,
+    mesh:   TriMesh<Scalar, Point, Vect>,
 }
 
 /// Set of point assumed to form a convex polyline.
 #[cfg(feature = "2d")]
 pub struct Convex {
-    mesh:   Polyline<Scalar, Vect>,
+    mesh:   Polyline<Scalar, Point, Vect>,
 }
 
 impl Clone for Convex {
@@ -44,7 +44,7 @@ impl Convex {
     ///
     /// This computes the convex hull of the set of points internally.
     #[inline]
-    pub fn new(points: &[Vect]) -> Convex {
+    pub fn new(points: &[Point]) -> Convex {
         unsafe {
             Convex::new_with_convex_mesh(procedural::convex_hull3d(points))
         }
@@ -52,7 +52,7 @@ impl Convex {
 
     /// Creates a polytope from a convex mesh. The convexity is __not__ checked.
     #[inline]
-    pub unsafe fn new_with_convex_mesh(mesh: TriMesh<Scalar, Vect>) -> Convex {
+    pub unsafe fn new_with_convex_mesh(mesh: TriMesh<Scalar, Point, Vect>) -> Convex {
         let mut mesh = mesh;
 
         /*
@@ -92,19 +92,19 @@ impl Convex {
 
     /// The convex mesh of this geometry.
     #[inline]
-    pub fn mesh<'a>(&'a self) -> &'a TriMesh<Scalar, Vect> {
+    pub fn mesh<'a>(&'a self) -> &'a TriMesh<Scalar, Point, Vect> {
         &self.mesh
     }
 
     /// The mutable convex mesh of this geometry.
     #[inline]
-    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut TriMesh<Scalar, Vect> {
+    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut TriMesh<Scalar, Point, Vect> {
         &mut self.mesh
     }
 
     /// The convex mesh of this geometry.
     #[inline]
-    pub fn unwrap(self) -> TriMesh<Scalar, Vect> {
+    pub fn unwrap(self) -> TriMesh<Scalar, Point, Vect> {
         self.mesh
     }
 }
@@ -115,7 +115,7 @@ impl Convex {
     ///
     /// This computes the convex hull of the set of points internally.
     #[inline]
-    pub fn new(points: &[Vect]) -> Convex {
+    pub fn new(points: &[Point]) -> Convex {
         unsafe {
             Convex::new_with_convex_polyline(procedural::convex_hull2d(points))
         }
@@ -123,7 +123,7 @@ impl Convex {
 
     /// Creates a polytope from a convex polyline. The convexity is __not__ checked.
     #[inline]
-    pub unsafe fn new_with_convex_polyline(mesh: Polyline<Scalar, Vect>) -> Convex {
+    pub unsafe fn new_with_convex_polyline(mesh: Polyline<Scalar, Point, Vect>) -> Convex {
         let mut mesh = mesh;
 
         /*
@@ -138,19 +138,19 @@ impl Convex {
 
     /// The convex polyline of this geometry.
     #[inline]
-    pub fn mesh<'a>(&'a self) -> &'a Polyline<Scalar, Vect> {
+    pub fn mesh<'a>(&'a self) -> &'a Polyline<Scalar, Point, Vect> {
         &self.mesh
     }
 
     /// The mutable convex polyline of this geometry.
     #[inline]
-    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut Polyline<Scalar, Vect> {
+    pub fn mesh_mut<'a>(&'a mut self) -> &'a mut Polyline<Scalar, Point, Vect> {
         &mut self.mesh
     }
 
     /// The convex polyline of this geometry.
     #[inline]
-    pub fn unwrap(self) -> Polyline<Scalar, Vect> {
+    pub fn unwrap(self) -> Polyline<Scalar, Point, Vect> {
         self.mesh
     }
 }
@@ -158,7 +158,7 @@ impl Convex {
 impl Convex {
     /// The list of points of this convex polytope.
     #[inline]
-    pub fn pts<'a>(&'a self) -> &'a [Vect] { // FIXME: naming: `pts` vs. `points`?
+    pub fn pts<'a>(&'a self) -> &'a [Point] { // FIXME: naming: `pts` vs. `points`?
         self.mesh.coords.as_slice()
     }
 }

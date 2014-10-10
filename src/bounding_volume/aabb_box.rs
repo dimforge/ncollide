@@ -6,7 +6,7 @@ use math::Matrix;
 impl HasAABB for Cuboid {
     #[inline]
     fn aabb(&self, m: &Matrix) -> AABB {
-        let center          = m.translation();
+        let center          = *m.translation().as_pnt();
         let ws_half_extents = m.absolute_rotate(&self.half_extents());
 
         AABB::new(center - ws_half_extents, center + ws_half_extents)

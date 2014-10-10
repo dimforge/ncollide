@@ -1,13 +1,13 @@
 use geom::MinkowskiSum;
 use procedural::{Polyline, ToPolyline};
 use procedural;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
 #[cfg(feature = "2d")]
 impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for MinkowskiSum<'a, G1, G2> {
-    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<Scalar, Vect> {
+    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<Scalar, Point, Vect> {
         let poly1 = self.g1().to_polyline(a);
         let poly2 = self.g2().to_polyline(b);
 
@@ -29,7 +29,7 @@ impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for Mink
         for pt in p2.coords.iter() {
             let mut cpy = p1.clone();
 
-            cpy.translate_by(pt);
+            cpy.translate_by(pt.as_vec());
 
             all_points.extend(cpy.coords.into_iter());
         }

@@ -2,20 +2,20 @@
 
 use std::collections::HashMap;
 use std::collections::hashmap::{Vacant, Occupied};
-use na::{FloatVec, FloatVecExt, Cast, Vec3};
+use na::{FloatPnt, FloatVec, FloatVecExt, Cast, Vec3};
 use na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use utils;
 use bounding_volume;
 
-struct Triangle<N, V> {
+struct Triangle<N, P, V> {
     idx:                    Vec3<uint>,
-    circumcircle_center:    V,
+    circumcircle_center:    P,
     circumcircle_sq_radius: N
 }
 
-impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangle<N, V> {
-    pub fn new(idx: Vec3<uint>, pts: &[V]) -> Triangle<N, V> {
+impl<N: Float + Cast<f64>, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> Triangle<N, P, V> {
+    pub fn new(idx: Vec3<uint>, pts: &[P]) -> Triangle<N, P, V> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
         let pc = &pts[idx.z];
@@ -30,21 +30,21 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangle<N, V> {
 
     }
 
-    pub fn circumcircle_contains_point(&self, pt: &V) -> bool {
-        na::sqnorm(&(*pt - self.circumcircle_center)) <= self.circumcircle_sq_radius
+    pub fn circumcircle_contains_point(&self, pt: &P) -> bool {
+        na::sqdist(pt, &self.circumcircle_center) <= self.circumcircle_sq_radius
     }
 }
 
 /// Incremental triangulation utility.
-pub struct Triangulator<N, V> {
-    vertices:  Vec<V>,
-    triangles: Vec<Triangle<N, V>>,
+pub struct Triangulator<N, P, V> {
+    vertices:  Vec<P>,
+    triangles: Vec<Triangle<N, P, V>>,
     edges:     HashMap<(uint, uint), uint>
 }
 
-impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
+impl<N: Float + Cast<f64>, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> Triangulator<N, P, V> {
     /// Creates a new Triangulator.
-    pub fn new(supertriangle_a: V, supertriangle_b: V, supertriangle_c: V) -> Triangulator<N, V> {
+    pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<N, P, V> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
 
         Triangulator {
@@ -55,7 +55,7 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
     }
 
     /// Adds a point to the triangulated set.
-    pub fn add_point(&mut self, pt: V) {
+    pub fn add_point(&mut self, pt: P) {
         self.remove_containing_triangles_and_register_edges(&pt);
 
         let ipt = self.vertices.len();
@@ -71,7 +71,7 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
     }
 
     /// Returns the result of the triangulation.
-    pub fn to_trimesh(mut self) -> TriMesh<N, V> {
+    pub fn to_trimesh(mut self) -> TriMesh<N, P, V> {
         let mut idx = Vec::with_capacity(self.triangles.len());
 
         let _ = self.vertices.swap_remove(2);
@@ -103,7 +103,7 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
         TriMesh::new(self.vertices, None, None, Some(UnifiedIndexBuffer(idx)))
     }
 
-    fn remove_containing_triangles_and_register_edges(&mut self, pt: &V) {
+    fn remove_containing_triangles_and_register_edges(&mut self, pt: &P) {
         self.edges.clear();
 
         let mut i = 0;
@@ -141,7 +141,10 @@ impl<N: Float + Cast<f64>, V: FloatVec<N> + Clone> Triangulator<N, V> {
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<N: FloatMath + Cast<f64>, V: FloatVecExt<N> + Clone>(pts: &[V]) -> TriMesh<N, V> {
+pub fn triangulate<N: FloatMath + Cast<f64>,
+                   P: FloatPnt<N, V> + Clone,
+                   V: FloatVecExt<N> + Clone>(
+                   pts: &[P]) -> TriMesh<N, P, V> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius           = radius * na::cast(2.0);
@@ -165,8 +168,9 @@ pub fn triangulate<N: FloatMath + Cast<f64>, V: FloatVecExt<N> + Clone>(pts: &[V
     //         bleft    bright
     //
     let top    = center + up * up_shift;
-    let bright = center - up * radius + right * right_shift;
-    let bleft  = center - up * radius - right * right_shift;
+    // FIXME: use `-` instead of `+ (-` when the trait refor is done.
+    let bright = center + (-up * radius + right * right_shift);
+    let bleft  = center + (-up * radius - right * right_shift);
 
     //// Build the triangulator.
     let mut triangulator = Triangulator::new(top, bright, bleft);

@@ -2,11 +2,11 @@ use na::{Transform, Rotate};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use geom::Convex;
-use math::Vect;
+use math::{Point, Vect};
 
-impl<_M: Transform<Vect> + Rotate<Vect>> Implicit<Vect, _M> for Convex {
+impl<M: Transform<Point> + Rotate<Vect>> Implicit<Point, Vect, M> for Convex {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Vect {
+    fn support_point(&self, m: &M, dir: &Vect) -> Point {
         let local_dir = m.inv_rotate(dir);
 
         let best_pt = implicit::point_cloud_support_point(&local_dir, self.pts());
@@ -15,9 +15,8 @@ impl<_M: Transform<Vect> + Rotate<Vect>> Implicit<Vect, _M> for Convex {
     }
 }
 
-impl<_M>
-PreferedSamplingDirections<Vect, _M> for Convex {
+impl<M> PreferedSamplingDirections<Vect, M> for Convex {
     #[inline(always)]
-    fn sample(&self, _: &_M, _: |Vect| -> ()) {
+    fn sample(&self, _: &M, _: |Vect| -> ()) {
     }
 }

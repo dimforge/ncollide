@@ -1,8 +1,7 @@
-use std::num::Zero;
-use na::{Dot, Norm, Dim, ApproxEq};
+use na::{Dim, ApproxEq, Orig, PntAsVec};
 use na;
 use geom::Reflection;
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
@@ -116,15 +115,15 @@ impl<'a, G1, G2> AnnotatedMinkowskiSum<'a, G1, G2> {
 #[doc(hidden)]
 #[deriving(Clone, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint {
-    orig1: Vect,
-    orig2: Vect,
-    point: Vect
+    orig1: Point,
+    orig2: Point,
+    point: Point
 }
 
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new(orig1: Vect, orig2: Vect, point: Vect) -> AnnotatedPoint {
+    pub fn new(orig1: Point, orig2: Point, point: Point) -> AnnotatedPoint {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
@@ -134,63 +133,95 @@ impl AnnotatedPoint {
 
     #[doc(hidden)]
     #[inline]
-    pub fn point<'r>(&'r self) -> &'r Vect {
+    pub fn point<'r>(&'r self) -> &'r Point {
         &self.point
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig1<'r>(&'r self) -> &'r Vect {
+    pub fn orig1<'r>(&'r self) -> &'r Point {
         &self.orig1
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig2<'r>(&'r self) -> &'r Vect {
+    pub fn orig2<'r>(&'r self) -> &'r Point {
         &self.orig2
+    }
+
+    #[doc(hidden)]
+    #[inline]
+    pub fn translate_1(&mut self, t: &Vect) {
+        self.orig1 = self.orig1 + *t;
+        self.point = self.point + *t;
+    }
+
+    #[doc(hidden)]
+    #[inline]
+    pub fn translate_2(&mut self, t: &Vect) {
+        self.orig2 = self.orig2 + *t;
+        self.point = self.point + *t;
     }
 }
 
 impl AnnotatedPoint {
     #[doc(hidden)]
     #[inline]
-    pub fn new_invalid(point: Vect) -> AnnotatedPoint {
+    pub fn new_invalid(point: Point) -> AnnotatedPoint {
         AnnotatedPoint {
-            orig1: na::zero(),
-            orig2: na::zero(),
+            orig1: na::orig(),
+            orig2: na::orig(),
             point: point
         }
     }
 }
 
-
-impl Zero for AnnotatedPoint {
+impl PntAsVec<Vect> for AnnotatedPoint {
     #[inline]
-    fn zero() -> AnnotatedPoint {
-        AnnotatedPoint::new(na::zero(), na::zero(), na::zero())
+    fn to_vec(self) -> Vect {
+        self.point.to_vec()
     }
 
     #[inline]
-    fn is_zero(&self) -> bool {
-        self.point.is_zero()
+    fn as_vec<'a>(&'a self) -> &'a Vect {
+        self.point.as_vec()
     }
-}
 
-impl Sub<AnnotatedPoint, AnnotatedPoint> for AnnotatedPoint {
     #[inline]
-    fn sub(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
-        AnnotatedPoint::new(self.orig1 - other.orig1,
-        self.orig2 - other.orig2,
-        self.point - other.point)
+    fn set_coords(&mut self, _: Vect) {
+        fail!(".set_coords is not implemented for annotated points.")
     }
 }
 
-impl Add<AnnotatedPoint, AnnotatedPoint> for AnnotatedPoint {
+impl Orig for AnnotatedPoint {
     #[inline]
-    fn add(&self, other: &AnnotatedPoint) -> AnnotatedPoint {
-        AnnotatedPoint::new(self.orig1 + other.orig1,
-        self.orig2 + other.orig2,
-        self.point + other.point)
+    fn orig() -> AnnotatedPoint {
+        AnnotatedPoint::new(na::orig(), na::orig(), na::orig())
+    }
+
+    #[inline]
+    fn is_orig(&self) -> bool {
+        self.point.is_orig()
+    }
+}
+
+impl Add<Vect, AnnotatedPoint> for AnnotatedPoint {
+    #[inline]
+    fn add(&self, other: &Vect) -> AnnotatedPoint {
+        let _0_5: Scalar = na::cast(0.5f64);
+
+        AnnotatedPoint::new(
+            self.orig1 + *other * _0_5,
+            self.orig2 + *other * _0_5,
+            self.point + *other
+        )
+    }
+}
+
+impl Sub<AnnotatedPoint, Vect> for AnnotatedPoint {
+    #[inline]
+    fn sub(&self, other: &AnnotatedPoint) -> Vect {
+        self.point - other.point
     }
 }
 
@@ -204,43 +235,7 @@ impl Neg<AnnotatedPoint> for AnnotatedPoint {
 impl Dim for AnnotatedPoint {
     #[inline]
     fn dim(_: Option<AnnotatedPoint>) -> uint {
-        na::dim::<Vect>()
-    }
-}
-
-impl Dot<Scalar> for AnnotatedPoint {
-    #[inline]
-    fn dot(a: &AnnotatedPoint, b: &AnnotatedPoint) -> Scalar {
-        na::dot(&a.point, &b.point)
-    }
-
-    #[inline]
-    fn sub_dot(a: &AnnotatedPoint, b: &AnnotatedPoint, c: &AnnotatedPoint) -> Scalar {
-        na::sub_dot(&a.point, &b.point, &c.point)
-    }
-}
-
-impl Norm<Scalar> for AnnotatedPoint {
-    #[inline]
-    fn norm(v: &AnnotatedPoint) -> Scalar {
-        na::norm(&v.point)
-    }
-
-    #[inline]
-    fn sqnorm(v: &AnnotatedPoint) -> Scalar {
-        na::sqnorm(&v.point)
-    }
-
-    /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
-    #[inline]
-    fn normalize_cpy(v: &AnnotatedPoint) -> AnnotatedPoint {
-        AnnotatedPoint::new(v.orig1.clone(), v.orig2.clone(), na::normalize(&v.point))
-    }
-
-    /// Be careful: only the `point` is normalized, not `orig1` nor `orig2`.
-    #[inline]
-    fn normalize(&mut self) -> Scalar {
-        self.point.normalize()
+        na::dim::<Point>()
     }
 }
 

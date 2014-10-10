@@ -2,11 +2,11 @@ use na;
 use geom::Ball;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[cfg(feature = "3d")]
 impl ToTriMesh<(u32, u32)> for Ball {
-    fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<Scalar, Vect> {
+    fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<Scalar, Point, Vect> {
         procedural::sphere(&(self.radius() * na::cast(2.0f64)), ntheta_subdiv, nphi_subdiv, true)
     }
 }

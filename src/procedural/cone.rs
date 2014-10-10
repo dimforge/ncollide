@@ -1,10 +1,10 @@
 use na;
-use na::{Cast, Vec3};
+use na::{Cast, Pnt3, Vec3};
 use procedural::{TriMesh, SplitIndexBuffer};
 use procedural::utils;
 
 /// Generates a cone with a given height and diameter.
-pub fn cone<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Vec3<N>> {
+pub fn cone<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let mut cone = unit_cone(nsubdiv);
 
     cone.scale_by(&Vec3::new(diameter, height, diameter));
@@ -13,18 +13,18 @@ pub fn cone<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> T
 }
 
 /// Generates a cone with unit height and diameter.
-pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> {
+pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let two_pi: N   = Float::two_pi();
     let dtheta      = two_pi / na::cast(nsubdiv as f64);
     let mut coords  = Vec::new();
     let mut indices = Vec::new();
-    let mut normals;
+    let mut normals: Vec<Vec3<N>>;
 
     utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(-0.5), &mut coords);
 
-    normals = coords.clone();
+    normals = coords.iter().map(|p| p.as_vec().clone()).collect();
 
-    coords.push(Vec3::new(na::zero(), na::cast(0.5), na::zero()));
+    coords.push(Pnt3::new(na::zero(), na::cast(0.5), na::zero()));
 
     utils::push_degenerate_top_ring_indices(0, coords.len() as u32 - 1, nsubdiv, &mut indices);
     utils::push_filled_circle_indices(0, nsubdiv, &mut indices);

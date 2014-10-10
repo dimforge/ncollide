@@ -1,5 +1,5 @@
 use na::{DMat, Indexable};
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 
 // FIXME: support more than rectangular surfaces?
@@ -10,7 +10,7 @@ use math::{Scalar, Vect};
 pub trait ParametricSurface {
     // FIXME: rename those d0, du, etc. ? (just like in the `symbolic` module.
     /// Evaluates the parametric surface.
-    fn at(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at(&self, u: Scalar, v: Scalar) -> Point;
 
     /// Evaluates the surface derivative wrt. `u`.
     fn at_u(&self, u: Scalar, v: Scalar) -> Vect;
@@ -31,7 +31,7 @@ pub trait ParametricSurface {
     ///
     /// Returns (S(u, v), dS / du, dS / dv)
     #[inline]
-    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Vect, Vect, Vect) {
+    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect) {
         (self.at(u, v), self.at_u(u, v), self.at_v(u, v))
     }
 
@@ -39,7 +39,7 @@ pub trait ParametricSurface {
     ///
     /// Returns (S(u, v), dS / du, dS / dv, d²S / du², d²S / dv², d²S / dudv)
     #[inline]
-    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Vect, Vect, Vect, Vect, Vect, Vect) {
+    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect, Vect, Vect, Vect) {
         (self.at(u, v), self.at_u(u, v), self.at_v(u, v), self.at_uu(u, v), self.at_vv(u, v), self.at_uv(u, v))
     }
 

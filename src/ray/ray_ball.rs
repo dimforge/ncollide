@@ -1,42 +1,39 @@
 use std::num::Float;
-use na::Translation;
+use na::{Pnt2, Translation};
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::Ball;
-use math::{Scalar, Vect, Matrix};
-
-// #[cfg(feature = "3d")]
-use na::Vec2;
+use math::{Scalar, Point, Vect, Matrix};
 
 
 #[cfg(feature = "3d")]
-fn ball_uv(normal: &Vect) -> Option<Vec2<Scalar>> {
+fn ball_uv(normal: &Vect) -> Option<Pnt2<Scalar>> {
     let two_pi: Scalar = Float::two_pi();
     let pi:     Scalar = Float::pi();
     let _0_5:   Scalar = na::cast(0.5f64);
     let uvx       = _0_5 + normal.z.atan2(normal.x) / two_pi;
     let uvy       = _0_5 - normal.y.asin() / pi;
 
-    Some(Vec2::new(uvx, uvy))
+    Some(Pnt2::new(uvx, uvy))
 }
 
 #[cfg(not(feature = "3d"))]
-fn ball_uv(_: &Vect) -> Option<Vec2<Scalar>> {
+fn ball_uv(_: &Vect) -> Option<Pnt2<Scalar>> {
     None
 }
 
 impl RayCast for Ball {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
-        ball_toi_with_ray(na::zero(), self.radius(), ray, solid).val1()
+        ball_toi_with_ray(na::orig(), self.radius(), ray, solid).val1()
     }
 
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);
+        let (inside, inter) = ball_toi_with_ray(na::orig(), self.radius(), ray, solid);
         inter.map(|n| {
             let pos    = ray.orig + ray.dir * n;
-            let normal = na::normalize(&pos);
+            let normal = na::normalize(pos.as_vec());
 
             RayIntersection::new(n, if inside { -normal } else { normal })
         })
@@ -45,11 +42,11 @@ impl RayCast for Ball {
     // #[cfg(feature = "3d")]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        let (inside, inter) = ball_toi_with_ray(na::zero(), self.radius(), ray, solid);
+        let (inside, inter) = ball_toi_with_ray(na::orig(), self.radius(), ray, solid);
 
         inter.map(|n| {
             let pos    = ray.orig + ray.dir * n;
-            let normal = na::normalize(&pos);
+            let normal = na::normalize(pos.as_vec());
             let uv     = ball_uv(&normal);
 
             RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, uv)
@@ -58,13 +55,13 @@ impl RayCast for Ball {
 
     #[inline]
     fn toi_with_transform_and_ray(&self, m: &Matrix, ray: &Ray, solid: bool) -> Option<Scalar> {
-        ball_toi_with_ray(m.translation(), self.radius(), ray, solid).val1()
+        ball_toi_with_ray(*m.translation().as_pnt(), self.radius(), ray, solid).val1()
     }
 }
 
 /// Computes the time of impact of a ray on a ball.
 #[inline]
-pub fn ball_toi_with_ray(center: Vect, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
+pub fn ball_toi_with_ray(center: Point, radius: Scalar, ray: &Ray, solid: bool) -> (bool, Option<Scalar>) {
     let dcenter = ray.orig - center;
 
     let b = na::dot(&dcenter, &ray.dir);

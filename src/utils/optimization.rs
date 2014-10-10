@@ -62,7 +62,7 @@ pub fn newton<V: Sub<V, V>, M: Inv + Mul<V, V>>(
 /// Minimizes a function using the bfgs method.
 pub fn minimize_with_bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float + Rand,
                           V: FloatVec<N> + Outer<M> + PartialOrd + Clone + Indexable<uint, N> + Rand,
-                          M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone + ScalarMul<N>>(
+                          M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone>(
                           niter:       uint,
                           num_guesses: uint,
                           domain_min:  &V,
@@ -147,7 +147,7 @@ LineSearch<N, V> for BacktrackingLineSearch<N> {
 /// Minimizes a function using the quasi-newton BFGS method.
 pub fn bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float,
             V: FloatVec<N> + Outer<M> + Clone,
-            M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone + ScalarMul<N>,
+            M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone,
             SS: LineSearch<N, V>>(
             niter:   uint,
             ss:      &SS,
@@ -199,8 +199,8 @@ pub fn bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float,
             let idenom = na::one::<N>() / denom;
 
             hx = hx +
-                 na::outer(&step, &step).mul_s(&((denom + na::dot(&d_dx, &(hx.rmul(&d_dx)))) * idenom * idenom)) -
-                 (hx * na::outer(&d_dx, &step) + na::outer(&step, &d_dx) * hx).mul_s(&idenom);
+                 na::outer(&step, &(step * ((denom + na::dot(&d_dx, &(hx.rmul(&d_dx)))) * idenom * idenom))) -
+                 (hx * na::outer(&d_dx, &(step * idenom)) + na::outer(&step, &(d_dx * idenom)) * hx);
         }
 
         dx = new_dx;

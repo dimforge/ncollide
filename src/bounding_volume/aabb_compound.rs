@@ -9,7 +9,7 @@ impl HasAABB for Compound {
     fn aabb(&self, m: &Matrix) -> AABB {
         let bv              = self.bvt().root_bounding_volume().unwrap();
         let ls_center       = bv.translation();
-        let center          = m.transform(&ls_center);
+        let center          = m.transform(&ls_center).to_pnt();
         let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f32, Scalar>(2.0);
         let ws_half_extents = m.absolute_rotate(&half_extents);
 

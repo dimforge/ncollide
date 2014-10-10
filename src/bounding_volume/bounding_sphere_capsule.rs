@@ -7,7 +7,7 @@ use geom::Capsule;
 impl HasBoundingSphere for Capsule {
     #[inline]
     fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
-        let center = m.translation();
+        let center = m.translation().to_pnt();
         let radius = self.radius() + self.half_height();
 
         BoundingSphere::new(center, radius)

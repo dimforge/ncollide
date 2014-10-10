@@ -3,15 +3,15 @@ use na;
 use geom::Capsule;
 use procedural::{ToPolyline, Polyline};
 use procedural::utils;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[cfg(feature = "2d")]
 impl ToPolyline<u32> for Capsule {
-    fn to_polyline(&self, nsubdivs: u32) -> Polyline<Scalar, Vect> {
+    fn to_polyline(&self, nsubdivs: u32) -> Polyline<Scalar, Point, Vect> {
         let pi: Scalar = Float::pi();
         let dtheta     = pi / na::cast(nsubdivs as f64);
 
-        let mut points: Vec<Vect> = Vec::with_capacity(nsubdivs as uint);
+        let mut points: Vec<Point> = Vec::with_capacity(nsubdivs as uint);
 
         utils::push_xy_arc(self.radius(), nsubdivs, dtheta, &mut points);
 

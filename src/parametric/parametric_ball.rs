@@ -1,8 +1,8 @@
 #![allow(non_snake_case)] // For alignment sake.
 
-use na::Vec3;
+use na::{Pnt3, Vec3};
 use na;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 use geom::Ball;
 use parametric::ParametricSurface;
 use utils;
@@ -16,14 +16,14 @@ use utils;
 /// S_vv(u, v) = (-r cos(u) cos(v), -r sin(v),  r sin(u) cos(v))
 /// S_uv(u, v) = ( r sin(u) sin(v), 0        ,  r cos(u) sin(v))
 impl ParametricSurface for Ball {
-    fn at(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at(&self, u: Scalar, v: Scalar) -> Point {
         let u        = u * Float::two_pi();
         let v        = (v - na::cast(0.5f64)) * Float::pi();
         let (su, cu) = u.sin_cos();
         let (sv, cv) = v.sin_cos();
         let r        = self.radius();
 
-        Vec3::new(r * cu * cv, r * sv, -r * su * cv)
+        Pnt3::new(r * cu * cv, r * sv, -r * su * cv)
     }
 
     fn at_u(&self, u: Scalar, v: Scalar) -> Vect {
@@ -82,7 +82,7 @@ impl ParametricSurface for Ball {
         Vec3::new(r * su * sv, na::zero(), r * cu * sv) * (_pi * _2_pi)
     }
 
-    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Vect, Vect, Vect) {
+    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect) {
         let _2_pi     = Float::two_pi();
         let _pi       = Float::pi();
         let u         = u * _2_pi;
@@ -94,13 +94,13 @@ impl ParametricSurface for Ball {
         let r___su___cv = r * su * cv;
 
         (
-            Vec3::new( r___cu___cv, r * sv,     -r___su___cv),
+            Pnt3::new( r___cu___cv, r * sv,     -r___su___cv),
             Vec3::new(-r___su___cv, na::zero(), -r___cu___cv) * _2_pi,
             Vec3::new(-r * cu * sv, r * cv,      r * su * sv) * _pi
         )
     }
 
-    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Vect, Vect, Vect, Vect, Vect, Vect) {
+    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect, Vect, Vect, Vect) {
         let _2_pi       = Float::two_pi();
         let _pi         = Float::pi();
         let u           = u * _2_pi;
@@ -115,7 +115,7 @@ impl ParametricSurface for Ball {
         let r_cu_sv = r * cu * sv;
 
         (
-            Vec3::new( r_cu_cv, r___sv,     -r_su_cv),
+            Pnt3::new( r_cu_cv, r___sv,     -r_su_cv),
             Vec3::new(-r_su_cv, na::zero(), -r_cu_cv) * _2_pi,
             Vec3::new(-r_cu_sv, r * cv,      r_su_sv) * _pi,
             Vec3::new(-r_cu_cv, na::zero(),  r_su_cv) * _2_pi * _2_pi,

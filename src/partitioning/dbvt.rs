@@ -9,7 +9,7 @@ use na::Translation;
 use na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 
 #[deriving(Encodable, Decodable)]
 enum UpdateState {
@@ -129,7 +129,7 @@ struct DBVTInternal<B, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
     /// The center of this node bounding volume.
-    center:          Vect,
+    center:          Point,
     /// This node left child.
     left:            DBVTNode<B, BV>,
     /// This node right child.
@@ -148,7 +148,7 @@ impl<BV: Translation<Vect>, B> DBVTInternal<B, BV> {
            right:           DBVTNode<B, BV>)
            -> DBVTInternal<B, BV> {
         DBVTInternal {
-            center:          bounding_volume.translation(),
+            center:          bounding_volume.translation().to_pnt(),
             bounding_volume: bounding_volume,
             left:            left,
             right:           right,
@@ -197,7 +197,7 @@ pub struct DBVTLeaf<B, BV> {
     /// The bounding volume of this node.
     pub bounding_volume: BV,
     /// The center of this node bounding volume.
-    pub center:          Vect,
+    pub center:          Point,
     /// An user-defined object.
     pub object:          B,
     /// This node parent.
@@ -235,7 +235,7 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
     /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<B, BV> {
         DBVTLeaf {
-            center:          bounding_volume.translation(),
+            center:          bounding_volume.translation().to_pnt(),
             bounding_volume: bounding_volume,
             object:          object,
             parent:          Detached
@@ -310,7 +310,7 @@ impl<B: 'static, BV: Translation<Vect> + 'static> DBVTLeaf<B, BV> {
 }
 
 impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
-    fn sqdist_to(&self, to: &Vect) -> Scalar {
+    fn sqdist_to(&self, to: &Point) -> Scalar {
         match *self {
             Internal(ref i) => na::sqnorm(&(i.center - *to)),
             Leaf(ref l)     => {
@@ -320,40 +320,12 @@ impl<BV: 'static + BoundingVolume, B: 'static> DBVTNode<B, BV> {
             Invalid         => unreachable!()
         }
     }
-
-    /*
-    fn enclosing_volume(&self, other: &DBVTNode<B, BV>) -> BV {
-        match (self, other) {
-            (&Internal(ref a), &Internal(ref b)) => a.bounding_volume.merged(&b.bounding_volume),
-            (&Leaf(ref a)    , &Internal(ref b)) => a.bounding_volume.merged(&b.bounding_volume),
-            (&Internal(ref a), &Leaf(ref b))     => a.bounding_volume.merged(&b.bounding_volume),
-            (&Leaf(ref a)    , &Leaf(ref b))     => a.bounding_volume.merged(&b.bounding_volume),
-            _ => unreachable!() // combination including invalide nodes
-        }
-    }
-    */
 }
 
 impl<BV: 'static + Translation<Vect> + BoundingVolume, B: 'static> DBVTInternal<B, BV> {
-    fn is_closest_to_left(&self, pt: &Vect) -> bool {
+    fn is_closest_to_left(&self, pt: &Point) -> bool {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
     }
-
-    /*
-    fn is_closest_to_right(&self, pt: &Vect) -> bool {
-        !self.is_closest_to_left(pt)
-    }
-
-    fn partial_optimise(&mut self) {
-        match self.state {
-            NeedsShrink => {
-                self.bounding_volume = self.right.enclosing_volume(&self.left);
-                self.state = UpToDate;
-            }
-            _ => { }
-        }
-    }
-    */
 }
 
 impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clone> DBVTNode<B, BV> {
@@ -540,30 +512,5 @@ impl<BV: 'static + BoundingVolume + Translation<Vect> + Clone, B: 'static + Clon
         }
     }
 }
-
-/*
-impl<BV: 'static + BoundingVolume + RayCast<Scalar, Vect> + Translation<Vect>,
-     B:  'static,
-     Vect:  'static + AlgebraicVec<Scalar>,
-     Scalar:  Algebraic + Ord>
-DBVTNode<Vect, B, BV> {
-    fn interferences_with_ray(&self, ray: &Ray<Vect>, out: &mut Vec<Gc<RefCell<f<Vect, B, BV>>>) {
-        match (*self) {
-            Internal(ref i) => {
-                if i.bounding_volume.intersects_ray(ray) {
-                    i.left.interferences_with_ray(ray, out);
-                    i.right.interferences_with_ray(ray, out)
-                }
-            },
-            Leaf(ref l) => {
-                if l.bounding_volume.intersects_ray(ray) {
-                    out.push(l.clone())
-                }
-            },
-            Invalid => unreachable!()
-        }
-    }
-}
-*/
 
 // XXX: Drop should be implemented to invalidate the leaves parents when the tree is dropped.

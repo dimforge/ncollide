@@ -49,7 +49,6 @@ Some common features are still missing:
 #![feature(default_type_params)]
 #![feature(macro_rules)]
 #![feature(unsafe_destructor)]
-#![feature(phase)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate "nalgebra" as na;
@@ -80,7 +79,7 @@ pub mod volumetric;
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "3d")]
 pub mod math {
-    use na::{Vec3, Mat3, Rot3, Iso3};
+    use na::{Pnt3, Vec3, Mat3, Rot3, Iso3};
 
     /// The scalar type.
     #[cfg(feature = "f32")]
@@ -89,6 +88,9 @@ pub mod math {
     /// The scalar type.
     #[cfg(feature = "f64")]
     pub type Scalar = f64;
+
+    /// The point type.
+    pub type Point = Pnt3<Scalar>;
 
     /// The vector type.
     pub type Vect = Vec3<Scalar>;
@@ -109,7 +111,7 @@ pub mod math {
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "2d")]
 pub mod math {
-    use na::{Vec1, Vec2, Mat1, Rot2, Iso2};
+    use na::{Pnt2, Vec1, Vec2, Mat1, Rot2, Iso2};
 
     /// The scalar type.
     #[cfg(feature = "f32")]
@@ -118,6 +120,9 @@ pub mod math {
     /// The scalar type.
     #[cfg(feature = "f64")]
     pub type Scalar = f64;
+
+    /// The point type.
+    pub type Point = Pnt2<Scalar>;
 
     /// The vector type.
     pub type Vect = Vec2<Scalar>;
@@ -138,7 +143,7 @@ pub mod math {
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "4d")]
 pub mod math {
-    use na::{Vec4, Mat4, Rot4, Iso4};
+    use na::{Pnt4, Vec4, Mat4, Rot4, Iso4};
 
     /// The scalar type.
     #[cfg(feature = "f32")]
@@ -147,6 +152,9 @@ pub mod math {
     /// The scalar type.
     #[cfg(feature = "f64")]
     pub type Scalar = f64;
+
+    /// The point type.
+    pub type Point = Pnt4<Scalar>;
 
     /// The vector type.
     pub type Vect = Vec4<Scalar>;

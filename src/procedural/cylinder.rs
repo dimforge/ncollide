@@ -1,10 +1,10 @@
 use na;
-use na::{Cast, Vec2, Vec3};
+use na::{Cast, Pnt3, Pnt2, Vec3};
 use procedural::{TriMesh, SplitIndexBuffer};
 use procedural::utils;
 
 /// Generates a cylinder with a given height and diameter.
-pub fn cylinder<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Vec3<N>> {
+pub fn cylinder<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let mut cylinder = unit_cylinder(nsubdiv);
 
     cylinder.scale_by(&Vec3::new(diameter, height, diameter));
@@ -13,17 +13,17 @@ pub fn cylinder<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) 
 }
 
 /// Generates a cylinder with unit height and diameter.
-pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<N>> {
+pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
     let two_pi: N   = Float::two_pi();
     let invsubdiv   = na::one::<N>() / na::cast(nsubdiv as f64);
     let dtheta      = two_pi * invsubdiv;
     let mut coords  = Vec::new();
     let mut indices = Vec::new();
-    let mut normals;
+    let mut normals: Vec<Vec3<N>>;
 
     utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(-0.5), &mut coords);
 
-    normals = coords.clone();
+    normals = coords.iter().map(|p| p.as_vec().clone()).collect();
 
     utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(0.5),  &mut coords);
 
@@ -44,7 +44,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
     let mut uvs    = Vec::with_capacity(coords.len());
     let mut curr_u = na::zero::<N>();
     for _ in range(0, nsubdiv) {
-        uvs.push(Vec2::new(curr_u.clone(), na::zero()));
+        uvs.push(Pnt2::new(curr_u.clone(), na::zero()));
         curr_u = curr_u + invsubdiv;
     }
     
@@ -52,7 +52,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Vec3<
     // top ring uvs
     curr_u = na::zero();
     for _ in range(0, nsubdiv) {
-        uvs.push(Vec2::new(curr_u.clone(), na::one()));
+        uvs.push(Pnt2::new(curr_u.clone(), na::one()));
         curr_u = curr_u + invsubdiv;
     }
 

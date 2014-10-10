@@ -1,11 +1,11 @@
-use na::{Vec3, Mat3, Cast};
+use na::{Pnt3, Vec3, Mat3, Cast};
 use na::overload::Vec3MulRhs;
 use na;
 use utils;
 
 /// Computes the volume of a tetrahedron.
 #[inline]
-pub fn tetrahedron_volume<N: Float + Cast<f64>>(p1: &Vec3<N>, p2: &Vec3<N>, p3: &Vec3<N>, p4: &Vec3<N>) -> N {
+pub fn tetrahedron_volume<N: Float + Cast<f64>>(p1: &Pnt3<N>, p2: &Pnt3<N>, p3: &Pnt3<N>, p4: &Pnt3<N>) -> N {
     tetrahedron_signed_volume(p1, p2, p3, p4).abs()
 }
 
@@ -14,7 +14,7 @@ pub fn tetrahedron_volume<N: Float + Cast<f64>>(p1: &Vec3<N>, p2: &Vec3<N>, p3: 
 /// If it is positive, `p4` is on the half-space pointed by the normal of the oriented triangle
 /// `(p1, p2, p3)`.
 #[inline]
-pub fn tetrahedron_signed_volume<N: Float + Cast<f64>>(p1: &Vec3<N>, p2: &Vec3<N>, p3: &Vec3<N>, p4: &Vec3<N>) -> N {
+pub fn tetrahedron_signed_volume<N: Float + Cast<f64>>(p1: &Pnt3<N>, p2: &Pnt3<N>, p3: &Pnt3<N>, p4: &Pnt3<N>) -> N {
     let p1p2 = p2 - *p1;
     let p1p3 = p3 - *p1;
     let p1p4 = p4 - *p1;
@@ -30,8 +30,8 @@ pub fn tetrahedron_signed_volume<N: Float + Cast<f64>>(p1: &Vec3<N>, p2: &Vec3<N
 /// Computes the center of a tetrahedron.
 #[inline]
 // FIXME: those bounds should be simplified once the trait reform lands:
-// N where Vec3<N>: FloatVec<f64>
-pub fn tetrahedron_center<N: Float + Cast<f64> + Vec3MulRhs<N, Vec3<N>>>(
-                          p1: &Vec3<N>, p2: &Vec3<N>, p3: &Vec3<N>, p4: &Vec3<N>) -> Vec3<N> {
+// N where Pnt3<N>: FloatPnt<f64>
+pub fn tetrahedron_center<N: Cast<f64> + Float + Vec3MulRhs<N, Vec3<N>>>(
+                          p1: &Pnt3<N>, p2: &Pnt3<N>, p3: &Pnt3<N>, p4: &Pnt3<N>) -> Pnt3<N> {
     utils::center(&[ p1.clone(), p2.clone(), p3.clone(), p4.clone() ])
 }

@@ -2,7 +2,7 @@ use std::rand;
 use sync::{Arc, RWLock};
 use na;
 use na::{Vec2, Mat2, Translation, Inv, Norm};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 use geom::{Ball, BezierSurface};
 use narrow::{CollisionDetector, Contact};
 use narrow::surface_selector::SurfaceSelector;
@@ -15,7 +15,7 @@ pub struct BallBezierSurface<S, D> {
     selector:   S,
     prediction: Scalar,
     contacts:   Vec<Contact>,
-    points:     Vec<Vect>,
+    points:     Vec<Point>,
     timestamp:  uint
 }
 
@@ -76,7 +76,7 @@ CollisionDetector<Ball, BezierSurface> for BallBezierSurface<S, D> {
 
         let max_depth = 15;
         let niter     = 5;
-        let pt        = na::inv_transform(mb, &ma.translation());
+        let pt        = na::inv_transform(mb, ma.translation().as_pnt());
 
         closest_points(&pt, b, niter, &mut self.selector, max_depth, &mut self.points);
 
@@ -98,10 +98,10 @@ CollisionDetector<Ball, BezierSurface> for BallBezierSurface<S, D> {
 
         for pt in self.points.iter() {
             let pt = na::transform(mb, pt);
-            let mut normal = pt - ma.translation(); 
+            let mut normal = pt - ma.translation().to_pnt(); 
             let gap        = normal.normalize();
 
-            let c = Contact::new(ma.translation() + normal * a.radius(), pt.clone(), normal, a.radius() - gap);
+            let c = Contact::new(ma.translation().to_pnt() + normal * a.radius(), pt.clone(), normal, a.radius() - gap);
 
             self.contacts.push(c);
         }
@@ -191,22 +191,22 @@ CollisionDetector<BezierSurface, Ball> for BezierSurfaceBall<S, D> {
 /// * `selector`  - The surface selection subalgorithm.
 /// * `max_depth` - The maximum depth of the subdivision tree.
 /// * `out`       - The buffer that will contain the closest points.
-pub fn closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
+pub fn closest_points<S: SurfaceSelector<D>, D>(pt:        &Point,
                                                 b:         &BezierSurface,
                                                 niter:     uint,
                                                 selector:  &mut S,
                                                 max_depth: uint,
-                                                out:       &mut Vec<Vect>) {
+                                                out:       &mut Vec<Point>) {
     do_closest_points(pt, b, niter, selector, max_depth, out, false)
 }
 
 
-fn do_closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
+fn do_closest_points<S: SurfaceSelector<D>, D>(pt:        &Point,
                                                b:         &BezierSurface,
                                                niter:     uint,
                                                selector:  &mut S,
                                                max_depth: uint,
-                                               out:       &mut Vec<Vect>,
+                                               out:       &mut Vec<Point>,
                                                odd:       bool) {
     let test_data = selector.create_test_data(b);
 
@@ -240,13 +240,13 @@ fn do_closest_points<S: SurfaceSelector<D>, D>(pt:        &Vect,
 // timestamp).
 #[allow(dead_code)] // FIXME: this might be useful in the future, it the subdivision tree becomes handy.
 fn closest_points_with_subdivision_tree<S: SurfaceSelector<D>, D: Send + Sync>(
-                                        pt:             &Vect,
+                                        pt:             &Point,
                                         to_visit:       &Arc<RWLock<SurfaceSubdivisionTree<D>>>,
                                         selector:       &mut S,
                                         curr_timestamp: uint,
                                         max_depth:      uint,
                                         niter:          uint,
-                                        out:            &mut Vec<Vect>) {
+                                        out:            &mut Vec<Point>) {
     let can_go_down;
     let accepted;
     let mark_as_accepted;
@@ -407,7 +407,7 @@ fn do_cleanup_subdivision_tree<D: Send + Sync>(tree: &Arc<RWLock<SurfaceSubdivis
 }
 
 // FIXME: the Newton method should be implemented on nalgebra.
-fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
+fn closest_point(pt: &Point, b: &BezierSurface, niter: uint) -> Option<Point> {
     /*
      * derivatives
      */
@@ -451,13 +451,13 @@ fn closest_point(pt: &Vect, b: &BezierSurface, niter: uint) -> Option<Vect> {
         let dvv = diff_v_v.at(&uv.x, &uv.y, &mut cache);
         let dvu = diff_v_u.at(&uv.x, &uv.y, &mut cache);
 
-        let df_uu = na::dot(&duu, &dpt) + na::dot(&du, &du);
-        let df_uv = na::dot(&duv, &dpt) + na::dot(&du, &dv);
-        let df_vv = na::dot(&dvv, &dpt) + na::dot(&dv, &dv);
-        let df_vu = na::dot(&dvu, &dpt) + na::dot(&dv, &du);
+        let df_uu = na::dot(duu.as_vec(), &dpt) + na::dot(du.as_vec(), du.as_vec());
+        let df_uv = na::dot(duv.as_vec(), &dpt) + na::dot(du.as_vec(), dv.as_vec());
+        let df_vv = na::dot(dvv.as_vec(), &dpt) + na::dot(dv.as_vec(), dv.as_vec());
+        let df_vu = na::dot(dvu.as_vec(), &dpt) + na::dot(dv.as_vec(), du.as_vec());
 
-        let f_u = na::dot(&dpt, &du);
-        let f_v = na::dot(&dpt, &dv);
+        let f_u = na::dot(&dpt, du.as_vec());
+        let f_v = na::dot(&dpt, dv.as_vec());
 
         let f         = Vec2::new(f_u, f_v);
         let mut inv_j = Mat2::new(df_uu, df_uv,

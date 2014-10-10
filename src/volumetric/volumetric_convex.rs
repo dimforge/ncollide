@@ -13,12 +13,12 @@ use geom::Convex;
 #[cfg(feature = "3d")]
 use volumetric::Volumetric;
 #[cfg(feature = "3d")]
-use math::{Scalar, Vect, AngularInertia};
+use math::{Scalar, Point, AngularInertia};
 #[cfg(feature = "3d")]
 use std::num::Zero;
 
 #[cfg(feature = "3d")]
-fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Vect, p1: &Vect, p2: &Vect, p3: &Vect, p4: &Vect) -> AngularInertia {
+fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Point, p1: &Point, p2: &Point, p3: &Point, p4: &Point) -> AngularInertia {
     let p1 = *p1 - *point;
     let p2 = *p2 - *point;
     let p3 = *p3 - *point;
@@ -63,10 +63,10 @@ fn tetrahedron_unit_inertia_tensor_wrt_point(point: &Vect, p1: &Vect, p2: &Vect,
 }
 
 #[cfg(feature = "3d")]
-pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
+pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Point) {
     let geometric_center = utils::center(convex.pts());
 
-    let mut res = na::zero::<Vect>();
+    let mut res = na::orig::<Point>();
     let mut vol = na::zero::<Scalar>();
 
     match convex.mesh().indices {
@@ -79,7 +79,7 @@ pub fn convex_volume_and_center(convex: &Convex) -> (Scalar, Vect) {
                 let volume = utils::tetrahedron_volume(&geometric_center, p2, p3, p4);
                 let center = utils::tetrahedron_center(&geometric_center, p2, p3, p4);
 
-                res = res + center * volume;
+                res = res + *center.as_vec() * volume;
                 vol = vol + volume;
             }
         },
@@ -119,7 +119,7 @@ impl Volumetric for Convex {
         convex_volume_and_center(self).val0()
     }
 
-    fn center_of_mass(&self) -> Vect {
+    fn center_of_mass(&self) -> Point {
         convex_volume_and_center(self).val1()
     }
 
@@ -134,7 +134,7 @@ impl Volumetric for Convex {
         }
     }
 
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Vect, AngularInertia) {
+    fn mass_properties(&self, density: &Scalar) -> (Scalar, Point, AngularInertia) {
         let (volume, com) = convex_volume_and_center(self);
 
         let mut itot = na::zero::<AngularInertia>();

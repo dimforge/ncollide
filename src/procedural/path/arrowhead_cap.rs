@@ -1,5 +1,5 @@
-use na::{Vec3, Iso3, Cast};
-use na::overload::{Vec3MulRhs, Vec3DivRhs};
+use na::{Pnt3, Vec3, Iso3, Cast};
+use na::overload::{Pnt3MulRhs, Pnt3DivRhs, Vec3MulRhs, Vec3DivRhs};
 use na;
 use procedural::path::PolylineCompatibleCap;
 use procedural::Polyline;
@@ -12,7 +12,7 @@ pub struct ArrowheadCap<N> {
     back_dist_to_head:  N
 }
 
-impl<N: Clone + Cast<f64> + FloatMath + Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
+impl<N: Clone + Cast<f64> + FloatMath + Pnt3DivRhs<N, Pnt3<N>> + Pnt3MulRhs<N, Pnt3<N>> + Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
 ArrowheadCap<N> {
     /// Creates a cap that looks like an arrow.
     ///
@@ -30,12 +30,12 @@ ArrowheadCap<N> {
 
     fn do_gen_cap(&self,
                   attach_id:       u32,
-                  pattern:         &Polyline<N, Vec3<N>>,
-                  pt:              &Vec3<N>,
+                  pattern:         &Polyline<N, Pnt3<N>, Vec3<N>>,
+                  pt:              &Pnt3<N>,
                   dir:             &Vec3<N>,
                   closed:          bool,
                   negative_shifts: bool,
-                  coords:          &mut Vec<Vec3<N>>,
+                  coords:          &mut Vec<Pnt3<N>>,
                   indices:         &mut Vec<Vec3<u32>>) {
         let front_dist_to_head = if negative_shifts { -self.front_dist_to_head } else { self.front_dist_to_head };
         let back_dist_to_head  = if negative_shifts { -self.back_dist_to_head } else { self.back_dist_to_head };
@@ -86,15 +86,17 @@ ArrowheadCap<N> {
     }
 }
 
-impl<N: Clone + Cast<f64> + FloatMath + Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
+impl<N: Clone + Cast<f64> + FloatMath +
+        Pnt3MulRhs<N, Pnt3<N>> + Pnt3DivRhs<N, Pnt3<N>> +
+        Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
 PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_end_cap(&self,
                    attach_id: u32,
-                   pattern:   &Polyline<N, Vec3<N>>,
-                   pt:        &Vec3<N>,
+                   pattern:   &Polyline<N, Pnt3<N>, Vec3<N>>,
+                   pt:        &Pnt3<N>,
                    dir:       &Vec3<N>,
                    closed:    bool,
-                   coords:    &mut Vec<Vec3<N>>,
+                   coords:    &mut Vec<Pnt3<N>>,
                    indices:   &mut Vec<Vec3<u32>>) {
         let start_indices_id = indices.len();
 
@@ -104,11 +106,11 @@ PolylineCompatibleCap<N> for ArrowheadCap<N> {
 
     fn gen_start_cap(&self,
                      attach_id: u32,
-                     pattern:   &Polyline<N, Vec3<N>>,
-                     pt:        &Vec3<N>,
+                     pattern:   &Polyline<N, Pnt3<N>, Vec3<N>>,
+                     pt:        &Pnt3<N>,
                      dir:       &Vec3<N>,
                      closed:    bool,
-                     coords:    &mut Vec<Vec3<N>>,
+                     coords:    &mut Vec<Pnt3<N>>,
                      indices:   &mut Vec<Vec3<u32>>) {
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, true, coords, indices)
     }

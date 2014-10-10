@@ -4,7 +4,7 @@ use na;
 use geom::Ball;
 use narrow::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Collision detector between two balls.
 #[deriving(Encodable, Decodable)]
@@ -37,9 +37,9 @@ impl CollisionDetector<Ball, Ball> for
 BallBall {
     fn update(&mut self, ma: &Matrix, a: &Ball, mb: &Matrix, b: &Ball) {
         self.contact = collide(
-            &ma.translation(),
+            ma.translation().as_pnt(),
             a,
-            &mb.translation(),
+            mb.translation().as_pnt(),
             b,
             &self.prediction);
     }
@@ -70,7 +70,7 @@ BallBall {
 ///
 /// The balls must penetrate to have contact points.
 #[inline]
-pub fn collide(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball, prediction: &Scalar) -> Option<Contact> {
+pub fn collide(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball, prediction: &Scalar) -> Option<Contact> {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = center2 - *center1;
@@ -104,7 +104,7 @@ pub fn collide(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball, prediction:
 ///
 /// If they are intersecting, the points corresponding to the penetration depth are returned.
 #[inline]
-pub fn closest_points(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball) -> (Vect, Vect) {
+pub fn closest_points(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball) -> (Point, Point) {
     let r1     = b1.radius();
     let r2     = b2.radius();
     let normal = na::normalize(&(center2 - *center1));
@@ -124,7 +124,7 @@ pub fn closest_points(center1: &Vect, b1: &Ball, center2: &Vect, b2: &Ball) -> (
 pub fn toi(c1: &Matrix, dir: &Vect, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
     // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!
     let radius = b1.radius() + b2.radius();
-    let center = c1.translation() - c2.translation();
+    let center = c1.translation().as_pnt() - c2.translation();
 
-    ball_toi_with_ray(center, radius, &Ray::new(na::zero(), -dir), true).val1()
+    ball_toi_with_ray(center, radius, &Ray::new(na::orig(), -dir), true).val1()
 }

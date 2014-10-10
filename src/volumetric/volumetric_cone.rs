@@ -3,7 +3,7 @@ use na::Indexable;
 use na;
 use geom::Cone;
 use volumetric::Volumetric;
-use math::{Scalar, Vect, AngularInertia};
+use math::{Scalar, Point, AngularInertia};
 
 /// Computes the volume of a cone.
 #[cfg(feature = "2d")]
@@ -40,8 +40,8 @@ impl Volumetric for Cone {
         cone_volume(&self.half_height(), &self.radius())
     }
 
-    fn center_of_mass(&self) -> Vect {
-        let mut com: Vect = na::zero();
+    fn center_of_mass(&self) -> Point {
+        let mut com: Point = na::orig();
         com.set(1, -self.half_height() / na::cast(2.0f64));
 
         com
@@ -73,8 +73,8 @@ impl Volumetric for Cone {
         cone_volume(&self.half_height(), &self.radius())
     }
 
-    fn center_of_mass(&self) -> Vect {
-        let mut com: Vect = na::zero();
+    fn center_of_mass(&self) -> Point {
+        let mut com: Point = na::orig();
         com.set(1, -self.half_height() / na::cast(2.0f64));
 
         com

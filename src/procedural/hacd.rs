@@ -7,9 +7,9 @@ use std::rand::{IsaacRng, Rng};
 use std::num::Bounded;
 use std::hash::sip::SipHasher;
 use na;
-use na::{Vec2, Vec3, Identity, Iterable, Norm};
+use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
-use math::{Scalar, Vect};
+use math::{Scalar, Point, Vect};
 use implicit::Implicit;
 use ray::{Ray, RayCast, RayIntersection};
 use ray;
@@ -22,7 +22,7 @@ use partitioning::{BVT, BoundingVolumeInterferencesCollector};
 
 /// Approximate convex decomposition of a triangle mesh.
 #[cfg(feature = "3d")]
-pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
+pub fn hacd(mesh:           TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>,
             error:          Scalar,
             min_components: uint)
             -> (Vec<Convex>, Vec<Vec<uint>>) {
@@ -153,13 +153,13 @@ pub fn hacd(mesh:           TriMesh<Scalar, Vec3<Scalar>>,
 }
 
 #[cfg(feature = "3d")]
-fn normalize(mesh: &mut TriMesh<Scalar, Vect>) -> (Vect, Scalar) {
+fn normalize(mesh: &mut TriMesh<Scalar, Point, Vect>) -> (Point, Scalar) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
     let diag = na::norm(&(maxs - mins));
     let _2: Scalar = na::cast(2.0f64);
-    let center: Vect = (mins + maxs) / _2;
+    let center: Point = (mins + *maxs.as_vec()) / _2;
 
-    mesh.translate_by(&(-center));
+    mesh.translate_by(&(-*center.as_vec()));
     let _1: Scalar = na::one();
     mesh.scale_by_scalar(&(_1 / diag));
 
@@ -167,9 +167,9 @@ fn normalize(mesh: &mut TriMesh<Scalar, Vect>) -> (Vect, Scalar) {
 }
 
 #[cfg(feature = "3d")]
-fn denormalize(mesh: &mut TriMesh<Scalar, Vec3<Scalar>>, center: &Vect, diag: &Scalar) {
+fn denormalize(mesh: &mut TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>, center: &Point, diag: &Scalar) {
     mesh.scale_by_scalar(diag);
-    mesh.translate_by(center);
+    mesh.translate_by(center.as_vec());
 }
 
 #[cfg(feature = "3d")]
@@ -189,7 +189,7 @@ struct DualGraphVertex {
 #[cfg(feature = "3d")]
 impl DualGraphVertex {
     pub fn new(ancestor: uint,
-               mesh:     &TriMesh<Scalar, Vec3<Scalar>>,
+               mesh:     &TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>,
                raymap:   &HashMap<(u32, u32), uint>) // FIXME: we could get rid of the raymap.
                -> DualGraphVertex {
         let (idx, ns) =
@@ -369,7 +369,7 @@ impl DualGraphEdge {
                v1:            uint,
                v2:            uint,
                dual_graph:    &[DualGraphVertex],
-               coords:        &[Vect],
+               coords:        &[Point],
                max_concavity: Scalar)
                -> DualGraphEdge {
         let mut v1 = v1;
@@ -448,7 +448,7 @@ impl DualGraphEdge {
                         concavity:  &mut Scalar,
                         ancestors:  &mut PriorityQueue<VertexWithConcavity>) {
             let sv   = chull.support_point(&Identity::new(), &ray.dir);
-            let dist = na::dot(&sv, &ray.dir);
+            let dist = na::dot(sv.as_vec(), &ray.dir);
 
             if !na::approx_eq(&dist, &na::zero()) {
                 let shift: Scalar = na::cast(0.1f64);
@@ -654,7 +654,7 @@ fn compute_ray_bvt(rays: &[Ray]) -> BVT<uint, AABB> {
 }
 
 #[cfg(feature = "3d")]
-fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32, u32), uint>) {
+fn compute_rays(mesh: &TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32, u32), uint>) {
     let mut rays   = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -703,7 +703,7 @@ fn compute_rays(mesh: &TriMesh<Scalar, Vec3<Scalar>>) -> (Vec<Ray>, HashMap<(u32
 
 
 #[cfg(feature = "3d")]
-fn compute_dual_graph(mesh:   &TriMesh<Scalar, Vec3<Scalar>>,
+fn compute_dual_graph(mesh:   &TriMesh<Scalar, Pnt3<Scalar>, Vec3<Scalar>>,
                       raymap: &HashMap<(u32, u32), uint>)
                       -> Vec<DualGraphVertex> {
     let mut rng           = IsaacRng::new_unseeded();
@@ -760,12 +760,12 @@ impl<'a> ConvexPair<'a> {
     }
 }
 
-impl<'a> Implicit<Vect, Identity> for ConvexPair<'a> {
-    fn support_point(&self, transform: &Identity, dir: &Vect) -> Vect {
+impl<'a> Implicit<Point, Vect, Identity> for ConvexPair<'a> {
+    fn support_point(&self, transform: &Identity, dir: &Vect) -> Point {
         let sa = self.a.support_point(transform, dir);
         let sb = self.b.support_point(transform, dir);
 
-        if na::dot(&sa, dir) > na::dot(&sb, dir) {
+        if na::dot(sa.as_vec(), dir) > na::dot(sb.as_vec(), dir) {
             sa
         }
         else {
@@ -779,7 +779,7 @@ impl<'a> RayCast for ConvexPair<'a> {
         ray::implicit_toi_and_normal_with_ray(
             &Identity::new(),
             self,
-            &mut JohnsonSimplex::<Vect>::new_w_tls(),
+            &mut JohnsonSimplex::<Point, Vect>::new_w_tls(),
             ray,
             solid)
     }

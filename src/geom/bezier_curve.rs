@@ -1,19 +1,19 @@
 use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
-use math::{Vect, Scalar};
+use math::{Point, Scalar};
 
 /// Cache used to evaluate a bezier curve at a given parameter.
 ///
 /// The same cache can be used for multiple evaluations (that is the whole point of this).
 pub struct BezierCurveEvaluationCache {
-    cache: Vec<Vect>,
+    cache: Vec<Point>,
 }
 
 /// Procedural generator of non-rational Bézier curve.
 #[deriving(Clone)]
 pub struct BezierCurve {
-    control_points: Vec<Vect>
+    control_points: Vec<Point>
 }
 
 impl BezierCurve {
@@ -21,7 +21,7 @@ impl BezierCurve {
     ///
     /// # Parameters:
     /// * `control_points`: The control points of the bézier curve.
-    pub fn new(control_points: Vec<Vect>) -> BezierCurve {
+    pub fn new(control_points: Vec<Point>) -> BezierCurve {
         BezierCurve {
             control_points: control_points
         }
@@ -31,7 +31,7 @@ impl BezierCurve {
     ///
     /// Its control points are initialized to zero.
     pub fn new_with_degree(degree: uint) -> BezierCurve {
-        BezierCurve::new(Vec::from_elem(degree + 1, na::zero()))
+        BezierCurve::new(Vec::from_elem(degree + 1, na::orig()))
     }
 
     /// Creates a cache to avaluate a bezier curve.
@@ -43,13 +43,13 @@ impl BezierCurve {
 
     /// The control points of this bézier curve.
     #[inline]
-    pub fn control_points<'a>(&'a self) -> &'a [Vect] {
+    pub fn control_points<'a>(&'a self) -> &'a [Point] {
         self.control_points.as_slice()
     }
 
     /// The control points of this bézier curve.
     #[inline]
-    pub fn control_points_mut<'a>(&'a mut self) -> &'a mut [Vect] {
+    pub fn control_points_mut<'a>(&'a mut self) -> &'a mut [Point] {
         self.control_points.as_mut_slice()
     }
 
@@ -67,7 +67,7 @@ impl BezierCurve {
 
     /// Evaluates this bezier curve at the given parameter `t`.
     #[inline]
-    pub fn at(&self, t: &Scalar, cache: &mut BezierCurveEvaluationCache) -> Vect {
+    pub fn at(&self, t: &Scalar, cache: &mut BezierCurveEvaluationCache) -> Point {
         procedural::bezier_curve_at(self.control_points.as_slice(), t, &mut cache.cache)
     }
 
@@ -92,10 +92,10 @@ impl BezierCurve {
 }
 
 /// Subdivides the bezier curve with control points `control_points` at a given parameter `t`.
-pub fn subdivide_bezier_curve_at(control_points: &VecSlice<Vect>,
+pub fn subdivide_bezier_curve_at(control_points: &VecSlice<Point>,
                                  t:              &Scalar,
-                                 out_left:       &mut VecSliceMut<Vect>,
-                                 out_right:      &mut VecSliceMut<Vect>) {
+                                 out_left:       &mut VecSliceMut<Point>,
+                                 out_right:      &mut VecSliceMut<Point>) {
     assert!(control_points.len() == out_left.len(), "The result vector must have the same length as the input.");
     assert!(control_points.len() == out_right.len(), "The result vector must have the same length as the input.");
 
@@ -107,7 +107,7 @@ pub fn subdivide_bezier_curve_at(control_points: &VecSlice<Vect>,
     *out_left.get_mut(0) = control_points.get(0).clone();
     for i in range(1u, control_points.len()) {
         for j in range(0u, control_points.len() - i) {
-            *out_right.get_mut(j) = *out_right.get(j) * t_1 + *out_right.get(j + 1) * *t;
+            *out_right.get_mut(j) = *out_right.get(j) * t_1 + *out_right.get(j + 1).as_vec() * *t;
         }
         *out_left.get_mut(i) = out_right.get(0).clone();
     }
@@ -115,14 +115,14 @@ pub fn subdivide_bezier_curve_at(control_points: &VecSlice<Vect>,
 
 
 /// Computes the control point of a bezier curve's derivative.
-pub fn diff_bezier_curve(control_points: &VecSlice<Vect>, out: &mut VecSliceMut<Vect>) {
+pub fn diff_bezier_curve(control_points: &VecSlice<Point>, out: &mut VecSliceMut<Point>) {
     assert!(out.len() == control_points.len() - 1);
 
     let degree: Scalar = na::cast(out.len());
 
     for i in range(0u, out.len()) {
         unsafe {
-            *out.unsafe_get_mut(i) = (*control_points.unsafe_get(i + 1) - *control_points.unsafe_get(i)) * degree
+            *out.unsafe_get_mut(i) = ((*control_points.unsafe_get(i + 1) - *control_points.unsafe_get(i)) * degree).to_pnt()
         }
     }
 }

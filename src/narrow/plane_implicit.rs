@@ -4,7 +4,7 @@ use narrow::{CollisionDetector, Contact};
 use geom::Plane;
 use implicit::Implicit;
 use ray::{Ray, RayCast};
-use math::{Scalar, Vect, Matrix};
+use math::{Scalar, Point, Vect, Matrix};
 
 /// Collision detector between a plane and a geometry implementing the `Implicit` trait.
 ///
@@ -37,7 +37,7 @@ impl<G> PlaneImplicit<G> {
     }
 }
 
-impl<G: Implicit<Vect, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
+impl<G: Implicit<Point, Vect, Matrix>> CollisionDetector<Plane, G> for PlaneImplicit<G> {
     #[inline]
     fn update(&mut self, ma: &Matrix, plane: &Plane, mb: &Matrix, b: &G) {
         self.contact = collide(
@@ -107,7 +107,7 @@ impl<G> ImplicitPlane<G> {
     }
 }
 
-impl<G: Implicit<Vect, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
+impl<G: Implicit<Point, Vect, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G> {
     #[inline]
     fn update(&mut self, ma: &Matrix, a: &G, mb: &Matrix, plane: &Plane) {
         self.contact = collide(mb, plane, ma, a, &self.prediction);
@@ -151,7 +151,7 @@ impl<G: Implicit<Vect, Matrix>> CollisionDetector<G, Plane> for ImplicitPlane<G>
 /// # Arguments:
 /// * `plane` - the plane to test.
 /// * `other` - the object to test against the plane.
-pub fn collide<G: Implicit<Vect, Matrix>>(
+pub fn collide<G: Implicit<Point, Vect, Matrix>>(
                mplane:     &Matrix,
                plane:      &Plane,
                mother:     &Matrix,
@@ -159,7 +159,7 @@ pub fn collide<G: Implicit<Vect, Matrix>>(
                prediction: &Scalar)
                -> Option<Contact> {
     let plane_normal = mplane.rotate(&plane.normal());
-    let plane_center = mplane.translation();
+    let plane_center = mplane.translation().to_pnt();
     let deepest      = other.support_point(mother, &-plane_normal);
 
     let dist = na::dot(&plane_normal, &(plane_center - deepest));
@@ -182,7 +182,7 @@ pub fn collide<G: Implicit<Vect, Matrix>>(
 /// * `mother` - the geometry transform.
 /// * `dir`    - the direction of the other geometry movement.
 /// * `other`  - the other geometry.
-pub fn toi<G: Implicit<Vect, Matrix>>(
+pub fn toi<G: Implicit<Point, Vect, Matrix>>(
            mplane: &Matrix,
            plane:  &Plane,
            mother: &Matrix,

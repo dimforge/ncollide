@@ -4,7 +4,7 @@ use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
-use math::{Vect, Scalar};
+use math::{Point, Vect, Scalar};
 
 #[cfg(not(feature = "4d"))]
 use math::RotationMatrix;
@@ -16,14 +16,14 @@ use utils;
 ///
 /// The same cache can be used for multiple evaluations (that is the whole point of this).
 pub struct BezierSurfaceEvaluationCache {
-    u_cache: Vec<Vect>,
-    v_cache: Vec<Vect>
+    u_cache: Vec<Point>,
+    v_cache: Vec<Point>
 }
 
 /// Procedural generator of non-rational Bézier surfaces.
 #[deriving(Clone)]
 pub struct BezierSurface {
-    control_points:     Vec<Vect>, // u-major storage.
+    control_points:     Vec<Point>, // u-major storage.
     nupoints:           uint,
     nvpoints:           uint
 }
@@ -39,7 +39,7 @@ impl BezierSurface {
     /// # Failures:
     /// Fails if the vector of control points does not contain exactly `nupoints * nvpoints`
     /// elements.
-    pub fn new(control_points: Vec<Vect>, nupoints: uint, nvpoints: uint) -> BezierSurface {
+    pub fn new(control_points: Vec<Point>, nupoints: uint, nvpoints: uint) -> BezierSurface {
         assert!(nupoints * nvpoints == control_points.len());
 
         BezierSurface {
@@ -55,7 +55,7 @@ impl BezierSurface {
     pub fn new_with_degrees(degree_u: uint, degree_v: uint) -> BezierSurface {
         let nupoints = degree_u + 1;
         let nvpoints = degree_v + 1;
-        BezierSurface::new(Vec::from_elem(nupoints * nvpoints, na::zero()), nupoints, nvpoints)
+        BezierSurface::new(Vec::from_elem(nupoints * nvpoints, na::orig()), nupoints, nvpoints)
     }
 
     /// Creates a cache to avaluate a bezier surface.
@@ -79,7 +79,7 @@ impl BezierSurface {
         }
         else {
             self.control_points.clear();
-            self.control_points.grow(nupoints * nvpoints, na::zero());
+            self.control_points.grow(nupoints * nvpoints, na::orig());
             self.nupoints = nupoints;
             self.nvpoints = nvpoints;
 
@@ -89,7 +89,7 @@ impl BezierSurface {
 
     /// The control points of this bézier surface.
     #[inline]
-    pub fn control_points<'a>(&'a self) -> &'a [Vect] {
+    pub fn control_points<'a>(&'a self) -> &'a [Point] {
         self.control_points.as_slice()
     }
 
@@ -119,7 +119,7 @@ impl BezierSurface {
 
     /// Get the `i`-th set of control points along the `u` parametric direction.
     #[inline]
-    pub fn slice_u<'a>(&'a self, i: uint) -> VecSlice<'a, Vect> {
+    pub fn slice_u<'a>(&'a self, i: uint) -> VecSlice<'a, Point> {
         VecSlice::new(self.control_points.slice_from(i * self.nupoints),
                       self.nupoints,
                       1)
@@ -127,13 +127,13 @@ impl BezierSurface {
 
     /// Get the `i`-th set of control points along the `v` parametric direction.
     #[inline]
-    pub fn slice_v<'a>(&'a self, i: uint) -> VecSlice<'a, Vect> {
+    pub fn slice_v<'a>(&'a self, i: uint) -> VecSlice<'a, Point> {
         VecSlice::new(self.control_points.slice_from(i), self.nvpoints, self.nupoints)
     }
 
     /// Mutably get the `i`-th set of control points along the `u` parametric direction.
     #[inline]
-    pub fn mut_slice_u<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Vect> {
+    pub fn mut_slice_u<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Point> {
         VecSliceMut::new(self.control_points.slice_from_mut(i * self.nupoints),
                          self.nupoints,
                          1)
@@ -141,7 +141,7 @@ impl BezierSurface {
 
     /// Mutably get the `i`-th set of control points along the `v` parametric direction.
     #[inline]
-    pub fn mut_slice_v<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Vect> {
+    pub fn mut_slice_v<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Point> {
         VecSliceMut::new(self.control_points.slice_from_mut(i), self.nvpoints, self.nupoints)
     }
 }
@@ -149,7 +149,7 @@ impl BezierSurface {
 impl BezierSurface {
     /// Evaluates this bezier surface at the given parameter `t`.
     #[inline]
-    pub fn at(&self, u: &Scalar, v: &Scalar, cache: &mut BezierSurfaceEvaluationCache) -> Vect {
+    pub fn at(&self, u: &Scalar, v: &Scalar, cache: &mut BezierSurfaceEvaluationCache) -> Point {
         procedural::bezier_surface_at(self.control_points.as_slice(),
                                       self.nupoints,
                                       self.nvpoints,
@@ -207,38 +207,38 @@ impl BezierSurface {
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
-    pub fn endpoint_00<'a>(&'a self) -> &'a Vect {
+    pub fn endpoint_00<'a>(&'a self) -> &'a Point {
         &self.control_points[0]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 1`.
     #[inline]
-    pub fn endpoint_01<'a>(&'a self) -> &'a Vect {
+    pub fn endpoint_01<'a>(&'a self) -> &'a Point {
         &self.control_points[self.nupoints() - 1]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
-    pub fn endpoint_10<'a>(&'a self) -> &'a Vect {
+    pub fn endpoint_10<'a>(&'a self) -> &'a Point {
         &self.control_points[self.control_points.len() - self.nupoints()]
     }
 
     /// Gets the endpoint at parameters `u = 1` and `v = 1`.
     #[inline]
-    pub fn endpoint_11<'a>(&'a self) -> &'a Vect {
+    pub fn endpoint_11<'a>(&'a self) -> &'a Point {
         self.control_points.last().unwrap()
     }
 
     /// Computes an infinite bounding cone of this surface.
     #[inline]
-    pub fn bounding_cone_with_origin(&self, origin: &Vect) -> (Vect, Scalar) {
+    pub fn bounding_cone_with_origin(&self, origin: &Point) -> (Vect, Scalar) {
         bounding_cone_with_origin(self.control_points.as_slice(), origin)
     }
 }
 
 /// Computes an infinite bounding cone of this surface.
 #[cfg(not(feature = "4d"))]
-pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
+pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Scalar) {
     let mut axis  = points[0] - *origin;
     let mut theta = na::zero();
 
@@ -287,7 +287,7 @@ pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scala
 
 /// Computes an infinite bounding cone of this surface.
 #[cfg(feature = "4d")] // we cannot use the previous algorithm because it requires a `na::cross`.
-pub fn bounding_cone_with_origin(points: &[Vect], origin: &Vect) -> (Vect, Scalar) {
+pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Scalar) {
     // FIXME: this is a very coarse approximation
     let mut axis = utils::center(points) - *origin;
 

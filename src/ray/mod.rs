@@ -4,7 +4,7 @@
 #[doc(inline)]
 pub use ray::ray::{Ray, RayCast, RayIntersection};
 
-// functions
+// // functions
 pub use ray::ray_plane::plane_toi_with_ray;
 pub use ray::ray_implicit::implicit_toi_and_normal_with_ray;
 pub use ray::ray_ball::ball_toi_with_ray;
@@ -15,7 +15,7 @@ pub use ray::ray_triangle::triangle_ray_intersection;
 pub mod ray;
 mod ray_plane;
 mod ray_ball;
-mod ray_box;
+mod ray_cuboid;
 mod ray_aabb;
 mod ray_bounding_sphere;
 mod ray_implicit;

@@ -2,7 +2,7 @@ use na::{Iterable, Indexable};
 use na;
 use geom::Cuboid;
 use volumetric::Volumetric;
-use math::{Scalar, Vect, AngularInertia};
+use math::{Scalar, Point, Vect, AngularInertia};
 
 
 /// Computes the volume of a cuboid.
@@ -30,8 +30,8 @@ impl Volumetric for Cuboid {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     #[inline]
@@ -72,8 +72,8 @@ impl Volumetric for Cuboid {
     }
 
     #[inline]
-    fn center_of_mass(&self) -> Vect {
-        na::zero()
+    fn center_of_mass(&self) -> Point {
+        na::orig()
     }
 
     #[inline]

@@ -7,7 +7,7 @@ use math::Scalar;
 ///
 /// # Parameters:
 ///   * Vect - type of the support mapping direction argument and of the returned point.
-pub trait Implicit<Vect: FloatVec<Scalar>, Matrix> {
+pub trait Implicit<Point, Vect: FloatVec<Scalar>, Matrix> {
     // FIXME: add methods that takes a unit `dir` in argument.
     // This might be useful to avoid useless normalizations.
     /**
@@ -20,12 +20,12 @@ pub trait Implicit<Vect: FloatVec<Scalar>, Matrix> {
      *  * `dir` - the input of the support function. It is not required for it to
      *            be normalized.
      */
-    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Vect;
+    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Point;
 }
 
-impl<'a, Vect: FloatVec<Scalar>, Matrix> Implicit<Vect, Matrix> for &'a Implicit<Vect, Matrix> + 'a {
+impl<'a, Point, Vect: FloatVec<Scalar>, Matrix> Implicit<Point, Vect, Matrix> for &'a Implicit<Point, Vect, Matrix> + 'a {
     #[inline]
-    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Vect {
+    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Point {
         self.support_point(transform, dir)
     }
 }
