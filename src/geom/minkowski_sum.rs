@@ -1,4 +1,4 @@
-use na::{Dim, ApproxEq, Orig, PntAsVec};
+use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy};
 use na;
 use geom::Reflection;
 use math::{Scalar, Point, Vect, Matrix};
@@ -203,6 +203,15 @@ impl Add<Vect, AnnotatedPoint> for AnnotatedPoint {
             self.orig2 + *other * _0_5,
             self.point + *other
         )
+    }
+}
+
+impl Axpy<Scalar> for AnnotatedPoint {
+    #[inline]
+    fn axpy(&mut self, a: &Scalar, x: &AnnotatedPoint) {
+        self.orig1.axpy(a, &x.orig1);
+        self.orig2.axpy(a, &x.orig2);
+        self.point.axpy(a, &x.point);
     }
 }
 

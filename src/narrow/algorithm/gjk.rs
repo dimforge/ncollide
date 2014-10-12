@@ -41,8 +41,7 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
     project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -p.orig2()))
 }
 
-/// Computes the closest points between two convex geometries without their margins unsing the GJK
-/// algorithm.
+/// Computes the closest points between two convex geometries unsing the GJK algorithm.
 ///
 /// # Arguments:
 /// * `g1`      - first geometry.
@@ -50,15 +49,15 @@ pub fn closest_points<S:  Simplex<AnnotatedPoint>,
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///               compute such point.
-pub fn closest_points_without_margin_with_max_dist<S:  Simplex<AnnotatedPoint>,
-                                                   G1: Implicit<Point, Vect, Matrix>,
-                                                   G2: Implicit<Point, Vect, Matrix>>(
-                                                   m1:       &Matrix,
-                                                   g1:       &G1,
-                                                   m2:       &Matrix,
-                                                   g2:       &G2,
-                                                   max_dist: &Scalar,
-                                                   simplex:  &mut S) -> GJKResult<(Point, Point), Vect> {
+pub fn closest_points_with_max_dist<S:  Simplex<AnnotatedPoint>,
+                                    G1: Implicit<Point, Vect, Matrix>,
+                                    G2: Implicit<Point, Vect, Matrix>>(
+                                    m1:       &Matrix,
+                                    g1:       &G1,
+                                    m2:       &Matrix,
+                                    g2:       &G2,
+                                    max_dist: &Scalar,
+                                    simplex:  &mut S) -> GJKResult<(Point, Point), Vect> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 

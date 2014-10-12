@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 use std::collections::hashmap::{Vacant, Occupied};
-use na::{FloatPnt, FloatVec, FloatVecExt, Cast, Vec3};
+use na::{FloatPntExt, FloatVec, FloatVecExt, Cast, Vec3};
 use na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use utils;
@@ -14,7 +14,7 @@ struct Triangle<N, P, V> {
     circumcircle_sq_radius: N
 }
 
-impl<N: Float + Cast<f64>, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> Triangle<N, P, V> {
+impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone> Triangle<N, P, V> {
     pub fn new(idx: Vec3<uint>, pts: &[P]) -> Triangle<N, P, V> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
@@ -42,7 +42,7 @@ pub struct Triangulator<N, P, V> {
     edges:     HashMap<(uint, uint), uint>
 }
 
-impl<N: Float + Cast<f64>, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> Triangulator<N, P, V> {
+impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone> Triangulator<N, P, V> {
     /// Creates a new Triangulator.
     pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<N, P, V> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
@@ -142,7 +142,7 @@ impl<N: Float + Cast<f64>, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> Tr
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
 pub fn triangulate<N: FloatMath + Cast<f64>,
-                   P: FloatPnt<N, V> + Clone,
+                   P: FloatPntExt<N, V> + Clone,
                    V: FloatVecExt<N> + Clone>(
                    pts: &[P]) -> TriMesh<N, P, V> {
     //// Compute the super-triangle

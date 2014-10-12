@@ -1,4 +1,4 @@
-use na::{FloatPnt, FloatVec, Cast, Norm};
+use na::{FloatPnt, FloatPntExt, FloatVec, Cast, Norm};
 use na;
 use utils;
 
@@ -23,6 +23,6 @@ pub fn point_cloud_bounding_sphere_with_center<N: Float, P: FloatPnt<N, V>, V: N
 /// Computes a bounding sphere of the specified set of point.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn point_cloud_bounding_sphere<N: Float + Cast<f64>, P: FloatPnt<N, V>, V: FloatVec<N>>(pts: &[P]) -> (P, N) {
+pub fn point_cloud_bounding_sphere<N: Float + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVec<N>>(pts: &[P]) -> (P, N) {
     point_cloud_bounding_sphere_with_center(pts, utils::center(pts))
 }

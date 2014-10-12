@@ -4,7 +4,7 @@ use std::mem;
 use std::num::Bounded;
 use sync::Arc;
 use collections::TreeMap;
-use na::{FloatPnt, FloatVec, Dim};
+use na::{Axpy, FloatPnt, FloatVec, Dim};
 use na;
 use narrow::algorithm::simplex::Simplex;
 use math::Scalar;
@@ -223,7 +223,7 @@ impl<P: Dim, V> JohnsonSimplex<P, V> {
     }
 }
 
-impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
+impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
     fn do_project_origin(&mut self, reduce: bool) -> P {
         if self.points.is_empty() {
             fail!("Cannot project the origin on an empty simplex.")
@@ -339,7 +339,7 @@ impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
                                               .unsafe_get(*recursion.sub_determinants.as_slice().unsafe_get(id))).clone();
 
                             total_det = total_det + det;
-                            proj = proj + *self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(id)).as_vec() * det;
+                            proj.axpy(&det, self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(id)));
                         }
 
                         if reduce {
@@ -369,7 +369,7 @@ impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
     }
 }
 
-impl<P: Clone + FloatPnt<Scalar, V>, V: FloatVec<Scalar>> Simplex<P> for JohnsonSimplex<P, V> {
+impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Simplex<P> for JohnsonSimplex<P, V> {
     #[inline]
     fn reset(&mut self, pt: P) {
         self.points.clear();

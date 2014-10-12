@@ -1,6 +1,6 @@
 use std::fmt::Show;
 use std::num::Zero;
-use na::{Cast, Outer, FloatVec, FloatPnt, RMul, Inv};
+use na::{Cast, Outer, FloatVec, FloatPntExt, RMul, Inv};
 use na;
 use utils;
 
@@ -8,7 +8,7 @@ use utils;
 
 /// Computes the convariance matrix of a set of points.
 pub fn cov<N: Float + Cast<f64>,
-           P: FloatPnt<N, V>,
+           P: FloatPntExt<N, V>,
            V: FloatVec<N> + Outer<M>,
            M: Mul<N, M> + Add<M, M> + Zero>(
            pts: &[P])
@@ -18,7 +18,7 @@ pub fn cov<N: Float + Cast<f64>,
 
 /// Computes the covariance matrix and center of a set of points.
 pub fn cov_and_center<N: Float + Cast<f64>,
-                      P: FloatPnt<N, V>,
+                      P: FloatPntExt<N, V>,
                       V: FloatVec<N> + Outer<M>,
                       M: Mul<N, M> + Add<M, M> + Zero>(
                       pts: &[P])
@@ -41,7 +41,7 @@ pub fn cov_and_center<N: Float + Cast<f64>,
 /// operation succeeded (otherwise, the returned value as valid, by the input points are left
 /// unchanged).
 pub fn center_reduce<N: Float + Cast<f64>,
-                     P: FloatPnt<N, V>,
+                     P: FloatPntExt<N, V>,
                      V: FloatVec<N> + Outer<M>,
                      M: Mul<N, M> + Add<M, M> + Zero + RMul<P> + Inv + Show>(
                      pts: &mut [P])

@@ -132,7 +132,7 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 
     simplex.reset(implicit::cso_support_point(m1, g1, m2, g2, dir));
 
-    match gjk::closest_points_without_margin_with_max_dist(m1, g1, m2, g2, &*prediction, simplex) {
+    match gjk::closest_points_with_max_dist(m1, g1, m2, g2, &*prediction, simplex) {
         Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);

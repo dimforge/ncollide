@@ -1,5 +1,5 @@
 use std::num::Zero;
-use na::{Cast, FloatVec, FloatPnt, Cross, ApproxEq, Norm};
+use na::{Cast, FloatVec, FloatPnt, FloatPntExt, Cross, ApproxEq, Norm};
 use na;
 use bounding_volume;
 use utils;
@@ -30,7 +30,7 @@ pub fn triangle_perimeter<N: Float, P: FloatPnt<N, V>, V: FloatVec<N>>(pa: &P, p
 
 /// Computes the circumcircle of a triangle.
 pub fn circumcircle<N: Float + Cast<f64>,
-                    P: FloatPnt<N, V> + Clone,
+                    P: FloatPntExt<N, V> + Clone,
                     V: FloatVec<N>>(pa: &P, pb: &P, pc: &P) -> (P, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
