@@ -1,10 +1,9 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide2df32" as ncollide;
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use nalgebra::na::{Vec2, Iso2};
-use nalgebra::na;
+use na::{Vec2, Iso2};
 use ncollide::geom::Ball;
 use ncollide::bounding_volume::WithAABB;
 use ncollide::broad::{DBVTBroadPhase, NoIdDispatcher, BroadPhase, InterferencesBroadPhase};

@@ -1,8 +1,7 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide2df32" as ncollide;
 
-use nalgebra::na::{Vec2, Iso2};
-use nalgebra::na;
+use na::{Vec2, Iso2};
 use ncollide::bounding_volume::{BoundingVolume, LooseBoundingVolume, HasBoundingSphere};
 use ncollide::geom::{Cone, Cylinder};
 

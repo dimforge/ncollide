@@ -160,9 +160,9 @@ provided mesh is not checked.
 ###### 2D example<span class="d2" onclick="window.open('../src/convex2d.rs')"></span>
 ```rust
 let points = [
-    Vec2::new(-1.0, 1.0), Vec2::new(-0.5, -0.5),
-    Vec2::new(0.0, 0.5),  Vec2::new(0.5, -0.5),
-    Vec2::new(1.0, 1.0)
+    Pnt2::new(-1.0, 1.0), Pnt2::new(-0.5, -0.5),
+    Pnt2::new(0.0, 0.5),  Pnt2::new(0.5, -0.5),
+    Pnt2::new(1.0, 1.0)
 ];
 
 let convex = Convex::new(points.as_slice());
@@ -176,13 +176,13 @@ assert!(convex.pts().len() == 4);
 ###### 3D example<span class="d3" onclick="window.open('../src/convex3d.rs')"></span>
 ```rust
 let points = [
-    Vec3::new(0.0, 0.0, 1.0),
-    Vec3::new(0.0, 0.0, -1.0),
-    Vec3::new(0.0, 1.0, 0.0),
-    Vec3::new(0.0, -1.0, 0.0),
-    Vec3::new(1.0, 0.0, 0.0),
-    Vec3::new(-1.0, 0.0, 0.0),
-    Vec3::new(0.0, 0.0, 0.0)
+    Pnt3::new(0.0, 0.0, 1.0),
+    Pnt3::new(0.0, 0.0, -1.0),
+    Pnt3::new(0.0, 1.0, 0.0),
+    Pnt3::new(0.0, -1.0, 0.0),
+    Pnt3::new(1.0, 0.0, 0.0),
+    Pnt3::new(-1.0, 0.0, 0.0),
+    Pnt3::new(0.0, 0.0, 0.0)
 ];
 
 let convex = Convex::new(points);
@@ -242,8 +242,8 @@ using an AABB tree.
 
 ```rust
 let points = vec!(
-    Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -1.0),
-    Vec2::new(0.0, -0.5), Vec2::new(1.0, -1.0)
+    Pnt2::new(0.0, 1.0),  Pnt2::new(-1.0, -1.0),
+    Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0)
     );
 
 let indices = vec!(0u, 1,
@@ -265,8 +265,8 @@ assert!(mesh.vertices().len() == 4);
 
 ```rust
 let points = vec!(
-    Vec3::new(0.0, 1.0, 0.0),   Vec3::new(-1.0, -0.5, 0.0),
-    Vec3::new(0.0, -0.5, -1.0), Vec3::new(1.0, -0.5, 0.0)
+    Pnt3::new(0.0, 1.0, 0.0),   Pnt3::new(-1.0, -0.5, 0.0),
+    Pnt3::new(0.0, -0.5, -1.0), Pnt3::new(1.0, -0.5, 0.0)
     );
 
 let indices = vec!(0u, 1, 2,

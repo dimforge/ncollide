@@ -23,8 +23,8 @@ on the solidity of the cast. The second ray should miss its target.
 
 ```rust
 let cuboid     = Cuboid::new(Vec2::new(1.0, 2.0));
-let ray_inside = Ray::new(na::zero(), Vec2::y());
-let ray_miss   = Ray::new(Vec2::new(2.0, 2.0), Vec2::new(1.0, 1.0));
+let ray_inside = Ray::new(na::orig(), Vec2::y());
+let ray_miss   = Ray::new(Pnt2::new(2.0, 2.0), Vec2::new(1.0, 1.0));
 
 assert!(cuboid.toi_with_ray(&ray_inside, true).unwrap()  == 0.0);
 assert!(cuboid.toi_with_ray(&ray_inside, false).unwrap() == 2.0);
@@ -37,8 +37,8 @@ assert!(cuboid.toi_with_ray(&ray_miss, true).is_none());
 
 ```rust
 let cuboid     = Cuboid::new(Vec3::new(1.0, 2.0, 1.0));
-let ray_inside = Ray::new(na::zero(), Vec3::y());
-let ray_miss   = Ray::new(Vec3::new(2.0, 2.0, 2.0), Vec3::new(1.0, 1.0, 1.0));
+let ray_inside = Ray::new(na::orig(), Vec3::y());
+let ray_miss   = Ray::new(Pnt3::new(2.0, 2.0, 2.0), Vec3::new(1.0, 1.0, 1.0));
 
 assert!(cuboid.toi_with_ray(&ray_inside, true).unwrap()  == 0.0);
 assert!(cuboid.toi_with_ray(&ray_inside, false).unwrap() == 2.0);

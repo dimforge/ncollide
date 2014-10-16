@@ -1,9 +1,9 @@
 extern crate native;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 extern crate kiss3d;
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 
-use nalgebra::na::Vec3;
+use na::{Pnt3, Vec3};
 use ncollide::procedural::path::{PolylinePath, PolylinePattern, StrokePattern, ArrowheadCap};
 use ncollide::procedural;
 use kiss3d::window::Window;
@@ -18,18 +18,18 @@ fn main() {
     let mut window = Window::new("Kiss3d: procedural");
 
     let control_points = [
-        Vec3::new(0.0f32, 1.0, 0.0),
-        Vec3::new(2.0f32, 4.0, 2.0),
-        Vec3::new(2.0f32, 1.0, 4.0),
-        Vec3::new(4.0f32, 4.0, 6.0),
-        Vec3::new(2.0f32, 1.0, 8.0),
-        Vec3::new(2.0f32, 4.0, 10.0),
-        Vec3::new(0.0f32, 1.0, 12.0),
-        Vec3::new(-2.0f32, 4.0, 10.0),
-        Vec3::new(-2.0f32, 1.0, 8.0),
-        Vec3::new(-4.0f32, 4.0, 6.0),
-        Vec3::new(-2.0f32, 1.0, 4.0),
-        Vec3::new(-2.0f32, 4.0, 2.0),
+        Pnt3::new(0.0f32, 1.0, 0.0),
+        Pnt3::new(2.0f32, 4.0, 2.0),
+        Pnt3::new(2.0f32, 1.0, 4.0),
+        Pnt3::new(4.0f32, 4.0, 6.0),
+        Pnt3::new(2.0f32, 1.0, 8.0),
+        Pnt3::new(2.0f32, 4.0, 10.0),
+        Pnt3::new(0.0f32, 1.0, 12.0),
+        Pnt3::new(-2.0f32, 4.0, 10.0),
+        Pnt3::new(-2.0f32, 1.0, 8.0),
+        Pnt3::new(-4.0f32, 4.0, 6.0),
+        Pnt3::new(-2.0f32, 1.0, 4.0),
+        Pnt3::new(-2.0f32, 4.0, 2.0),
     ];
 
     // Setup the path.

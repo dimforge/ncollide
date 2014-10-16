@@ -106,8 +106,8 @@ let idx_and_bounding_spheres  = vec!(
 );
 
 let bvt      = BVT::new_balanced(idx_and_bounding_spheres);
-let ray_hit  = Ray::new(na::zero(), Vec2::x());
-let ray_miss = Ray::new(na::zero(), -Vec2::x());
+let ray_hit  = Ray::new(na::orig(), Vec2::x());
+let ray_miss = Ray::new(na::orig(), -Vec2::x());
 
 /*
  * Ray cast using a callback.
@@ -167,8 +167,8 @@ let idx_and_bounding_spheres  = vec!(
 );
 
 let bvt      = BVT::new_balanced(idx_and_bounding_spheres);
-let ray_hit  = Ray::new(na::zero(), Vec3::z());
-let ray_miss = Ray::new(na::zero(), -Vec3::z());
+let ray_hit  = Ray::new(na::orig(), Vec3::z());
+let ray_miss = Ray::new(na::orig(), -Vec3::z());
 
 /*
  * Ray cast using a callback.

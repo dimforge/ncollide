@@ -1,9 +1,8 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide2df32" as ncollide;
 
 use std::sync::Arc;
-use nalgebra::na::{Iso2, Vec2};
-use nalgebra::na;
+use na::{Iso2, Vec2};
 use ncollide::geom::{Geom, Plane, Cuboid, Compound, CompoundData};
 use ncollide::volumetric::Volumetric;
 
@@ -33,7 +32,7 @@ fn main() {
     compound_data.push_geom_with_mass_properties(
         delta2,
         Plane::new(Vec2::new(1f32, 0.0)),
-        (na::one(), 10.0f32, na::one(), na::one()));
+        (na::one(), 10.0f32, na::orig(), na::one()));
 
     /*
      * push_shared_geom_with_mass_properties

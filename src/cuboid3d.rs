@@ -1,7 +1,7 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide3df32" as ncollide;
 
-use nalgebra::na::Vec3;
+use na::Vec3;
 use ncollide::geom::Cuboid;
 
 fn main() {

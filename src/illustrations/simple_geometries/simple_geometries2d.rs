@@ -2,25 +2,24 @@
 #![allow(unused_mut)]
 
 extern crate rsfml;
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide2df32" as ncollide;
 
 use rsfml::system::Vector2f;
 use rsfml::window::{ContextSettings, Close, VideoMode};
-use rsfml::graphics::{RenderWindow, ConvexShape, Color};
-use nalgebra::na::Vec2;
-use nalgebra::na;
+use rsfml::graphics::{RenderWindow, RenderTarget, ConvexShape, Color};
+use na::{Pnt2, Vec2};
 use ncollide::geom::{Ball, Cuboid, Capsule, Cone, Convex, Cylinder, Reflection, MinkowskiSum};
 use ncollide::procedural::{Polyline, ToPolyline};
 
-static sz: uint = 200;
+static SZ: uint = 200;
 
 fn main () -> () {
     // Create a new RenderWindow.
     let mut setting = ContextSettings::default();
     setting.antialiasing_level = 12;
 
-    let mut window = match RenderWindow::new(VideoMode::new_init(sz, sz, 32), "SFML Short Example", Close, &setting) {
+    let mut window = match RenderWindow::new(VideoMode::new_init(SZ, SZ, 32), "SFML Short Example", Close, &setting) {
         Some(window) => window,
         None         => fail!("Cannot create a new Render Window.")
     };
@@ -74,9 +73,9 @@ fn main () -> () {
 
     // Convex
     let pts = vec!(
-        Vec2::new(-1.0, 1.0), Vec2::new(-0.5, -0.5),
-        Vec2::new(0.0, 0.5), Vec2::new(0.5, -0.5),
-        Vec2::new(1.0, 1.0));
+        Pnt2::new(-1.0, 1.0), Pnt2::new(-0.5, -0.5),
+        Pnt2::new(0.0, 0.5),  Pnt2::new(0.5, -0.5),
+        Pnt2::new(1.0, 1.0));
 
     let convex = Convex::new(pts.as_slice());
     let polyline = convex.unwrap();
@@ -84,22 +83,22 @@ fn main () -> () {
 
     // Mesh
     let pts = vec!(
-        Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -1.0),
-        Vec2::new(0.0, -0.5), Vec2::new(1.0, -1.0));
+        Pnt2::new(0.0, 1.0),  Pnt2::new(-1.0, -1.0),
+        Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0));
 
     let polyline = Polyline::new(pts, None);
     draw_save(&mut window, polyline, false, "../../../img/mesh2d.png");
 
 }
 
-fn draw_save(window: &mut RenderWindow, polyline: Polyline<f32, Vec2<f32>>, fill: bool, out: &str) {
+fn draw_save(window: &mut RenderWindow, polyline: Polyline<f32, Pnt2<f32>, Vec2<f32>>, fill: bool, out: &str) {
     window.clear(&Color::new_RGB(255, 255, 255));
     draw_polyline(window, polyline, fill);
     let capture = window.capture().unwrap();
     capture.save_to_file(out);
 }
 
-fn draw_polyline(window: &mut RenderWindow, mut polyline: Polyline<f32, Vec2<f32>>, fill: bool) {
+fn draw_polyline(window: &mut RenderWindow, mut polyline: Polyline<f32, Pnt2<f32>, Vec2<f32>>, fill: bool) {
     polyline.scale_by_scalar(&50.0);
 
     let mut convex = match ConvexShape::new(polyline.coords.len()) {
@@ -118,7 +117,7 @@ fn draw_polyline(window: &mut RenderWindow, mut polyline: Polyline<f32, Vec2<f32
         convex.set_fill_color(&Color::new_RGB(25, 183, 255));
     }
 
-    convex.set_position(&Vector2f::new(sz as f32 / 2.0, sz as f32 / 2.0));
+    convex.set_position(&Vector2f::new(SZ as f32 / 2.0, SZ as f32 / 2.0));
 
     window.draw(&convex);
 }

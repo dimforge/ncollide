@@ -1,8 +1,7 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide3df32" as ncollide;
 
-use nalgebra::na;
-use nalgebra::na::{Iso3, Vec3};
+use na::{Iso3, Vec3};
 use ncollide::partitioning::{BVT, RayInterferencesCollector};
 use ncollide::geom::{Geom, Cone, Ball, Cuboid, Capsule};
 use ncollide::ray::Ray;
@@ -36,8 +35,8 @@ fn main() {
     );
 
     let bvt      = BVT::new_balanced(idx_and_bounding_spheres);
-    let ray_hit  = Ray::new(na::zero(), Vec3::z());
-    let ray_miss = Ray::new(na::zero(), -Vec3::z());
+    let ray_hit  = Ray::new(na::orig(), Vec3::z());
+    let ray_miss = Ray::new(na::orig(), -Vec3::z());
 
     /*
      * Ray cast using a callback.

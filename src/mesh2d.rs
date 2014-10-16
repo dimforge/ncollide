@@ -1,15 +1,14 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide2df32" as ncollide;
 
 use std::sync::Arc;
-use nalgebra::na::Vec2;
+use na::Pnt2;
 use ncollide::geom::Mesh;
 
 fn main() {
     let points = vec!(
-        Vec2::new(0.0, 1.0),  Vec2::new(-1.0, -1.0),
-        Vec2::new(0.0, -0.5), Vec2::new(1.0, -1.0)
-        );
+        Pnt2::new(0.0, 1.0),  Pnt2::new(-1.0, -1.0),
+        Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0));
 
     let indices = vec!(0u, 1,
                        1,  2,

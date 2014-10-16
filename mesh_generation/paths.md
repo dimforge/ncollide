@@ -45,18 +45,18 @@ shown at the beginning of this section.
 
 ```rust
 let control_points = [
-    Vec3::new(0.0f32, 1.0, 0.0),
-    Vec3::new(2.0f32, 4.0, 2.0),
-    Vec3::new(2.0f32, 1.0, 4.0),
-    Vec3::new(4.0f32, 4.0, 6.0),
-    Vec3::new(2.0f32, 1.0, 8.0),
-    Vec3::new(2.0f32, 4.0, 10.0),
-    Vec3::new(0.0f32, 1.0, 12.0),
-    Vec3::new(-2.0f32, 4.0, 10.0),
-    Vec3::new(-2.0f32, 1.0, 8.0),
-    Vec3::new(-4.0f32, 4.0, 6.0),
-    Vec3::new(-2.0f32, 1.0, 4.0),
-    Vec3::new(-2.0f32, 4.0, 2.0),
+    Pnt3::new(0.0f32, 1.0, 0.0),
+    Pnt3::new(2.0f32, 4.0, 2.0),
+    Pnt3::new(2.0f32, 1.0, 4.0),
+    Pnt3::new(4.0f32, 4.0, 6.0),
+    Pnt3::new(2.0f32, 1.0, 8.0),
+    Pnt3::new(2.0f32, 4.0, 10.0),
+    Pnt3::new(0.0f32, 1.0, 12.0),
+    Pnt3::new(-2.0f32, 4.0, 10.0),
+    Pnt3::new(-2.0f32, 1.0, 8.0),
+    Pnt3::new(-4.0f32, 4.0, 6.0),
+    Pnt3::new(-2.0f32, 1.0, 4.0),
+    Pnt3::new(-2.0f32, 4.0, 2.0),
 ];
 
 // Setup the path.
@@ -70,5 +70,5 @@ let pattern     = procedural::unit_circle(100);
 let mut pattern = PolylinePattern::new(&pattern, true, start_cap, end_cap);
 
 // Stroke!
-let mesh = pattern.stroke(&mut path);
+let _ = pattern.stroke(&mut path);
 ```

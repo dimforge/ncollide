@@ -4,10 +4,10 @@ version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [dependencies.ncollide2df32]
-git = "http://github.com/sebcrozet/ncollide"
+git = "https://github.com/sebcrozet/ncollide"
 
 [dependencies.ncollide3df32]
-git = "http://github.com/sebcrozet/ncollide"
+git = "https://github.com/sebcrozet/ncollide"
 
 [[bin]]
 name = "aabb2d"

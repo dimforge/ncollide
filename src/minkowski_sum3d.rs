@@ -1,7 +1,6 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate "ncollide3df32" as ncollide;
 
-use nalgebra::na;
 use ncollide::geom::{Cone, Cylinder, MinkowskiSum};
 
 fn main() {

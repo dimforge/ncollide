@@ -1,13 +1,12 @@
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 extern crate kiss3d;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use std::rand;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::{Arc, RWLock};
-use nalgebra::na;
-use nalgebra::na::{Vec3, Translation};
+use na::{Pnt3, Vec3, Translation};
 use ncollide::procedural::path::{PolylinePath, PolylinePattern, StrokePattern, NoCap};
 use ncollide::procedural;
 use kiss3d::window::Window;
@@ -19,18 +18,18 @@ fn main() {
      * Path stroke.
      */
     let control_points = [
-        Vec3::new(0.0f32, 1.0, 0.0),
-        Vec3::new(2.0f32, 4.0, 2.0),
-        Vec3::new(2.0f32, 1.0, 4.0),
-        Vec3::new(4.0f32, 4.0, 6.0),
-        Vec3::new(2.0f32, 1.0, 8.0),
-        Vec3::new(2.0f32, 4.0, 10.0),
-        Vec3::new(0.0f32, 1.0, 12.0),
-        Vec3::new(-2.0f32, 4.0, 10.0),
-        Vec3::new(-2.0f32, 1.0, 8.0),
-        Vec3::new(-4.0f32, 4.0, 6.0),
-        Vec3::new(-2.0f32, 1.0, 4.0),
-        Vec3::new(-2.0f32, 4.0, 2.0),
+        Pnt3::new(0.0f32, 1.0, 0.0),
+        Pnt3::new(2.0f32, 4.0, 2.0),
+        Pnt3::new(2.0f32, 1.0, 4.0),
+        Pnt3::new(4.0f32, 4.0, 6.0),
+        Pnt3::new(2.0f32, 1.0, 8.0),
+        Pnt3::new(2.0f32, 4.0, 10.0),
+        Pnt3::new(0.0f32, 1.0, 12.0),
+        Pnt3::new(-2.0f32, 4.0, 10.0),
+        Pnt3::new(-2.0f32, 1.0, 8.0),
+        Pnt3::new(-4.0f32, 4.0, 6.0),
+        Pnt3::new(-2.0f32, 1.0, 4.0),
+        Pnt3::new(-2.0f32, 4.0, 2.0),
     ];
     let bezier      = procedural::bezier_curve(control_points, 100);
     let mut path    = PolylinePath::new(&bezier);
@@ -62,7 +61,7 @@ fn main() {
     let faces   = m.data().object().unwrap().mesh().borrow().faces().clone();
 
 
-    for (comp, partitioning) in decomp.move_iter().zip(partitioning.move_iter()) {
+    for (comp, partitioning) in decomp.into_iter().zip(partitioning.into_iter()) {
         let r = rand::random();
         let g = rand::random();
         let b = rand::random();
@@ -73,7 +72,7 @@ fn main() {
 
         let mut part_faces = Vec::new();
 
-        for i in partitioning.move_iter() {
+        for i in partitioning.into_iter() {
             part_faces.push(faces.read().data().as_ref().unwrap()[i]);
         }
 

@@ -58,6 +58,7 @@ depending on the version of **ncollide** chosen by the user:
 | --         | --              | --              | --              | --              |
 | `Scalar`         | `f32`           | `f64`           | `f32`           | `f64` |
 | `Vect`           | `Vec2<f32>`     | `Vec2<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
+| `Point`          | `Pnt2<f32>`     | `Pnt2<f64>`     | `Pnt3<f32>`     | `Pnt3<f64>` |
 | `Orientation`    | `Vec1<f32>`     | `Vec1<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
 | `Matrix`         | `Iso2<f32>`     | `Iso2<f64>`     | `Iso3<f32>`     | `Iso3<f64>` |
 | `RotationMatrix` | `Rot2<f32>`     | `Rot2<f64>`     | `Rot3<f32>`     | `Rot3<f64>` |

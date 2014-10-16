@@ -27,7 +27,7 @@ convex hull.
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {
-    points.push(rand::random::<Vec2<f32>>() * 2.0f32);
+    points.push(rand::random::<Pnt2<f32>>() * 2.0f32);
 }
 
 let convex_hull = procedural::convex_hull2d(points.as_slice());
@@ -37,7 +37,7 @@ let convex_hull = procedural::convex_hull2d(points.as_slice());
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {
-    points.push(rand::random::<Vec3<f32>>() * 2.0f32);
+    points.push(rand::random::<Pnt3<f32>>() * 2.0f32);
 }
 
 let convex_hull = procedural::convex_hull3d(points.as_slice());

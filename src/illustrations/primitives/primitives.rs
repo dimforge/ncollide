@@ -1,11 +1,11 @@
 extern crate native;
 extern crate "ncollide3df32" as ncollide;
 extern crate kiss3d;
-extern crate nalgebra;
+extern crate "nalgebra" as na;
 
 use std::rand;
-use nalgebra::na;
-use nalgebra::na::Vec3;
+use na;
+use na::Vec3;
 use ncollide::procedural::TriMesh;
 use ncollide::procedural;
 use kiss3d::window::Window;
