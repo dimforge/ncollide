@@ -56,7 +56,6 @@ extern crate sync;
 extern crate serialize;
 extern crate collections;
 extern crate test;
-extern crate debug;
 
 pub mod bounding_volume;
 pub mod geom;
