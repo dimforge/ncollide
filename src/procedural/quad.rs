@@ -49,7 +49,7 @@ pub fn quad_with_vertices<N: Float + Cast<f64> + Clone, P: PntExt<N, V> + Clone,
                           -> TriMesh<N, P, V> {
     assert!(nhpoints > 1 && nvpoints > 1, "The number of points must be at least 2 in each dimension.");
 
-    let mut res: TriMesh<N, P, V> = unit_quad(nhpoints - 1, nvpoints - 1);
+    let mut res = unit_quad::<N, P, V>(nhpoints - 1, nvpoints - 1);
 
     for (dest, src) in res.coords.iter_mut().zip(vertices.iter()) {
         *dest = src.clone();

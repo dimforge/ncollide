@@ -46,7 +46,7 @@ pub fn circumcircle<N: Float + Cast<f64>,
     if denom.is_zero() {
         // the triangle is degenerate
         // FIXME: do something smarter?
-        bounding_volume::point_cloud_bounding_sphere(&[pa.clone(), pb.clone(), pc.clone()])
+        bounding_volume::point_cloud_bounding_sphere::<N, P, V>(&[pa.clone(), pb.clone(), pc.clone()])
     }
     else {
         let k = b * na - a * nb;

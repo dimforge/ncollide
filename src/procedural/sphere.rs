@@ -196,5 +196,5 @@ pub fn circle<N: FloatMath + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>
 /// Creates a circle lying on the `(x,y)` plane.
 pub fn unit_circle<N: FloatMath + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>(nsubdivs: u32) -> Polyline<N, P, V> {
     // FIXME: do this the other way round?
-    circle(&na::cast(1.0), nsubdivs)
+    circle::<N, P, V>(&na::cast(1.0), nsubdivs)
 }

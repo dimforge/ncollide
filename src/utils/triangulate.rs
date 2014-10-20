@@ -48,7 +48,8 @@ impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone>
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
 
         Triangulator {
-            triangles: vec!(Triangle::new(Vec3::new(0, 1, 2), vertices.as_slice())),
+            // FIXME: why do we have to specify the type explicitely here ?
+            triangles: vec!(Triangle::<N, P, V>::new(Vec3::new(0, 1, 2), vertices.as_slice())),
             vertices:  vertices,
             edges:     HashMap::new()
         }
@@ -63,7 +64,8 @@ impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone>
 
         for (&(ia, ib), num) in self.edges.iter() {
             if *num == 1 {
-                let t = Triangle::new(Vec3::new(ia, ib, ipt), self.vertices.as_slice());
+                // FIXME: why do we have to specify the type explicitely here ?
+                let t = Triangle::<N, P, V>::new(Vec3::new(ia, ib, ipt), self.vertices.as_slice());
 
                 self.triangles.push(t)
             }
