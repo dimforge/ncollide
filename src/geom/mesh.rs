@@ -1,62 +1,42 @@
-//!
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
-//!
 
-use sync::Arc;
+use std::num::One;
+use std::sync::Arc;
+use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pnt2};
 use na;
-use na::Pnt2;
 use ray::Ray;
 use partitioning::BVT;
-use bounding_volume::{HasAABB, AABB};
+use bounding_volume::{HasAABB, HasBoundingSphere, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use geom::{Geom, ConcaveGeom};
-use math::{Scalar, Vect, Point, Matrix};
+use ray::RayCast;
+use math::{Scalar, Point, Vect};
 
-#[cfg(not(feature = "2d"))]
-use geom::Triangle;
-
-#[cfg(feature = "3d")]
-use procedural::TriMesh;
-
-#[cfg(feature = "2d")]
-use geom::Segment;
 
 /// Trait implemented by elements usable on the Mesh.
-///
-/// Note that this trait is not useful per se since the Mesh is not parameterized by
-/// the element type. However, types implementing this trait is valid as a type
-/// alias for `MeshPrimitive`.
-pub trait MeshElement {
+pub trait MeshElement<P> {
     /// The number of vertices of this mesh element.
     fn nvertices(unused: Option<Self>) -> uint;
     /// Creates a new mesh element from a set of vertices and indice.
-    fn new_with_vertices_and_indices(&[Point], &[uint]) -> Self;
+    fn new_with_vertices_and_indices(&[P], &[uint]) -> Self;
 }
-
-#[cfg(feature = "2d")]
-/// The primitive geometry used by a `Mesh`.
-pub type MeshPrimitive = Segment;
-
-#[cfg(feature = "3d")]
-/// The primitive geometry used by a `Mesh`.
-pub type MeshPrimitive = Triangle;
-
-#[cfg(feature = "4d")]
-/// The primitive geometry used by a `Mesh`.
-pub type MeshPrimitive = Triangle; // XXX: this is wrong
 
 /// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
-pub struct Mesh {
-    bvt:      BVT<uint, AABB>,
-    bvs:      Vec<AABB>,
-    vertices: Arc<Vec<Point>>,
+pub struct Mesh<N, P, V, E: MeshElement<P>> {
+    bvt:      BVT<uint, AABB<P>>,
+    bvs:      Vec<AABB<P>>,
+    vertices: Arc<Vec<P>>,
     indices:  Arc<Vec<uint>>,
-    uvs:      Option<Arc<Vec<Pnt2<Scalar>>>>,
-    normals:  Option<Arc<Vec<Vect>>>,
+    uvs:      Option<Arc<Vec<Pnt2<N>>>>,
+    normals:  Option<Arc<Vec<V>>>,
 }
 
-impl Clone for Mesh {
-    fn clone(&self) -> Mesh {
+impl<N, P, V, E> Clone for Mesh<N, P, V, E>
+    where N: Scalar,
+          P: Send + Sync + Clone,
+          V: Send + Sync,
+          E: MeshElement<P> {
+    fn clone(&self) -> Mesh<N, P, V, E> {
         Mesh {
             bvt:      self.bvt.clone(),
             bvs:      self.bvs.clone(),
@@ -68,14 +48,18 @@ impl Clone for Mesh {
     }
 }
 
-impl Mesh {
+impl<N, P, V, E> Mesh<N, P, V, E>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Translate<P> + Vect<N>,
+          E: MeshElement<P> + HasAABB<P, Identity> {
     /// Builds a new mesh.
-    pub fn new(vertices: Arc<Vec<Point>>,
+    pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<uint>>,
-               uvs:      Option<Arc<Vec<Pnt2<Scalar>>>>,
-               normals:  Option<Arc<Vec<Vect>>>) // a loosening margin for the BVT.
-               -> Mesh {
-        assert!(indices.len() % MeshElement::nvertices(None::<MeshPrimitive>) == 0);
+               uvs:      Option<Arc<Vec<Pnt2<N>>>>,
+               normals:  Option<Arc<Vec<V>>>) // a loosening margin for the BVT.
+               -> Mesh<N, P, V, E> {
+        assert!(indices.len() % MeshElement::nvertices(None::<E>) == 0);
 
         for uvs in uvs.iter() {
             assert!(uvs.len() == vertices.len());
@@ -88,12 +72,11 @@ impl Mesh {
             let vs = vertices.deref();
             let is = indices.deref();
 
-            for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<MeshPrimitive>)).enumerate() {
-                let vs: &[Point] = vs.as_slice();
-                let element: MeshPrimitive = MeshElement::new_with_vertices_and_indices(vs, is);
+            for (i, is) in is.as_slice().chunks(MeshElement::nvertices(None::<E>)).enumerate() {
+                let vs: &[P] = vs.as_slice();
+                let element: E = MeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
-                let id = na::one();
-                let bv = element.aabb(&id);
+                let bv = element.aabb(&Identity::new());
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
@@ -112,10 +95,10 @@ impl Mesh {
     }
 }
 
-#[cfg(feature = "3d")]
-impl Mesh {
+/* // FIXME: implement for Mesh3d
+impl<P, V, E: MeshElement<P>> Mesh<P, V, E> {
     /// Builds a new mesh from a triangle mesh.
-    pub fn new_from_trimesh(trimesh: TriMesh<Scalar, Point, Vect>) -> Mesh {
+    pub fn new_from_trimesh(trimesh: TriMesh<N, P, V>) -> Mesh<P, V, E> {
         let mut trimesh = trimesh;
 
         trimesh.unify_index_buffer();
@@ -136,86 +119,92 @@ impl Mesh {
         Mesh::new(coords, Arc::new(flat_indices), uvs, normals)
     }
 }
+*/
 
-impl Mesh {
+impl<N, P, V, E: MeshElement<P>> Mesh<N, P, V, E> {
     /// The vertices of this mesh.
     #[inline]
-    pub fn vertices<'a>(&'a self) -> &'a Arc<Vec<Point>> {
+    pub fn vertices(&self) -> &Arc<Vec<P>> {
         &self.vertices
     }
 
     /// Bounding volumes of the subsimplices.
     #[inline]
-    pub fn bounding_volumes<'a>(&'a self) -> &'a [AABB] {
+    pub fn bounding_volumes(&self) -> &[AABB<P>] {
         self.bvs.as_slice()
     }
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices<'a>(&'a self) -> &'a Arc<Vec<uint>> {
+    pub fn indices(&self) -> &Arc<Vec<uint>> {
         &self.indices
     }
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs<'a>(&'a self) -> &'a Option<Arc<Vec<Pnt2<Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<N>>>> {
         &self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals<'a>(&'a self) -> &'a Option<Arc<Vec<Vect>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<V>>> {
         &self.normals
     }
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
-    pub fn bvt<'a>(&'a self) -> &'a BVT<uint, AABB> {
+    pub fn bvt(&self) -> &BVT<uint, AABB<P>> {
         &self.bvt
     }
 }
 
-impl Mesh {
+impl<N, P: Send + Sync, V, E: MeshElement<P>> Mesh<N, P, V, E> {
     /// Gets the i-th mesh element.
     #[inline(always)]
-    pub fn element_at(&self, i: uint) -> MeshPrimitive {
-        let vs: &[Point] = self.vertices.as_slice();
-        let i            = i * MeshElement::nvertices(None::<MeshPrimitive>);
-        let is           = self.indices.slice(i, i + MeshElement::nvertices(None::<MeshPrimitive>));
+    pub fn element_at(&self, i: uint) -> E {
+        let vs: &[P] = self.vertices.as_slice();
+        let i        = i * MeshElement::nvertices(None::<E>);
+        let is       = self.indices.slice(i, i + MeshElement::nvertices(None::<E>));
 
         MeshElement::new_with_vertices_and_indices(vs, is)
     }
 }
 
-impl ConcaveGeom for Mesh {
+impl<N, P, V, M, E> ConcaveGeom<N, P, V, M> for Mesh<N, P, V, E>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> + Translate<P>,
+          M: One + Rotate<V> + AbsoluteRotate<V> + Transform<P> + Translation<V>,
+          E: Send + MeshElement<P> + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Clone {
     #[inline(always)]
-    fn map_part_at<T>(&self, i: uint, f: |&Matrix, &Geom| -> T) -> T {
-        let one: Matrix = na::one();
+    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom<N, P, V, M>| -> T) -> T {
+        let one: M = na::one();
 
         self.map_transformed_part_at(&one, i, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at<T>(&self, m: &Matrix, i: uint, f: |&Matrix, &Geom| -> T) -> T{
+    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom<N, P, V, M>| -> T) -> T{
         let element = self.element_at(i);
 
-        f(m, &element as &Geom)
+        f(m, &element as &Geom<N, P, V, M>)
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB, out: &mut Vec<uint>) {
+    fn approx_interferences_with_aabb(&self, aabb: &AABB<P>, out: &mut Vec<uint>) {
         let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray, out: &mut Vec<uint>) {
+    fn approx_interferences_with_ray(&self, ray: &Ray<P, V>, out: &mut Vec<uint>) {
         let mut visitor = RayInterferencesCollector::new(ray, out);
         self.bvt.visit(&mut visitor);
     }
 
     #[inline]
-    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB {
+    fn aabb_at(&self, i: uint) -> &AABB<P> {
         &self.bvs[i]
     }
 }

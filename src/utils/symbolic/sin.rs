@@ -1,7 +1,7 @@
-use na::Cast;
 use utils;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;
+use math::Scalar;
 
 /// The sinus function.
 #[deriving(Clone)]
@@ -13,7 +13,7 @@ pub fn sin<A>(a: A) -> SymComp<Sin, A> {
     symbolic::comp(Sin, a)
 }
 
-impl<N: FloatMath + Cast<f64>> UnivariateFn<N, N> for Sin {
+impl<N: Scalar> UnivariateFn<N, N> for Sin {
     #[inline]
     fn d0(&self, t: N) -> N {
         t.sin()

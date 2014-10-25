@@ -1,7 +1,7 @@
-use na::Cast;
 use utils;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;
+use math::Scalar;
 
 /// The cosinus function.
 #[deriving(Clone)]
@@ -13,7 +13,7 @@ pub fn cos<A>(a: A) -> SymComp<Cos, A> {
     symbolic::comp(Cos, a)
 }
 
-impl<N: FloatMath + Cast<f64>> UnivariateFn<N, N> for Cos {
+impl<N: Scalar> UnivariateFn<N, N> for Cos {
     #[inline]
     fn d0(&self, t: N) -> N {
         t.cos()

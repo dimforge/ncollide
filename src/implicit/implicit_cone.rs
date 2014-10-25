@@ -1,14 +1,18 @@
 use std::num::Zero;
-use na::{Indexable, Rotate, Transform, Norm};
+use na::{Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Cone;
-use math::{Point, Vect};
+use math::{Scalar, Point, Vect};
 
-impl<_M: Transform<Point> + Rotate<Vect>>
-Implicit<Point, Vect, _M> for Cone {
+
+impl<N, P, V, M> Implicit<P, V, M> for Cone<N>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
+    fn support_point(&self, m: &M, dir: &V) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
@@ -18,7 +22,7 @@ Implicit<Point, Vect, _M> for Cone {
         if vres.normalize().is_zero() {
             vres = na::zero();
 
-            if local_dir.at(1).is_negative() {
+            if local_dir[1].is_negative() {
                 vres[1] = -self.half_height()
             }
             else {
@@ -29,23 +33,25 @@ Implicit<Point, Vect, _M> for Cone {
             vres = vres * self.radius();
             vres[1] = -self.half_height();
 
-            if na::dot(&local_dir, &vres) < local_dir.at(1) * self.half_height() {
+            if na::dot(&local_dir, &vres) < local_dir[1] * self.half_height() {
                 vres = na::zero();
                 vres[1] = self.half_height()
             }
         }
 
-        m.transform(vres.as_pnt())
+        m.transform(&(na::orig::<P>() + vres))
     }
 }
 
-impl<_M: Rotate<Vect>>
-PreferedSamplingDirections<Vect, _M> for Cone {
+impl<N, V, M> PreferedSamplingDirections<V, M> for Cone<N>
+    where N: Scalar,
+          V: Vect<N>,
+          M: Rotate<V> {
     #[inline(always)]
-    fn sample(&self, transform: &_M, f: |Vect| -> ()) {
+    fn sample(&self, transform: &M, f: |V| -> ()) {
         // Sample along the principal axis
-        let mut v: Vect = na::zero();
-        v.set(1, na::one());
+        let mut v: V = na::zero();
+        v[1] = na::one();
 
         let rv = transform.rotate(&v);
         f(-rv);

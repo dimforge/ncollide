@@ -1,12 +1,19 @@
 use std::num::Zero;
+use na::{FloatVec, Cross};
 use na;
 use volumetric::{Volumetric, InertiaTensor};
 use geom::{Compound, CompoundData};
-use math::{Scalar, Point, AngularInertia};
+use math::{Scalar, Point};
 
-impl Volumetric for CompoundData {
-    fn surface(&self) -> Scalar {
-        let mut stot: Scalar = na::zero();
+
+impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: FloatVec<N> + Cross<AV>, // FIXME: we are using `Cross` only to determine AV.
+          M: Mul<P, P>,
+          I: Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> {
+    fn surface(&self) -> N {
+        let mut stot: N = na::zero();
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
@@ -18,8 +25,8 @@ impl Volumetric for CompoundData {
         stot
     }
 
-    fn volume(&self) -> Scalar {
-        let mut mtot: Scalar = na::zero();
+    fn volume(&self) -> N {
+        let mut mtot: N = na::zero();
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
@@ -31,18 +38,18 @@ impl Volumetric for CompoundData {
         mtot
     }
 
-    fn center_of_mass(&self) -> Point {
-        let mut mtot: Scalar = na::zero();
-        let mut ctot: Point  = na::orig();
-        let mut gtot: Point  = na::orig(); // geometric center.
+    fn center_of_mass(&self) -> P {
+        let mut mtot = na::zero::<N>();
+        let mut ctot = na::orig::<P>();
+        let mut gtot = na::orig::<P>(); // geometric center.
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
-            ctot = ctot + (m * *cpart * *mpart).to_vec();
-            gtot = gtot + (m * *cpart).to_vec();
+            ctot = ctot + (*m * *cpart * *mpart).to_vec();
+            gtot = gtot + (*m * *cpart).to_vec();
         }
 
         if mtot.is_zero() {
@@ -53,15 +60,15 @@ impl Volumetric for CompoundData {
         }
     }
 
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let mut itot: AngularInertia = na::zero();
+    fn unit_angular_inertia(&self) -> I {
+        let mut itot = na::zero::<I>();
 
         let com   = self.center_of_mass();
         let geoms = self.geoms();
         let props = self.mass_properties_list();
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
-            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(mpart, &(m * *cpart - *com.as_vec()));
+            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(*m * *cpart + (-*com.as_vec())));
         }
 
         itot
@@ -71,11 +78,11 @@ impl Volumetric for CompoundData {
     ///
     /// If `density` is not zero, it will be multiplied with the density of every object of the
     /// compound geometry.
-    fn mass_properties(&self, density: &Scalar) -> (Scalar, Point, AngularInertia) {
-        let mut mtot: Scalar         = na::zero();
-        let mut itot: AngularInertia = na::zero();
-        let mut ctot: Point          = na::orig();
-        let mut gtot: Point          = na::orig(); // egometric center.
+    fn mass_properties(&self, density: N) -> (N, P, I) {
+        let mut mtot = na::zero::<N>();
+        let mut itot = na::zero::<I>();
+        let mut ctot = na::orig::<P>();
+        let mut gtot = na::orig::<P>(); // geometric center.
 
         let geoms = self.geoms();
         let props = self.mass_properties_list();
@@ -94,27 +101,30 @@ impl Volumetric for CompoundData {
         }
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
-            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(mpart, &(m * *cpart - *ctot.as_vec()));
+            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(m * *cpart + (-*ctot.as_vec())));
         }
 
-        (mtot * *density, ctot, itot * *density)
+        (mtot * density, ctot, itot * density)
     }
 }
 
-impl Volumetric for Compound {
-    fn surface(&self) -> Scalar {
+impl<N, P, V, M, I> Volumetric<N, P, I> for Compound<N, P, V, M, I>
+    where N: Scalar,
+          P: Clone,
+          I: Mul<N, I> + Clone {
+    fn surface(&self) -> N {
         self.surface()
     }
 
-    fn volume(&self) -> Scalar {
+    fn volume(&self) -> N {
         self.mass()
     }
 
-    fn center_of_mass(&self) -> Point {
+    fn center_of_mass(&self) -> P {
         self.center_of_mass().clone()
     }
 
-    fn unit_angular_inertia(&self) -> AngularInertia {
+    fn unit_angular_inertia(&self) -> I {
         self.angular_inertia().clone()
     }
 }

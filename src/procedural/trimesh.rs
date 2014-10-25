@@ -1,8 +1,9 @@
 use std::collections::HashMap;
-use na::{Indexable, Dim, Iterable, Translate, Rotate, Transform, FloatVec, Cross, AnyPnt, Vec3, Pnt2};
+use na::{Dim, Iterable, Translate, Rotate, Transform, Cross, Vec3, Pnt2};
 use na;
 use procedural::utils;
 use utils::AsBytes;
+use math::{Scalar, Point, Vect};
 
 /// Different representations of the index buffer.
 #[deriving(Clone, Show)]
@@ -19,7 +20,7 @@ impl IndexBuffer {
     pub fn unwrap_unified(self) -> Vec<Vec3<u32>> {
         match self {
             UnifiedIndexBuffer(b) => b,
-            _                     => fail!("Unable to unwrap to an unified buffer.")
+            _                     => panic!("Unable to unwrap to an unified buffer.")
         }
     }
 
@@ -28,7 +29,7 @@ impl IndexBuffer {
     pub fn unwrap_split(self) -> Vec<Vec3<Vec3<u32>>> {
         match self {
             SplitIndexBuffer(b) => b,
-            _                   => fail!("Unable to unwrap to a split buffer.")
+            _                   => panic!("Unable to unwrap to a split buffer.")
         }
     }
 }
@@ -115,7 +116,7 @@ impl<N, P, V> TriMesh<N, P, V> {
     }
 }
 
-impl<N, P: AnyPnt<N, V>, V> TriMesh<N, P, V> {
+impl<N, P: Point<N, V>, V> TriMesh<N, P, V> {
     /// Rotates each vertex and normal of this mesh.
     #[inline]
     // XXX: we should use Rotate<P> instead of the .set_coord.
@@ -135,7 +136,10 @@ impl<N, P: AnyPnt<N, V>, V> TriMesh<N, P, V> {
     }
 }
 
-impl<N: Float, P: AnyPnt<N, V>, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, P, V> {
+impl<N, P, V> TriMesh<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> + Cross<V> {
     /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
     /// infered from the index buffer.
     #[inline]
@@ -144,9 +148,7 @@ impl<N: Float, P: AnyPnt<N, V>, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, P,
 
         match self.indices {
             UnifiedIndexBuffer(ref idx) => {
-                utils::compute_normals(self.coords.as_slice(),
-                                       idx.as_slice(),
-                                       &mut new_normals);
+                utils::compute_normals(self.coords.as_slice(), idx.as_slice(), &mut new_normals);
             },
             SplitIndexBuffer(ref idx) => {
                 // XXX: too bad we have to reconstruct the index buffer here.
@@ -154,9 +156,7 @@ impl<N: Float, P: AnyPnt<N, V>, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, P,
                 // type (it could use an iterator instead).
                 let coord_idx: Vec<Vec3<u32>> = idx.iter().map(|t| Vec3::new(t.x.x, t.y.x, t.z.x)).collect();
 
-                utils::compute_normals(self.coords.as_slice(),
-                                       coord_idx.as_slice(),
-                                       &mut new_normals);
+                utils::compute_normals(self.coords.as_slice(), coord_idx.as_slice(), &mut new_normals);
             }
         }
 
@@ -164,15 +164,16 @@ impl<N: Float, P: AnyPnt<N, V>, V: FloatVec<N> + Cross<V> + Clone> TriMesh<N, P,
     }
 }
 
-impl<N: Mul<N, N>, P: Indexable<uint, N>, V: Dim + Indexable<uint, N>> TriMesh<N, P, V> {
+impl<N, P, V> TriMesh<N, P, V>
+    where N: Scalar,
+          P: Index<uint, N> + IndexMut<uint, N>,
+          V: Dim + Index<uint, N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.iter_mut() {
             for i in range(0, na::dim::<V>()) {
-                let val = c.at(i);
-                let mul = s.at(i);
-                c.set(i, val * mul);
+                (*c)[i] = (*c)[i] * s[i];
             }
         }
         // FIXME: do something for the normals?
@@ -182,9 +183,9 @@ impl<N: Mul<N, N>, P: Indexable<uint, N>, V: Dim + Indexable<uint, N>> TriMesh<N
 impl<N, P: Mul<N, P>, V> TriMesh<N, P, V> {
     /// Scales each vertex of this mesh.
     #[inline]
-    pub fn scale_by_scalar(&mut self, s: &N) {
+    pub fn scale_by_scalar(&mut self, s: N) {
         for c in self.coords.iter_mut() {
-            *c = *c * *s
+            *c = *c * s
         }
     }
 }
@@ -246,7 +247,9 @@ impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
     }
 }
 
-impl<N: Clone, P: AsBytes + PartialEq + Clone, V> TriMesh<N, P, V> {
+impl<N, P, V> TriMesh<N, P, V>
+    where N: Scalar,
+          P: AsBytes + PartialEq + Clone {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.

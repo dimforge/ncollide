@@ -4,45 +4,39 @@ use std::num::Bounded;
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
 use std::collections::HashMap;
-use sync::{Arc, RWLock};
+use na::{Translate, Rotation, Cross};
 use na;
-use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cone, Cuboid, Ball, Capsule, Convex, Cylinder,
-           Compound, Mesh, Triangle, Segment, Plane};
+use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cuboid, Convex,
+                    Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};
 use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
-             ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
-             BezierSurfaceBall, BallBezierSurface, BezierSurfaceBezierSurface,
-             Contact};
+                      ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
+                      BezierSurfaceBall, BallBezierSurface, Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
-use narrow::surface_subdivision_tree::SurfaceSubdivisionTreeCache;
 use narrow::OneShotContactManifoldGenerator as OSCMG;
-use math::{Scalar, Point, Vect, Matrix};
+use math::{Scalar, Point, Vect, Isometry};
+
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
-pub trait GeomGeomCollisionDetector {
+pub trait GeomGeomCollisionDetector<N, P, V, M, I> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self,
-              &GeomGeomDispatcher,
-              &Matrix,
-              &Geom,
-              &Matrix,
-              &Geom);
+    fn update(&mut self, &GeomGeomDispatcher<N, P, V, M, I>, &M, &Geom<N, P, V, M>, &M, &Geom<N, P, V, M>);
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> uint;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut Vec<Contact>);
+    fn colls(&self, &mut Vec<Contact<N, P, V>>);
 }
 
 /// Trait to be implemented by collision detector using dynamic dispatch.
 ///
 /// This is used to know the exact type of the geometries.
-pub trait DynamicCollisionDetector<G1, G2>: GeomGeomCollisionDetector { }
+pub trait DynamicCollisionDetector<N, P, V, M, I, G1, G2>: GeomGeomCollisionDetector<N, P, V, M, I> { }
 
 #[deriving(Clone)]
 struct DetectorWithoutRedispatch<D> {
@@ -57,28 +51,27 @@ impl<D> DetectorWithoutRedispatch<D> {
     }
 }
 
-impl<D: CollisionDetector<G1, G2>, G1, G2>
-CollisionDetector<G1, G2> for DetectorWithoutRedispatch<D> {
-    fn update(&mut self, _: &Matrix, _: &G1, _: &Matrix, _: &G2) { unreachable!() }
+impl<N, P, V, M, D, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for DetectorWithoutRedispatch<D>
+    where D: CollisionDetector<N, P, V, M, G1, G2> {
+    fn update(&mut self, _: &M, _: &G1, _: &M, _: &G2) { unreachable!() }
     fn num_colls(&self) -> uint { unreachable!() }
-    fn colls(&self, _: &mut Vec<Contact>) { unreachable!() }
-    fn toi(_: Option<DetectorWithoutRedispatch<D>>, _: &Matrix, _: &Vect, _: &Scalar, _: &G1, _: &Matrix, _: &G2) -> Option<Scalar> {
-        unreachable!()
-    }
+    fn colls(&self, _: &mut Vec<Contact<N, P, V>>) { unreachable!() }
 }
 
-impl<D: CollisionDetector<G1, G2>, G1, G2>
-DynamicCollisionDetector<G1, G2> for DetectorWithoutRedispatch<D> { }
+impl<N, P, V, M, I, D: CollisionDetector<N, P, V, M, G1, G2>, G1, G2>
+DynamicCollisionDetector<N, P, V, M, I, G1, G2> for DetectorWithoutRedispatch<D> { }
 
-impl<D: CollisionDetector<G1, G2>, G1: 'static, G2: 'static>
-GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
+impl<N, P, V, M, I, D, G1, G2> GeomGeomCollisionDetector<N, P, V, M, I> for DetectorWithoutRedispatch<D>
+    where D:  CollisionDetector<N, P, V, M, G1, G2>,
+          G1: 'static,
+          G2: 'static {
     #[inline]
     fn update(&mut self,
-              _:  &GeomGeomDispatcher,
-              m1: &Matrix,
-              g1: &Geom,
-              m2: &Matrix,
-              g2: &Geom) {
+              _:  &GeomGeomDispatcher<N, P, V, M, I>,
+              m1: &M,
+              g1: &Geom<N, P, V, M>,
+              m2: &M,
+              g2: &Geom<N, P, V, M>) {
         self.detector.update(
             m1,
             g1.downcast_ref::<G1>().expect("Invalid geometry."),
@@ -92,20 +85,20 @@ GeomGeomCollisionDetector for DetectorWithoutRedispatch<D> {
     }
 
     #[inline]
-    fn colls(&self, cs: &mut Vec<Contact>) {
+    fn colls(&self, cs: &mut Vec<Contact<N, P, V>>) {
         self.detector.colls(cs)
     }
 }
 
 /// Collision dispatcher between two `~Geom`.
-pub struct GeomGeomDispatcher {
-    constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory>>
+pub struct GeomGeomDispatcher<N, P, V, M, I> {
+    constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory<N, P, V, M, I>>>
 }
 
-impl GeomGeomDispatcher {
+impl<N, P, V, M, I> GeomGeomDispatcher<N, P, V, M, I> {
     /// Creates a new `GeomGeomDispatcher` without the default set of collision detectors
     /// factories.
-    pub fn new_without_default() -> GeomGeomDispatcher {
+    pub fn new_without_default() -> GeomGeomDispatcher<N, P, V, M, I> {
         GeomGeomDispatcher {
             constructors: HashMap::new()
         }
@@ -116,32 +109,28 @@ impl GeomGeomDispatcher {
     /// This is unsafe because there is no way to check that the factory will really generate
     /// collision detectors suited for `G1` and `G2`. Whenever possible, use `register_detector` or
     /// `register_dynamic_detector` instead.
-    pub unsafe fn register_factory<G1: 'static + Any,
-                                   G2: 'static + Any,
-                                   F:  CollisionDetectorFactory>(
-                                   &mut self,
-                                   factory: F) {
+    pub unsafe fn register_factory<G1, G2, F>(&mut self, factory: F)
+        where G1: 'static + Any,
+              G2: 'static + Any,
+              F:  CollisionDetectorFactory<N, P, V, M, I> {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        self.constructors.insert(key, box factory as Box<CollisionDetectorFactory>);
+        self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M, I>>);
     }
 
     /// Registers a new dynamic collision detector for two geometries.
-    pub fn register_dynamic_detector<G1: 'static + Any,
-                                     G2: 'static + Any,
-                                     D:  'static + Send + Clone +
-                                         DynamicCollisionDetector<G1, G2>>(
-                                     &mut self,
-                                     d:   D) {
+    pub fn register_dynamic_detector<G1, G2, D>(&mut self, d: D)
+        where G1: 'static + Any,
+              G2: 'static + Any,
+              D:  'static + Send + DynamicCollisionDetector<N, P, V, M, I, G1, G2> + Clone {
         let factory = CollisionDetectorCloner::new(d);
-        unsafe { self.register_factory::<G1, G2, CollisionDetectorCloner<D>>(factory) }
+        unsafe { self.register_factory::<G1, G2, _>(factory) }
     }
 
     /// Registers a new collision detector for two geometries.
-    pub fn register_detector<G1: 'static + Any,
-                             G2: 'static + Any,
-                             D:  'static + Send + CollisionDetector<G1, G2> + Clone>(
-                             &mut self,
-                             d:   D) {
+    pub fn register_detector<G1, G2, D>(&mut self, d: D)
+        where G1: 'static + Any,
+              G2: 'static + Any,
+              D:  'static + Send + CollisionDetector<N, P, V, M, G1, G2> + Clone {
         self.register_dynamic_detector(DetectorWithoutRedispatch::new(d));
     }
 
@@ -152,98 +141,103 @@ impl GeomGeomDispatcher {
     }
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Geom, b: &Geom) -> Option<Box<GeomGeomCollisionDetector + Send>> {
+    pub fn dispatch(&self, a: &Geom<N, P, V, M>, b: &Geom<N, P, V, M>) -> Option<Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>> {
         self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 
-impl GeomGeomDispatcher {
+// FIXME: Remove the `UniformSphereSample` bound when the EPA is implemented.
+impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
+          AV: Vect<N>,
+          M:  Isometry<N, P, V> + Rotation<AV>,
+          I:  Send + Clone {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
     /// geometries supported by `ncollide`.
-    pub fn new(prediction: Scalar) -> GeomGeomDispatcher {
-        let mut res = GeomGeomDispatcher::new_without_default();
+    pub fn new(prediction: N) -> GeomGeomDispatcher<N, P, V, M, I> {
+        let mut res: GeomGeomDispatcher<N, P, V, M, I> = GeomGeomDispatcher::new_without_default();
 
-        type Simplex  = JohnsonSimplex<AnnotatedPoint, Vect>;
-        type Self     = GeomGeomDispatcher;
-        type Super    = Box<GeomGeomCollisionDetector + Send>;
-
-        /*
-         * Involving a Plane
-         */
         // Ball vs. Ball
         let bb = BallBall::new(prediction.clone());
         res.register_detector(bb);
 
         // Ball vs Bézier
         let selector = HyperPlaneSurfaceSelector::new(Bounded::max_value());
-        let cache    = Arc::new(RWLock::new(SurfaceSubdivisionTreeCache::new()));
-        let bs       = BallBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
-        let sb       = BezierSurfaceBall::new(selector.clone(), prediction.clone(), cache.clone());
+        let bs       = BallBezierSurface::new(selector.clone(), prediction.clone());
+        let sb       = BezierSurfaceBall::new(selector.clone(), prediction.clone());
         res.register_detector(bs);
         res.register_detector(sb);
 
-        // Bézier vs. Bézier
-        let ss = BezierSurfaceBezierSurface::new(selector.clone(), prediction.clone(), cache.clone());
-        res.register_detector(ss);
-
         // Plane vs. Implicit
-        res.register_default_plane_implicit_detector::<Ball>(false, &prediction);
-        res.register_default_plane_implicit_detector::<Cuboid>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Cone>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Cylinder>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Capsule>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Convex>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Triangle>(true, &prediction);
-        res.register_default_plane_implicit_detector::<Segment>(true, &prediction);
+        res.register_default_plane_implicit_detector::<Ball<N>>(false, prediction);
+        res.register_default_plane_implicit_detector::<Cuboid<V>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Cone<N>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Cylinder<N>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Capsule<N>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Convex<P>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Triangle<P>>(true, prediction);
+        res.register_default_plane_implicit_detector::<Segment<P>>(true, prediction);
 
         // Implicit vs. Implicit
         // NOTE: some pair will be registered twice…
-        res.register_default_implicit_detectors::<Cuboid>(true, &prediction);
-        res.register_default_implicit_detectors::<Cone>(true, &prediction);
-        res.register_default_implicit_detectors::<Cylinder>(true, &prediction);
-        res.register_default_implicit_detectors::<Capsule>(true, &prediction);
-        res.register_default_implicit_detectors::<Convex>(true, &prediction);
-        res.register_default_implicit_detectors::<Triangle>(true, &prediction);
-        res.register_default_implicit_detectors::<Segment>(true, &prediction);
+        res.register_default_implicit_detectors::<Cuboid<V>>(true, prediction);
+        res.register_default_implicit_detectors::<Cone<N>>(true, prediction);
+        res.register_default_implicit_detectors::<Cylinder<N>>(true, prediction);
+        res.register_default_implicit_detectors::<Capsule<N>>(true, prediction);
+        res.register_default_implicit_detectors::<Convex<P>>(true, prediction);
+        res.register_default_implicit_detectors::<Triangle<P>>(true, prediction);
+        res.register_default_implicit_detectors::<Segment<P>>(true, prediction);
 
         // FIXME: refactor the three following blocks?
         // Compound vs. Other
-        res.register_default_concave_geom_geom_detector::<Compound, Plane>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Ball>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Cuboid>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Cone>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Cylinder>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Capsule>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Convex>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Triangle>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Compound, Segment>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Plane<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Ball<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cuboid<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cone<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cylinder<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Capsule<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Convex<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Triangle<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Segment<P>>(prediction);
 
         // TriangleMesh vs. Other
-        res.register_default_concave_geom_geom_detector::<Mesh, Plane>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Ball>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Cuboid>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Cone>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Cylinder>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Capsule>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Convex>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Triangle>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Segment>(&prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Plane<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Ball<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cuboid<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cone<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cylinder<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Capsule<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Convex<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Triangle<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Segment<P>>(prediction);
 
-        // FIXME: implement a ConcaveGeomConcaveGeom detector?
-        res.register_default_concave_geom_geom_detector::<Compound, Compound>(&prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh, Compound>(&prediction);
+        // LineStrip vs. Other
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Plane<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Ball<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cuboid<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cone<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cylinder<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Capsule<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Convex<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Triangle<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Segment<P>>(prediction);
+
+        // // FIXME: implement a ConcaveGeomConcaveGeom detector?
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Compound<N, P, V, M, I>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M, I>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M, I>>(prediction);
 
         res
     }
 
     /// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
-    pub fn register_default_plane_implicit_detector<I: 'static + Implicit<Point, Vect, Matrix>>(
-                                                    &mut self,
-                                                    generate_manifold: bool,
-                                                    prediction:        &Scalar) {
-        let d1 = ImplicitPlane::<I>::new(prediction.clone());
-        let d2 = PlaneImplicit::<I>::new(prediction.clone());
+    pub fn register_default_plane_implicit_detector<I>(&mut self, generate_manifold: bool, prediction: N)
+        where I: 'static + Implicit<P, V, M> {
+        let d1 = ImplicitPlane::<N, P, V, I>::new(prediction.clone());
+        let d2 = PlaneImplicit::<N, P, V, I>::new(prediction.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -256,19 +250,15 @@ impl GeomGeomDispatcher {
     }
 
     /// Register an `ImplicitImplicit` collision detector between two implicit geometries.
-    pub fn register_default_implicit_implicit_detector<G1: 'static            +
-                                                           Implicit<Point, Vect, Matrix> +
-                                                           PreferedSamplingDirections<Vect, Matrix>,
-                                                       G2: 'static            +
-                                                           Implicit<Point, Vect, Matrix> +
-                                                           PreferedSamplingDirections<Vect, Matrix>,
-                                                       S:  Send + Clone + Simplex<AnnotatedPoint>>(
-                                                       &mut self,
-                                                       generate_manifold: bool,
-                                                       prediction:        &Scalar,
-                                                       simplex:           &S) {
-        let d1 = ImplicitImplicit::<S, G1, G2>::new(prediction.clone(), simplex.clone());
-        let d2 = ImplicitImplicit::<S, G2, G1>::new(prediction.clone(), simplex.clone());
+    pub fn register_default_implicit_implicit_detector<G1, G2, S>(&mut self,
+                                                                  generate_manifold: bool,
+                                                                  prediction:        N,
+                                                                  simplex:           &S)
+        where G1: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
+              G2: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
+              S:  Send + Simplex<N, AnnotatedPoint<P>> + Clone {
+        let d1 = ImplicitImplicit::<N, P, V, S, G1, G2>::new(prediction.clone(), simplex.clone());
+        let d2 = ImplicitImplicit::<N, P, V, S, G2, G1>::new(prediction.clone(), simplex.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -282,65 +272,56 @@ impl GeomGeomDispatcher {
 
     /// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a
     /// given geometry.
-    pub fn register_default_concave_geom_geom_detector<G1: 'static + ConcaveGeom,
-                                                       G2: 'static + Geom>(&mut self,
-                                                                           prediction: &Scalar) {
-        let  f1 = ConcaveGeomGeomFactory::<G1, G2>::new(prediction.clone());
-        let  f2 = GeomConcaveGeomFactory::<G2, G1>::new(prediction.clone());
+    pub fn register_default_concave_geom_geom_detector<G1, G2>(&mut self, prediction: N)
+        where G1: 'static + ConcaveGeom<N, P, V, M>,
+              G2: 'static + Geom<N, P, V, M> {
+        let  f1 = ConcaveGeomGeomFactory::<N, P, V, M, G1, G2>::new(prediction.clone());
+        let  f2 = GeomConcaveGeomFactory::<N, P, V, M, G2, G1>::new(prediction.clone());
 
         // FIXME: find a way to factorize that?
-        unsafe { self.register_factory::<G1, G2, ConcaveGeomGeomFactory<G1, G2>>(f1) }
-        unsafe { self.register_factory::<G2, G1, GeomConcaveGeomFactory<G2, G1>>(f2) }
+        unsafe { self.register_factory::<G1, G2, _>(f1) }
+        unsafe { self.register_factory::<G2, G1, _>(f2) }
     }
 
+    // XXX: improve this when conditional dispatch is added to rustc so that we use the
+    // OneShotContactManifoldGenerator when `Cross` is implemented.
     /// Register a given collision detector and adds it a contact manifold generator (a
     /// `OneShotContactManifoldGenerator`).
-    pub fn register_detector_with_contact_manifold_generator<G1: 'static + Any,
-                                                             G2: 'static + Any,
-                                                             D:  'static + Send +
-                                                                 CollisionDetector<G1, G2> +
-                                                                 Clone>(
-                                                             &mut self,
-                                                             d:          D,
-                                                             prediction: &Scalar) {
-        let d = OSCMG::<D>::new(prediction.clone(), d);
+    pub fn register_detector_with_contact_manifold_generator<G1, G2, D>(&mut self, d: D, prediction: N)
+        where G1: 'static + Any,
+              G2: 'static + Any,
+              D:  'static + Send + CollisionDetector<N, P, V, M, G1, G2> + Clone {
+        let d = OSCMG::<N, P, V, D>::new(prediction.clone(), d);
         self.register_detector(d);
     }
 
-    /*
-    pub fn register_default_compound_any_detector<G, S>(&mut self) {
-        type CA = CompoundAABBAny<~Geom>;
-    }
-    */
-
     /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
     /// geometry supported by `ncollide`.
-    pub fn register_default_implicit_detectors<G: 'static + Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
-                                               &mut self,
-                                               generate_manifold: bool,
-                                               prediction:        &Scalar) {
-        type Simplex  = JohnsonSimplex<AnnotatedPoint, Vect>;
+    pub fn register_default_implicit_detectors<G>(&mut self, generate_manifold: bool, prediction: N)
+        where G: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
+
+        type S<N, P, V>  = JohnsonSimplex<N, AnnotatedPoint<P>, V>;
 
         // Implicit vs. Implicit
-        let rt = RecursionTemplate::new(na::dim::<Vect>());
+        let rt = RecursionTemplate::new(na::dim::<V>());
         let js = &JohnsonSimplex::new(rt);
 
-        self.register_default_implicit_implicit_detector::<Ball, G, Simplex>(false, prediction, js);
-        self.register_default_implicit_implicit_detector::<Cuboid, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Cone, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Cylinder, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Capsule, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Convex, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Triangle, G, Simplex>(generate_manifold, prediction, js);
-        self.register_default_implicit_implicit_detector::<Segment, G, Simplex>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Ball<N>, G, S<N, P, V>>(false, prediction, js);
+        self.register_default_implicit_implicit_detector::<Cuboid<V>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Cone<N>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Cylinder<N>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Capsule<N>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Convex<P>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Triangle<P>, G, S<N, P, V>>(generate_manifold, prediction, js);
+        self.register_default_implicit_implicit_detector::<Segment<P>, G, S<N, P, V>>(generate_manifold, prediction, js);
     }
 }
 
 // FIXME: rename that GeomGeomCollisionDetectorFactory ?
 /// Trait of structures able do build a new collision detector.
-pub trait CollisionDetectorFactory : Send {
+pub trait CollisionDetectorFactory<N, P, V, M, I> : Send {
     /// Builds a new collision detector.
-    fn build(&self) -> Box<GeomGeomCollisionDetector + Send>;
+    fn build(&self) -> Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>;
 }
 
 /// Cloning-based collision detector factory.
@@ -348,7 +329,7 @@ pub struct CollisionDetectorCloner<CD> {
     template: CD
 }
 
-impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
+impl<N, P, V, M, I, CD: GeomGeomCollisionDetector<N, P, V, M, I> + Clone> CollisionDetectorCloner<CD> {
     /// Creates a new `CollisionDetectorCloner`.
     ///
     /// The cloned detector is `CD`.
@@ -359,9 +340,9 @@ impl<CD: GeomGeomCollisionDetector + Clone> CollisionDetectorCloner<CD> {
     }
 }
 
-impl<CD: 'static + Send + GeomGeomCollisionDetector + Clone>
-CollisionDetectorFactory for CollisionDetectorCloner<CD> {
-    fn build(&self) -> Box<GeomGeomCollisionDetector + Send> {
-        box self.template.clone() as Box<GeomGeomCollisionDetector + Send>
+impl<N, P, V, M, I, CD> CollisionDetectorFactory<N, P, V, M, I> for CollisionDetectorCloner<CD>
+    where CD: 'static + Send + GeomGeomCollisionDetector<N, P, V, M, I> + Clone {
+    fn build(&self) -> Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send> {
+        box self.template.clone() as Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>
     }
 }

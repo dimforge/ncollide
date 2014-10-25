@@ -1,11 +1,17 @@
-use na::Transform;
-use bounding_volume::{BoundingSphere, HasBoundingSphere, BoundingVolume};
+use na::{Transform, FloatVec, Translate};
+use bounding_volume::BoundingVolume;
+use bounding_volume::{BoundingSphere, HasBoundingSphere};
 use geom::Compound;
-use math::Matrix;
+use math::{Scalar, Point};
 
-impl HasBoundingSphere for Compound {
+
+impl<N, P, V, M, M2, I> HasBoundingSphere<N, P, M2> for Compound<N, P, V, M, I>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: FloatVec<N> + Translate<P>,
+          M2: Transform<P> {
     #[inline]
-    fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
+    fn bounding_sphere(&self, m: &M2) -> BoundingSphere<N, P> {
         let shapes = self.geoms();
 
         let mut res = shapes[0].ref1().bounding_sphere(shapes[0].ref0());

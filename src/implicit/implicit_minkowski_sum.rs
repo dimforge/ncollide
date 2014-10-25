@@ -1,21 +1,29 @@
-use na::Identity;
-use geom::Reflection;
+use na::{FloatVec, Identity};
 use implicit::Implicit;
-use geom::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};
-use math::{Point, Vect, Matrix};
+use geom::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
+use math::{Scalar, Point, Vect};
 
-impl<'a, G1: Implicit<Point, Vect, Matrix>, G2: Implicit<Point, Vect, Matrix>>
-Implicit<Point, Vect, Identity> for MinkowskiSum<'a, G1, G2> {
+
+impl<'a, N, P, V, M, G1, G2> Implicit<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  FloatVec<N>,
+          G1: Implicit<P, V, M>,
+          G2: Implicit<P, V, M> {
     #[inline]
-    fn support_point(&self, _: &Identity, dir: &Vect) -> Point {
+    fn support_point(&self, _: &Identity, dir: &V) -> P {
         self.g1().support_point(self.m1(), dir) + *self.g2().support_point(self.m2(), dir).as_vec()
     }
 }
 
-impl<'a, G1: Implicit<Point, Vect, Matrix>, G2: Implicit<Point, Vect, Matrix>>
-Implicit<AnnotatedPoint, Vect, Identity> for AnnotatedMinkowskiSum<'a, G1, G2> {
+impl<'a, N, P, V, M, G1, G2> Implicit<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  FloatVec<N>,
+          G1: Implicit<P, V, M>,
+          G2: Implicit<P, V, M> {
     #[inline]
-    fn support_point(&self, _: &Identity, dir: &Vect) -> AnnotatedPoint {
+    fn support_point(&self, _: &Identity, dir: &V) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
         let orig2 = self.g2().support_point(self.m2(), dir);
         let point = orig1 + *orig2.as_vec();
@@ -24,17 +32,15 @@ Implicit<AnnotatedPoint, Vect, Identity> for AnnotatedMinkowskiSum<'a, G1, G2> {
     }
 }
 
-/// Computes the support point of a CSO on a given direction.
+/// Computes the support point of the CSO `g1 - g2` on a given direction.
 ///
 /// The result is a support point with informations about how it has been constructed.
-pub fn cso_support_point<G1: Implicit<Point, Vect, Matrix>,
-                         G2: Implicit<Point, Vect, Matrix>>(
-                         m1:  &Matrix,
-                         g1:  &G1,
-                         m2:  &Matrix,
-                         g2:  &G2,
-                         dir: Vect)
-                         -> AnnotatedPoint {
+pub fn cso_support_point<N, P, V, M, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, dir: V) -> AnnotatedPoint<P>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          G1: Implicit<P, V, M>,
+          G2: Implicit<P, V, M> {
     let rg2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 

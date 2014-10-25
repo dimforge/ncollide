@@ -330,11 +330,11 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 
     // pub fn swap(&mut self, _: K, _: V) -> Option<V> {
-    //     fail!("Not yet implemented.")
+    //     panic!("Not yet implemented.")
     // }
 
     // pub fn pop(&mut self, _: &K) -> Option<V> {
-    //     fail!("Not yet implemented.")
+    //     panic!("Not yet implemented.")
     // }
 
     /// Gets a mutable reference to an element of the hashmap.
@@ -364,7 +364,7 @@ mod test {
         assert!(m.find(&1).is_none());
         m.insert(1, 2);
         match m.find(&1) {
-            None    => fail!(),
+            None    => panic!(),
             Some(v) => assert!(*v == 2)
         }
     }
@@ -395,7 +395,7 @@ mod test {
         assert!(m.insert(5, 14));
         let new = 100;
         match m.find_mut(&5) {
-            None => fail!(), Some(x) => *x = new
+            None => panic!(), Some(x) => *x = new
         }
         assert_eq!(m.find(&5), Some(&new));
     }

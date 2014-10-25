@@ -1,14 +1,17 @@
 use std::num::Bounded;
-use na::Translation;
-use math::Matrix;
+use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use geom::Plane;
+use math::{Scalar, Point, Vect};
 
 
-impl HasBoundingSphere for Plane {
+impl<N, P, V, M> HasBoundingSphere<N, P, M> for Plane<V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     #[inline]
-    fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
-        let center = m.translation().to_pnt();
+    fn bounding_sphere(&self, _: &M) -> BoundingSphere<N, P> {
+        let center = na::orig();
         let radius = Bounded::max_value(); // FIXME: is this a good idea?
 
         BoundingSphere::new(center, radius)

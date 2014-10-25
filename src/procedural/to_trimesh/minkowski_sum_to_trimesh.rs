@@ -1,13 +1,23 @@
+use std::num::Zero;
+use na::{Outer, EigenQR, Translate};
+use na;
 use geom::MinkowskiSum;
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Point, Vect};
 
 
-// XXX: Implemented this for other dimensions (harder because of the concavities.
-#[cfg(feature = "3d")]
-impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for MinkowskiSum<'a, G1, G2> {
-    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<Scalar, Point, Vect> {
+// XXX: Implemente this for other dimensions (harder because of the concavities.
+impl<'a, N, P, V, M1, M2, G1, G2, A, B> ToTriMesh<N, P, V, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P> + Outer<M2>,
+          M2: EigenQR<N, V> + Mul<P, P> + Zero,
+          G1: ToTriMesh<N, P, V, A>,
+          G2: ToTriMesh<N, P, V, B> {
+    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<N, P, V> {
+        assert!(na::dim::<P>() == 3);
+
         let poly1 = self.g1().to_trimesh(a);
         let poly2 = self.g2().to_trimesh(b);
 
@@ -35,6 +45,6 @@ impl<'a, G1: ToTriMesh<A>, G2: ToTriMesh<B>, A, B> ToTriMesh<(A, B)> for Minkows
             all_points.extend(cpy.coords.into_iter());
         }
 
-        procedural::convex_hull3d(all_points.as_slice())
+        procedural::convex_hull3(all_points.as_slice())
     }
 }

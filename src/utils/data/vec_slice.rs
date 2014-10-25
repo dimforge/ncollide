@@ -66,7 +66,7 @@ impl<'a, T> VecSlice<'a, T> {
 
     #[inline(always)]
     fn id(&self, i: uint) -> uint {
-        i * self.stride 
+        i * self.stride
     }
 
     /// Gets the i-th element of the slice.
@@ -122,7 +122,7 @@ impl<'a, T> VecSliceMut<'a, T> {
 
     #[inline(always)]
     fn id(&self, i: uint) -> uint {
-        i * self.stride 
+        i * self.stride
     }
 
     /// Gets the i-th element of the slice.

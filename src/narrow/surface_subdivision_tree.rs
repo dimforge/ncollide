@@ -21,14 +21,14 @@ use geom::BezierSurface;
 ///
 /// Each time an element is added to the cache, one of thoses references are created.
 /// The element will be kept in cache as long as at least one of those references exists.
-pub struct SurfaceSubdivisionTreeRef<D> {
-    parent_cache: Arc<RWLock<SurfaceSubdivisionTreeCache<D>>>,
-    value:        Arc<RWLock<SurfaceSubdivisionTree<D>>>,
+pub struct SurfaceSubdivisionTreeRef<P, D> {
+    parent_cache: Arc<RWLock<SurfaceSubdivisionTreeCache<P, D>>>,
+    value:        Arc<RWLock<SurfaceSubdivisionTree<P, D>>>,
     key:          uint
 }
 
-impl<D: Send + Sync> Clone for SurfaceSubdivisionTreeRef<D> {
-    fn clone(&self) -> SurfaceSubdivisionTreeRef<D> {
+impl<P: Send + Sync + Clone, D: Send + Sync> Clone for SurfaceSubdivisionTreeRef<P, D> {
+    fn clone(&self) -> SurfaceSubdivisionTreeRef<P, D> {
         self.parent_cache.write().inc_ref_count(self.key);
 
         SurfaceSubdivisionTreeRef {
@@ -39,21 +39,21 @@ impl<D: Send + Sync> Clone for SurfaceSubdivisionTreeRef<D> {
     }
 }
 
-impl<D> SurfaceSubdivisionTreeRef<D> {
+impl<P: Send + Sync, D> SurfaceSubdivisionTreeRef<P, D> {
     /// Tests if this references the subdivision tree of the bézier surface `b`.
-    pub fn is_the_subdivision_tree_of(&self, b: &BezierSurface) -> bool {
-        self.key == (b as *const BezierSurface as uint)
+    pub fn is_the_subdivision_tree_of<P>(&self, b: &BezierSurface<P>) -> bool {
+        self.key == (b as *const BezierSurface<P> as uint)
     }
 }
 
-impl<D> Deref<Arc<RWLock<SurfaceSubdivisionTree<D>>>> for SurfaceSubdivisionTreeRef<D> {
-    fn deref<'a>(&'a self) -> &'a Arc<RWLock<SurfaceSubdivisionTree<D>>> {
+impl<P: Send + Sync, D> Deref<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> for SurfaceSubdivisionTreeRef<P, D> {
+    fn deref<'a>(&'a self) -> &'a Arc<RWLock<SurfaceSubdivisionTree<P, D>>> {
         &self.value
     }
 }
 
 #[unsafe_destructor]
-impl<D: Send + Sync> Drop for SurfaceSubdivisionTreeRef<D> {
+impl<P: Send + Sync + Clone, D: Send + Sync> Drop for SurfaceSubdivisionTreeRef<P, D> {
     fn drop(&mut self) {
         self.parent_cache.write().release_key(self.key)
     }
@@ -62,15 +62,15 @@ impl<D: Send + Sync> Drop for SurfaceSubdivisionTreeRef<D> {
 /// A cache that keeps track of parametric surface subdivision trees.
 ///
 /// This cache allows only insersion. Deletion is automatic.
-pub struct SurfaceSubdivisionTreeCache<D> {
+pub struct SurfaceSubdivisionTreeCache<P, D> {
     // FIXME: we need a way to accesse the refcount to remove trees that are not used any more.
-    cache: HashMap<uint, (uint, Arc<RWLock<SurfaceSubdivisionTree<D>>>)>
+    cache: HashMap<uint, (uint, Arc<RWLock<SurfaceSubdivisionTree<P, D>>>)>
 }
 
 // FIXME: could this kind of cache be useful elsewhere?
-impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
+impl<P: Send + Sync + Clone, D: Send + Sync> SurfaceSubdivisionTreeCache<P, D> {
     /// Creates a new surface subdivision tree cache.
-    pub fn new() -> SurfaceSubdivisionTreeCache<D> {
+    pub fn new() -> SurfaceSubdivisionTreeCache<P, D> {
         SurfaceSubdivisionTreeCache {
             cache: HashMap::new()
         }
@@ -83,11 +83,11 @@ impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
 
     // FIXME: it would be much nicer to be able to specify the type of `self` explicitly.
     /// Gets from the cache `cache`, the subdivision tree for the surface `b`.
-    pub fn find_or_insert_with(cache: &mut Arc<RWLock<SurfaceSubdivisionTreeCache<D>>>,
-                               b:     &BezierSurface,
+    pub fn find_or_insert_with(cache: &mut Arc<RWLock<SurfaceSubdivisionTreeCache<P, D>>>,
+                               b:     &BezierSurface<P>,
                                data:  || -> D)
-                               -> SurfaceSubdivisionTreeRef<D> {
-        let key = b as *const BezierSurface as uint;
+                               -> SurfaceSubdivisionTreeRef<P, D> {
+        let key = b as *const BezierSurface<P> as uint;
 
         let parent_cache = cache.clone();
 
@@ -96,7 +96,6 @@ impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
             match wcache.cache.entry(key) {
                 Occupied(entry) => entry.into_mut(),
                 Vacant(entry)   => entry.set((0, Arc::new(RWLock::new(SurfaceSubdivisionTree::new_orphan(b.clone(), data(), 1)))))
-            
             };
 
         // augment the ref-count.
@@ -131,18 +130,18 @@ impl<D: Send + Sync> SurfaceSubdivisionTreeCache<D> {
 
 // FIXME: this could be a generic implementation of a binary tree.
 /// A shareable binary tree with a pointer to its parent.
-pub struct SurfaceSubdivisionTree<D> {
-    rchild:    Option<Arc<RWLock<SurfaceSubdivisionTree<D>>>>,
-    lchild:    Option<Arc<RWLock<SurfaceSubdivisionTree<D>>>>,
+pub struct SurfaceSubdivisionTree<P, D> {
+    rchild:    Option<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>>,
+    lchild:    Option<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>>,
     timestamp: uint,
     data:      D,
-    surface:   BezierSurface
+    surface:   BezierSurface<P>
 }
 
-impl<D: Send + Sync> SurfaceSubdivisionTree<D> {
+impl<P: Send + Sync, D: Send + Sync> SurfaceSubdivisionTree<P, D> {
     /// Creates a new tree with no parent nor children.
     #[inline]
-    pub fn new_orphan(b: BezierSurface, data: D, timestamp: uint) -> SurfaceSubdivisionTree<D> {
+    pub fn new_orphan(b: BezierSurface<P>, data: D, timestamp: uint) -> SurfaceSubdivisionTree<P, D> {
         SurfaceSubdivisionTree {
             rchild:    None,
             lchild:    None,
@@ -154,7 +153,7 @@ impl<D: Send + Sync> SurfaceSubdivisionTree<D> {
 
     /// The surface contained by this node.
     #[inline]
-    pub fn surface<'a>(&'a self) -> &'a BezierSurface {
+    pub fn surface<'a>(&'a self) -> &'a BezierSurface<P> {
         &self.surface
     }
 
@@ -196,59 +195,59 @@ impl<D: Send + Sync> SurfaceSubdivisionTree<D> {
 
     /// A copy of this node right child.
     #[inline]
-    pub fn right_child(&self) -> Option<Arc<RWLock<SurfaceSubdivisionTree<D>>>> {
+    pub fn right_child(&self) -> Option<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> {
         self.rchild.clone()
     }
 
     /// A copy of this node left child.
     #[inline]
-    pub fn left_child(&self) -> Option<Arc<RWLock<SurfaceSubdivisionTree<D>>>> {
+    pub fn left_child(&self) -> Option<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> {
         self.lchild.clone()
     }
 
     /// A reference to this node right child.
     #[inline]
-    pub fn right_child_ref<'a>(&'a self) -> Option<&'a Arc<RWLock<SurfaceSubdivisionTree<D>>>> {
+    pub fn right_child_ref<'a>(&'a self) -> Option<&'a Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> {
         self.rchild.as_ref()
     }
 
     /// A reference to this node left child.
     #[inline]
-    pub fn left_child_ref<'a>(&'a self) -> Option<&'a Arc<RWLock<SurfaceSubdivisionTree<D>>>> {
+    pub fn left_child_ref<'a>(&'a self) -> Option<&'a Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> {
         self.lchild.as_ref()
     }
 
     /// Sets the right child of this node.
     #[inline]
-    pub fn set_right_child(&mut self, child: SurfaceSubdivisionTree<D>) {
+    pub fn set_right_child(&mut self, child: SurfaceSubdivisionTree<P, D>) {
         assert!(self.rchild.is_none());
         self.rchild = Some(Arc::new(RWLock::new(child)));
     }
 
     /// Sets the left child of this node.
     #[inline]
-    pub fn set_left_child(&mut self, child: SurfaceSubdivisionTree<D>) {
+    pub fn set_left_child(&mut self, child: SurfaceSubdivisionTree<P, D>) {
         assert!(self.lchild.is_none());
         self.lchild = Some(Arc::new(RWLock::new(child)));
     }
 
     /// Returns `true` if `child` is the right child of this node.
     #[inline]
-    pub fn is_right_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<D>>>) -> bool {
+    pub fn is_right_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<P, D>>>) -> bool {
         match self.rchild {
             None         => false,
-            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<D>> as uint ==
-                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<D>> as uint
+            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<P, D>> as uint ==
+                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<P, D>> as uint
         }
     }
 
     /// Returns `true` if `child` is the left child of this node.
     #[inline]
-    pub fn is_left_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<D>>>) -> bool {
+    pub fn is_left_child(&self, child: &Arc<RWLock<SurfaceSubdivisionTree<P, D>>>) -> bool {
         match self.lchild {
             None         => false,
-            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<D>> as uint ==
-                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<D>> as uint
+            Some(ref rc) => child.deref() as *const RWLock<SurfaceSubdivisionTree<P, D>> as uint ==
+                            rc.deref()    as *const RWLock<SurfaceSubdivisionTree<P, D>> as uint
         }
     }
 

@@ -1,5 +1,5 @@
 use bounding_volume::BoundingVolume;
-use ray::{Ray, RayCast};
+use ray::{Ray, LocalRayCast};
 
 /// Visitor of Bounding Volume Trees.
 pub trait BVTVisitor<B, BV> {
@@ -25,17 +25,15 @@ pub trait BVTVisitor<B, BV> {
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'a, B: 'a> {
-    ray:       &'a Ray,
+pub struct RayInterferencesCollector<'a, P: 'a, V: 'a, B: 'a> {
+    ray:       &'a Ray<P, V>,
     collector: &'a mut Vec<B>
 }
 
-impl<'a, B> RayInterferencesCollector<'a, B> {
+impl<'a, P, V, B> RayInterferencesCollector<'a, P, V, B> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray:    &'a Ray,
-               buffer: &'a mut Vec<B>)
-               -> RayInterferencesCollector<'a, B> {
+    pub fn new(ray: &'a Ray<P, V>, buffer: &'a mut Vec<B>) -> RayInterferencesCollector<'a, P, V, B> {
         RayInterferencesCollector {
             ray:       ray,
             collector: buffer
@@ -43,7 +41,7 @@ impl<'a, B> RayInterferencesCollector<'a, B> {
     }
 }
 
-impl<'a, B: Clone, BV: RayCast> BVTVisitor<B, BV> for RayInterferencesCollector<'a, B> {
+impl<'a, N, P, V, B: Clone, BV: LocalRayCast<N, P, V>> BVTVisitor<B, BV> for RayInterferencesCollector<'a, P, V, B> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects_ray(self.ray)
@@ -74,7 +72,7 @@ impl<'a, B, BV> BoundingVolumeInterferencesCollector<'a, B, BV> {
     }
 }
 
-impl<'a, B: Clone, BV: BoundingVolume> BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
+impl<'a, N, B: Clone, BV: BoundingVolume<N>> BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, B, BV> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects(self.bv)

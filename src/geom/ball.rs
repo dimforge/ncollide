@@ -1,15 +1,14 @@
-use math::Scalar;
 
 /// A Ball geometry.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
-pub struct Ball {
-    radius: Scalar
+pub struct Ball<N> {
+    radius: N
 }
 
-impl Ball {
+impl<N: Clone> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
-    pub fn new(radius: Scalar) -> Ball {
+    pub fn new(radius: N) -> Ball<N> {
         Ball {
             radius: radius
         }
@@ -17,7 +16,7 @@ impl Ball {
 
     /// The ball radius.
     #[inline]
-    pub fn radius(&self) -> Scalar {
+    pub fn radius(&self) -> N {
         self.radius.clone()
     }
 }

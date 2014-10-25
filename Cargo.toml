@@ -1,21 +1,14 @@
 [package]
 name    = "ncollide"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [features]
-f32 = []
-f64 = []
-2d  = []
-3d  = []
-4d  = []
-
-2df32 = [ "2d", "f32" ]
-2df64 = [ "2d", "f64" ]
-3df32 = [ "3d", "f32" ]
-3df64 = [ "3d", "f64" ]
-4df32 = [ "4d", "f32" ]
-4df64 = [ "4d", "f64" ]
+default = [ "2df32", "2df64", "3df32", "3df64" ]
+2df32 = []
+2df64 = []
+3df32 = []
+3df64 = []
 
 [lib]
 name = "ncollide"

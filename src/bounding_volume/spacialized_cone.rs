@@ -1,19 +1,9 @@
-use na::Translation;
-use na;
-use math::{Scalar, Vect, Matrix};
-use bounding_volume::BoundingSphere;
-
-#[cfg(not(feature = "4d"))]
 use std::num::Zero;
-
-#[cfg(not(feature = "4d"))]
-use na::Norm;
-
-#[cfg(not(feature = "4d"))]
-use math::RotationMatrix;
-
-#[cfg(not(feature = "4d"))]
-use bounding_volume::BoundingVolume;
+use na::{Translation, Norm, RotationMatrix};
+use na;
+use math::{N, Vect, Matrix};
+use bounding_volume::{BoundingVolume, BoundingSphere};
+use math::{Scalar, Point, Vect};
 
 // FIXME: make a structure 'cone' ?
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
@@ -21,19 +11,19 @@ use bounding_volume::BoundingVolume;
 pub struct SpacializedCone {
     sphere:  BoundingSphere,
     axis:    Vect,
-    hangle:  Scalar,
+    hangle:  N,
 }
 
 impl SpacializedCone {
     /// Creates a new spacialized cone with a given bounding sphere, axis, and half-angle.
-    pub fn new(sphere: BoundingSphere, axis: Vect, hangle: Scalar) -> SpacializedCone {
+    pub fn new(sphere: BoundingSphere, axis: Vect, hangle: N) -> SpacializedCone {
         let axis = na::normalize(&axis);
 
         unsafe { SpacializedCone::new_normalized(sphere, axis, hangle) }
     }
 
     /// Creates a new spacialized cone with a given bounding sphere, unit axis, and half-angle.
-    pub unsafe fn new_normalized(sphere: BoundingSphere, axis: Vect, hangle: Scalar) -> SpacializedCone {
+    pub unsafe fn new_normalized(sphere: BoundingSphere, axis: Vect, hangle: N) -> SpacializedCone {
         SpacializedCone {
             sphere:  sphere,
             axis:    axis,
@@ -55,7 +45,7 @@ impl SpacializedCone {
 
     /// This cone half angle.
     #[inline]
-    pub fn hangle(&self) -> Scalar {
+    pub fn hangle(&self) -> N {
         self.hangle.clone()
     }
 
@@ -73,7 +63,7 @@ impl SpacializedCone {
     #[inline]
     pub fn contains_direction(&self, dir: &Vect) -> bool {
         let angle = na::dot(&self.axis, dir);
-        let angle = na::clamp(angle, -na::one::<Scalar>(), na::one()).acos();
+        let angle = na::clamp(angle, -na::one::<N>(), na::one()).acos();
 
         angle <= self.hangle
     }
@@ -85,7 +75,7 @@ impl BoundingVolume for SpacializedCone {
     fn intersects(&self, other: &SpacializedCone) -> bool {
         if self.sphere.intersects(&other.sphere) {
             let dangle = na::dot(&self.axis, &(-other.axis));
-            let dangle = na::clamp(dangle, -na::one::<Scalar>(), na::one()).acos();
+            let dangle = na::clamp(dangle, -na::one::<N>(), na::one()).acos();
             let angsum = self.hangle + other.hangle;
 
             dangle <= angsum
@@ -98,7 +88,7 @@ impl BoundingVolume for SpacializedCone {
     #[inline]
     fn contains(&self, other: &SpacializedCone) -> bool {
         if self.sphere.contains(&other.sphere) {
-            fail!("Not yet implemented.")
+            panic!("Not yet implemented.")
         }
         else {
             false
@@ -110,7 +100,7 @@ impl BoundingVolume for SpacializedCone {
         self.sphere.merge(&other.sphere);
 
         // merge the cone
-        let alpha = na::clamp(na::dot(&self.axis, &other.axis), -na::one::<Scalar>(), na::one()).acos();
+        let alpha = na::clamp(na::dot(&self.axis, &other.axis), -na::one::<N>(), na::one()).acos();
 
         let mut rot_axis = na::cross(&self.axis, &other.axis);
         if !rot_axis.normalize().is_zero() {
@@ -188,13 +178,13 @@ mod test {
     use na;
     use super::SpacializedCone;
     use bounding_volume::{BoundingVolume, BoundingSphere};
-    use math::Scalar;
+
 
     #[test]
     #[cfg(feature = "3d")]
     fn test_merge_vee() {
         let sp   = BoundingSphere::new(na::orig(), na::one());
-        let pi: Scalar = Float::pi();
+        let pi: N = Float::pi();
         let pi_12 = pi / na::cast(12.0f64);
         let a    = SpacializedCone::new(sp.clone(), Vec3::new(1.0, 1.0, 0.0), pi_12);
         let b    = SpacializedCone::new(sp.clone(), Vec3::new(-1.0, 1.0, 0.0), pi_12);

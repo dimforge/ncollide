@@ -48,43 +48,6 @@ impl<B: HasUid + Clone, D: Dispatcher<B, B, DV>, DV> BruteForceBroadPhase<B, D, 
 
     /// Removes an element from this broad phase.
     pub fn remove(&mut self, _: &B) {
-        fail!("Not yet implemented.");
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::BruteForceBroadPhase;
-    use broad::NoIdDispatcher;
-    use utils::data::pair::Pair;
-
-    #[test]
-    fn test_bf() {
-        let dispatcher: NoIdDispatcher<int> = NoIdDispatcher;
-        let mut bf = BruteForceBroadPhase::new(dispatcher);
-
-        let a = 10;
-        let b = 20;
-        let c = 30;
-
-        bf.add(a);
-        bf.add(b);
-        bf.add(c);
-
-        let pairs = bf.pairs();
-        let len   = pairs.elements().len();
-
-        assert!(len == 3, format!("The number of pairs was {} instead of 3.", len));
-        assert!(pairs.contains_key(&Pair::new(a, b)));
-        assert!(pairs.contains_key(&Pair::new(b, c)));
-        assert!(pairs.contains_key(&Pair::new(a, c)));
-
-        assert!(pairs.contains_key(&Pair::new(b, a)));
-        assert!(pairs.contains_key(&Pair::new(c, b)));
-        assert!(pairs.contains_key(&Pair::new(c, a)));
-
-        assert!(!pairs.contains_key(&Pair::new(a, a)));
-        assert!(!pairs.contains_key(&Pair::new(b, b)));
-        assert!(!pairs.contains_key(&Pair::new(c, c)));
+        panic!("Not yet implemented.");
     }
 }

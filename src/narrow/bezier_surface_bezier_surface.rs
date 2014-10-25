@@ -1,9 +1,10 @@
 use sync::{Arc, RWLock};
-use math::{Scalar, Vect, Matrix};
+use math::{N, Vect, Matrix};
 use geom::BezierSurface;
 use narrow::{CollisionDetector, Contact};
 use narrow::surface_selector::SurfaceSelector;
 use narrow::surface_subdivision_tree::{SurfaceSubdivisionTreeRef, SurfaceSubdivisionTreeCache};
+use math::{Scalar, Point, Vect};
 
 
 /// A collision detector between two bézier surfaces.
@@ -11,7 +12,7 @@ pub struct BezierSurfaceBezierSurface<S, D> {
     cache:      Arc<RWLock<SurfaceSubdivisionTreeCache<D>>>,
     tree:       Option<SurfaceSubdivisionTreeRef<D>>,
     selector:   S,
-    prediction: Scalar,
+    prediction: N,
     contacts:   Vec<Contact>,
     points:     Vec<Vect>,
     timestamp:  uint
@@ -34,7 +35,7 @@ impl<S: Clone, D: Send + Sync> Clone for BezierSurfaceBezierSurface<S, D> {
 impl<S: SurfaceSelector<D>, D> BezierSurfaceBezierSurface<S, D> {
     /// Creates a new collision detector between two bézier surfaces.
     pub fn new(selector: S,
-               prediction: Scalar,
+               prediction: N,
                cache:      Arc<RWLock<SurfaceSubdivisionTreeCache<D>>>)
                -> BezierSurfaceBezierSurface<S, D> {
         BezierSurfaceBezierSurface {
@@ -74,11 +75,11 @@ CollisionDetector<BezierSurface, BezierSurface> for BezierSurfaceBezierSurface<S
     fn toi(_: Option<BezierSurfaceBezierSurface<S, D>>,
            _: &Matrix,
            _: &Vect,
-           _: &Scalar,
+           _: &N,
            _: &BezierSurface,
            _: &Matrix,
            _: &BezierSurface)
-           -> Option<Scalar> {
+           -> Option<N> {
         None
     }
 }

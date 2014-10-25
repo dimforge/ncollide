@@ -1,9 +1,9 @@
-use na::{Pnt3, Vec3, Iso3, Cast};
-use na::overload::{Pnt3MulRhs, Pnt3DivRhs, Vec3MulRhs, Vec3DivRhs};
+use na::{Pnt3, Vec3, Iso3};
 use na;
 use procedural::path::PolylineCompatibleCap;
 use procedural::Polyline;
 use procedural::utils;
+use math::Scalar;
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {
@@ -12,8 +12,8 @@ pub struct ArrowheadCap<N> {
     back_dist_to_head:  N
 }
 
-impl<N: Clone + Cast<f64> + FloatMath + Pnt3DivRhs<N, Pnt3<N>> + Pnt3MulRhs<N, Pnt3<N>> + Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
-ArrowheadCap<N> {
+impl<N> ArrowheadCap<N>
+    where N: Scalar {
     /// Creates a cap that looks like an arrow.
     ///
     /// # Arguments:
@@ -86,10 +86,8 @@ ArrowheadCap<N> {
     }
 }
 
-impl<N: Clone + Cast<f64> + FloatMath +
-        Pnt3MulRhs<N, Pnt3<N>> + Pnt3DivRhs<N, Pnt3<N>> +
-        Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>>
-PolylineCompatibleCap<N> for ArrowheadCap<N> {
+impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
+    where N: Scalar {
     fn gen_end_cap(&self,
                    attach_id: u32,
                    pattern:   &Polyline<N, Pnt3<N>, Vec3<N>>,

@@ -2,6 +2,7 @@ use bounding_volume::{HasAABB, AABB};
 use bounding_volume;
 use geom::Segment;
 use math::Matrix;
+use math::{Scalar, Point, Vect};
 
 impl HasAABB for Segment {
     #[inline]

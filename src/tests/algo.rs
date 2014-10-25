@@ -9,6 +9,7 @@ use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
 use geom::Ball;
 use geom::AnnotatedPoint;
 use implicit;
+use math::{Scalar, Point, Vect};
 
 macro_rules! test_johnson_simplex_impl(
     ($t: ty, $n: ty) => ( {

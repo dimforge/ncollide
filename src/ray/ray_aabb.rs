@@ -1,30 +1,31 @@
 use std::num::{Zero, Bounded};
 use std::mem;
-use na::Indexable;
+use na::{Transform, Rotate, Pnt2};
 use na;
-use ray::{Ray, RayCast, RayIntersection};
+use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Scalar, Point, Vect};
 
-#[cfg(feature = "3d")]
-use na::Pnt2;
 
-impl RayCast for AABB {
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
-        let mut tmin: Scalar = na::zero();
-        let mut tmax: Scalar = Bounded::max_value();
+impl<N, P, V> LocalRayCast<N, P, V> for AABB<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
+        let mut tmin: N = na::zero();
+        let mut tmax: N = Bounded::max_value();
 
-        for i in range(0u, na::dim::<Point>()) {
-            if ray.dir.at(i).is_zero() {
-                if ray.orig.at(i) < self.mins().at(i) || ray.orig.at(i) > self.maxs().at(i) {
+        for i in range(0u, na::dim::<P>()) {
+            if ray.dir[i].is_zero() {
+                if ray.orig[i] < (*self.mins())[i] || ray.orig[i] > (*self.maxs())[i] {
                     return None
                 }
             }
             else {
-                let _1: Scalar = na::one();
-                let denom = _1 / ray.dir.at(i);
-                let mut inter_with_near_plane = (self.mins().at(i) - ray.orig.at(i)) * denom;
-                let mut inter_with_far_plane  = (self.maxs().at(i) - ray.orig.at(i)) * denom;
+                let _1: N = na::one();
+                let denom = _1 / ray.dir[i];
+                let mut inter_with_near_plane = ((*self.mins())[i] - ray.orig[i]) * denom;
+                let mut inter_with_far_plane  = ((*self.maxs())[i] - ray.orig[i]) * denom;
 
                 if inter_with_near_plane > inter_with_far_plane {
                     mem::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
@@ -48,60 +49,72 @@ impl RayCast for AABB {
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         ray_aabb(self, ray, solid).map(|(t, n, _)| RayIntersection::new(t, n))
     }
 
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         do_toi_and_normal_and_uv_with_ray(self, ray, solid)
     }
-
 }
 
-#[cfg(not(feature = "3d"))]
-fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-    aabb.toi_and_normal_with_ray(ray, solid)
+impl<N, P, V, M> RayCast<N, P, V, M> for AABB<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
 }
 
-#[cfg(feature = "3d")]
-fn do_toi_and_normal_and_uv_with_ray(aabb: &AABB, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-    ray_aabb(aabb, ray, solid).map(|(t, n, s)| {
-        let pt  = ray.orig + ray.dir * t;
-        let lpt = (pt - *aabb.mins()) / (aabb.maxs() - *aabb.mins());
-        let id  = s.abs();
+fn do_toi_and_normal_and_uv_with_ray<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    if na::dim::<P>() != 3 {
+        aabb.toi_and_normal_with_ray(ray, solid)
+    }
+    else {
+        ray_aabb(aabb, ray, solid).map(|(t, n, s)| {
+            let pt    = ray.orig + ray.dir * t;
+            let dpt   = pt - *aabb.mins();
+            let scale = *aabb.maxs() - *aabb.mins();
+            let id    = s.abs();
 
-        if id == 1 {
-            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.y.clone(), lpt.z.clone())))
-        }
-        else if id == 2 {
-            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.z.clone(), lpt.x.clone())))
-        }
-        else {
-            RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(lpt.x.clone(), lpt.y.clone())))
-        }
-    })
+            if id == 1 {
+                RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(dpt[1] / scale[1], dpt[2] / scale[2])))
+            }
+            else if id == 2 {
+                RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(dpt[2] / scale[2], dpt[0] / scale[0])))
+            }
+            else {
+                RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(dpt[0] / scale[0], dpt[1] / scale[1])))
+            }
+        })
+    }
 }
 
-fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> {
-    let mut tmax: Scalar   = Bounded::max_value();
-    let mut tmin: Scalar   = -tmax;
+fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N, V, int)>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    let mut tmax: N   = Bounded::max_value();
+    let mut tmin: N   = -tmax;
     let mut near_side = 0;
     let mut far_side  = 0;
     let mut near_diag = false;
     let mut far_diag  = false;
 
-    for i in range(0u, na::dim::<Point>()) {
-        if ray.dir.at(i).is_zero() {
-            if ray.orig.at(i) < aabb.mins().at(i) || ray.orig.at(i) > aabb.maxs().at(i) {
+    for i in range(0u, na::dim::<P>()) {
+        if ray.dir[i].is_zero() {
+            if ray.orig[i] < (*aabb.mins())[i] || ray.orig[i] > (*aabb.maxs())[i] {
                 return None
             }
         }
         else {
-            let _1: Scalar = na::one();
-            let denom = _1 / ray.dir.at(i);
+            let _1: N = na::one();
+            let denom = _1 / ray.dir[i];
             let flip_sides;
-            let mut inter_with_near_plane = (aabb.mins().at(i) - ray.orig.at(i)) * denom;
-            let mut inter_with_far_plane  = (aabb.maxs().at(i) - ray.orig.at(i)) * denom;
+            let mut inter_with_near_plane = ((*aabb.mins())[i] - ray.orig[i]) * denom;
+            let mut inter_with_far_plane  = ((*aabb.maxs())[i] - ray.orig[i]) * denom;
 
             if inter_with_near_plane > inter_with_far_plane {
                 flip_sides = true;
@@ -145,13 +158,13 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> 
                 Some((tmax, -na::normalize(&ray.dir), far_side))
             }
             else {
-                let mut normal: Vect = na::zero();
+                let mut normal = na::zero::<V>();
 
                 if far_side < 0 {
-                    normal.set((-far_side - 1) as uint, -na::one::<Scalar>());
+                    normal[(-far_side - 1) as uint] = -na::one::<N>();
                 }
                 else {
-                    normal.set((far_side - 1) as uint, na::one::<Scalar>());
+                    normal[(far_side - 1) as uint] = na::one::<N>();
                 }
 
                 Some((tmax, normal, far_side))
@@ -163,13 +176,13 @@ fn ray_aabb(aabb: &AABB, ray: &Ray, solid: bool) -> Option<(Scalar, Vect, int)> 
             Some((tmin, -na::normalize(&ray.dir), near_side))
         }
         else {
-            let mut normal: Vect = na::zero();
+            let mut normal = na::zero::<V>();
 
             if near_side < 0 {
-                normal.set((-near_side - 1) as uint, na::one::<Scalar>());
+                normal[(-near_side - 1) as uint] = na::one::<N>();
             }
             else {
-                normal.set((near_side - 1) as uint, -na::one::<Scalar>());
+                normal[(near_side - 1) as uint] = -na::one::<N>();
             }
             Some((tmin, normal, near_side))
         }

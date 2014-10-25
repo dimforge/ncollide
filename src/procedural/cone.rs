@@ -1,10 +1,12 @@
 use na;
-use na::{Cast, Pnt3, Vec3};
+use na::{Pnt3, Vec3};
 use procedural::{TriMesh, SplitIndexBuffer};
 use procedural::utils;
+use math::Scalar;
 
 /// Generates a cone with a given height and diameter.
-pub fn cone<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let mut cone = unit_cone(nsubdiv);
 
     cone.scale_by(&Vec3::new(diameter, height, diameter));
@@ -13,7 +15,8 @@ pub fn cone<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> T
 }
 
 /// Generates a cone with unit height and diameter.
-pub fn unit_cone<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let two_pi: N   = Float::two_pi();
     let dtheta      = two_pi / na::cast(nsubdiv as f64);
     let mut coords  = Vec::new();

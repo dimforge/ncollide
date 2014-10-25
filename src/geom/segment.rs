@@ -1,51 +1,52 @@
 //! Definition of the segment geometry.
 
+use na::Dim;
 use na;
-use geom::mesh::MeshElement;
-use math::Point;
+use geom::MeshElement;
+
 
 /// A segment geometry.
-#[deriving(Encodable, Decodable, Clone)]
-pub struct Segment {
-    a:      Point,
-    b:      Point
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+pub struct Segment<P> {
+    a: P,
+    b: P
 }
 
-impl Segment {
+impl<P: Dim> Segment<P> {
     /// Creates a new segment from two points.
     #[inline]
-    pub fn new(a: Point, b: Point) -> Segment {
-        assert!(na::dim::<Point>() > 1);
+    pub fn new(a: P, b: P) -> Segment<P> {
+        assert!(na::dim::<P>() > 1);
 
         Segment {
-            a:      a,
-            b:      b
+            a: a,
+            b: b
         }
     }
 }
 
-impl Segment {
+impl<P> Segment<P> {
     /// The first point of this segment.
     #[inline]
-    pub fn a<'a>(&'a self) -> &'a Point {
+    pub fn a(&self) -> &P {
         &self.a
     }
 
     /// The second point of this segment.
     #[inline]
-    pub fn b<'a>(&'a self) -> &'a Point {
+    pub fn b(&self) -> &P {
         &self.b
     }
 }
 
-impl MeshElement for Segment {
+impl<P: Dim + Clone> MeshElement<P> for Segment<P> {
     #[inline]
-    fn nvertices(_: Option<Segment>) -> uint {
+    fn nvertices(_: Option<Segment<P>>) -> uint {
         2
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[Point], is: &[uint]) -> Segment {
+    fn new_with_vertices_and_indices(vs: &[P], is: &[uint]) -> Segment<P> {
         assert!(is.len() == 2);
 
         Segment::new(vs[is[0]].clone(), vs[is[1]].clone())

@@ -4,18 +4,19 @@ use math::Scalar;
 
 /// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
-pub struct Cone {
-    half_height: Scalar,
-    radius:      Scalar,
+pub struct Cone<N> {
+    half_height: N,
+    radius:      N,
 }
 
-impl Cone {
+impl<N> Cone<N>
+    where N: Scalar {
     /// Creates a new cone.
     ///
     /// # Arguments:
     /// * `half_height` - the half length of the cone along the `y` axis.
     /// * `radius` - the length of the cone along all other axis.
-    pub fn new(half_height: Scalar, radius: Scalar) -> Cone {
+    pub fn new(half_height: N, radius: N) -> Cone<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Cone {
@@ -23,18 +24,16 @@ impl Cone {
             radius:      radius
         }
     }
-}
 
-impl Cone {
     /// The cone half length along the `y` axis.
     #[inline]
-    pub fn half_height(&self) -> Scalar {
+    pub fn half_height(&self) -> N {
         self.half_height.clone()
     }
 
     /// The radius of the cone along all but the `y` axis.
     #[inline]
-    pub fn radius(&self) -> Scalar {
+    pub fn radius(&self) -> N {
         self.radius.clone()
     }
 }

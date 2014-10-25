@@ -1,76 +1,99 @@
-use std::num::Float;
+use std::num::Zero;
 use std::num;
+use na::Orig;
+use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;
-use geom::Ball;
 use volumetric::Volumetric;
-use math::{Scalar, Point, AngularInertia};
+use geom::{Ball2, Ball2d, Ball3, Ball3d};
+use math::Scalar;
 
-#[cfg(not(feature = "4d"))]
-use na::Indexable;
 
-/// Computes the volume of a ball.
+/// The volume of a ball.
 #[inline]
-pub fn ball_volume(radius: &Scalar) -> Scalar {
-    let _pi: Scalar = Float::pi();
-    _pi * num::pow(radius.clone(), na::dim::<Point>())
+pub fn ball_volume<N: Scalar>(dim: uint, radius: N) -> N {
+    assert!(dim == 2 || dim == 3);
+
+    let _pi: N = Float::pi();
+    _pi * num::pow(radius.clone(), dim)
 }
 
-#[cfg(feature = "2d")]
-impl Volumetric for Ball {
-    #[inline]
-    fn surface(&self) -> Scalar {
-        let _pi: Scalar = Float::pi();
-        _pi * self.radius() * na::cast(2.0f64)
-    }
+/// The surface of a ball.
+#[inline]
+pub fn ball_surface<N: Scalar>(dim: uint, radius: N) -> N {
+    assert!(dim == 2 || dim == 3);
 
-    #[inline]
-    fn volume(&self) -> Scalar {
-        ball_volume(&self.radius())
-    }
-
-    #[inline]
-    fn center_of_mass(&self) -> Point {
-        na::orig()
-    }
-
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let diag = self.radius() * self.radius() / na::cast(2.0f64);
-
-        let mut res: AngularInertia = na::zero();
-
-        res.set((0, 0), diag);
-
-        res
+    match dim {
+        2 => {
+            let _pi: N = Float::pi();
+            _pi * radius * na::cast(2.0f64)
+        }
+        3 => {
+            let _pi: N = Float::pi();
+            _pi * radius * radius * na::cast(4.0f64)
+        }
+        _ => unreachable!()
     }
 }
 
-#[cfg(feature = "3d")]
-impl Volumetric for Ball {
-    #[inline]
-    fn surface(&self) -> Scalar {
-        let _pi: Scalar = Float::pi();
-        _pi * self.radius() * self.radius() * na::cast(4.0f64)
-    }
+/// The center of mass of a ball.
+#[inline]
+pub fn ball_center_of_mass<P: Orig>() -> P {
+    na::orig()
+}
 
-    #[inline]
-    fn volume(&self) -> Scalar {
-        ball_volume(&self.radius())
-    }
+/// The unit angular inertia of a ball.
+#[inline]
+pub fn ball_unit_angular_inertia<N, I>(dim: uint, radius: N) -> I
+    where N: Scalar,
+          I: Zero + IndexMut<(uint, uint), N> {
+    assert!(dim == 2 || dim == 3);
 
-    #[inline]
-    fn center_of_mass(&self) -> Point {
-        na::orig()
-    }
+    match dim {
+        2 => {
+            let diag = radius * radius / na::cast(2.0f64);
+            let mut res = na::zero::<I>();
 
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let diag: Scalar = self.radius() * self.radius() * na::cast(2.0f64 / 5.0);
+            res[(0, 0)] = diag;
 
-        let mut res: AngularInertia = na::zero();
+            res
+        }
+        3 => {
+            let diag: N = radius * radius * na::cast(2.0f64 / 5.0);
+            let mut res = na::zero::<I>();
 
-        res.set((0, 0), diag.clone());
-        res.set((1, 1), diag.clone());
-        res.set((2, 2), diag.clone());
+            res[(0, 0)] = diag.clone();
+            res[(1, 1)] = diag.clone();
+            res[(2, 2)] = diag.clone();
 
-        res
+            res
+        }
+        _ => unreachable!()
     }
 }
+
+macro_rules! impl_volumetric_ball(
+    ($t: ident, $dim: expr, $p: ident, $i: ident, $n: ident) => (
+        impl Volumetric<$n, $p<$n>, $i<$n>> for $t {
+            fn surface(&self) -> $n {
+                ball_surface($dim, self.radius())
+            }
+
+            fn volume(&self) -> $n {
+                ball_volume($dim, self.radius())
+            }
+
+            fn center_of_mass(&self) -> $p<$n> {
+                ball_center_of_mass()
+            }
+
+            fn unit_angular_inertia(&self) -> $i<$n> {
+                ball_unit_angular_inertia($dim, self.radius())
+            }
+        }
+    )
+)
+
+impl_volumetric_ball!(Ball2, 2, Pnt2, Mat1, f32)
+impl_volumetric_ball!(Ball2d, 2, Pnt2, Mat1, f64)
+impl_volumetric_ball!(Ball3, 3, Pnt3, Mat3, f32)
+impl_volumetric_ball!(Ball3d, 3, Pnt3, Mat3, f64)

@@ -2,13 +2,13 @@ use na::Pnt2;
 use na;
 use geom::Plane;
 use procedural::{ToPolyline, Polyline};
+use math::{N, Point, Vect};
 use math::{Scalar, Point, Vect};
-use na::Indexable;
 
 #[cfg(feature = "2d")]
 impl ToPolyline<()> for Plane {
-    fn to_polyline(&self, _: ()) -> Polyline<Scalar, Point, Vect> {
-        let _0_5: Scalar = na::cast(0.5f64);
+    fn to_polyline(&self, _: ()) -> Polyline<N, Point, Vect> {
+        let _0_5: N = na::cast(0.5f64);
         let m0_5         = -_0_5;
 
         let mut res = Polyline::new(vec!(Pnt2::new(m0_5, na::zero()), Pnt2::new(_0_5, na::zero())), None);

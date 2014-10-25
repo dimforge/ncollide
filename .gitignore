@@ -5,3 +5,4 @@ BENCH
 lib
 target
 private
+Cargo.lock

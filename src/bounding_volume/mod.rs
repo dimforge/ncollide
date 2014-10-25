@@ -1,42 +1,35 @@
 //! Bounding volumes.
 
-// Types and traits
 #[doc(inline)]
-pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume, LooseBoundingVolume};
+pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume};
 #[doc(inline)]
-pub use bounding_volume::aabb::{HasAABB, AABB, WithAABB};
+pub use bounding_volume::aabb::{HasAABB, AABB};
+#[doc(inline)]
 pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere};
-pub use bounding_volume::spacialized_cone::SpacializedCone;
 
-
-// // functions
 pub use bounding_volume::aabb_utils::{implicit_shape_aabb, point_cloud_aabb};
 pub use bounding_volume::aabb_ball::ball_aabb;
 pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere_with_center, point_cloud_bounding_sphere};
-// 
-// modules
-#[doc(hidden)]
-pub mod aabb;
+
+use na::{Pnt2, Pnt3};
+
 #[doc(hidden)]
 pub mod bounding_volume;
-
-mod aabb_box;
-mod aabb_cone;
+#[doc(hidden)]
+pub mod aabb;
+mod aabb_cuboid;
+mod aabb_implicit;
 mod aabb_ball;
-mod aabb_cylinder;
-mod aabb_capsule;
 mod aabb_plane;
 mod aabb_convex;
 mod aabb_compound;
-mod aabb_triangle;
-mod aabb_segment;
 mod aabb_mesh;
 mod aabb_bezier_surface;
 mod aabb_utils;
 
-#[allow(missing_doc)]
+#[doc(hidden)]
 pub mod bounding_sphere;
-mod bounding_sphere_box;
+mod bounding_sphere_cuboid;
 mod bounding_sphere_cone;
 mod bounding_sphere_ball;
 mod bounding_sphere_cylinder;
@@ -50,4 +43,27 @@ mod bounding_sphere_mesh;
 mod bounding_sphere_bezier_surface;
 mod bounding_sphere_utils;
 
-mod spacialized_cone;
+/*
+ *
+ * Aliases.
+ *
+ */
+/// 2D bounding sphere that uses double precision.
+pub type BoundingSphere2d = BoundingSphere<f64, Pnt2<f64>>;
+/// 2D AABB that uses double precision.
+pub type AABB2d = AABB<Pnt2<f64>>;
+
+/// 3D bounding sphere that uses double precision.
+pub type BoundingSphere3d = BoundingSphere<f64, Pnt3<f64>>;
+/// 3D AABB that uses double precision.
+pub type AABB3d = AABB<Pnt3<f64>>;
+
+/// 2D bounding sphere that uses single precision.
+pub type BoundingSphere2 = BoundingSphere<f32, Pnt2<f32>>;
+/// 2D AABB that uses single precision.
+pub type AABB2 = AABB<Pnt2<f32>>;
+
+/// 3D bounding sphere that uses single precision.
+pub type BoundingSphere3 = BoundingSphere<f32, Pnt3<f32>>;
+/// 3D AABB that uses single precision.
+pub type AABB3 = AABB<Pnt3<f32>>;

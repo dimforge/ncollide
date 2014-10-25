@@ -1,5 +1,6 @@
 use na;
-use na::{Translate, Rotate, Transform, FloatVec, FloatPnt, Dim, Indexable};
+use na::{Translate, Rotate, Transform, Dim};
+use math::{Scalar, Point, Vect};
 
 /// Geometric description of a polyline.
 #[deriving(Clone)]
@@ -20,7 +21,7 @@ impl<N, P, V> Polyline<N, P, V> {
     }
 }
 
-impl<N, P: FloatPnt<N, V>, V: FloatVec<N>> Polyline<N, P, V> {
+impl<N, P: Point<N, V>, V: Vect<N>> Polyline<N, P, V> {
     /// Translates each vertex of this polyline.
     pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
@@ -67,15 +68,16 @@ impl<N, P: FloatPnt<N, V>, V: FloatVec<N>> Polyline<N, P, V> {
     }
 }
 
-impl<N: Mul<N, N>, P: Indexable<uint, N>, V: Dim + Indexable<uint, N>> Polyline<N, P, V> {
+impl<N, P, V> Polyline<N, P, V>
+    where N: Scalar,
+          P: Index<uint, N> + IndexMut<uint, N>,
+          V: Dim + Index<uint, N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.iter_mut() {
             for i in range(0, na::dim::<V>()) {
-                let val = c.at(i);
-                let mul = s.at(i);
-                c.set(i, val * mul);
+                (*c)[i] = (*c)[i] * s[i];
             }
         }
         // FIXME: do something for the normals?

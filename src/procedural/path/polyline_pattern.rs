@@ -1,9 +1,9 @@
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso3};
-use na::overload::{Pnt3MulRhs, Pnt3DivRhs, Vec3MulRhs, Vec3DivRhs};
 use na;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 use procedural::utils;
 use procedural::path::{StrokePattern, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
+use math::Scalar;
 
 /// A pattern composed of polyline and two caps.
 pub struct PolylinePattern<N, C1, C2> {
@@ -37,12 +37,10 @@ pub trait PolylineCompatibleCap<N> {
                    indices:   &mut Vec<Vec3<u32>>);
 }
 
-impl<N:  Clone + Float +
-         Pnt3MulRhs<N, Pnt3<N>> + Pnt3DivRhs<N, Pnt3<N>> +
-         Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>,
-     C1: PolylineCompatibleCap<N>,
-     C2: PolylineCompatibleCap<N>>
-PolylinePattern<N, C1, C2> {
+impl<N, C1, C2> PolylinePattern<N, C1, C2>
+    where N: Scalar,
+          C1: PolylineCompatibleCap<N>,
+          C2: PolylineCompatibleCap<N> {
     /// Creates a new polyline pattern.
     pub fn new(pattern:   &Polyline<N, Pnt2<N>, Vec2<N>>,
                closed:    bool,
@@ -65,13 +63,12 @@ PolylinePattern<N, C1, C2> {
     }
 }
 
-impl<N: Clone + FloatMath +
-        Pnt3MulRhs<N, Pnt3<N>> + Pnt3DivRhs<N, Pnt3<N>> +
-        Vec3MulRhs<N, Vec3<N>> + Vec3DivRhs<N, Vec3<N>>,
-     C1: PolylineCompatibleCap<N>,
-     C2: PolylineCompatibleCap<N>>
-StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2> {
-    fn stroke<C:  CurveSampler<N, Pnt3<N>, Vec3<N>>>(&mut self, sampler: &mut C) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+impl<N, C1, C2> StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2>
+    where N: Scalar,
+          C1: PolylineCompatibleCap<N>,
+          C2: PolylineCompatibleCap<N>{
+    fn stroke<C>(&mut self, sampler: &mut C) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+        where C: CurveSampler<N, Pnt3<N>, Vec3<N>> {
         let mut vertices = Vec::new();
         let mut indices  = Vec::new();
         let npts         = self.pattern.coords.len() as u32;

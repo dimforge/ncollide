@@ -1,27 +1,22 @@
+use na::{Pnt3, Vec3};
 use na;
-use geom::Capsule;
+use geom::{Capsule3, Capsule3d};
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
-use math::{Scalar, Point, Vect};
 
-#[cfg(feature = "3d")]
-impl ToTriMesh<(u32, u32)> for Capsule {
-    fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<Scalar, Point, Vect> {
-        let diameter = self.radius() * na::cast(2.0f64);
-        let height   = self.half_height() * na::cast(2.0f64);
-        // FIXME: the fact `capsule` does not take directly the half_height and the radius feels
-        // inconsistant.
-        procedural::capsule(&diameter, &height, ntheta_subdiv, nphi_subdiv)
+macro_rules! impl_to_trimesh_capsule3(
+    ($t: ty, $n: ty) => {
+        impl ToTriMesh<$n, Pnt3<$n>, Vec3<$n>, (u32, u32)> for $t {
+            fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<$n, Pnt3<$n>, Vec3<$n>> {
+                let diameter = self.radius() * na::cast(2.0f64);
+                let height   = self.half_height() * na::cast(2.0f64);
+                // FIXME: the fact `capsule` does not take directly the half_height and the radius feels
+                // inconsistant.
+                procedural::capsule(&diameter, &height, ntheta_subdiv, nphi_subdiv)
+            }
+        }
     }
-}
+)
 
-/*
-#[cfg(not(3d))]
-impl ToTriMesh<uint> for Capsule
-{
-    fn to_trimesh(&self, ntheta_subdiv: uint) -> TriMesh<Scalar, Point, Vect>
-    {
-        // FIXME: generate a 2d rasterization of a capsule.
-    }
-}
-*/
+impl_to_trimesh_capsule3!(Capsule3, f32)
+impl_to_trimesh_capsule3!(Capsule3d, f64)

@@ -4,48 +4,47 @@ use std::mem;
 use std::any::{Any, AnyRefExt};
 use ray::{Ray, RayCast};
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
-use math::Matrix;
 
 /// Trait (that should be) implemented by every geometry.
-pub trait Geom : HasAABB           +
-                 HasBoundingSphere +
-                 RayCast           +
-                 Any {
+pub trait Geom<N, P, V, M>: HasAABB<P, M>           +
+                         HasBoundingSphere<N, P, M> +
+                         RayCast<N, P, V, M>     +
+                         Any {
     /// Duplicates (clones) this geometry.
-    fn duplicate(&self) -> Box<Geom + Send>;
+    fn duplicate(&self) -> Box<Geom<N, P, V, M> + Send>;
 }
 
 /// Trait implemented by concave, composite geometries.
 ///
 /// A composite geometry is composed of several `Geom`. Typically, it is a convex decomposition of
 /// a concave geometry.
-pub trait ConcaveGeom : Geom {
+pub trait ConcaveGeom<N, P, V, M> : Geom<N, P, V, M> {
     /// Applies a function to each sub-geometry of this concave geometry.
-    fn map_part_at<T>(&self, uint, |&Matrix, &Geom| -> T) -> T;
+    fn map_part_at<T>(&self, uint, |&M, &Geom<N, P, V, M>| -> T) -> T;
     /// Applies a transformation matrix and a function to each sub-geometry of this concave
     /// geometry.
-    fn map_transformed_part_at<T>(&self, m: &Matrix, uint, |&Matrix, &Geom| -> T) -> T;
+    fn map_transformed_part_at<T>(&self, m: &M, uint, |&M, &Geom<N, P, V, M>| -> T) -> T;
 
     // FIXME: replace those by a visitor?
     /// Computes the indices of every sub-geometry which might intersect a given AABB.
-    fn approx_interferences_with_aabb(&self, &AABB, &mut Vec<uint>);
+    fn approx_interferences_with_aabb(&self, &AABB<P>, &mut Vec<uint>);
     /// Computes the indices of every sub-geometry which might intersect a given Ray.
-    fn approx_interferences_with_ray(&self, &Ray, &mut Vec<uint>);
+    fn approx_interferences_with_ray(&self, &Ray<P, V>, &mut Vec<uint>);
     // FIXME: kind of ad-hoc…
     /// Gets the AABB of the geometry identified by the index `i`.
-    fn aabb_at<'a>(&'a self, i: uint) -> &'a AABB;
+    fn aabb_at(&self, i: uint) -> &AABB<P>;
 }
 
-impl<T: 'static + Send + Clone + HasAABB + HasBoundingSphere + RayCast + Any>
-Geom for T {
+impl<N, P, V, M, T> Geom<N, P, V, M> for T
+    where T: 'static + Send + Clone + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Any {
     #[inline]
-    fn duplicate(&self) -> Box<Geom + Send> {
-        (box self.clone()) as Box<Geom + Send>
+    fn duplicate(&self) -> Box<Geom<N, P, V, M> + Send> {
+        (box self.clone()) as Box<Geom<N, P, V, M> + Send>
     }
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not
 // seem possible to convert a &Geom to a &Any…
-impl<'a> AnyRefExt<'a> for &'a Geom + 'a {
+impl<'a, N, P, V, M> AnyRefExt<'a> for &'a Geom<N, P, V, M> + 'a {
     #[inline]
     fn is<T: 'static>(self) -> bool {
         // Get TypeId of the type this function is instantiated with

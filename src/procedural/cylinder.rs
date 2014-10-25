@@ -1,10 +1,12 @@
 use na;
-use na::{Cast, Pnt3, Pnt2, Vec3};
+use na::{Pnt3, Pnt2, Vec3};
 use procedural::{TriMesh, SplitIndexBuffer};
 use procedural::utils;
+use math::Scalar;
 
 /// Generates a cylinder with a given height and diameter.
-pub fn cylinder<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let mut cylinder = unit_cylinder(nsubdiv);
 
     cylinder.scale_by(&Vec3::new(diameter, height, diameter));
@@ -13,7 +15,8 @@ pub fn cylinder<N: FloatMath + Cast<f64>>(diameter: N, height: N, nsubdiv: u32) 
 }
 
 /// Generates a cylinder with unit height and diameter.
-pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let two_pi: N   = Float::two_pi();
     let invsubdiv   = na::one::<N>() / na::cast(nsubdiv as f64);
     let dtheta      = two_pi * invsubdiv;
@@ -47,7 +50,7 @@ pub fn unit_cylinder<N: FloatMath + Cast<f64>>(nsubdiv: u32) -> TriMesh<N, Pnt3<
         uvs.push(Pnt2::new(curr_u.clone(), na::zero()));
         curr_u = curr_u + invsubdiv;
     }
-    
+
 
     // top ring uvs
     curr_u = na::zero();

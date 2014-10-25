@@ -7,8 +7,9 @@ use utils::data::pair::{Pair, PairTWHash};
 use utils::data::has_uid::HasUid;
 use na;
 use broad::Dispatcher;
-use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
+use bounding_volume::{HasBoundingVolume, BoundingVolume};
 use math::Scalar;
+
 
 /// Association of an object with its loose bounding volume.
 #[deriving(Clone)]
@@ -19,13 +20,16 @@ pub struct BoundingVolumeProxy<B, BV> {
     body:            B
 }
 
-impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, BV> {
+impl<N, B, BV> BoundingVolumeProxy<B, BV>
+    where N: Scalar,
+          BV: BoundingVolume<N>,
+          B:  HasBoundingVolume<BV> {
     /// Builds a new brute force broad phase based on loose bounding volumes.
     ///
     /// # Arguments:
     /// * `b` - collision dispatcher.
     /// * `margin` - loosening margin.
-    pub fn new(b: B, margin: Scalar) -> BoundingVolumeProxy<B, BV> {
+    pub fn new(b: B, margin: N) -> BoundingVolumeProxy<B, BV> {
         BoundingVolumeProxy {
             bounding_volume: b.bounding_volume().loosened(margin),
             body:            b
@@ -35,7 +39,7 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
     /// Updates this proxy.
     ///
     /// Returns `true` if the stored bounding volume has been changed.
-    pub fn update(&mut self, margin: &Scalar) -> bool {
+    pub fn update(&mut self, margin: N) -> bool {
         let mut new_bv = self.body.bounding_volume();
 
         if !self.bounding_volume.contains(&new_bv) {
@@ -55,24 +59,24 @@ impl<BV: LooseBoundingVolume, B: HasBoundingVolume<BV>> BoundingVolumeProxy<B, B
 /// Interference detection is executed only for objects which have their bounding volumes updated.
 ///
 /// Do not use this broad phase.
-pub struct BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
+pub struct BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
     objects:    Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, // active   objects
     sobjects:   Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, // inactive objects
     rb2bv:      HashMap<uint, uint, UintTWHash>,
     pairs:      HashMap<Pair<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>, DV, PairTWHash>, // pair manager
     dispatcher: D,
-    margin:     Scalar,
+    margin:     N,
     to_update:  Vec<Rc<RefCell<BoundingVolumeProxy<B, BV>>>>,
     update_off: uint // incremental pairs removal index
 }
 
-impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
+impl<N, B, BV, D, DV> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV>
+    where N: Scalar,
+          B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
+          BV: 'static + BoundingVolume<N> + Clone,
+          D:  Dispatcher<B, B, DV> {
     /// Creates a new bounding volume based brute force broad phase.
-    pub fn new(dispatcher: D, margin: Scalar) -> BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
+    pub fn new(dispatcher: D, margin: N) -> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV> {
         BruteForceBoundingVolumeBroadPhase {
             objects:    Vec::new(),
             sobjects:   Vec::new(),
@@ -102,7 +106,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     /// Removes an element from this broad phase.
     #[inline]
     pub fn remove(&mut self, _: &B) {
-        fail!("Not yet implemented.");
+        panic!("Not yet implemented.");
     }
 
     /// Marks and object as active or inactive. The bounding volume of an inactive object is never
@@ -111,7 +115,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
     pub fn set_active(&mut self, b: &B, active: bool) {
         let (key, at) =
             match self.rb2bv.find_mut(&b.uid()) {
-                None    => fail!("Unable to change the active state of an unknown object."),
+                None    => panic!("Unable to change the active state of an unknown object."),
                 Some(i) => {
                     if active {
                         // remove from sobjects…
@@ -155,7 +159,7 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
 
         for b in self.objects.iter_mut() {
             let margin = self.margin;
-            if b.borrow_mut().update(&margin) {
+            if b.borrow_mut().update(margin) {
                 self.to_update.push(b.clone())
             }
         }
@@ -208,116 +212,5 @@ BruteForceBoundingVolumeBroadPhase<B, BV, D, DV> {
         }
 
         self.to_update.clear()
-    }
-}
-
-#[cfg(all(test, dim3, f64))]
-mod test {
-    use super::BruteForceBoundingVolumeBroadPhase;
-    use std::rc::Rc;
-    use std::cell::RefCell;
-    use std::vec::Vec;
-    use na::{Vec3, Iso3};
-    use na;
-    use geom::Ball;
-    use bounding_volume::WithAABB;
-    use broad::NoIdDispatcher;
-
-    #[test]
-    fn test_bfbv_empty() {
-        type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
-        let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(0.3);
-
-        for i in range(-10, 10) {
-            for j in range(-10, 10) {
-                let t = Vec3::new(i as f64 * 30.0, j as f64 * 30.0, 0.0);
-                bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-            }
-        }
-
-        bf.update();
-
-        assert_eq!(bf.num_interferences(), 0)
-    }
-
-    #[test]
-    fn test_bfbv_nbh_collide() {
-        type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
-        let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(0.3);
-
-        // create a grid
-        for i in range(-10, 10) {
-            for j in range(-10, 10) {
-                let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-            }
-        }
-
-        bf.update();
-
-        assert_eq!(
-            bf.num_interferences(),
-            (18 * 18 * 8 + // internal rectangles have 8 neighbors
-             18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
-             4 * 3)        // corners have 3 neighbors
-             / 2            // remove all duplicates
-        )
-    }
-
-    #[test]
-    fn test_dbvt_nbh_move_collide() {
-        type Shape = Rc<RefCell<WithAABB<Ball>>>;
-        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(0.3);
-
-        let mut to_move = Vec::new();
-
-        // create a grid
-        for i in range(-10, 10) {
-            for j in range(-10, 10) {
-                let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                let to_add = Rc::new(RefCell::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-                bf.add(to_add.clone());
-                to_move.push(to_add);
-            }
-        }
-
-        for e in to_move.iter_mut() {
-            let mut pe = e.borrow_mut();
-            let m      = pe.m().clone();
-            let g      = pe.g().clone();
-            *pe        = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
-        }
-
-        bf.update();
-
-        assert_eq!(
-            bf.num_interferences(),
-            (18 * 18 * 8 + // internal rectangles have 8 neighbors
-             18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
-             4 * 3)        // corners have 3 neighbors
-            / 2            // remove all duplicates
-        )
-    }
-
-    #[test]
-    fn test_bfbv_quadratic_collide() {
-        type Shape = WithAABB<Ball>;
-        let dispatcher: NoIdDispatcher<Rc<Shape>> = NoIdDispatcher;
-        let mut bf     = BruteForceBoundingVolumeBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(0.3);
-
-        for _ in range(0, 400) {
-            bf.add(Rc::new(WithAABB(Iso3::new(na::zero(), na::zero()), ball)))
-        }
-
-        bf.update();
-
-        assert_eq!(bf.num_interferences(), (399 * (399 + 1)) / 2)
     }
 }

@@ -2,12 +2,16 @@ use na::{Transform, Rotate};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Segment;
-use math::{Point, Vect};
+use math::{Scalar, Point, Vect};
 
-impl<_M: Transform<Point> + Rotate<Vect>>
-Implicit<Point, Vect, _M> for Segment {
+
+impl<N, P, V, M> Implicit<P, V, M> for Segment<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
+    fn support_point(&self, m: &M, dir: &V) -> P {
         let local_dir = m.inv_rotate(dir);
 
         if na::dot(self.a().as_vec(), &local_dir) > na::dot(self.b().as_vec(), &local_dir) {
@@ -19,8 +23,8 @@ Implicit<Point, Vect, _M> for Segment {
     }
 }
 
-impl<_V, _M> PreferedSamplingDirections<_V, _M> for Segment {
+impl<P, V, M> PreferedSamplingDirections<V, M> for Segment<P> {
     #[inline(always)]
-    fn sample(&self, _: &_M, _: |_V| -> ()) {
+    fn sample(&self, _: &M, _: |V| -> ()) {
     }
 }

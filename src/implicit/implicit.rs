@@ -1,13 +1,10 @@
 //! Traits for support mapping based geometries.
 
-use na::FloatVec;
-use math::Scalar;
-
 /// Traits of convex geometries representable by a support mapping function.
 ///
 /// # Parameters:
-///   * Vect - type of the support mapping direction argument and of the returned point.
-pub trait Implicit<Point, Vect: FloatVec<Scalar>, Matrix> {
+///   * V - type of the support mapping direction argument and of the returned point.
+pub trait Implicit<P, V, M> {
     // FIXME: add methods that takes a unit `dir` in argument.
     // This might be useful to avoid useless normalizations.
     /**
@@ -15,17 +12,17 @@ pub trait Implicit<Point, Vect: FloatVec<Scalar>, Matrix> {
      * function associating a vector to the geometry point which maximizes their
      * dot product. This does not include the `margin` of the object. Margins are
      * geometry-dependent. Use `support_point` to sample the complete geometry.
-     * 
+     *
      * # Arguments:
      *  * `dir` - the input of the support function. It is not required for it to
      *            be normalized.
      */
-    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Point;
+    fn support_point(&self, transform: &M, dir: &V) -> P;
 }
 
-impl<'a, Point, Vect: FloatVec<Scalar>, Matrix> Implicit<Point, Vect, Matrix> for &'a Implicit<Point, Vect, Matrix> + 'a {
+impl<'a, P, V, M> Implicit<P, V, M> for &'a Implicit<P, V, M> + 'a {
     #[inline]
-    fn support_point(&self, transform: &Matrix, dir: &Vect) -> Point {
+    fn support_point(&self, transform: &M, dir: &V) -> P {
         self.support_point(transform, dir)
     }
 }
@@ -33,7 +30,7 @@ impl<'a, Point, Vect: FloatVec<Scalar>, Matrix> Implicit<Point, Vect, Matrix> fo
 /// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
 ///
 /// Those directions are usually the geometry faces normals.
-pub trait PreferedSamplingDirections<Vect, Matrix> {
+pub trait PreferedSamplingDirections<V, M> {
     /// Applies a function to this geometry with a given transform.
-    fn sample(&self, &Matrix, |Vect| -> ());
+    fn sample(&self, &M, |V| -> ());
 }

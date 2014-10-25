@@ -1,3 +1,5 @@
+use na::Translate;
+use na;
 use geom::MinkowskiSum;
 use procedural::{Polyline, ToPolyline};
 use procedural;
@@ -5,9 +7,15 @@ use math::{Scalar, Point, Vect};
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-#[cfg(feature = "2d")]
-impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for MinkowskiSum<'a, G1, G2> {
-    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<Scalar, Point, Vect> {
+impl<'a, N, P, V, M, G1, G2, A, B> ToPolyline<N, P, V, (A, B)> for MinkowskiSum<'a, M, G1, G2>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P>,
+          G1: ToPolyline<N, P, V, A>,
+          G2: ToPolyline<N, P, V, B> {
+    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<N, P, V> {
+        assert!(na::dim::<P>() == 2);
+
         let poly1 = self.g1().to_polyline(a);
         let poly2 = self.g2().to_polyline(b);
 
@@ -34,6 +42,6 @@ impl<'a, G1: ToPolyline<A>, G2: ToPolyline<B>, A, B> ToPolyline<(A, B)> for Mink
             all_points.extend(cpy.coords.into_iter());
         }
 
-        procedural::convex_hull2d(all_points.as_slice())
+        procedural::convex_hull2(all_points.as_slice())
     }
 }

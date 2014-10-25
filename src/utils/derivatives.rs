@@ -1,14 +1,14 @@
-use na::Cast;
 use na;
+use math::Scalar;
 
 /// Computes the n-th derivative of the cosinus function.
-pub fn dcos<N: FloatMath + Cast<f64>>(n: uint, x: N) -> N {
+pub fn dcos<N: Scalar>(n: uint, x: N) -> N {
     let n: N = na::cast(n as f64);
     (x + n * Float::frac_pi_2()).cos()
 }
 
 /// Computes the n-th derivative of the sinus function.
-pub fn dsin<N: FloatMath + Cast<f64>>(n: uint, x: N) -> N {
+pub fn dsin<N: Scalar>(n: uint, x: N) -> N {
     let n: N = na::cast(n as f64);
     (x + n * Float::frac_pi_2()).sin()
 }

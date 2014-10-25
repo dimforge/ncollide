@@ -1,24 +1,29 @@
-use na::{Indexable, Transform, PartialOrd, FloatPnt};
+use na::Transform;
 use na;
 use implicit::Implicit;
 use bounding_volume::AABB;
-use math::{Scalar, Point, Vect, Matrix};
+use math::{Scalar, Point, Vect};
+
 
 
 /// Computes the AABB of an implicit shape.
-pub fn implicit_shape_aabb<I: Implicit<Point, Vect, Matrix>>(m: &Matrix, i: &I) -> AABB {
-        let mut min:   Point = na::orig();
-        let mut max:   Point = na::orig();
-        let mut basis: Vect  = na::zero();
+pub fn implicit_shape_aabb<N, P, V, M, I>(m: &M, i: &I) -> AABB<P>
+        where N: Scalar,
+              P: Point<N, V>,
+              V: Vect<N>,
+              I: Implicit<P, V, M> {
+        let mut min   = na::orig::<P>();
+        let mut max   = na::orig::<P>();
+        let mut basis = na::zero::<V>();
 
-        for d in range(0, na::dim::<Vect>()) {
+        for d in range(0, na::dim::<V>()) {
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis[d] = na::one();
-            max[d] = i.support_point(m, &basis).at(d);
+            max[d] = i.support_point(m, &basis)[d];
 
-            basis[d] = -na::one::<Scalar>();
-            min[d] = i.support_point(m, &basis).at(d);
+            basis[d] = -na::one::<N>();
+            min[d] = i.support_point(m, &basis)[d];
 
             basis[d] = na::zero();
         }
@@ -28,7 +33,10 @@ pub fn implicit_shape_aabb<I: Implicit<Point, Vect, Matrix>>(m: &Matrix, i: &I) 
 
 // FIXME: return an AABB?
 /// Computes the AABB of a set of point.
-pub fn point_cloud_aabb<N, P: PartialOrd + FloatPnt<N, V> + Clone, V, M: Transform<P>>(m: &M, pts: &[P]) -> (P, P) {
+pub fn point_cloud_aabb<N, P, V, M>(m: &M, pts: &[P]) -> (P, P)
+    where N: Scalar,
+          P: Point<N, V>,
+          M: Transform<P> {
     let wp0        = na::transform(m, &pts[0]);
     let mut min: P = wp0.clone();
     let mut max: P = wp0.clone();

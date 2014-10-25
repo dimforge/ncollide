@@ -2,12 +2,16 @@ use na::{Transform, Rotate};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Triangle;
-use math::{Point, Vect};
+use math::{Scalar, Point, Vect};
 
-impl<_M: Transform<Point> + Rotate<Vect>>
-Implicit<Point, Vect, _M> for Triangle {
+
+impl<N, P, V, M> Implicit<P, V, M> for Triangle<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
+    fn support_point(&self, m: &M, dir: &V) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let d1 = na::dot(self.a().as_vec(), &local_dir);
@@ -36,8 +40,8 @@ Implicit<Point, Vect, _M> for Triangle {
     }
 }
 
-impl<_V, _M> PreferedSamplingDirections<_V, _M> for Triangle {
+impl<P, V, M> PreferedSamplingDirections<V, M> for Triangle<P> {
     #[inline(always)]
-    fn sample(&self, _: &_M, _: |_V| -> ()) {
+    fn sample(&self, _: &M, _: |V| -> ()) {
     }
 }

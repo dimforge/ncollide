@@ -73,25 +73,25 @@ macro_rules! decl_poly(
                 symbolic::add(self.clone(), other.clone())
             }
         }
-        
+
         impl<A: Copy, B: Clone> Sub<B, SymSub<$t<A>, B>> for $t<A> {
             fn sub(&self, other: &B) -> SymSub<$t<A>, B> {
                 symbolic::sub(self.clone(), other.clone())
             }
         }
-        
+
         impl<A: Copy, B: Clone> Mul<B, SymMult<$t<A>, B>> for $t<A> {
             fn mul(&self, other: &B) -> SymMult<$t<A>, B> {
                 symbolic::mult(self.clone(), other.clone())
             }
         }
-        
+
         impl<A: Copy> Neg<SymNeg<$t<A>>> for $t<A> {
             fn neg(&self) -> SymNeg<$t<A>> {
                 symbolic::neg(self.clone())
             }
         }
-        
+
         // XXX: replace by `Fn` when method call overloading will be supported by Rust.
         impl<A: Copy, B: Clone> BitAnd<B, SymComp<$t<A>, B>> for $t<A> {
             fn bitand(&self, other: &B) -> SymComp<$t<A>, B> {

@@ -2,10 +2,10 @@
 
 use na::{Pnt3, Vec3};
 use na;
-use math::{Scalar, Point, Vect};
 use geom::Ball;
 use parametric::ParametricSurface;
 use utils;
+use math::Scalar;
 
 /// Parametrization of the ball and its derivatives:
 ///
@@ -15,8 +15,9 @@ use utils;
 /// S_uu(u, v) = (-r cos(u) cos(v), 0        ,  r sin(u) cos(v))
 /// S_vv(u, v) = (-r cos(u) cos(v), -r sin(v),  r sin(u) cos(v))
 /// S_uv(u, v) = ( r sin(u) sin(v), 0        ,  r cos(u) sin(v))
-impl ParametricSurface for Ball {
-    fn at(&self, u: Scalar, v: Scalar) -> Point {
+impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
+    where N: Scalar {
+    fn at(&self, u: N, v: N) -> Pnt3<N> {
         let u        = u * Float::two_pi();
         let v        = (v - na::cast(0.5f64)) * Float::pi();
         let (su, cu) = u.sin_cos();
@@ -26,7 +27,7 @@ impl ParametricSurface for Ball {
         Pnt3::new(r * cu * cv, r * sv, -r * su * cv)
     }
 
-    fn at_u(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_u(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = (v - na::cast(0.5f64)) * Float::pi();
@@ -37,7 +38,7 @@ impl ParametricSurface for Ball {
         Vec3::new(-r * su * cv, na::zero(), -r * cu * cv) * _2_pi
     }
 
-    fn at_v(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_v(&self, u: N, v: N) -> Vec3<N> {
         let _pi      = Float::pi();
         let u        = u * Float::two_pi();
         let v        = (v - na::cast(0.5f64)) * _pi;
@@ -48,7 +49,7 @@ impl ParametricSurface for Ball {
         Vec3::new(-r * cu * sv, r * cv, r * su * sv) * _pi
     }
 
-    fn at_uu(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_uu(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = (v - na::cast(0.5f64)) * Float::pi();
@@ -59,7 +60,7 @@ impl ParametricSurface for Ball {
         Vec3::new(-r * cu * cv, na::zero(), r * su * cv) * (_2_pi * _2_pi)
     }
 
-    fn at_vv(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_vv(&self, u: N, v: N) -> Vec3<N> {
         let _pi      = Float::pi();
         let u        = u * Float::two_pi();
         let v        = (v - na::cast(0.5f64)) * _pi;
@@ -70,7 +71,7 @@ impl ParametricSurface for Ball {
         Vec3::new(-r * cu * cv, -r * sv, r * su * cv) * (_pi * _pi)
     }
 
-    fn at_uv(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_uv(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let _pi      = Float::pi();
         let u        = u * _2_pi;
@@ -82,7 +83,7 @@ impl ParametricSurface for Ball {
         Vec3::new(r * su * sv, na::zero(), r * cu * sv) * (_pi * _2_pi)
     }
 
-    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect) {
+    fn at_u_v(&self, u: N, v: N) -> (Pnt3<N>, Vec3<N>, Vec3<N>) {
         let _2_pi     = Float::two_pi();
         let _pi       = Float::pi();
         let u         = u * _2_pi;
@@ -100,7 +101,8 @@ impl ParametricSurface for Ball {
         )
     }
 
-    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect, Vect, Vect, Vect) {
+    fn at_u_v_uu_vv_uv(&self, u: N, v: N)
+        -> (Pnt3<N>, Vec3<N>, Vec3<N>, Vec3<N>, Vec3<N>, Vec3<N>) {
         let _2_pi       = Float::two_pi();
         let _pi         = Float::pi();
         let u           = u * _2_pi;
@@ -124,7 +126,7 @@ impl ParametricSurface for Ball {
         )
     }
 
-    fn at_uv_nk(&self, u: Scalar, v: Scalar, n: uint, k: uint) -> Vect {
+    fn at_uv_nk(&self, u: N, v: N, n: uint, k: uint) -> Vec3<N> {
         let _2_pi = Float::two_pi();
         let _pi   = Float::pi();
         let u     = u * _2_pi;

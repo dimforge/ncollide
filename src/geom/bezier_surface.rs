@@ -1,34 +1,30 @@
+//! Bezier surface.
+
 use std::num::Zero;
-use na::{Norm, Indexable};
+use na::{Norm, RotationMatrix, Cross, Rotation, Mat, Rotate};
 use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
 use geom::bezier_curve;
-use math::{Point, Vect, Scalar};
-
-#[cfg(not(feature = "4d"))]
-use math::RotationMatrix;
-
-#[cfg(feature = "4d")]
-use utils;
+use math::{Scalar, Point, Vect};
 
 /// Cache used to evaluate a bezier surface at a given parameter.
 ///
 /// The same cache can be used for multiple evaluations (that is the whole point of this).
-pub struct BezierSurfaceEvaluationCache {
-    u_cache: Vec<Point>,
-    v_cache: Vec<Point>
+pub struct BezierSurfaceEvaluationCache<P> {
+    u_cache: Vec<P>,
+    v_cache: Vec<P>
 }
 
 /// Procedural generator of non-rational Bézier surfaces.
-#[deriving(Clone)]
-pub struct BezierSurface {
-    control_points:     Vec<Point>, // u-major storage.
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+pub struct BezierSurface<P> {
+    control_points:     Vec<P>, // u-major storage.
     nupoints:           uint,
     nvpoints:           uint
 }
 
-impl BezierSurface {
+impl<N, P: Point<N, V>, V> BezierSurface<P> {
     /// Creates a new procedural generator of non-rational bézier surfaces.
     ///
     /// # Parameters:
@@ -39,7 +35,7 @@ impl BezierSurface {
     /// # Failures:
     /// Fails if the vector of control points does not contain exactly `nupoints * nvpoints`
     /// elements.
-    pub fn new(control_points: Vec<Point>, nupoints: uint, nvpoints: uint) -> BezierSurface {
+    pub fn new(control_points: Vec<P>, nupoints: uint, nvpoints: uint) -> BezierSurface<P> {
         assert!(nupoints * nvpoints == control_points.len());
 
         BezierSurface {
@@ -52,14 +48,14 @@ impl BezierSurface {
     /// Creates a new bézier curve of degrees `u_degree x v_degree`.
     ///
     /// Its control points are initialized to zero.
-    pub fn new_with_degrees(degree_u: uint, degree_v: uint) -> BezierSurface {
+    pub fn new_with_degrees(degree_u: uint, degree_v: uint) -> BezierSurface<P> {
         let nupoints = degree_u + 1;
         let nvpoints = degree_v + 1;
         BezierSurface::new(Vec::from_elem(nupoints * nvpoints, na::orig()), nupoints, nvpoints)
     }
 
     /// Creates a cache to avaluate a bezier surface.
-    pub fn new_evaluation_cache() -> BezierSurfaceEvaluationCache {
+    pub fn new_evaluation_cache() -> BezierSurfaceEvaluationCache<P> {
         BezierSurfaceEvaluationCache {
             u_cache: Vec::new(),
             v_cache: Vec::new()
@@ -89,7 +85,7 @@ impl BezierSurface {
 
     /// The control points of this bézier surface.
     #[inline]
-    pub fn control_points<'a>(&'a self) -> &'a [Point] {
+    pub fn control_points(&self) -> &[P] {
         self.control_points.as_slice()
     }
 
@@ -119,7 +115,7 @@ impl BezierSurface {
 
     /// Get the `i`-th set of control points along the `u` parametric direction.
     #[inline]
-    pub fn slice_u<'a>(&'a self, i: uint) -> VecSlice<'a, Point> {
+    pub fn slice_u<'a>(&'a self, i: uint) -> VecSlice<'a, P> {
         VecSlice::new(self.control_points.slice_from(i * self.nupoints),
                       self.nupoints,
                       1)
@@ -127,13 +123,13 @@ impl BezierSurface {
 
     /// Get the `i`-th set of control points along the `v` parametric direction.
     #[inline]
-    pub fn slice_v<'a>(&'a self, i: uint) -> VecSlice<'a, Point> {
+    pub fn slice_v<'a>(&'a self, i: uint) -> VecSlice<'a, P> {
         VecSlice::new(self.control_points.slice_from(i), self.nvpoints, self.nupoints)
     }
 
     /// Mutably get the `i`-th set of control points along the `u` parametric direction.
     #[inline]
-    pub fn mut_slice_u<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Point> {
+    pub fn mut_slice_u<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, P> {
         VecSliceMut::new(self.control_points.slice_from_mut(i * self.nupoints),
                          self.nupoints,
                          1)
@@ -141,15 +137,18 @@ impl BezierSurface {
 
     /// Mutably get the `i`-th set of control points along the `v` parametric direction.
     #[inline]
-    pub fn mut_slice_v<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, Point> {
+    pub fn mut_slice_v<'a>(&'a mut self, i: uint) -> VecSliceMut<'a, P> {
         VecSliceMut::new(self.control_points.slice_from_mut(i), self.nvpoints, self.nupoints)
     }
 }
 
-impl BezierSurface {
+impl<N, P, V> BezierSurface<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     /// Evaluates this bezier surface at the given parameter `t`.
     #[inline]
-    pub fn at(&self, u: &Scalar, v: &Scalar, cache: &mut BezierSurfaceEvaluationCache) -> Point {
+    pub fn at(&self, u: N, v: N, cache: &mut BezierSurfaceEvaluationCache<P>) -> P {
         procedural::bezier_surface_at(self.control_points.as_slice(),
                                       self.nupoints,
                                       self.nvpoints,
@@ -162,7 +161,7 @@ impl BezierSurface {
     /// Subdivides this bezier at the given isocurve of parameter `u`.
     ///
     /// The union of the two resulting surfaces equals the original one.
-    pub fn subdivide_u(&self, u: &Scalar, out1: &mut BezierSurface, out2: &mut BezierSurface) {
+    pub fn subdivide_u(&self, u: N, out1: &mut BezierSurface<P>, out2: &mut BezierSurface<P>) {
         out1.reset_with_degrees(self.degree_u(), self.degree_v());
         out2.reset_with_degrees(self.degree_u(), self.degree_v());
 
@@ -176,7 +175,7 @@ impl BezierSurface {
     /// Subdivides this bezier at the given isocurve of parameter `v`.
     ///
     /// The union of the two resulting surfaces equals the original one.
-    pub fn subdivide_v(&self, v: &Scalar, out1: &mut BezierSurface, out2: &mut BezierSurface) {
+    pub fn subdivide_v(&self, v: N, out1: &mut BezierSurface<P>, out2: &mut BezierSurface<P>) {
         out1.reset_with_degrees(self.degree_u(), self.degree_v());
         out2.reset_with_degrees(self.degree_u(), self.degree_v());
 
@@ -188,7 +187,7 @@ impl BezierSurface {
     }
 
     /// Computes the derivative wrt. `u` of this bezier surface.
-    pub fn diff_u(&self, out: &mut BezierSurface) {
+    pub fn diff_u(&self, out: &mut BezierSurface<P>) {
         out.reset_with_degrees(self.degree_u() - 1, self.degree_v());
 
         for i in range(0u, self.nvpoints) {
@@ -197,7 +196,7 @@ impl BezierSurface {
     }
 
     /// Computes the derivative wrt. `v` of this bezier surface.
-    pub fn diff_v(&self, out: &mut BezierSurface) {
+    pub fn diff_v(&self, out: &mut BezierSurface<P>) {
         out.reset_with_degrees(self.degree_u(), self.degree_v() - 1);
 
         for i in range(0u, self.nupoints) {
@@ -207,38 +206,49 @@ impl BezierSurface {
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
-    pub fn endpoint_00<'a>(&'a self) -> &'a Point {
+    pub fn endpoint_00(&self) -> &P {
         &self.control_points[0]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 1`.
     #[inline]
-    pub fn endpoint_01<'a>(&'a self) -> &'a Point {
+    pub fn endpoint_01(&self) -> &P {
         &self.control_points[self.nupoints() - 1]
     }
 
     /// Gets the endpoint at parameters `u = 0` and `v = 0`.
     #[inline]
-    pub fn endpoint_10<'a>(&'a self) -> &'a Point {
+    pub fn endpoint_10(&self) -> &P {
         &self.control_points[self.control_points.len() - self.nupoints()]
     }
 
     /// Gets the endpoint at parameters `u = 1` and `v = 1`.
     #[inline]
-    pub fn endpoint_11<'a>(&'a self) -> &'a Point {
+    pub fn endpoint_11(&self) -> &P {
         self.control_points.last().unwrap()
     }
+}
 
+impl<N, P, V, AV, M> BezierSurface<P>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Cross<AV>,
+          AV: Vect<N> + RotationMatrix<N, V, AV, M>,
+          M:  Rotation<AV> + Rotate<V> + Mat<N, V, V> {
     /// Computes an infinite bounding cone of this surface.
     #[inline]
-    pub fn bounding_cone_with_origin(&self, origin: &Point) -> (Vect, Scalar) {
+    pub fn bounding_cone_with_origin(&self, origin: &P) -> (V, N) {
         bounding_cone_with_origin(self.control_points.as_slice(), origin)
     }
 }
 
 /// Computes an infinite bounding cone of this surface.
-#[cfg(not(feature = "4d"))]
-pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Scalar) {
+pub fn bounding_cone_with_origin<N, P, V, AV, M>(points: &[P], origin: &P) -> (V, N)
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Cross<AV>,
+          AV: Vect<N> + RotationMatrix<N, V, AV, M>,
+          M:  Rotation<AV> + Rotate<V> + Mat<N, V, V> {
     let mut axis  = points[0] - *origin;
     let mut theta = na::zero();
 
@@ -246,7 +256,7 @@ pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Sca
     // points until a non-zero vector is found).
     if axis.normalize().is_zero() {
         axis = na::zero();
-        axis.set(0, na::one());
+        axis[0] = na::one();
     }
 
     for pt in points.slice_from(1).iter() {
@@ -263,9 +273,9 @@ pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Sca
 
                 if !rot_axis.normalize().is_zero() {
                     let dangle = -(alpha - theta) * na::cast(0.5f64);
-                    let rot    = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
+                    let rot    = (rot_axis * dangle).to_rot_mat();
 
-                    axis  = rot * axis;
+                    axis  = na::rotate(&rot, &axis);
                     theta = (alpha + theta) * na::cast(0.5f64);
                 }
                 else {
@@ -283,32 +293,4 @@ pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Sca
     }
 
     (axis, theta)
-}
-
-/// Computes an infinite bounding cone of this surface.
-#[cfg(feature = "4d")] // we cannot use the previous algorithm because it requires a `na::cross`.
-pub fn bounding_cone_with_origin(points: &[Point], origin: &Point) -> (Vect, Scalar) {
-    // FIXME: this is a very coarse approximation
-    let mut axis = utils::center(points) - *origin;
-
-    if axis.normalize().is_zero() {
-        axis = na::zero();
-        axis.set(0, na::one());
-    }
-
-    let mut max_angle = na::zero();
-
-    for pt in points.iter() {
-        let mut dir = *pt - *origin;
-
-        if !dir.normalize().is_zero() {
-            let angle = na::dot(&dir, &axis).acos();
-
-            if angle > max_angle {
-                max_angle = angle;
-            }
-        }
-    }
-
-    (axis, max_angle)
 }

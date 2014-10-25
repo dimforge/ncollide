@@ -1,15 +1,16 @@
 use na;
-use na::{Cast, FloatPntExt, FloatVecExt, Pnt3, Vec3, Pnt2};
-use na::overload::Pnt3MulRhs;
+use na::{Pnt3, Vec3, Pnt2};
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 use procedural::utils;
+use math::{Scalar, Point, Vect};
 
 /// Generates a UV sphere.
-pub fn sphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(diameter:      &N,
-                                                                 ntheta_subdiv: u32,
-                                                                 nphi_subdiv:   u32,
-                                                                 generate_uvs:  bool)
-                                                                 -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn sphere<N>(diameter:      N,
+                 ntheta_subdiv: u32,
+                 nphi_subdiv:   u32,
+                 generate_uvs:  bool)
+                 -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv, generate_uvs);
 
     sphere.scale_by_scalar(diameter);
@@ -18,10 +19,11 @@ pub fn sphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(diameter:      
 }
 
 /// Generates a UV sphere centered at the origin and with a unit diameter.
-pub fn unit_sphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta_subdiv: u32,
-                                                                      nphi_subdiv:   u32,
-                                                                      generate_uvs:  bool)
-                                                                      -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn unit_sphere<N>(ntheta_subdiv: u32,
+                      nphi_subdiv:   u32,
+                      generate_uvs:  bool)
+                      -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
     }
@@ -31,9 +33,8 @@ pub fn unit_sphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta_sub
 }
 
 // FIXME: n{theta,phi}_subdiv are not the right names.
-fn unit_sphere_without_uvs<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta_subdiv: u32,
-                                                                              nphi_subdiv:   u32)
-                                                                              -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let pi: N     = Float::pi();
     let two_pi: N = Float::two_pi();
     let pi_two: N = Float::frac_pi_2();
@@ -78,14 +79,13 @@ fn unit_sphere_without_uvs<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(nt
 
     let _0_5: N = na::cast(0.5);
 
-    res.scale_by_scalar(&_0_5);
+    res.scale_by_scalar(_0_5);
 
     res
 }
 
-fn unit_sphere_with_uvs<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta_subdiv: u32,
-                                                                           nphi_subdiv:   u32)
-                                                                           -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let pi: N     = Float::pi();
     let two_pi: N = Float::two_pi();
     let pi_two: N = Float::frac_pi_2();
@@ -123,7 +123,7 @@ fn unit_sphere_with_uvs<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(nthet
 
         for _ in range(0, ntheta_subdiv + 1) {
             uvs.push(Pnt2::new(curr_uvtheta, curr_uvphi));
-            curr_uvtheta = curr_uvtheta + duvtheta; 
+            curr_uvtheta = curr_uvtheta + duvtheta;
         }
 
         curr_uvphi = curr_uvphi + duvphi;
@@ -132,15 +132,14 @@ fn unit_sphere_with_uvs<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(nthet
     let mut res = TriMesh::new(coords, Some(normals), Some(uvs), Some(UnifiedIndexBuffer(idx)));
 
     let _0_5: N = na::cast(0.5);
-    res.scale_by_scalar(&_0_5);
+    res.scale_by_scalar(_0_5);
 
     res
 }
 
 /// Creates an hemisphere with a diameter of 1.
-pub fn unit_hemisphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta_subdiv: u32,
-                                                                          nphi_subdiv:   u32)
-                                                                          -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let two_pi: N = Float::two_pi();
     let pi_two: N = Float::frac_pi_2();
     let dtheta    =  two_pi / na::cast(ntheta_subdiv as f64);
@@ -174,13 +173,16 @@ pub fn unit_hemisphere<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(ntheta
 
     // set the radius to 0.5
     let _0_5: N = na::cast(0.5);
-    out.scale_by_scalar(&_0_5);
+    out.scale_by_scalar(_0_5);
 
     out
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn circle<N: FloatMath + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V> {
+pub fn circle<N, P, V>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     let two_pi: N = Float::two_pi();
     let dtheta    = two_pi / na::cast(nsubdivs as f64);
 
@@ -194,7 +196,10 @@ pub fn circle<N: FloatMath + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn unit_circle<N: FloatMath + Cast<f64>, P: FloatPntExt<N, V>, V: FloatVecExt<N>>(nsubdivs: u32) -> Polyline<N, P, V> {
+pub fn unit_circle<N, P, V>(nsubdivs: u32) -> Polyline<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     // FIXME: do this the other way round?
     circle::<N, P, V>(&na::cast(1.0), nsubdivs)
 }

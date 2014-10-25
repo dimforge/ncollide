@@ -1,56 +1,49 @@
-use na::{Vec3, Identity};
+use std::num::Zero;
+use na::{Vec3, Identity, Transform, Rotate};
+use na;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use geom::Triangle;
-use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
+use ray::{Ray, LocalRayCast, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::{Scalar, Point, Vect};
 
-#[cfg(feature = "3d")]
-use na;
-#[cfg(feature = "3d")]
-use std::num::Zero;
+use utils;
 
-#[cfg(feature = "3d")]
-impl RayCast for Triangle {
+impl<N, P, V> LocalRayCast<N, P, V> for Triangle<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Point, Vect>::new_w_tls(), ray, solid)
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+        if na::dim::<P>() == 3 {
+            triangle_ray_intersection(self.a(), self.b(), self.c(), ray).map(|(r, _)| r)
+        }
+        else {
+            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), ray, solid)
+        }
     }
 }
 
-#[cfg(feature = "2d")]
-impl RayCast for Triangle {
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        // FIXME: optimize that!
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Point, Vect>::new_w_tls(), ray, solid)
-    }
-}
-
-#[cfg(feature = "4d")]
-impl RayCast for Triangle {
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<Point, Vect>::new_w_tls(), ray, solid)
-    }
-}
-
-/// Not yet implemented in dimensions other than 3.
-#[cfg(not(feature = "3d"))]
-pub fn triangle_ray_intersection(_: &Point, _: &Point, _: &Point, _: &Ray) -> Option<(RayIntersection, Vec3<Scalar>)> {
-    fail!("`triangle_ray_intersection` is not yet implemented for dimensions other than 3.")
+impl<N, P, V, M> RayCast<N, P, V, M> for Triangle<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
 }
 
 /// Computes the intersection between a triangle and a ray.
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
-#[cfg(feature = "3d")]
-pub fn triangle_ray_intersection(a: &Point, b: &Point, c: &Point, ray: &Ray) -> Option<(RayIntersection, Vec3<Scalar>)> {
+pub fn triangle_ray_intersection<N, P, V>(a: &P, b: &P, c: &P, ray: &Ray<P, V>)
+                                          -> Option<(RayIntersection<N, V>, Vec3<N>)>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     let ab = *b - *a;
     let ac = *c - *a;
 
     // normal
-    let n = na::cross(&ab, &ac);
+    let n = utils::cross3(&ab, &ac);
     let d = na::dot(&n, &ray.dir);
 
     // the normal and the ray direction are parallel
@@ -62,7 +55,7 @@ pub fn triangle_ray_intersection(a: &Point, b: &Point, c: &Point, ray: &Ray) -> 
     let t  = na::dot(&ap, &n);
 
     // the ray does not intersect the plane defined by the triangle
-    if (t < na::zero() && d < na::zero()) || 
+    if (t < na::zero() && d < na::zero()) ||
        (t > na::zero() && d > na::zero()) {
         return None;
     }
@@ -72,7 +65,7 @@ pub fn triangle_ray_intersection(a: &Point, b: &Point, c: &Point, ray: &Ray) -> 
     //
     // intersection: compute barycentric coordinates
     //
-    let e = -na::cross(&ray.dir, &ap);
+    let e = -utils::cross3(&ray.dir, &ap);
 
     let mut v;
     let mut w;
@@ -92,7 +85,7 @@ pub fn triangle_ray_intersection(a: &Point, b: &Point, c: &Point, ray: &Ray) -> 
             return None;
         }
 
-        let invd = na::one::<Scalar>() / d;
+        let invd = na::one::<N>() / d;
         toi      = -t * invd;
         normal   = -na::normalize(&n);
         v        = v * invd;
@@ -111,7 +104,7 @@ pub fn triangle_ray_intersection(a: &Point, b: &Point, c: &Point, ray: &Ray) -> 
             return None;
         }
 
-        let invd = na::one::<Scalar>() / d;
+        let invd = na::one::<N>() / d;
         toi      = t * invd;
         normal   = na::normalize(&n);
         v        = v * invd;

@@ -1,20 +1,21 @@
 use std::num::Zero;
-use na::Translation;
+use na::Translate;
 use na;
 use geom::Ball;
 use narrow::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};
-use math::{Scalar, Point, Vect, Matrix};
+use math::{Scalar, Point, Vect};
+
 
 /// Collision detector between two balls.
 #[deriving(Encodable, Decodable)]
-pub struct BallBall {
-    prediction: Scalar,
-    contact:    Option<Contact>
+pub struct BallBall<N, P, V, M> {
+    prediction: N,
+    contact:    Option<Contact<N, P, V>>
 }
 
-impl Clone for BallBall {
-    fn clone(&self) -> BallBall {
+impl<N: Clone, P: Clone, V: Clone, M> Clone for BallBall<N, P, V, M> {
+    fn clone(&self) -> BallBall<N, P, V, M> {
         BallBall {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
@@ -22,10 +23,10 @@ impl Clone for BallBall {
     }
 }
 
-impl BallBall {
+impl<N, P, V, M> BallBall<N, P, V, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new(prediction: Scalar) -> BallBall {
+    pub fn new(prediction: N) -> BallBall<N, P, V, M> {
         BallBall {
             prediction: prediction,
             contact:    None
@@ -33,15 +34,18 @@ impl BallBall {
     }
 }
 
-impl CollisionDetector<Ball, Ball> for
-BallBall {
-    fn update(&mut self, ma: &Matrix, a: &Ball, mb: &Matrix, b: &Ball) {
+impl<N, P, V, M> CollisionDetector<N, P, V, M, Ball<N>, Ball<N>> for BallBall<N, P, V, M>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Translate<P> {
+    fn update(&mut self, ma: &M, a: &Ball<N>, mb: &M, b: &Ball<N>) {
         self.contact = collide(
-            ma.translation().as_pnt(),
+            &ma.translate(&na::orig()),
             a,
-            mb.translation().as_pnt(),
+            &mb.translate(&na::orig()),
             b,
-            &self.prediction);
+            self.prediction);
     }
 
     #[inline]
@@ -53,16 +57,11 @@ BallBall {
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact>) {
+    fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
         }
-    }
-
-    #[inline]
-    fn toi(_: Option<BallBall>, c1: &Matrix, dir: &Vect, _: &Scalar, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
-        toi(c1, dir, b1, c2, b2)
     }
 }
 
@@ -70,17 +69,20 @@ BallBall {
 ///
 /// The balls must penetrate to have contact points.
 #[inline]
-pub fn collide(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball, prediction: &Scalar) -> Option<Contact> {
+pub fn collide<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>, prediction: N) -> Option<Contact<N, P, V>>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     let r1         = b1.radius();
     let r2         = b2.radius();
-    let delta_pos  = center2 - *center1;
+    let delta_pos  = *center2 - *center1;
     let sqdist     = na::sqnorm(&delta_pos);
     let sum_radius = r1 + r2;
-    let sum_radius_with_error = sum_radius + *prediction;
+    let sum_radius_with_error = sum_radius + prediction;
 
     if sqdist < sum_radius_with_error * sum_radius_with_error {
         let mut normal = na::normalize(&delta_pos);
-        
+
         if sqdist.is_zero() {
             na::canonical_basis(|b| {
                 normal = b;
@@ -90,8 +92,8 @@ pub fn collide(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball, predictio
         }
 
         Some(Contact::new(
-                center1 + normal * r1,
-                center2 - normal * r2,
+                *center1 + normal * r1,
+                *center2 + (-normal * r2),
                 normal,
                 (sum_radius - sqdist.sqrt())))
     }
@@ -104,12 +106,15 @@ pub fn collide(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball, predictio
 ///
 /// If they are intersecting, the points corresponding to the penetration depth are returned.
 #[inline]
-pub fn closest_points(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball) -> (Point, Point) {
+pub fn closest_points<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>) -> (P, P)
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     let r1     = b1.radius();
     let r2     = b2.radius();
-    let normal = na::normalize(&(center2 - *center1));
+    let normal = na::normalize(&(*center2 - *center1));
 
-    (center1 + normal * r1, center2 - normal * r2)
+    (*center1 + normal * r1, *center2 + (-normal * r2))
 }
 
 /// Computes the Time Of Impact of two balls.
@@ -121,10 +126,14 @@ pub fn closest_points(center1: &Point, b1: &Ball, center2: &Point, b2: &Ball) ->
 /// * `m2`  - the second ball transform.
 /// * `b2`  - the second ball.
 #[inline]
-pub fn toi(c1: &Matrix, dir: &Vect, b1: &Ball, c2: &Matrix, b2: &Ball) -> Option<Scalar> {
+pub fn toi<N, P, V, M>(c1: &M, dir: &V, b1: &Ball<N>, c2: &M, b2: &Ball<N>) -> Option<N>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Translate<P> {
     // Here again, we cast a ray on the CSO exept we know that our CSO is just another bigger ball!
     let radius = b1.radius() + b2.radius();
-    let center = c1.translation().as_pnt() - c2.translation();
+    let center = c2.inv_translate(&c1.translate(&na::orig()));
 
-    ball_toi_with_ray(center, radius, &Ray::new(na::orig(), -dir), true).val1()
+    ball_toi_with_ray(center, radius, &Ray::new(na::orig(), -*dir), true).val1()
 }

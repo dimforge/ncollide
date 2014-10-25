@@ -1,10 +1,15 @@
-use ray::{Ray, RayCast, RayIntersection};
+use na::{Transform, Rotate};
+use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use partitioning::BVT;
 use math::Scalar;
 
-impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
+
+impl<N, P, V, B, BV> LocalRayCast<N, P, V> for BVT<B, BV>
+    where N: Scalar,
+          B:  LocalRayCast<N, P, V>,
+          BV: LocalRayCast<N, P, V> {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
+    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
         self.cast_ray(
             ray,
             &mut |b, r| b.toi_with_ray(r, solid).map(
@@ -13,7 +18,7 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         self.cast_ray(
             ray,
             &mut |b, r| b.toi_and_normal_with_ray(r, solid).map(
@@ -21,9 +26,8 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
                     |(_, res, _)| res)
     }
 
-    // #[cfg(feature = "3d")]
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray, solid: bool) -> Option<RayIntersection> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         self.cast_ray(
             ray,
             &mut |b, r| b.toi_and_normal_and_uv_with_ray(r, solid).map(
@@ -32,4 +36,11 @@ impl<B: RayCast, BV: RayCast> RayCast for BVT<B, BV> {
     }
 
     // FIXME: optimize insersect_ray ?
+}
+
+impl<N, P, V, M, B, BV> RayCast<N, P, V, M> for BVT<B, BV>
+    where N: Scalar,
+          B:  LocalRayCast<N, P, V>,
+          BV: LocalRayCast<N, P, V>,
+          M:  Transform<P> + Rotate<V> {
 }

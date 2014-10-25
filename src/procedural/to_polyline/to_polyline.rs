@@ -1,12 +1,12 @@
 use procedural::Polyline;
-use math::{Scalar, Point, Vect};
+
 
 /// Trait implemented by geometries that can be approximated by a triangle mesh.
-pub trait ToPolyline<I>
+pub trait ToPolyline<N, P, V, I>
 {
     /// Builds a triangle mesh from this geometry.
     ///
     /// # Arguments:
     /// * `i` - the discretization parameters.
-    fn to_polyline(&self, i: I) -> Polyline<Scalar, Point, Vect>;
+    fn to_polyline(&self, i: I) -> Polyline<N, P, V>;
 }

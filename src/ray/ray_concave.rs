@@ -2,12 +2,13 @@ use std::num::Bounded;
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use geom::{ConcaveGeom, Compound};
-use math::Scalar;
+use math::{Scalar, Point, Vect};
+
 
 // XXX: if solid == false, this might return internal intersection.
 //
 impl RayCast for Compound {
-    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<Scalar> {
+    fn toi_with_ray(&self, ray: &Ray, solid: bool) -> Option<N> {
         // FIXME: optimize that and avoid the allocation using the dedicated ray casting function
         // from the BVT.
         let mut interferences: Vec<uint> = Vec::new();
@@ -15,7 +16,7 @@ impl RayCast for Compound {
         self.approx_interferences_with_ray(ray, &mut interferences);
 
         // compute the minimum toi
-        let mut toi: Scalar = Bounded::max_value();
+        let mut toi: N = Bounded::max_value();
 
         for i in interferences.iter() {
             self.map_part_at(*i, |objm, obj|

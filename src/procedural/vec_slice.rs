@@ -47,7 +47,7 @@ impl<'a, T> VecSlice<'a, T> {
 
     #[inline(always)]
     fn id(&self, i: uint) -> uint {
-        i * self.stride 
+        i * self.stride
     }
 
     #[inline]
@@ -80,7 +80,7 @@ impl<'a, T> VecSliceMut<'a, T> {
 
     #[inline(always)]
     fn id(&self, i: uint) -> uint {
-        i * self.stride 
+        i * self.stride
     }
 
     #[inline]

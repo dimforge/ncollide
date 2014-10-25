@@ -2,11 +2,12 @@
 
 use std::collections::HashMap;
 use std::collections::hashmap::{Vacant, Occupied};
-use na::{FloatPntExt, FloatVec, FloatVecExt, Cast, Vec3};
+use na::Vec3;
 use na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use utils;
 use bounding_volume;
+use math::{Scalar, Point, Vect};
 
 struct Triangle<N, P, V> {
     idx:                    Vec3<uint>,
@@ -14,7 +15,7 @@ struct Triangle<N, P, V> {
     circumcircle_sq_radius: N
 }
 
-impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone> Triangle<N, P, V> {
+impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
     pub fn new(idx: Vec3<uint>, pts: &[P]) -> Triangle<N, P, V> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
@@ -42,7 +43,10 @@ pub struct Triangulator<N, P, V> {
     edges:     HashMap<(uint, uint), uint>
 }
 
-impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone> Triangulator<N, P, V> {
+impl<N, P, V> Triangulator<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     /// Creates a new Triangulator.
     pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<N, P, V> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
@@ -143,10 +147,10 @@ impl<N: Float + Cast<f64>, P: FloatPntExt<N, V> + Clone, V: FloatVec<N> + Clone>
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<N: FloatMath + Cast<f64>,
-                   P: FloatPntExt<N, V> + Clone,
-                   V: FloatVecExt<N> + Clone>(
-                   pts: &[P]) -> TriMesh<N, P, V> {
+pub fn triangulate<N, P, V>(pts: &[P]) -> TriMesh<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius           = radius * na::cast(2.0);
@@ -157,10 +161,10 @@ pub fn triangulate<N: FloatMath + Cast<f64>,
     let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
 
     let mut up = na::zero::<V>();
-    up.set(0, na::one());
+    up[0] = na::one();
 
     let mut right = na::zero::<V>();
-    right.set(1, na::one());
+    right[1] = na::one();
 
     // Triangle:
     //

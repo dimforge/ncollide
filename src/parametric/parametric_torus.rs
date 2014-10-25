@@ -1,13 +1,14 @@
 use na::{Pnt3, Vec3};
 use na;
-use math::{Scalar, Point, Vect};
 use geom::Torus;
 use parametric::ParametricSurface;
 use utils;
+use math::Scalar;
 
 /// Parametrization of the torus.
-impl ParametricSurface for Torus {
-    fn at(&self, u: Scalar, v: Scalar) -> Point {
+impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
+    where N: Scalar {
+    fn at(&self, u: N, v: N) -> Pnt3<N> {
         let u        = u * Float::two_pi();
         let v        = v * Float::two_pi();
         let (su, cu) = u.sin_cos();
@@ -19,7 +20,7 @@ impl ParametricSurface for Torus {
         Vec3::new(r * cu * cv, r * sv, -r * su * cv)
     }
 
-    fn at_u(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_u(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = v * Float::two_pi();
@@ -32,7 +33,7 @@ impl ParametricSurface for Torus {
         Vec3::new(-r * su * cv, na::zero(), -r * cu * cv) * _2_pi
     }
 
-    fn at_v(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_v(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
@@ -43,7 +44,7 @@ impl ParametricSurface for Torus {
         Vec3::new(-r * cu * sv, r * cv, r * su * sv) * _2_pi
     }
 
-    fn at_uu(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_uu(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
@@ -56,7 +57,7 @@ impl ParametricSurface for Torus {
         Vec3::new(-r * cu * cv, na::zero(), r * su * cv) * (_2_pi * _2_pi)
     }
 
-    fn at_vv(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_vv(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
@@ -67,7 +68,7 @@ impl ParametricSurface for Torus {
         Vec3::new(-r * cu * cv, -r * sv, r * su * cv) * (_2_pi * _2_pi)
     }
 
-    fn at_uv(&self, u: Scalar, v: Scalar) -> Vect {
+    fn at_uv(&self, u: N, v: N) -> Vec3<N> {
         let _2_pi    = Float::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
@@ -78,7 +79,7 @@ impl ParametricSurface for Torus {
         Vec3::new(r * su * sv, na::zero(), r * cu * sv) * (_2_pi * _2_pi)
     }
 
-    fn at_uv_nk(&self, u: Scalar, v: Scalar, n: uint, k: uint) -> Vect {
+    fn at_uv_nk(&self, u: N, v: N, n: uint, k: uint) -> Vec3<N> {
         let _2_pi = Float::two_pi();
         let u  = u * _2_pi;
         let v  = v * _2_pi;

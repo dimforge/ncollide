@@ -1,7 +1,7 @@
 //! Path generation.
 
 pub use procedural::path::path::{PathSample, StartPoint, InnerPoint, EndPoint, EndOfSample, CurveSampler,
-                                 StrokePattern};
+                                          StrokePattern};
 pub use procedural::path::polyline_pattern::{PolylinePattern, PolylineCompatibleCap};
 pub use procedural::path::polyline_path::PolylinePath;
 pub use procedural::path::arrowhead_cap::ArrowheadCap;

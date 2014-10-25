@@ -1,13 +1,8 @@
 //! Abstract definition of a simplex usable by the GJK algorithm.
 
-use math::Scalar;
 
 /// Trait of a simplex usable by the GJK algorithm.
-///
-/// # Parameters:
-///   * `P` - type of a point  of the simplex.
-///   * `V` - type of a vector of the simplex.
-pub trait Simplex<P> {
+pub trait Simplex<N, P> {
     /// Replace the point of the simplex by a single one. The simplex is reduced to be
     /// 0-dimensional.
     fn reset(&mut self, P);
@@ -30,7 +25,7 @@ pub trait Simplex<P> {
     fn dimension(&self) -> uint;
 
     /// The maximum among the simplex point squared lengths.
-    fn max_sq_len(&self) -> Scalar;
+    fn max_sq_len(&self) -> N;
 
     /// Modifies the points contained by this simplex.
     fn modify_pnts(&mut self, f: |&mut P|);

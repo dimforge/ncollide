@@ -2,6 +2,7 @@ use bounding_volume::{HasAABB, AABB};
 use bounding_volume;
 use geom::Triangle;
 use math::Matrix;
+use math::{Scalar, Point, Vect};
 
 impl HasAABB for Triangle {
     #[inline]

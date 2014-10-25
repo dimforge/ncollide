@@ -1,23 +1,20 @@
-use na::Vec2;
+use na::{Pnt3, Vec2, Vec3};
 use na;
-use math::{Scalar, Point, Vect};
 use utils;
 use parametric::ParametricSurface;
 use procedural::TriMesh;
-
-#[cfg(feature = "3d")]
 use procedural;
+use math::Scalar;
 
-#[cfg(feature = "3d")]
 /// Meshing algorithm that uniformly triangulates the parametric space.
-pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
-                                                        usubdivs: uint,
-                                                        vsubdivs: uint)
-                                                        -> TriMesh<Scalar, Point, Vect> {
+pub fn parametric_surface_uniform<N, S>(s: &S, usubdivs: uint, vsubdivs: uint)
+                                        -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar,
+          S: ParametricSurface<N, Pnt3<N>, Vec3<N>> {
     assert!(usubdivs > 0);
     assert!(vsubdivs > 0);
 
-    let mut surface = procedural::unit_quad(usubdivs, vsubdivs);
+    let mut surface = procedural::unit_quad::<N, Pnt3<N>, Vec3<N>>(usubdivs, vsubdivs);
 
     {
         let uvs     = surface.uvs.as_ref().unwrap().as_slice();
@@ -38,24 +35,20 @@ pub fn parametric_surface_uniform<S: ParametricSurface>(s:        &S,
     surface
 }
 
-#[cfg(not(feature = "3d"))]
-/// Not yet implemented in dimensions other than 3.
-pub fn parametric_surface_uniform<S: ParametricSurface>(_: &S, _: uint, _: uint) -> TriMesh<Scalar, Point, Vect> {
-    fail!("`parametric_surface_uniform` is not yet implemented for dimensions other than 3.")
-}
-
 /// Uniformly triangulates the parametric space.
 ///
 /// The triangulation step is chosen to guarantee that the maximum pointwise distance between the
 /// piecewise linear approximation and the parametric surface is bellow `error`.
 ///
 /// See: "Surface algorithms using bounds on derivatives", D. Filip, R. Magedson, R. Markot
-pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &S, error: Scalar) -> TriMesh<Scalar, Point, Vect> {
-    let mut ms: [Scalar, ..3] = [ na::zero(), na::zero(), na::zero() ];
+pub fn parametric_surface_uniform_with_distance_error<N, S>(s: &S, error: N) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar,
+          S: ParametricSurface<N, Pnt3<N>, Vec3<N>> {
+    let mut ms: [N, ..3] = [ na::zero(), na::zero(), na::zero() ];
 
     for (mi, &(i, j)) in [ (2u, 0u), (1, 1), (0, 2) ].iter().enumerate() {
-        let mut eval_dij    = |arg: &Vec2<Scalar>| -na::sqnorm(&s.at_uv_nk(arg.x, arg.y, i, j));
-        let mut eval_sq_dij = |arg: &Vec2<Scalar>| {
+        let mut eval_dij    = |arg: &Vec2<N>| -na::sqnorm(&s.at_uv_nk(arg.x, arg.y, i, j));
+        let mut eval_sq_dij = |arg: &Vec2<N>| {
             let du0v0 = s.at_uv_nk(arg.x, arg.y, i + 0, j + 0);
             let du1v0 = s.at_uv_nk(arg.x, arg.y, i + 1, j + 0);
             let du0v1 = s.at_uv_nk(arg.x, arg.y, i + 0, j + 1);
@@ -79,8 +72,8 @@ pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &
     let n;
     let m;
 
-    let _2: Scalar = na::cast(2.0f64);
-    let _8: Scalar = na::cast(8.0f64);
+    let _2: N = na::cast(2.0f64);
+    let _8: N = na::cast(8.0f64);
 
     if ms[0] > na::zero() {
         if ms[2] > na::zero() {
@@ -105,8 +98,8 @@ pub fn parametric_surface_uniform_with_distance_error<S: ParametricSurface>(s: &
         }
     }
 
-    let _1: Scalar = na::one();
+    let _1: N = na::one();
 
     // FIXME: round instead of `as`?
-    parametric_surface_uniform(s, n.ceil() as uint, m.ceil() as uint)
+    parametric_surface_uniform(s, n.ceil().to_uint().unwrap(), m.ceil().to_uint().unwrap())
 }

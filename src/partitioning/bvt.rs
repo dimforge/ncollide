@@ -2,12 +2,13 @@
 
 use std::num::Bounded;
 use test::stats::Stats;
-use na::{Translation, Indexable, FloatVecExt};
+use na::Translation;
 use na;
-use ray::{Ray, RayCast};
+use ray::{Ray, LocalRayCast};
 use partitioning::{BVTVisitor, BVTTVisitor};
 use bounding_volume::BoundingVolume;
 use math::{Scalar, Vect};
+
 
 /// A Boundig Volume Tree.
 #[deriving(Clone, Encodable, Decodable)]
@@ -97,7 +98,10 @@ impl<B, BV> BVT<B, BV> {
     }
 }
 
-impl<B, BV: Translation<Vect> + BoundingVolume + Clone> BVT<B, BV> {
+impl<N, V, B, BV> BVT<B, BV>
+    where N:  Scalar,
+          V:  Vect<N>,
+          BV: Translation<V> + BoundingVolume<N> + Clone {
     /// Creates a balanced `BVT`.
     pub fn new_balanced(leaves: Vec<(B, BV)>) -> BVT<B, BV> {
         BVT::new_with_partitioner(leaves, median_partitioner)
@@ -178,11 +182,13 @@ impl<B, BV> BVTNode<B, BV> {
     }
 }
 
-impl<B, BV: RayCast> BVT<B, BV> {
+impl<N, P, V, B, BV> BVT<B, BV>
+    where N: Scalar,
+          BV: LocalRayCast<N, P, V> {
     /// Computes the closest intersection between the objects stored on this tree and a given ray.
     pub fn cast_ray<'a, T>(&'a self,
-                           ray:     &Ray,
-                           cast_fn: &mut |&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
+                           ray:     &Ray<P, V>,
+                           cast_fn: &mut |&B, &Ray<P, V>| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
         match self.tree {
             None        => None,
             Some(ref n) => {
@@ -197,11 +203,13 @@ impl<B, BV: RayCast> BVT<B, BV> {
     }
 }
 
-impl<B, BV: RayCast> BVTNode<B, BV> {
+impl<N, P, V, B, BV> BVTNode<B, BV>
+    where N: Scalar,
+          BV: LocalRayCast<N, P, V> {
     fn cast_ray<'a, T>(&'a self,
-                       ray:         &Ray,
-                       upper_bound: Scalar,
-                       cast_fn:     &mut |&B, &Ray| -> Option<(Scalar, T)>) -> Option<(Scalar, T, &'a B)> {
+                       ray:         &Ray<P, V>,
+                       upper_bound: N,
+                       cast_fn:     &mut |&B, &Ray<P, V>| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
         match *self {
             Internal(_, ref left, ref right) => {
                 let left_toi  = left.bounding_volume().toi_with_ray(ray, true);
@@ -279,13 +287,15 @@ impl<B, BV: RayCast> BVTNode<B, BV> {
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVecExt<Scalar>>(
-                                     depth:  uint,
-                                     leaves: Vec<(B, BV)>,
-                                     center: &mut |&B, &BV| -> V)
-                                     -> (BV, BinaryPartition<B, BV>) {
+pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
+                                                    leaves: Vec<(B, BV)>,
+                                                    center: &mut |&B, &BV| -> V)
+                                                    -> (BV, BinaryPartition<B, BV>)
+    where N: Scalar,
+          V:  Vect<N>,
+          BV: BoundingVolume<N> + Clone{
     if leaves.len() == 0 {
-        fail!("Cannot build a tree without leaves.");
+        panic!("Cannot build a tree without leaves.");
     }
     else if leaves.len() == 1 {
         let (b, bv) = leaves.into_iter().next().unwrap();
@@ -299,10 +309,10 @@ pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
 
         for l in leaves.iter() {
             let c = (*center)(l.ref0(), l.ref1());
-            median.push(c.at(sep_axis) as f64);
+            median.push(c[sep_axis]);
         }
 
-        let median = na::cast(median.as_slice().median());
+        let median = median.as_slice().median();
 
         // build the partitions
         let mut right = Vec::new();
@@ -314,7 +324,7 @@ pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
         for (b, bv) in leaves.into_iter() {
             bounding_bounding_volume.merge(&bv);
 
-            let pos = (*center)(&b, &bv).at(sep_axis);
+            let pos = (*center)(&b, &bv)[sep_axis];
 
             if pos < median || (pos == median && insert_left) {
                 left.push((b, bv));
@@ -340,10 +350,12 @@ pub fn median_partitioner_with_centers<B, BV: BoundingVolume + Clone, V: FloatVe
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 #[allow(unnecessary_typecast)]
-pub fn median_partitioner<B, BV: Translation<Vect> + BoundingVolume + Clone>(
-                          depth:  uint,
-                          leaves: Vec<(B, BV)>)
-                          -> (BV, BinaryPartition<B, BV>) {
+pub fn median_partitioner<N, V, B, BV>(depth:  uint,
+                                       leaves: Vec<(B, BV)>)
+                                       -> (BV, BinaryPartition<B, BV>)
+    where N:  Scalar,
+          V:  Vect<N>,
+          BV: Translation<V> + BoundingVolume<N> + Clone {
     median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }
 

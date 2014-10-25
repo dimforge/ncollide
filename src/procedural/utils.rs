@@ -5,13 +5,14 @@ use std::collections::HashMap;
 use std::collections::hashmap::{Occupied, Vacant};
 use std::mem;
 use na;
-use na::{Pnt3, Vec3, Dim, Indexable, FloatVec, Cross, Orig, AnyPnt};
+use na::{Pnt3, Vec3, Dim, Cross, Orig};
 use utils::{HashablePartialEq, AsBytes};
+use math::{Scalar, Point, Vect};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[inline]
-pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Pnt3<N>>) {
+pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Pnt3<N>>) {
     let mut curr_theta: N = na::zero();
 
     for _ in range(0, nsubdiv) {
@@ -23,11 +24,9 @@ pub fn push_circle<N: FloatMath>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: 
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N: FloatMath, P: Dim + Indexable<uint, N> + Orig>(
-                   radius:  N,
-                   nsubdiv: u32,
-                   dtheta:  N,
-                   out:     &mut Vec<P>) {
+pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
+    where N: Scalar,
+          P: Dim + Orig + Index<uint, N> + IndexMut<uint, N> {
     assert!(na::dim::<P>() >= 2);
 
     let mut curr_theta: N = na::zero();
@@ -35,8 +34,8 @@ pub fn push_xy_arc<N: FloatMath, P: Dim + Indexable<uint, N> + Orig>(
     for _ in range(0, nsubdiv) {
         let mut pt = na::orig::<P>();
 
-        pt.set(0, curr_theta.cos() * radius);
-        pt.set(1, curr_theta.sin() * radius);
+        pt[0] = curr_theta.cos() * radius;
+        pt[1] = curr_theta.sin() * radius;
         out.push(pt);
 
         curr_theta = curr_theta + dtheta;
@@ -202,12 +201,10 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
 
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<N: Float,
-                       P: AnyPnt<N, V>,
-                       V: FloatVec<N> + Cross<V> + Clone>(
-                       coordinates: &[P],
-                       faces:       &[Vec3<u32>],
-                       normals:     &mut Vec<V>) {
+pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Vec3<u32>], normals: &mut Vec<V>)
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> + Cross<V> {
     let mut divisor: Vec<N> = Vec::from_elem(coordinates.len(), na::zero());
 
     // Shrink the output buffer if it is too big.

@@ -1,10 +1,15 @@
 use implicit::Implicit;
 use geom::Reflection;
-use math::{Point, Vect};
+use math::{Scalar, Vect};
 
-impl<'a, _M, G: Implicit<Point, Vect, _M>> Implicit<Point, Vect, _M> for Reflection<'a, G> {
+
+impl<'a, N, P, V, M, G> Implicit<P, V, M> for Reflection<'a, G>
+    where N: Scalar,
+          P: Neg<P>,
+          V: Vect<N>,
+          G: Implicit<P, V, M> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
-        -self.geom().support_point(m, &-dir)
+    fn support_point(&self, m: &M, dir: &V) -> P {
+        -self.geom().support_point(m, &-*dir)
     }
 }

@@ -2,6 +2,7 @@ use bounding_volume::{AABB, HasAABB};
 use bounding_volume::aabb_utils;
 use geom::BezierCurve;
 use math::Matrix;
+use math::{Scalar, Point, Vect};
 
 impl HasAABB for BezierCurve {
     #[inline]

@@ -1,59 +1,60 @@
 //! Definition of the triangle geometry.
 
+use na::Dim;
 use na;
-use geom::mesh::MeshElement;
-use math::Point;
+use geom::MeshElement;
+
 
 /// A triangle geometry.
-#[deriving(Encodable, Decodable, Clone)]
-pub struct Triangle {
-    a:      Point,
-    b:      Point,
-    c:      Point
+#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+pub struct Triangle<P> {
+    a: P,
+    b: P,
+    c: P
 }
 
-impl Triangle {
+impl<P: Dim> Triangle<P> {
     /// Creates a triangle from three points.
     #[inline]
-    pub fn new(a: Point, b: Point, c: Point) -> Triangle {
-        assert!(na::dim::<Point>() > 1);
+    pub fn new(a: P, b: P, c: P) -> Triangle<P> {
+        assert!(na::dim::<P>() > 1);
 
         Triangle {
-            a:      a,
-            b:      b,
-            c:      c
+            a: a,
+            b: b,
+            c: c
         }
     }
 }
 
-impl Triangle {
+impl<P> Triangle<P> {
     /// The fist point of this triangle.
     #[inline]
-    pub fn a<'a>(&'a self) -> &'a Point {
+    pub fn a(&self) -> &P {
         &self.a
     }
 
     /// The second point of this triangle.
     #[inline]
-    pub fn b<'a>(&'a self) -> &'a Point {
+    pub fn b(&self) -> &P {
         &self.b
     }
 
     /// The third point of this triangle.
     #[inline]
-    pub fn c<'a>(&'a self) -> &'a Point {
+    pub fn c(&self) -> &P {
         &self.c
     }
 }
 
-impl MeshElement for Triangle {
+impl<P: Clone + Dim> MeshElement<P> for Triangle<P> {
     #[inline]
-    fn nvertices(_: Option<Triangle>) -> uint {
+    fn nvertices(_: Option<Triangle<P>>) -> uint {
         3
     }
 
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[Point], is: &[uint]) -> Triangle {
+    fn new_with_vertices_and_indices(vs: &[P], is: &[uint]) -> Triangle<P> {
         assert!(is.len() == 3);
 
         Triangle::new(vs[is[0]].clone(), vs[is[1]].clone(), vs[is[2]].clone())

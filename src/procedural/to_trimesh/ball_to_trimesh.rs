@@ -1,23 +1,18 @@
+use na::{Pnt3, Vec3};
 use na;
-use geom::Ball;
+use geom::{Ball3, Ball3d};
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
-use math::{Scalar, Point, Vect};
 
-#[cfg(feature = "3d")]
-impl ToTriMesh<(u32, u32)> for Ball {
-    fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<Scalar, Point, Vect> {
-        procedural::sphere(&(self.radius() * na::cast(2.0f64)), ntheta_subdiv, nphi_subdiv, true)
+macro_rules! impl_to_trimesh_ball3(
+    ($t: ty, $n: ty) => {
+        impl ToTriMesh<$n, Pnt3<$n>, Vec3<$n>, (u32, u32)> for $t {
+            fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<$n, Pnt3<$n>, Vec3<$n>> {
+                procedural::sphere(self.radius() * na::cast(2.0f64), ntheta_subdiv, nphi_subdiv, true)
+            }
+        }
     }
-}
+)
 
-/*
-impl ToTriMesh<uint> for Ball
-{
-    fn to_trimesh(&self, ntheta_subdiv: uint) -> TriMesh<Scalar, Vect>
-    {
-        // XXX: have something that generate a circle as a triangle mesh.
-        // (NOTE: having this would simplify the cylinder generator too!
-    }
-}
-*/
+impl_to_trimesh_ball3!(Ball3, f32)
+impl_to_trimesh_ball3!(Ball3d, f64)

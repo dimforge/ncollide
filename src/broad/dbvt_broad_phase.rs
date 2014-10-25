@@ -2,43 +2,45 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use na::Translation;
 use na;
-use broad::{BroadPhase, InterferencesBroadPhase, BoundingVolumeBroadPhase, RayCastBroadPhase};
-use partitioning::{DBVT, DBVTLeaf};
+use broad::BroadPhase;
 use utils::data::hash::UintTWHash;
 use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::has_uid::HasUid;
 use broad::Dispatcher;
-use bounding_volume::{HasBoundingVolume, LooseBoundingVolume};
-use ray::{Ray, RayCast};
-use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use math::{Scalar, Vect};
+use bounding_volume::{HasBoundingVolume, BoundingVolume};
+use ray::{Ray, LocalRayCast};
+use partitioning::{DBVT, DBVTLeaf, BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use math::{Scalar, Point, Vect};
+
 
 /// Broad phase based on a Dynamic Bounding Volume Tree.
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<B, BV, D, DV> {
-    tree:        DBVT<B, BV>,
-    stree:       DBVT<B, BV>,
-    active2bv:   HashMap<uint, Rc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    inactive2bv: HashMap<uint, Rc<RefCell<DBVTLeaf<B, BV>>>, UintTWHash>,
-    pairs:       HashMap<Pair<Rc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>, // pair manager
-    spairs:      HashMap<Pair<Rc<RefCell<DBVTLeaf<B, BV>>>>, DV, PairTWHash>,
+pub struct DBVTBroadPhase<N, P, B, BV, D, DV> {
+    tree:        DBVT<P, B, BV>,
+    stree:       DBVT<P, B, BV>,
+    active2bv:   HashMap<uint, Rc<RefCell<DBVTLeaf<P, B, BV>>>, UintTWHash>,
+    inactive2bv: HashMap<uint, Rc<RefCell<DBVTLeaf<P, B, BV>>>, UintTWHash>,
+    pairs:       HashMap<Pair<Rc<RefCell<DBVTLeaf<P, B, BV>>>>, DV, PairTWHash>, // pair manager
+    spairs:      HashMap<Pair<Rc<RefCell<DBVTLeaf<P, B, BV>>>>, DV, PairTWHash>,
     dispatcher:  D,
-    margin:      Scalar,
-    collector:   Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>,
-    to_update:   Vec<Rc<RefCell<DBVTLeaf<B, BV>>>>,
+    margin:      N,
+    collector:   Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>,
+    to_update:   Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>,
     update_off:  uint // incremental pairs removal index
 }
 
-impl<B:  'static + HasBoundingVolume<BV> + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-DBVTBroadPhase<B, BV, D, DV> {
+impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          B:  'static + HasBoundingVolume<BV> + Clone,
+          BV: 'static + BoundingVolume<N> + Translation<V> + Clone,
+          D:  Dispatcher<B, B, DV> {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(dispatcher: D, margin: Scalar) -> DBVTBroadPhase<B, BV, D, DV> {
+    pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, P, B, BV, D, DV> {
         DBVTBroadPhase {
             tree:        DBVT::new(),
             stree:       DBVT::new(),
@@ -129,11 +131,13 @@ DBVTBroadPhase<B, BV, D, DV> {
     }
 }
 
-impl<B:  'static + HasBoundingVolume<BV> + Clone + HasUid,
-     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
+impl<N, P, V, B, BV, D, DV> BroadPhase<P, V, B, BV, DV> for DBVTBroadPhase<N, P, B, BV, D, DV>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
+          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + Clone,
+          D:  Dispatcher<B, B, DV> {
     #[inline]
     fn add(&mut self, b: B) {
         let id   = b.uid();
@@ -240,13 +244,7 @@ BroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
 
         self.update_updatable();
     }
-}
 
-impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
     #[inline(always)]
     fn for_each_pair(&self, f: |&B, &B, &DV| -> ()) {
         for p in self.pairs.elements().iter() {
@@ -302,7 +300,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
 
                             f(obj1, obj2, p)
                         },
-                        None => fail!("Internal error: found a new collision during the activation.")
+                        None => panic!("Internal error: found a new collision during the activation.")
                     }
                 }
             }
@@ -340,7 +338,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
                     // the intereference should be registered on the pairs already
                     match self.pairs.get_and_remove(&Pair::new(leaf.clone(), i.clone())) {
                         Some(dv) => { self.spairs.insert(dv.key, dv.value); },
-                        None     => fail!("Internal error: found a new collision during the deactivation.")
+                        None     => panic!("Internal error: found a new collision during the deactivation.")
                     }
                 }
             }
@@ -350,13 +348,7 @@ InterferencesBroadPhase<B, DV> for DBVTBroadPhase<B, BV, D, DV> {
         self.stree.insert(leaf);
         self.collector.clear();
     }
-}
 
-impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + Translation<Vect> + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
     fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut Vec<B>) {
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut self.collector);
@@ -371,14 +363,8 @@ BoundingVolumeBroadPhase<B, BV> for DBVTBroadPhase<B, BV, D, DV> {
 
         self.collector.clear()
     }
-}
 
-impl<B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-     BV: 'static + LooseBoundingVolume + RayCast + Translation<Vect> + Clone,
-     D:  Dispatcher<B, B, DV>,
-     DV>
-RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
-    fn interferences_with_ray(&mut self, ray: &Ray, out: &mut Vec<B>) {
+    fn interferences_with_ray(&mut self, ray: &Ray<P, V>, out: &mut Vec<B>) {
         {
             let mut visitor = RayInterferencesCollector::new(ray, &mut self.collector);
 
@@ -392,137 +378,4 @@ RayCastBroadPhase<B> for DBVTBroadPhase<B, BV, D, DV> {
 
         self.collector.clear()
     }
-}
-
-#[cfg(all(test, dim3, f64))]
-mod test {
-    use super::DBVTBroadPhase;
-    use std::rc::Rc;
-    use std::cell::RefCell;
-    use std::vec::Vec;
-    use na::{Vec3, Iso3};
-    use na;
-    use geom::Ball;
-    use bounding_volume::WithAABB;
-    use broad::{NoIdDispatcher, BroadPhase, InterferencesBroadPhase};
-
-    // #[test]
-    // fn test_dbvt_empty() {
-    //     type Shape = Rc<WithAABB<Ball>>;
-    //     let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-    //     let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-    //     let ball       = Ball::new(0.3);
-
-    //     for i in range(-10, 10) {
-    //         for j in range(-10, 10) {
-    //             let t = Vec3::new(i as f64 * 30.0, j as f64 * 30.0, 0.0);
-    //             bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-    //         }
-    //     }
-
-    //     bf.update();
-
-    //     assert_eq!(bf.num_interferences(), 0)
-    // }
-
-    // #[test]
-    // fn test_dbvt_nbh_collide() {
-    //     type Shape = Rc<WithAABB<Ball>>;
-    //     let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-    //     let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-    //     let ball       = Ball::new(0.3);
-
-    //     // create a grid
-    //     for i in range(-10, 10) {
-    //         for j in range(-10, 10) {
-    //             let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-    //             bf.add(Rc::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-    //         }
-    //     }
-
-    //     bf.update();
-
-    //     assert_eq!(
-    //         bf.num_interferences(),
-    //         (18 * 18 * 8 + // internal rectangles have 8 neighbors
-    //          18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
-    //          4 * 3)        // corners have 3 neighbors
-    //         / 2            // remove all duplicates
-    //     )
-    // }
-
-    #[test]
-    fn test_dbvt_nbh_move_collide() {
-        type Shape = Rc<RefCell<WithAABB<Ball>>>;
-        let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-        let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-        let ball       = Ball::new(0.3);
-
-        let mut to_move = Vec::new();
-
-        // create a grid
-        for i in range(-10, 10) {
-            for j in range(-10, 10) {
-                let t = Vec3::new(i as f64 * 0.9, j as f64 * 0.9, 0.0);
-                let to_add = Rc::new(RefCell::new(WithAABB(Iso3::new(t, na::zero()), ball)));
-                bf.add(to_add.clone());
-                to_move.push(to_add);
-            }
-        }
-
-        bf.update();
-
-        // test deactivations followed by activations: this should not changes anything
-        for e in to_move.iter_mut() {
-            bf.deactivate(e);
-        }
-
-        // nothing on pairs …
-        assert_eq!(bf.num_interferences(), 0);
-        // … because it has been transfered to spairs. NOTE: `spairs` is used for test only here,
-        // there is no explicit way for the user to access it.
-
-        for e in to_move.iter_mut() {
-            bf.activate(e, |_, _, _| { });
-        }
-
-        // test one deactivation followed by one activation: this should not change anything
-        for e in to_move.iter_mut() {
-            bf.deactivate(e);
-            bf.activate(e, |_, _, _| { });
-        }
-
-        for e in to_move.iter_mut() {
-            let mut wa = e.borrow_mut();
-            let m      = wa.m().clone();
-            let g      = wa.g().clone();
-            *wa        = WithAABB(na::append_translation(&m, &Vec3::new(10.0, 10.0, 10.0)), g)
-        }
-
-        bf.update();
-
-        assert_eq!(
-            bf.num_interferences(),
-            (18 * 18 * 8 + // internal rectangles have 8 neighbors
-             18 * 4 * 5  + // border (excluding corners) rectangles have 5 neighbors
-             4 * 3)        // corners have 3 neighbors
-             / 2           // remove all duplicates
-        )
-    }
-
-    // #[test]
-    // fn test_dbvt_quadratic_collide() {
-    //     type Shape = Rc<WithAABB<Ball>>;
-    //     let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher;
-    //     let mut bf     = DBVTBroadPhase::new(dispatcher, 0.2);
-    //     let ball       = Ball::new(0.3);
-
-    //     400.times(|| {
-    //         bf.add(Rc::new(WithAABB(Iso3::new(na::zero(), na::zero()), ball)))
-    //     });
-
-    //     bf.update();
-
-    //     assert_eq!(bf.num_interferences(), (399 * (399 + 1)) / 2)
-    // }
 }

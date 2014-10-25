@@ -1,100 +1,123 @@
-use std::num::Float;
-use na::Indexable;
+use std::num::Zero;
+use na::Orig;
+use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;
-use geom::Cone;
 use volumetric::Volumetric;
-use math::{Scalar, Point, AngularInertia};
+use geom::{Cone2, Cone2d, Cone3, Cone3d};
+use math::Scalar;
 
-/// Computes the volume of a cone.
-#[cfg(feature = "2d")]
+
+
+/// The volume of a cone.
 #[inline]
-pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
-    // same as a isosceles triangle
-    *radius * *half_height * na::cast(2.0f64)
+pub fn cone_volume<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
+    assert!(dim == 2 || dim == 3);
+
+    match dim {
+        2 => {
+            radius * half_height * na::cast(2.0f64)
+        }
+        3 => {
+            radius * radius * Float::pi() * half_height * na::cast(2.0f64 / 3.0)
+        }
+        _ => unreachable!()
+    }
 }
 
-/// Computes the volume of a cone.
-#[cfg(feature = "3d")]
+/// The surface of a cone.
 #[inline]
-pub fn cone_volume(half_height: &Scalar, radius: &Scalar) -> Scalar {
-    *radius * *radius * Float::pi() * *half_height * na::cast(2.0f64 / 3.0)
+pub fn cone_surface<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
+    assert!(dim == 2 || dim == 3);
+
+    match dim {
+        2 => {
+            let height = half_height * na::cast(2.0f64);
+            let side   = (height * height + radius * radius).sqrt();
+
+            radius * na::cast(2.0f64) + side
+        }
+        3 => {
+            let _pi    = Float::pi();
+            let height = half_height + half_height;
+            let side   = (height * height + radius * radius).sqrt();
+
+            radius * radius *_pi + side * radius * _pi
+        }
+        _ => unreachable!()
+    }
 }
 
-/// Not yet implemented in 4d.
-#[cfg(feature = "4d")]
+/// The center of mass of a cone.
 #[inline]
-pub fn cone_volume(_: &Scalar, _: &Scalar) -> Scalar {
-    fail!("Not yet impelmented in 4d.")
+pub fn cone_center_of_mass<N, P>(half_height: N) -> P
+    where N: Scalar,
+          P: Orig + IndexMut<uint, N> {
+    let mut com = na::orig::<P>();
+    com[1] = -half_height / na::cast(2.0f64);
+
+    com
 }
 
-#[cfg(feature = "2d")]
-impl Volumetric for Cone {
-    fn surface(&self) -> Scalar {
-        let height = self.half_height() * na::cast(2.0f64);
-        let side   = (height * height + self.radius() * self.radius()).sqrt();
+/// The unit angular inertia of a cone.
+#[inline]
+pub fn cone_unit_angular_inertia<N, I>(dim: uint, half_height: N, radius: N) -> I
+    where N: Scalar,
+          I: Zero + IndexMut<(uint, uint), N> {
+    assert!(dim == 2 || dim == 3);
 
-        self.radius() * na::cast(2.0f64) + side
-    }
+    match dim {
+        2 => {
+            // FIXME: not sure about that…
+            let mut res = na::zero::<I>();
 
-    fn volume(&self) -> Scalar {
-        cone_volume(&self.half_height(), &self.radius())
-    }
+            res[(0, 0)] = radius * half_height * half_height * half_height / na::cast(3.0f64);
 
-    fn center_of_mass(&self) -> Point {
-        let mut com: Point = na::orig();
-        com.set(1, -self.half_height() / na::cast(2.0f64));
+            res
+        }
+        3 => {
+            let sq_radius = radius * radius;
+            let sq_height = half_height * half_height *
+                na::cast(4.0f64);
+            let off_principal = sq_radius * na::cast(3.0f64 / 20.0) +
+                sq_height * na::cast(3.0f64 / 5.0);
 
-        com
-    }
+            let principal = sq_radius * na::cast(3.0f64 / 10.0);
 
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        // FIXME: not sure about that…
-        let mut res: AngularInertia = na::zero();
+            let mut res = na::zero::<I>();
 
-        res.set((0, 0),
-                self.radius() * self.half_height() * self.half_height() * self.half_height()
-                / na::cast(3.0f64));
+            res[(0, 0)] = off_principal.clone();
+            res[(1, 1)] = principal;
+            res[(2, 2)] = off_principal;
 
-        res
-    }
-}
-
-#[cfg(feature = "3d")]
-impl Volumetric for Cone {
-    fn surface(&self) -> Scalar {
-        let _pi    = Float::pi();
-        let height = self.half_height() + self.half_height();
-        let side   = (height * height + self.radius() * self.radius()).sqrt();
-
-        self.radius() * self.radius() *_pi + side * self.radius() * _pi
-    }
-
-    fn volume(&self) -> Scalar {
-        cone_volume(&self.half_height(), &self.radius())
-    }
-
-    fn center_of_mass(&self) -> Point {
-        let mut com: Point = na::orig();
-        com.set(1, -self.half_height() / na::cast(2.0f64));
-
-        com
-    }
-
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let sq_radius = self.radius() * self.radius();
-        let sq_height = self.half_height() * self.half_height() *
-                          na::cast(4.0f64);
-        let off_principal = sq_radius * na::cast(3.0f64 / 20.0) +
-                            sq_height * na::cast(3.0f64 / 5.0);
-
-        let principal = sq_radius * na::cast(3.0f64 / 10.0);
-
-        let mut res: AngularInertia = na::zero();
-
-        res.set((0, 0), off_principal.clone());
-        res.set((1, 1), principal);
-        res.set((2, 2), off_principal);
-
-        res
+            res
+        }
+        _ => unreachable!()
     }
 }
+
+macro_rules! impl_volumetric_cone(
+    ($t: ident, $dim: expr, $p: ident, $i: ident, $n: ident) => (
+        impl Volumetric<$n, $p<$n>, $i<$n>> for $t {
+            fn surface(&self) -> $n {
+                cone_surface($dim, self.half_height(), self.radius())
+            }
+
+            fn volume(&self) -> $n {
+                cone_volume($dim, self.half_height(), self.radius())
+            }
+
+            fn center_of_mass(&self) -> $p<$n> {
+                cone_center_of_mass(self.half_height())
+            }
+
+            fn unit_angular_inertia(&self) -> $i<$n> {
+                cone_unit_angular_inertia($dim, self.half_height(), self.radius())
+            }
+        }
+    )
+)
+
+impl_volumetric_cone!(Cone2, 2, Pnt2, Mat1, f32)
+impl_volumetric_cone!(Cone2d, 2, Pnt2, Mat1, f64)
+impl_volumetric_cone!(Cone3, 3, Pnt3, Mat3, f32)
+impl_volumetric_cone!(Cone3d, 3, Pnt3, Mat3, f64)

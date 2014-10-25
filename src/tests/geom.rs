@@ -3,6 +3,7 @@ use na::Vec3;
 use na;
 use geom::{Ball, MinkowskiSum};
 use implicit::Implicit;
+use math::{Scalar, Point, Vect};
 
 #[test]
 fn test_ball_support_function() {

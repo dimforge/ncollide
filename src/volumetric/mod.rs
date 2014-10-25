@@ -1,29 +1,27 @@
 //! Volume and inertia tensor computation.
 
+#[doc(inline)]
 pub use volumetric::volumetric::{Volumetric, InertiaTensor};
 
-#[cfg(not(feature = "4d"))]
-pub use volumetric::volumetric_ball::ball_volume;
-#[cfg(not(feature = "4d"))]
-pub use volumetric::volumetric_cuboid::cuboid_volume;
-#[cfg(not(feature = "4d"))]
-pub use volumetric::volumetric_cone::cone_volume;
-#[cfg(not(feature = "4d"))]
-pub use volumetric::volumetric_capsule::capsule_volume;
-#[cfg(not(feature = "4d"))]
-pub use volumetric::volumetric_cylinder::cylinder_volume;
+pub use volumetric::volumetric_ball::{ball_volume, ball_surface, ball_center_of_mass,
+                                      ball_unit_angular_inertia};
+pub use volumetric::volumetric_cylinder::{cylinder_volume, cylinder_surface,
+                                          cylinder_center_of_mass, cylinder_unit_angular_inertia};
+pub use volumetric::volumetric_cone::{cone_volume, cone_surface,
+                                      cone_center_of_mass, cone_unit_angular_inertia};
+pub use volumetric::volumetric_cuboid::{cuboid_volume, cuboid_surface,
+                                        cuboid_center_of_mass, cuboid_unit_angular_inertia};
+pub use volumetric::volumetric_convex::{convex_mesh_surface, convex_mesh_volume_and_center_of_mass,
+                                        convex_mesh_mass_properties, convex_hull_surface,
+                                        convex_hull_volume, convex_hull_center_of_mass,
+                                        convex_hull_unit_angular_inertia};
 
+#[doc(hidden)]
 pub mod volumetric;
-#[cfg(not(feature = "4d"))]
+
 mod volumetric_ball;
-#[cfg(not(feature = "4d"))]
 mod volumetric_cylinder;
-#[cfg(not(feature = "4d"))]
 mod volumetric_cuboid;
-#[cfg(not(feature = "4d"))]
 mod volumetric_cone;
-#[cfg(not(feature = "4d"))]
-mod volumetric_capsule;
 mod volumetric_compound;
-#[cfg(not(feature = "4d"))]
 mod volumetric_convex;

@@ -2,11 +2,16 @@ use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingSphere};
 use bounding_volume;
 use geom::Triangle;
-use math::Matrix;
+use math::{Scalar, Point, Vect};
 
-impl HasBoundingSphere for Triangle {
+
+impl<N, P, V, M> HasBoundingSphere<N, P, M> for Triangle<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> {
     #[inline]
-    fn bounding_sphere(&self, m: &Matrix) -> BoundingSphere {
+    fn bounding_sphere(&self, m: &M) -> BoundingSphere<N, P> {
         let pts = [ self.a().clone(), self.b().clone(), self.c().clone() ];
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts.as_slice());
 

@@ -1,18 +1,22 @@
 use na;
-use na::{Indexable, Rotate, Transform};
+use na::{Rotate, Transform};
 use implicit::{Implicit, PreferedSamplingDirections};
 use geom::Capsule;
-use math::{Point, Vect};
+use math::{Scalar, Point, Vect};
 
-impl<_M: Transform<Point> + Rotate<Vect>>
-Implicit<Point, Vect, _M> for Capsule {
+
+impl<N, P, V, M> Implicit<P, V, M> for Capsule<N>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N>,
+          M: Transform<P> + Rotate<V> {
     #[inline]
-    fn support_point(&self, m: &_M, dir: &Vect) -> Point {
+    fn support_point(&self, m: &M, dir: &V) -> P {
         let local_dir = m.inv_rotate(dir);
 
-        let mut pres: Point = na::orig();
+        let mut pres = na::orig::<P>();
 
-        if local_dir.at(1).is_negative() {
+        if local_dir[1].is_negative() {
             pres[1] = -self.half_height()
         }
         else {
@@ -23,9 +27,8 @@ Implicit<Point, Vect, _M> for Capsule {
     }
 }
 
-impl<Vect, _M>
-PreferedSamplingDirections<Vect, _M> for Capsule {
+impl<N, V, M> PreferedSamplingDirections<V, M> for Capsule<N> {
     #[inline(always)]
-    fn sample(&self, _: &_M, _: |Vect| -> ()) {
+    fn sample(&self, _: &M, _: |V| -> ()) {
     }
 }

@@ -1,15 +1,16 @@
 use na;
-use na::{Cast, Vec3, Pnt3};
-use na::overload::Pnt3MulRhs;
+use na::{Vec3, Pnt3};
 use procedural::{TriMesh, UnifiedIndexBuffer};
 use procedural::{sphere, utils};
+use math::Scalar;
 
 /// Generates a capsule.
-pub fn capsule<N: FloatMath + Cast<f64> + Pnt3MulRhs<N, Pnt3<N>>>(caps_diameter:   &N,
-                                                                  cylinder_height: &N,
-                                                                  ntheta_subdiv:   u32,
-                                                                  nphi_subdiv:     u32)
-                                                                  -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+pub fn capsule<N>(caps_diameter:   &N,
+                  cylinder_height: &N,
+                  ntheta_subdiv:   u32,
+                  nphi_subdiv:     u32)
+                  -> TriMesh<N, Pnt3<N>, Vec3<N>>
+    where N: Scalar {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh { coords, normals, indices, .. } = top.clone();
     let mut bottom_coords  = coords;

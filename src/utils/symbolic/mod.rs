@@ -1,6 +1,8 @@
 //! Basic symbolic computation system.
 
+#[doc(inline)]
 pub use utils::symbolic::univariate_fn::UnivariateFn;
+#[doc(inline)]
 pub use utils::symbolic::bivariate_fn::BivariateFn;
 pub use utils::symbolic::deriv::{Deriv, deriv, DerivU, deriv_u, DerivV, deriv_v};
 pub use utils::symbolic::comp::{SymComp, comp};
@@ -22,8 +24,9 @@ pub use utils::symbolic::poly::{Poly1, t1,
                                 Poly6, t6};
 
 mod ops;
-mod univariate_fn;
-#[allow(missing_doc)]
+#[doc(hidden)]
+pub mod univariate_fn;
+#[doc(hidden)]
 pub mod bivariate_fn;
 mod t;
 mod u;

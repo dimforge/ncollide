@@ -1,23 +1,23 @@
-use std::num::{Zero, One};
-use std::cmp;
 use std::rand::Rand;
 use std::rand;
-use na::{Inv, PartialOrd, Mat, Outer, Cast, Dot, RMul, ScalarMul, Indexable, FloatVec};
+use na::{Inv, POrd, SquareMat, Outer, Dot, RMul};
 use na;
+use math::{Scalar, Vect};
 
 
 // FIXME: implement a proper metaheuristic.
 /// Maximizes a real function using the Newton method.
-pub fn maximize_with_newton<N: Float,
-                            V: Add<V, V> + Sub<V, V> + Mul<V, V> + Clone + Rand + PartialOrd,
-                            M: Inv + Mul<V, V>>(
+pub fn maximize_with_newton<N, V, M>(
                             niter:       uint,
                             num_guesses: uint,
                             domain_min:  &V,
                             domain_max:  &V,
                             f:  &mut |&V| -> N,
                             df: &mut |&V| -> (V, M))
-                            -> (V, N) {
+                            -> (V, N)
+    where N: Scalar,
+          V: Add<V, V> + Sub<V, V> + Mul<V, V> + Clone + Rand + POrd,
+          M: Inv + Mul<V, V> {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
@@ -42,8 +42,9 @@ pub fn maximize_with_newton<N: Float,
 }
 
 /// Finds the root of a function using the Newton method.
-pub fn newton<V: Sub<V, V>, M: Inv + Mul<V, V>>(
-              niter: uint, guess: V, f: &mut |&V| -> (V, M)) -> (V, bool) {
+pub fn newton<V, M>(niter: uint, guess: V, f: &mut |&V| -> (V, M)) -> (V, bool)
+    where V: Sub<V, V>,
+          M: Inv + Mul<V, V> {
     let mut curr = guess;
 
     for _ in range(0, niter) {
@@ -60,16 +61,17 @@ pub fn newton<V: Sub<V, V>, M: Inv + Mul<V, V>>(
 }
 
 /// Minimizes a function using the bfgs method.
-pub fn minimize_with_bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float + Rand,
-                          V: FloatVec<N> + Outer<M> + PartialOrd + Clone + Indexable<uint, N> + Rand,
-                          M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone>(
+pub fn minimize_with_bfgs<N, V, M>(
                           niter:       uint,
                           num_guesses: uint,
                           domain_min:  &V,
                           domain_max:  &V,
                           f:  &mut |&V| -> N,
                           df: &mut |&V| -> V)
-                          -> (V, N) {
+                          -> (V, N)
+    where N: Scalar,
+          V: Vect<N> + Outer<M>,
+          M: SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
@@ -77,11 +79,11 @@ pub fn minimize_with_bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float + Rand,
 
     for _ in range(0, num_guesses) {
         let mut guess: V = rand::random();
-        let shape        = guess.shape();
+        let shape        = na::shape(&guess);
 
         for i in range(0u, shape) {
-            let inbound_guess = domain_min.at(i) + guess.at(i) * domain_width.at(i);
-            guess.set(i, inbound_guess);
+            let inbound_guess = domain_min[i] + guess[i] * domain_width[i];
+            guess[i] = inbound_guess;
         }
 
         let arg = bfgs(niter, &ss, guess, na::one(), f, df);
@@ -125,8 +127,9 @@ impl<N> BacktrackingLineSearch<N> {
     }
 }
 
-impl<N: Neg<N> + Sub<N, N> + Mul<N, N> + cmp::PartialOrd + Clone, V: Dot<N> + Add<V, V> + Mul<N, V>>
-LineSearch<N, V> for BacktrackingLineSearch<N> {
+impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
+    where N: Scalar,
+          V: Dot<N> + Add<V, V> + Mul<N, V> {
     fn step_size(&self, f: &mut |&V| -> N, df: &V, x: &V, dir: &V) -> N {
         let     t    = -self.c * na::dot(df, dir);
         let     fx   = (*f)(x);
@@ -145,17 +148,18 @@ LineSearch<N, V> for BacktrackingLineSearch<N> {
 }
 
 /// Minimizes a function using the quasi-newton BFGS method.
-pub fn bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float,
-            V: FloatVec<N> + Outer<M> + Clone,
-            M: Mat<V, V> + Mul<M, M> + Add<M, M> + Sub<M, M> + Inv + One + Clone,
-            SS: LineSearch<N, V>>(
+pub fn bfgs<N, V, M, SS>(
             niter:   uint,
             ss:      &SS,
             guess:   V,
             hessian: M,
             f:       &mut |&V| -> N,
             df:      &mut |&V| -> V)
-            -> V {
+            -> V
+    where N:  Scalar,
+          V:  Vect<N> + Outer<M>,
+          M:  SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone,
+          SS: LineSearch<N, V> {
     let mut x  = guess;
     let mut hx = hessian;
     let mut dx = na::zero();
@@ -181,7 +185,7 @@ pub fn bfgs<N: cmp::PartialOrd + Zero + Cast<f64> + Float,
         }
 
         let alpha = ss.step_size(f, &new_dx, &x, &search_dir);
-        let step  = search_dir.mul_s(&alpha);
+        let step  = search_dir * alpha;
 
         if alpha * alpha <= _eps {
             break;

@@ -4,20 +4,21 @@ use std::mem;
 use std::num::Bounded;
 use sync::Arc;
 use collections::TreeMap;
-use na::{Axpy, FloatPnt, FloatVec, Dim};
+use na::{Axpy, Dim};
 use na;
 use narrow::algorithm::simplex::Simplex;
-use math::Scalar;
+use math::{Scalar, Point, Vect};
+
 
 local_data_key!(KEY_RECURSION_TEMPLATE: Arc<Vec<RecursionTemplate>>)
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
-pub struct JohnsonSimplex<P, V> {
+pub struct JohnsonSimplex<N, P, V> {
     recursion_template: Arc<Vec<RecursionTemplate>>,
     points:             Vec<P>,
     exchange_points:    Vec<P>,
-    determinants:       Vec<Scalar>
+    determinants:       Vec<N>
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
@@ -91,7 +92,7 @@ impl RecursionTemplate {
         // initially push the whole simplex (will be removed at the end)
         pts.push(0);
 
-        offsets.push(max_num_points + 1); 
+        offsets.push(max_num_points + 1);
 
         // ... then remove one point each time
         for i in range(0u, dim + 1) {
@@ -189,9 +190,11 @@ impl RecursionTemplate {
     }
 }
 
-impl<P: Dim, V> JohnsonSimplex<P, V> {
+impl<N, P, V> JohnsonSimplex<N, P, V>
+    where N: Scalar,
+          P: Dim {
     /// Creates a new, empty, Johnson simplex.
-    pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<P, V> {
+    pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<N, P, V> {
         let _dim = na::dim::<P>();
 
         JohnsonSimplex {
@@ -203,7 +206,7 @@ impl<P: Dim, V> JohnsonSimplex<P, V> {
     }
 
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
-    pub fn new_w_tls() -> JohnsonSimplex<P, V> {
+    pub fn new_w_tls() -> JohnsonSimplex<N, P, V> {
 
         let recursion = KEY_RECURSION_TEMPLATE.get().map(|rec| rec.clone());
 
@@ -223,10 +226,13 @@ impl<P: Dim, V> JohnsonSimplex<P, V> {
     }
 }
 
-impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> JohnsonSimplex<P, V> {
+impl<N, P, V> JohnsonSimplex<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     fn do_project_origin(&mut self, reduce: bool) -> P {
         if self.points.is_empty() {
-            fail!("Cannot project the origin on an empty simplex.")
+            panic!("Cannot project the origin on an empty simplex.")
         }
 
         if self.points.len() == 1 {
@@ -260,7 +266,7 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Johnson
             // for each sub-simplex ...
             while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant: Scalar = na::zero();
+                    let mut determinant: N = na::zero();
                     let kpt = (*self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(curr + 1u))).clone();
                     let jpt = (*self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(curr))).clone();
 
@@ -327,7 +333,7 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Johnson
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_det: Scalar = na::zero();
+                    let mut total_det: N = na::zero();
                     let mut proj: P           = na::orig();
 
                     unsafe {
@@ -343,7 +349,7 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Johnson
                         }
 
                         if reduce {
-                            // we need to reduce the simplex 
+                            // we need to reduce the simplex
                             for i in range(0u, curr_num_pts) {
                                 let id = curr - (i + 1) * curr_num_pts;
                                 self.exchange_points.push(
@@ -369,7 +375,10 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Johnson
     }
 }
 
-impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Simplex<P> for JohnsonSimplex<P, V> {
+impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     #[inline]
     fn reset(&mut self, pt: P) {
         self.points.clear();
@@ -382,7 +391,7 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Simplex
     }
 
     #[inline]
-    fn max_sq_len(&self) -> Scalar {
+    fn max_sq_len(&self) -> N {
         let mut max_sq_len = na::zero();
 
         for p in self.points.iter() {
@@ -430,66 +439,66 @@ impl<P: Clone + FloatPnt<Scalar, V> + Axpy<Scalar>, V: FloatVec<Scalar>> Simplex
 //         let mut res  = ~"RecursionTemplate { ";
 //         let mut curr = self.num_leaves;
 //         let mut dim  = 1;
-// 
+//
 //         res = res + "num_determinants: " + self.num_determinants.to_str();
-// 
+//
 //         let mut recursion_offsets_skip_1 = self.offsets.iter();
 //         let     _                        = recursion_offsets_skip_1.next(); // Skip the two first entries
-// 
+//
 //         for &off in recursion_offsets_skip_1 {
 //             while curr != off {
 //                 res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
-// 
+//
 //                 for i in range(0u, dim) {
 //                     res = res + self.permutation_list[i + curr].to_str();
 //                     if i != dim - 1 {
 //                         res = res + " ";
 //                     }
 //                 }
-// 
+//
 //                 res = res + " - ";
-// 
+//
 //                 for i in range(1u, dim) {
 //                     res = res + self.sub_determinants[i + curr].to_str();
 //                     if i != dim - 1 {
 //                         res = res + " ";
 //                     }
 //                 }
-// 
+//
 //                 res  = res + ")";
 //                 curr = curr + dim;
 //             }
-// 
+//
 //             dim = dim + 1;
 //         }
-// 
+//
 //         res = res + " }\n";
-// 
+//
 //         res = res + "offsets: " + self.offsets.to_str();
-// 
+//
 //         res
 //     }
 // }
 
-#[cfg(all(dim3, f64, test))]
+#[cfg(test)]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
     use narrow::algorithm::simplex::Simplex;
-    use na::Vec3;
+    use na::{Pnt3, Vec3};
     use test::Bencher;
 
     #[bench]
     fn bench_johnson_simplex(bh: &mut Bencher) {
-        let a = Vec3::new(-0.5, -0.5, -0.5);
-        let b = Vec3::new(0.0, 0.5, 0.0);
-        let c = Vec3::new(0.5, -0.5, -0.5);
-        let d = Vec3::new(0.0, -0.5, -0.5);
+        let a = Pnt3::new(-0.5f32, -0.5, -0.5);
+        let b = Pnt3::new(0.0, 0.5, 0.0);
+        let c = Pnt3::new(0.5, -0.5, -0.5);
+        let d = Pnt3::new(0.0, -0.5, -0.5);
         let recursion = RecursionTemplate::new(3);
 
         bh.iter(|| {
             let mut spl = JohnsonSimplex::new(recursion.clone());
 
-            for _ in range(0, 1000) {
+            for _ in range(0u, 1000) {
                 spl.reset(a);
 
                 spl.add_point(b);
@@ -503,16 +512,16 @@ mod test {
 
     #[bench]
     fn bench_johnson_simplex_tls(bh: &mut Bencher) {
-        let a = Vec3::new(-0.5, -0.5, -0.5);
-        let b = Vec3::new(0.0, 0.5, 0.0);
-        let c = Vec3::new(0.5, -0.5, -0.5);
-        let d = Vec3::new(0.0, -0.5, -0.5);
-        let _ = JohnsonSimplex::<Vec3<f64>>::new_w_tls();
+        let a = Pnt3::new(-0.5f32, -0.5, -0.5);
+        let b = Pnt3::new(0.0, 0.5, 0.0);
+        let c = Pnt3::new(0.5, -0.5, -0.5);
+        let d = Pnt3::new(0.0, -0.5, -0.5);
+        let _ = JohnsonSimplex::<f64, Pnt3<f64>, Vec3<f64>>::new_w_tls();
 
         bh.iter(|| {
             let mut spl = JohnsonSimplex::new_w_tls();
 
-            for _ in range(0, 1000) {
+            for _ in range(0u, 1000) {
                 spl.reset(a);
 
                 spl.add_point(b);

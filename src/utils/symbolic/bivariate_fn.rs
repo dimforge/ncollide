@@ -1,4 +1,4 @@
-use na::{DMat, Indexable};
+use na::DMat;
 
 /// Trait implemented by smooth bivariate functions.
 pub trait BivariateFn<N: Copy, O: Clone> {
@@ -36,7 +36,7 @@ pub trait BivariateFn<N: Copy, O: Clone> {
 
         for i in range(0, n) {
             for j in range(0, n) {
-                out.set((i, j), self.duv_nk(u, v, i, j))
+                out[(i, j)] = self.duv_nk(u, v, i, j)
             }
         }
     }

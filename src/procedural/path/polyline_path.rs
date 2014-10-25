@@ -1,6 +1,6 @@
-use na::{FloatPnt, FloatVec};
 use procedural::path::{PathSample, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
 use procedural::Polyline;
+use math::{Scalar, Point, Vect};
 
 /// A path with its sample points given by a polyline.
 ///
@@ -13,7 +13,7 @@ pub struct PolylinePath<'a, N, P: 'a, V: 'a> {
     polyline:               &'a Polyline<N, P, V>
 }
 
-impl<'a, N: Float, P: FloatPnt<N, V> + Clone, V: FloatVec<N>> PolylinePath<'a, N, P, V> {
+impl<'a, N: Scalar, P: Point<N, V>, V: Vect<N>> PolylinePath<'a, N, P, V> {
     /// Creates a new polyline-based path.
     pub fn new(polyline: &'a Polyline<N, P, V>) -> PolylinePath<'a, N, P, V> {
         assert!(polyline.coords.len() > 1, "The polyline must have at least two points.");
@@ -22,17 +22,19 @@ impl<'a, N: Float, P: FloatPnt<N, V> + Clone, V: FloatVec<N>> PolylinePath<'a, N
         let len     = dir.normalize();
 
         PolylinePath {
-            curr_len:               len,
-            curr_dir:               dir,
-            curr_pt_id:             0,
-            curr_pt:                polyline.coords[0].clone(),
-            polyline:               polyline
+            curr_len:   len,
+            curr_dir:   dir,
+            curr_pt_id: 0,
+            curr_pt:    polyline.coords[0].clone(),
+            polyline:   polyline
         }
     }
 }
 
-impl<'a, N: Float, P: FloatPnt<N, V> + Clone, V: FloatVec<N> + Clone> CurveSampler<N, P, V> for
-PolylinePath<'a, N, P, V> {
+impl<'a, N, P, V> CurveSampler<N, P, V> for PolylinePath<'a, N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     fn next(&mut self) -> PathSample<P, V> {
         let result =
             if self.curr_pt_id == 0 {

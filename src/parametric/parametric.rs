@@ -1,37 +1,35 @@
-use na::{DMat, Indexable};
-use math::{Scalar, Point, Vect};
-
-
 // FIXME: support more than rectangular surfaces?
+
+use math::Scalar;
 
 /// Trait implemented by differentiable parametric surfaces.
 ///
 /// The parametrization space is assumed to be `[0.0, 1.0] x [0.0, 1.0]`.
-pub trait ParametricSurface {
+pub trait ParametricSurface<N: Scalar, P, V> {
     // FIXME: rename those d0, du, etc. ? (just like in the `symbolic` module.
     /// Evaluates the parametric surface.
-    fn at(&self, u: Scalar, v: Scalar) -> Point;
+    fn at(&self, u: N, v: N) -> P;
 
     /// Evaluates the surface derivative wrt. `u`.
-    fn at_u(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at_u(&self, u: N, v: N) -> V;
 
     /// Evaluates the surface derivative wrt. `v`.
-    fn at_v(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at_v(&self, u: N, v: N) -> V;
 
     /// Evaluates the surface second derivative wrt. `u`.
-    fn at_uu(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at_uu(&self, u: N, v: N) -> V;
 
     /// Evaluates the surface second derivative wrt. `v`.
-    fn at_vv(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at_vv(&self, u: N, v: N) -> V;
 
     /// Evaluates the surface second derivative wrt. `u` and `v`.
-    fn at_uv(&self, u: Scalar, v: Scalar) -> Vect;
+    fn at_uv(&self, u: N, v: N) -> V;
 
     /// Evaluates the parametric surface and its first derivatives.
     ///
     /// Returns (S(u, v), dS / du, dS / dv)
     #[inline]
-    fn at_u_v(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect) {
+    fn at_u_v(&self, u: N, v: N) -> (P, V, V) {
         (self.at(u, v), self.at_u(u, v), self.at_v(u, v))
     }
 
@@ -39,29 +37,12 @@ pub trait ParametricSurface {
     ///
     /// Returns (S(u, v), dS / du, dS / dv, d²S / du², d²S / dv², d²S / dudv)
     #[inline]
-    fn at_u_v_uu_vv_uv(&self, u: Scalar, v: Scalar) -> (Point, Vect, Vect, Vect, Vect, Vect) {
+    fn at_u_v_uu_vv_uv(&self, u: N, v: N) -> (P, V, V, V, V, V) {
         (self.at(u, v), self.at_u(u, v), self.at_v(u, v), self.at_uu(u, v), self.at_vv(u, v), self.at_uv(u, v))
     }
 
     /// Evaluates the parametric surface and its derivative wrt. `u` `n` times and wrt. `v` `k` times.
     ///
     /// Returns d^(n + k) S(u, v) / (du^n dk^n).
-    fn at_uv_nk(&self, u: Scalar, v: Scalar, n: uint, k: uint) -> Vect;
-
-    /// Evaluates all the partial derivatives of the surface, up to the `n`-th derivative.
-    ///
-    /// The output matrix will contain the derivatives d^n S(u, v) / (du^i dv^j) at the cells
-    /// indexed by (i, j).
-    // FIXME: give more infos about the layout of `out`.
-    #[inline]
-    fn at_uv_nk_all(&self, u: Scalar, v: Scalar, n: uint, k: uint, out: &mut DMat<Vect>) {
-        // FIXME: resize the output ourself?
-        assert!(out.nrows() >= n && out.ncols() >= k);
-
-        for i in range(0, n) {
-            for j in range(0, k) {
-                out.set((i, j), self.at_uv_nk(u, v, i, j))
-            }
-        }
-    }
+    fn at_uv_nk(&self, u: N, v: N, n: uint, k: uint) -> V;
 }

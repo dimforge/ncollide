@@ -1,48 +1,51 @@
 //! Heuristics to select surface containing the projection of a point.
 
+use na::{Rotation, RotationMatrix, Rotate, Translate, Cross, Mat, Identity};
 use na;
-use bounding_volume::{HasBoundingSphere, BoundingVolume, BoundingSphere};
+use bounding_volume::{HasBoundingSphere, BoundingSphere};
+use bounding_volume::BoundingVolume;
 use geom::BezierSurface;
 use math::{Scalar, Point, Vect};
 
+
 /// Trait implemented by the heristics for surface selection during collision detection.
-pub trait SurfaceSelector<D> {
+pub trait SurfaceSelector<N, P, D> {
     /// Sets the maximum local minimal distance.
-    fn set_max_lmd(&mut self, max_lmd: Scalar);
+    fn set_max_lmd(&mut self, max_lmd: N);
     /// Tells whether a surface is flat enough to run a numerical resolution algorithm.
-    fn is_flat(&mut self, surf: &BezierSurface, data: &D) -> bool;
+    fn is_flat(&mut self, surf: &BezierSurface<P>, data: &D) -> bool;
     /// Tells whether a surface might contain a closest point or not.
-    fn may_contain_a_closest_point(&mut self, pt: &Point, b: &BezierSurface, data: &D) -> bool;
+    fn may_contain_a_closest_point(&mut self, pt: &P, b: &BezierSurface<P>, data: &D) -> bool;
     /// Allocates data used to test flatnass and closest point containment.
-    fn create_test_data(&mut self, b: &BezierSurface) -> D;
+    fn create_test_data(&mut self, b: &BezierSurface<P>) -> D;
 }
 
 /// A selector that does not filter out any surface.
 ///
 /// Do not use this.
 #[deriving(Clone)]
-pub struct YesSirSurfaceSelector;
+pub struct YesSirSurfaceSelector<N, P>;
 
-impl YesSirSurfaceSelector {
+impl<N, P> YesSirSurfaceSelector<N, P> {
     /// Creates a new `YesSirSurfaceSelector`.
-    pub fn new() -> YesSirSurfaceSelector {
+    pub fn new() -> YesSirSurfaceSelector<N, P> {
         YesSirSurfaceSelector
     }
 }
 
-impl SurfaceSelector<()> for YesSirSurfaceSelector {
-    fn set_max_lmd(&mut self, _: Scalar) {
+impl<N, P> SurfaceSelector<N, P, ()> for YesSirSurfaceSelector<N, P> {
+    fn set_max_lmd(&mut self, _: N) {
     }
 
-    fn is_flat(&mut self, _: &BezierSurface, _: &()) -> bool {
+    fn is_flat(&mut self, _: &BezierSurface<P>, _: &()) -> bool {
         false
     }
 
-    fn may_contain_a_closest_point(&mut self, _: &Point, _: &BezierSurface, _: &()) -> bool {
+    fn may_contain_a_closest_point(&mut self, _: &P, _: &BezierSurface<P>, _: &()) -> bool {
         true
     }
 
-    fn create_test_data(&mut self, _: &BezierSurface) -> () {
+    fn create_test_data(&mut self, _: &BezierSurface<P>) -> () {
         ()
     }
 }
@@ -52,29 +55,32 @@ impl SurfaceSelector<()> for YesSirSurfaceSelector {
 /// This is the criteria from `Improved algorithms for the projection of points on NURBS curves and
 /// surfaces`, Ilijas Selimovic.
 #[deriving(Clone)]
-pub struct HyperPlaneSurfaceSelector {
-    max_lmd: Scalar
+pub struct HyperPlaneSurfaceSelector<N, P> {
+    max_lmd: N
 }
 
-impl HyperPlaneSurfaceSelector {
+impl<N, P> HyperPlaneSurfaceSelector<N, P> {
     /// Creates a new hyperplane-based surface selector.
-    pub fn new(max_lmd: Scalar) -> HyperPlaneSurfaceSelector {
+    pub fn new(max_lmd: N) -> HyperPlaneSurfaceSelector<N, P> {
         HyperPlaneSurfaceSelector {
             max_lmd: max_lmd
         }
     }
 }
 
-impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
-    fn set_max_lmd(&mut self, max_lmd: Scalar) {
+impl<N, P, V> SurfaceSelector<N, P, BoundingSphere<N, P>> for HyperPlaneSurfaceSelector<N, P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> + Translate<P> {
+    fn set_max_lmd(&mut self, max_lmd: N) {
         self.max_lmd = max_lmd
     }
 
-    fn is_flat(&mut self, _: &BezierSurface, _: &BoundingSphere) -> bool {
+    fn is_flat(&mut self, _: &BezierSurface<P>, _: &BoundingSphere<N, P>) -> bool {
         false
     }
 
-    fn may_contain_a_closest_point(&mut self, pt: &Point, b: &BezierSurface, bs: &BoundingSphere) -> bool {
+    fn may_contain_a_closest_point(&mut self, pt: &P, b: &BezierSurface<P>, bs: &BoundingSphere<N, P>) -> bool {
         if bs.intersects(&BoundingSphere::new(pt.clone(), self.max_lmd)) {
             let endpoints = [ b.endpoint_01(), b.endpoint_10(), b.endpoint_11() ];
 
@@ -82,7 +88,7 @@ impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
             let mut closest_endpoint = b.endpoint_00();
 
             for endpoint in endpoints.iter() {
-                let sqnorm = na::sqnorm(&(*endpoint - *pt));
+                let sqnorm = na::sqnorm(&(**endpoint - *pt));
 
                 if sqnorm < closest_sqnorm {
                     closest_endpoint = *endpoint;
@@ -102,10 +108,9 @@ impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
         false
     }
 
-    fn create_test_data(&mut self, b: &BezierSurface) -> BoundingSphere {
-        b.bounding_sphere(&na::one()) // FIXME: pass Identity::new() ?
+    fn create_test_data(&mut self, b: &BezierSurface<P>) -> BoundingSphere<N, P> {
+        b.bounding_sphere(&Identity::new())
     }
-
 }
 
 /// A selector that tests the orthogonality condition using the surface tangent cone.
@@ -113,15 +118,17 @@ impl SurfaceSelector<BoundingSphere> for HyperPlaneSurfaceSelector {
 /// This is the criteria from `Distance Extrema for Spline Models Using Tangent Cones`, Ilijas
 /// Selimovic.
 #[deriving(Clone)]
-pub struct TangentConesSurfaceSelector {
-    diff_u:  BezierSurface,
-    diff_v:  BezierSurface,
-    max_lmd: Scalar
+pub struct TangentConesSurfaceSelector<N, P> {
+    diff_u:  BezierSurface<P>,
+    diff_v:  BezierSurface<P>,
+    max_lmd: N
 }
 
-impl TangentConesSurfaceSelector {
-    /// Creates a new tangent-cone based surface detector. 
-    pub fn new(max_lmd: Scalar) -> TangentConesSurfaceSelector {
+impl<N, P, V> TangentConesSurfaceSelector<N, P>
+    where N: Scalar,
+          P: Point<N, V> {
+    /// Creates a new tangent-cone based surface detector.
+    pub fn new(max_lmd: N) -> TangentConesSurfaceSelector<N, P> {
         TangentConesSurfaceSelector {
             diff_u:  BezierSurface::new_with_degrees(0, 0),
             diff_v:  BezierSurface::new_with_degrees(0, 0),
@@ -131,27 +138,32 @@ impl TangentConesSurfaceSelector {
 }
 
 /// Data used by the `TangentconesSurfaceSelector` to test orthogonality and flatness.
-pub struct TangentConesSurfaceSelectorTestData {
-    bounding_sphere: BoundingSphere,
-    spread_u:        Scalar,
-    spread_v:        Scalar,
-    axis_u:          Vect,
-    axis_v:          Vect
+pub struct TangentConesSurfaceSelectorTestData<N, P, V> {
+    bounding_sphere: BoundingSphere<N, P>,
+    spread_u:        N,
+    spread_v:        N,
+    axis_u:          V,
+    axis_v:          V
 }
 
-impl SurfaceSelector<TangentConesSurfaceSelectorTestData> for TangentConesSurfaceSelector {
-    fn set_max_lmd(&mut self, max_lmd: Scalar) {
+impl<N, P, V, AV, M> SurfaceSelector<N, P, TangentConesSurfaceSelectorTestData<N, P, V>> for TangentConesSurfaceSelector<N, P>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
+          AV: Vect<N> + RotationMatrix<N, V, AV, M>,
+          M:  Rotation<AV> + Rotate<V> + Mat<N, V, V> {
+    fn set_max_lmd(&mut self, max_lmd: N) {
         self.max_lmd = max_lmd
     }
 
-    fn is_flat(&mut self, _: &BezierSurface, _: &TangentConesSurfaceSelectorTestData) -> bool {
+    fn is_flat(&mut self, _: &BezierSurface<P>, _: &TangentConesSurfaceSelectorTestData<N, P, V>) -> bool {
         false // XXX: we could be smarter here
     }
 
     fn may_contain_a_closest_point(&mut self,
-                                   pt: &Point,
-                                   b:  &BezierSurface,
-                                   d:  &TangentConesSurfaceSelectorTestData)
+                                   pt: &P,
+                                   b:  &BezierSurface<P>,
+                                   d:  &TangentConesSurfaceSelectorTestData<N, P, V>)
                                    -> bool {
         if d.bounding_sphere.intersects(&BoundingSphere::new(pt.clone(), self.max_lmd)) {
             let (axis, ang)   = b.bounding_cone_with_origin(pt);
@@ -169,8 +181,8 @@ impl SurfaceSelector<TangentConesSurfaceSelectorTestData> for TangentConesSurfac
         }
     }
 
-    fn create_test_data(&mut self, b: &BezierSurface) -> TangentConesSurfaceSelectorTestData {
-        let bounding_sphere = b.bounding_sphere(&na::one()); // FIXME: pass Identity::new() ?
+    fn create_test_data(&mut self, b: &BezierSurface<P>) -> TangentConesSurfaceSelectorTestData<N, P, V> {
+        let bounding_sphere = b.bounding_sphere(&Identity::new());
 
         b.diff_u(&mut self.diff_u);
         b.diff_v(&mut self.diff_v);

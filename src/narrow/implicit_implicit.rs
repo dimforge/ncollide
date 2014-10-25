@@ -1,7 +1,7 @@
 use std::num::Zero;
-use na::{Translation, Indexable, Norm};
+use na::{Transform, Rotate, Translate, Translation, Norm};
 use na;
-use geom::{Reflection, AnnotatedPoint, MinkowskiSum};
+use geom::{AnnotatedPoint, MinkowskiSum, Reflection};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use narrow::algorithm::simplex::Simplex;
@@ -9,22 +9,23 @@ use narrow::algorithm::gjk;
 use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
 use narrow::algorithm::minkowski_sampling;
 use narrow::{CollisionDetector, Contact};
-use ray::{Ray, RayCast};
-use math::{Scalar, Point, Vect, Matrix};
+use ray::{Ray, LocalRayCast};
+use math::{Scalar, Point, Vect};
+
 
 /// Persistent collision detector between two shapes having a support mapping function.
 ///
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct ImplicitImplicit<S, G1, G2> {
+pub struct ImplicitImplicit<N, P, V, S, G1, G2> {
     simplex:       S,
-    prediction:    Scalar,
-    contact:       GJKResult<Contact, Vect>
+    prediction:    N,
+    contact:       GJKResult<Contact<N, P, V>, V>
 }
 
-impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {
-    fn clone(&self) -> ImplicitImplicit<S, G1, G2> {
+impl<N: Clone, P: Clone, V: Clone, S: Clone, G1, G2> Clone for ImplicitImplicit<N, P, V, S, G1, G2> {
+    fn clone(&self) -> ImplicitImplicit<N, P, V, S, G1, G2> {
         ImplicitImplicit {
             simplex:    self.simplex.clone(),
             prediction: self.prediction.clone(),
@@ -33,12 +34,12 @@ impl<S: Clone, G1, G2> Clone for ImplicitImplicit<S, G1, G2> {
     }
 }
 
-impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
+impl<N, P, V, S, G1, G2> ImplicitImplicit<N, P, V, S, G1, G2> {
     /// Creates a new persistent collision detector between two geometries with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(prediction: Scalar, simplex: S) -> ImplicitImplicit<S, G1, G2> {
+    pub fn new(prediction: N, simplex: S) -> ImplicitImplicit<N, P, V, S, G1, G2> {
         ImplicitImplicit {
             simplex:    simplex,
             prediction: prediction,
@@ -48,12 +49,16 @@ impl<S, G1, G2> ImplicitImplicit<S, G1, G2> {
 
 }
 
-impl<S:  Simplex<AnnotatedPoint>,
-     G1: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
-     G2: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>
-     CollisionDetector<G1, G2> for ImplicitImplicit<S, G1, G2> {
+impl<N, P, V, S, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for ImplicitImplicit<N, P, V, S, G1, G2>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P>,
+          M:  Translation<V>,
+          S:  Simplex<N, AnnotatedPoint<P>>,
+          G1: Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
+          G2: Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
     #[inline]
-    fn update(&mut self, ma: &Matrix, a: &G1, mb: &Matrix, b: &G2) {
+    fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
         let initial_direction = match self.contact {
             NoIntersection(ref separator) => Some(separator.clone()),
             Projection(ref contact)       => Some(contact.normal.clone()),
@@ -65,7 +70,7 @@ impl<S:  Simplex<AnnotatedPoint>,
             a,
             mb,
             b,
-            &self.prediction,
+            self.prediction,
             &mut self.simplex,
             initial_direction)
     }
@@ -79,22 +84,11 @@ impl<S:  Simplex<AnnotatedPoint>,
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact>) {
+    fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
         match self.contact {
             Projection(ref c) => out_colls.push(c.clone()),
             _                 => ()
         }
-    }
-
-    #[inline]
-    fn toi(_:   Option<ImplicitImplicit<S, G1, G2>>,
-           ma:  &Matrix,
-           dir: &Vect,
-           _:   &Scalar,
-           a:   &G1,
-           mb:  &Matrix,
-           b:   &G2) -> Option<Scalar> {
-        toi(ma, dir, a, mb, b)
     }
 }
 
@@ -109,30 +103,34 @@ impl<S:  Simplex<AnnotatedPoint>,
 ///   * `g2` - the second implicit shape involved on the collision check
 ///   * `simplex` - the simplex the GJK algorithm must use. It is reinitialized before being passed
 ///   to GJK.
-pub fn collide<S:  Simplex<AnnotatedPoint>,
-               G1: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>,
-               G2: Implicit<Point, Vect, Matrix> + PreferedSamplingDirections<Vect, Matrix>>(
-               m1:         &Matrix,
-               g1:         &G1,
-               m2:         &Matrix,
-               g2:         &G2,
-               prediction: &Scalar,
-               simplex:    &mut S,
-               init_dir:   Option<Vect>)
-               -> GJKResult<Contact, Vect> {
-    let mut dir = 
+pub fn collide<N, P, V, M, S, G1, G2>(m1:         &M,
+                                      g1:         &G1,
+                                      m2:         &M,
+                                      g2:         &G2,
+                                      prediction: N,
+                                      simplex:    &mut S,
+                                      init_dir:   Option<V>)
+                                      -> GJKResult<Contact<N, P, V>, V>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N> + Translate<P>,
+          M:  Translation<V>,
+          S:  Simplex<N, AnnotatedPoint<P>>,
+          G1: Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
+          G2: Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
+    let mut dir =
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
             Some(dir) => dir
         };
 
     if dir.is_zero() {
-        dir.set(0, na::one());
+        dir[0] = na::one();
     }
 
     simplex.reset(implicit::cso_support_point(m1, g1, m2, g2, dir));
 
-    match gjk::closest_points_with_max_dist(m1, g1, m2, g2, &*prediction, simplex) {
+    match gjk::closest_points_with_max_dist(m1, g1, m2, g2, prediction, simplex) {
         Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);
@@ -156,7 +154,7 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
             Projection(Contact::new(p1, p2, normal, depth))
         }
         None => {
-            NoIntersection(na::zero()) // fail!("Both GJK and fallback algorithm failed.")
+            NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
         }
     }
 }
@@ -169,18 +167,17 @@ pub fn collide<S:  Simplex<AnnotatedPoint>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi<G1: Implicit<Point, Vect, Matrix>,
-           G2: Implicit<Point, Vect, Matrix>>(
-           m1:  &Matrix,
-           dir: &Vect,
-           g1:  &G1,
-           m2:  &Matrix,
-           g2:  &G2)
-           -> Option<Scalar> {
+pub fn toi<N, P, V, M, G1, G2>(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<N>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          M:  Rotate<V> + Transform<P>,
+          G1: Implicit<P, V, M>,
+          G2: Implicit<P, V, M> {
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_with_ray(&Ray::new(na::orig(), -dir), true)
+    cso.toi_with_ray(&Ray::new(na::orig(), -*dir), true)
 }
 
 /// Computes the Time Of Impact of two geometries.
@@ -191,16 +188,15 @@ pub fn toi<G1: Implicit<Point, Vect, Matrix>,
 /// * `g1`  - the first geometry.
 /// * `m2`  - the second geometry transform.
 /// * `g2`  - the second geometry.
-pub fn toi_and_normal<G1: Implicit<Point, Vect, Matrix>,
-                      G2: Implicit<Point, Vect, Matrix>>(
-                      m1:  &Matrix,
-                      dir: &Vect,
-                      g1:  &G1,
-                      m2:  &Matrix,
-                      g2:  &G2)
-                      -> Option<(Scalar, Vect)> {
+pub fn toi_and_normal<N, P, V, M, G1, G2>( m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<(N, V)>
+    where N: Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          M:  Rotate<V> + Transform<P>,
+          G1: Implicit<P, V, M>,
+          G2: Implicit<P, V, M> {
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_and_normal_with_ray(&Ray::new(na::orig(), -dir), true).map(|i| (i.toi, -i.normal))
+    cso.toi_and_normal_with_ray(&Ray::new(na::orig(), -*dir), true).map(|i| (i.toi, -i.normal))
 }

@@ -1,14 +1,19 @@
-use na::{Iterable, Indexable};
+use std::num::Zero;
+use na::{Pnt2, Pnt3, Mat1, Mat3, Orig, Iterable};
 use na;
-use geom::Cuboid;
 use volumetric::Volumetric;
-use math::{Scalar, Point, Vect, AngularInertia};
+use geom::{Cuboid2, Cuboid2d, Cuboid3, Cuboid3d};
+use math::Scalar;
 
 
-/// Computes the volume of a cuboid.
+/// The volume of a cuboid.
 #[inline]
-pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
-    let mut res: Scalar = na::one();
+pub fn cuboid_volume<N, V>(dim: uint, half_extents: &V) -> N
+    where N: Scalar,
+          V: Iterable<N> {
+    assert!(dim == 2 || dim == 3);
+
+    let mut res: N = na::one();
 
     for half_extent in half_extents.iter() {
         res = res * *half_extent * na::cast(2.0f64)
@@ -17,81 +22,105 @@ pub fn cuboid_volume(half_extents: &Vect) -> Scalar {
     res
 }
 
-#[cfg(feature = "2d")]
-impl Volumetric for Cuboid {
-    #[inline]
-    fn surface(&self) -> Scalar {
-        (self.half_extents().x + self.half_extents().y) * na::cast(4.0f64)
-    }
+/// The surface of a cuboid.
+#[inline]
+pub fn cuboid_surface<N, V>(dim: uint, half_extents: &V) -> N
+    where N: Scalar,
+          V: Index<uint, N> {
+    assert!(dim == 2 || dim == 3);
 
-    #[inline]
-    fn volume(&self) -> Scalar {
-        cuboid_volume(&self.half_extents())
-    }
+    match dim {
+        2 => {
+            (half_extents[0] + half_extents[1]) * na::cast(4.0f64)
+        }
+        3 => {
+            let he = half_extents;
+            let xx = he[0] + he[0];
+            let yy = he[1] + he[1];
+            let zz = he[2] + he[2];
 
-    #[inline]
-    fn center_of_mass(&self) -> Point {
-        na::orig()
-    }
+            let side_xy = xx * yy;
+            let side_xz = xx * zz;
+            let side_yz = yy * zz;
 
-    #[inline]
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let _2: Scalar   = na::cast(2.0f64);
-        let _i12: Scalar = na::cast(1.0f64 / 12.0);
-        let w       = _i12 * _2 * _2;
-        let ix      = w * self.half_extents().at(0) * self.half_extents().at(0);
-        let iy      = w * self.half_extents().at(1) * self.half_extents().at(1);
-
-        let mut res: AngularInertia = na::zero();
-
-        res.set((0, 0), ix + iy);
-
-        res
+            (side_xy + side_xz + side_yz) * na::cast(2.0f64)
+        }
+        _ => unreachable!()
     }
 }
 
-#[cfg(feature = "3d")]
-impl Volumetric for Cuboid {
-    #[inline]
-    fn surface(&self) -> Scalar {
-        let he = self.half_extents();
-        let xx = he.x + he.x;
-        let yy = he.y + he.y;
-        let zz = he.z + he.z;
+/// The center of mass of a cuboid.
+#[inline]
+pub fn cuboid_center_of_mass<P: Orig>() -> P {
+    na::orig()
+}
 
-        let side_xy = xx * yy;
-        let side_xz = xx * zz;
-        let side_yz = yy * zz;
+/// The unit angular inertia of a cuboid.
+#[inline]
+pub fn cuboid_unit_angular_inertia<N, V, I>(dim: uint, half_extents: &V) -> I
+    where N: Scalar,
+          V: Index<uint, N>,
+          I: Zero + IndexMut<(uint, uint), N> {
+    assert!(dim == 2 || dim == 3);
 
-        (side_xy + side_xz + side_yz) * na::cast(2.0f64)
-    }
+    match dim {
+        2 => {
+            let _2: N   = na::cast(2.0f64);
+            let _i12: N = na::cast(1.0f64 / 12.0);
+            let w       = _i12 * _2 * _2;
+            let ix      = w * half_extents[0] * half_extents[0];
+            let iy      = w * half_extents[1] * half_extents[1];
 
-    #[inline]
-    fn volume(&self) -> Scalar {
-        cuboid_volume(&self.half_extents())
-    }
+            let mut res = na::zero::<I>();
 
-    #[inline]
-    fn center_of_mass(&self) -> Point {
-        na::orig()
-    }
+            res[(0, 0)] = ix + iy;
 
-    #[inline]
-    fn unit_angular_inertia(&self) -> AngularInertia {
-        let _0: Scalar   = na::zero();
-        let _2: Scalar   = na::cast(2.0f64);
-        let _i12: Scalar = na::cast(1.0f64 / 12.0);
-        let w       = _i12 * _2 * _2;
-        let ix      = w * self.half_extents().at(0) * self.half_extents().at(0);
-        let iy      = w * self.half_extents().at(1) * self.half_extents().at(1);
-        let iz      = w * self.half_extents().at(2) * self.half_extents().at(2);
+            res
+        }
+        3 => {
+            let _0: N   = na::zero();
+            let _2: N   = na::cast(2.0f64);
+            let _i12: N = na::cast(1.0f64 / 12.0);
+            let w       = _i12 * _2 * _2;
+            let ix      = w * half_extents[0] * half_extents[0];
+            let iy      = w * half_extents[1] * half_extents[1];
+            let iz      = w * half_extents[2] * half_extents[2];
 
-        let mut res: AngularInertia = na::zero();
+            let mut res = na::zero::<I>();
 
-        res.set((0, 0), iy + iz);
-        res.set((1, 1), ix + iz);
-        res.set((2, 2), ix + iy);
+            res[(0, 0)] = iy + iz;
+            res[(1, 1)] = ix + iz;
+            res[(2, 2)] = ix + iy;
 
-        res
+            res
+        }
+        _ => unreachable!()
     }
 }
+
+macro_rules! impl_volumetric_cuboid(
+    ($t: ident, $dim: expr, $p: ident, $i: ident, $n: ident) => (
+        impl Volumetric<$n, $p<$n>, $i<$n>> for $t {
+            fn surface(&self) -> $n {
+                cuboid_surface($dim, self.half_extents())
+            }
+
+            fn volume(&self) -> $n {
+                cuboid_volume($dim, self.half_extents())
+            }
+
+            fn center_of_mass(&self) -> $p<$n> {
+                cuboid_center_of_mass()
+            }
+
+            fn unit_angular_inertia(&self) -> $i<$n> {
+                cuboid_unit_angular_inertia($dim, self.half_extents())
+            }
+        }
+    )
+)
+
+impl_volumetric_cuboid!(Cuboid2, 2, Pnt2, Mat1, f32)
+impl_volumetric_cuboid!(Cuboid2d, 2, Pnt2, Mat1, f64)
+impl_volumetric_cuboid!(Cuboid3, 3, Pnt3, Mat3, f32)
+impl_volumetric_cuboid!(Cuboid3d, 3, Pnt3, Mat3, f64)

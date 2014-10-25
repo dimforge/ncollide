@@ -1,28 +1,25 @@
 use std::ptr;
 use na;
-use na::{Cast, FloatPnt, FloatPntExt, FloatVec, FloatVecExt};
 use procedural::{TriMesh, Polyline};
 use procedural;
+use math::{Scalar, Point, Vect};
 
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<N: Float + Clone + Cast<f64>,
-                       P: Clone + FloatPnt<N, V>,
-                       V: FloatVec<N>>(
-                       control_points: &[P],
-                       t:              &N,
-                       cache:          &mut Vec<P>)
-                       -> P {
+pub fn bezier_curve_at<N, P, V>(control_points: &[P], t: N, cache: &mut Vec<P>) -> P
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     if control_points.len() > cache.len() {
-        let diff = control_points.len() - cache.len(); 
+        let diff = control_points.len() - cache.len();
         cache.grow(diff, na::orig())
     }
 
     let cache = cache.as_mut_slice();
 
     let _1: N = na::cast(1.0);
-    let t_1   = _1 - *t;
+    let t_1   = _1 - t;
 
     // XXX: not good if the objects are not POD.
     unsafe {
@@ -31,7 +28,7 @@ pub fn bezier_curve_at<N: Float + Clone + Cast<f64>,
 
     for i in range(1u, control_points.len()) {
         for j in range(0u, control_points.len() - i) {
-            cache[j] = cache[j] * t_1 + *cache[j + 1].as_vec() * *t;
+            cache[j] = cache[j] * t_1 + *cache[j + 1].as_vec() * t;
         }
     }
 
@@ -40,17 +37,18 @@ pub fn bezier_curve_at<N: Float + Clone + Cast<f64>,
 
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_surface_at<N: Float + Clone + Cast<f64>,
-                         P: Clone + FloatPnt<N, V>,
-                         V: FloatVec<N>>(
+pub fn bezier_surface_at<N, P, V>(
                          control_points: &[P],
                          nupoints:       uint,
                          nvpoints:       uint,
-                         u:              &N,
-                         v:              &N,
+                         u:              N,
+                         v:              N,
                          ucache:         &mut Vec<P>,
                          vcache:         &mut Vec<P>)
-                         -> P {
+                         -> P
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
         vcache.grow(diff, na::orig());
@@ -70,19 +68,17 @@ pub fn bezier_surface_at<N: Float + Clone + Cast<f64>,
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<N: Float + Clone + Cast<f64>,
-                    P: Clone + FloatPnt<N, V>,
-                    V: Clone + FloatVec<N>>(
-                    control_points: &[P],
-                    nsubdivs:       uint)
-                    -> Polyline<N, P, V> {
+pub fn bezier_curve<N, P, V>(control_points: &[P], nsubdivs: uint) -> Polyline<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache  = Vec::new();
     let tstep      = na::cast(1.0 / (nsubdivs as f64));
     let mut t      = na::zero::<N>();
 
     while t <= na::one() {
-        coords.push(bezier_curve_at(control_points, &t, &mut cache));
+        coords.push(bezier_curve_at(control_points, t, &mut cache));
         t = t + tstep;
     }
 
@@ -92,15 +88,16 @@ pub fn bezier_curve<N: Float + Clone + Cast<f64>,
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier surface.
-pub fn bezier_surface<N: Float + Clone + Cast<f64>,
-                      P: Clone + FloatPntExt<N, V>,
-                      V: FloatVecExt<N>>(
+pub fn bezier_surface<N, P, V>(
                       control_points: &[P],
                       nupoints:       uint,
                       nvpoints:       uint,
                       usubdivs:       uint,
                       vsubdivs:       uint)
-                      -> TriMesh<N, P, V> {
+                      -> TriMesh<N, P, V>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
     assert!(nupoints * nvpoints == control_points.len());
 
     let mut surface = procedural::unit_quad::<N, P, V>(usubdivs, vsubdivs);
@@ -118,8 +115,8 @@ pub fn bezier_surface<N: Float + Clone + Cast<f64>,
                 coords[id] = bezier_surface_at(control_points,
                                                nupoints,
                                                nvpoints,
-                                               &uvs[id].x,
-                                               &uvs[id].y,
+                                               uvs[id].x,
+                                               uvs[id].y,
                                                &mut ucache,
                                                &mut vcache)
             }
