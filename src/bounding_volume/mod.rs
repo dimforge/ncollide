@@ -34,7 +34,8 @@ mod aabb_mesh;
 mod aabb_bezier_surface;
 mod aabb_utils;
 
-mod bounding_sphere;
+#[allow(missing_doc)]
+pub mod bounding_sphere;
 mod bounding_sphere_box;
 mod bounding_sphere_cone;
 mod bounding_sphere_ball;
