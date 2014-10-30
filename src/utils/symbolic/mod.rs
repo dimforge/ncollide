@@ -23,7 +23,8 @@ pub use utils::symbolic::poly::{Poly1, t1,
 
 mod ops;
 mod univariate_fn;
-mod bivariate_fn;
+#[allow(missing_doc)]
+pub mod bivariate_fn;
 mod t;
 mod u;
 mod v;
