@@ -230,13 +230,13 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Vec3<u32>], normals:
             normal = cross
         }
 
-        *normals.get_mut(f.x as uint) = (*normals)[f.x as uint] + normal;
-        *normals.get_mut(f.y as uint) = (*normals)[f.y as uint] + normal;
-        *normals.get_mut(f.z as uint) = (*normals)[f.z as uint] + normal;
+        normals[f.x as uint] = normals[f.x as uint] + normal;
+        normals[f.y as uint] = normals[f.y as uint] + normal;
+        normals[f.z as uint] = normals[f.z as uint] + normal;
 
-        *divisor.get_mut(f.x as uint) = divisor[f.x as uint] + na::one();
-        *divisor.get_mut(f.y as uint) = divisor[f.y as uint] + na::one();
-        *divisor.get_mut(f.z as uint) = divisor[f.z as uint] + na::one();
+        divisor[f.x as uint] = divisor[f.x as uint] + na::one();
+        divisor[f.y as uint] = divisor[f.y as uint] + na::one();
+        divisor[f.z as uint] = divisor[f.z as uint] + na::one();
     }
 
     // ... and compute the mean

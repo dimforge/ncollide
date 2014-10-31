@@ -107,7 +107,7 @@ impl<N, P, V, M, CD, G1, G2> IncrementalContactManifoldGenerator<N, P, V, CD>
         let mut i = 0;
         while i != self.contacts.len() {
             let remove = {
-                let c      = self.contacts.get_mut(i);
+                let c      = &mut self.contacts[i];
                 let world1 = m1.transform(&c.local1);
                 let world2 = m2.transform(&c.local2);
 

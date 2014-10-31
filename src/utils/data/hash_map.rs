@@ -131,8 +131,8 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             for i in range(0u, self.num_elem) {
                 let h = self.hash.hash(&self.table[i].key) & self.mask;
 
-                *newnext.get_mut(i) = newhash[h];
-                *newhash.get_mut(h) = i as int;
+                newnext[i] = newhash[h];
+                newhash[h] = i as int;
             }
 
             mem::swap(&mut newhash, &mut self.htable);
@@ -148,8 +148,8 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             let h = self.hash.hash(&key) & self.mask;
 
-            *self.next.get_mut(self.num_elem) = self.htable[h];
-            *self.htable.get_mut(h) = self.num_elem as int;
+            self.next[self.num_elem] = self.htable[h];
+            self.htable[h] = self.num_elem as int;
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
 
@@ -157,7 +157,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         }
         else {
             if replace {
-                self.table.get_mut(entry as uint).value = value
+                self.table[entry as uint].value = value
             }
 
             (false, entry as uint)
@@ -182,13 +182,13 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                 }
 
                 obji                             = self.next[o as uint];
-                *self.next.get_mut(o as uint)    = self.next[obji as uint];
-                *self.next.get_mut(obji as uint) = -1;
+                self.next[o as uint]    = self.next[obji as uint];
+                self.next[obji as uint] = -1;
             }
             else {
                 obji = o;
-                *self.htable.get_mut(h)       = self.next[o as uint];
-                *self.next.get_mut(o as uint) = -1;
+                self.htable[h]       = self.next[o as uint];
+                self.next[o as uint] = -1;
             }
 
             self.num_elem = self.num_elem - 1;
@@ -199,7 +199,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                 let nh = self.hash.hash(&self.table[obji as uint].key) & self.mask;
 
                 if self.htable[nh] == self.num_elem as int {
-                    *self.htable.get_mut(nh) = obji
+                    self.htable[nh] = obji
                 }
                 else {
                     let mut no = self.htable[nh];
@@ -208,11 +208,11 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                         no = self.next[no as uint]
                     }
 
-                    *self.next.get_mut(no as uint) = obji;
+                    self.next[no as uint] = obji;
                 }
 
-                *self.next.get_mut(obji as uint)  = self.next[self.num_elem];
-                *self.next.get_mut(self.num_elem) = -1;
+                self.next[obji as uint]  = self.next[self.num_elem];
+                self.next[self.num_elem] = -1;
             }
 
             removed
@@ -235,19 +235,19 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
                     let h = self.hash.hash(&key) & self.mask;
 
-                    *self.next.get_mut(self.num_elem) = self.htable[h];
-                    *self.htable.get_mut(h) = self.num_elem as int;
+                    self.next[self.num_elem] = self.htable[h];
+                    self.htable[h] = self.num_elem as int;
                     self.table.push(Entry::new(key, v));
                     self.num_elem = self.num_elem + 1;
 
-                    Some(&mut self.table.get_mut(self.num_elem - 1).value)
+                    Some(&mut self.table[self.num_elem - 1].value)
                 }
                 None => None
 
             }
         }
         else {
-            Some(&mut self.table.get_mut(entry as uint).value)
+            Some(&mut self.table[entry as uint].value)
         }
     }
 
@@ -261,7 +261,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn insert_or_replace<'a>(&'a mut self, key: K, value: V, replace: bool) -> &'a mut V {
         let (_, res) = self.do_insert_or_replace(key, value, replace);
 
-        &mut self.table.get_mut(res).value
+        &mut self.table[res].value
     }
 }
 
@@ -345,7 +345,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             None
         }
         else {
-            Some(&mut self.table.get_mut(entry as uint).value)
+            Some(&mut self.table[entry as uint].value)
         }
     }
 }

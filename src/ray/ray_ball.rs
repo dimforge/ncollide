@@ -14,8 +14,8 @@ fn ball_uv<N, V>(normal: &V) -> Option<Pnt2<N>>
         let two_pi: N = Float::two_pi();
         let pi:     N = Float::pi();
         let _0_5:   N = na::cast(0.5f64);
-        let uvx = _0_5 + (*normal)[2].atan2((*normal)[0]) / two_pi;
-        let uvy = _0_5 - (*normal)[1].asin() / pi;
+        let uvx = _0_5 + normal[2].atan2(normal[0]) / two_pi;
+        let uvy = _0_5 - normal[1].asin() / pi;
 
         Some(Pnt2::new(uvx, uvy))
     }

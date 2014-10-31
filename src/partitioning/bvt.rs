@@ -286,7 +286,6 @@ impl<N, P, V, B, BV> BVTNode<B, BV>
 }
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-#[allow(unnecessary_typecast)]
 pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
                                                     leaves: Vec<(B, BV)>,
                                                     center: &mut |&B, &BV| -> V)
@@ -349,7 +348,6 @@ pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
 }
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-#[allow(unnecessary_typecast)]
 pub fn median_partitioner<N, V, B, BV>(depth:  uint,
                                        leaves: Vec<(B, BV)>)
                                        -> (BV, BinaryPartition<B, BV>)

@@ -11,6 +11,7 @@ distcheck:
 	rm -rf $(tmp)
 	git clone . $(tmp)
 	make -C $(tmp)
+	make test -C $(tmp)
 	rm -rf $(tmp)
 
 doc:

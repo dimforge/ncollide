@@ -122,8 +122,8 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
 
                 assert!(dual_graph[v1].timestamp != Bounded::max_value());
                 assert!(dual_graph[v2].timestamp != Bounded::max_value());
-                dual_graph.get_mut(v1).timestamp = curr_time;
-                dual_graph.get_mut(v2).timestamp = Bounded::max_value(); // Mark as invalid.
+                dual_graph[v1].timestamp = curr_time;
+                dual_graph[v2].timestamp = Bounded::max_value(); // Mark as invalid.
 
                 v1
             }
@@ -702,8 +702,8 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
 
                 if *other != i {
                     // register the adjascency.
-                    dual_vertices.get_mut(i).neighbors.as_mut().unwrap().insert(*other);
-                    dual_vertices.get_mut(*other).neighbors.as_mut().unwrap().insert(i);
+                    dual_vertices[i].neighbors.as_mut().unwrap().insert(*other);
+                    dual_vertices[*other].neighbors.as_mut().unwrap().insert(i);
                 }
             }
         };

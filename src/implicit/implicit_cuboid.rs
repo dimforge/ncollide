@@ -21,10 +21,10 @@ impl<N, P, V, M> Implicit<P, V, M> for Cuboid<V>
         let he = self.half_extents();
         for i in range(0u, na::dim::<P>()) {
             if local_dir[i].is_negative() {
-                pres[i] = -(*he)[i];
+                pres[i] = -he[i];
             }
             else {
-                pres[i] = (*he)[i];
+                pres[i] = he[i];
             }
         }
 

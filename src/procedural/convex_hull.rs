@@ -89,7 +89,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
             Some(point) => {
                 removed_facets.clear();
 
-                triangles.get_mut(i).valid = false;
+                triangles[i].valid = false;
                 removed_facets.push(i);
 
                 for j in range(0u, 3) {
@@ -118,7 +118,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
                     }
 
                     // FIXME: this is verry harsh.
-                    triangles.get_mut(i).valid = true;
+                    triangles[i].valid = true;
                     break;
                 }
 
@@ -328,7 +328,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
                 }
 
                 if furthest != Bounded::max_value() {
-                    facets.get_mut(furthest).add_visible_point(point, points);
+                    facets[furthest].add_visible_point(point, points);
                 }
                 else {
                     undecidable.push(point);
@@ -466,8 +466,8 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
         indirect_id = horizon_loop_ids[i];
 
         let facet = TriangleFacet::new(point,
-                                       (*triangles)[adj_facet].second_point_from_edge(indirect_id),
-                                       (*triangles)[adj_facet].first_point_from_edge(indirect_id),
+                                       triangles[adj_facet].second_point_from_edge(indirect_id),
+                                       triangles[adj_facet].first_point_from_edge(indirect_id),
                                        points);
         new_facets.push(facet);
     }
@@ -487,16 +487,16 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
         let next_facet   = triangles.len() + (i + 1) % horizon_loop_facets.len();
         let middle_id    = horizon_loop_ids[i];
 
-        new_facets.get_mut(i).set_facets_adjascency(prev_facet, middle_facet, next_facet,
+        new_facets[i].set_facets_adjascency(prev_facet, middle_facet, next_facet,
                                                     2         , middle_id   , 0);
-        triangles.get_mut(middle_facet).adj[middle_id] = triangles.len() + i; // The future id of curr_facet.
-        triangles.get_mut(middle_facet).indirect_adj_id[middle_id] = 1;
+        triangles[middle_facet].adj[middle_id] = triangles.len() + i; // The future id of curr_facet.
+        triangles[middle_facet].indirect_adj_id[middle_id] = 1;
     }
 
     // Assign to each facets some of the points which can see it.
     // FIXME: refactor this with the others.
     for curr_facet in removed_facets.iter() {
-        for visible_point in (*triangles)[*curr_facet].visible_points.iter() {
+        for visible_point in triangles[*curr_facet].visible_points.iter() {
             if *visible_point == point {
                 continue;
             }
@@ -516,7 +516,7 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
             }
 
             if furthest != Bounded::max_value() {
-                new_facets.get_mut(furthest).add_visible_point(*visible_point, points);
+                new_facets[furthest].add_visible_point(*visible_point, points);
             }
 
             // If none of the facet can be seen from the point, it is naturally deleted.
@@ -529,7 +529,7 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
     while i != undecidable.len() {
         let mut furthest      = Bounded::max_value();
         let mut furthest_dist = na::zero();
-        let undecidable_point = (*undecidable)[i];
+        let undecidable_point = undecidable[i];
 
         for (j, curr_facet) in new_facets.iter_mut().enumerate() {
             if curr_facet.can_be_seen_by(undecidable_point, points) {
@@ -543,7 +543,7 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
         }
 
         if furthest != Bounded::max_value() {
-            new_facets.get_mut(furthest).add_visible_point(undecidable_point, points);
+            new_facets[furthest].add_visible_point(undecidable_point, points);
             let _ = undecidable.swap_remove(i);
         }
         else {
@@ -707,7 +707,7 @@ pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<uint>
 
         match pt_id {
             Some(point) => {
-                segments.get_mut(i).valid = false;
+                segments[i].valid = false;
 
                 attach_and_push_facets2(segments[i].prev,
                                         segments[i].next,
@@ -816,17 +816,17 @@ fn attach_and_push_facets2<N, P, V>(prev_facet:    uint,
           V: Vect<N> {
     let new_facet1_id = segments.len();
     let new_facet2_id = new_facet1_id + 1;
-    let prev_pt       = (*segments)[prev_facet].pts[1];
-    let next_pt       = (*segments)[next_facet].pts[0];
+    let prev_pt       = segments[prev_facet].pts[1];
+    let next_pt       = segments[next_facet].pts[0];
 
     let mut new_facet1 = SegmentFacet::new(prev_pt, point, prev_facet, new_facet2_id, points);
     let mut new_facet2 = SegmentFacet::new(point, next_pt, new_facet1_id, next_facet, points);
 
-    segments.get_mut(prev_facet).next = new_facet1_id;
-    segments.get_mut(next_facet).prev = new_facet2_id;
+    segments[prev_facet].next = new_facet1_id;
+    segments[next_facet].prev = new_facet2_id;
 
     // Assign to each facets some of the points which can see it.
-    for visible_point in (*segments)[removed_facet].visible_points.iter() {
+    for visible_point in segments[removed_facet].visible_points.iter() {
         if *visible_point == point {
             continue;
         }
@@ -844,12 +844,12 @@ fn attach_and_push_facets2<N, P, V>(prev_facet:    uint,
     let mut i = 0;
 
     while i != undecidable.len() {
-        if new_facet1.can_be_seen_by((*undecidable)[i], points) {
-            new_facet1.visible_points.push((*undecidable)[i]);
+        if new_facet1.can_be_seen_by(undecidable[i], points) {
+            new_facet1.visible_points.push(undecidable[i]);
             let _ = undecidable.swap_remove(i);
         }
-        else if new_facet2.can_be_seen_by((*undecidable)[i], points) {
-            new_facet2.visible_points.push((*undecidable)[i]);
+        else if new_facet2.can_be_seen_by(undecidable[i], points) {
+            new_facet2.visible_points.push(undecidable[i]);
             let _ = undecidable.swap_remove(i);
         }
         else {

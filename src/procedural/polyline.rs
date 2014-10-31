@@ -77,7 +77,7 @@ impl<N, P, V> Polyline<N, P, V>
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.iter_mut() {
             for i in range(0, na::dim::<V>()) {
-                (*c)[i] = (*c)[i] * s[i];
+                c[i] = (*c)[i] * s[i];
             }
         }
         // FIXME: do something for the normals?

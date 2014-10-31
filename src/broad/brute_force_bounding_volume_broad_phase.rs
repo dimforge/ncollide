@@ -121,7 +121,7 @@ impl<N, B, BV, D, DV> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV>
                         // remove from sobjects…
                         let proxy  = self.sobjects[*i].clone();
                         let lproxy = self.sobjects.pop().unwrap();
-                        *self.sobjects.get_mut(*i) = lproxy.clone();
+                        self.sobjects[*i] = lproxy.clone();
 
                         // … then add to objects
                         self.objects.push(proxy);
@@ -136,7 +136,7 @@ impl<N, B, BV, D, DV> BruteForceBoundingVolumeBroadPhase<N, B, BV, D, DV>
                         // remove from objects…
                         let proxy  = self.objects[*i].clone();
                         let lproxy = self.objects.pop().unwrap();
-                        *self.objects.get_mut(*i) = lproxy.clone();
+                        self.objects[*i] = lproxy.clone();
 
                         // … then add to sobjects
                         self.sobjects.push(proxy);
