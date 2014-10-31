@@ -69,8 +69,8 @@ impl<N, P, V> BoundingVolume<N> for AABB<P>
           P: Point<N, V> {
     #[inline]
     fn intersects(&self, other: &AABB<P>) -> bool {
-        na::partial_le(&self.mins, &other.maxs) &&
-        na::partial_ge(&self.maxs, &other.mins)
+        na::partial_lt(&self.mins, &other.maxs) &&
+        na::partial_gt(&self.maxs, &other.mins)
     }
 
     #[inline]
