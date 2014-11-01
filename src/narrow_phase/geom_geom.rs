@@ -9,8 +9,8 @@ use na;
 use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
                     Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};
 use support_map::{SupportMap, PreferedSamplingDirections};
-use narrow_phase::algorithm::simplex::Simplex;
-use narrow_phase::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
+use geometry::algorithms::simplex::Simplex;
+use geometry::algorithms::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow_phase::{CollisionDetector, SupportMapSupportMap, BallBall,
                       SupportMapPlane, PlaneSupportMap, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
                       BezierSurfaceBall, BallBezierSurface, Contact};

@@ -41,16 +41,6 @@ mod concave_geom_geom;
 mod geom_geom;
 mod bezier_surface_ball;
 
-// FIXME: move this module somewhere else!
-/// Algorithms needed for distance and penetration depth computation.
-pub mod algorithm
-{
-    pub mod simplex;
-    pub mod johnson_simplex;
-    pub mod gjk;
-    pub mod minkowski_sampling;
-}
-
 // FIXME: move those modules somewhere else!
 pub mod surface_selector;
 pub mod surface_subdivision_tree;

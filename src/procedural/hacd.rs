@@ -8,7 +8,7 @@ use std::num::Bounded;
 use std::hash::sip::SipHasher;
 use na;
 use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm};
-use narrow_phase::algorithm::johnson_simplex::JohnsonSimplex;
+use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 
 use support_map::SupportMap;
 use support_map;

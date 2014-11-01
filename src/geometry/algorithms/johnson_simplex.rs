@@ -6,7 +6,7 @@ use sync::Arc;
 use collections::TreeMap;
 use na::{Axpy, Dim};
 use na;
-use narrow_phase::algorithm::simplex::Simplex;
+use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 

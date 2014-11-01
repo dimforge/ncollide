@@ -71,6 +71,7 @@ pub mod partitioning;
 pub mod procedural;
 pub mod utils;
 pub mod volumetric;
+pub mod geometry;
 
 // #[cfg(test)]
 // mod tests {
