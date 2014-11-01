@@ -4,7 +4,7 @@
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returned point.
-pub trait Implicit<P, V, M> {
+pub trait SupportMap<P, V, M> {
     // FIXME: add methods that takes a unit `dir` in argument.
     // This might be useful to avoid useless normalizations.
     /**
@@ -20,7 +20,7 @@ pub trait Implicit<P, V, M> {
     fn support_point(&self, transform: &M, dir: &V) -> P;
 }
 
-impl<'a, P, V, M> Implicit<P, V, M> for &'a Implicit<P, V, M> + 'a {
+impl<'a, P, V, M> SupportMap<P, V, M> for &'a SupportMap<P, V, M> + 'a {
     #[inline]
     fn support_point(&self, transform: &M, dir: &V) -> P {
         self.support_point(transform, dir)

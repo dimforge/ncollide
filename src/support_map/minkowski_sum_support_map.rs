@@ -1,27 +1,27 @@
 use na::{FloatVec, Identity};
-use implicit::Implicit;
+use support_map::SupportMap;
 use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
 
 
-impl<'a, N, P, V, M, G1, G2> Implicit<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, P, V, M, G1, G2> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  FloatVec<N>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &V) -> P {
         self.g1().support_point(self.m1(), dir) + *self.g2().support_point(self.m2(), dir).as_vec()
     }
 }
 
-impl<'a, N, P, V, M, G1, G2> Implicit<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
+impl<'a, N, P, V, M, G1, G2> SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  FloatVec<N>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &V) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
@@ -39,8 +39,8 @@ pub fn cso_support_point<N, P, V, M, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, d
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     let rg2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 

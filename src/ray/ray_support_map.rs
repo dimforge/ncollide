@@ -4,7 +4,7 @@ use na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 use shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
-use implicit::Implicit;
+use support_map::SupportMap;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use ray;
 use math::{Scalar, Point, Vect};
@@ -22,7 +22,7 @@ pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
           V: Vect<N>,
           M: Translation<V>,
           S: Simplex<N, P>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     let inter = gjk_toi_and_normal_with_ray(m, geom, simplex, ray);
 
     if !solid {
@@ -63,7 +63,7 @@ fn gjk_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
           V: Vect<N>,
           M: Translation<V>,
           S: Simplex<N, P>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     let mut ltoi: N = na::zero();
 
     let _eps: N     = Float::epsilon();
@@ -232,8 +232,8 @@ impl<'a, N, P, V, M, G1, G2> LocalRayCast<N, P, V> for MinkowskiSum<'a, M, G1, G
           P:  Point<N, V>,
           V:  Vect<N>,
           M:  Transform<P> + Rotate<V>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), ray, solid)
     }
@@ -244,6 +244,6 @@ impl<'a, N, P, V, M, G1, G2> RayCast<N, P, V, M> for MinkowskiSum<'a, M, G1, G2>
           P:  Point<N, V>,
           V:  Vect<N>,
           M:  Transform<P> + Rotate<V>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
 }

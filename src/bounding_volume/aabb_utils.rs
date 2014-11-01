@@ -1,17 +1,17 @@
 use na::Transform;
 use na;
-use implicit::Implicit;
+use support_map::SupportMap;
 use bounding_volume::AABB;
 use math::{Scalar, Point, Vect};
 
 
 
-/// Computes the AABB of an implicit shape.
+/// Computes the AABB of an support mapped shape.
 pub fn implicit_shape_aabb<N, P, V, M, I>(m: &M, i: &I) -> AABB<P>
         where N: Scalar,
               P: Point<N, V>,
               V: Vect<N>,
-              I: Implicit<P, V, M> {
+              I: SupportMap<P, V, M> {
         let mut min   = na::orig::<P>();
         let mut max   = na::orig::<P>();
         let mut basis = na::zero::<V>();

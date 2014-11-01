@@ -1,4 +1,4 @@
-/// Implicit representation of the reflection of a shape.
+/// SupportMap representation of the reflection of a shape.
 ///
 /// A reflection is obtained with the central symmetry with regard to the origin.
 #[deriving(Show)]

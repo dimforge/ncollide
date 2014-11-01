@@ -1,13 +1,13 @@
 use std::num::Zero;
 use na::{Rotate, Transform, Norm};
 use na;
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use shape::Cylinder;
 use math::{Scalar, Point, Vect};
 
 
 
-impl<N, P, V, M> Implicit<P, V, M> for Cylinder<N>
+impl<N, P, V, M> SupportMap<P, V, M> for Cylinder<N>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

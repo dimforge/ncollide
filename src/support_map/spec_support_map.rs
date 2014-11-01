@@ -1,5 +1,5 @@
 use na::{Pnt2, Pnt3, Pnt4, Vec2, Vec3, Vec4, Transform, Rotate, Translation};
-use implicit::Implicit;
+use support_map::SupportMap;
 
 use shape::{Ball2, Ball3, Ball4,
            Cuboid2, Cuboid3, Cuboid4,
@@ -11,7 +11,7 @@ use shape::{Ball2, Ball3, Ball4,
 
 macro_rules! specialize_implicit_impl(
     ($t: ident, $p: ident, $v: ident, $n: ident) => (
-        impl<M> Implicit<$p<$n>, $v<$n>, M> for $t
+        impl<M> SupportMap<$p<$n>, $v<$n>, M> for $t
             where M: Transform<$p<$n>> + Rotate<$v<$n>> + Translation<$v<$n>> {
             #[inline]
             fn support_point(&self, transform: &M, dir: &$v<$n>) -> $p<$n> {

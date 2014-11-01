@@ -4,7 +4,7 @@ use na;
 use na::Norm;
 use math::Scalar;
 
-/// Implicit description of a plane.
+/// SupportMap description of a plane.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Plane<V> {
     /// The plane normal.

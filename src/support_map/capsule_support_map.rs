@@ -1,11 +1,11 @@
 use na;
 use na::{Rotate, Transform};
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use shape::Capsule;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> Implicit<P, V, M> for Capsule<N>
+impl<N, P, V, M> SupportMap<P, V, M> for Capsule<N>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

@@ -2,7 +2,7 @@
 
 use math::Scalar;
 
-/// Implicit description of a cylinder shape with its principal axis aligned with the `y` axis.
+/// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cone<N> {
     half_height: N,

@@ -8,7 +8,7 @@ use narrow::closest_points;
 use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
 use shape::Ball;
 use shape::AnnotatedPoint;
-use implicit;
+use support_map;
 use math::{Scalar, Point, Vect};
 
 macro_rules! test_johnson_simplex_impl(
@@ -69,7 +69,7 @@ macro_rules! test_gjk_ball_ball_impl(
             let (p1, p2) = closest_points::ball_ball(&c1, &b1, &c2, &b2);
 
             // FIXME: a bit verbose…
-            let cso_point   = implicit::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
+            let cso_point   = support_map::cso_support_point_without_margin(&c1, &b1, &c2, &b2, rand::random());
             let mut simplex: JohnsonSimplex<$n, AnnotatedPoint<$t>> = JohnsonSimplex::new(recursion.clone());
 
             simplex.reset(cso_point);

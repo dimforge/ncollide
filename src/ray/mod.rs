@@ -3,7 +3,7 @@
 pub use ray::ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 pub use ray::ray_plane::plane_toi_with_ray;
 pub use ray::ray_triangle::triangle_ray_intersection;
-pub use ray::ray_implicit::implicit_toi_and_normal_with_ray;
+pub use ray::ray_support_map::implicit_toi_and_normal_with_ray;
 pub use ray::ray_ball::ball_toi_with_ray;
 
 use na::{Pnt2, Vec2, Pnt3, Vec3};
@@ -15,7 +15,7 @@ mod ray_ball;
 mod ray_cuboid;
 mod ray_aabb;
 mod ray_bounding_sphere;
-mod ray_implicit;
+mod ray_support_map;
 mod ray_triangle;
 mod ray_compound;
 mod ray_mesh;

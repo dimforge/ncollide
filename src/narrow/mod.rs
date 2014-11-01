@@ -2,8 +2,8 @@
 pub use narrow::collision_detector::{CollisionDetector, Contact};
 pub use narrow::empty::Empty;
 pub use narrow::ball_ball::BallBall;
-pub use narrow::plane_implicit::{PlaneImplicit, ImplicitPlane};
-pub use narrow::implicit_implicit::ImplicitImplicit;
+pub use narrow::plane_support_map::{PlaneSupportMap, SupportMapPlane};
+pub use narrow::support_map_support_map::SupportMapSupportMap;
 pub use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 pub use narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
 pub use narrow::geom_geom ::{DynamicCollisionDetector, ShapeShapeCollisionDetector,
@@ -18,23 +18,23 @@ pub use narrow::ball_ball::closest_points as closest_points_ball_ball;
 /// Functions to compute the time of impact between two geometries.
 pub mod toi {
     pub use narrow::ball_ball::toi                    as ball_ball;
-    pub use narrow::plane_implicit::toi               as plane_implicit;
-    pub use narrow::implicit_implicit::toi            as implicit_implicit;
-    pub use narrow::implicit_implicit::toi_and_normal as implicit_implicit_and_normal;
+    pub use narrow::plane_support_map::toi               as plane_support_map;
+    pub use narrow::support_map_support_map::toi            as support_map_support_map;
+    pub use narrow::support_map_support_map::toi_and_normal as support_map_support_map_and_normal;
 }
 
 /// Functions to compute one contact point between two geometries.
 pub mod collide {
     pub use narrow::ball_ball::collide         as ball_ball;
-    pub use narrow::plane_implicit::collide    as plane_implicit;
-    pub use narrow::implicit_implicit::collide as implicit_implicit;
+    pub use narrow::plane_support_map::collide    as plane_support_map;
+    pub use narrow::support_map_support_map::collide as support_map_support_map;
 }
 
 mod collision_detector;
 mod empty;
 mod ball_ball;
-mod plane_implicit;
-mod implicit_implicit;
+mod plane_support_map;
+mod support_map_support_map;
 mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
 mod concave_geom_geom;

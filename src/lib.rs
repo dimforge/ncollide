@@ -65,7 +65,7 @@ pub mod shape;
 pub mod ray;
 pub mod narrow;
 pub mod broad;
-pub mod implicit;
+pub mod support_map;
 pub mod parametric;
 pub mod partitioning;
 pub mod procedural;

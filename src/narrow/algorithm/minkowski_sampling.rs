@@ -4,7 +4,7 @@ use std::num::{Zero, Bounded};
 use na::{Identity, Norm, UniformSphereSample, Translation, Translate};
 use na;
 use shape::{MinkowskiSum, AnnotatedPoint, Reflection};
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
@@ -18,8 +18,8 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, s
           V:  Vect<N> + Translate<P>,
           M:  Translation<V>,
           S:  Simplex<N, AnnotatedPoint<P>>,
-          G1: Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
-          G2: Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
+          G1: SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
+          G2: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
     let _0: N = na::zero();
     let reflect2   = Reflection::new(g2);
     let cso        = MinkowskiSum::new(m1, g1, m2, &reflect2);

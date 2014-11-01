@@ -4,7 +4,7 @@ use na;
 use utils;
 use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
 use bounding_volume;
-use implicit;
+use support_map;
 use math::{Scalar, Point, Vect};
 
 /*
@@ -177,8 +177,8 @@ fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N
           P: Point<N, V>,
           V: Vect<N>,
           M: EigenQR<N, V> {
-    let a = implicit::point_cloud_support_point(dir, points);
-    let b = implicit::point_cloud_support_point(&-dir, points);
+    let a = support_map::point_cloud_support_point(dir, points);
+    let b = support_map::point_cloud_support_point(&-dir, points);
 
     let ta = Vec3::new(0u32, 1, 0);
     let tb = Vec3::new(1u32, 0, 0);

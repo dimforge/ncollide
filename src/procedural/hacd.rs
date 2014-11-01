@@ -10,8 +10,8 @@ use na;
 use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm};
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
 
-use implicit::Implicit;
-use implicit;
+use support_map::SupportMap;
+use support_map;
 use ray::{Ray, LocalRayCast, RayIntersection};
 use ray;
 use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
@@ -740,10 +740,10 @@ impl<'a, N> ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> Implicit<Pnt3<N>, Vec3<N>, Identity> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> SupportMap<Pnt3<N>, Vec3<N>, Identity> for ConvexPair<'a, N> {
     fn support_point(&self, _: &Identity, dir: &Vec3<N>) -> Pnt3<N> {
-        let sa = implicit::point_cloud_support_point(dir, self.a);
-        let sb = implicit::point_cloud_support_point(dir, self.b);
+        let sa = support_map::point_cloud_support_point(dir, self.a);
+        let sb = support_map::point_cloud_support_point(dir, self.b);
 
         if na::dot(sa.as_vec(), dir) > na::dot(sb.as_vec(), dir) {
             sa

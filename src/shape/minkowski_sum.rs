@@ -14,7 +14,7 @@ pub type CSO<'a, M, G1, G2> = MinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
 pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
 
 /**
- * Implicit representation of the Minkowski sum of two geometries.
+ * SupportMap representation of the Minkowski sum of two geometries.
  *
  * The only way to obtain the sum points is to use its support mapping
  * function.

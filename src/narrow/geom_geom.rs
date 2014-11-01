@@ -8,11 +8,11 @@ use na::{Translate, Rotation, Cross};
 use na;
 use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
                     Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
-use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
-                      ImplicitPlane, PlaneImplicit, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
+use narrow::{CollisionDetector, SupportMapSupportMap, BallBall,
+                      SupportMapPlane, PlaneSupportMap, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
                       BezierSurfaceBall, BallBezierSurface, Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::OneShotContactManifoldGenerator as OSCMG;
@@ -171,7 +171,7 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         res.register_detector(bs);
         res.register_detector(sb);
 
-        // Plane vs. Implicit
+        // Plane vs. SupportMap
         res.register_default_plane_implicit_detector::<Ball<N>>(false, prediction);
         res.register_default_plane_implicit_detector::<Cuboid<V>>(true, prediction);
         res.register_default_plane_implicit_detector::<Cone<N>>(true, prediction);
@@ -181,7 +181,7 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         res.register_default_plane_implicit_detector::<Triangle<P>>(true, prediction);
         res.register_default_plane_implicit_detector::<Segment<P>>(true, prediction);
 
-        // Implicit vs. Implicit
+        // SupportMap vs. SupportMap
         // NOTE: some pair will be registered twice…
         res.register_default_implicit_detectors::<Cuboid<V>>(true, prediction);
         res.register_default_implicit_detectors::<Cone<N>>(true, prediction);
@@ -233,11 +233,11 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         res
     }
 
-    /// Registers a `PlaneImplicit` collision detector between a given implicit shape and a plane.
+    /// Registers a `PlaneSupportMap` collision detector between a given support mapped shape and a plane.
     pub fn register_default_plane_implicit_detector<I>(&mut self, generate_manifold: bool, prediction: N)
-        where I: 'static + Implicit<P, V, M> {
-        let d1 = ImplicitPlane::<N, P, V, I>::new(prediction.clone());
-        let d2 = PlaneImplicit::<N, P, V, I>::new(prediction.clone());
+        where I: 'static + SupportMap<P, V, M> {
+        let d1 = SupportMapPlane::<N, P, V, I>::new(prediction.clone());
+        let d2 = PlaneSupportMap::<N, P, V, I>::new(prediction.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -249,16 +249,16 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         }
     }
 
-    /// Register an `ImplicitImplicit` collision detector between two implicit geometries.
+    /// Register an `SupportMapSupportMap` collision detector between two implicit geometries.
     pub fn register_default_implicit_implicit_detector<G1, G2, S>(&mut self,
                                                                   generate_manifold: bool,
                                                                   prediction:        N,
                                                                   simplex:           &S)
-        where G1: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
-              G2: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M>,
+        where G1: 'static + SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
+              G2: 'static + SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
               S:  Send + Simplex<N, AnnotatedPoint<P>> + Clone {
-        let d1 = ImplicitImplicit::<N, P, V, S, G1, G2>::new(prediction.clone(), simplex.clone());
-        let d2 = ImplicitImplicit::<N, P, V, S, G2, G1>::new(prediction.clone(), simplex.clone());
+        let d1 = SupportMapSupportMap::<N, P, V, S, G1, G2>::new(prediction.clone(), simplex.clone());
+        let d2 = SupportMapSupportMap::<N, P, V, S, G2, G1>::new(prediction.clone(), simplex.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -295,14 +295,14 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         self.register_detector(d);
     }
 
-    /// Register `ImplicitImplicit` collision detectors between a given shape and every implicit
+    /// Register `SupportMapSupportMap` collision detectors between a given shape and every implicit
     /// shape supported by `ncollide`.
     pub fn register_default_implicit_detectors<G>(&mut self, generate_manifold: bool, prediction: N)
-        where G: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
+        where G: 'static + SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
 
         type S<N, P, V>  = JohnsonSimplex<N, AnnotatedPoint<P>, V>;
 
-        // Implicit vs. Implicit
+        // SupportMap vs. SupportMap
         let rt = RecursionTemplate::new(na::dim::<V>());
         let js = &JohnsonSimplex::new(rt);
 

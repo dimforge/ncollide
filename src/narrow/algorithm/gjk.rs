@@ -3,7 +3,7 @@
 use na::Identity;
 use na;
 use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, Reflection};
-use implicit::Implicit;
+use support_map::SupportMap;
 use narrow::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
@@ -38,8 +38,8 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1:      &M,
           P:  Point<N, V>,
           V:  Vect<N>,
           S:  Simplex<N, AnnotatedPoint<P>>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -66,8 +66,8 @@ pub fn closest_points_with_max_dist<N, P, V, M, S, G1, G2>(m1:       &M,
           P:  Point<N, V>,
           V:  Vect<N>,
           S:  Simplex<N, AnnotatedPoint<P>>,
-          G1: Implicit<P, V, M>,
-          G2: Implicit<P, V, M> {
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
@@ -93,7 +93,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Opt
           P: Point<N, V>,
           V: Vect<N>,
           S: Simplex<N, P>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = na::sqnorm(proj.as_vec());
@@ -150,7 +150,7 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
           P: Point<N, V>,
           V: Vect<N>,
           S: Simplex<N, P>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     // FIXME: reset the simplex if it is empty?
     let mut proj       = simplex.project_origin_and_reduce();
     let mut sq_len_dir = na::sqnorm(proj.as_vec());

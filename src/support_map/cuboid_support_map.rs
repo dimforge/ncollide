@@ -3,11 +3,11 @@ use std::num::Signed;
 use na::{Transform, Rotate, Basis};
 use na;
 use shape::Cuboid;
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> Implicit<P, V, M> for Cuboid<V>
+impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

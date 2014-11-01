@@ -1,11 +1,11 @@
 use na;
 use na::Translation;
-use implicit::{PreferedSamplingDirections, Implicit};
+use support_map::{PreferedSamplingDirections, SupportMap};
 use shape::Ball;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> Implicit<P, V, M> for Ball<N>
+impl<N, P, V, M> SupportMap<P, V, M> for Ball<N>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

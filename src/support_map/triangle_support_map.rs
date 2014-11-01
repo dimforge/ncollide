@@ -1,11 +1,11 @@
 use na::{Transform, Rotate};
 use na;
-use implicit::{Implicit, PreferedSamplingDirections};
+use support_map::{SupportMap, PreferedSamplingDirections};
 use shape::Triangle;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> Implicit<P, V, M> for Triangle<P>
+impl<N, P, V, M> SupportMap<P, V, M> for Triangle<P>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

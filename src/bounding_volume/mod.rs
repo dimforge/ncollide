@@ -18,7 +18,7 @@ pub mod bounding_volume;
 #[doc(hidden)]
 pub mod aabb;
 mod aabb_cuboid;
-mod aabb_implicit;
+mod aabb_support_map;
 mod aabb_ball;
 mod aabb_plane;
 mod aabb_convex;

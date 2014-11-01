@@ -2,7 +2,7 @@ use std::cmp::ApproxEq;
 use na::Vec3;
 use na;
 use shape::{Ball, MinkowskiSum};
-use implicit::Implicit;
+use support_map::SupportMap;
 use math::{Scalar, Point, Vect};
 
 #[test]

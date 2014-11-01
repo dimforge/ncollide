@@ -2,48 +2,48 @@ use na::{Translate, Rotate, Transform};
 use na;
 use narrow::{CollisionDetector, Contact};
 use shape::Plane;
-use implicit::Implicit;
+use support_map::SupportMap;
 use ray::{Ray, RayCast};
 use math::{Scalar, Point, Vect};
 
 
-/// Collision detector between a plane and a shape implementing the `Implicit` trait.
+/// Collision detector between a plane and a shape implementing the `SupportMap` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct PlaneImplicit<N, P, V, G> {
+pub struct PlaneSupportMap<N, P, V, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>
 }
 
-impl<N: Clone, P: Clone, V: Clone, G> Clone for PlaneImplicit<N, P, V, G> {
-    fn clone(&self) -> PlaneImplicit<N, P, V, G> {
-        PlaneImplicit {
+impl<N: Clone, P: Clone, V: Clone, G> Clone for PlaneSupportMap<N, P, V, G> {
+    fn clone(&self) -> PlaneSupportMap<N, P, V, G> {
+        PlaneSupportMap {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
         }
     }
 }
 
-impl<N, P, V, G> PlaneImplicit<N, P, V, G> {
+impl<N, P, V, G> PlaneSupportMap<N, P, V, G> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> PlaneImplicit<N, P, V, G> {
-        PlaneImplicit {
+    pub fn new(prediction: N) -> PlaneSupportMap<N, P, V, G> {
+        PlaneSupportMap {
             prediction: prediction,
             contact:    None
         }
     }
 }
 
-impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneImplicit<N, P, V, G>
+impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportMap<N, P, V, G>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
           M: Translate<P> + Rotate<V>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     #[inline]
     fn update(&mut self, ma: &M, plane: &Plane<V>, mb: &M, b: &G) {
         self.contact = collide(
@@ -71,43 +71,43 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneImplicit
     }
 }
 
-/// Collision detector between a plane and a shape implementing the `Implicit` trait.
+/// Collision detector between a plane and a shape implementing the `SupportMap` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct ImplicitPlane<N, P, V, G> {
+pub struct SupportMapPlane<N, P, V, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>
 }
 
-impl<N: Clone, P: Clone, V: Clone, G> Clone for ImplicitPlane<N, P, V, G> {
-    fn clone(&self) -> ImplicitPlane<N, P, V, G> {
-        ImplicitPlane {
+impl<N: Clone, P: Clone, V: Clone, G> Clone for SupportMapPlane<N, P, V, G> {
+    fn clone(&self) -> SupportMapPlane<N, P, V, G> {
+        SupportMapPlane {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
         }
     }
 }
 
-impl<N, P, V, G> ImplicitPlane<N, P, V, G> {
+impl<N, P, V, G> SupportMapPlane<N, P, V, G> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> ImplicitPlane<N, P, V, G> {
-        ImplicitPlane {
+    pub fn new(prediction: N) -> SupportMapPlane<N, P, V, G> {
+        SupportMapPlane {
             prediction: prediction,
             contact:    None
         }
     }
 }
 
-impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for ImplicitPlane<N, P, V, G>
+impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPlane<N, P, V, G>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
           M: Translate<P> + Rotate<V>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<V>) {
         self.contact = collide(mb, plane, ma, a, self.prediction);
@@ -151,7 +151,7 @@ pub fn collide<N, P, V, M, G>(
           P: Point<N, V>,
           V: Vect<N>,
           M: Translate<P> + Rotate<V>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     let plane_normal = mplane.rotate(plane.normal());
     let plane_center = mplane.translate(&na::orig());
     let deepest      = other.support_point(mother, &-plane_normal);
@@ -181,7 +181,7 @@ pub fn toi<N, P, V, M, G>(mplane: &M, plane: &Plane<V>, mother: &M, dir: &V, oth
           P: Point<N, V>,
           V: Vect<N>,
           M: Rotate<V> + Transform<P>,
-          G: Implicit<P, V, M> {
+          G: SupportMap<P, V, M> {
     let plane_normal  = mplane.rotate(plane.normal());
     let closest_point = other.support_point(mother, &-plane_normal);
 
