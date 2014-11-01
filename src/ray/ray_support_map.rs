@@ -1,8 +1,8 @@
 use std::num::{Zero, Bounded};
 use na::{Identity, Translation, Rotate, Transform, Norm};
 use na;
-use narrow::algorithm::simplex::Simplex;
-use narrow::algorithm::johnson_simplex::JohnsonSimplex;
+use narrow_phase::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::johnson_simplex::JohnsonSimplex;
 use shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
 use support_map::SupportMap;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};

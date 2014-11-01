@@ -4,7 +4,7 @@ use na::Identity;
 use na;
 use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, Reflection};
 use support_map::SupportMap;
-use narrow::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 

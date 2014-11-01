@@ -5,8 +5,8 @@ use na::{Identity, Norm, UniformSphereSample, Translation, Translate};
 use na;
 use shape::{MinkowskiSum, AnnotatedPoint, Reflection};
 use support_map::{SupportMap, PreferedSamplingDirections};
-use narrow::algorithm::gjk;
-use narrow::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::gjk;
+use narrow_phase::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 

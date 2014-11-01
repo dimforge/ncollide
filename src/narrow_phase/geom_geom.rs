@@ -9,13 +9,13 @@ use na;
 use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
                     Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};
 use support_map::{SupportMap, PreferedSamplingDirections};
-use narrow::algorithm::simplex::Simplex;
-use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
-use narrow::{CollisionDetector, SupportMapSupportMap, BallBall,
+use narrow_phase::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
+use narrow_phase::{CollisionDetector, SupportMapSupportMap, BallBall,
                       SupportMapPlane, PlaneSupportMap, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
                       BezierSurfaceBall, BallBezierSurface, Contact};
-use narrow::surface_selector::HyperPlaneSurfaceSelector;
-use narrow::OneShotContactManifoldGenerator as OSCMG;
+use narrow_phase::surface_selector::HyperPlaneSurfaceSelector;
+use narrow_phase::OneShotContactManifoldGenerator as OSCMG;
 use math::{Scalar, Point, Vect, Isometry};
 
 

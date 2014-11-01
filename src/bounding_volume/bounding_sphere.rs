@@ -54,7 +54,7 @@ impl<N, P, V> BoundingVolume<N> for BoundingSphere<N, P>
           V: FloatVec<N> + Translate<P> {
     #[inline]
     fn intersects(&self, other: &BoundingSphere<N, P>) -> bool {
-        // FIXME: refactor that with the code from narrow::ball_ball::collide(...) ?
+        // FIXME: refactor that with the code from narrow_phase::ball_ball::collide(...) ?
         let delta_pos  = other.center - self.center;
         let sqdist     = na::sqnorm(&delta_pos);
         let sum_radius = self.radius + other.radius;

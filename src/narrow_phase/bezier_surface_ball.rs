@@ -2,8 +2,8 @@ use na::{Vec2, Mat2, Translate, Transform, Inv, Norm};
 use na;
 use shape::BezierSurface;
 use shape::Ball;
-use narrow::{CollisionDetector, Contact};
-use narrow::surface_selector::SurfaceSelector;
+use narrow_phase::{CollisionDetector, Contact};
+use narrow_phase::surface_selector::SurfaceSelector;
 use math::{Scalar, Point, Vect};
 
 

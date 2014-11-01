@@ -4,11 +4,11 @@ use na;
 use shape::{AnnotatedPoint, MinkowskiSum, Reflection};
 use support_map::{SupportMap, PreferedSamplingDirections};
 use support_map;
-use narrow::algorithm::simplex::Simplex;
-use narrow::algorithm::gjk;
-use narrow::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
-use narrow::algorithm::minkowski_sampling;
-use narrow::{CollisionDetector, Contact};
+use narrow_phase::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::gjk;
+use narrow_phase::algorithm::gjk::{GJKResult, NoIntersection, Intersection, Projection};
+use narrow_phase::algorithm::minkowski_sampling;
+use narrow_phase::{CollisionDetector, Contact};
 use ray::{Ray, LocalRayCast};
 use math::{Scalar, Point, Vect};
 

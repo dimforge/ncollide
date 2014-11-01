@@ -1,6 +1,6 @@
 use na::Transform;
 use na;
-use narrow::{CollisionDetector, Contact};
+use narrow_phase::{CollisionDetector, Contact};
 use math::{Scalar, Point, Vect};
 
 

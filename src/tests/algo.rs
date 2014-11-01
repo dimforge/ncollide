@@ -1,11 +1,11 @@
 use rand;
 use na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use na;
-use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
-use narrow::algorithm::simplex::Simplex;
-use narrow::algorithm::gjk;
-use narrow::closest_points;
-use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
+use narrow_phase::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
+use narrow_phase::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::gjk;
+use narrow_phase::closest_points;
+use narrow_phase::algorithm::brute_force_simplex::BruteForceSimplex;
 use shape::Ball;
 use shape::AnnotatedPoint;
 use support_map;

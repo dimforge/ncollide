@@ -63,7 +63,7 @@ pub mod math;
 pub mod bounding_volume;
 pub mod shape;
 pub mod ray;
-pub mod narrow;
+pub mod narrow_phase;
 pub mod broad;
 pub mod support_map;
 pub mod parametric;

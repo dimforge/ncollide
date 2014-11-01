@@ -1,6 +1,6 @@
 use na::Vec3;
 use na;
-use narrow::collide;
+use narrow_phase::collide;
 use shape::Ball;
 use math::{Scalar, Point, Vect};
 

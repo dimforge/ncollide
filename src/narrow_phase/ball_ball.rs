@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::Translate;
 use na;
 use shape::Ball;
-use narrow::{CollisionDetector, Contact};
+use narrow_phase::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};
 use math::{Scalar, Point, Vect};
 

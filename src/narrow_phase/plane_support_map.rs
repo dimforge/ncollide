@@ -1,6 +1,6 @@
 use na::{Translate, Rotate, Transform};
 use na;
-use narrow::{CollisionDetector, Contact};
+use narrow_phase::{CollisionDetector, Contact};
 use shape::Plane;
 use support_map::SupportMap;
 use ray::{Ray, RayCast};

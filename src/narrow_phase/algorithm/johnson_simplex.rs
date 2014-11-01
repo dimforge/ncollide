@@ -6,7 +6,7 @@ use sync::Arc;
 use collections::TreeMap;
 use na::{Axpy, Dim};
 use na;
-use narrow::algorithm::simplex::Simplex;
+use narrow_phase::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 
@@ -483,7 +483,7 @@ impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
 #[cfg(test)]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
-    use narrow::algorithm::simplex::Simplex;
+    use narrow_phase::algorithm::simplex::Simplex;
     use na::{Pnt3, Vec3};
     use test::Bencher;
 
