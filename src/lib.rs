@@ -64,7 +64,7 @@ pub mod bounding_volume;
 pub mod shape;
 pub mod ray;
 pub mod narrow_phase;
-pub mod broad;
+pub mod broad_phase;
 pub mod support_map;
 pub mod parametric;
 pub mod partitioning;

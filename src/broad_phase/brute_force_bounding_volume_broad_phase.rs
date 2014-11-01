@@ -6,7 +6,7 @@ use utils::data::hash::UintTWHash;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::has_uid::HasUid;
 use na;
-use broad::Dispatcher;
+use broad_phase::Dispatcher;
 use bounding_volume::{HasBoundingVolume, BoundingVolume};
 use math::Scalar;
 

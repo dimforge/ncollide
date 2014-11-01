@@ -5,7 +5,7 @@ use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use bounding_volume::BoundingVolume;
 use bounding_volume::HasAABB;
-use broad::Dispatcher;
+use broad_phase::Dispatcher;
 use narrow_phase::{CollisionDetector, ShapeShapeDispatcher, ShapeShapeCollisionDetector,
              DynamicCollisionDetector, CollisionDetectorFactory, Contact};
 use shape::{Shape, ConcaveShape};

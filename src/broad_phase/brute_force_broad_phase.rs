@@ -1,7 +1,7 @@
 use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::has_uid::HasUid;
-use broad::Dispatcher;
+use broad_phase::Dispatcher;
 
 
 /**
