@@ -1,8 +1,8 @@
 use na::{Rotate, Transform};
 use bounding_volume::{HasAABB, AABB};
 use bounding_volume;
-use geom::{Cone, Cylinder, Capsule};
-use geom::{Triangle, Segment};
+use shape::{Cone, Cylinder, Capsule};
+use shape::{Triangle, Segment};
 use math::{Scalar, Point, Vect};
 
 impl<N, P, V, M> HasAABB<P, M> for Cone<N>

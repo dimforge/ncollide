@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
-use geom::Cylinder;
+use shape::Cylinder;
 use math::{Scalar, Point, Vect};
 
 

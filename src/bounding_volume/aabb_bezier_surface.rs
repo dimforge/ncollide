@@ -1,7 +1,7 @@
 use na::Transform;
 use bounding_volume::{AABB, HasAABB};
 use bounding_volume::aabb_utils;
-use geom::BezierSurface;
+use shape::BezierSurface;
 use math::{Scalar, Point, Vect};
 
 impl<N, P, V, M> HasAABB<P, M> for BezierSurface<P>

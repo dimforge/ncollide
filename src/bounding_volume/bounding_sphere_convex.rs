@@ -1,7 +1,7 @@
 use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingSphere};
 use bounding_volume;
-use geom::Convex;
+use shape::Convex;
 use math::{Scalar, Point, Vect};
 
 

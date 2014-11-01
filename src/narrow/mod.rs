@@ -6,11 +6,14 @@ pub use narrow::plane_implicit::{PlaneImplicit, ImplicitPlane};
 pub use narrow::implicit_implicit::ImplicitImplicit;
 pub use narrow::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 pub use narrow::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
-pub use narrow::geom_geom::{DynamicCollisionDetector, GeomGeomCollisionDetector,
-                                     GeomGeomDispatcher, CollisionDetectorFactory};
-pub use narrow::concave_geom_geom::{ConcaveGeomGeom, GeomConcaveGeom,
-                                             ConcaveGeomGeomFactory, GeomConcaveGeomFactory};
+pub use narrow::geom_geom ::{DynamicCollisionDetector, ShapeShapeCollisionDetector,
+                             ShapeShapeDispatcher, CollisionDetectorFactory};
+pub use narrow::concave_geom_geom::{ConcaveShapeShape, ShapeConcaveShape,
+                                    ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
 pub use narrow::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
+
+/// Computes the closest points between two balls.
+pub use narrow::ball_ball::closest_points as closest_points_ball_ball;
 
 /// Functions to compute the time of impact between two geometries.
 pub mod toi {
@@ -25,11 +28,6 @@ pub mod collide {
     pub use narrow::ball_ball::collide         as ball_ball;
     pub use narrow::plane_implicit::collide    as plane_implicit;
     pub use narrow::implicit_implicit::collide as implicit_implicit;
-}
-
-/// Functions to compute the closest points between two geometries.
-pub mod closest_points {
-    pub use narrow::ball_ball::closest_points as ball_ball;
 }
 
 mod collision_detector;

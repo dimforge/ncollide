@@ -1,4 +1,4 @@
-use geom::Reflection;
+use shape::Reflection;
 use procedural::{ToTriMesh, TriMesh};
 use math::{Point, Vect};
 

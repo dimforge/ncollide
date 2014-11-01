@@ -2,7 +2,7 @@ use na;
 use na::{Translate, Rotate, Transform, Dim};
 use math::{Scalar, Point, Vect};
 
-/// Geometric description of a polyline.
+/// Shapeetric description of a polyline.
 #[deriving(Clone)]
 pub struct Polyline<N, P, V> {
     /// Coordinates of the polyline vertices.

@@ -1,7 +1,7 @@
 use std::num::Zero;
 use na::Translate;
 use na;
-use geom::Ball;
+use shape::Ball;
 use narrow::{CollisionDetector, Contact};
 use ray::{Ray, ball_toi_with_ray};
 use math::{Scalar, Point, Vect};
@@ -84,11 +84,7 @@ pub fn collide<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>, pr
         let mut normal = na::normalize(&delta_pos);
 
         if sqdist.is_zero() {
-            na::canonical_basis(|b| {
-                normal = b;
-
-                false
-            })
+            normal = na::canonical_basis_element(0).unwrap();
         }
 
         Some(Contact::new(
@@ -104,7 +100,8 @@ pub fn collide<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>, pr
 
 /// Computes the closest points between two balls.
 ///
-/// If they are intersecting, the points corresponding to the penetration depth are returned.
+/// If they are intersecting, the witnees points of the minimal translational distance are
+/// returned.
 #[inline]
 pub fn closest_points<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>) -> (P, P)
     where N: Scalar,
@@ -121,7 +118,7 @@ pub fn closest_points<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball
 ///
 /// Arguments:
 /// * `m1`  - the first ball transform.
-/// * `dir` - the direction of the first geometry movement.
+/// * `dir` - the direction of the first shape movement.
 /// * `b1`  - the first ball.
 /// * `m2`  - the second ball transform.
 /// * `b2`  - the second ball.

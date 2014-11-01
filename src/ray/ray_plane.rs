@@ -1,7 +1,7 @@
 use na::{Transform, Rotate};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
-use geom::Plane;
+use shape::Plane;
 use math::{Scalar, Point, Vect};
 
 /// Computes the toi of a ray with a plane described by its center and normal.

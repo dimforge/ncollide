@@ -1,6 +1,6 @@
 use std::mem;
 
-/// Geometric description of a contact.
+/// Shapeetric description of a contact.
 #[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
 pub struct Contact<N, P, V> {
     /// Position of the contact on the first object. The position is expressed in world space.

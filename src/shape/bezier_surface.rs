@@ -5,7 +5,7 @@ use na::{Norm, RotationMatrix, Cross, Rotation, Mat, Rotate};
 use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
-use geom::bezier_curve;
+use shape::bezier_curve;
 use math::{Scalar, Point, Vect};
 
 /// Cache used to evaluate a bezier surface at a given parameter.

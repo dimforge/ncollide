@@ -2,7 +2,7 @@
 
 use na::{Pnt3, Vec3};
 use na;
-use geom::Ball;
+use shape::Ball;
 use parametric::ParametricSurface;
 use utils;
 use math::Scalar;

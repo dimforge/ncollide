@@ -2,7 +2,7 @@
 
 use na::Identity;
 use na;
-use geom::{AnnotatedPoint, AnnotatedMinkowskiSum, Reflection};
+use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, Reflection};
 use implicit::Implicit;
 use narrow::algorithm::simplex::Simplex;
 use math::{Scalar, Point, Vect};
@@ -23,8 +23,8 @@ pub enum GJKResult<P, V> {
 /// algorithm.
 ///
 /// # Arguments:
-/// * `g1`      - first geometry.
-/// * `g2`      - second geometry.
+/// * `g1`      - first shape.
+/// * `g2`      - second shape.
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the geometries CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
@@ -50,8 +50,8 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1:      &M,
 /// Computes the closest points between two convex geometries unsing the GJK algorithm.
 ///
 /// # Arguments:
-/// * `g1`      - first geometry.
-/// * `g2`      - second geometry.
+/// * `g1`      - first shape.
+/// * `g2`      - second shape.
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
 ///               compute such point.
@@ -82,12 +82,12 @@ pub fn closest_points_with_max_dist<N, P, V, M, S, G1, G2>(m1:       &M,
 /*
  * Distance GJK
  */
-/// Projects the origin on a geometry unsing the GJK algorithm.
+/// Projects the origin on a shape unsing the GJK algorithm.
 ///
 /// # Arguments:
-/// * geom - the geometry to project the origin on
+/// * geom - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-///             with at least one point on the geometry boundary.
+///             with at least one point on the shape boundary.
 pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Option<P>
     where N: Scalar,
           P: Point<N, V>,
@@ -133,14 +133,14 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Opt
 /*
  * Separating Axis GJK
  */
-/// Projects the origin on a geometry using the Separating Axis GJK algorithm.
+/// Projects the origin on a shape using the Separating Axis GJK algorithm.
 /// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away
 /// from the origin.
 ///
 /// # Arguments:
-/// * geom - the geometry to project the origin on
+/// * geom - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
-///             with at least one point on the geometry boundary.
+///             with at least one point on the shape boundary.
 pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
                                                       geom:     &G,
                                                       max_dist: N,

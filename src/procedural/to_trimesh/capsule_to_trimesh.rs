@@ -1,6 +1,6 @@
 use na::{Pnt3, Vec3};
 use na;
-use geom::{Capsule3, Capsule3d};
+use shape::{Capsule3, Capsule3d};
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
 

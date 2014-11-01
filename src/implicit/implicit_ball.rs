@@ -1,7 +1,7 @@
 use na;
 use na::Translation;
 use implicit::{PreferedSamplingDirections, Implicit};
-use geom::Ball;
+use shape::Ball;
 use math::{Scalar, Point, Vect};
 
 

@@ -3,14 +3,14 @@ use na::{Identity, Translation, Rotate, Transform, Norm};
 use na;
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
-use geom::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
+use shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
 use implicit::Implicit;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use ray;
 use math::{Scalar, Point, Vect};
 
 
-/// Cast a ray on a geometry using the GJK algorithm.
+/// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
                                                           geom:    &G,
                                                           simplex: &mut S,

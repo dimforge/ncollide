@@ -1,7 +1,7 @@
 use std::cmp::ApproxEq;
 use na::Vec3;
 use na;
-use geom::{Ball, MinkowskiSum};
+use shape::{Ball, MinkowskiSum};
 use implicit::Implicit;
 use math::{Scalar, Point, Vect};
 

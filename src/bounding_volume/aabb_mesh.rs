@@ -1,7 +1,7 @@
 use na::{Translate, Translation, Transform, AbsoluteRotate};
 use na;
 use bounding_volume::{AABB, HasAABB};
-use geom::{Mesh, MeshElement};
+use shape::{Mesh, MeshElement};
 use math::{Scalar, Point, Vect};
 
 

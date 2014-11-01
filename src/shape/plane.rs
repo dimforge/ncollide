@@ -1,4 +1,4 @@
-//! Support mapping based Plane geometry.
+//! Support mapping based Plane shape.
 
 use na;
 use na::Norm;

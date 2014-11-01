@@ -1,5 +1,5 @@
 use na::{Pnt3, Vec3};
-use geom::{Mesh3, Mesh3d};
+use shape::{Mesh3, Mesh3d};
 use procedural::{ToTriMesh, TriMesh, UnifiedIndexBuffer};
 
 macro_rules! impl_to_trimesh_mesh3(

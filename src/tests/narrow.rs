@@ -1,7 +1,7 @@
 use na::Vec3;
 use na;
 use narrow::collide;
-use geom::Ball;
+use shape::Ball;
 use math::{Scalar, Point, Vect};
 
 #[test]

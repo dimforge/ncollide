@@ -1,6 +1,6 @@
 use bounding_volume::{HasAABB, AABB};
 use bounding_volume;
-use geom::Triangle;
+use shape::Triangle;
 use math::Matrix;
 use math::{Scalar, Point, Vect};
 

@@ -1,5 +1,5 @@
 
-/// A Ball geometry.
+/// A Ball shape.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Ball<N> {
     radius: N

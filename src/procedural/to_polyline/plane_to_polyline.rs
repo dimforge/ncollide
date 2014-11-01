@@ -1,6 +1,6 @@
 use na::Pnt2;
 use na;
-use geom::Plane;
+use shape::Plane;
 use procedural::{ToPolyline, Polyline};
 use math::{N, Point, Vect};
 use math::{Scalar, Point, Vect};

@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{Rotate, Transform, Norm};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
-use geom::Cone;
+use shape::Cone;
 use math::{Scalar, Point, Vect};
 
 

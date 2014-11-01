@@ -61,7 +61,7 @@ extern crate test;
 
 pub mod math;
 pub mod bounding_volume;
-pub mod geom;
+pub mod shape;
 pub mod ray;
 pub mod narrow;
 pub mod broad;

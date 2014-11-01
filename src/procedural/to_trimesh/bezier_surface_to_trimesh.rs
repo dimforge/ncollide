@@ -1,5 +1,5 @@
 use na::{Pnt3, Vec3};
-use geom::{BezierSurface3, BezierSurface3d};
+use shape::{BezierSurface3, BezierSurface3d};
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
 

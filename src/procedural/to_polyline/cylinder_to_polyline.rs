@@ -1,6 +1,6 @@
 use na::{Pnt2, Vec2};
 use na;
-use geom::{Cylinder2, Cylinder2d};
+use shape::{Cylinder2, Cylinder2d};
 use procedural::{ToPolyline, Polyline};
 use procedural;
 

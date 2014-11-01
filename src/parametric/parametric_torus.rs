@@ -1,6 +1,6 @@
 use na::{Pnt3, Vec3};
 use na;
-use geom::Torus;
+use shape::Torus;
 use parametric::ParametricSurface;
 use utils;
 use math::Scalar;

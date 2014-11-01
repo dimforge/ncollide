@@ -1,8 +1,8 @@
-//! Support mapping based Capsule geometry.
+//! Support mapping based Capsule shape.
 
 use math::Scalar;
 
-/// Implicit description of a capsule geometry with its principal axis aligned with the `y` axis.
+/// Implicit description of a capsule shape with its principal axis aligned with the `y` axis.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Capsule<N> {
     half_height: N,

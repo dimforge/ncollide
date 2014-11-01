@@ -1,7 +1,7 @@
 use na::{Transform, FloatVec, Translate};
 use bounding_volume::BoundingVolume;
 use bounding_volume::{BoundingSphere, HasBoundingSphere};
-use geom::Compound;
+use shape::Compound;
 use math::{Scalar, Point};
 
 

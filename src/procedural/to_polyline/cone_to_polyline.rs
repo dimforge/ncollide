@@ -1,6 +1,6 @@
 use na::{Pnt2, Vec2};
 use na;
-use geom::{Cone2, Cone2d};
+use shape::{Cone2, Cone2d};
 use procedural::{ToPolyline, Polyline};
 
 macro_rules! impl_to_polyline_cone2(

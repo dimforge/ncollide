@@ -1,5 +1,5 @@
 use na::{Pnt2, Vec2};
-use geom::{Segment2, Segment2d};
+use shape::{Segment2, Segment2d};
 use procedural::{ToPolyline, Polyline};
 
 macro_rules! impl_to_polyline_segment2(

@@ -1,7 +1,7 @@
 use na::{Vec2, Mat2, Translate, Transform, Inv, Norm};
 use na;
-use geom::BezierSurface;
-use geom::Ball;
+use shape::BezierSurface;
+use shape::Ball;
 use narrow::{CollisionDetector, Contact};
 use narrow::surface_selector::SurfaceSelector;
 use math::{Scalar, Point, Vect};

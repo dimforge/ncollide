@@ -9,9 +9,9 @@ pub trait Implicit<P, V, M> {
     // This might be useful to avoid useless normalizations.
     /**
      * Evaluates the support function of the object. A support function is a
-     * function associating a vector to the geometry point which maximizes their
+     * function associating a vector to the shape point which maximizes their
      * dot product. This does not include the `margin` of the object. Margins are
-     * geometry-dependent. Use `support_point` to sample the complete geometry.
+     * shape-dependent. Use `support_point` to sample the complete shape.
      *
      * # Arguments:
      *  * `dir` - the input of the support function. It is not required for it to
@@ -29,8 +29,8 @@ impl<'a, P, V, M> Implicit<P, V, M> for &'a Implicit<P, V, M> + 'a {
 
 /// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
 ///
-/// Those directions are usually the geometry faces normals.
+/// Those directions are usually the shape faces normals.
 pub trait PreferedSamplingDirections<V, M> {
-    /// Applies a function to this geometry with a given transform.
+    /// Applies a function to this shape with a given transform.
     fn sample(&self, &M, |V| -> ());
 }

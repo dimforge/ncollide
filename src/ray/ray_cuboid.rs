@@ -1,7 +1,7 @@
 use na::{Transform, Rotate};
 use na;
 use bounding_volume::AABB;
-use geom::Cuboid;
+use shape::Cuboid;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use math::{Scalar, Point, Vect};
 

@@ -1,5 +1,5 @@
 use na::{Pnt2, Vec2};
-use geom::{BezierCurve2, BezierCurve2d};
+use shape::{BezierCurve2, BezierCurve2d};
 use procedural::{ToPolyline, Polyline};
 use procedural;
 

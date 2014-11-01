@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{FloatVec, Cross};
 use na;
 use volumetric::{Volumetric, InertiaTensor};
-use geom::{Compound, CompoundData};
+use shape::{Compound, CompoundData};
 use math::{Scalar, Point};
 
 
@@ -77,7 +77,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     /// The mass properties of this `CompoundData`.
     ///
     /// If `density` is not zero, it will be multiplied with the density of every object of the
-    /// compound geometry.
+    /// compound shape.
     fn mass_properties(&self, density: N) -> (N, P, I) {
         let mut mtot = na::zero::<N>();
         let mut itot = na::zero::<I>();

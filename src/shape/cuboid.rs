@@ -1,10 +1,10 @@
-//! Support mapping based Cuboid geometry.
+//! Support mapping based Cuboid shape.
 
 use std::num::Signed;
 use na::Iterable;
 use math::Scalar;
 
-/// Geometry of a box.
+/// Shapeetry of a box.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cuboid<V> {
     half_extents: V

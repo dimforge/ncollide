@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{Pnt2, Pnt3, Mat1, Mat3, Orig, Iterable};
 use na;
 use volumetric::Volumetric;
-use geom::{Cuboid2, Cuboid2d, Cuboid3, Cuboid3d};
+use shape::{Cuboid2, Cuboid2d, Cuboid3, Cuboid3d};
 use math::Scalar;
 
 

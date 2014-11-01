@@ -1,7 +1,7 @@
 use std::num::Bounded;
 use na;
 use ray::{Ray, RayCast, RayIntersection};
-use geom::{ConcaveGeom, Compound};
+use shape::{ConcaveShape, Compound};
 use math::{Scalar, Point, Vect};
 
 

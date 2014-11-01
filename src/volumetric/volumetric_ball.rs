@@ -4,7 +4,7 @@ use na::Orig;
 use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
-use geom::{Ball2, Ball2d, Ball3, Ball3d};
+use shape::{Ball2, Ball2d, Ball3, Ball3d};
 use math::Scalar;
 
 

@@ -1,27 +1,27 @@
 //! Collision geometries supported by ncollide.
 #[doc(inline)]
-pub use geom::geom::{Geom, ConcaveGeom};
-pub use geom::ball::Ball;
-pub use geom::plane::Plane;
-pub use geom::cuboid::Cuboid;
-pub use geom::capsule::Capsule;
-pub use geom::cone::Cone;
-pub use geom::cylinder::Cylinder;
-pub use geom::convex::Convex;
-pub use geom::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};
-pub use geom::reflection::Reflection;
-pub use geom::compound::{Compound, CompoundData};
-pub use geom::mesh::{Mesh, MeshElement};
-pub use geom::segment::Segment;
-pub use geom::triangle::Triangle;
-pub use geom::bezier_curve::BezierCurve;
-pub use geom::bezier_surface::BezierSurface;
-pub use geom::torus::Torus;
+pub use shape::shape::{Shape, ConcaveShape};
+pub use shape::ball::Ball;
+pub use shape::plane::Plane;
+pub use shape::cuboid::Cuboid;
+pub use shape::capsule::Capsule;
+pub use shape::cone::Cone;
+pub use shape::cylinder::Cylinder;
+pub use shape::convex::Convex;
+pub use shape::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint};
+pub use shape::reflection::Reflection;
+pub use shape::compound::{Compound, CompoundData};
+pub use shape::mesh::{Mesh, MeshElement};
+pub use shape::segment::Segment;
+pub use shape::triangle::Triangle;
+pub use shape::bezier_curve::BezierCurve;
+pub use shape::bezier_surface::BezierSurface;
+pub use shape::torus::Torus;
 
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3, Mat1, Mat3};
 
 #[doc(hidden)]
-pub mod geom;
+pub mod shape;
 mod plane;
 mod cuboid;
 mod minkowski_sum;
@@ -44,15 +44,15 @@ mod convex;
  * Aliases.
  *
  */
-#[doc = "2D Geom trait object that uses double precision."]
-pub type Geom2d = Geom<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>> + Send + Sync;
-#[doc = "2D Geom trait object that uses single precision."]
-pub type Geom2 = Geom<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>> + Send + Sync;
+#[doc = "2D Shape trait object that uses double precision."]
+pub type Shape2d = Shape<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>> + Send + Sync;
+#[doc = "2D Shape trait object that uses single precision."]
+pub type Shape2 = Shape<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>> + Send + Sync;
 
-#[doc = "3D Geom trait object that uses double precision."]
-pub type Geom3d = Geom<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>> + Send + Sync;
-#[doc = "3D Geom trait object that uses single precision."]
-pub type Geom3 = Geom<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
+#[doc = "3D Shape trait object that uses double precision."]
+pub type Shape3d = Shape<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>> + Send + Sync;
+#[doc = "3D Shape trait object that uses single precision."]
+pub type Shape3 = Shape<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
 
 #[doc = "2D ball that uses double precision."] pub type Ball2d = Ball<f64>;
 #[doc = "2D plane that uses double precision."] pub type Plane2d = Plane<Vec2<f64>>;
@@ -66,7 +66,7 @@ pub type Geom3 = Geom<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
 #[doc = "2D Bézier curve that uses double precision."] pub type BezierCurve2d = BezierCurve<Pnt2<f64>>;
 #[doc = "2D Bézier surface that uses double precision."] pub type BezierSurface2d = BezierSurface<Pnt2<f64>>;
 #[doc = "2D Mesh that uses double precision."] pub type Mesh2d = Mesh<f64, Pnt2<f64>, Vec2<f64>, Segment2d>;
-#[doc = "2D Compound geometry that uses double precision."] pub type Compound2d = Compound<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>, Mat1<f64>>;
+#[doc = "2D Compound shape that uses double precision."] pub type Compound2d = Compound<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>, Mat1<f64>>;
 
 #[doc = "2D ball that uses single precision."] pub type Ball2 = Ball<f32>;
 #[doc = "2D plane that uses single precision."] pub type Plane2 = Plane<Vec2<f32>>;
@@ -80,7 +80,7 @@ pub type Geom3 = Geom<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
 #[doc = "2D Bézier curve that uses single precision."] pub type BezierCurve2 = BezierCurve<Pnt2<f32>>;
 #[doc = "2D Bézier surface that uses single precision."] pub type BezierSurface2 = BezierSurface<Pnt2<f32>>;
 #[doc = "2D Mesh that uses single precision."] pub type Mesh2 = Mesh<f32, Pnt2<f32>, Vec2<f32>, Segment2>;
-#[doc = "2D Compound geometry that uses single precision."] pub type Compound2 = Compound<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>, Mat1<f32>>;
+#[doc = "2D Compound shape that uses single precision."] pub type Compound2 = Compound<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>, Mat1<f32>>;
 
 #[doc = "3D ball that uses double precision."] pub type Ball3d = Ball<f64>;
 #[doc = "3D plane that uses double precision."] pub type Plane3d = Plane<Vec3<f64>>;
@@ -94,7 +94,7 @@ pub type Geom3 = Geom<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
 #[doc = "3D Bézier curve that uses double precision."] pub type BezierCurve3d = BezierCurve<Pnt3<f64>>;
 #[doc = "3D Bézier surface that uses double precision."] pub type BezierSurface3d = BezierSurface<Pnt3<f64>>;
 #[doc = "3D Mesh that uses double precision."] pub type Mesh3d = Mesh<f64, Pnt3<f64>, Vec3<f64>, Triangle3d>;
-#[doc = "3D Compound geometry that uses double precision."] pub type Compound3d = Compound<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>, Mat3<f64>>;
+#[doc = "3D Compound shape that uses double precision."] pub type Compound3d = Compound<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>, Mat3<f64>>;
 
 #[doc = "3D ball that uses single precision."] pub type Ball3 = Ball<f32>;
 #[doc = "3D plane that uses single precision."] pub type Plane3 = Plane<Vec3<f32>>;
@@ -108,4 +108,4 @@ pub type Geom3 = Geom<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
 #[doc = "3D Bézier curve that uses single precision."] pub type BezierCurve3 = BezierCurve<Pnt3<f32>>;
 #[doc = "3D Bézier surface that uses single precision."] pub type BezierSurface3 = BezierSurface<Pnt3<f32>>;
 #[doc = "3D Mesh that uses single precision."] pub type Mesh3 = Mesh<f32, Pnt3<f32>, Vec3<f32>, Triangle3>;
-#[doc = "3D Compound geometry that uses single precision."] pub type Compound3 = Compound<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>, Mat3<f32>>;
+#[doc = "3D Compound shape that uses single precision."] pub type Compound3 = Compound<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>, Mat3<f32>>;

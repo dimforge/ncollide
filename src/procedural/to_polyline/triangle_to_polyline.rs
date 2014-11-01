@@ -1,5 +1,5 @@
 use na::{Pnt2, Vec2};
-use geom::{Triangle2, Triangle2d};
+use shape::{Triangle2, Triangle2d};
 use procedural::{ToPolyline, Polyline};
 
 macro_rules! impl_to_polyline_triangle2(

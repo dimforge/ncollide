@@ -1,7 +1,7 @@
 use na::{AbsoluteRotate, Translation};
 use na;
 use bounding_volume::{HasAABB, AABB};
-use geom::Cuboid;
+use shape::Cuboid;
 use math::{Scalar, Point};
 
 impl<N, P, V, M> HasAABB<P, M> for Cuboid<V>

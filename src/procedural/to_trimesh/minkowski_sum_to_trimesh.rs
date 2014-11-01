@@ -1,7 +1,7 @@
 use std::num::Zero;
 use na::{Outer, EigenQR, Translate};
 use na;
-use geom::MinkowskiSum;
+use shape::MinkowskiSum;
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 use math::{Scalar, Point, Vect};

@@ -1,11 +1,11 @@
-//! Definition of the triangle geometry.
+//! Definition of the triangle shape.
 
 use na::Dim;
 use na;
-use geom::MeshElement;
+use shape::MeshElement;
 
 
-/// A triangle geometry.
+/// A triangle shape.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Triangle<P> {
     a: P,

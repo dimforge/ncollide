@@ -1,7 +1,7 @@
 use na::{Pnt2, Transform, Rotate, Translate, Dim};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
-use geom::Ball;
+use shape::Ball;
 use math::{Scalar, Point, Vect};
 
 

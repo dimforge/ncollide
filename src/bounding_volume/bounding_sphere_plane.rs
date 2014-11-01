@@ -1,7 +1,7 @@
 use std::num::Bounded;
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
-use geom::Plane;
+use shape::Plane;
 use math::{Scalar, Point, Vect};
 
 

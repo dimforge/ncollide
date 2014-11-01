@@ -1,5 +1,5 @@
 use na;
-use geom::Plane;
+use shape::Plane;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{N, Point, Vect};

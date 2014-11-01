@@ -1,6 +1,6 @@
 use na::{Transform, Rotate};
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
-use geom::Ball;
+use shape::Ball;
 use bounding_volume::BoundingSphere;
 use math::{Scalar, Point, Vect};
 

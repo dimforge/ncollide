@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{Vec3, Identity, Transform, Rotate};
 use na;
 use narrow::algorithm::johnson_simplex::JohnsonSimplex;
-use geom::Triangle;
+use shape::Triangle;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::{Scalar, Point, Vect};
 

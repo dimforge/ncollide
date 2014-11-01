@@ -4,7 +4,7 @@ use na::{Rotation, RotationMatrix, Rotate, Translate, Cross, Mat, Identity};
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use bounding_volume::BoundingVolume;
-use geom::BezierSurface;
+use shape::BezierSurface;
 use math::{Scalar, Point, Vect};
 
 

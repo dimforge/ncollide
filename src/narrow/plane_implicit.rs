@@ -1,13 +1,13 @@
 use na::{Translate, Rotate, Transform};
 use na;
 use narrow::{CollisionDetector, Contact};
-use geom::Plane;
+use shape::Plane;
 use implicit::Implicit;
 use ray::{Ray, RayCast};
 use math::{Scalar, Point, Vect};
 
 
-/// Collision detector between a plane and a geometry implementing the `Implicit` trait.
+/// Collision detector between a plane and a shape implementing the `Implicit` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
@@ -27,7 +27,7 @@ impl<N: Clone, P: Clone, V: Clone, G> Clone for PlaneImplicit<N, P, V, G> {
 }
 
 impl<N, P, V, G> PlaneImplicit<N, P, V, G> {
-    /// Creates a new persistent collision detector between a plane and a geometry with a support
+    /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
     pub fn new(prediction: N) -> PlaneImplicit<N, P, V, G> {
@@ -71,7 +71,7 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneImplicit
     }
 }
 
-/// Collision detector between a plane and a geometry implementing the `Implicit` trait.
+/// Collision detector between a plane and a shape implementing the `Implicit` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
@@ -91,7 +91,7 @@ impl<N: Clone, P: Clone, V: Clone, G> Clone for ImplicitPlane<N, P, V, G> {
 }
 
 impl<N, P, V, G> ImplicitPlane<N, P, V, G> {
-    /// Creates a new persistent collision detector between a plane and a geometry with a support
+    /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
     pub fn new(prediction: N) -> ImplicitPlane<N, P, V, G> {
@@ -168,14 +168,14 @@ pub fn collide<N, P, V, M, G>(
     }
 }
 
-/// Computes the Time Of Impact of a geometry and a plane.
+/// Computes the Time Of Impact of a shape and a plane.
 ///
 /// Arguments:
 /// * `mplane` - the plane transform.
 /// * `plane`  - the plane.
-/// * `mother` - the geometry transform.
-/// * `dir`    - the direction of the other geometry movement.
-/// * `other`  - the other geometry.
+/// * `mother` - the shape transform.
+/// * `dir`    - the direction of the other shape movement.
+/// * `other`  - the other shape.
 pub fn toi<N, P, V, M, G>(mplane: &M, plane: &Plane<V>, mother: &M, dir: &V, other: &G) -> Option<N>
     where N: Scalar,
           P: Point<N, V>,

@@ -6,8 +6,8 @@ use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::gjk;
 use narrow::closest_points;
 use narrow::algorithm::brute_force_simplex::BruteForceSimplex;
-use geom::Ball;
-use geom::AnnotatedPoint;
+use shape::Ball;
+use shape::AnnotatedPoint;
 use implicit;
 use math::{Scalar, Point, Vect};
 

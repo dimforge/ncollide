@@ -3,7 +3,7 @@
 use std::collections::{HashMap};
 use std::collections::hashmap::{Occupied, Vacant};
 use sync::{Arc, RWLock};
-use geom::BezierSurface;
+use shape::BezierSurface;
 
 /*
  * FIXME:

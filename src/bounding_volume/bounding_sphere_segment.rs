@@ -1,7 +1,7 @@
 use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingSphere};
 use bounding_volume;
-use geom::Segment;
+use shape::Segment;
 use math::{Scalar, Point, Vect};
 
 

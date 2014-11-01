@@ -1,7 +1,7 @@
 use na::{Transform, Rotate};
 use na;
 use implicit::{Implicit, PreferedSamplingDirections};
-use geom::Triangle;
+use shape::Triangle;
 use math::{Scalar, Point, Vect};
 
 

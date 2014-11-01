@@ -1,7 +1,7 @@
 use std::num::Zero;
 use na::{Transform, Rotate, Translate, Translation, Norm};
 use na;
-use geom::{AnnotatedPoint, MinkowskiSum, Reflection};
+use shape::{AnnotatedPoint, MinkowskiSum, Reflection};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
 use narrow::algorithm::simplex::Simplex;
@@ -111,7 +111,7 @@ pub fn collide<N, P, V, M, S, G1, G2>(m1:         &M,
                                       simplex:    &mut S,
                                       init_dir:   Option<V>)
                                       -> GJKResult<Contact<N, P, V>, V>
-    where N: Scalar,
+    where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P>,
           M:  Translation<V>,
@@ -162,11 +162,11 @@ pub fn collide<N, P, V, M, S, G1, G2>(m1:         &M,
 /// Computes the Time Of Impact of two geometries.
 ///
 /// # Arguments:
-/// * `m1`  - the first geometry transform.
-/// * `dir` - the direction of the first geometry movement.
-/// * `g1`  - the first geometry.
-/// * `m2`  - the second geometry transform.
-/// * `g2`  - the second geometry.
+/// * `m1`  - the first shape transform.
+/// * `dir` - the direction of the first shape movement.
+/// * `g1`  - the first shape.
+/// * `m2`  - the second shape transform.
+/// * `g2`  - the second shape.
 pub fn toi<N, P, V, M, G1, G2>(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<N>
     where N: Scalar,
           P:  Point<N, V>,
@@ -183,11 +183,11 @@ pub fn toi<N, P, V, M, G1, G2>(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Opt
 /// Computes the Time Of Impact of two geometries.
 ///
 /// # Arguments:
-/// * `m1`  - the first geometry transform.
-/// * `dir` - the direction of the first geometry movement.
-/// * `g1`  - the first geometry.
-/// * `m2`  - the second geometry transform.
-/// * `g2`  - the second geometry.
+/// * `m1`  - the first shape transform.
+/// * `dir` - the direction of the first shape movement.
+/// * `g1`  - the first shape.
+/// * `m2`  - the second shape transform.
+/// * `g2`  - the second shape.
 pub fn toi_and_normal<N, P, V, M, G1, G2>( m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<(N, V)>
     where N: Scalar,
           P:  Point<N, V>,

@@ -1,6 +1,6 @@
 use na::{Pnt2, Vec2};
 use na;
-use geom::{Ball2, Ball2d};
+use shape::{Ball2, Ball2d};
 use procedural::{ToPolyline, Polyline};
 use procedural;
 

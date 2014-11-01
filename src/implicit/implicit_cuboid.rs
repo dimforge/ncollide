@@ -2,7 +2,7 @@
 use std::num::Signed;
 use na::{Transform, Rotate, Basis};
 use na;
-use geom::Cuboid;
+use shape::Cuboid;
 use implicit::{Implicit, PreferedSamplingDirections};
 use math::{Scalar, Point, Vect};
 

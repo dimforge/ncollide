@@ -3,7 +3,7 @@
 use std::num::{Zero, Bounded};
 use na::{Identity, Norm, UniformSphereSample, Translation, Translate};
 use na;
-use geom::{MinkowskiSum, AnnotatedPoint, Reflection};
+use shape::{MinkowskiSum, AnnotatedPoint, Reflection};
 use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::gjk;
 use narrow::algorithm::simplex::Simplex;

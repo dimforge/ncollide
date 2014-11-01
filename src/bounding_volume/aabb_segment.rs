@@ -1,6 +1,6 @@
 use bounding_volume::{HasAABB, AABB};
 use bounding_volume;
-use geom::Segment;
+use shape::Segment;
 use math::Matrix;
 use math::{Scalar, Point, Vect};
 

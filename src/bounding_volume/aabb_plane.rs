@@ -1,7 +1,7 @@
 use std::num::Bounded;
 use na;
 use bounding_volume::{HasAABB, AABB};
-use geom::Plane;
+use shape::Plane;
 use math::{Scalar, Point};
 
 

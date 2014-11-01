@@ -1,7 +1,7 @@
 use na::Translate;
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
-use geom::Cuboid;
+use shape::Cuboid;
 use math::{Scalar, Point, Vect};
 
 

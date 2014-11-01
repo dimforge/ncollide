@@ -1,11 +1,11 @@
-//! Definition of the segment geometry.
+//! Definition of the segment shape.
 
 use na::Dim;
 use na;
-use geom::MeshElement;
+use shape::MeshElement;
 
 
-/// A segment geometry.
+/// A segment shape.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Segment<P> {
     a: P,

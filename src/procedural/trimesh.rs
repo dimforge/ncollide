@@ -35,7 +35,7 @@ impl IndexBuffer {
 }
 
 #[deriving(Clone, Show)]
-/// Geometric description of a mesh.
+/// Shapeetric description of a mesh.
 pub struct TriMesh<N, P, V> {
     // FIXME: those should *not* be public.
     /// Coordinates of the mesh vertices.

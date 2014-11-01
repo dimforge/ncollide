@@ -1,4 +1,4 @@
-//! Collision detector between two `Box<Geom>`.
+//! Collision detector between two `Box<Shape>`.
 
 use std::num::Bounded;
 use std::intrinsics::TypeId;
@@ -6,13 +6,13 @@ use std::any::{Any, AnyRefExt};
 use std::collections::HashMap;
 use na::{Translate, Rotation, Cross};
 use na;
-use geom::{AnnotatedPoint, Geom, ConcaveGeom, Cuboid, Convex,
+use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
                     Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};
 use implicit::{Implicit, PreferedSamplingDirections};
 use narrow::algorithm::simplex::Simplex;
 use narrow::algorithm::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow::{CollisionDetector, ImplicitImplicit, BallBall,
-                      ImplicitPlane, PlaneImplicit, ConcaveGeomGeomFactory, GeomConcaveGeomFactory,
+                      ImplicitPlane, PlaneImplicit, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
                       BezierSurfaceBall, BallBezierSurface, Contact};
 use narrow::surface_selector::HyperPlaneSurfaceSelector;
 use narrow::OneShotContactManifoldGenerator as OSCMG;
@@ -20,11 +20,11 @@ use math::{Scalar, Point, Vect, Isometry};
 
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
-pub trait GeomGeomCollisionDetector<N, P, V, M, I> {
+pub trait ShapeShapeCollisionDetector<N, P, V, M, I> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self, &GeomGeomDispatcher<N, P, V, M, I>, &M, &Geom<N, P, V, M>, &M, &Geom<N, P, V, M>);
+    fn update(&mut self, &ShapeShapeDispatcher<N, P, V, M, I>, &M, &Shape<N, P, V, M>, &M, &Shape<N, P, V, M>);
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> uint;
@@ -36,7 +36,7 @@ pub trait GeomGeomCollisionDetector<N, P, V, M, I> {
 /// Trait to be implemented by collision detector using dynamic dispatch.
 ///
 /// This is used to know the exact type of the geometries.
-pub trait DynamicCollisionDetector<N, P, V, M, I, G1, G2>: GeomGeomCollisionDetector<N, P, V, M, I> { }
+pub trait DynamicCollisionDetector<N, P, V, M, I, G1, G2>: ShapeShapeCollisionDetector<N, P, V, M, I> { }
 
 #[deriving(Clone)]
 struct DetectorWithoutRedispatch<D> {
@@ -61,22 +61,22 @@ impl<N, P, V, M, D, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for DetectorWi
 impl<N, P, V, M, I, D: CollisionDetector<N, P, V, M, G1, G2>, G1, G2>
 DynamicCollisionDetector<N, P, V, M, I, G1, G2> for DetectorWithoutRedispatch<D> { }
 
-impl<N, P, V, M, I, D, G1, G2> GeomGeomCollisionDetector<N, P, V, M, I> for DetectorWithoutRedispatch<D>
+impl<N, P, V, M, I, D, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for DetectorWithoutRedispatch<D>
     where D:  CollisionDetector<N, P, V, M, G1, G2>,
           G1: 'static,
           G2: 'static {
     #[inline]
     fn update(&mut self,
-              _:  &GeomGeomDispatcher<N, P, V, M, I>,
+              _:  &ShapeShapeDispatcher<N, P, V, M, I>,
               m1: &M,
-              g1: &Geom<N, P, V, M>,
+              g1: &Shape<N, P, V, M>,
               m2: &M,
-              g2: &Geom<N, P, V, M>) {
+              g2: &Shape<N, P, V, M>) {
         self.detector.update(
             m1,
-            g1.downcast_ref::<G1>().expect("Invalid geometry."),
+            g1.downcast_ref::<G1>().expect("Invalid shape."),
             m2,
-            g2.downcast_ref::<G2>().expect("Invalid geometry."))
+            g2.downcast_ref::<G2>().expect("Invalid shape."))
     }
 
     #[inline]
@@ -90,16 +90,16 @@ impl<N, P, V, M, I, D, G1, G2> GeomGeomCollisionDetector<N, P, V, M, I> for Dete
     }
 }
 
-/// Collision dispatcher between two `~Geom`.
-pub struct GeomGeomDispatcher<N, P, V, M, I> {
+/// Collision dispatcher between two `~Shape`.
+pub struct ShapeShapeDispatcher<N, P, V, M, I> {
     constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory<N, P, V, M, I>>>
 }
 
-impl<N, P, V, M, I> GeomGeomDispatcher<N, P, V, M, I> {
-    /// Creates a new `GeomGeomDispatcher` without the default set of collision detectors
+impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
+    /// Creates a new `ShapeShapeDispatcher` without the default set of collision detectors
     /// factories.
-    pub fn new_without_default() -> GeomGeomDispatcher<N, P, V, M, I> {
-        GeomGeomDispatcher {
+    pub fn new_without_default() -> ShapeShapeDispatcher<N, P, V, M, I> {
+        ShapeShapeDispatcher {
             constructors: HashMap::new()
         }
     }
@@ -141,13 +141,13 @@ impl<N, P, V, M, I> GeomGeomDispatcher<N, P, V, M, I> {
     }
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Geom<N, P, V, M>, b: &Geom<N, P, V, M>) -> Option<Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>> {
+    pub fn dispatch(&self, a: &Shape<N, P, V, M>, b: &Shape<N, P, V, M>) -> Option<Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>> {
         self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 
 // FIXME: Remove the `UniformSphereSample` bound when the EPA is implemented.
-impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
+impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> + Cross<AV>,
@@ -155,10 +155,10 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
           M:  Isometry<N, P, V> + Rotation<AV>,
           I:  Send + Clone {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
-    /// Creates a new `GeomGeomDispatcher` able do build collision detectors for any valid pair of
+    /// Creates a new `ShapeShapeDispatcher` able do build collision detectors for any valid pair of
     /// geometries supported by `ncollide`.
-    pub fn new(prediction: N) -> GeomGeomDispatcher<N, P, V, M, I> {
-        let mut res: GeomGeomDispatcher<N, P, V, M, I> = GeomGeomDispatcher::new_without_default();
+    pub fn new(prediction: N) -> ShapeShapeDispatcher<N, P, V, M, I> {
+        let mut res: ShapeShapeDispatcher<N, P, V, M, I> = ShapeShapeDispatcher::new_without_default();
 
         // Ball vs. Ball
         let bb = BallBall::new(prediction.clone());
@@ -225,7 +225,7 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Triangle<P>>(prediction);
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Segment<P>>(prediction);
 
-        // // FIXME: implement a ConcaveGeomConcaveGeom detector?
+        // // FIXME: implement a ConcaveShapeConcaveShape detector?
         res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Compound<N, P, V, M, I>>(prediction);
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M, I>>(prediction);
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M, I>>(prediction);
@@ -233,7 +233,7 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
         res
     }
 
-    /// Registers a `PlaneImplicit` collision detector between a given implicit geometry and a plane.
+    /// Registers a `PlaneImplicit` collision detector between a given implicit shape and a plane.
     pub fn register_default_plane_implicit_detector<I>(&mut self, generate_manifold: bool, prediction: N)
         where I: 'static + Implicit<P, V, M> {
         let d1 = ImplicitPlane::<N, P, V, I>::new(prediction.clone());
@@ -270,13 +270,13 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
         }
     }
 
-    /// Register an `ConcaveGeomGeom` collision detector between a given concave geometry and a
-    /// given geometry.
+    /// Register an `ConcaveShapeShape` collision detector between a given concave shape and a
+    /// given shape.
     pub fn register_default_concave_geom_geom_detector<G1, G2>(&mut self, prediction: N)
-        where G1: 'static + ConcaveGeom<N, P, V, M>,
-              G2: 'static + Geom<N, P, V, M> {
-        let  f1 = ConcaveGeomGeomFactory::<N, P, V, M, G1, G2>::new(prediction.clone());
-        let  f2 = GeomConcaveGeomFactory::<N, P, V, M, G2, G1>::new(prediction.clone());
+        where G1: 'static + ConcaveShape<N, P, V, M>,
+              G2: 'static + Shape<N, P, V, M> {
+        let  f1 = ConcaveShapeShapeFactory::<N, P, V, M, G1, G2>::new(prediction.clone());
+        let  f2 = ShapeConcaveShapeFactory::<N, P, V, M, G2, G1>::new(prediction.clone());
 
         // FIXME: find a way to factorize that?
         unsafe { self.register_factory::<G1, G2, _>(f1) }
@@ -295,8 +295,8 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
         self.register_detector(d);
     }
 
-    /// Register `ImplicitImplicit` collision detectors between a given geometry and every implicit
-    /// geometry supported by `ncollide`.
+    /// Register `ImplicitImplicit` collision detectors between a given shape and every implicit
+    /// shape supported by `ncollide`.
     pub fn register_default_implicit_detectors<G>(&mut self, generate_manifold: bool, prediction: N)
         where G: 'static + Implicit<P, V, M> + PreferedSamplingDirections<V, M> {
 
@@ -317,11 +317,11 @@ impl<N, P, V, AV, M, I> GeomGeomDispatcher<N, P, V, M, I>
     }
 }
 
-// FIXME: rename that GeomGeomCollisionDetectorFactory ?
+// FIXME: rename that ShapeShapeCollisionDetectorFactory ?
 /// Trait of structures able do build a new collision detector.
 pub trait CollisionDetectorFactory<N, P, V, M, I> : Send {
     /// Builds a new collision detector.
-    fn build(&self) -> Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>;
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>;
 }
 
 /// Cloning-based collision detector factory.
@@ -329,7 +329,7 @@ pub struct CollisionDetectorCloner<CD> {
     template: CD
 }
 
-impl<N, P, V, M, I, CD: GeomGeomCollisionDetector<N, P, V, M, I> + Clone> CollisionDetectorCloner<CD> {
+impl<N, P, V, M, I, CD: ShapeShapeCollisionDetector<N, P, V, M, I> + Clone> CollisionDetectorCloner<CD> {
     /// Creates a new `CollisionDetectorCloner`.
     ///
     /// The cloned detector is `CD`.
@@ -341,8 +341,8 @@ impl<N, P, V, M, I, CD: GeomGeomCollisionDetector<N, P, V, M, I> + Clone> Collis
 }
 
 impl<N, P, V, M, I, CD> CollisionDetectorFactory<N, P, V, M, I> for CollisionDetectorCloner<CD>
-    where CD: 'static + Send + GeomGeomCollisionDetector<N, P, V, M, I> + Clone {
-    fn build(&self) -> Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send> {
-        box self.template.clone() as Box<GeomGeomCollisionDetector<N, P, V, M, I> + Send>
+    where CD: 'static + Send + ShapeShapeCollisionDetector<N, P, V, M, I> + Clone {
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send> {
+        box self.template.clone() as Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>
     }
 }

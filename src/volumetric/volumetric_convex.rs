@@ -8,7 +8,7 @@ use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
 use procedural;
 use volumetric::Volumetric;
 use math::{Scalar, Point, Vect};
-use geom::{Convex3, Convex3d};
+use shape::{Convex3, Convex3d};
 
 
 fn tetrahedron_unit_inertia_tensor_wrt_point<N, P, V, I>(point: &P, p1: &P, p2: &P, p3: &P, p4: &P) -> I
@@ -291,7 +291,7 @@ impl_volumetric_convex3!(Convex3d, 3, Pnt3, Mat3, f64)
 mod test {
     use na::Vec3;
     use na;
-    use geom::{Convex, Cuboid};
+    use shape::{Convex, Cuboid};
     use procedural;
     use volumetric::Volumetric;
 

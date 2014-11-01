@@ -1,6 +1,6 @@
 use na::Translate;
 use na;
-use geom::MinkowskiSum;
+use shape::MinkowskiSum;
 use procedural::{Polyline, ToPolyline};
 use procedural;
 use math::{Scalar, Point, Vect};

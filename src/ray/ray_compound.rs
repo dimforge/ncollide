@@ -2,7 +2,7 @@ use std::num::Bounded;
 use na::{Translate, AbsoluteRotate, Rotate, Transform};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
-use geom::{ConcaveGeom, Compound};
+use shape::{ConcaveShape, Compound};
 use math::{Scalar, Point, Vect};
 
 

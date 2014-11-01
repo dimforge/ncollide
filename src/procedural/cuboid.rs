@@ -4,7 +4,7 @@ use procedural::{TriMesh, SplitIndexBuffer, Polyline};
 use math::{Scalar, Point, Vect};
 
 /**
- * Generates a cuboid geometry with a split index buffer.
+ * Generates a cuboid shape with a split index buffer.
  *
  * # Arguments:
  * * `extents` - the extents of the cuboid.
@@ -19,7 +19,7 @@ pub fn cuboid<N>(extents: &Vec3<N>) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 }
 
 /**
- * Generates a cuboid geometry with a split index buffer.
+ * Generates a cuboid shape with a split index buffer.
  *
  * The cuboid is centered at the origin, and has its half extents set to 0.5.
  */

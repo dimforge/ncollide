@@ -1,7 +1,7 @@
 use na::{Pnt2, Pnt3, Pnt4, Vec2, Vec3, Vec4, Transform, Rotate, Translation};
 use implicit::Implicit;
 
-use geom::{Ball2, Ball3, Ball4,
+use shape::{Ball2, Ball3, Ball4,
            Cuboid2, Cuboid3, Cuboid4,
            Capsule2, Capsule3, Capsule4,
            Cone2, Cone3, Cone4,

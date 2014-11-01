@@ -1,5 +1,5 @@
 use na::{Pnt3, Vec3};
-use geom::{Triangle3, Triangle3d};
+use shape::{Triangle3, Triangle3d};
 use procedural::{ToTriMesh, TriMesh};
 
 macro_rules! impl_to_trimesh_triangle3(

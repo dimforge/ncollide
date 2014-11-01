@@ -1,5 +1,5 @@
 use implicit::Implicit;
-use geom::Reflection;
+use shape::Reflection;
 use math::{Scalar, Vect};
 
 

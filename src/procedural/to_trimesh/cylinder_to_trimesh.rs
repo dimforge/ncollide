@@ -1,6 +1,6 @@
 use na::{Pnt3, Vec3};
 use na;
-use geom::{Cylinder3, Cylinder3d};
+use shape::{Cylinder3, Cylinder3d};
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 

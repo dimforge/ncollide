@@ -1,6 +1,6 @@
 use na::{Pnt2, Vec2};
 use na;
-use geom::{Capsule2, Capsule2d};
+use shape::{Capsule2, Capsule2d};
 use procedural::{ToPolyline, Polyline};
 use procedural::utils;
 

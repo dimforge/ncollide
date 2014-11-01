@@ -1,8 +1,8 @@
-//! Support mapping based Cone geometry.
+//! Support mapping based Cone shape.
 
 use math::Scalar;
 
-/// Implicit description of a cylinder geometry with its principal axis aligned with the `y` axis.
+/// Implicit description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
 pub struct Cone<N> {
     half_height: N,

@@ -4,7 +4,7 @@ use std::num::Bounded;
 use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, NumVec, POrd,
          POrdering, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv, FloatPnt};
 use na;
-use geom::Reflection;
+use shape::Reflection;
 use math::{Scalar, Point, Vect};
 
 
@@ -40,25 +40,25 @@ impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
         MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
-    /// The transformation matrix of the first geometry of this Minkowski Sum.
+    /// The transformation matrix of the first shape of this Minkowski Sum.
     #[inline]
     pub fn m1(&self) -> &'a M {
         self.m1
     }
 
-    /// The transformation matrix of the second geometry of this Minkowski Sum.
+    /// The transformation matrix of the second shape of this Minkowski Sum.
     #[inline]
     pub fn m2(&self) -> &'a M {
         self.m2
     }
 
-    /// The first geometry of this Minkowski Sum.
+    /// The first shape of this Minkowski Sum.
     #[inline]
     pub fn g1(&self) -> &'a G1 {
         self.g1
     }
 
-    /// The second geometry of this Minkowski Sum.
+    /// The second shape of this Minkowski Sum.
     #[inline]
     pub fn g2(&self) -> &'a G2 {
         self.g2
@@ -90,25 +90,25 @@ impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
         AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
     }
 
-    /// The transformation matrix of the first geometry of this Minkowski Sum.
+    /// The transformation matrix of the first shape of this Minkowski Sum.
     #[inline]
     pub fn m1(&self) -> &'a M {
         self.m1
     }
 
-    /// The transformation matrix of the second geometry of this Minkowski Sum.
+    /// The transformation matrix of the second shape of this Minkowski Sum.
     #[inline]
     pub fn m2(&self) -> &'a M {
         self.m2
     }
 
-    /// The first geometry of this Minkowski Sum.
+    /// The first shape of this Minkowski Sum.
     #[inline]
     pub fn g1(&self) -> &'a G1 {
         self.g1
     }
 
-    /// The second geometry of this Minkowski Sum.
+    /// The second shape of this Minkowski Sum.
     #[inline]
     pub fn g2(&self) -> &'a G2 {
         self.g2

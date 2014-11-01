@@ -1,7 +1,7 @@
 use na::{Transform, Rotate};
 use implicit::{Implicit, PreferedSamplingDirections};
 use implicit;
-use geom::Convex;
+use shape::Convex;
 use math::{Scalar, Point, Vect};
 
 

@@ -3,7 +3,7 @@ use na::Orig;
 use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
-use geom::{Cylinder2, Cylinder2d, Cylinder3, Cylinder3d};
+use shape::{Cylinder2, Cylinder2d, Cylinder3, Cylinder3d};
 use math::Scalar;
 
 

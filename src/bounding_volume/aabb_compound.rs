@@ -1,7 +1,7 @@
 use na::{Translation, AbsoluteRotate, Transform, Translate};
 use na;
 use bounding_volume::{AABB, HasAABB};
-use geom::Compound;
+use shape::Compound;
 use math::{Scalar, Point, Vect};
 
 impl<N, P, V, M, M2, I> HasAABB<P, M2> for Compound<N, P, V, M, I>

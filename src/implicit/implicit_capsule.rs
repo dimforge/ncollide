@@ -1,7 +1,7 @@
 use na;
 use na::{Rotate, Transform};
 use implicit::{Implicit, PreferedSamplingDirections};
-use geom::Capsule;
+use shape::Capsule;
 use math::{Scalar, Point, Vect};
 
 

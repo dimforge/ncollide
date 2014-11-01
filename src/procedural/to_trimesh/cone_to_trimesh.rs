@@ -1,6 +1,6 @@
 use na::{Pnt3, Vec3};
 use na;
-use geom::{Cone3, Cone3d};
+use shape::{Cone3, Cone3d};
 use procedural::{TriMesh, ToTriMesh};
 use procedural;
 

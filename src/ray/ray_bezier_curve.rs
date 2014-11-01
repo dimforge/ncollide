@@ -1,6 +1,6 @@
 use na::{Transform, Rotate};
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
-use geom::BezierCurve;
+use shape::BezierCurve;
 
 impl<N, P, V> LocalRayCast<N, P, V> for BezierCurve<P> {
     fn toi_and_normal_with_ray(&self, _: &Ray<P, V>, _: bool) -> Option<RayIntersection<N, V>> {

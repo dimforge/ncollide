@@ -1,7 +1,7 @@
 use na::{Translate};
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
-use geom::Cone;
+use shape::Cone;
 use math::{Scalar, Point};
 
 

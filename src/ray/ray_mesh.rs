@@ -3,7 +3,7 @@ use na::{Pnt2, Transform, Rotate};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use ray;
-use geom::{Mesh, MeshElement};
+use shape::{Mesh, MeshElement};
 use math::{Scalar, Point, Vect};
 
 

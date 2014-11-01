@@ -1,4 +1,4 @@
-use geom::Reflection;
+use shape::Reflection;
 use procedural::{ToPolyline, Polyline};
 use math::{Scalar, Point, Vect};
 

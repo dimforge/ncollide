@@ -1,6 +1,6 @@
 use na::{FloatVec, Identity};
 use implicit::Implicit;
-use geom::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
+use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
 
 

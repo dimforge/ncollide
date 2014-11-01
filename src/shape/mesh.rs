@@ -8,7 +8,7 @@ use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, HasBoundingSphere, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
-use geom::{Geom, ConcaveGeom};
+use shape::{Shape, ConcaveShape};
 use ray::RayCast;
 use math::{Scalar, Point, Vect};
 
@@ -21,7 +21,7 @@ pub trait MeshElement<P> {
     fn new_with_vertices_and_indices(&[P], &[uint]) -> Self;
 }
 
-/// Geometry commonly known as a 2d line strip or a 3d triangle mesh.
+/// Shapeetry commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct Mesh<N, P, V, E: MeshElement<P>> {
     bvt:      BVT<uint, AABB<P>>,
     bvs:      Vec<AABB<P>>,
@@ -171,24 +171,24 @@ impl<N, P: Send + Sync, V, E: MeshElement<P>> Mesh<N, P, V, E> {
     }
 }
 
-impl<N, P, V, M, E> ConcaveGeom<N, P, V, M> for Mesh<N, P, V, E>
+impl<N, P, V, M, E> ConcaveShape<N, P, V, M> for Mesh<N, P, V, E>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
           M: One + Rotate<V> + AbsoluteRotate<V> + Transform<P> + Translation<V>,
           E: Send + MeshElement<P> + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Clone {
     #[inline(always)]
-    fn map_part_at<T>(&self, i: uint, f: |&M, &Geom<N, P, V, M>| -> T) -> T {
+    fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T {
         let one: M = na::one();
 
         self.map_transformed_part_at(&one, i, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Geom<N, P, V, M>| -> T) -> T{
+    fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
         let element = self.element_at(i);
 
-        f(m, &element as &Geom<N, P, V, M>)
+        f(m, &element as &Shape<N, P, V, M>)
     }
 
     #[inline]
