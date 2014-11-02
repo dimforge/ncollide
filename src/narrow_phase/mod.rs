@@ -12,9 +12,6 @@ pub use narrow_phase::concave_geom_geom::{ConcaveShapeShape, ShapeConcaveShape,
                                     ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
 pub use narrow_phase::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
 
-/// Computes the closest points between two balls.
-pub use narrow_phase::ball_ball::closest_points as closest_points_ball_ball;
-
 /// Functions to compute the time of impact between two geometries.
 pub mod toi {
     pub use narrow_phase::ball_ball::toi                    as ball_ball;

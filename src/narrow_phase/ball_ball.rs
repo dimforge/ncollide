@@ -98,22 +98,6 @@ pub fn collide<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>, pr
     }
 }
 
-/// Computes the closest points between two balls.
-///
-/// If they are intersecting, the witnees points of the minimal translational distance are
-/// returned.
-#[inline]
-pub fn closest_points<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>) -> (P, P)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let r1     = b1.radius();
-    let r2     = b2.radius();
-    let normal = na::normalize(&(*center2 - *center1));
-
-    (*center1 + normal * r1, *center2 + (-normal * r2))
-}
-
 /// Computes the Time Of Impact of two balls.
 ///
 /// Arguments:

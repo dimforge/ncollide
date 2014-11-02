@@ -483,7 +483,7 @@ impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
 #[cfg(test)]
 mod test {
     use super::{JohnsonSimplex, RecursionTemplate};
-    use narrow_phase::algorithm::simplex::Simplex;
+    use geometry::algorithms::simplex::Simplex;
     use na::{Pnt3, Vec3};
     use test::Bencher;
 

@@ -80,6 +80,33 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, V>] {
         self.table.as_mut_slice()
     }
+
+    /// The number of elements contained by this hashmap.
+    #[inline]
+    pub fn len(&self) -> uint {
+        self.num_elem
+    }
+
+    /// Whether or not this hashmap is empty.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.num_elem == 0
+    }
+
+    /// Removes everything from this hashmap.
+    #[inline]
+    pub fn clear(&mut self) {
+        self.table.clear();
+        self.num_elem = 0;
+
+        for i in self.htable.iter_mut() {
+            *i = -1
+        }
+
+        for i in self.next.iter_mut() {
+            *i = -1
+        }
+    }
 }
 
 
@@ -263,37 +290,14 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
         &mut self.table[res].value
     }
-}
 
-impl<K, V, H: HashFun<K>> Collection for HashMap<K, V, H> {
-    #[inline]
-    fn len(&self) -> uint {
-        self.num_elem
-    }
-}
-
-impl<K, V, H: HashFun<K>> Mutable for HashMap<K, V, H> {
-    fn clear(&mut self) {
-        self.table.clear();
-        self.num_elem = 0;
-
-        for i in self.htable.iter_mut() {
-            *i = -1
-        }
-
-        for i in self.next.iter_mut() {
-            *i = -1
-        }
-    }
-}
-
-
-impl<K: PartialEq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
-    fn contains_key(&self, key: &K) -> bool {
+    /// Checks whether this hashmap contains a specific key.
+    pub fn contains_key(&self, key: &K) -> bool {
         self.find(key).is_some()
     }
 
-    fn find<'a>(&'a self, key: &K) -> Option<&'a V> {
+    /// Finds a reference to the element with a given key.
+    pub fn find<'a>(&'a self, key: &K) -> Option<&'a V> {
         let h = self.hash.hash(key) & self.mask;
 
         let mut pos = self.htable[h];
@@ -314,9 +318,7 @@ impl<K: PartialEq, V, H: HashFun<K>> Map<K, V> for HashMap<K, V, H> {
             Some(&self.table[pos as uint].value)
         }
     }
-}
 
-impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Inserts an element on the hash map.
     pub fn insert(&mut self, key: K, value: V) -> bool {
         let (res, _) = self.do_insert_or_replace(key, value, true);

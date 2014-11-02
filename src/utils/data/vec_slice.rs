@@ -18,30 +18,6 @@ pub struct VecSliceMut<'a, T: 'a> {
     stride: uint
 }
 
-impl<'a, T> Collection for VecSlice<'a, T> {
-    #[inline]
-    fn len(&self) -> uint {
-        self.length
-    }
-
-    #[inline]
-    fn is_empty(&self) -> bool {
-        self.length != 0
-    }
-}
-
-impl<'a, T> Collection for VecSliceMut<'a, T> {
-    #[inline]
-    fn len(&self) -> uint {
-        self.length
-    }
-
-    #[inline]
-    fn is_empty(&self) -> bool {
-        self.length != 0
-    }
-}
-
 impl<'a, T> VecSlice<'a, T> {
     /// Creates a new immutable slice.
     #[inline]
@@ -62,6 +38,18 @@ impl<'a, T> VecSlice<'a, T> {
             length: length,
             stride: stride
         }
+    }
+
+    /// The length of this slice.
+    #[inline]
+    pub fn len(&self) -> uint {
+        self.length
+    }
+
+    /// Whether or not this slice is empty.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.length != 0
     }
 
     #[inline(always)]
@@ -110,6 +98,18 @@ impl<'a, T> VecSliceMut<'a, T> {
             length: length,
             stride: stride
         }
+    }
+
+    /// The length of this slice.
+    #[inline]
+    pub fn len(&self) -> uint {
+        self.length
+    }
+
+    /// Whether or not this slice is empty.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.length != 0
     }
 
     /// Creates an immutable slice from this mutable slice.
