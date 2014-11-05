@@ -6,12 +6,16 @@ use ray::{Ray, RayCast};
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 
 /// Trait (that should be) implemented by every shape.
-pub trait Shape<N, P, V, M>: HasAABB<P, M>           +
-                         HasBoundingSphere<N, P, M> +
-                         RayCast<N, P, V, M>     +
-                         Any {
+pub trait Shape<N, P, V, M>: HasAABB<P, M>              +
+                             HasBoundingSphere<N, P, M> +
+                             RayCast<N, P, V, M>        +
+                             Any {
     /// Duplicates (clones) this shape.
-    fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send>;
+    fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send + Sync>;
+    /// Tells whether `Self` is a trait-object or an exact type.
+    fn is_exact(&self) -> bool {
+        true
+    }
 }
 
 /// Trait implemented by concave, composite geometries.
@@ -36,10 +40,10 @@ pub trait ConcaveShape<N, P, V, M> : Shape<N, P, V, M> {
 }
 
 impl<N, P, V, M, T> Shape<N, P, V, M> for T
-    where T: 'static + Send + Clone + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Any {
+    where T: 'static + Send + Sync + Clone + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Any {
     #[inline]
-    fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send> {
-        (box self.clone()) as Box<Shape<N, P, V, M> + Send>
+    fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send + Sync> {
+        (box self.clone()) as Box<Shape<N, P, V, M> + Send + Sync>
     }
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not

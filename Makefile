@@ -17,5 +17,8 @@ distcheck:
 doc:
 	cargo doc
 
+bench:
+	cargo bench
+
 clean:
 	cargo clean

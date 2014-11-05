@@ -2,7 +2,7 @@
 
 use std::num::Zero;
 use std::collections::HashMap;
-use std::collections::hash_map::{Occupied, Vacant};
+use std::collections::hash_map::Entry;
 use std::mem;
 use na;
 use na::{Pnt3, Vec3, Dim, Cross, Orig};
@@ -164,8 +164,8 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
                         -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
         let id = match vtx_to_id.entry(key) {
-            Occupied(entry) => entry.into_mut(),
-            Vacant(entry)   => entry.set(new_coords.len() as u32)
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry)   => entry.set(new_coords.len() as u32)
         };
 
         if *id == new_coords.len() as u32 {

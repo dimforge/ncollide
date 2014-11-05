@@ -13,9 +13,10 @@ use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
 use narrow_phase::{CollisionDetector, SupportMapSupportMap, BallBall,
                       SupportMapPlane, PlaneSupportMap, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
-                      BezierSurfaceBall, BallBezierSurface, Contact};
+                      BezierSurfaceBall, BallBezierSurface};
 use narrow_phase::surface_selector::HyperPlaneSurfaceSelector;
 use narrow_phase::OneShotContactManifoldGenerator as OSCMG;
+use geometry::Contact;
 use math::{Scalar, Point, Vect, Isometry};
 
 
@@ -153,7 +154,7 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
           V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Clone {
+          I:  Send + Sync + Clone {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `ShapeShapeDispatcher` able do build collision detectors for any valid pair of
     /// geometries supported by `ncollide`.

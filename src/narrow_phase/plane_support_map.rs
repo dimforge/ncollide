@@ -1,6 +1,7 @@
 use na::{Translate, Rotate, Transform};
-use na;
-use narrow_phase::{CollisionDetector, Contact};
+use narrow_phase::CollisionDetector;
+use geometry::Contact;
+use geometry::contacts_internal;
 use shape::Plane;
 use support_map::SupportMap;
 use ray::{Ray, RayCast};
@@ -46,7 +47,7 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportM
           G: SupportMap<P, V, M> {
     #[inline]
     fn update(&mut self, ma: &M, plane: &Plane<V>, mb: &M, b: &G) {
-        self.contact = collide(
+        self.contact = contacts_internal::plane_against_support_map(
             ma,
             plane,
             mb,
@@ -110,12 +111,7 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPla
           G: SupportMap<P, V, M> {
     #[inline]
     fn update(&mut self, ma: &M, a: &G, mb: &M, plane: &Plane<V>) {
-        self.contact = collide(mb, plane, ma, a, self.prediction);
-
-        match self.contact {
-            Some(ref mut c) => c.flip(),
-            None            => { }
-        }
+        self.contact = contacts_internal::support_map_against_plane(ma, a, mb, plane, self.prediction);
     }
 
     #[inline]
@@ -132,39 +128,6 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPla
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
         }
-    }
-}
-
-/// Same as `update_collide_plane_implicit_shape` but the existing collision or `None`.
-///
-/// # Arguments:
-/// * `plane` - the plane to test.
-/// * `other` - the object to test against the plane.
-pub fn collide<N, P, V, M, G>(
-               mplane:     &M,
-               plane:      &Plane<V>,
-               mother:     &M,
-               other:      &G,
-               prediction: N)
-               -> Option<Contact<N, P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Translate<P> + Rotate<V>,
-          G: SupportMap<P, V, M> {
-    let plane_normal = mplane.rotate(plane.normal());
-    let plane_center = mplane.translate(&na::orig());
-    let deepest      = other.support_point(mother, &-plane_normal);
-
-    let dist = na::dot(&plane_normal, &(plane_center - deepest));
-
-    if dist > -prediction {
-        let c1 = deepest + plane_normal * dist;
-
-        Some(Contact::new(c1, deepest, plane_normal, dist))
-    }
-    else {
-        None
     }
 }
 

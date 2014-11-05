@@ -2,7 +2,7 @@ use std::num::Zero;
 use std::iter::AdditiveIterator;
 use std::mem;
 use std::collections::{HashMap, HashSet, BinaryHeap};
-use std::collections::hash_map::{Occupied, Vacant};
+use std::collections::hash_map::Entry;
 use std::rand::{IsaacRng, Rng};
 use std::num::Bounded;
 use std::hash::sip::SipHasher;
@@ -645,8 +645,8 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
 
         let add_ray = |coord: u32, normal: u32| {
             let existing = match raymap.entry((coord, normal)) {
-                Occupied(entry) => entry.into_mut(),
-                Vacant(entry)   => entry.set(rays.len())
+                Entry::Occupied(entry) => entry.into_mut(),
+                Entry::Vacant(entry)   => entry.set(rays.len())
             };
 
             if *existing == rays.len() {
@@ -696,8 +696,8 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
 
             for e in es.iter() {
                 let other = match prim_edges.entry(e.clone()) {
-                    Occupied(entry) => entry.into_mut(),
-                    Vacant(entry)   => entry.set(i)
+                    Entry::Occupied(entry) => entry.into_mut(),
+                    Entry::Vacant(entry)   => entry.set(i)
                 };
 
                 if *other != i {

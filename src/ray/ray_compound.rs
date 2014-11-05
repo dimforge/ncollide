@@ -11,8 +11,8 @@ impl<N, P, V, M, I> LocalRayCast<N, P, V> for Compound<N, P, V, M, I>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
+          I: Send + Sync + Clone {
     fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
         // FIXME: optimize that and avoid the allocation using the dedicated ray casting function
         // from the BVT.
@@ -77,6 +77,6 @@ impl<N, P, V, M, I> RayCast<N, P, V, M> for Compound<N, P, V, M, I>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
+          I: Send + Sync + Clone {
 }

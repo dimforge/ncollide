@@ -7,8 +7,9 @@ use bounding_volume::BoundingVolume;
 use bounding_volume::HasAABB;
 use broad_phase::Dispatcher;
 use narrow_phase::{CollisionDetector, ShapeShapeDispatcher, ShapeShapeCollisionDetector,
-             DynamicCollisionDetector, CollisionDetectorFactory, Contact};
+             DynamicCollisionDetector, CollisionDetectorFactory};
 use shape::{Shape, ConcaveShape};
+use geometry::Contact;
 use math::{Scalar, Point};
 
 

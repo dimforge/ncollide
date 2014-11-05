@@ -1,4 +1,5 @@
-use narrow_phase::{CollisionDetector, Contact};
+use narrow_phase::CollisionDetector;
+use geometry::Contact;
 
 /// A collision detector that does nothing.
 #[deriving(Encodable, Decodable)]

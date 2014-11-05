@@ -1,6 +1,7 @@
 use na::Transform;
 use na;
-use narrow_phase::{CollisionDetector, Contact};
+use narrow_phase::CollisionDetector;
+use geometry::Contact;
 use math::{Scalar, Point, Vect};
 
 
@@ -34,8 +35,8 @@ impl<N, P, V> ContactWLocals<N, P, V>
 /// contacts).
 #[deriving(Encodable, Decodable, Clone)]
 pub struct IncrementalContactManifoldGenerator<N, P, V, CD> {
-    contacts:     Vec<ContactWLocals<N, P, V>>,
-    collector:    Vec<Contact<N, P, V>>,
+    contacts:     Vec<ContactWLocals<N, P, V>>, // FIXME: replace by a vec slice to avoid allocations ?
+    collector:    Vec<Contact<N, P, V>>,        // FIXME: replace by a vec slice to avoid allocations ?
     prediction:   N,
     sub_detector: CD
 }

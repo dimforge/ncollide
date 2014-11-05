@@ -1,10 +1,11 @@
-use std::num::Zero;
 use na::Translate;
 use na;
 use shape::Ball;
-use narrow_phase::{CollisionDetector, Contact};
+use narrow_phase::CollisionDetector;
+use geometry::Contact;
 use ray::{Ray, ball_toi_with_ray};
 use math::{Scalar, Point, Vect};
+use geometry::contacts_internal;
 
 
 /// Collision detector between two balls.
@@ -40,7 +41,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M, Ball<N>, Ball<N>> for BallBall<N,
           V: Vect<N>,
           M: Translate<P> {
     fn update(&mut self, ma: &M, a: &Ball<N>, mb: &M, b: &Ball<N>) {
-        self.contact = collide(
+        self.contact = contacts_internal::ball_against_ball(
             &ma.translate(&na::orig()),
             a,
             &mb.translate(&na::orig()),
@@ -62,39 +63,6 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M, Ball<N>, Ball<N>> for BallBall<N,
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()
         }
-    }
-}
-
-/// Computes the contact point between two balls.
-///
-/// The balls must penetrate to have contact points.
-#[inline]
-pub fn collide<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>, prediction: N) -> Option<Contact<N, P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let r1         = b1.radius();
-    let r2         = b2.radius();
-    let delta_pos  = *center2 - *center1;
-    let sqdist     = na::sqnorm(&delta_pos);
-    let sum_radius = r1 + r2;
-    let sum_radius_with_error = sum_radius + prediction;
-
-    if sqdist < sum_radius_with_error * sum_radius_with_error {
-        let mut normal = na::normalize(&delta_pos);
-
-        if sqdist.is_zero() {
-            normal = na::canonical_basis_element(0).unwrap();
-        }
-
-        Some(Contact::new(
-                *center1 + normal * r1,
-                *center2 + (-normal * r2),
-                normal,
-                (sum_radius - sqdist.sqrt())))
-    }
-    else {
-        None
     }
 }
 

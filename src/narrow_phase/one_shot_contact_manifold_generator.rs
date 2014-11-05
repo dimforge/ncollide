@@ -1,6 +1,7 @@
 use na::{Cross, Transform, Translation, Rotation};
 use na;
-use narrow_phase::{CollisionDetector, IncrementalContactManifoldGenerator, Contact};
+use narrow_phase::{CollisionDetector, IncrementalContactManifoldGenerator};
+use geometry::Contact;
 use math::{Scalar, Point, Vect};
 
 

@@ -1,5 +1,6 @@
 //! Collision detection algorithms and structure for the Narrow Phase.
-pub use narrow_phase::collision_detector::{CollisionDetector, Contact};
+#[doc(inline)]
+pub use narrow_phase::collision_detector::CollisionDetector;
 pub use narrow_phase::empty::Empty;
 pub use narrow_phase::ball_ball::BallBall;
 pub use narrow_phase::plane_support_map::{PlaneSupportMap, SupportMapPlane};
@@ -20,14 +21,8 @@ pub mod toi {
     pub use narrow_phase::support_map_support_map::toi_and_normal as support_map_support_map_and_normal;
 }
 
-/// Functions to compute one contact point between two geometries.
-pub mod collide {
-    pub use narrow_phase::ball_ball::collide         as ball_ball;
-    pub use narrow_phase::plane_support_map::collide    as plane_support_map;
-    pub use narrow_phase::support_map_support_map::collide as support_map_support_map;
-}
-
-mod collision_detector;
+#[doc(hidden)]
+pub mod collision_detector;
 mod empty;
 mod ball_ball;
 mod plane_support_map;

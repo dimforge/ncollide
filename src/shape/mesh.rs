@@ -6,10 +6,9 @@ use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pn
 use na;
 use ray::Ray;
 use partitioning::BVT;
-use bounding_volume::{HasAABB, HasBoundingSphere, AABB};
+use bounding_volume::{HasAABB, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use shape::{Shape, ConcaveShape};
-use ray::RayCast;
 use math::{Scalar, Point, Vect};
 
 
@@ -22,7 +21,7 @@ pub trait MeshElement<P> {
 }
 
 /// Shapeetry commonly known as a 2d line strip or a 3d triangle mesh.
-pub struct Mesh<N, P, V, E: MeshElement<P>> {
+pub struct Mesh<N, P, V, E> {
     bvt:      BVT<uint, AABB<P>>,
     bvs:      Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
@@ -32,10 +31,9 @@ pub struct Mesh<N, P, V, E: MeshElement<P>> {
 }
 
 impl<N, P, V, E> Clone for Mesh<N, P, V, E>
-    where N: Scalar,
+    where N: Clone,
           P: Send + Sync + Clone,
-          V: Send + Sync,
-          E: MeshElement<P> {
+          V: Send + Sync {
     fn clone(&self) -> Mesh<N, P, V, E> {
         Mesh {
             bvt:      self.bvt.clone(),
@@ -176,7 +174,7 @@ impl<N, P, V, M, E> ConcaveShape<N, P, V, M> for Mesh<N, P, V, E>
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
           M: One + Rotate<V> + AbsoluteRotate<V> + Transform<P> + Translation<V>,
-          E: Send + MeshElement<P> + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Clone {
+          E: Send + Sync + MeshElement<P> + Shape<N, P, V, M> + Clone {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T {
         let one: M = na::one();

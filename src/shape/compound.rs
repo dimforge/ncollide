@@ -14,10 +14,10 @@ use shape::{Shape, ConcaveShape};
 use math::{Scalar, Point, Vect};
 
 
-#[deriving(Clone)]
 /// Structure used to build a `Compound` shape.
 ///
 /// This accumulates the geometries and their volumetric properties.
+#[deriving(Clone)]
 pub struct CompoundData<N, P, V, M, I> {
     geoms: Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
     props: Vec<(N, N, P, I)>
@@ -179,8 +179,8 @@ impl<N, P, V, M, I> ConcaveShape<N, P, V, M> for Compound<N, P, V, M, I>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
+          I: Send + Sync + Clone {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
         let &(ref m, ref g) = &self.geoms[i];
