@@ -1,8 +1,8 @@
 use std::num::Zero;
 use std::iter::AdditiveIterator;
 use std::mem;
-use std::collections::{HashMap, HashSet, PriorityQueue};
-use std::collections::hashmap::{Occupied, Vacant};
+use std::collections::{HashMap, HashSet, BinaryHeap};
+use std::collections::hash_map::{Occupied, Vacant};
 use std::rand::{IsaacRng, Rng};
 use std::num::Bounded;
 use std::hash::sip::SipHasher;
@@ -33,14 +33,14 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
 
     let mut mesh = mesh;
 
-    let mut edges      = PriorityQueue::new();
+    let mut edges      = BinaryHeap::new();
     let (center, diag) = normalize(&mut mesh);
     let (rays, raymap) = compute_rays(&mesh);
     let mut dual_graph = compute_dual_graph(&mesh, &raymap);
     let bvt            = compute_ray_bvt(rays.as_slice());
 
     /*
-     * Initialize the priority queue.
+     * Initialize the binary heap.
      */
     for (i, v) in dual_graph.iter().enumerate() {
         for n in v.neighbors.as_ref().unwrap().iter() {
@@ -350,7 +350,7 @@ struct DualGraphEdge<N> {
     mcost:     N,
     exact:     bool,
     timestamp: uint,
-    ancestors: PriorityQueue<VertexWithConcavity<N>>,
+    ancestors: BinaryHeap<VertexWithConcavity<N>>,
     iv1:       uint,
     iv2:       uint,
     shape:     N,
@@ -398,7 +398,7 @@ impl<N: Scalar> DualGraphEdge<N> {
             mcost:     -(approx_concavity + max_concavity * shape_cost),
             exact:     false,
             timestamp: timestamp,
-            ancestors: PriorityQueue::with_capacity(0),
+            ancestors: BinaryHeap::with_capacity(0),
             iv1:       0,
             iv2:       0,
             shape:     shape_cost,
@@ -440,7 +440,7 @@ impl<N: Scalar> DualGraphEdge<N> {
                                    ray:        &Ray<Pnt3<N>, Vec3<N>>,
                                    id:         uint,
                                    concavity:  &mut N,
-                                   ancestors:  &mut PriorityQueue<VertexWithConcavity<N>>) {
+                                   ancestors:  &mut BinaryHeap<VertexWithConcavity<N>>) {
             let sv   = chull.support_point(&Identity::new(), &ray.dir);
             let dist = na::dot(sv.as_vec(), &ray.dir);
 
