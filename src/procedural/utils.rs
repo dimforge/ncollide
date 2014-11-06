@@ -2,7 +2,7 @@
 
 use std::num::Zero;
 use std::collections::HashMap;
-use std::collections::hashmap::{Occupied, Vacant};
+use std::collections::hash_map::{Occupied, Vacant};
 use std::mem;
 use na;
 use na::{Pnt3, Vec3, Dim, Cross, Orig};

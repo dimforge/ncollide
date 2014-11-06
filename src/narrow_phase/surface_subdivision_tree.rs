@@ -1,7 +1,7 @@
 //! Tree used to cache subdivisions of surfaces.
 
 use std::collections::{HashMap};
-use std::collections::hashmap::{Occupied, Vacant};
+use std::collections::hash_map::{Occupied, Vacant};
 use sync::{Arc, RWLock};
 use shape::BezierSurface;
 

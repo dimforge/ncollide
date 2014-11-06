@@ -24,7 +24,7 @@ impl<K, V> Entry<K, V> {
 
 /// Alternative implementation of `HashMap`.
 ///
-/// It is different from `std::hashmap::HashMap` because:
+/// It is different from `std::hash_map::HashMap` because:
 ///
 /// * the hash function can be personalized
 /// * the hash table is separate from the data. Thus, the vector of entries is tight (no holes
@@ -355,11 +355,11 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 #[cfg(test)]
 mod test {
     use super::HashMap;
-    use std::collections::hashmap;
+    use std::collections::hash_map;
     use test::Bencher;
     use utils::data::hash::{UintTWHash, UintPairTWHash};
 
-    // NOTE: some tests are simply copy-pasted from std::hashmap tests.
+    // NOTE: some tests are simply copy-pasted from std::hash_map tests.
     #[test]
     fn test_find() {
         let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
@@ -446,7 +446,7 @@ mod test {
 
     #[bench]
     fn bench_insert_std(bh: &mut Bencher) {
-        let mut m = hashmap::HashMap::with_capacity(32);
+        let mut m = hash_map::HashMap::with_capacity(32);
 
         bh.iter(|| {
             for i in range(0u, 500) {
@@ -496,7 +496,7 @@ mod test {
 
     #[bench]
     fn bench_insert_find_remove_std(bh: &mut Bencher) {
-        let mut m = hashmap::HashMap::with_capacity(32);
+        let mut m = hash_map::HashMap::with_capacity(32);
 
         bh.iter(|| {
             for i in range(0u, 200) {

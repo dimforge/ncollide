@@ -1,7 +1,7 @@
 //! Point cloud triangulation.
 
 use std::collections::HashMap;
-use std::collections::hashmap::{Vacant, Occupied};
+use std::collections::hash_map::{Vacant, Occupied};
 use na::Vec3;
 use na;
 use procedural::{TriMesh, UnifiedIndexBuffer};
