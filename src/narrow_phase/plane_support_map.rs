@@ -13,13 +13,13 @@ use math::{Scalar, Point, Vect};
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct PlaneSupportMap<N, P, V, G> {
+pub struct PlaneSupportMap<N, P, V, M, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>
 }
 
-impl<N: Clone, P: Clone, V: Clone, G> Clone for PlaneSupportMap<N, P, V, G> {
-    fn clone(&self) -> PlaneSupportMap<N, P, V, G> {
+impl<N: Clone, P: Clone, V: Clone, M, G> Clone for PlaneSupportMap<N, P, V, M, G> {
+    fn clone(&self) -> PlaneSupportMap<N, P, V, M, G> {
         PlaneSupportMap {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
@@ -27,11 +27,11 @@ impl<N: Clone, P: Clone, V: Clone, G> Clone for PlaneSupportMap<N, P, V, G> {
     }
 }
 
-impl<N, P, V, G> PlaneSupportMap<N, P, V, G> {
+impl<N, P, V, M, G> PlaneSupportMap<N, P, V, M, G> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> PlaneSupportMap<N, P, V, G> {
+    pub fn new(prediction: N) -> PlaneSupportMap<N, P, V, M, G> {
         PlaneSupportMap {
             prediction: prediction,
             contact:    None
@@ -39,7 +39,7 @@ impl<N, P, V, G> PlaneSupportMap<N, P, V, G> {
     }
 }
 
-impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportMap<N, P, V, G>
+impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportMap<N, P, V, M, G>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -77,13 +77,13 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportM
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[deriving(Encodable, Decodable)]
-pub struct SupportMapPlane<N, P, V, G> {
+pub struct SupportMapPlane<N, P, V, M, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>
 }
 
-impl<N: Clone, P: Clone, V: Clone, G> Clone for SupportMapPlane<N, P, V, G> {
-    fn clone(&self) -> SupportMapPlane<N, P, V, G> {
+impl<N: Clone, P: Clone, V: Clone, M, G> Clone for SupportMapPlane<N, P, V, M, G> {
+    fn clone(&self) -> SupportMapPlane<N, P, V, M, G> {
         SupportMapPlane {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone()
@@ -91,11 +91,11 @@ impl<N: Clone, P: Clone, V: Clone, G> Clone for SupportMapPlane<N, P, V, G> {
     }
 }
 
-impl<N, P, V, G> SupportMapPlane<N, P, V, G> {
+impl<N, P, V, M, G> SupportMapPlane<N, P, V, M, G> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new(prediction: N) -> SupportMapPlane<N, P, V, G> {
+    pub fn new(prediction: N) -> SupportMapPlane<N, P, V, M, G> {
         SupportMapPlane {
             prediction: prediction,
             contact:    None
@@ -103,7 +103,7 @@ impl<N, P, V, G> SupportMapPlane<N, P, V, G> {
     }
 }
 
-impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPlane<N, P, V, G>
+impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPlane<N, P, V, M, G>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

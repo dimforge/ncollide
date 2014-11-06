@@ -237,8 +237,8 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
     /// Registers a `PlaneSupportMap` collision detector between a given support mapped shape and a plane.
     pub fn register_default_plane_implicit_detector<I>(&mut self, generate_manifold: bool, prediction: N)
         where I: 'static + SupportMap<P, V, M> {
-        let d1 = SupportMapPlane::<N, P, V, I>::new(prediction.clone());
-        let d2 = PlaneSupportMap::<N, P, V, I>::new(prediction.clone());
+        let d1 = SupportMapPlane::<N, P, V, M, I>::new(prediction.clone());
+        let d2 = PlaneSupportMap::<N, P, V, M, I>::new(prediction.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -292,7 +292,7 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         where G1: 'static + Any,
               G2: 'static + Any,
               D:  'static + Send + CollisionDetector<N, P, V, M, G1, G2> + Clone {
-        let d = OSCMG::<N, P, V, D>::new(prediction.clone(), d);
+        let d = OSCMG::new(prediction.clone(), d);
         self.register_detector(d);
     }
 

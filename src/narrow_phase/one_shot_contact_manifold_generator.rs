@@ -15,7 +15,8 @@ pub struct OneShotContactManifoldGenerator<N, P, V, CD> {
     sub_detector: IncrementalContactManifoldGenerator<N, P, V, CD>
 }
 
-impl<N, P, V, CD> OneShotContactManifoldGenerator<N, P, V, CD> {
+impl<N, P, V, M, G1, G2, CD> OneShotContactManifoldGenerator<N, P, V, CD>
+    where CD: CollisionDetector<N, P, V, M, G1, G2> {
     /// Creates a new one shot contact manifold generator.
     pub fn new(prediction: N, cd: CD) -> OneShotContactManifoldGenerator<N, P, V, CD> {
         OneShotContactManifoldGenerator {
