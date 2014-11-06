@@ -355,9 +355,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 #[cfg(test)]
 mod test {
     use super::HashMap;
-    use std::collections::hash_map;
-    use test::Bencher;
-    use utils::data::hash::{UintTWHash, UintPairTWHash};
+    use utils::data::hash::UintTWHash;
 
     // NOTE: some tests are simply copy-pasted from std::hash_map tests.
     #[test]

@@ -12,6 +12,7 @@ distcheck:
 	git clone . $(tmp)
 	make -C $(tmp)
 	make test -C $(tmp)
+	make bench -C $(tmp)
 	rm -rf $(tmp)
 
 doc:
