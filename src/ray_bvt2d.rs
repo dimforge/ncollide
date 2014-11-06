@@ -1,10 +1,10 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide2df32" as ncollide;
+extern crate ncollide;
 
 use na::{Iso2, Vec2};
 use ncollide::partitioning::{BVT, RayInterferencesCollector};
-use ncollide::geom::{Geom, Cone, Ball, Cuboid, Capsule};
-use ncollide::ray::Ray;
+use ncollide::shape::{Shape2, Cone, Ball, Cuboid, Capsule};
+use ncollide::ray::{Ray, Ray2};
 use ncollide::bounding_volume::HasBoundingSphere;
 
 fn main() {
@@ -14,10 +14,10 @@ fn main() {
     let cube = Cuboid::new(Vec2::new(1.0, 0.5));
 
     let geoms = [
-        &ball as &Geom,
-        &caps as &Geom,
-        &cone as &Geom,
-        &cube as &Geom
+        &ball as &Shape2,
+        &caps as &Shape2,
+        &cone as &Shape2,
+        &cube as &Shape2
     ];
 
     let poss = [
@@ -41,7 +41,7 @@ fn main() {
     /*
      * Ray cast using a callback.
      */
-    let mut cast_fn = |id: &uint, ray: &Ray| {
+    let mut cast_fn = |id: &uint, ray: &Ray2| {
         geoms[*id].toi_with_transform_and_ray(&poss[*id], ray, true).map(|toi| (toi, toi))
     };
 

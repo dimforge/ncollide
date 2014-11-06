@@ -66,7 +66,7 @@ fn main() {
         let g = rand::random();
         let b = rand::random();
 
-        let mut m  = window.add_trimesh(comp.clone().unwrap(), na::one());
+        let mut m  = window.add_trimesh(comp.clone(), na::one());
         m.set_color(r, g, b);
         m.append_translation(&Vec3::new(-15.0, 0.0, 0.0));
 

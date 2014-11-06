@@ -1,9 +1,9 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use na::{Pnt3, Vec3};
-use ncollide::geom::Cuboid;
-use ncollide::ray::{Ray, RayCast};
+use ncollide::shape::Cuboid;
+use ncollide::ray::{Ray, LocalRayCast};
 
 fn main() {
     let cube = Cuboid::new(Vec3::new(1.0f32, 1.0, 1.0));

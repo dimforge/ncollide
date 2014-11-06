@@ -1,9 +1,9 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide2df32" as ncollide;
+extern crate ncollide;
 
 use std::sync::Arc;
 use na::{Iso2, Vec2};
-use ncollide::geom::{Geom, Plane, Cuboid, Compound, CompoundData};
+use ncollide::shape::{Shape2, Plane, Cuboid, Compound, CompoundData};
 use ncollide::volumetric::Volumetric;
 
 fn main() {
@@ -40,10 +40,10 @@ fn main() {
     // The shape we want to share.
     let cuboid = Cuboid::new(Vec2::new(0.75f32, 1.5));
     // Make ncollide compute the mass properties of the cuboid.
-    let (c_mass, c_com, c_tensor) = cuboid.mass_properties(&1.0); // density = 1.0
+    let (c_mass, c_com, c_tensor) = cuboid.mass_properties(1.0); // density = 1.0
     let c_area                    = cuboid.surface();
     // Build the shared shape.
-    let shared_cuboid = Arc::new(box cuboid as Box<Geom + Send + Sync>);
+    let shared_cuboid = Arc::new(box cuboid as Box<Shape2>);
     // Add the shape to the compound data.
     compound_data.push_shared_geom_with_mass_properties(
         delta3,

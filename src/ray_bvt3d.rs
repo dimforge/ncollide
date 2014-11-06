@@ -1,23 +1,23 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use na::{Iso3, Vec3};
 use ncollide::partitioning::{BVT, RayInterferencesCollector};
-use ncollide::geom::{Geom, Cone, Ball, Cuboid, Capsule};
-use ncollide::ray::Ray;
+use ncollide::shape::{Shape3, Cone, Ball, Cuboid, Capsule};
+use ncollide::ray::{Ray, Ray3};
 use ncollide::bounding_volume::HasBoundingSphere;
 
 fn main() {
-    let ball = Ball::new(0.5);
-    let caps = Capsule::new(0.5, 0.75);
-    let cone = Cone::new(0.5, 0.75);
-    let cube = Cuboid::new(Vec3::new(1.0, 0.5, 1.0));
+    let ball = Ball::new(0.5f32);
+    let caps = Capsule::new(0.5f32, 0.75);
+    let cone = Cone::new(0.5f32, 0.75);
+    let cube = Cuboid::new(Vec3::new(1.0f32, 0.5, 1.0));
 
     let geoms = [
-        &ball as &Geom,
-        &caps as &Geom,
-        &cone as &Geom,
-        &cube as &Geom
+        &ball as &Shape3,
+        &caps as &Shape3,
+        &cone as &Shape3,
+        &cube as &Shape3
     ];
 
     let poss = [
@@ -41,7 +41,7 @@ fn main() {
     /*
      * Ray cast using a callback.
      */
-    let mut cast_fn = |id: &uint, ray: &Ray| {
+    let mut cast_fn = |id: &uint, ray: &Ray3| {
         geoms[*id].toi_with_transform_and_ray(&poss[*id], ray, true).map(|toi| (toi, toi))
     };
 

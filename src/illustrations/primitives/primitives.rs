@@ -1,11 +1,10 @@
 extern crate native;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 extern crate kiss3d;
 extern crate "nalgebra" as na;
 
 use std::rand;
-use na;
-use na::Vec3;
+use na::Pnt3;
 use ncollide::procedural::TriMesh;
 use ncollide::procedural;
 use kiss3d::window::Window;
@@ -21,10 +20,10 @@ fn main() {
 
     let mut points = Vec::new();
     for _ in range(0u, 100000) {
-        points.push(rand::random::<Vec3<f32>>() * 2.0f32);
+        points.push(rand::random::<Pnt3<f32>>() * 2.0f32);
     }
 
-    let convex_hull = procedural::convex_hull3d(points.as_slice());
+    let convex_hull = procedural::convex_hull3(points.as_slice());
 
     /*
      * Rendering.

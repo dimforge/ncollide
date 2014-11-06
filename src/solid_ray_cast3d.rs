@@ -1,13 +1,13 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use na::{Pnt3, Vec3};
-use ncollide::geom::Cuboid;
-use ncollide::ray::{Ray, RayCast};
+use ncollide::shape::Cuboid;
+use ncollide::ray::{Ray, LocalRayCast};
 
 fn main() {
-    let cuboid     = Cuboid::new(Vec3::new(1.0, 2.0, 1.0));
-    let ray_inside = Ray::new(na::orig(), Vec3::y());
+    let cuboid     = Cuboid::new(Vec3::new(1.0f32, 2.0, 1.0));
+    let ray_inside = Ray::new(na::orig::<Pnt3<f32>>(), Vec3::y());
     let ray_miss   = Ray::new(Pnt3::new(2.0, 2.0, 2.0), Vec3::new(1.0, 1.0, 1.0));
 
     assert!(cuboid.toi_with_ray(&ray_inside, true).unwrap()  == 0.0); // solid cast.

@@ -1,12 +1,12 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use na::Pnt3;
-use ncollide::geom::Convex;
+use ncollide::shape::Convex;
 
 fn main() {
-    let points = [
-        Pnt3::new(0.0, 0.0, 1.0),
+    let points = vec![
+        Pnt3::new(0.0f32, 0.0, 1.0),
         Pnt3::new(0.0, 0.0, -1.0),
         Pnt3::new(0.0, 1.0, 0.0),
         Pnt3::new(0.0, -1.0, 0.0),
@@ -17,5 +17,6 @@ fn main() {
 
     let convex = Convex::new(points);
 
-    assert!(convex.pts().len() == 6);
+    // Convex does not compute explicitely the convex hull (which has 6 vertices)!
+    assert!(convex.points().len() == 7);
 }

@@ -1,15 +1,36 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide2df32" as ncollide;
+extern crate ncollide;
 
 use std::rc::Rc;
 use std::cell::RefCell;
 use na::{Vec2, Iso2};
-use ncollide::geom::Ball;
-use ncollide::bounding_volume::WithAABB;
-use ncollide::broad::{DBVTBroadPhase, NoIdDispatcher, BroadPhase, InterferencesBroadPhase};
+use ncollide::shape::{Ball, Ball2};
+use ncollide::bounding_volume::{HasBoundingVolume, HasAABB, AABB2};
+use ncollide::broad_phase::{DBVTBroadPhase, NoIdDispatcher, BroadPhase};
+
+#[deriving(Clone)]
+struct BallWithPosition {
+    pos:   Iso2<f32>,
+    shape: Ball2
+}
+
+impl BallWithPosition {
+    fn new(pos: Iso2<f32>, shape: Ball2) -> BallWithPosition {
+        BallWithPosition {
+            pos:   pos,
+            shape: shape
+        }
+    }
+}
+
+impl HasBoundingVolume<AABB2> for Rc<RefCell<BallWithPosition>> {
+    fn bounding_volume(&self) -> AABB2 {
+        self.borrow().shape.aabb(&self.borrow().pos)
+    }
+}
 
 fn main() {
-    type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
+    type Shape = Rc<RefCell<BallWithPosition>>;
 
     /*
      * Create the objects.
@@ -24,10 +45,10 @@ fn main() {
     let geom3 = Ball::new(0.5);
     let geom4 = Ball::new(0.5);
 
-    let obj1 = Rc::new(RefCell::new(WithAABB(pos1, geom1)));
-    let obj2 = Rc::new(RefCell::new(WithAABB(pos2, geom2)));
-    let obj3 = Rc::new(RefCell::new(WithAABB(pos3, geom3)));
-    let obj4 = Rc::new(RefCell::new(WithAABB(pos4, geom4)));
+    let obj1 = Rc::new(RefCell::new(BallWithPosition::new(pos1, geom1)));
+    let obj2 = Rc::new(RefCell::new(BallWithPosition::new(pos2, geom2)));
+    let obj3 = Rc::new(RefCell::new(BallWithPosition::new(pos3, geom3)));
+    let obj4 = Rc::new(RefCell::new(BallWithPosition::new(pos4, geom4)));
 
     /*
      * Create the broad phase.

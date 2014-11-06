@@ -1,5 +1,5 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use na::Pnt3;
 use ncollide::procedural::path::{PolylinePath, PolylinePattern, StrokePattern, NoCap};

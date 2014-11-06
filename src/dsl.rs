@@ -1,4 +1,4 @@
-extern crate "ncollide3df32" as ncollide; // The version of ncollide does not matter here.
+extern crate ncollide; // The version of ncollide does not matter here.
 
 use ncollide::utils::symbolic::{UnivariateFn, BivariateFn, u, v, t};
 

@@ -1,8 +1,8 @@
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
-use ncollide::geom::Ball;
+use ncollide::shape::Ball;
 
 fn main() {
-    let ball = Ball::new(1.0);
+    let ball = Ball::new(1.0f32);
     assert!(ball.radius() == 1.0);
 }

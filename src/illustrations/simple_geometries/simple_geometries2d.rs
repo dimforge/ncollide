@@ -1,16 +1,17 @@
-#![allow(unused_variable)]
+#![allow(unused_variables)]
 #![allow(unused_mut)]
 
 extern crate rsfml;
 extern crate "nalgebra" as na;
-extern crate "ncollide2df32" as ncollide;
+extern crate ncollide;
 
 use rsfml::system::Vector2f;
 use rsfml::window::{ContextSettings, Close, VideoMode};
 use rsfml::graphics::{RenderWindow, RenderTarget, ConvexShape, Color};
-use na::{Pnt2, Vec2};
-use ncollide::geom::{Ball, Cuboid, Capsule, Cone, Convex, Cylinder, Reflection, MinkowskiSum};
+use na::{Pnt2, Vec2, Identity};
+use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Reflection, MinkowskiSum};
 use ncollide::procedural::{Polyline, ToPolyline};
+use ncollide::procedural;
 
 static SZ: uint = 200;
 
@@ -21,7 +22,7 @@ fn main () -> () {
 
     let mut window = match RenderWindow::new(VideoMode::new_init(SZ, SZ, 32), "SFML Short Example", Close, &setting) {
         Some(window) => window,
-        None         => fail!("Cannot create a new Render Window.")
+        None         => panic!("Cannot create a new Render Window.")
     };
 
     let mut polyline = Ball::new(1.0).to_polyline(1000);
@@ -43,10 +44,10 @@ fn main () -> () {
     let mut polyline = rcone2.to_polyline(());
     draw_save(&mut window, polyline, true, "../../../img/refl2d.png");
 
-    let mut polyline = MinkowskiSum::new(&na::one(), &cylinder, &na::one(), &cone).to_polyline(((), ()));
+    let mut polyline = MinkowskiSum::new(&Identity::new(), &cylinder, &Identity::new(), &cone).to_polyline(((), ()));
     draw_save(&mut window, polyline, true, "../../../img/msum2d.png");
 
-    let mut polyline = MinkowskiSum::new(&na::one(), &cylinder, &na::one(), &rcone).to_polyline(((), ()));
+    let mut polyline = MinkowskiSum::new(&Identity::new(), &cylinder, &Identity::new(), &rcone).to_polyline(((), ()));
     draw_save(&mut window, polyline, true, "../../../img/cso2d.png");
 
 
@@ -77,8 +78,7 @@ fn main () -> () {
         Pnt2::new(0.0, 0.5),  Pnt2::new(0.5, -0.5),
         Pnt2::new(1.0, 1.0));
 
-    let convex = Convex::new(pts.as_slice());
-    let polyline = convex.unwrap();
+    let polyline = procedural::convex_hull2(pts.as_slice());
     draw_save(&mut window, polyline, false, "../../../img/convex2d.png");
 
     // Mesh
@@ -103,7 +103,7 @@ fn draw_polyline(window: &mut RenderWindow, mut polyline: Polyline<f32, Pnt2<f32
 
     let mut convex = match ConvexShape::new(polyline.coords.len()) {
         Some(convex)  => convex,
-        None          => fail!("Error, cannot create a Circle Shape.")
+        None          => panic!("Error, cannot create a Circle Shape.")
     };
 
     for (i, c) in polyline.coords.iter().enumerate() {

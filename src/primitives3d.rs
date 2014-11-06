@@ -1,5 +1,5 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
 use std::rand;
 use na::Pnt3;
@@ -11,5 +11,5 @@ fn main() {
         points.push(rand::random::<Pnt3<f32>>() * 2.0f32);
     }
 
-    let _ = procedural::convex_hull3d(points.as_slice());
+    let _ = procedural::convex_hull3(points.as_slice());
 }

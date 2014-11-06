@@ -1,8 +1,8 @@
 extern crate "nalgebra" as na;
-extern crate "ncollide2df32" as ncollide;
+extern crate ncollide;
 
 use na::{Iso2, Vec2};
-use ncollide::geom::{Cuboid, Compound, CompoundData};
+use ncollide::shape::{Cuboid, Compound, CompoundData};
 
 fn main() {
     // Delta transformation matrices.

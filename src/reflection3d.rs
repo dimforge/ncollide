@@ -1,9 +1,9 @@
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
-use ncollide::geom::{Cone, Reflection};
+use ncollide::shape::{Cone, Reflection};
 
 fn main() {
-    let cone = Cone::new(0.5, 0.75);
+    let cone = Cone::new(0.5f32, 0.75);
 
     // Build the reflection.
     let _ = Reflection::new(&cone);
