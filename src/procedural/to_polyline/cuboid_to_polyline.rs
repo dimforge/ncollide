@@ -10,7 +10,7 @@ macro_rules! impl_to_polyline_cuboid2(
             fn to_polyline(&self, _: ()) -> Polyline<$n, Pnt2<$n>, Vec2<$n>> {
                 let _2: $n = na::cast(2.0f64);
 
-                procedural::rectangle(&(self.half_extents() * _2))
+                procedural::rectangle(&(*self.half_extents() * _2))
             }
         }
     }

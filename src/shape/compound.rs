@@ -192,7 +192,7 @@ impl<N, P, V, M, I> ConcaveShape<N, P, V, M> for Compound<N, P, V, M, I>
     fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
         let &(ref lm, ref g) = &self.geoms[i];
 
-        f(&(m * *lm), &***g)
+        f(&(*m * *lm), &***g)
     }
 
     #[inline]

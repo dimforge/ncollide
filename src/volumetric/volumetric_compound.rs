@@ -89,8 +89,8 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
-            ctot = ctot + (m * *cpart * *mpart).to_vec();
-            gtot = gtot + (m * *cpart).to_vec();
+            ctot = ctot + (*m * *cpart * *mpart).to_vec();
+            gtot = gtot + (*m * *cpart).to_vec();
         }
 
         if mtot.is_zero() {
@@ -101,7 +101,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
         }
 
         for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
-            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(m * *cpart + (-*ctot.as_vec())));
+            itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(*m * *cpart + (-*ctot.as_vec())));
         }
 
         (mtot * density, ctot, itot * density)

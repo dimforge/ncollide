@@ -23,9 +23,9 @@ pub fn tetrahedron_signed_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
           V: Index<uint, N> {
     assert!(na::dim::<P>() == 3);
 
-    let p1p2 = p2 - *p1;
-    let p1p3 = p3 - *p1;
-    let p1p4 = p4 - *p1;
+    let p1p2 = *p2 - *p1;
+    let p1p3 = *p3 - *p1;
+    let p1p4 = *p4 - *p1;
 
     let mat = Mat3::new(p1p2[0], p1p3[0], p1p4[0],
                         p1p2[1], p1p3[1], p1p4[1],

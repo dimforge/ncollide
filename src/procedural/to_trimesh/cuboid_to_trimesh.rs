@@ -10,7 +10,7 @@ macro_rules! impl_to_trimesh_cuboid3(
             fn to_trimesh(&self, _: ()) -> TriMesh<$n, Pnt3<$n>, Vec3<$n>> {
                 let _2: $n = na::cast(2.0f64);
 
-                procedural::cuboid(&(self.half_extents() * _2))
+                procedural::cuboid(&(*self.half_extents() * _2))
             }
         }
     }

@@ -14,7 +14,7 @@ impl<N, P, V, M, M2, I> HasAABB<P, M2> for Compound<N, P, V, M, I>
         let bv              = self.bvt().root_bounding_volume().unwrap();
         let ls_center       = na::orig::<P>() + bv.translation();
         let center          = m.transform(&ls_center);
-        let half_extents    = (bv.maxs() - *bv.mins()) / na::cast::<f64, N>(2.0);
+        let half_extents    = (*bv.maxs() - *bv.mins()) / na::cast::<f64, N>(2.0);
         let ws_half_extents = m.absolute_rotate(&half_extents);
 
         AABB::new(center + (-ws_half_extents), center + ws_half_extents)

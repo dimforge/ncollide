@@ -178,7 +178,7 @@ fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N
           V: Vect<N>,
           M: EigenQR<N, V> {
     let a = support_map::point_cloud_support_point(dir, points);
-    let b = support_map::point_cloud_support_point(&-dir, points);
+    let b = support_map::point_cloud_support_point(&-*dir, points);
 
     let ta = Vec3::new(0u32, 1, 0);
     let tb = Vec3::new(1u32, 0, 0);

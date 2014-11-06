@@ -39,7 +39,7 @@ impl<N> ArrowheadCap<N>
                   indices:         &mut Vec<Vec3<u32>>) {
         let front_dist_to_head = if negative_shifts { -self.front_dist_to_head } else { self.front_dist_to_head };
         let back_dist_to_head  = if negative_shifts { -self.back_dist_to_head } else { self.back_dist_to_head };
-        let pointy_thing  = pt + dir * front_dist_to_head;
+        let pointy_thing  = *pt + *dir * front_dist_to_head;
         let start_id      = coords.len() as u32;
         let npts          = pattern.coords.len() as u32;
         let mut attach_id = attach_id;
@@ -52,14 +52,14 @@ impl<N> ArrowheadCap<N>
             // Refactor?
             let mut transform = Iso3::new(na::zero(), na::zero());
 
-            let back_shift = dir * back_dist_to_head;
+            let back_shift = *dir * back_dist_to_head;
 
             if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                transform.look_at_z(&(pt - back_shift), &(*pt + *dir), &Vec3::x());
+                transform.look_at_z(&(*pt - back_shift), &(*pt + *dir), &Vec3::x());
             }
 
             else {
-                transform.look_at_z(&(pt - back_shift), &(*pt + *dir), &Vec3::y());
+                transform.look_at_z(&(*pt - back_shift), &(*pt + *dir), &Vec3::y());
             }
 
             new_pattern.transform_by(&transform);
