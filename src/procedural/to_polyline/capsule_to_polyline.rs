@@ -21,7 +21,7 @@ macro_rules! impl_to_polyline_capsule2(
                     let new_point = points[i] + Vec2::new(na::zero(), self.half_height());
 
                     points.push(-new_point);
-                    *points.get_mut(i) = new_point;
+                    points[i] = new_point;
                 }
 
                 Polyline::new(points, None)

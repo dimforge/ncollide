@@ -207,7 +207,7 @@ impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
 
                 for triangle in ids.iter() {
                     for point in triangle.iter() {
-                        let idx = match vt2id.find(point) {
+                        let idx = match vt2id.get(point) {
                             Some(i) => { resi.push(*i); None },
                             None    => {
                                 let idx = resc.len() as u32;

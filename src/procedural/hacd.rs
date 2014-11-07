@@ -209,9 +209,9 @@ impl<N: Scalar> DualGraphVertex<N> {
 
         let chull = TriMesh::new(triangle, None, None, None);
 
-        let r1 = raymap.find(&(idx.x, ns.x)).unwrap().clone();
-        let r2 = raymap.find(&(idx.y, ns.y)).unwrap().clone();
-        let r3 = raymap.find(&(idx.z, ns.z)).unwrap().clone();
+        let r1 = raymap.get(&(idx.x, ns.x)).unwrap().clone();
+        let r2 = raymap.get(&(idx.y, ns.y)).unwrap().clone();
+        let r3 = raymap.get(&(idx.z, ns.z)).unwrap().clone();
 
         let mut rng   = IsaacRng::new_unseeded();
         let ancestors = vec!(

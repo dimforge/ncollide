@@ -115,7 +115,7 @@ impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
               G2: 'static + Any,
               F:  CollisionDetectorFactory<N, P, V, M, I> {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M, I>>);
+        let _ = self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M, I>>);
     }
 
     /// Registers a new dynamic collision detector for two geometries.
@@ -138,12 +138,12 @@ impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
     /// Unregister the collision detector for a givem pair of geometries.
     pub fn unregister_detector<G1: 'static + Any, G2: 'static + Any>(&mut self) {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        self.constructors.remove(&key);
+        let _ = self.constructors.remove(&key);
     }
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
     pub fn dispatch(&self, a: &Shape<N, P, V, M>, b: &Shape<N, P, V, M>) -> Option<Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>> {
-        self.constructors.find(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
+        self.constructors.get(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 

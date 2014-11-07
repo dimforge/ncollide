@@ -64,6 +64,30 @@ impl<P> AABB<P> {
     }
 }
 
+impl<N, P, V> AABB<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    // FIXME: move this into a trait-based implementation when the point-query-related API is set
+    // up.
+    /// Computes the distance between this AABB and a point.
+    #[inline]
+    pub fn distance_to_point(&self, point: &P) -> N {
+        // FIXME: surely, this can be optimized?
+        let ls_point       = *point - na::center(&self.mins, &self.maxs);
+        let abs_p          = na::abs(&ls_point);
+        let mut distance_p = abs_p - (self.maxs - self.mins);
+
+        for i in range(0, na::dim::<P>()) {
+            if point[i] >= self.mins[i] && point[i] <= self.maxs[i] {
+                distance_p[i] = na::zero();
+            }
+        }
+
+        na::norm(&distance_p)
+    }
+}
+
 impl<N, P, V> BoundingVolume<N> for AABB<P>
     where N: Scalar,
           P: Point<N, V> {

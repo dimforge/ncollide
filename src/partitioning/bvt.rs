@@ -183,7 +183,7 @@ impl<B, BV> BVTNode<B, BV> {
 }
 
 impl<N, P, V, B, BV> BVT<B, BV>
-    where N: Scalar,
+    where N:  Scalar,
           BV: LocalRayCast<N, P, V> {
     /// Computes the closest intersection between the objects stored on this tree and a given ray.
     pub fn cast_ray<'a, T>(&'a self,
@@ -268,7 +268,7 @@ impl<N, P, V, B, BV> BVTNode<B, BV>
                 }
             },
             Leaf(_, ref b) => {
-                // Do not test the bounding volume: this has been done by the parent node.
+                // We don't test the bounding volume: this has been done by the parent node.
                 match (*cast_fn)(b, ray) {
                     None         => None,
                     Some((t, d)) => {

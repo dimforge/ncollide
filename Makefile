@@ -16,7 +16,7 @@ distcheck:
 	rm -rf $(tmp)
 
 doc:
-	cargo doc
+	cargo doc --no-deps
 
 bench:
 	cargo bench

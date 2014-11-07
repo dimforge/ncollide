@@ -109,11 +109,11 @@ impl<P: Send + Sync + Clone, D: Send + Sync> SurfaceSubdivisionTreeCache<P, D> {
     }
 
     fn inc_ref_count(&mut self, key: uint) {
-        let _ = self.cache.find_mut(&key).map(|v| *v.mut0() += 1);
+        let _ = self.cache.get_mut(&key).map(|v| *v.mut0() += 1);
     }
 
     fn release_key(&mut self, key: uint) {
-        let is_removable = match self.cache.find_mut(&key) {
+        let is_removable = match self.cache.get_mut(&key) {
             Some(ref mut elt) => {
                 let new_count = *elt.ref0() - 1;
                 *elt.mut0()   = new_count;

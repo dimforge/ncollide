@@ -2,7 +2,7 @@
 
 use na::Identity;
 use na;
-use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, Reflection};
+use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
 use support_map::SupportMap;
 use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};
@@ -19,14 +19,14 @@ pub enum GJKResult<P, V> {
     NoIntersection(V)
 }
 
-/// Computes the closest points between two convex geometries unsing the GJK
+/// Computes the closest points between two convex shapes unsing the GJK
 /// algorithm.
 ///
 /// # Arguments:
 /// * `g1`      - first shape.
 /// * `g2`      - second shape.
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-///               with at least one point on the geometries CSO. See
+///               with at least one point on the shapes CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
 pub fn closest_points<N, P, V, M, S, G1, G2>(m1:      &M,
                                              g1:      &G1,
@@ -47,14 +47,14 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1:      &M,
     project_origin::<_, _, _, _, S, _>(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -*p.orig2()))
 }
 
-/// Computes the closest points between two convex geometries unsing the GJK algorithm.
+/// Computes the closest points between two convex shapes unsing the GJK algorithm.
 ///
 /// # Arguments:
 /// * `g1`      - first shape.
 /// * `g2`      - second shape.
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-///               with at least one point on the geometries CSO. See `minkowski_sum::cso_support_point` to
-///               compute such point.
+///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
+///               to compute such point.
 pub fn closest_points_with_max_dist<N, P, V, M, S, G1, G2>(m1:       &M,
                                                            g1:       &G1,
                                                            m2:       &M,
@@ -76,6 +76,32 @@ pub fn closest_points_with_max_dist<N, P, V, M, S, G1, G2>(m1:       &M,
         Projection(p)       => Projection((p.orig1().clone(), -*p.orig2())),
         Intersection        => Intersection,
         NoIntersection(dir) => NoIntersection(dir.clone())
+    }
+}
+
+/// Computes the exact distance separating two convex shapes unsing the GJK.
+/// algorithm.
+///
+/// # Arguments:
+/// * `g1`      - first shape.
+/// * `g2`      - second shape.
+/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
+///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
+///               to compute such point.
+pub fn distance<N, P, V, M, S, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> N
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          S:  Simplex<N, P>,
+          G1: SupportMap<P, V, M>,
+          G2: SupportMap<P, V, M> {
+    let reflect2 = Reflection::new(g2);
+    let cso      = MinkowskiSum::new(m1, g1, m2, &reflect2);
+
+    // XXX: we need to specify S because of a bug on the compiler.
+    match project_origin::<_, _, _, _, S, _>(&Identity::new(), &cso, simplex) {
+        Some(c) => na::norm(c.as_vec()),
+        None    => na::zero()
     }
 }
 

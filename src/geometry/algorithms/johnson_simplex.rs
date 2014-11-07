@@ -117,7 +117,7 @@ impl RecursionTemplate {
                     // keep a trace of the removed point
                     sublist.push(pts[curr + j]);
 
-                    match map.find(&sublist) {
+                    match map.get(&sublist) {
                         Some(&v) => sub_determinants.push(v),
                         None     => {
                             for &e in sublist.iter() {
@@ -125,7 +125,7 @@ impl RecursionTemplate {
                                 num_added = num_added + 1;
                             }
                             sub_determinants.push(determinant_index);
-                            map.insert(sublist, determinant_index);
+                            let _ = map.insert(sublist, determinant_index);
                             determinant_index = determinant_index + 1;
                         }
                     }
@@ -137,7 +137,7 @@ impl RecursionTemplate {
                 }
 
 
-                match map.find(&parent) {
+                match map.get(&parent) {
                     Some(&p) => sub_determinants.push(p),
                     None => {
                         sub_determinants.push(determinant_index);
@@ -160,7 +160,7 @@ impl RecursionTemplate {
 
         // determinant indices for leaves
         for i in range(0u, max_num_points) {
-            sub_determinants.push(*map.find(&vec!(max_num_points - 1 - i)).unwrap())
+            sub_determinants.push(*map.get(&vec!(max_num_points - 1 - i)).unwrap())
         }
 
         // end to begin offsets
@@ -479,57 +479,3 @@ impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
 //         res
 //     }
 // }
-
-#[cfg(test)]
-mod test {
-    use super::{JohnsonSimplex, RecursionTemplate};
-    use geometry::algorithms::simplex::Simplex;
-    use na::{Pnt3, Vec3};
-    use test::Bencher;
-
-    #[bench]
-    fn bench_johnson_simplex(bh: &mut Bencher) {
-        let a = Pnt3::new(-0.5f32, -0.5, -0.5);
-        let b = Pnt3::new(0.0, 0.5, 0.0);
-        let c = Pnt3::new(0.5, -0.5, -0.5);
-        let d = Pnt3::new(0.0, -0.5, -0.5);
-        let recursion = RecursionTemplate::new(3);
-
-        bh.iter(|| {
-            let mut spl = JohnsonSimplex::new(recursion.clone());
-
-            for _ in range(0u, 1000) {
-                spl.reset(a);
-
-                spl.add_point(b);
-                spl.add_point(c);
-                spl.add_point(d);
-
-                let _ = spl.project_origin_and_reduce();
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_johnson_simplex_tls(bh: &mut Bencher) {
-        let a = Pnt3::new(-0.5f32, -0.5, -0.5);
-        let b = Pnt3::new(0.0, 0.5, 0.0);
-        let c = Pnt3::new(0.5, -0.5, -0.5);
-        let d = Pnt3::new(0.0, -0.5, -0.5);
-        let _ = JohnsonSimplex::<f64, Pnt3<f64>, Vec3<f64>>::new_w_tls();
-
-        bh.iter(|| {
-            let mut spl = JohnsonSimplex::new_w_tls();
-
-            for _ in range(0u, 1000) {
-                spl.reset(a);
-
-                spl.add_point(b);
-                spl.add_point(c);
-                spl.add_point(d);
-
-                let _ = spl.project_origin_and_reduce();
-            }
-        })
-    }
-}

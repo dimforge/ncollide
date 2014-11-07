@@ -16,7 +16,7 @@ use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat2, Mat1, Mat3, Mat4, Iso2, Iso3, Iso4, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
          Rotate, Transform, AbsoluteRotate, Inv, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv,
-         FloatPnt, Shape};
+         FloatPnt, Shape, Absolute, Iterable};
 
 /// Trait implemented by scalar types.
 pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand +
@@ -55,7 +55,8 @@ pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
 /// Trait implemented by vector types.
 pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
                    UniformSphereSample + Clone + IndexMut<uint, N> +
-                   Rand                + Shape<uint, N>  + POrd {
+                   Rand                + Shape<uint, N> + POrd +
+                   Absolute<Self>      + Iterable<N> {
 }
 
 /// Trait implemented by transformation matrices types.
