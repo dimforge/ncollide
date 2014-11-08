@@ -1,5 +1,6 @@
 use std::rand::{Rand, Rng};
 use na;
+use ncollide::bounding_volume::{AABB, BoundingSphere};
 use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder};
 use ncollide::math::{Scalar, Point, Vect};
 use ncollide::ray::Ray;
@@ -53,7 +54,29 @@ impl<N, P, V> MyRand for Ray<P, V>
           P: Point<N, V>,
           V: Vect<N> {
     fn random<R: Rng>(rng: &mut R) -> Ray<P, V> {
+        // The random ray will always point to the origin.
         let shift = rng.gen::<V>() * na::cast(10.0f64);
-        Ray::new(na::orig::<P>() + shift, rng.gen::<V>())
+        Ray::new(na::orig::<P>() + shift, -shift)
+    }
+}
+
+impl<N, P, V> MyRand for AABB<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn random<R: Rng>(rng: &mut R) -> AABB<P> {
+        // an AABB centered at the origin.
+        let half_extents = na::abs(&rng.gen::<V>());
+        AABB::new(na::orig::<P>() + (-half_extents), na::orig::<P>() + half_extents)
+    }
+}
+
+impl<N, P, V> MyRand for BoundingSphere<N, P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn random<R: Rng>(rng: &mut R) -> BoundingSphere<N, P> {
+        // a bounding sphere centered at the origin.
+        BoundingSphere::new(na::orig(), rng.gen::<N>().abs())
     }
 }
