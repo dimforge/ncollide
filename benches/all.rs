@@ -9,4 +9,4 @@ mod utils;
 mod common;
 mod ray;
 mod bounding_volume;
-// mod support_map;
+mod support_map;
