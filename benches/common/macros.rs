@@ -2,13 +2,13 @@
 
 macro_rules! bench_free_fn(
     ($name: ident, $function: path $(, $args: ident: $types: ty)*) => {
-        bench_free_fn_gen!($name, $function $(, $args: $types = random)*)
+        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*)
     }
 )
 
 macro_rules! bench_method(
     ($name: ident, $method: ident, $arg: ident: $typ: ty $(, $args: ident: $types: ty)*) => {
-        bench_method_gen!($name, $method, $arg: $typ = random $(, $args: $types = random)*)
+        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*)
     }
 )
 

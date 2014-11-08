@@ -4,7 +4,7 @@ use test;
 use na::Iso3;
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3};
 use ncollide::geometry;
-use common::{unref, random};
+use common::{unref, generate};
 
 #[path="../common/macros.rs"]
 mod macros;

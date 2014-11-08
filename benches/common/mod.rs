@@ -1,9 +1,9 @@
 pub use self::unref::unref;
-pub use self::my_rand::random;
+pub use self::default_gen::generate;
 pub use self::generators::{
     generate_trimesh_around_origin
 };
 
 mod unref;
-mod my_rand;
+mod default_gen;
 mod generators;

@@ -5,7 +5,7 @@ use na::{Iso3, Vec3};
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Segment3, Triangle3,
                       Convex3};
 use ncollide::support_map::SupportMap;
-use common::{unref, random};
+use common::{unref, generate};
 
 
 #[path="../common/macros.rs"]

@@ -5,7 +5,7 @@ use ncollide::bounding_volume::{AABB3, BoundingSphere3};
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Mesh3, Segment3, Triangle3,
                       Convex3};
 use ncollide::ray::{LocalRayCast, Ray3};
-use common::{unref, random, generate_trimesh_around_origin};
+use common::{unref, generate, generate_trimesh_around_origin};
 
 #[path="../common/macros.rs"]
 mod macros;
@@ -58,5 +58,5 @@ bench_method!(bench_ray_against_convex_with_normal_uv, toi_and_normal_and_uv_wit
 
 bench_method_gen!(bench_ray_against_trimesh_with_normal_uv, toi_and_normal_and_uv_with_ray,
                   m: Mesh3 = generate_trimesh_around_origin,
-                  ray: Ray3 = random,
-                  solid: bool = random)
+                  ray: Ray3 = generate,
+                  solid: bool = generate)

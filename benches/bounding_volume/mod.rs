@@ -6,7 +6,7 @@ use na::Iso3;
 use ncollide::bounding_volume::{AABB3, BoundingSphere3};
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Mesh3, Segment3, Triangle3,
                       Convex3};
-use common::{unref, random, generate_trimesh_around_origin};
+use common::{unref, generate, generate_trimesh_around_origin};
 
 
 #[path="../common/macros.rs"]
@@ -60,7 +60,7 @@ bench_method!(bench_convex_bounding_sphere, bounding_sphere, c: Convex3, m: Iso3
 
 bench_method_gen!(bench_mesh_aabb, aabb,
                   mesh: Mesh3 = generate_trimesh_around_origin,
-                  m: Iso3<f32> = random)
+                  m: Iso3<f32> = generate)
 bench_method_gen!(bench_mesh_bounding_sphere, bounding_sphere,
                   mesh: Mesh3 = generate_trimesh_around_origin,
-                  m: Iso3<f32> = random)
+                  m: Iso3<f32> = generate)
