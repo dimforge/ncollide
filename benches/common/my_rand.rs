@@ -1,7 +1,7 @@
 use std::rand::{Rand, Rng};
 use na;
 use ncollide::bounding_volume::{AABB, BoundingSphere};
-use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder};
+use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, Convex};
 use ncollide::math::{Scalar, Point, Vect};
 use ncollide::ray::Ray;
 
@@ -46,6 +46,36 @@ impl<N: Scalar> MyRand for Cone<N> {
 impl<N: Scalar> MyRand for Cylinder<N> {
     fn random<R: Rng>(rng: &mut R) -> Cylinder<N> {
         Cylinder::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
+    }
+}
+
+impl<N, P, V> MyRand for Segment<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn random<R: Rng>(rng: &mut R) -> Segment<P> {
+        Segment::new(na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen())
+    }
+}
+
+impl<N, P, V> MyRand for Triangle<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn random<R: Rng>(rng: &mut R) -> Triangle<P> {
+        Triangle::new(na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen())
+    }
+}
+
+impl<N, P, V> MyRand for Convex<P>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> {
+    fn random<R: Rng>(rng: &mut R) -> Convex<P> {
+        // It is recommanded to have at most 100 points.
+        // Otherwise, a smarter structure like the DK hierarchy would be needed.
+        let pts = Vec::from_fn(100, |_| na::orig::<P>() + rng.gen::<V>());
+        Convex::new(pts)
     }
 }
 

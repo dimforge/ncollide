@@ -2,7 +2,8 @@ use std::rand::IsaacRng;
 use test::Bencher;
 use test;
 use ncollide::bounding_volume::{AABB3, BoundingSphere3};
-use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Mesh3};
+use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Mesh3, Segment3, Triangle3,
+                      Convex3};
 use ncollide::ray::{LocalRayCast, Ray3};
 use common::{unref, random, generate_trimesh_around_origin};
 
@@ -45,6 +46,15 @@ bench_method!(bench_ray_against_cone_with_normal_uv, toi_and_normal_and_uv_with_
 
 bench_method!(bench_ray_against_cylinder_with_normal_uv, toi_and_normal_and_uv_with_ray,
               c: Cylinder3, ray: Ray3, solid: bool)
+
+bench_method!(bench_ray_against_segment_with_normal_uv, toi_and_normal_and_uv_with_ray,
+              c: Segment3, ray: Ray3, solid: bool)
+
+bench_method!(bench_ray_against_triangle_with_normal_uv, toi_and_normal_and_uv_with_ray,
+              c: Triangle3, ray: Ray3, solid: bool)
+
+bench_method!(bench_ray_against_convex_with_normal_uv, toi_and_normal_and_uv_with_ray,
+              c: Convex3, ray: Ray3, solid: bool)
 
 bench_method_gen!(bench_ray_against_trimesh_with_normal_uv, toi_and_normal_and_uv_with_ray,
                   m: Mesh3 = generate_trimesh_around_origin,
