@@ -39,12 +39,12 @@ mod bezier_surface_ball;
 pub mod surface_selector;
 pub mod surface_subdivision_tree;
 
-/// 2D Shape against Shape collision detection dispatcher using single precision floats.
+/// 2D Shape against Shape collision detection dispatcher.
 pub type ShapeShapeDispatcher2<N> = ShapeShapeDispatcher<N, Pnt2<N>, Vec2<N>, Iso2<N>, Mat1<N>>;
-/// 2D Plane against Support Map collision detection dispatcher using single precision floats.
+/// 2D Plane against Support Map collision detection dispatcher.
 pub type PlaneSupportMap2<N, G> = PlaneSupportMap<N, Pnt2<N>, Vec2<N>, Iso2<N>, G>;
 
-/// 3D Shape against Shape collision detection dispatcher using single precision floats.
+/// 3D Shape against Shape collision detection dispatcher.
 pub type ShapeShapeDispatcher3<N> = ShapeShapeDispatcher<N, Pnt3<N>, Vec3<N>, Iso3<N>, Mat3<N>>;
-/// 3D Plane against Support Map collision detection dispatcher using single precision floats.
+/// 3D Plane against Support Map collision detection dispatcher.
 pub type PlaneSupportMap3<N, G> = PlaneSupportMap<N, Pnt3<N>, Vec3<N>, Iso3<N>, G>;

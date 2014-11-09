@@ -2,7 +2,7 @@ use std::num::Zero;
 use na::{Outer, EigenQR, Translate};
 use na;
 use shape::MinkowskiSum;
-use procedural::{TriMesh, ToTriMesh};
+use procedural::{ToTriMesh, TriMesh};
 use procedural;
 use math::{Scalar, Point, Vect};
 

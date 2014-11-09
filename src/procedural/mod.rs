@@ -15,6 +15,7 @@ pub use procedural::to_trimesh::to_trimesh::ToTriMesh;
 pub use procedural::to_polyline::to_polyline::ToPolyline;
 pub use procedural::hacd::hacd;
 
+use na::{Pnt2, Pnt3, Vec2, Vec3};
 
 pub mod utils;
 pub mod path;
@@ -61,3 +62,13 @@ mod sphere;
 mod convex_hull;
 mod parametric_surface;
 mod hacd;
+
+/// A 3D triangle mesh.
+pub type TriMesh3<N> = TriMesh<N, Pnt3<N>, Vec3<N>>;
+/// A 3D polyline.
+pub type Polyline3<N> = Polyline<N, Pnt3<N>, Vec3<N>>;
+
+/// A 2D triangle mesh.
+pub type TriMesh2<N> = TriMesh<N, Pnt2<N>, Vec2<N>>;
+/// A 2D polyline.
+pub type Polyline2<N> = Polyline<N, Pnt2<N>, Vec2<N>>;

@@ -28,14 +28,14 @@ mod ray_bezier_curve;
  * Aliases.
  *
  */
-/// 3D ray using single precision.
+/// A 3D ray.
 pub type Ray3<N> = Ray<Pnt3<N>, Vec3<N>>;
 
-/// 2D ray using single precision.
+/// A 2D ray.
 pub type Ray2<N> = Ray<Pnt2<N>, Vec2<N>>;
 
-/// 3D ray intersection using single precision.
+/// A 3D ray intersection.
 pub type RayIntersection3<N> = RayIntersection<N, Vec3<N>>;
 
-/// 2D ray intersection using single precision.
+/// A 2D ray intersection.
 pub type RayIntersection2<N> = RayIntersection<N, Vec2<N>>;

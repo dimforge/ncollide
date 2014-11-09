@@ -1,10 +1,10 @@
 use na::{Pnt3, Vec3};
 use shape::Mesh3;
-use procedural::{ToTriMesh, TriMesh, IndexBuffer};
+use procedural::{ToTriMesh, TriMesh, TriMesh3, IndexBuffer};
 use math::Scalar;
 
 impl<N: Scalar> ToTriMesh<N, Pnt3<N>, Vec3<N>, ()> for Mesh3<N> {
-    fn to_trimesh(&self, _: ()) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+    fn to_trimesh(&self, _: ()) -> TriMesh3<N> {
         let mut formated_index_buffer = Vec::with_capacity(self.indices().len() / 3);
 
         for ids in self.indices().as_slice().chunks(3) {
