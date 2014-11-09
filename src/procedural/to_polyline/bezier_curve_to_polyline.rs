@@ -1,17 +1,11 @@
 use na::{Pnt2, Vec2};
-use shape::{BezierCurve2, BezierCurve2d};
+use shape::BezierCurve2;
 use procedural::{ToPolyline, Polyline};
 use procedural;
+use math::Scalar;
 
-macro_rules! impl_to_polyline_bezier_curve2(
-    ($t: ty, $n: ty) => {
-        impl ToPolyline<$n, Pnt2<$n>, Vec2<$n>, u32> for $t {
-            fn to_polyline(&self, nsubdiv: u32) -> Polyline<$n, Pnt2<$n>, Vec2<$n>> {
-                procedural::bezier_curve(self.control_points(), nsubdiv as uint)
-            }
-        }
+impl<N: Scalar> ToPolyline<N, Pnt2<N>, Vec2<N>, u32> for BezierCurve2<N> {
+    fn to_polyline(&self, nsubdiv: u32) -> Polyline<N, Pnt2<N>, Vec2<N>> {
+        procedural::bezier_curve(self.control_points(), nsubdiv as uint)
     }
-)
-
-impl_to_polyline_bezier_curve2!(BezierCurve2, f32)
-impl_to_polyline_bezier_curve2!(BezierCurve2d, f64)
+}

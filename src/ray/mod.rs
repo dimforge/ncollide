@@ -29,21 +29,13 @@ mod ray_bezier_curve;
  *
  */
 /// 3D ray using single precision.
-pub type Ray3  = Ray<Pnt3<f32>, Vec3<f32>>;
-/// 3D ray using double precision.
-pub type Ray3d = Ray<Pnt3<f64>, Vec3<f64>>;
+pub type Ray3<N> = Ray<Pnt3<N>, Vec3<N>>;
 
 /// 2D ray using single precision.
-pub type Ray2  = Ray<Pnt2<f32>, Vec2<f32>>;
-/// 2D ray using double precision.
-pub type Ray2d = Ray<Pnt2<f64>, Vec2<f64>>;
+pub type Ray2<N> = Ray<Pnt2<N>, Vec2<N>>;
 
 /// 3D ray intersection using single precision.
-pub type RayIntersection3  = RayIntersection<f32, Vec3<f32>>;
-/// 3D ray intersection using double precision.
-pub type RayIntersection3d = RayIntersection<f64, Vec3<f64>>;
+pub type RayIntersection3<N> = RayIntersection<N, Vec3<N>>;
 
 /// 2D ray intersection using single precision.
-pub type RayIntersection2  = RayIntersection<f32, Vec2<f32>>;
-/// 2D ray intersection using double precision.
-pub type RayIntersection2d = RayIntersection<f64, Vec2<f64>>;
+pub type RayIntersection2<N> = RayIntersection<N, Vec2<N>>;

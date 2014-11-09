@@ -1,22 +1,16 @@
 use na::{Pnt3, Vec3};
 use na;
-use shape::{Cuboid3, Cuboid3d};
+use shape::Cuboid3;
 use procedural::{ToTriMesh, TriMesh};
 use procedural;
+use math::Scalar;
 
-macro_rules! impl_to_trimesh_cuboid3(
-    ($t: ty, $n: ty) => {
-        impl ToTriMesh<$n, Pnt3<$n>, Vec3<$n>, ()> for $t {
-            fn to_trimesh(&self, _: ()) -> TriMesh<$n, Pnt3<$n>, Vec3<$n>> {
-                let _2: $n = na::cast(2.0f64);
+impl<N: Scalar> ToTriMesh<N, Pnt3<N>, Vec3<N>, ()> for Cuboid3<N> {
+    fn to_trimesh(&self, _: ()) -> TriMesh<N, Pnt3<N>, Vec3<N>> {
+        let _2: N = na::cast(2.0f64);
 
-                procedural::cuboid(&(*self.half_extents() * _2))
-            }
-        }
+        procedural::cuboid(&(*self.half_extents() * _2))
     }
-)
-
-impl_to_trimesh_cuboid3!(Cuboid3, f32)
-impl_to_trimesh_cuboid3!(Cuboid3d, f64)
+}
 
 // FIXME: in 2d, generate a filled rectangle.

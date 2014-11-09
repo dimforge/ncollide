@@ -48,22 +48,12 @@ mod bounding_sphere_utils;
  * Aliases.
  *
  */
-/// 2D bounding sphere that uses double precision.
-pub type BoundingSphere2d = BoundingSphere<f64, Pnt2<f64>>;
-/// 2D AABB that uses double precision.
-pub type AABB2d = AABB<Pnt2<f64>>;
+/// A 2D bounding sphere.
+pub type BoundingSphere2<N> = BoundingSphere<N, Pnt2<N>>;
+/// A 2D AABB.
+pub type AABB2<N> = AABB<Pnt2<N>>;
 
-/// 3D bounding sphere that uses double precision.
-pub type BoundingSphere3d = BoundingSphere<f64, Pnt3<f64>>;
-/// 3D AABB that uses double precision.
-pub type AABB3d = AABB<Pnt3<f64>>;
-
-/// 2D bounding sphere that uses single precision.
-pub type BoundingSphere2 = BoundingSphere<f32, Pnt2<f32>>;
-/// 2D AABB that uses single precision.
-pub type AABB2 = AABB<Pnt2<f32>>;
-
-/// 3D bounding sphere that uses single precision.
-pub type BoundingSphere3 = BoundingSphere<f32, Pnt3<f32>>;
-/// 3D AABB that uses single precision.
-pub type AABB3 = AABB<Pnt3<f32>>;
+/// A 3D bounding sphere:
+pub type BoundingSphere3<N> = BoundingSphere<N, Pnt3<N>>;
+/// A 3D AABB.
+pub type AABB3<N> = AABB<Pnt3<N>>;

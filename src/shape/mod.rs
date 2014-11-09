@@ -44,68 +44,36 @@ mod convex;
  * Aliases.
  *
  */
-#[doc = "2D Shape trait object that uses double precision."]
-pub type Shape2d = Shape<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>> + Send + Sync;
-#[doc = "2D Shape trait object that uses single precision."]
-pub type Shape2 = Shape<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>> + Send + Sync;
+#[doc = "2D Shape trait object."]
+pub type Shape2<N> = Shape<N, Pnt2<N>, Vec2<N>, Iso2<N>> + Send + Sync;
 
-#[doc = "3D Shape trait object that uses double precision."]
-pub type Shape3d = Shape<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>> + Send + Sync;
-#[doc = "3D Shape trait object that uses single precision."]
-pub type Shape3 = Shape<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>> + Send + Sync;
+#[doc = "3D Shape trait object."]
+pub type Shape3<N> = Shape<N, Pnt3<N>, Vec3<N>, Iso3<N>> + Send + Sync;
 
-#[doc = "2D ball that uses double precision."] pub type Ball2d = Ball<f64>;
-#[doc = "2D plane that uses double precision."] pub type Plane2d = Plane<Vec2<f64>>;
-#[doc = "2D cuboid that uses double precision."] pub type Cuboid2d = Cuboid<Vec2<f64>>;
-#[doc = "2D capsule that uses double precision."] pub type Capsule2d = Capsule<f64>;
-#[doc = "2D cone that uses double precision."] pub type Cone2d = Cone<f64>;
-#[doc = "2D cylinder that uses double precision."] pub type Cylinder2d = Cylinder<f64>;
-#[doc = "2D convex polytope that uses double precision."] pub type Convex2d = Convex<Pnt2<f64>>;
-#[doc = "2D segment that uses double precision."] pub type Segment2d = Segment<Pnt2<f64>>;
-#[doc = "2D triangle that uses double precision."] pub type Triangle2d = Triangle<Pnt2<f64>>;
-#[doc = "2D Bézier curve that uses double precision."] pub type BezierCurve2d = BezierCurve<Pnt2<f64>>;
-#[doc = "2D Bézier surface that uses double precision."] pub type BezierSurface2d = BezierSurface<Pnt2<f64>>;
-#[doc = "2D Mesh that uses double precision."] pub type Mesh2d = Mesh<f64, Pnt2<f64>, Vec2<f64>, Segment2d>;
-#[doc = "2D Compound shape that uses double precision."] pub type Compound2d = Compound<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>, Mat1<f64>>;
+#[doc = "A 2D ball."] pub type Ball2<N> = Ball<N>;
+#[doc = "A 2D plane."] pub type Plane2<N> = Plane<Vec2<N>>;
+#[doc = "A 2D cuboid."] pub type Cuboid2<N> = Cuboid<Vec2<N>>;
+#[doc = "A 2D capsule."] pub type Capsule2<N> = Capsule<N>;
+#[doc = "A 2D cone."] pub type Cone2<N> = Cone<N>;
+#[doc = "A 2D cylinder."] pub type Cylinder2<N> = Cylinder<N>;
+#[doc = "A 2D convex polytope."] pub type Convex2<N> = Convex<Pnt2<N>>;
+#[doc = "A 2D segment."] pub type Segment2<N> = Segment<Pnt2<N>>;
+#[doc = "A 2D triangle."] pub type Triangle2<N> = Triangle<Pnt2<N>>;
+#[doc = "A 2D Bézier curve."] pub type BezierCurve2<N> = BezierCurve<Pnt2<N>>;
+#[doc = "A 2D Bézier surface."] pub type BezierSurface2<N> = BezierSurface<Pnt2<N>>;
+#[doc = "A 2D Mesh."] pub type Mesh2<N> = Mesh<N, Pnt2<N>, Vec2<N>, Segment2<N>>;
+#[doc = "A 2D Compound shape."] pub type Compound2<N> = Compound<N, Pnt2<N>, Vec2<N>, Iso2<N>, Mat1<N>>;
 
-#[doc = "2D ball that uses single precision."] pub type Ball2 = Ball<f32>;
-#[doc = "2D plane that uses single precision."] pub type Plane2 = Plane<Vec2<f32>>;
-#[doc = "2D cuboid that uses single precision."] pub type Cuboid2 = Cuboid<Vec2<f32>>;
-#[doc = "2D capsule that uses single precision."] pub type Capsule2 = Capsule<f32>;
-#[doc = "2D cone that uses single precision."] pub type Cone2 = Cone<f32>;
-#[doc = "2D cylinder that uses single precision."] pub type Cylinder2 = Cylinder<f32>;
-#[doc = "2D convex polytope that uses single precision."] pub type Convex2 = Convex<Pnt2<f32>>;
-#[doc = "2D segment that uses single precision."] pub type Segment2 = Segment<Pnt2<f32>>;
-#[doc = "2D triangle that uses single precision."] pub type Triangle2 = Triangle<Pnt2<f32>>;
-#[doc = "2D Bézier curve that uses single precision."] pub type BezierCurve2 = BezierCurve<Pnt2<f32>>;
-#[doc = "2D Bézier surface that uses single precision."] pub type BezierSurface2 = BezierSurface<Pnt2<f32>>;
-#[doc = "2D Mesh that uses single precision."] pub type Mesh2 = Mesh<f32, Pnt2<f32>, Vec2<f32>, Segment2>;
-#[doc = "2D Compound shape that uses single precision."] pub type Compound2 = Compound<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>, Mat1<f32>>;
-
-#[doc = "3D ball that uses double precision."] pub type Ball3d = Ball<f64>;
-#[doc = "3D plane that uses double precision."] pub type Plane3d = Plane<Vec3<f64>>;
-#[doc = "3D cuboid that uses double precision."] pub type Cuboid3d = Cuboid<Vec3<f64>>;
-#[doc = "3D capsule that uses double precision."] pub type Capsule3d = Capsule<f64>;
-#[doc = "3D cone that uses double precision."] pub type Cone3d = Cone<f64>;
-#[doc = "3D cylinder that uses double precision."] pub type Cylinder3d = Cylinder<f64>;
-#[doc = "3D convex polytope that uses double precision."] pub type Convex3d = Convex<Pnt3<f64>>;
-#[doc = "3D segment that uses double precision."] pub type Segment3d = Segment<Pnt3<f64>>;
-#[doc = "3D triangle that uses double precision."] pub type Triangle3d = Triangle<Pnt3<f64>>;
-#[doc = "3D Bézier curve that uses double precision."] pub type BezierCurve3d = BezierCurve<Pnt3<f64>>;
-#[doc = "3D Bézier surface that uses double precision."] pub type BezierSurface3d = BezierSurface<Pnt3<f64>>;
-#[doc = "3D Mesh that uses double precision."] pub type Mesh3d = Mesh<f64, Pnt3<f64>, Vec3<f64>, Triangle3d>;
-#[doc = "3D Compound shape that uses double precision."] pub type Compound3d = Compound<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>, Mat3<f64>>;
-
-#[doc = "3D ball that uses single precision."] pub type Ball3 = Ball<f32>;
-#[doc = "3D plane that uses single precision."] pub type Plane3 = Plane<Vec3<f32>>;
-#[doc = "3D cuboid that uses single precision."] pub type Cuboid3 = Cuboid<Vec3<f32>>;
-#[doc = "3D capsule that uses single precision."] pub type Capsule3 = Capsule<f32>;
-#[doc = "3D cone that uses single precision."] pub type Cone3 = Cone<f32>;
-#[doc = "3D cylinder that uses single precision."] pub type Cylinder3 = Cylinder<f32>;
-#[doc = "3D convex polytope that uses single precision."] pub type Convex3 = Convex<Pnt3<f32>>;
-#[doc = "3D segment that uses single precision."] pub type Segment3 = Segment<Pnt3<f32>>;
-#[doc = "3D triangle that uses single precision."] pub type Triangle3 = Triangle<Pnt3<f32>>;
-#[doc = "3D Bézier curve that uses single precision."] pub type BezierCurve3 = BezierCurve<Pnt3<f32>>;
-#[doc = "3D Bézier surface that uses single precision."] pub type BezierSurface3 = BezierSurface<Pnt3<f32>>;
-#[doc = "3D Mesh that uses single precision."] pub type Mesh3 = Mesh<f32, Pnt3<f32>, Vec3<f32>, Triangle3>;
-#[doc = "3D Compound shape that uses single precision."] pub type Compound3 = Compound<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>, Mat3<f32>>;
+#[doc = "A 3D ball."] pub type Ball3<N> = Ball<N>;
+#[doc = "A 3D plane."] pub type Plane3<N> = Plane<Vec3<N>>;
+#[doc = "A 3D cuboid."] pub type Cuboid3<N> = Cuboid<Vec3<N>>;
+#[doc = "A 3D capsule."] pub type Capsule3<N> = Capsule<N>;
+#[doc = "A 3D cone."] pub type Cone3<N> = Cone<N>;
+#[doc = "A 3D cylinder."] pub type Cylinder3<N> = Cylinder<N>;
+#[doc = "A 3D convex polytope."] pub type Convex3<N> = Convex<Pnt3<N>>;
+#[doc = "A 3D segment."] pub type Segment3<N> = Segment<Pnt3<N>>;
+#[doc = "A 3D triangle."] pub type Triangle3<N> = Triangle<Pnt3<N>>;
+#[doc = "A 3D Bézier curve."] pub type BezierCurve3<N> = BezierCurve<Pnt3<N>>;
+#[doc = "A 3D Bézier surface."] pub type BezierSurface3<N> = BezierSurface<Pnt3<N>>;
+#[doc = "A 3D Mesh."] pub type Mesh3<N> = Mesh<N, Pnt3<N>, Vec3<N>, Triangle3<N>>;
+#[doc = "A 3D Compound shape."] pub type Compound3<N> = Compound<N, Pnt3<N>, Vec3<N>, Iso3<N>, Mat3<N>>;

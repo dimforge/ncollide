@@ -8,7 +8,7 @@ use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
 use procedural;
 use volumetric::Volumetric;
 use math::{Scalar, Point, Vect};
-use shape::{Convex3, Convex3d};
+use shape::Convex3;
 
 
 fn tetrahedron_unit_inertia_tensor_wrt_point<N, P, V, I>(point: &P, p1: &P, p2: &P, p3: &P, p4: &P) -> I
@@ -257,35 +257,28 @@ pub fn convex_hull_unit_angular_inertia<N, P, V, M, I>(dim: uint, points: &[P]) 
     }
 }
 
-macro_rules! impl_volumetric_convex3(
-    ($t: ty, $dim: expr, $p: ident, $i: ident, $n: ident) => {
-        impl Volumetric<$n, $p<$n>, $i<$n>> for $t {
-            fn surface(&self) -> $n {
-                convex_hull_surface(3, self.points())
-            }
-
-            fn volume(&self) -> $n {
-                convex_hull_volume(3, self.points())
-            }
-
-            fn center_of_mass(&self) -> $p<$n> {
-                convex_hull_center_of_mass(3, self.points())
-            }
-
-            fn unit_angular_inertia(&self) -> $i<$n> {
-                convex_hull_unit_angular_inertia(3, self.points())
-            }
-
-            fn mass_properties(&self, density: $n) -> ($n, $p<$n>, $i<$n>) {
-                let convex_mesh = procedural::convex_hull3(self.points());
-                unsafe { convex_mesh_mass_properties(&convex_mesh, density) }
-            }
-        }
+impl<N: Scalar> Volumetric<N, Pnt3<N>, Mat3<N>> for Convex3<N> {
+    fn surface(&self) -> N {
+        convex_hull_surface(3, self.points())
     }
-)
 
-impl_volumetric_convex3!(Convex3, 3, Pnt3, Mat3, f32)
-impl_volumetric_convex3!(Convex3d, 3, Pnt3, Mat3, f64)
+    fn volume(&self) -> N {
+        convex_hull_volume(3, self.points())
+    }
+
+    fn center_of_mass(&self) -> Pnt3<N> {
+        convex_hull_center_of_mass(3, self.points())
+    }
+
+    fn unit_angular_inertia(&self) -> Mat3<N> {
+        convex_hull_unit_angular_inertia(3, self.points())
+    }
+
+    fn mass_properties(&self, density: N) -> (N, Pnt3<N>, Mat3<N>) {
+        let convex_mesh = procedural::convex_hull3(self.points());
+        unsafe { convex_mesh_mass_properties(&convex_mesh, density) }
+    }
+}
 
 #[cfg(test)]
 mod test {

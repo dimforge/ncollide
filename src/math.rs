@@ -12,7 +12,8 @@ use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
                    Pnt1AddRhs, Pnt1SubRhs, Vec1AddRhs, Vec1SubRhs,
                    Mat4MulRhs, Mat4DivRhs, Mat4AddRhs, Mat4SubRhs,
                    Mat3MulRhs, Mat3DivRhs, Mat3AddRhs, Mat3SubRhs,
-                   Mat2MulRhs, Mat2DivRhs, Mat2AddRhs, Mat2SubRhs};
+                   Mat2MulRhs, Mat2DivRhs, Mat2AddRhs, Mat2SubRhs,
+                   Mat1MulRhs, Mat1DivRhs, Mat1AddRhs, Mat1SubRhs};
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat2, Mat1, Mat3, Mat4, Iso2, Iso3, Iso4, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
          Rotate, Transform, AbsoluteRotate, Inv, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv,
@@ -41,7 +42,9 @@ pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cas
                   Mat3MulRhs<Self, Mat3<Self>> + Mat3DivRhs<Self, Mat3<Self>> +
                   Mat3AddRhs<Self, Mat3<Self>> + Mat3SubRhs<Self, Mat3<Self>> +
                   Mat2MulRhs<Self, Mat2<Self>> + Mat2DivRhs<Self, Mat2<Self>> +
-                  Mat2AddRhs<Self, Mat2<Self>> + Mat2SubRhs<Self, Mat2<Self>> {
+                  Mat2AddRhs<Self, Mat2<Self>> + Mat2SubRhs<Self, Mat2<Self>> +
+                  Mat1MulRhs<Self, Mat1<Self>> + Mat1DivRhs<Self, Mat1<Self>> +
+                  Mat1AddRhs<Self, Mat1<Self>> + Mat1SubRhs<Self, Mat1<Self>> {
 }
 
 /// Trait implemented by point types.

@@ -3,7 +3,7 @@ use na::Orig;
 use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
-use shape::{Cylinder2, Cylinder2d, Cylinder3, Cylinder3d};
+use shape::{Cylinder2, Cylinder3};
 use math::Scalar;
 
 
@@ -89,28 +89,26 @@ pub fn cylinder_unit_angular_inertia<N, I>(dim: uint, half_height: N, radius: N)
 }
 
 macro_rules! impl_volumetric_cylinder(
-    ($t: ident, $dim: expr, $p: ident, $i: ident, $n: ident) => (
-        impl Volumetric<$n, $p<$n>, $i<$n>> for $t {
-            fn surface(&self) -> $n {
+    ($t: ident, $dim: expr, $p: ident, $i: ident) => (
+        impl<N: Scalar> Volumetric<N, $p<N>, $i<N>> for $t<N> {
+            fn surface(&self) -> N {
                 cylinder_surface($dim, self.half_height(), self.radius())
             }
 
-            fn volume(&self) -> $n {
+            fn volume(&self) -> N {
                 cylinder_volume($dim, self.half_height(), self.radius())
             }
 
-            fn center_of_mass(&self) -> $p<$n> {
+            fn center_of_mass(&self) -> $p<N> {
                 cylinder_center_of_mass()
             }
 
-            fn unit_angular_inertia(&self) -> $i<$n> {
+            fn unit_angular_inertia(&self) -> $i<N> {
                 cylinder_unit_angular_inertia($dim, self.half_height(), self.radius())
             }
         }
     )
 )
 
-impl_volumetric_cylinder!(Cylinder2, 2, Pnt2, Mat1, f32)
-impl_volumetric_cylinder!(Cylinder2d, 2, Pnt2, Mat1, f64)
-impl_volumetric_cylinder!(Cylinder3, 3, Pnt3, Mat3, f32)
-impl_volumetric_cylinder!(Cylinder3d, 3, Pnt3, Mat3, f64)
+impl_volumetric_cylinder!(Cylinder2, 2, Pnt2, Mat1)
+impl_volumetric_cylinder!(Cylinder3, 3, Pnt3, Mat3)

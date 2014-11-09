@@ -40,21 +40,11 @@ pub mod surface_selector;
 pub mod surface_subdivision_tree;
 
 /// 2D Shape against Shape collision detection dispatcher using single precision floats.
-pub type ShapeShapeDispatcher2 = ShapeShapeDispatcher<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>, Mat1<f32>>;
+pub type ShapeShapeDispatcher2<N> = ShapeShapeDispatcher<N, Pnt2<N>, Vec2<N>, Iso2<N>, Mat1<N>>;
 /// 2D Plane against Support Map collision detection dispatcher using single precision floats.
-pub type PlaneSupportMap2<G> = PlaneSupportMap<f32, Pnt2<f32>, Vec2<f32>, Iso2<f32>, G>;
-
-/// 2D Shape against Shape collision detection dispatcher using double precision floats.
-pub type ShapeShapeDispatcher2d = ShapeShapeDispatcher<f64, Pnt2<f64>, Vec2<f64>, Iso2<f64>, Mat1<f64>>;
-/// 2D Plane against Support Map collision detection dispatcher using double precision floats.
-pub type PlaneSupportMap2d<G> = PlaneSupportMap<f64, Pnt2<f64>, Vec2<f64>, Iso2<f32>, G>;
+pub type PlaneSupportMap2<N, G> = PlaneSupportMap<N, Pnt2<N>, Vec2<N>, Iso2<N>, G>;
 
 /// 3D Shape against Shape collision detection dispatcher using single precision floats.
-pub type ShapeShapeDispatcher3 = ShapeShapeDispatcher<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>, Mat3<f32>>;
+pub type ShapeShapeDispatcher3<N> = ShapeShapeDispatcher<N, Pnt3<N>, Vec3<N>, Iso3<N>, Mat3<N>>;
 /// 3D Plane against Support Map collision detection dispatcher using single precision floats.
-pub type PlaneSupportMap3<G> = PlaneSupportMap<f32, Pnt3<f32>, Vec3<f32>, Iso3<f32>, G>;
-
-/// 3D Shape against Shape collision detection dispatcher using double precision floats.
-pub type ShapeShapeDispatcher3d = ShapeShapeDispatcher<f64, Pnt3<f64>, Vec3<f64>, Iso3<f64>, Mat3<f64>>;
-/// 3D Plane against Support Map collision detection dispatcher using double precision floats.
-pub type PlaneSupportMap3d<G> = PlaneSupportMap<f64, Pnt3<f64>, Vec3<f64>, Iso3<f32>, G>;
+pub type PlaneSupportMap3<N, G> = PlaneSupportMap<N, Pnt3<N>, Vec3<N>, Iso3<N>, G>;
