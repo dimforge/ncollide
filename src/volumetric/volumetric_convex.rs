@@ -4,7 +4,7 @@ use std::num::Zero;
 use na::{FloatVec, Outer, EigenQR, Pnt3, Mat3};
 use na;
 use utils;
-use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use procedural;
 use volumetric::Volumetric;
 use math::{Scalar, Point, Vect};
@@ -76,7 +76,7 @@ pub unsafe fn convex_mesh_volume_and_center_of_mass<N, P, V>(convex_mesh: &TriMe
     let mut vol = na::zero::<N>();
 
     match convex_mesh.indices {
-        UnifiedIndexBuffer(ref idx) => {
+        IndexBuffer::Unified(ref idx) => {
             for t in idx.iter() {
                 let p2 = &convex_mesh.coords[t.x as uint];
                 let p3 = &convex_mesh.coords[t.y as uint];
@@ -89,7 +89,7 @@ pub unsafe fn convex_mesh_volume_and_center_of_mass<N, P, V>(convex_mesh: &TriMe
                 vol = vol + volume;
             }
         },
-        SplitIndexBuffer(_) => unreachable!()
+        IndexBuffer::Split(_) => unreachable!()
     }
 
     if vol.is_zero() {
@@ -121,7 +121,7 @@ pub unsafe fn convex_mesh_mass_properties<N, P, V, I>(convex_mesh: &TriMesh<N, P
     let mut itot = na::zero::<I>();
 
     match convex_mesh.indices {
-        UnifiedIndexBuffer(ref idx) => {
+        IndexBuffer::Unified(ref idx) => {
             for t in idx.iter() {
                 let p2 = &convex_mesh.coords[t.x as uint];
                 let p3 = &convex_mesh.coords[t.y as uint];
@@ -133,7 +133,7 @@ pub unsafe fn convex_mesh_mass_properties<N, P, V, I>(convex_mesh: &TriMesh<N, P
                 itot = itot + ipart * vol;
             }
         },
-        SplitIndexBuffer(_) => unreachable!()
+        IndexBuffer::Split(_) => unreachable!()
     }
 
     (volume * density, com, itot * density)
@@ -149,7 +149,7 @@ pub unsafe fn convex_mesh_surface<N, P, V>(convex_mesh: &TriMesh<N, P, V>) -> N
     let mut surface = na::zero::<N>();
 
     match convex_mesh.indices {
-        UnifiedIndexBuffer(ref idx) => {
+        IndexBuffer::Unified(ref idx) => {
             for t in idx.iter() {
                 let p1 = &convex_mesh.coords[t.x as uint];
                 let p2 = &convex_mesh.coords[t.y as uint];
@@ -158,7 +158,7 @@ pub unsafe fn convex_mesh_surface<N, P, V>(convex_mesh: &TriMesh<N, P, V>) -> N
                 surface = surface + utils::triangle_area(p1, p2, p3);
             }
         },
-        SplitIndexBuffer(_) => unreachable!()
+        IndexBuffer::Split(_) => unreachable!()
     }
 
     surface

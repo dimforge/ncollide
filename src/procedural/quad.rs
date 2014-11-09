@@ -1,6 +1,6 @@
 use na;
 use na::{Vec3, Pnt2};
-use procedural::{TriMesh, UnifiedIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use math::{Scalar, Point, Vect};
 
 /// Adds a double-sided quad to the scene.
@@ -123,5 +123,5 @@ pub fn unit_quad<N, P, V>(usubdivs: uint, vsubdivs: uint) -> TriMesh<N, P, V>
         }
     }
 
-    TriMesh::new(vertices, Some(normals), Some(tex_coords), Some(UnifiedIndexBuffer(triangles)))
+    TriMesh::new(vertices, Some(normals), Some(tex_coords), Some(IndexBuffer::Unified(triangles)))
 }

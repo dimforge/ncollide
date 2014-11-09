@@ -1,6 +1,6 @@
 use na;
 use na::{Pnt3, Vec3, Pnt2};
-use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
+use procedural::{Polyline, TriMesh, IndexBuffer};
 use procedural::utils;
 use math::{Scalar, Point, Vect};
 
@@ -75,7 +75,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
                                             ntheta_subdiv,
                                             &mut idx);
 
-    let mut res = TriMesh::new(coords, Some(normals), None, Some(UnifiedIndexBuffer(idx)));
+    let mut res = TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Unified(idx)));
 
     let _0_5: N = na::cast(0.5);
 
@@ -129,7 +129,7 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
         curr_uvphi = curr_uvphi + duvphi;
     }
 
-    let mut res = TriMesh::new(coords, Some(normals), Some(uvs), Some(UnifiedIndexBuffer(idx)));
+    let mut res = TriMesh::new(coords, Some(normals), Some(uvs), Some(IndexBuffer::Unified(idx)));
 
     let _0_5: N = na::cast(0.5);
     res.scale_by_scalar(_0_5);
@@ -169,7 +169,7 @@ pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pn
     // Result
     let normals: Vec<Vec3<N>> = coords.iter().map(|p| p.as_vec().clone()).collect();
     // FIXME: uvs
-    let mut out = TriMesh::new(coords, Some(normals), None, Some(UnifiedIndexBuffer(idx)));
+    let mut out = TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Unified(idx)));
 
     // set the radius to 0.5
     let _0_5: N = na::cast(0.5);

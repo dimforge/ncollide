@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::{Vacant, Occupied};
 use na::Vec3;
 use na;
-use procedural::{TriMesh, UnifiedIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use utils;
 use bounding_volume;
 use math::{Scalar, Point, Vect};
@@ -106,7 +106,7 @@ impl<N, P, V> Triangulator<N, P, V>
             }
         }
 
-        TriMesh::new(self.vertices, None, None, Some(UnifiedIndexBuffer(idx)))
+        TriMesh::new(self.vertices, None, None, Some(IndexBuffer::Unified(idx)))
     }
 
     fn remove_containing_triangles_and_register_edges(&mut self, pt: &P) {

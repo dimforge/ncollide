@@ -2,7 +2,7 @@ use std::num::{Bounded, Zero};
 use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR};
 use na;
 use utils;
-use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
+use procedural::{Polyline, TriMesh, IndexBuffer};
 use bounding_volume;
 use support_map;
 use math::{Scalar, Point, Vect};
@@ -154,7 +154,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
 
     denormalize(points.as_mut_slice(), &norm_center, norm_diag);
 
-    TriMesh::new(points, None, None, Some(UnifiedIndexBuffer(idx)))
+    TriMesh::new(points, None, None, Some(IndexBuffer::Unified(idx)))
 }
 
 enum InitialMesh<N, P, V, M> {
@@ -169,7 +169,7 @@ fn build_degenerate_mesh_point<N, P, V>(point: P) -> TriMesh<N, P, V>
     let ta = Vec3::new(0u32, 0, 0);
     let tb = Vec3::new(0u32, 0, 0);
 
-    TriMesh::new(vec!(point), None, None, Some(UnifiedIndexBuffer(vec!(ta, tb))))
+    TriMesh::new(vec!(point), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
 fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N, P, V>
@@ -183,7 +183,7 @@ fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N
     let ta = Vec3::new(0u32, 1, 0);
     let tb = Vec3::new(1u32, 0, 0);
 
-    TriMesh::new(vec!(a, b), None, None, Some(UnifiedIndexBuffer(vec!(ta, tb))))
+    TriMesh::new(vec!(a, b), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
 fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -> InitialMesh<N, P, V, M>
@@ -261,7 +261,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
                 triangles.push(Vec3::new(id, a, id + 1));
             }
 
-            ResultMesh(TriMesh::new(coords, None, None, Some(UnifiedIndexBuffer(triangles))))
+            ResultMesh(TriMesh::new(coords, None, None, Some(IndexBuffer::Unified(triangles))))
         },
         3 => {
             // The hull is a polyedra.

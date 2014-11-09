@@ -1,6 +1,6 @@
 use na::{Pnt3, Vec3};
 use shape::Mesh3;
-use procedural::{ToTriMesh, TriMesh, UnifiedIndexBuffer};
+use procedural::{ToTriMesh, TriMesh, IndexBuffer};
 use math::Scalar;
 
 impl<N: Scalar> ToTriMesh<N, Pnt3<N>, Vec3<N>, ()> for Mesh3<N> {
@@ -14,6 +14,6 @@ impl<N: Scalar> ToTriMesh<N, Pnt3<N>, Vec3<N>, ()> for Mesh3<N> {
         TriMesh::new(self.vertices().deref().clone(),
         self.normals().as_ref().map(|ns| ns.deref().clone()),
         self.uvs().as_ref().map(|ns| ns.deref().clone()),
-        Some(UnifiedIndexBuffer(formated_index_buffer)))
+        Some(IndexBuffer::Unified(formated_index_buffer)))
     }
 }

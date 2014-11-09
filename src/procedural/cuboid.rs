@@ -1,6 +1,6 @@
 use na;
 use na::{Vec3, Pnt2, Pnt3};
-use procedural::{TriMesh, SplitIndexBuffer, Polyline};
+use procedural::{TriMesh, IndexBuffer, Polyline};
 use math::{Scalar, Point, Vect};
 
 /**
@@ -75,7 +75,7 @@ pub fn unit_cuboid<N>() -> TriMesh<N, Pnt3<N>, Vec3<N>>
     faces.push(Vec3::new(Vec3::new(7, 5, 3), Vec3::new(6, 5, 1), Vec3::new(5, 5, 0)));
     faces.push(Vec3::new(Vec3::new(4, 5, 2), Vec3::new(7, 5, 3), Vec3::new(5, 5, 0)));
 
-    TriMesh::new(coords, Some(normals), Some(uvs), Some(SplitIndexBuffer(faces)))
+    TriMesh::new(coords, Some(normals), Some(uvs), Some(IndexBuffer::Split(faces)))
 }
 
 /// The contour of a cuboid lying on the x-y plane.

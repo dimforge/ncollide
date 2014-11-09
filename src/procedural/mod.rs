@@ -1,5 +1,5 @@
 //! Procedural mesh generation.
-pub use procedural::trimesh::{TriMesh, IndexBuffer, UnifiedIndexBuffer, SplitIndexBuffer};
+pub use procedural::trimesh::{TriMesh, IndexBuffer};
 pub use procedural::polyline::Polyline;
 pub use procedural::parametric_surface::{parametric_surface_uniform,
                                                   parametric_surface_uniform_with_distance_error};

@@ -1,6 +1,6 @@
 use na;
 use na::{Pnt3, Pnt2, Vec3};
-use procedural::{TriMesh, SplitIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use procedural::utils;
 use math::Scalar;
 
@@ -98,5 +98,5 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
         i.z.y = nlen - 1;
     }
 
-    TriMesh::new(coords, Some(normals), Some(uvs), Some(SplitIndexBuffer(indices)))
+    TriMesh::new(coords, Some(normals), Some(uvs), Some(IndexBuffer::Split(indices)))
 }

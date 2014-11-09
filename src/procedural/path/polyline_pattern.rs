@@ -1,6 +1,6 @@
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso3};
 use na;
-use procedural::{Polyline, TriMesh, UnifiedIndexBuffer};
+use procedural::{Polyline, TriMesh, IndexBuffer};
 use procedural::utils;
 use procedural::path::{StrokePattern, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
 use math::Scalar;
@@ -112,7 +112,7 @@ impl<N, C1, C2> StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2
                     }
                 },
                 EndOfSample =>
-                    return TriMesh::new(vertices, None, None, Some(UnifiedIndexBuffer(indices)))
+                    return TriMesh::new(vertices, None, None, Some(IndexBuffer::Unified(indices)))
             }
 
             // third match to add the end cap

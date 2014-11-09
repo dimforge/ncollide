@@ -14,7 +14,7 @@ use support_map::SupportMap;
 use support_map;
 use ray::{Ray, LocalRayCast, RayIntersection};
 use ray;
-use procedural::{TriMesh, SplitIndexBuffer, UnifiedIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use procedural;
 use utils;
 use bounding_volume::BoundingVolume;
@@ -192,8 +192,8 @@ impl<N: Scalar> DualGraphVertex<N> {
                -> DualGraphVertex<N> {
         let (idx, ns) =
             match mesh.indices {
-                UnifiedIndexBuffer(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
-                SplitIndexBuffer(ref idx) => {
+                IndexBuffer::Unified(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
+                IndexBuffer::Split(ref idx) => {
                     let t = idx[ancestor];
                     (Vec3::new(t.x.x, t.y.x, t.z.x), Vec3::new(t.x.y, t.y.y, t.z.y))
                 }
@@ -662,14 +662,14 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
         };
 
         match mesh.indices {
-            UnifiedIndexBuffer(ref b) => {
+            IndexBuffer::Unified(ref b) => {
                 for t in b.iter() {
                     add_ray(t.x, t.x);
                     add_ray(t.y, t.y);
                     add_ray(t.z, t.z);
                 }
             },
-            SplitIndexBuffer(ref b) => {
+            IndexBuffer::Split(ref b) => {
                 for t in b.iter() {
                     add_ray(t.x.x, t.x.y);
                     add_ray(t.y.x, t.y.y);
@@ -709,12 +709,12 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
         };
 
         match mesh.indices {
-            UnifiedIndexBuffer(ref b) => {
+            IndexBuffer::Unified(ref b) => {
                 for (i, t) in b.iter().enumerate() {
                     add_triangle_edges(i, t)
                 }
             },
-            SplitIndexBuffer(ref b) => {
+            IndexBuffer::Split(ref b) => {
                 for (i, t) in b.iter().enumerate() {
                     let t_idx = Vec3::new(t.x.x, t.y.x, t.z.x);
                     add_triangle_edges(i, &t_idx)

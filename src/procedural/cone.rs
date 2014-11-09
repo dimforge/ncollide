@@ -1,6 +1,6 @@
 use na;
 use na::{Pnt3, Vec3};
-use procedural::{TriMesh, SplitIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use procedural::utils;
 use math::Scalar;
 
@@ -65,7 +65,7 @@ pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     // normal for the body
 
-    TriMesh::new(coords, Some(normals), None, Some(SplitIndexBuffer(indices)))
+    TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Split(indices)))
 
     // XXX: uvs
 }

@@ -1,6 +1,6 @@
 use na;
 use na::{Vec3, Pnt3};
-use procedural::{TriMesh, UnifiedIndexBuffer};
+use procedural::{TriMesh, IndexBuffer};
 use procedural::{sphere, utils};
 use math::Scalar;
 
@@ -65,5 +65,5 @@ pub fn capsule<N>(caps_diameter:   &N,
     TriMesh::new(bottom_coords,
                    Some(bottom_normals),
                    None,
-                   Some(UnifiedIndexBuffer(bottom_indices)))
+                   Some(IndexBuffer::Unified(bottom_indices)))
 }
