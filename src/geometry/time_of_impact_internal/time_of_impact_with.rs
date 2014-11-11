@@ -13,19 +13,19 @@ pub trait TimeOfImpactWith<N, P, V, M, Sized? G> for Sized? {
     /// Computes the Time Of Impact separating two shapes.
     ///
     /// Returns `None` if they never move.
-    fn time_of_impact(m1: &M, dir1: &V, g1: &Self, m2: &M, dir2: &V, g2: &G) -> Option<N>;
+    fn time_of_impact(m1: &M, vel1: &V, g1: &Self, m2: &M, vel2: &V, g2: &G) -> Option<N>;
 }
 
 /// Computes the Time Of Impact separating two shapes under translational movement.
-pub fn time_of_impact<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, dir1: &V, g1: &G1,
-                                                        m2: &M, dir2: &V, g2: &G2)
+pub fn time_of_impact<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G1,
+                                                        m2: &M, vel2: &V, g2: &G2)
                                                         -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P>,
           M:  Isometry<N, P, V>,
           G1: TimeOfImpactWith<N, P, V, M, G2> {
-    TimeOfImpactWith::time_of_impact(m1, dir1, g1, m2, dir2, g2)
+    TimeOfImpactWith::time_of_impact(m1, vel1, g1, m2, vel2, g2)
 }
 
 /*
@@ -44,8 +44,8 @@ macro_rules! impl_time_of_impact_with(
                   M: Isometry<N, P, V>,
                   I: Send + Sync + Clone {
             #[inline]
-            fn time_of_impact(m1: &M, dir1: &V, g1: &$g1, m2: &M, dir2: &V, g2: &$g2) -> Option<N> {
-                time_of_impact_internal::$name(m1, dir1, g1, m2, dir2, g2)
+            fn time_of_impact(m1: &M, vel1: &V, g1: &$g1, m2: &M, vel2: &V, g2: &$g2) -> Option<N> {
+                time_of_impact_internal::$name(m1, vel1, g1, m2, vel2, g2)
             }
         }
     }
@@ -64,10 +64,10 @@ impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
           V: Vect<N>,
           M: Isometry<N, P, V> {
     #[inline]
-    fn time_of_impact(m1: &M, dir1: &V, g1: &Ball<N>, m2: &M, dir2: &V, g2: &Ball<N>) -> Option<N> {
+    fn time_of_impact(m1: &M, vel1: &V, g1: &Ball<N>, m2: &M, vel2: &V, g2: &Ball<N>) -> Option<N> {
         let p1 = m1.translate(&na::orig());
         let p2 = m2.translate(&na::orig());
-        time_of_impact_internal::ball_against_ball(&p1, dir1, g1, &p2, dir2, g2)
+        time_of_impact_internal::ball_against_ball(&p1, vel1, g1, &p2, vel2, g2)
     }
 }
 
