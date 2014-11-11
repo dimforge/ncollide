@@ -1,15 +1,15 @@
 use std::num::Zero;
-use na::{FloatVec, Cross};
+use na::Cross;
 use na;
 use volumetric::{Volumetric, InertiaTensor};
 use shape::{Compound, CompoundData};
-use math::{Scalar, Point};
+use math::{Scalar, Point, Vect, HasInertiaMatrix};
 
 
 impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     where N: Scalar,
           P: Point<N, V>,
-          V: FloatVec<N> + Cross<AV>, // FIXME: we are using `Cross` only to determine AV.
+          V: Vect<N> + Cross<AV>, // FIXME: we are using `Cross` only to determine AV.
           M: Mul<P, P>,
           I: Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> {
     fn surface(&self) -> N {
@@ -108,10 +108,11 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     }
 }
 
-impl<N, P, V, M, I> Volumetric<N, P, I> for Compound<N, P, V, M, I>
+impl<N, P, V, M, I> Volumetric<N, P, I> for Compound<N, P, V, M>
     where N: Scalar,
           P: Clone,
-          I: Mul<N, I> + Clone {
+          V: HasInertiaMatrix<I>,
+          I: 'static + Mul<N, I> + Clone {
     fn surface(&self) -> N {
         self.surface()
     }

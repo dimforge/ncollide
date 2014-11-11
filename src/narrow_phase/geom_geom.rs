@@ -21,11 +21,11 @@ use math::{Scalar, Point, Vect, Isometry};
 
 
 /// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
-pub trait ShapeShapeCollisionDetector<N, P, V, M, I> {
+pub trait ShapeShapeCollisionDetector<N, P, V, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self, &ShapeShapeDispatcher<N, P, V, M, I>, &M, &Shape<N, P, V, M>, &M, &Shape<N, P, V, M>);
+    fn update(&mut self, &ShapeShapeDispatcher<N, P, V, M>, &M, &Shape<N, P, V, M>, &M, &Shape<N, P, V, M>);
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> uint;
@@ -37,7 +37,7 @@ pub trait ShapeShapeCollisionDetector<N, P, V, M, I> {
 /// Trait to be implemented by collision detector using dynamic dispatch.
 ///
 /// This is used to know the exact type of the geometries.
-pub trait DynamicCollisionDetector<N, P, V, M, I, G1, G2>: ShapeShapeCollisionDetector<N, P, V, M, I> { }
+pub trait DynamicCollisionDetector<N, P, V, M, G1, G2>: ShapeShapeCollisionDetector<N, P, V, M> { }
 
 #[deriving(Clone)]
 struct DetectorWithoutRedispatch<D> {
@@ -59,16 +59,16 @@ impl<N, P, V, M, D, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for DetectorWi
     fn colls(&self, _: &mut Vec<Contact<N, P, V>>) { unreachable!() }
 }
 
-impl<N, P, V, M, I, D: CollisionDetector<N, P, V, M, G1, G2>, G1, G2>
-DynamicCollisionDetector<N, P, V, M, I, G1, G2> for DetectorWithoutRedispatch<D> { }
+impl<N, P, V, M, D: CollisionDetector<N, P, V, M, G1, G2>, G1, G2>
+DynamicCollisionDetector<N, P, V, M, G1, G2> for DetectorWithoutRedispatch<D> { }
 
-impl<N, P, V, M, I, D, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for DetectorWithoutRedispatch<D>
+impl<N, P, V, M, D, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for DetectorWithoutRedispatch<D>
     where D:  CollisionDetector<N, P, V, M, G1, G2>,
           G1: 'static,
           G2: 'static {
     #[inline]
     fn update(&mut self,
-              _:  &ShapeShapeDispatcher<N, P, V, M, I>,
+              _:  &ShapeShapeDispatcher<N, P, V, M>,
               m1: &M,
               g1: &Shape<N, P, V, M>,
               m2: &M,
@@ -92,14 +92,14 @@ impl<N, P, V, M, I, D, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for De
 }
 
 /// Collision dispatcher between two `~Shape`.
-pub struct ShapeShapeDispatcher<N, P, V, M, I> {
-    constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory<N, P, V, M, I>>>
+pub struct ShapeShapeDispatcher<N, P, V, M> {
+    constructors: HashMap<(TypeId, TypeId), Box<CollisionDetectorFactory<N, P, V, M>>>
 }
 
-impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
+impl<N, P, V, M> ShapeShapeDispatcher<N, P, V, M> {
     /// Creates a new `ShapeShapeDispatcher` without the default set of collision detectors
     /// factories.
-    pub fn new_without_default() -> ShapeShapeDispatcher<N, P, V, M, I> {
+    pub fn new_without_default() -> ShapeShapeDispatcher<N, P, V, M> {
         ShapeShapeDispatcher {
             constructors: HashMap::new()
         }
@@ -113,16 +113,16 @@ impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
     pub unsafe fn register_factory<G1, G2, F>(&mut self, factory: F)
         where G1: 'static + Any,
               G2: 'static + Any,
-              F:  CollisionDetectorFactory<N, P, V, M, I> {
+              F:  CollisionDetectorFactory<N, P, V, M> {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
-        let _ = self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M, I>>);
+        let _ = self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M>>);
     }
 
     /// Registers a new dynamic collision detector for two geometries.
     pub fn register_dynamic_detector<G1, G2, D>(&mut self, d: D)
         where G1: 'static + Any,
               G2: 'static + Any,
-              D:  'static + Send + DynamicCollisionDetector<N, P, V, M, I, G1, G2> + Clone {
+              D:  'static + Send + DynamicCollisionDetector<N, P, V, M, G1, G2> + Clone {
         let factory = CollisionDetectorCloner::new(d);
         unsafe { self.register_factory::<G1, G2, _>(factory) }
     }
@@ -142,24 +142,23 @@ impl<N, P, V, M, I> ShapeShapeDispatcher<N, P, V, M, I> {
     }
 
     /// If registered, creates a new collision detector adapted for the two given geometries.
-    pub fn dispatch(&self, a: &Shape<N, P, V, M>, b: &Shape<N, P, V, M>) -> Option<Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>> {
+    pub fn dispatch(&self, a: &Shape<N, P, V, M>, b: &Shape<N, P, V, M>) -> Option<Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>> {
         self.constructors.get(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
 }
 
 // FIXME: Remove the `UniformSphereSample` bound when the EPA is implemented.
-impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
+impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
-          M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone {
+          M:  Isometry<N, P, V> + Rotation<AV> {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `ShapeShapeDispatcher` able do build collision detectors for any valid pair of
     /// geometries supported by `ncollide`.
-    pub fn new(prediction: N) -> ShapeShapeDispatcher<N, P, V, M, I> {
-        let mut res: ShapeShapeDispatcher<N, P, V, M, I> = ShapeShapeDispatcher::new_without_default();
+    pub fn new(prediction: N) -> ShapeShapeDispatcher<N, P, V, M> {
+        let mut res: ShapeShapeDispatcher<N, P, V, M> = ShapeShapeDispatcher::new_without_default();
 
         // Ball vs. Ball
         let bb = BallBall::new(prediction.clone());
@@ -194,15 +193,15 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
 
         // FIXME: refactor the three following blocks?
         // Compound vs. Other
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Plane<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Ball<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cuboid<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cone<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Cylinder<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Capsule<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Convex<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Triangle<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Segment<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Plane<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Ball<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cuboid<V>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cone<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cylinder<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Capsule<N>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Convex<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Triangle<P>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Segment<P>>(prediction);
 
         // TriangleMesh vs. Other
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Plane<V>>(prediction);
@@ -227,18 +226,18 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
         res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Segment<P>>(prediction);
 
         // // FIXME: implement a ConcaveShapeConcaveShape detector?
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M, I>, Compound<N, P, V, M, I>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M, I>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M, I>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Compound<N, P, V, M>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M>>(prediction);
+        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M>>(prediction);
 
         res
     }
 
     /// Registers a `PlaneSupportMap` collision detector between a given support mapped shape and a plane.
-    pub fn register_default_plane_implicit_detector<I>(&mut self, generate_manifold: bool, prediction: N)
-        where I: 'static + SupportMap<P, V, M> {
-        let d1 = SupportMapPlane::<N, P, V, M, I>::new(prediction.clone());
-        let d2 = PlaneSupportMap::<N, P, V, M, I>::new(prediction.clone());
+    pub fn register_default_plane_implicit_detector<G>(&mut self, generate_manifold: bool, prediction: N)
+        where G: 'static + SupportMap<P, V, M> {
+        let d1 = SupportMapPlane::<N, P, V, M, G>::new(prediction.clone());
+        let d2 = PlaneSupportMap::<N, P, V, M, G>::new(prediction.clone());
 
         if generate_manifold {
             self.register_detector_with_contact_manifold_generator(d1, prediction);
@@ -320,9 +319,9 @@ impl<N, P, V, AV, M, I> ShapeShapeDispatcher<N, P, V, M, I>
 
 // FIXME: rename that ShapeShapeCollisionDetectorFactory ?
 /// Trait of structures able do build a new collision detector.
-pub trait CollisionDetectorFactory<N, P, V, M, I> : Send {
+pub trait CollisionDetectorFactory<N, P, V, M> : Send {
     /// Builds a new collision detector.
-    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>;
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>;
 }
 
 /// Cloning-based collision detector factory.
@@ -330,7 +329,7 @@ pub struct CollisionDetectorCloner<CD> {
     template: CD
 }
 
-impl<N, P, V, M, I, CD: ShapeShapeCollisionDetector<N, P, V, M, I> + Clone> CollisionDetectorCloner<CD> {
+impl<N, P, V, M, CD: ShapeShapeCollisionDetector<N, P, V, M> + Clone> CollisionDetectorCloner<CD> {
     /// Creates a new `CollisionDetectorCloner`.
     ///
     /// The cloned detector is `CD`.
@@ -341,9 +340,9 @@ impl<N, P, V, M, I, CD: ShapeShapeCollisionDetector<N, P, V, M, I> + Clone> Coll
     }
 }
 
-impl<N, P, V, M, I, CD> CollisionDetectorFactory<N, P, V, M, I> for CollisionDetectorCloner<CD>
-    where CD: 'static + Send + ShapeShapeCollisionDetector<N, P, V, M, I> + Clone {
-    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send> {
-        box self.template.clone() as Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>
+impl<N, P, V, M, CD> CollisionDetectorFactory<N, P, V, M> for CollisionDetectorCloner<CD>
+    where CD: 'static + Send + ShapeShapeCollisionDetector<N, P, V, M> + Clone {
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send> {
+        box self.template.clone() as Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>
     }
 }

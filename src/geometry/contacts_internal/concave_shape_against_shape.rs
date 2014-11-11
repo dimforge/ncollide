@@ -5,20 +5,19 @@ use partitioning::BoundingVolumeInterferencesCollector;
 use bounding_volume::BoundingVolume;
 use geometry::Contact;
 use geometry::contacts_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Contacts between a concave shape (`Mesh`, `Compound`) and any other shape.
-pub fn manifold_concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
+pub fn manifold_concave_shape_against_shape<N, P, V, AV, M, G1, G2>(
                                             m1: &M, g1: &G1,
                                             m2: &M, g2: &G2,
                                             prediction: N,
                                             contacts: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     // Find new collisions
@@ -41,17 +40,16 @@ pub fn manifold_concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
 }
 
 /// Contacts between a shape and a concave (`Mesh`, `Compound`) shape.
-pub fn manifold_shape_against_concave_shape<N, P, V, AV, M, I, G1, G2>(
+pub fn manifold_shape_against_concave_shape<N, P, V, AV, M, G1, G2>(
                                             m1: &M, g1: &G1,
                                             m2: &M, g2: &G2,
                                             prediction: N,
                                             contacts: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          I: Send + Sync + Clone,
           G1: Shape<N, P, V, M>,
           G2: ConcaveShape<N, P, V, M> {
     let curr_len = contacts.len();
@@ -64,17 +62,16 @@ pub fn manifold_shape_against_concave_shape<N, P, V, AV, M, I, G1, G2>(
 }
 
 /// Best contact between a concave shape (`Mesh`, `Compound`) and any other shape.
-pub fn concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
+pub fn concave_shape_against_shape<N, P, V, AV, M, G1, G2>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)
                                    -> Option<Contact<N, P, V>>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     // Find new collisions
@@ -115,17 +112,16 @@ pub fn concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
 }
 
 /// Best contact between a shape and a concave (`Mesh`, `Compound`) shape.
-pub fn shape_against_concave_shape<N, P, V, AV, M, I, G1, G2>(
+pub fn shape_against_concave_shape<N, P, V, AV, M, G1, G2>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)
                                    -> Option<Contact<N, P, V>>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone,
           G1: Shape<N, P, V, M>,
           G2: ConcaveShape<N, P, V, M> {
     let mut res = concave_shape_against_shape(m2, g2, m1, g1, prediction);

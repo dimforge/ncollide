@@ -14,7 +14,7 @@ pub use self::concave_geom_geom::{ConcaveShapeShape, ShapeConcaveShape,
                             ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
 pub use self::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
 
-use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3, Mat1, Mat3};
+use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
 
 #[doc(hidden)]
 pub mod collision_detector;
@@ -34,11 +34,11 @@ pub mod surface_selector;
 pub mod surface_subdivision_tree;
 
 /// 2D Shape against Shape collision detection dispatcher.
-pub type ShapeShapeDispatcher2<N> = ShapeShapeDispatcher<N, Pnt2<N>, Vec2<N>, Iso2<N>, Mat1<N>>;
+pub type ShapeShapeDispatcher2<N> = ShapeShapeDispatcher<N, Pnt2<N>, Vec2<N>, Iso2<N>>;
 /// 2D Plane against Support Map collision detection dispatcher.
 pub type PlaneSupportMap2<N, G> = PlaneSupportMap<N, Pnt2<N>, Vec2<N>, Iso2<N>, G>;
 
 /// 3D Shape against Shape collision detection dispatcher.
-pub type ShapeShapeDispatcher3<N> = ShapeShapeDispatcher<N, Pnt3<N>, Vec3<N>, Iso3<N>, Mat3<N>>;
+pub type ShapeShapeDispatcher3<N> = ShapeShapeDispatcher<N, Pnt3<N>, Vec3<N>, Iso3<N>>;
 /// 3D Plane against Support Map collision detection dispatcher.
 pub type PlaneSupportMap3<N, G> = PlaneSupportMap<N, Pnt3<N>, Vec3<N>, Iso3<N>, G>;

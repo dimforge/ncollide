@@ -4,15 +4,14 @@ use shape::{Shape, ConcaveShape};
 use bounding_volume::{HasAABB, AABB};
 use partitioning::BVTCostFn;
 use geometry::distance_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Smallest distance between a concave shape and any other shape.
-pub fn concave_shape_against_shape<N, P, V, M, I, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
+pub fn concave_shape_against_shape<N, P, V, M, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     let mut cost_fn = ConcaveShapeAgainstShapeDistCostFn::new(m1, g1, m2, g2);
@@ -21,12 +20,11 @@ pub fn concave_shape_against_shape<N, P, V, M, I, G1, G2>(m1: &M, g1: &G1, m2: &
 }
 
 /// Smallest distance between a shape and a concave shape.
-pub fn shape_against_concave_shape<N, P, V, M, I, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
+pub fn shape_against_concave_shape<N, P, V, M, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: Shape<N, P, V, M>,
           G2: ConcaveShape<N, P, V, M> {
     concave_shape_against_shape(m2, g2, m1, g1)
@@ -42,12 +40,11 @@ struct ConcaveShapeAgainstShapeDistCostFn<'a, P, V: 'a, M: 'a, G1: 'a, G2: 'a> {
     g2:   &'a G2
 }
 
-impl<'a, N, P, V, M, I, G1, G2> ConcaveShapeAgainstShapeDistCostFn<'a, P, V, M, G1, G2>
+impl<'a, N, P, V, M, G1, G2> ConcaveShapeAgainstShapeDistCostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
@@ -67,13 +64,12 @@ impl<'a, N, P, V, M, I, G1, G2> ConcaveShapeAgainstShapeDistCostFn<'a, P, V, M, 
     }
 }
 
-impl<'a, N, P, V, M, I, G1, G2> BVTCostFn<N, uint, AABB<P>, N>
+impl<'a, N, P, V, M, G1, G2> BVTCostFn<N, uint, AABB<P>, N>
 for ConcaveShapeAgainstShapeDistCostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     #[inline]

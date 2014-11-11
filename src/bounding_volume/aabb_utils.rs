@@ -7,11 +7,11 @@ use math::{Scalar, Point, Vect};
 
 
 /// Computes the AABB of an support mapped shape.
-pub fn implicit_shape_aabb<N, P, V, M, I>(m: &M, i: &I) -> AABB<P>
+pub fn implicit_shape_aabb<N, P, V, M, G>(m: &M, i: &G) -> AABB<P>
         where N: Scalar,
               P: Point<N, V>,
               V: Vect<N>,
-              I: SupportMap<P, V, M> {
+              G: SupportMap<P, V, M> {
         let mut min   = na::orig::<P>();
         let mut max   = na::orig::<P>();
         let mut basis = na::zero::<V>();

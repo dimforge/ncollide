@@ -6,7 +6,7 @@ use shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh
             Triangle};
 use geometry::Contact;
 use geometry::contacts_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Trait implemented by object that can be tested for contacts with another one.
 pub trait ContactsWith<N, P, V, M, Sized? G> for Sized? {
@@ -73,13 +73,12 @@ macro_rules! impl_contacts_with(
         }
     };
     ($name: ident, $name_manifold: ident | $g1: ty, $g2: ty) => {
-        impl<N, P, V, AV, M, I> ContactsWith<N, P, V, M, $g2> for $g1
+        impl<N, P, V, AV, M> ContactsWith<N, P, V, M, $g2> for $g1
             where N:  Scalar,
                   P:  Point<N, V>,
-                  V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+                  V:  Vect<N> + Translate<P>  + Cross<AV>,
                   AV: Vect<N>,
-                  M:  Isometry<N, P, V> + Rotation<AV>,
-                  I:  Send + Sync + Clone {
+                  M:  Isometry<N, P, V> + Rotation<AV> {
             #[inline]
             fn contact(m1: &M, g1: &$g1, m2: &M, g2: &$g2, prediction: N) -> Option<Contact<N, P, V>> {
                 contacts_internal::$name(m1, g1, m2, g2, prediction)
@@ -92,13 +91,12 @@ macro_rules! impl_contacts_with(
         }
     };
     ($name: ident, $unused0: ident, $unused1: ident | $g1: ty, $g2: ty) => {
-        impl<N, P, V, AV, M, I> ContactsWith<N, P, V, M, $g2> for $g1
+        impl<N, P, V, AV, M> ContactsWith<N, P, V, M, $g2> for $g1
             where N:  Scalar,
                   P:  Point<N, V>,
-                  V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+                  V:  Vect<N> + Translate<P>  + Cross<AV>,
                   AV: Vect<N>,
-                  M:  Isometry<N, P, V> + Rotation<AV>,
-                  I:  Send + Sync + Clone {
+                  M:  Isometry<N, P, V> + Rotation<AV> {
             #[inline]
             fn contact(m1: &M, g1: &$g1, m2: &M, g2: &$g2, prediction: N) -> Option<Contact<N, P, V>> {
                 contacts_internal::$name(m1, g1, m2, g2, prediction)

@@ -5,7 +5,7 @@ use shape::Compound;
 use math::{Scalar, Point};
 
 
-impl<N, P, V, M, M2, I> HasBoundingSphere<N, P, M2> for Compound<N, P, V, M, I>
+impl<N, P, V, M, M2> HasBoundingSphere<N, P, M2> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: FloatVec<N> + Translate<P>,

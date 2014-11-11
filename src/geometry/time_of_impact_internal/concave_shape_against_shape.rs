@@ -5,17 +5,16 @@ use bounding_volume::{HasAABB, AABB};
 use ray::{LocalRayCast, Ray};
 use partitioning::BVTCostFn;
 use geometry::time_of_impact_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
-pub fn concave_shape_against_shape<N, P, V, M, I, G1, G2>(m1: &M, vel1: &V, g1: &G1,
-                                                          m2: &M, vel2: &V, g2: &G2)
-                                                          -> Option<N>
+pub fn concave_shape_against_shape<N, P, V, M, G1, G2>(m1: &M, vel1: &V, g1: &G1,
+                                                       m2: &M, vel2: &V, g2: &G2)
+                                                       -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     let mut cost_fn = ConcaveShapeAgainstShapeTOICostFn::new(m1, vel1, g1, m2, vel2, g2);
@@ -24,14 +23,13 @@ pub fn concave_shape_against_shape<N, P, V, M, I, G1, G2>(m1: &M, vel1: &V, g1: 
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
-pub fn shape_against_concave_shape<N, P, V, M, I, G1, G2>(m1: &M, vel1: &V, g1: &G1,
-                                                          m2: &M, vel2: &V, g2: &G2)
-                                                          -> Option<N>
+pub fn shape_against_concave_shape<N, P, V, M, G1, G2>(m1: &M, vel1: &V, g1: &G1,
+                                                       m2: &M, vel2: &V, g2: &G2)
+                                                       -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: Shape<N, P, V, M>,
           G2: ConcaveShape<N, P, V, M> {
     concave_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
@@ -50,12 +48,11 @@ struct ConcaveShapeAgainstShapeTOICostFn<'a, P, V: 'a, M: 'a, G1: 'a, G2: 'a> {
     g2:   &'a G2
 }
 
-impl<'a, N, P, V, M, I, G1, G2> ConcaveShapeAgainstShapeTOICostFn<'a, P, V, M, G1, G2>
+impl<'a, N, P, V, M, G1, G2> ConcaveShapeAgainstShapeTOICostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     pub fn new(m1: &'a M, vel1: &'a V, g1: &'a G1, m2: &'a M, vel2: &'a V, g2: &'a G2)
@@ -78,13 +75,12 @@ impl<'a, N, P, V, M, I, G1, G2> ConcaveShapeAgainstShapeTOICostFn<'a, P, V, M, G
     }
 }
 
-impl<'a, N, P, V, M, I, G1, G2> BVTCostFn<N, uint, AABB<P>, N>
+impl<'a, N, P, V, M, G1, G2> BVTCostFn<N, uint, AABB<P>, N>
 for ConcaveShapeAgainstShapeTOICostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
+          V:  Vect<N> + Translate<P> ,
           M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     #[inline]

@@ -14,16 +14,16 @@ use math::{Scalar, Point};
 
 
 /// Collision detector between a concave shape and another shape.
-pub struct ConcaveShapeShape<N, P, V, M, I, G1, G2> {
+pub struct ConcaveShapeShape<N, P, V, M, G1, G2> {
     prediction:    N,
-    sub_detectors: HashMap<uint, Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>, UintTWHash>,
+    sub_detectors: HashMap<uint, Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>, UintTWHash>,
     to_delete:     Vec<uint>,
     interferences: Vec<uint>
 }
 
-impl<N, P, V, M, I, G1, G2> ConcaveShapeShape<N, P, V, M, I, G1, G2> {
+impl<N, P, V, M, G1, G2> ConcaveShapeShape<N, P, V, M, G1, G2> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new(prediction: N) -> ConcaveShapeShape<N, P, V, M, I, G1, G2> {
+    pub fn new(prediction: N) -> ConcaveShapeShape<N, P, V, M, G1, G2> {
         ConcaveShapeShape {
             prediction:    prediction,
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
@@ -33,14 +33,14 @@ impl<N, P, V, M, I, G1, G2> ConcaveShapeShape<N, P, V, M, I, G1, G2> {
     }
 }
 
-impl<N, P, V, M, I, G1, G2> ConcaveShapeShape<N, P, V, M, I, G1, G2>
+impl<N, P, V, M, G1, G2> ConcaveShapeShape<N, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           M:  Inv + Mul<M, M>,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     fn do_update(&mut self,
-                 dispatcher: &ShapeShapeDispatcher<N, P, V, M, I>,
+                 dispatcher: &ShapeShapeDispatcher<N, P, V, M>,
                  m1:         &M,
                  g1:         &G1,
                  m2:         &M,
@@ -104,15 +104,14 @@ impl<N, P, V, M, I, G1, G2> ConcaveShapeShape<N, P, V, M, I, G1, G2>
     }
 }
 
-impl<N, P, V, M, I, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for ConcaveShapeShape<N, P, V, M, I, G1, G2>
+impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ConcaveShapeShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
           M:  'static + Inv + Mul<M, M>,
-          I:  'static,
           G1: 'static + ConcaveShape<N, P, V, M>,
           G2: 'static + Shape<N, P, V, M> {
     fn update(&mut self,
-              dispatcher: &ShapeShapeDispatcher<N, P, V, M, I>,
+              dispatcher: &ShapeShapeDispatcher<N, P, V, M>,
               m1:         &M,
               g1:         &Shape<N, P, V, M>,
               m2:         &M,
@@ -142,7 +141,7 @@ impl<N, P, V, M, I, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for Conca
     }
 }
 
-impl<N, P, V, M, I, G1, G2> DynamicCollisionDetector<N, P, V, M, I, G1, G2> for ConcaveShapeShape<N, P, V, M, I, G1, G2>
+impl<N, P, V, M, G1, G2> DynamicCollisionDetector<N, P, V, M, G1, G2> for ConcaveShapeShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  Point<N, V>,
           M:  Inv + Mul<M, M>,
@@ -151,28 +150,27 @@ impl<N, P, V, M, I, G1, G2> DynamicCollisionDetector<N, P, V, M, I, G1, G2> for 
 }
 
 /// Collision detector between a shape and a concave shape.
-pub struct ShapeConcaveShape<N, P, V, M, I, G1, G2> {
-    sub_detector: ConcaveShapeShape<N, P, V, M, I, G2, G1>
+pub struct ShapeConcaveShape<N, P, V, M, G1, G2> {
+    sub_detector: ConcaveShapeShape<N, P, V, M, G2, G1>
 }
 
-impl<N, P, V, M, I, G1, G2> ShapeConcaveShape<N, P, V, M, I, G1, G2> {
+impl<N, P, V, M, G1, G2> ShapeConcaveShape<N, P, V, M, G1, G2> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new(prediction: N) -> ShapeConcaveShape<N, P, V, M, I, G1, G2> {
+    pub fn new(prediction: N) -> ShapeConcaveShape<N, P, V, M, G1, G2> {
         ShapeConcaveShape {
             sub_detector: ConcaveShapeShape::new(prediction)
         }
     }
 }
 
-impl<N, P, V, M, I, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for ShapeConcaveShape<N, P, V, M, I, G1, G2>
+impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ShapeConcaveShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
           M:  'static + Inv + Mul<M, M>,
-          I:  'static,
           G1: 'static + Shape<N, P, V, M>,
           G2: 'static + ConcaveShape<N, P, V, M> {
     fn update(&mut self,
-              dispatcher: &ShapeShapeDispatcher<N, P, V, M, I>,
+              dispatcher: &ShapeShapeDispatcher<N, P, V, M>,
               m1:         &M,
               g1:         &Shape<N, P, V, M>,
               m2:         &M,
@@ -194,7 +192,7 @@ impl<N, P, V, M, I, G1, G2> ShapeShapeCollisionDetector<N, P, V, M, I> for Shape
     }
 }
 
-impl<N, P, V, M, I, G1, G2> DynamicCollisionDetector<N, P, V, M, I, G1, G2> for ShapeConcaveShape<N, P, V, M, I, G1, G2>
+impl<N, P, V, M, G1, G2> DynamicCollisionDetector<N, P, V, M, G1, G2> for ShapeConcaveShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  Point<N, V>,
           M:  Inv + Mul<M, M>,
@@ -222,17 +220,16 @@ impl<N, P, V, M, G1, G2> ConcaveShapeShapeFactory<N, P, V, M, G1, G2> {
     }
 }
 
-impl<N, P, V, M, I, G1, G2> CollisionDetectorFactory<N, P, V, M, I> for ConcaveShapeShapeFactory<N, P, V, M, G1, G2>
+impl<N, P, V, M, G1, G2> CollisionDetectorFactory<N, P, V, M> for ConcaveShapeShapeFactory<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
           V:  'static,
           M:  'static + Inv + Mul<M, M>,
-          I:  'static,
           G1: 'static + ConcaveShape<N, P, V, M>,
           G2: 'static + Shape<N, P, V, M> {
-    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send> {
-        let res: ConcaveShapeShape<N, P, V, M, I, G1, G2> = ConcaveShapeShape::new(self.prediction.clone());
-        box res as Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send> {
+        let res: ConcaveShapeShape<N, P, V, M, G1, G2> = ConcaveShapeShape::new(self.prediction.clone());
+        box res as Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>
     }
 }
 
@@ -251,16 +248,15 @@ impl<N, P, V, M, G1, G2> ShapeConcaveShapeFactory<N, P, V, M, G1, G2> {
     }
 }
 
-impl<N, P, V, M, I, G1, G2> CollisionDetectorFactory<N, P, V, M, I> for ShapeConcaveShapeFactory<N, P, V, M, G1, G2>
+impl<N, P, V, M, G1, G2> CollisionDetectorFactory<N, P, V, M> for ShapeConcaveShapeFactory<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
           V:  'static,
           M:  'static + Inv + Mul<M, M>,
-          I:  'static,
           G1: 'static + Shape<N, P, V, M>,
           G2: 'static + ConcaveShape<N, P, V, M> {
-    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send> {
-        let res: ShapeConcaveShape<N, P, V, M, I, G1, G2> = ShapeConcaveShape::new(self.prediction.clone());
-        box res as Box<ShapeShapeCollisionDetector<N, P, V, M, I> + Send>
+    fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send> {
+        let res: ShapeConcaveShape<N, P, V, M, G1, G2> = ShapeConcaveShape::new(self.prediction.clone());
+        box res as Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>
     }
 }

@@ -3,14 +3,15 @@
 //!
 
 use std::num::Zero;
+use std::any::{Any, AnyRefExt};
 use std::sync::Arc;
-use na::{Translate, Cross, AbsoluteRotate, Rotate, Transform};
+use na::{Cross, Translate, AbsoluteRotate, Rotate, Transform};
 use na;
 use bounding_volume::{AABB, HasAABB, BoundingVolume};
 use volumetric::{Volumetric, InertiaTensor};
 use partitioning::BVT;
 use shape::{Shape, ConcaveShape};
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vect, HasInertiaMatrix};
 
 
 /// Structure used to build a `Compound` shape.
@@ -83,24 +84,25 @@ impl<N, P, V, M, I> CompoundData<N, P, V, M, I>
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other geometries.
 #[deriving(Clone)]
-pub struct Compound<N, P, V, M, I> {
+pub struct Compound<N, P, V, M> {
     surface: N,
     mass:    N,
-    inertia: I,
+    // Note: this is ugly, but avoids the parametrization by I. Use associated types to avoid this?
+    inertia: Arc<Box<Any + Send + Sync>>,
     com:     P,
     geoms:   Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
     bvt:     BVT<uint, AABB<P>>,
     bvs:     Vec<AABB<P>>
 }
 
-impl<N, P, V, AV, M, I> Compound<N, P, V, M, I>
+impl<N, P, V, AV, M, I> Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P> + Cross<AV>,
           M: Mul<P, P>,
-          I: Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> {
+          I: Send + Sync + Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> + Any {
     /// Builds a new compound shape.
-    pub fn new(data: CompoundData<N, P, V, M, I>) -> Compound<N, P, V, M, I> {
+    pub fn new(data: CompoundData<N, P, V, M, I>) -> Compound<N, P, V, M> {
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
@@ -119,7 +121,7 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M, I>
         Compound {
             surface: surface,
             mass:    mass,
-            inertia: inertia,
+            inertia: Arc::new(box inertia as Box<Any + Send + Sync>),
             com:     com,
             geoms:   data.geoms,
             bvt:     bvt,
@@ -128,7 +130,7 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M, I>
     }
 }
 
-impl<N, P, V, M, I> Compound<N, P, V, M, I>
+impl<N, P, V, M> Compound<N, P, V, M>
     where N: Clone {
     /// The geometries of this compound shape.
     #[inline]
@@ -163,23 +165,26 @@ impl<N, P, V, M, I> Compound<N, P, V, M, I>
 
     #[doc(hidden)]
     #[inline]
-    pub fn angular_inertia(&self) -> &I {
-        &self.inertia
-    }
-
-    #[doc(hidden)]
-    #[inline]
     pub fn center_of_mass(&self) -> &P {
         &self.com
     }
 }
 
-impl<N, P, V, M, I> ConcaveShape<N, P, V, M> for Compound<N, P, V, M, I>
+impl<N, P, V, M, I> Compound<N, P, V, M>
+    where V: HasInertiaMatrix<I>,
+          I: 'static {
+    #[doc(hidden)]
+    #[inline]
+    pub fn angular_inertia(&self) -> &I {
+        self.inertia.downcast_ref::<I>().unwrap()
+    }
+}
+
+impl<N, P, V, M> ConcaveShape<N, P, V, M> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Sync + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
         let &(ref m, ref g) = &self.geoms[i];

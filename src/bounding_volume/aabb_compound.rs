@@ -4,7 +4,7 @@ use bounding_volume::{AABB, HasAABB};
 use shape::Compound;
 use math::{Scalar, Point, Vect};
 
-impl<N, P, V, M, M2, I> HasAABB<P, M2> for Compound<N, P, V, M, I>
+impl<N, P, V, M, M2> HasAABB<P, M2> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,

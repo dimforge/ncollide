@@ -4,7 +4,7 @@ use na::{Translate, Rotation, Cross};
 use geometry::{Contact, contact, contacts};
 use shape::{Shape, Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
             Triangle};
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 
 macro_rules! dispatch_part(
@@ -24,16 +24,15 @@ macro_rules! dispatch_part(
 
 /// Best contact between two shapes (trait objects).
 #[inline]
-pub fn shape_against_shape<N, P, V, AV, M, I>(m1: &M, g1: &Shape<N, P, V, M>,
-                                              m2: &M, g2: &Shape<N, P, V, M>,
-                                              prediction: N)
-                                              -> Option<Contact<N, P, V>>
+pub fn shape_against_shape<N, P, V, AV, M>(m1: &M, g1: &Shape<N, P, V, M>,
+                                           m2: &M, g2: &Shape<N, P, V, M>,
+                                           prediction: N)
+                                           -> Option<Contact<N, P, V>>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P>  + Cross<AV>,
           AV: Vect<N>,
-          M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone {
+          M:  Isometry<N, P, V> + Rotation<AV> {
     let tg1 = g1.get_type_id();
     let tg2 = g2.get_type_id();
 
@@ -47,16 +46,15 @@ pub fn shape_against_shape<N, P, V, AV, M, I>(m1: &M, g1: &Shape<N, P, V, M>,
 
 /// Contacts between two shapes (trait objects).
 #[inline]
-pub fn manifold_shape_against_shape<N, P, V, AV, M, I>(m1: &M, g1: &Shape<N, P, V, M>,
-                                                       m2: &M, g2: &Shape<N, P, V, M>,
-                                                       prediction: N,
-                                                       out: &mut Vec<Contact<N, P, V>>)
+pub fn manifold_shape_against_shape<N, P, V, AV, M>(m1: &M, g1: &Shape<N, P, V, M>,
+                                                    m2: &M, g2: &Shape<N, P, V, M>,
+                                                    prediction: N,
+                                                    out: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I> + Cross<AV>,
+          V:  Vect<N> + Translate<P>  + Cross<AV>,
           AV: Vect<N>,
-          M:  Isometry<N, P, V> + Rotation<AV>,
-          I:  Send + Sync + Clone {
+          M:  Isometry<N, P, V> + Rotation<AV> {
     let tg1 = g1.get_type_id();
     let tg2 = g2.get_type_id();
 

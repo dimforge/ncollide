@@ -8,12 +8,11 @@ use math::{Scalar, Point, Vect};
 
 
 // XXX: if solid == false, this might return internal intersection.
-impl<N, P, V, M, I> LocalRayCast<N, P, V> for Compound<N, P, V, M, I>
+impl<N, P, V, M> LocalRayCast<N, P, V> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Sync + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
     fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
         // FIXME: optimize that and avoid the allocation using the dedicated ray casting function
         // from the BVT.
@@ -80,10 +79,9 @@ impl<N, P, V, M, I> LocalRayCast<N, P, V> for Compound<N, P, V, M, I>
     // for any of the sub-shapes.
 }
 
-impl<N, P, V, M, I> RayCast<N, P, V, M> for Compound<N, P, V, M, I>
+impl<N, P, V, M> RayCast<N, P, V, M> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone,
-          I: Send + Sync + Clone {
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
 }

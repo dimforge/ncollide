@@ -5,7 +5,7 @@ use na;
 use shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
             Triangle};
 use geometry::time_of_impact_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Trait implemented by object that can have their Time Of Impact under translational movement
 /// computed.
@@ -37,12 +37,11 @@ pub fn time_of_impact<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G
  */
 macro_rules! impl_time_of_impact_with(
     ($name: ident | $g1: ty, $g2: ty) => {
-        impl<N, P, V, M, I> TimeOfImpactWith<N, P, V, M, $g2> for $g1
+        impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, $g2> for $g1
             where N: Scalar,
                   P: Point<N, V>,
-                  V: Vect<N> + Translate<P> + HasInertiaMatrix<I>,
-                  M: Isometry<N, P, V>,
-                  I: Send + Sync + Clone {
+                  V: Vect<N> + Translate<P> ,
+                  M: Isometry<N, P, V> {
             #[inline]
             fn time_of_impact(m1: &M, vel1: &V, g1: &$g1, m2: &M, vel2: &V, g2: &$g2) -> Option<N> {
                 time_of_impact_internal::$name(m1, vel1, g1, m2, vel2, g2)

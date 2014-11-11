@@ -4,7 +4,7 @@ use na::Translate;
 use geometry::time_of_impact;
 use shape::{Shape, Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
             Triangle};
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 
 macro_rules! dispatch_part(
@@ -23,14 +23,13 @@ macro_rules! dispatch_part(
 
 /// Time of impacts between two shapes (trait objects) under translational movement.
 #[inline]
-pub fn shape_against_shape<N, P, V, M, I>(m1: &M, vel1: &V, g1: &Shape<N, P, V, M>,
-                                          m2: &M, vel2: &V, g2: &Shape<N, P, V, M>)
-                                          -> Option<N>
+pub fn shape_against_shape<N, P, V, M>(m1: &M, vel1: &V, g1: &Shape<N, P, V, M>,
+                                       m2: &M, vel2: &V, g2: &Shape<N, P, V, M>)
+                                       -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + HasInertiaMatrix<I>,
-          M:  Isometry<N, P, V>,
-          I:  Send + Sync + Clone {
+          V:  Vect<N> + Translate<P>,
+          M:  Isometry<N, P, V> {
     let tg1 = g1.get_type_id();
     let tg2 = g2.get_type_id();
 

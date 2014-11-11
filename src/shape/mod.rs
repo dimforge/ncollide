@@ -18,7 +18,7 @@ pub use shape::bezier_curve::BezierCurve;
 pub use shape::bezier_surface::BezierSurface;
 pub use shape::torus::Torus;
 
-use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3, Mat1, Mat3};
+use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
 
 #[doc(hidden)]
 pub mod shape;
@@ -62,7 +62,7 @@ pub type Shape3<N> = Shape<N, Pnt3<N>, Vec3<N>, Iso3<N>> + Send + Sync;
 #[doc = "A 2D Bézier curve."] pub type BezierCurve2<N> = BezierCurve<Pnt2<N>>;
 #[doc = "A 2D Bézier surface."] pub type BezierSurface2<N> = BezierSurface<Pnt2<N>>;
 #[doc = "A 2D Mesh."] pub type Mesh2<N> = Mesh<N, Pnt2<N>, Vec2<N>, Segment2<N>>;
-#[doc = "A 2D Compound shape."] pub type Compound2<N> = Compound<N, Pnt2<N>, Vec2<N>, Iso2<N>, Mat1<N>>;
+#[doc = "A 2D Compound shape."] pub type Compound2<N> = Compound<N, Pnt2<N>, Vec2<N>, Iso2<N>>;
 
 #[doc = "A 3D ball."] pub type Ball3<N> = Ball<N>;
 #[doc = "A 3D plane."] pub type Plane3<N> = Plane<Vec3<N>>;
@@ -76,4 +76,4 @@ pub type Shape3<N> = Shape<N, Pnt3<N>, Vec3<N>, Iso3<N>> + Send + Sync;
 #[doc = "A 3D Bézier curve."] pub type BezierCurve3<N> = BezierCurve<Pnt3<N>>;
 #[doc = "A 3D Bézier surface."] pub type BezierSurface3<N> = BezierSurface<Pnt3<N>>;
 #[doc = "A 3D Mesh."] pub type Mesh3<N> = Mesh<N, Pnt3<N>, Vec3<N>, Triangle3<N>>;
-#[doc = "A 3D Compound shape."] pub type Compound3<N> = Compound<N, Pnt3<N>, Vec3<N>, Iso3<N>, Mat3<N>>;
+#[doc = "A 3D Compound shape."] pub type Compound3<N> = Compound<N, Pnt3<N>, Vec3<N>, Iso3<N>>;

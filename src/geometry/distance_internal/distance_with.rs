@@ -5,7 +5,7 @@ use na;
 use shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
             Triangle};
 use geometry::distance_internal;
-use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry};
 
 /// Trait implemented by object that can be tested for distance with another one.
 pub trait DistanceTo<N, P, V, M, Sized? G> for Sized? {
@@ -36,12 +36,11 @@ pub fn distance<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, g1: &G1, m2: &M, g2: &
  */
 macro_rules! impl_distance_with(
     ($name: ident | $g1: ty, $g2: ty) => {
-        impl<N, P, V, M, I> DistanceTo<N, P, V, M, $g2> for $g1
+        impl<N, P, V, M> DistanceTo<N, P, V, M, $g2> for $g1
             where N: Scalar,
                   P: Point<N, V>,
-                  V: Vect<N> + Translate<P> + HasInertiaMatrix<I>,
-                  M: Isometry<N, P, V>,
-                  I: Send + Sync + Clone {
+                  V: Vect<N> + Translate<P> ,
+                  M: Isometry<N, P, V> {
             #[inline]
             fn distance(m1: &M, g1: &$g1, m2: &M, g2: &$g2) -> N {
                 distance_internal::$name(m1, g1, m2, g2)
