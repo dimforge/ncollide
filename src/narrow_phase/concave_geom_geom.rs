@@ -3,11 +3,11 @@ use na::Inv;
 use na;
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
-use bounding_volume::BoundingVolume;
-use bounding_volume::HasAABB;
+use bounding_volume::{HasAABB, BoundingVolume};
+use partitioning::BoundingVolumeInterferencesCollector;
 use broad_phase::Dispatcher;
 use narrow_phase::{CollisionDetector, ShapeShapeDispatcher, ShapeShapeCollisionDetector,
-             DynamicCollisionDetector, CollisionDetectorFactory};
+                   DynamicCollisionDetector, CollisionDetectorFactory};
 use shape::{Shape, ConcaveShape};
 use geometry::Contact;
 use math::{Scalar, Point};
@@ -51,7 +51,10 @@ impl<N, P, V, M, I, G1, G2> ConcaveShapeShape<N, P, V, M, I, G1, G2>
         let ls_aabb2 = g2.aabb(&ls_m2).loosened(self.prediction);
         let g2       = g2 as &Shape<N, P, V, M>;
 
-        g1.approx_interferences_with_aabb(&ls_aabb2, &mut self.interferences);
+        {
+            let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
+            g1.bvt().visit(&mut visitor);
+        }
 
         for i in self.interferences.iter() {
             let detector = g1.map_part_at(*i, |_, g1| {

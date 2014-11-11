@@ -68,6 +68,18 @@ impl<N, P, V> AABB<P>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
+    /// The center of this AABB.
+    #[inline]
+    pub fn center(&self) -> P {
+        na::center(&self.mins, &self.maxs)
+    }
+
+    /// The half extents of this AABB.
+    #[inline]
+    pub fn half_extents(&self) -> V {
+        (self.maxs - self.mins) / na::cast(2.0f64)
+    }
+
     // FIXME: move this into a trait-based implementation when the point-query-related API is set
     // up.
     /// Computes the distance between this AABB and a point.

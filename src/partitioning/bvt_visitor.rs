@@ -9,19 +9,6 @@ pub trait BVTVisitor<B, BV> {
 
     /// Visits a leaf.
     fn visit_leaf(&mut self, &B, &BV);
-
-    /// Visits an internal node. Returns `true` if the internal node children have to be visited
-    /// too.
-    #[inline]
-    fn visit_internal_mut(&mut self, bv: &mut BV) -> bool {
-        self.visit_internal(bv)
-    }
-
-    /// Visits a leaf.
-    #[inline]
-    fn visit_leaf_mut(&mut self, b: &mut B, bv: &mut BV) {
-        self.visit_leaf(b, bv)
-    }
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.

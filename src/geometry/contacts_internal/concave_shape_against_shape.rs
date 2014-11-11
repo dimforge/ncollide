@@ -1,6 +1,7 @@
 use na::{Translate, Cross, Rotation};
 use na;
 use shape::{Shape, ConcaveShape};
+use partitioning::BoundingVolumeInterferencesCollector;
 use bounding_volume::BoundingVolume;
 use geometry::Contact;
 use geometry::contacts_internal;
@@ -26,8 +27,11 @@ pub fn manifold_concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
     let g2       = g2 as &Shape<N, P, V, M>;
 
     let mut interferences = Vec::new();
-    // FIXME: replace the `interference` vector by an iterator ?
-    g1.approx_interferences_with_aabb(&ls_aabb2, &mut interferences);
+
+    {
+        let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut interferences);
+        g1.bvt().visit(&mut visitor);
+    }
 
     for i in interferences.into_iter() {
         g1.map_part_at(i, |_, part| {
@@ -79,9 +83,13 @@ pub fn concave_shape_against_shape<N, P, V, AV, M, I, G1, G2>(
     let g2       = g2 as &Shape<N, P, V, M>;
 
     let mut interferences = Vec::new();
-    let mut res: Option<Contact<N, P, V>> = None;
-    // FIXME: replace the `interference` vector by an iterator ?
-    g1.approx_interferences_with_aabb(&ls_aabb2, &mut interferences);
+
+    {
+        let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut interferences);
+        g1.bvt().visit(&mut visitor);
+    }
+
+    let mut res = None::<Contact<N, P, V>>;
 
     for i in interferences.into_iter() {
         g1.map_part_at(i, |_, part| {

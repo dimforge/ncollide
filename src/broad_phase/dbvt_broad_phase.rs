@@ -33,7 +33,7 @@ pub struct DBVTBroadPhase<N, P, B, BV, D, DV> {
 }
 
 impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
-    where N: Scalar,
+    where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
           B:  'static + HasBoundingVolume<BV> + Clone,

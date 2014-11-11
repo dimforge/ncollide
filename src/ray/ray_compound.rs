@@ -2,6 +2,7 @@ use std::num::Bounded;
 use na::{Translate, AbsoluteRotate, Rotate, Transform};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
+use partitioning::RayInterferencesCollector;
 use shape::{ConcaveShape, Compound};
 use math::{Scalar, Point, Vect};
 
@@ -18,7 +19,10 @@ impl<N, P, V, M, I> LocalRayCast<N, P, V> for Compound<N, P, V, M, I>
         // from the BVT.
         let mut interferences: Vec<uint> = Vec::new();
 
-        self.approx_interferences_with_ray(ray, &mut interferences);
+        {
+            let mut visitor = RayInterferencesCollector::new(ray, &mut interferences);
+            self.bvt().visit(&mut visitor);
+        }
 
         // compute the minimum toi
         let mut toi: N = Bounded::max_value();
@@ -43,7 +47,10 @@ impl<N, P, V, M, I> LocalRayCast<N, P, V> for Compound<N, P, V, M, I>
     fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
         let mut interferences: Vec<uint> = Vec::new();
 
-        self.approx_interferences_with_ray(ray, &mut interferences);
+        {
+            let mut visitor = RayInterferencesCollector::new(ray, &mut interferences);
+            self.bvt().visit(&mut visitor);
+        }
 
         // compute the minimum toi
         let mut best = RayIntersection::new(Bounded::max_value(), na::zero());

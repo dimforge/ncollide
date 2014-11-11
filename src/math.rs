@@ -2,6 +2,7 @@
 
 use std::num::{Bounded, One};
 use std::rand::Rand;
+use std::fmt::Show;
 use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
                    Pnt4AddRhs, Pnt4SubRhs, Vec4AddRhs, Vec4SubRhs,
                    Pnt3MulRhs, Pnt3DivRhs, Vec3MulRhs, Vec3DivRhs,
@@ -20,7 +21,7 @@ use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Transla
          FloatPnt, Shape, Absolute, Iterable};
 
 /// Trait implemented by scalar types.
-pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand +
+pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand + Show +
                   Pnt4MulRhs<Self, Pnt4<Self>> + Pnt4DivRhs<Self, Pnt4<Self>> +
                   Pnt4AddRhs<Self, Pnt4<Self>> + Pnt4SubRhs<Self, Pnt4<Self>> +
                   Pnt3MulRhs<Self, Pnt3<Self>> + Pnt3DivRhs<Self, Pnt3<Self>> +
@@ -51,7 +52,7 @@ pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cas
 pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
                        POrd         + Bounded           + ScalarSub<N> +
                        ScalarAdd<N> + ScalarMul<N>      + ScalarDiv<N> +
-                       IndexMut<uint, N> + Clone {
+                       IndexMut<uint, N> + Clone + Show {
 }
 
 
@@ -59,14 +60,14 @@ pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
 pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
                    UniformSphereSample + Clone + IndexMut<uint, N> +
                    Rand                + Shape<uint, N> + POrd +
-                   Absolute<Self>      + Iterable<N> {
+                   Absolute<Self>      + Iterable<N> + Show {
 }
 
 /// Trait implemented by transformation matrices types.
 pub trait Isometry<N, P, V>: Send           + Sync              + One          +
                              Translation<V> + Rotate<V>         + Translate<P> +
                              Transform<P>   + AbsoluteRotate<V> + Inv          +
-                             Clone {
+                             Clone + Show {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.

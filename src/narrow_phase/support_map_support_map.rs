@@ -1,13 +1,11 @@
-use na::{Transform, Rotate, Translate, Translation};
-use na;
-use shape::{AnnotatedPoint, MinkowskiSum, Reflection};
+use na::{Translate, Translation};
+use shape::AnnotatedPoint;
 use support_map::{SupportMap, PreferedSamplingDirections};
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::gjk::{GJKResult, NoIntersection, Intersection, Projection};
 use geometry::contacts_internal;
 use narrow_phase::CollisionDetector;
 use geometry::Contact;
-use ray::{Ray, LocalRayCast};
 use math::{Scalar, Point, Vect};
 
 
@@ -88,46 +86,4 @@ impl<N, P, V, S, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for SupportMap
             _                 => ()
         }
     }
-}
-
-/// Computes the Time Of Impact of two geometries.
-///
-/// # Arguments:
-/// * `m1`  - the first shape transform.
-/// * `dir` - the direction of the first shape movement.
-/// * `g1`  - the first shape.
-/// * `m2`  - the second shape transform.
-/// * `g2`  - the second shape.
-pub fn toi<N, P, V, M, G1, G2>(m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<N>
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          M:  Rotate<V> + Transform<P>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
-    let rg2 = Reflection::new(g2);
-    let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
-
-    cso.toi_with_ray(&Ray::new(na::orig(), -*dir), true)
-}
-
-/// Computes the Time Of Impact of two geometries.
-///
-/// # Arguments:
-/// * `m1`  - the first shape transform.
-/// * `dir` - the direction of the first shape movement.
-/// * `g1`  - the first shape.
-/// * `m2`  - the second shape transform.
-/// * `g2`  - the second shape.
-pub fn toi_and_normal<N, P, V, M, G1, G2>( m1: &M, dir: &V, g1: &G1, m2: &M, g2: &G2) -> Option<(N, V)>
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          M:  Rotate<V> + Transform<P>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
-    let rg2 = Reflection::new(g2);
-    let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
-
-    cso.toi_and_normal_with_ray(&Ray::new(na::orig(), -*dir), true).map(|i| (i.toi, -i.normal))
 }

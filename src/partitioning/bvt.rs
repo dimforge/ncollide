@@ -2,11 +2,13 @@
 
 use std::num::Bounded;
 use test::stats::Stats;
+use std::collections::BinaryHeap;
 use na::Translation;
 use na;
 use ray::{Ray, LocalRayCast};
-use partitioning::{BVTVisitor, BVTTVisitor};
+use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};
 use bounding_volume::BoundingVolume;
+use utils::data::ref_with_cost::RefWithCost;
 use math::{Scalar, Vect};
 
 
@@ -60,19 +62,25 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
-    /// Visit this tree using… a visitor! Visitor arguments are mutable.
-    pub fn visit_mut<Vis: BVTVisitor<B, BV>>(&mut self, visitor: &mut Vis) {
-        match self.tree {
-            Some(ref mut t) => t.visit_mut(visitor),
-            None            => { }
-        }
-    }
-
     /// Visits the bounding volume traversal tree implicitely formed with `other`.
     pub fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVT<B, BV>, visitor: &mut Vis) {
         match (&self.tree, &other.tree) {
             (&Some(ref ta), &Some(ref tb)) => ta.visit_bvtt(tb, visitor),
             _ => { }
+        }
+    }
+
+    // FIXME: internalize the type parameter R using associated types.
+    // FIXME: really return a ref to B ?
+    /// Performs a best-fist-search on the tree.
+    ///
+    /// Returns the content of the best leaf nound, and a result of user-defined type.
+    pub fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+        where N:   Scalar,
+              BFS: BVTCostFn<N, B, BV, R> {
+        match self.tree {
+            Some(ref t) => t.best_first_search(algorithm),
+            None        => None
         }
     }
 
@@ -132,20 +140,6 @@ impl<B, BV> BVTNode<B, BV> {
         }
     }
 
-    fn visit_mut<Vis: BVTVisitor<B, BV>>(&mut self, visitor: &mut Vis) {
-        match *self {
-            Internal(ref mut bv, ref mut left, ref mut right) => {
-                if visitor.visit_internal_mut(bv) {
-                    left.visit_mut(visitor);
-                    right.visit_mut(visitor);
-                }
-            },
-            Leaf(ref mut bv, ref mut b) => {
-                visitor.visit_leaf_mut(b, bv);
-            }
-        }
-    }
-
     fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVTNode<B, BV>, visitor: &mut Vis) {
         match (self, other) {
             (&Internal(ref bva, ref la, ref ra), &Internal(ref bvb, ref lb, ref rb)) => {
@@ -172,6 +166,65 @@ impl<B, BV> BVTNode<B, BV> {
                 visitor.visit_leaf_leaf(ba, bva, bb, bvb)
             }
         }
+    }
+
+    fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+        where N:   Scalar,
+              BFS: BVTCostFn<N, B, BV, R> {
+        let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<B, BV>>> = BinaryHeap::new();
+        let mut best_cost = Bounded::max_value();
+        let mut result    = None;
+
+        match algorithm.compute_bv_cost(self.bounding_volume()) {
+            Some(cost) => queue.push(RefWithCost::new(self, cost)),
+            None       => return None
+        }
+
+        loop {
+            match queue.pop() {
+                Some(node) => {
+                    if -node.cost >= best_cost {
+                        break; // solution found.
+                    }
+
+                    match *node.object {
+                        Internal(_, ref left, ref right) => {
+                            match algorithm.compute_bv_cost(left.bounding_volume()) {
+                                Some(lcost) => {
+                                    if lcost < best_cost {
+                                        queue.push(RefWithCost::new(&**left, -lcost))
+                                    }
+                                },
+                                None => { }
+                            }
+
+                            match algorithm.compute_bv_cost(right.bounding_volume()) {
+                                Some(rcost) => {
+                                    if rcost < best_cost {
+                                        queue.push(RefWithCost::new(&**right, -rcost))
+                                    }
+                                },
+                                None => { }
+                            }
+                        },
+                        Leaf(_, ref b) => {
+                            match algorithm.compute_b_cost(b) {
+                                Some((candidate_cost, candidate_result)) => {
+                                    if candidate_cost < best_cost {
+                                        best_cost = candidate_cost;
+                                        result    = Some((b, candidate_result));
+                                    }
+                                }
+                                None => { }
+                            }
+                        }
+                    }
+                }
+                None => break,
+            }
+        }
+
+        result
     }
 
     fn depth(&self) -> uint {

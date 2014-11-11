@@ -2,7 +2,8 @@ use std::raw::TraitObject;
 use std::intrinsics::TypeId;
 use std::mem;
 use std::any::{Any, AnyRefExt};
-use ray::{Ray, RayCast};
+use ray::RayCast;
+use partitioning::BVT;
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 
 /// Trait (that should be) implemented by every shape.
@@ -18,6 +19,9 @@ pub trait Shape<N, P, V, M>: HasAABB<P, M>              +
     }
 }
 
+// FIXME: rename this CompositeShape ?
+//
+// `ConcaveShape` is not a very good name as it cannot be 
 /// Trait implemented by concave, composite geometries.
 ///
 /// A composite shape is composed of several `Shape`. Typically, it is a convex decomposition of
@@ -29,14 +33,11 @@ pub trait ConcaveShape<N, P, V, M> : Shape<N, P, V, M> {
     /// shape.
     fn map_transformed_part_at<T>(&self, m: &M, uint, |&M, &Shape<N, P, V, M>| -> T) -> T;
 
-    // FIXME: replace those by a visitor?
-    /// Computes the indices of every sub-shape which might intersect a given AABB.
-    fn approx_interferences_with_aabb(&self, &AABB<P>, &mut Vec<uint>);
-    /// Computes the indices of every sub-shape which might intersect a given Ray.
-    fn approx_interferences_with_ray(&self, &Ray<P, V>, &mut Vec<uint>);
-    // FIXME: kind of ad-hoc…
+    // FIXME: the followig two methods really are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.
     fn aabb_at(&self, i: uint) -> &AABB<P>;
+    /// Gets the acceleration structure of the concave shape.
+    fn bvt(&self) -> &BVT<uint, AABB<P>>;
 }
 
 impl<N, P, V, M, T> Shape<N, P, V, M> for T

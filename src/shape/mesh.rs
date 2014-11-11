@@ -4,10 +4,8 @@ use std::num::One;
 use std::sync::Arc;
 use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pnt2};
 use na;
-use ray::Ray;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB};
-use partitioning::{BoundingVolumeInterferencesCollector, RayInterferencesCollector};
 use shape::{Shape, ConcaveShape};
 use math::{Scalar, Point, Vect};
 
@@ -190,19 +188,12 @@ impl<N, P, V, M, E> ConcaveShape<N, P, V, M> for Mesh<N, P, V, E>
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB<P>, out: &mut Vec<uint>) {
-        let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
-        self.bvt.visit(&mut visitor);
-    }
-
-    #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray<P, V>, out: &mut Vec<uint>) {
-        let mut visitor = RayInterferencesCollector::new(ray, out);
-        self.bvt.visit(&mut visitor);
-    }
-
-    #[inline]
     fn aabb_at(&self, i: uint) -> &AABB<P> {
         &self.bvs[i]
+    }
+
+    #[inline]
+    fn bvt(&self) -> &BVT<uint, AABB<P>> {
+        &self.bvt
     }
 }

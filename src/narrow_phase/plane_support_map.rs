@@ -1,10 +1,9 @@
-use na::{Translate, Rotate, Transform};
+use na::{Translate, Rotate};
 use narrow_phase::CollisionDetector;
 use geometry::Contact;
 use geometry::contacts_internal;
 use shape::Plane;
 use support_map::SupportMap;
-use ray::{Ray, RayCast};
 use math::{Scalar, Point, Vect};
 
 
@@ -129,24 +128,4 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, G, Plane<V>> for SupportMapPla
             None        => ()
         }
     }
-}
-
-/// Computes the Time Of Impact of a shape and a plane.
-///
-/// Arguments:
-/// * `mplane` - the plane transform.
-/// * `plane`  - the plane.
-/// * `mother` - the shape transform.
-/// * `dir`    - the direction of the other shape movement.
-/// * `other`  - the other shape.
-pub fn toi<N, P, V, M, G>(mplane: &M, plane: &Plane<V>, mother: &M, dir: &V, other: &G) -> Option<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Rotate<V> + Transform<P>,
-          G: SupportMap<P, V, M> {
-    let plane_normal  = mplane.rotate(plane.normal());
-    let closest_point = other.support_point(mother, &-plane_normal);
-
-    plane.toi_with_transform_and_ray(mplane, &Ray::new(closest_point, dir.clone()), true)
 }

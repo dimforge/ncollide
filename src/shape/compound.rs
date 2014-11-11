@@ -7,9 +7,8 @@ use std::sync::Arc;
 use na::{Translate, Cross, AbsoluteRotate, Rotate, Transform};
 use na;
 use bounding_volume::{AABB, HasAABB, BoundingVolume};
-use ray::Ray;
 use volumetric::{Volumetric, InertiaTensor};
-use partitioning::{BVT, BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use partitioning::BVT;
 use shape::{Shape, ConcaveShape};
 use math::{Scalar, Point, Vect};
 
@@ -196,19 +195,12 @@ impl<N, P, V, M, I> ConcaveShape<N, P, V, M> for Compound<N, P, V, M, I>
     }
 
     #[inline]
-    fn approx_interferences_with_aabb(&self, aabb: &AABB<P>, out: &mut Vec<uint>) {
-        let mut visitor = BoundingVolumeInterferencesCollector::new(aabb, out);
-        self.bvt.visit(&mut visitor);
-    }
-
-    #[inline]
-    fn approx_interferences_with_ray(&self, ray: &Ray<P, V>, out: &mut Vec<uint>) {
-        let mut visitor = RayInterferencesCollector::new(ray, out);
-        self.bvt.visit(&mut visitor);
-    }
-
-    #[inline]
     fn aabb_at(&self, i: uint) -> &AABB<P> {
         &self.bvs[i]
+    }
+
+    #[inline]
+    fn bvt(&self) -> &BVT<uint, AABB<P>> {
+        &self.bvt
     }
 }

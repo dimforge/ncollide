@@ -85,14 +85,6 @@ impl<N, P, V, B, BV> DBVT<P, B, BV>
         }
     }
 
-//    /// Visit this tree using… a visitor! Visitor arguments are mutable.
-//    pub fn visit_mut<Vis: BVTVisitor<GcMut<DBVTLeaf<P, B, BV>>, BV>>(&mut self, visitor: &mut Vis) {
-//        match self.tree {
-//            Some(ref mut t) => t.visit_mut(visitor),
-//            None            => { }
-//        }
-//    }
-
     /// Finds all leaves which have their bounding boxes intersecting a specific leave's bounding
     /// volume.
     ///
@@ -479,23 +471,6 @@ impl<N, P, V, BV, B> DBVTNode<P, B, BV>
             Invalid => unreachable!()
         }
     }
-
-//    fn visit_mut<Vis: BVTVisitor<GcMut<DBVTLeaf<P, B, BV>>, BV>>(&mut self, visitor: &mut Vis) {
-//        match *self {
-//            Internal(ref mut i) => {
-//                i.partial_optimise();
-//
-//                if visitor.visit_internal(&mut i.bounding_volume) {
-//                    i.left.visit(visitor);
-//                    i.right.visit(visitor);
-//                }
-//            },
-//            Leaf(ref mut l) => {
-//                l.with_mut_borrow(|l_| visitor.visit_leaf_mut(l, &mut l_.bounding_volume))
-//            },
-//            Invalid => data::unreachable()
-//        }
-//    }
 
     /// Finds all interferences between this tree and another one.
     fn interferences_with_tree(&self,
