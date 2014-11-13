@@ -61,10 +61,6 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, s
         }
     });
 
-    if min_dist <= _0 {
-        return None
-    }
-
     let extra_shift = na::cast(0.01f64); // FIXME: do not hard-code the extra shift?
     let shift       = best_dir * (min_dist + extra_shift);
 
@@ -113,12 +109,12 @@ pub fn closest_points<N, P, V, M, S, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, s
             let mut normal = p2 - p1;
             let dist_err   = normal.normalize();
 
-            if !dist_err.is_zero() {
+            if !dist_err.is_zero() { // there must be a gap of at least `extra_shift`.
                 let p2        = p2 + (-shift);
                 let center    = na::center(&p1, &p2);
                 let nmin_dist = na::dot(&normal, &best_dir) * min_dist;
 
-                let p2 = center + (-normal) * if dist_err > na::zero() { nmin_dist - dist_err } else { nmin_dist };
+                let p2 = center + (-normal) * (nmin_dist - dist_err + extra_shift);
 
                 Some((center, p2, normal))
             }
