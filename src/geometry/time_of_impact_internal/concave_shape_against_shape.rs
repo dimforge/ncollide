@@ -64,7 +64,7 @@ impl<'a, N, P, V, M, G1, G2> ConcaveShapeAgainstShapeTOICostFn<'a, P, V, M, G1, 
         ConcaveShapeAgainstShapeTOICostFn {
             msum_shift:  -ls_aabb2.center().to_vec(),
             msum_margin: ls_aabb2.half_extents(),
-            ray:         Ray::new(na::orig(), *vel2 - *vel1),
+            ray:         Ray::new(na::orig(), m1.inv_rotate(&(*vel2 - *vel1))),
             m1:          m1,
             vel1:        vel1,
             g1:          g1,
