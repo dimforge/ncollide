@@ -16,11 +16,11 @@ use math::{Scalar, Point, Vect, HasInertiaMatrix};
 
 /// Structure used to build a `Compound` shape.
 ///
-/// This accumulates the geometries and their volumetric properties.
+/// This accumulates the shapes and their volumetric properties.
 #[deriving(Clone)]
 pub struct CompoundData<N, P, V, M, I> {
-    geoms: Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
-    props: Vec<(N, N, P, I)>
+    shapes: Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
+    props:  Vec<(N, N, P, I)>
 }
 
 impl<N, P, V, M, I> CompoundData<N, P, V, M, I>
@@ -29,49 +29,49 @@ impl<N, P, V, M, I> CompoundData<N, P, V, M, I>
     /// Creates a new `CompoundData`.
     pub fn new() -> CompoundData<N, P, V, M, I> {
         CompoundData {
-            geoms: Vec::new(),
-            props: Vec::new()
+            shapes: Vec::new(),
+            props:  Vec::new()
         }
     }
 
     /// Adds a new shape; its mass properties are automatically computed.
     #[inline]
-    pub fn push_geom<S>(&mut self, delta: M, geom: S, density: N)
+    pub fn push_shape<S>(&mut self, delta: M, shape: S, density: N)
         where S: Shape<N, P, V, M> + Volumetric<N, P, I> + Send + Sync {
-        let (m, c, i) = geom.mass_properties(density);
-        let s         = geom.surface();
+        let (m, c, i) = shape.mass_properties(density);
+        let s         = shape.surface();
 
-        self.push_geom_with_mass_properties(delta, geom, (s, m, c, i))
+        self.push_shape_with_mass_properties(delta, shape, (s, m, c, i))
     }
 
     /// Adds a new shape with the given mass properties.
     #[inline]
-    pub fn push_geom_with_mass_properties<S>(&mut self, delta: M, geom:  S, props: (N, N, P, I))
+    pub fn push_shape_with_mass_properties<S>(&mut self, delta: M, shape:  S, props: (N, N, P, I))
         where S: Shape<N, P, V, M> + Send + Sync {
-        self.push_shared_geom_with_mass_properties(
+        self.push_shared_shape_with_mass_properties(
             delta,
-            Arc::new(box geom as Box<Shape<N, P, V, M> + Send + Sync>),
+            Arc::new(box shape as Box<Shape<N, P, V, M> + Send + Sync>),
             props)
     }
 
     /// Adds a new shared shape with the given mass properties.
     #[inline]
-    pub fn push_shared_geom_with_mass_properties(&mut self,
-                                                 delta: M,
-                                                 geom:  Arc<Box<Shape<N, P, V, M> + Send + Sync>>,
-                                                 props: (N, N, P, I)) {
-        self.geoms.push((delta, geom));
+    pub fn push_shared_shape_with_mass_properties(&mut self,
+                                                  delta: M,
+                                                  shape:  Arc<Box<Shape<N, P, V, M> + Send + Sync>>,
+                                                  props: (N, N, P, I)) {
+        self.shapes.push((delta, shape));
         self.props.push(props);
     }
 
-    /// The geometries stored by this `CompoundData`.
+    /// The shapes stored by this `CompoundData`.
     #[inline]
-    pub fn geoms(&self) -> &[(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)] {
-        self.geoms.as_slice()
+    pub fn shapes(&self) -> &[(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)] {
+        self.shapes.as_slice()
     }
 
     // FIXME: this is not a very good name.
-    /// The geometries stored by this `CompoundData`.
+    /// The shapes stored by this `CompoundData`.
     #[inline]
     pub fn mass_properties_list(&self) -> &[(N, N, P, I)] {
         self.props.as_slice()
@@ -82,7 +82,7 @@ impl<N, P, V, M, I> CompoundData<N, P, V, M, I>
 ///
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
-/// delta transformation to shift or rotate it with regard to the other geometries.
+/// delta transformation to shift or rotate it with regard to the other shapes.
 #[deriving(Clone)]
 pub struct Compound<N, P, V, M> {
     surface: N,
@@ -90,7 +90,7 @@ pub struct Compound<N, P, V, M> {
     // Note: this is ugly, but avoids the parametrization by I. Use associated types to avoid this?
     inertia: Arc<Box<Any + Send + Sync>>,
     com:     P,
-    geoms:   Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
+    shapes:  Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
     bvt:     BVT<uint, AABB<P>>,
     bvs:     Vec<AABB<P>>
 }
@@ -106,8 +106,8 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M>
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
-        for (i, &(ref delta, ref geom)) in data.geoms().iter().enumerate() {
-            let bv = geom.aabb(delta).loosened(na::cast(0.04f64)); // loosen for better persistancy
+        for (i, &(ref delta, ref shape)) in data.shapes().iter().enumerate() {
+            let bv = shape.aabb(delta).loosened(na::cast(0.04f64)); // loosen for better persistancy
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
@@ -123,7 +123,7 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M>
             mass:    mass,
             inertia: Arc::new(box inertia as Box<Any + Send + Sync>),
             com:     com,
-            geoms:   data.geoms,
+            shapes:  data.shapes,
             bvt:     bvt,
             bvs:     bvs
         }
@@ -132,10 +132,10 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M>
 
 impl<N, P, V, M> Compound<N, P, V, M>
     where N: Clone {
-    /// The geometries of this compound shape.
+    /// The shapes of this compound shape.
     #[inline]
-    pub fn geoms(&self) -> &[(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)] {
-        self.geoms.as_slice()
+    pub fn shapes(&self) -> &[(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)] {
+        self.shapes.as_slice()
     }
 
     /// The optimization structure used by this compound shape.
@@ -144,7 +144,7 @@ impl<N, P, V, M> Compound<N, P, V, M>
         &self.bvt
     }
 
-    /// The geometries bounding volumes.
+    /// The shapes bounding volumes.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<P>] {
         self.bvs.as_slice()
@@ -187,14 +187,14 @@ impl<N, P, V, M> ConcaveShape<N, P, V, M> for Compound<N, P, V, M>
           M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
-        let &(ref m, ref g) = &self.geoms[i];
+        let &(ref m, ref g) = &self.shapes[i];
 
         f(m, &***g)
     }
 
     #[inline(always)]
     fn map_transformed_part_at<T>(&self, m: &M, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
-        let &(ref lm, ref g) = &self.geoms[i];
+        let &(ref lm, ref g) = &self.shapes[i];
 
         f(&(*m * *lm), &***g)
     }

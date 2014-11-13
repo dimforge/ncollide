@@ -14,7 +14,7 @@ pub type CSO<'a, M, G1, G2> = MinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
 pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflection<'a, G2>>;
 
 /**
- * SupportMap representation of the Minkowski sum of two geometries.
+ * SupportMap representation of the Minkowski sum of two shapes.
  *
  * The only way to obtain the sum points is to use its support mapping
  * function.
@@ -32,7 +32,7 @@ pub struct MinkowskiSum<'a, M: 'a, G1: 'a, G2: 'a> {
 
 impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
     /**
-     * Builds the Minkowski sum of two geometries. Since the representation is
+     * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]
@@ -67,7 +67,7 @@ impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
 
 /**
  * Same as the MinkowskiSum but with a support mapping which keeps track of the
- * original supports points from the two wrapped geometries.
+ * original supports points from the two wrapped shapes.
  *
  * * `G1`: type of the first object involved on the sum.
  * * `G2`: type of the second object involved on the sum.
@@ -82,7 +82,7 @@ pub struct AnnotatedMinkowskiSum<'a, M: 'a, G1: 'a, G2: 'a> {
 
 impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
     /**
-     * Builds the Minkowski sum of two geometries. Since the representation is
+     * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.
      */
     #[inline]

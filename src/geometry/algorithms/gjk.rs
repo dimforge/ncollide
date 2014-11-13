@@ -111,10 +111,10 @@ pub fn distance<N, P, V, M, S, G1, G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex
 /// Projects the origin on a shape unsing the GJK algorithm.
 ///
 /// # Arguments:
-/// * geom - the shape to project the origin on
+/// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
-pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Option<P>
+pub fn project_origin<N, P, V, M, S, G>(m: &M, shape: &G, simplex: &mut S) -> Option<P>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -134,7 +134,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Opt
             return None // point inside of the cso
         }
 
-        let support_point = geom.support_point(m, &-*proj.as_vec());
+        let support_point = shape.support_point(m, &-*proj.as_vec());
 
         if sq_len_dir - na::dot(proj.as_vec(), support_point.as_vec()) <= _eps_rel * sq_len_dir {
             return Some(proj) // the distance found has a good enough precision
@@ -164,11 +164,11 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, geom: &G, simplex: &mut S) -> Opt
 /// from the origin.
 ///
 /// # Arguments:
-/// * geom - the shape to project the origin on
+/// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
 pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
-                                                      geom:     &G,
+                                                      shape:    &G,
                                                       max_dist: N,
                                                       simplex:  &mut S)
                                                       -> GJKResult<P, V>
@@ -191,7 +191,7 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
             return Intersection // point inside of the cso
         }
 
-        let support_point = geom.support_point(m, &-*proj.as_vec());
+        let support_point = shape.support_point(m, &-*proj.as_vec());
 
         let dot = na::dot(proj.as_vec(), support_point.as_vec());
 

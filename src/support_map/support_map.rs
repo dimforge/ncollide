@@ -1,6 +1,6 @@
-//! Traits for support mapping based geometries.
+//! Traits for support mapping based shapes.
 
-/// Traits of convex geometries representable by a support mapping function.
+/// Traits of convex shapes representable by a support mapping function.
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returned point.
@@ -27,7 +27,7 @@ impl<'a, P, V, M> SupportMap<P, V, M> for &'a SupportMap<P, V, M> + 'a {
     }
 }
 
-/// Trait of geometries having prefered sampling directions for the Minkowski sampling algorithm.
+/// Trait of shapes having prefered sampling directions for the Minkowski sampling algorithm.
 ///
 /// Those directions are usually the shape faces normals.
 pub trait PreferedSamplingDirections<V, M> {

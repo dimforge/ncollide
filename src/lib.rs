@@ -6,7 +6,7 @@ ncollide
 the rust programming language.
 
 As its name suggests, it is generic wrt the dimension: it works with both
-2-dimensional and 3-dimensional geometries. It might work with higher
+2-dimensional and 3-dimensional shapes. It might work with higher
 dimensions (never tried).
 
 The official user guide is available [here](http://ncollide.org).
@@ -29,7 +29,7 @@ git = "https://github.com/sebcrozet/ncollide"
 - ball vs. ball collision detection,
 - plane vs. any convex object collision detection.
 - collision detection between arbitrary convex objects
-- compound geometries
+- compound shapes
 - ray-casting
 - time of impact computation  for objects without rotational movement (compound vs. compound is not
   yet implemented)
@@ -72,10 +72,3 @@ pub mod utils;
 pub mod volumetric;
 pub mod geometry;
 // pub mod world;
-
-// #[cfg(test)]
-// mod tests {
-//     mod geom;
-//     mod narrow;
-//     mod algo;
-// }

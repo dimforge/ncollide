@@ -6,9 +6,9 @@ pub trait HasBoundingVolume<BV> {
 
 /// Trait of bounding volumes.
 ///
-/// Bounding volumes are coarse approximations of geometric primitives.  It usually have constant
-/// time intersection, inclusion test. Two bounding volume must also be mergeable into a bigger
-/// bounding volume.
+/// Bounding volumes are coarse approximations of shapes. It usually have constant time
+/// intersection, inclusion test. Two bounding volume must also be mergeable into a bigger bounding
+/// volume.
 pub trait BoundingVolume<N> {
     /// Checks if this bounding volume intersect with another one.
     fn intersects(&self, &Self) -> bool;

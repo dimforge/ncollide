@@ -3,8 +3,8 @@ use na;
 use shape::Ball;
 use narrow_phase::CollisionDetector;
 use geometry::Contact;
-use math::{Scalar, Point, Vect};
 use geometry::contacts_internal;
+use math::{Scalar, Point, Vect};
 
 
 /// Collision detector between two balls.

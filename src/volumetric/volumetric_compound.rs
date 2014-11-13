@@ -15,10 +15,10 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     fn surface(&self) -> N {
         let mut stot: N = na::zero();
 
-        let geoms = self.geoms();
+        let shapes = self.shapes();
         let props = self.mass_properties_list();
 
-        for (_, &(ref spart, _, _, _)) in geoms.iter().zip(props.iter()) {
+        for (_, &(ref spart, _, _, _)) in shapes.iter().zip(props.iter()) {
             stot = stot + *spart;
         }
 
@@ -28,10 +28,10 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     fn volume(&self) -> N {
         let mut mtot: N = na::zero();
 
-        let geoms = self.geoms();
+        let shapes = self.shapes();
         let props = self.mass_properties_list();
 
-        for (_, &(_, ref mpart, _, _)) in geoms.iter().zip(props.iter()) {
+        for (_, &(_, ref mpart, _, _)) in shapes.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
         }
 
@@ -43,10 +43,10 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
         let mut ctot = na::orig::<P>();
         let mut gtot = na::orig::<P>(); // geometric center.
 
-        let geoms = self.geoms();
+        let shapes = self.shapes();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in shapes.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + (*m * *cpart * *mpart).to_vec();
             gtot = gtot + (*m * *cpart).to_vec();
@@ -64,10 +64,10 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
         let mut itot = na::zero::<I>();
 
         let com   = self.center_of_mass();
-        let geoms = self.geoms();
+        let shapes = self.shapes();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in shapes.iter().zip(props.iter()) {
             itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(*m * *cpart + (-*com.as_vec())));
         }
 
@@ -84,10 +84,10 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
         let mut ctot = na::orig::<P>();
         let mut gtot = na::orig::<P>(); // geometric center.
 
-        let geoms = self.geoms();
+        let shapes = self.shapes();
         let props = self.mass_properties_list();
 
-        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, _)) in shapes.iter().zip(props.iter()) {
             mtot = mtot + *mpart;
             ctot = ctot + (*m * *cpart * *mpart).to_vec();
             gtot = gtot + (*m * *cpart).to_vec();
@@ -100,7 +100,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
             ctot = ctot / mtot;
         }
 
-        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in geoms.iter().zip(props.iter()) {
+        for (&(ref m, _), &(_, ref mpart, ref cpart, ref ipart)) in shapes.iter().zip(props.iter()) {
             itot = itot + ipart.to_world_space(m).to_relative_wrt_point(*mpart, &(*m * *cpart + (-*ctot.as_vec())));
         }
 

@@ -31,7 +31,7 @@ impl<N: Clone, P: Clone, V: Clone, S: Clone, G1, G2> Clone for SupportMapSupport
 }
 
 impl<N, P, V, S, G1, G2> SupportMapSupportMap<N, P, V, S, G1, G2> {
-    /// Creates a new persistent collision detector between two geometries with support mapping
+    /// Creates a new persistent collision detector between two shapes with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.

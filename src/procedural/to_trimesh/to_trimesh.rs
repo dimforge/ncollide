@@ -1,7 +1,7 @@
 use procedural::TriMesh;
 
 
-/// Trait implemented by geometries that can be approximated by a triangle mesh.
+/// Trait implemented by shapes that can be approximated by a triangle mesh.
 pub trait ToTriMesh<N, P, V, I>
 {
     /// Builds a triangle mesh from this shape.

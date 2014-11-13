@@ -22,7 +22,7 @@ pub trait Shape<N, P, V, M>: HasAABB<P, M>              +
 // FIXME: rename this CompositeShape ?
 //
 // `ConcaveShape` is not a very good name as it cannot be 
-/// Trait implemented by concave, composite geometries.
+/// Trait implemented by concave, composite shapes.
 ///
 /// A composite shape is composed of several `Shape`. Typically, it is a convex decomposition of
 /// a concave shape.

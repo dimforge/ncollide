@@ -8,10 +8,10 @@ pub use self::support_map_support_map::SupportMapSupportMap;
 pub use self::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 pub use self::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
 #[doc(inline)]
-pub use self::geom_geom::{DynamicCollisionDetector, ShapeShapeCollisionDetector,
-                          ShapeShapeDispatcher, CollisionDetectorFactory};
-pub use self::concave_geom_geom::{ConcaveShapeShape, ShapeConcaveShape,
-                            ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
+pub use self::shape_shape::{DynamicCollisionDetector, ShapeShapeCollisionDetector,
+                            ShapeShapeDispatcher, CollisionDetectorFactory};
+pub use self::concave_shape_shape::{ConcaveShapeShape, ShapeConcaveShape,
+                                    ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
 pub use self::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
 
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
@@ -24,9 +24,9 @@ mod plane_support_map;
 mod support_map_support_map;
 mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
-mod concave_geom_geom;
+mod concave_shape_shape;
 #[doc(hidden)]
-pub mod geom_geom;
+pub mod shape_shape;
 mod bezier_surface_ball;
 
 // FIXME: move those modules somewhere else!

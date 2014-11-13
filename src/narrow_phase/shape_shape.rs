@@ -11,16 +11,16 @@ use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
 use support_map::{SupportMap, PreferedSamplingDirections};
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::{JohnsonSimplex, RecursionTemplate};
+use geometry::Contact;
 use narrow_phase::{CollisionDetector, SupportMapSupportMap, BallBall,
                       SupportMapPlane, PlaneSupportMap, ConcaveShapeShapeFactory, ShapeConcaveShapeFactory,
                       BezierSurfaceBall, BallBezierSurface};
 use narrow_phase::surface_selector::HyperPlaneSurfaceSelector;
 use narrow_phase::OneShotContactManifoldGenerator as OSCMG;
-use geometry::Contact;
 use math::{Scalar, Point, Vect, Isometry};
 
 
-/// Same as the `CollisionDetector` trait but using dynamic dispatch on the geometries.
+/// Same as the `CollisionDetector` trait but using dynamic dispatch on the shapes.
 pub trait ShapeShapeCollisionDetector<N, P, V, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
@@ -36,7 +36,7 @@ pub trait ShapeShapeCollisionDetector<N, P, V, M> {
 
 /// Trait to be implemented by collision detector using dynamic dispatch.
 ///
-/// This is used to know the exact type of the geometries.
+/// This is used to know the exact type of the shapes.
 pub trait DynamicCollisionDetector<N, P, V, M, G1, G2>: ShapeShapeCollisionDetector<N, P, V, M> { }
 
 #[deriving(Clone)]
@@ -105,7 +105,7 @@ impl<N, P, V, M> ShapeShapeDispatcher<N, P, V, M> {
         }
     }
 
-    /// Registers a new collision detection algorithm factory for a pair of geometries.
+    /// Registers a new collision detection algorithm factory for a pair of shapes.
     ///
     /// This is unsafe because there is no way to check that the factory will really generate
     /// collision detectors suited for `G1` and `G2`. Whenever possible, use `register_detector` or
@@ -118,7 +118,7 @@ impl<N, P, V, M> ShapeShapeDispatcher<N, P, V, M> {
         let _ = self.constructors.insert(key, box factory as Box<CollisionDetectorFactory<N, P, V, M>>);
     }
 
-    /// Registers a new dynamic collision detector for two geometries.
+    /// Registers a new dynamic collision detector for two shapes.
     pub fn register_dynamic_detector<G1, G2, D>(&mut self, d: D)
         where G1: 'static + Any,
               G2: 'static + Any,
@@ -127,7 +127,7 @@ impl<N, P, V, M> ShapeShapeDispatcher<N, P, V, M> {
         unsafe { self.register_factory::<G1, G2, _>(factory) }
     }
 
-    /// Registers a new collision detector for two geometries.
+    /// Registers a new collision detector for two shapes.
     pub fn register_detector<G1, G2, D>(&mut self, d: D)
         where G1: 'static + Any,
               G2: 'static + Any,
@@ -135,13 +135,13 @@ impl<N, P, V, M> ShapeShapeDispatcher<N, P, V, M> {
         self.register_dynamic_detector(DetectorWithoutRedispatch::new(d));
     }
 
-    /// Unregister the collision detector for a givem pair of geometries.
+    /// Unregister the collision detector for a givem pair of shapes.
     pub fn unregister_detector<G1: 'static + Any, G2: 'static + Any>(&mut self) {
         let key = (TypeId::of::<G1>(), TypeId::of::<G2>());
         let _ = self.constructors.remove(&key);
     }
 
-    /// If registered, creates a new collision detector adapted for the two given geometries.
+    /// If registered, creates a new collision detector adapted for the two given shapes.
     pub fn dispatch(&self, a: &Shape<N, P, V, M>, b: &Shape<N, P, V, M>) -> Option<Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>> {
         self.constructors.get(&(a.get_type_id(), b.get_type_id())).map(|f| f.build())
     }
@@ -156,7 +156,7 @@ impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
           M:  Isometry<N, P, V> + Rotation<AV> {
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `ShapeShapeDispatcher` able do build collision detectors for any valid pair of
-    /// geometries supported by `ncollide`.
+    /// shapes supported by `ncollide`.
     pub fn new(prediction: N) -> ShapeShapeDispatcher<N, P, V, M> {
         let mut res: ShapeShapeDispatcher<N, P, V, M> = ShapeShapeDispatcher::new_without_default();
 
@@ -193,42 +193,42 @@ impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
 
         // FIXME: refactor the three following blocks?
         // Compound vs. Other
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Plane<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Ball<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cuboid<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cone<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Cylinder<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Capsule<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Convex<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Triangle<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Segment<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Plane<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Ball<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Cuboid<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Cone<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Cylinder<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Capsule<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Convex<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Triangle<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Segment<P>>(prediction);
 
         // TriangleMesh vs. Other
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Plane<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Ball<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cuboid<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cone<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Cylinder<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Capsule<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Convex<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Triangle<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Segment<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Plane<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Ball<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Cuboid<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Cone<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Cylinder<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Capsule<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Convex<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Triangle<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Segment<P>>(prediction);
 
         // LineStrip vs. Other
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Plane<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Ball<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cuboid<V>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cone<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Cylinder<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Capsule<N>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Convex<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Triangle<P>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Segment<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Plane<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Ball<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Cuboid<V>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Cone<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Cylinder<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Capsule<N>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Convex<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Triangle<P>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Segment<P>>(prediction);
 
         // // FIXME: implement a ConcaveShapeConcaveShape detector?
-        res.register_default_concave_geom_geom_detector::<Compound<N, P, V, M>, Compound<N, P, V, M>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M>>(prediction);
-        res.register_default_concave_geom_geom_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Compound<N, P, V, M>, Compound<N, P, V, M>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Segment<P>>, Compound<N, P, V, M>>(prediction);
+        res.register_default_concave_shape_shape_detector::<Mesh<N, P, V, Triangle<P>>, Compound<N, P, V, M>>(prediction);
 
         res
     }
@@ -249,7 +249,7 @@ impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
         }
     }
 
-    /// Register an `SupportMapSupportMap` collision detector between two implicit geometries.
+    /// Register an `SupportMapSupportMap` collision detector between two implicit shapes.
     pub fn register_default_implicit_implicit_detector<G1, G2, S>(&mut self,
                                                                   generate_manifold: bool,
                                                                   prediction:        N,
@@ -272,7 +272,7 @@ impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
 
     /// Register an `ConcaveShapeShape` collision detector between a given concave shape and a
     /// given shape.
-    pub fn register_default_concave_geom_geom_detector<G1, G2>(&mut self, prediction: N)
+    pub fn register_default_concave_shape_shape_detector<G1, G2>(&mut self, prediction: N)
         where G1: 'static + ConcaveShape<N, P, V, M>,
               G2: 'static + Shape<N, P, V, M> {
         let  f1 = ConcaveShapeShapeFactory::<N, P, V, M, G1, G2>::new(prediction.clone());

@@ -12,7 +12,7 @@ impl<N, P, V, M, M2> HasBoundingSphere<N, P, M2> for Compound<N, P, V, M>
           M2: Transform<P> {
     #[inline]
     fn bounding_sphere(&self, m: &M2) -> BoundingSphere<N, P> {
-        let shapes = self.geoms();
+        let shapes = self.shapes();
 
         let mut res = shapes[0].ref1().bounding_sphere(shapes[0].ref0());
 

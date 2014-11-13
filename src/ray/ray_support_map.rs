@@ -12,7 +12,7 @@ use math::{Scalar, Point, Vect};
 
 /// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
-                                                          geom:    &G,
+                                                          shape:   &G,
                                                           simplex: &mut S,
                                                           ray:     &Ray<P, V>,
                                                           solid:   bool)
@@ -23,7 +23,7 @@ pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
           M: Translation<V>,
           S: Simplex<N, P>,
           G: SupportMap<P, V, M> {
-    let inter = gjk_toi_and_normal_with_ray(m, geom, simplex, ray);
+    let inter = gjk_toi_and_normal_with_ray(m, shape, simplex, ray);
 
     if !solid {
         match inter {
@@ -31,14 +31,14 @@ pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
             Some(inter) => {
                 if inter.toi.is_zero() {
                     // the ray is inside of the shape.
-                    let supp    = geom.support_point(m, &ray.dir);
+                    let supp    = shape.support_point(m, &ray.dir);
                     let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001f64);
                     let new_ray = Ray::new(ray.orig + ray.dir * shift, -ray.dir);
 
                     // FIXME: replace by? : simplex.translate_by(&(ray.orig - new_ray.orig));
                     simplex.reset(supp + (-*new_ray.orig.as_vec()));
 
-                    gjk_toi_and_normal_with_ray(m, geom, simplex, &new_ray).map(|new_inter| {
+                    gjk_toi_and_normal_with_ray(m, shape, simplex, &new_ray).map(|new_inter| {
                         RayIntersection::new(shift - new_inter.toi, new_inter.normal)
                     })
                 }
@@ -54,7 +54,7 @@ pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
 }
 
 fn gjk_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
-                                                 geom:    &G,
+                                                 shape:   &G,
                                                  simplex: &mut S,
                                                  ray:     &Ray<P, V>)
                                                  -> Option<RayIntersection<N, V>>
@@ -90,7 +90,7 @@ fn gjk_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
             return Some(RayIntersection::new(ltoi, ldir))
         }
 
-        let support_point = geom.support_point(m, &dir);
+        let support_point = shape.support_point(m, &dir);
 
         // Clip the ray on the support plane (None <=> t < 0)
         // The configurations are:

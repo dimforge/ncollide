@@ -1,4 +1,4 @@
-//! Collision geometries supported by ncollide.
+//! Collision shapes supported by ncollide.
 #[doc(inline)]
 pub use shape::shape::{Shape, ConcaveShape};
 pub use shape::ball::Ball;

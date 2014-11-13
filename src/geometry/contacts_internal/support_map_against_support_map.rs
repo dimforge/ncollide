@@ -88,8 +88,6 @@ pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1, G2>(
 
             Projection(Contact::new(p1, p2, normal, depth))
         }
-        None => {
-            NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
-        }
+        None => NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
     }
 }
