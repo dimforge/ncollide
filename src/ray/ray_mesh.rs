@@ -14,12 +14,14 @@ impl<N, P, V, E> LocalRayCast<N, P, V> for Mesh<N, P, V, E>
           P: Point<N, V>,
           V: Vect<N>,
           E: MeshElement<P> + LocalRayCast<N, P, V> {
+    #[inline]
     fn toi_with_ray(&self, ray: &Ray<P, V>, _: bool) -> Option<N> {
         let mut cost_fn = MeshRayToiCostFn { mesh: self, ray: ray };
 
         self.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
     }
 
+    #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, _: bool) -> Option<RayIntersection<N, V>> {
         let mut cost_fn = MeshRayToiAndNormalCostFn { mesh: self, ray: ray };
 

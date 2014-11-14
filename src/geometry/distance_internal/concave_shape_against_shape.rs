@@ -4,6 +4,7 @@ use shape::{Shape, ConcaveShape};
 use bounding_volume::{HasAABB, AABB};
 use partitioning::BVTCostFn;
 use geometry::distance_internal;
+use point::LocalPointQuery;
 use math::{Scalar, Point, Vect, Isometry};
 
 /// Smallest distance between a concave shape and any other shape.

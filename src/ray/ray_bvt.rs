@@ -39,7 +39,7 @@ impl<N, P, V, B, BV> LocalRayCast<N, P, V> for BVT<B, BV>
 }
 
 impl<N, P, V, M, B, BV> RayCast<N, P, V, M> for BVT<B, BV>
-    where N: Scalar,
+    where N:  Scalar,
           B:  LocalRayCast<N, P, V>,
           BV: LocalRayCast<N, P, V>,
           M:  Transform<P> + Rotate<V> {

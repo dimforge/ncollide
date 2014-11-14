@@ -1,5 +1,5 @@
 use na::{FloatVec, Identity};
-use support_map::SupportMap;
+use support_map::{SupportMap, PreferedSamplingDirections};
 use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
 
@@ -29,6 +29,12 @@ impl<'a, N, P, V, M, G1, G2> SupportMap<AnnotatedPoint<P>, V, Identity> for Anno
         let point = orig1 + *orig2.as_vec();
 
         AnnotatedPoint::new(orig1, orig2, point)
+    }
+}
+
+impl<'a, V, M, G1, G2> PreferedSamplingDirections<V, Identity> for MinkowskiSum<'a, M, G1, G2> {
+    #[inline(always)]
+    fn sample(&self, _: &Identity, _: |V| -> ()) {
     }
 }
 

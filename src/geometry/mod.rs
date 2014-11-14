@@ -1,4 +1,4 @@
-//! Non-persistant geometric queries.
+//! Non-persistant paiwise geometric queries.
 
 #[doc(inline)]
 pub use self::contacts_internal::Contact;
