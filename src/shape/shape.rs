@@ -3,6 +3,7 @@ use std::intrinsics::TypeId;
 use std::mem;
 use std::any::{Any, AnyRefExt};
 use ray::RayCast;
+use point::PointQuery;
 use partitioning::BVT;
 use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 
@@ -10,6 +11,7 @@ use bounding_volume::{HasBoundingSphere, HasAABB, AABB};
 pub trait Shape<N, P, V, M>: HasAABB<P, M>              +
                              HasBoundingSphere<N, P, M> +
                              RayCast<N, P, V, M>        +
+                             PointQuery<N, P, M>        +
                              Any {
     /// Duplicates (clones) this shape.
     fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send + Sync>;
@@ -33,7 +35,7 @@ pub trait ConcaveShape<N, P, V, M> : Shape<N, P, V, M> {
     /// shape.
     fn map_transformed_part_at<T>(&self, m: &M, uint, |&M, &Shape<N, P, V, M>| -> T) -> T;
 
-    // FIXME: the followig two methods really are not generic enough.
+    // FIXME: the following two methods really are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.
     fn aabb_at(&self, i: uint) -> &AABB<P>;
     /// Gets the acceleration structure of the concave shape.
@@ -41,7 +43,8 @@ pub trait ConcaveShape<N, P, V, M> : Shape<N, P, V, M> {
 }
 
 impl<N, P, V, M, T> Shape<N, P, V, M> for T
-    where T: 'static + Send + Sync + Clone + HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + Any {
+    where T: 'static + Send + Sync + Clone + Any +
+             HasAABB<P, M> + HasBoundingSphere<N, P, M> + RayCast<N, P, V, M> + PointQuery<N, P, M> {
     #[inline]
     fn duplicate(&self) -> Box<Shape<N, P, V, M> + Send + Sync> {
         (box self.clone()) as Box<Shape<N, P, V, M> + Send + Sync>
