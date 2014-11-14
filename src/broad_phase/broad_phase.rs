@@ -33,6 +33,9 @@ pub trait BroadPhase<P, V, B, BV, DV> {
     /// Collects every object which might intersect a given bounding volume.
     fn interferences_with_bounding_volume(&mut self, &BV, &mut Vec<B>);
 
-    /// Collects every object which might intersect a ray.
+    /// Collects every object which might intersect a given ray.
     fn interferences_with_ray(&mut self, &Ray<P, V>, &mut Vec<B>);
+
+    /// Collects every object which might contain a given point.
+    fn interferences_with_point(&mut self, &P, &mut Vec<B>);
 }

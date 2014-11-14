@@ -3,7 +3,7 @@ use na;
 use point::{LocalPointQuery, PointQuery};
 use shape::{ConcaveShape, Compound};
 use bounding_volume::AABB;
-use partitioning::BVTCostFn;
+use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Scalar, Point, Vect};
 
 
@@ -27,7 +27,11 @@ impl<N, P, V, M> LocalPointQuery<N, P> for Compound<N, P, V, M>
 
     #[inline]
     fn contains_point(&self, point: &P) -> bool {
-        na::approx_eq(&self.distance_to_point(point), &na::zero())
+        let mut test = PointContainementTest { compound: self, point: point, found: false };
+
+        self.bvt().visit(&mut test);
+
+        test.found
     }
 }
 
@@ -65,5 +69,35 @@ impl<'a, N, P, V, M> BVTCostFn<N, uint, AABB<P>, P> for CompoundPointProjCostFn<
 
             Some((na::dist(self.point, &proj), proj))
         })
+    }
+}
+
+/*
+ * Visitor.
+ */
+/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
+struct PointContainementTest<'a, N: 'a, P: 'a, V: 'a, M: 'a> {
+    compound: &'a Compound<N, P, V, M>,
+    point:    &'a P,
+    found:    bool
+}
+
+impl<'a, N, P, V, M> BVTVisitor<uint, AABB<P>> for PointContainementTest<'a, N, P, V, M>
+    where N: Scalar,
+          P: Point<N, V>,
+          V: Vect<N> + Translate<P>,
+          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+    #[inline]
+    fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
+        !self.found && bv.contains_point(self.point)
+    }
+
+    #[inline]
+    fn visit_leaf(&mut self, b: &uint, bv: &AABB<P>) {
+        if !self.found && bv.contains_point(self.point) {
+            self.compound.map_part_at(*b, |objm, obj| {
+                self.found = obj.contains_point_with_transform(objm, self.point)
+            })
+        }
     }
 }

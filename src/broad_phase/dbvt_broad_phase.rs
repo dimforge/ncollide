@@ -10,7 +10,11 @@ use utils::data::has_uid::HasUid;
 use broad_phase::Dispatcher;
 use bounding_volume::{HasBoundingVolume, BoundingVolume};
 use ray::{Ray, LocalRayCast};
-use partitioning::{DBVT, DBVTLeaf, BoundingVolumeInterferencesCollector, RayInterferencesCollector};
+use point::LocalPointQuery;
+use partitioning::{DBVT, DBVTLeaf,
+                   BoundingVolumeInterferencesCollector,
+                   RayInterferencesCollector,
+                   PointInterferencesCollector};
 use math::{Scalar, Point, Vect};
 
 
@@ -136,7 +140,7 @@ impl<N, P, V, B, BV, D, DV> BroadPhase<P, V, B, BV, DV> for DBVTBroadPhase<N, P,
           P:  Point<N, V>,
           V:  Vect<N>,
           B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + Clone,
+          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + LocalPointQuery<N, P> + Clone,
           D:  Dispatcher<B, B, DV> {
     #[inline]
     fn add(&mut self, b: B) {
@@ -367,6 +371,21 @@ impl<N, P, V, B, BV, D, DV> BroadPhase<P, V, B, BV, DV> for DBVTBroadPhase<N, P,
     fn interferences_with_ray(&mut self, ray: &Ray<P, V>, out: &mut Vec<B>) {
         {
             let mut visitor = RayInterferencesCollector::new(ray, &mut self.collector);
+
+            self.tree.visit(&mut visitor);
+            self.stree.visit(&mut visitor);
+        }
+
+        for l in self.collector.iter() {
+            out.push(l.borrow().object.clone())
+        }
+
+        self.collector.clear()
+    }
+
+    fn interferences_with_point(&mut self, point: &P, out: &mut Vec<B>) {
+        {
+            let mut visitor = PointInterferencesCollector::new(point, &mut self.collector);
 
             self.tree.visit(&mut visitor);
             self.stree.visit(&mut visitor);
