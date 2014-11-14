@@ -15,4 +15,5 @@ mod point_segment;
 mod point_triangle;
 mod point_compound;
 mod point_mesh;
+mod point_bezier_surface;
 // point_bvt;
