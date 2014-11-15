@@ -1,3 +1,4 @@
+use std::num::Float;
 use std::rand::Rand;
 use std::rand;
 use na::{Inv, POrd, SquareMat, Outer, Dot, RMul};

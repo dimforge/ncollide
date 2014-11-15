@@ -1,5 +1,4 @@
 
-use std::num::Signed;
 use na::{Transform, Rotate, Basis};
 use na;
 use shape::Cuboid;
@@ -20,7 +19,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
 
         let he = self.half_extents();
         for i in range(0u, na::dim::<P>()) {
-            if local_dir[i].is_negative() {
+            if local_dir[i] < na::zero() {
                 pres[i] = -he[i];
             }
             else {

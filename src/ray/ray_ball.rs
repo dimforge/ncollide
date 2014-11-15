@@ -1,3 +1,4 @@
+use std::num::Float;
 use na::{Pnt2, Transform, Rotate, Translate, Dim};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};

@@ -1,4 +1,4 @@
-use std::num::Zero;
+use std::num::{Zero, Float};
 use std::num;
 use na::Orig;
 use na::{Pnt2, Pnt3, Mat1, Mat3};
@@ -14,7 +14,7 @@ pub fn ball_volume<N: Scalar>(dim: uint, radius: N) -> N {
     assert!(dim == 2 || dim == 3);
 
     let _pi: N = Float::pi();
-    _pi * num::pow(radius.clone(), dim)
+    _pi * radius.powi(dim as i32)
 }
 
 /// The surface of a ball.

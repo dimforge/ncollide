@@ -1,3 +1,4 @@
+use std::num::Float;
 use std::rand;
 use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, U, V, T, sin, cos, exp};

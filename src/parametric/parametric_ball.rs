@@ -1,5 +1,6 @@
 #![allow(non_snake_case)] // For alignment sake.
 
+use std::num::Float;
 use na::{Pnt3, Vec3};
 use na;
 use shape::Ball;

@@ -1,4 +1,4 @@
-use std::num::{Bounded, Zero};
+use std::num::{Bounded, Zero, Float};
 use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR};
 use na;
 use utils;

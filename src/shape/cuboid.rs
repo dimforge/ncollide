@@ -1,7 +1,7 @@
 //! Support mapping based Cuboid shape.
 
-use std::num::Signed;
 use na::Iterable;
+use na;
 use math::Scalar;
 
 /// Shapeetry of a box.
@@ -17,7 +17,7 @@ impl<N, V> Cuboid<V>
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]
     pub fn new(half_extents: V) -> Cuboid<V> {
-        assert!(half_extents.iter().all(|e| e.is_positive()));
+        assert!(half_extents.iter().all(|e| *e >= na::zero()));
 
         Cuboid {
             half_extents: half_extents

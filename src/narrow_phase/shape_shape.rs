@@ -157,6 +157,8 @@ impl<N, P, V, AV, M> ShapeShapeDispatcher<N, P, V, M>
     // FIXME: make this a function which has the simplex and the prediction margin as parameters
     /// Creates a new `ShapeShapeDispatcher` able do build collision detectors for any valid pair of
     /// shapes supported by `ncollide`.
+    // FIXME: remove the prediction as a field, and add it as an argument to the collision
+    // detection update procedure ?
     pub fn new(prediction: N) -> ShapeShapeDispatcher<N, P, V, M> {
         let mut res: ShapeShapeDispatcher<N, P, V, M> = ShapeShapeDispatcher::new_without_default();
 

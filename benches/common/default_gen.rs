@@ -21,7 +21,7 @@ impl<T: Rand> DefaultGen for T {
 
 impl<N: Scalar> DefaultGen for Ball<N> {
     fn generate<R: Rng>(rng: &mut R) -> Ball<N> {
-        Ball::new(rng.gen::<N>().abs())
+        Ball::new(na::abs(&rng.gen::<N>()))
     }
 }
 
@@ -33,19 +33,19 @@ impl<N: Scalar, V: Vect<N>> DefaultGen for Cuboid<V> {
 
 impl<N: Scalar> DefaultGen for Capsule<N> {
     fn generate<R: Rng>(rng: &mut R) -> Capsule<N> {
-        Capsule::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
+        Capsule::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
 impl<N: Scalar> DefaultGen for Cone<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cone<N> {
-        Cone::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
+        Cone::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
 impl<N: Scalar> DefaultGen for Cylinder<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cylinder<N> {
-        Cylinder::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
+        Cylinder::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
@@ -107,6 +107,6 @@ impl<N, P, V> DefaultGen for BoundingSphere<N, P>
           V: Vect<N> {
     fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<N, P> {
         // a bounding sphere centered at the origin.
-        BoundingSphere::new(na::orig(), rng.gen::<N>().abs())
+        BoundingSphere::new(na::orig(), na::abs(&rng.gen::<N>()))
     }
 }

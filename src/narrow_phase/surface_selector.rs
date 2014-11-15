@@ -1,5 +1,6 @@
 //! Heuristics to select surface containing the projection of a point.
 
+use std::num::Float;
 use na::{Rotation, RotationMatrix, Rotate, Translate, Cross, Mat, Identity};
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};

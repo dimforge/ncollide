@@ -1,3 +1,4 @@
+use std::num::Float;
 use na::{Pnt3, Vec3};
 use na;
 use shape::Torus;

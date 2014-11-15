@@ -1,3 +1,4 @@
+use std::num::Float;
 use na;
 use math::Scalar;
 

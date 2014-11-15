@@ -1,3 +1,4 @@
+use std::num::Float;
 use na::{Pnt2, Vec2};
 use na;
 use shape::Capsule2;

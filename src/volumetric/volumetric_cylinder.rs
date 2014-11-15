@@ -1,4 +1,4 @@
-use std::num::Zero;
+use std::num::{Zero, Float};
 use na::Orig;
 use na::{Pnt2, Pnt3, Mat1, Mat3};
 use na;

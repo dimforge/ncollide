@@ -18,10 +18,11 @@ use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat2, Mat1, Mat3, Mat4, Iso2, Iso3, Iso4, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
          Rotate, Transform, AbsoluteRotate, Inv, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv,
-         FloatPnt, Shape, Absolute, Iterable};
+         FloatPnt, Shape, Absolute, Iterable, BaseFloat};
 
 /// Trait implemented by scalar types.
-pub trait Scalar: Send + Sync + FloatMath + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand + Show +
+pub trait Scalar: Send + Sync + Show +
+                  BaseFloat + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand + Bounded +
                   Pnt4MulRhs<Self, Pnt4<Self>> + Pnt4DivRhs<Self, Pnt4<Self>> +
                   Pnt4AddRhs<Self, Pnt4<Self>> + Pnt4SubRhs<Self, Pnt4<Self>> +
                   Pnt3MulRhs<Self, Pnt3<Self>> + Pnt3DivRhs<Self, Pnt3<Self>> +

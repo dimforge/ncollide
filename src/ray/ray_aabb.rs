@@ -77,7 +77,7 @@ fn do_toi_and_normal_and_uv_with_ray<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, s
             let pt    = ray.orig + ray.dir * t;
             let dpt   = pt - *aabb.mins();
             let scale = *aabb.maxs() - *aabb.mins();
-            let id    = s.abs();
+            let id    = na::abs(&s);
 
             if id == 1 {
                 RayIntersection::new_with_uvs(t, n, Some(Pnt2::new(dpt[1] / scale[1], dpt[2] / scale[2])))

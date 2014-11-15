@@ -1,5 +1,6 @@
 //! Point cloud triangulation.
 
+use std::num::Float;
 use std::collections::HashMap;
 use std::collections::hash_map::{Vacant, Occupied};
 use na::Vec3;

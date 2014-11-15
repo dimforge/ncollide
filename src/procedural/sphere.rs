@@ -1,3 +1,4 @@
+use std::num::Float;
 use na;
 use na::{Pnt3, Vec3, Pnt2};
 use procedural::{Polyline, TriMesh, IndexBuffer};
