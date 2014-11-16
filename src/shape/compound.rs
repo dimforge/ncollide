@@ -2,16 +2,15 @@
 //! Shapeetry composed from the union of primitives.
 //!
 
-use std::num::Zero;
 use std::any::{Any, AnyRefExt};
 use std::sync::Arc;
-use na::{Cross, Translate, AbsoluteRotate, Rotate, Transform};
+use na::{Cross, Translate, Zero};
 use na;
 use bounding_volume::{AABB, HasAABB, BoundingVolume};
 use volumetric::{Volumetric, InertiaTensor};
 use partitioning::BVT;
 use shape::{Shape, ConcaveShape};
-use math::{Scalar, Point, Vect, HasInertiaMatrix};
+use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
 
 
 /// Structure used to build a `Compound` shape.
@@ -184,7 +183,7 @@ impl<N, P, V, M> ConcaveShape<N, P, V, M> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
     #[inline(always)]
     fn map_part_at<T>(&self, i: uint, f: |&M, &Shape<N, P, V, M>| -> T) -> T{
         let &(ref m, ref g) = &self.shapes[i];

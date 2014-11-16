@@ -1,7 +1,6 @@
 //! Axis Aligned Bounding Box.
 
-use std::num::Bounded;
-use na::{Translation, POrd, Translate};
+use na::{Translation, POrd, Translate, Bounded};
 use na;
 use bounding_volume::BoundingVolume;
 use math::{Scalar, Point, Vect};

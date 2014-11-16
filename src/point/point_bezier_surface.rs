@@ -1,5 +1,4 @@
-use std::num::Bounded;
-use na::Transform;
+use na::{Transform, Bounded};
 use point::{LocalPointQuery, PointQuery};
 use shape::BezierSurface;
 use math::Scalar;

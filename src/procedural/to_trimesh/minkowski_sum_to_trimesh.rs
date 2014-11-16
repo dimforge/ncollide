@@ -1,5 +1,4 @@
-use std::num::Zero;
-use na::{Outer, EigenQR, Translate};
+use na::{Outer, EigenQR, Translate, Zero};
 use na;
 use shape::MinkowskiSum;
 use procedural::{ToTriMesh, TriMesh};
@@ -12,7 +11,7 @@ impl<'a, N, P, V, M1, M2, G1, G2, A, B> ToTriMesh<N, P, V, (A, B)> for Minkowski
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> + Outer<M2>,
-          M2: EigenQR<N, V> + Mul<P, P> + Zero,
+          M2: EigenQR<N, V> + Mul<P, P> + Add<M2, M2> + Zero,
           G1: ToTriMesh<N, P, V, A>,
           G2: ToTriMesh<N, P, V, B> {
     fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<N, P, V> {

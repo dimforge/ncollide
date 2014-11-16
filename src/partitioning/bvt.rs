@@ -1,9 +1,8 @@
 //! A read-only Bounding Volume Tree.
 
-use std::num::Bounded;
 use test::stats::Stats;
 use std::collections::BinaryHeap;
-use na::Translation;
+use na::{Translation, Bounded};
 use na;
 use ray::{Ray, LocalRayCast};
 use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};

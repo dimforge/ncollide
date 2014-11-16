@@ -1,8 +1,7 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 
-use std::num::One;
 use std::sync::Arc;
-use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pnt2};
+use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pnt2, One};
 use na;
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB};

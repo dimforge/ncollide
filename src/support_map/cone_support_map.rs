@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na::{Rotate, Transform, Norm};
 use na;
 use support_map::{SupportMap, PreferedSamplingDirections};
@@ -19,7 +18,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cone<N>
 
         vres[1] = na::zero();
 
-        if vres.normalize().is_zero() {
+        if na::is_zero(&vres.normalize()) {
             vres = na::zero();
 
             if local_dir[1].is_negative() {

@@ -1,10 +1,10 @@
-use na::{Transform, Translate, AbsoluteRotate, Rotate};
+use na::Translate;
 use na;
 use point::{LocalPointQuery, PointQuery};
 use shape::{ConcaveShape, Compound};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vect, Isometry};
 
 
 // XXX: if solid == false, this might return internal projection.
@@ -12,7 +12,7 @@ impl<N, P, V, M> LocalPointQuery<N, P> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
         let mut cost_fn = CompoundPointProjCostFn { compound: self, point: point, solid: solid };
@@ -39,7 +39,7 @@ impl<N, P, V, M> PointQuery<N, P, M> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
 }
 
 
@@ -56,7 +56,7 @@ impl<'a, N, P, V, M> BVTCostFn<N, uint, AABB<P>, P> for CompoundPointProjCostFn<
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<N> {
         Some(aabb.distance_to_point(self.point))
@@ -86,7 +86,7 @@ impl<'a, N, P, V, M> BVTVisitor<uint, AABB<P>> for PointContainementTest<'a, N, 
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
         !self.found && bv.contains_point(self.point)

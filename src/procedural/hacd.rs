@@ -1,13 +1,10 @@
-use std::num::Zero;
-use std::iter::AdditiveIterator;
 use std::mem;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
 use std::rand::{IsaacRng, Rng};
-use std::num::Bounded;
 use std::hash::sip::SipHasher;
+use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm, Bounded};
 use na;
-use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm};
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 
 use support_map::SupportMap;
@@ -388,7 +385,7 @@ impl<N: Scalar> DualGraphEdge<N> {
         let diagonal = na::dist(aabb.mins(), aabb.maxs());
         let shape_cost;
 
-        if area.is_zero() || diagonal.is_zero() {
+        if na::is_zero(&area) || na::is_zero(&diagonal) {
             shape_cost = perimeter * perimeter;
         }
         else {
@@ -486,7 +483,7 @@ impl<N: Scalar> DualGraphEdge<N> {
 
             let ray = &rays[id].clone();
 
-            if ray.dir.is_zero() { // the ray was set to zero if it was invalid.
+            if na::is_zero(&ray.dir) { // the ray was set to zero if it was invalid.
                 continue;
             }
 
@@ -513,7 +510,7 @@ impl<N: Scalar> DualGraphEdge<N> {
 
                 if !uancestors_v1.contains(ray_id) && !uancestors_v2.contains(ray_id) {
                     // XXX: we could just remove the zero-dir rays from the ancestors list!
-                    if ray.dir.is_zero() { // The ray was set to zero if it was invalid.
+                    if na::is_zero(&ray.dir) { // The ray was set to zero if it was invalid.
                         continue;
                     }
 
@@ -522,7 +519,7 @@ impl<N: Scalar> DualGraphEdge<N> {
                     match chull.toi_with_ray(ray, true) {
                         None        => continue,
                         Some(inter) => {
-                            if inter.is_zero() {
+                            if na::is_zero(&inter) {
                                 // ok, the point is inside, performe the real ray-cast.
                                 cast_ray(&chull, ray, *ray_id, &mut self.concavity, &mut self.ancestors);
                             }
@@ -658,7 +655,7 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
                 let coord = coords[coord as uint].clone();
                 let mut normal = normals[normal as uint].clone();
 
-                if normal.normalize().is_zero() {
+                if na::is_zero(&normal.normalize()) {
                     normal = na::zero();
                 }
 

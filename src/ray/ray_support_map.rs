@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na::{Identity, Translation, Rotate, Transform};
 use na;
 use geometry::algorithms::gjk;
@@ -29,7 +28,7 @@ pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G>(m:       &M,
         match inter {
             None        => None,
             Some((toi, normal)) => {
-                if toi.is_zero() {
+                if na::is_zero(&toi) {
                     // the ray is inside of the shape.
                     let supp    = shape.support_point(m, &ray.dir);
                     let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001f64);

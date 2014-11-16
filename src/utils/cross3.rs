@@ -1,5 +1,4 @@
-use std::num::Zero;
-use na::Dim;
+use na::{Dim, Zero};
 use na;
 use math::Scalar;
 

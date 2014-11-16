@@ -1,5 +1,4 @@
-use std::num::Zero;
-use na::Cross;
+use na::{Cross, Zero};
 use na;
 use volumetric::{Volumetric, InertiaTensor};
 use shape::{Compound, CompoundData};
@@ -52,7 +51,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
             gtot = gtot + (*m * *cpart).to_vec();
         }
 
-        if mtot.is_zero() {
+        if na::is_zero(&mtot) {
             gtot
         }
         else {
@@ -93,7 +92,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
             gtot = gtot + (*m * *cpart).to_vec();
         }
 
-        if mtot.is_zero() {
+        if na::is_zero(&mtot) {
             ctot = gtot;
         }
         else {

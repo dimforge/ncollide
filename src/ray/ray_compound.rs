@@ -1,10 +1,9 @@
-use std::num::Bounded;
-use na::{Translate, AbsoluteRotate, Rotate, Transform};
+use na::{Translate, Bounded};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use partitioning::RayInterferencesCollector;
 use shape::{ConcaveShape, Compound};
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vect, Isometry};
 
 
 // XXX: if solid == false, this might return internal intersection.
@@ -12,7 +11,7 @@ impl<N, P, V, M> LocalRayCast<N, P, V> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
     fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
         // FIXME: optimize that and avoid the allocation using the dedicated ray casting function
         // from the BVT.
@@ -83,5 +82,5 @@ impl<N, P, V, M> RayCast<N, P, V, M> for Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
-          M: Send + Sync + AbsoluteRotate<V> + Transform<P> + Rotate<V> + Mul<M, M> + Clone {
+          M: Isometry<N, P, V> {
 }

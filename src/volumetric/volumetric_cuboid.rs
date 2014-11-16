@@ -1,5 +1,4 @@
-use std::num::Zero;
-use na::{Pnt2, Pnt3, Mat1, Mat3, Orig, Iterable};
+use na::{Pnt2, Pnt3, Mat1, Mat3, Orig, Iterable, Zero};
 use na;
 use volumetric::Volumetric;
 use shape::{Cuboid2, Cuboid3};

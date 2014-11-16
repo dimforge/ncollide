@@ -1,7 +1,5 @@
-use std::num::{Zero, Float};
-use std::num;
-use na::Orig;
-use na::{Pnt2, Pnt3, Mat1, Mat3};
+use std::num::Float;
+use na::{Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
 use shape::{Ball2, Ball3};

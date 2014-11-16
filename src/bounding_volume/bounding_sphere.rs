@@ -1,6 +1,5 @@
 //! Bounding sphere.
 
-use std::num::Zero;
 use na::{Translation, Norm, Transform, Translate, FloatVec};
 use na;
 use bounding_volume::BoundingVolume;
@@ -75,7 +74,7 @@ impl<N, P, V> BoundingVolume<N> for BoundingSphere<N, P>
         let mut dir = *other.center() - *self.center();
         let norm    = dir.normalize();
 
-        if norm.is_zero() {
+        if na::is_zero(&norm) {
             if other.radius > self.radius {
                 self.radius = other.radius
             }

@@ -1,5 +1,4 @@
-use std::num::Bounded;
-use na::Transform;
+use na::{Transform, Bounded};
 use na;
 use point::{LocalPointQuery, PointQuery};
 use bounding_volume::AABB;

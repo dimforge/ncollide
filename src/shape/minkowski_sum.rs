@@ -1,8 +1,7 @@
 //! Minkowski sum.
 
-use std::num::Bounded;
 use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, NumVec, POrd,
-         POrdering, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv, FloatPnt};
+         POrdering, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv, FloatPnt, Bounded};
 use na;
 use shape::Reflection;
 use math::{Scalar, Point, Vect};

@@ -1,7 +1,6 @@
 // XXX: implement this for 2d too.
 
-use std::num::Zero;
-use na::{FloatVec, Outer, EigenQR, Pnt3, Mat3};
+use na::{FloatVec, Outer, EigenQR, Pnt3, Mat3, Zero};
 use na;
 use utils;
 use procedural::{TriMesh, IndexBuffer};
@@ -92,7 +91,7 @@ pub unsafe fn convex_mesh_volume_and_center_of_mass<N, P, V>(convex_mesh: &TriMe
         IndexBuffer::Split(_) => unreachable!()
     }
 
-    if vol.is_zero() {
+    if na::is_zero(&vol) {
         (vol, geometric_center)
     }
     else {
@@ -114,7 +113,7 @@ pub unsafe fn convex_mesh_mass_properties<N, P, V, I>(convex_mesh: &TriMesh<N, P
 
     let (volume, com) = convex_mesh_volume_and_center_of_mass(convex_mesh);
 
-    if volume.is_zero() {
+    if na::is_zero(&volume) {
         return (na::zero(), com, na::zero());
     }
 
@@ -169,7 +168,7 @@ pub fn convex_hull_surface<N, P, V, M>(dim: uint, points: &[P]) -> N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Zero {
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero {
     assert!(dim == 2 || dim == 3);
 
     match dim {
@@ -191,7 +190,7 @@ pub fn convex_hull_volume<N, P, V, M>(dim: uint, points: &[P]) -> N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Zero {
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero {
     assert!(dim == 2 || dim == 3);
 
     match dim {
@@ -213,7 +212,7 @@ pub fn convex_hull_center_of_mass<N, P, V, M>(dim: uint, points: &[P]) -> P
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Zero {
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero {
     assert!(dim == 2 || dim == 3);
 
     match dim {
@@ -235,7 +234,7 @@ pub fn convex_hull_unit_angular_inertia<N, P, V, M, I>(dim: uint, points: &[P]) 
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Zero,
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero,
           I: Zero + Add<I, I> + Mul<N, I> + IndexMut<(uint, uint), N> {
     assert!(dim == 2 || dim == 3);
 

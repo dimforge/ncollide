@@ -1,4 +1,4 @@
-use std::num::Bounded;
+use na::Bounded;
 use na;
 use bounding_volume::{HasAABB, AABB};
 use shape::Plane;

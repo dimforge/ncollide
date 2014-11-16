@@ -1,5 +1,4 @@
-use std::num::Bounded;
-use na::Dot;
+use na::{Dot, Bounded};
 use na;
 use math::{Scalar, Point};
 

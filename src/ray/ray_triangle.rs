@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na::{Vec3, Identity, Transform, Rotate};
 use na;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
@@ -47,7 +46,7 @@ pub fn triangle_ray_intersection<N, P, V>(a: &P, b: &P, c: &P, ray: &Ray<P, V>)
     let d = na::dot(&n, &ray.dir);
 
     // the normal and the ray direction are parallel
-    if d.is_zero() {
+    if na::is_zero(&d) {
         return None;
     }
 

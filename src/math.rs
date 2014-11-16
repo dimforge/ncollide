@@ -1,6 +1,5 @@
 //! Trait implemented by the types used by ncollide.
 
-use std::num::{Bounded, One};
 use std::rand::Rand;
 use std::fmt::Show;
 use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
@@ -18,7 +17,7 @@ use na::overload::{Pnt4MulRhs, Pnt4DivRhs, Vec4MulRhs, Vec4DivRhs,
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat2, Mat1, Mat3, Mat4, Iso2, Iso3, Iso4, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
          Rotate, Transform, AbsoluteRotate, Inv, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv,
-         FloatPnt, Shape, Absolute, Iterable, BaseFloat};
+         FloatPnt, Shape, Absolute, Iterable, BaseFloat, Bounded, One};
 
 /// Trait implemented by scalar types.
 pub trait Scalar: Send + Sync + Show +
@@ -68,7 +67,7 @@ pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
 pub trait Isometry<N, P, V>: Send           + Sync              + One          +
                              Translation<V> + Rotate<V>         + Translate<P> +
                              Transform<P>   + AbsoluteRotate<V> + Inv          +
-                             Clone + Show {
+                             Clone + Mul<Self, Self> + Show {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.

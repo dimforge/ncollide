@@ -1,6 +1,5 @@
 //! Utilities useful for various generations tasks.
 
-use std::num::Zero;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::mem;
@@ -223,7 +222,7 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Vec3<u32>], normals:
         let cross  = na::cross(&edge1, &edge2);
         let normal;
 
-        if !cross.is_zero() {
+        if !na::is_zero(&cross) {
             normal = na::normalize(&cross)
         }
         else {

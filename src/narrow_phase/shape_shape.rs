@@ -1,10 +1,9 @@
 //! Collision detector between two `Box<Shape>`.
 
-use std::num::Bounded;
 use std::intrinsics::TypeId;
 use std::any::{Any, AnyRefExt};
 use std::collections::HashMap;
-use na::{Translate, Rotation, Cross};
+use na::{Translate, Rotation, Cross, Bounded};
 use na;
 use shape::{AnnotatedPoint, Shape, ConcaveShape, Cuboid, Convex,
                     Compound, Mesh, Triangle, Segment, Plane, Cone, Cylinder, Ball, Capsule};

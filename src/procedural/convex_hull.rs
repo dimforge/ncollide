@@ -1,5 +1,5 @@
-use std::num::{Bounded, Zero, Float};
-use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR};
+use std::num::Float;
+use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR, Zero, Bounded};
 use na;
 use utils;
 use procedural::{Polyline, TriMesh, IndexBuffer};
@@ -43,7 +43,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Zero {
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero {
     assert!(points.len() != 0, "Cannot compute the convex hull of an empty set of point.");
     assert!(na::dim::<P>() == 3);
 
@@ -190,7 +190,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Zero {
+          M: EigenQR<N, V> + Add<M, M> + Zero {
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */

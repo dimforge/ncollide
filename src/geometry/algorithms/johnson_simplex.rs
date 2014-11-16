@@ -1,10 +1,9 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
 use std::mem;
-use std::num::Bounded;
 use sync::Arc;
 use collections::TreeMap;
-use na::{Axpy, Dim};
+use na::{Axpy, Dim, Bounded};
 use na;
 use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};

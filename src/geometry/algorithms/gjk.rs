@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use std::num::{Bounded, Float};
-use na::{Identity, Translation};
+use std::num::Float;
+use na::{Identity, Translation, Bounded};
 use na;
 use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
 use support_map::SupportMap;

@@ -1,6 +1,5 @@
 use std::fmt::Show;
-use std::num::Zero;
-use na::{Outer, Inv};
+use na::{Outer, Inv, Zero};
 use na;
 use utils;
 use math::{Scalar, Point, Vect};

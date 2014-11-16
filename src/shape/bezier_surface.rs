@@ -1,6 +1,5 @@
 //! Bezier surface.
 
-use std::num::Zero;
 use na::{Norm, RotationMatrix, Cross, Rotation, Mat, Rotate};
 use na;
 use procedural;
@@ -254,7 +253,7 @@ pub fn bounding_cone_with_origin<N, P, V, AV, M>(points: &[P], origin: &P) -> (V
 
     // FIXME: this is not the best way to handle this (a better solution would be to loop on the
     // points until a non-zero vector is found).
-    if axis.normalize().is_zero() {
+    if na::is_zero(&axis.normalize()) {
         axis = na::zero();
         axis[0] = na::one();
     }
@@ -262,7 +261,7 @@ pub fn bounding_cone_with_origin<N, P, V, AV, M>(points: &[P], origin: &P) -> (V
     for pt in points.slice_from(1).iter() {
         let mut dir = *pt - *origin;
 
-        if !dir.normalize().is_zero() {
+        if !na::is_zero(&dir.normalize()) {
             let alpha = na::dot(&dir, &axis).acos();
 
             if alpha > theta {
@@ -271,7 +270,7 @@ pub fn bounding_cone_with_origin<N, P, V, AV, M>(points: &[P], origin: &P) -> (V
 
                 let mut rot_axis = na::cross(&dir, &axis);
 
-                if !rot_axis.normalize().is_zero() {
+                if !na::is_zero(&rot_axis.normalize()) {
                     let dangle = -(alpha - theta) * na::cast(0.5f64);
                     let rot    = (rot_axis * dangle).to_rot_mat();
 

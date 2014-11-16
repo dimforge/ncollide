@@ -1,4 +1,3 @@
-use std::num::Zero;
 use na::{Pnt2, Vec3, Transform, Rotate};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
@@ -66,7 +65,7 @@ impl<N, P, V, E> LocalRayCast<N, P, V> for Mesh<N, P, V, E>
 
                         let mut n123 = *n1 * uv.x + *n2 * uv.y + *n3 * uv.z;
 
-                        if n123.normalize().is_zero() {
+                        if na::is_zero(&n123.normalize()) {
                             Some(RayIntersection::new_with_uvs(toi, n, Some(Pnt2::new(uvx, uvy))))
                         }
                         else {

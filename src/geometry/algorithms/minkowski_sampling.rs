@@ -1,7 +1,6 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
-use std::num::{Zero, Bounded};
-use na::{Identity, Norm, UniformSphereSample, Translation, Translate};
+use na::{Identity, Norm, UniformSphereSample, Translation, Translate, Zero, Bounded};
 use na;
 use shape::{MinkowskiSum, AnnotatedPoint, Reflection};
 use support_map::{SupportMap, PreferedSamplingDirections};

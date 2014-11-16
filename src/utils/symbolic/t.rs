@@ -1,4 +1,4 @@
-use std::num::{Zero, One};
+use na::{Zero, One};
 use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg};
 use utils::symbolic;

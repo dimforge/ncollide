@@ -1,5 +1,5 @@
-use std::num::{Zero, Float};
-use na::{Cross, Norm, Dim};
+use std::num::Float;
+use na::{Cross, Norm, Dim, Zero};
 use na;
 use bounding_volume;
 use utils;

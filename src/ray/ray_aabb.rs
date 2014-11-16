@@ -1,6 +1,5 @@
-use std::num::{Zero, Bounded};
 use std::mem;
-use na::{Transform, Rotate, Pnt2};
+use na::{Transform, Rotate, Pnt2, Bounded};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use bounding_volume::AABB;
@@ -16,7 +15,7 @@ impl<N, P, V> LocalRayCast<N, P, V> for AABB<P>
         let mut tmax: N = Bounded::max_value();
 
         for i in range(0u, na::dim::<P>()) {
-            if ray.dir[i].is_zero() {
+            if na::is_zero(&ray.dir[i]) {
                 if ray.orig[i] < (*self.mins())[i] || ray.orig[i] > (*self.maxs())[i] {
                     return None
                 }
@@ -40,7 +39,7 @@ impl<N, P, V> LocalRayCast<N, P, V> for AABB<P>
             }
         }
 
-        if tmin.is_zero() && !solid {
+        if na::is_zero(&tmin) && !solid {
             Some(tmax)
         }
         else {
@@ -104,7 +103,7 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
     let mut far_diag  = false;
 
     for i in range(0u, na::dim::<P>()) {
-        if ray.dir[i].is_zero() {
+        if na::is_zero(&ray.dir[i]) {
             if ray.orig[i] < (*aabb.mins())[i] || ray.orig[i] > (*aabb.maxs())[i] {
                 return None
             }
