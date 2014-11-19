@@ -923,7 +923,7 @@ mod test {
             Pnt2::new(3.137215,    2.812263)
             ];
 
-        let chull = super::convex_hull2(points);
+        let chull = super::convex_hull2(points.as_slice());
 
         assert!(chull.coords.len() == 3);
     }
