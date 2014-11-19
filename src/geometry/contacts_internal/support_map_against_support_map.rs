@@ -1,6 +1,6 @@
 use na::{Translation, Translate};
 use na;
-use geometry::algorithms::gjk::{GJKResult, Projection, NoIntersection, Intersection};
+use geometry::algorithms::gjk::GJKResult;
 use geometry::algorithms::gjk;
 use geometry::algorithms::minkowski_sampling;
 use geometry::algorithms::simplex::Simplex;
@@ -28,9 +28,9 @@ pub fn support_map_against_support_map<N, P, V, M, G1, G2>(
           G2: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
     match support_map_against_support_map_with_params(
         m1, g1, m2, g2, prediction, &mut JohnsonSimplex::new_w_tls(), None) {
-        Projection(c)     => Some(c),
-        NoIntersection(_) => None,
-        Intersection      => unreachable!()
+        GJKResult::Projection(c)     => Some(c),
+        GJKResult::NoIntersection(_) => None,
+        GJKResult::Intersection      => unreachable!()
     }
 }
 
@@ -66,7 +66,7 @@ pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1, G2>(
     simplex.reset(support_map::cso_support_point(m1, g1, m2, g2, dir));
 
     match gjk::closest_points_with_max_dist(m1, g1, m2, g2, prediction, simplex) {
-        Projection((p1, p2)) => {
+        GJKResult::Projection((p1, p2)) => {
             let p1p2 = p2 - p1;
             let sqn  = na::sqnorm(&p1p2);
 
@@ -74,11 +74,11 @@ pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1, G2>(
                 let mut normal = p1p2;
                 let depth      = normal.normalize();
 
-                return Projection(Contact::new(p1, p2, normal, -depth));
+                return GJKResult::Projection(Contact::new(p1, p2, normal, -depth));
             }
         },
-        NoIntersection(dir) => return NoIntersection(dir),
-        Intersection        => { } // fallback
+        GJKResult::NoIntersection(dir) => return GJKResult::NoIntersection(dir),
+        GJKResult::Intersection        => { } // fallback
     }
 
     // The point is inside of the CSO: use the fallback algorithm
@@ -86,8 +86,8 @@ pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1, G2>(
         Some((p1, p2, normal)) => {
             let depth = na::dot(&(p1 - p2), &normal);
 
-            Projection(Contact::new(p1, p2, normal, depth))
+            GJKResult::Projection(Contact::new(p1, p2, normal, depth))
         }
-        None => NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
+        None => GJKResult::NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
     }
 }

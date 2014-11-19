@@ -2,7 +2,7 @@
 
 pub use partitioning::dbvt::{DBVT, DBVTLeaf};
 pub use partitioning::bvt::{BVT, median_partitioner, median_partitioner_with_centers,
-                            BinaryPartition, BVTNode, Internal, Leaf};
+                            BinaryPartition, BVTNode};
 #[doc(inline)]
 pub use partitioning::bvt_visitor::{BVTVisitor,
                                     RayInterferencesCollector,

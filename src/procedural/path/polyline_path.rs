@@ -1,4 +1,4 @@
-use procedural::path::{PathSample, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
+use procedural::path::{PathSample, CurveSampler};
 use procedural::Polyline;
 use math::{Scalar, Point, Vect};
 
@@ -38,16 +38,16 @@ impl<'a, N, P, V> CurveSampler<N, P, V> for PolylinePath<'a, N, P, V>
     fn next(&mut self) -> PathSample<P, V> {
         let result =
             if self.curr_pt_id == 0 {
-                StartPoint(self.curr_pt.clone(), self.curr_dir.clone())
+                PathSample::StartPoint(self.curr_pt.clone(), self.curr_dir.clone())
             }
             else if self.curr_pt_id < self.polyline.coords.len() - 1 {
-                InnerPoint(self.curr_pt.clone(), self.curr_dir.clone())
+                PathSample::InnerPoint(self.curr_pt.clone(), self.curr_dir.clone())
             }
             else if self.curr_pt_id == self.polyline.coords.len() - 1 {
-                EndPoint(self.curr_pt.clone(), self.curr_dir.clone())
+                PathSample::EndPoint(self.curr_pt.clone(), self.curr_dir.clone())
             }
             else {
-                EndOfSample
+                PathSample::EndOfSample
             };
 
         self.curr_pt_id = self.curr_pt_id + 1;

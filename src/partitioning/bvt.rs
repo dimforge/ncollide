@@ -88,8 +88,8 @@ impl<B, BV> BVT<B, BV> {
         match self.tree {
             Some(ref n) => {
                 match *n {
-                    Internal(ref bv, _, _) => Some(bv),
-                    Leaf(ref bv, _) => Some(bv)
+                    BVTNode::Internal(ref bv, _, _) => Some(bv),
+                    BVTNode::Leaf(ref bv, _) => Some(bv)
                 }
             },
             None => None
@@ -120,20 +120,20 @@ impl<B, BV> BVTNode<B, BV> {
     #[inline]
     pub fn bounding_volume<'a>(&'a self) -> &'a BV {
         match *self {
-            Internal(ref bv, _, _) => bv,
-            Leaf(ref bv, _)        => bv
+            BVTNode::Internal(ref bv, _, _) => bv,
+            BVTNode::Leaf(ref bv, _)        => bv
         }
     }
 
     fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match *self {
-            Internal(ref bv, ref left, ref right) => {
+            BVTNode::Internal(ref bv, ref left, ref right) => {
                 if visitor.visit_internal(bv) {
                     left.visit(visitor);
                     right.visit(visitor);
                 }
             },
-            Leaf(ref bv, ref b) => {
+            BVTNode::Leaf(ref bv, ref b) => {
                 visitor.visit_leaf(b, bv);
             }
         }
@@ -141,7 +141,7 @@ impl<B, BV> BVTNode<B, BV> {
 
     fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVTNode<B, BV>, visitor: &mut Vis) {
         match (self, other) {
-            (&Internal(ref bva, ref la, ref ra), &Internal(ref bvb, ref lb, ref rb)) => {
+            (&BVTNode::Internal(ref bva, ref la, ref ra), &BVTNode::Internal(ref bvb, ref lb, ref rb)) => {
                 if visitor.visit_internal_internal(bva, bvb) {
                     la.visit_bvtt(&**lb, visitor);
                     la.visit_bvtt(&**rb, visitor);
@@ -149,19 +149,19 @@ impl<B, BV> BVTNode<B, BV> {
                     ra.visit_bvtt(&**rb, visitor);
                 }
             },
-            (&Internal(ref bva, ref la, ref ra), &Leaf(ref bvb, ref bb)) => {
+            (&BVTNode::Internal(ref bva, ref la, ref ra), &BVTNode::Leaf(ref bvb, ref bb)) => {
                 if visitor.visit_internal_leaf(bva, bb, bvb) {
                     la.visit_bvtt(other, visitor);
                     ra.visit_bvtt(other, visitor);
                 }
             },
-            (&Leaf(ref bva, ref ba), &Internal(ref bvb, ref lb, ref rb)) => {
+            (&BVTNode::Leaf(ref bva, ref ba), &BVTNode::Internal(ref bvb, ref lb, ref rb)) => {
                 if visitor.visit_leaf_internal(ba, bva, bvb) {
                     self.visit_bvtt(&**lb, visitor);
                     self.visit_bvtt(&**rb, visitor);
                 }
             },
-            (&Leaf(ref bva, ref ba), &Leaf(ref bvb, ref bb)) => {
+            (&BVTNode::Leaf(ref bva, ref ba), &BVTNode::Leaf(ref bvb, ref bb)) => {
                 visitor.visit_leaf_leaf(ba, bva, bb, bvb)
             }
         }
@@ -187,7 +187,7 @@ impl<B, BV> BVTNode<B, BV> {
                     }
 
                     match *node.object {
-                        Internal(_, ref left, ref right) => {
+                        BVTNode::Internal(_, ref left, ref right) => {
                             match algorithm.compute_bv_cost(left.bounding_volume()) {
                                 Some(lcost) => {
                                     if lcost < best_cost {
@@ -206,7 +206,7 @@ impl<B, BV> BVTNode<B, BV> {
                                 None => { }
                             }
                         },
-                        Leaf(_, ref b) => {
+                        BVTNode::Leaf(_, ref b) => {
                             match algorithm.compute_b_cost(b) {
                                 Some((candidate_cost, candidate_result)) => {
                                     if candidate_cost < best_cost {
@@ -228,8 +228,8 @@ impl<B, BV> BVTNode<B, BV> {
 
     fn depth(&self) -> uint {
         match *self {
-            Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
-            Leaf(_, _) => 1
+            BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
+            BVTNode::Leaf(_, _) => 1
         }
     }
 }
@@ -263,7 +263,7 @@ impl<N, P, V, B, BV> BVTNode<B, BV>
                        upper_bound: N,
                        cast_fn:     &mut |&B, &Ray<P, V>| -> Option<(N, T)>) -> Option<(N, T, &'a B)> {
         match *self {
-            Internal(_, ref left, ref right) => {
+            BVTNode::Internal(_, ref left, ref right) => {
                 let left_toi  = left.bounding_volume().toi_with_ray(ray, true);
                 let right_toi = right.bounding_volume().toi_with_ray(ray, true);
 
@@ -319,7 +319,7 @@ impl<N, P, V, B, BV> BVTNode<B, BV>
                     (None, None)    => None,
                 }
             },
-            Leaf(_, ref b) => {
+            BVTNode::Leaf(_, ref b) => {
                 // We don't test the bounding volume: this has been done by the parent node.
                 match (*cast_fn)(b, ray) {
                     None         => None,
@@ -350,7 +350,7 @@ pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
     }
     else if leaves.len() == 1 {
         let (b, bv) = leaves.into_iter().next().unwrap();
-        (bv, Part(b))
+        (bv, BinaryPartition::Part(b))
     }
     else {
         let sep_axis = depth % na::dim::<V>();
@@ -395,7 +395,7 @@ pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
             right.push(left.pop().unwrap());
         }
 
-        (bounding_bounding_volume, Parts(left, right))
+        (bounding_bounding_volume, BinaryPartition::Parts(left, right))
     }
 }
 
@@ -423,11 +423,11 @@ fn __new_with_partitioner<B, BV>(depth:       uint,
     let (bv, partitions) = partitioner(depth, leaves);
 
     match partitions {
-        Part(b)            => Leaf(bv, b),
-        Parts(left, right) => {
+        BinaryPartition::Part(b)            => BVTNode::Leaf(bv, b),
+        BinaryPartition::Parts(left, right) => {
             let left  = __new_with_partitioner(depth + 1, left, |i, p| partitioner(i, p));
             let right = __new_with_partitioner(depth + 1, right, |i, p| partitioner(i, p));
-            Internal(bv, box left, box right)
+            BVTNode::Internal(bv, box left, box right)
         }
     }
 }

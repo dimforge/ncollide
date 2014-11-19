@@ -76,9 +76,9 @@ pub fn closest_points_with_max_dist<N, P, V, M, S, G1, G2>(m1:       &M,
 
     // XXX: we need to specify S because of a bug on the compiler.
     match project_origin_with_max_dist::<_, _, _, _, S, _>(&Identity::new(), &cso, max_dist, simplex) {
-        Projection(p)       => Projection((p.orig1().clone(), -*p.orig2())),
-        Intersection        => Intersection,
-        NoIntersection(dir) => NoIntersection(dir.clone())
+        GJKResult::Projection(p)       => GJKResult::Projection((p.orig1().clone(), -*p.orig2())),
+        GJKResult::Intersection        => GJKResult::Intersection,
+        GJKResult::NoIntersection(dir) => GJKResult::NoIntersection(dir.clone())
     }
 }
 
@@ -191,7 +191,7 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
 
     loop {
         if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
-            return Intersection // point inside of the cso
+            return GJKResult::Intersection // point inside of the cso
         }
 
         let support_point = shape.support_point(m, &-*proj.as_vec());
@@ -200,11 +200,11 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
 
         // FIXME: find a way to avoid the sqrt here
         if dot > max_dist * na::norm(proj.as_vec()) {
-            return NoIntersection(proj.to_vec());
+            return GJKResult::NoIntersection(proj.to_vec());
         }
 
         if sq_len_dir - dot <= _eps_rel * sq_len_dir {
-            return Projection(proj) // the distance found has a good enough precision
+            return GJKResult::Projection(proj) // the distance found has a good enough precision
         }
 
         simplex.add_point(support_point);
@@ -218,7 +218,7 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, G>(m:        &M,
         sq_len_dir = na::sqnorm(proj.as_vec());
 
         if sq_len_dir >= old_sq_len_dir {
-            return Projection(old_proj) // upper bounds inconsistencies
+            return GJKResult::Projection(old_proj) // upper bounds inconsistencies
         }
     }
 }

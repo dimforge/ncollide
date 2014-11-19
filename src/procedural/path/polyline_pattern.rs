@@ -2,7 +2,7 @@ use na::{Pnt2, Pnt3, Vec2, Vec3, Iso3};
 use na;
 use procedural::{Polyline, TriMesh, IndexBuffer};
 use procedural::utils;
-use procedural::path::{StrokePattern, CurveSampler, StartPoint, InnerPoint, EndPoint, EndOfSample};
+use procedural::path::{StrokePattern, CurveSampler, PathSample};
 use math::Scalar;
 
 /// A pattern composed of polyline and two caps.
@@ -80,9 +80,9 @@ impl<N, C1, C2> StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2
 
             // second match to add the inner triangles.
             match next {
-                StartPoint(ref pt, ref dir) |
-                InnerPoint(ref pt, ref dir) |
-                EndPoint(ref pt, ref dir)   => {
+                PathSample::StartPoint(ref pt, ref dir) |
+                PathSample::InnerPoint(ref pt, ref dir) |
+                PathSample::EndPoint(ref pt, ref dir)   => {
                     let mut new_polyline = self.pattern.clone();
                     let mut transform    = Iso3::new(na::zero(), na::zero());
 
@@ -111,18 +111,18 @@ impl<N, C1, C2> StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2
                         self.last_start_id = new_start_id;
                     }
                 },
-                EndOfSample =>
+                PathSample::EndOfSample =>
                     return TriMesh::new(vertices, None, None, Some(IndexBuffer::Unified(indices)))
             }
 
             // third match to add the end cap
             // FIXME: this will fail with patterns having multiple starting and end points!
             match next {
-                StartPoint(ref pt, ref dir) => {
+                PathSample::StartPoint(ref pt, ref dir) => {
                     self.start_cap.gen_start_cap(0, &self.pattern,
                                                  pt, dir, self.closed, &mut vertices, &mut indices);
                 },
-                EndPoint(ref pt, ref dir) => {
+                PathSample::EndPoint(ref pt, ref dir) => {
                     self.end_cap.gen_end_cap(vertices.len() as u32 - npts, &self.pattern,
                                              pt, dir, self.closed, &mut vertices, &mut indices);
                 },

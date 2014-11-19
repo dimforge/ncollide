@@ -19,8 +19,8 @@ impl IndexBuffer {
     #[inline]
     pub fn unwrap_unified(self) -> Vec<Vec3<u32>> {
         match self {
-            Unified(b) => b,
-            _                     => panic!("Unable to unwrap to an unified buffer.")
+            IndexBuffer::Unified(b) => b,
+            _ => panic!("Unable to unwrap to an unified buffer.")
         }
     }
 
@@ -28,8 +28,8 @@ impl IndexBuffer {
     #[inline]
     pub fn unwrap_split(self) -> Vec<Vec3<Vec3<u32>>> {
         match self {
-            Split(b) => b,
-            _                   => panic!("Unable to unwrap to a split buffer.")
+            IndexBuffer::Split(b) => b,
+            _ => panic!("Unable to unwrap to a split buffer.")
         }
     }
 }
@@ -59,7 +59,7 @@ impl<N, P, V> TriMesh<N, P, V> {
                -> TriMesh<N, P, V> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(||
-           Unified(
+           IndexBuffer::Unified(
                Vec::from_fn(coords.len() / 3, |i| Vec3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2))
            )
         );
@@ -110,8 +110,8 @@ impl<N, P, V> TriMesh<N, P, V> {
     #[inline]
     pub fn num_triangles(&self) -> uint {
         match self.indices {
-            Unified(ref idx) => idx.len(),
-            Split(ref idx)   => idx.len()
+            IndexBuffer::Unified(ref idx) => idx.len(),
+            IndexBuffer::Split(ref idx)   => idx.len()
         }
     }
 }
@@ -147,10 +147,10 @@ impl<N, P, V> TriMesh<N, P, V>
         let mut new_normals = Vec::new();
 
         match self.indices {
-            Unified(ref idx) => {
+            IndexBuffer::Unified(ref idx) => {
                 utils::compute_normals(self.coords.as_slice(), idx.as_slice(), &mut new_normals);
             },
-            Split(ref idx) => {
+            IndexBuffer::Split(ref idx) => {
                 // XXX: too bad we have to reconstruct the index buffer here.
                 // The utils::recompute_normals function should be generic wrt. the index buffer
                 // type (it could use an iterator instead).
@@ -198,7 +198,7 @@ impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
     /// Use this method to transform the mesh data to a OpenGL-compliant format.
     pub fn unify_index_buffer(&mut self) {
         let new_indices = match self.indices {
-            Split(ref ids) => {
+            IndexBuffer::Split(ref ids) => {
                 let mut vt2id:HashMap<Vec3<u32>, u32> = HashMap::new();
                 let mut resi: Vec<u32>                = Vec::new();
                 let mut resc: Vec<P>                  = Vec::new();
@@ -238,7 +238,7 @@ impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
                     batched_indices.push(Vec3::new(f[0], f[1], f[2]));
                 }
 
-                Some(Unified(batched_indices))
+                Some(IndexBuffer::Unified(batched_indices))
             }
             _ => None
         };
@@ -255,7 +255,7 @@ impl<N, P, V> TriMesh<N, P, V>
     /// If `recover_topology` is true, this will merge exactly identical vertices together.
     pub fn split_index_buffer(&mut self, recover_topology: bool) {
         let new_indices = match self.indices {
-            Unified(ref ids) => {
+            IndexBuffer::Unified(ref ids) => {
                 let resi;
 
                 if recover_topology {
@@ -269,7 +269,7 @@ impl<N, P, V> TriMesh<N, P, V>
                     resi = utils::split_index_buffer(ids.as_slice());
                 }
 
-                Some(Split(resi))
+                Some(IndexBuffer::Split(resi))
             },
             _ => None
         };

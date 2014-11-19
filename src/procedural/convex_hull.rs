@@ -60,11 +60,11 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
     let     denormalizer;
 
     match get_initial_mesh(points.as_mut_slice(), &mut undecidable_points) {
-        Facets(facets, denorm)   => {
+        InitialMesh::Facets(facets, denorm)   => {
             triangles    = facets;
             denormalizer = denorm;
         },
-        ResultMesh(mut mesh) => {
+        InitialMesh::ResultMesh(mut mesh) => {
             denormalize(mesh.coords.as_mut_slice(), &norm_center, norm_diag);
             return mesh
         }
@@ -228,11 +228,11 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
     match dim {
         0 => {
             // The hull is a point.
-            ResultMesh(build_degenerate_mesh_point(points[0].clone()))
+            InitialMesh::ResultMesh(build_degenerate_mesh_point(points[0].clone()))
         },
         1 => {
             // The hull is a segment.
-            ResultMesh(build_degenerate_mesh_segment(eigpairs[0].ref0(), points))
+            InitialMesh::ResultMesh(build_degenerate_mesh_segment(eigpairs[0].ref0(), points))
         },
         2 => {
             // The hull is a triangle.
@@ -261,7 +261,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
                 triangles.push(Vec3::new(id, a, id + 1));
             }
 
-            ResultMesh(TriMesh::new(coords, None, None, Some(IndexBuffer::Unified(triangles))))
+            InitialMesh::ResultMesh(TriMesh::new(coords, None, None, Some(IndexBuffer::Unified(triangles))))
         },
         3 => {
             // The hull is a polyedra.
@@ -341,7 +341,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
             verify_facet_links(0, facets.as_slice());
             verify_facet_links(1, facets.as_slice());
 
-            Facets(facets, cov)
+            InitialMesh::Facets(facets, cov)
         },
         _ => unreachable!()
     }

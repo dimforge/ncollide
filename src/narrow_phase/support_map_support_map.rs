@@ -2,7 +2,7 @@ use na::{Translate, Translation};
 use shape::AnnotatedPoint;
 use support_map::{SupportMap, PreferedSamplingDirections};
 use geometry::algorithms::simplex::Simplex;
-use geometry::algorithms::gjk::{GJKResult, NoIntersection, Intersection, Projection};
+use geometry::algorithms::gjk::GJKResult;
 use geometry::contacts_internal;
 use narrow_phase::CollisionDetector;
 use geometry::Contact;
@@ -39,7 +39,7 @@ impl<N, P, V, S, G1, G2> SupportMapSupportMap<N, P, V, S, G1, G2> {
         SupportMapSupportMap {
             simplex:    simplex,
             prediction: prediction,
-            contact:    Intersection
+            contact:    GJKResult::Intersection
         }
     }
 
@@ -56,9 +56,9 @@ impl<N, P, V, S, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for SupportMap
     #[inline]
     fn update(&mut self, ma: &M, a: &G1, mb: &M, b: &G2) {
         let initial_direction = match self.contact {
-            NoIntersection(ref separator) => Some(separator.clone()),
-            Projection(ref contact)       => Some(contact.normal.clone()),
-            Intersection                  => None
+            GJKResult::NoIntersection(ref separator) => Some(separator.clone()),
+            GJKResult::Projection(ref contact)       => Some(contact.normal.clone()),
+            GJKResult::Intersection                  => None
         };
 
         self.contact = contacts_internal::support_map_against_support_map_with_params(
@@ -74,16 +74,16 @@ impl<N, P, V, S, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for SupportMap
     #[inline]
     fn num_colls(&self) -> uint {
         match self.contact {
-            Projection(_) => 1,
-            _             => 0
+            GJKResult::Projection(_) => 1,
+            _ => 0
         }
     }
 
     #[inline]
     fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
         match self.contact {
-            Projection(ref c) => out_colls.push(c.clone()),
-            _                 => ()
+            GJKResult::Projection(ref c) => out_colls.push(c.clone()),
+            _ => ()
         }
     }
 }
