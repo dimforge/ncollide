@@ -3,6 +3,14 @@ name    = "ncollide"
 version = "0.2.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+description = "2 and 3-dimensional collision detection library in Rust."
+documentation = "http://ncollide.org/doc/ncollide"
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+readme = "README.md"
+keywords = [ "collision detection", "contact", "time of impact", "geometry", "distance", "ray cast", "convex", "intersection" ]
+license = "BSD-3-Clause"
+
 [features]
 default = [ "2df32", "2df64", "3df32", "3df64" ]
 2df32 = []
