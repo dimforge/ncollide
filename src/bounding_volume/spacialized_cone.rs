@@ -1,4 +1,4 @@
-use na::{Translation, Norm, RotationMatrix};
+use na::{Translation, Norm, RotationMatrix, BaseFloat};
 use na;
 use math::{N, Vect, Matrix};
 use bounding_volume::{BoundingVolume, BoundingSphere};
@@ -107,7 +107,7 @@ impl BoundingVolume for SpacializedCone {
             let rot    = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
 
             self.axis    = rot * self.axis;
-            self.hangle  = na::clamp((self.hangle + other.hangle + alpha) * na::cast(0.5f64), na::zero(), Float::pi());
+            self.hangle  = na::clamp((self.hangle + other.hangle + alpha) * na::cast(0.5f64), na::zero(), BaseFloat::pi());
         }
         else {
             // This happens if alpha ~= 0 or alpha ~= pi.
@@ -183,7 +183,7 @@ mod test {
     #[cfg(feature = "3d")]
     fn test_merge_vee() {
         let sp   = BoundingSphere::new(na::orig(), na::one());
-        let pi: N = Float::pi();
+        let pi: N = BaseFloat::pi();
         let pi_12 = pi / na::cast(12.0f64);
         let a    = SpacializedCone::new(sp.clone(), Vec3::new(1.0, 1.0, 0.0), pi_12);
         let b    = SpacializedCone::new(sp.clone(), Vec3::new(-1.0, 1.0, 0.0), pi_12);

@@ -1,5 +1,4 @@
-use std::num::Float;
-use na::{Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
+use na::{BaseFloat, Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
 use shape::{Cone2, Cone3};
@@ -17,7 +16,7 @@ pub fn cone_volume<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
             radius * half_height * na::cast(2.0f64)
         }
         3 => {
-            radius * radius * Float::pi() * half_height * na::cast(2.0f64 / 3.0)
+            radius * radius * BaseFloat::pi() * half_height * na::cast(2.0f64 / 3.0)
         }
         _ => unreachable!()
     }
@@ -36,7 +35,7 @@ pub fn cone_surface<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
             radius * na::cast(2.0f64) + side
         }
         3 => {
-            let _pi    = Float::pi();
+            let _pi    = BaseFloat::pi();
             let height = half_height + half_height;
             let side   = (height * height + radius * radius).sqrt();
 

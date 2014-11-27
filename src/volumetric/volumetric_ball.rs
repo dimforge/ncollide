@@ -1,5 +1,4 @@
-use std::num::Float;
-use na::{Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
+use na::{Orig, Zero, BaseFloat, Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
 use shape::{Ball2, Ball3};
@@ -11,7 +10,7 @@ use math::Scalar;
 pub fn ball_volume<N: Scalar>(dim: uint, radius: N) -> N {
     assert!(dim == 2 || dim == 3);
 
-    let _pi: N = Float::pi();
+    let _pi: N = BaseFloat::pi();
     _pi * radius.powi(dim as i32)
 }
 
@@ -22,11 +21,11 @@ pub fn ball_surface<N: Scalar>(dim: uint, radius: N) -> N {
 
     match dim {
         2 => {
-            let _pi: N = Float::pi();
+            let _pi: N = BaseFloat::pi();
             _pi * radius * na::cast(2.0f64)
         }
         3 => {
-            let _pi: N = Float::pi();
+            let _pi: N = BaseFloat::pi();
             _pi * radius * radius * na::cast(4.0f64)
         }
         _ => unreachable!()

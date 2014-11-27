@@ -23,13 +23,6 @@ impl<T: Sync + Send> HasUid for Arc<T> {
     }
 }
 
-impl HasUid for int {
-    #[inline]
-    fn uid(&self) -> uint {
-        *self as uint
-    }
-}
-
 impl HasUid for uint {
     #[inline]
     fn uid(&self) -> uint {

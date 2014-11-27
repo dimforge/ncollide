@@ -1,6 +1,5 @@
-use std::num::Float;
 use na;
-use na::{Pnt3, Pnt2, Vec3};
+use na::{Pnt3, Pnt2, Vec3, BaseFloat};
 use procedural::{TriMesh, IndexBuffer};
 use procedural::utils;
 use math::Scalar;
@@ -18,7 +17,7 @@ pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, 
 /// Generates a cylinder with unit height and diameter.
 pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     where N: Scalar {
-    let two_pi: N   = Float::two_pi();
+    let two_pi: N   = BaseFloat::two_pi();
     let invsubdiv   = na::one::<N>() / na::cast(nsubdiv as f64);
     let dtheta      = two_pi * invsubdiv;
     let mut coords  = Vec::new();

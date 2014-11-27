@@ -1,5 +1,4 @@
-use std::num::Float;
-use na::{Pnt2, Transform, Rotate, Translate, Dim};
+use na::{Pnt2, Transform, Rotate, Translate, Dim, BaseFloat};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use shape::Ball;
@@ -12,8 +11,8 @@ fn ball_uv<N, V>(normal: &V) -> Option<Pnt2<N>>
     where N: Scalar,
           V: Index<uint, N> + Dim {
     if na::dim::<V>() == 3 {
-        let two_pi: N = Float::two_pi();
-        let pi:     N = Float::pi();
+        let two_pi: N = BaseFloat::two_pi();
+        let pi:     N = BaseFloat::pi();
         let _0_5:   N = na::cast(0.5f64);
         let uvx = _0_5 + normal[2].atan2(normal[0]) / two_pi;
         let uvy = _0_5 - normal[1].asin() / pi;

@@ -1,5 +1,5 @@
-use std::num::Float;
 use std::rand;
+use na::BaseFloat;
 use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, U, V, T, sin, cos, exp};
 
@@ -13,7 +13,7 @@ fn test_u_v() {
 
 #[test]
 fn test_sin_u_v() {
-    let pi_2: f32 = Float::frac_pi_2();
+    let pi_2: f32 = BaseFloat::frac_pi_2();
 
     assert!((sin(U) + V).beval(pi_2, 0.6) == 1.6)
     assert!(na::approx_eq(&(sin(U) + V).du(pi_2, 0.6), &0.0))
@@ -23,7 +23,7 @@ fn test_sin_u_v() {
 
 #[test]
 fn test_sin_t() {
-    let pi_2: f64 = Float::frac_pi_2();
+    let pi_2: f64 = BaseFloat::frac_pi_2();
 
     assert!((sin(T) + T).ueval(pi_2)    == 1.0 + pi_2)
     assert!(na::approx_eq(&(sin(T) + T).d1(pi_2), &1.0))

@@ -1,5 +1,4 @@
-use std::num::Float;
-use na::{Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
+use na::{BaseFloat, Orig, Zero, Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;
 use shape::{Cylinder2, Cylinder3};
@@ -16,7 +15,7 @@ pub fn cylinder_volume<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
             half_height * radius * na::cast(4.0f64)
         }
         3 => {
-            half_height * radius * radius * Float::pi() * na::cast(2.0f64)
+            half_height * radius * radius * BaseFloat::pi() * na::cast(2.0f64)
         }
         _ => unreachable!()
     }
@@ -32,7 +31,7 @@ pub fn cylinder_surface<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
             (half_height + radius) * na::cast(2.0f64)
         }
         3 => {
-            let _pi: N = Float::pi();
+            let _pi: N = BaseFloat::pi();
             let basis = radius * radius * _pi;
             let side  = _pi * radius * (half_height + half_height) * na::cast(2.0f64);
 

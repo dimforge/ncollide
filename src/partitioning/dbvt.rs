@@ -8,7 +8,7 @@ use utils::data::owned_allocation_cache::OwnedAllocationCache;
 use na::{FloatVec, Translation};
 use na;
 use bounding_volume::BoundingVolume;
-use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
+use partitioning::bvt_visitor::BVTVisitor;
 use math::{Scalar, Point};
 
 
@@ -78,37 +78,10 @@ impl<N, P, V, B, BV> DBVT<P, B, BV>
     }
 
     /// Visit this tree using… a visitor!
-    pub fn visit<Vis: BVTVisitor<Rc<RefCell<DBVTLeaf<P, B, BV>>>, BV>>(&self, visitor: &mut Vis) {
+    pub fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match self.tree {
             Some(ref t) => t.visit(visitor),
             None        => { }
-        }
-    }
-
-    /// Finds all leaves which have their bounding boxes intersecting a specific leave's bounding
-    /// volume.
-    ///
-    /// # Arguments:
-    /// * `to_test` - the leaf to check interferences with.
-    /// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-    ///           is not considered intersecting itself.
-    pub fn interferences_with_leaf(&self,
-                                   leaf: &DBVTLeaf<P, B, BV>,
-                                   out:  &mut Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>) {
-        match self.tree {
-            Some(ref tree) => tree.interferences_with_leaf(leaf, out),
-            None           => { }
-        }
-    }
-
-    /// Finds all interferences between this tree and another one.
-    pub fn interferences_with_tree(&self,
-                                   leaf: &DBVT<P, B, BV>,
-                                   out:  &mut Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>) {
-        match (&self.tree, &leaf.tree) {
-            (&Some(ref a), &Some(ref b)) => a.interferences_with_tree(b, out),
-            (&None, _) => { },
-            (_, &None) => { }
         }
     }
 }
@@ -444,21 +417,7 @@ impl<N, P, V, BV, B> DBVTNode<P, B, BV>
         }
     }
 
-    /// Finds all leaves which have their bounding boxes intersecting a specific leave's bounding
-    /// volume.
-    ///
-    /// # Arguments:
-    /// * `to_test` - the leaf to check interference with.
-    /// * `out` - will be filled with all leaves intersecting `to_test`. Note that `to_test`
-    /// is not considered intersecting itself.
-    fn interferences_with_leaf(&self,
-                               to_test: &DBVTLeaf<P, B, BV>,
-                               out:     &mut Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>) {
-        let mut visitor = BoundingVolumeInterferencesCollector::new(&to_test.bounding_volume, out);
-        self.visit(&mut visitor)
-    }
-
-    fn visit<Vis: BVTVisitor<Rc<RefCell<DBVTLeaf<P, B, BV>>>, BV>>(&self, visitor: &mut Vis) {
+    fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match *self {
             DBVTNode::Internal(ref i) => {
                 if visitor.visit_internal(&i.bounding_volume) {
@@ -468,43 +427,9 @@ impl<N, P, V, BV, B> DBVTNode<P, B, BV>
             },
             DBVTNode::Leaf(ref l) => {
                 let bl = l.borrow();
-                visitor.visit_leaf(l, &bl.bounding_volume)
+                visitor.visit_leaf(&bl.object, &bl.bounding_volume)
             },
             DBVTNode::Invalid => unreachable!()
-        }
-    }
-
-    /// Finds all interferences between this tree and another one.
-    fn interferences_with_tree(&self,
-                               to_test: &DBVTNode<P, B, BV>,
-                               out:     &mut Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>) {
-        match (self, to_test) {
-            (&DBVTNode::Leaf(_), &DBVTNode::Leaf(ref lb)) => {
-                let blb = lb.borrow();
-                self.interferences_with_leaf(blb.deref(), out)
-            },
-            (&DBVTNode::Leaf(ref la), &DBVTNode::Internal(_)) => {
-                let bla = la.borrow();
-                to_test.interferences_with_leaf(bla.deref(), out)
-            },
-            (&DBVTNode::Internal(_), &DBVTNode::Leaf(ref lb)) => {
-                let blb = lb.borrow();
-                self.interferences_with_leaf(blb.deref(), out)
-            },
-            (&DBVTNode::Internal(ref la), &DBVTNode::Internal(ref lb)) => {
-                // FIXME: la.partial_optimise();
-                // FIXME: lb.partial_optimise();
-
-                if (&**la as *const DBVTInternal<P, B, BV> != &**lb as *const DBVTInternal<P, B, BV>) &&
-                    la.bounding_volume.intersects(&lb.bounding_volume)
-                {
-                    la.right.interferences_with_tree(&lb.right, out);
-                    la.left.interferences_with_tree(&lb.left, out);
-                    la.right.interferences_with_tree(&lb.left, out);
-                    la.left.interferences_with_tree(&lb.right, out);
-                }
-            },
-            _ => unreachable!() // combinations with Invalid
         }
     }
 }

@@ -1,5 +1,4 @@
-use std::num::Float;
-use na::{Pnt3, Vec3};
+use na::{Pnt3, Vec3, BaseFloat};
 use na;
 use shape::Torus;
 use parametric::ParametricSurface;
@@ -10,8 +9,8 @@ use math::Scalar;
 impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     where N: Scalar {
     fn at(&self, u: N, v: N) -> Pnt3<N> {
-        let u        = u * Float::two_pi();
-        let v        = v * Float::two_pi();
+        let u        = u * BaseFloat::two_pi();
+        let v        = v * BaseFloat::two_pi();
         let (su, cu) = u.sin_cos();
         let (sv, cv) = v.sin_cos();
         let r        = self.minor_radius();
@@ -22,9 +21,9 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_u(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
-        let v        = v * Float::two_pi();
+        let v        = v * BaseFloat::two_pi();
         let (su, cu) = u.sin_cos();
         let cv       = v.cos();
         let r        = self.minor_radius();
@@ -35,7 +34,7 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_v(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
         let (su, cu) = u.sin_cos();
@@ -46,7 +45,7 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_uu(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
         let (su, cu) = u.sin_cos();
@@ -59,7 +58,7 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_vv(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
         let (su, cu) = u.sin_cos();
@@ -70,7 +69,7 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_uv(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
         let v        = v * _2_pi;
         let (su, cu) = u.sin_cos();
@@ -81,7 +80,7 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Torus<N>
     }
 
     fn at_uv_nk(&self, u: N, v: N, n: uint, k: uint) -> Vec3<N> {
-        let _2_pi = Float::two_pi();
+        let _2_pi = BaseFloat::two_pi();
         let u  = u * _2_pi;
         let v  = v * _2_pi;
         let r  = self.minor_radius();

@@ -1,7 +1,6 @@
 //! Heuristics to select surface containing the projection of a point.
 
-use std::num::Float;
-use na::{Rotation, RotationMatrix, Rotate, Translate, Cross, Mat, Identity};
+use na::{Rotation, RotationMatrix, Rotate, Translate, Cross, Mat, Identity, BaseFloat};
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use bounding_volume::BoundingVolume;
@@ -172,10 +171,10 @@ impl<N, P, V, AV, M> SurfaceSelector<N, P, TangentConesSurfaceSelectorTestData<N
             let ang_with_u_axis = na::dot(&axis, &d.axis_u).acos();
             let ang_with_v_axis = na::dot(&axis, &d.axis_v).acos();
 
-            ang_with_u_axis - ang - d.spread_u <= Float::frac_pi_2() &&
-            ang_with_u_axis + ang + d.spread_u >= Float::frac_pi_2() &&
-            ang_with_v_axis - ang - d.spread_v <= Float::frac_pi_2() &&
-            ang_with_v_axis + ang + d.spread_v >= Float::frac_pi_2()
+            ang_with_u_axis - ang - d.spread_u <= BaseFloat::frac_pi_2() &&
+            ang_with_u_axis + ang + d.spread_u >= BaseFloat::frac_pi_2() &&
+            ang_with_v_axis - ang - d.spread_v <= BaseFloat::frac_pi_2() &&
+            ang_with_v_axis + ang + d.spread_v >= BaseFloat::frac_pi_2()
         }
         else {
             false

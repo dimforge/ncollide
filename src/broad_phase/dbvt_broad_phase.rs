@@ -31,7 +31,7 @@ pub struct DBVTBroadPhase<N, P, B, BV, D, DV> {
     spairs:      HashMap<Pair<Rc<RefCell<DBVTLeaf<P, B, BV>>>>, DV, PairTWHash>,
     dispatcher:  D,
     margin:      N,
-    collector:   Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>,
+    collector:   Vec<B>,
     to_update:   Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>,
     update_off:  uint // incremental pairs removal index
 }

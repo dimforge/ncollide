@@ -1,9 +1,8 @@
 //! Point cloud triangulation.
 
-use std::num::Float;
 use std::collections::HashMap;
 use std::collections::hash_map::{Vacant, Occupied};
-use na::Vec3;
+use na::{BaseFloat, Vec3};
 use na;
 use procedural::{TriMesh, IndexBuffer};
 use utils;
@@ -157,7 +156,7 @@ pub fn triangulate<N, P, V>(pts: &[P]) -> TriMesh<N, P, V>
     let radius           = radius * na::cast(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
-    let pi: N       = Float::pi();
+    let pi: N       = BaseFloat::pi();
     let right_shift = radius / (pi / na::cast(6.0)).tan();
     let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
 

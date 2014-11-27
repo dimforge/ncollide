@@ -1,7 +1,6 @@
 #![allow(non_snake_case)] // For alignment sake.
 
-use std::num::Float;
-use na::{Pnt3, Vec3};
+use na::{Pnt3, Vec3, BaseFloat};
 use na;
 use shape::Ball;
 use parametric::ParametricSurface;
@@ -19,8 +18,8 @@ use math::Scalar;
 impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     where N: Scalar {
     fn at(&self, u: N, v: N) -> Pnt3<N> {
-        let u        = u * Float::two_pi();
-        let v        = (v - na::cast(0.5f64)) * Float::pi();
+        let u        = u * BaseFloat::two_pi();
+        let v        = (v - na::cast(0.5f64)) * BaseFloat::pi();
         let (su, cu) = u.sin_cos();
         let (sv, cv) = v.sin_cos();
         let r        = self.radius();
@@ -29,9 +28,9 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_u(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
-        let v        = (v - na::cast(0.5f64)) * Float::pi();
+        let v        = (v - na::cast(0.5f64)) * BaseFloat::pi();
         let (su, cu) = u.sin_cos();
         let cv       = v.cos();
         let r        = self.radius();
@@ -40,8 +39,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_v(&self, u: N, v: N) -> Vec3<N> {
-        let _pi      = Float::pi();
-        let u        = u * Float::two_pi();
+        let _pi      = BaseFloat::pi();
+        let u        = u * BaseFloat::two_pi();
         let v        = (v - na::cast(0.5f64)) * _pi;
         let (su, cu) = u.sin_cos();
         let (sv, cv) = v.sin_cos();
@@ -51,9 +50,9 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_uu(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
+        let _2_pi    = BaseFloat::two_pi();
         let u        = u * _2_pi;
-        let v        = (v - na::cast(0.5f64)) * Float::pi();
+        let v        = (v - na::cast(0.5f64)) * BaseFloat::pi();
         let (su, cu) = u.sin_cos();
         let cv       = v.cos();
         let r        = self.radius();
@@ -62,8 +61,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_vv(&self, u: N, v: N) -> Vec3<N> {
-        let _pi      = Float::pi();
-        let u        = u * Float::two_pi();
+        let _pi      = BaseFloat::pi();
+        let u        = u * BaseFloat::two_pi();
         let v        = (v - na::cast(0.5f64)) * _pi;
         let (su, cu) = u.sin_cos();
         let (sv, cv) = v.sin_cos();
@@ -73,8 +72,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_uv(&self, u: N, v: N) -> Vec3<N> {
-        let _2_pi    = Float::two_pi();
-        let _pi      = Float::pi();
+        let _2_pi    = BaseFloat::two_pi();
+        let _pi      = BaseFloat::pi();
         let u        = u * _2_pi;
         let v        = (v - na::cast(0.5f64)) * _pi;
         let (su, cu) = u.sin_cos();
@@ -85,8 +84,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_u_v(&self, u: N, v: N) -> (Pnt3<N>, Vec3<N>, Vec3<N>) {
-        let _2_pi     = Float::two_pi();
-        let _pi       = Float::pi();
+        let _2_pi     = BaseFloat::two_pi();
+        let _pi       = BaseFloat::pi();
         let u         = u * _2_pi;
         let v         = (v - na::cast(0.5f64)) * _pi;
         let (su, cu)  = u.sin_cos();
@@ -104,8 +103,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
 
     fn at_u_v_uu_vv_uv(&self, u: N, v: N)
         -> (Pnt3<N>, Vec3<N>, Vec3<N>, Vec3<N>, Vec3<N>, Vec3<N>) {
-        let _2_pi       = Float::two_pi();
-        let _pi         = Float::pi();
+        let _2_pi       = BaseFloat::two_pi();
+        let _pi         = BaseFloat::pi();
         let u           = u * _2_pi;
         let v           = (v - na::cast(0.5f64)) * _pi;
         let (su, cu)    = u.sin_cos();
@@ -128,8 +127,8 @@ impl<N> ParametricSurface<N, Pnt3<N>, Vec3<N>> for Ball<N>
     }
 
     fn at_uv_nk(&self, u: N, v: N, n: uint, k: uint) -> Vec3<N> {
-        let _2_pi = Float::two_pi();
-        let _pi   = Float::pi();
+        let _2_pi = BaseFloat::two_pi();
+        let _pi   = BaseFloat::pi();
         let u     = u * _2_pi;
         let v     = (v - na::cast(0.5f64)) * _pi;
         let r     = self.radius();

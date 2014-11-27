@@ -1,6 +1,5 @@
-use std::num::Float;
 use na;
-use na::{Pnt3, Vec3, Pnt2};
+use na::{Pnt3, Vec3, Pnt2, BaseFloat};
 use procedural::{Polyline, TriMesh, IndexBuffer};
 use procedural::utils;
 use math::{Scalar, Point, Vect};
@@ -36,9 +35,9 @@ pub fn unit_sphere<N>(ntheta_subdiv: u32,
 // FIXME: n{theta,phi}_subdiv are not the right names.
 fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     where N: Scalar {
-    let pi: N     = Float::pi();
-    let two_pi: N = Float::two_pi();
-    let pi_two: N = Float::frac_pi_2();
+    let pi: N     = BaseFloat::pi();
+    let two_pi: N = BaseFloat::two_pi();
+    let pi_two: N = BaseFloat::frac_pi_2();
     let dtheta    = two_pi / na::cast(ntheta_subdiv as f64);
     let dphi      = pi / na::cast(nphi_subdiv as f64);
 
@@ -87,9 +86,9 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
 
 fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     where N: Scalar {
-    let pi: N     = Float::pi();
-    let two_pi: N = Float::two_pi();
-    let pi_two: N = Float::frac_pi_2();
+    let pi: N     = BaseFloat::pi();
+    let two_pi: N = BaseFloat::two_pi();
+    let pi_two: N = BaseFloat::frac_pi_2();
     let duvtheta  = na::one::<N>() / na::cast(ntheta_subdiv as f64); // step of uv.x coordinates.
     let duvphi    = na::one::<N>() / na::cast(nphi_subdiv as f64);   // step of uv.y coordinates.
     let dtheta    =  two_pi * duvtheta;
@@ -141,8 +140,8 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
 /// Creates an hemisphere with a diameter of 1.
 pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     where N: Scalar {
-    let two_pi: N = Float::two_pi();
-    let pi_two: N = Float::frac_pi_2();
+    let two_pi: N = BaseFloat::two_pi();
+    let pi_two: N = BaseFloat::frac_pi_2();
     let dtheta    =  two_pi / na::cast(ntheta_subdiv as f64);
     let dphi      =  pi_two / na::cast(nphi_subdiv as f64);
 
@@ -184,7 +183,7 @@ pub fn circle<N, P, V>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
-    let two_pi: N = Float::two_pi();
+    let two_pi: N = BaseFloat::two_pi();
     let dtheta    = two_pi / na::cast(nsubdivs as f64);
 
     let mut pts = Vec::with_capacity(nsubdivs as uint);
