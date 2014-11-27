@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap};
 use std::collections::hash_map::Entry;
-use sync::{Arc, RWLock};
+use std::sync::{Arc, RWLock};
 use shape::BezierSurface;
 
 /*

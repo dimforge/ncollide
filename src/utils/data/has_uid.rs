@@ -1,7 +1,7 @@
 //! Objects with an unique identifier.
 
 use std::rc::Rc;
-use sync::Arc;
+use std::sync::Arc;
 
 /// Trait of objects having an unique identifier.
 pub trait HasUid {
