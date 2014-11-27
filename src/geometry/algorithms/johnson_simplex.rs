@@ -1,7 +1,8 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
 use std::mem;
-use sync::Arc;
+use std::cell::RefCell;
+use std::sync::Arc;
 use collections::TreeMap;
 use na::{Axpy, Dim, Bounded};
 use na;
@@ -9,7 +10,7 @@ use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 
-local_data_key!(KEY_RECURSION_TEMPLATE: Arc<Vec<RecursionTemplate>>)
+thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())))
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
@@ -206,22 +207,12 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
 
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<N, P, V> {
-
-        let recursion = KEY_RECURSION_TEMPLATE.get().map(|rec| rec.clone());
-
-        match recursion {
-            Some(r) => {
-                if r.len() > na::dim::<P>() {
-                    return JohnsonSimplex::new(r)
-                }
-            },
-            _ => { }
-        }
-
-        let new_recursion = RecursionTemplate::new(na::dim::<P>());
-        let _ = KEY_RECURSION_TEMPLATE.replace(Some(new_recursion.clone()));
-        JohnsonSimplex::new(new_recursion)
-
+        KEY_RECURSION_TEMPLATE.with(|rec| {
+            if rec.borrow().len() <= na::dim::<P>() {
+                *rec.borrow_mut() = RecursionTemplate::new(na::dim::<P>());
+            }
+            JohnsonSimplex::new(rec.borrow().clone())
+        })
     }
 }
 
