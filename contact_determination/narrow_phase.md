@@ -39,27 +39,27 @@ collision detection algorithm, depending on your geometries:
 
 ```rust
 let dispatcher = GeomGeomDispatcher::new(0.10);
-let geom1 = Ball::new(0.5);
-let geom2 = Cylinder::new(0.5, 1.0);
-let geom3 = Cone::new(0.5, 1.0);
+let shape1 = Ball::new(0.5);
+let shape2 = Cylinder::new(0.5, 1.0);
+let shape3 = Cone::new(0.5, 1.0);
 
-let ball_vs_cylinder_detector = dispatcher.dispatch(&geom1, &geom2);
-let ball_vs_cone_detector     = dispatcher.dispatch(&geom1, &geom3);
-let cylinder_vs_cone_detector = dispatcher.dispatch(&geom2, &geom3);
+let ball_vs_cylinder_detector = dispatcher.dispatch(&shape1, &shape2);
+let ball_vs_cone_detector     = dispatcher.dispatch(&shape1, &shape3);
+let cylinder_vs_cone_detector = dispatcher.dispatch(&shape2, &shape3);
 ```
 
 The following table shows which structure to use for which kind of object
 pair:
 
-|                     | Ball | `Implicit` geom | Mesh | Compound | Plane |
+|                     | Ball | `SupportMap` shape | Mesh | Compound | Plane |
 | --                  | :--: | :--: | :--: | :--: | :--: |
-| **Ball**            | `BallBall` | `ImplicitImplicit` | `GeomConcaveGeom` | `GeomConcaveGeom` | `ImplicitPlane`    |
-| **`Implicit` geom** | `ImplicitImplicit` | `ImplicitImplicit` | `GeomConcaveGeom` | `GeomConcaveGeom` | `ImplicitPlane` |
-| **Mesh**            | `ConcaveGeomGeom` | `ConcaveGeomGeom` | $$\emptyset$$ | `ConcaveGeomGeom` | `ConcaveGeomGeom` |
-| **Compound**        | `ConcaveGeomgeom` | `ConcaveGeomGeom` | `ConcaveGeomGeom` | `ConcaveGeomGeom` | `ConcaveGeomGeom` |
-| **Plane**           | `PlaneImplicit` | `PlaneImplicit` | `GeomConcaveGeom` | `GeomConcaveGeom` | $$\emptyset$$ |
+| **Ball**            | `BallBall` | `SupportMapSupportMap` | `ShapeConcaveShape` | `ShapeConcaveShape` | `SupportMapPlane`    |
+| **`SupportMap` shape** | `SupportMapSupportMap` | `SupportMapSupportMap` | `ShapeConcaveShape` | `ShapeConcaveShape` | `SupportMapPlane` |
+| **Mesh**            | `ConcaveShapeShape` | `ConcaveShapeShape` | $$\emptyset$$ | `ConcaveShapeShape` | `ConcaveShapeShape` |
+| **Compound**        | `ConcaveShapeShape` | `ConcaveShapeShape` | `ConcaveShapeShape` | `ConcaveShapeShape` | `ConcaveShapeShape` |
+| **Plane**           | `PlaneSupportMap` | `PlaneSupportMap` | `ShapeConcaveShape` | `ShapeConcaveShape` | $$\emptyset$$ |
 
-where _`Implicit` geom_ designs the `Capsule`, `Cone`, `Convex`, and `Cuboid`.
+where _`SupportMap` shape_ designs the `Capsule`, `Cone`, `Convex`, and `Cuboid`.
 See the
 [documentation](../doc/ncollide3df32/narrow/struct.GeomGeomDispatcher.html) of
 the `GeomGeomDispatcher` for details about how to replace a contact
@@ -123,7 +123,7 @@ The `IncrementalContactManifoldGenerator` can be used to wrap any structure
 that implements the `CollisionDetector` trait and that generates a single
 contact point:
 ```rust
-let plane_vs_ball: PlaneImplicit<Ball> = PlaneImplicit::new(0.04);
+let plane_vs_ball: PlaneSupportMap<Ball> = PlaneSupportMap::new(0.04);
 
 let full_manifold_plane_vs_ball = IncrementalContactManifoldGenerator::new(0.04, plane_vs_ball);
 ```
@@ -148,7 +148,7 @@ The `OneShotContactManifoldGenerator` can be used to wrap any structure
 that implements the `CollisionDetector` trait and that generates a single
 contact point:
 ```rust
-let plane_vs_ball: PlaneImplicit<Ball> = PlaneImplicit::new(0.04);
+let plane_vs_ball: PlaneSupportMap<Ball> = PlaneSupportMap::new(0.04);
 
 let full_manifold_plane_vs_ball = OneShotContactManifoldGenerator::new(0.04, plane_vs_ball);
 ```

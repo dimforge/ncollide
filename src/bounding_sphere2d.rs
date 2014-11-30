@@ -9,8 +9,8 @@ fn main() {
     /*
      * Initialize the shapes.
      */
-    let cone     = Cone::new(0.5f32, 0.5);
-    let cylinder = Cylinder::new(1.0f32, 0.5);
+    let cone     = Cone::new(0.5, 0.5);
+    let cylinder = Cylinder::new(1.0, 0.5);
 
     let cone_pos     = Iso2::new(Vec2::y(), na::zero()); // 1.0 along the `y` axis.
     let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.

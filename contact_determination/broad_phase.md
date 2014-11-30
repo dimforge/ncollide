@@ -1,47 +1,22 @@
 # Broad phase
 
-A broad phase on **ncollide** may implement several traits. The first,
-mandatory trait, is `broad::BroadPhase` that ensures that objects can be added,
-removed and updated:
+A broad phase on **ncollide** must implement the `broad_phase::BroadPhase`
+trait that ensures that objects can be added, removed, updated, and supports
+common geometric queries:
 
 | Method                 | Description                                     |
 |--                      | --                                              |
-| `.add(geom)`           | Adds `geom` to this broad phase algorithm.      |
-| `.remove(geom)`        | Removes `geom` from this broad phase algorithm. |
+| `.add(object)`         | Adds `object` to this broad phase algorithm.      |
+| `.remove(object)`      | Removes `object` from this broad phase algorithm. |
 | `.update()`            | Updates this broad phase algorithm.             |
-| `.update_object(geom)` | Partially updates this broad phase algohithm so that all the pairs involving `geom` are detected. |
-
-Because the `BroadPhase` trait itself does not expose any collision-detection
-related features, it is quite useless if implemented alone. If you are
-interested in finding the set of objects intersecting a given bounding volume,
-then use a broad phase that implements the `broad::BoundingVolumeBroadPhase`
-trait:
-
-| Method                | Description                                     |
-|--                     | --                                              |
-| `.interferences_with_bounding_volume(bv, result)` | Clones to `result` any object that intersects the bounding volume `bv` |
-
-If you are interested in finding the set of objects intersecting a given ray,
-then use a broad phase that implements the `broad::RayCastBroadPhase` trait:
-
-| Method                | Description                                     |
-|--                     | --                                              |
-| `.interferences_with_ray(ray, result)` | Clones to `result` any object that intersects the bounding volume `bv` |
-
-Of course, the objects you add to this kind of broad phase algorithms must
-implement the [RayCast trait](../ray_casting/index.html).
-
-
-Finally, if you need a broad phase algorithm that is able to find which pairs of
-objects (among those that were added) might be in contact, use one that
-implements the `broad::InterferencesBroadPhase` trait:
-
-| Method                  | Description                                     |
-|--                       | --                                              |
+| `.update_object(object)` | Partially updates this broad phase algohithm so that all the pairs involving `object` are detected. |
+| `.interferences_with_bounding_volume(bv, result)` | Clones to `result` any object that intersects the bounding volume `bv`. |
+| `.interferences_with_ray(ray, result)` | Clones to `result` any object that intersects the bounding volume `bv`. |
+| `.interferences_with_point(point, result)` | Clones to `result` any object that contains the point `point`. |
 | `.for_each_pair(f)`     | Applies the closure `f` to each contact pair and its _associated data_. |
 | `.for_each_pair_mut(f)` | Applies the closure `f` to each contact pair and a mutable reference to its _associated data_. 
-| `.deactivate(geom)`     | Deactivates `geom`. Two deactivated objects cannot be in contact. |
-| `.activate(geom, f)`    | Activates `geom` and applies the closure `f` on each new contact pairs involving the activated object. | 
+| `.deactivate(object)`   | Deactivates `object`. Two deactivated objects cannot be in contact. |
+| `.activate(object, f)`  | Activates `object` and applies the closure `f` on each new contact pairs involving the activated object. | 
 
 Let us clarify what _associated data_ means here. A broad phase must associate
 some data to each collision pair. Usually, this data is a collision detector
@@ -49,12 +24,12 @@ algorithm that will be used during the [Narrow
 Phase](../contact_determination/narrow_phase.html). The method used by the
 broad phase to generate this piece of data for each potential collision pair is
 implementation-specific but most of the time it will use a factory that
-implements the `broad::Dispatcher` trait:
+implements the `broad_phase::Dispatcher` trait:
 
 | Method                   | Description                                     |
 |--                        | --                                              |
-| `.dispatch(geom1, geom2)` | Instantiates the data associated to the potential contact pair involving `geom1` and `geom2`. |
-| `.is_valid(geom1, geom2)` | Tests if a collision pair between `geom1` and `geom2` is valid. |
+| `.dispatch(object1, object2)` | Instantiates the data associated to the potential contact pair involving `object1` and `object2`. |
+| `.is_valid(object1, object2)` | Tests if a collision pair between `object1` and `object2` is valid. |
 
 Note that the life lengths of those _associated data_ is also
 implementation-dependent. Therefore, if you write generic code that do not know
@@ -63,7 +38,7 @@ the exact type of the broad phase, you should not rely on the destruction time
 
 ### The DBVT broad phase
 
-The `narrow::DBVTBroadPhase` is based on a Dynamic Bounding Volume Tree (DBVT)
+The `broad_phase::DBVTBroadPhase` is based on a Dynamic Bounding Volume Tree (DBVT)
 to detect interferences. It implements all four broad phase-related traits
 described above.
 
@@ -113,15 +88,15 @@ let pos2 = Iso2::new(Vec2::new(0.0, 0.5), na::zero());
 let pos3 = Iso2::new(Vec2::new(0.5, 0.0), na::zero());
 let pos4 = Iso2::new(Vec2::new(0.5, 0.5), na::zero());
 
-let geom1 = Ball::new(0.5);
-let geom2 = Ball::new(0.5);
-let geom3 = Ball::new(0.5);
-let geom4 = Ball::new(0.5);
+let shape1 = Ball::new(0.5);
+let shape2 = Ball::new(0.5);
+let shape3 = Ball::new(0.5);
+let shape4 = Ball::new(0.5);
 
-let obj1 = Rc::new(RefCell::new(WithAABB(pos1, geom1)));
-let obj2 = Rc::new(RefCell::new(WithAABB(pos2, geom2)));
-let obj3 = Rc::new(RefCell::new(WithAABB(pos3, geom3)));
-let obj4 = Rc::new(RefCell::new(WithAABB(pos4, geom4)));
+let obj1 = Rc::new(RefCell::new(WithAABB(pos1, shape1)));
+let obj2 = Rc::new(RefCell::new(WithAABB(pos2, shape2)));
+let obj3 = Rc::new(RefCell::new(WithAABB(pos3, shape3)));
+let obj4 = Rc::new(RefCell::new(WithAABB(pos4, shape4)));
 
 /*
  * Create the broad phase.
@@ -177,15 +152,15 @@ let pos2 = Iso3::new(Vec3::new(0.0, 0.5, 0.0), na::zero());
 let pos3 = Iso3::new(Vec3::new(0.5, 0.0, 0.0), na::zero());
 let pos4 = Iso3::new(Vec3::new(0.5, 0.5, 0.0), na::zero());
 
-let geom1 = Ball::new(0.5);
-let geom2 = Ball::new(0.5);
-let geom3 = Ball::new(0.5);
-let geom4 = Ball::new(0.5);
+let shape1 = Ball::new(0.5);
+let shape2 = Ball::new(0.5);
+let shape3 = Ball::new(0.5);
+let shape4 = Ball::new(0.5);
 
-let obj1 = Rc::new(RefCell::new(WithAABB(pos1, geom1)));
-let obj2 = Rc::new(RefCell::new(WithAABB(pos2, geom2)));
-let obj3 = Rc::new(RefCell::new(WithAABB(pos3, geom3)));
-let obj4 = Rc::new(RefCell::new(WithAABB(pos4, geom4)));
+let obj1 = Rc::new(RefCell::new(WithAABB(pos1, shape1)));
+let obj2 = Rc::new(RefCell::new(WithAABB(pos2, shape2)));
+let obj3 = Rc::new(RefCell::new(WithAABB(pos3, shape3)));
+let obj4 = Rc::new(RefCell::new(WithAABB(pos4, shape4)));
 
 /*
  * Create the broad phase.

@@ -9,7 +9,7 @@ that allows the construction of a concave shape from its convex parts, and
 the construction of a concave shape from triangles (in 3D) or segments (in 2D).
 
 ## Traits
-The main trait that is implemented by every single shape is the `Geom`
+The main trait that is implemented by every single shape is the `Shape`
 trait. It requires each implementor to implement some other traits:
 * `HasAABB` − an [Axis Aligned Bounding Box](../bounding_volumes/aabb.html) must
   be computable for the implementor.
@@ -18,9 +18,12 @@ trait. It requires each implementor to implement some other traits:
   for the implementor.
 * `RayCast` − the computation of [intersections](../ray_casting/index.html)
   between a ray and the implementor must be possible.
+* `PointQuery` − the implementor must support several common [point-related
+  queries](../point_queries/index.html) like distance to a point, projection of
+  a point, and point-inclusion test.
 
 
-The `Volumetric` trait, though not required by `Geom`, is implemented for most
+The `Volumetric` trait, though not required by `Shape`, is implemented for most
 shape. It exposes methods that compute the mass, center of mass, and angular
 inertia tensor of the implementor. For some shape like the `Plane` it is not
 implemented because it is meaningless.
@@ -47,7 +50,7 @@ the shapes $$\mathcal{A}, \mathcal{B}$$ and $$\mathcal{C}$$, given two direction
 ![Support function](../img/support_fun_simple.svg)
 </center>
 
-The support mapping function is exposed by the `implicit::Implicit` trait.
+The support mapping function is exposed by the `support_map::SupportMap` trait.
 
 | Method                            | Description |
 |--                                 | --          |

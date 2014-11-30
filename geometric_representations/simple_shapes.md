@@ -1,7 +1,7 @@
 # Simple shapes
 
 Those are the most basic geometric primitives supported by **ncollide**. They
-are defined on the `geom` module. A geometric primitive does not have a
+are defined on the `shape` module. A geometric primitive does not have a
 position in space. Instead, they are always positioned relative to some
 absolute frame. Thus, one usually has to store a transformation matrix
 separately from the shape itself.
@@ -16,10 +16,10 @@ dimensions a sphere, centered at the origin.
 | --          | --       |
 | `.radius()` | The radius of the ball. |
 
-###### 2D and 3D example <span class="d3" onclick="window.open('../src/ball3d.rs')" ></span><span class="sp"></span><span class="d2" onclick="window.open('../src/ball2d.rs')"></span>
+###### Example <span class="btn-primary" onclick="window.open('../src/ball.rs')"></span>
 
 ```rust
-let ball = Ball::new(1.0);
+let ball = Ball::new(1.0f32);
 assert!(ball.radius() == 1.0);
 ```
 
@@ -41,7 +41,7 @@ half length along each coordinate axis.
 ###### 2D example <span class="d2" onclick="window.open('../src/cuboid2d.rs')"></span>
 
 ```rust
-let cuboid = Cuboid::new(Vec2::new(2.0, 1.0));
+let cuboid = Cuboid::new(Vec2::new(2.0f32, 1.0));
 
 assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
@@ -50,7 +50,7 @@ assert!(cuboid.half_extents().y == 1.0);
 ###### 3D example <span class="d3" onclick="window.open('../src/cuboid3d.rs')"></span>
 
 ```rust
-let cuboid = Cuboid::new(Vec3::new(2.0, 1.0, 3.0));
+let cuboid = Cuboid::new(Vec3::new(2.0f32, 1.0, 3.0));
 
 assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
@@ -74,9 +74,9 @@ positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the cylinder. |
 | `.radius()` | The radius of the cylinder basis. |
 
-###### 3D example<span class="d3" onclick="window.open('../src/cylinder3d.rs')"></span>
+###### Example<span class="btn-primary" onclick="window.open('../src/cylinder.rs')"></span>
 ```rust
-let cylinder = Cylinder::new(0.5, 1.0);
+let cylinder = Cylinder::new(0.5f32, 1.0);
 
 assert!(cylinder.half_height() == 0.5);
 assert!(cylinder.radius() == 1.0);
@@ -98,10 +98,10 @@ Its principal axis is the positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the cone. |
 | `.radius()` | The radius of the cone basis. |
 
-###### 3D example<span class="d3" onclick="window.open('../src/cone3d.rs')"></span>
+###### Example<span class="btn-primary" onclick="window.open('../src/cone.rs')"></span>
 
 ```rust
-let cone = Cone::new(0.5, 0.75);
+let cone = Cone::new(0.5f32, 0.75);
 
 assert!(cone.half_height() == 0.5);
 assert!(cone.radius() == 0.75);
@@ -122,9 +122,9 @@ Its principal axis is the positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the capsule. |
 | `.radius()` | The radius of the capsule extremities. |
 
-###### 2D and 3D example <span class="d3" onclick="window.open('../src/capsule3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/capsule2d.rs')"></span>
+###### Example <span class="btn-primary" onclick="window.open('../src/capsule.rs')"></span>
 ```rust
-let capsule = Capsule::new(0.5, 0.75);
+let capsule = Capsule::new(0.5f32, 0.75);
 
 assert!(capsule.half_height() == 0.5);
 assert!(capsule.radius() == 0.75);
@@ -144,30 +144,26 @@ joining two of its points:
 ![Convex, concave, crossed](../img/convex_concave_crossing.svg)
 </center>
 
-There are two ways to create a `Convex` shape. Using the usual constructor
-`::new(...)` will automatically compute the convex hull of the given array of
-points.  However, if you already have a convex set of point, you may skip the
-automatic convex hull computation using the unsafe constructor
-`::new_with_convex_mesh(...)`. It is unsafe because the convexity of the
-provided mesh is not checked.
+The `Convex` shape is created from a set of points. Note that it does not
+compute explicitely the convex hull of the points. Therefore, its creation
+takes a constant time.
 
 | Method | Description  |
 | --        | --           |
-| `.mesh()` | The convex mesh. |
-| `.pts()`  | The points of the convex mesh. |
-| `.unwrap()` | Moves the contained `TriMesh` or `Polyline` out of the `Convex` structure. |
+| `.points()`  | The points used to create the `Convex` shape. |
 
 ###### 2D example<span class="d2" onclick="window.open('../src/convex2d.rs')"></span>
 ```rust
-let points = [
-    Pnt2::new(-1.0, 1.0), Pnt2::new(-0.5, -0.5),
-    Pnt2::new(0.0, 0.5),  Pnt2::new(0.5, -0.5),
+let points = vec![
+    Pnt2::new(-1.0f32, 1.0), Pnt2::new(-0.5, -0.5),
+    Pnt2::new(0.0, 0.5),     Pnt2::new(0.5, -0.5),
     Pnt2::new(1.0, 1.0)
 ];
 
-let convex = Convex::new(points.as_slice());
+let convex = Convex::new(points);
 
-assert!(convex.pts().len() == 4);
+// Convex does not compute explicitely the convex hull (which has 4 vertices)!
+assert!(convex.points().len() == 5);
 ```
 <center>
 ![2d convex](../img/convex2d.png)
@@ -175,8 +171,8 @@ assert!(convex.pts().len() == 4);
 
 ###### 3D example<span class="d3" onclick="window.open('../src/convex3d.rs')"></span>
 ```rust
-let points = [
-    Pnt3::new(0.0, 0.0, 1.0),
+let points = vec![
+    Pnt3::new(0.0f32, 0.0, 1.0),
     Pnt3::new(0.0, 0.0, -1.0),
     Pnt3::new(0.0, 1.0, 0.0),
     Pnt3::new(0.0, -1.0, 0.0),
@@ -187,7 +183,8 @@ let points = [
 
 let convex = Convex::new(points);
 
-assert!(convex.pts().len() == 6);
+// Convex does not compute explicitely the convex hull (which has 6 vertices)!
+assert!(convex.points().len() == 7);
 ```
 <center>
 ![3d convex](../img/convex3d.png)
@@ -205,7 +202,7 @@ _outside_ of the plane.
 
 ###### 2D example<span class="d2" onclick="window.open('../src/plane2d.rs')"></span>
 ```rust
-let plane = Plane::new(Vec2::new(0.0, 1.0));
+let plane = Plane::new(Vec2::new(0.0f32, 1.0));
 
 assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
@@ -213,7 +210,7 @@ assert!(plane.normal().y == 1.0);
 
 ###### 3D example<span class="d3" onclick="window.open('../src/plane3d.rs')"></span>
 ```rust
-let plane = Plane::new(Vec3::new(0.0, 1.0, 0.0));
+let plane = Plane::new(Vec3::new(0.0f32, 1.0, 0.0));
 
 assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
@@ -238,20 +235,24 @@ using an AABB tree.
 | `.bounding_volumes()` | The bounding volume of each primitive (segment or triangle). |
 | `.bvt()` | The space-partitioning acceleration structure used by the mesh. |
 
+Note that to create a `Mesh`, it is necessary to give its type explicitely with
+one of the type aliases `shape::Mesh2` or `shape::Mesh3`. Otherwise, you will
+have compilation errors.
+
 ###### 2D example<span class="d2" onclick="window.open('../src/mesh2d.rs')"></span>
 
 ```rust
 let points = vec!(
     Pnt2::new(0.0, 1.0),  Pnt2::new(-1.0, -1.0),
-    Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0)
-    );
+    Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0));
 
 let indices = vec!(0u, 1,
                    1,  2,
                    2,  3,
                    3,  1);
 
-let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
+// Build the mesh.
+let mesh: Mesh2<f32> = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
 ```
@@ -265,15 +266,15 @@ assert!(mesh.vertices().len() == 4);
 
 ```rust
 let points = vec!(
-    Pnt3::new(0.0, 1.0, 0.0),   Pnt3::new(-1.0, -0.5, 0.0),
-    Pnt3::new(0.0, -0.5, -1.0), Pnt3::new(1.0, -0.5, 0.0)
-    );
+    Pnt3::new(0.0, 1.0, 0.0), Pnt3::new(-1.0, -0.5, 0.0),
+    Pnt3::new(0.0, -0.5, -1.0), Pnt3::new(1.0, -0.5, 0.0));
 
 let indices = vec!(0u, 1, 2,
                    0,  2, 3,
                    0,  3, 1);
 
-let mesh = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
+// Build the mesh.
+let mesh: Mesh3<f32> = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
 ```

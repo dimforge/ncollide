@@ -2,8 +2,8 @@
 
 While not directly part of the collision detection problem, mesh generation is
 useful to extend the range of shapes supported by **ncollide** by
-discretizing them such that they can be approximated with a `geom::Mesh`, a
-`geom::Convex`, and/or a `geom::Compound`. It is also useful to obtain a
+discretizing them such that they can be approximated with a `shape::Mesh`, a
+`shape::Convex`, and/or a `shape::Compound`. It is also useful to obtain a
 renderer-compliant representation of non-polyhedral models such that balls,
 capsules, parametric surfaces, etc.
 

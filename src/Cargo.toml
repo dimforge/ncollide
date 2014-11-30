@@ -15,12 +15,8 @@ name = "aabb3d"
 path = "./aabb3d.rs"
 
 [[bin]]
-name = "ball2d"
-path = "./ball2d.rs"
-
-[[bin]]
-name = "ball3d"
-path = "./ball3d.rs"
+name = "ball"
+path = "./ball.rs"
 
 [[bin]]
 name = "bounding_sphere2d"
@@ -31,12 +27,8 @@ name = "bounding_sphere3d"
 path = "./bounding_sphere3d.rs"
 
 [[bin]]
-name = "capsule2d"
-path = "./capsule2d.rs"
-
-[[bin]]
-name = "capsule3d"
-path = "./capsule3d.rs"
+name = "capsule"
+path = "./capsule.rs"
 
 [[bin]]
 name = "compound2d"
@@ -51,8 +43,8 @@ name = "compound_data2d"
 path = "./compound_data2d.rs"
 
 [[bin]]
-name = "cone3d"
-path = "./cone3d.rs"
+name = "cone"
+path = "./cone.rs"
 
 [[bin]]
 name = "configuration_space_obstacle2d"
@@ -79,8 +71,8 @@ name = "cuboid3d"
 path = "./cuboid3d.rs"
 
 [[bin]]
-name = "cylinder3d"
-path = "./cylinder3d.rs"
+name = "cylinder"
+path = "./cylinder.rs"
 
 [[bin]]
 name = "dbvt_broad_phase2d"

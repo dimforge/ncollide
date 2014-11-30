@@ -35,12 +35,12 @@ example, the following cannot work:
 
 
 ```rust
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
-use ncollide::geom::Ball;
+use ncollide::shape::Ball;
 
 fn main() {
-    let ball = Ball::new(1.0);
+    let ball = Ball::new(1.0f32);
 
     ball.to_trimesh();
     //   ^^^^^^^^^^
@@ -52,13 +52,13 @@ To help the compiler find `.to_trimesh()`, the `procedural::ToTriMesh` trait
 must be imported explicitly:
 
 ```rust
-extern crate "ncollide3df32" as ncollide;
+extern crate ncollide;
 
-use ncollide::geom::Ball;
+use ncollide::shape::Ball;
 use ncollide::procedural::ToTriMesh; // needed to call `.to_trimesh()`.
 
 fn main() {
-    let ball = Ball::new(1.0);
+    let ball = Ball::new(1.0f32);
 
     ball.to_trimesh();
 }

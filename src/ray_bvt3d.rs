@@ -8,16 +8,16 @@ use ncollide::ray::{Ray, Ray3};
 use ncollide::bounding_volume::HasBoundingSphere;
 
 fn main() {
-    let ball = Ball::new(0.5f32);
-    let caps = Capsule::new(0.5f32, 0.75);
-    let cone = Cone::new(0.5f32, 0.75);
-    let cube = Cuboid::new(Vec3::new(1.0f32, 0.5, 1.0));
+    let ball = Ball::new(0.5);
+    let caps = Capsule::new(0.5, 0.75);
+    let cone = Cone::new(0.5, 0.75);
+    let cube = Cuboid::new(Vec3::new(1.0, 0.5, 1.0));
 
-    let geoms = [
-        &ball as &Shape3,
-        &caps as &Shape3,
-        &cone as &Shape3,
-        &cube as &Shape3
+    let shapes = [
+        &ball as &Shape3<f32>,
+        &caps as &Shape3<f32>,
+        &cone as &Shape3<f32>,
+        &cube as &Shape3<f32>
     ];
 
     let poss = [
@@ -28,10 +28,10 @@ fn main() {
     ];
 
     let idx_and_bounding_spheres  = vec!(
-        (0u, geoms[0].bounding_sphere(&poss[0])),
-        (1u, geoms[1].bounding_sphere(&poss[1])),
-        (2u, geoms[2].bounding_sphere(&poss[2])),
-        (3u, geoms[3].bounding_sphere(&poss[3]))
+        (0u, shapes[0].bounding_sphere(&poss[0])),
+        (1u, shapes[1].bounding_sphere(&poss[1])),
+        (2u, shapes[2].bounding_sphere(&poss[2])),
+        (3u, shapes[3].bounding_sphere(&poss[3]))
     );
 
     let bvt      = BVT::new_balanced(idx_and_bounding_spheres);
@@ -41,8 +41,8 @@ fn main() {
     /*
      * Ray cast using a callback.
      */
-    let mut cast_fn = |id: &uint, ray: &Ray3| {
-        geoms[*id].toi_with_transform_and_ray(&poss[*id], ray, true).map(|toi| (toi, toi))
+    let mut cast_fn = |id: &uint, ray: &Ray3<f32>| {
+        shapes[*id].toi_with_transform_and_ray(&poss[*id], ray, true).map(|toi| (toi, toi))
     };
 
     assert!(bvt.cast_ray(&ray_hit, &mut cast_fn).is_some());

@@ -12,12 +12,12 @@ fn main() {
 
     // 1) Initialize the CompoundData.
     let mut compound_data = CompoundData::new();
-    compound_data.push_geom(delta1, Cuboid::new(Vec2::new(1.5f32, 0.25)), 1.0);
-    compound_data.push_geom(delta2, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
-    compound_data.push_geom(delta3, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
+    compound_data.push_shape(delta1, Cuboid::new(Vec2::new(1.5, 0.25)), 1.0);
+    compound_data.push_shape(delta2, Cuboid::new(Vec2::new(0.25, 1.5)), 1.0);
+    compound_data.push_shape(delta3, Cuboid::new(Vec2::new(0.25, 1.5)), 1.0);
 
     // 2) Create the compound shape.
     let compound = Compound::new(compound_data);
 
-    assert!(compound.geoms().len() == 3)
+    assert!(compound.shapes().len() == 3)
 }

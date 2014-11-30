@@ -13,6 +13,7 @@
 * [Ray casting](ray_casting/index.md)
    * [Solid ray cast](ray_casting/solid_ray_cast.md)
    * [Acceleration structures](ray_casting/acceleration_structures.md)
+* [Point queries](point_queries/index.md)
 * [Mesh generation](mesh_generation/index.md)
    * [Primitives](mesh_generation/primitives.md)
    * [Paths](mesh_generation/paths.md)

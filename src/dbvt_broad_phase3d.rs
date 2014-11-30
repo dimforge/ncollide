@@ -11,11 +11,11 @@ use ncollide::broad_phase::{DBVTBroadPhase, NoIdDispatcher, BroadPhase};
 #[deriving(Clone)]
 struct BallWithPosition {
     pos:   Iso3<f32>,
-    shape: Ball3
+    shape: Ball3<f32>
 }
 
 impl BallWithPosition {
-    fn new(pos: Iso3<f32>, shape: Ball3) -> BallWithPosition {
+    fn new(pos: Iso3<f32>, shape: Ball3<f32>) -> BallWithPosition {
         BallWithPosition {
             pos:   pos,
             shape: shape
@@ -23,8 +23,8 @@ impl BallWithPosition {
     }
 }
 
-impl HasBoundingVolume<AABB3> for Rc<RefCell<BallWithPosition>> {
-    fn bounding_volume(&self) -> AABB3 {
+impl HasBoundingVolume<AABB3<f32>> for Rc<RefCell<BallWithPosition>> {
+    fn bounding_volume(&self) -> AABB3<f32> {
         self.borrow().shape.aabb(&self.borrow().pos)
     }
 }
@@ -40,15 +40,15 @@ fn main() {
     let pos3 = Iso3::new(Vec3::new(0.5, 0.0, 0.0), na::zero());
     let pos4 = Iso3::new(Vec3::new(0.5, 0.5, 0.0), na::zero());
 
-    let geom1 = Ball::new(0.5);
-    let geom2 = Ball::new(0.5);
-    let geom3 = Ball::new(0.5);
-    let geom4 = Ball::new(0.5);
+    let shape1 = Ball::new(0.5);
+    let shape2 = Ball::new(0.5);
+    let shape3 = Ball::new(0.5);
+    let shape4 = Ball::new(0.5);
 
-    let obj1 = Rc::new(RefCell::new(BallWithPosition::new(pos1, geom1)));
-    let obj2 = Rc::new(RefCell::new(BallWithPosition::new(pos2, geom2)));
-    let obj3 = Rc::new(RefCell::new(BallWithPosition::new(pos3, geom3)));
-    let obj4 = Rc::new(RefCell::new(BallWithPosition::new(pos4, geom4)));
+    let obj1 = Rc::new(RefCell::new(BallWithPosition::new(pos1, shape1)));
+    let obj2 = Rc::new(RefCell::new(BallWithPosition::new(pos2, shape2)));
+    let obj3 = Rc::new(RefCell::new(BallWithPosition::new(pos3, shape3)));
+    let obj4 = Rc::new(RefCell::new(BallWithPosition::new(pos4, shape4)));
 
     /*
      * Create the broad phase.

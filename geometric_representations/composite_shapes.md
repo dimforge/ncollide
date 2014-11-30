@@ -9,16 +9,16 @@
 ## Compound
 The `Compound` structure is the main way of describing concave shapes from
 convex ones. It differs from `Mesh` in that it is not a set of triangles but a
-set of any shape implementing the `Geom` trait. Two steps are necessary to
+set of any shape implementing the `Shape` trait. Two steps are necessary to
 create a `Compound` shape:
 1. Initialize a `CompoundData` structure. Several shapes implementing the
-   `Geom` trait together with a delta transformation matrix can be added to
+   `Shape` trait together with a delta transformation matrix can be added to
    the compound data.
 2. Call `Compound::new` with the initialized compound data.
 
 | Method | Description |
 | --          | --        |
-| `.geoms()` | The shapes composing the compound. |
+| `.shapes()` | The shapes composing the compound. |
 | `.bounding_volumes()` | The AABB of the shapes composing the compound. |
 | `.bvt()` | The space-partitioning acceleration structure used by the compound. |
 
@@ -31,14 +31,14 @@ let delta3 = Iso2::new(Vec2::new(1.5f32,  0.0), na::zero());
 
 // 1) Initialize the CompoundData.
 let mut compound_data = CompoundData::new();
-compound_data.push_geom(delta1, Cuboid::new(Vec2::new(1.5f32, 0.25)), 1.0);
-compound_data.push_geom(delta2, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
-compound_data.push_geom(delta3, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
+compound_data.push_shape(delta1, Cuboid::new(Vec2::new(1.5f32, 0.25)), 1.0);
+compound_data.push_shape(delta2, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
+compound_data.push_shape(delta3, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
 
 // 2) Create the compound shape.
 let compound = Compound::new(compound_data);
 
-assert!(compound.geoms().len() == 3)
+assert!(compound.shapes().len() == 3)
 ```
 
 <center>
@@ -54,14 +54,14 @@ let delta3 = Iso3::new(Vec3::new(1.5f32, 0.0,  0.0), na::zero());
 
 // 1) Initialize the CompoundData.
 let mut compound_data = CompoundData::new();
-compound_data.push_geom(delta1, Cuboid::new(Vec3::new(1.5f32, 0.25, 0.25)), 1.0);
-compound_data.push_geom(delta2, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
-compound_data.push_geom(delta3, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
+compound_data.push_shape(delta1, Cuboid::new(Vec3::new(1.5f32, 0.25, 0.25)), 1.0);
+compound_data.push_shape(delta2, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
+compound_data.push_shape(delta3, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
 
 // 2) Create the compound shape.
 let compound = Compound::new(compound_data);
 
-assert!(compound.geoms().len() == 3)
+assert!(compound.shapes().len() == 3)
 ```
 
 <center>
@@ -70,19 +70,19 @@ assert!(compound.geoms().len() == 3)
 
 #### More about `CompoundData`
 The previous examples show the simplest way of initializing the `CompoundData`
-structure. However using the `compound_data.push_geom(...)` method works only
-for shapes that implement both the `Geom` **and** the `Volumetric` traits.
-In addition every shape added with `push_geom(...)` are moved out. To save
+structure. However using the `compound_data.push_shape(...)` method works only
+for shapes that implement both the `Shape` **and** the `Volumetric` traits.
+In addition every shape added with `push_shape(...)` are moved out. To save
 memory, we might want those to be shared by multiple composite shapes.
 Therefore, there are three ways of adding a shape to a `CompoundData`:
 
-1. `push_geom(...)`: use this if your shape implements `Volumetric` and does
+1. `push_shape(...)`: use this if your shape implements `Volumetric` and does
    *not* have to be shared.
-2. `push_geom_with_mass_properties(...)`: use this if your shape does *not*
+2. `push_shape_with_mass_properties(...)`: use this if your shape does *not*
    implement `Volumetric` and does *not* have to be shared. This time, the
    object surface, mass, center of mass and angular inertia tensor must be
    provided.
-3. `push_shared_geom_with_mass_properties(...)`: use this if your shape has
+3. `push_shared_shape_with_mass_properties(...)`: use this if your shape has
    to be shared.  This time, even if your shape did implement the `Volumetric`
    trait, the object surface, mass, center of mass and angular inertia tensor
    must be provided.
@@ -98,34 +98,34 @@ let delta3 = Iso2::new(Vec2::new(1.5f32,  0.0), na::zero());
 let mut compound_data = CompoundData::new();
 
 /*
- * push_geom
+ * push_shape
  */
 // The mass, center of mass and angular inertia tensor are automatically
 // computed.
-compound_data.push_geom(delta1, Cuboid::new(Vec2::new(1.5f32, 0.75)), 1.0);
+compound_data.push_shape(delta1, Cuboid::new(Vec2::new(1.5f32, 0.75)), 1.0);
 
 /*
- * push_geom_with_mass_properties
+ * push_shape_with_mass_properties
  */
 // mass = 10.0
 // center of mass = the origin (na::zero())
 // angular inertia tensor = identity matrix (na::one())
-compound_data.push_geom_with_mass_properties(
+compound_data.push_shape_with_mass_properties(
     delta2,
     Plane::new(Vec2::new(1f32, 0.0)),
     (10.0f32, na::zero(), na::one()));
 
 /*
- * push_shared_geom_with_mass_properties
+ * push_shared_shape_with_mass_properties
  */
 // The shape we want to share.
 let cuboid = Cuboid::new(Vec2::new(0.75f32, 1.5));
 // Make ncollide compute the mass properties of the cuboid.
 let mass_properties = cuboid.mass_properties(&1.0); // density = 1.0
 // Build the shared shape.
-let shared_cuboid = Rc::new(box cuboid as Box<Geom + Send>);
+let shared_cuboid = Rc::new(box cuboid as Box<Shape + Send + Sync>);
 // Add the shape to the compound data.
-compound_data.push_shared_geom_with_mass_properties(
+compound_data.push_shared_shape_with_mass_properties(
     delta3,
     shared_cuboid.clone(),
     mass_properties);
@@ -134,7 +134,7 @@ compound_data.push_shared_geom_with_mass_properties(
 // 2) create the compound shape.
 let compound = Compound::new(compound_data);
 
-assert!(compound.geoms().len() == 3);
+assert!(compound.shapes().len() == 3);
 ```
 
 ## Reflection
@@ -149,7 +149,7 @@ Note that the reflected shape and the reflection itself are lifetime-bound.
 
 | Method | Description |
 | --       | --        |
-| `.geom()` | The shape affected by the reflection. |
+| `.shape()` | The shape affected by the reflection. |
 
 ###### 2D and 3D example <span class="d3" onclick="window.open('../src/reflection3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('../src/reflection2d.rs')"></span>
 

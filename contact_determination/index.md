@@ -2,7 +2,7 @@
 
 Contact determination is the core feature of any collision detection library.
 It is the process of determining if two objects are in contact. If they are,
-the contact geometry is computed and stored into the `narrow::Contact`
+the contact geometry is computed and stored into the `geometry::Contact`
 structure:
 
 

@@ -8,7 +8,7 @@ use ncollide::procedural;
 fn main() {
     let mut points = Vec::new();
     for _ in range(0u, 100000) {
-        points.push(rand::random::<Pnt3<f32>>() * 2.0f32);
+        points.push(rand::random::<Pnt3<f32>>() * 2.0);
     }
 
     let _ = procedural::convex_hull3(points.as_slice());
