@@ -1,41 +1,57 @@
+use utils::data::has_uid::HasUid;
 use ray::Ray;
+use broad_phase::ProximitySignalHandler;
+
+/// Filter checking if two object can be reported for proximity.
+pub trait ProximityFilter<B> {
+    /// Indicates if two object can be reported for proximity.
+    fn is_proximity_allowed(&self, &B, &B) -> bool;
+}
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<P, V, B, BV, DV> {
+pub trait BroadPhase<P, V, B: HasUid, BV> {
     /// Adds an element to this broad phase.
-    fn add(&mut self, B);
+    fn add(&mut self, body: B, bv: BV);
 
     /// Removes an element from this broad phase.
-    fn remove(&mut self, &B);
+    ///
+    /// The element is identified by its unique id.
+    fn remove_with_uid(&mut self, uid: uint);
 
-    /// Updates the collision pairs based on the objects bounding volumes.
+    /// Sets the next bounding volume to be used during the update of this broad phase.
+    ///
+    /// The affected body is identified by its unique id.
+    fn set_next_bounding_volume_with_uid(&mut self, uid: uint, bv: BV);
+
+    /// Updates the interferences.
     fn update(&mut self);
 
-    /// Updates the collision pairs involving one specific object.
-    fn update_object(&mut self, &B);
+    /// Registers a handler for proximity start/stop events.
+    fn register_proximity_signal_handler(&mut self, name: &str, handler: Box<ProximitySignalHandler<B> + 'static>);
 
-    /// Marks and object as active.
-    ///
-    /// Active objects are checked for interferences at each update.
-    fn activate(&mut self, body: &B, f: |&B, &B, &mut DV| -> ());
+    /// Unregisters a handler for proximity start/stop events.
+    fn unregister_proximity_signal_handler(&mut self, name: &str);
 
-    /// Marks and object as inactive.
-    ///
-    /// Inactive objects are assumed to be static and not tested for mutual interferences.
-    fn deactivate(&mut self, &B);
-
-    /// Execute a function on each interference detected by the broad phase.
-    fn for_each_pair(&self, f: |&B, &B, &DV| -> ());
-
-    /// Execute a function on each interference detected by the broad phase.
-    fn for_each_pair_mut(&mut self, f: |&B, &B, &mut DV| -> ());
-
+    /*
+     * FIXME: the following are not flexible enough.
+     */
+    // XXX: return iterators when associated types work.
     /// Collects every object which might intersect a given bounding volume.
-    fn interferences_with_bounding_volume(&mut self, &BV, &mut Vec<B>);
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a B>);
 
     /// Collects every object which might intersect a given ray.
-    fn interferences_with_ray(&mut self, &Ray<P, V>, &mut Vec<B>);
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P, V>, out: &mut Vec<&'a B>);
 
     /// Collects every object which might contain a given point.
-    fn interferences_with_point(&mut self, &P, &mut Vec<B>);
+    fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a B>);
+
+    /// Removes an element from this broad phase.
+    fn remove(&mut self, body: &B) {
+        self.remove_with_uid(body.uid())
+    }
+
+    /// Sets the next bounding volume to be used during the update of this broad phase.
+    fn set_next_bounding_volume(&mut self, body: &B, bv: BV) {
+        self.set_next_bounding_volume_with_uid(body.uid(), bv)
+    }
 }

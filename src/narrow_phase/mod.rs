@@ -13,11 +13,15 @@ pub use self::shape_shape::{DynamicCollisionDetector, ShapeShapeCollisionDetecto
 pub use self::concave_shape_shape::{ConcaveShapeShape, ShapeConcaveShape,
                                     ConcaveShapeShapeFactory, ShapeConcaveShapeFactory};
 pub use self::bezier_surface_ball::{BallBezierSurface, BezierSurfaceBall};
+#[doc(inline)]
+pub use self::contact_signal::{ContactSignal, ContactSignalHandler};
 
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
 
 #[doc(hidden)]
 pub mod collision_detector;
+#[doc(hidden)]
+pub mod contact_signal;
 mod empty;
 mod ball_ball;
 mod plane_support_map;

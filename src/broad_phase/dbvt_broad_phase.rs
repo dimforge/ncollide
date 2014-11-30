@@ -2,12 +2,9 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use na::Translation;
 use na;
-use broad_phase::BroadPhase;
-use utils::data::hash::UintTWHash;
-use utils::data::hash_map::HashMap;
-use utils::data::pair::{Pair, PairTWHash};
 use utils::data::has_uid::HasUid;
-use broad_phase::Dispatcher;
+use utils::data::pair::{Pair, PairTWHash};
+use utils::data::hash_map::HashMap;
 use bounding_volume::{HasBoundingVolume, BoundingVolume};
 use ray::{Ray, LocalRayCast};
 use point::LocalPointQuery;
@@ -16,47 +13,56 @@ use partitioning::{DBVT, DBVTLeaf,
                    RayInterferencesCollector,
                    PointInterferencesCollector};
 use math::{Scalar, Point, Vect};
+use broad_phase::{BroadPhase, ProximityFilter, ProximitySignal, ProximitySignalHandler};
+use utils::data::has_uid_map::{HasUidMap, FastKey};
+
+struct DBVTBroadPhaseProxy<P, BV> {
+    leaf:   Rc<RefCell<DBVTLeaf<P, FastKey, BV>>>,
+    active: uint
+}
+
+const DEACTIVATION_THRESHOLD: uint = 100;
 
 
 /// Broad phase based on a Dynamic Bounding Volume Tree.
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<N, P, B, BV, D, DV> {
-    tree:        DBVT<P, B, BV>,
-    stree:       DBVT<P, B, BV>,
-    active2bv:   HashMap<uint, Rc<RefCell<DBVTLeaf<P, B, BV>>>, UintTWHash>,
-    inactive2bv: HashMap<uint, Rc<RefCell<DBVTLeaf<P, B, BV>>>, UintTWHash>,
-    pairs:       HashMap<Pair<Rc<RefCell<DBVTLeaf<P, B, BV>>>>, DV, PairTWHash>, // pair manager
-    spairs:      HashMap<Pair<Rc<RefCell<DBVTLeaf<P, B, BV>>>>, DV, PairTWHash>,
-    dispatcher:  D,
-    margin:      N,
-    collector:   Vec<B>,
-    to_update:   Vec<Rc<RefCell<DBVTLeaf<P, B, BV>>>>,
-    update_off:  uint // incremental pairs removal index
+pub struct DBVTBroadPhase<N, P, B, BV> {
+    proxies:    HasUidMap<B, DBVTBroadPhaseProxy<P, BV>>,
+    tree:       DBVT<P, FastKey, BV>, // DBVT for moving objects.
+    stree:      DBVT<P, FastKey, BV>, // DBVT for static objects.
+    filter:     Option<Box<ProximityFilter<B> + 'static>>,
+    pairs:      HashMap<Pair<FastKey>, (), PairTWHash>, // Pairs detected (FIXME: use a Vec instead?)
+    signal:     ProximitySignal<B>, // To notify the user when a new pair is found/destroyed.
+    margin:     N, // The margin added to each bounding volume.
+    update_off: uint, // Incremental pairs removal index.
+
+    // Just to avoid dynamic allocations.
+    collector:  Vec<FastKey>,
+    to_update:  Vec<(FastKey, BV)>,
 }
 
-impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
+impl<N, P, V, B, BV> DBVTBroadPhase<N, P, B, BV>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
-          B:  'static + HasBoundingVolume<BV> + Clone,
-          BV: 'static + BoundingVolume<N> + Translation<V> + Clone,
-          D:  Dispatcher<B, B, DV> {
+          B:  'static + HasUid,
+          BV: 'static + BoundingVolume<N> + Translation<V> + Clone {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(dispatcher: D, margin: N) -> DBVTBroadPhase<N, P, B, BV, D, DV> {
+    pub fn new(margin: N, filter: Option<Box<ProximityFilter<B> + 'static>>)
+               -> DBVTBroadPhase<N, P, B, BV> {
         DBVTBroadPhase {
-            tree:        DBVT::new(),
-            stree:       DBVT::new(),
-            active2bv:   HashMap::new(UintTWHash::new()),
-            inactive2bv: HashMap::new(UintTWHash::new()),
-            pairs:       HashMap::new(PairTWHash::new()),
-            spairs:      HashMap::new(PairTWHash::new()),
-            dispatcher:  dispatcher,
-            update_off:  0,
-            collector:   Vec::new(),
-            to_update:   Vec::new(),
-            margin:      margin
+            proxies:    HasUidMap::new(),
+            tree:       DBVT::new(),
+            stree:      DBVT::new(),
+            filter:     filter,
+            pairs:      HashMap::new(PairTWHash::new()),
+            signal:     ProximitySignal::new(),
+            update_off: 0,
+            collector:  Vec::new(),
+            to_update:  Vec::new(),
+            margin:     margin
         }
     }
 
@@ -65,36 +71,146 @@ impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
     pub fn num_interferences(&self) -> uint {
         self.pairs.len()
     }
+}
 
-    fn update_updatable(&mut self) {
+impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
+    where N:  Scalar,
+          P:  Point<N, V>,
+          V:  Vect<N>,
+          B:  'static + HasUid,
+          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + LocalPointQuery<N, P> + Clone {
+    #[inline]
+    fn add(&mut self, b: B, bv: BV) {
+        let lbv = bv.loosened(self.margin.clone());
+        let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
+        let leaf = Rc::new(RefCell::new(leaf));
+        let proxy = DBVTBroadPhaseProxy {
+            leaf:   leaf.clone(),
+            active: DEACTIVATION_THRESHOLD
+        };
+
+        let (proxy_key, _) = self.proxies.insert(b, proxy);
+        leaf.borrow_mut().object = proxy_key.clone();
+        self.to_update.push((proxy_key, lbv));
+        self.update();
+    }
+
+    fn remove_with_uid(&mut self, uid: uint) {
+        let proxy_key = match self.proxies.get_fast_key_with_uid(uid) {
+            None      => return,
+            Some(uid) => uid
+        };
+
+        {
+            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().val1();
+            if proxy.active != 0 {
+                self.tree.remove(&mut proxy.leaf)
+            }
+            else {
+                self.stree.remove(&mut proxy.leaf)
+            }
+        }
+
+        let mut keys_to_remove = Vec::new();
+
+        // Remove every pair involving b.
+        for elt in self.pairs.elements().iter() {
+            if elt.key.first == proxy_key || elt.key.second == proxy_key {
+                keys_to_remove.push(elt.key.clone());
+            }
+        }
+
+        // Remove and trigger the proximity loss signal.
+        for k in keys_to_remove.iter() {
+            self.pairs.remove(k);
+
+            let o1 = self.proxies[k.first].ref0();
+            let o2 = self.proxies[k.second].ref0();
+            self.signal.trigger_proximity_signal(o1, o2, false);
+        }
+
+        keys_to_remove.clear();
+        let _ = self.proxies.remove_with_uid(uid);
+    }
+
+    fn update(&mut self) {
+        /*
+         * Remove all the outdated nodes.
+         */
+        for &(ref id, ref bv)in self.to_update.iter().rev() {
+            // FIXME: the `None` case may actually happen if the object is updated, then
+            // removed, then the broad phase is updated.
+            let proxy = self.proxies.get_fast_mut(id).expect("The proxy was not valid.").val1();
+
+            // If the activation number is < than the threshold then the leaf has not been removed
+            // yet.
+            if proxy.active == 0 {
+                proxy.leaf.borrow_mut().bounding_volume = bv.clone();
+                self.stree.remove(&mut proxy.leaf);
+            }
+            else if proxy.active < DEACTIVATION_THRESHOLD {
+                proxy.leaf.borrow_mut().bounding_volume = bv.clone();
+                self.tree.remove(&mut proxy.leaf);
+            }
+
+            proxy.active = DEACTIVATION_THRESHOLD;
+        }
+
         /*
          * Re-insert outdated nodes one by one and collect interferences at the same time.
          */
-        let mut new_colls = 0u;
+        for &(ref proxy_key1, _) in self.to_update.iter() {
+            let &(ref object1, ref proxy1) = &self.proxies[*proxy_key1];
 
-        for u in self.to_update.iter() {
-            { // scope to avoid dynamic borrow failure.
-                let bu = u.borrow();
-                self.tree.interferences_with_leaf(bu.deref(), &mut self.collector);
-                self.stree.interferences_with_leaf(bu.deref(), &mut self.collector);
+            {
+                let node1 = proxy1.leaf.borrow();
+                let mut visitor = BoundingVolumeInterferencesCollector::new(
+                    &node1.bounding_volume,
+                    &mut self.collector);
 
-                // dispatch
-                for i in self.collector.iter() {
-                    let bi = i.borrow();
-                    if self.dispatcher.is_valid(&bu.object, &bi.object) {
-                        let dispatcher = &mut self.dispatcher;
-                        let _ = self.pairs.find_or_insert_lazy(
-                            Pair::new(u.clone(), i.clone()),
-                            || dispatcher.dispatch(&bu.object, &bi.object)
-                            );
+                self.tree.visit(&mut visitor);
+                self.stree.visit(&mut visitor);
+            }
 
-                        new_colls = new_colls + 1;
+            // Event generation.
+            for proxy_key2 in self.collector.iter() {
+            let object2 = self.proxies[*proxy_key2].ref0();
+                // Do not trigger if the proximity event does not exist yet.
+
+                let filtered_out = match self.filter {
+                    None        => false,
+                    Some(ref f) => !f.is_proximity_allowed(object1, object2)
+                };
+
+                if !filtered_out {
+                    let mut trigger = false;
+
+                    let _ = self.pairs.find_or_insert_lazy(
+                        Pair::new(*proxy_key1, *proxy_key2),
+                        || { trigger = true; Some(()) });
+
+                    if trigger {
+                        self.signal.trigger_proximity_signal(object1, object2, true)
                     }
                 }
             }
 
             self.collector.clear();
-            self.tree.insert(u.clone());
+            self.tree.insert(proxy1.leaf.clone());
+        }
+
+        /*
+         * Update activation states.
+         */
+        for (_, proxy) in self.proxies.iter_mut() {
+            if proxy.active == 1 {
+                proxy.active = 0;
+                self.tree.remove(&mut proxy.leaf);
+                self.stree.insert(proxy.leaf.clone());
+            }
+            else if proxy.active > 1 {
+                proxy.active = proxy.active - 1;
+            }
         }
 
         /*
@@ -102,20 +218,31 @@ impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
          */
         // NOTE: the exact same code is used on `brute_force_bounding_volume_broad_phase.rs`.
         // Refactor that?
-        if new_colls != 0 && self.pairs.len() != 0 {
+        if self.to_update.len() != 0 && self.pairs.len() != 0 {
             let len          = self.pairs.len();
-            let num_removals = na::clamp(new_colls, len / 10, len);
+            let num_removals = na::clamp(self.to_update.len(), len / 10, len);
 
             for i in range(self.update_off, self.update_off + num_removals) {
                 let id = i % self.pairs.len();
 
                 let remove = {
-                    let elts  = self.pairs.elements();
-                    let entry = &elts[id];
+                    let elts = self.pairs.elements();
+                    let ids = elts[id].key;
 
-                    let bf = entry.key.first.borrow();
-                    let bs = entry.key.second.borrow();
-                    if !bf.bounding_volume.intersects(&bs.bounding_volume) {
+                    let &(ref object1, ref proxy1) = &self.proxies[ids.first];
+                    let &(ref object2, ref proxy2) = &self.proxies[ids.second];
+
+                    let bv1 = &proxy1.leaf.borrow().bounding_volume;
+                    let bv2 = &proxy2.leaf.borrow().bounding_volume;
+
+                    let filtered_out = match self.filter {
+                        None        => false,
+                        Some(ref f) => !f.is_proximity_allowed(object1, object2)
+                    };
+
+                    if filtered_out || !bv1.intersects(bv2) {
+                        self.signal.trigger_proximity_signal(object1, object2, false);
+
                         true
                     }
                     else {
@@ -133,268 +260,76 @@ impl<N, P, V, B, BV, D, DV> DBVTBroadPhase<N, P, B, BV, D, DV>
 
         self.to_update.clear();
     }
-}
 
-impl<N, P, V, B, BV, D, DV> BroadPhase<P, V, B, BV, DV> for DBVTBroadPhase<N, P, B, BV, D, DV>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          B:  'static + HasBoundingVolume<BV> + HasUid + Clone,
-          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + LocalPointQuery<N, P> + Clone,
-          D:  Dispatcher<B, B, DV> {
-    #[inline]
-    fn add(&mut self, b: B) {
-        let id   = b.uid();
-        let leaf = Rc::new(RefCell::new(DBVTLeaf::new(b.bounding_volume().loosened(self.margin.clone()), b)));
+    fn set_next_bounding_volume_with_uid(&mut self, uid: uint, bounding_volume: BV) {
+        if let Some(proxy_key) = self.proxies.get_fast_key_with_uid(uid) {
+            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().val1();
+            let needs_update = !proxy.leaf.borrow().bounding_volume.contains(&bounding_volume);
 
-        self.to_update.push(leaf.clone());
-        self.update_updatable();
-
-        self.active2bv.insert(id, leaf);
-    }
-
-    fn remove(&mut self, b: &B) {
-        // remove b from the dbvts
-        let key      = b.uid();
-        let leaf_opt = self.active2bv.get_and_remove(&key);
-        let mut leaf;
-
-        match leaf_opt {
-            Some(l) => {
-                leaf = l.value;
-                self.tree.remove(&mut leaf);
-            },
-            None => {
-                let leaf_opt = self.inactive2bv.get_and_remove(&key);
-                match leaf_opt {
-                    Some(l) => {
-                        leaf = l.value;
-                        self.stree.remove(&mut leaf);
-                    },
-                    None => return
-                }
+            if needs_update {
+                self.to_update.push((proxy_key, bounding_volume.loosened(self.margin)));
             }
-        }
-
-        let mut keys_to_remove = Vec::new();
-
-        // remove every pair involving b
-        for elt in self.pairs.elements().iter() {
-            if elt.key.first.uid() == leaf.uid() || elt.key.second.uid() == leaf.uid() {
-                keys_to_remove.push(elt.key.clone());
-            }
-        }
-
-        for k in keys_to_remove.iter() {
-            self.pairs.remove(k);
-        }
-
-        keys_to_remove.clear();
-
-        // remove every "sleeping" pair involving b
-        for elt in self.spairs.elements().iter() {
-            if elt.key.first.uid() == leaf.uid() || elt.key.second.uid() == leaf.uid() {
-                keys_to_remove.push(elt.key.clone());
-            }
-        }
-
-        for k in keys_to_remove.iter() {
-            self.spairs.remove(k);
-        }
-    }
-
-    fn update(&mut self) {
-        // NOTE: be careful not to add the same object twice!
-        /*
-         * Remove all outdated nodes
-         */
-        for a in self.active2bv.elements_mut().iter_mut() {
-            let mut new_bv = a.value.borrow().object.bounding_volume();
-
-            if !a.value.borrow().bounding_volume.contains(&new_bv) {
-                // need an update!
-                new_bv.loosen(self.margin.clone());
-
-                {
-                    let mut bv = a.value.borrow_mut();
-                    bv.bounding_volume = new_bv;
+            else {
+                if proxy.active == 0 {
+                    self.stree.remove(&mut proxy.leaf);
+                    self.tree.insert(proxy.leaf.clone());
                 }
 
-                self.tree.remove(&mut a.value);
-                self.to_update.push(a.value.clone());
+                proxy.active = DEACTIVATION_THRESHOLD - 1;
             }
         }
-
-        self.update_updatable();
     }
 
-    fn update_object(&mut self, object: &B) {
-        match self.active2bv.find_mut(&object.uid()) {
-            None       => { },
-            Some(leaf) => {
-                let mut new_bv = leaf.borrow().object.bounding_volume();
-                if !leaf.borrow().bounding_volume.contains(&new_bv) {
-                    // update for real
-                    new_bv.loosen(self.margin.clone());
-                    {
-                        let mut bl = leaf.borrow_mut();
-                        bl.bounding_volume = new_bv;
-                    }
-                    self.tree.remove(leaf);
-                    self.to_update.push(leaf.clone());
-                }
-            }
-        }
-
-        self.update_updatable();
+    fn register_proximity_signal_handler(&mut self, name: &str, handler: Box<ProximitySignalHandler<B> + 'static>) {
+        self.signal.register_proximity_signal_handler(name, handler)
     }
 
-    #[inline(always)]
-    fn for_each_pair(&self, f: |&B, &B, &DV| -> ()) {
-        for p in self.pairs.elements().iter() {
-            let bf = p.key.first.borrow_mut();
-            let bs = p.key.second.borrow_mut();
-            f(&bf.object, &bs.object, &p.value)
-        }
+    fn unregister_proximity_signal_handler(&mut self, name: &str) {
+        self.signal.unregister_proximity_signal_handler(name)
     }
 
-    #[inline(always)]
-    fn for_each_pair_mut(&mut self, f: |&B, &B, &mut DV| -> ()) {
-        for p in self.pairs.elements_mut().iter_mut() {
-            let bf = p.key.first.borrow();
-            let bs = p.key.second.borrow();
-            f(&bf.object, &bs.object, &mut p.value)
-        }
-    }
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a B>) {
+        let mut collector = Vec::new();
 
-    #[inline(always)]
-    fn activate(&mut self, body: &B, f: |&B, &B, &mut DV| -> ()) {
-        // verify that it is not already active and add it to the active map.
-        let mut leaf =
-            match self.inactive2bv.get_and_remove(&body.uid()) {
-                None    => return, // not found: the object is already active
-                Some(l) => l.value
-            };
-
-        self.active2bv.insert(body.uid(), leaf.clone());
-
-        // remove from the inactive tree
-        self.stree.remove(&mut leaf);
-
-        // Now we find interferences with inactive objects.
-        { // scope to avoid dynamic borrow failure
-            let leaf = leaf.clone();
-            let bleaf = leaf.borrow();
-            self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
-
-            for i in self.collector.iter() {
-                let bi = i.borrow();
-                if self.dispatcher.is_valid(&bleaf.object, &bi.object) {
-                    // the intereference should be registered on the spairs already
-                    match self.spairs.get_and_remove(&Pair::new(leaf.clone(), i.clone())) {
-                        Some(dv) => {
-                            let key   = dv.key.clone();
-                            let value = dv.value;
-                            let bdvf  = key.first.borrow();
-                            let bdvs  = key.second.borrow();
-                            let key   = dv.key;
-                            let obj1  = &bdvf.object;
-                            let obj2  = &bdvs.object;
-                            let p     = self.pairs.insert_or_replace(key, value, true);
-
-                            f(obj1, obj2, p)
-                        },
-                        None => panic!("Internal error: found a new collision during the activation.")
-                    }
-                }
-            }
-        }
-
-        // add to the active tree
-        self.tree.insert(leaf);
-        self.collector.clear();
-    }
-
-    fn deactivate(&mut self, body: &B) {
-        // verify that it is not already inactive and add it to the inactive map.
-        let mut leaf =
-            match self.active2bv.get_and_remove(&body.uid()) {
-                None    => return, // not found: the object is already inactive
-                Some(l) => l.value
-            };
-
-        self.inactive2bv.insert(body.uid(), leaf.clone());
-
-        // Now transfer all collisions involving `leaf` and deactivated objects from `pairs` to
-        // `spairs`.
-
-        // remove from the active tree
-        self.tree.remove(&mut leaf);
-
-        { // scope to avoid dynamic borrow failure of leaf
-            let cleaf = leaf.clone();
-            let bleaf = cleaf.borrow();
-            self.stree.interferences_with_leaf(bleaf.deref(), &mut self.collector);
-
-            for i in self.collector.iter() {
-                let fi = i.borrow();
-                if self.dispatcher.is_valid(&bleaf.object, &fi.object) {
-                    // the intereference should be registered on the pairs already
-                    match self.pairs.get_and_remove(&Pair::new(leaf.clone(), i.clone())) {
-                        Some(dv) => { self.spairs.insert(dv.key, dv.value); },
-                        None     => panic!("Internal error: found a new collision during the deactivation.")
-                    }
-                }
-            }
-        }
-
-        // add to the inactive tree
-        self.stree.insert(leaf);
-        self.collector.clear();
-    }
-
-    fn interferences_with_bounding_volume(&mut self, bv: &BV, out: &mut Vec<B>) {
         {
-            let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut self.collector);
+            let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut collector);
 
             self.tree.visit(&mut visitor);
             self.stree.visit(&mut visitor);
         }
 
-        for l in self.collector.iter() {
-            out.push(l.borrow().object.clone())
+        for l in collector.into_iter() {
+            out.push(self.proxies[l].ref0())
         }
-
-        self.collector.clear()
     }
 
-    fn interferences_with_ray(&mut self, ray: &Ray<P, V>, out: &mut Vec<B>) {
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P, V>, out: &mut Vec<&'a B>) {
+        let mut collector = Vec::new();
+
         {
-            let mut visitor = RayInterferencesCollector::new(ray, &mut self.collector);
+            let mut visitor = RayInterferencesCollector::new(ray, &mut collector);
 
             self.tree.visit(&mut visitor);
             self.stree.visit(&mut visitor);
         }
 
-        for l in self.collector.iter() {
-            out.push(l.borrow().object.clone())
+        for l in collector.into_iter() {
+            out.push(self.proxies[l].ref0())
         }
-
-        self.collector.clear()
     }
 
-    fn interferences_with_point(&mut self, point: &P, out: &mut Vec<B>) {
+    fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a B>) {
+        let mut collector = Vec::new();
+
         {
-            let mut visitor = PointInterferencesCollector::new(point, &mut self.collector);
+            let mut visitor = PointInterferencesCollector::new(point, &mut collector);
 
             self.tree.visit(&mut visitor);
             self.stree.visit(&mut visitor);
         }
 
-        for l in self.collector.iter() {
-            out.push(l.borrow().object.clone())
+        for l in collector.into_iter() {
+            out.push(self.proxies[l].ref0())
         }
-
-        self.collector.clear()
     }
 }

@@ -46,7 +46,7 @@ impl<N, P, V, B, BV> DBVT<P, B, BV>
           B:  'static + Clone {
     /// Removes a leaf from the tree. Fails if the tree is empty.
     pub fn remove(&mut self, leaf: &mut Rc<RefCell<DBVTLeaf<P, B, BV>>>) {
-        let self_tree = self.tree.take().unwrap();
+        let self_tree = self.tree.take().expect("This tree was empty.");
 
         let mut bleaf = (*leaf).borrow_mut();
         self.tree = bleaf.unlink(&mut self.cache, self_tree);
