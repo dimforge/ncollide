@@ -9,6 +9,7 @@ use world::CollisionObjectRegister;
 use broad_phase::{ProximityFilter, ProximitySignalHandler};
 use narrow_phase::{ContactSignal, ContactSignalHandler, ShapeShapeDispatcher, ShapeShapeCollisionDetector};
 
+/// Persistant collision detection algorithm used by the narrow phase of the collision world.
 pub type AbstractCollisionDetector<N, P, V, M> = Box<ShapeShapeCollisionDetector<N, P, V, M> + Send>;
 
 // FIXME: move this to the `narrow_phase` module.

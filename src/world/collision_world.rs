@@ -18,7 +18,9 @@ use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
 
 // FIXME: be generic wrt the BV?
 
+/// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<P, V> = Box<BroadPhase<P, V, FastKey, AABB<P>> + 'static>;
+/// The map from an object to its collision object.
 pub type CollisionObjectRegister<N, P, V, M, O> = Rc<RefCell<HasUidMap<O, CollisionObject<N, P, V, M>>>>;
 type CollisionObjectRegisterRef<'a, N, P, V, M, O> = Ref<'a, HasUidMap<O, CollisionObject<N, P, V, M>>>;
 

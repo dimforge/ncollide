@@ -161,8 +161,8 @@ impl<N, P, V> Translation<V> for BoundingSphere<N, P>
     }
 
     #[inline]
-    fn append_translation_cpy(bs: &BoundingSphere<N, P>, dv: &V) -> BoundingSphere<N, P> {
-        BoundingSphere::new(bs.center + *dv, bs.radius)
+    fn append_translation_cpy(&self, dv: &V) -> BoundingSphere<N, P> {
+        BoundingSphere::new(self.center + *dv, self.radius)
     }
 
     #[inline]
@@ -171,8 +171,8 @@ impl<N, P, V> Translation<V> for BoundingSphere<N, P>
     }
 
     #[inline]
-    fn prepend_translation_cpy(bs: &BoundingSphere<N, P>, dv: &V) -> BoundingSphere<N, P> {
-        Translation::append_translation_cpy(bs, dv)
+    fn prepend_translation_cpy(&self, dv: &V) -> BoundingSphere<N, P> {
+        self.append_translation_cpy(dv)
     }
 
     #[inline]

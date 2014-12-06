@@ -162,8 +162,8 @@ impl<N, P, V> Translation<V> for AABB<P>
     }
 
     #[inline]
-    fn append_translation_cpy(aabb: &AABB<P>, dv: &V) -> AABB<P> {
-        AABB::new(aabb.mins + *dv, aabb.maxs + *dv)
+    fn append_translation_cpy(&self, dv: &V) -> AABB<P> {
+        AABB::new(self.mins + *dv, self.maxs + *dv)
     }
 
     #[inline]
@@ -172,8 +172,8 @@ impl<N, P, V> Translation<V> for AABB<P>
     }
 
     #[inline]
-    fn prepend_translation_cpy(aabb: &AABB<P>, dv: &V) -> AABB<P> {
-        Translation::append_translation_cpy(aabb, dv)
+    fn prepend_translation_cpy(&self, dv: &V) -> AABB<P> {
+        self.append_translation_cpy(dv)
     }
 
     #[inline]

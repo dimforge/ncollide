@@ -50,7 +50,6 @@ And various traits for collision detectors and broad phase collision detection.
 #![feature(unsafe_destructor)]
 #![feature(associated_types)]
 #![feature(globs)]
-#![feature(if_let)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate "nalgebra" as na;
