@@ -227,7 +227,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
 
                 let remove = {
                     let elts = self.pairs.elements();
-                    let ids = elts[id].key;
+                    let ref ids = elts[id].key;
 
                     let &(ref object1, ref proxy1) = &self.proxies[ids.first];
                     let &(ref object2, ref proxy2) = &self.proxies[ids.second];

@@ -11,7 +11,7 @@ use utils::data::has_uid::HasUid;
 
 /// A special type of key used by `HasUidMap` to perform faster lookups than with the user-defined
 /// key `K`.
-#[deriving(Show, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Encodable, Decodable)]
+#[deriving(Show, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Encodable, Decodable, Copy)]
 pub struct FastKey {
     uid: uint
 }
