@@ -118,7 +118,7 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     #[inline]
     pub fn get(&self, key: &K) -> Option<&O> {
         match self.get_fast_key(key) {
-            Some(fast_key) => self.get_fast(&fast_key).map(|res| res.ref1()),
+            Some(fast_key) => self.get_fast(&fast_key).map(|res| &res.1),
             None => None
         }
     }
@@ -145,7 +145,7 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     #[inline]
     pub fn get_mut(&mut self, key: &K) -> Option<&mut O> {
         match self.get_fast_key(key) {
-            Some(fast_key) => self.get_fast_mut(&fast_key).map(|res| res.val1()),
+            Some(fast_key) => self.get_fast_mut(&fast_key).map(|res| res.1),
             None => None
         }
     }
@@ -169,7 +169,7 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
         match self.lookup {
             None => {
                 let fast_key = FastKey { uid: uid };
-                (fast_key, self.values.insert(uid, (key, value)).map(|val| val.val1()))
+                (fast_key, self.values.insert(uid, (key, value)).map(|val| val.1))
             },
             Some(ref mut data) => {
                 // We have `uid2key == values.len()`, so we don't use `values.len()` because it is
@@ -183,7 +183,7 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
                         let old_value = self.values.insert(fast_key.uid, (key, value));
 
                         // The key exists already in `uid2key` so `ord_value` should not be None.
-                        (fast_key, Some(old_value.unwrap().val1()))
+                        (fast_key, Some(old_value.unwrap().1))
                     },
                     Entry::Vacant(entry) => {
                         // The key does not exist yet.
@@ -214,7 +214,7 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     #[inline]
     pub fn remove_with_uid(&mut self, uid: uint) -> Option<O> {
         match self.lookup {
-            None => self.values.remove(&uid).map(|val| val.val1()),
+            None => self.values.remove(&uid).map(|val| val.1),
             Some(ref mut data) => {
                 match data.uid2key.remove(&uid) {
                     None => None,
@@ -233,44 +233,60 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     /// The iterator's element type is `&'r K`.
     #[inline]
     pub fn keys<'a>(&'a self) -> Keys<'a, K, O> {
-        self.iter().map(|(k, _)| k)
+        fn fst<A, B>((a, _): (A, B)) -> A { a }
+
+        self.iter().map(fst)
     }
 
     /// Returns an iterator visiting all values.
     /// The iterator's element type is `&'r O`.
     #[inline]
     pub fn values<'a>(&'a self) -> Values<'a, K, O> {
-        self.iter().map(|(_, v)| v)
+        fn snd<A, B>((_, b): (A, B)) -> B { b }
+
+        self.iter().map(snd)
     }
 
     /// Returns an iterator visiting all key-value pairs.
     #[inline]
     pub fn iter<'a>(&'a self) -> Entries<'a, K, O> {
-        self.values.iter().map(|(_, &(ref a, ref b))| (a, b))
+        fn snd_ref<'a, A, B, C>((_, &(ref b, ref c)): (A, &'a (B, C))) -> (&'a B, &'a C) { (b, c) }
+
+        // Looks like we have to help the compiler deduce the lifetime here.
+        let snd_ref_fn: fn((uint, &'a (K, O))) -> (&'a K, &'a O) = snd_ref;
+
+        self.values.iter().map(snd_ref_fn)
     }
 
     /// Returns an iterator visiting all key-value pairs with mutable references to the values.
     #[inline]
     pub fn iter_mut<'a>(&'a mut self) -> MutEntries<'a, K, O> {
-        self.values.iter_mut().map(|(_, &(ref a, ref mut b))| (a, b))
+        fn snd_ref_mut<'a, A, B, C>((_, &(ref b, ref mut c)): (A, &'a mut (B, C))) -> (&'a B, &'a mut C) { (b, c) }
+
+        // Looks like we have to help the compiler deduce the lifetime here.
+        let snd_ref_mut_fn: fn((uint, &'a mut (K, O))) -> (&'a K, &'a mut O) = snd_ref_mut;
+
+        self.values.iter_mut().map(snd_ref_mut_fn)
     }
 }
 
 /// Key iterator through a `HashUidMap`.
 pub type Keys<'a, K, O> =
-    iter::Map<'a, (&'a K, &'a O), &'a K, Entries<'a, K, O>>;
+    iter::Map<(&'a K, &'a O), &'a K, Entries<'a, K, O>, fn((&'a K, &'a O)) -> &'a K>;
 
 /// Values iterator through a `HashUidMap`.
 pub type Values<'a, K, O> =
-    iter::Map<'a, (&'a K, &'a O), &'a O, Entries<'a, K, O>>;
+    iter::Map<(&'a K, &'a O), &'a O, Entries<'a, K, O>, fn((&'a K, &'a O)) -> &'a O>;
 
 /// Entries iterator through a `HashUidMap`.
 pub type Entries<'a, K, O> =
-    iter::Map<'a, (uint, &'a (K, O)), (&'a K, &'a O), vec_map::Entries<'a, (K, O)>>;
+    iter::Map<(uint, &'a (K, O)), (&'a K, &'a O), vec_map::Entries<'a, (K, O)>,
+              fn((uint, &'a (K, O))) -> (&'a K, &'a O)>;
 
 /// Mutable entries iterator through a `HashUidMap`.
 pub type MutEntries<'a, K, O> =
-    iter::Map<'a, (uint, &'a mut (K, O)), (&'a K, &'a mut O), vec_map::MutEntries<'a, (K, O)>>;
+    iter::Map<(uint, &'a mut (K, O)), (&'a K, &'a mut O), vec_map::MutEntries<'a, (K, O)>,
+              fn((uint, &'a mut (K, O))) -> (&'a K, &'a mut O)>;
 
 impl<K: 'static + HasUid, O: Clone> HasUidMap<K, O> {
     /// Updates a value in the map. If the key already exists in the map,
@@ -296,7 +312,7 @@ impl<K: 'static + HasUid, O: Clone> HasUidMap<K, O> {
             None => val,
             Some(orig) => ff(&key, (*orig).clone(), val)
         };
-        self.insert(key, new_val).ref1().is_none()
+        self.insert(key, new_val).1.is_none()
     }
 }
 

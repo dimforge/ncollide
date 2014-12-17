@@ -35,7 +35,7 @@ impl<N, P, V, M, G1, G2> ConcaveShapeShape<N, P, V, M, G1, G2> {
 impl<N, P, V, M, G1, G2> ConcaveShapeShape<N, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          M:  Inv + Mul<M, M>,
+          M:  Inv + Mul<M, M> + Copy,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     fn do_update(&mut self,
@@ -106,7 +106,7 @@ impl<N, P, V, M, G1, G2> ConcaveShapeShape<N, P, V, M, G1, G2>
 impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ConcaveShapeShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
-          M:  'static + Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: 'static + ConcaveShape<N, P, V, M>,
           G2: 'static + Shape<N, P, V, M> {
     fn update(&mut self,
@@ -141,9 +141,9 @@ impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ConcaveShap
 }
 
 impl<N, P, V, M, G1, G2> DynamicCollisionDetector<N, P, V, M, G1, G2> for ConcaveShapeShape<N, P, V, M, G1, G2>
-    where N: Scalar,
+    where N:  Scalar,
           P:  Point<N, V>,
-          M:  Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: ConcaveShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
 }
@@ -165,7 +165,7 @@ impl<N, P, V, M, G1, G2> ShapeConcaveShape<N, P, V, M, G1, G2> {
 impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ShapeConcaveShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  'static + Point<N, V>,
-          M:  'static + Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: 'static + Shape<N, P, V, M>,
           G2: 'static + ConcaveShape<N, P, V, M> {
     fn update(&mut self,
@@ -194,7 +194,7 @@ impl<N, P, V, M, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for ShapeConcav
 impl<N, P, V, M, G1, G2> DynamicCollisionDetector<N, P, V, M, G1, G2> for ShapeConcaveShape<N, P, V, M, G1, G2>
     where N: Scalar,
           P:  Point<N, V>,
-          M:  Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: Shape<N, P, V, M>,
           G2: ConcaveShape<N, P, V, M> {
 }
@@ -223,7 +223,7 @@ impl<N, P, V, M, G1, G2> CollisionDetectorFactory<N, P, V, M> for ConcaveShapeSh
     where N: Scalar,
           P:  'static + Point<N, V>,
           V:  'static,
-          M:  'static + Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: 'static + ConcaveShape<N, P, V, M>,
           G2: 'static + Shape<N, P, V, M> {
     fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send> {
@@ -251,7 +251,7 @@ impl<N, P, V, M, G1, G2> CollisionDetectorFactory<N, P, V, M> for ShapeConcaveSh
     where N: Scalar,
           P:  'static + Point<N, V>,
           V:  'static,
-          M:  'static + Inv + Mul<M, M>,
+          M:  'static + Inv + Mul<M, M> + Copy,
           G1: 'static + Shape<N, P, V, M>,
           G2: 'static + ConcaveShape<N, P, V, M> {
     fn build(&self) -> Box<ShapeShapeCollisionDetector<N, P, V, M> + Send> {

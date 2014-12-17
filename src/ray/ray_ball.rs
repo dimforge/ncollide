@@ -30,7 +30,7 @@ impl<N, P, V> LocalRayCast<N, P, V> for Ball<N>
           V: Vect<N> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
-        ball_toi_with_ray(na::orig(), self.radius(), ray, solid).val1()
+        ball_toi_with_ray(na::orig(), self.radius(), ray, solid).1
     }
 
     #[inline]
@@ -65,7 +65,7 @@ impl<N, P, V, M> RayCast<N, P, V, M> for Ball<N>
           M: Transform<P> + Translate<P> + Rotate<V> {
     #[inline]
     fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray<P, V>, solid: bool) -> Option<N> {
-        ball_toi_with_ray(m.translate(&na::orig()), self.radius(), ray, solid).val1()
+        ball_toi_with_ray(m.translate(&na::orig()), self.radius(), ray, solid).1
     }
 }
 

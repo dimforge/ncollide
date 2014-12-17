@@ -102,7 +102,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         };
 
         {
-            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().val1();
+            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().1;
             if proxy.active != 0 {
                 self.tree.remove(&mut proxy.leaf)
             }
@@ -124,8 +124,8 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         for k in keys_to_remove.iter() {
             self.pairs.remove(k);
 
-            let o1 = self.proxies[k.first].ref0();
-            let o2 = self.proxies[k.second].ref0();
+            let o1 = &self.proxies[k.first].0;
+            let o2 = &self.proxies[k.second].0;
             self.signal.trigger_proximity_signal(o1, o2, false);
         }
 
@@ -140,7 +140,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         for &(ref id, ref bv)in self.to_update.iter().rev() {
             // FIXME: the `None` case may actually happen if the object is updated, then
             // removed, then the broad phase is updated.
-            let proxy = self.proxies.get_fast_mut(id).expect("The proxy was not valid.").val1();
+            let proxy = self.proxies.get_fast_mut(id).expect("The proxy was not valid.").1;
 
             // If the activation number is < than the threshold then the leaf has not been removed
             // yet.
@@ -174,7 +174,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
 
             // Event generation.
             for proxy_key2 in self.collector.iter() {
-            let object2 = self.proxies[*proxy_key2].ref0();
+            let object2 = &self.proxies[*proxy_key2].0;
                 // Do not trigger if the proximity event does not exist yet.
 
                 let filtered_out = match self.filter {
@@ -227,7 +227,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
 
                 let remove = {
                     let elts = self.pairs.elements();
-                    let ref ids = elts[id].key;
+                    let ids = &elts[id].key;
 
                     let &(ref object1, ref proxy1) = &self.proxies[ids.first];
                     let &(ref object2, ref proxy2) = &self.proxies[ids.second];
@@ -263,7 +263,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
 
     fn set_next_bounding_volume_with_uid(&mut self, uid: uint, bounding_volume: BV) {
         if let Some(proxy_key) = self.proxies.get_fast_key_with_uid(uid) {
-            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().val1();
+            let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap().1;
             let needs_update = !proxy.leaf.borrow().bounding_volume.contains(&bounding_volume);
 
             if needs_update {
@@ -299,7 +299,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         }
 
         for l in collector.into_iter() {
-            out.push(self.proxies[l].ref0())
+            out.push(&self.proxies[l].0)
         }
     }
 
@@ -314,7 +314,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         }
 
         for l in collector.into_iter() {
-            out.push(self.proxies[l].ref0())
+            out.push(&self.proxies[l].0)
         }
     }
 
@@ -329,7 +329,7 @@ impl<N, P, V, B, BV> BroadPhase<P, V, B, BV> for DBVTBroadPhase<N, P, B, BV>
         }
 
         for l in collector.into_iter() {
-            out.push(self.proxies[l].ref0())
+            out.push(&self.proxies[l].0)
         }
     }
 }

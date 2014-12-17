@@ -2,24 +2,24 @@
 
 macro_rules! impl_ops(
     ($t: ident) => (
-        impl<A: Clone, B: Clone> Add<B, SymAdd<$t<A>, B>> for $t<A> {
+        impl<A, B> Add<B, SymAdd<$t<A>, B>> for $t<A> {
             #[allow(unused_qualifications)]
-            fn add(&self, other: &B) -> SymAdd<$t<A>, B> {
-                symbolic::add(self.clone(), other.clone())
+            fn add(self, other: B) -> SymAdd<$t<A>, B> {
+                symbolic::add(self, other)
             }
         }
 
-        impl<A: Clone, B: Clone> Sub<B, SymSub<$t<A>, B>> for $t<A> {
+        impl<A, B> Sub<B, SymSub<$t<A>, B>> for $t<A> {
             #[allow(unused_qualifications)]
-            fn sub(&self, other: &B) -> SymSub<$t<A>, B> {
-                symbolic::sub(self.clone(), other.clone())
+            fn sub(self, other: B) -> SymSub<$t<A>, B> {
+                symbolic::sub(self, other)
             }
         }
 
-        impl<A: Clone, B: Clone> Mul<B, SymMult<$t<A>, B>> for $t<A> {
+        impl<A, B> Mul<B, SymMult<$t<A>, B>> for $t<A> {
             #[allow(unused_qualifications)]
-            fn mul(&self, other: &B) -> SymMult<$t<A>, B> {
-                symbolic::mult(self.clone(), other.clone())
+            fn mul(self, other: B) -> SymMult<$t<A>, B> {
+                symbolic::mult(self, other)
             }
         }
 
@@ -34,24 +34,24 @@ macro_rules! impl_ops(
 
 macro_rules! impl_ops_bin(
     ($t: ident) => (
-        impl<A: Clone, B: Clone, C: Clone> Add<C, SymAdd<$t<A, B>, C>> for $t<A, B> {
+        impl<A, B, C> Add<C, SymAdd<$t<A, B>, C>> for $t<A, B> {
             #[allow(unused_qualifications)]
-            fn add(&self, other: &C) -> SymAdd<$t<A, B>, C> {
-                symbolic::add(self.clone(), other.clone())
+            fn add(self, other: C) -> SymAdd<$t<A, B>, C> {
+                symbolic::add(self, other)
             }
         }
 
-        impl<A: Clone, B: Clone, C: Clone> Sub<C, SymSub<$t<A, B>, C>> for $t<A, B> {
+        impl<A, B, C> Sub<C, SymSub<$t<A, B>, C>> for $t<A, B> {
             #[allow(unused_qualifications)]
-            fn sub(&self, other: &C) -> SymSub<$t<A, B>, C> {
-                symbolic::sub(self.clone(), other.clone())
+            fn sub(self, other: C) -> SymSub<$t<A, B>, C> {
+                symbolic::sub(self, other)
             }
         }
 
-        impl<A: Clone, B: Clone, C: Clone> Mul<C, SymMult<$t<A, B>, C>> for $t<A, B> {
+        impl<A, B, C> Mul<C, SymMult<$t<A, B>, C>> for $t<A, B> {
             #[allow(unused_qualifications)]
-            fn mul(&self, other: &C) -> SymMult<$t<A, B>, C> {
-                symbolic::mult(self.clone(), other.clone())
+            fn mul(self, other: C) -> SymMult<$t<A, B>, C> {
+                symbolic::mult(self, other)
             }
         }
 
@@ -66,24 +66,24 @@ macro_rules! impl_ops_bin(
 
 macro_rules! impl_ops_noparam(
     ($t: ident) => (
-        impl<C: Clone> Add<C, SymAdd<$t, C>> for $t {
+        impl<C> Add<C, SymAdd<$t, C>> for $t {
             #[allow(unused_qualifications)]
-            fn add(&self, other: &C) -> SymAdd<$t, C> {
-                symbolic::add(self.clone(), other.clone())
+            fn add(self, other: C) -> SymAdd<$t, C> {
+                symbolic::add(self, other)
             }
         }
 
-        impl<C: Clone> Sub<C, SymSub<$t, C>> for $t {
+        impl<C> Sub<C, SymSub<$t, C>> for $t {
             #[allow(unused_qualifications)]
-            fn sub(&self, other: &C) -> SymSub<$t, C> {
-                symbolic::sub(self.clone(), other.clone())
+            fn sub(self, other: C) -> SymSub<$t, C> {
+                symbolic::sub(self, other)
             }
         }
 
-        impl<C: Clone> Mul<C, SymMult<$t, C>> for $t {
+        impl<C> Mul<C, SymMult<$t, C>> for $t {
             #[allow(unused_qualifications)]
-            fn mul(&self, other: &C) -> SymMult<$t, C> {
-                symbolic::mult(self.clone(), other.clone())
+            fn mul(self, other: C) -> SymMult<$t, C> {
+                symbolic::mult(self, other)
             }
         }
 

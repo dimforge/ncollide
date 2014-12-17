@@ -9,7 +9,7 @@ impl<N, P, V, AV, M, I> Volumetric<N, P, I> for CompoundData<N, P, V, M, I>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Cross<AV>, // FIXME: we are using `Cross` only to determine AV.
-          M: Mul<P, P>,
+          M: Mul<P, P> + Copy,
           I: Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> {
     fn surface(&self) -> N {
         let mut stot: N = na::zero();

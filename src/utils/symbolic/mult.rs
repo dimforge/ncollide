@@ -17,7 +17,7 @@ pub fn mult<A, B>(a: A, b: B) -> SymMult<A, B> {
     SymMult { a: a, b: b }
 }
 
-impl<A: UnivariateFn<N, O>, B: UnivariateFn<N, O>, N: Copy, O: Mul<O, O> + Add<O, O> + Zero + Cast<f64>>
+impl<A: UnivariateFn<N, O>, B: UnivariateFn<N, O>, N: Copy, O: Mul<O, O> + Add<O, O> + Zero + Cast<f64> + Copy>
 UnivariateFn<N, O> for SymMult<A, B> {
     #[inline]
     fn d0(&self, t: N) -> O {
@@ -50,7 +50,7 @@ UnivariateFn<N, O> for SymMult<A, B> {
     }
 }
 
-impl<A: BivariateFn<N, O>, B: BivariateFn<N, O>, N: Copy, O: Mul<O, O> + Add<O, O> + Clone>
+impl<A: BivariateFn<N, O>, B: BivariateFn<N, O>, N: Copy, O: Mul<O, O> + Add<O, O> + Clone + Copy>
 BivariateFn<N, O> for SymMult<A, B> {
     #[inline]
     fn d0(&self, u: N, v: N) -> O {

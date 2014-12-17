@@ -22,7 +22,7 @@ pub struct CollisionObjectsDispatcher<N, P, V, M, O> {
 }
 
 impl<N, P, V, M, O> CollisionObjectsDispatcher<N, P, V, M, O>
-where O: HasUid {
+where O: HasUid + 'static {
     /// Creates a new `CollisionObjectsDispatcher`.
     pub fn new(objects:          CollisionObjectRegister<N, P, V, M, O>,
                shape_dispatcher: Rc<ShapeShapeDispatcher<N, P, V, M>>)
@@ -70,8 +70,8 @@ where O: HasUid {
         let bobjects = self.objects.borrow();
 
         for e in self.pairs.elements().iter() {
-            let co1 = bobjects[e.key.first].ref0();
-            let co2 = bobjects[e.key.second].ref0();
+            let co1 = &bobjects[e.key.first].0;
+            let co2 = &bobjects[e.key.second].0;
 
             f(co1, co2, &e.value)
         }
@@ -86,8 +86,8 @@ where O: HasUid {
         let bobjects = self.objects.borrow();
 
         for e in self.pairs.elements().iter() {
-            let o1 = bobjects[e.key.first].ref0();
-            let o2 = bobjects[e.key.second].ref0();
+            let o1 = &bobjects[e.key.first].0;
+            let o2 = &bobjects[e.key.second].0;
 
             e.value.colls(&mut collector);
 
@@ -114,7 +114,7 @@ where O: HasUid {
 
 impl<N, P, V, M, O> ProximitySignalHandler<FastKey>
 for Rc<RefCell<CollisionObjectsDispatcher<N, P, V, M, O>>>
-where O: HasUid {
+where O: HasUid + 'static {
     fn handle_proximity(&mut self, fk1: &FastKey, fk2: &FastKey, started: bool) {
         let mut bself = self.borrow_mut();
 
@@ -125,8 +125,8 @@ where O: HasUid {
 
             {
                 let bobjects = bself.objects.borrow();
-                let co1 = bobjects[*fk1].ref1();
-                let co2 = bobjects[*fk2].ref1();
+                let co1 = &bobjects[*fk1].1;
+                let co2 = &bobjects[*fk2].1;
                 cd = bself.shape_dispatcher.dispatch(&**co1.shape, &**co2.shape);
             }
 
@@ -144,8 +144,8 @@ where O: HasUid {
                         // compiler is too restrictive here).
                         let objects = bself.objects.clone();
                         let bobjects = objects.borrow();
-                        let o1 = bobjects[*fk1].ref0();
-                        let o2 = bobjects[*fk2].ref0();
+                        let o1 = &bobjects[*fk1].0;
+                        let o2 = &bobjects[*fk2].0;
 
                         bself.signal.trigger_contact_signal(o1, o2, false);
                     }
@@ -172,12 +172,12 @@ impl<N, P, V, M, O> CollisionObjectsProximityFilter<N, P, V, M, O> {
 }
 
 impl<N, P, V, M, O> ProximityFilter<FastKey> for CollisionObjectsProximityFilter<N, P, V, M, O>
-    where O: HasUid {
+    where O: HasUid + 'static {
     fn is_proximity_allowed(&self, fk1: &FastKey, fk2: &FastKey) -> bool {
         let bobjects = self.objects.borrow();
 
-        let co1 = bobjects[*fk1].ref1();
-        let co2 = bobjects[*fk2].ref1();
+        let co1 = &bobjects[*fk1].1;
+        let co2 = &bobjects[*fk2].1;
 
         let can_move_ok = true; // XXX: ba.can_move() || bb.can_move();
         let groups_ok = co1.collision_groups.can_collide_with_groups(&co2.collision_groups);

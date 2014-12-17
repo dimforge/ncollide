@@ -16,5 +16,5 @@ pub fn ball_against_ball<N, P, V>(center1: &P, vel1: &V, b1: &Ball<N>,
     let radius = b1.radius() + b2.radius();
     let center = *center1 + (-*center2.as_vec());
 
-    ray::ball_toi_with_ray(center, radius, &Ray::new(na::orig(), -vel), true).val1()
+    ray::ball_toi_with_ray(center, radius, &Ray::new(na::orig(), -vel), true).1
 }

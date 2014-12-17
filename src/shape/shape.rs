@@ -52,7 +52,7 @@ impl<N, P, V, M, T> Shape<N, P, V, M> for T
 }
 // FIXME: we need to implement that since AnyRefExt is only implemented for Any, and it does not
 // seem possible to convert a &Shape to a &Any…
-impl<'a, N, P, V, M> AnyRefExt<'a> for &'a (Shape<N, P, V, M> + 'a) {
+impl<'a, N, P, V, M> AnyRefExt<'a> for &'a Shape<N, P, V, M> {
     #[inline]
     fn is<T: 'static>(self) -> bool {
         // Get TypeId of the type this function is instantiated with

@@ -40,7 +40,7 @@ impl<N, P, V, AV, M, O> CollisionWorld<N, P, V, M, O>
           V:  Vect<N> + Translate<P> + Cross<AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
-          O:  'static + HasUid {
+          O:  HasUid + 'static {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and `prediction` and allow their modification by the
     // user ?
@@ -71,7 +71,7 @@ impl<N, P, V, AV, M, O> CollisionWorld<N, P, V, M, O>
         let mut collision_object = collision_object;
         collision_object.set_timestamp(self.timestamp);
         let aabb = collision_object.shape.aabb(&collision_object.position);
-        let fk = self.objects.borrow_mut().insert(object, collision_object).val0();
+        let fk = self.objects.borrow_mut().insert(object, collision_object).0;
         self.broad_phase.add(fk, aabb)
     }
 
@@ -234,7 +234,7 @@ impl<N, P, V, AV, M, O> CollisionWorld<N, P, V, M, O>
         let bobjects = self.objects.borrow();
 
         for fk in fks.into_iter() {
-            f(bobjects[*fk].ref0())
+            f(&bobjects[*fk].0)
         }
     }
 }
@@ -262,12 +262,12 @@ impl<N, P, V, M, O, H> OHandlerToUidHandler<N, P, V, M, O, H> {
 }
 
 impl<N, P, V, M, O, H> ProximitySignalHandler<FastKey> for OHandlerToUidHandler<N, P, V, M, O, H>
-    where O: HasUid,
+    where O: HasUid + 'static,
           H: ProximitySignalHandler<O> {
     fn handle_proximity(&mut self, b1: &FastKey, b2: &FastKey, started: bool) {
         let bobjects = self.objects.borrow();
-        let ob1 = bobjects[*b1].ref0();
-        let ob2 = bobjects[*b2].ref0();
+        let ob1 = &bobjects[*b1].0;
+        let ob2 = &bobjects[*b2].0;
 
         self.handler.handle_proximity(ob1, ob2, started)
     }

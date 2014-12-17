@@ -180,7 +180,7 @@ impl<N, P, V> TriMesh<N, P, V>
     }
 }
 
-impl<N, P: Mul<N, P>, V> TriMesh<N, P, V> {
+impl<N: Copy, P: Copy + Mul<N, P>, V> TriMesh<N, P, V> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by_scalar(&mut self, s: N) {

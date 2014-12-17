@@ -1,6 +1,6 @@
 use na::{Cast, Zero, One};
 use na;
-use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
+use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg};
 use utils::symbolic;
 
 macro_rules! decl_poly(
@@ -67,34 +67,27 @@ macro_rules! decl_poly(
             }
         }
 
-        impl<A: Copy, B: Clone> Add<B, SymAdd<$t<A>, B>> for $t<A> {
-            fn add(&self, other: &B) -> SymAdd<$t<A>, B> {
-                symbolic::add(self.clone(), other.clone())
+        impl<A: Copy, B> Add<B, SymAdd<$t<A>, B>> for $t<A> {
+            fn add(self, other: B) -> SymAdd<$t<A>, B> {
+                symbolic::add(self, other)
             }
         }
 
-        impl<A: Copy, B: Clone> Sub<B, SymSub<$t<A>, B>> for $t<A> {
-            fn sub(&self, other: &B) -> SymSub<$t<A>, B> {
-                symbolic::sub(self.clone(), other.clone())
+        impl<A: Copy, B> Sub<B, SymSub<$t<A>, B>> for $t<A> {
+            fn sub(self, other: B) -> SymSub<$t<A>, B> {
+                symbolic::sub(self, other)
             }
         }
 
-        impl<A: Copy, B: Clone> Mul<B, SymMult<$t<A>, B>> for $t<A> {
-            fn mul(&self, other: &B) -> SymMult<$t<A>, B> {
-                symbolic::mult(self.clone(), other.clone())
+        impl<A: Copy, B> Mul<B, SymMult<$t<A>, B>> for $t<A> {
+            fn mul(self, other: B) -> SymMult<$t<A>, B> {
+                symbolic::mult(self, other)
             }
         }
 
         impl<A: Copy> Neg<SymNeg<$t<A>>> for $t<A> {
             fn neg(&self) -> SymNeg<$t<A>> {
                 symbolic::neg(self.clone())
-            }
-        }
-
-        // XXX: replace by `Fn` when method call overloading will be supported by Rust.
-        impl<A: Copy, B: Clone> BitAnd<B, SymComp<$t<A>, B>> for $t<A> {
-            fn bitand(&self, other: &B) -> SymComp<$t<A>, B> {
-                symbolic::comp(self.clone(), other.clone())
             }
         }
     )

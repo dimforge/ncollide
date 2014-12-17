@@ -43,7 +43,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero {
+          M: EigenQR<N, V> + Mul<P, P> + Add<M, M> + Zero + Copy {
     assert!(points.len() != 0, "Cannot compute the convex hull of an empty set of point.");
     assert!(na::dim::<P>() == 3);
 
@@ -176,7 +176,7 @@ fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
-          M: EigenQR<N, V> {
+          M: EigenQR<N, V> + Copy {
     let a = support_map::point_cloud_support_point(dir, points);
     let b = support_map::point_cloud_support_point(&-*dir, points);
 
@@ -190,7 +190,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Add<M, M> + Zero {
+          M: EigenQR<N, V> + Add<M, M> + Zero + Copy {
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
@@ -202,10 +202,10 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
      * Sort in deacreasing order wrt. eigenvalues.
      */
     eigpairs.sort_by(|a, b| {
-        if *a.ref1() > *b.ref1() {
+        if a.1 > b.1 {
             Less // `Less` and `Greater` are reversed.
         }
-        else if *a.ref1() < *b.ref1() {
+        else if a.1 < b.1 {
             Greater
         }
         else {
@@ -218,7 +218,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
      */
     let mut dim = 0;
     while dim < 3 {
-        if na::approx_eq_eps(eigpairs[dim].ref1(), &na::zero(), &na::cast(1.0e-7f64)) {
+        if na::approx_eq_eps(&eigpairs[dim].1, &na::zero(), &na::cast(1.0e-7f64)) {
             break;
         }
 
@@ -232,13 +232,13 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
         },
         1 => {
             // The hull is a segment.
-            InitialMesh::ResultMesh(build_degenerate_mesh_segment(eigpairs[0].ref0(), points))
+            InitialMesh::ResultMesh(build_degenerate_mesh_segment(&eigpairs[0].0, points))
         },
         2 => {
             // The hull is a triangle.
             // Project into the principal plane…
-            let axis1 = eigpairs[0].ref0();
-            let axis2 = eigpairs[1].ref0();
+            let axis1 = &eigpairs[0].0;
+            let axis2 = &eigpairs[1].0;
 
             let mut subspace_points = Vec::with_capacity(points.len());
 
@@ -278,8 +278,8 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
                 *point = na::orig::<P>() + icov.rmul(point.as_vec());
             }
 
-            let p1 = support_point_2(eigpairs[0].ref0(), points).unwrap();
-            let p2 = support_point_2(&-eigpairs[0].val0(), points).unwrap();
+            let p1 = support_point_2(&eigpairs[0].0, points).unwrap();
+            let p2 = support_point_2(&-eigpairs[0].0, points).unwrap();
 
             let mut max_area = na::zero();
             let mut p3       = Bounded::max_value();

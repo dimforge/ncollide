@@ -1,4 +1,4 @@
-use na::{FloatVec, Identity};
+use na::Identity;
 use support_map::{SupportMap, PreferedSamplingDirections};
 use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
@@ -7,7 +7,7 @@ use math::{Scalar, Point, Vect};
 impl<'a, N, P, V, M, G1, G2> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  FloatVec<N>,
+          V:  Vect<N>,
           G1: SupportMap<P, V, M>,
           G2: SupportMap<P, V, M> {
     #[inline]
@@ -19,7 +19,7 @@ impl<'a, N, P, V, M, G1, G2> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, 
 impl<'a, N, P, V, M, G1, G2> SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  FloatVec<N>,
+          V:  Vect<N>,
           G1: SupportMap<P, V, M>,
           G2: SupportMap<P, V, M> {
     #[inline]

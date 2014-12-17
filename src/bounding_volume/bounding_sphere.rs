@@ -1,6 +1,6 @@
 //! Bounding sphere.
 
-use na::{Translation, Norm, Transform, Translate, FloatVec};
+use na::{Translation, Norm, Transform, Translate};
 use na;
 use bounding_volume::BoundingVolume;
 use math::{Scalar, Point, Vect};
@@ -50,7 +50,7 @@ impl<N, P> BoundingSphere<N, P>
 impl<N, P, V> BoundingVolume<N> for BoundingSphere<N, P>
     where N: Scalar,
           P: Point<N, V>,
-          V: FloatVec<N> + Translate<P> {
+          V: Vect<N> + Translate<P> {
     #[inline]
     fn intersects(&self, other: &BoundingSphere<N, P>) -> bool {
         // FIXME: refactor that with the code from narrow_phase::ball_ball::collide(...) ?

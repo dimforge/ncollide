@@ -117,7 +117,7 @@ impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 // FIXME: AnnotatedPoint is not a good name.
 // XXX: do not hide the documentation!
 #[doc(hidden)]
-#[deriving(Clone, Show, Encodable, Decodable)]
+#[deriving(Clone, Copy, Show, Encodable, Decodable)]
 pub struct AnnotatedPoint<P> {
     orig1: P,
     orig2: P,
@@ -228,15 +228,15 @@ impl<P: Orig> Orig for AnnotatedPoint<P> {
 impl<N, P, V> Add<V, AnnotatedPoint<P>> for AnnotatedPoint<P>
     where N: Scalar,
           P: Add<V, P>,
-          V: Mul<N, V> {
+          V: Copy + Mul<N, V> {
     #[inline]
-    fn add(&self, other: &V) -> AnnotatedPoint<P> {
+    fn add(self, other: V) -> AnnotatedPoint<P> {
         let _0_5: N = na::cast(0.5f64);
 
         AnnotatedPoint::new(
-            self.orig1 + *other * _0_5,
-            self.orig2 + *other * _0_5,
-            self.point + *other
+            self.orig1 + other * _0_5,
+            self.orig2 + other * _0_5,
+            self.point + other
         )
     }
 }
@@ -252,7 +252,7 @@ impl<N, P: Axpy<N>> Axpy<N> for AnnotatedPoint<P> {
 
 impl<P: Sub<P, V>, V> Sub<AnnotatedPoint<P>, V> for AnnotatedPoint<P> {
     #[inline]
-    fn sub(&self, other: &AnnotatedPoint<P>) -> V {
+    fn sub(self, other: AnnotatedPoint<P>) -> V {
         self.point - other.point
     }
 }
@@ -299,17 +299,17 @@ impl<P: Dim> Dim for AnnotatedPoint<P> {
     }
 }
 
-impl<N, P: Div<N, P>> Div<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
+impl<N: Copy, P: Div<N, P>> Div<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
     #[inline]
-    fn div(&self, n: &N) -> AnnotatedPoint<P> {
-        AnnotatedPoint::new(self.orig1 / *n, self.orig2 / *n, self.point / *n)
+    fn div(self, n: N) -> AnnotatedPoint<P> {
+        AnnotatedPoint::new(self.orig1 / n, self.orig2 / n, self.point / n)
     }
 }
 
-impl<N, P: Mul<N, P>> Mul<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
+impl<N: Copy, P: Mul<N, P>> Mul<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
     #[inline]
-    fn mul(&self, n: &N) -> AnnotatedPoint<P> {
-        AnnotatedPoint::new(self.orig1 * *n, self.orig2 * *n, self.point * *n)
+    fn mul(self, n: N) -> AnnotatedPoint<P> {
+        AnnotatedPoint::new(self.orig1 * n, self.orig2 * n, self.point * n)
     }
 }
 
@@ -352,7 +352,7 @@ impl<P> Bounded for AnnotatedPoint<P> {
 impl<N, P, V> NumPnt<N, V> for AnnotatedPoint<P>
     where N: Scalar,
           P: NumPnt<N, V>,
-          V: NumVec<N> {
+          V: Copy + NumVec<N> {
 }
 
 impl<N, P, V> FloatPnt<N, V> for AnnotatedPoint<P>
