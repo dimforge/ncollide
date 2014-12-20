@@ -110,14 +110,14 @@ macro_rules! impl_contacts_with(
             }
         }
     }
-)
+);
 
 apply_with_mixed_args!(impl_contacts_with,
                        plane_against_support_map,       default, default |
                        support_map_against_plane,       default, default |
                        support_map_against_support_map, default, default |
                        concave_shape_against_shape,     manifold_concave_shape_against_shape |
-                       shape_against_concave_shape,     manifold_shape_against_concave_shape)
+                       shape_against_concave_shape,     manifold_shape_against_concave_shape);
 
 impl<N, P, V, M> ContactsWith<N, P, V, M, Ball<N>> for Ball<N>
     where N: Scalar,

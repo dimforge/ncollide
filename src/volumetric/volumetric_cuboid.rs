@@ -117,7 +117,7 @@ macro_rules! impl_volumetric_cuboid(
             }
         }
     )
-)
+);
 
-impl_volumetric_cuboid!(Cuboid2, 2, Pnt2, Mat1)
-impl_volumetric_cuboid!(Cuboid3, 3, Pnt3, Mat3)
+impl_volumetric_cuboid!(Cuboid2, 2, Pnt2, Mat1);
+impl_volumetric_cuboid!(Cuboid3, 3, Pnt3, Mat3);

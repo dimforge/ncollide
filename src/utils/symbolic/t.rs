@@ -43,4 +43,4 @@ impl<N: Zero + One + Copy> UnivariateFn<N, N> for T {
     }
 }
 
-impl_ops_noparam!(T)
+impl_ops_noparam!(T);

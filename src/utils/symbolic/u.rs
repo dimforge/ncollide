@@ -59,4 +59,4 @@ impl<N: Zero + One + Copy + Clone> BivariateFn<N, N> for U {
     }
 }
 
-impl_ops_noparam!(U)
+impl_ops_noparam!(U);

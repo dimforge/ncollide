@@ -34,4 +34,4 @@ impl<N: Scalar> UnivariateFn<N, N> for Exp {
     }
 }
 
-impl_ops_noparam!(Exp)
+impl_ops_noparam!(Exp);

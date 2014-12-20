@@ -75,4 +75,4 @@ BivariateFn<N, O> for SymAdd<A, B> {
     }
 }
 
-impl_ops_bin!(SymAdd)
+impl_ops_bin!(SymAdd);

@@ -10,7 +10,7 @@ use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 
-thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())))
+thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]

@@ -30,7 +30,7 @@ macro_rules! impl_ops(
             }
         }
     )
-)
+);
 
 macro_rules! impl_ops_bin(
     ($t: ident) => (
@@ -62,7 +62,7 @@ macro_rules! impl_ops_bin(
             }
         }
     )
-)
+);
 
 macro_rules! impl_ops_noparam(
     ($t: ident) => (
@@ -94,4 +94,4 @@ macro_rules! impl_ops_noparam(
             }
         }
     )
-)
+);

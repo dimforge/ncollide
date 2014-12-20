@@ -5,7 +5,6 @@ use shape::{Cone2, Cone3};
 use math::Scalar;
 
 
-
 /// The volume of a cone.
 #[inline]
 pub fn cone_volume<N: Scalar>(dim: uint, half_height: N, radius: N) -> N {
@@ -113,7 +112,7 @@ macro_rules! impl_volumetric_cone(
             }
         }
     )
-)
+);
 
-impl_volumetric_cone!(Cone2, 2, Pnt2, Mat1)
-impl_volumetric_cone!(Cone3, 3, Pnt3, Mat3)
+impl_volumetric_cone!(Cone2, 2, Pnt2, Mat1);
+impl_volumetric_cone!(Cone3, 3, Pnt3, Mat3);
