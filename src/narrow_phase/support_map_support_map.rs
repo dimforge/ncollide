@@ -42,7 +42,6 @@ impl<N, P, V, S, G1, G2> SupportMapSupportMap<N, P, V, S, G1, G2> {
             contact:    GJKResult::Intersection
         }
     }
-
 }
 
 impl<N, P, V, S, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for SupportMapSupportMap<N, P, V, S, G1, G2>

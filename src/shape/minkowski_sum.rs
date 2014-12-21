@@ -200,15 +200,15 @@ impl<N, P: IndexMut<uint, N>> IndexMut<uint, N> for AnnotatedPoint<P> {
 }
 
 impl<P> POrd for AnnotatedPoint<P> {
-    fn inf(_: &AnnotatedPoint<P>, _: &AnnotatedPoint<P>) -> AnnotatedPoint<P> {
+    fn inf(&self, _: &AnnotatedPoint<P>) -> AnnotatedPoint<P> {
         unimplemented!()
     }
 
-    fn sup(_: &AnnotatedPoint<P>, _: &AnnotatedPoint<P>) -> AnnotatedPoint<P> {
+    fn sup(&self, _: &AnnotatedPoint<P>) -> AnnotatedPoint<P> {
         unimplemented!()
     }
 
-    fn partial_cmp(_: &AnnotatedPoint<P>, _: &AnnotatedPoint<P>) -> POrdering {
+    fn partial_cmp(&self, _: &AnnotatedPoint<P>) -> POrdering {
         unimplemented!()
     }
 }
@@ -334,8 +334,8 @@ impl<N, P> ApproxEq<N> for AnnotatedPoint<P>
     }
 
     #[inline]
-    fn approx_eq_eps(a: &AnnotatedPoint<P>, b: &AnnotatedPoint<P>, eps: &N) -> bool {
-        na::approx_eq_eps(&a.point, &b.point, eps)
+    fn approx_eq_eps(&self, other: &AnnotatedPoint<P>, eps: &N) -> bool {
+        self.point.approx_eq_eps(&other.point, eps)
     }
 }
 
