@@ -4,7 +4,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg
 use utils::symbolic;
 
 /// A bivariate function of `U`.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct U;
 
 /// A bivariate function of `u`.

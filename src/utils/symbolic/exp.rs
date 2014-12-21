@@ -3,7 +3,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The exponential function.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Exp;
 
 /// The exponential function.

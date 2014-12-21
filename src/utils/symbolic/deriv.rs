@@ -2,7 +2,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymSub, SymMult, SymNeg
 use utils::symbolic;
 
 /// The derivative of `A`.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Deriv<A> {
     a: A
 }

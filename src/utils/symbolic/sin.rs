@@ -4,7 +4,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The sinus function.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Sin;
 
 /// The sinus function.
