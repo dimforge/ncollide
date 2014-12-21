@@ -130,4 +130,4 @@ BivariateFn<N, O> for SymMult<A, B> {
         }
     }
 }
-impl_ops_bin!(SymMult)
+impl_ops_bin!(SymMult);

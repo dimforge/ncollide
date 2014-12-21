@@ -20,7 +20,7 @@ macro_rules! dispatch_part(
             return $fname2($m1, exact_g1, $m2, exact_g2);
         }
     }
-)
+);
 
 /// Smallest distance between two shapes (trait objects).
 #[inline]
@@ -35,7 +35,7 @@ pub fn shape_against_shape<N, P, V, M>(m1: &M, g1: &Shape<N, P, V, M>,
     let tg2 = g2.get_type_id();
 
     // FIXME: use a hash-map instead of if-elses ?
-    apply_to_all_shape_pair!(dispatch_part, distance, m1, g1, tg1, m2, g2, tg2)
+    apply_to_all_shape_pair!(dispatch_part, distance, m1, g1, tg1, m2, g2, tg2);
 
     na::zero()
 }

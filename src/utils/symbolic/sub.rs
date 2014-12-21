@@ -75,4 +75,4 @@ BivariateFn<N, O> for SymSub<A, B> {
     }
 }
 
-impl_ops_bin!(SymSub)
+impl_ops_bin!(SymSub);

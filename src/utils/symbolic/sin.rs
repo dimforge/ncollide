@@ -35,4 +35,4 @@ impl<N: Scalar> UnivariateFn<N, N> for Sin {
     }
 }
 
-impl_ops_noparam!(Sin)
+impl_ops_noparam!(Sin);

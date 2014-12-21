@@ -133,4 +133,4 @@ BivariateFn<N, O> for SymComp<A, B> {
     }
 }
 
-impl_ops_bin!(SymComp)
+impl_ops_bin!(SymComp);

@@ -88,7 +88,7 @@ macro_rules! impl_volumetric_ball(
             }
         }
     }
-)
+);
 
-impl_volumetric_ball!(Ball2, 2, Pnt2, Mat1)
-impl_volumetric_ball!(Ball3, 3, Pnt3, Mat3)
+impl_volumetric_ball!(Ball2, 2, Pnt2, Mat1);
+impl_volumetric_ball!(Ball3, 3, Pnt3, Mat3);

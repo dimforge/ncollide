@@ -91,11 +91,11 @@ macro_rules! decl_poly(
             }
         }
     )
-)
+);
 
-decl_poly!(Poly1, 1, t1, c1)
-decl_poly!(Poly2, 2, t2, c1, c2)
-decl_poly!(Poly3, 3, t3, c1, c2, c3)
-decl_poly!(Poly4, 4, t4, c1, c2, c3, c4)
-decl_poly!(Poly5, 5, t5, c1, c2, c3, c4, c5)
-decl_poly!(Poly6, 6, t6, c1, c2, c3, c4, c5, c6)
+decl_poly!(Poly1, 1, t1, c1);
+decl_poly!(Poly2, 2, t2, c1, c2);
+decl_poly!(Poly3, 3, t3, c1, c2, c3);
+decl_poly!(Poly4, 4, t4, c1, c2, c3, c4);
+decl_poly!(Poly5, 5, t5, c1, c2, c3, c4, c5);
+decl_poly!(Poly6, 6, t6, c1, c2, c3, c4, c5, c6);
