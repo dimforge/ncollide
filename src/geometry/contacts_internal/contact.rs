@@ -29,11 +29,11 @@ impl<N, P, V> Contact<N, P, V> {
     }
 }
 
-impl<N, P, V: Neg<V>> Contact<N, P, V> {
+impl<N, P, V: Clone + Neg<V>> Contact<N, P, V> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {
         mem::swap(&mut self.world1, &mut self.world2);
-        self.normal = -self.normal;
+        self.normal = -self.normal.clone();
     }
 }

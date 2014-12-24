@@ -86,7 +86,7 @@ macro_rules! decl_poly(
         }
 
         impl<A: Copy> Neg<SymNeg<$t<A>>> for $t<A> {
-            fn neg(&self) -> SymNeg<$t<A>> {
+            fn neg(self) -> SymNeg<$t<A>> {
                 symbolic::neg(self.clone())
             }
         }

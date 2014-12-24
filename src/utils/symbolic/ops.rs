@@ -25,7 +25,7 @@ macro_rules! impl_ops(
 
         impl<A: Clone> Neg<SymNeg<$t<A>>> for $t<A> {
             #[allow(unused_qualifications)]
-            fn neg(&self) -> SymNeg<$t<A>> {
+            fn neg(self) -> SymNeg<$t<A>> {
                 symbolic::neg(self.clone())
             }
         }
@@ -57,7 +57,7 @@ macro_rules! impl_ops_bin(
 
         impl<A: Clone, B: Clone> Neg<SymNeg<$t<A, B>>> for $t<A, B> {
             #[allow(unused_qualifications)]
-            fn neg(&self) -> SymNeg<$t<A, B>> {
+            fn neg(self) -> SymNeg<$t<A, B>> {
                 symbolic::neg(self.clone())
             }
         }
@@ -89,7 +89,7 @@ macro_rules! impl_ops_noparam(
 
         impl Neg<SymNeg<$t>> for $t {
             #[allow(unused_qualifications)]
-            fn neg(&self) -> SymNeg<$t> {
+            fn neg(self) -> SymNeg<$t> {
                 symbolic::neg(self.clone())
             }
         }

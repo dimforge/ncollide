@@ -234,6 +234,8 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     #[inline]
     pub fn keys<'a>(&'a self) -> Keys<'a, K, O> {
         fn fst<A, B>((a, _): (A, B)) -> A { a }
+        // coerce to fn ptr
+        let fst: fn((&'a K, &'a O)) -> &'a K = fst;
 
         self.iter().map(fst)
     }
@@ -243,6 +245,8 @@ impl<K: 'static + HasUid, O> HasUidMap<K, O> {
     #[inline]
     pub fn values<'a>(&'a self) -> Values<'a, K, O> {
         fn snd<A, B>((_, b): (A, B)) -> B { b }
+        // coerce to fn ptr
+        let snd: fn((&'a K, &'a O)) -> &'a O = snd;
 
         self.iter().map(snd)
     }
@@ -280,12 +284,12 @@ pub type Values<'a, K, O> =
 
 /// Entries iterator through a `HashUidMap`.
 pub type Entries<'a, K, O> =
-    iter::Map<(uint, &'a (K, O)), (&'a K, &'a O), vec_map::Entries<'a, (K, O)>,
+    iter::Map<(uint, &'a (K, O)), (&'a K, &'a O), vec_map::Iter<'a, (K, O)>,
               fn((uint, &'a (K, O))) -> (&'a K, &'a O)>;
 
 /// Mutable entries iterator through a `HashUidMap`.
 pub type MutEntries<'a, K, O> =
-    iter::Map<(uint, &'a mut (K, O)), (&'a K, &'a mut O), vec_map::MutEntries<'a, (K, O)>,
+    iter::Map<(uint, &'a mut (K, O)), (&'a K, &'a mut O), vec_map::IterMut<'a, (K, O)>,
               fn((uint, &'a mut (K, O))) -> (&'a K, &'a mut O)>;
 
 impl<K: 'static + HasUid, O: Clone> HasUidMap<K, O> {

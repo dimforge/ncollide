@@ -3,7 +3,7 @@
 use std::mem;
 use std::cell::RefCell;
 use std::sync::Arc;
-use collections::TreeMap;
+use collections::BTreeMap;
 use na::{Axpy, Dim, Bounded};
 use na;
 use geometry::algorithms::simplex::Simplex;
@@ -81,7 +81,7 @@ impl RecursionTemplate {
         // the number of points of the last subsimplices
         let mut last_num_points = dim + 1;
 
-        let mut map             = TreeMap::<Vec<uint>, uint>::new();
+        let mut map             = BTreeMap::<Vec<uint>, uint>::new();
 
         let mut determinant_index  = 0;
 

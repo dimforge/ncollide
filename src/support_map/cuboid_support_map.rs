@@ -31,7 +31,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
     }
 }
 
-impl<V, M> PreferedSamplingDirections<V, M> for Cuboid<V>
+impl<V: Clone, M> PreferedSamplingDirections<V, M> for Cuboid<V>
     where V: Basis + Neg<V>,
           M: Rotate<V> {
     #[inline(always)]
@@ -39,7 +39,7 @@ impl<V, M> PreferedSamplingDirections<V, M> for Cuboid<V>
         na::canonical_basis(|e: V| {
             let re = transform.rotate(&e);
 
-            f(-re);
+            f(-re.clone());
             f(re);
 
             true

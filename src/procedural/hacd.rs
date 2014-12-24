@@ -68,7 +68,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
                     let mut top_cost = -_max;
 
                     loop {
-                        let remove = match edges.top() {
+                        let remove = match edges.peek() {
                             None        => false,
                             Some(ref e) => {
                                 if !top.is_valid(dual_graph.as_slice()) {

@@ -1,7 +1,7 @@
 //! Point cloud triangulation.
 
 use std::collections::HashMap;
-use std::collections::hash_map::{Vacant, Occupied};
+use std::collections::hash_map::Entry;
 use na::{BaseFloat, Vec3};
 use na;
 use procedural::{TriMesh, IndexBuffer};
@@ -127,8 +127,8 @@ impl<N, P, V> Triangulator<N, P, V>
 
                     for edge_key in edge_keys.iter() {
                         match self.edges.entry(edge_key.clone()) {
-                            Occupied(mut entry) => *entry.get_mut() += 1,
-                            Vacant(entry)       => { let _ = entry.set(1); }
+                            Entry::Occupied(mut entry) => *entry.get_mut() += 1,
+                            Entry::Vacant(entry)       => { let _ = entry.set(1); }
                         };
                     }
                 }
