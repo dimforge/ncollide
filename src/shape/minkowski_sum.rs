@@ -287,7 +287,7 @@ impl<N, P, V> ScalarDiv<N> for AnnotatedPoint<P>
 
 impl<P: Neg<P>> Neg<AnnotatedPoint<P>> for AnnotatedPoint<P> {
     #[inline]
-    fn neg(&self) -> AnnotatedPoint<P> {
+    fn neg(self) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(-self.orig1, -self.orig2, -self.point)
     }
 }
