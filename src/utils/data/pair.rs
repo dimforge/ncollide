@@ -5,7 +5,7 @@ use utils::data::hash::HashFun;
 use utils::data::has_uid::HasUid;
 
 /// An unordered pair of elements implementing `HasUid`.
-#[deriving(Clone, Encodable, Decodable)]
+#[deriving(Clone, RustcEncodable, RustcDecodable)]
 pub struct Pair<B> {
     /// first object of the pair
     pub first:  B,
@@ -43,7 +43,7 @@ impl<B> PartialEq for Pair<B> {
 }
 
 /// Tomas Wang based hash function for a `Pair` object.
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 pub struct PairTWHash { unused: uint } // FIXME: ICE with zero-sized structs
 
 impl PairTWHash {

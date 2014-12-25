@@ -12,13 +12,13 @@ use math::{Scalar, Vect};
 
 
 /// A Boundig Volume Tree.
-#[deriving(Clone, Encodable, Decodable)]
+#[deriving(Clone, RustcEncodable, RustcDecodable)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>
 }
 
 /// A node of the bounding volume tree.
-#[deriving(Clone, Encodable, Decodable)]
+#[deriving(Clone, RustcEncodable, RustcDecodable)]
 pub enum BVTNode<B, BV> {
     // XXX: give a faster access to the BV
     /// An internal node.

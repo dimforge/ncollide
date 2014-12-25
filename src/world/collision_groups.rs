@@ -5,7 +5,7 @@ const ALL_GROUPS: u32 = (1 << 30) - 1;
 ///
 /// If two objects have at least one collision group in common, they can collide. Otherwise, they
 /// cannot.
-#[deriving(Encodable, Decodable, Clone, Show)]
+#[deriving(RustcEncodable, RustcDecodable, Clone, Show)]
 pub struct CollisionGroups {
     tag: u32
 }

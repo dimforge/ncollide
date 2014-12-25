@@ -10,7 +10,7 @@ use math::{Scalar, Point, Vect};
 /// Whenever a new contact is detected (i.e. when the current manifold is empty) a full manifold is
 /// generated. Then, the manifold is incrementally updated by an
 /// `IncrementalContactManifoldGenerator`.
-#[deriving(Encodable, Decodable, Clone)]
+#[deriving(RustcEncodable, RustcDecodable, Clone)]
 pub struct OneShotContactManifoldGenerator<N, P, V, CD> {
     sub_detector: IncrementalContactManifoldGenerator<N, P, V, CD>
 }
