@@ -11,7 +11,7 @@ use math::{Scalar, Point, Vect};
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 pub struct PlaneSupportMap<N, P, V, M, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>
@@ -75,7 +75,7 @@ impl<N, P, V, M, G> CollisionDetector<N, P, V, M, Plane<V>, G> for PlaneSupportM
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 pub struct SupportMapPlane<N, P, V, M, G> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>

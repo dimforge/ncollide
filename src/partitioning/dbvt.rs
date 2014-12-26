@@ -12,7 +12,7 @@ use partitioning::bvt_visitor::BVTVisitor;
 use math::{Scalar, Point};
 
 
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 enum UpdateState {
     NeedsShrink,
     UpToDate

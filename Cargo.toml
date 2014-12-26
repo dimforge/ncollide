@@ -22,5 +22,8 @@ default = [ "2df32", "2df64", "3df32", "3df64" ]
 name = "ncollide"
 path = "src/lib.rs"
 
+[dependencies]
+rustc-serialize = "*"
+
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"

@@ -54,7 +54,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate "nalgebra" as na;
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 extern crate collections;
 extern crate test;
 

@@ -12,7 +12,7 @@ use math::{Scalar, Point, Vect};
 
 
 /// Results of the GJK algorithm.
-#[deriving(Encodable, Decodable, Clone)]
+#[deriving(RustcEncodable, RustcDecodable, Clone)]
 pub enum GJKResult<P, V> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,

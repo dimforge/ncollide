@@ -5,7 +5,7 @@ use na::Norm;
 use math::Scalar;
 
 /// SupportMap description of a plane.
-#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct Plane<V> {
     /// The plane normal.
     normal: V
