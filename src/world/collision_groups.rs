@@ -5,7 +5,7 @@ const ALL_GROUPS: u32 = (1 << 30) - 1;
 ///
 /// If two objects have at least one collision group in common, they can collide. Otherwise, they
 /// cannot.
-#[deriving(Encodable, Decodable, Clone, Show)]
+#[deriving(RustcEncodable, RustcDecodable, Clone, Show)]
 pub struct CollisionGroups {
     tag: u32
 }
@@ -68,7 +68,7 @@ impl CollisionGroups {
     /// Enable collision detection with a specific group.
     #[inline]
     pub fn enable_collisions_with_group(&mut self, group_id: uint) {
-        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).")
+        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
 
         self.tag = self.tag | (1 << group_id);
     }
@@ -76,7 +76,7 @@ impl CollisionGroups {
     /// Disables collision detection with a specific group.
     #[inline]
     pub fn disable_collisions_with_group(&mut self, group_id: uint) {
-        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).")
+        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
 
         self.tag = self.tag & !(1 << group_id);
     }
@@ -96,7 +96,7 @@ impl CollisionGroups {
     /// Tests whether collisions with a given group is enabled.
     #[inline]
     pub fn can_collide_with_group(&self, group_id: uint) -> bool {
-        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).")
+        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
         self.tag & (1 << group_id) != 0
     }
 

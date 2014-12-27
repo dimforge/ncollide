@@ -1,6 +1,6 @@
 
 /// A Ball shape.
-#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct Ball<N> {
     radius: N
 }

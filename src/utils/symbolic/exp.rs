@@ -3,7 +3,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The exponential function.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Exp;
 
 /// The exponential function.
@@ -34,4 +34,4 @@ impl<N: Scalar> UnivariateFn<N, N> for Exp {
     }
 }
 
-impl_ops_noparam!(Exp)
+impl_ops_noparam!(Exp);

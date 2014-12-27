@@ -21,7 +21,7 @@ impl<N, P, V> Polyline<N, P, V> {
     }
 }
 
-impl<N, P: Point<N, V>, V: Vect<N>> Polyline<N, P, V> {
+impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Polyline<N, P, V> {
     /// Translates each vertex of this polyline.
     pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {

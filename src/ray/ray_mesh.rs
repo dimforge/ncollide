@@ -38,9 +38,9 @@ impl<N, P, V, E> LocalRayCast<N, P, V> for Mesh<N, P, V, E>
         match cast {
             None                => None,
             Some((best, inter)) => {
-                let toi = inter.ref0().toi;
-                let n   = inter.ref0().normal.clone();
-                let uv  = inter.val1(); // barycentric coordinates to compute the exact uvs.
+                let toi = inter.0.toi;
+                let n   = inter.0.normal.clone();
+                let uv  = inter.1; // barycentric coordinates to compute the exact uvs.
 
                 let ibest = *best * 3;
                 let is    = self.indices().slice(ibest, ibest + 3);
@@ -164,6 +164,6 @@ for MeshRayToiAndNormalAndUVsCostFn<'a, N, P, V, E>
         let b = &vs[is[1]];
         let c = &vs[is[2]];
 
-        ray::triangle_ray_intersection(a, b, c, self.ray).map(|inter| (inter.ref0().toi.clone(), inter))
+        ray::triangle_ray_intersection(a, b, c, self.ray).map(|inter| (inter.0.toi.clone(), inter))
     }
 }

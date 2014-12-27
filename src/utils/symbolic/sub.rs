@@ -2,7 +2,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymNeg};
 use utils::symbolic;
 
 /// The subtraction operator.
-#[deriving(Clone, Show)]
+#[deriving(Clone, Show, Copy)]
 pub struct SymSub<A, B> {
     a: A,
     b: B
@@ -75,4 +75,4 @@ BivariateFn<N, O> for SymSub<A, B> {
     }
 }
 
-impl_ops_bin!(SymSub)
+impl_ops_bin!(SymSub);

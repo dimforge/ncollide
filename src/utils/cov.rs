@@ -12,7 +12,7 @@ pub fn cov<N, P, V, M>(pts: &[P]) -> M
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
           M: Add<M, M> + Zero {
-    cov_and_center(pts).val0()
+    cov_and_center(pts).0
 }
 
 /// Computes the covariance matrix and center of a set of points.
@@ -42,7 +42,7 @@ pub fn center_reduce<N, P, V, M>(pts: &mut [P]) -> (M, P, bool)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: Add<M, M> + Zero + Mul<P, P> + Inv + Show {
+          M: Add<M, M> + Zero + Mul<P, P> + Inv + Copy + Show {
     let (cov, center) = cov_and_center(pts);
 
     match na::inv(&cov) {

@@ -3,14 +3,14 @@
 use std::mem;
 use std::cell::RefCell;
 use std::sync::Arc;
-use collections::TreeMap;
+use collections::BTreeMap;
 use na::{Axpy, Dim, Bounded};
 use na;
 use geometry::algorithms::simplex::Simplex;
 use math::{Scalar, Point, Vect};
 
 
-thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())))
+thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[deriving(Clone)]
@@ -24,7 +24,7 @@ pub struct JohnsonSimplex<N, P, V> {
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-#[deriving(PartialEq, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct RecursionTemplate {
     #[doc(hidden)]
     permutation_list: Vec<uint>,
@@ -81,7 +81,7 @@ impl RecursionTemplate {
         // the number of points of the last subsimplices
         let mut last_num_points = dim + 1;
 
-        let mut map             = TreeMap::<Vec<uint>, uint>::new();
+        let mut map             = BTreeMap::<Vec<uint>, uint>::new();
 
         let mut determinant_index  = 0;
 

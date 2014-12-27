@@ -1,6 +1,6 @@
 use na::{Cast, Zero, One};
 use na;
-use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
+use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg};
 use utils::symbolic;
 
 macro_rules! decl_poly(
@@ -67,42 +67,35 @@ macro_rules! decl_poly(
             }
         }
 
-        impl<A: Copy, B: Clone> Add<B, SymAdd<$t<A>, B>> for $t<A> {
-            fn add(&self, other: &B) -> SymAdd<$t<A>, B> {
-                symbolic::add(self.clone(), other.clone())
+        impl<A: Copy, B> Add<B, SymAdd<$t<A>, B>> for $t<A> {
+            fn add(self, other: B) -> SymAdd<$t<A>, B> {
+                symbolic::add(self, other)
             }
         }
 
-        impl<A: Copy, B: Clone> Sub<B, SymSub<$t<A>, B>> for $t<A> {
-            fn sub(&self, other: &B) -> SymSub<$t<A>, B> {
-                symbolic::sub(self.clone(), other.clone())
+        impl<A: Copy, B> Sub<B, SymSub<$t<A>, B>> for $t<A> {
+            fn sub(self, other: B) -> SymSub<$t<A>, B> {
+                symbolic::sub(self, other)
             }
         }
 
-        impl<A: Copy, B: Clone> Mul<B, SymMult<$t<A>, B>> for $t<A> {
-            fn mul(&self, other: &B) -> SymMult<$t<A>, B> {
-                symbolic::mult(self.clone(), other.clone())
+        impl<A: Copy, B> Mul<B, SymMult<$t<A>, B>> for $t<A> {
+            fn mul(self, other: B) -> SymMult<$t<A>, B> {
+                symbolic::mult(self, other)
             }
         }
 
         impl<A: Copy> Neg<SymNeg<$t<A>>> for $t<A> {
-            fn neg(&self) -> SymNeg<$t<A>> {
+            fn neg(self) -> SymNeg<$t<A>> {
                 symbolic::neg(self.clone())
             }
         }
-
-        // XXX: replace by `Fn` when method call overloading will be supported by Rust.
-        impl<A: Copy, B: Clone> BitAnd<B, SymComp<$t<A>, B>> for $t<A> {
-            fn bitand(&self, other: &B) -> SymComp<$t<A>, B> {
-                symbolic::comp(self.clone(), other.clone())
-            }
-        }
     )
-)
+);
 
-decl_poly!(Poly1, 1, t1, c1)
-decl_poly!(Poly2, 2, t2, c1, c2)
-decl_poly!(Poly3, 3, t3, c1, c2, c3)
-decl_poly!(Poly4, 4, t4, c1, c2, c3, c4)
-decl_poly!(Poly5, 5, t5, c1, c2, c3, c4, c5)
-decl_poly!(Poly6, 6, t6, c1, c2, c3, c4, c5, c6)
+decl_poly!(Poly1, 1, t1, c1);
+decl_poly!(Poly2, 2, t2, c1, c2);
+decl_poly!(Poly3, 3, t3, c1, c2, c3);
+decl_poly!(Poly4, 4, t4, c1, c2, c3, c4);
+decl_poly!(Poly5, 5, t5, c1, c2, c3, c4, c5);
+decl_poly!(Poly6, 6, t6, c1, c2, c3, c4, c5, c6);

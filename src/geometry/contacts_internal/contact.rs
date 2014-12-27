@@ -1,7 +1,7 @@
 use std::mem;
 
 /// Geometric description of a contact.
-#[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
+#[deriving(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct Contact<N, P, V> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: P,
@@ -29,11 +29,11 @@ impl<N, P, V> Contact<N, P, V> {
     }
 }
 
-impl<N, P, V: Neg<V>> Contact<N, P, V> {
+impl<N, P, V: Clone + Neg<V>> Contact<N, P, V> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {
         mem::swap(&mut self.world1, &mut self.world2);
-        self.normal = -self.normal;
+        self.normal = -self.normal.clone();
     }
 }

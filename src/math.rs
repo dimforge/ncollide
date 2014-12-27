@@ -8,7 +8,7 @@ use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Transla
          FloatPnt, Shape, Absolute, Iterable, BaseFloat, Bounded, One};
 
 /// Trait implemented by scalar types.
-pub trait Scalar: Send + Sync + Show +
+pub trait Scalar: Copy + Send + Sync + Show +
                   BaseFloat + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand + Bounded {
 }
 
@@ -16,7 +16,7 @@ pub trait Scalar: Send + Sync + Show +
 pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
                        POrd         + Bounded           + ScalarSub<N> +
                        ScalarAdd<N> + ScalarMul<N>      + ScalarDiv<N> +
-                       IndexMut<uint, N> + Clone + Show {
+                       IndexMut<uint, N> + Clone + Copy + Show {
 }
 
 
@@ -24,14 +24,14 @@ pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
 pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
                    UniformSphereSample + Clone + IndexMut<uint, N> +
                    Rand                + Shape<uint, N> + POrd +
-                   Absolute<Self>      + Iterable<N> + Show {
+                   Absolute<Self>      + Iterable<N> + Copy + Show {
 }
 
 /// Trait implemented by transformation matrices types.
 pub trait Isometry<N, P, V>: Send           + Sync              + One          +
                              Translation<V> + Rotate<V>         + Translate<P> +
                              Transform<P>   + AbsoluteRotate<V> + Inv          +
-                             Clone + Mul<Self, Self> + Show {
+                             Clone + Mul<Self, Self> + Copy + Show {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.

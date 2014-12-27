@@ -58,7 +58,7 @@ impl<N, P, V, M, D, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for DetectorWi
     fn colls(&self, _: &mut Vec<Contact<N, P, V>>) { unreachable!() }
 }
 
-impl<N, P, V, M, D: CollisionDetector<N, P, V, M, G1, G2>, G1, G2>
+impl<N, P, V, M, D: CollisionDetector<N, P, V, M, G1, G2>, G1: 'static, G2: 'static>
 DynamicCollisionDetector<N, P, V, M, G1, G2> for DetectorWithoutRedispatch<D> { }
 
 impl<N, P, V, M, D, G1, G2> ShapeShapeCollisionDetector<N, P, V, M> for DetectorWithoutRedispatch<D>

@@ -48,14 +48,14 @@ macro_rules! impl_time_of_impact_with(
             }
         }
     }
-)
+);
 
 apply_with_mixed_args!(impl_time_of_impact_with,
                        plane_against_support_map       |
                        support_map_against_plane       |
                        support_map_against_support_map |
                        concave_shape_against_shape     |
-                       shape_against_concave_shape)
+                       shape_against_concave_shape);
 
 impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
     where N: Scalar,

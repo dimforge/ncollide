@@ -20,7 +20,7 @@ macro_rules! dispatch_part(
             return $fname2($m1, exact_g1, $m2, exact_g2 $(, $args)*);
         }
     }
-)
+);
 
 /// Best contact between two shapes (trait objects).
 #[inline]
@@ -37,7 +37,7 @@ pub fn shape_against_shape<N, P, V, AV, M>(m1: &M, g1: &Shape<N, P, V, M>,
     let tg2 = g2.get_type_id();
 
     // FIXME: use a hash-map instead of if-elses ?
-    apply_to_all_shape_pair!(dispatch_part, contact, m1, g1, tg1, m2, g2, tg2, prediction)
+    apply_to_all_shape_pair!(dispatch_part, contact, m1, g1, tg1, m2, g2, tg2, prediction);
 
     None
 }
@@ -59,5 +59,5 @@ pub fn manifold_shape_against_shape<N, P, V, AV, M>(m1: &M, g1: &Shape<N, P, V, 
     let tg2 = g2.get_type_id();
 
     // FIXME: use a hash-map instead of if-elses ?
-    apply_to_all_shape_pair!(dispatch_part, contacts, m1, g1, tg1, m2, g2, tg2, prediction, out)
+    apply_to_all_shape_pair!(dispatch_part, contacts, m1, g1, tg1, m2, g2, tg2, prediction, out);
 }

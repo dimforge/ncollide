@@ -99,24 +99,24 @@ impl<P: Send + Sync + Clone, D: Send + Sync> SurfaceSubdivisionTreeCache<P, D> {
             };
 
         // augment the ref-count.
-        *elt.mut0() += 1;
+        elt.0 += 1;
 
         SurfaceSubdivisionTreeRef {
             parent_cache: parent_cache,
-            value:        elt.ref1().clone(),
+            value:        elt.1.clone(),
             key:          key
         }
     }
 
     fn inc_ref_count(&mut self, key: uint) {
-        let _ = self.cache.get_mut(&key).map(|v| *v.mut0() += 1);
+        let _ = self.cache.get_mut(&key).map(|v| v.0 += 1);
     }
 
     fn release_key(&mut self, key: uint) {
         let is_removable = match self.cache.get_mut(&key) {
             Some(ref mut elt) => {
-                let new_count = *elt.ref0() - 1;
-                *elt.mut0()   = new_count;
+                let new_count = elt.0 - 1;
+                elt.0 = new_count;
                 new_count == 0
             },
             None => false,

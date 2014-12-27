@@ -13,7 +13,7 @@ use math::{Scalar, Point, Vect};
 ///
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 pub struct SupportMapSupportMap<N, P, V, S, G1, G2> {
     simplex:       S,
     prediction:    N,

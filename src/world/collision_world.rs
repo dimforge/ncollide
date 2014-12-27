@@ -65,7 +65,7 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
         let mut collision_object = CollisionObject::new(position, shape, collision_groups, data);
         collision_object.timestamp = self.timestamp;
         let aabb = collision_object.shape.aabb(&collision_object.position);
-        let fk = self.objects.insert(uid, collision_object).val0();
+        let fk = self.objects.insert(uid, collision_object).0;
         self.broad_phase.defered_add(fk.uid(), aabb, fk)
     }
 

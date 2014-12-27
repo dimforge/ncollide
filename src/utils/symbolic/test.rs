@@ -5,29 +5,29 @@ use utils::symbolic::{UnivariateFn, BivariateFn, U, V, T, sin, cos, exp};
 
 #[test]
 fn test_u_v() {
-    assert!((U * 2.0f32 + V).beval(0.7f32, 0.6) == 2.0)
-    assert!((U * 2.0f32 + V).du(0.0f32, 0.0) == 2.0)
-    assert!((U * 2.0f32 + V).dv(0.0f32, 0.0) == 1.0)
-    assert!((U * 2.0f32 + V).duv_nk(0.0f32, 0.0, 10, 10) == 0.0)
+    assert!((U * 2.0f32 + V).beval(0.7f32, 0.6) == 2.0);
+    assert!((U * 2.0f32 + V).du(0.0f32, 0.0) == 2.0);
+    assert!((U * 2.0f32 + V).dv(0.0f32, 0.0) == 1.0);
+    assert!((U * 2.0f32 + V).duv_nk(0.0f32, 0.0, 10, 10) == 0.0);
 }
 
 #[test]
 fn test_sin_u_v() {
     let pi_2: f32 = BaseFloat::frac_pi_2();
 
-    assert!((sin(U) + V).beval(pi_2, 0.6) == 1.6)
-    assert!(na::approx_eq(&(sin(U) + V).du(pi_2, 0.6), &0.0))
-    assert!((sin(U) + V).dv(0.0f32, 0.6)  == 1.0)
-    assert!((sin(U) + V).duv_nk(0.0f32, 0.0, 5, 5) == 0.0)
+    assert!((sin(U) + V).beval(pi_2, 0.6) == 1.6);
+    assert!(na::approx_eq(&(sin(U) + V).du(pi_2, 0.6), &0.0));
+    assert!((sin(U) + V).dv(0.0f32, 0.6)  == 1.0);
+    assert!((sin(U) + V).duv_nk(0.0f32, 0.0, 5, 5) == 0.0);
 }
 
 #[test]
 fn test_sin_t() {
     let pi_2: f64 = BaseFloat::frac_pi_2();
 
-    assert!((sin(T) + T).ueval(pi_2)    == 1.0 + pi_2)
-    assert!(na::approx_eq(&(sin(T) + T).d1(pi_2), &1.0))
-    assert!(na::approx_eq(&(sin(T) + T).dn(0.0f64, 10), &0.0))
+    assert!((sin(T) + T).ueval(pi_2)    == 1.0 + pi_2);
+    assert!(na::approx_eq(&(sin(T) + T).d1(pi_2), &1.0));
+    assert!(na::approx_eq(&(sin(T) + T).dn(0.0f64, 10), &0.0));
 }
 
 #[test]

@@ -17,7 +17,7 @@ impl<N, P, V, M> LocalPointQuery<N, P> for Compound<N, P, V, M>
     fn project_point(&self, point: &P, solid: bool) -> P {
         let mut cost_fn = CompoundPointProjCostFn { compound: self, point: point, solid: solid };
 
-        self.bvt().best_first_search(&mut cost_fn).unwrap().val1()
+        self.bvt().best_first_search(&mut cost_fn).unwrap().1
     }
 
     #[inline]

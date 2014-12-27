@@ -5,7 +5,7 @@ use bounding_volume::{BoundingVolume, BoundingSphere};
 use math::{Scalar, Point, Vect};
 
 // FIXME: make a structure 'cone' ?
-#[deriving(Show, PartialEq, Clone, Encodable, Decodable)]
+#[deriving(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 /// A normal cone with a bounding sphere.
 pub struct SpacializedCone {
     sphere:  BoundingSphere,

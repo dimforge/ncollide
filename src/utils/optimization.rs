@@ -17,8 +17,8 @@ pub fn maximize_with_newton<N, V, M>(
                             df: &mut |&V| -> (V, M))
                             -> (V, N)
     where N: Scalar,
-          V: Add<V, V> + Sub<V, V> + Mul<V, V> + Clone + Rand + POrd,
-          M: Inv + Mul<V, V> {
+          V: Add<V, V> + Sub<V, V> + Mul<V, V> + Clone + Rand + POrd + Copy,
+          M: Inv + Mul<V, V> + Copy {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
@@ -45,7 +45,7 @@ pub fn maximize_with_newton<N, V, M>(
 /// Finds the root of a function using the Newton method.
 pub fn newton<V, M>(niter: uint, guess: V, f: &mut |&V| -> (V, M)) -> (V, bool)
     where V: Sub<V, V>,
-          M: Inv + Mul<V, V> {
+          M: Inv + Mul<V, V> + Copy {
     let mut curr = guess;
 
     for _ in range(0, niter) {
@@ -72,7 +72,7 @@ pub fn minimize_with_bfgs<N, V, M>(
                           -> (V, N)
     where N: Scalar,
           V: Vect<N> + Outer<M>,
-          M: SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone {
+          M: SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone + Copy {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
@@ -130,7 +130,7 @@ impl<N> BacktrackingLineSearch<N> {
 
 impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
     where N: Scalar,
-          V: Dot<N> + Add<V, V> + Mul<N, V> {
+          V: Dot<N> + Add<V, V> + Mul<N, V> + Copy {
     fn step_size(&self, f: &mut |&V| -> N, df: &V, x: &V, dir: &V) -> N {
         let     t    = -self.c * na::dot(df, dir);
         let     fx   = (*f)(x);
@@ -159,7 +159,7 @@ pub fn bfgs<N, V, M, SS>(
             -> V
     where N:  Scalar,
           V:  Vect<N> + Outer<M>,
-          M:  SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone,
+          M:  SquareMat<N, V> + Add<M, M> + Sub<M, M> + Clone + Copy,
           SS: LineSearch<N, V> {
     let mut x  = guess;
     let mut hx = hessian;

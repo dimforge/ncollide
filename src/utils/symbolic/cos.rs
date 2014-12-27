@@ -4,7 +4,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The cosinus function.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Cos;
 
 /// The cosinus function.
@@ -35,4 +35,4 @@ impl<N: Scalar> UnivariateFn<N, N> for Cos {
     }
 }
 
-impl_ops_noparam!(Cos)
+impl_ops_noparam!(Cos);

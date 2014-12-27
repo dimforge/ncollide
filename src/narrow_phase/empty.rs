@@ -2,7 +2,7 @@ use narrow_phase::CollisionDetector;
 use geometry::Contact;
 
 /// A collision detector that does nothing.
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 pub struct Empty<P, V, M, G1, G2> {
     dummy: uint // FIXME: useless, but zero-sized structure ICE when used cross-crate.
 }

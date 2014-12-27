@@ -12,13 +12,13 @@ use math::{Scalar, Vect};
 
 
 /// A Boundig Volume Tree.
-#[deriving(Clone, Encodable, Decodable)]
+#[deriving(Clone, RustcEncodable, RustcDecodable)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>
 }
 
 /// A node of the bounding volume tree.
-#[deriving(Clone, Encodable, Decodable)]
+#[deriving(Clone, RustcEncodable, RustcDecodable)]
 pub enum BVTNode<B, BV> {
     // XXX: give a faster access to the BV
     /// An internal node.
@@ -295,11 +295,11 @@ impl<N, P, V, B, BV> BVTNode<B, BV>
                         match best.cast_ray(ray, upper_bound, cast_fn) {
                             None    => other.cast_ray(ray, upper_bound, cast_fn),
                             Some(t) => {
-                                if farthest < *t.ref0() {
-                                    match other.cast_ray(ray, *t.ref0(), cast_fn) {
+                                if farthest < t.0 {
+                                    match other.cast_ray(ray, t.0, cast_fn) {
                                         None         => Some(t),
                                         Some(tother) => {
-                                            if *t.ref0() < *tother.ref0() {
+                                            if t.0 < tother.0 {
                                                 Some(t)
                                             }
                                             else {
@@ -359,7 +359,7 @@ pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
         let mut median = Vec::new();
 
         for l in leaves.iter() {
-            let c = (*center)(l.ref0(), l.ref1());
+            let c = (*center)(&l.0, &l.1);
             median.push(c[sep_axis]);
         }
 
@@ -368,7 +368,7 @@ pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
         // build the partitions
         let mut right = Vec::new();
         let mut left  = Vec::new();
-        let mut bounding_bounding_volume = leaves[0].ref1().clone();
+        let mut bounding_bounding_volume = leaves[0].1.clone();
 
         let mut insert_left = false;
 

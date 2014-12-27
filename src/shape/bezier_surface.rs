@@ -16,7 +16,7 @@ pub struct BezierSurfaceEvaluationCache<P> {
 }
 
 /// Procedural generator of non-rational Bézier surfaces.
-#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct BezierSurface<P> {
     control_points:     Vec<P>, // u-major storage.
     nupoints:           uint,

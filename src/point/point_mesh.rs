@@ -16,7 +16,7 @@ impl<N, P, V, E> LocalPointQuery<N, P> for Mesh<N, P, V, E>
     fn project_point(&self, point: &P, _: bool) -> P {
         let mut cost_fn = MeshPointProjCostFn { mesh: self, point: point };
 
-        self.bvt().best_first_search(&mut cost_fn).unwrap().val1()
+        self.bvt().best_first_search(&mut cost_fn).unwrap().1
     }
 
     #[inline]

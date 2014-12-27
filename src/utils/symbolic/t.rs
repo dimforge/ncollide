@@ -4,7 +4,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg
 use utils::symbolic;
 
 /// A univariate function of `T`.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct T;
 
 /// A univariate function of `t`.
@@ -43,4 +43,4 @@ impl<N: Zero + One + Copy> UnivariateFn<N, N> for T {
     }
 }
 
-impl_ops_noparam!(T)
+impl_ops_noparam!(T);

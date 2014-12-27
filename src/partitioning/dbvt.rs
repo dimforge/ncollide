@@ -12,7 +12,7 @@ use partitioning::bvt_visitor::BVTVisitor;
 use math::{Scalar, Point};
 
 
-#[deriving(Encodable, Decodable)]
+#[deriving(RustcEncodable, RustcDecodable)]
 enum UpdateState {
     NeedsShrink,
     UpToDate
@@ -70,7 +70,10 @@ impl<N, P, V, B, BV> DBVT<P, B, BV>
         mem::swap(&mut self_tree, &mut self.tree);
 
         self.tree = match self_tree {
-            None    => Some(DBVTNode::Leaf(leaf)),
+            None    => {
+                leaf.borrow_mut().parent = DBVTLeafState::Root;
+                Some(DBVTNode::Leaf(leaf))
+            },
             Some(t) => Some(DBVTNode::Internal(t.insert(&mut self.cache, leaf)))
         };
 
@@ -131,6 +134,8 @@ impl<N, P: Point<N, V>, V, BV: Translation<V>, B> DBVTInternal<P, B, BV> {
 #[deriving(Clone)]
 /// State of a leaf.
 enum DBVTLeafState<P, B, BV> {
+    /// This leaf is the root of a tree.
+    Root,
     /// This leaf is the right child of another node.
     RightChildOf(*mut DBVTInternal<P, B, BV>),
     /// This leaf is the left child of another node.
@@ -140,6 +145,15 @@ enum DBVTLeafState<P, B, BV> {
 }
 
 impl<P, B, BV> DBVTLeafState<P, B, BV> {
+    /// Indicates whether this leaf is the root.
+    #[inline]
+    pub fn is_root(&self) -> bool {
+        match *self {
+            DBVTLeafState::Root => true,
+            _ => false
+        }
+    }
+
     /// Indicates whether this leaf is detached.
     #[inline]
     pub fn is_detached(&self) -> bool {
@@ -155,7 +169,7 @@ impl<P, B, BV> DBVTLeafState<P, B, BV> {
         match self {
             DBVTLeafState::RightChildOf(p) => (false, p),
             DBVTLeafState::LeftChildOf(p)  => (true, p),
-            _               => panic!("Attempting to unwrap a detached node.")
+            _ => panic!("Attempting to unwrap a root or detached node.")
         }
     }
 }
@@ -211,6 +225,16 @@ impl<N, P: Point<N, V>, V, B: 'static, BV: Translation<V> + 'static> DBVTLeaf<P,
         }
     }
 
+    /// Tests if this node is the root.
+    pub fn is_root(&self) -> bool {
+        self.parent.is_root()
+    }
+
+    /// Tests if this node has no parent.
+    pub fn is_detached(&self) -> bool {
+        self.parent.is_detached()
+    }
+
     /// Removes this leaf from the tree.
     ///
     /// Returns the new root of the tree.
@@ -220,7 +244,7 @@ impl<N, P: Point<N, V>, V, B: 'static, BV: Translation<V> + 'static> DBVTLeaf<P,
     fn unlink(&mut self,
               cache:     &mut Cache<P, B, BV>,
               curr_root: DBVTNode<P, B, BV>) -> Option<DBVTNode<P, B, BV>> {
-        if !self.parent.is_detached() {
+        if !self.is_root() {
             let (is_left, p) = mem::replace(&mut self.parent, DBVTLeafState::Detached).unwrap();
 
             let pp           = unsafe { (*p).parent };
@@ -263,7 +287,7 @@ impl<N, P: Point<N, V>, V, B: 'static, BV: Translation<V> + 'static> DBVTLeaf<P,
                 // the root changes to the other child
                 match other {
                     DBVTNode::Internal(ref mut i) => i.parent = ptr::null_mut(),
-                    DBVTNode::Leaf(ref l)         => (**l).borrow_mut().parent = DBVTLeafState::Detached,
+                    DBVTNode::Leaf(ref l)         => (**l).borrow_mut().parent = DBVTLeafState::Root,
                     DBVTNode::Invalid             => unreachable!()
                 }
 
@@ -319,6 +343,7 @@ impl<N, P, V, BV, B> DBVTNode<P, B, BV>
               cache:     &mut Cache<P, B, BV>,
               to_insert: Rc<RefCell<DBVTLeaf<P, B, BV>>>)
               -> Box<DBVTInternal<P, B, BV>> {
+        assert!(to_insert.borrow().is_detached(), "Cannot insert the same node twice.");
 
         let mut bto_insert = (*to_insert).borrow_mut();
         let pto_insert     = bto_insert.deref_mut();

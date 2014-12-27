@@ -4,7 +4,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg
 use utils::symbolic;
 
 /// A bivariate function of `V`.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct V;
 
 /// A bivariate function of `v`.
@@ -59,4 +59,4 @@ impl<N: Zero + One + Copy + Clone> BivariateFn<N, N> for V {
     }
 }
 
-impl_ops_noparam!(V)
+impl_ops_noparam!(V);

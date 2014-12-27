@@ -19,7 +19,7 @@ macro_rules! dispatch_part(
             return $fname2($m1, $d1, exact_g1, $m2, $d2, exact_g2);
         }
     }
-)
+);
 
 /// Time of impacts between two shapes (trait objects) under translational movement.
 #[inline]
@@ -34,7 +34,7 @@ pub fn shape_against_shape<N, P, V, M>(m1: &M, vel1: &V, g1: &Shape<N, P, V, M>,
     let tg2 = g2.get_type_id();
 
     // FIXME: use a hash-map instead of if-elses ?
-    apply_to_all_shape_pair!(dispatch_part, time_of_impact, m1, vel1, g1, tg1, m2, vel2, g2, tg2)
+    apply_to_all_shape_pair!(dispatch_part, time_of_impact, m1, vel1, g1, tg1, m2, vel2, g2, tg2);
 
     None
 }

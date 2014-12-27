@@ -1,6 +1,6 @@
 
 /// A torus.
-#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct Torus<N> {
     major_radius: N,
     minor_radius: N

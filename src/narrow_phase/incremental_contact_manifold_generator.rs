@@ -5,7 +5,7 @@ use geometry::Contact;
 use math::{Scalar, Point, Vect};
 
 
-#[deriving(Encodable, Decodable, Clone)]
+#[deriving(RustcEncodable, RustcDecodable, Clone)]
 struct ContactWLocals<N, P, V> {
     local1:  P,
     local2:  P,
@@ -33,7 +33,7 @@ impl<N, P, V> ContactWLocals<N, P, V>
 /// maximum number of contact is reached, each time a new contact is created, the new manifold is
 /// computed by maximizing the variance along each canonical axis (of the space in which leaves the
 /// contacts).
-#[deriving(Encodable, Decodable, Clone)]
+#[deriving(RustcEncodable, RustcDecodable, Clone)]
 pub struct IncrementalContactManifoldGenerator<N, P, V, CD> {
     contacts:     Vec<ContactWLocals<N, P, V>>, // FIXME: replace by a vec slice to avoid allocations ?
     collector:    Vec<Contact<N, P, V>>,        // FIXME: replace by a vec slice to avoid allocations ?

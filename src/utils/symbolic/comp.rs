@@ -3,7 +3,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymSub, SymMult, SymNeg
 use utils::symbolic;
 
 /// The composition operator.
-#[deriving(Clone, Show)]
+#[deriving(Clone, Show, Copy)]
 pub struct SymComp<A, B> {
     a: A,
     b: B
@@ -133,4 +133,4 @@ BivariateFn<N, O> for SymComp<A, B> {
     }
 }
 
-impl_ops_bin!(SymComp)
+impl_ops_bin!(SymComp);

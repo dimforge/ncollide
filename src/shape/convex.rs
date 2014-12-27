@@ -1,5 +1,5 @@
 
-#[deriving(PartialEq, Show, Clone, Encodable, Decodable)]
+#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 /// The implicit convex hull of a set of points.
 pub struct Convex<P> {
     points: Vec<P>

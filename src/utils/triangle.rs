@@ -69,8 +69,8 @@ pub fn circumcircle<N, P, V>(pa: &P, pb: &P, pc: &P) -> (P, N)
 /// Tests if three 3D points are exactly aligned without the need of the `Cross` trait.
 pub fn is_affinely_dependent_triangle3<P, V, N>(p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
-          P: Sub<P, V>,
-          V: Zero + Norm<N> + Index<uint, N> + IndexMut<uint, N> + Dim {
+          P: Sub<P, V> + Copy,
+          V: Zero + Norm<N> + Index<uint, N> + IndexMut<uint, N> + Dim + Copy {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -84,8 +84,8 @@ pub fn is_affinely_dependent_triangle3<P, V, N>(p1: &P, p2: &P, p3: &P) -> bool
 /// Tests if three points are exactly aligned.
 pub fn is_affinely_dependent_triangle<N, P, V, AV>(p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
-          P:  Sub<P, V>,
-          V:  Cross<AV> + Norm<N>,
+          P:  Sub<P, V> + Copy,
+          V:  Cross<AV> + Norm<N> + Copy,
           AV: Norm<N> {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
@@ -100,7 +100,7 @@ pub fn is_affinely_dependent_triangle<N, P, V, AV>(p1: &P, p2: &P, p3: &P) -> bo
 /// Tests if a point is inside of a triangle.
 pub fn is_point_in_triangle<N, P, V>(p: &P, p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
-          P: Sub<P, V>,
+          P: Sub<P, V> + Copy,
           V: Vect<N> {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;

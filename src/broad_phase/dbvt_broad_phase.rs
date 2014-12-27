@@ -142,14 +142,17 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
                 self.tree.remove(&mut proxy.leaf);
                 proxy.active = DEACTIVATION_THRESHOLD;
             }
-
         }
 
         /*
          * Re-insert outdated nodes one by one and collect interferences at the same time.
          */
-        for &(ref proxy_key1, _) in self.to_update.iter() {
+        for &(ref proxy_key1, _) in self.to_update.iter().rev() {
             let proxy1 = &self.proxies[*proxy_key1];
+
+            if !proxy1.leaf.borrow().is_detached() {
+                continue;
+            }
 
             if proxy1.active < 0 {
                 continue;
@@ -168,8 +171,6 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
             // Event generation.
             for proxy_key2 in self.collector.iter() {
                 let proxy2 = &self.proxies[*proxy_key2];
-                // Do not trigger if the proximity event does not exist yet.
-
                 let filtered_out = proxy2.active < 0 || !allow_proximity(&proxy1.data, &proxy2.data);
 
                 if !filtered_out {

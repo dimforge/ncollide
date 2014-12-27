@@ -106,7 +106,7 @@ macro_rules! impl_volumetric_cylinder(
             }
         }
     )
-)
+);
 
-impl_volumetric_cylinder!(Cylinder2, 2, Pnt2, Mat1)
-impl_volumetric_cylinder!(Cylinder3, 3, Pnt3, Mat3)
+impl_volumetric_cylinder!(Cylinder2, 2, Pnt2, Mat1);
+impl_volumetric_cylinder!(Cylinder3, 3, Pnt3, Mat3);

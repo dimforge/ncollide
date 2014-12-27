@@ -73,15 +73,15 @@ macro_rules! fn_impl(
             }
         }
     )
-)
+);
 
-fn_impl!(f32)
-fn_impl!(f64)
-fn_impl!(u8)
-fn_impl!(u16)
-fn_impl!(u32)
-fn_impl!(u64)
-fn_impl!(i8)
-fn_impl!(i16)
-fn_impl!(i32)
-fn_impl!(i64)
+fn_impl!(f32);
+fn_impl!(f64);
+fn_impl!(u8);
+fn_impl!(u16);
+fn_impl!(u32);
+fn_impl!(u64);
+fn_impl!(i8);
+fn_impl!(i16);
+fn_impl!(i32);
+fn_impl!(i64);

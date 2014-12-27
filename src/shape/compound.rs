@@ -98,7 +98,7 @@ impl<N, P, V, AV, M, I> Compound<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P> + Cross<AV>,
-          M: Mul<P, P>,
+          M: Mul<P, P> + Copy,
           I: Send + Sync + Zero + Add<I, I> + Mul<N, I> + InertiaTensor<N, P, AV, M> + Any {
     /// Builds a new compound shape.
     pub fn new(data: CompoundData<N, P, V, M, I>) -> Compound<N, P, V, M> {

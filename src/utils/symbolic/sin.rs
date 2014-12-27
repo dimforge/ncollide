@@ -4,7 +4,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The sinus function.
-#[deriving(Clone)]
+#[deriving(Clone, Copy)]
 pub struct Sin;
 
 /// The sinus function.
@@ -35,4 +35,4 @@ impl<N: Scalar> UnivariateFn<N, N> for Sin {
     }
 }
 
-impl_ops_noparam!(Sin)
+impl_ops_noparam!(Sin);

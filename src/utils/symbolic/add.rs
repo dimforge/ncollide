@@ -2,7 +2,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymSub, SymMult, SymNeg};
 use utils::symbolic;
 
 /// The addition operator.
-#[deriving(Clone, Show)]
+#[deriving(Clone, Show, Copy)]
 pub struct SymAdd<A, B> {
     a: A,
     b: B
@@ -75,4 +75,4 @@ BivariateFn<N, O> for SymAdd<A, B> {
     }
 }
 
-impl_ops_bin!(SymAdd)
+impl_ops_bin!(SymAdd);
