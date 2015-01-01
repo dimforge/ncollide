@@ -172,11 +172,10 @@ fn build_degenerate_mesh_point<N, P, V>(point: P) -> TriMesh<N, P, V>
     TriMesh::new(vec!(point), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
-fn build_degenerate_mesh_segment<N, P, V, M>(dir: &V, points: &[P]) -> TriMesh<N, P, V>
+fn build_degenerate_mesh_segment<N, P, V>(dir: &V, points: &[P]) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
-          V: Vect<N>,
-          M: EigenQR<N, V> + Copy {
+          V: Vect<N> {
     let a = support_map::point_cloud_support_point(dir, points);
     let b = support_map::point_cloud_support_point(&-*dir, points);
 

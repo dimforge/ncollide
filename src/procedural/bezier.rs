@@ -1,3 +1,4 @@
+use std::iter::repeat;
 use std::ptr;
 use na;
 use procedural::{TriMesh, Polyline};
@@ -13,7 +14,7 @@ pub fn bezier_curve_at<N, P, V>(control_points: &[P], t: N, cache: &mut Vec<P>) 
           V: Vect<N> {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
-        cache.grow(diff, na::orig())
+        cache.extend(repeat(na::orig()).take(diff));
     }
 
     let cache = cache.as_mut_slice();
@@ -51,7 +52,7 @@ pub fn bezier_surface_at<N, P, V>(
           V: Vect<N> {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
-        vcache.grow(diff, na::orig());
+        vcache.extend(repeat(na::orig()).take(diff));
     }
 
     // FIXME: start with u or v, depending on which dimension has more control points.

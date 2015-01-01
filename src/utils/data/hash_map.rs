@@ -1,5 +1,6 @@
 //! An hash map with a customizable hash function.
 
+use std::iter::repeat;
 use std::num::UnsignedInt;
 use std::mem;
 use utils::data::hash::HashFun;
@@ -57,8 +58,8 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
             hash:   h,
             table:  Vec::with_capacity(pow2),
             mask:   pow2 - 1,
-            htable: Vec::from_elem(pow2, -1i),
-            next:   Vec::from_elem(pow2, -1i),
+            htable: repeat(-1i).take(pow2).collect(),
+            next:   repeat(-1i).take(pow2).collect(),
             num_elem: 0,
             max_elem: pow2,
             real_max_elem: ((pow2 as f32) * 0.7) as uint
@@ -152,8 +153,8 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             self.mask = self.max_elem - 1;
 
-            let mut newhash  = Vec::from_elem(self.max_elem, -1i);
-            let mut newnext  = Vec::from_elem(self.max_elem, -1i);
+            let mut newhash: Vec<int> = repeat(-1i).take(self.max_elem).collect();
+            let mut newnext: Vec<int> = repeat(-1i).take(self.max_elem).collect();
 
             for i in range(0u, self.num_elem) {
                 let h = self.hash.hash(&self.table[i].key) & self.mask;
@@ -220,6 +221,10 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             self.num_elem = self.num_elem - 1;
 
+            if obji as uint >= self.table.len() {
+              return None;
+            }
+
             let removed = self.table.swap_remove(obji as uint);
 
             if obji != self.num_elem as int {
@@ -242,7 +247,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                 self.next[self.num_elem] = -1;
             }
 
-            removed
+            Some(removed)
         }
         else {
             None

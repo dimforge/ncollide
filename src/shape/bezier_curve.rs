@@ -1,5 +1,6 @@
 //! Bezier curves.
 
+use std::iter::repeat;
 use na;
 use procedural;
 use utils::data::vec_slice::{VecSlice, VecSliceMut};
@@ -36,7 +37,7 @@ impl<N, P, V> BezierCurve<P>
     ///
     /// Its control points are initialized to zero.
     pub fn new_with_degree(degree: uint) -> BezierCurve<P> {
-        BezierCurve::new(Vec::from_elem(degree + 1, na::orig()))
+        BezierCurve::new(repeat(na::orig()).take(degree + 1).collect())
     }
 
     /// Creates a cache to avaluate a bezier curve.
@@ -133,7 +134,7 @@ pub fn diff_bezier_curve<N, P, V>(control_points: &VecSlice<P>, out: &mut VecSli
 
     for i in range(0u, out.len()) {
         unsafe {
-            *out.unsafe_get_mut(i) = na::orig::<P>() + (*control_points.unsafe_get(i + 1) - *control_points.unsafe_get(i)) * degree
+            *out.get_unchecked_mut(i) = na::orig::<P>() + (*control_points.get_unchecked(i + 1) - *control_points.get_unchecked(i)) * degree
         }
     }
 }

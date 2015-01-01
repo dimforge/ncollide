@@ -688,9 +688,10 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
 fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
                                  raymap: &HashMap<(u32, u32), uint>)
                                  -> Vec<DualGraphVertex<N>> {
-    let mut rng           = IsaacRng::new_unseeded();
-    let mut prim_edges    = HashMap::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()));
-    let mut dual_vertices = Vec::from_fn(mesh.num_triangles(), |i| DualGraphVertex::new(i, mesh, raymap));
+    let mut rng        = IsaacRng::new_unseeded();
+    let mut prim_edges = HashMap::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()));
+    let mut dual_vertices: Vec<DualGraphVertex<N>> =
+      range(0, mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
     {
         let add_triangle_edges = |i: uint, t: &Vec3<u32>| {

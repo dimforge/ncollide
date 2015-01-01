@@ -55,13 +55,13 @@ impl<'a, T> VecSlice<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get(i)
+            self.get_unchecked(i)
         }
     }
 
     #[inline]
-    pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_get(self.id(i))
+    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+        self.data.get_unchecked(self.id(i))
     }
 }
 
@@ -88,7 +88,7 @@ impl<'a, T> VecSliceMut<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get(i)
+            self.get_unchecked(i)
         }
     }
 
@@ -97,17 +97,17 @@ impl<'a, T> VecSliceMut<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get_mut(i)
+            self.get_unchecked_mut(i)
         }
     }
 
     #[inline]
-    pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_get(self.id(i))
+    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+        self.data.get_unchecked(self.id(i))
     }
 
     #[inline]
-    pub unsafe fn unsafe_get_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
+    pub unsafe fn get_unchecked_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
         let id = self.id(i);
         self.data.unsafe_mut_ref(id)
     }
@@ -120,7 +120,7 @@ impl<'a, T: Clone> VecSliceMut<'a, T> {
 
         for i in range(0u, data.len()) {
             unsafe {
-                *self.unsafe_get_mut(i) = data.unsafe_get(i).clone()
+                *self.get_unchecked_mut(i) = data.get_unchecked(i).clone()
             }
         }
     }
