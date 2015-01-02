@@ -229,7 +229,7 @@ impl<N, P: Point<N, V>, V, B: 'static, BV: Translation<V> + 'static> DBVTLeaf<P,
 
             let mut other = if is_left { parent_right } else { parent_left };
 
-            if pp.is_not_null() {
+            if !pp.is_null() {
                 let is_p_right_to_pp = unsafe { (*pp).is_right_internal_node(&mut *p) };
                 // we are far away from the root
                 unsafe {

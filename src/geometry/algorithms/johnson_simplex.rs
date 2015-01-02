@@ -2,6 +2,7 @@
 
 use std::mem;
 use std::cell::RefCell;
+use std::iter::repeat;
 use std::sync::Arc;
 use collections::BTreeMap;
 use na::{Axpy, Dim, Bounded};
@@ -200,7 +201,7 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
         JohnsonSimplex {
             points:             Vec::with_capacity(_dim + 1),
             exchange_points:    Vec::with_capacity(_dim + 1),
-            determinants:       Vec::from_elem(recursion.deref()[_dim].num_determinants, na::zero()),
+            determinants:       repeat(na::zero()).take(recursion.deref()[_dim].num_determinants).collect(),
             recursion_template: recursion
         }
     }
@@ -257,21 +258,21 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
             while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
                     let mut determinant: N = na::zero();
-                    let kpt = (*self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(curr + 1u))).clone();
-                    let jpt = (*self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(curr))).clone();
+                    let kpt = (*self.points.as_slice().get_unchecked(*recursion.permutation_list.as_slice().get_unchecked(curr + 1u))).clone();
+                    let jpt = (*self.points.as_slice().get_unchecked(*recursion.permutation_list.as_slice().get_unchecked(curr))).clone();
 
                     // ... with curr_num_pts points ...
                     for i in range(curr + 1, curr + 1 + curr_num_pts) {
                         // ... compute its determinant.
-                        let i_pid = *recursion.permutation_list.as_slice().unsafe_get(i);
-                        let sub_determinant = (*self.determinants.as_slice().unsafe_get(
-                                                *recursion.sub_determinants.as_slice().unsafe_get(i))).clone();
-                        let delta = sub_determinant * na::dot(&(kpt - jpt), self.points.as_slice().unsafe_get(i_pid).as_vec());
+                        let i_pid = *recursion.permutation_list.as_slice().get_unchecked(i);
+                        let sub_determinant = (*self.determinants.as_slice().get_unchecked(
+                                                *recursion.sub_determinants.as_slice().get_unchecked(i))).clone();
+                        let delta = sub_determinant * na::dot(&(kpt - jpt), self.points.as_slice().get_unchecked(i_pid).as_vec());
 
                         determinant = determinant + delta;
                     }
 
-                    *self.determinants.as_mut_ptr().offset(*recursion.sub_determinants.as_slice().unsafe_get(curr) as int) = determinant;
+                    *self.determinants.as_mut_ptr().offset(*recursion.sub_determinants.as_slice().get_unchecked(curr) as int) = determinant;
 
                     curr = curr + curr_num_pts + 1; // points + removed point + determinant id
                 }
@@ -295,14 +296,14 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
                     unsafe {
                         // ... see if its determinant is positive
                         let det_id = curr - (i + 1) * curr_num_pts;
-                        let det    = (*self.determinants.as_slice().unsafe_get(*recursion.sub_determinants.as_slice().unsafe_get(det_id))).clone();
+                        let det    = (*self.determinants.as_slice().get_unchecked(*recursion.sub_determinants.as_slice().get_unchecked(det_id))).clone();
 
                         if det > na::zero() {
                             // invalidate the children determinant
                             if curr_num_pts > 1 {
-                                let subdetid = *recursion.sub_determinants.as_slice().unsafe_get(det_id + 1);
+                                let subdetid = *recursion.sub_determinants.as_slice().get_unchecked(det_id + 1);
 
-                                if *self.determinants.as_slice().unsafe_get(subdetid) > na::zero() {
+                                if *self.determinants.as_slice().get_unchecked(subdetid) > na::zero() {
                                     *self.determinants.as_mut_ptr().offset(subdetid as int) = Bounded::max_value()
                                 }
                             }
@@ -332,10 +333,10 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
                             let id    = curr - (i + 1) * curr_num_pts;
                             let det   = (*self.determinants
                                               .as_slice()
-                                              .unsafe_get(*recursion.sub_determinants.as_slice().unsafe_get(id))).clone();
+                                              .get_unchecked(*recursion.sub_determinants.as_slice().get_unchecked(id))).clone();
 
                             total_det = total_det + det;
-                            proj.axpy(&det, self.points.as_slice().unsafe_get(*recursion.permutation_list.as_slice().unsafe_get(id)));
+                            proj.axpy(&det, self.points.as_slice().get_unchecked(*recursion.permutation_list.as_slice().get_unchecked(id)));
                         }
 
                         if reduce {
@@ -343,8 +344,8 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
                             for i in range(0u, curr_num_pts) {
                                 let id = curr - (i + 1) * curr_num_pts;
                                 self.exchange_points.push(
-                                    (*self.points.as_slice().unsafe_get(
-                                        *recursion.permutation_list.as_slice().unsafe_get(id))).clone());
+                                    (*self.points.as_slice().get_unchecked(
+                                        *recursion.permutation_list.as_slice().get_unchecked(id))).clone());
                             }
 
                             mem::swap(&mut self.exchange_points, &mut self.points);

@@ -65,7 +65,7 @@ impl<'a, T> VecSlice<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get(i)
+            self.get_unchecked(i)
         }
     }
 
@@ -73,8 +73,8 @@ impl<'a, T> VecSlice<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_get(self.id(i))
+    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+        self.data.get_unchecked(self.id(i))
     }
 }
 
@@ -133,7 +133,7 @@ impl<'a, T> VecSliceMut<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get(i)
+            self.get_unchecked(i)
         }
     }
 
@@ -145,7 +145,7 @@ impl<'a, T> VecSliceMut<'a, T> {
         assert!(i < self.length);
 
         unsafe {
-            self.unsafe_get_mut(i)
+            self.get_unchecked_mut(i)
         }
     }
 
@@ -153,17 +153,17 @@ impl<'a, T> VecSliceMut<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn unsafe_get<'b>(&'b self, i: uint) -> &'b T {
-        self.data.unsafe_get(self.id(i))
+    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+        self.data.get_unchecked(self.id(i))
     }
 
     /// Gets a mutable reference to the i-th element of the slice without bound-checking.
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn unsafe_get_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
+    pub unsafe fn get_unchecked_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
         let id = self.id(i);
-        self.data.unsafe_mut(id)
+        self.data.get_unchecked_mut(id)
     }
 }
 
@@ -176,7 +176,7 @@ impl<'a, T: Clone> VecSliceMut<'a, T> {
 
         for i in range(0u, data.len()) {
             unsafe {
-                *self.unsafe_get_mut(i) = data.unsafe_get(i).clone()
+                *self.get_unchecked_mut(i) = data.get_unchecked(i).clone()
             }
         }
     }

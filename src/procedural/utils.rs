@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::iter::repeat;
 use std::mem;
 use na;
 use na::{Pnt3, Vec3, Dim, Cross, Orig};
@@ -204,7 +205,7 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Vec3<u32>], normals:
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Cross<V> {
-    let mut divisor: Vec<N> = Vec::from_elem(coordinates.len(), na::zero());
+    let mut divisor: Vec<N> = repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
     if normals.len() > coordinates.len() {
@@ -213,7 +214,7 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Vec3<u32>], normals:
 
     // Reinit all normals to zero.
     normals.clear();
-    normals.grow(coordinates.len(), na::zero());
+    normals.extend(repeat(na::zero()).take(coordinates.len()));
 
     // Accumulate normals ...
     for f in faces.iter() {

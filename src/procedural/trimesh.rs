@@ -60,7 +60,9 @@ impl<N, P, V> TriMesh<N, P, V> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(||
            IndexBuffer::Unified(
-               Vec::from_fn(coords.len() / 3, |i| Vec3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2))
+               range(0, coords.len() / 3)
+                .map(|i| Vec3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2))
+                .collect()
            )
         );
 

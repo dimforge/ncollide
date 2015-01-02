@@ -1,5 +1,6 @@
 //! Bezier surface.
 
+use std::iter::repeat;
 use na::{Norm, RotationMatrix, Cross, Rotation, Mat, Rotate};
 use na;
 use procedural;
@@ -50,7 +51,7 @@ impl<N, P: Point<N, V>, V> BezierSurface<P> {
     pub fn new_with_degrees(degree_u: uint, degree_v: uint) -> BezierSurface<P> {
         let nupoints = degree_u + 1;
         let nvpoints = degree_v + 1;
-        BezierSurface::new(Vec::from_elem(nupoints * nvpoints, na::orig()), nupoints, nvpoints)
+        BezierSurface::new(repeat(na::orig()).take(nupoints * nvpoints).collect(), nupoints, nvpoints)
     }
 
     /// Creates a cache to avaluate a bezier surface.
@@ -74,7 +75,7 @@ impl<N, P: Point<N, V>, V> BezierSurface<P> {
         }
         else {
             self.control_points.clear();
-            self.control_points.grow(nupoints * nvpoints, na::orig());
+            self.control_points.extend(repeat(na::orig()).take(nupoints * nvpoints));
             self.nupoints = nupoints;
             self.nvpoints = nvpoints;
 

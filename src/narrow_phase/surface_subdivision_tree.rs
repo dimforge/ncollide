@@ -29,7 +29,7 @@ pub struct SurfaceSubdivisionTreeRef<P, D> {
 
 impl<P: Send + Sync + Clone, D: Send + Sync> Clone for SurfaceSubdivisionTreeRef<P, D> {
     fn clone(&self) -> SurfaceSubdivisionTreeRef<P, D> {
-        self.parent_cache.write().inc_ref_count(self.key);
+        self.parent_cache.write().unwrap().inc_ref_count(self.key);
 
         SurfaceSubdivisionTreeRef {
             parent_cache: self.parent_cache.clone(),
@@ -55,7 +55,7 @@ impl<P: Send + Sync, D> Deref<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> for Sur
 #[unsafe_destructor]
 impl<P: Send + Sync + Clone, D: Send + Sync> Drop for SurfaceSubdivisionTreeRef<P, D> {
     fn drop(&mut self) {
-        self.parent_cache.write().release_key(self.key)
+        self.parent_cache.write().unwrap().release_key(self.key)
     }
 }
 
@@ -91,7 +91,7 @@ impl<P: Send + Sync + Clone, D: Send + Sync> SurfaceSubdivisionTreeCache<P, D> {
 
         let parent_cache = cache.clone();
 
-        let mut wcache = cache.write();
+        let mut wcache = cache.write().unwrap();
         let elt        =
             match wcache.cache.entry(key) {
                 Entry::Occupied(entry) => entry.into_mut(),

@@ -27,7 +27,7 @@ macro_rules! bench_free_fn_gen(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box($function($(unref($args.unsafe_get(i)),)*))
+                    test::black_box($function($(unref($args.get_unchecked(i)),)*))
                 }
             });
         }
@@ -50,7 +50,7 @@ macro_rules! bench_method_gen(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box($arg.unsafe_get(i).$method($(unref($args.unsafe_get(i)),)*))
+                    test::black_box($arg.get_unchecked(i).$method($(unref($args.get_unchecked(i)),)*))
                 }
             })
         }
