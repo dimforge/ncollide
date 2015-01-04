@@ -1,0 +1,11 @@
+[package]
+name    = "ncollide_pipeline"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_pipeline"
+path = "lib.rs"
+
+[dependencies.ncollide_queries]
+path = "../ncollide_queries"

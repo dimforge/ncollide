@@ -1,0 +1,11 @@
+[package]
+name    = "ncollide_procedural"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_procedural"
+path = "lib.rs"
+
+[dependencies.ncollide_utils]
+path = "../ncollide_utils"

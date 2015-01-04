@@ -41,36 +41,27 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
+#![allow(missing_copy_implementations)]
 #![feature(default_type_params)]
 #![feature(macro_rules)]
 #![feature(unsafe_destructor)]
 #![feature(associated_types)]
 #![feature(globs)]
-#![allow(missing_copy_implementations)] // FIXME: deny this.
+#![feature(unboxed_closures)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-extern crate "nalgebra" as na;
-extern crate "rustc-serialize" as rustc_serialize;
-extern crate collections;
-extern crate test;
+extern crate ncollide_math;
+extern crate ncollide_utils;
+extern crate ncollide_entities;
+extern crate ncollide_queries;
+extern crate ncollide_pipeline;
 
-pub mod math;
-pub mod bounding_volume;
-pub mod shape;
-pub mod ray;
-pub mod narrow_phase;
-pub mod broad_phase;
-pub mod support_map;
-pub mod parametric;
-pub mod partitioning;
-pub mod procedural;
-pub mod utils;
-pub mod volumetric;
-pub mod geometry;
-pub mod point;
-pub mod world;
-// pub mod world;
+pub use ncollide_math as math;
+pub use ncollide_utils as utils;
+pub use ncollide_entities::{shape, inspection, bounding_volume, partitioning, support_map};
+pub use ncollide_queries::{geometry, point, ray};
+pub use ncollide_pipeline::{narrow_phase, broad_phase, world};

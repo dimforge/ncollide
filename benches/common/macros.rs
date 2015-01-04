@@ -2,15 +2,15 @@
 
 macro_rules! bench_free_fn(
     ($name: ident, $function: path $(, $args: ident: $types: ty)*) => {
-        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*)
+        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*);
     }
-)
+);
 
 macro_rules! bench_method(
     ($name: ident, $method: ident, $arg: ident: $typ: ty $(, $args: ident: $types: ty)*) => {
-        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*)
+        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*);
     }
-)
+);
 
 macro_rules! bench_free_fn_gen(
     ($name: ident, $function: path $(, $args: ident: $types: ty = $gens: path)*) => {
@@ -27,12 +27,12 @@ macro_rules! bench_free_fn_gen(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box($function($(unref($args.unsafe_get(i)),)*))
+                    test::black_box($function($(unref($args.get_unchecked(i)),)*))
                 }
             });
         }
     }
-)
+);
 
 macro_rules! bench_method_gen(
     ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path $(, $args: ident: $types: ty = $gens: path)*) => {
@@ -50,9 +50,9 @@ macro_rules! bench_method_gen(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box($arg.unsafe_get(i).$method($(unref($args.unsafe_get(i)),)*))
+                    test::black_box($arg.get_unchecked(i).$method($(unref($args.get_unchecked(i)),)*))
                 }
             })
         }
     }
-)
+);

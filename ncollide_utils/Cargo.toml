@@ -1,0 +1,11 @@
+[package]
+name    = "ncollide_utils"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_utils"
+path = "lib.rs"
+
+[dependencies.ncollide_math]
+path = "../ncollide_math"

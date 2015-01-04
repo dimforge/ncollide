@@ -11,11 +11,11 @@ use common::{unref, generate};
 #[path="../common/macros.rs"]
 mod macros;
 
-bench_method!(bench_ball_support_map, support_point, c: Ball3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_cuboid_support_map, support_point, c: Cuboid3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_capsule_support_map, support_point, c: Capsule3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_cone_support_map, support_point, c: Cone3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_cylinder_support_map, support_point, c: Cylinder3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_segment_support_map, support_point, c: Segment3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_triangle_support_map, support_point, c: Triangle3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
-bench_method!(bench_convex_support_map, support_point, c: Convex3<f32>, m: Iso3<f32>, dir: Vec3<f32>)
+bench_method!(bench_ball_support_map, support_point, c: Ball3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_cuboid_support_map, support_point, c: Cuboid3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_capsule_support_map, support_point, c: Capsule3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_cone_support_map, support_point, c: Cone3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_cylinder_support_map, support_point, c: Cylinder3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_segment_support_map, support_point, c: Segment3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_triangle_support_map, support_point, c: Triangle3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
+bench_method!(bench_convex_support_map, support_point, c: Convex3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
