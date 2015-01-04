@@ -44,7 +44,7 @@ pub fn parametric_surface_uniform<N, S>(s: &S, usubdivs: uint, vsubdivs: uint)
 pub fn parametric_surface_uniform_with_distance_error<N, S>(s: &S, error: N) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     where N: Scalar,
           S: ParametricSurface<N, Pnt3<N>, Vec3<N>> {
-    let mut ms: [N, ..3] = [ na::zero(), na::zero(), na::zero() ];
+    let mut ms: [N; 3] = [ na::zero(), na::zero(), na::zero() ];
 
     for (mi, &(i, j)) in [ (2u, 0u), (1, 1), (0, 2) ].iter().enumerate() {
         let mut eval_dij    = |arg: &Vec2<N>| -na::sqnorm(&s.at_uv_nk(arg.x, arg.y, i, j));

@@ -7,12 +7,12 @@ macro_rules! decl_poly(
     ($t: ident, $dim: expr, $t1: ident, $comp0: ident $(,$compN: ident)*) => (
         /// A polynomial function.
         pub struct $t<N> {
-            coeffs: [N, ..$dim]
+            coeffs: [N; $dim]
         }
 
         impl<N: Copy> Clone for $t<N> {
             fn clone(&self) -> $t<N> {
-                let mut new_coeffs: [N, ..$dim] = [self.coeffs[0], ..$dim];
+                let mut new_coeffs: [N; $dim] = [self.coeffs[0]; $dim];
 
                 for i in range(1, $dim) {
                     new_coeffs[i] = self.coeffs[i];
