@@ -14,7 +14,7 @@ pub struct BezierCurveEvaluationCache<P> {
 }
 
 /// Procedural generator of non-rational Bézier curve.
-#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct BezierCurve<P> {
     control_points: Vec<P>
 }

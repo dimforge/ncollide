@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use na::{Pnt3, Vec3};
 use shape::Mesh3;
 use procedural::{ToTriMesh, TriMesh, TriMesh3, IndexBuffer};

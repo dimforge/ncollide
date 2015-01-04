@@ -4,7 +4,7 @@ use utils::AsBytes;
 
 /// A structure that implements `Eq` and is hashable even if the wrapped data implements only
 /// `PartialEq`.
-#[deriving(PartialEq, RustcEncodable, RustcDecodable, Clone, Rand, Show)]
+#[derive(PartialEq, RustcEncodable, RustcDecodable, Clone, Rand, Show)]
 pub struct HashablePartialEq<T> {
     value: T
 }

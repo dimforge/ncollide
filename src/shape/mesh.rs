@@ -1,5 +1,6 @@
 //! 2d line strip, 3d triangle Mesh, and nd subsimplex mesh.
 
+use std::ops::Deref;
 use std::sync::Arc;
 use na::{Translate, Rotate, Transform, AbsoluteRotate, Translation, Identity, Pnt2, One};
 use na;

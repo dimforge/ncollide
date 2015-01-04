@@ -6,7 +6,7 @@ use shape::MeshElement;
 
 
 /// A segment shape.
-#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct Segment<P> {
     a: P,
     b: P

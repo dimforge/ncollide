@@ -1,9 +1,13 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use na::{Cast, Zero};
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymSub, SymMult, SymNeg};
 use utils::symbolic;
 
 /// The composition operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymComp<A, B> {
     a: A,
     b: B

@@ -1,3 +1,4 @@
+use std::ops::IndexMut;
 use na::{Orig, Zero, BaseFloat, Pnt2, Pnt3, Mat1, Mat3};
 use na;
 use volumetric::Volumetric;

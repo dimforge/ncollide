@@ -1,3 +1,6 @@
+use std::cmp::Ordering::{Greater, Less, Equal};
+use std::ops::Add;
+use std::ops::Mul;
 use std::num::Float;
 use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR, Zero, Bounded};
 use na;
@@ -561,9 +564,9 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
 struct TriangleFacet<N, P, V> {
     valid:             bool,
     normal:            V,
-    adj:               [uint, ..3],
-    indirect_adj_id:   [uint, ..3],
-    pts:               [uint, ..3],
+    adj:               [uint; 3],
+    indirect_adj_id:   [uint; 3],
+    pts:               [uint; 3],
     visible_points:    Vec<uint>,
     furthest_point:    uint,
     furthest_distance: N
@@ -865,7 +868,7 @@ struct SegmentFacet<P, V> {
     pub normal:         V,
     pub next:           uint,
     pub prev:           uint,
-    pub pts:            [uint, ..2],
+    pub pts:            [uint; 2],
     pub visible_points: Vec<uint>
 }
 

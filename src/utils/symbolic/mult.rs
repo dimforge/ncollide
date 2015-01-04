@@ -1,3 +1,7 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Sub;
+use std::ops::Neg;
 use na::{Cast, Zero};
 use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymSub, SymNeg};
@@ -5,7 +9,7 @@ use utils::symbolic;
 use utils;
 
 /// The multiplication operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymMult<A, B> {
     a: A,
     b: B

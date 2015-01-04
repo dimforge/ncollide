@@ -1,10 +1,14 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use na::{Zero, One};
 use na;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymSub, SymNeg};
 use utils::symbolic;
 
 /// A bivariate function of `U`.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct U;
 
 /// A bivariate function of `u`.

@@ -1,8 +1,12 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymSub, SymAdd, SymMult};
 use utils::symbolic;
 
 /// The negation operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymNeg<A> {
     a: A
 }

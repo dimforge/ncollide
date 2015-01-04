@@ -1,3 +1,4 @@
+use std::ops::Neg;
 use support_map::SupportMap;
 use shape::Reflection;
 use math::{Scalar, Vect};

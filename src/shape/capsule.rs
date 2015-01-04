@@ -3,7 +3,7 @@
 use math::Scalar;
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
-#[deriving(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct Capsule<N> {
     half_height: N,
     radius:      N,

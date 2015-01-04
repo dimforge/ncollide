@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use na::{Pnt2, Vec3, Transform, Rotate};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};

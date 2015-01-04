@@ -1,5 +1,6 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
+use std::ops::Deref;
 use std::mem;
 use std::cell::RefCell;
 use std::iter::repeat;
@@ -14,7 +15,7 @@ use math::{Scalar, Point, Vect};
 thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct JohnsonSimplex<N, P, V> {
     recursion_template: Arc<Vec<RecursionTemplate>>,
     points:             Vec<P>,
@@ -25,7 +26,7 @@ pub struct JohnsonSimplex<N, P, V> {
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-#[deriving(PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct RecursionTemplate {
     #[doc(hidden)]
     permutation_list: Vec<uint>,

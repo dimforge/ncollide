@@ -1,3 +1,6 @@
+use std::ops::Mul;
+use std::ops::Index;
+use std::ops::IndexMut;
 use std::collections::HashMap;
 use na::{Dim, Iterable, Translate, Rotate, Transform, Cross, Vec3, Pnt2};
 use na;
@@ -6,7 +9,7 @@ use utils::AsBytes;
 use math::{Scalar, Point, Vect};
 
 /// Different representations of the index buffer.
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Vec3<u32>>),
@@ -34,7 +37,7 @@ impl IndexBuffer {
     }
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 /// Shapeetric description of a mesh.
 pub struct TriMesh<N, P, V> {
     // FIXME: those should *not* be public.

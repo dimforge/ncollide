@@ -1,8 +1,12 @@
+use std::ops::Neg;
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Sub;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymSub, SymMult, SymNeg};
 use utils::symbolic;
 
 /// The addition operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymAdd<A, B> {
     a: A,
     b: B

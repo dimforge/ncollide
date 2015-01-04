@@ -1,9 +1,13 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;
 use math::Scalar;
 
 /// The exponential function.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Exp;
 
 /// The exponential function.

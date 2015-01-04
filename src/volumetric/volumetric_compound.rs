@@ -1,3 +1,5 @@
+use std::ops::Mul;
+use std::ops::Add;
 use na::{Cross, Zero};
 use na;
 use volumetric::{Volumetric, InertiaTensor};

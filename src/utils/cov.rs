@@ -1,3 +1,5 @@
+use std::ops::Mul;
+use std::ops::Add;
 use std::fmt::Show;
 use na::{Outer, Inv, Zero};
 use na;

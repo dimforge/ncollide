@@ -1,9 +1,11 @@
 //! A map using object implementing `HasUid` as keys.
 
+use std::ops::Index;
 use std::num::Int;
 use std::iter;
 use std::default::Default;
 use std::intrinsics::TypeId;
+use std::iter::FromIterator;
 use std::collections::hash_map::Entry;
 use std::collections::vec_map;
 use std::collections::{VecMap, HashMap};
@@ -11,7 +13,7 @@ use utils::data::has_uid::HasUid;
 
 /// A special type of key used by `HasUidMap` to perform faster lookups than with the user-defined
 /// key `K`.
-#[deriving(Show, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable, Copy)]
+#[derive(Show, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable, Copy)]
 pub struct FastKey {
     uid: uint
 }
@@ -33,14 +35,14 @@ impl HasUid for FastKey {
     }
 }
 
-#[deriving(Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Show, Clone, RustcEncodable, RustcDecodable)]
 struct LookupData<K, O> {
     uid2key:   HashMap<uint, FastKey>,
     free_keys: Vec<FastKey>
 }
 
 /// A set of values having large uint key.
-#[deriving(Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct HasUidMap<K, O> {
     values: VecMap<(K, O)>,
     lookup: Option<LookupData<K, O>>

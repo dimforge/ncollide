@@ -1,10 +1,14 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use utils;
 use utils::symbolic::{UnivariateFn, SymAdd, SymMult, SymSub, SymNeg, SymComp};
 use utils::symbolic;
 use math::Scalar;
 
 /// The sinus function.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Sin;
 
 /// The sinus function.
