@@ -23,7 +23,7 @@ pub trait SurfaceSelector<N, P, D> {
 /// A selector that does not filter out any surface.
 ///
 /// Do not use this.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct YesSirSurfaceSelector<N, P>;
 
 impl<N, P> YesSirSurfaceSelector<N, P> {
@@ -54,7 +54,7 @@ impl<N, P> SurfaceSelector<N, P, ()> for YesSirSurfaceSelector<N, P> {
 ///
 /// This is the criteria from `Improved algorithms for the projection of points on NURBS curves and
 /// surfaces`, Ilijas Selimovic.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct HyperPlaneSurfaceSelector<N, P> {
     max_lmd: N
 }
@@ -117,7 +117,7 @@ impl<N, P, V> SurfaceSelector<N, P, BoundingSphere<N, P>> for HyperPlaneSurfaceS
 ///
 /// This is the criteria from `Distance Extrema for Spline Models Using Tangent Cones`, Ilijas
 /// Selimovic.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct TangentConesSurfaceSelector<N, P> {
     diff_u:  BezierSurface<P>,
     diff_v:  BezierSurface<P>,

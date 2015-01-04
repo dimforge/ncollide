@@ -4,7 +4,7 @@ use utils::symbolic;
 use math::Scalar;
 
 /// The cosinus function.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Cos;
 
 /// The cosinus function.

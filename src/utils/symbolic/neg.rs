@@ -2,7 +2,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymSub, SymAdd, SymMult};
 use utils::symbolic;
 
 /// The negation operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymNeg<A> {
     a: A
 }

@@ -6,7 +6,7 @@ use utils::AsBytes;
 use math::{Scalar, Point, Vect};
 
 /// Different representations of the index buffer.
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Vec3<u32>>),
@@ -34,7 +34,7 @@ impl IndexBuffer {
     }
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 /// Shapeetric description of a mesh.
 pub struct TriMesh<N, P, V> {
     // FIXME: those should *not* be public.

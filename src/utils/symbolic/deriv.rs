@@ -2,7 +2,7 @@ use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymSub, SymMult, SymNeg
 use utils::symbolic;
 
 /// The derivative of `A`.
-#[deriving(Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Deriv<A> {
     a: A
 }
@@ -40,7 +40,7 @@ impl<A: UnivariateFn<N, O>, N: Copy, O> UnivariateFn<N, O> for Deriv<A> {
 impl_ops!(Deriv);
 
 /// The derivative of `A` wrt. `u`.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct DerivU<A> {
     a: A
 }
@@ -93,7 +93,7 @@ impl<A: BivariateFn<N, O>, N: Copy, O: Clone> BivariateFn<N, O> for DerivU<A> {
 impl_ops!(DerivU);
 
 /// The derivative of `A` wrt. `v`.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct DerivV<A> {
     a: A
 }

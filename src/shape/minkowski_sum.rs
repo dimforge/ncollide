@@ -21,7 +21,7 @@ pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflecti
  *  - `G1`: type of the first object involved on the sum.
  *  - `G2`: type of the second object involved on the sum.
  */
-#[deriving(Show)]
+#[derive(Show)]
 pub struct MinkowskiSum<'a, M: 'a, G1: 'a, G2: 'a> {
     m1: &'a M,
     g1: &'a G1,
@@ -71,7 +71,7 @@ impl<'a, M, G1, G2> MinkowskiSum<'a, M, G1, G2> {
  * * `G1`: type of the first object involved on the sum.
  * * `G2`: type of the second object involved on the sum.
  */
-#[deriving(Show)]
+#[derive(Show)]
 pub struct AnnotatedMinkowskiSum<'a, M: 'a, G1: 'a, G2: 'a> {
     m1: &'a M,
     g1: &'a G1,
@@ -117,7 +117,7 @@ impl<'a, M, G1, G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 // FIXME: AnnotatedPoint is not a good name.
 // XXX: do not hide the documentation!
 #[doc(hidden)]
-#[deriving(Clone, Copy, Show, RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy, Show, RustcEncodable, RustcDecodable)]
 pub struct AnnotatedPoint<P> {
     orig1: P,
     orig2: P,

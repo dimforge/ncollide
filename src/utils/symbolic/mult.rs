@@ -5,7 +5,7 @@ use utils::symbolic;
 use utils;
 
 /// The multiplication operator.
-#[deriving(Clone, Show, Copy)]
+#[derive(Clone, Show, Copy)]
 pub struct SymMult<A, B> {
     a: A,
     b: B

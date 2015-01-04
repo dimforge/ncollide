@@ -12,7 +12,7 @@ pub trait HasAABB<P, M> {
 }
 
 /// An Axis Aligned Bounding Box.
-#[deriving(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct AABB<P> {
     mins: P,
     maxs: P

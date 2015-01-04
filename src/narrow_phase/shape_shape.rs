@@ -38,7 +38,7 @@ pub trait ShapeShapeCollisionDetector<N, P, V, M> {
 /// This is used to know the exact type of the shapes.
 pub trait DynamicCollisionDetector<N, P, V, M, G1, G2>: ShapeShapeCollisionDetector<N, P, V, M> { }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 struct DetectorWithoutRedispatch<D> {
     detector: D
 }

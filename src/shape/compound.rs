@@ -16,7 +16,7 @@ use math::{Scalar, Point, Vect, Isometry, HasInertiaMatrix};
 /// Structure used to build a `Compound` shape.
 ///
 /// This accumulates the shapes and their volumetric properties.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct CompoundData<N, P, V, M, I> {
     shapes: Vec<(M, Arc<Box<Shape<N, P, V, M> + Send + Sync>>)>,
     props:  Vec<(N, N, P, I)>
@@ -82,7 +82,7 @@ impl<N, P, V, M, I> CompoundData<N, P, V, M, I>
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct Compound<N, P, V, M> {
     surface: N,
     mass:    N,

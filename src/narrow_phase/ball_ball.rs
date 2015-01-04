@@ -8,7 +8,7 @@ use math::{Scalar, Point, Vect};
 
 
 /// Collision detector between two balls.
-#[deriving(RustcEncodable, RustcDecodable)]
+#[derive(RustcEncodable, RustcDecodable)]
 pub struct BallBall<N, P, V, M> {
     prediction: N,
     contact:    Option<Contact<N, P, V>>

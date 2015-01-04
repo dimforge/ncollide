@@ -12,7 +12,7 @@ use partitioning::bvt_visitor::BVTVisitor;
 use math::{Scalar, Point};
 
 
-#[deriving(RustcEncodable, RustcDecodable)]
+#[derive(RustcEncodable, RustcDecodable)]
 enum UpdateState {
     NeedsShrink,
     UpToDate
@@ -127,8 +127,8 @@ impl<N, P: Point<N, V>, V, BV: Translation<V>, B> DBVTInternal<P, B, BV> {
     }
 }
 
-#[allow(raw_pointer_deriving)]
-#[deriving(Clone)]
+#[allow(raw_pointer_derive)]
+#[derive(Clone)]
 /// State of a leaf.
 enum DBVTLeafState<P, B, BV> {
     /// This leaf is the right child of another node.
@@ -161,7 +161,7 @@ impl<P, B, BV> DBVTLeafState<P, B, BV> {
 }
 
 /// Leaf of a Dynamic Bounding Volume Tree.
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct DBVTLeaf<P, B, BV> {
     /// The bounding volume of this node.
     pub bounding_volume: BV,
