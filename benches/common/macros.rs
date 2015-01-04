@@ -2,15 +2,15 @@
 
 macro_rules! bench_free_fn(
     ($name: ident, $function: path $(, $args: ident: $types: ty)*) => {
-        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*)
+        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*);
     }
-)
+);
 
 macro_rules! bench_method(
     ($name: ident, $method: ident, $arg: ident: $typ: ty $(, $args: ident: $types: ty)*) => {
-        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*)
+        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*);
     }
-)
+);
 
 macro_rules! bench_free_fn_gen(
     ($name: ident, $function: path $(, $args: ident: $types: ty = $gens: path)*) => {
@@ -32,7 +32,7 @@ macro_rules! bench_free_fn_gen(
             });
         }
     }
-)
+);
 
 macro_rules! bench_method_gen(
     ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path $(, $args: ident: $types: ty = $gens: path)*) => {
@@ -55,4 +55,4 @@ macro_rules! bench_method_gen(
             })
         }
     }
-)
+);

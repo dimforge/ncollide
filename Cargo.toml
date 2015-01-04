@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide"
-version = "0.2.0"
+version = "0.3.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
@@ -11,13 +11,6 @@ readme = "README.md"
 keywords = [ "collision detection", "contact", "time of impact", "geometry", "distance", "ray cast", "convex", "intersection" ]
 license = "BSD-3-Clause"
 
-[features]
-default = [ "2df32", "2df64", "3df32", "3df64" ]
-2df32 = []
-2df64 = []
-3df32 = []
-3df64 = []
-
 [lib]
 name = "ncollide"
 path = "src/lib.rs"
@@ -27,3 +20,9 @@ rustc-serialize = "*"
 
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"
+
+[dependencies.ncollide_pipeline]
+path = "ncollide_pipeline"
+
+[dependencies.ncollide_transformation]
+path = "ncollide_pipeline"

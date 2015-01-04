@@ -1,0 +1,11 @@
+[package]
+name    = "ncollide_math"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_math"
+path = "lib.rs"
+
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"

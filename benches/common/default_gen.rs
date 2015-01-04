@@ -74,7 +74,7 @@ impl<N, P, V> DefaultGen for Convex<P>
     fn generate<R: Rng>(rng: &mut R) -> Convex<P> {
         // It is recommanded to have at most 100 points.
         // Otherwise, a smarter structure like the DK hierarchy would be needed.
-        let pts = Vec::from_fn(100, |_| na::orig::<P>() + rng.gen::<V>());
+        let pts = range(0, 100).map(|_| na::orig::<P>() + rng.gen::<V>()).collect();
         Convex::new(pts)
     }
 }

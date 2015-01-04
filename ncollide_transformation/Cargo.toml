@@ -1,0 +1,14 @@
+[package]
+name    = "ncollide_transformation"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_transformation"
+path = "lib.rs"
+
+[dependencies.ncollide_queries]
+path = "../ncollide_queries"
+
+[dependencies.ncollide_procedural]
+path = "../ncollide_procedural"

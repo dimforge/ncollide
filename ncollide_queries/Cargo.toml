@@ -1,0 +1,14 @@
+[package]
+name    = "ncollide_queries"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_queries"
+path = "lib.rs"
+
+[dependencies.ncollide_entities]
+path = "../ncollide_entities"
+
+[dependencies.ncollide_procedural]
+path = "../ncollide_procedural"

@@ -1,0 +1,11 @@
+[package]
+name    = "ncollide_entities"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_entities"
+path = "lib.rs"
+
+[dependencies.ncollide_utils]
+path = "../ncollide_utils"
