@@ -10,7 +10,7 @@ use math::{Scalar, Point, Vect};
 #[inline]
 fn ball_uv<N, V>(normal: &V) -> Option<Pnt2<N>>
     where N: Scalar,
-          V: Index<uint, N> + Dim {
+          V: Index<uint, Output = N> + Dim {
     if na::dim::<V>() == 3 {
         let two_pi: N = BaseFloat::two_pi();
         let pi:     N = BaseFloat::pi();

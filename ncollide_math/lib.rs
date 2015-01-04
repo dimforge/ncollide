@@ -1,5 +1,7 @@
 //! Trait implemented by the types used by ncollide.
 
+#![feature(default_type_params)]
+
 extern crate "nalgebra" as na;
 
 use std::rand::Rand;
@@ -20,14 +22,14 @@ pub trait Scalar: Copy + Send + Sync + Show +
 pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
                        POrd         + Bounded           + ScalarSub<N> +
                        ScalarAdd<N> + ScalarMul<N>      + ScalarDiv<N> +
-                       IndexMut<uint, N> + Clone + Copy + Show {
+                       IndexMut<uint, Output = N> + Clone + Copy + Show {
 }
 
 
 /// Trait implemented by vector types.
 pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
-                   UniformSphereSample + Clone + IndexMut<uint, N> +
-                   Rand                + Shape<uint, N> + POrd +
+                   UniformSphereSample + Clone + IndexMut<uint, Output = N> +
+                   Rand                + Shape<uint> + POrd +
                    Absolute<Self>      + Iterable<N> + Copy + Show {
 }
 
@@ -35,7 +37,7 @@ pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
 pub trait Isometry<N, P, V>: Send           + Sync              + One          +
                              Translation<V> + Rotate<V>         + Translate<P> +
                              Transform<P>   + AbsoluteRotate<V> + Inv          +
-                             Clone + Mul<Self, Self> + Copy + Show {
+                             Clone + Mul<Self, Output = Self> + Copy + Show {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.

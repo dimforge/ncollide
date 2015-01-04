@@ -41,7 +41,6 @@ pub use sort::sort3;
 pub use cross3::cross3;
 
 
-pub mod symbolic;
 pub mod data;
 mod center;
 mod project_homogeneous;

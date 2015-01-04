@@ -29,7 +29,7 @@ impl<N, P, V, M, CD> OneShotContactManifoldGenerator<N, P, V, CD>
 impl<N, P, V, AV, M, CD> CollisionDetector<N, P, V, M> for OneShotContactManifoldGenerator<N, P, V, CD>
     where N: Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Cross<AV>,
+          V:  Vect<N> + Cross<Output = AV>,
           AV: Vect<N>,
           M:  Transform<P> + Translation<V> + Rotation<AV>,
           CD: CollisionDetector<N, P, V, M> {

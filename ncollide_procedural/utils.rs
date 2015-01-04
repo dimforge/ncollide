@@ -28,7 +28,7 @@ pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mu
 #[inline]
 pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
     where N: Scalar,
-          P: Dim + Orig + Index<uint, N> + IndexMut<uint, N> {
+          P: Dim + Orig + Index<uint, Output = N> + IndexMut<uint, Output = N> {
     assert!(na::dim::<P>() >= 2);
 
     let mut curr_theta: N = na::zero();
@@ -206,7 +206,7 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
 pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Pnt3<u32>], normals: &mut Vec<V>)
     where N: Scalar,
           P: Point<N, V>,
-          V: Vect<N> + Cross<V> {
+          V: Vect<N> + Cross<Output = V> {
     let mut divisor: Vec<N> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.

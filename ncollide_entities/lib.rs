@@ -12,9 +12,9 @@
 #![feature(macro_rules)]
 #![feature(unsafe_destructor)]
 #![feature(associated_types)]
-#![feature(old_orphan_check)]
 #![feature(globs)]
 #![feature(phase)]
+#![feature(old_orphan_check)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate test; // To compute the median.

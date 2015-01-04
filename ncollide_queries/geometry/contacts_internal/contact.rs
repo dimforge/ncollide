@@ -30,7 +30,7 @@ impl<N, P, V> Contact<N, P, V> {
     }
 }
 
-impl<N, P, V: Clone + Neg<V>> Contact<N, P, V> {
+impl<N, P, V: Clone + Neg<Output = V>> Contact<N, P, V> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {

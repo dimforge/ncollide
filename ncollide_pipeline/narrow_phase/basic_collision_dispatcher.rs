@@ -33,7 +33,7 @@ impl<N> BasicCollisionDispatcher<N> {
 impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatcher<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<Output = AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV> {
     fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<N, P, V, M>> {

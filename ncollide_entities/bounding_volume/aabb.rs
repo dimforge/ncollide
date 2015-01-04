@@ -36,7 +36,7 @@ impl<P: POrd> AABB<P> {
     }
 }
 
-impl<P: Neg<P> + POrd + Bounded> AABB<P> {
+impl<P: Neg<Output = P> + POrd + Bounded> AABB<P> {
     /// Creates an invalid AABB with:
     /// * `mins = Bounded::max_value()`
     /// * `maxs = Bounded::max_value()`.

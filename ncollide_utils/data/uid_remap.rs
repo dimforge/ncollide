@@ -263,7 +263,7 @@ impl<O: Clone> UidRemap<O> {
 
 impl<O> FromIterator<(uint, O)> for UidRemap<O> {
     #[inline]
-    fn from_iter<Iter: Iterator<(uint, O)>>(iter: Iter) -> UidRemap<O> {
+    fn from_iter<Iter: Iterator<Item = (uint, O)>>(iter: Iter) -> UidRemap<O> {
         let mut map = UidRemap::new(false);
         map.extend(iter);
         map
@@ -272,14 +272,16 @@ impl<O> FromIterator<(uint, O)> for UidRemap<O> {
 
 impl<O> Extend<(uint, O)> for UidRemap<O> {
     #[inline]
-    fn extend<Iter: Iterator<(uint, O)>>(&mut self, mut iter: Iter) {
+    fn extend<Iter: Iterator<Item = (uint, O)>>(&mut self, mut iter: Iter) {
         for (k, v) in iter {
             let _ = self.insert(k, v);
         }
     }
 }
 
-impl<O> Index<FastKey, O> for UidRemap<O> {
+impl<O> Index<FastKey> for UidRemap<O> {
+    type Output = O;
+
     #[inline]
     fn index(&self, key: &FastKey) -> &O {
         self.get_fast(key).expect("key not present")

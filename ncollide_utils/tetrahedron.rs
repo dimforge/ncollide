@@ -8,7 +8,7 @@ use math::{Scalar, Point};
 pub fn tetrahedron_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
     where N: Scalar,
           P: Point<N, V>,
-          V: Index<uint, N> {
+          V: Index<uint, Output = N> {
     tetrahedron_signed_volume(p1, p2, p3, p4).abs()
 }
 
@@ -20,7 +20,7 @@ pub fn tetrahedron_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
 pub fn tetrahedron_signed_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
     where N: Scalar,
           P: Point<N, V>,
-          V: Index<uint, N> {
+          V: Index<uint, Output = N> {
     assert!(na::dim::<P>() == 3);
 
     let p1p2 = *p2 - *p1;

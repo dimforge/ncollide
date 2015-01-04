@@ -140,7 +140,7 @@ impl<N, P: Point<N, V>, V> TriMesh<N, P, V> {
 impl<N, P, V> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
-          V: Vect<N> + Cross<V> {
+          V: Vect<N> + Cross<Output = V> {
     /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
     /// infered from the index buffer.
     #[inline]
@@ -167,8 +167,8 @@ impl<N, P, V> TriMesh<N, P, V>
 
 impl<N, P, V> TriMesh<N, P, V>
     where N: Scalar,
-          P: Index<uint, N> + IndexMut<uint, N>,
-          V: Dim + Index<uint, N> {
+          P: Index<uint, Output = N> + IndexMut<uint, Output = N>,
+          V: Dim + Index<uint, Output = N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
@@ -181,7 +181,7 @@ impl<N, P, V> TriMesh<N, P, V>
     }
 }
 
-impl<N: Copy, P: Copy + Mul<N, P>, V> TriMesh<N, P, V> {
+impl<N: Copy, P: Copy + Mul<N, Output = P>, V> TriMesh<N, P, V> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by_scalar(&mut self, s: N) {

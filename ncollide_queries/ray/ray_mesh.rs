@@ -13,7 +13,7 @@ impl<N, P, V, I, E> LocalRayCast<N, P, V> for BaseMesh<N, P, V, I, E>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
-          I: Index<uint, uint>,
+          I: Index<uint, Output = uint>,
           E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<P, V>, _: bool) -> Option<N> {
@@ -89,7 +89,7 @@ impl<N, P, V, M, I, E> RayCast<N, P, V, M> for BaseMesh<N, P, V, I, E>
           P: Point<N, V>,
           V: Vect<N>,
           M: Transform<P> + Rotate<V>,
-          I: Index<uint, uint>,
+          I: Index<uint, Output = uint>,
           E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
 }
 
@@ -150,7 +150,7 @@ for BaseMeshRayToiAndNormalAndUVsCostFn<'a, N, P, V, I, E>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
-          I: Index<uint, uint>,
+          I: Index<uint, Output = uint>,
           E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<N> {

@@ -32,7 +32,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
 }
 
 impl<V: Clone, M> PreferedSamplingDirections<V, M> for Cuboid<V>
-    where V: Basis + Neg<V>,
+    where V: Basis + Neg<Output = V>,
           M: Rotate<V> {
     #[inline(always)]
     fn sample(&self, transform: &M, f: |V| -> ()) {

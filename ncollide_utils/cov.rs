@@ -11,7 +11,7 @@ pub fn cov<N, P, V, M>(pts: &[P]) -> M
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: Add<M, M> + Zero {
+          M: Add<M, Output = M> + Zero {
     cov_and_center(pts).0
 }
 
@@ -20,7 +20,7 @@ pub fn cov_and_center<N, P, V, M>(pts: &[P]) -> (M, P)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: Add<M, M> + Zero {
+          M: Add<M, Output = M> + Zero {
     let center        = ::center(pts);
     let mut cov: M    = na::zero();
     let normalizer: N = na::cast(1.0 / (pts.len() as f64));
@@ -42,7 +42,7 @@ pub fn center_reduce<N, P, V, M>(pts: &mut [P]) -> (M, P, bool)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: Add<M, M> + Zero + Mul<P, P> + Inv + Copy + Show {
+          M: Add<M, Output = M> + Zero + Mul<P, Output = P> + Inv + Copy + Show {
     let (cov, center) = cov_and_center(pts);
 
     match na::inv(&cov) {

@@ -30,7 +30,7 @@ pub struct CollisionWorld<N, P, V, M, T> {
 impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + Cross<AV>,
+          V:  Vect<N> + Translate<P> + Cross<Output = AV>,
           AV: Vect<N>,
           M:  Isometry<N, P, V> + Rotation<AV> {
     /// Creates a new collision world.

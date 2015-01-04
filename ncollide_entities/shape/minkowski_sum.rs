@@ -186,16 +186,20 @@ impl<P: PntAsVec<V>, V> PntAsVec<V> for AnnotatedPoint<P> {
     }
 }
 
-impl<N, P: Index<uint, N>> Index<uint, N> for AnnotatedPoint<P> {
+impl<P: Index<uint>> Index<uint> for AnnotatedPoint<P> {
+    type Output = P::Output;
+
     #[inline]
-    fn index(&self, i: &uint) -> &N {
+    fn index(&self, i: &uint) -> &P::Output {
         &self.point[*i]
     }
 }
 
-impl<N, P: IndexMut<uint, N>> IndexMut<uint, N> for AnnotatedPoint<P> {
+impl<P: IndexMut<uint>> IndexMut<uint> for AnnotatedPoint<P> {
+    type Output = P::Output;
+
     #[inline]
-    fn index_mut(&mut self, _: &uint) -> &mut N {
+    fn index_mut(&mut self, _: &uint) -> &mut P::Output {
         unimplemented!()
     }
 }
@@ -226,10 +230,12 @@ impl<P: Orig> Orig for AnnotatedPoint<P> {
     }
 }
 
-impl<N, P, V> Add<V, AnnotatedPoint<P>> for AnnotatedPoint<P>
+impl<N, P, V> Add<V> for AnnotatedPoint<P>
     where N: Scalar,
-          P: Add<V, P>,
-          V: Copy + Mul<N, V> {
+          P: Add<V, Output = P>,
+          V: Copy + Mul<N, Output = V> {
+    type Output = AnnotatedPoint<P>;
+
     #[inline]
     fn add(self, other: V) -> AnnotatedPoint<P> {
         let _0_5: N = na::cast(0.5f64);
@@ -251,9 +257,10 @@ impl<N, P: Axpy<N>> Axpy<N> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Sub<P, V>, V> Sub<AnnotatedPoint<P>, V> for AnnotatedPoint<P> {
+impl<P: Sub<P>> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
+    type Output = P::Output;
     #[inline]
-    fn sub(self, other: AnnotatedPoint<P>) -> V {
+    fn sub(self, other: AnnotatedPoint<P>) -> P::Output {
         self.point - other.point
     }
 }
@@ -286,7 +293,9 @@ impl<N, P, V> ScalarDiv<N> for AnnotatedPoint<P>
     }
 }
 
-impl<P: Neg<P>> Neg<AnnotatedPoint<P>> for AnnotatedPoint<P> {
+impl<P: Neg<Output = P>> Neg for AnnotatedPoint<P> {
+    type Output = AnnotatedPoint<P>;
+
     #[inline]
     fn neg(self) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(-self.orig1, -self.orig2, -self.point)
@@ -300,14 +309,18 @@ impl<P: Dim> Dim for AnnotatedPoint<P> {
     }
 }
 
-impl<N: Copy, P: Div<N, P>> Div<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
+impl<N: Copy, P: Div<N, Output = P>> Div<N> for AnnotatedPoint<P> {
+    type Output = AnnotatedPoint<P>;
+
     #[inline]
     fn div(self, n: N) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(self.orig1 / n, self.orig2 / n, self.point / n)
     }
 }
 
-impl<N: Copy, P: Mul<N, P>> Mul<N, AnnotatedPoint<P>> for AnnotatedPoint<P> {
+impl<N: Copy, P: Mul<N, Output = P>> Mul<N> for AnnotatedPoint<P> {
+    type Output = AnnotatedPoint<P>;
+
     #[inline]
     fn mul(self, n: N) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(self.orig1 * n, self.orig2 * n, self.point * n)

@@ -25,7 +25,7 @@ pub trait CompositeShape<N, P, V, M> {
 }
 
 impl<N, P, V, M> CompositeShape<N, P, V, M> for Compound<N, P, V, M>
-    where M: Copy + Mul<M, M> {
+    where M: Copy + Mul<M, Output = M> {
     #[inline(always)]
     fn map_part_at(&self, i: uint, f: |&M, &Repr<N, P, V, M>| -> ()) {
         let &(ref m, ref g) = &self.shapes()[i];

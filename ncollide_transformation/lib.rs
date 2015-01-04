@@ -12,7 +12,7 @@
 #![feature(macro_rules)]
 #![feature(unsafe_destructor)]
 #![feature(associated_types)]
-#![feature(old_orphan_check)]
+// #![feature(old_orphan_check)]
 #![feature(globs)]
 #![feature(phase)]
 #![doc(html_root_url = "http://ncollide.org/doc")]

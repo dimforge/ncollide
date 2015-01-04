@@ -12,7 +12,7 @@ use math::Scalar;
 #[inline]
 pub fn cross3<N, V>(a: &V, b: &V) -> V
     where N: Scalar,
-          V: Zero + Index<uint, N> + IndexMut<uint, N> + Dim {
+          V: Zero + Index<uint, Output = N> + IndexMut<uint, Output = N> + Dim {
     assert!(na::dim::<V>() == 3);
 
     let mut res = na::zero::<V>();

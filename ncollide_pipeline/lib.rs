@@ -12,8 +12,6 @@
 #![feature(default_type_params)]
 #![feature(macro_rules)]
 #![feature(unsafe_destructor)]
-#![feature(associated_types)]
-#![feature(globs)]
 #![feature(old_orphan_check)]
 #![feature(unboxed_closures)]
 #![doc(html_root_url = "http://ncollide.org/doc")]

@@ -8,7 +8,7 @@ use math::{Scalar, Point};
 impl<N, P, V: Clone, M> HasAABB<P, M> for Cuboid<V>
     where N: Scalar,
           P: Point<N, V>,
-          V: Neg<V>,
+          V: Neg<Output = V>,
           M: Translate<P> + AbsoluteRotate<V> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {

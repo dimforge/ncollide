@@ -6,7 +6,7 @@ use math::{Scalar, Vect};
 
 impl<'a, N, P, V, M, Sized? G> SupportMap<P, V, M> for Reflection<'a, G>
     where N: Scalar,
-          P: Neg<P>,
+          P: Neg<Output = P>,
           V: Vect<N>,
           G: SupportMap<P, V, M> {
     #[inline]
@@ -18,7 +18,7 @@ impl<'a, N, P, V, M, Sized? G> SupportMap<P, V, M> for Reflection<'a, G>
 /// Trait of shapes having prefered sampling directions for the Minkowski sampling algorithm.
 ///
 /// Those directions are usually the shape faces normals.
-impl<'a, V: Neg<V>, M, Sized? G> PreferedSamplingDirections<V, M> for Reflection<'a, G>
+impl<'a, V: Neg<Output = V>, M, Sized? G> PreferedSamplingDirections<V, M> for Reflection<'a, G>
     where G: PreferedSamplingDirections<V, M> {
     /// Applies a function to this shape with a given transform.
     fn sample(&self, m: &M, f: |V| -> ()) {
