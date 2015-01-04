@@ -1,5 +1,6 @@
 //!  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 
+use std::ops::Deref;
 use std::mem;
 use std::cell::RefCell;
 use std::iter::repeat;

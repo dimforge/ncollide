@@ -50,6 +50,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![feature(unsafe_destructor)]
 #![feature(associated_types)]
 #![feature(globs)]
+#![feature(old_orphan_check)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 

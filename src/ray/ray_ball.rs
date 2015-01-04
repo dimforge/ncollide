@@ -1,3 +1,4 @@
+use std::ops::Index;
 use na::{Pnt2, Transform, Rotate, Translate, Dim, BaseFloat};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};

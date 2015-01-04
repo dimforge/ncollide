@@ -1,5 +1,8 @@
 //! A reference packed with a cost value.
 
+use std::cmp::Ordering;
+use std::cmp::Ordering::{Greater, Less, Equal};
+
 /// A reference packed with a cost value.
 pub struct RefWithCost<'a, N, T: 'a> {
     /// The reference to an object.

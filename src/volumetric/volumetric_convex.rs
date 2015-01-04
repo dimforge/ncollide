@@ -1,3 +1,6 @@
+use std::ops::IndexMut;
+use std::ops::Mul;
+use std::ops::Add;
 // XXX: implement this for 2d too.
 
 use na::{FloatVec, Outer, EigenQR, Pnt3, Mat3, Zero};

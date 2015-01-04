@@ -1,5 +1,8 @@
 //! Utilities useful for various generations tasks.
 
+use std::ops::IndexMut;
+use std::ops::Index;
+
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::iter::repeat;

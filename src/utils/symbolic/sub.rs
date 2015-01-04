@@ -1,3 +1,7 @@
+use std::ops::Add;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
 use utils::symbolic::{UnivariateFn, BivariateFn, SymAdd, SymMult, SymNeg};
 use utils::symbolic;
 

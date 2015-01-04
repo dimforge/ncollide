@@ -1,5 +1,7 @@
 //! Traits to compute inertial properties.
 
+use std::ops::Mul;
+
 use na;
 use na::{Pnt2, Pnt3, Vec1, Vec3, Iso2, Iso3, Mat1, Mat3};
 use math::Scalar;

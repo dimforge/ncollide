@@ -1,3 +1,6 @@
+use std::ops::Sub;
+use std::ops::IndexMut;
+use std::ops::Index;
 use std::num::Float;
 use na::{Cross, Norm, Dim, Zero};
 use na;

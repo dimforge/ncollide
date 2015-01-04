@@ -1,3 +1,6 @@
+use std::ops::Mul;
+use std::ops::Index;
+use std::ops::IndexMut;
 use std::collections::HashMap;
 use na::{Dim, Iterable, Translate, Rotate, Transform, Cross, Vec3, Pnt2};
 use na;

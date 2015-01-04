@@ -1,3 +1,4 @@
+use std::ops::Neg;
 use std::mem;
 
 /// Geometric description of a contact.

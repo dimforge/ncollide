@@ -1,3 +1,5 @@
+use std::ops::Add;
+use std::ops::Mul;
 use na::{Outer, EigenQR, Translate, Zero};
 use na;
 use shape::MinkowskiSum;

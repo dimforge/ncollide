@@ -1,3 +1,4 @@
+use std::ops::Mul;
 use std::any::AnyRefExt;
 use na::Inv;
 use na;

@@ -1,5 +1,7 @@
 //! Tree used to cache subdivisions of surfaces.
 
+use std::ops::Deref;
+
 use std::collections::{HashMap};
 use std::collections::hash_map::Entry;
 use std::sync::{Arc, RWLock};
@@ -46,8 +48,9 @@ impl<P: Send + Sync, D> SurfaceSubdivisionTreeRef<P, D> {
     }
 }
 
-impl<P: Send + Sync, D> Deref<Arc<RWLock<SurfaceSubdivisionTree<P, D>>>> for SurfaceSubdivisionTreeRef<P, D> {
-    fn deref<'a>(&'a self) -> &'a Arc<RWLock<SurfaceSubdivisionTree<P, D>>> {
+impl<P: Send + Sync, D> Deref for SurfaceSubdivisionTreeRef<P, D> {
+    type Target = Arc<RWLock<SurfaceSubdivisionTree<P, D>>>;
+    fn deref<'a>(&'a self) -> &'a <Self as Deref>::Target {
         &self.value
     }
 }

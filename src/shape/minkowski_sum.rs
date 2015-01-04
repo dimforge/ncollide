@@ -1,5 +1,13 @@
 //! Minkowski sum.
 
+use std::ops::Mul;
+use std::ops::Div;
+use std::ops::Neg;
+use std::ops::Sub;
+use std::ops::Add;
+use std::ops::IndexMut;
+use std::ops::Index;
+
 use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, NumVec, POrd,
          POrdering, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv, FloatPnt, Bounded};
 use na;

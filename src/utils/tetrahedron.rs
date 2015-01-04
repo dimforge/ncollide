@@ -1,3 +1,4 @@
+use std::ops::Index;
 use na::{Mat3, Axpy, ScalarMul};
 use na;
 use utils;

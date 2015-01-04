@@ -1,5 +1,6 @@
 //! A Dynamic Bounding Volume Tree.
 
+use std::ops::DerefMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::ptr;

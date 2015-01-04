@@ -1,9 +1,11 @@
 //! A map using object implementing `HasUid` as keys.
 
+use std::ops::Index;
 use std::num::Int;
 use std::iter;
 use std::default::Default;
 use std::intrinsics::TypeId;
+use std::iter::FromIterator;
 use std::collections::hash_map::Entry;
 use std::collections::vec_map;
 use std::collections::{VecMap, HashMap};

@@ -1,3 +1,5 @@
+use std::ops::Index;
+use std::ops::IndexMut;
 use na;
 use na::{Translate, Rotate, Transform, Dim};
 use math::{Scalar, Point, Vect};

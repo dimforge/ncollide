@@ -1,4 +1,6 @@
 use std::mem;
+use std::cmp::Ordering;
+use std::cmp::Ordering::{Greater, Less, Equal};
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
 use std::rand::{IsaacRng, Rng};

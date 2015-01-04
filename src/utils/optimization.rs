@@ -1,3 +1,6 @@
+use std::ops::Sub;
+use std::ops::Add;
+use std::ops::Mul;
 use std::num::Float;
 use std::rand::Rand;
 use std::rand;

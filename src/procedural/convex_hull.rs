@@ -1,3 +1,6 @@
+use std::cmp::Ordering::{Greater, Less, Equal};
+use std::ops::Add;
+use std::ops::Mul;
 use std::num::Float;
 use na::{Identity, Pnt2, Vec3, Norm, Col, Diag, Outer, EigenQR, Zero, Bounded};
 use na;

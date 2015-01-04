@@ -1,5 +1,7 @@
 //! Axis Aligned Bounding Box.
 
+use std::ops::Neg;
+
 use na::{Translation, POrd, Translate, Bounded};
 use na;
 use bounding_volume::BoundingVolume;

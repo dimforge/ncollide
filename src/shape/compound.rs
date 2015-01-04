@@ -2,6 +2,9 @@
 //! Shapeetry composed from the union of primitives.
 //!
 
+use std::ops::Mul;
+use std::ops::Add;
+
 use std::any::{Any, AnyRefExt};
 use std::sync::Arc;
 use na::{Cross, Translate, Zero};

@@ -1,3 +1,4 @@
+use std::ops::Neg;
 use na::{AbsoluteRotate, Translate};
 use na;
 use bounding_volume::{HasAABB, AABB};

@@ -1,3 +1,4 @@
+use std::ops::Neg;
 
 use na::{Transform, Rotate, Basis};
 use na;

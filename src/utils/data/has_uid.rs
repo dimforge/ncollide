@@ -1,5 +1,6 @@
 //! Objects with an unique identifier.
 
+use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
 
