@@ -1,6 +1,5 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
-use std::mem;
 use std::sync::Arc;
 use na::{Translate, Dim, Pnt2, Pnt3};
 use partitioning::BVT;

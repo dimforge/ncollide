@@ -164,9 +164,9 @@ impl<O> UidRemap<O> {
                 // not a constant-time operation.
                 let len = data.uid2key.len();
 
-                match data.uid2key.entry(uid) {
+                match data.uid2key.entry(&uid) {
                     Entry::Occupied(entry) => {
-                        let fast_key = entry.take();
+                        let fast_key = entry.remove();
                         let old_value = self.values.insert(fast_key.uid, value);
                         // The key exists already in `uid2key` so `ord_value` should not be None.
                         assert!(old_value.is_some());
@@ -180,7 +180,7 @@ impl<O> UidRemap<O> {
                             Some(key) => key
                         };
 
-                        let _ = entry.set(fast_key);
+                        let _ = entry.insert(fast_key);
 
                         let old_value = self.values.insert(fast_key.uid(), value);
                         assert!(old_value.is_none());

@@ -644,9 +644,10 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
         let normals = mesh.normals.as_ref().unwrap().as_slice();
 
         let add_ray = |coord: u32, normal: u32| {
-            let existing = match raymap.entry((coord, normal)) {
+            let key = (coord, normal);
+            let existing = match raymap.entry(&key) {
                 Entry::Occupied(entry) => entry.into_mut(),
-                Entry::Vacant(entry)   => entry.set(rays.len())
+                Entry::Vacant(entry)   => entry.insert(rays.len())
             };
 
             if *existing == rays.len() {
@@ -696,9 +697,9 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
             let es = [ edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x) ];
 
             for e in es.iter() {
-                let other = match prim_edges.entry(e.clone()) {
+                let other = match prim_edges.entry(e) {
                     Entry::Occupied(entry) => entry.into_mut(),
-                    Entry::Vacant(entry)   => entry.set(i)
+                    Entry::Vacant(entry)   => entry.insert(i)
                 };
 
                 if *other != i {
