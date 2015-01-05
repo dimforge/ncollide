@@ -165,9 +165,9 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
                         new_coords: &mut Vec<P>)
                         -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
-        let id = match vtx_to_id.entry(key) {
+        let id = match vtx_to_id.entry(&key) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry)   => entry.set(new_coords.len() as u32)
+            Entry::Vacant(entry)   => entry.insert(new_coords.len() as u32)
         };
 
         if *id == new_coords.len() as u32 {

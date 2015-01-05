@@ -126,9 +126,9 @@ impl<N, P, V> Triangulator<N, P, V>
                     let edge_keys = [ s(t.idx.x, t.idx.y), s(t.idx.y, t.idx.z), s(t.idx.z, t.idx.x) ];
 
                     for edge_key in edge_keys.iter() {
-                        match self.edges.entry(edge_key.clone()) {
+                        match self.edges.entry(edge_key) {
                             Entry::Occupied(mut entry) => *entry.get_mut() += 1,
-                            Entry::Vacant(entry)       => { let _ = entry.set(1); }
+                            Entry::Vacant(entry)       => { let _ = entry.insert(1); }
                         };
                     }
                 }
