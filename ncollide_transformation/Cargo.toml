@@ -7,6 +7,21 @@ authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 name = "ncollide_transformation"
 path = "lib.rs"
 
+[dependencies]
+rustc-serialize = "*"
+
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"
+
+[dependencies.ncollide_math]
+path = "../ncollide_math"
+
+[dependencies.ncollide_utils]
+path = "../ncollide_utils"
+
+[dependencies.ncollide_entities]
+path = "../ncollide_entities"
+
 [dependencies.ncollide_queries]
 path = "../ncollide_queries"
 

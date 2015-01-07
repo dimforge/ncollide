@@ -23,7 +23,7 @@ pub fn maybe_repr_desc_as_support_map<'a, P, V, M>(desc: ReprDesc<'a>) -> Option
 
 /// Converts a shape to a support map if possible.
 #[inline]
-pub fn maybe_as_support_map<N, P, V, M, Sized? G>(g: &G) -> Option<&SupportMap<P, V, M>>
+pub fn maybe_as_support_map<N, P, V, M, G: ?Sized>(g: &G) -> Option<&SupportMap<P, V, M>>
     where G: Repr<N, P, V, M> {
     maybe_repr_desc_as_support_map(g.repr())
 }

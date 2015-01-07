@@ -23,14 +23,14 @@ pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflecti
  *  - `G2`: type of the second object involved on the sum.
  */
 #[derive(Show)]
-pub struct MinkowskiSum<'a, M: 'a, Sized? G1: 'a, Sized? G2: 'a> {
+pub struct MinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
     g2: &'a G2
 }
 
-impl<'a, M, Sized? G1, Sized? G2> MinkowskiSum<'a, M, G1, G2> {
+impl<'a, M, G1: ?Sized, G2: ?Sized> MinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.
@@ -73,14 +73,14 @@ impl<'a, M, Sized? G1, Sized? G2> MinkowskiSum<'a, M, G1, G2> {
  * * `G2`: type of the second object involved on the sum.
  */
 #[derive(Show)]
-pub struct AnnotatedMinkowskiSum<'a, M: 'a, Sized? G1: 'a, Sized? G2: 'a> {
+pub struct AnnotatedMinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
     g2: &'a G2
 }
 
-impl<'a, M, Sized? G1, Sized? G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
+impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.

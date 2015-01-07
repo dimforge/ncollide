@@ -1,7 +1,5 @@
 //! Trait implemented by the types used by ncollide.
 
-#![feature(default_type_params)]
-
 extern crate "nalgebra" as na;
 
 use std::rand::Rand;

@@ -11,10 +11,10 @@ use geometry::contacts_internal::Contact;
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn any_against_any<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, g1: &G1,
-                                                         m2: &M, g2: &G2,
-                                                         prediction: N)
-                                                         -> Option<Contact<N, P, V>>
+pub fn any_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
+                                                           m2: &M, g2: &G2,
+                                                           prediction: N)
+                                                           -> Option<Contact<N, P, V>>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P>,

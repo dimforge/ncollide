@@ -4,7 +4,7 @@ use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
 
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
@@ -16,7 +16,7 @@ impl<'a, N, P, V, M, Sized? G1, Sized? G2> SupportMap<P, V, Identity> for Minkow
     }
 }
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized>
 SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
@@ -33,13 +33,13 @@ SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, 
     }
 }
 
-impl<'a, V, M, Sized? G1, Sized? G2> PreferedSamplingDirections<V, Identity> for MinkowskiSum<'a, M, G1, G2> {
+impl<'a, V, M, G1: ?Sized, G2: ?Sized> PreferedSamplingDirections<V, Identity> for MinkowskiSum<'a, M, G1, G2> {
     #[inline(always)]
     fn sample(&self, _: &Identity, _: &mut FnMut(V)) {
     }
 }
 
-impl<'a, V, M, Sized? G1, Sized? G2> PreferedSamplingDirections<V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2> {
+impl<'a, V, M, G1: ?Sized, G2: ?Sized> PreferedSamplingDirections<V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2> {
     #[inline(always)]
     fn sample(&self, _: &Identity, _: &mut FnMut(V)) {
     }
@@ -48,10 +48,10 @@ impl<'a, V, M, Sized? G1, Sized? G2> PreferedSamplingDirections<V, Identity> for
 /// Computes the support point of the CSO `g1 - g2` on a given direction.
 ///
 /// The result is a support point with informations about how it has been constructed.
-pub fn cso_support_point<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, g1: &G1,
-                                                           m2: &M, g2: &G2,
-                                                           dir: V)
-                                                           -> AnnotatedPoint<P>
+pub fn cso_support_point<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
+                                                             m2: &M, g2: &G2,
+                                                             dir: V)
+                                                             -> AnnotatedPoint<P>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,

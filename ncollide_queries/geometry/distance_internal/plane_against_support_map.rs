@@ -5,9 +5,9 @@ use entities::shape::Plane;
 use math::{Scalar, Point, Vect};
 
 /// Distance between a plane and a support-mapped shape.
-pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, plane: &Plane<V>,
-                                                       mother: &M, other: &G)
-                                                       -> N
+pub fn plane_against_support_map<N, P, V, M, G: ?Sized>(mplane: &M, plane: &Plane<V>,
+                                                        mother: &M, other: &G)
+                                                        -> N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -28,9 +28,9 @@ pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, plane: &Plane
 }
 
 /// Distance between a support-mapped shape and a plane.
-pub fn support_map_against_plane<N, P, V, M, Sized? G>(mother: &M, other: &G,
-                                                       mplane: &M, plane: &Plane<V>)
-                                                       -> N
+pub fn support_map_against_plane<N, P, V, M, G: ?Sized>(mother: &M, other: &G,
+                                                        mplane: &M, plane: &Plane<V>)
+                                                        -> N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

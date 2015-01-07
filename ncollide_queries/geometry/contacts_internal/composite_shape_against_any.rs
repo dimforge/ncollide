@@ -65,7 +65,7 @@ pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
 */
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn composite_shape_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)
@@ -113,7 +113,7 @@ pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
 }
 
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn any_against_composite_shape<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn any_against_composite_shape<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)

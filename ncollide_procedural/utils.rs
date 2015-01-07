@@ -5,7 +5,7 @@ use std::mem;
 use std::iter;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::num::FloatMath;
+use std::num::Float;
 use na;
 use na::{Pnt3, Dim, Cross, Orig};
 use ncollide_utils::{HashablePartialEq, AsBytes};

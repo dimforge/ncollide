@@ -11,7 +11,7 @@ use math::{Scalar, Point, Vect};
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
-pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(
+pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
                       m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> Option<(P, P, V)>
     where N: Scalar,
           P:  Point<N, V>,

@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect};
 
 
 /// Distance between support-mapped shapes.
-pub fn support_map_against_support_map<N, P, V, M, Sized ? G1, Sized ? G2>(m1: &M, g1: &G1,
+pub fn support_map_against_support_map<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
                                                                            m2: &M, g2: &G2) -> N
     where N:  Scalar,
           P:  Point<N, V>,
@@ -23,7 +23,7 @@ pub fn support_map_against_support_map<N, P, V, M, Sized ? G1, Sized ? G2>(m1: &
 /// Distance between support-mapped shapes.
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<N, P, V, M, S, Sized? G1, Sized? G2>(
+pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
                                                    m1:         &M,
                                                    g1:         &G1,
                                                    m2:         &M,

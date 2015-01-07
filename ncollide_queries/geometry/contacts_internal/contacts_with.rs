@@ -12,7 +12,7 @@ use math::{Scalar, Point, Vect, Isometry};
 
 
 /// Trait implemented by object that can be tested for contacts with another one.
-pub trait ContactsWith<N, P, V, M, Sized? G> for Sized? {
+pub trait ContactsWith<N, P, V, M, G: ?Sized> for Sized? {
     /// Computes the contact point with the smallest separating distance, or deepest penetration depth.
     fn contact(m1: &M, g1: &Self, m2: &M, g2: &G, prediction: N) -> Option<Contact<N, P, V>>;
     /// Computes all contact points, including approximations of the full contact manifold.
@@ -20,7 +20,7 @@ pub trait ContactsWith<N, P, V, M, Sized? G> for Sized? {
 }
 
 /// Computes the contact point with the smallest separating distance, or deepest penetration depth.
-pub fn contact<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn contact<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                m1: &M, g1: &G1,
                m2: &M, g2: &G2,
                prediction: N)
@@ -34,7 +34,7 @@ pub fn contact<N, P, V, M, Sized? G1, Sized? G2>(
 }
 
 /// Computes all contact points, including approximations of the full contact manifold.
-pub fn contacts<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn contacts<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                 m1: &M, g1: &G1,
                 m2: &M, g2: &G2,
                 prediction: N,

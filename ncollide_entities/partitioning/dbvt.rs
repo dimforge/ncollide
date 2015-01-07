@@ -130,7 +130,7 @@ impl<N, P: Point<N, V>, V, BV: Translation<V>, B> DBVTInternal<P, B, BV> {
     }
 }
 
-#[allow(raw_pointer_deriving)]
+#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 /// State of a leaf.
 enum DBVTLeafState<P, B, BV> {

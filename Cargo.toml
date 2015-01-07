@@ -15,11 +15,17 @@ license = "BSD-3-Clause"
 name = "ncollide"
 path = "src/lib.rs"
 
-[dependencies]
-rustc-serialize = "*"
+[dependencies.ncollide_math]
+path = "ncollide_math"
 
-[dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
+[dependencies.ncollide_utils]
+path = "ncollide_utils"
+
+[dependencies.ncollide_entities]
+path = "ncollide_entities"
+
+[dependencies.ncollide_queries]
+path = "ncollide_queries"
 
 [dependencies.ncollide_pipeline]
 path = "ncollide_pipeline"

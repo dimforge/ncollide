@@ -8,12 +8,8 @@
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
-#![feature(default_type_params)]
-#![feature(macro_rules)]
 #![feature(unsafe_destructor)]
-#![feature(associated_types)]
-#![feature(globs)]
-#![feature(phase)]
+#![feature(plugin)]
 #![feature(old_orphan_check)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
@@ -23,7 +19,7 @@ extern crate "rustc-serialize" as rustc_serialize;
 extern crate "nalgebra" as na;
 extern crate "ncollide_math" as math;
 extern crate "ncollide_utils" as utils;
-#[phase(plugin)]
+#[plugin]
 extern crate ncollide_entities;
 extern crate "ncollide_entities" as entities;
 extern crate "ncollide_procedural" as procedural;

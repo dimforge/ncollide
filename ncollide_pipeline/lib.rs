@@ -9,8 +9,6 @@
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
 #![allow(missing_copy_implementations)]
-#![feature(default_type_params)]
-#![feature(macro_rules)]
 #![feature(unsafe_destructor)]
 #![feature(old_orphan_check)]
 #![feature(unboxed_closures)]

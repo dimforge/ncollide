@@ -5,9 +5,9 @@ use ray::{Ray, RayCast};
 use math::{Scalar, Point, Vect};
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
-pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, vel_plane: &V, plane: &Plane<V>,
-                                                       mother: &M, vel_other: &V, other: &G)
-                                                       -> Option<N>
+pub fn plane_against_support_map<N, P, V, M, G: ?Sized>(mplane: &M, vel_plane: &V, plane: &Plane<V>,
+                                                        mother: &M, vel_other: &V, other: &G)
+                                                        -> Option<N>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -21,9 +21,9 @@ pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, vel_plane: &V
 }
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
-pub fn support_map_against_plane<N, P, V, M, Sized? G>(mother: &M, vel_other: &V, other: &G,
-                                                       mplane: &M, vel_plane: &V, plane: &Plane<V>)
-                                                       -> Option<N>
+pub fn support_map_against_plane<N, P, V, M, G: ?Sized>(mother: &M, vel_other: &V, other: &G,
+                                                        mplane: &M, vel_plane: &V, plane: &Plane<V>)
+                                                        -> Option<N>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
