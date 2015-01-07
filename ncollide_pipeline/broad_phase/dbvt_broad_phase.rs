@@ -112,7 +112,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
         }
     }
 
-    fn update(&mut self, allow_proximity: |&T, &T| -> bool, handler: |&T, &T, bool| -> ()) {
+    fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, handler: &mut FnMut(&T, &T, bool)) {
         /*
          * Remove all the outdated nodes.
          */

@@ -37,9 +37,10 @@ pub enum BinaryPartition<B, BV> {
 impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
-    pub fn new_with_partitioner(leaves:      Vec<(B, BV)>,
-                                partitioner: |uint, Vec<(B, BV)>| -> (BV, BinaryPartition<B, BV>))
-                                -> BVT<B, BV> {
+    pub fn new_with_partitioner<F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+      (leaves:      Vec<(B, BV)>,
+       partitioner: F)
+          -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
                 tree: None
@@ -234,10 +235,11 @@ impl<B, BV> BVTNode<B, BV> {
 }
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-pub fn median_partitioner_with_centers<N, V, B, BV>(depth:  uint,
-                                                    leaves: Vec<(B, BV)>,
-                                                    center: &mut |&B, &BV| -> V)
-                                                    -> (BV, BinaryPartition<B, BV>)
+pub fn median_partitioner_with_centers<N, V, B, BV, F: FnMut(&B, &BV) -> V>
+        (depth:  uint,
+         leaves: Vec<(B, BV)>,
+         center: &mut F)
+         -> (BV, BinaryPartition<B, BV>)
     where N: Scalar,
           V:  Vect<N>,
           BV: BoundingVolume<N> + Clone{
@@ -305,17 +307,19 @@ pub fn median_partitioner<N, V, B, BV>(depth:  uint,
     median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }
 
-fn _new_with_partitioner<B, BV>(depth:       uint,
-                                leaves:      Vec<(B, BV)>,
-                                partitioner: |uint, Vec<(B, BV)>| -> (BV, BinaryPartition<B, BV>))
-                               -> BVTNode<B, BV> {
+fn _new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+                            (depth:       uint,
+                             leaves:      Vec<(B, BV)>,
+                             partitioner: F)
+                             -> BVTNode<B, BV> {
     __new_with_partitioner(depth, leaves, partitioner)
 }
 
-fn __new_with_partitioner<B, BV>(depth:       uint,
-                                 leaves:      Vec<(B, BV)>,
-                                 partitioner: |uint, Vec<(B, BV)>| -> (BV, BinaryPartition<B, BV>))
-                                 -> BVTNode<B, BV> {
+fn __new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+                            (depth:       uint,
+                             leaves:      Vec<(B, BV)>,
+                             mut partitioner: F)
+                             -> BVTNode<B, BV> {
     let (bv, partitions) = partitioner(depth, leaves);
 
     match partitions {

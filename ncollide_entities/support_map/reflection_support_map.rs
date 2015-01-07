@@ -21,7 +21,7 @@ impl<'a, N, P, V, M, Sized? G> SupportMap<P, V, M> for Reflection<'a, G>
 impl<'a, V: Neg<Output = V>, M, Sized? G> PreferedSamplingDirections<V, M> for Reflection<'a, G>
     where G: PreferedSamplingDirections<V, M> {
     /// Applies a function to this shape with a given transform.
-    fn sample(&self, m: &M, f: |V| -> ()) {
-        self.shape().sample(m, |v| f(-v))
+    fn sample(&self, m: &M, f: &mut FnMut(V)) {
+        self.shape().sample(m, &mut |&mut: v: V| f(-v));
     }
 }

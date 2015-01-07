@@ -29,7 +29,7 @@ pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
-    g1.sample(m1, |sample: V| {
+    g1.sample(m1, &mut |&mut: sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -40,7 +40,7 @@ pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(
     });
 
     // FIXME: avoid code duplication for the closure
-    g2.sample(m2, |sample: V| {
+    g2.sample(m2, &mut |&mut: sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -66,7 +66,7 @@ pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(
 
     let tm2 = na::append_translation(m2, &shift);
 
-    simplex.modify_pnts(|pt| pt.translate_2(&(-shift)));
+    simplex.modify_pnts(&|&: pt| pt.translate_2(&(-shift)));
 
     match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),
@@ -141,7 +141,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
-    g.sample(m, |sample: V| {
+    g.sample(m, &mut |&mut: sample: V| {
         let support = g.support_point(m, &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -152,7 +152,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
     });
 
     // FIXME: avoid code duplication for the closure
-    na::sample_sphere(|sample: V| {
+    na::sample_sphere(|&mut: sample: V| {
         let support = g.support_point(m, &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -167,7 +167,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
 
     let tm = na::append_translation(m, &-shift);
 
-    simplex.modify_pnts(|pt| *pt = *pt + (-shift));
+    simplex.modify_pnts(&|&: pt| *pt = *pt + (-shift));
 
     match gjk::project_origin(&tm, g, simplex) {
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),

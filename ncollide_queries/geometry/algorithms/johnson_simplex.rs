@@ -418,7 +418,7 @@ impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
     }
 
     #[inline(always)]
-    fn modify_pnts(&mut self, f: |&mut P|) {
+    fn modify_pnts(&mut self, f: &Fn(&mut P)) {
         for pt in self.points.iter_mut() {
             f(pt)
         }

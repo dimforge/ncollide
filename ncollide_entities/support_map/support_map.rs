@@ -25,5 +25,5 @@ pub trait SupportMap<P, V, M>: PreferedSamplingDirections<V, M> {
 /// Those directions are usually the shape faces normals.
 pub trait PreferedSamplingDirections<V, M> {
     /// Applies a function to this shape with a given transform.
-    fn sample(&self, &M, |V| -> ());
+    fn sample(&self, &M, &mut FnMut(V));
 }

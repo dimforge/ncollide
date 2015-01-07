@@ -253,7 +253,8 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Same as `self.insert_or_replace(key, value, false)` but with `value` a function which is
     /// called iff. the value does not exist yet. If the functions returns `None`, nothing is
     /// inserted.
-    pub fn find_or_insert_lazy<'a>(&'a mut self, key: K, value: || -> Option<V>) -> Option<&'a mut V> {
+    pub fn find_or_insert_lazy<'a, F>(&'a mut self, key: K, mut value: F) -> Option<&'a mut V>
+          where F: FnMut() -> Option<V> {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {

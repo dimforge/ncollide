@@ -90,7 +90,7 @@ pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
     let mut res = None::<Contact<N, P, V>>;
 
     for i in interferences.into_iter() {
-        g1.map_part_at(i, |_, part| {
+        g1.map_part_at(i, &mut |&mut: _, part| {
             match contacts_internal::any_against_any(m1, part, m2, g2, prediction) {
                 Some(c) => {
                     let replace = match res {

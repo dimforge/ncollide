@@ -42,6 +42,6 @@ impl<N, P, V, M> SupportMap<P, V, M> for Triangle<P>
 
 impl<P, V, M> PreferedSamplingDirections<V, M> for Triangle<P> {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &M, _: &mut FnMut(V)) {
     }
 }

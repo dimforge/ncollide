@@ -126,8 +126,8 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
         let objs = &self.objects;
 
         bf.update(
-            |b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
-            |b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
+            &mut |&mut: b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
+            &mut |&mut: b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
         );
     }
 
@@ -139,19 +139,22 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
 
     /// Iterats through all the contact pairs.
     #[inline(always)]
-    pub fn contact_pairs(&self, f: |&T, &T, &CollisionAlgorithm<N, P, V, M>| -> ()) {
+    pub fn contact_pairs<F>(&self, f: F)
+          where F: FnMut(&T, &T, &CollisionAlgorithm<N, P, V, M>) {
         self.narrow_phase.contact_pairs(&self.objects, f)
     }
 
     /// Collects every contact detected since the last update.
     #[inline(always)]
-    pub fn contacts(&self, f: |&T, &T, &Contact<N, P, V>| -> ()) {
+    pub fn contacts<F>(&self, f: F)
+          where F: FnMut(&T, &T, &Contact<N, P, V>) {
         self.narrow_phase.contacts(&self.objects, f)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a ray.
     #[inline(always)]
-    pub fn interferences_with_ray<'a>(&'a mut self, ray: &Ray<P, V>, f: |&T, RayIntersection<N, V>| -> ()) {
+    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P, V>, mut f: F)
+          where F: FnMut(&T, RayIntersection<N, V>) {
         let mut bodies = Vec::new();
 
         self.broad_phase.interferences_with_ray(ray, &mut bodies);
@@ -169,7 +172,8 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
     #[inline(always)]
-    pub fn interferences_with_point(&self, point: &P, f: |&T| -> ()) {
+    pub fn interferences_with_point<F>(&self, point: &P, mut f: F)
+          where F: FnMut(&T) {
         let mut bodies = Vec::new();
 
         self.broad_phase.interferences_with_point(point, &mut bodies);
@@ -186,7 +190,8 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     // FIXME: replace by iterators.
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline(always)]
-    pub fn interferences_with_aabb(&self, aabb: &AABB<P>, f: |&T| -> ()) {
+    pub fn interferences_with_aabb<F>(&self, aabb: &AABB<P>, mut f: F)
+          where F: FnMut(&T) {
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_bounding_volume(aabb, &mut fks);

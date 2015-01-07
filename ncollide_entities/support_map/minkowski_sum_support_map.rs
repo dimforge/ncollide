@@ -35,13 +35,13 @@ SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, 
 
 impl<'a, V, M, Sized? G1, Sized? G2> PreferedSamplingDirections<V, Identity> for MinkowskiSum<'a, M, G1, G2> {
     #[inline(always)]
-    fn sample(&self, _: &Identity, _: |V| -> ()) {
+    fn sample(&self, _: &Identity, _: &mut FnMut(V)) {
     }
 }
 
 impl<'a, V, M, Sized? G1, Sized? G2> PreferedSamplingDirections<V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2> {
     #[inline(always)]
-    fn sample(&self, _: &Identity, _: |V| -> ()) {
+    fn sample(&self, _: &Identity, _: &mut FnMut(V)) {
     }
 }
 

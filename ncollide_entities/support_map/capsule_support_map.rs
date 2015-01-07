@@ -29,6 +29,6 @@ impl<N, P, V, M> SupportMap<P, V, M> for Capsule<N>
 
 impl<N, V, M> PreferedSamplingDirections<V, M> for Capsule<N> {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &M, _: &mut FnMut(V)) {
     }
 }

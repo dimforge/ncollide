@@ -47,7 +47,7 @@ impl<N, V, M> PreferedSamplingDirections<V, M> for Cone<N>
           V: Vect<N>,
           M: Rotate<V> {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: |V| -> ()) {
+    fn sample(&self, transform: &M, f: &mut FnMut(V)) {
         // Sample along the principal axis
         let mut v: V = na::zero();
         v[1] = na::one();
