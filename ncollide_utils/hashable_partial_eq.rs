@@ -1,5 +1,4 @@
-use std::hash::{Hash, Writer};
-use std::hash::sip::SipState;
+use std::hash::{Hash, Hasher, Writer};
 use AsBytes;
 
 /// A structure that implements `Eq` and is hashable even if the wrapped data implements only
@@ -26,9 +25,9 @@ impl<T> HashablePartialEq<T> {
 
 impl<T: PartialEq> Eq for HashablePartialEq<T> { }
 
-impl<T: AsBytes> Hash for HashablePartialEq<T> {
+impl<T: AsBytes, H: Hasher + Writer> Hash<H> for HashablePartialEq<T> {
     #[inline]
-    fn hash(&self, state: &mut SipState) {
+    fn hash(&self, state: &mut H) {
         state.write(self.value.as_bytes())
     }
 }
