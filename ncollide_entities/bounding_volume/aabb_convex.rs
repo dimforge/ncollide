@@ -4,6 +4,7 @@ use bounding_volume::aabb_utils;
 use shape::Convex;
 use math::{Scalar, Point};
 
+#[old_impl_check]
 impl<N, P, V, M> HasAABB<P, M> for Convex<P>
     where N: Scalar,
           P: Point<N, V>,

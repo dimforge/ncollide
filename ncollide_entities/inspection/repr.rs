@@ -1,7 +1,7 @@
 use std::mem;
 use std::intrinsics::TypeId;
 use std::raw::TraitObject;
-use std::kinds::marker::ContravariantLifetime;
+use std::marker::ContravariantLifetime;
 
 #[derive(Copy)]
 pub struct ReprDesc<'a> {

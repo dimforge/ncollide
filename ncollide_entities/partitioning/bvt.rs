@@ -105,6 +105,7 @@ impl<B, BV> BVT<B, BV> {
     }
 }
 
+#[old_impl_check]
 impl<N, V, B, BV> BVT<B, BV>
     where N:  Scalar,
           V:  Vect<N>,
@@ -327,7 +328,7 @@ fn __new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPart
         BinaryPartition::Parts(left, right) => {
             let left  = __new_with_partitioner(depth + 1, left, |i, p| partitioner(i, p));
             let right = __new_with_partitioner(depth + 1, right, |i, p| partitioner(i, p));
-            BVTNode::Internal(bv, box left, box right)
+            BVTNode::Internal(bv, Box::new(left), Box::new(right))
         }
     }
 }

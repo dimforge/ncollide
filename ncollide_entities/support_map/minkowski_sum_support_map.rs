@@ -4,6 +4,7 @@ use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
 use math::{Scalar, Point, Vect};
 
 
+#[old_impl_check]
 impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> SupportMap<P, V, Identity> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
@@ -16,6 +17,7 @@ impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> SupportMap<P, V, Identity> for Mink
     }
 }
 
+#[old_impl_check]
 impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized>
 SupportMap<AnnotatedPoint<P>, V, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,

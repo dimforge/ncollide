@@ -5,6 +5,7 @@ use bounding_volume::{HasAABB, AABB};
 use shape::Cuboid;
 use math::{Scalar, Point};
 
+#[old_impl_check]
 impl<N, P, V: Clone, M> HasAABB<P, M> for Cuboid<V>
     where N: Scalar,
           P: Point<N, V>,

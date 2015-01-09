@@ -5,6 +5,7 @@ use shape::Segment;
 use math::{Scalar, Point, Vect};
 
 
+#[old_impl_check]
 impl<N, P, V, M> SupportMap<P, V, M> for Segment<P>
     where N: Scalar,
           P: Point<N, V>,

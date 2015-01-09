@@ -47,6 +47,7 @@ impl<N, P> BoundingSphere<N, P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> BoundingVolume<N> for BoundingSphere<N, P>
     where N: Scalar,
           P: Point<N, V>,

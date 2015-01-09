@@ -5,6 +5,7 @@ use shape::Plane;
 use math::{Scalar, Point};
 
 
+#[old_impl_check]
 impl<N, P, V, M> HasAABB<P, M> for Plane<V>
     where N: Scalar,
           P: Point<N, V> {
