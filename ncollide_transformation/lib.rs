@@ -9,8 +9,8 @@
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
 #![feature(unsafe_destructor)]
+#![feature(old_impl_check)]
 // #![feature(old_orphan_check)]
-#![feature(phase)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate test; // To compute the median.

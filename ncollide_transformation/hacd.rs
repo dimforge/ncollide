@@ -2,8 +2,10 @@ use std::mem;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
+use std::collections::hash_state::DefaultState;
+use std::default::Default;
 use std::rand::{IsaacRng, Rng};
-use std::hash::sip::SipHasher;
+use std::hash::SipHasher;
 use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm, Bounded};
 use na;
 use math::Scalar;
@@ -168,9 +170,9 @@ fn denormalize<N: Scalar>(mesh: &mut TriMesh<N, Pnt3<N>, Vec3<N>>, center: &Pnt3
 }
 
 struct DualGraphVertex<N> {
-    neighbors:  Option<HashSet<uint, SipHasher>>, // vertices adjascent to this one.
+    neighbors:  Option<HashSet<uint, DefaultState<SipHasher>>>, // vertices adjascent to this one.
     ancestors:  Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
-    uancestors: Option<HashSet<uint, SipHasher>>,
+    uancestors: Option<HashSet<uint, DefaultState<SipHasher>>>,
     border:     Option<HashSet<Vec2<uint>>>,
     chull:      Option<TriMesh<N, Pnt3<N>, Vec3<N>>>,
     parts:      Option<Vec<uint>>,
@@ -208,13 +210,12 @@ impl<N: Scalar> DualGraphVertex<N> {
         let r2 = raymap.get(&(idx.y, ns.y)).unwrap().clone();
         let r3 = raymap.get(&(idx.z, ns.z)).unwrap().clone();
 
-        let mut rng   = IsaacRng::new_unseeded();
         let ancestors = vec!(
             VertexWithConcavity::new(r1, na::zero()),
             VertexWithConcavity::new(r2, na::zero()),
             VertexWithConcavity::new(r3, na::zero())
         );
-        let mut uancestors = HashSet::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()));
+        let mut uancestors = HashSet::with_hash_state(Default::default());
         uancestors.insert(r1);
         uancestors.insert(r2);
         uancestors.insert(r3);
@@ -225,7 +226,7 @@ impl<N: Scalar> DualGraphVertex<N> {
         border.insert(edge(idx.z, idx.x));
 
         DualGraphVertex {
-            neighbors:  Some(HashSet::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()))),
+            neighbors:  Some(HashSet::with_hash_state(Default::default())),
             ancestors:  Some(ancestors),
             uancestors: Some(uancestors),
             parts:      Some(vec!(ancestor)),
@@ -645,7 +646,7 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
 
         let mut add_ray = |&mut: coord: u32, normal: u32| {
             let key = (coord, normal);
-            let existing = match raymap.entry(&key) {
+            let existing = match raymap.entry(key) {
                 Entry::Occupied(entry) => entry.into_mut(),
                 Entry::Vacant(entry)   => entry.insert(rays.len())
             };
@@ -687,17 +688,16 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
 fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
                                  raymap: &HashMap<(u32, u32), uint>)
                                  -> Vec<DualGraphVertex<N>> {
-    let mut rng           = IsaacRng::new_unseeded();
-    let mut prim_edges    = HashMap::with_hasher(SipHasher::new_with_keys(rng.gen(), rng.gen()));
+    let mut prim_edges: HashMap<_, _, DefaultState<SipHasher>> = HashMap::with_hash_state(Default::default());
     let mut dual_vertices: Vec<DualGraphVertex<N>> =
         range(0, mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
     {
-        let mut add_triangle_edges = |&mut: i: uint, t: &Pnt3<u32>| {
+        let mut add_triangle_edges = Box::new(|&mut: i: uint, t: &Pnt3<u32>| {
             let es = [ edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x) ];
 
             for e in es.iter() {
-                let other = match prim_edges.entry(e) {
+                let other = match prim_edges.entry(*e) {
                     Entry::Occupied(entry) => entry.into_mut(),
                     Entry::Vacant(entry)   => entry.insert(i)
                 };
@@ -708,7 +708,7 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
                     dual_vertices[*other].neighbors.as_mut().unwrap().insert(i);
                 }
             }
-        };
+        });
 
         match mesh.indices {
             IndexBuffer::Unified(ref b) => {
