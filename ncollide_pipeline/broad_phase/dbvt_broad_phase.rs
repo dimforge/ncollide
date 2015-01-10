@@ -41,6 +41,7 @@ pub struct DBVTBroadPhase<N, P, BV, T> {
     to_update:  Vec<(FastKey, BV)>,
 }
 
+#[old_impl_check]
 impl<N, P, V, BV, T> DBVTBroadPhase<N, P, BV, T>
     where N:  Scalar,
           P:  Point<N, V>,

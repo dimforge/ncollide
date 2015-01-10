@@ -10,6 +10,7 @@
 #![deny(unused_typecasts)]
 #![allow(missing_copy_implementations)]
 #![feature(unsafe_destructor)]
+#![feature(old_impl_check)]
 #![feature(old_orphan_check)]
 #![feature(unboxed_closures)]
 #![doc(html_root_url = "http://ncollide.org/doc")]

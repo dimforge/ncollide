@@ -38,8 +38,8 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     // user ?
     pub fn new(margin: N, prediction: N, small_uids: bool) -> CollisionWorld<N, P, V, M, T> {
         let objects = UidRemap::new(small_uids);
-        let sdispatcher = box BasicCollisionDispatcher::new(prediction);
-        let broad_phase = box DBVTBroadPhase::new(margin, true);
+        let sdispatcher = Box::new(BasicCollisionDispatcher::new(prediction));
+        let broad_phase = Box::new(DBVTBroadPhase::new(margin, true));
         let narrow_phase = CollisionObjectsDispatcher::new(sdispatcher);
 
         CollisionWorld {
@@ -95,7 +95,7 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     /// Registers a handler for contact start/stop events.
     pub fn register_contact_signal_handler<H>(&mut self, name: &str, handler: H)
         where H: ContactSignalHandler<T> + 'static {
-        self.narrow_phase.register_contact_signal_handler(name, box handler)
+        self.narrow_phase.register_contact_signal_handler(name, Box::new(handler))
     }
 
     /// Unregisters a handler for contact start/stop events.
