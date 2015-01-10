@@ -4,6 +4,7 @@ use point::{LocalPointQuery, PointQuery};
 use entities::shape::Ball;
 use math::{Scalar, Point, Vect};
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for Ball<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -31,6 +32,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Ball<N>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for Ball<N>
     where N: Scalar,
           P: Point<N, V>,

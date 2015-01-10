@@ -20,6 +20,7 @@ impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
     }
 }
 
+#[old_impl_check]
 impl<'a, N, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
     where B:  Clone,
           BV: LocalPointQuery<N, P> {

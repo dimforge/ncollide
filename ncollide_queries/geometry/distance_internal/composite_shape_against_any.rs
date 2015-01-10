@@ -42,6 +42,7 @@ struct CompositeShapeAgainstAnyDistCostFn<'a, P, V: 'a, M: 'a, G1: ?Sized + 'a, 
     g2: &'a G2
 }
 
+#[old_impl_check]
 impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,

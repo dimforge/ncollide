@@ -4,6 +4,7 @@ use entities::shape::Ball;
 use entities::bounding_volume::BoundingSphere;
 use math::{Scalar, Point, Vect};
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for BoundingSphere<N, P>
     where N: Scalar,
           P: Point<N, V>,
@@ -30,6 +31,7 @@ impl<N, P, V> LocalPointQuery<N, P> for BoundingSphere<N, P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for BoundingSphere<N, P>
     where N: Scalar,
           P: Point<N, V>,
