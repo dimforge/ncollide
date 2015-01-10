@@ -31,12 +31,12 @@ pub enum GJKResult<P, V> {
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the shapes CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
-pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(m1:      &M,
-                                                           g1:      &G1,
-                                                           m2:      &M,
-                                                           g2:      &G2,
-                                                           simplex: &mut S)
-                                                           -> Option<(P, P)>
+pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(m1:      &M,
+                                                             g1:      &G1,
+                                                             m2:      &M,
+                                                             g2:      &G2,
+                                                             simplex: &mut S)
+                                                             -> Option<(P, P)>
     where N: Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
@@ -58,13 +58,13 @@ pub fn closest_points<N, P, V, M, S, Sized? G1, Sized? G2>(m1:      &M,
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
-pub fn closest_points_with_max_dist<N, P, V, M, S, Sized? G1, Sized? G2>(m1:       &M,
-                                                                         g1:       &G1,
-                                                                         m2:       &M,
-                                                                         g2:       &G2,
-                                                                         max_dist: N,
-                                                                         simplex:  &mut S)
-                                                                         -> GJKResult<(P, P), V>
+pub fn closest_points_with_max_dist<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(m1:       &M,
+                                                                           g1:       &G1,
+                                                                           m2:       &M,
+                                                                           g2:       &G2,
+                                                                           max_dist: N,
+                                                                           simplex:  &mut S)
+                                                                           -> GJKResult<(P, P), V>
     where N: Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
@@ -91,7 +91,7 @@ pub fn closest_points_with_max_dist<N, P, V, M, S, Sized? G1, Sized? G2>(m1:    
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
-pub fn distance<N, P, V, M, S, Sized? G1, Sized? G2>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> N
+pub fn distance<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> N
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
@@ -117,7 +117,7 @@ pub fn distance<N, P, V, M, S, Sized? G1, Sized? G2>(m1: &M, g1: &G1, m2: &M, g2
 /// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
-pub fn project_origin<N, P, V, M, S, Sized? G>(m: &M, shape: &G, simplex: &mut S) -> Option<P>
+pub fn project_origin<N, P, V, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> Option<P>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -170,11 +170,11 @@ pub fn project_origin<N, P, V, M, S, Sized? G>(m: &M, shape: &G, simplex: &mut S
 /// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
-pub fn project_origin_with_max_dist<N, P, V, M, S, Sized? G>(m:        &M,
-                                                             shape:    &G,
-                                                             max_dist: N,
-                                                             simplex:  &mut S)
-                                                             -> GJKResult<P, V>
+pub fn project_origin_with_max_dist<N, P, V, M, S, G: ?Sized>(m:        &M,
+                                                              shape:    &G,
+                                                              max_dist: N,
+                                                              simplex:  &mut S)
+                                                              -> GJKResult<P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -224,11 +224,11 @@ pub fn project_origin_with_max_dist<N, P, V, M, S, Sized? G>(m:        &M,
 }
 
 /// Casts a ray on a support map using the GJK algorithm.
-pub fn cast_ray<N, P, V, M, S, Sized? G>(m:       &M,
-                                         shape:   &G,
-                                         simplex: &mut S,
-                                         ray:     &Ray<P, V>)
-                                         -> Option<(N, V)>
+pub fn cast_ray<N, P, V, M, S, G: ?Sized>(m:       &M,
+                                          shape:   &G,
+                                          simplex: &mut S,
+                                          ray:     &Ray<P, V>)
+                                          -> Option<(N, V)>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

@@ -41,7 +41,7 @@ impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatche
         let b_is_ball = b.downcast_ref::<Ball<N>>().is_some();
 
         if a_is_ball && b_is_ball {
-            Some(box BallBall::new(self.prediction) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(BallBall::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
         }
         else if a.downcast_ref::<Plane<V>>().is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, V, M>(*b).is_some() {
@@ -49,10 +49,10 @@ impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatche
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(box manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
             }
             else {
-                Some(box wo_manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
             }
         }
         else if b.downcast_ref::<Plane<V>>().is_some() &&
@@ -61,10 +61,10 @@ impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatche
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(box manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
             }
             else {
-                Some(box wo_manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
             }
         }
         else if inspection::maybe_repr_desc_as_support_map::<P, V, M>(*a).is_some() &&
@@ -74,17 +74,17 @@ impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatche
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(box manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
             }
             else {
-                Some(box wo_manifold as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
             }
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<N, P, V, M>(*a).is_some() {
-            Some(box CompositeShapeRepr::new(self.prediction) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(CompositeShapeRepr::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<N, P, V, M>(*b).is_some() {
-            Some(box ReprCompositeShape::new(self.prediction) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(ReprCompositeShape::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
         }
         else {
             None

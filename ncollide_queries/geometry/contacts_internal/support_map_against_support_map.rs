@@ -13,7 +13,7 @@ use math::{Scalar, Point, Vect};
 
 
 /// Contact between support-mapped shapes (`Cuboid`, `Convex`, etc.)
-pub fn support_map_against_support_map<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn support_map_against_support_map<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                                        m1:         &M,
                                        g1:         &G1,
                                        m2:         &M,
@@ -37,7 +37,7 @@ pub fn support_map_against_support_map<N, P, V, M, Sized? G1, Sized? G2>(
 /// Contact between support-mapped shapes (`Cuboid`, `Convex`, etc.)
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<N, P, V, M, S, Sized? G1, Sized? G2>(
+pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
                                                    m1:         &M,
                                                    g1:         &G1,
                                                    m2:         &M,

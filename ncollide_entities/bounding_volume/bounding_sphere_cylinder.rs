@@ -5,7 +5,7 @@ use shape::Cylinder;
 use math::{Scalar, Point};
 
 
-
+#[old_impl_check]
 impl<N, P, V, M> HasBoundingSphere<N, P, M> for Cylinder<N>
     where N: Scalar,
           P: Point<N, V>,

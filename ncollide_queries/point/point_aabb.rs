@@ -4,6 +4,7 @@ use point::{LocalPointQuery, PointQuery};
 use entities::bounding_volume::AABB;
 use math::{Scalar, Point, Vect};
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
     where N: Scalar,
           P: Point<N, V>,
@@ -71,6 +72,7 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for AABB<P>
     where N: Scalar,
           P: Point<N, V>,

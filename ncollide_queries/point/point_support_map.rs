@@ -44,6 +44,7 @@ pub fn support_map_point_projection<N, P, V, M, S, G>(m:       &M,
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for Cylinder<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -64,6 +65,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Cylinder<N>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for Cylinder<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -71,6 +73,7 @@ impl<N, P, V, M> PointQuery<N, P, M> for Cylinder<N>
           M: Transform<P> + Rotate<V> {
 }
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for Cone<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -91,6 +94,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Cone<N>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for Cone<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -98,6 +102,7 @@ impl<N, P, V, M> PointQuery<N, P, M> for Cone<N>
           M: Transform<P> + Rotate<V> {
 }
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for Capsule<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -118,6 +123,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Capsule<N>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for Capsule<N>
     where N: Scalar,
           P: Point<N, V>,
@@ -125,6 +131,7 @@ impl<N, P, V, M> PointQuery<N, P, M> for Capsule<N>
           M: Transform<P> + Rotate<V> {
 }
 
+#[old_impl_check]
 impl<N, P, V> LocalPointQuery<N, P> for Convex<P>
     where N: Scalar,
           P: Point<N, V>,
@@ -145,6 +152,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Convex<P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M> PointQuery<N, P, M> for Convex<P>
     where N: Scalar,
           P: Point<N, V>,
@@ -152,6 +160,7 @@ impl<N, P, V, M> PointQuery<N, P, M> for Convex<P>
           M: Transform<P> + Rotate<V> {
 }
 
+#[old_impl_check]
 impl<'a, N, P, V, M, G1, G2> LocalPointQuery<N, P> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
@@ -175,6 +184,7 @@ impl<'a, N, P, V, M, G1, G2> LocalPointQuery<N, P> for MinkowskiSum<'a, M, G1, G
     }
 }
 
+#[old_impl_check]
 impl<'a, N, P, V, M, G1, G2> PointQuery<N, P, M> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,

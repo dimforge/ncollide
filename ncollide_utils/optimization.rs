@@ -9,13 +9,13 @@ use math::{Scalar, Vect};
 
 // FIXME: implement a proper metaheuristic.
 /// Maximizes a real function using the Newton method.
-pub fn maximize_with_newton<N, V, M>(
+pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
                             niter:       uint,
                             num_guesses: uint,
                             domain_min:  &V,
                             domain_max:  &V,
-                            f:  &mut |&V| -> N,
-                            df: &mut |&V| -> (V, M))
+                            f:  &mut F,
+                            df: &mut D)
                             -> (V, N)
     where N: Scalar,
           V: Add<V, Output = V> + Sub<V, Output = V> + Mul<V, Output = V> + Clone + Rand + POrd + Copy,
@@ -44,7 +44,7 @@ pub fn maximize_with_newton<N, V, M>(
 }
 
 /// Finds the root of a function using the Newton method.
-pub fn newton<V, M>(niter: uint, guess: V, f: &mut |&V| -> (V, M)) -> (V, bool)
+pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: uint, guess: V, f: &mut F) -> (V, bool)
     where V: Sub<V, Output = V>,
           M: Inv + Mul<V, Output = V> + Copy {
     let mut curr = guess;
@@ -63,13 +63,13 @@ pub fn newton<V, M>(niter: uint, guess: V, f: &mut |&V| -> (V, M)) -> (V, bool)
 }
 
 /// Minimizes a function using the bfgs method.
-pub fn minimize_with_bfgs<N, V, M>(
+pub fn minimize_with_bfgs<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> V>(
                           niter:       uint,
                           num_guesses: uint,
                           domain_min:  &V,
                           domain_max:  &V,
-                          f:  &mut |&V| -> N,
-                          df: &mut |&V| -> V)
+                          f:  &mut F,
+                          df: &mut D)
                           -> (V, N)
     where N: Scalar,
           V: Vect<N> + Outer<M>,
@@ -106,7 +106,7 @@ pub fn minimize_with_bfgs<N, V, M>(
 /// Trait for line search methods.
 pub trait LineSearch<N, V> {
     /// Gets a near-optimal step size for the next descent.
-    fn step_size(&self, f: &mut |&V| -> N, df: &V, x: &V, dir: &V) -> N;
+    fn step_size<F: Fn(&V) -> N>(&self, f: &mut F, df: &V, x: &V, dir: &V) -> N;
 }
 
 /// The backtracking line search method.
@@ -132,7 +132,7 @@ impl<N> BacktrackingLineSearch<N> {
 impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
     where N: Scalar,
           V: Dot<N> + Add<V, Output = V> + Mul<N, Output = V> + Copy {
-    fn step_size(&self, f: &mut |&V| -> N, df: &V, x: &V, dir: &V) -> N {
+    fn step_size<F: Fn(&V) -> N>(&self, f: &mut F, df: &V, x: &V, dir: &V) -> N {
         let     t    = -self.c * na::dot(df, dir);
         let     fx   = (*f)(x);
         let mut step = self.alpha.clone();
@@ -150,13 +150,13 @@ impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
 }
 
 /// Minimizes a function using the quasi-newton BFGS method.
-pub fn bfgs<N, V, M, SS>(
+pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
             niter:   uint,
             ss:      &SS,
             guess:   V,
             hessian: M,
-            f:       &mut |&V| -> N,
-            df:      &mut |&V| -> V)
+            f:       &mut F,
+            df:      &mut D)
             -> V
     where N:  Scalar,
           V:  Vect<N> + Outer<M>,

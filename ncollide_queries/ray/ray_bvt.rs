@@ -57,6 +57,7 @@ impl<'a, P, V, B> RayInterferencesCollector<'a, P, V, B> {
     }
 }
 
+#[old_impl_check]
 impl<'a, N, P, V, B: Clone, BV: LocalRayCast<N, P, V>> BVTVisitor<B, BV> for RayInterferencesCollector<'a, P, V, B> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {

@@ -11,7 +11,7 @@ use math::{Scalar, Point, Vect, Isometry};
 
 /// Trait implemented by object that can have their Time Of Impact under translational movement
 /// computed.
-pub trait TimeOfImpactWith<N, P, V, M, Sized? G> for Sized? {
+pub trait TimeOfImpactWith<N, P, V, M, G: ?Sized> for Sized? {
     /// Computes the Time Of Impact separating two shapes.
     ///
     /// Returns `None` if they never move.
@@ -19,9 +19,9 @@ pub trait TimeOfImpactWith<N, P, V, M, Sized? G> for Sized? {
 }
 
 /// Computes the Time Of Impact separating two shapes under translational movement.
-pub fn time_of_impact<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G1,
-                                                        m2: &M, vel2: &V, g2: &G2)
-                                                        -> Option<N>
+pub fn time_of_impact<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &V, g1: &G1,
+                                                          m2: &M, vel2: &V, g2: &G2)
+                                                          -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P>,

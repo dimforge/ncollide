@@ -23,14 +23,14 @@ pub type AnnotatedCSO<'a, M, G1, G2> = AnnotatedMinkowskiSum<'a, M, G1, Reflecti
  *  - `G2`: type of the second object involved on the sum.
  */
 #[derive(Show)]
-pub struct MinkowskiSum<'a, M: 'a, Sized? G1: 'a, Sized? G2: 'a> {
+pub struct MinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
     g2: &'a G2
 }
 
-impl<'a, M, Sized? G1, Sized? G2> MinkowskiSum<'a, M, G1, G2> {
+impl<'a, M, G1: ?Sized, G2: ?Sized> MinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.
@@ -73,14 +73,14 @@ impl<'a, M, Sized? G1, Sized? G2> MinkowskiSum<'a, M, G1, G2> {
  * * `G2`: type of the second object involved on the sum.
  */
 #[derive(Show)]
-pub struct AnnotatedMinkowskiSum<'a, M: 'a, Sized? G1: 'a, Sized? G2: 'a> {
+pub struct AnnotatedMinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
     g2: &'a G2
 }
 
-impl<'a, M, Sized? G1, Sized? G2> AnnotatedMinkowskiSum<'a, M, G1, G2> {
+impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
     /**
      * Builds the Minkowski sum of two shapes. Since the representation is
      * implicit, this is done in constant time.
@@ -230,6 +230,7 @@ impl<P: Orig> Orig for AnnotatedPoint<P> {
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> Add<V> for AnnotatedPoint<P>
     where N: Scalar,
           P: Add<V, Output = P>,
@@ -265,6 +266,7 @@ impl<P: Sub<P>> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> ScalarSub<N> for AnnotatedPoint<P>
     where P: Point<N, V> {
     fn sub_s(&self, _: &N) -> AnnotatedPoint<P> {
@@ -272,6 +274,7 @@ impl<N, P, V> ScalarSub<N> for AnnotatedPoint<P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> ScalarAdd<N> for AnnotatedPoint<P>
     where P: Point<N, V> {
     fn add_s(&self, _: &N) -> AnnotatedPoint<P> {
@@ -279,6 +282,7 @@ impl<N, P, V> ScalarAdd<N> for AnnotatedPoint<P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> ScalarMul<N> for AnnotatedPoint<P>
     where P: Point<N, V> {
     fn mul_s(&self, _: &N) -> AnnotatedPoint<P> {
@@ -286,6 +290,7 @@ impl<N, P, V> ScalarMul<N> for AnnotatedPoint<P>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V> ScalarDiv<N> for AnnotatedPoint<P>
     where P: Point<N, V> {
     fn div_s(&self, _: &N) -> AnnotatedPoint<P> {

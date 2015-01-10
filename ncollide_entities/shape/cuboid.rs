@@ -10,6 +10,7 @@ pub struct Cuboid<V> {
     half_extents: V
 }
 
+#[old_impl_check]
 impl<N, V> Cuboid<V>
     where N: Scalar,
           V: Iterable<N> {

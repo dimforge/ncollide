@@ -164,7 +164,7 @@ impl<O> UidRemap<O> {
                 // not a constant-time operation.
                 let len = data.uid2key.len();
 
-                match data.uid2key.entry(&uid) {
+                match data.uid2key.entry(uid) {
                     Entry::Occupied(entry) => {
                         let fast_key = entry.remove();
                         let old_value = self.values.insert(fast_key.uid, value);
@@ -243,7 +243,7 @@ impl<O: Clone> UidRemap<O> {
     /// Otherwise, sets the value to `newval`.
     /// Returns `true` if the key did not already exist in the map.
     #[inline]
-    pub fn update(&mut self, key: uint, newval: O, ff: |O, O| -> O) -> bool {
+    pub fn update<F: Fn(O, O) -> O>(&mut self, key: uint, newval: O, ff: F) -> bool {
         self.update_with_key(key, newval, |_k, v, v1| ff(v,v1))
     }
 
@@ -252,7 +252,7 @@ impl<O: Clone> UidRemap<O> {
     /// Otherwise, sets the value to `newval`.
     /// Returns `true` if the key did not already exist in the map.
     #[inline]
-    pub fn update_with_key(&mut self, key: uint, val: O, ff: |&uint, O, O| -> O) -> bool {
+    pub fn update_with_key<F: Fn(&uint, O, O) -> O>(&mut self, key: uint, val: O, ff: F) -> bool {
         let new_val = match self.get(key) {
             None => val,
             Some(orig) => ff(&key, (*orig).clone(), val)

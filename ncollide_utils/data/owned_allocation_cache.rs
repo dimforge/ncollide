@@ -27,7 +27,7 @@ impl<T> OwnedAllocationCache<T> {
             res
         }
         else {
-            box value
+            Box::new(value)
         }
     }
 

@@ -871,6 +871,7 @@ struct SegmentFacet<P, V> {
     pub visible_points: Vec<uint>
 }
 
+#[old_impl_check]
 impl<N, P, V> SegmentFacet<P, V>
     where N: Scalar,
           P: Point<N, V>,

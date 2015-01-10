@@ -10,12 +10,12 @@ use math::{Scalar, Point, Vect};
 
 
 /// Cast a ray on a shape using the GJK algorithm.
-pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, Sized? G>(m:       &M,
-                                                                 shape:   &G,
-                                                                 simplex: &mut S,
-                                                                 ray:     &Ray<P, V>,
-                                                                 solid:   bool)
-                                                                 -> Option<RayIntersection<N, V>>
+pub fn implicit_toi_and_normal_with_ray<N, P, V, M, S, G: ?Sized>(m:       &M,
+                                                                  shape:   &G,
+                                                                  simplex: &mut S,
+                                                                  ray:     &Ray<P, V>,
+                                                                  solid:   bool)
+                                                                  -> Option<RayIntersection<N, V>>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -133,7 +133,7 @@ impl<N, P, V, M> RayCast<N, P, V, M> for Segment<P>
           M: Transform<P> + Rotate<V> {
 }
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2> LocalRayCast<N, P, V> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> LocalRayCast<N, P, V> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,
@@ -145,7 +145,7 @@ impl<'a, N, P, V, M, Sized? G1, Sized? G2> LocalRayCast<N, P, V> for MinkowskiSu
     }
 }
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2> RayCast<N, P, V, M> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> RayCast<N, P, V, M> for MinkowskiSum<'a, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N>,

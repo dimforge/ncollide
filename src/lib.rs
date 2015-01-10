@@ -46,11 +46,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
 #![allow(missing_copy_implementations)]
-#![feature(default_type_params)]
-#![feature(macro_rules)]
 #![feature(unsafe_destructor)]
-#![feature(associated_types)]
-#![feature(globs)]
 #![feature(unboxed_closures)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 

@@ -2,11 +2,11 @@
 ///
 /// A reflection is obtained with the central symmetry with regard to the origin.
 #[derive(Show)]
-pub struct Reflection<'a, Sized? G: 'a> {
+pub struct Reflection<'a, G: ?Sized + 'a> {
     shape: &'a G
 }
 
-impl<'a, Sized? G> Reflection<'a, G> {
+impl<'a, G: ?Sized> Reflection<'a, G> {
     /// Build the reflection of a shape. Since the representation is implicit,
     /// the reflection computation is done in constant time.
     #[inline]

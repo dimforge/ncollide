@@ -6,10 +6,10 @@ use entities::shape::Plane;
 use math::{Scalar, Point, Vect};
 
 /// Contact between a plane and a support-mapped shape (Cuboid, Convex, etc.)
-pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, plane: &Plane<V>,
-                                                       mother: &M, other: &G,
-                                                       prediction: N)
-                                                       -> Option<Contact<N, P, V>>
+pub fn plane_against_support_map<N, P, V, M, G: ?Sized>(mplane: &M, plane: &Plane<V>,
+                                                        mother: &M, other: &G,
+                                                        prediction: N)
+                                                        -> Option<Contact<N, P, V>>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -32,10 +32,10 @@ pub fn plane_against_support_map<N, P, V, M, Sized? G>(mplane: &M, plane: &Plane
 }
 
 /// Contact between a support-mapped shape (Cuboid, Convex, etc.) and a plane.
-pub fn support_map_against_plane<N, P, V, M, Sized? G>(mother: &M, other: &G,
-                                                       mplane: &M, plane: &Plane<V>,
-                                                       prediction: N)
-                                                       -> Option<Contact<N, P, V>>
+pub fn support_map_against_plane<N, P, V, M, G: ?Sized>(mother: &M, other: &G,
+                                                        mplane: &M, plane: &Plane<V>,
+                                                        prediction: N)
+                                                        -> Option<Contact<N, P, V>>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,

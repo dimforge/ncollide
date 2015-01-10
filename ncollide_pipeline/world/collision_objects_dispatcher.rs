@@ -53,9 +53,10 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
 
     /// Iterates through all the contact pairs.
     #[inline(always)]
-    pub fn contact_pairs(&self,
+    pub fn contact_pairs<F>(&self,
                          objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
-                         f: |&T, &T, &CollisionAlgorithm<N, P, V, M>| -> ()) {
+                         mut f: F)
+          where F: FnMut(&T, &T, &CollisionAlgorithm<N, P, V, M>) {
         for e in self.pairs.elements().iter() {
             let co1 = &objects[e.key.first];
             let co2 = &objects[e.key.second];
@@ -66,9 +67,10 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
 
     /// Calls a closures on each contact between two objects.
     #[inline(always)]
-    pub fn contacts(&self,
+    pub fn contacts<F>(&self,
                     objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
-                    f: |&T, &T, &Contact<N, P, V>| -> ()) {
+                    mut f: F)
+          where F: FnMut(&T, &T, &Contact<N, P, V>) {
         // FIXME: avoid allocation.
         let mut collector = Vec::new();
 

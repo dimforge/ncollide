@@ -5,6 +5,7 @@ use shape::Convex;
 use math::{Scalar, Point, Vect};
 
 
+#[old_impl_check]
 impl<N, P, V, M> SupportMap<P, V, M> for Convex<P>
     where N: Scalar,
           P: Point<N, V>,
@@ -22,6 +23,6 @@ impl<N, P, V, M> SupportMap<P, V, M> for Convex<P>
 
 impl<P, V, M> PreferedSamplingDirections<V, M> for Convex<P> {
     #[inline(always)]
-    fn sample(&self, _: &M, _: |V| -> ()) {
+    fn sample(&self, _: &M, _: &mut FnMut(V)) {
     }
 }

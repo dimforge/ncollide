@@ -28,5 +28,5 @@ pub trait Simplex<N, P> {
     fn max_sq_len(&self) -> N;
 
     /// Modifies the points contained by this simplex.
-    fn modify_pnts(&mut self, f: |&mut P|);
+    fn modify_pnts(&mut self, f: &Fn(&mut P));
 }

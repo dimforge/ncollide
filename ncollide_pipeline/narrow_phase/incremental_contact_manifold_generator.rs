@@ -42,6 +42,7 @@ pub struct IncrementalContactManifoldGenerator<N, P, V, CD> {
     sub_detector: CD
 }
 
+#[old_impl_check]
 impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
     where CD: CollisionDetector<N, P, V, M> {
     /// Creates a new incremental contact manifold generator.
@@ -58,6 +59,7 @@ impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
     }
 }
 
+#[old_impl_check]
 impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
     where N:  Scalar,
           P:  Point<N, V>,

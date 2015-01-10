@@ -6,6 +6,7 @@ use support_map::{SupportMap, PreferedSamplingDirections};
 use math::{Scalar, Point, Vect};
 
 
+#[old_impl_check]
 impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
     where N: Scalar,
           P: Point<N, V>,
@@ -35,8 +36,8 @@ impl<V: Clone, M> PreferedSamplingDirections<V, M> for Cuboid<V>
     where V: Basis + Neg<Output = V>,
           M: Rotate<V> {
     #[inline(always)]
-    fn sample(&self, transform: &M, f: |V| -> ()) {
-        na::canonical_basis(|e: V| {
+    fn sample(&self, transform: &M, f: &mut FnMut(V)) {
+        na::canonical_basis(|&mut: e: V| {
             let re = transform.rotate(&e);
 
             f(-re.clone());

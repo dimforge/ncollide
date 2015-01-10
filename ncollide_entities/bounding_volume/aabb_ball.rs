@@ -12,6 +12,7 @@ pub fn ball_aabb<N, P, V>(center: &P, radius: N) -> AABB<P>
     AABB::new(center.sub_s(&radius), center.add_s(&radius))
 }
 
+#[old_impl_check]
 impl<N, P, V, M> HasAABB<P, M> for Ball<N>
     where N: Scalar,
           P: Point<N, V>,

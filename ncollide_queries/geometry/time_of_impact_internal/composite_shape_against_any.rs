@@ -9,9 +9,9 @@ use ray::{LocalRayCast, Ray};
 use geometry::time_of_impact_internal;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
-pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G1,
-                                                                     m2: &M, vel2: &V, g2: &G2)
-                                                                     -> Option<N>
+pub fn composite_shape_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &V, g1: &G1,
+                                                                       m2: &M, vel2: &V, g2: &G2)
+                                                                       -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> ,
@@ -24,9 +24,9 @@ pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
-pub fn any_against_composite_shape<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G1,
-                                                                     m2: &M, vel2: &V, g2: &G2)
-                                                                     -> Option<N>
+pub fn any_against_composite_shape<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &V, g1: &G1,
+                                                                       m2: &M, vel2: &V, g2: &G2)
+                                                                       -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> ,
@@ -36,7 +36,7 @@ pub fn any_against_composite_shape<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel
     composite_shape_against_any(m2, vel2, g2, m1, vel1, g1)
 }
 
-struct CompositeShapeAgainstAnyTOICostFn<'a, P, V: 'a, M: 'a, Sized? G1: 'a, Sized? G2: 'a> {
+struct CompositeShapeAgainstAnyTOICostFn<'a, P, V: 'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     msum_shift:  V,
     msum_margin: V,
     ray:         Ray<P, V>,
@@ -49,7 +49,8 @@ struct CompositeShapeAgainstAnyTOICostFn<'a, P, V: 'a, M: 'a, Sized? G1: 'a, Siz
     g2:   &'a G2
 }
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2> CompositeShapeAgainstAnyTOICostFn<'a, P, V, M, G1, G2>
+#[old_impl_check]
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> ,
@@ -76,7 +77,7 @@ impl<'a, N, P, V, M, Sized? G1, Sized? G2> CompositeShapeAgainstAnyTOICostFn<'a,
     }
 }
 
-impl<'a, N, P, V, M, Sized? G1, Sized? G2> BVTCostFn<N, uint, AABB<P>, N>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> BVTCostFn<N, uint, AABB<P>, N>
 for CompositeShapeAgainstAnyTOICostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
@@ -98,7 +99,7 @@ for CompositeShapeAgainstAnyTOICostFn<'a, P, V, M, G1, G2>
     fn compute_b_cost(&mut self, b: &uint) -> Option<(N, N)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(self.m1, *b, |m1, g1|
+        self.g1.map_transformed_part_at(self.m1, *b, &mut |&mut: m1, g1|
             res = time_of_impact_internal::any_against_any(m1, self.vel1, g1,
                                                            self.m2, self.vel2, self.g2)
                   .map(|toi| (toi, toi))

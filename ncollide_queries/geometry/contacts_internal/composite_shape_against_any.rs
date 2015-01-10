@@ -65,7 +65,7 @@ pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
 */
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn composite_shape_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)
@@ -90,7 +90,7 @@ pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
     let mut res = None::<Contact<N, P, V>>;
 
     for i in interferences.into_iter() {
-        g1.map_part_at(i, |_, part| {
+        g1.map_part_at(i, &mut |&mut: _, part| {
             match contacts_internal::any_against_any(m1, part, m2, g2, prediction) {
                 Some(c) => {
                     let replace = match res {
@@ -113,7 +113,7 @@ pub fn composite_shape_against_any<N, P, V, M, Sized? G1, Sized? G2>(
 }
 
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn any_against_composite_shape<N, P, V, M, Sized? G1, Sized? G2>(
+pub fn any_against_composite_shape<N, P, V, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
                                    prediction: N)

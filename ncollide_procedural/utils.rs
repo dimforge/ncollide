@@ -5,7 +5,7 @@ use std::mem;
 use std::iter;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::num::FloatMath;
+use std::num::Float;
 use na;
 use na::{Pnt3, Dim, Cross, Orig};
 use ncollide_utils::{HashablePartialEq, AsBytes};
@@ -165,7 +165,7 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
                         new_coords: &mut Vec<P>)
                         -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
-        let id = match vtx_to_id.entry(&key) {
+        let id = match vtx_to_id.entry(key) {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry)   => entry.insert(new_coords.len() as u32)
         };

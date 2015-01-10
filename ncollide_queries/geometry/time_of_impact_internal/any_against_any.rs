@@ -10,9 +10,9 @@ use geometry::time_of_impact_internal;
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn any_against_any<N, P, V, M, Sized? G1, Sized? G2>(m1: &M, vel1: &V, g1: &G1,
-                                                         m2: &M, vel2: &V, g2: &G2)
-                                                         -> Option<N>
+pub fn any_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &V, g1: &G1,
+                                                           m2: &M, vel2: &V, g2: &G2)
+                                                           -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P>,

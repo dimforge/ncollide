@@ -8,6 +8,7 @@ use math::{Scalar, Point, Vect};
 
 
 // XXX: Implemente this for other dimensions (harder because of the concavities.
+#[old_impl_check]
 impl<'a, N, P, V, M1, M2, G1, G2, A, B> ToTriMesh<N, P, V, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,

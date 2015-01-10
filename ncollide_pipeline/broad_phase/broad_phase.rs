@@ -12,7 +12,7 @@ pub trait BroadPhase<P, V, BV, T> {
     fn defered_set_bounding_volume(&mut self, uid: uint, bv: BV);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self, allow_proximity: |&T, &T| -> bool, proximity_handler: |&T, &T, bool| -> ());
+    fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, proximity_handler: &mut FnMut(&T, &T, bool));
 
     /*
      * FIXME: the following are not flexible enough.
