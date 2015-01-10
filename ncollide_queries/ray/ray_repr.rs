@@ -6,7 +6,7 @@ use entities::inspection::Repr;
 use ray::{LocalRayCast, RayCast, Ray, RayIntersection};
 
 macro_rules! dispatch(
-    ($sself: ident.$name: ident($($argN: ident,)*)) => {
+    ($sself: ident.$name: ident($($argN: ident),*)) => {
         {
             let repr = $sself.repr();
 
@@ -63,22 +63,22 @@ impl<'a, N, P, V, M> LocalRayCast<N, P, V> for Repr<N, P, V, M> + 'a
           M: Isometry<N, P, V> {
     #[inline]
     fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
-        dispatch!(self.toi_with_ray(ray, solid,))
+        dispatch!(self.toi_with_ray(ray, solid))
     }
 
     #[inline]
     fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
-        dispatch!(self.toi_and_normal_with_ray(ray, solid,))
+        dispatch!(self.toi_and_normal_with_ray(ray, solid))
     }
 
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
-        dispatch!(self.toi_and_normal_and_uv_with_ray(ray, solid,))
+        dispatch!(self.toi_and_normal_and_uv_with_ray(ray, solid))
     }
 
     #[inline]
     fn intersects_ray(&self, ray: &Ray<P, V>) -> bool {
-        dispatch!(self.intersects_ray(ray,))
+        dispatch!(self.intersects_ray(ray))
     }
 }
 

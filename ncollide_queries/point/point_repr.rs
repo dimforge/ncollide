@@ -6,7 +6,7 @@ use entities::inspection::Repr;
 use point::{LocalPointQuery, PointQuery};
 
 macro_rules! dispatch(
-    ($sself: ident.$name: ident($($argN: ident,)*)) => {
+    ($sself: ident.$name: ident($($argN: ident),*)) => {
         {
             let repr = $sself.repr();
 
@@ -63,17 +63,17 @@ impl<'a, N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M> + 'a
           M: Isometry<N, P, V> {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
-        dispatch!(self.project_point(pt, solid,))
+        dispatch!(self.project_point(pt, solid))
     }
 
     #[inline]
     fn distance_to_point(&self, pt: &P) -> N {
-        dispatch!(self.distance_to_point(pt,))
+        dispatch!(self.distance_to_point(pt))
     }
 
     #[inline]
     fn contains_point(&self, pt: &P) -> bool {
-        dispatch!(self.contains_point(pt,))
+        dispatch!(self.contains_point(pt))
     }
 }
 
