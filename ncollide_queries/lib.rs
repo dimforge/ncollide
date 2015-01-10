@@ -23,7 +23,6 @@ extern crate "ncollide_utils" as utils;
 #[plugin]
 extern crate ncollide_entities;
 extern crate "ncollide_entities" as entities;
-extern crate "ncollide_procedural" as procedural;
 
 pub mod geometry;
 pub mod point;

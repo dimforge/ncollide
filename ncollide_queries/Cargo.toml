@@ -9,6 +9,3 @@ path = "lib.rs"
 
 [dependencies.ncollide_entities]
 path = "../ncollide_entities"
-
-[dependencies.ncollide_procedural]
-path = "../ncollide_procedural"
