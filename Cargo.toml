@@ -30,5 +30,8 @@ path = "ncollide_queries"
 [dependencies.ncollide_pipeline]
 path = "ncollide_pipeline"
 
+[dependencies.ncollide_procedural]
+path = "ncollide_procedural"
+
 [dependencies.ncollide_transformation]
 path = "ncollide_pipeline"
