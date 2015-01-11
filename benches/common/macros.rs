@@ -16,7 +16,7 @@ macro_rules! bench_free_fn_gen(
     ($name: ident, $function: path $(, $args: ident: $types: ty = $gens: path)*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 7;
+            const LEN: usize = 1 << 7;
 
             let mut rng = IsaacRng::new_unseeded();
 
@@ -38,7 +38,7 @@ macro_rules! bench_method_gen(
     ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path $(, $args: ident: $types: ty = $gens: path)*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 7;
+            const LEN: usize = 1 << 7;
 
             let mut rng = IsaacRng::new_unseeded();
 

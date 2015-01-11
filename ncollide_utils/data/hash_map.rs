@@ -34,12 +34,12 @@ impl<K, V> Entry<K, V> {
 pub struct HashMap<K, V, H> {
     hash:          H,
     table:         Vec<Entry<K, V>>,
-    mask:          uint,
-    htable:        Vec<int>,
-    next:          Vec<int>,
-    num_elem:      uint, // FIXME: redundent with self.table.len() ?
-    max_elem:      uint,
-    real_max_elem: uint
+    mask:          usize,
+    htable:        Vec<isize>,
+    next:          Vec<isize>,
+    num_elem:      usize, // FIXME: redundent with self.table.len() ?
+    max_elem:      usize,
+    real_max_elem: usize
 }
 
 static HASH_CHARGE_FACTOR: f32 = 0.7;
@@ -51,7 +51,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 
     /// Creates a new hash map with a given capacity.
-    pub fn new_with_capacity(capacity: uint, h: H) -> HashMap<K, V, H> {
+    pub fn new_with_capacity(capacity: usize, h: H) -> HashMap<K, V, H> {
         let pow2 = UnsignedInt::next_power_of_two(capacity);
 
         HashMap {
@@ -62,7 +62,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
             next:   iter::repeat(-1i).take(pow2).collect(),
             num_elem: 0,
             max_elem: pow2,
-            real_max_elem: ((pow2 as f32) * 0.7) as uint
+            real_max_elem: ((pow2 as f32) * 0.7) as usize
         }
     }
 
@@ -84,7 +84,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
 
     /// The number of elements contained by this hashmap.
     #[inline]
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.num_elem
     }
 
@@ -115,7 +115,7 @@ impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Removes the element at the specified position of the element array.
     ///
     /// If the index is greater than the table length, it returns `false`.
-    pub fn remove_elem_at(&mut self, at: uint) -> bool {
+    pub fn remove_elem_at(&mut self, at: usize) -> bool {
         if at > self.table.len() {
             false
         }
@@ -128,18 +128,18 @@ impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
 
 
 impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
-    fn find_entry_id(&self, key: &K) -> int {
+    fn find_entry_id(&self, key: &K) -> isize {
         let h = self.hash.hash(key) & self.mask;
 
         let mut pos = self.htable[h];
 
-        if pos != -1 && self.table[pos as uint].key != *key {
-            while self.next[pos as uint] != -1 &&
-                  self.table[self.next[pos as uint] as uint].key != *key {
-                pos = self.next[pos as uint]
+        if pos != -1 && self.table[pos as usize].key != *key {
+            while self.next[pos as usize] != -1 &&
+                  self.table[self.next[pos as usize] as usize].key != *key {
+                pos = self.next[pos as usize]
             }
 
-            pos = self.next[pos as uint]
+            pos = self.next[pos as usize]
         }
 
         pos
@@ -149,18 +149,18 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         if self.num_elem >= self.real_max_elem {
             self.max_elem = self.max_elem * 2;
 
-            self.real_max_elem = ((self.max_elem as f32)* HASH_CHARGE_FACTOR) as uint;
+            self.real_max_elem = ((self.max_elem as f32)* HASH_CHARGE_FACTOR) as usize;
 
             self.mask = self.max_elem - 1;
 
-            let mut newhash: Vec<int> = iter::repeat(-1i).take(self.max_elem).collect();
-            let mut newnext: Vec<int> = iter::repeat(-1i).take(self.max_elem).collect();
+            let mut newhash: Vec<isize> = iter::repeat(-1i).take(self.max_elem).collect();
+            let mut newnext: Vec<isize> = iter::repeat(-1i).take(self.max_elem).collect();
 
             for i in range(0u, self.num_elem) {
                 let h = self.hash.hash(&self.table[i].key) & self.mask;
 
                 newnext[i] = newhash[h];
-                newhash[h] = i as int;
+                newhash[h] = i as isize;
             }
 
             mem::swap(&mut newhash, &mut self.htable);
@@ -168,7 +168,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         }
     }
 
-    fn do_insert_or_replace(&mut self, key: K, value: V, replace: bool) -> (bool, uint) {
+    fn do_insert_or_replace(&mut self, key: K, value: V, replace: bool) -> (bool, usize) {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -177,7 +177,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             let h = self.hash.hash(&key) & self.mask;
 
             self.next[self.num_elem] = self.htable[h];
-            self.htable[h] = self.num_elem as int;
+            self.htable[h] = self.num_elem as isize;
             self.table.push(Entry::new(key, value));
             self.num_elem = self.num_elem + 1;
 
@@ -185,10 +185,10 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         }
         else {
             if replace {
-                self.table[entry as uint].value = value
+                self.table[entry as usize].value = value
             }
 
-            (false, entry as uint)
+            (false, entry as usize)
         }
     }
 
@@ -200,46 +200,46 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         let mut o = self.htable[h];
 
         if o != -1 {
-            if self.table[o as uint].key != *key {
-                while self.next[o as uint] != -1 && self.table[self.next[o as uint] as uint].key != *key {
-                    o = self.next[o as uint]
+            if self.table[o as usize].key != *key {
+                while self.next[o as usize] != -1 && self.table[self.next[o as usize] as usize].key != *key {
+                    o = self.next[o as usize]
                 }
 
-                if self.next[o as uint] == -1 {
+                if self.next[o as usize] == -1 {
                     return None
                 }
 
-                obji                             = self.next[o as uint];
-                self.next[o as uint]    = self.next[obji as uint];
-                self.next[obji as uint] = -1;
+                obji                             = self.next[o as usize];
+                self.next[o as usize]    = self.next[obji as usize];
+                self.next[obji as usize] = -1;
             }
             else {
                 obji = o;
-                self.htable[h]       = self.next[o as uint];
-                self.next[o as uint] = -1;
+                self.htable[h]       = self.next[o as usize];
+                self.next[o as usize] = -1;
             }
 
             self.num_elem = self.num_elem - 1;
 
-            let removed = self.table.swap_remove(obji as uint);
+            let removed = self.table.swap_remove(obji as usize);
 
-            if obji != self.num_elem as int {
-                let nh = self.hash.hash(&self.table[obji as uint].key) & self.mask;
+            if obji != self.num_elem as isize {
+                let nh = self.hash.hash(&self.table[obji as usize].key) & self.mask;
 
-                if self.htable[nh] == self.num_elem as int {
+                if self.htable[nh] == self.num_elem as isize {
                     self.htable[nh] = obji
                 }
                 else {
                     let mut no = self.htable[nh];
 
-                    while self.next[no as uint] != self.num_elem as int {
-                        no = self.next[no as uint]
+                    while self.next[no as usize] != self.num_elem as isize {
+                        no = self.next[no as usize]
                     }
 
-                    self.next[no as uint] = obji;
+                    self.next[no as usize] = obji;
                 }
 
-                self.next[obji as uint]  = self.next[self.num_elem];
+                self.next[obji as usize]  = self.next[self.num_elem];
                 self.next[self.num_elem] = -1;
             }
 
@@ -265,7 +265,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                     let h = self.hash.hash(&key) & self.mask;
 
                     self.next[self.num_elem] = self.htable[h];
-                    self.htable[h] = self.num_elem as int;
+                    self.htable[h] = self.num_elem as isize;
                     self.table.push(Entry::new(key, v));
                     self.num_elem = self.num_elem + 1;
 
@@ -276,7 +276,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             }
         }
         else {
-            Some(&mut self.table[entry as uint].value)
+            Some(&mut self.table[entry as usize].value)
         }
     }
 
@@ -304,20 +304,20 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
         let mut pos = self.htable[h];
 
-        if pos != -1 && self.table[pos as uint].key != *key {
-            while self.next[pos as uint] != -1 &&
-                  self.table[self.next[pos as uint] as uint].key != *key {
-                pos = self.next[pos as uint]
+        if pos != -1 && self.table[pos as usize].key != *key {
+            while self.next[pos as usize] != -1 &&
+                  self.table[self.next[pos as usize] as usize].key != *key {
+                pos = self.next[pos as usize]
             }
 
-            pos = self.next[pos as uint]
+            pos = self.next[pos as usize]
         }
 
         if pos == -1 {
             None
         }
         else {
-            Some(&self.table[pos as uint].value)
+            Some(&self.table[pos as usize].value)
         }
     }
 
@@ -349,7 +349,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             None
         }
         else {
-            Some(&mut self.table[entry as uint].value)
+            Some(&mut self.table[entry as usize].value)
         }
     }
 }
@@ -362,7 +362,7 @@ mod test {
     // NOTE: some tests are simply copy-pasted from std::hash_map tests.
     #[test]
     fn test_find() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.find(&1).is_none());
         m.insert(1, 2);
         match m.find(&1) {
@@ -373,7 +373,7 @@ mod test {
 
     #[test]
     fn test_is_empty() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(!m.is_empty());
         assert!(m.remove(&1));
@@ -382,7 +382,7 @@ mod test {
 
     #[test]
     fn test_insert() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(2, 4));
         assert_eq!(*m.find(&1).unwrap(), 2);
@@ -391,7 +391,7 @@ mod test {
 
     #[test]
     fn test_find_mut() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 12));
         assert!(m.insert(2, 8));
         assert!(m.insert(5, 14));
@@ -404,7 +404,7 @@ mod test {
 
     #[test]
     fn test_insert_overwrite() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert_eq!(*m.find(&1).unwrap(), 2);
         assert!(!m.insert(1, 3));
@@ -413,7 +413,7 @@ mod test {
 
     #[test]
     fn test_insert_conflicts() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(5, 3));
         assert!(m.insert(9, 4));
@@ -424,7 +424,7 @@ mod test {
 
     #[test]
     fn test_conflict_remove() {
-        let mut m: HashMap<uint, uint, UintTWHash> = HashMap::new(UintTWHash::new());
+        let mut m: HashMap<usize, usize, UintTWHash> = HashMap::new(UintTWHash::new());
         assert!(m.insert(1, 2));
         assert!(m.insert(5, 3));
         assert!(m.insert(9, 4));

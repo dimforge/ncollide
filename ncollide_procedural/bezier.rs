@@ -39,8 +39,8 @@ pub fn bezier_curve_at<N, P, V>(control_points: &[P], t: N, cache: &mut Vec<P>) 
 #[doc(hidden)]
 pub fn bezier_surface_at<N, P, V>(
                          control_points: &[P],
-                         nupoints:       uint,
-                         nvpoints:       uint,
+                         nupoints:       usize,
+                         nvpoints:       usize,
                          u:              N,
                          v:              N,
                          ucache:         &mut Vec<P>,
@@ -68,7 +68,7 @@ pub fn bezier_surface_at<N, P, V>(
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<N, P, V>(control_points: &[P], nsubdivs: uint) -> Polyline<N, P, V>
+pub fn bezier_curve<N, P, V>(control_points: &[P], nsubdivs: usize) -> Polyline<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -90,10 +90,10 @@ pub fn bezier_curve<N, P, V>(control_points: &[P], nsubdivs: uint) -> Polyline<N
 /// Given a set of control points, generates a (non-rational) Bezier surface.
 pub fn bezier_surface<N, P, V>(
                       control_points: &[P],
-                      nupoints:       uint,
-                      nvpoints:       uint,
-                      usubdivs:       uint,
-                      vsubdivs:       uint)
+                      nupoints:       usize,
+                      nvpoints:       usize,
+                      usubdivs:       usize,
+                      vsubdivs:       usize)
                       -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,

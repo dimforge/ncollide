@@ -25,7 +25,7 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
     }
 
     /// Updates the contact pairs.
-    pub fn update(&mut self, objects: &UidRemap<CollisionObject<N, P, V, M, T>>, timestamp: uint) {
+    pub fn update(&mut self, objects: &UidRemap<CollisionObject<N, P, V, M, T>>, timestamp: usize) {
         for e in self.pairs.elements_mut().iter_mut() {
             let co1 = &objects[e.key.first];
             let co2 = &objects[e.key.second];

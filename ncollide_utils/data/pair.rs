@@ -14,8 +14,8 @@ pub struct Pair {
     /// second object of the pair
     pub second: FastKey,
 
-    ifirst:  uint,
-    isecond: uint
+    ifirst:  usize,
+    isecond: usize
 }
 
 impl Pair {
@@ -46,7 +46,7 @@ impl PartialEq for Pair {
 
 /// Tomas Wang based hash function for a `Pair` object.
 #[derive(RustcEncodable, RustcDecodable)]
-pub struct PairTWHash { unused: uint } // FIXME: ICE with zero-sized structs
+pub struct PairTWHash { unused: usize } // FIXME: ICE with zero-sized structs
 
 impl PairTWHash {
     /// Creates a new PairTWHash
@@ -57,7 +57,7 @@ impl PairTWHash {
 
 impl HashFun<Pair> for PairTWHash {
     #[inline]
-    fn hash(&self, p: &Pair) -> uint {
+    fn hash(&self, p: &Pair) -> usize {
         hash::tomas_wang_hash(
             hash::key_from_pair(
                 p.ifirst, p.isecond

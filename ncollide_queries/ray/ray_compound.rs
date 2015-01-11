@@ -44,7 +44,7 @@ struct CompoundRayToiCostFn<'a, N: 'a, P: 'a, V: 'a, M: 'a> {
     solid:    bool
 }
 
-impl<'a, N, P, V, M> BVTCostFn<N, uint, AABB<P>, N> for CompoundRayToiCostFn<'a, N, P, V, M>
+impl<'a, N, P, V, M> BVTCostFn<N, usize, AABB<P>, N> for CompoundRayToiCostFn<'a, N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
@@ -55,7 +55,7 @@ impl<'a, N, P, V, M> BVTCostFn<N, uint, AABB<P>, N> for CompoundRayToiCostFn<'a,
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &uint) -> Option<(N, N)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
         let elt = &self.compound.shapes()[*b];
         elt.1.toi_with_transform_and_ray(&elt.0, self.ray, self.solid).map(|toi| (toi, toi))
     }
@@ -67,7 +67,7 @@ struct CompoundRayToiAndNormalCostFn<'a, N: 'a, P: 'a, V: 'a, M: 'a> {
     solid:    bool
 }
 
-impl<'a, N, P, V, M> BVTCostFn<N, uint, AABB<P>, RayIntersection<N, V>>
+impl<'a, N, P, V, M> BVTCostFn<N, usize, AABB<P>, RayIntersection<N, V>>
 for CompoundRayToiAndNormalCostFn<'a, N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
@@ -79,7 +79,7 @@ for CompoundRayToiAndNormalCostFn<'a, N, P, V, M>
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &uint) -> Option<(N, RayIntersection<N, V>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, RayIntersection<N, V>)> {
         let elt = &self.compound.shapes()[*b];
         elt.1.toi_and_normal_with_transform_and_ray(&elt.0, self.ray, self.solid).map(|inter| (inter.toi, inter))
     }

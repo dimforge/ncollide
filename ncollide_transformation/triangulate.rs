@@ -10,13 +10,13 @@ use entities::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};
 
 struct Triangle<N, P, V> {
-    idx:                    Pnt3<uint>,
+    idx:                    Pnt3<usize>,
     circumcircle_center:    P,
     circumcircle_sq_radius: N
 }
 
 impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
-    pub fn new(idx: Pnt3<uint>, pts: &[P]) -> Triangle<N, P, V> {
+    pub fn new(idx: Pnt3<usize>, pts: &[P]) -> Triangle<N, P, V> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
         let pc = &pts[idx.z];
@@ -40,7 +40,7 @@ impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
 pub struct Triangulator<N, P, V> {
     vertices:  Vec<P>,
     triangles: Vec<Triangle<N, P, V>>,
-    edges:     HashMap<(uint, uint), uint>
+    edges:     HashMap<(usize, usize), usize>
 }
 
 impl<N, P, V> Triangulator<N, P, V>
@@ -119,7 +119,7 @@ impl<N, P, V> Triangulator<N, P, V>
                 {
                     let t = &self.triangles[i];
 
-                    fn s(a: uint, b: uint) -> (uint, uint) {
+                    fn s(a: usize, b: usize) -> (usize, usize) {
                         if a > b { (b, a) } else { (a, b) }
                     }
 

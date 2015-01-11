@@ -109,7 +109,7 @@ impl<N, P, V> TriMesh<N, P, V> {
 
     /// The number of triangles on this mesh.
     #[inline]
-    pub fn num_triangles(&self) -> uint {
+    pub fn num_triangles(&self) -> usize {
         match self.indices {
             IndexBuffer::Unified(ref idx) => idx.len(),
             IndexBuffer::Split(ref idx)   => idx.len()
@@ -167,8 +167,8 @@ impl<N, P, V> TriMesh<N, P, V>
 
 impl<N, P, V> TriMesh<N, P, V>
     where N: Scalar,
-          P: Index<uint, Output = N> + IndexMut<uint, Output = N>,
-          V: Dim + Index<uint, Output = N> {
+          P: Index<usize, Output = N> + IndexMut<usize, Output = N>,
+          V: Dim + Index<usize, Output = N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
@@ -213,10 +213,10 @@ impl<N: Clone, P: Clone, V: Clone> TriMesh<N, P, V> {
                             None    => {
                                 let idx = resc.len() as u32;
 
-                                resc.push(self.coords[point.x as uint].clone());
+                                resc.push(self.coords[point.x as usize].clone());
 
-                                let _ = resn.as_mut().map(|l| l.push(self.normals.as_ref().unwrap()[point.y as uint].clone()));
-                                let _ = resu.as_mut().map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as uint].clone()));
+                                let _ = resn.as_mut().map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
+                                let _ = resu.as_mut().map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
 
                                 resi.push(idx);
 

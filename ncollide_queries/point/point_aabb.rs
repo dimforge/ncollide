@@ -29,12 +29,12 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
 
                 if mins_pt_i < pt_maxs_i {
                     if pt_maxs[i] > best {
-                        best_id = i as int;
+                        best_id = i as isize;
                         best = pt_maxs_i
                     }
                 }
                 else if mins_pt_i > best {
-                    best_id = -(i as int);
+                    best_id = -(i as isize);
                     best = mins_pt_i
                 }
             }
@@ -42,10 +42,10 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
             let mut shift: V = na::zero();
 
             if best_id < 0 {
-                shift[(-best_id) as uint] = best;
+                shift[(-best_id) as usize] = best;
             }
             else {
-                shift[best_id as uint] = -best;
+                shift[best_id as usize] = -best;
             }
 
             *pt + shift

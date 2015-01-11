@@ -53,11 +53,11 @@ pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     let ilen = indices.len();
     let nlen = normals.len() as u32;
-    for (id, i) in indices.slice_to_mut(ilen - (nsubdiv as uint - 2)).iter_mut().enumerate() {
+    for (id, i) in indices.slice_to_mut(ilen - (nsubdiv as usize - 2)).iter_mut().enumerate() {
         i.y.y = id as u32;
     }
 
-    for i in indices.slice_from_mut(ilen - (nsubdiv as uint - 2)).iter_mut() {
+    for i in indices.slice_from_mut(ilen - (nsubdiv as usize - 2)).iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;

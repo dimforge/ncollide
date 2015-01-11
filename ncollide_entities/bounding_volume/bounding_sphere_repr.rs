@@ -6,7 +6,7 @@ use shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Po
 use inspection::Repr;
 
 
-impl<'a, N, P, V, M> HasBoundingSphere<N, P, M> for Repr<N, P, V, M> + 'a
+impl<N, P, V, M> HasBoundingSphere<N, P, M> for Repr<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,

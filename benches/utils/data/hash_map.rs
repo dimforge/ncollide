@@ -8,7 +8,7 @@ use ncollide::utils::data::hash_map::HashMap;
 
 #[bench]
 fn bench_insert_this(bh: &mut Bencher) {
-    let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
+    let mut m: HashMap<(usize, usize), usize, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
     bh.iter(|| {
         for i in range(0u, 500) {
@@ -30,7 +30,7 @@ fn bench_insert_std(bh: &mut Bencher) {
 
 #[bench]
 fn bench_insert_find_remove_this(bh: &mut Bencher) {
-    let mut m: HashMap<(uint, uint), uint, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
+    let mut m: HashMap<(usize, usize), usize, UintPairTWHash> = HashMap::new(UintPairTWHash::new());
 
     bh.iter(|| {
         for i in range(0u, 200) {

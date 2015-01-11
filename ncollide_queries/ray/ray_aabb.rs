@@ -91,7 +91,7 @@ fn do_toi_and_normal_and_uv_with_ray<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, s
     }
 }
 
-fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N, V, int)>
+fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N, V, isize)>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -125,7 +125,7 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
 
             if inter_with_near_plane > tmin {
                 tmin      = inter_with_near_plane;
-                near_side = if flip_sides { -(i as int + 1) } else { i as int + 1 };
+                near_side = if flip_sides { -(i as isize + 1) } else { i as isize + 1 };
                 near_diag = false;
             }
             else if inter_with_near_plane == tmin {
@@ -134,7 +134,7 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
 
             if inter_with_far_plane < tmax {
                 tmax     = inter_with_far_plane;
-                far_side = if !flip_sides { -(i as int + 1) } else { i as int + 1 };
+                far_side = if !flip_sides { -(i as isize + 1) } else { i as isize + 1 };
                 far_diag = false;
             }
             else if inter_with_far_plane == tmax {
@@ -160,10 +160,10 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
                 let mut normal = na::zero::<V>();
 
                 if far_side < 0 {
-                    normal[(-far_side - 1) as uint] = -na::one::<N>();
+                    normal[(-far_side - 1) as usize] = -na::one::<N>();
                 }
                 else {
-                    normal[(far_side - 1) as uint] = na::one::<N>();
+                    normal[(far_side - 1) as usize] = na::one::<N>();
                 }
 
                 Some((tmax, normal, far_side))
@@ -178,10 +178,10 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
             let mut normal = na::zero::<V>();
 
             if near_side < 0 {
-                normal[(-near_side - 1) as uint] = na::one::<N>();
+                normal[(-near_side - 1) as usize] = na::one::<N>();
             }
             else {
-                normal[(near_side - 1) as uint] = -na::one::<N>();
+                normal[(near_side - 1) as usize] = -na::one::<N>();
             }
             Some((tmin, normal, near_side))
         }

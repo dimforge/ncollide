@@ -8,7 +8,7 @@ use math::{Scalar, Point, Vect};
 pub struct PolylinePath<'a, N, P: 'a, V: 'a> {
     curr_len:               N,
     curr_dir:               V,
-    curr_pt_id:             uint,
+    curr_pt_id:             usize,
     curr_pt:                P,
     polyline:               &'a Polyline<N, P, V>
 }

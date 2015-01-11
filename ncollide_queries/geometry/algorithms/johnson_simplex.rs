@@ -28,21 +28,21 @@ pub struct JohnsonSimplex<N, P, V> {
 #[derive(PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct RecursionTemplate {
     #[doc(hidden)]
-    permutation_list: Vec<uint>,
+    permutation_list: Vec<usize>,
     #[doc(hidden)]
-    offsets:          Vec<uint>,
+    offsets:          Vec<usize>,
     #[doc(hidden)]
-    sub_determinants: Vec<uint>,
+    sub_determinants: Vec<usize>,
     #[doc(hidden)]
-    num_determinants: uint,
+    num_determinants: usize,
     #[doc(hidden)]
-    num_leaves:       uint // useful only for printing…
+    num_leaves:       usize // useful only for printing…
 }
 
 impl RecursionTemplate {
     /// Creates a new set of Recursion simplex sharable between any Johnson simplex having a
     /// dimension inferior or equal to `dim`.
-    pub fn new(dim: uint) -> Arc<Vec<RecursionTemplate>> {
+    pub fn new(dim: usize) -> Arc<Vec<RecursionTemplate>> {
         let mut template = Vec::with_capacity(dim + 1);
 
         for dim in range(0u, dim + 1u) {
@@ -65,7 +65,7 @@ impl RecursionTemplate {
     // the algorithm is executed. Instead, it should be pre-computed, or computed
     // only once for all. The resulting GC-managed list is intented to be shared
     // between all other simplicis with the same dimension.
-    fn make_permutation_list(dim: uint) -> RecursionTemplate {
+    fn make_permutation_list(dim: usize) -> RecursionTemplate {
         // The number of points on the biggest subsimplex
         let max_num_points      = dim + 1;
 
@@ -82,7 +82,7 @@ impl RecursionTemplate {
         // the number of points of the last subsimplices
         let mut last_num_points = dim + 1;
 
-        let mut map             = BTreeMap::<Vec<uint>, uint>::new();
+        let mut map             = BTreeMap::<Vec<usize>, usize>::new();
 
         let mut determinant_index  = 0;
 
@@ -169,7 +169,7 @@ impl RecursionTemplate {
         offsets.reverse();
         let _ = offsets.pop();
 
-        let rev_offsets: Vec<uint> = offsets.iter().map(|&e| pts.len() - e).collect();
+        let rev_offsets: Vec<usize> = offsets.iter().map(|&e| pts.len() - e).collect();
         let num_leaves = rev_offsets[0];
 
         // reverse points and detereminants
@@ -272,7 +272,7 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
                         determinant = determinant + delta;
                     }
 
-                    *self.determinants.as_mut_ptr().offset(*recursion.sub_determinants.as_slice().get_unchecked(curr) as int) = determinant;
+                    *self.determinants.as_mut_ptr().offset(*recursion.sub_determinants.as_slice().get_unchecked(curr) as isize) = determinant;
 
                     curr = curr + curr_num_pts + 1; // points + removed point + determinant id
                 }
@@ -304,7 +304,7 @@ impl<N, P, V> JohnsonSimplex<N, P, V>
                                 let subdetid = *recursion.sub_determinants.as_slice().get_unchecked(det_id + 1);
 
                                 if *self.determinants.as_slice().get_unchecked(subdetid) > na::zero() {
-                                    *self.determinants.as_mut_ptr().offset(subdetid as int) = Bounded::max_value()
+                                    *self.determinants.as_mut_ptr().offset(subdetid as isize) = Bounded::max_value()
                                 }
                             }
 
@@ -377,7 +377,7 @@ impl<N, P, V> Simplex<N, P> for JohnsonSimplex<N, P, V>
     }
 
     #[inline]
-    fn dimension(&self) -> uint {
+    fn dimension(&self) -> usize {
         self.points.len() - 1
     }
 

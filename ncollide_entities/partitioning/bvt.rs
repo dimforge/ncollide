@@ -37,7 +37,7 @@ pub enum BinaryPartition<B, BV> {
 impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
-    pub fn new_with_partitioner<F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+    pub fn new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
       (leaves:      Vec<(B, BV)>,
        partitioner: &mut F)
           -> BVT<B, BV> {
@@ -97,7 +97,7 @@ impl<B, BV> BVT<B, BV> {
     }
 
     /// Computes the depth of this tree.
-    pub fn depth(&self) -> uint {
+    pub fn depth(&self) -> usize {
         match self.tree {
             Some(ref n) => n.depth(),
             None        => 0
@@ -227,7 +227,7 @@ impl<B, BV> BVTNode<B, BV> {
         result
     }
 
-    fn depth(&self) -> uint {
+    fn depth(&self) -> usize {
         match *self {
             BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
             BVTNode::Leaf(_, _) => 1
@@ -237,7 +237,7 @@ impl<B, BV> BVTNode<B, BV> {
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 pub fn median_partitioner_with_centers<N, V, B, BV, F: FnMut(&B, &BV) -> V>
-        (depth:  uint,
+        (depth:  usize,
          leaves: Vec<(B, BV)>,
          center: &mut F)
          -> (BV, BinaryPartition<B, BV>)
@@ -299,7 +299,7 @@ pub fn median_partitioner_with_centers<N, V, B, BV, F: FnMut(&B, &BV) -> V>
 }
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-pub fn median_partitioner<N, V, B, BV>(depth:  uint,
+pub fn median_partitioner<N, V, B, BV>(depth:  usize,
                                        leaves: Vec<(B, BV)>)
                                        -> (BV, BinaryPartition<B, BV>)
     where N:  Scalar,
@@ -308,16 +308,16 @@ pub fn median_partitioner<N, V, B, BV>(depth:  uint,
     median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }
 
-fn _new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-                            (depth:       uint,
+fn _new_with_partitioner<B, BV, F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+                            (depth:       usize,
                              leaves:      Vec<(B, BV)>,
                              partitioner: &mut F)
                              -> BVTNode<B, BV> {
     __new_with_partitioner(depth, leaves, partitioner)
 }
 
-fn __new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-                            (depth:       uint,
+fn __new_with_partitioner<B, BV, F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+                            (depth:       usize,
                              leaves:      Vec<(B, BV)>,
                              partitioner: &mut F)
                              -> BVTNode<B, BV> {

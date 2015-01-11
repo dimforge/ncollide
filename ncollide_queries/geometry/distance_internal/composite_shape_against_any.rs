@@ -67,7 +67,7 @@ impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<
     }
 }
 
-impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> BVTCostFn<N, uint, AABB<P>, N>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> BVTCostFn<N, usize, AABB<P>, N>
 for CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
@@ -86,7 +86,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &uint) -> Option<(N, N)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
         let mut res = None;
 
         self.g1.map_transformed_part_at(self.m1, *b, &mut |&mut: m1, g1| {

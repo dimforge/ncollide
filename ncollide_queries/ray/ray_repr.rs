@@ -56,7 +56,7 @@ macro_rules! dispatch(
     }
 );
 
-impl<'a, N, P, V, M> LocalRayCast<N, P, V> for Repr<N, P, V, M> + 'a
+impl<N, P, V, M> LocalRayCast<N, P, V> for Repr<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
@@ -82,7 +82,7 @@ impl<'a, N, P, V, M> LocalRayCast<N, P, V> for Repr<N, P, V, M> + 'a
     }
 }
 
-impl<'a, N, P, V, M> RayCast<N, P, V, M> for Repr<N, P, V, M> + 'a
+impl<N, P, V, M> RayCast<N, P, V, M> for Repr<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,

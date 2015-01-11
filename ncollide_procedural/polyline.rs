@@ -71,8 +71,8 @@ impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Polyline<N, P, V> {
 
 impl<N, P, V> Polyline<N, P, V>
     where N: Scalar,
-          P: Index<uint, Output = N> + IndexMut<uint, Output = N>,
-          V: Dim + Index<uint, Output = N> {
+          P: Index<usize, Output = N> + IndexMut<usize, Output = N>,
+          V: Dim + Index<usize, Output = N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &V) {

@@ -1,7 +1,10 @@
 //! Support mapping based Plane shape.
-
+use std::any::Any;
+use std::mem;
+use std::intrinsics::TypeId;
 use na;
 use na::Norm;
+use inspection::{Repr, ReprDesc};
 use math::Scalar;
 
 /// SupportMap description of a plane.
@@ -33,5 +36,19 @@ impl<V> Plane<V> {
     #[inline]
     pub fn normal(&self) -> &V {
         &self.normal
+    }
+}
+
+impl<N, P, V, M> Repr<N, P, V, M> for Plane<V>
+    where V: Send + Sync {
+    #[inline(always)]
+    fn repr(&self) -> ReprDesc {
+        unsafe {
+            ReprDesc::new(
+                TypeId::of::<Plane<V>>(),
+                TypeId::of::<&Any>(),
+                mem::transmute(self as &Any)
+            )
+        }
     }
 }

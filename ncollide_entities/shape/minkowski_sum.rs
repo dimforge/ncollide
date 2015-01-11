@@ -186,20 +186,20 @@ impl<P: PntAsVec<V>, V> PntAsVec<V> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Index<uint>> Index<uint> for AnnotatedPoint<P> {
+impl<P: Index<usize>> Index<usize> for AnnotatedPoint<P> {
     type Output = P::Output;
 
     #[inline]
-    fn index(&self, i: &uint) -> &P::Output {
+    fn index(&self, i: &usize) -> &P::Output {
         &self.point[*i]
     }
 }
 
-impl<P: IndexMut<uint>> IndexMut<uint> for AnnotatedPoint<P> {
+impl<P: IndexMut<usize>> IndexMut<usize> for AnnotatedPoint<P> {
     type Output = P::Output;
 
     #[inline]
-    fn index_mut(&mut self, _: &uint) -> &mut P::Output {
+    fn index_mut(&mut self, _: &usize) -> &mut P::Output {
         unimplemented!()
     }
 }
@@ -309,7 +309,7 @@ impl<P: Neg<Output = P>> Neg for AnnotatedPoint<P> {
 
 impl<P: Dim> Dim for AnnotatedPoint<P> {
     #[inline]
-    fn dim(_: Option<AnnotatedPoint<P>>) -> uint {
+    fn dim(_: Option<AnnotatedPoint<P>>) -> usize {
         na::dim::<P>()
     }
 }

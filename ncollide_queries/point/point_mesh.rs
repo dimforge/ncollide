@@ -51,7 +51,7 @@ struct BaseMeshPointProjCostFn<'a, N: 'a, P: 'a, V: 'a, I: 'a, E: 'a> {
     point: &'a P
 }
 
-impl<'a, N, P, V, I, E> BVTCostFn<N, uint, AABB<P>, P> for BaseMeshPointProjCostFn<'a, N, P, V, I, E>
+impl<'a, N, P, V, I, E> BVTCostFn<N, usize, AABB<P>, P> for BaseMeshPointProjCostFn<'a, N, P, V, I, E>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -62,7 +62,7 @@ impl<'a, N, P, V, I, E> BVTCostFn<N, uint, AABB<P>, P> for BaseMeshPointProjCost
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &uint) -> Option<(N, P)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, P)> {
         let proj = self.mesh.element_at(*b).project_point(self.point, true);
         
         Some((na::dist(self.point, &proj), proj))
@@ -79,7 +79,7 @@ struct PointContainementTest<'a, N: 'a, P: 'a, V: 'a, I: 'a, E: 'a> {
     found: bool
 }
 
-impl<'a, N, P, V, I, E> BVTVisitor<uint, AABB<P>> for PointContainementTest<'a, N, P, V, I, E>
+impl<'a, N, P, V, I, E> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, N, P, V, I, E>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N>,
@@ -90,7 +90,7 @@ impl<'a, N, P, V, I, E> BVTVisitor<uint, AABB<P>> for PointContainementTest<'a, 
     }
 
     #[inline]
-    fn visit_leaf(&mut self, b: &uint, bv: &AABB<P>) {
+    fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
         if !self.found &&
            bv.contains_point(self.point) &&
            self.mesh.element_at(*b).contains_point(self.point) {

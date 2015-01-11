@@ -182,7 +182,7 @@ impl<N, P, V, M, CD> CollisionDetector<N, P, V, M> for IncrementalContactManifol
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         self.contacts.len()
     }
 
@@ -214,7 +214,7 @@ fn add_reduce_by_variance<N, P, V, M>(pts: &mut [ContactWLocals<N, P, V>], to_ad
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N, P, V>, to_ignore: uint) -> N
+fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N, P, V>, to_ignore: usize) -> N
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {

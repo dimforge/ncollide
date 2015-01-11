@@ -78,7 +78,7 @@ impl<N, P, V, AV, M, CD> CollisionDetector<N, P, V, M> for OneShotContactManifol
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         self.sub_detector.num_colls()
     }
 

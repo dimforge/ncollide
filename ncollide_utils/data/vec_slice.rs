@@ -5,8 +5,8 @@
 /// The stride is the number of index increments between two elements.
 pub struct VecSlice<'a, T: 'a> {
     data:   &'a [T],
-    length: uint,
-    stride: uint
+    length: usize,
+    stride: usize
 }
 
 /// A mutable vector slice with a specific length and stride.
@@ -14,14 +14,14 @@ pub struct VecSlice<'a, T: 'a> {
 /// The stride is the number of index increments between two elements.
 pub struct VecSliceMut<'a, T: 'a> {
     data:   &'a mut [T],
-    length: uint,
-    stride: uint
+    length: usize,
+    stride: usize
 }
 
 impl<'a, T> VecSlice<'a, T> {
     /// Creates a new immutable slice.
     #[inline]
-    pub fn new(data: &'a [T], length: uint, stride: uint) -> VecSlice<'a, T> {
+    pub fn new(data: &'a [T], length: usize, stride: usize) -> VecSlice<'a, T> {
         assert!(stride > 0, "The stride must at least be 1.");
         assert!(length == 0 || data.len() >= 1 + (length - 1) * stride, "The data buffer is too small.");
 
@@ -32,7 +32,7 @@ impl<'a, T> VecSlice<'a, T> {
 
     /// Creates a new immutable slice. The size of the data buffer is not checked.
     #[inline]
-    pub unsafe fn new_unsafe(data: &'a [T], length: uint, stride: uint) -> VecSlice<'a, T> {
+    pub unsafe fn new_unsafe(data: &'a [T], length: usize, stride: usize) -> VecSlice<'a, T> {
         VecSlice {
             data:   data,
             length: length,
@@ -42,7 +42,7 @@ impl<'a, T> VecSlice<'a, T> {
 
     /// The length of this slice.
     #[inline]
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.length
     }
 
@@ -53,7 +53,7 @@ impl<'a, T> VecSlice<'a, T> {
     }
 
     #[inline(always)]
-    fn id(&self, i: uint) -> uint {
+    fn id(&self, i: usize) -> usize {
         i * self.stride
     }
 
@@ -61,7 +61,7 @@ impl<'a, T> VecSlice<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub fn get<'b>(&'b self, i: uint) -> &'b T {
+    pub fn get<'b>(&'b self, i: usize) -> &'b T {
         assert!(i < self.length);
 
         unsafe {
@@ -73,7 +73,7 @@ impl<'a, T> VecSlice<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+    pub unsafe fn get_unchecked<'b>(&'b self, i: usize) -> &'b T {
         self.data.get_unchecked(self.id(i))
     }
 }
@@ -81,7 +81,7 @@ impl<'a, T> VecSlice<'a, T> {
 impl<'a, T> VecSliceMut<'a, T> {
     /// Creates a new mutable slice.
     #[inline]
-    pub fn new(data: &'a mut [T], length: uint, stride: uint) -> VecSliceMut<'a, T> {
+    pub fn new(data: &'a mut [T], length: usize, stride: usize) -> VecSliceMut<'a, T> {
         assert!(stride > 0, "The stride must at least be 1.");
         assert!(length == 0 || data.len() >= 1 + (length - 1) * stride, "The data buffer is too small.");
 
@@ -92,7 +92,7 @@ impl<'a, T> VecSliceMut<'a, T> {
 
     /// Creates a new mutable slice. The size of the data buffer is not checked.
     #[inline]
-    pub unsafe fn new_unsafe(data: &'a mut [T], length: uint, stride: uint) -> VecSliceMut<'a, T> {
+    pub unsafe fn new_unsafe(data: &'a mut [T], length: usize, stride: usize) -> VecSliceMut<'a, T> {
         VecSliceMut {
             data:   data,
             length: length,
@@ -102,7 +102,7 @@ impl<'a, T> VecSliceMut<'a, T> {
 
     /// The length of this slice.
     #[inline]
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.length
     }
 
@@ -121,7 +121,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     }
 
     #[inline(always)]
-    fn id(&self, i: uint) -> uint {
+    fn id(&self, i: usize) -> usize {
         i * self.stride
     }
 
@@ -129,7 +129,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub fn get<'b>(&'b self, i: uint) -> &'b T {
+    pub fn get<'b>(&'b self, i: usize) -> &'b T {
         assert!(i < self.length);
 
         unsafe {
@@ -141,7 +141,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub fn get_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
+    pub fn get_mut<'b>(&'b mut self, i: usize) -> &'b mut T {
         assert!(i < self.length);
 
         unsafe {
@@ -153,7 +153,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn get_unchecked<'b>(&'b self, i: uint) -> &'b T {
+    pub unsafe fn get_unchecked<'b>(&'b self, i: usize) -> &'b T {
         self.data.get_unchecked(self.id(i))
     }
 
@@ -161,7 +161,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     ///
     /// This is the same as the `i * self.stride`-th element of the wrapped vector.
     #[inline]
-    pub unsafe fn get_unchecked_mut<'b>(&'b mut self, i: uint) -> &'b mut T {
+    pub unsafe fn get_unchecked_mut<'b>(&'b mut self, i: usize) -> &'b mut T {
         let id = self.id(i);
         self.data.get_unchecked_mut(id)
     }

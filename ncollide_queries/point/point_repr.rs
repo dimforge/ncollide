@@ -56,7 +56,7 @@ macro_rules! dispatch(
     }
 );
 
-impl<'a, N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M> + 'a
+impl<N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,
@@ -77,7 +77,7 @@ impl<'a, N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M> + 'a
     }
 }
 
-impl<'a, N, P, V, M> PointQuery<N, P, M> for Repr<N, P, V, M> + 'a
+impl<N, P, V, M> PointQuery<N, P, M> for Repr<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Translate<P>,

@@ -15,9 +15,9 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeRepr<N, P, V, M> {
     prediction:    N,
-    sub_detectors: HashMap<uint, CollisionAlgorithm<N, P, V, M>, UintTWHash>,
-    to_delete:     Vec<uint>,
-    interferences: Vec<uint>
+    sub_detectors: HashMap<usize, CollisionAlgorithm<N, P, V, M>, UintTWHash>,
+    to_delete:     Vec<usize>,
+    interferences: Vec<usize>
 }
 
 impl<N, P, V, M> CompositeShapeRepr<N, P, V, M> {
@@ -142,7 +142,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for CompositeShapeRepr<N, P, V, M
         }
     }
 
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         let mut res = 0;
 
         for detector in self.sub_detectors.elements().iter() {
@@ -181,7 +181,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for ReprCompositeShape<N, P, V, M
         }
     }
 
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         self.sub_detector.num_colls()
     }
 

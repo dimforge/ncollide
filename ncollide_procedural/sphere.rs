@@ -186,7 +186,7 @@ pub fn circle<N, P, V>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V>
     let two_pi: N = BaseFloat::two_pi();
     let dtheta    = two_pi / na::cast(nsubdivs as f64);
 
-    let mut pts = Vec::with_capacity(nsubdivs as uint);
+    let mut pts = Vec::with_capacity(nsubdivs as usize);
 
     utils::push_xy_arc(*diameter / na::cast(2.0), nsubdivs, dtheta, &mut pts);
 

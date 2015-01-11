@@ -83,7 +83,7 @@ pub fn circumcircle<N, P, V>(pa: &P, pb: &P, pc: &P) -> (P, N)
 pub fn is_affinely_dependent_triangle3<P, V, N>(p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
           P: Sub<P, Output = V> + Copy,
-          V: Zero + Norm<N> + Index<uint, Output = N> + IndexMut<uint, Output = N> + Dim + Copy {
+          V: Zero + Norm<N> + Index<usize, Output = N> + IndexMut<usize, Output = N> + Dim + Copy {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 

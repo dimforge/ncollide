@@ -5,12 +5,12 @@ use std::mem;
 /// Hash function.
 pub trait HashFun<K> {
     /// Hash function.
-    fn hash(&self, &K) -> uint;
+    fn hash(&self, &K) -> usize;
 }
 
-/// Hash function for pairs of `uint`, using the Tomas Wang hash.
+/// Hash function for pairs of `usize`, using the Tomas Wang hash.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
-pub struct UintPairTWHash { unused: uint }
+pub struct UintPairTWHash { unused: usize }
 
 impl UintPairTWHash {
     /// Creates a new UintPairTWHash.
@@ -19,9 +19,9 @@ impl UintPairTWHash {
     }
 }
 
-impl HashFun<(uint, uint)> for UintPairTWHash {
+impl HashFun<(usize, usize)> for UintPairTWHash {
     #[inline]
-    fn hash(&self, &(a, b): &(uint, uint)) -> uint {
+    fn hash(&self, &(a, b): &(usize, usize)) -> usize {
         let mut ia = a;
         let mut ib = b;
 
@@ -33,9 +33,9 @@ impl HashFun<(uint, uint)> for UintPairTWHash {
     }
 }
 
-/// Hash function for `uint`.
+/// Hash function for `usize`.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
-pub struct UintTWHash { unused: uint } // FIXME: ICE if the struct is zero-sized
+pub struct UintTWHash { unused: usize } // FIXME: ICE if the struct is zero-sized
 
 impl UintTWHash {
     /// Creates a new UintTWHash.
@@ -44,22 +44,22 @@ impl UintTWHash {
     }
 }
 
-impl HashFun<uint> for UintTWHash {
+impl HashFun<usize> for UintTWHash {
     #[inline]
-    fn hash(&self, a: &uint) -> uint {
+    fn hash(&self, a: &usize) -> usize {
         tomas_wang_hash(*a)
     }
 }
 
-/// Combines two `uint` on a single one.
+/// Combines two `usize` on a single one.
 #[cfg(target_pointer_width = "32")] #[inline]
-pub fn key_from_pair(a: uint, b: uint) -> uint {
+pub fn key_from_pair(a: usize, b: usize) -> usize {
     (a & 0xffff) | (b << 16)
 }
 
-/// Combines two `uint` on a single one.
+/// Combines two `usize` on a single one.
 #[cfg(target_pointer_width = "64")] #[inline]
-pub fn key_from_pair(a: uint, b: uint) -> uint {
+pub fn key_from_pair(a: usize, b: usize) -> usize {
     (a & 0xffffffff) | (b << 32)
 }
 
@@ -67,7 +67,7 @@ pub fn key_from_pair(a: uint, b: uint) -> uint {
 // (this one works: http://naml.us/blog/tag/thomas-wang)
 /// Tomas Wang integer hash function.
 #[cfg(target_pointer_width = "64")] #[inline]
-pub fn tomas_wang_hash(k: uint) -> uint {
+pub fn tomas_wang_hash(k: usize) -> usize {
     let mut res = k;
 
     res = res + !(res << 32);
@@ -84,7 +84,7 @@ pub fn tomas_wang_hash(k: uint) -> uint {
 
 /// Tomas Wang integer hash function.
 #[cfg(target_pointer_width = "32")] #[inline]
-pub fn tomas_wang_hash(k: uint) -> uint {
+pub fn tomas_wang_hash(k: usize) -> usize {
     let mut res = k;
 
     res = res + !(res << 15);

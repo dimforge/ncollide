@@ -4,14 +4,14 @@ use na::Pnt3;
 /// Given an index buffer, remove from `points` every point that is not indexed.
 pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Pnt3<u32>]) {
     let mut used: Vec<bool>  = iter::repeat(false).take(points.len()).collect();
-    let mut remap: Vec<uint> = range(0, points.len()).map(|i| i).collect();
+    let mut remap: Vec<usize> = range(0, points.len()).map(|i| i).collect();
     let used                 = used.as_mut_slice();
     let remap                = remap.as_mut_slice();
 
     for i in idx.iter() {
-        used[i.x as uint] = true;
-        used[i.y as uint] = true;
-        used[i.z as uint] = true;
+        used[i.x as usize] = true;
+        used[i.y as usize] = true;
+        used[i.z as usize] = true;
     }
 
     let mut i = 0;
@@ -27,8 +27,8 @@ pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Pnt3<u32>]) {
     }
 
     for id in idx.iter_mut() {
-        id.x = remap[id.x as uint] as u32;
-        id.y = remap[id.y as uint] as u32;
-        id.z = remap[id.z as uint] as u32;
+        id.x = remap[id.x as usize] as u32;
+        id.y = remap[id.y as usize] as u32;
+        id.z = remap[id.z as usize] as u32;
     }
 }

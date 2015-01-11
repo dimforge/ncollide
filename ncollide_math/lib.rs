@@ -20,14 +20,14 @@ pub trait Scalar: Copy + Send + Sync + Show +
 pub trait Point<N, V>: Send         + Sync              + FloatPnt<N, V> +
                        POrd         + Bounded           + ScalarSub<N> +
                        ScalarAdd<N> + ScalarMul<N>      + ScalarDiv<N> +
-                       IndexMut<uint, Output = N> + Clone + Copy + Show {
+                       IndexMut<usize, Output = N> + Clone + Copy + Show {
 }
 
 
 /// Trait implemented by vector types.
 pub trait Vect<N>: Send                + Sync  + FloatVec<N> +
-                   UniformSphereSample + Clone + IndexMut<uint, Output = N> +
-                   Rand                + Shape<uint> + POrd +
+                   UniformSphereSample + Clone + IndexMut<usize, Output = N> +
+                   Rand                + Shape<usize> + POrd +
                    Absolute<Self>      + Iterable<N> + Copy + Show {
 }
 

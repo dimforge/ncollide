@@ -28,7 +28,7 @@ pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mu
 #[inline]
 pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
     where N: Scalar,
-          P: Dim + Orig + Index<uint, Output = N> + IndexMut<uint, Output = N> {
+          P: Dim + Orig + Index<usize, Output = N> + IndexMut<usize, Output = N> {
     assert!(na::dim::<P>() >= 2);
 
     let mut curr_theta: N = na::zero();
@@ -178,13 +178,13 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
     }
 
     for t in indices.iter() {
-        let va = resolve_coord_id(&coords[t.x as uint], &mut vtx_to_id, &mut new_coords);
+        let va = resolve_coord_id(&coords[t.x as usize], &mut vtx_to_id, &mut new_coords);
         let oa = t.x;
 
-        let vb = resolve_coord_id(&coords[t.y as uint], &mut vtx_to_id, &mut new_coords);
+        let vb = resolve_coord_id(&coords[t.y as usize], &mut vtx_to_id, &mut new_coords);
         let ob = t.y;
 
-        let vc = resolve_coord_id(&coords[t.z as uint], &mut vtx_to_id, &mut new_coords);
+        let vc = resolve_coord_id(&coords[t.z as usize], &mut vtx_to_id, &mut new_coords);
         let oc = t.z;
 
         out.push(
@@ -220,8 +220,8 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Pnt3<u32>], normals:
 
     // Accumulate normals ...
     for f in faces.iter() {
-        let edge1  = coordinates[f.y as uint] - coordinates[f.x as uint];
-        let edge2  = coordinates[f.z as uint] - coordinates[f.x as uint];
+        let edge1  = coordinates[f.y as usize] - coordinates[f.x as usize];
+        let edge2  = coordinates[f.z as usize] - coordinates[f.x as usize];
         let cross  = na::cross(&edge1, &edge2);
         let normal;
 
@@ -232,13 +232,13 @@ pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Pnt3<u32>], normals:
             normal = cross
         }
 
-        normals[f.x as uint] = normals[f.x as uint] + normal;
-        normals[f.y as uint] = normals[f.y as uint] + normal;
-        normals[f.z as uint] = normals[f.z as uint] + normal;
+        normals[f.x as usize] = normals[f.x as usize] + normal;
+        normals[f.y as usize] = normals[f.y as usize] + normal;
+        normals[f.z as usize] = normals[f.z as usize] + normal;
 
-        divisor[f.x as uint] = divisor[f.x as uint] + na::one();
-        divisor[f.y as uint] = divisor[f.y as uint] + na::one();
-        divisor[f.z as uint] = divisor[f.z as uint] + na::one();
+        divisor[f.x as usize] = divisor[f.x as usize] + na::one();
+        divisor[f.y as usize] = divisor[f.y as usize] + na::one();
+        divisor[f.z as usize] = divisor[f.z as usize] + na::one();
     }
 
     // ... and compute the mean

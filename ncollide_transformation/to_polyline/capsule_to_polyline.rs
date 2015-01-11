@@ -11,7 +11,7 @@ impl<N: Scalar> ToPolyline<N, Pnt2<N>, Vec2<N>, u32> for Capsule2<N> {
         let pi: N = BaseFloat::pi();
         let dtheta     = pi / na::cast(nsubdiv as f64);
 
-        let mut points: Vec<Pnt2<N>> = Vec::with_capacity(nsubdiv as uint);
+        let mut points: Vec<Pnt2<N>> = Vec::with_capacity(nsubdiv as usize);
 
         utils::push_xy_arc(self.radius(), nsubdiv, dtheta, &mut points);
 

@@ -80,7 +80,7 @@ for PlaneSupportMap<N, P, V, M>
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         match self.contact {
             None    => 0,
             Some(_) => 1
@@ -123,7 +123,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for SupportMapPlane<N, P, V, M>
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         match self.contact {
             None    => 0,
             Some(_) => 1

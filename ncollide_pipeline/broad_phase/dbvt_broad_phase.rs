@@ -15,12 +15,12 @@ use broad_phase::BroadPhase;
 struct DBVTBroadPhaseProxy<P, BV, T> {
     data:   T,
     leaf:   Rc<RefCell<DBVTLeaf<P, FastKey, BV>>>,
-    active: int // Negative => removed.
+    active: isize // Negative => removed.
 }
 
-const DEACTIVATION_THRESHOLD: int = 100;
-const REMOVE_FROM_TREE: int = -1;
-const REMOVE_FROM_STREE: int = -2;
+const DEACTIVATION_THRESHOLD: isize = 100;
+const REMOVE_FROM_TREE: isize = -1;
+const REMOVE_FROM_STREE: isize = -2;
 
 
 /// Broad phase based on a Dynamic Bounding Volume Tree.
@@ -33,7 +33,7 @@ pub struct DBVTBroadPhase<N, P, BV, T> {
     stree:      DBVT<P, FastKey, BV>, // DBVT for static objects.
     pairs:      HashMap<Pair, (), PairTWHash>, // Pairs detected (FIXME: use a Vec instead?)
     margin:     N, // The margin added to each bounding volume.
-    update_off: uint, // Incremental pairs removal index.
+    update_off: usize, // Incremental pairs removal index.
     purge_all:  bool,
 
     // Just to avoid dynamic allocations.
@@ -65,7 +65,7 @@ impl<N, P, V, BV, T> DBVTBroadPhase<N, P, BV, T>
 
     /// Number of interferences detected by this broad phase.
     #[inline]
-    pub fn num_interferences(&self) -> uint {
+    pub fn num_interferences(&self) -> usize {
         self.pairs.len()
     }
 }
@@ -76,7 +76,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
           V:  Vect<N>,
           BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + LocalPointQuery<N, P> + Clone {
     #[inline]
-    fn defered_add(&mut self, uid: uint, bv: BV, data: T) {
+    fn defered_add(&mut self, uid: usize, bv: BV, data: T) {
         let lbv = bv.loosened(self.margin.clone());
         let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
         let leaf = Rc::new(RefCell::new(leaf));
@@ -91,7 +91,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
         self.to_update.push((proxy_key, lbv));
     }
 
-    fn defered_remove(&mut self, uid: uint) {
+    fn defered_remove(&mut self, uid: usize) {
         let proxy_key = match self.proxies.get_fast_key(uid) {
             None      => return,
             Some(uid) => uid
@@ -258,7 +258,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
         self.to_update.clear();
     }
 
-    fn defered_set_bounding_volume(&mut self, uid: uint, bounding_volume: BV) {
+    fn defered_set_bounding_volume(&mut self, uid: usize, bounding_volume: BV) {
         if let Some(proxy_key) = self.proxies.get_fast_key(uid) {
             let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap();
 

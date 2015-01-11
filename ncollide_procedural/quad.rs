@@ -16,7 +16,7 @@ use math::{Scalar, Point, Vect};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<N, P, V>(width: N, height: N, usubdivs: uint, vsubdivs: uint) -> TriMesh<N, P, V>
+pub fn quad<N, P, V>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -42,7 +42,7 @@ pub fn quad<N, P, V>(width: N, height: N, usubdivs: uint, vsubdivs: uint) -> Tri
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<N, P, V>(vertices: &[P], nhpoints: uint, nvpoints: uint) -> TriMesh<N, P, V>
+pub fn quad_with_vertices<N, P, V>(vertices: &[P], nhpoints: usize, nvpoints: usize) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -68,7 +68,7 @@ pub fn quad_with_vertices<N, P, V>(vertices: &[P], nhpoints: uint, nvpoints: uin
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn unit_quad<N, P, V>(usubdivs: uint, vsubdivs: uint) -> TriMesh<N, P, V>
+pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {

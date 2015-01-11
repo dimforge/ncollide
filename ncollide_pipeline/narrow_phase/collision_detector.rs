@@ -18,7 +18,7 @@ pub trait CollisionDetector<N, P, V, M> {
     fn update(&mut self, &CollisionDispatcher<N, P, V, M>, &M, &Repr<N, P, V, M>, &M, &Repr<N, P, V, M>) -> bool;
 
     /// The number of collision detected during the last update.
-    fn num_colls(&self) -> uint;
+    fn num_colls(&self) -> usize;
 
     /// Collects the collisions detected during the last update.
     fn colls(&self, &mut Vec<Contact<N, P, V>>);

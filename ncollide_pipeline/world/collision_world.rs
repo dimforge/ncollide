@@ -23,7 +23,7 @@ pub struct CollisionWorld<N, P, V, M, T> {
     broad_phase:   BroadPhaseObject<P, V>,
     narrow_phase:  CollisionObjectsDispatcher<N, P, V, M, T>,
     pos_to_update: Vec<(FastKey, M)>,
-    timestamp:     uint
+    timestamp:     usize
     // FIXME: allow modification of the other properties too.
 }
 
@@ -53,9 +53,9 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
 
     /// Adds a collision object to the world.
     pub fn add(&mut self,
-               uid: uint,
+               uid: usize,
                position: M,
-               shape: Arc<Box<Repr<N, P, V, M> + Send + Sync>>,
+               shape: Arc<Box<Repr<N, P, V, M>>>,
                collision_groups: CollisionGroups,
                data: T) {
         // FIXME: test that we did not add this object already ?
@@ -68,7 +68,7 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     }
 
     /// Remove a collision object from the world.
-    pub fn remove(&mut self, uid: uint) {
+    pub fn remove(&mut self, uid: usize) {
         if let Some((fk, _)) = self.objects.remove(uid) {
             self.broad_phase.defered_remove(fk.uid());
         }
@@ -86,7 +86,7 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
 
     /// Sets the position the collision object attached to the specified object will have during
     /// the next update.
-    pub fn defered_set_position(&mut self, uid: uint, pos: M) {
+    pub fn defered_set_position(&mut self, uid: usize, pos: M) {
         if let Some(fk) = self.objects.get_fast_key(uid) {
             self.pos_to_update.push((fk, pos))
         }

@@ -35,7 +35,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     utils::push_filled_circle_indices(nsubdiv, nsubdiv, &mut indices);
 
     let len             = indices.len();
-    let bottom_start_id = len - (nsubdiv as uint - 2);
+    let bottom_start_id = len - (nsubdiv as usize - 2);
     utils::reverse_clockwising(indices.slice_from_mut(bottom_start_id));
 
     let mut indices = utils::split_index_buffer(indices.as_slice());
@@ -72,7 +72,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     normals.push(-Vec3::y()); // bottom cap
     let nlen = normals.len() as u32;
 
-    let top_start_id = len - 2 * (nsubdiv as uint - 2);
+    let top_start_id = len - 2 * (nsubdiv as usize - 2);
 
     for i in indices.slice_to_mut(top_start_id).iter_mut() {
         if i.x.y >= nsubdiv {

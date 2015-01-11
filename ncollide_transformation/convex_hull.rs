@@ -187,7 +187,7 @@ fn build_degenerate_mesh_segment<N, P, V>(dir: &V, points: &[P]) -> TriMesh<N, P
     TriMesh::new(vec!(a, b), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
-fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -> InitialMesh<N, P, V, M>
+fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) -> InitialMesh<N, P, V, M>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
@@ -348,7 +348,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<uint>) -
     }
 }
 
-fn support_point<N, P, V>(direction: &V, points : &[P], idx: &[uint]) -> Option<uint>
+fn support_point<N, P, V>(direction: &V, points : &[P], idx: &[usize]) -> Option<usize>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -369,7 +369,7 @@ fn support_point<N, P, V>(direction: &V, points : &[P], idx: &[uint]) -> Option<
 }
 
 // FIXME: uggly, find a way to refactor all the support point functions!
-fn support_point_2<N, P, V>(direction: &V, points : &[P]) -> Option<uint>
+fn support_point_2<N, P, V>(direction: &V, points : &[P]) -> Option<usize>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -389,13 +389,13 @@ fn support_point_2<N, P, V>(direction: &V, points : &[P]) -> Option<uint>
     argmax
 }
 
-fn compute_silhouette<N, P, V>(facet:          uint,
-                               indirect_id :   uint,
-                               point:          uint,
-                               out_facets:     &mut Vec<uint>,
-                               out_adj_idx:    &mut Vec<uint>,
+fn compute_silhouette<N, P, V>(facet:          usize,
+                               indirect_id :   usize,
+                               point:          usize,
+                               out_facets:     &mut Vec<usize>,
+                               out_adj_idx:    &mut Vec<usize>,
                                points:         &[P],
-                               removed_facets: &mut Vec<uint>,
+                               removed_facets: &mut Vec<usize>,
                                triangles:      &mut [TriangleFacet<N, P, V>])
     where N: Scalar,
           P: Point<N, V>,
@@ -429,7 +429,7 @@ fn compute_silhouette<N, P, V>(facet:          uint,
     }
 }
 
-fn verify_facet_links<N, P, V>(ifacet: uint, facets: &[TriangleFacet<N, P, V>])
+fn verify_facet_links<N, P, V>(ifacet: usize, facets: &[TriangleFacet<N, P, V>])
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -445,13 +445,13 @@ fn verify_facet_links<N, P, V>(ifacet: uint, facets: &[TriangleFacet<N, P, V>])
     }
 }
 
-fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
-                                    horizon_loop_ids:    &[uint],
-                                    point:               uint,
+fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[usize],
+                                    horizon_loop_ids:    &[usize],
+                                    point:               usize,
                                     points:              &[P],
                                     triangles:           &mut Vec<TriangleFacet<N, P, V>>,
-                                    removed_facets:      &[uint],
-                                    undecidable:         &mut Vec<uint>)
+                                    removed_facets:      &[usize],
+                                    undecidable:         &mut Vec<usize>)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -459,8 +459,8 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
     // Create new facets.
-    let mut adj_facet:  uint;
-    let mut indirect_id: uint;
+    let mut adj_facet:  usize;
+    let mut indirect_id: usize;
 
     for i in range(0, horizon_loop_facets.len()) {
         adj_facet   = horizon_loop_facets[i];
@@ -563,11 +563,11 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[uint],
 struct TriangleFacet<N, P, V> {
     valid:             bool,
     normal:            V,
-    adj:               [uint; 3],
-    indirect_adj_id:   [uint; 3],
-    pts:               [uint; 3],
-    visible_points:    Vec<uint>,
-    furthest_point:    uint,
+    adj:               [usize; 3],
+    indirect_adj_id:   [usize; 3],
+    pts:               [usize; 3],
+    visible_points:    Vec<usize>,
+    furthest_point:    usize,
     furthest_distance: N
 }
 
@@ -576,7 +576,7 @@ impl<N, P, V> TriangleFacet<N, P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
-    pub fn new(p1: uint, p2: uint, p3: uint, points: &[P]) -> TriangleFacet<N, P, V> {
+    pub fn new(p1: usize, p2: usize, p3: usize, points: &[P]) -> TriangleFacet<N, P, V> {
         let p1p2 = points[p2] - points[p1];
         let p1p3 = points[p3] - points[p1];
 
@@ -597,7 +597,7 @@ impl<N, P, V> TriangleFacet<N, P, V>
         }
     }
 
-    pub fn add_visible_point(&mut self, pid: uint, points: &[P]) {
+    pub fn add_visible_point(&mut self, pid: usize, points: &[P]) {
         let dist = self.distance_to_point(pid, points);
 
         if dist > self.furthest_distance {
@@ -608,17 +608,17 @@ impl<N, P, V> TriangleFacet<N, P, V>
         self.visible_points.push(pid);
     }
 
-    pub fn distance_to_point(&self, point: uint, points: &[P]) -> N {
+    pub fn distance_to_point(&self, point: usize, points: &[P]) -> N {
         na::dot(&self.normal, &(points[point] - points[self.pts[0]]))
     }
 
     pub fn set_facets_adjascency(&mut self,
-                                 adj1:   uint,
-                                 adj2:   uint,
-                                 adj3:   uint,
-                                 id_adj1: uint,
-                                 id_adj2: uint,
-                                 id_adj3: uint) {
+                                 adj1:   usize,
+                                 adj2:   usize,
+                                 adj3:   usize,
+                                 id_adj1: usize,
+                                 id_adj2: usize,
+                                 id_adj3: usize) {
         self.indirect_adj_id[0] = id_adj1;
         self.indirect_adj_id[1] = id_adj2;
         self.indirect_adj_id[2] = id_adj3;
@@ -628,15 +628,15 @@ impl<N, P, V> TriangleFacet<N, P, V>
         self.adj[2] = adj3;
     }
 
-    pub fn first_point_from_edge(&self, id: uint) -> uint {
+    pub fn first_point_from_edge(&self, id: usize) -> usize {
         self.pts[id]
     }
 
-    pub fn second_point_from_edge(&self, id: uint) -> uint {
+    pub fn second_point_from_edge(&self, id: usize) -> usize {
         self.pts[(id + 1) % 3]
     }
 
-    pub fn can_be_seen_by(&self, point: uint, points: &[P]) -> bool {
+    pub fn can_be_seen_by(&self, point: usize, points: &[P]) -> bool {
         let p0 = &points[self.pts[0]];
         let p1 = &points[self.pts[1]];
         let p2 = &points[self.pts[2]];
@@ -651,9 +651,9 @@ impl<N, P, V> TriangleFacet<N, P, V>
     }
 
     pub fn can_be_seen_by_or_is_affinely_dependent_with_contour(&self,
-                                                                point:  uint,
+                                                                point:  usize,
                                                                 points: &[P],
-                                                                edge:   uint) -> bool {
+                                                                edge:   usize) -> bool {
         let p0 = &points[self.first_point_from_edge(edge)];
         let p1 = &points[self.second_point_from_edge(edge)];
         let pt = &points[point];
@@ -688,7 +688,7 @@ pub fn convex_hull2<N, P, V>(points: &[P]) -> Polyline<N, P, V>
 
 /// Computes the convex hull of a set of 2d points and returns only the indices of the hull
 /// vertices.
-pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<uint>
+pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<usize>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -750,7 +750,7 @@ pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<uint>
     idx
 }
 
-fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<uint>) -> Vec<SegmentFacet<P, V>>
+fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<usize>) -> Vec<SegmentFacet<P, V>>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -805,13 +805,13 @@ fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<uint>) -> V
     res
 }
 
-fn attach_and_push_facets2<N, P, V>(prev_facet:    uint,
-                                    next_facet:    uint,
-                                    point:         uint,
+fn attach_and_push_facets2<N, P, V>(prev_facet:    usize,
+                                    next_facet:    usize,
+                                    point:         usize,
                                     points:        &[P],
                                     segments:      &mut Vec<SegmentFacet<P, V>>,
-                                    removed_facet: uint,
-                                    undecidable:   &mut Vec<uint>)
+                                    removed_facet: usize,
+                                    undecidable:   &mut Vec<usize>)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
@@ -865,10 +865,10 @@ fn attach_and_push_facets2<N, P, V>(prev_facet:    uint,
 struct SegmentFacet<P, V> {
     pub valid:          bool,
     pub normal:         V,
-    pub next:           uint,
-    pub prev:           uint,
-    pub pts:            [uint; 2],
-    pub visible_points: Vec<uint>
+    pub next:           usize,
+    pub prev:           usize,
+    pub pts:            [usize; 2],
+    pub visible_points: Vec<usize>
 }
 
 #[old_impl_check]
@@ -876,7 +876,7 @@ impl<N, P, V> SegmentFacet<P, V>
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
-    pub fn new(p1: uint, p2: uint, prev: uint, next: uint, points: &[P]) -> SegmentFacet<P, V> {
+    pub fn new(p1: usize, p2: usize, prev: usize, next: usize, points: &[P]) -> SegmentFacet<P, V> {
         let p1p2 = points[p2] - points[p1];
 
         let mut normal = na::zero();
@@ -900,7 +900,7 @@ impl<N, P, V> SegmentFacet<P, V>
         }
     }
 
-    pub fn can_be_seen_by(&self, point: uint, points: &[P]) -> bool {
+    pub fn can_be_seen_by(&self, point: usize, points: &[P]) -> bool {
         let p0 = &points[self.pts[0]];
         let pt = &points[point];
 

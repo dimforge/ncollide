@@ -1,4 +1,4 @@
-//! A map allowing a slow lookup for arbitrary `uint` and fast lookup for small ones.
+//! A map allowing a slow lookup for arbitrary `usize` and fast lookup for small ones.
 
 use std::iter::FromIterator;
 use std::ops::Index;
@@ -9,10 +9,10 @@ use std::collections::vec_map::{Iter, IterMut, Values, Keys};
 use std::collections::{VecMap, HashMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
-/// id of type `uint`.
+/// id of type `usize`.
 #[derive(Show, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable)]
 pub struct FastKey {
-    uid: uint
+    uid: usize
 }
 
 impl FastKey {
@@ -26,18 +26,18 @@ impl FastKey {
 
     /// The small uid contained by this key.
     #[inline]
-    pub fn uid(&self) -> uint {
+    pub fn uid(&self) -> usize {
         self.uid
     }
 }
 
 #[derive(Show, Clone, RustcEncodable, RustcDecodable)]
 struct LookupData<O> {
-    uid2key:   HashMap<uint, FastKey>,
+    uid2key:   HashMap<usize, FastKey>,
     free_keys: Vec<FastKey>
 }
 
-/// A set of values having large uint key.
+/// A set of values having large usize key.
 #[derive(Show, Clone, RustcEncodable, RustcDecodable)]
 pub struct UidRemap<O> { // FIXME: find a better name.
     values: VecMap<O>,
@@ -70,7 +70,7 @@ impl<O> UidRemap<O> {
 
     /// Gets the fast key associated to the given key.
     #[inline]
-    pub fn get_fast_key(&self, uid: uint) -> Option<FastKey> {
+    pub fn get_fast_key(&self, uid: usize) -> Option<FastKey> {
         match self.lookup {
             None => Some(FastKey { uid: uid }),
             Some(ref data) => data.uid2key.get(&uid).cloned()
@@ -79,7 +79,7 @@ impl<O> UidRemap<O> {
 
     /// Return the number of elements in the map.
     #[inline]
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         match self.lookup {
             None => self.values.len(),
             Some(ref data) => data.uid2key.len()
@@ -108,7 +108,7 @@ impl<O> UidRemap<O> {
 
     /// Returns a reference to the value corresponding to the key.
     #[inline]
-    pub fn get(&self, key: uint) -> Option<&O> {
+    pub fn get(&self, key: usize) -> Option<&O> {
         match self.get_fast_key(key) {
             Some(fast_key) => self.get_fast(&fast_key),
             None => None
@@ -123,7 +123,7 @@ impl<O> UidRemap<O> {
 
     /// Returns true if the map contains a value for the specified key.
     #[inline]
-    pub fn contains_key(&self, key: uint) -> bool {
+    pub fn contains_key(&self, key: usize) -> bool {
         self.get(key).is_some()
     }
 
@@ -135,7 +135,7 @@ impl<O> UidRemap<O> {
 
     /// Returns a mutable reference to the value corresponding to the key.
     #[inline]
-    pub fn get_mut(&mut self, key: uint) -> Option<&mut O> {
+    pub fn get_mut(&mut self, key: usize) -> Option<&mut O> {
         match self.get_fast_key(key) {
             Some(fast_key) => self.get_fast_mut(&fast_key),
             None => None
@@ -153,7 +153,7 @@ impl<O> UidRemap<O> {
     /// present in the map, that value and its fast key are returned. Otherwise, `None` is
     /// returned.
     #[inline]
-    pub fn insert(&mut self, uid: uint, value: O) -> (FastKey, Option<O>) {
+    pub fn insert(&mut self, uid: usize, value: O) -> (FastKey, Option<O>) {
         match self.lookup {
             None => {
                 let fast_key = FastKey { uid: uid };
@@ -194,7 +194,7 @@ impl<O> UidRemap<O> {
 
     /// Removes a key from the map, returning the value at the key if the key exists.
     #[inline]
-    pub fn remove(&mut self, uid: uint) -> Option<(FastKey, O)> {
+    pub fn remove(&mut self, uid: usize) -> Option<(FastKey, O)> {
         match self.lookup {
             None => self.values.remove(&uid).map(|o| (FastKey { uid: uid }, o)),
             Some(ref mut data) => {
@@ -243,7 +243,7 @@ impl<O: Clone> UidRemap<O> {
     /// Otherwise, sets the value to `newval`.
     /// Returns `true` if the key did not already exist in the map.
     #[inline]
-    pub fn update<F: Fn(O, O) -> O>(&mut self, key: uint, newval: O, ff: F) -> bool {
+    pub fn update<F: Fn(O, O) -> O>(&mut self, key: usize, newval: O, ff: F) -> bool {
         self.update_with_key(key, newval, |_k, v, v1| ff(v,v1))
     }
 
@@ -252,7 +252,7 @@ impl<O: Clone> UidRemap<O> {
     /// Otherwise, sets the value to `newval`.
     /// Returns `true` if the key did not already exist in the map.
     #[inline]
-    pub fn update_with_key<F: Fn(&uint, O, O) -> O>(&mut self, key: uint, val: O, ff: F) -> bool {
+    pub fn update_with_key<F: Fn(&usize, O, O) -> O>(&mut self, key: usize, val: O, ff: F) -> bool {
         let new_val = match self.get(key) {
             None => val,
             Some(orig) => ff(&key, (*orig).clone(), val)
@@ -261,18 +261,18 @@ impl<O: Clone> UidRemap<O> {
     }
 }
 
-impl<O> FromIterator<(uint, O)> for UidRemap<O> {
+impl<O> FromIterator<(usize, O)> for UidRemap<O> {
     #[inline]
-    fn from_iter<Iter: Iterator<Item = (uint, O)>>(iter: Iter) -> UidRemap<O> {
+    fn from_iter<Iter: Iterator<Item = (usize, O)>>(iter: Iter) -> UidRemap<O> {
         let mut map = UidRemap::new(false);
         map.extend(iter);
         map
     }
 }
 
-impl<O> Extend<(uint, O)> for UidRemap<O> {
+impl<O> Extend<(usize, O)> for UidRemap<O> {
     #[inline]
-    fn extend<Iter: Iterator<Item = (uint, O)>>(&mut self, mut iter: Iter) {
+    fn extend<Iter: Iterator<Item = (usize, O)>>(&mut self, mut iter: Iter) {
         for (k, v) in iter {
             let _ = self.insert(k, v);
         }

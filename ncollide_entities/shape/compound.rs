@@ -16,8 +16,8 @@ use inspection::Repr;
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 pub struct Compound<N, P, V, M> {
-    shapes:  Vec<(M, Arc<Box<Repr<N, P, V, M> + 'static>>)>,
-    bvt:     BVT<uint, AABB<P>>,
+    shapes:  Vec<(M, Arc<Box<Repr<N, P, V, M>>>)>,
+    bvt:     BVT<usize, AABB<P>>,
     bvs:     Vec<AABB<P>>
 }
 
@@ -41,7 +41,7 @@ impl<N, P, V, M> Compound<N, P, V, M>
           V: Vect<N> + Translate<P>,
           M: Isometry<N, P, V> {
     /// Builds a new compound shape.
-    pub fn new(shapes: Vec<(M, Arc<Box<Repr<N, P, V, M> + 'static>>)>) -> Compound<N, P, V, M> {
+    pub fn new(shapes: Vec<(M, Arc<Box<Repr<N, P, V, M>>>)>) -> Compound<N, P, V, M> {
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
@@ -66,13 +66,13 @@ impl<N, P, V, M> Compound<N, P, V, M>
 impl<N, P, V, M> Compound<N, P, V, M> {
     /// The shapes of this compound shape.
     #[inline]
-    pub fn shapes(&self) -> &[(M, Arc<Box<Repr<N, P, V, M> + 'static>>)] {
+    pub fn shapes(&self) -> &[(M, Arc<Box<Repr<N, P, V, M>>>)] {
         self.shapes.as_slice()
     }
 
     /// The optimization structure used by this compound shape.
     #[inline]
-    pub fn bvt(&self) -> &BVT<uint, AABB<P>> {
+    pub fn bvt(&self) -> &BVT<usize, AABB<P>> {
         &self.bvt
     }
 
@@ -84,7 +84,7 @@ impl<N, P, V, M> Compound<N, P, V, M> {
 
     /// The AABB of the i-th shape compositing this compound.
     #[inline]
-    pub fn aabb_at(&self, i: uint) -> &AABB<P> {
+    pub fn aabb_at(&self, i: usize) -> &AABB<P> {
         &self.bvs[i]
     }
 }

@@ -56,7 +56,7 @@ impl<'a> ReprDesc<'a> {
 }
 
 /// An object with a unique runtime geometric representation.
-pub trait Repr<N, P, V, M> {
+pub trait Repr<N, P, V, M>: Send + Sync {
     /// Gets a reference to this object's main representation.
     fn repr<'a>(&'a self) -> ReprDesc<'a>;
 }

@@ -22,7 +22,7 @@ pub trait Simplex<N, P> {
     fn contains_point(&self, &P) -> bool;
 
     /// Dimension of the simplex. A simplex with `n` must be a `n - 1`-dimensional simplex.
-    fn dimension(&self) -> uint;
+    fn dimension(&self) -> usize;
 
     /// The maximum among the simplex point squared lengths.
     fn max_sq_len(&self) -> N;

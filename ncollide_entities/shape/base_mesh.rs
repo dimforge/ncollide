@@ -15,7 +15,7 @@ pub trait BaseMeshElement<I, P> {
 
 /// A mesh generic wrt. the contained mesh elements characterized by vertices.
 pub struct BaseMesh<N, P, V, I, E> {
-    bvt:      BVT<uint, AABB<P>>,
+    bvt:      BVT<usize, AABB<P>>,
     bvs:      Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
     indices:  Arc<Vec<I>>,
@@ -117,7 +117,7 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
-    pub fn bvt(&self) -> &BVT<uint, AABB<P>> {
+    pub fn bvt(&self) -> &BVT<usize, AABB<P>> {
         &self.bvt
     }
 }
@@ -125,7 +125,7 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
 impl<N, P: Send + Sync, V, I, E: BaseMeshElement<I, P>> BaseMesh<N, P, V, I, E> {
     /// Gets the i-th mesh element.
     #[inline(always)]
-    pub fn element_at(&self, i: uint) -> E {
+    pub fn element_at(&self, i: usize) -> E {
         let vs: &[P] = self.vertices.as_slice();
 
         BaseMeshElement::new_with_vertices_and_indices(vs, &self.indices[i])

@@ -61,7 +61,7 @@ impl<N, P, V, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for AdHocContactG
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         if self.contact.is_some() {
             1
         }

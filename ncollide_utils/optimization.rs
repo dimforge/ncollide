@@ -10,8 +10,8 @@ use math::{Scalar, Vect};
 // FIXME: implement a proper metaheuristic.
 /// Maximizes a real function using the Newton method.
 pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
-                            niter:       uint,
-                            num_guesses: uint,
+                            niter:       usize,
+                            num_guesses: usize,
                             domain_min:  &V,
                             domain_max:  &V,
                             f:  &mut F,
@@ -44,7 +44,7 @@ pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
 }
 
 /// Finds the root of a function using the Newton method.
-pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: uint, guess: V, f: &mut F) -> (V, bool)
+pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (V, bool)
     where V: Sub<V, Output = V>,
           M: Inv + Mul<V, Output = V> + Copy {
     let mut curr = guess;
@@ -64,8 +64,8 @@ pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: uint, guess: V, f: &mut F) -> (V
 
 /// Minimizes a function using the bfgs method.
 pub fn minimize_with_bfgs<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> V>(
-                          niter:       uint,
-                          num_guesses: uint,
+                          niter:       usize,
+                          num_guesses: usize,
                           domain_min:  &V,
                           domain_max:  &V,
                           f:  &mut F,
@@ -114,12 +114,12 @@ pub struct BacktrackingLineSearch<N> {
     alpha: N,
     tau:   N,
     c:     N,
-    niter: uint
+    niter: usize
 }
 
 impl<N> BacktrackingLineSearch<N> {
     /// Creates a new backtracking line search methods.
-    pub fn new(alpha: N, tau: N, c: N, niter: uint) -> BacktrackingLineSearch<N> {
+    pub fn new(alpha: N, tau: N, c: N, niter: usize) -> BacktrackingLineSearch<N> {
         BacktrackingLineSearch {
             alpha: alpha,
             tau:   tau,
@@ -151,7 +151,7 @@ impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
 
 /// Minimizes a function using the quasi-newton BFGS method.
 pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
-            niter:   uint,
+            niter:   usize,
             ss:      &SS,
             guess:   V,
             hessian: M,

@@ -24,7 +24,7 @@ type Cache<P, B, BV> = OwnedAllocationCache<DBVTInternal<P, B, BV>>;
 pub struct DBVT<P, B, BV> {
     cache: Cache<P, B, BV>,
     tree:  Option<DBVTNode<P, B, BV>>,
-    len:   uint
+    len:   usize
 }
 
 impl<P, B, BV> DBVT<P, B, BV> {

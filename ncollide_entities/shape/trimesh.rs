@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<N, P, V> {
-    mesh: BaseMesh<N, P, V, Pnt3<uint>, Triangle<P>>
+    mesh: BaseMesh<N, P, V, Pnt3<usize>, Triangle<P>>
 }
 
 impl<N, P, V> Clone for TriMesh<N, P, V>
@@ -27,7 +27,7 @@ impl<N, P, V> TriMesh<N, P, V>
           V: Translate<P> + Vect<N> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Pnt3<uint>>>,
+               indices:  Arc<Vec<Pnt3<usize>>>,
                uvs:      Option<Arc<Vec<Pnt2<N>>>>,
                normals:  Option<Arc<Vec<V>>>) // a loosening margin for the BVT.
                -> TriMesh<N, P, V> {
@@ -40,7 +40,7 @@ impl<N, P, V> TriMesh<N, P, V>
 impl<N, P, V> TriMesh<N, P, V> {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<N, P, V, Pnt3<uint>, Triangle<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<N, P, V, Pnt3<usize>, Triangle<P>> {
         &self.mesh
     }
 
@@ -58,7 +58,7 @@ impl<N, P, V> TriMesh<N, P, V> {
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Arc<Vec<Pnt3<uint>>> {
+    pub fn indices(&self) -> &Arc<Vec<Pnt3<usize>>> {
         self.mesh.indices()
     }
 
@@ -76,7 +76,7 @@ impl<N, P, V> TriMesh<N, P, V> {
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
-    pub fn bvt(&self) -> &BVT<uint, AABB<P>> {
+    pub fn bvt(&self) -> &BVT<usize, AABB<P>> {
         self.mesh.bvt()
     }
 }
@@ -84,7 +84,7 @@ impl<N, P, V> TriMesh<N, P, V> {
 impl<N, P: Send + Sync + Copy + Dim, V> TriMesh<N, P, V> {
     /// Gets the i-th mesh element.
     #[inline]
-    pub fn triangle_at(&self, i: uint) -> Triangle<P> {
+    pub fn triangle_at(&self, i: usize) -> Triangle<P> {
         self.mesh.element_at(i)
     }
 }

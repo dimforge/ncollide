@@ -77,7 +77,7 @@ impl<N, P, V, M, S> CollisionDetector<N, P, V, M> for SupportMapSupportMap<N, P,
     }
 
     #[inline]
-    fn num_colls(&self) -> uint {
+    fn num_colls(&self) -> usize {
         match self.contact {
             GJKResult::Projection(_) => 1,
             _ => 0
