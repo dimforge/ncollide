@@ -39,7 +39,7 @@ impl<B, BV> BVT<B, BV> {
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner<F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
       (leaves:      Vec<(B, BV)>,
-       partitioner: F)
+       partitioner: &mut F)
           -> BVT<B, BV> {
         if leaves.len() == 0 {
             BVT {
@@ -112,7 +112,7 @@ impl<N, V, B, BV> BVT<B, BV>
           BV: Translation<V> + BoundingVolume<N> + Clone {
     /// Creates a balanced `BVT`.
     pub fn new_balanced(leaves: Vec<(B, BV)>) -> BVT<B, BV> {
-        BVT::new_with_partitioner(leaves, median_partitioner)
+        BVT::new_with_partitioner(leaves, &mut median_partitioner)
     }
 }
 
@@ -311,7 +311,7 @@ pub fn median_partitioner<N, V, B, BV>(depth:  uint,
 fn _new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
                             (depth:       uint,
                              leaves:      Vec<(B, BV)>,
-                             partitioner: F)
+                             partitioner: &mut F)
                              -> BVTNode<B, BV> {
     __new_with_partitioner(depth, leaves, partitioner)
 }
@@ -319,15 +319,15 @@ fn _new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryParti
 fn __new_with_partitioner<B, BV, F: FnMut(uint, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
                             (depth:       uint,
                              leaves:      Vec<(B, BV)>,
-                             mut partitioner: F)
+                             partitioner: &mut F)
                              -> BVTNode<B, BV> {
     let (bv, partitions) = partitioner(depth, leaves);
 
     match partitions {
         BinaryPartition::Part(b)            => BVTNode::Leaf(bv, b),
         BinaryPartition::Parts(left, right) => {
-            let left  = __new_with_partitioner(depth + 1, left, |i, p| partitioner(i, p));
-            let right = __new_with_partitioner(depth + 1, right, |i, p| partitioner(i, p));
+            let left  = __new_with_partitioner(depth + 1, left, partitioner);
+            let right = __new_with_partitioner(depth + 1, right, partitioner);
             BVTNode::Internal(bv, Box::new(left), Box::new(right))
         }
     }
