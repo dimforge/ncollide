@@ -1,5 +1,5 @@
 use std::mem;
-use std::intrinsics::TypeId;
+use std::any::TypeId;
 use std::raw::TraitObject;
 use std::marker::ContravariantLifetime;
 

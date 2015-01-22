@@ -1,5 +1,5 @@
 use std::mem;
-use std::intrinsics::TypeId;
+use std::any::TypeId;
 use math::{Scalar, Point, Vect, Isometry};
 use shape::{Compound, TriMesh, Polyline, CompositeShape};
 use inspection::{Repr, ReprDesc};

@@ -1,4 +1,4 @@
-use std::intrinsics::TypeId;
+use std::any::TypeId;
 
 pub trait AnyPrivate {
     /// The type id of `Self`.
