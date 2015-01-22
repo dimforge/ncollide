@@ -1,7 +1,7 @@
 //! Support mapping based Plane shape.
 use std::any::Any;
 use std::mem;
-use std::intrinsics::TypeId;
+use std::any::TypeId;
 use na;
 use na::Norm;
 use inspection::{Repr, ReprDesc};
