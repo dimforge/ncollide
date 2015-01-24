@@ -2,7 +2,7 @@ use std::ops::Neg;
 use std::mem;
 
 /// Geometric description of a contact.
-#[derive(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct Contact<N, P, V> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: P,

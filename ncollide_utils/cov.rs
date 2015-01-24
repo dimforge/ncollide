@@ -1,5 +1,5 @@
 use std::ops::{Add, Mul};
-use std::fmt::Show;
+use std::fmt::Debug;
 use na::{Outer, Inv, Zero};
 use na;
 use math::{Scalar, Point, Vect};
@@ -42,7 +42,7 @@ pub fn center_reduce<N, P, V, M>(pts: &mut [P]) -> (M, P, bool)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> + Outer<M>,
-          M: Add<M, Output = M> + Zero + Mul<P, Output = P> + Inv + Copy + Show {
+          M: Add<M, Output = M> + Zero + Mul<P, Output = P> + Inv + Copy + Debug {
     let (cov, center) = cov_and_center(pts);
 
     match na::inv(&cov) {

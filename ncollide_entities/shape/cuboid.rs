@@ -5,7 +5,7 @@ use na;
 use math::Scalar;
 
 /// Shape of a box.
-#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Cuboid<V> {
     half_extents: V
 }

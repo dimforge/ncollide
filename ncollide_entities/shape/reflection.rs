@@ -1,7 +1,7 @@
 /// SupportMap representation of the reflection of a shape.
 ///
 /// A reflection is obtained with the central symmetry with regard to the origin.
-#[derive(Show)]
+#[derive(Debug)]
 pub struct Reflection<'a, G: ?Sized + 'a> {
     shape: &'a G
 }
