@@ -6,7 +6,7 @@ use shape::BaseMeshElement;
 
 
 /// A triangle shape.
-#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Triangle<P> {
     a: P,
     b: P,

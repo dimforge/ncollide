@@ -10,7 +10,7 @@ use std::collections::{VecMap, HashMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
 /// id of type `usize`.
-#[derive(Show, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable)]
 pub struct FastKey {
     uid: usize
 }
@@ -31,14 +31,14 @@ impl FastKey {
     }
 }
 
-#[derive(Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
 struct LookupData<O> {
     uid2key:   HashMap<usize, FastKey>,
     free_keys: Vec<FastKey>
 }
 
 /// A set of values having large usize key.
-#[derive(Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct UidRemap<O> { // FIXME: find a better name.
     values: VecMap<O>,
     lookup: Option<LookupData<O>>

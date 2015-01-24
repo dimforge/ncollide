@@ -7,7 +7,7 @@ use ncollide_utils::AsBytes;
 use math::{Scalar, Point, Vect};
 
 /// Different representations of the index buffer.
-#[derive(Clone, Show)]
+#[derive(Clone, Debug)]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Pnt3<u32>>),
@@ -35,7 +35,7 @@ impl IndexBuffer {
     }
 }
 
-#[derive(Clone, Show)]
+#[derive(Clone, Debug)]
 /// Shapeetric description of a mesh.
 pub struct TriMesh<N, P, V> {
     // FIXME: those should *not* be public.

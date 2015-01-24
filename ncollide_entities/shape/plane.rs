@@ -8,7 +8,7 @@ use inspection::{Repr, ReprDesc};
 use math::Scalar;
 
 /// SupportMap description of a plane.
-#[derive(PartialEq, Show, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Plane<V> {
     /// The plane normal.
     normal: V

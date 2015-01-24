@@ -12,7 +12,7 @@ pub trait HasBoundingSphere<N, P, M> {
 }
 
 /// A Bounding Sphere.
-#[derive(Show, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct BoundingSphere<N, P> {
     center: P,
     radius: N

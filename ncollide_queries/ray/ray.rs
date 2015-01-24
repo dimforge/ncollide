@@ -3,7 +3,7 @@
 use na::{Rotate, Transform, Pnt2};
 
 /// A Ray.
-#[derive(Show, RustcEncodable, RustcDecodable, Clone)]
+#[derive(Debug, RustcEncodable, RustcDecodable, Clone)]
 pub struct Ray<P, V> {
     /// Starting point of the ray.
     pub orig: P,
