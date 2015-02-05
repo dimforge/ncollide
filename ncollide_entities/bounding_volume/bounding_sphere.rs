@@ -157,23 +157,23 @@ impl<N, P, V> Translation<V> for BoundingSphere<N, P>
     }
 
     #[inline]
-    fn append_translation(&mut self, dv: &V) {
+    fn append_translation_mut(&mut self, dv: &V) {
         self.center = self.center + *dv
     }
 
     #[inline]
-    fn append_translation_cpy(&self, dv: &V) -> BoundingSphere<N, P> {
+    fn append_translation(&self, dv: &V) -> BoundingSphere<N, P> {
         BoundingSphere::new(self.center + *dv, self.radius)
     }
 
     #[inline]
-    fn prepend_translation(&mut self, dv: &V) {
-        self.append_translation(dv)
+    fn prepend_translation_mut(&mut self, dv: &V) {
+        self.append_translation_mut(dv)
     }
 
     #[inline]
-    fn prepend_translation_cpy(&self, dv: &V) -> BoundingSphere<N, P> {
-        self.append_translation_cpy(dv)
+    fn prepend_translation(&self, dv: &V) -> BoundingSphere<N, P> {
+        self.append_translation(dv)
     }
 
     #[inline]

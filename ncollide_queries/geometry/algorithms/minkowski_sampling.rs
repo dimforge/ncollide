@@ -107,7 +107,7 @@ pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
             //                       |             |
             //                       +-------------+
             let mut normal = p2 - p1;
-            let dist_err   = normal.normalize();
+            let dist_err   = normal.normalize_mut();
 
             if !dist_err.is_zero() {
                 let p2        = p2 + (-shift);
@@ -173,7 +173,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some(p) => {
             let mut normal = -*p.as_vec();
-            let dist_err   = normal.normalize();
+            let dist_err   = normal.normalize_mut();
 
             if !dist_err.is_zero() {
                 let nmin_dist = na::dot(&normal, &best_dir) * (min_dist + extra_shift);

@@ -18,8 +18,8 @@ impl<'a, N: Scalar, P: Point<N, V>, V: Vect<N>> PolylinePath<'a, N, P, V> {
     pub fn new(polyline: &'a Polyline<N, P, V>) -> PolylinePath<'a, N, P, V> {
         assert!(polyline.coords.len() > 1, "The polyline must have at least two points.");
 
-        let mut dir = polyline.coords[1] - polyline.coords[0];
-        let len     = dir.normalize();
+        let mut dir: V  = polyline.coords[1] - polyline.coords[0];
+        let len: N      = dir.normalize_mut();
 
         PolylinePath {
             curr_len:   len,
@@ -58,7 +58,7 @@ impl<'a, N, P, V> CurveSampler<N, P, V> for PolylinePath<'a, N, P, V>
             if self.curr_pt_id < self.polyline.coords.len() - 1 {
                 let mut curr_diff = self.polyline.coords[self.curr_pt_id + 1] -
                                     self.polyline.coords[self.curr_pt_id];
-                self.curr_len = curr_diff.normalize();
+                self.curr_len = curr_diff.normalize_mut();
                 self.curr_dir = curr_diff;
             }
         }
