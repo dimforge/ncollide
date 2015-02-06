@@ -29,7 +29,7 @@ pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
-    g1.sample(m1, &mut |&mut: sample: V| {
+    g1.sample(m1, &mut |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -40,7 +40,7 @@ pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
     });
 
     // FIXME: avoid code duplication for the closure
-    g2.sample(m2, &mut |&mut: sample: V| {
+    g2.sample(m2, &mut |sample: V| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -141,7 +141,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
     let mut min_dist    = Bounded::max_value();
 
     // FIXME: avoid code duplication for the closure
-    g.sample(m, &mut |&mut: sample: V| {
+    g.sample(m, &mut |sample: V| {
         let support = g.support_point(m, &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -152,7 +152,7 @@ pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option
     });
 
     // FIXME: avoid code duplication for the closure
-    na::sample_sphere(|&mut: sample: V| {
+    na::sample_sphere(|sample: V| {
         let support = g.support_point(m, &sample);
         let dist    = na::dot(&sample, support.as_vec());
 

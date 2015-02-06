@@ -23,6 +23,6 @@ impl<'a, V: Neg<Output = V>, M, G: ?Sized> PreferedSamplingDirections<V, M> for 
     where G: PreferedSamplingDirections<V, M> {
     /// Applies a function to this shape with a given transform.
     fn sample(&self, m: &M, f: &mut FnMut(V)) {
-        self.shape().sample(m, &mut |&mut: v: V| f(-v));
+        self.shape().sample(m, &mut |v: V| f(-v));
     }
 }

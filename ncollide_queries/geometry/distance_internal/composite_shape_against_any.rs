@@ -89,7 +89,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
     fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(self.m1, *b, &mut |&mut: m1, g1| {
+        self.g1.map_transformed_part_at(self.m1, *b, &mut |m1, g1| {
             let dist = distance_internal::any_against_any(m1, g1, self.m2, self.g2);
 
             res = Some((dist, dist))

@@ -126,8 +126,8 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
         let objs = &self.objects;
 
         bf.update(
-            &mut |&mut: b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
-            &mut |&mut: b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
+            &mut |b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
+            &mut |b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
         );
     }
 

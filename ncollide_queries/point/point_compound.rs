@@ -66,7 +66,7 @@ impl<'a, N, P, V, M> BVTCostFn<N, usize, AABB<P>, P> for CompoundPointProjCostFn
     fn compute_b_cost(&mut self, b: &usize) -> Option<(N, P)> {
         let mut res = None;
 
-        self.compound.map_part_at(*b, &mut |&mut: objm, obj| {
+        self.compound.map_part_at(*b, &mut |objm, obj| {
             let proj = obj.project_point_with_transform(objm, self.point, self.solid);
 
             res = Some((na::dist(self.point, &proj), proj));
@@ -99,7 +99,7 @@ impl<'a, N, P, V, M> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, N,
     #[inline]
     fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
         if !self.found && bv.contains_point(self.point) {
-            self.compound.map_part_at(*b, &mut |&mut: objm, obj| {
+            self.compound.map_part_at(*b, &mut |objm, obj| {
                 self.found = obj.contains_point_with_transform(objm, self.point)
             })
         }
