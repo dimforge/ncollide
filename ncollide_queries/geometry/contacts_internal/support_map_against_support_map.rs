@@ -72,7 +72,7 @@ pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1: ?Sized, G2
 
             if !sqn.is_zero() {
                 let mut normal = p1p2;
-                let depth      = normal.normalize();
+                let depth      = normal.normalize_mut();
 
                 return GJKResult::Projection(Contact::new(p1, p2, normal, -depth));
             }

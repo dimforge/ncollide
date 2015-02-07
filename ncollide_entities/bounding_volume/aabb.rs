@@ -160,24 +160,24 @@ impl<N, P, V> Translation<V> for AABB<P>
     }
 
     #[inline]
-    fn append_translation(&mut self, dv: &V) {
+    fn append_translation_mut(&mut self, dv: &V) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
     #[inline]
-    fn append_translation_cpy(&self, dv: &V) -> AABB<P> {
+    fn append_translation(&self, dv: &V) -> AABB<P> {
         AABB::new(self.mins + *dv, self.maxs + *dv)
     }
 
     #[inline]
-    fn prepend_translation(&mut self, dv: &V) {
-        self.append_translation(dv)
+    fn prepend_translation_mut(&mut self, dv: &V) {
+        self.append_translation_mut(dv)
     }
 
     #[inline]
-    fn prepend_translation_cpy(&self, dv: &V) -> AABB<P> {
-        self.append_translation_cpy(dv)
+    fn prepend_translation(&self, dv: &V) -> AABB<P> {
+        self.append_translation(dv)
     }
 
     #[inline]

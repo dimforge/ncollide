@@ -52,7 +52,7 @@ pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (
     for _ in range(0, niter) {
         let (value, mut jacobian) = (*f)(&curr);
 
-        if !jacobian.inv() {
+        if !jacobian.inv_mut() {
             return (curr, false)
         }
 
@@ -166,7 +166,7 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
     let mut hx = hessian;
     let mut dx = na::zero();
 
-    if !hx.inv() {
+    if !hx.inv_mut() {
         hx = na::one();
     }
 
