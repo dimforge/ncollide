@@ -37,7 +37,7 @@ impl<V: Clone, M> PreferedSamplingDirections<V, M> for Cuboid<V>
           M: Rotate<V> {
     #[inline(always)]
     fn sample(&self, transform: &M, f: &mut FnMut(V)) {
-        na::canonical_basis(|&mut: e: V| {
+        na::canonical_basis(|e: V| {
             let re = transform.rotate(&e);
 
             f(-re.clone());

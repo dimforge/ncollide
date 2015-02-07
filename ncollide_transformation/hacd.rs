@@ -644,7 +644,7 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
         let coords  = mesh.coords.as_slice();
         let normals = mesh.normals.as_ref().unwrap().as_slice();
 
-        let mut add_ray = |&mut: coord: u32, normal: u32| {
+        let mut add_ray = |coord: u32, normal: u32| {
             let key = (coord, normal);
             let existing = match raymap.entry(key) {
                 Entry::Occupied(entry) => entry.into_mut(),
@@ -693,7 +693,7 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
         range(0, mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
     {
-        let mut add_triangle_edges = Box::new(|&mut: i: usize, t: &Pnt3<u32>| {
+        let mut add_triangle_edges = Box::new(|i: usize, t: &Pnt3<u32>| {
             let es = [ edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x) ];
 
             for e in es.iter() {

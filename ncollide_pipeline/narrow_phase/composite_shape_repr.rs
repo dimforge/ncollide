@@ -56,7 +56,7 @@ impl<N, P, V, M> CompositeShapeRepr<N, P, V, M>
         for i in self.interferences.iter() {
             let mut detector = None;
 
-            g1.map_part_at(*i, &mut |&mut: _, g1| {
+            g1.map_part_at(*i, &mut |_, g1| {
                 let r1 = g1.repr();
                 let r2 = g2.repr();
 
@@ -82,7 +82,7 @@ impl<N, P, V, M> CompositeShapeRepr<N, P, V, M>
         for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
             if ls_aabb2.intersects(g1.aabb_at(key)) {
-                g1.map_transformed_part_at(m1, key, &mut |&mut: m1, g1| {
+                g1.map_transformed_part_at(m1, key, &mut |m1, g1| {
                     if swap {
                         assert!(detector.value.update(dispatcher, m2, g2, m1, g1), "The shape was no longer valid.");
                     }
