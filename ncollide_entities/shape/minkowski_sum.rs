@@ -196,8 +196,6 @@ impl<P: Index<usize>> Index<usize> for AnnotatedPoint<P> {
 }
 
 impl<P: IndexMut<usize>> IndexMut<usize> for AnnotatedPoint<P> {
-    type Output = P::Output;
-
     #[inline]
     fn index_mut(&mut self, _: &usize) -> &mut P::Output {
         unimplemented!()
