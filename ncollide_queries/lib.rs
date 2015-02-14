@@ -14,13 +14,14 @@
 #![feature(old_orphan_check)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
+#![plugin(ncollide_entities)]
+
 
 extern crate test; // To compute the median.
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate "nalgebra" as na;
 extern crate "ncollide_math" as math;
 extern crate "ncollide_utils" as utils;
-#[plugin]
 extern crate ncollide_entities;
 extern crate "ncollide_entities" as entities;
 
