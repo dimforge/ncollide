@@ -1,8 +1,9 @@
 //! Trait implemented by the types used by ncollide.
 
+extern crate rand;
 extern crate "nalgebra" as na;
 
-use std::rand::Rand;
+use rand::Rand;
 use std::fmt::Debug;
 use std::ops::{IndexMut, Mul};
 use std::num::FromPrimitive;

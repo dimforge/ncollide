@@ -13,6 +13,7 @@
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
+extern crate rand;
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate "nalgebra" as na;
 extern crate "ncollide_math" as math;
