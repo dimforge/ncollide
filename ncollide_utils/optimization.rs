@@ -1,7 +1,6 @@
 use std::ops::{Add, Sub, Mul};
 use std::num::Float;
-use std::rand::Rand;
-use std::rand;
+use rand::{self, Rand};
 use na::{Inv, POrd, SquareMat, Outer, Dot, RMul};
 use na;
 use math::{Scalar, Vect};
