@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sebcrozet/ncollide.svg)](https://travis-ci.org/sebcrozet/ncollide)
+
 ncollide
 ========
 
