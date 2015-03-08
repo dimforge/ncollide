@@ -1,14 +1,14 @@
 use std::mem;
 use std::any::TypeId;
 use std::raw::TraitObject;
-use std::marker::ContravariantLifetime;
+use std::marker::{PhantomData, PhantomFn};
 
 #[derive(Copy)]
 pub struct ReprDesc<'a> {
     type_id: TypeId,
     repr_id: TypeId,
     repr:    TraitObject,
-    life:    ContravariantLifetime<'a>
+    life:    PhantomData<fn() -> &'a ()>
 }
 
 impl<'a> ReprDesc<'a> {
@@ -21,7 +21,7 @@ impl<'a> ReprDesc<'a> {
             type_id: type_id,
             repr_id: repr_id,
             repr:    repr,
-            life:    ContravariantLifetime
+            life:    PhantomData
         }
     }
 
@@ -56,7 +56,7 @@ impl<'a> ReprDesc<'a> {
 }
 
 /// An object with a unique runtime geometric representation.
-pub trait Repr<N, P, V, M>: Send + Sync {
+pub trait Repr<N, P, V, M>: PhantomFn<(), (N, P, V, M)> + Send + Sync + 'static {
     /// Gets a reference to this object's main representation.
     fn repr<'a>(&'a self) -> ReprDesc<'a>;
 }

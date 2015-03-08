@@ -46,7 +46,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     // bottom ring uvs
     let mut uvs    = Vec::with_capacity(coords.len());
     let mut curr_u = na::zero::<N>();
-    for _ in range(0, nsubdiv) {
+    for _ in 0 .. nsubdiv {
         uvs.push(Pnt2::new(curr_u.clone(), na::zero()));
         curr_u = curr_u + invsubdiv;
     }
@@ -54,7 +54,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     // top ring uvs
     curr_u = na::zero();
-    for _ in range(0, nsubdiv) {
+    for _ in 0 .. nsubdiv {
         uvs.push(Pnt2::new(curr_u.clone(), na::one()));
         curr_u = curr_u + invsubdiv;
     }

@@ -202,7 +202,7 @@ fn add_reduce_by_variance<N, P, V, M>(pts: &mut [ContactWLocals<N, P, V>], to_ad
     let mut argmax = 0;
     let mut varmax = approx_variance(pts, &to_add, 0);
 
-    for i in range(1u, pts.len()) {
+    for i in 1u .. pts.len() {
         let var = approx_variance(pts, &to_add, i);
 
         if var > varmax {
@@ -223,7 +223,7 @@ fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N,
 
     let mut mean = to_add_center.clone();
 
-    for i in range(0u, pts.len()) {
+    for i in 0u .. pts.len() {
         if i != to_ignore {
             mean = mean + *pts[i].center.as_vec()
         }
@@ -235,7 +235,7 @@ fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N,
     // compute the sum of variances along all axis
     let mut sum = na::sqnorm(&(to_add_center - mean));
 
-    for i in range(0u, pts.len()) {
+    for i in 0u .. pts.len() {
         if i != to_ignore {
             sum = sum + na::sqnorm(&(pts[i].center - mean));
         }

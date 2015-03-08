@@ -17,7 +17,7 @@ impl<N: Scalar> ToPolyline<N, Pnt2<N>, Vec2<N>, u32> for Capsule2<N> {
 
         let npoints = points.len();
 
-        for i in range(0, npoints) {
+        for i in 0 .. npoints {
             let new_point = points[i] + Vec2::new(na::zero(), self.half_height());
 
             points.push(-new_point);

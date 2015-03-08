@@ -19,7 +19,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
         let mut pres: P = na::orig();
 
         let he = self.half_extents();
-        for i in range(0u, na::dim::<P>()) {
+        for i in 0usize .. na::dim::<P>() {
             if local_dir[i] < na::zero() {
                 pres[i] = -he[i];
             }

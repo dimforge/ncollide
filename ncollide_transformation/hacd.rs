@@ -4,7 +4,6 @@ use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
 use std::collections::hash_state::DefaultState;
 use std::default::Default;
-use std::rand::{IsaacRng, Rng};
 use std::hash::SipHasher;
 use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm, Bounded};
 use na;
@@ -34,7 +33,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
     let (center, diag) = normalize(&mut mesh);
     let (rays, raymap) = compute_rays(&mesh);
     let mut dual_graph = compute_dual_graph(&mesh, &raymap);
-    let bvt            = compute_ray_bvt(rays.as_slice());
+    let bvt            = compute_ray_bvt(&rays[..]);
 
     /*
      * Initialize the binary heap.
@@ -42,7 +41,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
     for (i, v) in dual_graph.iter().enumerate() {
         for n in v.neighbors.as_ref().unwrap().iter() {
             if i < *n {
-                let edge = DualGraphEdge::new(0, i, *n, dual_graph.as_slice(), mesh.coords.as_slice(), error);
+                let edge = DualGraphEdge::new(0, i, *n, &dual_graph[..], &mesh.coords[..], error);
 
                 edges.push(edge);
             }
@@ -58,7 +57,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
         let to_add = match edges.pop() {
             None          => break,
             Some(mut top) => {
-                if !top.is_valid(dual_graph.as_slice()) {
+                if !top.is_valid(&dual_graph[..]) {
                     continue; // this edge has been invalidated.
                 }
 
@@ -71,7 +70,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
                         let remove = match edges.peek() {
                             None        => false,
                             Some(ref e) => {
-                                if !top.is_valid(dual_graph.as_slice()) {
+                                if !top.is_valid(&dual_graph[..]) {
                                     true
                                 }
                                 else {
@@ -90,7 +89,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
                     }
 
                     // Compute a bounded decimation cost.
-                    top.compute_decimation_cost(dual_graph.as_slice(), rays.as_slice(), &bvt, -top_cost, error);
+                    top.compute_decimation_cost(&dual_graph[..], &rays[..], &bvt, -top_cost, error);
 
                     if top.concavity > error {
                         continue;
@@ -104,7 +103,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
                 }
 
                 // Ensure the exact decimation cost (up to the maximum concavity) has been computed.
-                top.compute_decimation_cost(dual_graph.as_slice(), rays.as_slice(), &bvt, Bounded::max_value(), error);
+                top.compute_decimation_cost(&dual_graph[..], &rays[..], &bvt, Bounded::max_value(), error);
 
                 if top.concavity > error {
                     continue;
@@ -127,7 +126,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
         };
 
         for n in dual_graph[to_add].neighbors.as_ref().unwrap().iter() {
-            let edge = DualGraphEdge::new(curr_time, to_add, *n, dual_graph.as_slice(), mesh.coords.as_slice(), error);
+            let edge = DualGraphEdge::new(curr_time, to_add, *n, &dual_graph[..], &mesh.coords[..], error);
 
             edges.push(edge);
         }
@@ -153,7 +152,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
 }
 
 fn normalize<N: Scalar>(mesh: &mut TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Pnt3<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), mesh.coords.as_slice());
+    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), &mesh.coords[..]);
     let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
@@ -201,7 +200,7 @@ impl<N: Scalar> DualGraphVertex<N> {
                             mesh.coords[idx.z as usize]);
 
         let area         = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Identity::new(), triangle.as_slice());
+        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Identity::new(), &triangle[..]);
         let aabb         = AABB::new(vmin, vmax);
 
         let chull = TriMesh::new(triangle, None, None, None);
@@ -311,7 +310,7 @@ impl<N: Scalar> DualGraphVertex<N> {
         vtx1.extend(vtx2.into_iter());
 
         // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
-        let chull = super::convex_hull3(vtx1.as_slice());
+        let chull = super::convex_hull3(&vtx1[..]);
 
         /*
          * Merge borders.
@@ -429,7 +428,7 @@ impl<N: Scalar> DualGraphEdge<N> {
          */
         let chull1 = v1.chull.as_ref().unwrap();
         let chull2 = v2.chull.as_ref().unwrap();
-        let chull  = ConvexPair::new(chull1.coords.as_slice(), chull2.coords.as_slice());
+        let chull  = ConvexPair::new(&chull1.coords[..], &chull2.coords[..]);
         let _max: N = Bounded::max_value();
 
         let a1 = v1.ancestors.as_ref().unwrap();
@@ -641,8 +640,8 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
     let mut raymap = HashMap::new();
 
     {
-        let coords  = mesh.coords.as_slice();
-        let normals = mesh.normals.as_ref().unwrap().as_slice();
+        let coords  = &mesh.coords[..];
+        let normals = &mesh.normals.as_ref().unwrap()[..];
 
         let mut add_ray = |coord: u32, normal: u32| {
             let key = (coord, normal);
@@ -690,7 +689,7 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
                                  -> Vec<DualGraphVertex<N>> {
     let mut prim_edges: HashMap<_, _, DefaultState<SipHasher>> = HashMap::with_hash_state(Default::default());
     let mut dual_vertices: Vec<DualGraphVertex<N>> =
-        range(0, mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
+        (0 .. mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
     {
         let mut add_triangle_edges = Box::new(|i: usize, t: &Pnt3<u32>| {

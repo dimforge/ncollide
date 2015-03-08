@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::ops::{Mul, Add};
 use std::num::Float;
+use std::marker::PhantomData;
 use na::{Identity, Pnt2, Pnt3, Norm, Col, Diag, Outer, EigenQR, Zero, Bounded};
 use na;
 use math::{Scalar, Point, Vect};
@@ -19,7 +20,7 @@ fn normalize<N, P, V>(coords: &mut [P]) -> (P, N)
     where N: Scalar,
           P: Point<N, V>,
           V: Vect<N> {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), coords.as_slice());
+    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), &coords[..]);
     let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
@@ -84,8 +85,8 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
 
         // FIXME: use triangles[i].furthest_point instead.
         let pt_id = support_point(&triangles[i].normal,
-                                  points.as_slice(),
-                                  triangles[i].visible_points.as_slice());
+                                  &points[..],
+                                  &triangles[i].visible_points[..]);
 
         match pt_id {
             Some(point) => {
@@ -94,13 +95,13 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
                 triangles[i].valid = false;
                 removed_facets.push(i);
 
-                for j in range(0u, 3) {
+                for j in 0usize .. 3 {
                     compute_silhouette(triangles[i].adj[j],
                                        triangles[i].indirect_adj_id[j],
                                        point,
                                        &mut horizon_loop_facets,
                                        &mut horizon_loop_ids,
-                                       points.as_slice(),
+                                       &points[..],
                                        &mut removed_facets,
                                        triangles.as_mut_slice());
                 }
@@ -109,7 +110,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
                     // Due to inaccuracies, the silhouette could not be computed
                     // (the point seems to be visible from… every triangle).
                     let mut any_valid = false;
-                    for j in range(i + 1, triangles.len()) {
+                    for j in i + 1 .. triangles.len() {
                         if triangles[j].valid {
                             any_valid = true;
                         }
@@ -124,12 +125,12 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
                     break;
                 }
 
-                attach_and_push_facets3(horizon_loop_facets.as_slice(),
-                                        horizon_loop_ids.as_slice(),
+                attach_and_push_facets3(&horizon_loop_facets[..],
+                                        &horizon_loop_ids[..],
                                         point,
-                                        points.as_slice(),
+                                        &points[..],
                                         &mut triangles,
-                                        removed_facets.as_slice(),
+                                        &removed_facets[..],
                                         &mut undecidable_points);
             },
             None => { }
@@ -248,7 +249,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
             }
 
             // … and compute the 2d convex hull.
-            let idx = convex_hull2_idx(subspace_points.as_slice());
+            let idx = convex_hull2_idx(&subspace_points[..]);
 
             // Finalize the result, triangulating the polyline.
             let npoints = idx.len();
@@ -257,7 +258,7 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
 
             let a = 0u32;
 
-            for id in range(1u32, npoints as u32 - 1) {
+            for id in 1u32 .. npoints as u32 - 1 {
                 triangles.push(Pnt3::new(a, id, id + 1));
                 triangles.push(Pnt3::new(id, a, id + 1));
             }
@@ -308,8 +309,8 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
 
             // … and attribute visible points to each one of them.
             // FIXME: refactor this with the two others.
-            let mut ignored = 0u;
-            for point in range(0, points.len()) {
+            let mut ignored = 0usize;
+            for point in 0 .. points.len() {
                 if point == p1 || point == p2 || point == p3 {
                     continue;
                 }
@@ -339,8 +340,8 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
                 // If none of the facet can be seen from the point, it is naturally deleted.
             }
 
-            verify_facet_links(0, facets.as_slice());
-            verify_facet_links(1, facets.as_slice());
+            verify_facet_links(0, &facets[..]);
+            verify_facet_links(1, &facets[..]);
 
             InitialMesh::Facets(facets, cov)
         },
@@ -435,7 +436,7 @@ fn verify_facet_links<N, P, V>(ifacet: usize, facets: &[TriangleFacet<N, P, V>])
           V: Vect<N> {
     let facet = &facets[ifacet];
 
-    for i in range(0u, 3) {
+    for i in 0usize .. 3 {
         let adji = &facets[facet.adj[i]];
 
         assert!(
@@ -462,7 +463,7 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[usize],
     let mut adj_facet:  usize;
     let mut indirect_id: usize;
 
-    for i in range(0, horizon_loop_facets.len()) {
+    for i in 0 .. horizon_loop_facets.len() {
         adj_facet   = horizon_loop_facets[i];
         indirect_id = horizon_loop_ids[i];
 
@@ -474,7 +475,7 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[usize],
     }
 
     // Link the facets together.
-    for i in range(0, horizon_loop_facets.len()) {
+    for i in 0 .. horizon_loop_facets.len() {
         let prev_facet;
 
         if i == 0 {
@@ -568,7 +569,8 @@ struct TriangleFacet<N, P, V> {
     pts:               [usize; 3],
     visible_points:    Vec<usize>,
     furthest_point:    usize,
-    furthest_distance: N
+    furthest_distance: N,
+    pt_type:           PhantomData<P>
 }
 
 
@@ -581,7 +583,7 @@ impl<N, P, V> TriangleFacet<N, P, V>
         let p1p3 = points[p3] - points[p1];
 
         let mut normal = utils::cross3(&p1p2, &p1p3);
-        if normal.normalize().is_zero() {
+        if normal.normalize_mut().is_zero() {
             panic!("Convex hull failure: a facet must not be affinely dependent.");
         }
 
@@ -593,7 +595,8 @@ impl<N, P, V> TriangleFacet<N, P, V>
             pts:               [p1, p2, p3],
             visible_points:    Vec::new(),
             furthest_point:    Bounded::max_value(),
-            furthest_distance: na::zero()
+            furthest_distance: na::zero(),
+            pt_type:           PhantomData
         }
     }
 
@@ -704,7 +707,7 @@ pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<usize>
 
         let pt_id = support_point(&segments[i].normal,
                                   points,
-                                  segments[i].visible_points.as_slice());
+                                  &segments[i].visible_points[..]);
 
         match pt_id {
             Some(point) => {
@@ -713,7 +716,7 @@ pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<usize>
                 attach_and_push_facets2(segments[i].prev,
                                         segments[i].next,
                                         point,
-                                        points.as_slice(),
+                                        &points[..],
                                         &mut segments,
                                         i,
                                         &mut undecidable_points);
@@ -784,7 +787,7 @@ fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<usize>) -> 
     let mut f2 = SegmentFacet::new(p2, p1, 0, 0, points);
 
     // Attribute points to each facet.
-    for i in range(0, points.len()) {
+    for i in 0 .. points.len() {
         if i == p1 || i == p2 {
             continue;
         }
@@ -868,7 +871,8 @@ struct SegmentFacet<P, V> {
     pub next:           usize,
     pub prev:           usize,
     pub pts:            [usize; 2],
-    pub visible_points: Vec<usize>
+    pub visible_points: Vec<usize>,
+    pt_type:            PhantomData<P>
 }
 
 #[old_impl_check]
@@ -886,7 +890,7 @@ impl<N, P, V> SegmentFacet<P, V>
             false
         });
 
-        if normal.normalize().is_zero() {
+        if normal.normalize_mut().is_zero() {
             panic!("Convex hull failure: a segment must not be affinely dependent.");
         }
 
@@ -896,7 +900,8 @@ impl<N, P, V> SegmentFacet<P, V>
             prev:           prev,
             next:           next,
             pts:            [p1, p2],
-            visible_points: Vec::new()
+            visible_points: Vec::new(),
+            pt_type:        PhantomData
         }
     }
 

@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use na::Translate;
 use na;
 use math::{Scalar, Point, Vect};
@@ -9,17 +10,18 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 
 /// Collision detector between two balls.
-#[derive(RustcEncodable, RustcDecodable)]
 pub struct BallBall<N, P, V, M> {
     prediction: N,
-    contact:    Option<Contact<N, P, V>>
+    contact:    Option<Contact<N, P, V>>,
+    mat_type:   PhantomData<M> // FIXME: can we avoid this (using a generalized where clause ?)
 }
 
 impl<N: Clone, P: Clone, V: Clone, M> Clone for BallBall<N, P, V, M> {
     fn clone(&self) -> BallBall<N, P, V, M> {
         BallBall {
             prediction: self.prediction.clone(),
-            contact:    self.contact.clone()
+            contact:    self.contact.clone(),
+            mat_type:   PhantomData
         }
     }
 }
@@ -30,7 +32,8 @@ impl<N, P, V, M> BallBall<N, P, V, M> {
     pub fn new(prediction: N) -> BallBall<N, P, V, M> {
         BallBall {
             prediction: prediction,
-            contact:    None
+            contact:    None,
+            mat_type:   PhantomData
         }
     }
 }

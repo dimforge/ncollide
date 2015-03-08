@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use na::{Translate, Rotate};
 use math::{Scalar, Point, Vect};
 use entities::shape::Plane;
@@ -12,10 +13,11 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct PlaneSupportMap<N, P, V, M> {
     prediction: N,
-    contact:    Option<Contact<N, P, V>>
+    contact:    Option<Contact<N, P, V>>,
+    mat_type:   PhantomData<M> // FIXME: can we avoid this (using a generalized where clause ?)
 }
 
 impl<N, P, V, M> PlaneSupportMap<N, P, V, M> {
@@ -25,7 +27,8 @@ impl<N, P, V, M> PlaneSupportMap<N, P, V, M> {
     pub fn new(prediction: N) -> PlaneSupportMap<N, P, V, M> {
         PlaneSupportMap {
             prediction: prediction,
-            contact:    None
+            contact:    None,
+            mat_type:   PhantomData
         }
     }
 }
@@ -34,10 +37,11 @@ impl<N, P, V, M> PlaneSupportMap<N, P, V, M> {
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct SupportMapPlane<N, P, V, M> {
     prediction: N,
-    contact:    Option<Contact<N, P, V>>
+    contact:    Option<Contact<N, P, V>>,
+    mat_type:   PhantomData<M> // FIXME: can we avoid this (using a generalized where clause ?)
 }
 
 impl<N, P, V, M> SupportMapPlane<N, P, V, M> {
@@ -47,7 +51,8 @@ impl<N, P, V, M> SupportMapPlane<N, P, V, M> {
     pub fn new(prediction: N) -> SupportMapPlane<N, P, V, M> {
         SupportMapPlane {
             prediction: prediction,
-            contact:    None
+            contact:    None,
+            mat_type:   PhantomData
         }
     }
 }

@@ -1,9 +1,10 @@
 //! A map allowing a slow lookup for arbitrary `usize` and fast lookup for small ones.
 
-use std::iter::FromIterator;
+use std::iter::{FromIterator, IntoIterator};
 use std::ops::Index;
 use std::num::Int;
 use std::default::Default;
+use std::marker::PhantomData;
 use std::collections::hash_map::Entry;
 use std::collections::vec_map::{Iter, IterMut, Values, Keys};
 use std::collections::{VecMap, HashMap};
@@ -32,16 +33,16 @@ impl FastKey {
 }
 
 #[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
-struct LookupData<O> {
+struct LookupData {
     uid2key:   HashMap<usize, FastKey>,
-    free_keys: Vec<FastKey>
+    free_keys: Vec<FastKey>,
 }
 
 /// A set of values having large usize key.
 #[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct UidRemap<O> { // FIXME: find a better name.
     values: VecMap<O>,
-    lookup: Option<LookupData<O>>
+    lookup: Option<LookupData>
 }
 
 impl<O> Default for UidRemap<O> {
@@ -263,17 +264,17 @@ impl<O: Clone> UidRemap<O> {
 
 impl<O> FromIterator<(usize, O)> for UidRemap<O> {
     #[inline]
-    fn from_iter<Iter: Iterator<Item = (usize, O)>>(iter: Iter) -> UidRemap<O> {
+    fn from_iter<I: IntoIterator<Item = (usize, O)>>(iter: I) -> UidRemap<O> {
         let mut map = UidRemap::new(false);
-        map.extend(iter);
+        map.extend(iter.into_iter());
         map
     }
 }
 
 impl<O> Extend<(usize, O)> for UidRemap<O> {
     #[inline]
-    fn extend<Iter: Iterator<Item = (usize, O)>>(&mut self, mut iter: Iter) {
-        for (k, v) in iter {
+    fn extend<Iter: IntoIterator<Item = (usize, O)>>(&mut self, mut iter: Iter) {
+        for (k, v) in iter.into_iter() {
             let _ = self.insert(k, v);
         }
     }

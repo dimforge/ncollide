@@ -1,5 +1,6 @@
 //! Point cloud triangulation.
 
+use std::marker::PhantomData;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use na::{BaseFloat, Pnt3};
@@ -12,7 +13,8 @@ use procedural::{TriMesh, IndexBuffer};
 struct Triangle<N, P, V> {
     idx:                    Pnt3<usize>,
     circumcircle_center:    P,
-    circumcircle_sq_radius: N
+    circumcircle_sq_radius: N,
+    vec_type:               PhantomData<V> // FIXME: use associated type P::V instead.
 }
 
 impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
@@ -26,7 +28,8 @@ impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
         Triangle {
             idx:                    idx,
             circumcircle_center:    center,
-            circumcircle_sq_radius: radius * radius
+            circumcircle_sq_radius: radius * radius,
+            vec_type:               PhantomData
         }
 
     }
@@ -53,7 +56,7 @@ impl<N, P, V> Triangulator<N, P, V>
 
         Triangulator {
             // FIXME: why do we have to specify the type explicitely here ?
-            triangles: vec!(Triangle::<N, P, V>::new(Pnt3::new(0, 1, 2), vertices.as_slice())),
+            triangles: vec!(Triangle::<N, P, V>::new(Pnt3::new(0, 1, 2), &vertices[..])),
             vertices:  vertices,
             edges:     HashMap::new()
         }
@@ -69,7 +72,7 @@ impl<N, P, V> Triangulator<N, P, V>
         for (&(ia, ib), num) in self.edges.iter() {
             if *num == 1 {
                 // FIXME: why do we have to specify the type explicitely here ?
-                let t = Triangle::<N, P, V>::new(Pnt3::new(ia, ib, ipt), self.vertices.as_slice());
+                let t = Triangle::<N, P, V>::new(Pnt3::new(ia, ib, ipt), &self.vertices[..]);
 
                 self.triangles.push(t)
             }

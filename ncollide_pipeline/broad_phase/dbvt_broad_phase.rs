@@ -220,7 +220,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
                 num_removals = na::clamp(self.to_update.len(), len / 10, len);
             }
 
-            for i in range(self.update_off, self.update_off + num_removals) {
+            for i in self.update_off .. self.update_off + num_removals {
                 let id = i % self.pairs.len();
 
                 let remove = {

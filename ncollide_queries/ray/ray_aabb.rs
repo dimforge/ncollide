@@ -14,7 +14,7 @@ impl<N, P, V> LocalRayCast<N, P, V> for AABB<P>
         let mut tmin: N = na::zero();
         let mut tmax: N = Bounded::max_value();
 
-        for i in range(0u, na::dim::<P>()) {
+        for i in 0usize .. na::dim::<P>() {
             if na::is_zero(&ray.dir[i]) {
                 if ray.orig[i] < (*self.mins())[i] || ray.orig[i] > (*self.maxs())[i] {
                     return None
@@ -102,7 +102,7 @@ fn ray_aabb<N, P, V>(aabb: &AABB<P>, ray: &Ray<P, V>, solid: bool) -> Option<(N,
     let mut near_diag = false;
     let mut far_diag  = false;
 
-    for i in range(0u, na::dim::<P>()) {
+    for i in 0usize .. na::dim::<P>() {
         if na::is_zero(&ray.dir[i]) {
             if ray.orig[i] < (*aabb.mins())[i] || ray.orig[i] > (*aabb.maxs())[i] {
                 return None

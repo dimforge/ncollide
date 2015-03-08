@@ -26,7 +26,7 @@ pub fn quad<N, P, V>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> T
     s[0] = width;
     s[1] = height;
 
-    for i in range(2, na::dim::<V>()) {
+    for i in 2 .. na::dim::<V>() {
         s[i] = na::one();
     }
 
@@ -86,8 +86,8 @@ pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
     let mut tex_coords = Vec::new();
 
     // create the vertices
-    for i in range(0u, vsubdivs + 1) {
-        for j in range(0u, usubdivs + 1) {
+    for i in 0usize .. vsubdivs + 1 {
+        for j in 0usize .. usubdivs + 1 {
             let ni: N = na::cast(i as f64);
             let nj: N = na::cast(j as f64);
 
@@ -100,7 +100,7 @@ pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
     }
 
     // create the normals
-    for _ in range(0, (vsubdivs + 1) * (usubdivs + 1)) {
+    for _ in 0 .. (vsubdivs + 1) * (usubdivs + 1) {
         let mut n = na::zero::<V>();
         n[0] = na::one();
         normals.push(n)
@@ -115,8 +115,8 @@ pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
         Pnt3::new(i * ws + j, i * ws + (j + 1), (i + 1) * ws + j + 1)
     }
 
-    for i in range(0u, vsubdivs) {
-        for j in range(0u, usubdivs) {
+    for i in 0usize .. vsubdivs {
+        for j in 0usize .. usubdivs {
             // build two triangles...
             triangles.push(dl_triangle(i as u32, j as u32, (usubdivs + 1) as u32));
             triangles.push(ur_triangle(i as u32, j as u32, (usubdivs + 1) as u32));

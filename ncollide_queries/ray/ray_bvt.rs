@@ -3,15 +3,15 @@ use entities::partitioning::{BVTCostFn, BVTVisitor};
 use ray::{Ray, LocalRayCast, RayIntersection};
 
 /// A search thet selects the objects that has the smallest time of impact with a given ray.
-pub struct RayIntersectionCostFn<'a, N, P: 'a, V: 'a> {
+pub struct RayIntersectionCostFn<'a, P: 'a, V: 'a> {
     ray:   &'a Ray<P, V>,
     solid: bool,
     uvs:   bool
 }
 
-impl<'a, N, P, V> RayIntersectionCostFn<'a, N, P, V> {
+impl<'a, P, V> RayIntersectionCostFn<'a, P, V> {
     /// Creates a new `BestRayInterferenceSearch`.
-    pub fn new(ray: &'a Ray<P, V>, solid: bool, uvs: bool) -> RayIntersectionCostFn<'a, N, P, V> {
+    pub fn new(ray: &'a Ray<P, V>, solid: bool, uvs: bool) -> RayIntersectionCostFn<'a, P, V> {
         RayIntersectionCostFn {
             ray:   ray,
             solid: solid,
@@ -20,7 +20,7 @@ impl<'a, N, P, V> RayIntersectionCostFn<'a, N, P, V> {
     }
 }
 
-impl<'a, N, P, V, B, BV> BVTCostFn<N, B, BV, RayIntersection<N, V>> for RayIntersectionCostFn<'a, N, P, V>
+impl<'a, N, P, V, B, BV> BVTCostFn<N, B, BV, RayIntersection<N, V>> for RayIntersectionCostFn<'a, P, V>
     where N:  Scalar,
           B:  LocalRayCast<N, P, V>,
           BV: LocalRayCast<N, P, V> {

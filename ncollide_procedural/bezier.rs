@@ -26,8 +26,8 @@ pub fn bezier_curve_at<N, P, V>(control_points: &[P], t: N, cache: &mut Vec<P>) 
         ptr::copy_memory(cache.as_mut_ptr(), control_points.as_ptr(), control_points.len());
     }
 
-    for i in range(1u, control_points.len()) {
-        for j in range(0u, control_points.len() - i) {
+    for i in 1usize .. control_points.len() {
+        for j in 0usize .. control_points.len() - i {
             cache[j] = cache[j] * t_1 + *cache[j + 1].as_vec() * t;
         }
     }
@@ -57,7 +57,7 @@ pub fn bezier_surface_at<N, P, V>(
     // FIXME: start with u or v, depending on which dimension has more control points.
     let vcache = vcache.as_mut_slice();
 
-    for i in range(0, nvpoints) {
+    for i in 0 .. nvpoints {
         let start = i * nupoints;
         let end   = start + nupoints;
 
@@ -109,8 +109,8 @@ pub fn bezier_surface<N, P, V>(
         let mut ucache = Vec::new();
         let mut vcache = Vec::new();
 
-        for j in range(0, vsubdivs + 1) {
-            for i in range(0, usubdivs + 1) {
+        for j in 0 .. vsubdivs + 1 {
+            for i in 0 .. usubdivs + 1 {
                 let id = i + j * (usubdivs + 1);
                 coords[id] = bezier_surface_at(control_points,
                                                nupoints,

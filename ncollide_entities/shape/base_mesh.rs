@@ -1,6 +1,7 @@
 //! A mesh generic wrt. the contained mesh element characterized by vertices.
 
 use std::sync::Arc;
+use std::marker::PhantomData;
 use na::{Translate, Identity, Pnt2};
 use partitioning::BVT;
 use bounding_volume::{HasAABB, AABB};
@@ -21,6 +22,7 @@ pub struct BaseMesh<N, P, V, I, E> {
     indices:  Arc<Vec<I>>,
     uvs:      Option<Arc<Vec<Pnt2<N>>>>,
     normals:  Option<Arc<Vec<V>>>,
+    elt:      PhantomData<E>
 }
 
 impl<N, P, V, I, E> Clone for BaseMesh<N, P, V, I, E>
@@ -34,7 +36,8 @@ impl<N, P, V, I, E> Clone for BaseMesh<N, P, V, I, E>
             vertices: self.vertices.clone(),
             indices:  self.indices.clone(),
             uvs:      self.uvs.clone(),
-            normals:  self.normals.clone()
+            normals:  self.normals.clone(),
+            elt:      PhantomData
         }
     }
 }
@@ -79,7 +82,8 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E>
             vertices: vertices,
             indices:  indices,
             uvs:      uvs,
-            normals:  normals
+            normals:  normals,
+            elt:      PhantomData
         }
     }
 }

@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use na::{Translate, Translation};
 use math::{Scalar, Point, Vect};
 use entities::inspection;
@@ -14,11 +15,12 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 ///
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct SupportMapSupportMap<N, P, V, M, S> {
-    simplex:       S,
-    prediction:    N,
-    contact:       GJKResult<Contact<N, P, V>, V>
+    simplex:    S,
+    prediction: N,
+    contact:    GJKResult<Contact<N, P, V>, V>,
+    mat_type:   PhantomData<M> // FIXME: can we avoid this (using a generalized where clause ?)
 }
 
 impl<N, P, V, M, S> SupportMapSupportMap<N, P, V, M, S>
@@ -34,7 +36,8 @@ impl<N, P, V, M, S> SupportMapSupportMap<N, P, V, M, S>
         SupportMapSupportMap {
             simplex:    simplex,
             prediction: prediction,
-            contact:    GJKResult::Intersection
+            contact:    GJKResult::Intersection,
+            mat_type:   PhantomData
         }
     }
 }

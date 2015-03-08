@@ -118,7 +118,7 @@ impl<'a, T: Clone> VecSliceMut<'a, T> {
     pub fn copy_from(&mut self, data: &VecSlice<T>) {
         assert!(data.len() == self.len());
 
-        for i in range(0u, data.len()) {
+        for i in 0u .. data.len() {
             unsafe {
                 *self.get_unchecked_mut(i) = data.get_unchecked(i).clone()
             }

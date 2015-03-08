@@ -16,7 +16,7 @@ pub fn implicit_shape_aabb<N, P, V, M, G>(m: &M, i: &G) -> AABB<P>
         let mut max   = na::orig::<P>();
         let mut basis = na::zero::<V>();
 
-        for d in range(0, na::dim::<V>()) {
+        for d in 0 .. na::dim::<V>() {
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis[d] = na::one();

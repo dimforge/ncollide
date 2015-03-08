@@ -21,9 +21,9 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
         else {
             let _max: N     = Bounded::max_value();
             let mut best    = -_max;
-            let mut best_id = 0i;
+            let mut best_id = 0isize;
 
-            for i in range(0, na::dim::<V>()) {
+            for i in 0 .. na::dim::<V>() {
                 let mins_pt_i = mins_pt[i];
                 let pt_maxs_i = pt_maxs[i];
 
@@ -62,7 +62,7 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
 
     #[inline]
     fn contains_point(&self, pt: &P) -> bool {
-        for i in range(0, na::dim::<P>()) {
+        for i in 0 .. na::dim::<P>() {
             if pt[i] < self.mins()[i] || pt[i] > self.maxs()[i] {
                 return false
             }

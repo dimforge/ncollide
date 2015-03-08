@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 use na;
 use na::{Translate, Rotate, Transform, Dim};
@@ -9,7 +10,8 @@ pub struct Polyline<N, P, V> {
     /// Coordinates of the polyline vertices.
     pub coords:  Vec<P>,
     /// Coordinates of the polyline normals.
-    pub normals: Option<Vec<V>>
+    pub normals: Option<Vec<V>>,
+    phantom:     PhantomData<N>
 }
 
 impl<N, P, V> Polyline<N, P, V> {
@@ -17,7 +19,8 @@ impl<N, P, V> Polyline<N, P, V> {
     pub fn new(coords: Vec<P>, normals: Option<Vec<V>>) -> Polyline<N, P, V> {
         Polyline {
             coords:  coords,
-            normals: normals
+            normals: normals,
+            phantom: PhantomData
         }
     }
 }
@@ -77,7 +80,7 @@ impl<N, P, V> Polyline<N, P, V>
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.iter_mut() {
-            for i in range(0, na::dim::<V>()) {
+            for i in 0 .. na::dim::<V>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

@@ -17,7 +17,7 @@ use math::{Scalar, Point, Vect};
 pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Pnt3<N>>) {
     let mut curr_theta: N = na::zero();
 
-    for _ in range(0, nsubdiv) {
+    for _ in 0 .. nsubdiv {
         out.push(Pnt3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
         curr_theta = curr_theta + dtheta;
     }
@@ -33,7 +33,7 @@ pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
 
     let mut curr_theta: N = na::zero();
 
-    for _ in range(0, nsubdiv) {
+    for _ in 0 .. nsubdiv {
         let mut pt = na::orig::<P>();
 
         pt[0] = curr_theta.cos() * radius;
@@ -65,7 +65,7 @@ pub fn push_open_ring_indices(base_lower_circle: u32,
                               out:               &mut Vec<Pnt3<u32>>) {
     assert!(nsubdiv > 0);
 
-    for i in range(0, nsubdiv - 1) {
+    for i in 0 .. nsubdiv - 1 {
         let bli = base_lower_circle + i;
         let bui = base_upper_circle + i;
         push_rectangle_indices(bui + 1, bui,
@@ -92,7 +92,7 @@ pub fn push_degenerate_open_top_ring_indices(base_circle: u32,
                                              out:         &mut Vec<Pnt3<u32>>) {
     assert!(nsubdiv > 0);
 
-    for i in range(0, nsubdiv - 1) {
+    for i in 0 .. nsubdiv - 1 {
         out.push(Pnt3::new(base_circle + i, point, base_circle + i + 1));
     }
 }
@@ -102,7 +102,7 @@ pub fn push_degenerate_open_top_ring_indices(base_circle: u32,
 /// Pushes `nsubdiv - 2` elements to `out`.
 #[inline]
 pub fn push_filled_circle_indices(base_circle: u32, nsubdiv: u32, out: &mut Vec<Pnt3<u32>>) {
-    for i in range(base_circle + 1, base_circle + nsubdiv - 1) {
+    for i in base_circle + 1 .. base_circle + nsubdiv - 1 {
         out.push(Pnt3::new(base_circle, i, i + 1));
     }
 }

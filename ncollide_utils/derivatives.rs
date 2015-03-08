@@ -24,7 +24,7 @@ pub fn binom(k: usize, n: usize) -> usize {
         0
     }
     else {
-        for d in range(1, k + 1) {
+        for d in 1 .. k + 1 {
             res = res * n;
             res = res / d;
 

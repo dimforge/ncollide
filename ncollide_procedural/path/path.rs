@@ -14,7 +14,7 @@ pub enum PathSample<P, V> {
 }
 
 /// A curve sampler.
-pub trait CurveSampler<N, P, V> {
+pub trait CurveSampler<P, V> {
     /// Returns the next sample point.
     fn next(&mut self) -> PathSample<P, V>;
 }
@@ -24,5 +24,5 @@ pub trait CurveSampler<N, P, V> {
 /// It is responsible of the generation of the whole mesh.
 pub trait StrokePattern<N, P, V> {
     /// Generates the mesh using this pattern and the curve sampled by `sampler`.
-    fn stroke<C: CurveSampler<N, P, V>>(&mut self, sampler: &mut C) -> TriMesh<N, P, V>;
+    fn stroke<C: CurveSampler<P, V>>(&mut self, sampler: &mut C) -> TriMesh<N, P, V>;
 }

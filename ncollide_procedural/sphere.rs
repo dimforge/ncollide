@@ -47,7 +47,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
     // coords.
     coords.push(Pnt3::new(na::zero(), -na::one::<N>(), na::zero()));
 
-    for _ in range(0, nphi_subdiv - 1) {
+    for _ in 0 .. nphi_subdiv - 1 {
         utils::push_circle(curr_phi.cos(), ntheta_subdiv, dtheta, curr_phi.sin(), &mut coords);
         curr_phi = curr_phi + dphi;
     }
@@ -64,7 +64,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
 
     utils::reverse_clockwising(idx.as_mut_slice());
 
-    for i in range(0, nphi_subdiv - 2) {
+    for i in 0 .. nphi_subdiv - 2 {
         let bottom = 1 + i * ntheta_subdiv;
         let up     = bottom + ntheta_subdiv;
         utils::push_ring_indices(bottom, up, ntheta_subdiv, &mut idx);
@@ -97,7 +97,7 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
     let mut coords   = Vec::new();
     let mut curr_phi = -pi_two;
 
-    for _ in range(0, nphi_subdiv + 1) {
+    for _ in 0 .. nphi_subdiv + 1 {
         utils::push_circle(curr_phi.cos(), ntheta_subdiv + 1, dtheta, curr_phi.sin(), &mut coords);
         curr_phi = curr_phi + dphi;
     }
@@ -108,7 +108,7 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
     // index buffer
     let mut idx = Vec::new();
 
-    for i in range(0, nphi_subdiv) {
+    for i in 0 .. nphi_subdiv {
         let bottom = i * (ntheta_subdiv + 1);
         let up     = bottom + (ntheta_subdiv + 1);
         utils::push_open_ring_indices(bottom, up, ntheta_subdiv + 1, &mut idx);
@@ -118,10 +118,10 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
     let mut uvs        = Vec::new();
     let mut curr_uvphi = na::zero::<N>();
 
-    for _ in range(0, nphi_subdiv + 1) {
+    for _ in 0 .. nphi_subdiv + 1 {
         let mut curr_uvtheta = na::zero::<N>();
 
-        for _ in range(0, ntheta_subdiv + 1) {
+        for _ in 0 .. ntheta_subdiv + 1 {
             uvs.push(Pnt2::new(curr_uvtheta, curr_uvphi));
             curr_uvtheta = curr_uvtheta + duvtheta;
         }
@@ -148,7 +148,7 @@ pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pn
     let mut coords     = Vec::new();
     let mut curr_phi   = na::zero::<N>();
 
-    for _ in range(0, nphi_subdiv - 1) {
+    for _ in 0 .. nphi_subdiv - 1 {
         utils::push_circle(curr_phi.cos(), ntheta_subdiv, dtheta, curr_phi.sin(), &mut coords);
         curr_phi = curr_phi + dphi;
     }
@@ -157,7 +157,7 @@ pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pn
 
     let mut idx = Vec::new();
 
-    for i in range(0, nphi_subdiv - 2) {
+    for i in 0 .. nphi_subdiv - 2 {
         utils::push_ring_indices(i * ntheta_subdiv, (i + 1) * ntheta_subdiv, ntheta_subdiv, &mut idx);
     }
 

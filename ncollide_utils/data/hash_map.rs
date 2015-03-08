@@ -58,8 +58,8 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
             hash:   h,
             table:  Vec::with_capacity(pow2),
             mask:   pow2 - 1,
-            htable: iter::repeat(-1i).take(pow2).collect(),
-            next:   iter::repeat(-1i).take(pow2).collect(),
+            htable: iter::repeat(-1isize).take(pow2).collect(),
+            next:   iter::repeat(-1isize).take(pow2).collect(),
             num_elem: 0,
             max_elem: pow2,
             real_max_elem: ((pow2 as f32) * 0.7) as usize
@@ -70,8 +70,8 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     ///
     /// This is a simple, contiguous array.
     #[inline]
-    pub fn elements<'r>(&'r self) -> &'r [Entry<K, V>] {
-        self.table.as_slice()
+    pub fn elements(&self) -> &[Entry<K, V>] {
+        &self.table[..]
     }
 
     /// The elements added to this hash map.
@@ -153,10 +153,10 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
             self.mask = self.max_elem - 1;
 
-            let mut newhash: Vec<isize> = iter::repeat(-1i).take(self.max_elem).collect();
-            let mut newnext: Vec<isize> = iter::repeat(-1i).take(self.max_elem).collect();
+            let mut newhash: Vec<isize> = iter::repeat(-1isize).take(self.max_elem).collect();
+            let mut newnext: Vec<isize> = iter::repeat(-1isize).take(self.max_elem).collect();
 
-            for i in range(0u, self.num_elem) {
+            for i in 0usize .. self.num_elem {
                 let h = self.hash.hash(&self.table[i].key) & self.mask;
 
                 newnext[i] = newhash[h];

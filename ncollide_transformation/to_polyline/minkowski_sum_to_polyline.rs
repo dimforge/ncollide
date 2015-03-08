@@ -42,6 +42,6 @@ impl<'a, N, P, V, M, G1, G2, A, B> ToPolyline<N, P, V, (A, B)> for MinkowskiSum<
             all_points.extend(cpy.coords.into_iter());
         }
 
-        ::convex_hull2(all_points.as_slice())
+        ::convex_hull2(&all_points[..])
     }
 }

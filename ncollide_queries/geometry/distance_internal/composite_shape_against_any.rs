@@ -32,7 +32,7 @@ pub fn any_against_composite_shape<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g
     composite_shape_against_any(m2, g2, m1, g1)
 }
 
-struct CompositeShapeAgainstAnyDistCostFn<'a, P, V: 'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyDistCostFn<'a, V: 'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     msum_shift:  V,
     msum_margin: V,
 
@@ -43,7 +43,7 @@ struct CompositeShapeAgainstAnyDistCostFn<'a, P, V: 'a, M: 'a, G1: ?Sized + 'a, 
 }
 
 #[old_impl_check]
-impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
+impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> ,
@@ -51,7 +51,7 @@ impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<
           G1: CompositeShape<N, P, V, M>,
           G2: Repr<N, P, V, M> + HasAABB<P, M> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
-        -> CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2> {
+        -> CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2> {
 
         let ls_m2 = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
@@ -68,7 +68,7 @@ impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<
 }
 
 impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> BVTCostFn<N, usize, AABB<P>, N>
-for CompositeShapeAgainstAnyDistCostFn<'a, P, V, M, G1, G2>
+for CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2>
     where N:  Scalar,
           P:  Point<N, V>,
           V:  Vect<N> + Translate<P> ,

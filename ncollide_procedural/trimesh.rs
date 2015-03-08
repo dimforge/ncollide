@@ -61,7 +61,7 @@ impl<N, P, V> TriMesh<N, P, V> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(||
            IndexBuffer::Unified(
-               range(0, coords.len() / 3).map(|i| Pnt3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2)).collect()
+               (0 .. coords.len() / 3).map(|i| Pnt3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2)).collect()
            )
         );
 
@@ -173,7 +173,7 @@ impl<N, P, V> TriMesh<N, P, V>
     #[inline]
     pub fn scale_by(&mut self, s: &V) {
         for c in self.coords.iter_mut() {
-            for i in range(0, na::dim::<V>()) {
+            for i in 0 .. na::dim::<V>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

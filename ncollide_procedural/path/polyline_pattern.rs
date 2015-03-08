@@ -69,7 +69,7 @@ impl<N, C1, C2> StrokePattern<N, Pnt3<N>, Vec3<N>> for PolylinePattern<N, C1, C2
           C1: PolylineCompatibleCap<N>,
           C2: PolylineCompatibleCap<N>{
     fn stroke<C>(&mut self, sampler: &mut C) -> TriMesh<N, Pnt3<N>, Vec3<N>>
-        where C: CurveSampler<N, Pnt3<N>, Vec3<N>> {
+        where C: CurveSampler<Pnt3<N>, Vec3<N>> {
         let mut vertices = Vec::new();
         let mut indices  = Vec::new();
         let npts         = self.pattern.coords.len() as u32;

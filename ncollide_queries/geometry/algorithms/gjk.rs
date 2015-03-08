@@ -253,11 +253,11 @@ pub fn cast_ray<N, P, V, M, S, G: ?Sized>(m:       &M,
 
     let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
-    let mut niter = 0u;
+    let mut niter = 0usize;
     loop {
         niter = niter + 1;
 
-        if dir.normalize().is_zero() {
+        if dir.normalize_mut().is_zero() {
             return Some((ltoi, ldir))
         }
 

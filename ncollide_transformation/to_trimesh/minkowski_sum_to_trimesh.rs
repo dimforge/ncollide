@@ -46,6 +46,6 @@ impl<'a, N, P, V, M1, M2, G1, G2, A, B> ToTriMesh<N, P, V, (A, B)> for Minkowski
             all_points.extend(cpy.coords.into_iter());
         }
 
-        ::convex_hull3(all_points.as_slice())
+        ::convex_hull3(&all_points[..])
     }
 }

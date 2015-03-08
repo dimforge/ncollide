@@ -23,7 +23,7 @@ pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
 
-    for _ in range(0, num_guesses) {
+    for _ in 0 .. num_guesses {
         let guess: V = rand::random();
         let guess    = *domain_min + domain_width * guess; // FIXME: let the user pass a random generator?
         let (arg, _) = newton(niter, guess, df);
@@ -48,7 +48,7 @@ pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (
           M: Inv + Mul<V, Output = V> + Copy {
     let mut curr = guess;
 
-    for _ in range(0, niter) {
+    for _ in 0 .. niter {
         let (value, mut jacobian) = (*f)(&curr);
 
         if !jacobian.inv_mut() {
@@ -78,11 +78,11 @@ pub fn minimize_with_bfgs<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> V>(
     let domain_width     = *domain_max - *domain_min;
     let ss               = BacktrackingLineSearch::new(na::one::<N>(), na::cast(0.5), na::cast(0.5), 1000);
 
-    for _ in range(0, num_guesses) {
+    for _ in 0 .. num_guesses {
         let mut guess: V = rand::random();
         let shape        = na::shape(&guess);
 
-        for i in range(0u, shape) {
+        for i in 0usize .. shape {
             let inbound_guess = domain_min[i] + guess[i] * domain_width[i];
             guess[i] = inbound_guess;
         }
@@ -136,7 +136,7 @@ impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
         let     fx   = (*f)(x);
         let mut step = self.alpha.clone();
 
-        for _ in range(0, self.niter) {
+        for _ in 0 .. self.niter {
             if fx - (*f)(&(*x + *dir * step)) >= step * t {
                 break;
             }
@@ -169,7 +169,7 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
         hx = na::one();
     }
 
-    for _ in range(0, niter) {
+    for _ in 0 .. niter {
         let     new_dx     = (*df)(&x);
         let mut search_dir = hx.rmul(&-new_dx);
 
