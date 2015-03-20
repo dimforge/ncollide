@@ -1,6 +1,5 @@
 //! An hash map with a customizable hash function.
 
-use std::num::UnsignedInt;
 use std::mem;
 use std::iter;
 use data::hash::HashFun;
@@ -52,7 +51,7 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
 
     /// Creates a new hash map with a given capacity.
     pub fn new_with_capacity(capacity: usize, h: H) -> HashMap<K, V, H> {
-        let pow2 = UnsignedInt::next_power_of_two(capacity);
+        let pow2 = capacity.next_power_of_two();
 
         HashMap {
             hash:   h,
