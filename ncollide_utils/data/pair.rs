@@ -7,7 +7,7 @@ use data::uid_remap::FastKey;
 // XXX: Rename this `FastKeyPair`.
 
 /// An unordered pair of elements implementing `HasUid`.
-#[derive(Clone, Copy, RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy, Encodable, Decodable)]
 pub struct Pair {
     /// first object of the pair
     pub first:  FastKey,
@@ -45,7 +45,7 @@ impl PartialEq for Pair {
 }
 
 /// Tomas Wang based hash function for a `Pair` object.
-#[derive(RustcEncodable, RustcDecodable)]
+#[derive(Encodable, Decodable)]
 pub struct PairTWHash { unused: usize } // FIXME: ICE with zero-sized structs
 
 impl PairTWHash {

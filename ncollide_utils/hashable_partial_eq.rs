@@ -3,7 +3,7 @@ use AsBytes;
 
 /// A structure that implements `Eq` and is hashable even if the wrapped data implements only
 /// `PartialEq`.
-#[derive(PartialEq, RustcEncodable, RustcDecodable, Clone, Rand, Debug)]
+#[derive(PartialEq, Encodable, Decodable, Clone, Rand, Debug)]
 pub struct HashablePartialEq<T> {
     value: T
 }
