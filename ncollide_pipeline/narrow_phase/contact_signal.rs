@@ -22,7 +22,7 @@ impl<B> ContactSignal<B> {
                                              name:     &str,
                                              callback: Box<ContactSignalHandler<B> + 'static>) {
         for &mut (ref mut n, ref mut f) in self.contact_signal_handlers.iter_mut() {
-            if name == n.as_slice() {
+            if name == &n[..] {
                 *f = callback;
                 return;
             }
@@ -36,7 +36,7 @@ impl<B> ContactSignal<B> {
         let mut to_remove = self.contact_signal_handlers.len();
 
         for (i, &mut (ref n, _)) in self.contact_signal_handlers.iter_mut().enumerate() {
-            if name == n.as_slice() {
+            if name == &n[..] {
                 to_remove = i;
             }
         }

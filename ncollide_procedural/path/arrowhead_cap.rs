@@ -99,7 +99,7 @@ impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
         let start_indices_id = indices.len();
 
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, false, coords, indices);
-        utils::reverse_clockwising(indices.slice_from_mut(start_indices_id))
+        utils::reverse_clockwising(&mut indices[start_indices_id ..])
     }
 
     fn gen_start_cap(&self,

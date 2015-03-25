@@ -5,7 +5,7 @@ use std::iter;
 use data::hash::HashFun;
 
 /// Entry of an `HashMap`.
-#[derive(Clone, Encodable, Decodable)]
+#[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct Entry<K, V> {
     /// The key of the entry.
     pub key:   K,
@@ -29,7 +29,7 @@ impl<K, V> Entry<K, V> {
 /// * the hash function can be personalized
 /// * the hash table is separate from the data. Thus, the vector of entries is tight (no holes
 ///     due to sparse hashing).
-#[derive(Clone, Encodable, Decodable)]
+#[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct HashMap<K, V, H> {
     hash:          H,
     table:         Vec<Entry<K, V>>,

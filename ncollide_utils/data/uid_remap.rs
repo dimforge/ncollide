@@ -4,14 +4,13 @@ use std::iter::{FromIterator, IntoIterator};
 use std::ops::Index;
 use std::num::Int;
 use std::default::Default;
-use std::marker::PhantomData;
 use std::collections::hash_map::Entry;
 use std::collections::vec_map::{Iter, IterMut, Values, Keys};
 use std::collections::{VecMap, HashMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
 /// id of type `usize`.
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, Encodable, Decodable)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable)]
 pub struct FastKey {
     uid: usize
 }
@@ -32,14 +31,14 @@ impl FastKey {
     }
 }
 
-#[derive(Debug, Clone, Encodable, Decodable)]
+#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
 struct LookupData {
     uid2key:   HashMap<usize, FastKey>,
     free_keys: Vec<FastKey>,
 }
 
 /// A set of values having large usize key.
-#[derive(Debug, Clone, Encodable, Decodable)]
+#[derive(Debug, Clone)]
 pub struct UidRemap<O> { // FIXME: find a better name.
     values: VecMap<O>,
     lookup: Option<LookupData>
@@ -273,7 +272,7 @@ impl<O> FromIterator<(usize, O)> for UidRemap<O> {
 
 impl<O> Extend<(usize, O)> for UidRemap<O> {
     #[inline]
-    fn extend<Iter: IntoIterator<Item = (usize, O)>>(&mut self, mut iter: Iter) {
+    fn extend<Iter: IntoIterator<Item = (usize, O)>>(&mut self, iter: Iter) {
         for (k, v) in iter.into_iter() {
             let _ = self.insert(k, v);
         }
@@ -284,7 +283,7 @@ impl<O> Index<FastKey> for UidRemap<O> {
     type Output = O;
 
     #[inline]
-    fn index(&self, key: &FastKey) -> &O {
-        self.get_fast(key).expect("key not present")
+    fn index(&self, key: FastKey) -> &O {
+        self.get_fast(&key).expect("key not present")
     }
 }

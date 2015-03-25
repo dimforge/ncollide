@@ -9,12 +9,14 @@
 #![warn(unused_imports)]
 #![deny(unused_typecasts)]
 #![feature(unsafe_destructor)]
+#![feature(collections)]
+#![feature(core)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-extern crate "rustc-serialize" as rustc_serialize;
-extern crate "nalgebra" as na;
-extern crate "ncollide_math" as math;
+extern crate rustc_serialize;
+extern crate nalgebra as na;
+extern crate ncollide_math as math;
 extern crate ncollide_utils;
 
 pub use trimesh::{TriMesh, IndexBuffer};

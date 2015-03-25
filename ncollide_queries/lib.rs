@@ -12,18 +12,22 @@
 #![feature(plugin)]
 #![feature(old_impl_check)]
 #![feature(old_orphan_check)]
+#![feature(test)]
+#![feature(collections)]
+#![feature(core)]
+#![feature(std_misc)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 #![plugin(ncollide_entities)]
 
 
 extern crate test; // To compute the median.
-extern crate "rustc-serialize" as rustc_serialize;
-extern crate "nalgebra" as na;
-extern crate "ncollide_math" as math;
-extern crate "ncollide_utils" as utils;
+extern crate rustc_serialize;
+extern crate nalgebra as na;
+extern crate ncollide_math as math;
+extern crate ncollide_utils as utils;
 extern crate ncollide_entities;
-extern crate "ncollide_entities" as entities;
+extern crate ncollide_entities as entities;
 
 pub mod geometry;
 pub mod point;

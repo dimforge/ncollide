@@ -23,7 +23,7 @@ pub fn bezier_curve_at<N, P, V>(control_points: &[P], t: N, cache: &mut Vec<P>) 
 
     // XXX: not good if the objects are not POD.
     unsafe {
-        ptr::copy_memory(cache.as_mut_ptr(), control_points.as_ptr(), control_points.len());
+        ptr::copy_nonoverlapping(cache.as_mut_ptr(), control_points.as_ptr(), control_points.len());
     }
 
     for i in 1usize .. control_points.len() {
