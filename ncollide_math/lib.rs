@@ -4,7 +4,7 @@
 #![feature(core)]
 
 extern crate rand;
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 
 use rand::Rand;
 use std::fmt::Debug;

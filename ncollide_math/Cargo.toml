@@ -8,7 +8,7 @@ name = "ncollide_math"
 path = "lib.rs"
 
 [dependencies]
-rand = "0.2"
+rand = "*"
 
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"

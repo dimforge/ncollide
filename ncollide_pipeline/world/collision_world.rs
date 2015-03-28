@@ -39,12 +39,12 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     pub fn new(margin: N, prediction: N, small_uids: bool) -> CollisionWorld<N, P, V, M, T> {
         let objects = UidRemap::new(small_uids);
         let sdispatcher = Box::new(BasicCollisionDispatcher::new(prediction));
-        let broad_phase = Box::new(DBVTBroadPhase::new(margin, true));
+        let broad_phase = Box::new(DBVTBroadPhase::<N, P, AABB<P>, FastKey>::new(margin, true));
         let narrow_phase = CollisionObjectsDispatcher::new(sdispatcher);
 
         CollisionWorld {
             objects:       objects,
-            broad_phase:   broad_phase as BroadPhaseObject<P, V>,
+            broad_phase:   broad_phase,
             narrow_phase:  narrow_phase,
             pos_to_update: Vec::new(),
             timestamp:     0

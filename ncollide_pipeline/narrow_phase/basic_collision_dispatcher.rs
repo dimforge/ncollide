@@ -41,50 +41,50 @@ impl<N, P, V, AV, M> CollisionDispatcher<N, P, V, M> for BasicCollisionDispatche
         let b_is_ball = b.downcast_ref::<Ball<N>>().is_some();
 
         if a_is_ball && b_is_ball {
-            Some(Box::new(BallBall::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(BallBall::<N, P, V, M>::new(self.prediction)))
         }
         else if a.downcast_ref::<Plane<V>>().is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, V, M>(*b).is_some() {
-            let wo_manifold = PlaneSupportMap::new(self.prediction);
+            let wo_manifold = PlaneSupportMap::<N, P, V, M>::new(self.prediction);
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold))
             }
             else {
-                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold))
             }
         }
         else if b.downcast_ref::<Plane<V>>().is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, V, M>(*a).is_some() {
-            let wo_manifold = SupportMapPlane::new(self.prediction);
+            let wo_manifold = SupportMapPlane::<N, P, V, M>::new(self.prediction);
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold))
             }
             else {
-                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold))
             }
         }
         else if inspection::maybe_repr_desc_as_support_map::<P, V, M>(*a).is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, V, M>(*b).is_some() {
-            let simplex = JohnsonSimplex::new_w_tls();
-            let wo_manifold = SupportMapSupportMap::new(self.prediction, simplex);
+            let simplex = JohnsonSimplex::<N, _, V>::new_w_tls();
+            let wo_manifold = SupportMapSupportMap::<N, P, V, M, _>::new(self.prediction, simplex);
 
             if !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
-                Some(Box::new(manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(manifold))
             }
             else {
-                Some(Box::new(wo_manifold) as CollisionAlgorithm<N, P, V, M>)
+                Some(Box::new(wo_manifold))
             }
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<N, P, V, M>(*a).is_some() {
-            Some(Box::new(CompositeShapeRepr::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(CompositeShapeRepr::<N, P, V, M>::new(self.prediction)))
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<N, P, V, M>(*b).is_some() {
-            Some(Box::new(ReprCompositeShape::new(self.prediction)) as CollisionAlgorithm<N, P, V, M>)
+            Some(Box::new(ReprCompositeShape::<N, P, V, M>::new(self.prediction)))
         }
         else {
             None
