@@ -28,7 +28,7 @@ impl<P: Dim> Triangle<P> {
 }
 
 impl<P> Triangle<P> {
-    /// The fist point of this triangle.
+    /// The first point of this triangle.
     #[inline]
     pub fn a(&self) -> &P {
         &self.a
