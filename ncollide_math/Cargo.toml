@@ -9,6 +9,7 @@ path = "lib.rs"
 
 [dependencies]
 rand = "*"
+num = "*"
 
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"

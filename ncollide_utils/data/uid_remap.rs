@@ -2,7 +2,6 @@
 
 use std::iter::{FromIterator, IntoIterator};
 use std::ops::Index;
-use std::num::Int;
 use std::default::Default;
 use std::collections::hash_map::Entry;
 use std::collections::vec_map::{Iter, IterMut, Values, Keys};
@@ -20,7 +19,7 @@ impl FastKey {
     #[inline]
     pub fn new_invalid() -> FastKey {
         FastKey {
-            uid: Int::max_value()
+            uid: usize::max_value()
         }
     }
 

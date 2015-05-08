@@ -1,24 +1,21 @@
 //! Trait implemented by the types used by ncollide.
 
-#![feature(unboxed_closures)]
-#![feature(core)]
-
 extern crate rand;
 extern crate nalgebra as na;
+extern crate num;
 
 use rand::Rand;
 use std::fmt::Debug;
-use std::marker::PhantomFn;
 use std::ops::{IndexMut, Mul};
-use std::num::FromPrimitive;
+use num::{One};
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat1, Mat3, Iso2, Iso3, Iso4, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
          Rotate, Transform, AbsoluteRotate, Inv, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv,
-         FloatPnt, Shape, Absolute, Iterable, BaseFloat, Bounded, One};
+         FloatPnt, Shape, Absolute, Iterable, BaseFloat, Bounded};
 
 /// Trait implemented by scalar types.
 pub trait Scalar: Copy + Send + Sync + 'static + Debug +
-                  BaseFloat + FromPrimitive + ApproxEq<Self> + Cast<f64> + Rand + Bounded {
+                  BaseFloat + ApproxEq<Self> + Cast<f64> + Rand + Bounded {
 }
 
 /// Trait implemented by point types.
@@ -38,7 +35,7 @@ pub trait Vect<N>: Send                        + Sync                + 'static  
 }
 
 /// Trait implemented by transformation matrices types.
-pub trait Isometry<N, P, V>: PhantomFn<Self, N> + // FIXME: we actually want associated types here.
+pub trait Isometry<N, P, V>: // FIXME: we actually want associated types here.
                              Send           + Sync           + 'static                  +
                              One            + Translation<V> + Rotate<V>                +
                              Translate<P>   + Transform<P>   + AbsoluteRotate<V>        +
@@ -47,7 +44,7 @@ pub trait Isometry<N, P, V>: PhantomFn<Self, N> + // FIXME: we actually want ass
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.
-pub trait HasInertiaMatrix<I>: PhantomFn<Self, I> { } // FIXME: we actually want associated types here.
+pub trait HasInertiaMatrix<I>: { } // FIXME: we actually want associated types here.
 
 impl Scalar for f32 { }
 impl Scalar for f64 { }

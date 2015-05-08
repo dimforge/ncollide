@@ -1,5 +1,6 @@
 use std::ops::{Index, IndexMut};
-use na::{Dim, Zero};
+use na::Dim;
+use num::Zero;
 use na;
 use math::Scalar;
 

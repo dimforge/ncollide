@@ -1,6 +1,6 @@
 use std::ops::{Add, Sub, Mul};
-use std::num::Float;
 use rand::{self, Rand};
+use std::f64::EPSILON;
 use na::{Inv, POrd, SquareMat, Outer, Dot, RMul};
 use na;
 use math::{Scalar, Vect};
@@ -179,7 +179,7 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
             search_dir = -new_dx;
         }
 
-        let _eps: N = Float::epsilon();
+        let _eps: N = na::cast(EPSILON);
         let _eps    = _eps * na::cast(100.0);
         if na::sqnorm(&new_dx) <= _eps {
             break;

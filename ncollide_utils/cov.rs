@@ -1,6 +1,7 @@
 use std::ops::{Add, Mul};
 use std::fmt::Debug;
-use na::{Outer, Inv, Zero};
+use na::{Outer, Inv};
+use num::Zero;
 use na;
 use math::{Scalar, Point, Vect};
 
