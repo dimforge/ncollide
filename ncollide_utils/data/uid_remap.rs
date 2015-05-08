@@ -4,8 +4,8 @@ use std::iter::{FromIterator, IntoIterator};
 use std::ops::Index;
 use std::default::Default;
 use std::collections::hash_map::Entry;
-use std::collections::vec_map::{Iter, IterMut, Values, Keys};
-use std::collections::{VecMap, HashMap};
+use vec_map::{Iter, IterMut, Values, Keys, VecMap};
+use std::collections::{HashMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
 /// id of type `usize`.

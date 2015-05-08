@@ -14,7 +14,6 @@ pub struct Plane<V> {
     normal: V
 }
 
-#[old_impl_check]
 impl<N: Scalar, V: Norm<N>> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]

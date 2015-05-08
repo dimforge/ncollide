@@ -7,13 +7,6 @@
 #![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
-#![deny(unused_typecasts)]
-#![feature(unsafe_destructor)]
-#![feature(old_orphan_check)]
-#![feature(core)]
-#![feature(collections)]
-#![feature(std_misc)]
-#![feature(rand)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
@@ -59,3 +52,4 @@ pub mod as_bytes;
 mod cov;
 mod sort;
 mod cross3;
+pub mod vec_map;
