@@ -1,28 +1,29 @@
+use math::Point;
 use trimesh::TriMesh;
 
 /// A sample point and its associated tangent.
-pub enum PathSample<P, V> {
+pub enum PathSample<P: Point> {
     /// A point that starts a new path.
-    StartPoint(P, V),
+    StartPoint(P, P::Vect),
     /// A point that is inside of the path currently generated.
-    InnerPoint(P, V),
+    InnerPoint(P, P::Vect),
     /// A point that ends the path currently generated.
-    EndPoint(P, V),
+    EndPoint(P, P::Vect),
     /// Used when the sampler does not have any other points to generate.
     EndOfSample
 
 }
 
 /// A curve sampler.
-pub trait CurveSampler<P, V> {
+pub trait CurveSampler<P> {
     /// Returns the next sample point.
-    fn next(&mut self) -> PathSample<P, V>;
+    fn next(&mut self) -> PathSample<P>;
 }
 
 /// A pattern that is replicated along a path.
 ///
 /// It is responsible of the generation of the whole mesh.
-pub trait StrokePattern<N, P, V> {
+pub trait StrokePattern<P> {
     /// Generates the mesh using this pattern and the curve sampled by `sampler`.
-    fn stroke<C: CurveSampler<P, V>>(&mut self, sampler: &mut C) -> TriMesh<N, P, V>;
+    fn stroke<C: CurveSampler<P>>(&mut self, sampler: &mut C) -> TriMesh<P>;
 }

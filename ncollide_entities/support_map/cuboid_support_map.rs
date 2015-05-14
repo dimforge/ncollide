@@ -1,19 +1,15 @@
-use std::ops::Neg;
-use na::{Transform, Rotate, Basis};
+use na::{Transform, Rotate};
 use na;
 use shape::Cuboid;
-use support_map::{SupportMap, PreferedSamplingDirections};
-use math::{Scalar, Point, Vect};
+use support_map::SupportMap;
+use math::{Point, Vect};
 
 
-#[old_impl_check]
-impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Rotate<V> + Transform<P> {
+impl<P, M> SupportMap<P, M> for Cuboid<P::Vect>
+    where P: Point,
+          M: Rotate<P::Vect> + Transform<P> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> P {
+    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let mut pres: P = na::orig();
@@ -29,21 +25,5 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cuboid<V>
         }
 
         m.transform(&pres)
-    }
-}
-
-impl<V: Clone, M> PreferedSamplingDirections<V, M> for Cuboid<V>
-    where V: Basis + Neg<Output = V>,
-          M: Rotate<V> {
-    #[inline(always)]
-    fn sample(&self, transform: &M, f: &mut FnMut(V)) {
-        na::canonical_basis(|e: V| {
-            let re = transform.rotate(&e);
-
-            f(-re.clone());
-            f(re);
-
-            true
-        })
     }
 }

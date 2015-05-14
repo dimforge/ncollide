@@ -5,7 +5,7 @@ use super::utils;
 use math::Scalar;
 
 /// Generates a cone with a given height and diameter.
-pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let mut cone = unit_cone(nsubdiv);
 
@@ -15,7 +15,7 @@ pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3
 }
 
 /// Generates a cone with unit height and diameter.
-pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let two_pi: N   = BaseFloat::two_pi();
     let dtheta      = two_pi / na::cast(nsubdiv as f64);
@@ -35,7 +35,7 @@ pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
     /*
      * Normals.
      */
-    let mut indices = utils::split_index_buffer(indices.as_slice());
+    let mut indices = utils::split_index_buffer(&indices[..]);
 
     // adjust the normals:
     let shift: N = na::cast(0.05 / 0.475);
@@ -53,11 +53,11 @@ pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     let ilen = indices.len();
     let nlen = normals.len() as u32;
-    for (id, i) in indices.slice_to_mut(ilen - (nsubdiv as usize - 2)).iter_mut().enumerate() {
+    for (id, i) in indices[.. ilen - (nsubdiv as usize - 2)].iter_mut().enumerate() {
         i.y.y = id as u32;
     }
 
-    for i in indices.slice_from_mut(ilen - (nsubdiv as usize - 2)).iter_mut() {
+    for i in indices[ilen - (nsubdiv as usize - 2) ..].iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;

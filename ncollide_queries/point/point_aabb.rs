@@ -1,14 +1,12 @@
+use num::Zero;
 use na::{Transform, Bounded};
 use na;
 use point::{LocalPointQuery, PointQuery};
 use entities::bounding_volume::AABB;
 use math::{Scalar, Point, Vect};
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for AABB<P>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         let mins_pt = *self.mins() - *pt;
@@ -19,11 +17,11 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
             *pt + shift
         }
         else {
-            let _max: N     = Bounded::max_value();
+            let _max: <P::Vect as Vect>::Scalar = Bounded::max_value();
             let mut best    = -_max;
             let mut best_id = 0isize;
 
-            for i in 0 .. na::dim::<V>() {
+            for i in 0 .. na::dim::<P::Vect>() {
                 let mins_pt_i = mins_pt[i];
                 let pt_maxs_i = pt_maxs[i];
 
@@ -39,7 +37,7 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
                 }
             }
 
-            let mut shift: V = na::zero();
+            let mut shift: P::Vect = na::zero();
 
             if best_id < 0 {
                 shift[(-best_id) as usize] = best;
@@ -53,7 +51,7 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         let mins_pt = *self.mins() - *pt;
         let pt_maxs = *pt - *self.maxs();
 
@@ -72,10 +70,7 @@ impl<N, P, V> LocalPointQuery<N, P> for AABB<P>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for AABB<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for AABB<P>
+    where P: Point,
           M: Transform<P> {
 }

@@ -10,34 +10,34 @@ macro_rules! dispatch(
         {
             let repr = $sself.repr();
 
-            if let Some(b) = repr.downcast_ref::<Ball<N>>() {
+            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
                 b.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Capsule<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Compound<N, P, V, M>>() {
+            else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cone<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cuboid<V>>() {
+            else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cylinder<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(t) = repr.downcast_ref::<TriMesh<N, P, V>>() {
+            else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
                 t.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Polyline<N, P, V>>() {
+            else if let Some(p) = repr.downcast_ref::<Polyline<P>>() {
                 p.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Plane<V>>() {
+            else if let Some(p) = repr.downcast_ref::<Plane<P::Vect>>() {
                 p.$name($($argN,)*)
             }
             else if let Some(s) = repr.downcast_ref::<Segment<P>>() {
@@ -56,18 +56,17 @@ macro_rules! dispatch(
     }
 );
 
-impl<N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> LocalPointQuery<P> for Repr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         dispatch!(self.project_point(pt, solid))
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         dispatch!(self.distance_to_point(pt))
     }
 
@@ -77,9 +76,8 @@ impl<N, P, V, M> LocalPointQuery<N, P> for Repr<N, P, V, M>
     }
 }
 
-impl<N, P, V, M> PointQuery<N, P, M> for Repr<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> PointQuery<P, M> for Repr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
 }

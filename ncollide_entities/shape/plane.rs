@@ -3,9 +3,8 @@ use std::any::Any;
 use std::mem;
 use std::any::TypeId;
 use na;
-use na::Norm;
 use inspection::{Repr, ReprDesc};
-use math::Scalar;
+use math::{Vect, Point};
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -14,8 +13,7 @@ pub struct Plane<V> {
     normal: V
 }
 
-#[old_impl_check]
-impl<N: Scalar, V: Norm<N>> Plane<V> {
+impl<V: Vect> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub fn new(normal: V) -> Plane<V> {
@@ -39,13 +37,13 @@ impl<V> Plane<V> {
     }
 }
 
-impl<N, P, V, M> Repr<N, P, V, M> for Plane<V>
-    where V: 'static + Send + Sync {
+impl<P, M> Repr<P, M> for Plane<P::Vect>
+    where P: Point {
     #[inline(always)]
     fn repr(&self) -> ReprDesc {
         unsafe {
             ReprDesc::new(
-                TypeId::of::<Plane<V>>(),
+                TypeId::of::<Plane<P::Vect>>(),
                 TypeId::of::<&Any>(),
                 mem::transmute(self as &Any)
             )

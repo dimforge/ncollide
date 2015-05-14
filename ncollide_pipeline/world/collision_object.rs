@@ -3,11 +3,11 @@ use entities::inspection::Repr;
 use world::CollisionGroups;
 
 /// A stand-alone object that has a position and a shape.
-pub struct CollisionObject<N, P, V, M, T> {
+pub struct CollisionObject<P, M, T> {
     /// The position of the collision object.
     pub position: M,
     /// The shape of the collision object.
-    pub shape: Arc<Box<Repr<N, P, V, M>>>,
+    pub shape: Arc<Box<Repr<P, M>>>,
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The data associated to this object.
@@ -16,13 +16,13 @@ pub struct CollisionObject<N, P, V, M, T> {
     pub timestamp: usize
 }
 
-impl<N, P, V, M, T> CollisionObject<N, P, V, M, T> {
+impl<P, M, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
     pub fn new(position: M,
-               shape:    Arc<Box<Repr<N, P, V, M>>>,
+               shape:    Arc<Box<Repr<P, M>>>,
                groups:   CollisionGroups,
                data:     T)
-               -> CollisionObject<N, P, V, M, T> {
+               -> CollisionObject<P, M, T> {
         CollisionObject {
             position:         position,
             shape:            shape,

@@ -10,14 +10,14 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 
 /// Collision detector between two balls.
-pub struct BallBall<N, P, V, M> {
-    prediction: N,
-    contact:    Option<Contact<N, P, V>>,
+pub struct BallBall<P: Point, M> {
+    prediction: <P::Vect as Vect>::Scalar,
+    contact:    Option<Contact<P>>,
     mat_type:   PhantomData<M> // FIXME: can we avoid this (using a generalized where clause ?)
 }
 
-impl<N: Clone, P: Clone, V: Clone, M> Clone for BallBall<N, P, V, M> {
-    fn clone(&self) -> BallBall<N, P, V, M> {
+impl<P: Point, M> Clone for BallBall<P, M> {
+    fn clone(&self) -> BallBall<P, M> {
         BallBall {
             prediction: self.prediction.clone(),
             contact:    self.contact.clone(),
@@ -26,10 +26,10 @@ impl<N: Clone, P: Clone, V: Clone, M> Clone for BallBall<N, P, V, M> {
     }
 }
 
-impl<N, P, V, M> BallBall<N, P, V, M> {
+impl<P: Point, M> BallBall<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new(prediction: N) -> BallBall<N, P, V, M> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> BallBall<P, M> {
         BallBall {
             prediction: prediction,
             contact:    None,
@@ -38,22 +38,21 @@ impl<N, P, V, M> BallBall<N, P, V, M> {
     }
 }
 
-impl<N, P, V, M> CollisionDetector<N, P, V, M> for BallBall<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> CollisionDetector<P, M> for BallBall<P, M>
+    where P: Point,
           M: Translate<P> {
     fn update(&mut self,
-              _:  &CollisionDispatcher<N, P, V, M>,
+              _:  &CollisionDispatcher<P, M>,
               ma: &M,
-              a:  &Repr<N, P, V, M>,
+              a:  &Repr<P, M>,
               mb: &M,
-              b:  &Repr<N, P, V, M>)
+              b:  &Repr<P, M>)
               -> bool {
         let ra = a.repr();
         let rb = b.repr();
 
-        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<N>>(), rb.downcast_ref::<Ball<N>>()) {
+        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>(),
+                                     rb.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>()) {
             self.contact = contacts_internal::ball_against_ball(
                 &ma.translate(&na::orig()),
                 a,
@@ -77,7 +76,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for BallBall<N, P, V, M>
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
+    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
         match self.contact {
             Some(ref c) => out_colls.push(c.clone()),
             None        => ()

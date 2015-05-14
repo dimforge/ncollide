@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_math"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 [lib]
@@ -8,7 +8,9 @@ name = "ncollide_math"
 path = "lib.rs"
 
 [dependencies]
+rustc-serialize = "*"
 rand = "*"
+num = "*"
 
 [dependencies.nalgebra]
 git = "https://github.com/sebcrozet/nalgebra"

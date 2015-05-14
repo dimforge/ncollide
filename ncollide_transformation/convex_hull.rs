@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use std::ops::{Mul, Add};
-use std::num::Float;
 use std::marker::PhantomData;
-use na::{Identity, Pnt2, Pnt3, Norm, Col, Diag, Outer, EigenQR, Zero, Bounded};
+use num::Zero;
+use na::{Identity, Pnt2, Pnt3, Norm, Col, Diag, Outer, EigenQR, Bounded};
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vect, FloatError};
 use utils;
 use entities::bounding_volume;
 use entities::support_map;
@@ -16,10 +16,8 @@ use procedural::{Polyline, TriMesh, IndexBuffer};
  */
 
 // FIXME: factorize with the one on hacd.
-fn normalize<N, P, V>(coords: &mut [P]) -> (P, N)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn normalize<P>(coords: &mut [P]) -> (P, <P::Vect as Vect>::Scalar)
+    where P: Point {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), &coords[..]);
     let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
@@ -31,10 +29,8 @@ fn normalize<N, P, V>(coords: &mut [P]) -> (P, N)
     (center, diag)
 }
 
-fn denormalize<N, P, V>(coords: &mut [P], center: &P, diag: N)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn denormalize<P>(coords: &mut [P], center: &P, diag: <P::Vect as Vect>::Scalar)
+    where P: Point {
     for c in coords.iter_mut() {
         *c = *c * diag + *center.as_vec();
     }
@@ -42,17 +38,19 @@ fn denormalize<N, P, V>(coords: &mut [P], center: &P, diag: N)
 
 
 /// Computes the convex hull of a set of 3d points.
-pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Mul<P, Output = P> + Add<M, Output = M> + Zero + Copy {
+pub fn convex_hull3<P>(points: &[P]) -> TriMesh<P>
+    where P: Point,
+          P::Vect: Outer,
+          <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
+                                                Mul<P, Output = P> +
+                                                Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType> +
+                                                Zero + Copy {
     assert!(points.len() != 0, "Cannot compute the convex hull of an empty set of point.");
     assert!(na::dim::<P>() == 3);
 
     let mut points = points.to_vec();
 
-    let (norm_center, norm_diag) = normalize(points.as_mut_slice());
+    let (norm_center, norm_diag) = normalize(&mut points[..]);
 
     let mut undecidable_points  = Vec::new();
     let mut horizon_loop_facets = Vec::new();
@@ -62,13 +60,13 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
     let mut triangles;
     let     denormalizer;
 
-    match get_initial_mesh(points.as_mut_slice(), &mut undecidable_points) {
+    match get_initial_mesh(&mut points[..], &mut undecidable_points) {
         InitialMesh::Facets(facets, denorm)   => {
             triangles    = facets;
             denormalizer = denorm;
         },
         InitialMesh::ResultMesh(mut mesh) => {
-            denormalize(mesh.coords.as_mut_slice(), &norm_center, norm_diag);
+            denormalize(&mut mesh.coords[..], &norm_center, norm_diag);
             return mesh
         }
     }
@@ -103,7 +101,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
                                        &mut horizon_loop_ids,
                                        &points[..],
                                        &mut removed_facets,
-                                       triangles.as_mut_slice());
+                                       &mut triangles[..]);
                 }
 
                 if horizon_loop_facets.is_empty() {
@@ -147,7 +145,7 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
         }
     }
 
-    utils::remove_unused_points(&mut points, idx.as_mut_slice());
+    utils::remove_unused_points(&mut points, &mut idx[..]);
 
     assert!(points.len() != 0, "Internal error: empty output mesh.");
 
@@ -155,30 +153,26 @@ pub fn convex_hull3<N, P, V, M>(points: &[P]) -> TriMesh<N, P, V>
         *point = denormalizer * *point;
     }
 
-    denormalize(points.as_mut_slice(), &norm_center, norm_diag);
+    denormalize(&mut points[..], &norm_center, norm_diag);
 
     TriMesh::new(points, None, None, Some(IndexBuffer::Unified(idx)))
 }
 
-enum InitialMesh<N, P, V, M> {
-    Facets(Vec<TriangleFacet<N, P, V>>, M),
-    ResultMesh(TriMesh<N, P, V>)
+enum InitialMesh<P: Point, M> {
+    Facets(Vec<TriangleFacet<P>>, M),
+    ResultMesh(TriMesh<P>)
 }
 
-fn build_degenerate_mesh_point<N, P, V>(point: P) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn build_degenerate_mesh_point<P>(point: P) -> TriMesh<P>
+    where P: Point {
     let ta = Pnt3::new(0u32, 0, 0);
     let tb = Pnt3::new(0u32, 0, 0);
 
     TriMesh::new(vec!(point), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
-fn build_degenerate_mesh_segment<N, P, V>(dir: &V, points: &[P]) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn build_degenerate_mesh_segment<P>(dir: &P::Vect, points: &[P]) -> TriMesh<P>
+    where P: Point {
     let a = support_map::point_cloud_support_point(dir, points);
     let b = support_map::point_cloud_support_point(&-*dir, points);
 
@@ -188,16 +182,17 @@ fn build_degenerate_mesh_segment<N, P, V>(dir: &V, points: &[P]) -> TriMesh<N, P
     TriMesh::new(vec!(a, b), None, None, Some(IndexBuffer::Unified(vec!(ta, tb))))
 }
 
-fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) -> InitialMesh<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Outer<M>,
-          M: EigenQR<N, V> + Add<M, Output = M> + Zero + Copy {
+fn get_initial_mesh<P>(points: &mut [P], undecidable: &mut Vec<usize>) -> InitialMesh<P, <P::Vect as Outer>::OuterProductType>
+    where P: Point,
+          P::Vect: Outer,
+          <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
+                                                Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType> +
+                                                Zero + Copy {
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
     let cov              = utils::cov(points);
-    let (eigvec, eigval) = na::eigen_qr(&cov, &Float::epsilon(), 1000);
+    let (eigvec, eigval) = na::eigen_qr(&cov, &FloatError::epsilon(), 1000);
     let mut eigpairs = [ (eigvec.col(0), eigval[0]), (eigvec.col(1), eigval[1]), (eigvec.col(2), eigval[2]) ];
 
     /*
@@ -268,16 +263,16 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
         3 => {
             // The hull is a polyedra.
             // Find a initial triangle lying on the principal plane…
-            let _1: N = na::one();
-            let mut diag = na::zero::<V>();
+            let _1: <P::Vect as Vect>::Scalar = na::one();
+            let mut diag: P::Vect = na::zero();
             diag[0] = _1 / eigval[0];
             diag[1] = _1 / eigval[1];
             diag[2] = _1 / eigval[2];
-            let diag = Diag::from_diag(&diag);
+            let diag: <P::Vect as Outer>::OuterProductType = Diag::from_diag(&diag);
             let icov = eigvec * diag * na::transpose(&eigvec);
 
             for point in points.iter_mut() {
-                *point = na::orig::<P>() + icov.rmul(point.as_vec());
+                *point = na::orig::<P>() + icov * *point.as_vec();
             }
 
             let p1 = support_point_2(&eigpairs[0].0, points).unwrap();
@@ -349,12 +344,10 @@ fn get_initial_mesh<N, P, V, M>(points: &mut [P], undecidable: &mut Vec<usize>) 
     }
 }
 
-fn support_point<N, P, V>(direction: &V, points : &[P], idx: &[usize]) -> Option<usize>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn support_point<P>(direction: &P::Vect, points : &[P], idx: &[usize]) -> Option<usize>
+    where P: Point {
     let mut argmax = None;
-    let _max: N      = Bounded::max_value();
+    let _max: <P::Vect as Vect>::Scalar = Bounded::max_value();
     let mut max    = -_max;
 
     for i in idx.iter() {
@@ -370,12 +363,10 @@ fn support_point<N, P, V>(direction: &V, points : &[P], idx: &[usize]) -> Option
 }
 
 // FIXME: uggly, find a way to refactor all the support point functions!
-fn support_point_2<N, P, V>(direction: &V, points : &[P]) -> Option<usize>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn support_point_2<P>(direction: &P::Vect, points : &[P]) -> Option<usize>
+    where P: Point {
     let mut argmax = None;
-    let _max: N      = Bounded::max_value();
+    let _max: <P::Vect as Vect>::Scalar = Bounded::max_value();
     let mut max    = -_max;
 
     for (id, pt) in points.iter().enumerate() {
@@ -390,17 +381,15 @@ fn support_point_2<N, P, V>(direction: &V, points : &[P]) -> Option<usize>
     argmax
 }
 
-fn compute_silhouette<N, P, V>(facet:          usize,
-                               indirect_id :   usize,
-                               point:          usize,
-                               out_facets:     &mut Vec<usize>,
-                               out_adj_idx:    &mut Vec<usize>,
-                               points:         &[P],
-                               removed_facets: &mut Vec<usize>,
-                               triangles:      &mut [TriangleFacet<N, P, V>])
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn compute_silhouette<P>(facet:          usize,
+                         indirect_id :   usize,
+                         point:          usize,
+                         out_facets:     &mut Vec<usize>,
+                         out_adj_idx:    &mut Vec<usize>,
+                         points:         &[P],
+                         removed_facets: &mut Vec<usize>,
+                         triangles:      &mut [TriangleFacet<P>])
+    where P: Point {
     if triangles[facet].valid {
         if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(point, points, indirect_id) {
             out_facets.push(facet);
@@ -430,10 +419,8 @@ fn compute_silhouette<N, P, V>(facet:          usize,
     }
 }
 
-fn verify_facet_links<N, P, V>(ifacet: usize, facets: &[TriangleFacet<N, P, V>])
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn verify_facet_links<P>(ifacet: usize, facets: &[TriangleFacet<P>])
+    where P: Point {
     let facet = &facets[ifacet];
 
     for i in 0usize .. 3 {
@@ -446,16 +433,14 @@ fn verify_facet_links<N, P, V>(ifacet: usize, facets: &[TriangleFacet<N, P, V>])
     }
 }
 
-fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[usize],
-                                    horizon_loop_ids:    &[usize],
-                                    point:               usize,
-                                    points:              &[P],
-                                    triangles:           &mut Vec<TriangleFacet<N, P, V>>,
-                                    removed_facets:      &[usize],
-                                    undecidable:         &mut Vec<usize>)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn attach_and_push_facets3<P>(horizon_loop_facets: &[usize],
+                              horizon_loop_ids:    &[usize],
+                              point:               usize,
+                              points:              &[P],
+                              triangles:           &mut Vec<TriangleFacet<P>>,
+                              removed_facets:      &[usize],
+                              undecidable:         &mut Vec<usize>)
+    where P: Point {
     // The horizon is built to be in CCW order.
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
@@ -561,24 +546,22 @@ fn attach_and_push_facets3<N, P, V>(horizon_loop_facets: &[usize],
 }
 
 
-struct TriangleFacet<N, P, V> {
+struct TriangleFacet<P: Point> {
     valid:             bool,
-    normal:            V,
+    normal:            P::Vect,
     adj:               [usize; 3],
     indirect_adj_id:   [usize; 3],
     pts:               [usize; 3],
     visible_points:    Vec<usize>,
     furthest_point:    usize,
-    furthest_distance: N,
+    furthest_distance: <P::Vect as Vect>::Scalar,
     pt_type:           PhantomData<P>
 }
 
 
-impl<N, P, V> TriangleFacet<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    pub fn new(p1: usize, p2: usize, p3: usize, points: &[P]) -> TriangleFacet<N, P, V> {
+impl<P> TriangleFacet<P>
+    where P: Point {
+    pub fn new(p1: usize, p2: usize, p3: usize, points: &[P]) -> TriangleFacet<P> {
         let p1p2 = points[p2] - points[p1];
         let p1p3 = points[p3] - points[p1];
 
@@ -611,7 +594,7 @@ impl<N, P, V> TriangleFacet<N, P, V>
         self.visible_points.push(pid);
     }
 
-    pub fn distance_to_point(&self, point: usize, points: &[P]) -> N {
+    pub fn distance_to_point(&self, point: usize, points: &[P]) -> <P::Vect as Vect>::Scalar {
         na::dot(&self.normal, &(points[point] - points[self.pts[0]]))
     }
 
@@ -645,7 +628,7 @@ impl<N, P, V> TriangleFacet<N, P, V>
         let p2 = &points[self.pts[2]];
         let pt = &points[point];
 
-        let _eps: N = Float::epsilon();
+        let _eps: <P::Vect as Vect>::Scalar = FloatError::epsilon();
 
         na::dot(&(*pt - *p0), &self.normal) > _eps * na::cast(100.0f64) &&
         !utils::is_affinely_dependent_triangle3(p0, p1, pt) &&
@@ -673,10 +656,8 @@ impl<N, P, V> TriangleFacet<N, P, V>
 }
 
 /// Computes the convex hull of a set of 2d points.
-pub fn convex_hull2<N, P, V>(points: &[P]) -> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn convex_hull2<P>(points: &[P]) -> Polyline<P>
+    where P: Point {
     assert!(na::dim::<P>() == 2);
 
     let idx     = convex_hull2_idx(points);
@@ -691,10 +672,8 @@ pub fn convex_hull2<N, P, V>(points: &[P]) -> Polyline<N, P, V>
 
 /// Computes the convex hull of a set of 2d points and returns only the indices of the hull
 /// vertices.
-pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<usize>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn convex_hull2_idx<P>(points: &[P]) -> Vec<usize>
+    where P: Point {
     let mut undecidable_points = Vec::new();
     let mut segments           = get_initial_polyline(points, &mut undecidable_points);
 
@@ -753,10 +732,8 @@ pub fn convex_hull2_idx<N, P, V>(points: &[P]) -> Vec<usize>
     idx
 }
 
-fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<usize>) -> Vec<SegmentFacet<P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn get_initial_polyline<P>(points: &[P], undecidable: &mut Vec<usize>) -> Vec<SegmentFacet<P>>
+    where P: Point {
     let mut res = Vec::new();
 
     assert!(points.len() >= 2);
@@ -765,9 +742,9 @@ fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<usize>) -> 
     let mut p2 = p1;
 
     let direction = [
-        -na::canonical_basis_element::<V>(0).unwrap(),
+        -na::canonical_basis_element::<P::Vect>(0).unwrap(),
         na::canonical_basis_element(1).unwrap(),
-        -na::canonical_basis_element::<V>(1).unwrap()
+        -na::canonical_basis_element::<P::Vect>(1).unwrap()
     ];
 
     for dir in direction.iter() {
@@ -808,16 +785,14 @@ fn get_initial_polyline<N, P, V>(points: &[P], undecidable: &mut Vec<usize>) -> 
     res
 }
 
-fn attach_and_push_facets2<N, P, V>(prev_facet:    usize,
-                                    next_facet:    usize,
-                                    point:         usize,
-                                    points:        &[P],
-                                    segments:      &mut Vec<SegmentFacet<P, V>>,
-                                    removed_facet: usize,
-                                    undecidable:   &mut Vec<usize>)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn attach_and_push_facets2<P>(prev_facet:    usize,
+                              next_facet:    usize,
+                              point:         usize,
+                              points:        &[P],
+                              segments:      &mut Vec<SegmentFacet<P>>,
+                              removed_facet: usize,
+                              undecidable:   &mut Vec<usize>)
+    where P: Point {
     let new_facet1_id = segments.len();
     let new_facet2_id = new_facet1_id + 1;
     let prev_pt       = segments[prev_facet].pts[1];
@@ -865,9 +840,9 @@ fn attach_and_push_facets2<N, P, V>(prev_facet:    usize,
     segments.push(new_facet2);
 }
 
-struct SegmentFacet<P, V> {
+struct SegmentFacet<P: Point> {
     pub valid:          bool,
-    pub normal:         V,
+    pub normal:         P::Vect,
     pub next:           usize,
     pub prev:           usize,
     pub pts:            [usize; 2],
@@ -875,12 +850,9 @@ struct SegmentFacet<P, V> {
     pt_type:            PhantomData<P>
 }
 
-#[old_impl_check]
-impl<N, P, V> SegmentFacet<P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    pub fn new(p1: usize, p2: usize, prev: usize, next: usize, points: &[P]) -> SegmentFacet<P, V> {
+impl<P> SegmentFacet<P>
+    where P: Point {
+    pub fn new(p1: usize, p2: usize, prev: usize, next: usize, points: &[P]) -> SegmentFacet<P> {
         let p1p2 = points[p2] - points[p1];
 
         let mut normal = na::zero();
@@ -909,7 +881,7 @@ impl<N, P, V> SegmentFacet<P, V>
         let p0 = &points[self.pts[0]];
         let pt = &points[point];
 
-        let _eps: N = Float::epsilon();
+        let _eps: <P::Vect as Vect>::Scalar = FloatError::epsilon();
 
         na::dot(&(*pt - *p0), &self.normal) > _eps * na::cast(100.0f64)
     }

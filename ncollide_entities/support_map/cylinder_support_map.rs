@@ -1,17 +1,16 @@
+use num::Signed;
 use na::{Rotate, Transform, Norm};
 use na;
-use support_map::{SupportMap, PreferedSamplingDirections};
+use support_map::SupportMap;
 use shape::Cylinder;
 use math::{Scalar, Point, Vect};
 
 
 
-impl<N, P, V, M> SupportMap<P, V, M> for Cylinder<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
-    fn support_point(&self, m: &M, dir: &V) -> P {
+impl<P, M> SupportMap<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
+    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
@@ -20,7 +19,7 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cylinder<N>
 
         vres[1]  = na::zero();
 
-        if na::is_zero(&vres.normalize()) {
+        if na::is_zero(&vres.normalize_mut()) {
             vres = na::zero()
         }
         else {
@@ -35,21 +34,5 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cylinder<N>
         }
 
         m.transform(&(na::orig::<P>() + vres))
-    }
-}
-
-impl<N, V, M> PreferedSamplingDirections<V, M> for Cylinder<N>
-    where N: Scalar,
-          V: Vect<N>,
-          M: Rotate<V> {
-    #[inline(always)]
-    fn sample(&self, transform: &M, f: &mut FnMut(V)) {
-        // Sample along the principal axis
-        let mut v = na::zero::<V>();
-        v[1] = na::one();
-
-        let rv = transform.rotate(&v);
-        f(-rv);
-        f(rv);
     }
 }

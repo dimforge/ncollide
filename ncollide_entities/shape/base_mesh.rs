@@ -15,21 +15,19 @@ pub trait BaseMeshElement<I, P> {
 }
 
 /// A mesh generic wrt. the contained mesh elements characterized by vertices.
-pub struct BaseMesh<N, P, V, I, E> {
+pub struct BaseMesh<P: Point, I, E> {
     bvt:      BVT<usize, AABB<P>>,
     bvs:      Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
     indices:  Arc<Vec<I>>,
-    uvs:      Option<Arc<Vec<Pnt2<N>>>>,
-    normals:  Option<Arc<Vec<V>>>,
+    uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+    normals:  Option<Arc<Vec<P::Vect>>>,
     elt:      PhantomData<E>
 }
 
-impl<N, P, V, I, E> Clone for BaseMesh<N, P, V, I, E>
-    where N: Clone,
-          P: Send + Sync + Clone,
-          V: Send + Sync {
-    fn clone(&self) -> BaseMesh<N, P, V, I, E> {
+impl<P, I, E> Clone for BaseMesh<P, I, E>
+    where P: Point {
+    fn clone(&self) -> BaseMesh<P, I, E> {
         BaseMesh {
             bvt:      self.bvt.clone(),
             bvs:      self.bvs.clone(),
@@ -42,17 +40,16 @@ impl<N, P, V, I, E> Clone for BaseMesh<N, P, V, I, E>
     }
 }
 
-impl<N, P, V, I, E> BaseMesh<N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Translate<P> + Vect<N>,
+impl<P, I, E> BaseMesh<P, I, E>
+    where P: Point,
+          P::Vect: Translate<P>,
           E: BaseMeshElement<I, P> + HasAABB<P, Identity> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<I>>,
-               uvs:      Option<Arc<Vec<Pnt2<N>>>>,
-               normals:  Option<Arc<Vec<V>>>) // a loosening margin for the BVT.
-               -> BaseMesh<N, P, V, I, E> {
+               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               -> BaseMesh<P, I, E> {
         for uvs in uvs.iter() {
             assert!(uvs.len() == vertices.len());
         }
@@ -64,8 +61,8 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E>
             let vs = &*vertices;
             let is = &*indices;
 
-            for (i, is) in is.as_slice().iter().enumerate() {
-                let vs: &[P] = vs.as_slice();
+            for (i, is) in is[..].iter().enumerate() {
+                let vs: &[P] = &vs[..];
                 let element: E = BaseMeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
                 let bv = element.aabb(&Identity::new());
@@ -88,7 +85,8 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E>
     }
 }
 
-impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
+impl<P, I, E> BaseMesh<P, I, E>
+    where P: Point {
     /// The vertices of this mesh.
     #[inline]
     pub fn vertices(&self) -> &Arc<Vec<P>> {
@@ -98,7 +96,7 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
     /// Bounding volumes of the subsimplices.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<P>] {
-        self.bvs.as_slice()
+        &self.bvs[..]
     }
 
     /// The indices of this mesh.
@@ -109,13 +107,13 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<N>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
         &self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<V>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
         &self.normals
     }
 
@@ -126,11 +124,13 @@ impl<N, P, V, I, E> BaseMesh<N, P, V, I, E> {
     }
 }
 
-impl<N, P: Send + Sync, V, I, E: BaseMeshElement<I, P>> BaseMesh<N, P, V, I, E> {
+impl<P, I, E> BaseMesh<P, I, E>
+    where P: Point,
+          E: BaseMeshElement<I, P> {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: usize) -> E {
-        let vs: &[P] = self.vertices.as_slice();
+        let vs: &[P] = &self.vertices[..];
 
         BaseMeshElement::new_with_vertices_and_indices(vs, &self.indices[i])
     }

@@ -1,7 +1,7 @@
 //! Definition of support functions.
 
 #[doc(inline)]
-pub use support_map::support_map::{SupportMap, PreferedSamplingDirections};
+pub use support_map::support_map::SupportMap;
 pub use support_map::minkowski_sum_support_map::cso_support_point;
 pub use support_map::utils_support_map::{point_cloud_support_point};
 

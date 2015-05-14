@@ -7,7 +7,7 @@ use na::Translate;
 use na;
 use bounding_volume::{HasAABB, AABB, BoundingVolume};
 use partitioning::BVT;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use inspection::Repr;
 
 /// A compound shape with an aabb bounding volume.
@@ -15,18 +15,16 @@ use inspection::Repr;
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
-pub struct Compound<N, P, V, M> {
-    shapes:  Vec<(M, Arc<Box<Repr<N, P, V, M>>>)>,
+pub struct Compound<P: Point, M> {
+    shapes:  Vec<(M, Arc<Box<Repr<P, M>>>)>,
     bvt:     BVT<usize, AABB<P>>,
     bvs:     Vec<AABB<P>>
 }
 
-impl<N, P, V, M> Clone for Compound<N, P, V, M>
-    where N: Clone,
-          P: Send + Sync + Clone,
-          V: Send + Sync + Clone,
+impl<P, M> Clone for Compound<P, M>
+    where P: Point,
           M: Clone {
-    fn clone(&self) -> Compound<N, P, V, M> {
+    fn clone(&self) -> Compound<P, M> {
         Compound {
             shapes: self.shapes.clone(),
             bvt:    self.bvt.clone(),
@@ -35,13 +33,12 @@ impl<N, P, V, M> Clone for Compound<N, P, V, M>
     }
 }
 
-impl<N, P, V, M> Compound<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> Compound<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     /// Builds a new compound shape.
-    pub fn new(shapes: Vec<(M, Arc<Box<Repr<N, P, V, M>>>)>) -> Compound<N, P, V, M> {
+    pub fn new(shapes: Vec<(M, Arc<Box<Repr<P, M>>>)>) -> Compound<P, M> {
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
@@ -63,11 +60,12 @@ impl<N, P, V, M> Compound<N, P, V, M>
     }
 }
 
-impl<N, P, V, M> Compound<N, P, V, M> {
+impl<P, M> Compound<P, M>
+    where P: Point {
     /// The shapes of this compound shape.
     #[inline]
-    pub fn shapes(&self) -> &[(M, Arc<Box<Repr<N, P, V, M>>>)] {
-        self.shapes.as_slice()
+    pub fn shapes(&self) -> &[(M, Arc<Box<Repr<P, M>>>)] {
+        &self.shapes[..]
     }
 
     /// The optimization structure used by this compound shape.
@@ -79,7 +77,7 @@ impl<N, P, V, M> Compound<N, P, V, M> {
     /// The shapes bounding volumes.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<P>] {
-        self.bvs.as_slice()
+        &self.bvs[..]
     }
 
     /// The AABB of the i-th shape compositing this compound.

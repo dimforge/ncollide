@@ -1,3 +1,4 @@
+use na::Norm;
 use path::{PathSample, CurveSampler};
 use polyline::Polyline;
 use math::{Scalar, Point, Vect};
@@ -5,21 +6,21 @@ use math::{Scalar, Point, Vect};
 /// A path with its sample points given by a polyline.
 ///
 /// This will return sequencially each vertex of the polyline.
-pub struct PolylinePath<'a, N: 'a, P: 'a, V: 'a> {
-    curr_len:               N,
-    curr_dir:               V,
+pub struct PolylinePath<'a, P: 'a + Point> {
+    curr_len:               <P::Vect as Vect>::Scalar,
+    curr_dir:               P::Vect,
     curr_pt_id:             usize,
     curr_pt:                P,
-    polyline:               &'a Polyline<N, P, V>
+    polyline:               &'a Polyline<P>
 }
 
-impl<'a, N: Scalar, P: Point<N, V>, V: Vect<N>> PolylinePath<'a, N, P, V> {
+impl<'a, P: Point> PolylinePath<'a, P> {
     /// Creates a new polyline-based path.
-    pub fn new(polyline: &'a Polyline<N, P, V>) -> PolylinePath<'a, N, P, V> {
+    pub fn new(polyline: &'a Polyline<P>) -> PolylinePath<'a, P> {
         assert!(polyline.coords.len() > 1, "The polyline must have at least two points.");
 
-        let mut dir: V  = polyline.coords[1] - polyline.coords[0];
-        let len: N      = dir.normalize_mut();
+        let mut dir: P::Vect  = polyline.coords[1] - polyline.coords[0];
+        let len: <P::Vect as Vect>::Scalar = dir.normalize_mut();
 
         PolylinePath {
             curr_len:   len,
@@ -31,11 +32,9 @@ impl<'a, N: Scalar, P: Point<N, V>, V: Vect<N>> PolylinePath<'a, N, P, V> {
     }
 }
 
-impl<'a, N, P, V> CurveSampler<P, V> for PolylinePath<'a, N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    fn next(&mut self) -> PathSample<P, V> {
+impl<'a, P> CurveSampler<P> for PolylinePath<'a, P>
+    where P: Point {
+    fn next(&mut self) -> PathSample<P> {
         let result =
             if self.curr_pt_id == 0 {
                 PathSample::StartPoint(self.curr_pt.clone(), self.curr_dir.clone())

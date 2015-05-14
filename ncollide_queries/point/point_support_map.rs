@@ -5,22 +5,21 @@ use geometry::algorithms::minkowski_sampling;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::{MinkowskiSum, Cylinder, Cone, Capsule, Convex};
-use entities::support_map::{SupportMap, PreferedSamplingDirections};
+use entities::support_map::SupportMap;
 use point::{LocalPointQuery, PointQuery};
 use math::{Scalar, Point, Vect};
 
 /// Projects a point on a shape using the GJK algorithm.
-pub fn support_map_point_projection<N, P, V, M, S, G>(m:       &M,
-                                                      shape:   &G,
-                                                      simplex: &mut S,
-                                                      point:   &P,
-                                                      solid:   bool) -> P
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Translation<V>,
-          S: Simplex<N, P>,
-          G: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
+pub fn support_map_point_projection<P, M, S, G>(m:       &M,
+                                                shape:   &G,
+                                                simplex: &mut S,
+                                                point:   &P,
+                                                solid:   bool)
+                                                -> P
+    where P: Point,
+          M: Translation<P::Vect>,
+          S: Simplex<P>,
+          G: SupportMap<P, M> {
     let m = na::append_translation(m, &-*point.as_vec());
 
     match gjk::project_origin(&m, shape, simplex) {
@@ -44,18 +43,15 @@ pub fn support_map_point_projection<N, P, V, M, S, G>(m:       &M,
     }
 }
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Cylinder<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Cylinder<<P::Vect as Vect>::Scalar>
+    where P: Point {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
-        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), point, solid)
+        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -65,26 +61,20 @@ impl<N, P, V> LocalPointQuery<N, P> for Cylinder<N>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Cylinder<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Cone<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Cone<<P::Vect as Vect>::Scalar>
+    where P: Point {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
-        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), point, solid)
+        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -94,26 +84,20 @@ impl<N, P, V> LocalPointQuery<N, P> for Cone<N>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Cone<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Capsule<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Capsule<<P::Vect as Vect>::Scalar>
+    where P: Point {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
-        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), point, solid)
+        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -123,26 +107,20 @@ impl<N, P, V> LocalPointQuery<N, P> for Capsule<N>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Capsule<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Convex<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Convex<P>
+    where P: Point {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
-        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), point, solid)
+        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -152,29 +130,23 @@ impl<N, P, V> LocalPointQuery<N, P> for Convex<P>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Convex<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> PointQuery<P, M> for Convex<P>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }
 
-#[old_impl_check]
-impl<'a, N, P, V, M, G1, G2> LocalPointQuery<N, P> for MinkowskiSum<'a, M, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          M:  Transform<P> + Rotate<V>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
+impl<'a, P, M, G1, G2> LocalPointQuery<P> for MinkowskiSum<'a, M, G1, G2>
+    where P:  Point,
+          M:  Transform<P> + Rotate<P::Vect>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
     #[inline]
     fn project_point(&self, point: &P, solid: bool) -> P {
-        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<N, P, V>::new_w_tls(), point, solid)
+        support_map_point_projection(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -184,12 +156,9 @@ impl<'a, N, P, V, M, G1, G2> LocalPointQuery<N, P> for MinkowskiSum<'a, M, G1, G
     }
 }
 
-#[old_impl_check]
-impl<'a, N, P, V, M, G1, G2> PointQuery<N, P, M> for MinkowskiSum<'a, M, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          M:  Transform<P> + Rotate<V>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
+impl<'a, P, M, G1, G2> PointQuery<P, M> for MinkowskiSum<'a, M, G1, G2>
+    where P:  Point,
+          M:  Transform<P> + Rotate<P::Vect>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
 }

@@ -5,7 +5,7 @@ use std::mem;
 use std::iter;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use std::num::Float;
+use num::Float;
 use na;
 use na::{Pnt3, Dim, Cross, Orig};
 use ncollide_utils::{HashablePartialEq, AsBytes};
@@ -203,11 +203,10 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
 
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<N, P, V>(coordinates: &[P], faces: &[Pnt3<u32>], normals: &mut Vec<V>)
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Cross<Output = V> {
-    let mut divisor: Vec<N> = iter::repeat(na::zero()).take(coordinates.len()).collect();
+pub fn compute_normals<P>(coordinates: &[P], faces: &[Pnt3<u32>], normals: &mut Vec<P::Vect>)
+    where P: Point,
+          P::Vect: Vect + Cross<CrossProductType = <P as Point>::Vect> {
+    let mut divisor: Vec<<P::Vect as Vect>::Scalar> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
     if normals.len() > coordinates.len() {

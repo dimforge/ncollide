@@ -1,9 +1,20 @@
 use std::mem;
-use std::any::TypeId;
-use std::raw::TraitObject;
-use std::marker::{PhantomData, PhantomFn};
+use std::any::{Any, TypeId};
+use std::marker::PhantomData;
 
-#[derive(Copy)]
+// Define our own because it is unstable.
+/// Raw representation of a trait-object.
+#[allow(raw_pointer_derive)]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct TraitObject {
+    /// Raw pointer to the trait object data.
+    pub data:   *mut (),
+    /// Raw pointer to the trait object virtual table.
+    pub vtable: *mut ()
+}
+
+#[derive(Clone, Copy)]
 pub struct ReprDesc<'a> {
     type_id: TypeId,
     repr_id: TypeId,
@@ -45,7 +56,7 @@ impl<'a> ReprDesc<'a> {
 
     /// Converts this repr as an exact shape.
     #[inline]
-    pub fn downcast_ref<T: 'static>(&self) -> Option<&T> {
+    pub fn downcast_ref<T: 'static + Any>(&self) -> Option<&T> {
         if self.type_id == TypeId::of::<T>() {
             Some(unsafe { mem::transmute(self.repr.data) })
         }
@@ -56,7 +67,7 @@ impl<'a> ReprDesc<'a> {
 }
 
 /// An object with a unique runtime geometric representation.
-pub trait Repr<N, P, V, M>: PhantomFn<(), (N, P, V, M)> + Send + Sync + 'static {
+pub trait Repr<P, M>: Send + Sync + 'static {
     /// Gets a reference to this object's main representation.
     fn repr<'a>(&'a self) -> ReprDesc<'a>;
 }

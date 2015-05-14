@@ -6,7 +6,7 @@ use procedural::Polyline2;
 use procedural;
 use super::ToPolyline;
 
-impl<N: Scalar> ToPolyline<N, Pnt2<N>, Vec2<N>, ()> for Cylinder2<N> {
+impl<N: Scalar> ToPolyline<Pnt2<N>, ()> for Cylinder2<N> {
     fn to_polyline(&self, _: ()) -> Polyline2<N> {
         let _2: N = na::cast(2.0f64);
 

@@ -1,46 +1,45 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
 use std::sync::Arc;
-use na::{Translate, Dim, Pnt2, Pnt3};
+use na::{Translate, Pnt2, Pnt3};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Triangle, BaseMesh};
 use math::{Scalar, Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
-pub struct TriMesh<N, P, V> {
-    mesh: BaseMesh<N, P, V, Pnt3<usize>, Triangle<P>>
+pub struct TriMesh<P: Point> {
+    mesh: BaseMesh<P, Pnt3<usize>, Triangle<P>>
 }
 
-impl<N, P, V> Clone for TriMesh<N, P, V>
-    where N: Clone,
-          P: Send + Sync + Clone,
-          V: Send + Sync {
-    fn clone(&self) -> TriMesh<N, P, V> {
-        self.clone()
+impl<P: Point> Clone for TriMesh<P> {
+    fn clone(&self) -> TriMesh<P> {
+        TriMesh {
+            mesh: self.mesh.clone()
+        }
     }
 }
 
-impl<N, P, V> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Translate<P> + Vect<N> {
+impl<P> TriMesh<P>
+    where P: Point,
+          P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<Pnt3<usize>>>,
-               uvs:      Option<Arc<Vec<Pnt2<N>>>>,
-               normals:  Option<Arc<Vec<V>>>) // a loosening margin for the BVT.
-               -> TriMesh<N, P, V> {
+               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               -> TriMesh<P> {
         TriMesh {
             mesh: BaseMesh::new(vertices, indices, uvs, normals)
         }
     }
 }
 
-impl<N, P, V> TriMesh<N, P, V> {
+impl<P> TriMesh<P>
+    where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<N, P, V, Pnt3<usize>, Triangle<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt3<usize>, Triangle<P>> {
         &self.mesh
     }
 
@@ -64,13 +63,13 @@ impl<N, P, V> TriMesh<N, P, V> {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<N>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
         self.mesh.uvs()
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<V>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
         self.mesh.normals()
     }
 
@@ -81,7 +80,7 @@ impl<N, P, V> TriMesh<N, P, V> {
     }
 }
 
-impl<N, P: Send + Sync + Copy + Dim, V> TriMesh<N, P, V> {
+impl<P: Point> TriMesh<P> {
     /// Gets the i-th mesh element.
     #[inline]
     pub fn triangle_at(&self, i: usize) -> Triangle<P> {

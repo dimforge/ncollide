@@ -2,14 +2,11 @@ use std::mem;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
-use std::collections::hash_state::DefaultState;
-use std::default::Default;
-use std::hash::SipHasher;
 use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm, Bounded};
 use na;
 use math::Scalar;
 use utils;
-use entities::support_map::{SupportMap, PreferedSamplingDirections};
+use entities::support_map::SupportMap;
 use entities::support_map;
 use entities::bounding_volume::{BoundingVolume, AABB};
 use entities::bounding_volume;
@@ -20,10 +17,10 @@ use queries::ray;
 use procedural::{TriMesh, IndexBuffer};
 
 /// Approximate convex decomposition of a triangle mesh.
-pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
+pub fn hacd<N>(mesh:           TriMesh<Pnt3<N>>,
                error:          N,
                min_components: usize)
-               -> (Vec<TriMesh<N, Pnt3<N>, Vec3<N>>>, Vec<Vec<usize>>)
+               -> (Vec<TriMesh<Pnt3<N>>>, Vec<Vec<usize>>)
     where N: Scalar {
     assert!(mesh.normals.is_some(), "Vertex normals are required to compute the convex decomposition.");
 
@@ -114,7 +111,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
                 let v1 = top.v1;
                 let v2 = top.v2;
 
-                DualGraphVertex::hecol(top, dual_graph.as_mut_slice());
+                DualGraphVertex::hecol(top, &mut dual_graph[..]);
 
                 assert!(dual_graph[v1].timestamp != Bounded::max_value());
                 assert!(dual_graph[v2].timestamp != Bounded::max_value());
@@ -151,7 +148,7 @@ pub fn hacd<N>(mesh:           TriMesh<N, Pnt3<N>, Vec3<N>>,
     (result, parts)
 }
 
-fn normalize<N: Scalar>(mesh: &mut TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Pnt3<N>, N) {
+fn normalize<N: Scalar>(mesh: &mut TriMesh<Pnt3<N>>) -> (Pnt3<N>, N) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), &mesh.coords[..]);
     let diag   = na::dist(&mins, &maxs);
     let center = na::center(&mins, &maxs);
@@ -163,17 +160,18 @@ fn normalize<N: Scalar>(mesh: &mut TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Pnt3<N>, N)
     (center, diag)
 }
 
-fn denormalize<N: Scalar>(mesh: &mut TriMesh<N, Pnt3<N>, Vec3<N>>, center: &Pnt3<N>, diag: N) {
+fn denormalize<N: Scalar>(mesh: &mut TriMesh<Pnt3<N>>, center: &Pnt3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
     mesh.translate_by(center.as_vec());
 }
 
-struct DualGraphVertex<N> {
-    neighbors:  Option<HashSet<usize, DefaultState<SipHasher>>>, // vertices adjascent to this one.
+struct DualGraphVertex<N: Scalar> {
+    // XXX: Loss of determinism because of the randomized HashSet.
+    neighbors:  Option<HashSet<usize>>, // vertices adjascent to this one.
     ancestors:  Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
-    uancestors: Option<HashSet<usize, DefaultState<SipHasher>>>,
+    uancestors: Option<HashSet<usize>>,
     border:     Option<HashSet<Vec2<usize>>>,
-    chull:      Option<TriMesh<N, Pnt3<N>, Vec3<N>>>,
+    chull:      Option<TriMesh<Pnt3<N>>>,
     parts:      Option<Vec<usize>>,
     timestamp:  usize,
     concavity:  N,
@@ -183,7 +181,7 @@ struct DualGraphVertex<N> {
 
 impl<N: Scalar> DualGraphVertex<N> {
     pub fn new(ancestor: usize,
-               mesh:     &TriMesh<N, Pnt3<N>, Vec3<N>>,
+               mesh:     &TriMesh<Pnt3<N>>,
                raymap:   &HashMap<(u32, u32), usize>) // FIXME: we could get rid of the raymap.
                -> DualGraphVertex<N> {
         let (idx, ns) =
@@ -214,7 +212,7 @@ impl<N: Scalar> DualGraphVertex<N> {
             VertexWithConcavity::new(r2, na::zero()),
             VertexWithConcavity::new(r3, na::zero())
         );
-        let mut uancestors = HashSet::with_hash_state(Default::default());
+        let mut uancestors = HashSet::new();
         uancestors.insert(r1);
         uancestors.insert(r2);
         uancestors.insert(r3);
@@ -225,7 +223,7 @@ impl<N: Scalar> DualGraphVertex<N> {
         border.insert(edge(idx.z, idx.x));
 
         DualGraphVertex {
-            neighbors:  Some(HashSet::with_hash_state(Default::default())),
+            neighbors:  Some(HashSet::new()),
             ancestors:  Some(ancestors),
             uancestors: Some(uancestors),
             parts:      Some(vec!(ancestor)),
@@ -414,7 +412,7 @@ impl<N: Scalar> DualGraphEdge<N> {
 
     pub fn compute_decimation_cost(&mut self,
                                    dual_graph:    &[DualGraphVertex<N>],
-                                   rays:          &[Ray<Pnt3<N>, Vec3<N>>],
+                                   rays:          &[Ray<Pnt3<N>>],
                                    bvt:           &BVT<usize, AABB<Pnt3<N>>>,
                                    max_cost:      N,
                                    max_concavity: N) {
@@ -437,7 +435,7 @@ impl<N: Scalar> DualGraphEdge<N> {
         let max_concavity = max_concavity.min(max_cost - max_concavity * self.shape);
 
         fn cast_ray<'a, N: Scalar>(chull:      &ConvexPair<'a, N>,
-                                   ray:        &Ray<Pnt3<N>, Vec3<N>>,
+                                   ray:        &Ray<Pnt3<N>>,
                                    id:         usize,
                                    concavity:  &mut N,
                                    ancestors:  &mut BinaryHeap<VertexWithConcavity<N>>) {
@@ -629,13 +627,13 @@ fn edge(a: u32, b: u32) -> Vec2<usize> {
     }
 }
 
-fn compute_ray_bvt<N: Scalar>(rays: &[Ray<Pnt3<N>, Vec3<N>>]) -> BVT<usize, AABB<Pnt3<N>>> {
+fn compute_ray_bvt<N: Scalar>(rays: &[Ray<Pnt3<N>>]) -> BVT<usize, AABB<Pnt3<N>>> {
     let aabbs = rays.iter().enumerate().map(|(i, r)| (i, AABB::new(r.orig, r.orig))).collect();
 
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3<N>, Vec3<N>>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: Scalar>(mesh: &TriMesh<Pnt3<N>>) -> (Vec<Ray<Pnt3<N>>>, HashMap<(u32, u32), usize>) {
     let mut rays   = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -654,7 +652,7 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
                 let coord = coords[coord as usize].clone();
                 let mut normal = normals[normal as usize].clone();
 
-                if na::is_zero(&normal.normalize()) {
+                if na::is_zero(&normal.normalize_mut()) {
                     normal = na::zero();
                 }
 
@@ -684,10 +682,11 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<N, Pnt3<N>, Vec3<N>>) -> (Vec<Ray<Pnt3
 }
 
 
-fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<N, Pnt3<N>, Vec3<N>>,
+fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Pnt3<N>>,
                                  raymap: &HashMap<(u32, u32), usize>)
                                  -> Vec<DualGraphVertex<N>> {
-    let mut prim_edges: HashMap<_, _, DefaultState<SipHasher>> = HashMap::with_hash_state(Default::default());
+    // XXX Loss of determinism because of the randomized HashMap.
+    let mut prim_edges = HashMap::new();
     let mut dual_vertices: Vec<DualGraphVertex<N>> =
         (0 .. mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
@@ -741,7 +740,7 @@ impl<'a, N> ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> SupportMap<Pnt3<N>, Vec3<N>, Identity> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> SupportMap<Pnt3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &Vec3<N>) -> Pnt3<N> {
         let sa = support_map::point_cloud_support_point(dir, self.a);
@@ -756,19 +755,13 @@ impl<'a, N: Scalar> SupportMap<Pnt3<N>, Vec3<N>, Identity> for ConvexPair<'a, N>
     }
 }
 
-impl<'a, N: Scalar> PreferedSamplingDirections<Vec3<N>, Identity> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> LocalRayCast<Pnt3<N>> for ConvexPair<'a, N> {
     #[inline]
-    fn sample(&self, _: &Identity, _: &mut FnMut(Vec3<N>)) {
-    }
-}
-
-impl<'a, N: Scalar> LocalRayCast<N, Pnt3<N>, Vec3<N>> for ConvexPair<'a, N> {
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<Pnt3<N>, Vec3<N>>, solid: bool) -> Option<RayIntersection<N, Vec3<N>>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<Pnt3<N>>, solid: bool) -> Option<RayIntersection<Vec3<N>>> {
         ray::implicit_toi_and_normal_with_ray(
             &Identity::new(),
             self,
-            &mut JohnsonSimplex::<N, Pnt3<N>, Vec3<N>>::new_w_tls(),
+            &mut JohnsonSimplex::<Pnt3<N>>::new_w_tls(),
             ray,
             solid)
     }

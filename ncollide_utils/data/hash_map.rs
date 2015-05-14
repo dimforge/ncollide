@@ -77,8 +77,8 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     ///
     /// This is a simple, contiguous array.
     #[inline]
-    pub fn elements_mut<'r>(&'r mut self) -> &'r mut [Entry<K, V>] {
-        self.table.as_mut_slice()
+    pub fn elements_mut(&mut self) -> &mut [Entry<K, V>] {
+        &mut self.table[..]
     }
 
     /// The number of elements contained by this hashmap.

@@ -1,8 +1,8 @@
 //! Minkowski sum.
 
 use std::ops::{Index, IndexMut, Add, Sub, Mul, Div, Neg};
-use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, NumVec, POrd,
-         POrdering, ScalarSub, ScalarAdd, ScalarMul, ScalarDiv, FloatPnt, Bounded};
+use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, POrd,
+         POrdering, FloatPnt, Bounded, Repeat};
 use na;
 use shape::Reflection;
 use math::{Scalar, Point, Vect};
@@ -228,16 +228,13 @@ impl<P: Orig> Orig for AnnotatedPoint<P> {
     }
 }
 
-#[old_impl_check]
-impl<N, P, V> Add<V> for AnnotatedPoint<P>
-    where N: Scalar,
-          P: Add<V, Output = P>,
-          V: Copy + Mul<N, Output = V> {
+impl<P> Add<P::Vect> for AnnotatedPoint<P>
+    where P: Point {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
-    fn add(self, other: V) -> AnnotatedPoint<P> {
-        let _0_5: N = na::cast(0.5f64);
+    fn add(self, other: P::Vect) -> AnnotatedPoint<P> {
+        let _0_5: <P::Vect as Vect>::Scalar = na::cast(0.5f64);
 
         AnnotatedPoint::new(
             self.orig1 + other * _0_5,
@@ -261,38 +258,6 @@ impl<P: Sub<P>> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
     #[inline]
     fn sub(self, other: AnnotatedPoint<P>) -> P::Output {
         self.point - other.point
-    }
-}
-
-#[old_impl_check]
-impl<N, P, V> ScalarSub<N> for AnnotatedPoint<P>
-    where P: Point<N, V> {
-    fn sub_s(&self, _: &N) -> AnnotatedPoint<P> {
-        unimplemented!()
-    }
-}
-
-#[old_impl_check]
-impl<N, P, V> ScalarAdd<N> for AnnotatedPoint<P>
-    where P: Point<N, V> {
-    fn add_s(&self, _: &N) -> AnnotatedPoint<P> {
-        unimplemented!()
-    }
-}
-
-#[old_impl_check]
-impl<N, P, V> ScalarMul<N> for AnnotatedPoint<P>
-    where P: Point<N, V> {
-    fn mul_s(&self, _: &N) -> AnnotatedPoint<P> {
-        unimplemented!()
-    }
-}
-
-#[old_impl_check]
-impl<N, P, V> ScalarDiv<N> for AnnotatedPoint<P>
-    where P: Point<N, V> {
-    fn div_s(&self, _: &N) -> AnnotatedPoint<P> {
-        unimplemented!()
     }
 }
 
@@ -376,20 +341,21 @@ impl<P> Bounded for AnnotatedPoint<P> {
     }
 }
 
-impl<N, P, V> NumPnt<N, V> for AnnotatedPoint<P>
-    where N: Scalar,
-          P: NumPnt<N, V>,
-          V: Copy + NumVec<N> {
+impl<P: Point> Repeat<<P::Vect as Vect>::Scalar> for AnnotatedPoint<P> {
+    fn repeat(_: <P::Vect as Vect>::Scalar) -> AnnotatedPoint<P> {
+        panic!("`Repeat` is not implemented for `AnnotatedPoint`.");
+    }
 }
 
-impl<N, P, V> FloatPnt<N, V> for AnnotatedPoint<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> NumPnt<<P::Vect as Vect>::Scalar, P::Vect> for AnnotatedPoint<P>
+    where P: Point {
 }
 
-impl<N, P, V> Point<N, V> for AnnotatedPoint<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> FloatPnt<<P::Vect as Vect>::Scalar, P::Vect> for AnnotatedPoint<P>
+    where P: Point {
+}
+
+impl<P> Point for AnnotatedPoint<P>
+    where P: Point {
+        type Vect = P::Vect;
 }

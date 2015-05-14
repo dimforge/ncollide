@@ -1,57 +1,33 @@
 //! Penetration depth computation algorithm approximating the Minkowskis sum.
 
-use na::{Identity, Norm, UniformSphereSample, Translation, Translate, Zero, Bounded};
+use num::Zero;
+use na::{Identity, Norm, Translation, Translate, Bounded};
 use na;
 use entities::shape::{MinkowskiSum, AnnotatedPoint, Reflection};
-use entities::support_map::{SupportMap, PreferedSamplingDirections};
+use entities::support_map::SupportMap;
 use geometry::algorithms::gjk;
 use geometry::algorithms::simplex::Simplex;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
-pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
-                      m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> Option<(P, P, V)>
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Translation<V>,
-          S:  Simplex<N, AnnotatedPoint<P>>,
-          G1: SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
-          G2: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
-    let _0: N = na::zero();
-    let reflect2   = Reflection::new(g2);
-    let cso        = MinkowskiSum::new(m1, g1, m2, &reflect2);
+pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
+                      m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> Option<(P, P, P::Vect)>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M:  Translation<P::Vect>,
+          S:  Simplex<AnnotatedPoint<P>>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
+    let reflect2 = Reflection::new(g2);
+    let cso      = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
-    let mut best_dir: V = na::zero();
-    let mut min_dist    = Bounded::max_value();
+    let mut best_dir: P::Vect = na::zero();
+    let mut min_dist          = Bounded::max_value();
 
-    // FIXME: avoid code duplication for the closure
-    g1.sample(m1, &mut |sample: V| {
-        let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, support.as_vec());
-
-        if dist < min_dist {
-            best_dir = sample;
-            min_dist = dist;
-        }
-    });
-
-    // FIXME: avoid code duplication for the closure
-    g2.sample(m2, &mut |sample: V| {
-        let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, support.as_vec());
-
-        if dist < min_dist {
-            best_dir = sample;
-            min_dist = dist;
-        }
-    });
-
-    // FIXME: avoid code duplication for the closure
-    na::sample_sphere(|sample: V| {
+    na::sample_sphere(|sample: P::Vect| {
         let support = cso.support_point(&Identity::new(), &sample);
         let dist    = na::dot(&sample, support.as_vec());
 
@@ -129,30 +105,16 @@ pub fn closest_points<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
 /// Projects the origin on a support-mapped shape.
 ///
 /// The origin is assumed to be inside of the shape.
-pub fn project_origin<N, P, V, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Translation<V>,
-          S: Simplex<N, P>,
-          G: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
+pub fn project_origin<P, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option<P>
+    where P: Point,
+          M: Translation<P::Vect>,
+          S: Simplex<P>,
+          G: SupportMap<P, M> {
     // find an approximation of the smallest penetration direction
-    let mut best_dir: V = na::zero();
-    let mut min_dist    = Bounded::max_value();
+    let mut best_dir: P::Vect = na::zero();
+    let mut min_dist          = Bounded::max_value();
 
-    // FIXME: avoid code duplication for the closure
-    g.sample(m, &mut |sample: V| {
-        let support = g.support_point(m, &sample);
-        let dist    = na::dot(&sample, support.as_vec());
-
-        if dist < min_dist {
-            best_dir = sample;
-            min_dist = dist;
-        }
-    });
-
-    // FIXME: avoid code duplication for the closure
-    na::sample_sphere(|sample: V| {
+    na::sample_sphere(|sample: P::Vect| {
         let support = g.support_point(m, &sample);
         let dist    = na::dot(&sample, support.as_vec());
 

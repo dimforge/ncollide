@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use na::Transform;
 use na;
 use math::{Scalar, Point, Vect};
@@ -7,18 +8,16 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
-struct ContactWLocals<N, P, V> {
+struct ContactWLocals<P: Point> {
     local1:  P,
     local2:  P,
     center:  P,
-    contact: Contact<N, P, V>
+    contact: Contact<P>
 }
 
-impl<N, P, V> ContactWLocals<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    fn new_with_contact<M: Transform<P>>(contact: Contact<N, P, V>, m1: &M, m2: &M) -> ContactWLocals<N, P, V> {
+impl<P> ContactWLocals<P>
+    where P: Point {
+    fn new_with_contact<M: Transform<P>>(contact: Contact<P>, m1: &M, m2: &M) -> ContactWLocals<P> {
             ContactWLocals {
                 local1: m1.inv_transform(&contact.world1),
                 local2: m2.inv_transform(&contact.world2),
@@ -35,46 +34,45 @@ impl<N, P, V> ContactWLocals<N, P, V>
 /// computed by maximizing the variance along each canonical axis (of the space in which leaves the
 /// contacts).
 #[derive(RustcEncodable, RustcDecodable, Clone)]
-pub struct IncrementalContactManifoldGenerator<N, P, V, CD> {
-    contacts:     Vec<ContactWLocals<N, P, V>>, // FIXME: replace by a vec slice to avoid allocations ?
-    collector:    Vec<Contact<N, P, V>>,        // FIXME: replace by a vec slice to avoid allocations ?
-    prediction:   N,
-    sub_detector: CD
+pub struct IncrementalContactManifoldGenerator<P: Point, M, CD> {
+    contacts:     Vec<ContactWLocals<P>>, // FIXME: replace by a vec slice to avoid allocations ?
+    collector:    Vec<Contact<P>>,        // FIXME: replace by a vec slice to avoid allocations ?
+    prediction:   <P::Vect as Vect>::Scalar,
+    sub_detector: CD,
+    _matrix:      PhantomData<M>
 }
 
-#[old_impl_check]
-impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
-    where CD: CollisionDetector<N, P, V, M> {
+impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
+    where P:  Point,
+          CD: CollisionDetector<P, M> {
     /// Creates a new incremental contact manifold generator.
     ///
     /// # Arguments:
     /// * `cd` - collision detection sub-algorithm used to generate the contact points.
-    pub fn new(prediction: N, cd: CD) -> IncrementalContactManifoldGenerator<N, P, V, CD> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar, cd: CD) -> IncrementalContactManifoldGenerator<P, M, CD> {
         IncrementalContactManifoldGenerator {
             contacts:     Vec::new(),
             collector:    Vec::new(),
             prediction:   prediction,
-            sub_detector: cd
+            sub_detector: cd,
+            _matrix:      PhantomData
         }
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
+impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
+    where P:  Point,
           M:  Transform<P>,
-          CD: CollisionDetector<N, P, V, M> {
+          CD: CollisionDetector<P, M> {
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
     pub fn get_sub_collision(&mut self,
-                             d:  &CollisionDispatcher<N, P, V, M>,
+                             d:  &CollisionDispatcher<P, M>,
                              m1: &M,
-                             g1: &Repr<N, P, V, M>,
+                             g1: &Repr<P, M>,
                              m2: &M,
-                             g2: &Repr<N, P, V, M>)
-                             -> Option<Option<Contact<N, P, V>>> {
+                             g2: &Repr<P, M>)
+                             -> Option<Option<Contact<P>>> {
         if !self.sub_detector.update(d, m1, g1, m2, g2) {
             None
         }
@@ -96,11 +94,11 @@ impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
 
     /// Updates the current manifold by adding one point.
     pub fn add_new_contacts(&mut self,
-                            d:  &CollisionDispatcher<N, P, V, M>,
+                            d:  &CollisionDispatcher<P, M>,
                             m1: &M,
-                            g1: &Repr<N, P, V, M>,
+                            g1: &Repr<P, M>,
                             m2: &M,
-                            g2: &Repr<N, P, V, M>)
+                            g2: &Repr<P, M>)
                             -> bool {
         // add the new ones
         if !self.sub_detector.update(d, m1, g1, m2, g2) {
@@ -114,7 +112,7 @@ impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
 
             for c in self.collector.iter() {
                 if self.contacts.len() == _max_num_contact {
-                    add_reduce_by_variance(self.contacts.as_mut_slice(), c.clone(), m1, m2)
+                    add_reduce_by_variance(&mut self.contacts[..], c.clone(), m1, m2)
                 }
                 else {
                     self.contacts.push(ContactWLocals::new_with_contact(c.clone(), m1, m2))
@@ -163,19 +161,17 @@ impl<N, P, V, M, CD> IncrementalContactManifoldGenerator<N, P, V, CD>
     }
 }
 
-impl<N, P, V, M, CD> CollisionDetector<N, P, V, M> for IncrementalContactManifoldGenerator<N, P, V, CD>
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
+impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P, M, CD>
+    where P:  Point,
           M:  Transform<P>,
-          CD: CollisionDetector<N, P, V, M> {
+          CD: CollisionDetector<P, M> {
     #[inline]
     fn update(&mut self,
-              d:  &CollisionDispatcher<N, P, V, M>,
+              d:  &CollisionDispatcher<P, M>,
               m1: &M,
-              g1: &Repr<N, P, V, M>,
+              g1: &Repr<P, M>,
               m2: &M,
-              g2: &Repr<N, P, V, M>)
+              g2: &Repr<P, M>)
               -> bool {
         self.update_contacts(m1, m2);
         self.add_new_contacts(d, m1, g1, m2, g2)
@@ -187,17 +183,15 @@ impl<N, P, V, M, CD> CollisionDetector<N, P, V, M> for IncrementalContactManifol
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
+    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
         for c in self.contacts.iter() {
             out_colls.push(c.contact.clone())
         }
     }
 }
 
-fn add_reduce_by_variance<N, P, V, M>(pts: &mut [ContactWLocals<N, P, V>], to_add: Contact<N, P, V>, m1: &M, m2: &M)
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
+fn add_reduce_by_variance<P, M>(pts: &mut [ContactWLocals<P>], to_add: Contact<P>, m1: &M, m2: &M)
+    where P:  Point,
           M:  Transform<P> {
     let mut argmax = 0;
     let mut varmax = approx_variance(pts, &to_add, 0);
@@ -214,10 +208,8 @@ fn add_reduce_by_variance<N, P, V, M>(pts: &mut [ContactWLocals<N, P, V>], to_ad
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N, P, V>, to_ignore: usize) -> N
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+fn approx_variance<P>(pts: &[ContactWLocals<P>], to_add: &Contact<P>, to_ignore: usize) -> <P::Vect as Vect>::Scalar
+    where P: Point {
     // first: compute the mean
     let to_add_center = na::center(&to_add.world1, &to_add.world2);
 
@@ -229,8 +221,8 @@ fn approx_variance<N, P, V>(pts: &[ContactWLocals<N, P, V>], to_add: &Contact<N,
         }
     }
 
-    let divisor: f64 = 1.0 / na::cast(pts.len());
-    mean = mean * na::cast::<f64, N>(divisor);
+    let divisor: f64 = 1.0f64 / (pts.len() as f64);
+    mean = mean * na::cast(divisor);
 
     // compute the sum of variances along all axis
     let mut sum = na::sqnorm(&(to_add_center - mean));

@@ -1,13 +1,12 @@
+use num::Float;
 use na::Transform;
 use na;
 use point::{LocalPointQuery, PointQuery};
 use entities::shape::Plane;
 use math::{Scalar, Point, Vect};
 
-impl<N, P, V> LocalPointQuery<N, P> for Plane<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Plane<P::Vect>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         let d = na::dot(self.normal(), pt.as_vec());
@@ -21,7 +20,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Plane<V>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dot(self.normal(), pt.as_vec()).max(na::zero())
     }
 
@@ -31,9 +30,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Plane<V>
     }
 }
 
-impl<N, P, V, M> PointQuery<N, P, M> for Plane<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for Plane<P::Vect>
+    where P: Point,
           M: Transform<P> {
 }

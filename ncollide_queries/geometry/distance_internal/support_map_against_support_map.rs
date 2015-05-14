@@ -1,3 +1,4 @@
+use num::Zero;
 use na::{Translation, Translate};
 use na;
 use geometry::algorithms::gjk;
@@ -9,35 +10,34 @@ use math::{Scalar, Point, Vect};
 
 
 /// Distance between support-mapped shapes.
-pub fn support_map_against_support_map<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
-                                                                           m2: &M, g2: &G2) -> N
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Translation<V>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
+pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
+                                                                     m2: &M, g2: &G2)
+                                                                     -> <P::Vect as Vect>::Scalar
+    where P:  Point,
+          P::Vect: Translate<P>,
+          M:  Translation<P::Vect>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
     support_map_against_support_map_with_params(m1, g1, m2, g2, &mut JohnsonSimplex::new_w_tls(), None)
 }
 
 /// Distance between support-mapped shapes.
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
                                                    m1:         &M,
                                                    g1:         &G1,
                                                    m2:         &M,
                                                    g2:         &G2,
                                                    simplex:    &mut S,
-                                                   init_dir:   Option<V>)
-                                                   -> N
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Translation<V>,
-          S:  Simplex<N, P>,
-          G1: SupportMap<P, V, M>,
-          G2: SupportMap<P, V, M> {
+                                                   init_dir:   Option<P::Vect>)
+                                                   -> <P::Vect as Vect>::Scalar
+    where P:  Point,
+          P::Vect: Translate<P>,
+          M:  Translation<P::Vect>,
+          S:  Simplex<P>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
     let mut dir =
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?

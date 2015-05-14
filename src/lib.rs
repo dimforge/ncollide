@@ -44,10 +44,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![warn(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
-#![deny(unused_typecasts)]
 #![allow(missing_copy_implementations)]
-#![feature(unsafe_destructor)]
-#![feature(unboxed_closures)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate ncollide_math;

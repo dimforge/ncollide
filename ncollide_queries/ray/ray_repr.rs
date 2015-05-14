@@ -10,34 +10,34 @@ macro_rules! dispatch(
         {
             let repr = $sself.repr();
 
-            if let Some(b) = repr.downcast_ref::<Ball<N>>() {
+            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
                 b.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Capsule<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Compound<N, P, V, M>>() {
+            else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cone<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cuboid<V>>() {
+            else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cylinder<N>>() {
+            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(t) = repr.downcast_ref::<TriMesh<N, P, V>>() {
+            else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
                 t.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Polyline<N, P, V>>() {
+            else if let Some(p) = repr.downcast_ref::<Polyline<P>>() {
                 p.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Plane<V>>() {
+            else if let Some(p) = repr.downcast_ref::<Plane<P::Vect>>() {
                 p.$name($($argN,)*)
             }
             else if let Some(s) = repr.downcast_ref::<Segment<P>>() {
@@ -56,35 +56,33 @@ macro_rules! dispatch(
     }
 );
 
-impl<N, P, V, M> LocalRayCast<N, P, V> for Repr<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> LocalRayCast<P> for Repr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
         dispatch!(self.toi_with_ray(ray, solid))
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         dispatch!(self.toi_and_normal_with_ray(ray, solid))
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         dispatch!(self.toi_and_normal_and_uv_with_ray(ray, solid))
     }
 
     #[inline]
-    fn intersects_ray(&self, ray: &Ray<P, V>) -> bool {
+    fn intersects_ray(&self, ray: &Ray<P>) -> bool {
         dispatch!(self.intersects_ray(ray))
     }
 }
 
-impl<N, P, V, M> RayCast<N, P, V, M> for Repr<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> RayCast<P, M> for Repr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
 }

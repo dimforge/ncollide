@@ -1,6 +1,5 @@
 //! Support mapping based Capsule shape.
 
-use std::num::Float;
 use math::Scalar;
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.

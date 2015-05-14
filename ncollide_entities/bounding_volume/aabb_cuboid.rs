@@ -1,16 +1,12 @@
-use std::ops::Neg;
 use na::{AbsoluteRotate, Translate};
 use na;
 use bounding_volume::{HasAABB, AABB};
 use shape::Cuboid;
-use math::{Scalar, Point};
+use math::Point;
 
-#[old_impl_check]
-impl<N, P, V: Clone, M> HasAABB<P, M> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Neg<Output = V>,
-          M: Translate<P> + AbsoluteRotate<V> {
+impl<P, M> HasAABB<P, M> for Cuboid<P::Vect>
+    where P: Point,
+          M: Translate<P> + AbsoluteRotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         let center          = m.translate(&na::orig());

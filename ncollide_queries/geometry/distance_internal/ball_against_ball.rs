@@ -1,13 +1,14 @@
+use num::Float;
 use na;
 use math::{Scalar, Point, Vect};
 use entities::shape::Ball;
 
 /// Distance between balls.
 #[inline]
-pub fn ball_against_ball<N, P, V>(center1: &P, b1: &Ball<N>, center2: &P, b2: &Ball<N>) -> N
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn ball_against_ball<P>(center1: &P, b1: &Ball<<P::Vect as Vect>::Scalar>,
+                            center2: &P, b2: &Ball<<P::Vect as Vect>::Scalar>)
+                            -> <P::Vect as Vect>::Scalar
+    where P: Point {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = *center2 - *center1;

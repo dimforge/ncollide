@@ -2,15 +2,13 @@ use na::Bounded;
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
-impl<N, P, V, M> HasBoundingSphere<N, P, M> for Plane<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P, M> HasBoundingSphere<P, M> for Plane<P::Vect>
+    where P: Point {
     #[inline]
-    fn bounding_sphere(&self, _: &M) -> BoundingSphere<N, P> {
+    fn bounding_sphere(&self, _: &M) -> BoundingSphere<P> {
         let center = na::orig();
         let radius = Bounded::max_value(); // FIXME: is this a good idea?
 

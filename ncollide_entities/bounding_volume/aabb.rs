@@ -64,11 +64,8 @@ impl<P> AABB<P> {
     }
 }
 
-#[old_impl_check]
-impl<N, P, V> AABB<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> AABB<P>
+    where P: Point {
     /// The center of this AABB.
     #[inline]
     pub fn center(&self) -> P {
@@ -77,15 +74,13 @@ impl<N, P, V> AABB<P>
 
     /// The half extents of this AABB.
     #[inline]
-    pub fn half_extents(&self) -> V {
+    pub fn half_extents(&self) -> P::Vect {
         (self.maxs - self.mins) / na::cast(2.0f64)
     }
 }
 
-#[old_impl_check]
-impl<N, P, V> BoundingVolume<N> for AABB<P>
-    where N: Scalar,
-          P: Point<N, V> {
+impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for AABB<P>
+    where P: Point {
     #[inline]
     fn intersects(&self, other: &AABB<P>) -> bool {
         na::partial_le(&self.mins, &other.maxs) &&
@@ -113,75 +108,73 @@ impl<N, P, V> BoundingVolume<N> for AABB<P>
     }
 
     #[inline]
-    fn loosen(&mut self, amount: N) {
+    fn loosen(&mut self, amount: <P::Vect as Vect>::Scalar) {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
-        self.mins = self.mins.sub_s(&amount);
-        self.maxs = self.maxs.add_s(&amount);
+        self.mins = self.mins + na::repeat(-amount);
+        self.maxs = self.maxs + na::repeat(amount);
     }
 
     #[inline]
-    fn loosened(&self, amount: N) -> AABB<P> {
+    fn loosened(&self, amount: <P::Vect as Vect>::Scalar) -> AABB<P> {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
         AABB {
-            mins: self.mins.sub_s(&amount),
-            maxs: self.maxs.add_s(&amount)
+            mins: self.mins + na::repeat(-amount),
+            maxs: self.maxs + na::repeat(amount)
         }
     }
 
     #[inline]
-    fn tighten(&mut self, amount: N) {
+    fn tighten(&mut self, amount: <P::Vect as Vect>::Scalar) {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
-        self.mins = self.mins.add_s(&amount);
-        self.maxs = self.maxs.sub_s(&amount);
+        self.mins = self.mins + na::repeat(amount);
+        self.maxs = self.maxs + na::repeat(-amount);
         assert!(na::partial_le(&self.mins, &self.maxs), "The tightening margin is to large.");
     }
 
     #[inline]
-    fn tightened(&self, amount: N) -> AABB<P> {
+    fn tightened(&self, amount: <P::Vect as Vect>::Scalar) -> AABB<P> {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
 
-        AABB::new(self.mins.add_s(&amount), self.maxs.sub_s(&amount))
+        AABB::new(self.mins + na::repeat(amount), self.maxs + na::repeat(-amount))
     }
 }
 
-#[old_impl_check]
-impl<N, P, V> Translation<V> for AABB<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P> {
+impl<P> Translation<P::Vect> for AABB<P>
+    where P: Point,
+          P::Vect: Translate<P> {
     #[inline]
-    fn translation(&self) -> V {
+    fn translation(&self) -> P::Vect {
         na::center(&self.mins, &self.maxs).to_vec()
     }
 
     #[inline]
-    fn inv_translation(&self) -> V {
+    fn inv_translation(&self) -> P::Vect {
         -self.translation()
     }
 
     #[inline]
-    fn append_translation_mut(&mut self, dv: &V) {
+    fn append_translation_mut(&mut self, dv: &P::Vect) {
         self.mins = self.mins + *dv;
         self.maxs = self.maxs + *dv;
     }
 
     #[inline]
-    fn append_translation(&self, dv: &V) -> AABB<P> {
+    fn append_translation(&self, dv: &P::Vect) -> AABB<P> {
         AABB::new(self.mins + *dv, self.maxs + *dv)
     }
 
     #[inline]
-    fn prepend_translation_mut(&mut self, dv: &V) {
+    fn prepend_translation_mut(&mut self, dv: &P::Vect) {
         self.append_translation_mut(dv)
     }
 
     #[inline]
-    fn prepend_translation(&self, dv: &V) -> AABB<P> {
+    fn prepend_translation(&self, dv: &P::Vect) -> AABB<P> {
         self.append_translation(dv)
     }
 
     #[inline]
-    fn set_translation(&mut self, v: V) {
+    fn set_translation(&mut self, v: P::Vect) {
         let center = self.translation();
         let total_translation = center + v;
 
