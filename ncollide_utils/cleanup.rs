@@ -5,8 +5,8 @@ use na::Pnt3;
 pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Pnt3<u32>]) {
     let mut used: Vec<bool>  = iter::repeat(false).take(points.len()).collect();
     let mut remap: Vec<usize> = (0 .. points.len()).map(|i| i).collect();
-    let used                 = used.as_mut_slice();
-    let remap                = remap.as_mut_slice();
+    let used                 = &mut used[..];
+    let remap                = &mut remap[..];
 
     for i in idx.iter() {
         used[i.x as usize] = true;

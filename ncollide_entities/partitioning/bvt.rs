@@ -71,7 +71,7 @@ impl<B, BV> BVT<B, BV> {
 
     // FIXME: internalize the type parameter R using associated types.
     // FIXME: really return a ref to B ?
-    /// Performs a best-fist-search on the tree.
+    /// Performs a best-first-search on the tree.
     ///
     /// Returns the content of the best leaf nound, and a result of user-defined type.
     pub fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>

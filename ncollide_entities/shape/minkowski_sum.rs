@@ -228,7 +228,6 @@ impl<P: Orig> Orig for AnnotatedPoint<P> {
     }
 }
 
-#[old_impl_check]
 impl<N, P, V> Add<V> for AnnotatedPoint<P>
     where N: Scalar,
           P: Add<V, Output = P>,
@@ -264,7 +263,6 @@ impl<P: Sub<P>> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
     }
 }
 
-#[old_impl_check]
 impl<N, P, V> ScalarSub<N> for AnnotatedPoint<P>
     where P: Point<N, V> {
     fn sub_s(&self, _: &N) -> AnnotatedPoint<P> {

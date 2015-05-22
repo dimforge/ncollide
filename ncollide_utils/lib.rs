@@ -7,13 +7,6 @@
 #![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
-#![deny(unused_typecasts)]
-#![feature(unsafe_destructor)]
-#![feature(old_orphan_check)]
-#![feature(core)]
-#![feature(collections)]
-#![feature(std_misc)]
-#![feature(rand)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
@@ -21,6 +14,7 @@ extern crate rand;
 extern crate rustc_serialize;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
+extern crate num;
 
 pub use center::center;
 pub use project_homogeneous::{project_homogeneous, project_homogeneous_to};
@@ -58,3 +52,4 @@ pub mod as_bytes;
 mod cov;
 mod sort;
 mod cross3;
+pub mod vec_map;

@@ -2,11 +2,10 @@
 
 use std::iter::{FromIterator, IntoIterator};
 use std::ops::Index;
-use std::num::Int;
 use std::default::Default;
 use std::collections::hash_map::Entry;
-use std::collections::vec_map::{Iter, IterMut, Values, Keys};
-use std::collections::{VecMap, HashMap};
+use vec_map::{Iter, IterMut, Values, Keys, VecMap};
+use std::collections::{HashMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
 /// id of type `usize`.
@@ -20,7 +19,7 @@ impl FastKey {
     #[inline]
     pub fn new_invalid() -> FastKey {
         FastKey {
-            uid: Int::max_value()
+            uid: usize::max_value()
         }
     }
 
