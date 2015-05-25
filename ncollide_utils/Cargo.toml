@@ -11,9 +11,7 @@ path = "lib.rs"
 rustc-serialize = "*"
 rand = "*"
 num = "*"
-
-[dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
+nalgebra = "*"
 
 [dependencies.ncollide_math]
 path = "../ncollide_math"
