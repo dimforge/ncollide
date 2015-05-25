@@ -1,14 +1,12 @@
+use num::Float;
 use na::Transform;
 use na;
 use point::{LocalPointQuery, PointQuery};
 use entities::shape::Ball;
 use math::{Scalar, Point, Vect};
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Ball<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Ball<<P::Vect as Vect>::Scalar>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         let sqdist = na::sqnorm(pt.as_vec());
@@ -22,7 +20,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Ball<N>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         (na::norm(pt.as_vec()) - self.radius()).max(na::zero())
     }
 
@@ -32,10 +30,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Ball<N>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Ball<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for Ball<<P::Vect as Vect>::Scalar>
+    where P: Point,
           M: Transform<P> {
 }

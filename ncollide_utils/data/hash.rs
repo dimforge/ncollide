@@ -1,6 +1,7 @@
 //! Trait for hash functions.
 
 use std::mem;
+use std::num::Wrapping;
 
 /// Hash function.
 pub trait HashFun<K> {
@@ -68,7 +69,7 @@ pub fn key_from_pair(a: usize, b: usize) -> usize {
 /// Tomas Wang integer hash function.
 #[cfg(target_pointer_width = "64")] #[inline]
 pub fn tomas_wang_hash(k: usize) -> usize {
-    let mut res = k;
+    let mut res = Wrapping(k);
 
     res = res + !(res << 32);
     res = res ^ (res >> 22);
@@ -79,13 +80,14 @@ pub fn tomas_wang_hash(k: usize) -> usize {
     res = res + !(res << 27);
     res = res ^ (res >> 31);
 
-    res
+    let Wrapping(res_val) = res;
+    res_val
 }
 
 /// Tomas Wang integer hash function.
 #[cfg(target_pointer_width = "32")] #[inline]
 pub fn tomas_wang_hash(k: usize) -> usize {
-    let mut res = k;
+    let mut res = Wrapping(k);
 
     res = res + !(res << 15);
     res = res ^ (res >> 10);
@@ -94,5 +96,6 @@ pub fn tomas_wang_hash(k: usize) -> usize {
     res = res + !(res << 11);
     res = res ^ (res >> 16);
 
-    res
+    let Wrapping(res_val) = res;
+    res_val
 }

@@ -9,26 +9,24 @@ use point::LocalPointQuery;
 use math::{Scalar, Point, Vect, Isometry};
 
 /// Smallest distance between a composite shape and any other shape.
-pub fn composite_shape_against_any<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> ,
-          M:  Isometry<N, P, V>,
-          G1: CompositeShape<N, P, V, M>,
-          G2: Repr<N, P, V, M> + HasAABB<P, M> {
+pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
+    where P:  Point,
+          P::Vect: Translate<P> ,
+          M:  Isometry<P, P::Vect>,
+          G1: CompositeShape<P, M>,
+          G2: Repr<P, M> + HasAABB<P, M> {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
 
     g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res).expect("The composite shape must not be empty.")
 }
 
 /// Smallest distance between a shape and a composite shape.
-pub fn any_against_composite_shape<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> N
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> ,
-          M:  Isometry<N, P, V>,
-          G1: Repr<N, P, V, M> + HasAABB<P, M>,
-          G2: CompositeShape<N, P, V, M> {
+pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
+    where P:  Point,
+          P::Vect: Translate<P> ,
+          M:  Isometry<P, P::Vect>,
+          G1: Repr<P, M> + HasAABB<P, M>,
+          G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1)
 }
 
@@ -42,16 +40,14 @@ struct CompositeShapeAgainstAnyDistCostFn<'a, V: 'a, M: 'a, G1: ?Sized + 'a, G2:
     g2: &'a G2
 }
 
-#[old_impl_check]
-impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> ,
-          M:  Isometry<N, P, V>,
-          G1: CompositeShape<N, P, V, M>,
-          G2: Repr<N, P, V, M> + HasAABB<P, M> {
+impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2>
+    where P:  Point,
+          P::Vect: Translate<P> ,
+          M:  Isometry<P, P::Vect>,
+          G1: CompositeShape<P, M>,
+          G2: Repr<P, M> + HasAABB<P, M> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
-        -> CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2> {
+        -> CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2> {
 
         let ls_m2 = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
@@ -67,16 +63,16 @@ impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<
     }
 }
 
-impl<'a, N, P, V, M, G1: ?Sized, G2: ?Sized> BVTCostFn<N, usize, AABB<P>, N>
-for CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> ,
-          M:  Isometry<N, P, V>,
-          G1: CompositeShape<N, P, V, M>,
-          G2: Repr<N, P, V, M> + HasAABB<P, M> {
+impl<'a, P, M, G1: ?Sized, G2: ?Sized>
+BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
+for CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2>
+    where P:  Point,
+          P::Vect: Translate<P> ,
+          M:  Isometry<P, P::Vect>,
+          G1: CompositeShape<P, M>,
+          G2: Repr<P, M> + HasAABB<P, M> {
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<N> {
+    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(*bv.mins() + self.msum_shift + (-self.msum_margin),
                              *bv.maxs() + self.msum_shift + self.msum_margin);
@@ -86,7 +82,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, V, M, G1, G2>
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, <P::Vect as Vect>::Scalar)> {
         let mut res = None;
 
         self.g1.map_transformed_part_at(self.m1, *b, &mut |m1, g1| {

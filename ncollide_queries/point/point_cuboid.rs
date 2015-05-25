@@ -6,10 +6,8 @@ use point::{LocalPointQuery, PointQuery};
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V> LocalPointQuery<N, P> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Cuboid<P::Vect>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         let dl = na::orig::<P>() + (-*self.half_extents());
@@ -18,7 +16,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Cuboid<V>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         let dl = na::orig::<P>() + (-*self.half_extents());
         let ur = na::orig::<P>() + *self.half_extents();
         AABB::new(dl, ur).distance_to_point(pt)
@@ -32,9 +30,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Cuboid<V>
     }
 }
 
-impl<N, P, V, M> PointQuery<N, P, M> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for Cuboid<P::Vect>
+    where P: Point,
           M: Transform<P> {
 }

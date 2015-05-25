@@ -1,5 +1,5 @@
 use std::ops::Index;
-use na::{Pnt2, Vec3, Transform, Rotate};
+use na::{Pnt2, Vec3, Transform, Rotate, Norm};
 use na;
 use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use ray;
@@ -9,27 +9,25 @@ use entities::partitioning::BVTCostFn;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, I, E> LocalRayCast<N, P, V> for BaseMesh<N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl< P, I, E> LocalRayCast<P> for BaseMesh<P, I, E>
+    where P: Point,
           I: Index<usize, Output = usize>,
-          E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
+          E: BaseMeshElement<I, P> + LocalRayCast<P> {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P, V>, _: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<P>, _: bool) -> Option<<P::Vect as Vect>::Scalar> {
         let mut cost_fn = BaseMeshRayToiCostFn { mesh: self, ray: ray };
 
         self.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, _: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, _: bool) -> Option<RayIntersection<P::Vect>> {
         let mut cost_fn = BaseMeshRayToiAndNormalCostFn { mesh: self, ray: ray };
 
         self.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
     }
 
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         if self.uvs().is_none() || na::dim::<P>() != 3 {
             return self.toi_and_normal_with_ray(ray, solid);
         }
@@ -66,7 +64,7 @@ impl<N, P, V, I, E> LocalRayCast<N, P, V> for BaseMesh<N, P, V, I, E>
 
                         let mut n123 = *n1 * uv.x + *n2 * uv.y + *n3 * uv.z;
 
-                        if na::is_zero(&n123.normalize()) {
+                        if na::is_zero(&n123.normalize_mut()) {
                             Some(RayIntersection::new_with_uvs(toi, n, Some(Pnt2::new(uvx, uvy))))
                         }
                         else {
@@ -84,82 +82,76 @@ impl<N, P, V, I, E> LocalRayCast<N, P, V> for BaseMesh<N, P, V, I, E>
     }
 }
 
-impl<N, P, V, M, I, E> RayCast<N, P, V, M> for BaseMesh<N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V>,
+impl<P, M, I, E> RayCast<P, M> for BaseMesh<P, I, E>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect>,
           I: Index<usize, Output = usize>,
-          E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
+          E: BaseMeshElement<I, P> + LocalRayCast<P> {
 }
 
 
 /*
  * Costs functions.
  */
-struct BaseMeshRayToiCostFn<'a, N: 'a, P: 'a, V: 'a, I: 'a, E: 'a> {
-    mesh:  &'a BaseMesh<N, P, V, I, E>,
-    ray:   &'a Ray<P, V>
+struct BaseMeshRayToiCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
+    mesh:  &'a BaseMesh<P, I, E>,
+    ray:   &'a Ray<P>
 }
 
-impl<'a, N, P, V, I, E> BVTCostFn<N, usize, AABB<P>, N> for BaseMeshRayToiCostFn<'a, N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
+for BaseMeshRayToiCostFn<'a, P, I, E>
+    where P: Point,
+          E: BaseMeshElement<I, P> + LocalRayCast<P> {
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<N> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, <P::Vect as Vect>::Scalar)> {
         self.mesh.element_at(*b).toi_with_ray(self.ray, true).map(|toi| (toi, toi))
     }
 }
 
-struct BaseMeshRayToiAndNormalCostFn<'a, N: 'a, P: 'a, V: 'a, I: 'a, E: 'a> {
-    mesh:  &'a BaseMesh<N, P, V, I, E>,
-    ray:   &'a Ray<P, V>
+struct BaseMeshRayToiAndNormalCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
+    mesh:  &'a BaseMesh<P, I, E>,
+    ray:   &'a Ray<P>
 }
 
-impl<'a, N, P, V, I, E> BVTCostFn<N, usize, AABB<P>, RayIntersection<N, V>>
-for BaseMeshRayToiAndNormalCostFn<'a, N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, RayIntersection<P::Vect>>
+for BaseMeshRayToiAndNormalCostFn<'a, P, I, E>
+    where P: Point,
+          E: BaseMeshElement<I, P> + LocalRayCast<P> {
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<N> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, RayIntersection<N, V>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, RayIntersection<P::Vect>)> {
         self.mesh.element_at(*b).toi_and_normal_with_ray(self.ray, true).map(|inter| (inter.toi, inter))
     }
 }
 
-struct BaseMeshRayToiAndNormalAndUVsCostFn<'a, N: 'a, P: 'a, V: 'a, I: 'a, E: 'a> {
-    mesh:  &'a BaseMesh<N, P, V, I, E>,
-    ray:   &'a Ray<P, V>
+struct BaseMeshRayToiAndNormalAndUVsCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
+    mesh:  &'a BaseMesh<P, I, E>,
+    ray:   &'a Ray<P>
 }
 
-impl<'a, N, P, V, I, E> BVTCostFn<N, usize, AABB<P>, (RayIntersection<N, V>, Vec3<N>)>
-for BaseMeshRayToiAndNormalAndUVsCostFn<'a, N, P, V, I, E>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, (RayIntersection<P::Vect>, Vec3<<P::Vect as Vect>::Scalar>)>
+for BaseMeshRayToiAndNormalAndUVsCostFn<'a, P, I, E>
+    where P: Point,
           I: Index<usize, Output = usize>,
-          E: BaseMeshElement<I, P> + LocalRayCast<N, P, V> {
+          E: BaseMeshElement<I, P> + LocalRayCast<P> {
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<N> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, (RayIntersection<N, V>, Vec3<N>))> {
-        let vs = self.mesh.vertices().as_slice();
+    fn compute_b_cost(&mut self, b: &usize)
+        -> Option<(<P::Vect as Vect>::Scalar, (RayIntersection<P::Vect>, Vec3<<P::Vect as Vect>::Scalar>))> {
+        let vs  = &self.mesh.vertices()[..];
         let idx = &self.mesh.indices()[*b];
 
         let a = &vs[idx[0]];
@@ -173,56 +165,48 @@ for BaseMeshRayToiAndNormalAndUVsCostFn<'a, N, P, V, I, E>
 /*
  * fwd impls. to the exact shapes.
  */
-impl<N, P, V> LocalRayCast<N, P, V> for TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalRayCast<P> for TriMesh<P>
+    where P: Point {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
         self.base_mesh().toi_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         self.base_mesh().toi_and_normal_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         self.base_mesh().toi_and_normal_and_uv_with_ray(ray, solid)
     }
 }
 
-impl<N, P, V, M> RayCast<N, P, V, M> for TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> RayCast<P, M> for TriMesh<P>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }
 
-impl<N, P, V> LocalRayCast<N, P, V> for Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalRayCast<P> for Polyline<P>
+    where P: Point {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
         self.base_mesh().toi_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         self.base_mesh().toi_and_normal_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         self.base_mesh().toi_and_normal_and_uv_with_ray(ray, solid)
     }
 }
 
-impl<N, P, V, M> RayCast<N, P, V, M> for Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> RayCast<P, M> for Polyline<P>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }

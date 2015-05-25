@@ -1,17 +1,16 @@
+use num::Signed;
 use na;
 use na::{Rotate, Transform};
-use support_map::{SupportMap, PreferedSamplingDirections};
+use support_map::SupportMap;
 use shape::Capsule;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> SupportMap<P, V, M> for Capsule<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> SupportMap<P, M> for Capsule<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> P {
+    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let mut pres = na::orig::<P>();
@@ -24,11 +23,5 @@ impl<N, P, V, M> SupportMap<P, V, M> for Capsule<N>
         }
 
         m.transform(&(pres + na::normalize(&local_dir) * self.radius()))
-    }
-}
-
-impl<N, V, M> PreferedSamplingDirections<V, M> for Capsule<N> {
-    #[inline(always)]
-    fn sample(&self, _: &M, _: &mut FnMut(V)) {
     }
 }

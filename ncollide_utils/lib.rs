@@ -7,18 +7,12 @@
 #![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
-#![deny(unused_typecasts)]
-#![feature(unsafe_destructor)]
-#![feature(old_orphan_check)]
-#![feature(core)]
-#![feature(collections)]
-#![feature(std_misc)]
-#![feature(rand)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate rand;
 extern crate rustc_serialize;
+extern crate num;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 
@@ -34,10 +28,10 @@ pub use optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
                        LineSearch, BacktrackingLineSearch};
 pub use hashable_partial_eq::HashablePartialEq;
 #[doc(inline)]
-pub use any_private::AnyPrivate;
 #[doc(inline)]
 pub use as_bytes::AsBytes;
 pub use cov::{cov, cov_and_center, center_reduce};
+pub use median::median;
 pub use sort::sort3;
 pub use cross3::cross3;
 
@@ -52,9 +46,8 @@ mod derivatives;
 mod optimization;
 mod hashable_partial_eq;
 #[doc(hidden)]
-pub mod any_private;
-#[doc(hidden)]
 pub mod as_bytes;
 mod cov;
+mod median;
 mod sort;
 mod cross3;

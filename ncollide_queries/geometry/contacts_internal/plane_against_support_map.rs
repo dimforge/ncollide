@@ -6,15 +6,13 @@ use entities::shape::Plane;
 use math::{Scalar, Point, Vect};
 
 /// Contact between a plane and a support-mapped shape (Cuboid, Convex, etc.)
-pub fn plane_against_support_map<N, P, V, M, G: ?Sized>(mplane: &M, plane: &Plane<V>,
-                                                        mother: &M, other: &G,
-                                                        prediction: N)
-                                                        -> Option<Contact<N, P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Translate<P> + Rotate<V>,
-          G: SupportMap<P, V, M> {
+pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::Vect>,
+                                                  mother: &M, other: &G,
+                                                  prediction: <P::Vect as Vect>::Scalar)
+                                                  -> Option<Contact<P>>
+    where P: Point,
+          M: Translate<P> + Rotate<P::Vect>,
+          G: SupportMap<P, M> {
     let plane_normal = mplane.rotate(plane.normal());
     let plane_center = mplane.translate(&na::orig());
     let deepest      = other.support_point(mother, &-plane_normal);
@@ -32,14 +30,12 @@ pub fn plane_against_support_map<N, P, V, M, G: ?Sized>(mplane: &M, plane: &Plan
 }
 
 /// Contact between a support-mapped shape (Cuboid, Convex, etc.) and a plane.
-pub fn support_map_against_plane<N, P, V, M, G: ?Sized>(mother: &M, other: &G,
-                                                        mplane: &M, plane: &Plane<V>,
-                                                        prediction: N)
-                                                        -> Option<Contact<N, P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Translate<P> + Rotate<V>,
-          G: SupportMap<P, V, M> {
+pub fn support_map_against_plane<P, M, G: ?Sized>(mother: &M, other: &G,
+                                                  mplane: &M, plane: &Plane<P::Vect>,
+                                                  prediction: <P::Vect as Vect>::Scalar)
+                                                  -> Option<Contact<P>>
+    where P: Point,
+          M: Translate<P> + Rotate<P::Vect>,
+          G: SupportMap<P, M> {
     plane_against_support_map(mplane, plane, mother, other, prediction).map(|mut c| { c.flip(); c })
 }

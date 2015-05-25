@@ -4,19 +4,20 @@ use utils::data::uid_remap::{UidRemap, FastKey};
 use queries::geometry::Contact;
 use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal, ContactSignalHandler};
 use world::CollisionObject;
+use math::Point;
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
-pub struct CollisionObjectsDispatcher<N, P, V, M, T> {
+pub struct CollisionObjectsDispatcher<P, M, T> {
     signal:           ContactSignal<T>,
-    shape_dispatcher: Box<CollisionDispatcher<N, P, V, M> + 'static>,
-    pairs:            HashMap<Pair, CollisionAlgorithm<N, P, V, M>, PairTWHash>
+    shape_dispatcher: Box<CollisionDispatcher<P, M> + 'static>,
+    pairs:            HashMap<Pair, CollisionAlgorithm<P, M>, PairTWHash>
 }
 
-impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
+impl<P: Point, M, T> CollisionObjectsDispatcher<P, M, T> {
     /// Creates a new `CollisionObjectsDispatcher`.
-    pub fn new(shape_dispatcher: Box<CollisionDispatcher<N, P, V, M> + 'static>)
-        -> CollisionObjectsDispatcher<N, P, V, M, T> {
+    pub fn new(shape_dispatcher: Box<CollisionDispatcher<P, M> + 'static>)
+        -> CollisionObjectsDispatcher<P, M, T> {
         CollisionObjectsDispatcher {
             signal:           ContactSignal::new(),
             pairs:            HashMap::new(PairTWHash::new()),
@@ -25,7 +26,7 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
     }
 
     /// Updates the contact pairs.
-    pub fn update(&mut self, objects: &UidRemap<CollisionObject<N, P, V, M, T>>, timestamp: usize) {
+    pub fn update(&mut self, objects: &UidRemap<CollisionObject<P, M, T>>, timestamp: usize) {
         for e in self.pairs.elements_mut().iter_mut() {
             let co1 = &objects[e.key.first];
             let co2 = &objects[e.key.second];
@@ -54,9 +55,9 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
     /// Iterates through all the contact pairs.
     #[inline(always)]
     pub fn contact_pairs<F>(&self,
-                         objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
+                         objects: &UidRemap<CollisionObject<P, M, T>>,
                          mut f: F)
-          where F: FnMut(&T, &T, &CollisionAlgorithm<N, P, V, M>) {
+          where F: FnMut(&T, &T, &CollisionAlgorithm<P, M>) {
         for e in self.pairs.elements().iter() {
             let co1 = &objects[e.key.first];
             let co2 = &objects[e.key.second];
@@ -68,9 +69,9 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
     /// Calls a closures on each contact between two objects.
     #[inline(always)]
     pub fn contacts<F>(&self,
-                    objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
+                    objects: &UidRemap<CollisionObject<P, M, T>>,
                     mut f: F)
-          where F: FnMut(&T, &T, &Contact<N, P, V>) {
+          where F: FnMut(&T, &T, &Contact<P>) {
         // FIXME: avoid allocation.
         let mut collector = Vec::new();
 
@@ -80,7 +81,7 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
 
             e.value.colls(&mut collector);
 
-            for c in collector.iter() {
+            for c in collector[..].iter() {
                 f(&co1.data, &co2.data, c)
             }
 
@@ -102,7 +103,7 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
 
     /// Creates/removes the persistant collision detector associated to a given pair of objects.
     pub fn handle_proximity(&mut self,
-                            objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
+                            objects: &UidRemap<CollisionObject<P, M, T>>,
                             fk1: &FastKey,
                             fk2: &FastKey,
                             started: bool) {
@@ -139,7 +140,7 @@ impl<N, P, V, M, T> CollisionObjectsDispatcher<N, P, V, M, T> {
     }
 
     /// Tests if two objects can be tested for mutual collision.
-    pub fn is_proximity_allowed(objects: &UidRemap<CollisionObject<N, P, V, M, T>>,
+    pub fn is_proximity_allowed(objects: &UidRemap<CollisionObject<P, M, T>>,
                                 fk1: &FastKey,
                                 fk2: &FastKey) -> bool {
         let co1 = &objects[*fk1];

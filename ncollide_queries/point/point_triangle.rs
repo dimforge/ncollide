@@ -5,11 +5,8 @@ use point::{LocalPointQuery, PointQuery};
 use math::{Scalar, Point, Vect};
 
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Triangle<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Triangle<P>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, solid: bool) -> P {
         /*
@@ -78,7 +75,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Triangle<P>
 
         // Voronoï region of the face.
         if na::dim::<P>() != 2 {
-            let denom = na::one::<N>() / (va + vb + vc);
+            let denom = na::one::<<P::Vect as Vect>::Scalar>() / (va + vb + vc);
             let v = vb * denom;
             let w = vc * denom;
 
@@ -128,7 +125,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Triangle<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -138,10 +135,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Triangle<P>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Triangle<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for Triangle<P>
+    where P: Point,
           M: Transform<P> {
 }

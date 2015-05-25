@@ -30,7 +30,7 @@ impl<N> ArrowheadCap<N>
 
     fn do_gen_cap(&self,
                   attach_id:       u32,
-                  pattern:         &Polyline<N, Pnt3<N>, Vec3<N>>,
+                  pattern:         &Polyline<Pnt3<N>>,
                   pt:              &Pnt3<N>,
                   dir:             &Vec3<N>,
                   closed:          bool,
@@ -90,7 +90,7 @@ impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
     where N: Scalar {
     fn gen_end_cap(&self,
                    attach_id: u32,
-                   pattern:   &Polyline<N, Pnt3<N>, Vec3<N>>,
+                   pattern:   &Polyline<Pnt3<N>>,
                    pt:        &Pnt3<N>,
                    dir:       &Vec3<N>,
                    closed:    bool,
@@ -104,7 +104,7 @@ impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
 
     fn gen_start_cap(&self,
                      attach_id: u32,
-                     pattern:   &Polyline<N, Pnt3<N>, Vec3<N>>,
+                     pattern:   &Polyline<Pnt3<N>>,
                      pt:        &Pnt3<N>,
                      dir:       &Vec3<N>,
                      closed:    bool,

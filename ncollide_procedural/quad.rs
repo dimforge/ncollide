@@ -16,17 +16,19 @@ use math::{Scalar, Point, Vect};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<N, P, V>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let mut quad = unit_quad::<N, P, V>(usubdivs, vsubdivs);
+pub fn quad<P>(width:    <P::Vect as Vect>::Scalar,
+               height:   <P::Vect as Vect>::Scalar,
+               usubdivs: usize,
+               vsubdivs: usize)
+               -> TriMesh<P>
+    where P: Point {
+    let mut quad = unit_quad::<P>(usubdivs, vsubdivs);
 
-    let mut s = na::zero::<V>();
+    let mut s = na::zero::<P::Vect>();
     s[0] = width;
     s[1] = height;
 
-    for i in 2 .. na::dim::<V>() {
+    for i in 2 .. na::dim::<P::Vect>() {
         s[i] = na::one();
     }
 
@@ -42,13 +44,11 @@ pub fn quad<N, P, V>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> T
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<N, P, V>(vertices: &[P], nhpoints: usize, nvpoints: usize) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -> TriMesh<P>
+    where P: Point {
     assert!(nhpoints > 1 && nvpoints > 1, "The number of points must be at least 2 in each dimension.");
 
-    let mut res = unit_quad::<N, P, V>(nhpoints - 1, nvpoints - 1);
+    let mut res = unit_quad::<P>(nhpoints - 1, nvpoints - 1);
 
     for (dest, src) in res.coords.iter_mut().zip(vertices.iter()) {
         *dest = src.clone();
@@ -68,15 +68,13 @@ pub fn quad_with_vertices<N, P, V>(vertices: &[P], nhpoints: usize, nvpoints: us
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
+    where P: Point {
     assert!(usubdivs > 0 && vsubdivs > 0, "The number of subdivisions cannot be zero");
-    assert!(na::dim::<V>() >= 2);
+    assert!(na::dim::<P::Vect>() >= 2);
 
-    let wstep    = na::one::<N>() / na::cast(usubdivs as f64);
-    let hstep    = na::one::<N>() / na::cast(vsubdivs as f64);
+    let wstep    = na::one::<<P::Vect as Vect>::Scalar>() / na::cast(usubdivs as f64);
+    let hstep    = na::one::<<P::Vect as Vect>::Scalar>() / na::cast(vsubdivs as f64);
     let cw       = na::cast(0.5);
     let ch       = na::cast(0.5);
 
@@ -88,20 +86,21 @@ pub fn unit_quad<N, P, V>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N, P, V>
     // create the vertices
     for i in 0usize .. vsubdivs + 1 {
         for j in 0usize .. usubdivs + 1 {
-            let ni: N = na::cast(i as f64);
-            let nj: N = na::cast(j as f64);
+            let ni: <P::Vect as Vect>::Scalar = na::cast(i as f64);
+            let nj: <P::Vect as Vect>::Scalar = na::cast(j as f64);
 
             let mut v = na::orig::<P>();
             v[0] = nj * wstep - cw;
             v[1] = ni * hstep - ch;
             vertices.push(v);
-            tex_coords.push(Pnt2::new(na::one::<N>() - nj * wstep, na::one::<N>() - ni * hstep))
+            let _1 = na::one::<<P::Vect as Vect>::Scalar>();
+            tex_coords.push(Pnt2::new(_1 - nj * wstep, _1 - ni * hstep))
         }
     }
 
     // create the normals
     for _ in 0 .. (vsubdivs + 1) * (usubdivs + 1) {
-        let mut n = na::zero::<V>();
+        let mut n = na::zero::<P::Vect>();
         n[0] = na::one();
         normals.push(n)
     }

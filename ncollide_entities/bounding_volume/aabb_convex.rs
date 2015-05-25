@@ -2,12 +2,10 @@ use na::Transform;
 use bounding_volume::{AABB, HasAABB};
 use bounding_volume::aabb_utils;
 use shape::Convex;
-use math::{Scalar, Point};
+use math::Point;
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Convex<P>
-    where N: Scalar,
-          P: Point<N, V>,
+impl<P, M> HasAABB<P, M> for Convex<P>
+    where P: Point,
           M: Transform<P> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {

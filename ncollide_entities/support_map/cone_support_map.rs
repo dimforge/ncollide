@@ -1,24 +1,23 @@
+use num::Signed;
 use na::{Rotate, Transform, Norm};
 use na;
-use support_map::{SupportMap, PreferedSamplingDirections};
+use support_map::SupportMap;
 use shape::Cone;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> SupportMap<P, V, M> for Cone<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> SupportMap<P, M> for Cone<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> P {
+    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         let local_dir = m.inv_rotate(dir);
 
         let mut vres = local_dir.clone();
 
         vres[1] = na::zero();
 
-        if na::is_zero(&vres.normalize()) {
+        if na::is_zero(&vres.normalize_mut()) {
             vres = na::zero();
 
             if local_dir[1].is_negative() {
@@ -39,21 +38,5 @@ impl<N, P, V, M> SupportMap<P, V, M> for Cone<N>
         }
 
         m.transform(&(na::orig::<P>() + vres))
-    }
-}
-
-impl<N, V, M> PreferedSamplingDirections<V, M> for Cone<N>
-    where N: Scalar,
-          V: Vect<N>,
-          M: Rotate<V> {
-    #[inline(always)]
-    fn sample(&self, transform: &M, f: &mut FnMut(V)) {
-        // Sample along the principal axis
-        let mut v: V = na::zero();
-        v[1] = na::one();
-
-        let rv = transform.rotate(&v);
-        f(-rv);
-        f(rv);
     }
 }

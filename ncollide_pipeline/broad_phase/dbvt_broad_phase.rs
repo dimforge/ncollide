@@ -27,12 +27,12 @@ const REMOVE_FROM_STREE: isize = -2;
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<N, P, BV, T> {
+pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies:    UidRemap<DBVTBroadPhaseProxy<P, BV, T>>,
     tree:       DBVT<P, FastKey, BV>, // DBVT for moving objects.
     stree:      DBVT<P, FastKey, BV>, // DBVT for static objects.
     pairs:      HashMap<Pair, (), PairTWHash>, // Pairs detected (FIXME: use a Vec instead?)
-    margin:     N, // The margin added to each bounding volume.
+    margin:     <P::Vect as Vect>::Scalar, // The margin added to each bounding volume.
     update_off: usize, // Incremental pairs removal index.
     purge_all:  bool,
 
@@ -41,15 +41,12 @@ pub struct DBVTBroadPhase<N, P, BV, T> {
     to_update:  Vec<(FastKey, BV)>,
 }
 
-#[old_impl_check]
-impl<N, P, V, BV, T> DBVTBroadPhase<N, P, BV, T>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          BV: 'static + BoundingVolume<N> + Translation<V> + Clone {
+impl<P, BV, T> DBVTBroadPhase<P, BV, T>
+    where P:  Point,
+          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> + Clone {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(margin: N, small_keys: bool)
-               -> DBVTBroadPhase<N, P, BV, T> {
+    pub fn new(margin: <P::Vect as Vect>::Scalar, small_keys: bool)
+               -> DBVTBroadPhase<P, BV, T> {
         DBVTBroadPhase {
             proxies:    UidRemap::new(small_keys),
             tree:       DBVT::new(),
@@ -70,11 +67,10 @@ impl<N, P, V, BV, T> DBVTBroadPhase<N, P, BV, T>
     }
 }
 
-impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N>,
-          BV: 'static + BoundingVolume<N> + Translation<V> + LocalRayCast<N, P, V> + LocalPointQuery<N, P> + Clone {
+impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
+    where P:  Point,
+          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> +
+              LocalRayCast<P> + LocalPointQuery<P> + Clone {
     #[inline]
     fn defered_add(&mut self, uid: usize, bv: BV, data: T) {
         let lbv = bv.loosened(self.margin.clone());
@@ -295,7 +291,7 @@ impl<N, P, V, BV, T> BroadPhase<P, V, BV, T> for DBVTBroadPhase<N, P, BV, T>
         }
     }
 
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P, V>, out: &mut Vec<&'a T>) {
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P>, out: &mut Vec<&'a T>) {
         let mut collector = Vec::new();
 
         {

@@ -1,17 +1,16 @@
+use num::Float;
 use na::{Translate};
 use na;
 use bounding_volume::{HasBoundingSphere, BoundingSphere};
 use shape::Cylinder;
-use math::{Scalar, Point};
+use math::{Scalar, Point, Vect};
 
 
-#[old_impl_check]
-impl<N, P, V, M> HasBoundingSphere<N, P, M> for Cylinder<N>
-    where N: Scalar,
-          P: Point<N, V>,
+impl<P, M> HasBoundingSphere<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+    where P: Point,
           M: Translate<P> {
     #[inline]
-    fn bounding_sphere(&self, m: &M) -> BoundingSphere<N, P> {
+    fn bounding_sphere(&self, m: &M) -> BoundingSphere<P> {
         let center = m.translate(&na::orig());
         let radius = (self.radius() * self.radius() + self.half_height() * self.half_height()).sqrt();
 

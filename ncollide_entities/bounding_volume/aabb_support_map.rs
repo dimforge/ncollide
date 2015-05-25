@@ -5,48 +5,36 @@ use shape::{Cone, Cylinder, Capsule};
 use shape::{Triangle, Segment};
 use math::{Scalar, Point, Vect};
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Cone<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> HasAABB<P, M> for Cone<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         bounding_volume::implicit_shape_aabb(m, self)
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Cylinder<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> HasAABB<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         bounding_volume::implicit_shape_aabb(m, self)
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Capsule<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> HasAABB<P, M> for Capsule<<P::Vect as Vect>::Scalar>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         bounding_volume::implicit_shape_aabb(m, self)
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Triangle<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> HasAABB<P, M> for Triangle<P>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         // FIXME: optimize that
@@ -54,12 +42,9 @@ impl<N, P, V, M> HasAABB<P, M> for Triangle<P>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Segment<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> HasAABB<P, M> for Segment<P>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         // FIXME: optimize that

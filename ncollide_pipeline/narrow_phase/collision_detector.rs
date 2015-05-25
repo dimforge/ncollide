@@ -10,23 +10,23 @@ use queries::geometry::Contact;
 /// # Arguments
 /// * `G1`- the type of the first object involved on the collision detection.
 /// * `G2`- the type of the second object involved on the collision detection.
-pub trait CollisionDetector<N, P, V, M> {
+pub trait CollisionDetector<P, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
     // FIXME: use ReprDesc instead of Repr (to avoid useless virtual method calls) ?
-    fn update(&mut self, &CollisionDispatcher<N, P, V, M>, &M, &Repr<N, P, V, M>, &M, &Repr<N, P, V, M>) -> bool;
+    fn update(&mut self, &CollisionDispatcher<P, M>, &M, &Repr<P, M>, &M, &Repr<P, M>) -> bool;
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> usize;
 
     /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut Vec<Contact<N, P, V>>);
+    fn colls(&self, &mut Vec<Contact<P>>);
 }
 
-pub type CollisionAlgorithm<N, P, V, M> = Box<CollisionDetector<N, P, V, M> + 'static>;
+pub type CollisionAlgorithm<P, M> = Box<CollisionDetector<P, M> + 'static>;
 
-pub trait CollisionDispatcher<N, P, V, M> {
+pub trait CollisionDispatcher<P, M> {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<N, P, V, M>>;
+    fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<P, M>>;
 }

@@ -7,17 +7,9 @@
 #![warn(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
-#![deny(unused_typecasts)]
 #![allow(missing_copy_implementations)]
-#![feature(unsafe_destructor)]
-#![feature(old_impl_check)]
-#![feature(old_orphan_check)]
-#![feature(unboxed_closures)]
-#![feature(test)]
-#![feature(core)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-extern crate test; // To compute the median.
 extern crate rustc_serialize;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;

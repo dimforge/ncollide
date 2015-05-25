@@ -1,6 +1,7 @@
 use na::{Pnt3, Vec3};
 use polyline::Polyline;
 use path::PolylineCompatibleCap;
+use math::Scalar;
 
 /// A cap that renders nothing.
 pub struct NoCap;
@@ -13,10 +14,10 @@ impl NoCap {
     }
 }
 
-impl<N> PolylineCompatibleCap<N> for NoCap {
+impl<N: Scalar> PolylineCompatibleCap<N> for NoCap {
     fn gen_start_cap(&self,
                      _: u32,
-                     _: &Polyline<N, Pnt3<N>, Vec3<N>>,
+                     _: &Polyline<Pnt3<N>>,
                      _: &Pnt3<N>,
                      _: &Vec3<N>,
                      _: bool,
@@ -26,7 +27,7 @@ impl<N> PolylineCompatibleCap<N> for NoCap {
 
     fn gen_end_cap(&self,
                    _: u32,
-                   _: &Polyline<N, Pnt3<N>, Vec3<N>>,
+                   _: &Polyline<Pnt3<N>>,
                    _: &Pnt3<N>,
                    _: &Vec3<N>,
                    _: bool,

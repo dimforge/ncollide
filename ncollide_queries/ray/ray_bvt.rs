@@ -1,17 +1,17 @@
-use math::Scalar;
+use math::{Scalar, Point, Vect};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
 use ray::{Ray, LocalRayCast, RayIntersection};
 
 /// A search thet selects the objects that has the smallest time of impact with a given ray.
-pub struct RayIntersectionCostFn<'a, P: 'a, V: 'a> {
-    ray:   &'a Ray<P, V>,
+pub struct RayIntersectionCostFn<'a, P: 'a + Point> {
+    ray:   &'a Ray<P>,
     solid: bool,
     uvs:   bool
 }
 
-impl<'a, P, V> RayIntersectionCostFn<'a, P, V> {
+impl<'a, P: Point> RayIntersectionCostFn<'a, P> {
     /// Creates a new `BestRayInterferenceSearch`.
-    pub fn new(ray: &'a Ray<P, V>, solid: bool, uvs: bool) -> RayIntersectionCostFn<'a, P, V> {
+    pub fn new(ray: &'a Ray<P>, solid: bool, uvs: bool) -> RayIntersectionCostFn<'a, P> {
         RayIntersectionCostFn {
             ray:   ray,
             solid: solid,
@@ -20,17 +20,18 @@ impl<'a, P, V> RayIntersectionCostFn<'a, P, V> {
     }
 }
 
-impl<'a, N, P, V, B, BV> BVTCostFn<N, B, BV, RayIntersection<N, V>> for RayIntersectionCostFn<'a, P, V>
-    where N:  Scalar,
-          B:  LocalRayCast<N, P, V>,
-          BV: LocalRayCast<N, P, V> {
+impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vect>::Scalar, B, BV, RayIntersection<P::Vect>>
+for RayIntersectionCostFn<'a, P>
+    where P:  Point,
+          B:  LocalRayCast<P>,
+          BV: LocalRayCast<P> {
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &BV) -> Option<N> {
+    fn compute_bv_cost(&mut self, bv: &BV) -> Option<<P::Vect as Vect>::Scalar> {
         bv.toi_with_ray(self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &B) -> Option<(N, RayIntersection<N, V>)> {
+    fn compute_b_cost(&mut self, b: &B) -> Option<(<P::Vect as Vect>::Scalar, RayIntersection<P::Vect>)> {
         if self.uvs {
             b.toi_and_normal_and_uv_with_ray(self.ray, self.solid).map(|i| (i.toi, i))
         }
@@ -41,15 +42,15 @@ impl<'a, N, P, V, B, BV> BVTCostFn<N, B, BV, RayIntersection<N, V>> for RayInter
 }
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'a, P: 'a, V: 'a, B: 'a> {
-    ray:       &'a Ray<P, V>,
+pub struct RayInterferencesCollector<'a, P: 'a + Point, B: 'a> {
+    ray:       &'a Ray<P>,
     collector: &'a mut Vec<B>
 }
 
-impl<'a, P, V, B> RayInterferencesCollector<'a, P, V, B> {
+impl<'a, P: Point, B> RayInterferencesCollector<'a, P, B> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray: &'a Ray<P, V>, buffer: &'a mut Vec<B>) -> RayInterferencesCollector<'a, P, V, B> {
+    pub fn new(ray: &'a Ray<P>, buffer: &'a mut Vec<B>) -> RayInterferencesCollector<'a, P, B> {
         RayInterferencesCollector {
             ray:       ray,
             collector: buffer
@@ -57,8 +58,10 @@ impl<'a, P, V, B> RayInterferencesCollector<'a, P, V, B> {
     }
 }
 
-#[old_impl_check]
-impl<'a, N, P, V, B: Clone, BV: LocalRayCast<N, P, V>> BVTVisitor<B, BV> for RayInterferencesCollector<'a, P, V, B> {
+impl<'a, P, B, BV> BVTVisitor<B, BV> for RayInterferencesCollector<'a, P, B>
+    where P: Point,
+          B: Clone,
+          BV: LocalRayCast<P> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects_ray(self.ray)

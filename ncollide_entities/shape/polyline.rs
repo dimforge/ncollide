@@ -2,46 +2,45 @@
 
 use std::mem;
 use std::sync::Arc;
-use na::{Translate, Dim, Pnt2};
+use na::{Translate, Pnt2};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Segment, BaseMesh};
 use math::{Scalar, Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
-pub struct Polyline<N, P, V> {
-    mesh: BaseMesh<N, P, V, Pnt2<usize>, Segment<P>>
+pub struct Polyline<P: Point> {
+    mesh: BaseMesh<P, Pnt2<usize>, Segment<P>>
 }
 
-impl<N, P, V> Clone for Polyline<N, P, V>
-    where N: Clone,
-          P: Send + Sync + Clone,
-          V: Send + Sync {
-    fn clone(&self) -> Polyline<N, P, V> {
-        self.clone()
+impl<P: Point> Clone for Polyline<P> {
+    fn clone(&self) -> Polyline<P> {
+        Polyline {
+            mesh: self.mesh.clone()
+        }
     }
 }
 
-impl<N, P, V> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Translate<P> + Vect<N> {
+impl<P> Polyline<P>
+    where P: Point,
+          P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<Pnt2<usize>>>,
-               uvs:      Option<Arc<Vec<Pnt2<N>>>>,
-               normals:  Option<Arc<Vec<V>>>) // a loosening margin for the BVT.
-               -> Polyline<N, P, V> {
+               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               -> Polyline<P> {
         Polyline {
             mesh: BaseMesh::new(vertices, indices, uvs, normals)
         }
     }
 }
 
-impl<N, P, V> Polyline<N, P, V> {
+impl<P> Polyline<P>
+    where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<N, P, V, Pnt2<usize>, Segment<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt2<usize>, Segment<P>> {
         &self.mesh
     }
 
@@ -65,13 +64,13 @@ impl<N, P, V> Polyline<N, P, V> {
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<N>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
         self.mesh.uvs()
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<V>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
         self.mesh.normals()
     }
 
@@ -82,7 +81,7 @@ impl<N, P, V> Polyline<N, P, V> {
     }
 }
 
-impl<N, P: Send + Sync + Copy + Dim, V> Polyline<N, P, V> {
+impl<P: Point> Polyline<P> {
     /// Gets the i-th mesh element.
     #[inline]
     pub fn segment_at(&self, i: usize) -> Segment<P> {

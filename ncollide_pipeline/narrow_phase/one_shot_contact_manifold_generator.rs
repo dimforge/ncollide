@@ -1,3 +1,4 @@
+use std::ops::Mul;
 use na::{Cross, Transform, Translation, Rotation};
 use na;
 use math::{Scalar, Point, Vect};
@@ -12,34 +13,34 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactMan
 /// generated. Then, the manifold is incrementally updated by an
 /// `IncrementalContactManifoldGenerator`.
 #[derive(RustcEncodable, RustcDecodable, Clone)]
-pub struct OneShotContactManifoldGenerator<N, P, V, CD> {
-    sub_detector: IncrementalContactManifoldGenerator<N, P, V, CD>
+pub struct OneShotContactManifoldGenerator<P: Point, M, CD> {
+    sub_detector: IncrementalContactManifoldGenerator<P, M, CD>
 }
 
-#[old_impl_check]
-impl<N, P, V, M, CD> OneShotContactManifoldGenerator<N, P, V, CD>
-    where CD: CollisionDetector<N, P, V, M> {
+impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
+    where P:  Point,
+          CD: CollisionDetector<P, M> {
     /// Creates a new one shot contact manifold generator.
-    pub fn new(prediction: N, cd: CD) -> OneShotContactManifoldGenerator<N, P, V, CD> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar, cd: CD) -> OneShotContactManifoldGenerator<P, M, CD> {
         OneShotContactManifoldGenerator {
             sub_detector: IncrementalContactManifoldGenerator::new(prediction, cd)
         }
     }
 }
 
-impl<N, P, V, AV, M, CD> CollisionDetector<N, P, V, M> for OneShotContactManifoldGenerator<N, P, V, CD>
-    where N: Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Cross<Output = AV>,
-          AV: Vect<N>,
-          M:  Transform<P> + Translation<V> + Rotation<AV>,
-          CD: CollisionDetector<N, P, V, M> {
+impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M, CD>
+    where P:       Point,
+          P::Vect: Cross,
+          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
+                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          M:  Transform<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType>,
+          CD: CollisionDetector<P, M> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<N, P, V, M>,
+              d:  &CollisionDispatcher<P, M>,
               m1: &M,
-              g1: &Repr<N, P, V, M>,
+              g1: &Repr<P, M>,
               m2: &M,
-              g2: &Repr<N, P, V, M>)
+              g2: &Repr<P, M>)
               -> bool {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
@@ -49,7 +50,7 @@ impl<N, P, V, AV, M, CD> CollisionDetector<N, P, V, M> for OneShotContactManifol
                         let mut rot_axis = na::cross(&coll.normal, &b);
 
                         // first perturbation
-                        rot_axis = rot_axis * na::cast::<f64, N>(0.01);
+                        rot_axis = rot_axis * na::cast::<f64, <P::Vect as Vect>::Scalar>(0.01f64);
 
                         let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vec());
 
@@ -83,7 +84,7 @@ impl<N, P, V, AV, M, CD> CollisionDetector<N, P, V, M> for OneShotContactManifol
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<N, P, V>>) {
+    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
         self.sub_detector.colls(out_colls)
     }
 }

@@ -1,5 +1,6 @@
 use std::ops::{Mul, Add};
-use na::{Outer, EigenQR, Translate, Zero};
+use num::Zero;
+use na::{Outer, EigenQR, Translate };
 use na;
 use entities::shape::MinkowskiSum;
 use procedural::TriMesh;
@@ -8,15 +9,16 @@ use math::{Scalar, Point, Vect};
 
 
 // XXX: Implemente this for other dimensions (harder because of the concavities.
-#[old_impl_check]
-impl<'a, N, P, V, M1, M2, G1, G2, A, B> ToTriMesh<N, P, V, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + Outer<M2>,
-          M2: EigenQR<N, V> + Mul<P, Output = P> + Add<M2, Output = M2> + Zero + Copy,
-          G1: ToTriMesh<N, P, V, A>,
-          G2: ToTriMesh<N, P, V, B> {
-    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<N, P, V> {
+impl<'a, P, M1, G1, G2, A, B> ToTriMesh<P, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
+    where P:  Point,
+          P::Vect: Translate<P> + Outer,
+          G1: ToTriMesh<P, A>,
+          G2: ToTriMesh<P, B>,
+          <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
+                                                Mul<P, Output = P> +
+                                                Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType>
+                                                + Zero + Copy {
+    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<P> {
         assert!(na::dim::<P>() == 3);
 
         let poly1 = self.g1().to_trimesh(a);

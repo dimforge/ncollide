@@ -1,5 +1,5 @@
 use na;
-use na::{Vec3, Pnt3};
+use na::Pnt3;
 use super::{TriMesh, IndexBuffer};
 use super::{sphere, utils};
 use math::Scalar;
@@ -9,14 +9,14 @@ pub fn capsule<N>(caps_diameter:   &N,
                   cylinder_height: &N,
                   ntheta_subdiv:   u32,
                   nphi_subdiv:     u32)
-                  -> TriMesh<N, Pnt3<N>, Vec3<N>>
+                  -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh { coords, normals, indices, .. } = top.clone();
     let mut bottom_coords  = coords;
     let mut bottom_normals = normals.unwrap();
     let mut bottom_indices = indices.unwrap_unified();
-    utils::reverse_clockwising(bottom_indices.as_mut_slice());
+    utils::reverse_clockwising(&mut bottom_indices[..]);
 
     let TriMesh { coords, normals, indices, .. } = top;
     let mut top_coords  = coords;

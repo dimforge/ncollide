@@ -52,11 +52,11 @@ mod bounding_sphere_repr;
  *
  */
 /// A 2D bounding sphere.
-pub type BoundingSphere2<N> = BoundingSphere<N, Pnt2<N>>;
+pub type BoundingSphere2<N> = BoundingSphere<Pnt2<N>>;
 /// A 2D AABB.
 pub type AABB2<N> = AABB<Pnt2<N>>;
 
 /// A 3D bounding sphere:
-pub type BoundingSphere3<N> = BoundingSphere<N, Pnt3<N>>;
+pub type BoundingSphere3<N> = BoundingSphere<Pnt3<N>>;
 /// A 3D AABB.
 pub type AABB3<N> = AABB<Pnt3<N>>;

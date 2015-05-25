@@ -1,23 +1,15 @@
 use na;
 use na::Translate;
-use support_map::{PreferedSamplingDirections, SupportMap};
+use support_map::SupportMap;
 use shape::Ball;
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V, M> SupportMap<P, V, M> for Ball<N>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl< P, M> SupportMap<P, M> for Ball<<P::Vect as Vect>::Scalar>
+    where P: Point,
           M: Translate<P> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &V) -> P {
+    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         m.translate(&na::orig()) + na::normalize(dir) * self.radius()
-    }
-}
-
-impl<N, V, M> PreferedSamplingDirections<V, M> for Ball<N> {
-    #[inline(always)]
-    fn sample(&self, _: &M, _: &mut FnMut(V)) {
     }
 }

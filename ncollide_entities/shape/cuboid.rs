@@ -2,18 +2,15 @@
 
 use na::Iterable;
 use na;
-use math::Scalar;
+use math::Vect;
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Cuboid<V> {
-    half_extents: V
+    half_extents: V,
 }
 
-#[old_impl_check]
-impl<N, V> Cuboid<V>
-    where N: Scalar,
-          V: Iterable<N> {
+impl<V: Vect> Cuboid<V> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]

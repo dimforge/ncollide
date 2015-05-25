@@ -1,3 +1,4 @@
+use num::{Float, Zero};
 use na;
 use math::{Scalar, Point, Vect};
 use geometry::Contact;
@@ -5,13 +6,11 @@ use entities::shape::Ball;
 
 /// Contact between balls.
 #[inline]
-pub fn ball_against_ball<N, P, V>(center1: &P, b1: &Ball<N>,
-                                  center2: &P, b2: &Ball<N>,
-                                  prediction: N)
-                                  -> Option<Contact<N, P, V>>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn ball_against_ball<P>(center1: &P, b1: &Ball<<P::Vect as Vect>::Scalar>,
+                            center2: &P, b2: &Ball<<P::Vect as Vect>::Scalar>,
+                            prediction: <P::Vect as Vect>::Scalar)
+                            -> Option<Contact<P>>
+    where P: Point {
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = *center2 - *center1;

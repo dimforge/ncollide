@@ -1,9 +1,8 @@
 use std::ops::{Add, Sub, Mul};
-use std::num::Float;
 use rand::{self, Rand};
-use na::{Inv, POrd, SquareMat, Outer, Dot, RMul};
+use na::{Inv, POrd, SquareMat, Outer, Dot};
 use na;
-use math::{Scalar, Vect};
+use math::{Scalar, Vect, FloatError};
 
 
 // FIXME: implement a proper metaheuristic.
@@ -62,21 +61,23 @@ pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (
 }
 
 /// Minimizes a function using the bfgs method.
-pub fn minimize_with_bfgs<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> V>(
+pub fn minimize_with_bfgs<V, F: Fn(&V) -> V::Scalar, D: Fn(&V) -> V>(
                           niter:       usize,
                           num_guesses: usize,
                           domain_min:  &V,
                           domain_max:  &V,
                           f:  &mut F,
                           df: &mut D)
-                          -> (V, N)
-    where N: Scalar,
-          V: Vect<N> + Outer<M>,
-          M: SquareMat<N, V> + Add<M, Output = M> + Sub<M, Output = M> + Clone + Copy {
+                          -> (V, V::Scalar)
+    where V: Vect + Outer,
+          V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
+                               Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
+                               Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
+                               Clone + Copy {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
-    let ss               = BacktrackingLineSearch::new(na::one::<N>(), na::cast(0.5), na::cast(0.5), 1000);
+    let ss               = BacktrackingLineSearch::new(na::one::<V::Scalar>(), na::cast(0.5), na::cast(0.5), 1000);
 
     for _ in 0 .. num_guesses {
         let mut guess: V = rand::random();
@@ -149,18 +150,20 @@ impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
 }
 
 /// Minimizes a function using the quasi-newton BFGS method.
-pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
+pub fn bfgs<V, SS, F: Fn(&V) -> V::Scalar, D: Fn(&V) -> V>(
             niter:   usize,
             ss:      &SS,
             guess:   V,
-            hessian: M,
+            hessian: V::OuterProductType,
             f:       &mut F,
             df:      &mut D)
             -> V
-    where N:  Scalar,
-          V:  Vect<N> + Outer<M>,
-          M:  SquareMat<N, V> + Add<M, Output = M> + Sub<M, Output = M> + Clone + Copy,
-          SS: LineSearch<N, V> {
+    where V: Vect + Outer,
+          V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
+                               Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
+                               Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
+                               Clone + Copy,
+          SS: LineSearch<V::Scalar, V> {
     let mut x  = guess;
     let mut hx = hessian;
     let mut dx = na::zero();
@@ -171,7 +174,7 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
 
     for _ in 0 .. niter {
         let     new_dx     = (*df)(&x);
-        let mut search_dir = hx.rmul(&-new_dx);
+        let mut search_dir = hx * (-new_dx);
 
         if na::dot(&search_dir, &new_dx) >= na::zero() {
             // Not a descent direction.
@@ -179,8 +182,8 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
             search_dir = -new_dx;
         }
 
-        let _eps: N = Float::epsilon();
-        let _eps    = _eps * na::cast(100.0);
+        let _eps: V::Scalar = FloatError::epsilon();
+        let _eps = _eps * na::cast(100.0);
         if na::sqnorm(&new_dx) <= _eps {
             break;
         }
@@ -201,10 +204,10 @@ pub fn bfgs<N, V, M, SS, F: Fn(&V) -> N, D: Fn(&V) -> V>(
             hx = na::one()
         }
         else {
-            let idenom = na::one::<N>() / denom;
+            let idenom = na::one::<V::Scalar>() / denom;
 
             hx = hx +
-                 na::outer(&step, &(step * ((denom + na::dot(&d_dx, &(hx.rmul(&d_dx)))) * idenom * idenom))) -
+                 na::outer(&step, &(step * ((denom + na::dot(&d_dx, &(hx * d_dx))) * idenom * idenom))) -
                  (hx * na::outer(&d_dx, &(step * idenom)) + na::outer(&step, &(d_dx * idenom)) * hx);
         }
 

@@ -21,6 +21,6 @@ impl<P> Convex<P> {
     /// The list of points of this convex polytope.
     #[inline]
     pub fn points(&self) -> &[P] { // FIXME: naming: `points` vs. `points`?
-        self.points.as_slice()
+        &self.points[..]
     }
 }

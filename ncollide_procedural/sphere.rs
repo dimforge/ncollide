@@ -9,7 +9,7 @@ pub fn sphere<N>(diameter:      N,
                  ntheta_subdiv: u32,
                  nphi_subdiv:   u32,
                  generate_uvs:  bool)
-                 -> TriMesh<N, Pnt3<N>, Vec3<N>>
+                 -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv, generate_uvs);
 
@@ -22,7 +22,7 @@ pub fn sphere<N>(diameter:      N,
 pub fn unit_sphere<N>(ntheta_subdiv: u32,
                       nphi_subdiv:   u32,
                       generate_uvs:  bool)
-                      -> TriMesh<N, Pnt3<N>, Vec3<N>>
+                      -> TriMesh<Pnt3<N>>
     where N: Scalar {
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
@@ -33,7 +33,7 @@ pub fn unit_sphere<N>(ntheta_subdiv: u32,
 }
 
 // FIXME: n{theta,phi}_subdiv are not the right names.
-fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let pi: N     = BaseFloat::pi();
     let two_pi: N = BaseFloat::two_pi();
@@ -62,7 +62,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
 
     utils::push_degenerate_top_ring_indices(1, 0, ntheta_subdiv, &mut idx);
 
-    utils::reverse_clockwising(idx.as_mut_slice());
+    utils::reverse_clockwising(&mut idx[..]);
 
     for i in 0 .. nphi_subdiv - 2 {
         let bottom = 1 + i * ntheta_subdiv;
@@ -84,7 +84,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N
     res
 }
 
-fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let pi: N     = BaseFloat::pi();
     let two_pi: N = BaseFloat::two_pi();
@@ -138,7 +138,7 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, P
 }
 
 /// Creates an hemisphere with a diameter of 1.
-pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let two_pi: N = BaseFloat::two_pi();
     let pi_two: N = BaseFloat::frac_pi_2();
@@ -179,12 +179,10 @@ pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N, Pn
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn circle<N, P, V>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let two_pi: N = BaseFloat::two_pi();
-    let dtheta    = two_pi / na::cast(nsubdivs as f64);
+pub fn circle<P>(diameter: &<P::Vect as Vect>::Scalar, nsubdivs: u32) -> Polyline<P>
+    where P: Point {
+    let two_pi: <P::Vect as Vect>::Scalar = BaseFloat::two_pi();
+    let dtheta = two_pi / na::cast(nsubdivs as f64);
 
     let mut pts = Vec::with_capacity(nsubdivs as usize);
 
@@ -196,10 +194,8 @@ pub fn circle<N, P, V>(diameter: &N, nsubdivs: u32) -> Polyline<N, P, V>
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn unit_circle<N, P, V>(nsubdivs: u32) -> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn unit_circle<P>(nsubdivs: u32) -> Polyline<P>
+    where P: Point {
     // FIXME: do this the other way round?
-    circle::<N, P, V>(&na::cast(1.0), nsubdivs)
+    circle::<P>(&na::cast(1.0), nsubdivs)
 }

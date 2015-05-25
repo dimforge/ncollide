@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect};
  * # Arguments:
  * * `extents` - the extents of the cuboid.
  */
-pub fn cuboid<N>(extents: &Vec3<N>) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn cuboid<N>(extents: &Vec3<N>) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let mut cuboid = unit_cuboid();
 
@@ -23,7 +23,7 @@ pub fn cuboid<N>(extents: &Vec3<N>) -> TriMesh<N, Pnt3<N>, Vec3<N>>
  *
  * The cuboid is centered at the origin, and has its half extents set to 0.5.
  */
-pub fn unit_cuboid<N>() -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn unit_cuboid<N>() -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let mut coords  = Vec::with_capacity(8);
     let mut uvs     = Vec::with_capacity(4);
@@ -79,11 +79,9 @@ pub fn unit_cuboid<N>() -> TriMesh<N, Pnt3<N>, Vec3<N>>
 }
 
 /// The contour of a cuboid lying on the x-y plane.
-pub fn rectangle<N, P, V>(extents: &V) -> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let mut rectangle = unit_rectangle::<N, P, V>();
+pub fn rectangle<P>(extents: &P::Vect) -> Polyline<P>
+    where P: Point {
+    let mut rectangle = unit_rectangle::<P>();
 
     rectangle.scale_by(extents);
 
@@ -91,12 +89,10 @@ pub fn rectangle<N, P, V>(extents: &V) -> Polyline<N, P, V>
 }
 
 /// The contour of a unit cuboid lying on the x-y plane.
-pub fn unit_rectangle<N, P, V>() -> Polyline<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
-    let _0_5: N = na::cast(0.5);
-    let m0_5: N = -_0_5;
+pub fn unit_rectangle<P>() -> Polyline<P>
+    where P: Point {
+    let _0_5: <P::Vect as Vect>::Scalar = na::cast(0.5);
+    let m0_5: <P::Vect as Vect>::Scalar = -_0_5;
 
     let mut p_ul = na::orig::<P>();
     let mut p_ur = na::orig::<P>();

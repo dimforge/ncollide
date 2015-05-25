@@ -1,9 +1,9 @@
-use std::ops::Neg;
 use std::mem;
+use math::{Point, Vect};
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
-pub struct Contact<N, P, V> {
+pub struct Contact<P: Point> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: P,
 
@@ -11,16 +11,16 @@ pub struct Contact<N, P, V> {
     pub world2: P,
 
     /// Contact normal
-    pub normal: V,
+    pub normal: P::Vect,
 
     /// Penetration depth
-    pub depth:  N
+    pub depth:  <P::Vect as Vect>::Scalar
 }
 
-impl<N, P, V> Contact<N, P, V> {
+impl<P: Point> Contact<P> {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: P, world2: P, normal: V, depth: N) -> Contact<N, P, V> {
+    pub fn new(world1: P, world2: P, normal: P::Vect, depth: <P::Vect as Vect>::Scalar) -> Contact<P> {
         Contact {
             world1: world1,
             world2: world2,
@@ -30,7 +30,7 @@ impl<N, P, V> Contact<N, P, V> {
     }
 }
 
-impl<N, P, V: Clone + Neg<Output = V>> Contact<N, P, V> {
+impl<P: Point> Contact<P> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {

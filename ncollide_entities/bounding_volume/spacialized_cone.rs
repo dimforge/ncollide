@@ -102,7 +102,7 @@ impl BoundingVolume for SpacializedCone {
         let alpha = na::clamp(na::dot(&self.axis, &other.axis), -na::one::<N>(), na::one()).acos();
 
         let mut rot_axis = na::cross(&self.axis, &other.axis);
-        if !na::is_zero(&rot_axis.normalize()) {
+        if !na::is_zero(&rot_axis.normalize_mut()) {
             let dangle = (alpha - self.hangle + other.hangle) * na::cast(0.5f64);
             let rot    = na::append_rotation(&na::one::<RotationMatrix>(), &(rot_axis * dangle));
 

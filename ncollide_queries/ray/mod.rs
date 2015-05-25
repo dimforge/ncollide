@@ -29,13 +29,13 @@ mod ray_bvt;
  *
  */
 /// A 3D ray.
-pub type Ray3<N> = Ray<Pnt3<N>, Vec3<N>>;
+pub type Ray3<N> = Ray<Pnt3<N>>;
 
 /// A 2D ray.
-pub type Ray2<N> = Ray<Pnt2<N>, Vec2<N>>;
+pub type Ray2<N> = Ray<Pnt2<N>>;
 
 /// A 3D ray intersection.
-pub type RayIntersection3<N> = RayIntersection<N, Vec3<N>>;
+pub type RayIntersection3<N> = RayIntersection<Vec3<N>>;
 
 /// A 2D ray intersection.
-pub type RayIntersection2<N> = RayIntersection<N, Vec2<N>>;
+pub type RayIntersection2<N> = RayIntersection<Vec2<N>>;

@@ -6,35 +6,31 @@ use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
 use math::{Scalar, Point, Vect};
 
 
-impl<N, P, V> LocalRayCast<N, P, V> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalRayCast<P> for Cuboid<P::Vect>
+    where P: Point {
     #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
         let dl = na::orig::<P>() + (-*self.half_extents());
         let ur = na::orig::<P>() + *self.half_extents();
         AABB::new(dl, ur).toi_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         let dl = na::orig::<P>() + (-*self.half_extents());
         let ur = na::orig::<P>() + *self.half_extents();
         AABB::new(dl, ur).toi_and_normal_with_ray(ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P, V>, solid: bool) -> Option<RayIntersection<N, V>> {
+    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
         let dl = na::orig::<P>() + (-*self.half_extents());
         let ur = na::orig::<P>() + *self.half_extents();
         AABB::new(dl, ur).toi_and_normal_and_uv_with_ray(ray, solid)
     }
 }
 
-impl<N, P, V, M> RayCast<N, P, V, M> for Cuboid<V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
-          M: Transform<P> + Rotate<V> {
+impl<P, M> RayCast<P, M> for Cuboid<P::Vect>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
 }

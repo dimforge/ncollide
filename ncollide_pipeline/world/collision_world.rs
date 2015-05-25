@@ -1,3 +1,4 @@
+use std::ops::Mul;
 use std::sync::Arc;
 use na::{Translate, Cross, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
@@ -11,35 +12,38 @@ use narrow_phase::{BasicCollisionDispatcher, ContactSignalHandler, CollisionAlgo
 use broad_phase::{BroadPhase, DBVTBroadPhase};
 use world::{CollisionObjectsDispatcher, CollisionObject, CollisionGroups};
 
-use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
+use na::{Pnt2, Pnt3, Iso2, Iso3};
 
 // FIXME: be generic wrt the BV?
 /// Type of the broad phase trait-object used by the collision world.
-pub type BroadPhaseObject<P, V> = Box<BroadPhase<P, V, AABB<P>, FastKey> + 'static>;
+pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey> + 'static>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<N, P, V, M, T> {
-    objects:       UidRemap<CollisionObject<N, P, V, M, T>>,
-    broad_phase:   BroadPhaseObject<P, V>,
-    narrow_phase:  CollisionObjectsDispatcher<N, P, V, M, T>,
+pub struct CollisionWorld<P, M, T> {
+    objects:       UidRemap<CollisionObject<P, M, T>>,
+    broad_phase:   BroadPhaseObject<P>,
+    narrow_phase:  CollisionObjectsDispatcher<P, M, T>,
     pos_to_update: Vec<(FastKey, M)>,
     timestamp:     usize
     // FIXME: allow modification of the other properties too.
 }
 
-impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + Cross<Output = AV>,
-          AV: Vect<N>,
-          M:  Isometry<N, P, V> + Rotation<AV> {
+impl<P, M, T> CollisionWorld<P, M, T>
+    where P: Point,
+          P::Vect: Translate<P> + Cross,
+          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
+                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          M:  Isometry<P, P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and `prediction` and allow their modification by the
     // user ?
-    pub fn new(margin: N, prediction: N, small_uids: bool) -> CollisionWorld<N, P, V, M, T> {
+    pub fn new(margin:     <P::Vect as Vect>::Scalar,
+               prediction: <P::Vect as Vect>::Scalar,
+               small_uids: bool)
+               -> CollisionWorld<P, M, T> {
         let objects = UidRemap::new(small_uids);
         let sdispatcher = Box::new(BasicCollisionDispatcher::new(prediction));
-        let broad_phase = Box::new(DBVTBroadPhase::<N, P, AABB<P>, FastKey>::new(margin, true));
+        let broad_phase = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
         let narrow_phase = CollisionObjectsDispatcher::new(sdispatcher);
 
         CollisionWorld {
@@ -55,7 +59,7 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     pub fn add(&mut self,
                uid: usize,
                position: M,
-               shape: Arc<Box<Repr<N, P, V, M>>>,
+               shape: Arc<Box<Repr<P, M>>>,
                collision_groups: CollisionGroups,
                data: T) {
         // FIXME: test that we did not add this object already ?
@@ -140,21 +144,21 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
     /// Iterats through all the contact pairs.
     #[inline(always)]
     pub fn contact_pairs<F>(&self, f: F)
-          where F: FnMut(&T, &T, &CollisionAlgorithm<N, P, V, M>) {
+          where F: FnMut(&T, &T, &CollisionAlgorithm<P, M>) {
         self.narrow_phase.contact_pairs(&self.objects, f)
     }
 
     /// Collects every contact detected since the last update.
     #[inline(always)]
     pub fn contacts<F>(&self, f: F)
-          where F: FnMut(&T, &T, &Contact<N, P, V>) {
+          where F: FnMut(&T, &T, &Contact<P>) {
         self.narrow_phase.contacts(&self.objects, f)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a ray.
     #[inline(always)]
-    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P, V>, mut f: F)
-          where F: FnMut(&T, RayIntersection<N, V>) {
+    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P>, mut f: F)
+          where F: FnMut(&T, RayIntersection<P::Vect>) {
         let mut bodies = Vec::new();
 
         self.broad_phase.interferences_with_ray(ray, &mut bodies);
@@ -203,6 +207,6 @@ impl<N, P, V, AV, M, T> CollisionWorld<N, P, V, M, T>
 }
 
 /// 2D collision world containing objects of type `T`.
-pub type CollisionWorld2<N, T> = CollisionWorld<N, Pnt2<N>, Vec2<N>, Iso2<N>, T>;
+pub type CollisionWorld2<N, T> = CollisionWorld<Pnt2<N>, Iso2<N>, T>;
 /// 3D collision world containing objects of type `T`.
-pub type CollisionWorld3<N, T> = CollisionWorld<N, Pnt3<N>, Vec3<N>, Iso3<N>, T>;
+pub type CollisionWorld3<N, T> = CollisionWorld<Pnt3<N>, Iso3<N>, T>;

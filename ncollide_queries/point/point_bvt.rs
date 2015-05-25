@@ -1,5 +1,6 @@
 use entities::partitioning::BVTVisitor;
 use point::LocalPointQuery;
+use math::Point;
 
 // FIXME: add a point cost fn.
 
@@ -20,10 +21,10 @@ impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
     }
 }
 
-#[old_impl_check]
-impl<'a, N, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
-    where B:  Clone,
-          BV: LocalPointQuery<N, P> {
+impl<'a, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
+    where P:  Point,
+          B:  Clone,
+          BV: LocalPointQuery<P> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.contains_point(self.point)

@@ -5,11 +5,8 @@ use point::{LocalPointQuery, PointQuery};
 use math::{Scalar, Point, Vect};
 
 
-#[old_impl_check]
-impl<N, P, V> LocalPointQuery<N, P> for Segment<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> LocalPointQuery<P> for Segment<P>
+    where P: Point {
     #[inline]
     fn project_point(&self, pt: &P, _: bool) -> P {
         let ab = *self.b() - *self.a();
@@ -33,7 +30,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Segment<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> N {
+    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
         na::dist(pt, &self.project_point(pt, true))
     }
 
@@ -43,10 +40,7 @@ impl<N, P, V> LocalPointQuery<N, P> for Segment<P>
     }
 }
 
-#[old_impl_check]
-impl<N, P, V, M> PointQuery<N, P, M> for Segment<P>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N>,
+impl<P, M> PointQuery<P, M> for Segment<P>
+    where P: Point,
           M: Transform<P> {
 }

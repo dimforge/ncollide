@@ -1,6 +1,7 @@
-use na::{Translation, Translate};
+use num::Zero;
+use na::{Translation, Translate, Norm};
 use na;
-use entities::support_map::{SupportMap, PreferedSamplingDirections};
+use entities::support_map::SupportMap;
 use entities::support_map;
 use entities::shape::AnnotatedPoint;
 use geometry::algorithms::gjk::GJKResult;
@@ -13,19 +14,18 @@ use math::{Scalar, Point, Vect};
 
 
 /// Contact between support-mapped shapes (`Cuboid`, `Convex`, etc.)
-pub fn support_map_against_support_map<N, P, V, M, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
                                        m1:         &M,
                                        g1:         &G1,
                                        m2:         &M,
                                        g2:         &G2,
-                                       prediction: N)
-                                       -> Option<Contact<N, P, V>>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Translation<V>,
-          G1: SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
-          G2: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
+                                       prediction: <P::Vect as Vect>::Scalar)
+                                       -> Option<Contact<P>>
+    where P:  Point,
+          P::Vect: Translate<P>,
+          M:  Translation<P::Vect>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
     match support_map_against_support_map_with_params(
         m1, g1, m2, g2, prediction, &mut JohnsonSimplex::new_w_tls(), None) {
         GJKResult::Projection(c)     => Some(c),
@@ -37,22 +37,21 @@ pub fn support_map_against_support_map<N, P, V, M, G1: ?Sized, G2: ?Sized>(
 /// Contact between support-mapped shapes (`Cuboid`, `Convex`, etc.)
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<N, P, V, M, S, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
                                                    m1:         &M,
                                                    g1:         &G1,
                                                    m2:         &M,
                                                    g2:         &G2,
-                                                   prediction: N,
+                                                   prediction: <P::Vect as Vect>::Scalar,
                                                    simplex:    &mut S,
-                                                   init_dir:   Option<V>)
-                                                   -> GJKResult<Contact<N, P, V>, V>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Translation<V>,
-          S:  Simplex<N, AnnotatedPoint<P>>,
-          G1: SupportMap<P, V, M> + PreferedSamplingDirections<V, M>,
-          G2: SupportMap<P, V, M> + PreferedSamplingDirections<V, M> {
+                                                   init_dir:   Option<P::Vect>)
+                                                   -> GJKResult<Contact<P>, P::Vect>
+    where P:  Point,
+          P::Vect: Translate<P>,
+          M:  Translation<P::Vect>,
+          S:  Simplex<AnnotatedPoint<P>>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
     let mut dir =
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?

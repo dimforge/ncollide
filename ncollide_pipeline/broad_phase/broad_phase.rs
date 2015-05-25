@@ -1,7 +1,7 @@
 use queries::ray::Ray;
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<P, V, BV, T> {
+pub trait BroadPhase<P, BV, T> {
     /// Tells the broad phase to add an element during the next update.
     fn defered_add(&mut self, uid: usize, bv: BV, data: T);
 
@@ -22,7 +22,7 @@ pub trait BroadPhase<P, V, BV, T> {
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>);
 
     /// Collects every object which might intersect a given ray.
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P, V>, out: &mut Vec<&'a T>);
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P>, out: &mut Vec<&'a T>);
 
     /// Collects every object which might contain a given point.
     fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a T>);

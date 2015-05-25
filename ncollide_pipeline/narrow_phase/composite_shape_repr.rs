@@ -13,16 +13,16 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
 
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeRepr<N, P, V, M> {
-    prediction:    N,
-    sub_detectors: HashMap<usize, CollisionAlgorithm<N, P, V, M>, UintTWHash>,
+pub struct CompositeShapeRepr<P: Point, M> {
+    prediction:    <P::Vect as Vect>::Scalar,
+    sub_detectors: HashMap<usize, CollisionAlgorithm<P, M>, UintTWHash>,
     to_delete:     Vec<usize>,
     interferences: Vec<usize>
 }
 
-impl<N, P, V, M> CompositeShapeRepr<N, P, V, M> {
+impl<P: Point, M> CompositeShapeRepr<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new(prediction: N) -> CompositeShapeRepr<N, P, V, M> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> CompositeShapeRepr<P, M> {
         CompositeShapeRepr {
             prediction:    prediction,
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
@@ -32,17 +32,16 @@ impl<N, P, V, M> CompositeShapeRepr<N, P, V, M> {
     }
 }
 
-impl<N, P, V, M> CompositeShapeRepr<N, P, V, M>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Isometry<N, P, V> {
+impl<P, M> CompositeShapeRepr<P, M>
+    where P:  Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     fn do_update(&mut self,
-                 dispatcher: &CollisionDispatcher<N, P, V, M>,
+                 dispatcher: &CollisionDispatcher<P, M>,
                  m1:         &M,
-                 g1:         &CompositeShape<N, P, V, M>,
+                 g1:         &CompositeShape<P, M>,
                  m2:         &M,
-                 g2:         &Repr<N, P, V, M>,
+                 g2:         &Repr<P, M>,
                  swap:       bool) {
         // Find new collisions
         let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
@@ -107,30 +106,29 @@ impl<N, P, V, M> CompositeShapeRepr<N, P, V, M>
 }
 
 /// Collision detector between a shape and a concave shape.
-pub struct ReprCompositeShape<N, P, V, M> {
-    sub_detector: CompositeShapeRepr<N, P, V, M>
+pub struct ReprCompositeShape<P: Point, M> {
+    sub_detector: CompositeShapeRepr<P, M>
 }
 
-impl<N, P, V, M> ReprCompositeShape<N, P, V, M> {
+impl<P: Point, M> ReprCompositeShape<P, M> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new(prediction: N) -> ReprCompositeShape<N, P, V, M> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> ReprCompositeShape<P, M> {
         ReprCompositeShape {
             sub_detector: CompositeShapeRepr::new(prediction)
         }
     }
 }
 
-impl<N, P, V, M> CollisionDetector<N, P, V, M> for CompositeShapeRepr<N, P, V, M>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Isometry<N, P, V> {
+impl<P, M> CollisionDetector<P, M> for CompositeShapeRepr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<N, P, V, M>,
+              d:  &CollisionDispatcher<P, M>,
               ma: &M,
-              a:  &Repr<N, P, V, M>,
+              a:  &Repr<P, M>,
               mb: &M,
-              b:  &Repr<N, P, V, M>)
+              b:  &Repr<P, M>)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(a) {
             self.do_update(d, ma, cs, mb, b, false);
@@ -152,24 +150,23 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for CompositeShapeRepr<N, P, V, M
         res
     }
 
-    fn colls(&self, out: &mut Vec<Contact<N, P, V>>) {
+    fn colls(&self, out: &mut Vec<Contact<P>>) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.colls(out);
         }
     }
 }
 
-impl<N, P, V, M> CollisionDetector<N, P, V, M> for ReprCompositeShape<N, P, V, M>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          M:  Isometry<N, P, V> {
+impl<P, M> CollisionDetector<P, M> for ReprCompositeShape<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<N, P, V, M>,
+              d:  &CollisionDispatcher<P, M>,
               ma: &M,
-              a:  &Repr<N, P, V, M>,
+              a:  &Repr<P, M>,
               mb: &M,
-              b:  &Repr<N, P, V, M>)
+              b:  &Repr<P, M>)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(b) {
             self.sub_detector.do_update(d, mb, cs, ma, a, true);
@@ -185,7 +182,7 @@ impl<N, P, V, M> CollisionDetector<N, P, V, M> for ReprCompositeShape<N, P, V, M
         self.sub_detector.num_colls()
     }
 
-    fn colls(&self, out: &mut Vec<Contact<N, P, V>>) {
+    fn colls(&self, out: &mut Vec<Contact<P>>) {
         self.sub_detector.colls(out)
     }
 }

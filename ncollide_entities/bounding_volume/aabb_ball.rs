@@ -2,20 +2,17 @@ use na::Translate;
 use na;
 use bounding_volume::{HasAABB, AABB};
 use shape::Ball;
-use math::{Scalar, Point};
+use math::{Scalar, Point, Vect};
 
 /// Computes the Axis-Aligned Bounding Box of a ball.
 #[inline]
-pub fn ball_aabb<N, P, V>(center: &P, radius: N) -> AABB<P>
-    where N: Scalar,
-          P: Point<N, V> {
-    AABB::new(center.sub_s(&radius), center.add_s(&radius))
+pub fn ball_aabb<P>(center: &P, radius: <P::Vect as Vect>::Scalar) -> AABB<P>
+    where P: Point {
+    AABB::new(*center + na::repeat(-radius), *center + na::repeat(radius))
 }
 
-#[old_impl_check]
-impl<N, P, V, M> HasAABB<P, M> for Ball<N>
-    where N: Scalar,
-          P: Point<N, V>,
+impl<P, M> HasAABB<P, M> for Ball<<P::Vect as Vect>::Scalar>
+    where P: Point,
           M: Translate<P> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {

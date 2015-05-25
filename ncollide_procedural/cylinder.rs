@@ -5,7 +5,7 @@ use super::utils;
 use math::Scalar;
 
 /// Generates a cylinder with a given height and diameter.
-pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let mut cylinder = unit_cylinder(nsubdiv);
 
@@ -15,7 +15,7 @@ pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N, Pnt3<N>, 
 }
 
 /// Generates a cylinder with unit height and diameter.
-pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
+pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<Pnt3<N>>
     where N: Scalar {
     let two_pi: N   = BaseFloat::two_pi();
     let invsubdiv   = na::one::<N>() / na::cast(nsubdiv as f64);
@@ -36,9 +36,9 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     let len             = indices.len();
     let bottom_start_id = len - (nsubdiv as usize - 2);
-    utils::reverse_clockwising(indices.slice_from_mut(bottom_start_id));
+    utils::reverse_clockwising(&mut indices[bottom_start_id ..]);
 
-    let mut indices = utils::split_index_buffer(indices.as_slice());
+    let mut indices = utils::split_index_buffer(&indices[..]);
 
     /*
      * Compute uvs.
@@ -74,7 +74,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
 
     let top_start_id = len - 2 * (nsubdiv as usize - 2);
 
-    for i in indices.slice_to_mut(top_start_id).iter_mut() {
+    for i in indices[.. top_start_id].iter_mut() {
         if i.x.y >= nsubdiv {
             i.x.y = i.x.y - nsubdiv;
         }
@@ -86,13 +86,13 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<N, Pnt3<N>, Vec3<N>>
         }
     }
 
-    for i in indices.slice_mut(top_start_id, bottom_start_id).iter_mut() {
+    for i in indices[top_start_id .. bottom_start_id].iter_mut() {
         i.x.y = nlen - 2;
         i.y.y = nlen - 2;
         i.z.y = nlen - 2;
     }
 
-    for i in indices.slice_from_mut(bottom_start_id).iter_mut() {
+    for i in indices[bottom_start_id ..].iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;

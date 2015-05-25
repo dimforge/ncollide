@@ -1,8 +1,8 @@
 //! Point cloud triangulation.
 
-use std::marker::PhantomData;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use num::Float;
 use na::{BaseFloat, Pnt3};
 use na;
 use math::{Scalar, Point, Vect};
@@ -10,15 +10,14 @@ use utils;
 use entities::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};
 
-struct Triangle<N, P, V> {
+struct Triangle<P: Point> {
     idx:                    Pnt3<usize>,
     circumcircle_center:    P,
-    circumcircle_sq_radius: N,
-    vec_type:               PhantomData<V> // FIXME: use associated type P::V instead.
+    circumcircle_sq_radius: <P::Vect as Vect>::Scalar,
 }
 
-impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
-    pub fn new(idx: Pnt3<usize>, pts: &[P]) -> Triangle<N, P, V> {
+impl<P: Point> Triangle<P> {
+    pub fn new(idx: Pnt3<usize>, pts: &[P]) -> Triangle<P> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
         let pc = &pts[idx.z];
@@ -28,8 +27,7 @@ impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
         Triangle {
             idx:                    idx,
             circumcircle_center:    center,
-            circumcircle_sq_radius: radius * radius,
-            vec_type:               PhantomData
+            circumcircle_sq_radius: radius * radius
         }
 
     }
@@ -40,23 +38,21 @@ impl<N: Scalar, P: Point<N, V>, V: Vect<N>> Triangle<N, P, V> {
 }
 
 /// Incremental triangulation utility.
-pub struct Triangulator<N, P, V> {
+pub struct Triangulator<P: Point> {
     vertices:  Vec<P>,
-    triangles: Vec<Triangle<N, P, V>>,
+    triangles: Vec<Triangle<P>>,
     edges:     HashMap<(usize, usize), usize>
 }
 
-impl<N, P, V> Triangulator<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+impl<P> Triangulator<P>
+    where P: Point {
     /// Creates a new Triangulator.
-    pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<N, P, V> {
+    pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<P> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
 
         Triangulator {
             // FIXME: why do we have to specify the type explicitely here ?
-            triangles: vec!(Triangle::<N, P, V>::new(Pnt3::new(0, 1, 2), &vertices[..])),
+            triangles: vec!(Triangle::<P>::new(Pnt3::new(0, 1, 2), &vertices[..])),
             vertices:  vertices,
             edges:     HashMap::new()
         }
@@ -72,7 +68,7 @@ impl<N, P, V> Triangulator<N, P, V>
         for (&(ia, ib), num) in self.edges.iter() {
             if *num == 1 {
                 // FIXME: why do we have to specify the type explicitely here ?
-                let t = Triangle::<N, P, V>::new(Pnt3::new(ia, ib, ipt), &self.vertices[..]);
+                let t = Triangle::<P>::new(Pnt3::new(ia, ib, ipt), &self.vertices[..]);
 
                 self.triangles.push(t)
             }
@@ -80,7 +76,7 @@ impl<N, P, V> Triangulator<N, P, V>
     }
 
     /// Returns the result of the triangulation.
-    pub fn to_trimesh(mut self) -> TriMesh<N, P, V> {
+    pub fn to_trimesh(mut self) -> TriMesh<P> {
         let mut idx = Vec::with_capacity(self.triangles.len());
 
         let _ = self.vertices.swap_remove(2);
@@ -150,23 +146,21 @@ impl<N, P, V> Triangulator<N, P, V>
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<N, P, V>(pts: &[P]) -> TriMesh<N, P, V>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> {
+pub fn triangulate<P>(pts: &[P]) -> TriMesh<P>
+    where P: Point {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius           = radius * na::cast(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
-    let pi: N       = BaseFloat::pi();
+    let pi: <P::Vect as Vect>::Scalar = BaseFloat::pi();
     let right_shift = radius / (pi / na::cast(6.0)).tan();
     let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
 
-    let mut up = na::zero::<V>();
+    let mut up = na::zero::<P::Vect>();
     up[0] = na::one();
 
-    let mut right = na::zero::<V>();
+    let mut right = na::zero::<P::Vect>();
     right[1] = na::one();
 
     // Triangle:

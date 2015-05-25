@@ -1,15 +1,14 @@
-use std::ops::Index;
-use na::{Mat3, Axpy, ScalarMul};
+use std::ops::Mul;
+use num;
+use na::{Mat3, Axpy};
 use na;
-use math::{Scalar, Point};
+use math::{Scalar, Point, Vect};
 
 /// Computes the volume of a tetrahedron.
 #[inline]
-pub fn tetrahedron_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Index<usize, Output = N> {
-    tetrahedron_signed_volume(p1, p2, p3, p4).abs()
+pub fn tetrahedron_volume<P>(p1: &P, p2: &P, p3: &P, p4: &P) -> <P::Vect as Vect>::Scalar
+    where P: Point {
+    num::abs(tetrahedron_signed_volume(p1, p2, p3, p4))
 }
 
 /// Computes the signed volume of a tetrahedron.
@@ -17,10 +16,8 @@ pub fn tetrahedron_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
 /// If it is positive, `p4` is on the half-space pointed by the normal of the oriented triangle
 /// `(p1, p2, p3)`.
 #[inline]
-pub fn tetrahedron_signed_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Index<usize, Output = N> {
+pub fn tetrahedron_signed_volume<P>(p1: &P, p2: &P, p3: &P, p4: &P) -> <P::Vect as Vect>::Scalar
+    where P: Point {
     assert!(na::dim::<P>() == 3);
 
     let p1p2 = *p2 - *p1;
@@ -41,6 +38,6 @@ pub fn tetrahedron_signed_volume<N, P, V>(p1: &P, p2: &P, p3: &P, p4: &P) -> N
 // N where P: FloatPnt<f64>
 pub fn tetrahedron_center<N, P>(p1: &P, p2: &P, p3: &P, p4: &P) -> P
     where N: Scalar,
-          P: Axpy<N> + ScalarMul<N> + Clone {
-    ::center(&[ p1.clone(), p2.clone(), p3.clone(), p4.clone() ])
+          P: Axpy<N> + Mul<N, Output = P> + Copy {
+    ::center(&[ *p1, *p2, *p3, *p4 ])
 }

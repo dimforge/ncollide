@@ -1,19 +1,18 @@
 use na::Translate;
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use entities::shape::MinkowskiSum;
 use procedural::Polyline;
 use super::ToPolyline;
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-impl<'a, N, P, V, M, G1, G2, A, B> ToPolyline<N, P, V, (A, B)> for MinkowskiSum<'a, M, G1, G2>
-    where N:  Scalar,
-          P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
-          G1: ToPolyline<N, P, V, A>,
-          G2: ToPolyline<N, P, V, B> {
-    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<N, P, V> {
+impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G2>
+    where P:  Point,
+          P::Vect: Translate<P>,
+          G1: ToPolyline<P, A>,
+          G2: ToPolyline<P, B> {
+    fn to_polyline(&self, (a, b): (A, B)) -> Polyline<P> {
         assert!(na::dim::<P>() == 2);
 
         let poly1 = self.g1().to_polyline(a);

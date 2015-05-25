@@ -6,43 +6,42 @@ use shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Po
 use inspection::Repr;
 
 
-impl<N, P, V, M> HasBoundingSphere<N, P, M> for Repr<N, P, V, M>
-    where N: Scalar,
-          P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
-          M: Isometry<N, P, V> {
+impl<P, M> HasBoundingSphere<P, M> for Repr<P, M>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P, P::Vect> {
     #[inline]
-    fn bounding_sphere(&self, m: &M) -> BoundingSphere<N, P> {
+    fn bounding_sphere(&self, m: &M) -> BoundingSphere<P> {
         let repr = self.repr();
 
-        if let Some(b) = repr.downcast_ref::<Ball<N>>() {
+        if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
             b.bounding_sphere(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Capsule<N>>() {
+        else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
             c.bounding_sphere(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Compound<N, P, V, M>>() {
+        else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
             c.bounding_sphere(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Cone<N>>() {
+        else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
             c.bounding_sphere(m)
         }
         else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
             c.bounding_sphere(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Cuboid<V>>() {
+        else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
             c.bounding_sphere(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Cylinder<N>>() {
+        else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
             c.bounding_sphere(m)
         }
-        else if let Some(t) = repr.downcast_ref::<TriMesh<N, P, V>>() {
+        else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
             t.bounding_sphere(m)
         }
-        else if let Some(p) = repr.downcast_ref::<Polyline<N, P, V>>() {
+        else if let Some(p) = repr.downcast_ref::<Polyline<P>>() {
             p.bounding_sphere(m)
         }
-        else if let Some(p) = repr.downcast_ref::<Plane<V>>() {
+        else if let Some(p) = repr.downcast_ref::<Plane<P::Vect>>() {
             p.bounding_sphere(m)
         }
         else if let Some(s) = repr.downcast_ref::<Segment<P>>() {
