@@ -3,6 +3,13 @@ name    = "ncollide_entities"
 version = "0.2.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+description = "2 and 3-dimensional collision detection library in Rust: module describing the geometric entities and their mathematical definitions."
+documentation = "http://ncollide.org/doc/ncollide"
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+keywords = [ "collision detection", "contact", "time of impact", "geometry", "distance", "ray cast", "convex", "intersection" ]
+license = "BSD-3-Clause"
+
 [lib]
 name = "ncollide_entities"
 path = "lib.rs"

@@ -3,6 +3,13 @@ name    = "ncollide_math"
 version = "0.2.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+description = "2 and 3-dimensional collision detection library in Rust: module describing the algebraic entities used by ncollide."
+documentation = "http://ncollide.org/doc/ncollide"
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+keywords = [ "collision", "detection", "contact", "TOI", "geometry", "distance", "ray", "convex", "intersection" ]
+license = "BSD-3-Clause"
+
 [lib]
 name = "ncollide_math"
 path = "lib.rs"
