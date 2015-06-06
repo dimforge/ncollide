@@ -7,7 +7,7 @@ description = "2 and 3-dimensional collision detection library in Rust: module f
 documentation = "http://ncollide.org/doc/ncollide"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
-keywords = [ "collision detection", "contact", "time of impact", "geometry", "distance", "ray cast", "convex", "intersection" ]
+keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
 license = "BSD-3-Clause"
 
 [lib]
@@ -18,18 +18,8 @@ path = "lib.rs"
 rustc-serialize = "*"
 num = "*"
 nalgebra = "*"
-
-[dependencies.ncollide_math]
-path = "../ncollide_math"
-
-[dependencies.ncollide_utils]
-path = "../ncollide_utils"
-
-[dependencies.ncollide_entities]
-path = "../ncollide_entities"
-
-[dependencies.ncollide_queries]
-path = "../ncollide_queries"
-
-[dependencies.ncollide_procedural]
-path = "../ncollide_procedural"
+ncollide_math = "*"
+ncollide_utils = "*"
+ncollide_entities = "*"
+ncollide_queries = "*"
+ncollide_procedural = "*"

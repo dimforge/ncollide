@@ -7,7 +7,7 @@ description = "2 and 3-dimensional collision detection library in Rust: module d
 documentation = "http://ncollide.org/doc/ncollide"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
-keywords = [ "collision", "detection", "contact", "TOI", "geometry", "distance", "ray", "convex", "intersection" ]
+keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
 license = "BSD-3-Clause"
 
 [lib]
