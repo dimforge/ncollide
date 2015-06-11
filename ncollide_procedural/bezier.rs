@@ -11,7 +11,7 @@ pub fn bezier_curve_at<P>(control_points: &[P], t: <P::Vect as Vect>::Scalar, ca
     where P: Point {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
-        cache.extend(iter::repeat(na::orig()).take(diff))
+        cache.resize(diff, na::orig())
     }
 
     let cache = &mut cache[..];
@@ -47,7 +47,7 @@ pub fn bezier_surface_at<P>(
     where P: Point {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
-        vcache.extend(iter::repeat(na::orig()).take(diff));
+        vcache.resize(diff, na::orig());
     }
 
     // FIXME: start with u or v, depending on which dimension has more control points.
