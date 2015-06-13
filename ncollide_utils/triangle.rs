@@ -1,6 +1,6 @@
-use std::ops::{Sub, Index, IndexMut};
+use std::ops::{Sub, Mul, Index, IndexMut};
 use num::Zero;
-use na::{Cross, Norm, Dim};
+use na::{Cross, Norm, Dim, Axpy};
 use na;
 use num::Float;
 use math::{Scalar, Point, Vect, FloatError};
@@ -22,6 +22,14 @@ pub fn triangle_area<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vect>::Scalar
     let sqr = (a + (b + c)) * (c - (a - b)) * (c + (a - b)) * (a + (b - c));
 
     sqr.sqrt() * na::cast(0.25)
+}
+
+/// Computes the center of a triangle.
+#[inline]
+pub fn triangle_center<N, P>(pa: &P, pb: &P, pc: &P) -> P
+    where N: Scalar,
+          P: Axpy<N> + Mul<N, Output = P> + Copy {
+    ::center(&[ *pa, *pb, *pc ])
 }
 
 /// Computes the perimeter of a triangle.

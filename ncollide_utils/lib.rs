@@ -20,7 +20,7 @@ pub use center::center;
 pub use project_homogeneous::{project_homogeneous, project_homogeneous_to};
 pub use triangle::{circumcircle, is_affinely_dependent_triangle3,
                    is_affinely_dependent_triangle, is_point_in_triangle, triangle_area,
-                   triangle_perimeter};
+                   triangle_center, triangle_perimeter};
 pub use tetrahedron::{tetrahedron_volume, tetrahedron_signed_volume, tetrahedron_center};
 pub use cleanup::remove_unused_points;
 pub use derivatives::{dcos, dsin, binom};
