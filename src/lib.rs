@@ -13,14 +13,14 @@ The official user guide is available [here](http://ncollide.org).
 The rustdoc documentation is available [here](http://ncollide.org/doc/ncollide).
 
 ## Compilation
-You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
 and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
 Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
-[dependencies.ncollide]
-git = "https://github.com/sebcrozet/ncollide"
+[dependencies]
+ncollide = "*"
 ```
 
 
