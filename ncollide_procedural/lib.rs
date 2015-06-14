@@ -8,6 +8,7 @@
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
+#![feature(collections)] // Quick fix to get it to compile.
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
 extern crate rustc_serialize;
