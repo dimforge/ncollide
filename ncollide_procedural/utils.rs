@@ -215,7 +215,7 @@ pub fn compute_normals<P>(coordinates: &[P], faces: &[Pnt3<u32>], normals: &mut 
 
     // Reinit all normals to zero.
     normals.clear();
-    normals.extend(iter::repeat(na::zero()).take(coordinates.len()));
+    normals.extend(iter::repeat(na::zero::<P::Vect>()).take(coordinates.len()));
 
     // Accumulate normals ...
     for f in faces.iter() {
