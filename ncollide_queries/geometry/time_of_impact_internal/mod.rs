@@ -1,4 +1,4 @@
-//! Implementation details of the `distance` function.
+//! Implementation details of the `time_of_impact` function.
 
 pub use self::ball_against_ball::ball_against_ball;
 pub use self::support_map_against_support_map::support_map_against_support_map;

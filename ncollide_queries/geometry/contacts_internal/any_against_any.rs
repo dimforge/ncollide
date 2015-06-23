@@ -8,9 +8,9 @@ use entities::bounding_volume::HasAABB;
 use geometry::contacts_internal;
 use geometry::contacts_internal::Contact;
 
-/// Computes the minimum distance separating two shapes.
+/// Computes one contact point between two shapes.
 ///
-/// Returns `0.0` if the objects are touching or penetrating.
+/// Returns `None` if the objects are separated by a distance greater than `prediction`.
 pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
                                                      m2: &M, g2: &G2,
                                                      prediction: <P::Vect as Vect>::Scalar)

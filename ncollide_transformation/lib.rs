@@ -1,4 +1,4 @@
-//! Geometric entities manipulated by ncollide.
+//! Transformation, simplification and decomposition of meshes.
 
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]

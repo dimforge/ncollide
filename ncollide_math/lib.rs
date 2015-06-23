@@ -1,4 +1,4 @@
-//! Trait implemented by the types used by ncollide.
+//! Trait implemented by the primitive algebraic types used by ncollide.
 
 extern crate rustc_serialize;
 extern crate num;

@@ -1,4 +1,4 @@
-//! Miscelaneous, unsorted generic geometric utilities.
+//! Miscelaneous elementary geometric utilities.
 
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]

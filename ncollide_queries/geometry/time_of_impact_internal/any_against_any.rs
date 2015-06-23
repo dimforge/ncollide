@@ -7,7 +7,7 @@ use entities::shape::{Ball, Plane};
 use entities::bounding_volume::HasAABB;
 use geometry::time_of_impact_internal;
 
-/// Computes the minimum distance separating two shapes.
+/// Computes the smallest time of impact of two shapes under translational movement.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1: &G1,
