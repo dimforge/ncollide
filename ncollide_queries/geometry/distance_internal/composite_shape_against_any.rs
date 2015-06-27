@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use na::Translate;
 use na;
 use entities::bounding_volume::{HasAABB, AABB};
@@ -30,24 +31,26 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
     composite_shape_against_any(m2, g2, m1, g1)
 }
 
-struct CompositeShapeAgainstAnyDistCostFn<'a, V: 'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
-    msum_shift:  V,
-    msum_margin: V,
+struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
+    msum_shift:  P::Vect,
+    msum_margin: P::Vect,
 
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
-    g2: &'a G2
+    g2: &'a G2,
+
+    point_type: PhantomData<P>
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2>
+impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     where P:  Point,
           P::Vect: Translate<P> ,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
-        -> CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2> {
+        -> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2> {
 
         let ls_m2 = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = g2.aabb(&ls_m2);
@@ -58,14 +61,15 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P:
             m1:          m1,
             g1:          g1,
             m2:          m2,
-            g2:          g2
+            g2:          g2,
+            point_type:  PhantomData
         }
     }
 }
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized>
 BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
-for CompositeShapeAgainstAnyDistCostFn<'a, P::Vect, M, G1, G2>
+for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     where P:  Point,
           P::Vect: Translate<P> ,
           M:  Isometry<P, P::Vect>,
