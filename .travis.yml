@@ -1,5 +1,14 @@
 language: rust
 rust:
-- stable
-- beta
-- nightly
+    - stable
+    - beta
+    - nightly
+script:
+    - cd ncollide_entities; cargo build --release; cd ..
+    - cd ncollide_math; cargo build --release; cd ..
+    - cd ncollide_pipeline; cargo build --release; cd ..
+    - cd ncollide_procedural; cargo build --release; cd ..
+    - cd ncollide_queries; cargo build --release; cd ..
+    - cd ncollide_transformation; cargo build --release; cd ..
+    - cd ncollide_utils; cargo build --release; cd ..
+    - cargo build --release; cd ..
