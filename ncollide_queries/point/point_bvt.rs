@@ -1,5 +1,6 @@
+use na::Identity;
 use entities::partitioning::BVTVisitor;
-use point::LocalPointQuery;
+use point::PointQuery;
 use math::Point;
 
 // FIXME: add a point cost fn.
@@ -24,15 +25,15 @@ impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
 impl<'a, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
     where P:  Point,
           B:  Clone,
-          BV: LocalPointQuery<P> {
+          BV: PointQuery<P, Identity> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
-        bv.contains_point(self.point)
+        bv.contains_point(&Identity::new(), self.point)
     }
 
     #[inline]
     fn visit_leaf(&mut self, b: &B, bv: &BV) {
-        if bv.contains_point(self.point) {
+        if bv.contains_point(&Identity::new(), self.point) {
             self.collector.push(b.clone())
         }
     }

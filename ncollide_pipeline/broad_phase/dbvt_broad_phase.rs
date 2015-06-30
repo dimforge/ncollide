@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use na::Translation;
+use na::{Translation, Identity};
 use na;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::pair::{Pair, PairTWHash};
@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect};
 use entities::bounding_volume::{HasBoundingVolume, BoundingVolume, BoundingVolumeInterferencesCollector};
 use entities::partitioning::{DBVT, DBVTLeaf};
 use queries::ray::{Ray, LocalRayCast, RayInterferencesCollector};
-use queries::point::{LocalPointQuery, PointInterferencesCollector};
+use queries::point::{PointQuery, PointInterferencesCollector};
 use broad_phase::BroadPhase;
 
 struct DBVTBroadPhaseProxy<P, BV, T> {
@@ -70,7 +70,7 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     where P:  Point,
           BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> +
-              LocalRayCast<P> + LocalPointQuery<P> + Clone {
+              LocalRayCast<P> + PointQuery<P, Identity> + Clone {
     #[inline]
     fn defered_add(&mut self, uid: usize, bv: BV, data: T) {
         let lbv = bv.loosened(self.margin.clone());

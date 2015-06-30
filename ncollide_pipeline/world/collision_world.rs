@@ -185,7 +185,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
         for b in bodies.into_iter() {
             let co = &self.objects[*b];
 
-            if co.shape.contains_point_with_transform(&co.position, point) {
+            if co.shape.contains_point(&co.position, point) {
                 f(&co.data)
             }
         }
