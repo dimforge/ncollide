@@ -1,11 +1,11 @@
-use na::{Identity, Translation, Rotate, Transform};
+use na::{Identity, Translate, Rotate, Transform};
 use na;
 use geometry::algorithms::gjk;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
 use entities::support_map::SupportMap;
-use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
+use ray::{Ray, RayCast, RayIntersection};
 use math::{Scalar, Point, Vect};
 
 
@@ -17,7 +17,7 @@ pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(m:       &M,
                                                             solid:   bool)
                                                             -> Option<RayIntersection<P::Vect>>
     where P: Point,
-          M: Translation<P::Vect>,
+          M: Translate<P>,
           S: Simplex<P>,
           G: SupportMap<P, M> {
     let inter = gjk::cast_ray(m, shape, simplex, ray);
@@ -50,80 +50,96 @@ pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(m:       &M,
     }
 }
 
-impl<P> LocalRayCast<P> for Cylinder<<P::Vect as Vect>::Scalar>
-    where P: Point {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
-    }
-}
-
 impl<P, M> RayCast<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
     where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
-}
+          M: Transform<P> + Translate<P> + Rotate<P::Vect> {
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-impl<P> LocalRayCast<P> for Cone<<P::Vect as Vect>::Scalar>
-    where P: Point {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
     }
 }
 
 impl<P, M> RayCast<P, M> for Cone<<P::Vect as Vect>::Scalar>
     where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
-}
+          M: Transform<P> + Translate<P> + Rotate<P::Vect> {
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-impl<P> LocalRayCast<P> for Capsule<<P::Vect as Vect>::Scalar>
-    where P: Point {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
     }
 }
 
 impl<P, M> RayCast<P, M> for Capsule<<P::Vect as Vect>::Scalar>
     where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
-}
+          M: Transform<P> + Translate<P> + Rotate<P::Vect> {
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-impl<P> LocalRayCast<P> for Convex<P>
-    where P: Point {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
     }
 }
 
 impl<P, M> RayCast<P, M> for Convex<P>
     where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
-}
+          M: Transform<P> + Translate<P> + Rotate<P::Vect> {
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-impl<P> LocalRayCast<P> for Segment<P>
-    where P: Point {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        // XXX: optimize if na::dim::<P>() == 2
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
     }
 }
 
 impl<P, M> RayCast<P, M> for Segment<P>
     where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
-}
+          M: Transform<P> + Translate<P> + Rotate<P::Vect> {
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        // XXX: optimize if na::dim::<P>() == 2
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> LocalRayCast<P> for MinkowskiSum<'a, M, G1, G2>
-    where P:  Point,
-          M:  Transform<P> + Rotate<P::Vect>,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> RayCast<P, M> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, P, M, M2, G1: ?Sized, G2: ?Sized> RayCast<P, M2> for MinkowskiSum<'a, M, G1, G2>
     where P:  Point,
-          M:  Transform<P> + Rotate<P::Vect>,
+          M2: Transform<P> + Translate<P> + Rotate<P::Vect>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
+    fn toi_and_normal_with_ray(&self, m: &M2, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        // XXX: optimize if na::dim::<P>() == 2
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
+
+        implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                         &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray,
+                                         solid).map(|mut res| {
+            res.normal = m.rotate(&res.normal);
+            res
+        })
+    }
 }

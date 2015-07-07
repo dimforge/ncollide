@@ -1,9 +1,9 @@
-use na::Translate;
+use na::Translation;
 use math::{Scalar, Point, Vect, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
-use point::{LocalPointQuery, PointQuery};
+use point::PointQuery;
 
 macro_rules! dispatch(
     ($sself: ident.$name: ident($($argN: ident),*)) => {
@@ -56,28 +56,21 @@ macro_rules! dispatch(
     }
 );
 
-impl<P, M> LocalPointQuery<P> for Repr<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
-    #[inline]
-    fn project_point(&self, pt: &P, solid: bool) -> P {
-        dispatch!(self.project_point(pt, solid))
-    }
-
-    #[inline]
-    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
-        dispatch!(self.distance_to_point(pt))
-    }
-
-    #[inline]
-    fn contains_point(&self, pt: &P) -> bool {
-        dispatch!(self.contains_point(pt))
-    }
-}
-
 impl<P, M> PointQuery<P, M> for Repr<P, M>
     where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+    #[inline]
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
+        dispatch!(self.project_point(m, pt, solid))
+    }
+
+    #[inline]
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
+        dispatch!(self.distance_to_point(m, pt))
+    }
+
+    #[inline]
+    fn contains_point(&self, m: &M, pt: &P) -> bool {
+        dispatch!(self.contains_point(m, pt))
+    }
 }

@@ -1,7 +1,7 @@
 //! Point inclusion and projection.
 
 #[doc(inline)]
-pub use self::point_query::{LocalPointQuery, PointQuery};
+pub use self::point_query::PointQuery;
 pub use self::point_bvt::PointInterferencesCollector;
 
 #[doc(hidden)]

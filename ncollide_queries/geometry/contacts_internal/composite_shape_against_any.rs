@@ -1,4 +1,4 @@
-use na::Translate;
+use na::{Translate, Translation};
 use na;
 use entities::partitioning::BoundingVolumeInterferencesCollector;
 use entities::bounding_volume::{BoundingVolume, HasAABB};
@@ -72,7 +72,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
                                    -> Option<Contact<P>>
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     // Find new collisions
@@ -119,7 +119,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(
                                    -> Option<Contact<P>>
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: Repr<P, M> + HasAABB<P, M>,
           G2: CompositeShape<P, M> {
     let mut res = composite_shape_against_any(m2, g2, m1, g1, prediction);

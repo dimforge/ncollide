@@ -12,7 +12,7 @@ use entities::bounding_volume::{BoundingVolume, AABB};
 use entities::bounding_volume;
 use entities::partitioning::{BVT, BoundingVolumeInterferencesCollector};
 use queries::geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use queries::ray::{Ray, LocalRayCast, RayIntersection};
+use queries::ray::{Ray, RayCast, RayIntersection};
 use queries::ray;
 use procedural::{TriMesh, IndexBuffer};
 
@@ -446,7 +446,7 @@ impl<N: Scalar> DualGraphEdge<N> {
                 let shift: N = na::cast(0.1f64);
                 let outside_point = ray.orig + ray.dir * (dist + shift);
 
-                match chull.toi_with_ray(&Ray::new(outside_point, -ray.dir), true) {
+                match chull.toi_with_ray(&Identity::new(), &Ray::new(outside_point, -ray.dir), true) {
                     None      => {
                         ancestors.push(VertexWithConcavity::new(id, na::zero()))
                     },
@@ -512,7 +512,7 @@ impl<N: Scalar> DualGraphEdge<N> {
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(ray, true) {
+                    match chull.toi_with_ray(&Identity::new(), ray, true) {
                         None        => continue,
                         Some(inter) => {
                             if na::is_zero(&inter) {
@@ -755,11 +755,11 @@ impl<'a, N: Scalar> SupportMap<Pnt3<N>, Identity> for ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> LocalRayCast<Pnt3<N>> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> RayCast<Pnt3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<Pnt3<N>>, solid: bool) -> Option<RayIntersection<Vec3<N>>> {
+    fn toi_and_normal_with_ray(&self, id: &Identity, ray: &Ray<Pnt3<N>>, solid: bool) -> Option<RayIntersection<Vec3<N>>> {
         ray::implicit_toi_and_normal_with_ray(
-            &Identity::new(),
+            id,
             self,
             &mut JohnsonSimplex::<Pnt3<N>>::new_w_tls(),
             ray,

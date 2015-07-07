@@ -1,6 +1,6 @@
 //! Traits and structure needed to cast rays.
 
-use na::{Rotate, Transform, Pnt2};
+use na::Pnt2;
 use math::{Point, Vect};
 
 /// A Ray.
@@ -62,71 +62,27 @@ impl<V: Vect> RayIntersection<V> {
     }
 }
 
-/// Traits of objects which can be tested for intersection with a ray.
-pub trait LocalRayCast<P: Point> {
-    /// Computes the time of impact between this shape and a ray
-    #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
-        self.toi_and_normal_with_ray(ray, solid).map(|inter| inter.toi)
-    }
-
-    /// Computes the intersection point between this shape and a ray.
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>>;
-
-    /// Computes the intersection point and normal between this shape and a ray.
-    #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        self.toi_and_normal_with_ray(ray, solid)
-    }
-
-    /// Tests whether a ray intersects this shape.
-    #[inline]
-    fn intersects_ray(&self, ray: &Ray<P>) -> bool {
-        self.toi_with_ray(ray, true).is_some()
-    }
-}
-
-// FIXME: replace this trait by free functions?
 /// Traits of objects which can be transformed and tested for intersection with a ray.
-pub trait RayCast<P: Point, M: Transform<P> + Rotate<P::Vect>>: LocalRayCast<P> {
+pub trait RayCast<P: Point, M> {
     /// Computes the time of impact between this transform shape and a ray.
-    fn toi_with_transform_and_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
-        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
-
-        self.toi_with_ray(&ls_ray, solid)
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
+        self.toi_and_normal_with_ray(m, ray, solid).map(|inter| inter.toi)
     }
 
     /// Computes the time of impact, and normal between this transformed shape and a ray.
     #[inline]
-    fn toi_and_normal_with_transform_and_ray(&self, m: &M, ray: &Ray<P>, solid: bool)
-                                             -> Option<RayIntersection<P::Vect>> {
-        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
-
-        self.toi_and_normal_with_ray(&ls_ray, solid).map(|mut inter| {
-            inter.normal = m.rotate(&inter.normal);
-
-            inter
-        })
-    }
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>>;
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// shape and a ray.
     #[inline]
-    fn toi_and_normal_and_uv_with_transform_and_ray(&self, m: &M, ray: &Ray<P>, solid: bool)
-                                                    -> Option<RayIntersection<P::Vect>> {
-        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
-
-        self.toi_and_normal_and_uv_with_ray(&ls_ray, solid).map(|mut inter| {
-            inter.normal = m.rotate(&inter.normal);
-
-            inter
-        })
+    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        self.toi_and_normal_with_ray(m, ray, solid)
     }
 
     /// Tests whether a ray intersects this transformed shape.
     #[inline]
-    fn intersects_with_transform_and_ray(&self, m: &M, ray: &Ray<P>) -> bool {
-        self.toi_with_transform_and_ray(m, ray, true).is_some()
+    fn intersects_ray(&self, m: &M, ray: &Ray<P>) -> bool {
+        self.toi_with_ray(m, ray, true).is_some()
     }
 }

@@ -14,7 +14,7 @@ use std::ops::{IndexMut, Mul, Neg};
 use std::any::Any;
 use num::{Signed, One};
 use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat1, Mat3, Iso2, Iso3, Iso4, Identity};
-use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample, Translation,
+use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample,
          Rotate, Transform, AbsoluteRotate, Inv, FloatPnt, Shape, Absolute, Iterable, BaseFloat,
          Bounded, Repeat};
 
@@ -57,7 +57,7 @@ pub trait Vect: Send + Sync + 'static +
 /// Trait implemented by transformation matrices types.
 pub trait Isometry<P, V>: // FIXME: we actually want associated types here.
                           Send           + Sync           + 'static                  +
-                          One            + Translation<V> + Rotate<V>                +
+                          One            + Rotate<V>      +
                           Translate<P>   + Transform<P>   + AbsoluteRotate<V>        +
                           Inv            + Clone          + Mul<Self, Output = Self> +
                           Copy           + Debug          + Any                      +

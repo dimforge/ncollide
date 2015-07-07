@@ -3,27 +3,28 @@ use na::{Vec3, Identity, Transform, Rotate};
 use na;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::Triangle;
-use ray::{Ray, LocalRayCast, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
+use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::{Scalar, Point, Vect};
 
 use utils;
 
-impl<P> LocalRayCast<P> for Triangle<P>
-    where P: Point {
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        if na::dim::<P>() == 3 {
-            triangle_ray_intersection(self.a(), self.b(), self.c(), ray).map(|(r, _)| r)
-        }
-        else {
-            implicit_toi_and_normal_with_ray(&Identity::new(), self, &mut JohnsonSimplex::<P>::new_w_tls(), ray, solid)
-        }
-    }
-}
-
 impl<P, M> RayCast<P, M> for Triangle<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
+    #[inline]
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
+
+        let res = if na::dim::<P>() == 3 {
+            triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray).map(|(r, _)| r)
+        }
+        else {
+            implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                             &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray, solid)
+        };
+
+        res.map(|mut r| { r.normal = m.rotate(&r.normal); r })
+    }
 }
 
 /// Computes the intersection between a triangle and a ray.

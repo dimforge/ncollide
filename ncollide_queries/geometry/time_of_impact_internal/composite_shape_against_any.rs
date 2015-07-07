@@ -1,11 +1,11 @@
-use na::Translate;
+use na::{Identity, Translate};
 use na;
 use math::{Scalar, Point, Vect, Isometry};
 use entities::bounding_volume::{HasAABB, AABB};
 use entities::partitioning::BVTCostFn;
 use entities::inspection::Repr;
 use entities::shape::CompositeShape;
-use ray::{LocalRayCast, Ray};
+use ray::{Ray, RayCast};
 use geometry::time_of_impact_internal;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
@@ -13,7 +13,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &
                                                                  m2: &M, vel2: &P::Vect, g2: &G2)
                                                                  -> Option<<P::Vect as Vect>::Scalar>
     where P:  Point,
-          P::Vect: Translate<P> ,
+          P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
@@ -27,7 +27,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &
                                                                  m2: &M, vel2: &P::Vect, g2: &G2)
                                                                  -> Option<<P::Vect as Vect>::Scalar>
     where P:  Point,
-          P::Vect: Translate<P> ,
+          P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: Repr<P, M> + HasAABB<P, M>,
           G2: CompositeShape<P, M> {
@@ -49,7 +49,6 @@ struct CompositeShapeAgainstAnyTOICostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> ,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
@@ -77,7 +76,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized>
 BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
 for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> ,
+          P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
@@ -88,7 +87,7 @@ for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
                              *bv.maxs() + self.msum_shift + self.msum_margin);
 
         // Compute the TOI.
-        msum.toi_with_ray(&self.ray, true)
+        msum.toi_with_ray(&Identity::new(), &self.ray, true)
     }
 
     #[inline]

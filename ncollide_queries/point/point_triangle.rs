@@ -1,14 +1,15 @@
 use na::Transform;
 use na;
 use entities::shape::Triangle;
-use point::{LocalPointQuery, PointQuery};
+use point::PointQuery;
 use math::{Scalar, Point, Vect};
 
 
-impl<P> LocalPointQuery<P> for Triangle<P>
-    where P: Point {
+impl<P, M> PointQuery<P, M> for Triangle<P>
+    where P: Point,
+          M: Transform<P> {
     #[inline]
-    fn project_point(&self, pt: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
         /*
          * This comes from the book `Real Time Collision Detection`.
          * This is a trivial Voronoï region based approach, except that great care has been taken
@@ -19,7 +20,7 @@ impl<P> LocalPointQuery<P> for Triangle<P>
         let a = self.a().clone();
         let b = self.b().clone();
         let c = self.c().clone();
-        let p = pt.clone();
+        let p = m.inv_transform(pt);
 
         let ab = b - a;
         let ac = c - a;
@@ -30,7 +31,7 @@ impl<P> LocalPointQuery<P> for Triangle<P>
 
         if d1 <= na::zero() && d2 <= na::zero() {
             // Voronoï region of `a`.
-            return a;
+            return m.transform(&a);
         }
 
         let bp = p - b;
@@ -39,14 +40,14 @@ impl<P> LocalPointQuery<P> for Triangle<P>
 
         if d3 >= na::zero() && d4 <= d3 {
             // Voronoï region of `b`.
-            return b;
+            return m.transform(&b);
         }
 
         let vc = d1 * d4 - d3 * d2;
         if vc <= na::zero() && d1 >= na::zero() && d3 <= na::zero() {
             // Voronoï region of `ab`.
             let v = d1 / (d1 - d3);
-            return a + ab * v;
+            return m.transform(&(a + ab * v));
         }
 
         let cp = p - c;
@@ -55,7 +56,7 @@ impl<P> LocalPointQuery<P> for Triangle<P>
 
         if d6 >= na::zero() && d5 <= d6 {
             // Voronoï region of `c`.
-            return c;
+            return m.transform(&c);
         }
 
         let vb = d5 * d2 - d1 * d6;
@@ -63,14 +64,14 @@ impl<P> LocalPointQuery<P> for Triangle<P>
         if vb <= na::zero() && d2 >= na::zero() && d6 <= na::zero() {
             // Voronoï region of `ac`.
             let w = d2 / (d2 - d6);
-            return a + ac * w;
+            return m.transform(&(a + ac * w));
         }
 
         let va = d3 * d6 - d5 * d4;
         if va <= na::zero() && d4 - d3 >= na::zero() && d5 - d6 >= na::zero() {
             // Voronoï region of `bc`.
             let w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            return b + (c - b) * w;
+            return m.transform(&(b + (c - b) * w));
         }
 
         // Voronoï region of the face.
@@ -79,13 +80,13 @@ impl<P> LocalPointQuery<P> for Triangle<P>
             let v = vb * denom;
             let w = vc * denom;
 
-            a + ab * v + ac * w
+            m.transform(&(a + ab * v + ac * w))
         }
         else {
             // Special treatement if we work in 2d because in this case we really are inside of the
             // object.
             if solid {
-                p
+                pt.clone()
             }
             else {
                 // We have to project on the closest edge.
@@ -103,21 +104,21 @@ impl<P> LocalPointQuery<P> for Triangle<P>
                 if d_ab < d_ac {
                     if d_ab < d_bc {
                         // ab
-                        a + ab * v
+                        m.transform(&(a + ab * v))
                     }
                     else {
                         // bc
-                        b + bc * u
+                        m.transform(&(b + bc * u))
                     }
                 }
                 else {
                     if d_ac < d_bc {
                         // ac
-                        a + ac * w
+                        m.transform(&(a + ac * w))
                     }
                     else {
                         // bc
-                        b + bc * u
+                        m.transform(&(b + bc * u))
                     }
                 }
             }
@@ -125,17 +126,12 @@ impl<P> LocalPointQuery<P> for Triangle<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
+        na::dist(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]
-    fn contains_point(&self, pt: &P) -> bool {
-        na::approx_eq(&self.distance_to_point(pt), &na::zero())
+    fn contains_point(&self, m: &M, pt: &P) -> bool {
+        na::approx_eq(&self.distance_to_point(m, pt), &na::zero())
     }
-}
-
-impl<P, M> PointQuery<P, M> for Triangle<P>
-    where P: Point,
-          M: Transform<P> {
 }

@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
 use num::{Float, Zero};
-use na::{Identity, Translation, Bounded, Norm};
+use na::{Identity, Translate, Bounded, Norm};
 use na;
 use entities::shape::{AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
 use entities::support_map::SupportMap;
@@ -220,7 +220,7 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
                                     ray:     &Ray<P>)
                                     -> Option<(<P::Vect as Vect>::Scalar, P::Vect)>
     where P: Point,
-          M: Translation<P::Vect>,
+          M: Translate<P>,
           S: Simplex<P>,
           G: SupportMap<P, M> {
     let mut ltoi: <P::Vect as Vect>::Scalar = na::zero();
@@ -231,7 +231,7 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
 
     // initialization
     let mut curr_ray   = Ray::new(ray.orig.clone(), ray.dir.clone());
-    let mut dir        = *curr_ray.orig.as_vec() - m.translation();
+    let mut dir        = m.inv_translate(&curr_ray.orig).as_vec().clone();
 
     if dir.is_zero() {
         dir[0] = na::one();

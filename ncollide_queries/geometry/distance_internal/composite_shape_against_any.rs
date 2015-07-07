@@ -1,19 +1,19 @@
 use std::marker::PhantomData;
-use na::Translate;
+use na::{Identity, Translate, Translation};
 use na;
 use entities::bounding_volume::{HasAABB, AABB};
 use entities::partitioning::BVTCostFn;
 use entities::shape::CompositeShape;
 use entities::inspection::Repr;
+use point::PointQuery;
 use geometry::distance_internal;
-use point::LocalPointQuery;
 use math::{Scalar, Point, Vect, Isometry};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
     where P:  Point,
-          P::Vect: Translate<P> ,
-          M:  Isometry<P, P::Vect>,
+          P::Vect: Translate<P>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
@@ -24,8 +24,8 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
 /// Smallest distance between a shape and a composite shape.
 pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
     where P:  Point,
-          P::Vect: Translate<P> ,
-          M:  Isometry<P, P::Vect>,
+          P::Vect: Translate<P>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: Repr<P, M> + HasAABB<P, M>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1)
@@ -45,7 +45,6 @@ struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized +
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> ,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
@@ -71,8 +70,8 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized>
 BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
 for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> ,
-          M:  Isometry<P, P::Vect>,
+          P::Vect: Translate<P>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     #[inline]
@@ -82,7 +81,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
                              *bv.maxs() + self.msum_shift + self.msum_margin);
 
         // Compute the distance to the origin.
-        Some(msum.distance_to_point(&na::orig()))
+        Some(msum.distance_to_point(&Identity::new(), &na::orig()))
     }
 
     #[inline]

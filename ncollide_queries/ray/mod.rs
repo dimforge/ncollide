@@ -1,6 +1,6 @@
 //! Ray-casting related definitions and implementations.
 #[doc(inline)]
-pub use ray::ray::{Ray, LocalRayCast, RayCast, RayIntersection};
+pub use ray::ray::{Ray, RayCast, RayIntersection};
 pub use ray::ray_plane::plane_toi_with_ray;
 pub use ray::ray_triangle::triangle_ray_intersection;
 pub use ray::ray_support_map::implicit_toi_and_normal_with_ray;

@@ -1,5 +1,5 @@
 use na;
-use na::Translate;
+use na::{Translate, Translation};
 use math::{Scalar, Point, Vect, Isometry};
 use entities::inspection;
 use entities::inspection::Repr;
@@ -13,7 +13,7 @@ use geometry::distance_internal;
 pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: Repr<P, M> + HasAABB<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     let r1 = g1.repr();

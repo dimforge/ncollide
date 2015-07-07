@@ -1,9 +1,8 @@
-use na::Translate;
 use math::{Scalar, Point, Vect, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
-use ray::{LocalRayCast, RayCast, Ray, RayIntersection};
+use ray::{RayCast, Ray, RayIntersection};
 
 macro_rules! dispatch(
     ($sself: ident.$name: ident($($argN: ident),*)) => {
@@ -56,33 +55,26 @@ macro_rules! dispatch(
     }
 );
 
-impl<P, M> LocalRayCast<P> for Repr<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
-    #[inline]
-    fn toi_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
-        dispatch!(self.toi_with_ray(ray, solid))
-    }
-
-    #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        dispatch!(self.toi_and_normal_with_ray(ray, solid))
-    }
-
-    #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        dispatch!(self.toi_and_normal_and_uv_with_ray(ray, solid))
-    }
-
-    #[inline]
-    fn intersects_ray(&self, ray: &Ray<P>) -> bool {
-        dispatch!(self.intersects_ray(ray))
-    }
-}
-
 impl<P, M> RayCast<P, M> for Repr<P, M>
     where P: Point,
-          P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
+    #[inline]
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
+        dispatch!(self.toi_with_ray(m, ray, solid))
+    }
+
+    #[inline]
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        dispatch!(self.toi_and_normal_with_ray(m, ray, solid))
+    }
+
+    #[inline]
+    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        dispatch!(self.toi_and_normal_and_uv_with_ray(m, ray, solid))
+    }
+
+    #[inline]
+    fn intersects_ray(&self, m: &M, ray: &Ray<P>) -> bool {
+        dispatch!(self.intersects_ray(m, ray))
+    }
 }

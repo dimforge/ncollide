@@ -8,7 +8,7 @@ use math::{Scalar, Point, Vect};
 impl<P, M, I, E> HasAABB<P, M> for BaseMesh<P, I, E>
     where P: Point,
           P::Vect: Translate<P>,
-          M: AbsoluteRotate<P::Vect> + Transform<P> + Translation<P::Vect>,
+          M: AbsoluteRotate<P::Vect> + Transform<P>,
           E: BaseMeshElement<I, P> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
@@ -25,7 +25,7 @@ impl<P, M, I, E> HasAABB<P, M> for BaseMesh<P, I, E>
 impl<P, M> HasAABB<P, M> for TriMesh<P>
     where P: Point,
           P::Vect: Translate<P>,
-          M: AbsoluteRotate<P::Vect> + Transform<P> + Translation<P::Vect> {
+          M: AbsoluteRotate<P::Vect> + Transform<P> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         self.base_mesh().aabb(m)
@@ -35,7 +35,7 @@ impl<P, M> HasAABB<P, M> for TriMesh<P>
 impl<P, M> HasAABB<P, M> for Polyline<P>
     where P: Point,
           P::Vect: Translate<P>,
-          M: AbsoluteRotate<P::Vect> + Transform<P> + Translation<P::Vect> {
+          M: AbsoluteRotate<P::Vect> + Transform<P> {
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P> {
         self.base_mesh().aabb(m)
