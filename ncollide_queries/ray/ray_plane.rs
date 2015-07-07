@@ -1,6 +1,6 @@
 use na::{Transform, Rotate};
 use na;
-use ray::{Ray, LocalRayCast, RayCast, RayIntersection};
+use ray::{Ray, RayCast, RayIntersection};
 use entities::shape::Plane;
 use math::{Scalar, Point, Vect};
 
@@ -19,11 +19,14 @@ pub fn plane_toi_with_ray<P>(center: &P, normal: &P::Vect, ray: &Ray<P>) -> Opti
     }
 }
 
-impl<P> LocalRayCast<P> for Plane<P::Vect>
-    where P: Point {
+impl<P, M> RayCast<P, M> for Plane<P::Vect>
+    where P: Point,
+          M: Transform<P> + Rotate<P::Vect> {
     #[inline]
-    fn toi_and_normal_with_ray(&self, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let dpos = -ray.orig;
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
+        let ls_ray = Ray::new(m.inv_transform(&ray.orig), m.inv_rotate(&ray.dir));
+
+        let dpos = -ls_ray.orig;
 
         let dot_normal_dpos = na::dot(self.normal(), dpos.as_vec());
 
@@ -32,20 +35,15 @@ impl<P> LocalRayCast<P> for Plane<P::Vect>
             return Some(RayIntersection::new(na::zero(), na::zero()))
         }
 
-        let t = dot_normal_dpos / na::dot(self.normal(), &ray.dir);
+        let t = dot_normal_dpos / na::dot(self.normal(), &ls_ray.dir);
 
         if t >= na::zero() {
             let n = if dot_normal_dpos > na::zero() { -*self.normal() } else { self.normal().clone() };
 
-            Some(RayIntersection::new(t, n))
+            Some(RayIntersection::new(t, m.rotate(&n)))
         }
         else {
             None
         }
     }
-}
-
-impl<P, M> RayCast<P, M> for Plane<P::Vect>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
 }

@@ -15,7 +15,7 @@ pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, vel_plane: &P::Vec
     let plane_normal  = mplane.rotate(plane.normal());
     let closest_point = other.support_point(mother, &-plane_normal);
 
-    plane.toi_with_transform_and_ray(mplane, &Ray::new(closest_point, vel.clone()), true)
+    plane.toi_with_ray(mplane, &Ray::new(closest_point, vel.clone()), true)
 }
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.

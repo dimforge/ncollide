@@ -8,7 +8,7 @@ use utils::data::hash_map::HashMap;
 use math::{Scalar, Point, Vect};
 use entities::bounding_volume::{HasBoundingVolume, BoundingVolume, BoundingVolumeInterferencesCollector};
 use entities::partitioning::{DBVT, DBVTLeaf};
-use queries::ray::{Ray, LocalRayCast, RayInterferencesCollector};
+use queries::ray::{Ray, RayCast, RayInterferencesCollector};
 use queries::point::{PointQuery, PointInterferencesCollector};
 use broad_phase::BroadPhase;
 
@@ -70,7 +70,7 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     where P:  Point,
           BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> +
-              LocalRayCast<P> + PointQuery<P, Identity> + Clone {
+              RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
     #[inline]
     fn defered_add(&mut self, uid: usize, bv: BV, data: T) {
         let lbv = bv.loosened(self.margin.clone());

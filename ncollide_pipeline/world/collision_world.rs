@@ -166,7 +166,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
         for b in bodies.into_iter() {
             let co = &self.objects[*b];
 
-            let inter = co.shape.toi_and_normal_with_transform_and_ray(&co.position, ray, true);
+            let inter = co.shape.toi_and_normal_with_ray(&co.position, ray, true);
 
             if let Some(inter) = inter {
                 f(&co.data, inter)
