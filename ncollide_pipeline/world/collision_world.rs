@@ -1,6 +1,6 @@
 use std::ops::Mul;
 use std::sync::Arc;
-use na::{Translate, Cross, Rotation};
+use na::{Translate, Cross, Translation, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::inspection::Repr;
@@ -33,7 +33,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
                                                 Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M:  Isometry<P, P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+          M:  Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and `prediction` and allow their modification by the
     // user ?

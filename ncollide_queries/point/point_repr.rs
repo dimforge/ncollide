@@ -1,3 +1,4 @@
+use na::Translation;
 use math::{Scalar, Point, Vect, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
@@ -57,7 +58,7 @@ macro_rules! dispatch(
 
 impl<P, M> PointQuery<P, M> for Repr<P, M>
     where P: Point,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
         dispatch!(self.project_point(m, pt, solid))

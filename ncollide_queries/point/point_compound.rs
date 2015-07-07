@@ -1,4 +1,4 @@
-use na::Identity;
+use na::{Identity, Translation};
 use na;
 use point::PointQuery;
 use entities::bounding_volume::AABB;
@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect, Isometry};
 
 impl<P, M> PointQuery<P, M> for Compound<P, M>
     where P: Point,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
@@ -47,7 +47,7 @@ struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
 
 impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, P> for CompoundPointProjCostFn<'a, P, M>
     where P: Point,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         Some(aabb.distance_to_point(&Identity::new(), self.point))
@@ -79,7 +79,7 @@ struct PointContainementTest<'a, P: 'a + Point, M: 'a> {
 
 impl<'a, P, M> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, M>
     where P: Point,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
         !self.found && bv.contains_point(&Identity::new(), self.point)

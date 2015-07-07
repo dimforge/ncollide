@@ -1,5 +1,5 @@
 use std::ops::Mul;
-use na::{Translate, Cross, Rotation};
+use na::{Translate, Cross, Translation, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
 use entities::inspection;
 use entities::inspection::ReprDesc;
@@ -36,7 +36,7 @@ impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<<P::Vect as Ve
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
                                                 Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M: Isometry<P, P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+          M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<P, M>> {
         let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
         let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();

@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use na::{Identity, Translate};
+use na::{Identity, Translate, Translation};
 use na;
 use entities::bounding_volume::{HasAABB, AABB};
 use entities::partitioning::BVTCostFn;
@@ -13,7 +13,7 @@ use math::{Scalar, Point, Vect, Isometry};
 pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
@@ -25,7 +25,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
 pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: Repr<P, M> + HasAABB<P, M>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1)
@@ -71,7 +71,7 @@ BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
 for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     where P:  Point,
           P::Vect: Translate<P>,
-          M:  Isometry<P, P::Vect>,
+          M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasAABB<P, M> {
     #[inline]
