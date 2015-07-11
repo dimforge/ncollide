@@ -28,9 +28,10 @@ pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(m:       &M,
             Some((toi, normal)) => {
                 if na::is_zero(&toi) {
                     // the ray is inside of the shape.
-                    let supp    = shape.support_point(m, &ray.dir);
-                    let shift   = na::dot(&(supp - ray.orig), &ray.dir) + na::cast(0.001f64);
-                    let new_ray = Ray::new(ray.orig + ray.dir * shift, -ray.dir);
+                    let ndir    = na::normalize(&ray.dir);
+                    let supp    = shape.support_point(m, &ndir);
+                    let shift   = na::dot(&(supp - ray.orig), &ndir) + na::cast(0.001f64);
+                    let new_ray = Ray::new(ray.orig + ndir * shift, -ray.dir);
 
                     // FIXME: replace by? : simplex.translate_by(&(ray.orig - new_ray.orig));
                     simplex.reset(supp + (-*new_ray.orig.as_vec()));

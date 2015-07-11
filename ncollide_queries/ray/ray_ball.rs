@@ -67,6 +67,7 @@ pub fn ball_toi_with_ray<P>(center: &P,
     where P: Point {
     let dcenter = ray.orig - *center;
 
+    let a = na::sqnorm(&ray.dir);
     let b = na::dot(&dcenter, &ray.dir);
     let c = na::sqnorm(&dcenter) - radius * radius;
 
@@ -74,14 +75,14 @@ pub fn ball_toi_with_ray<P>(center: &P,
         (false, None)
     }
     else {
-        let delta = b * b - c;
+        let delta = b * b - a * c;
 
         if delta < na::zero() {
             // no solution
             (false, None)
         }
         else {
-            let t = -b - delta.sqrt();
+            let t = (-b - delta.sqrt()) / a;
 
             if t <= na::zero() {
                 // orig inside of the ball
@@ -89,7 +90,7 @@ pub fn ball_toi_with_ray<P>(center: &P,
                     (true, Some(na::zero()))
                 }
                 else {
-                    (true, Some(-b + delta.sqrt()))
+                    (true, Some((-b + delta.sqrt()) / a))
                 }
             }
             else {
