@@ -33,11 +33,12 @@ impl<P, M> RayCast<P, M> for Ball<<P::Vect as Vect>::Scalar>
 
     #[inline]
     fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let (inside, inter) = ball_toi_with_ray(&m.translate(&na::orig()), self.radius(), ray, solid);
+        let center = m.translate(&na::orig());
+        let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
-            let pos    = ray.orig + ray.dir * n;
-            let normal = na::normalize(pos.as_vec());
+            let pos    = ray.orig + ray.dir * n - center;
+            let normal = na::normalize(&pos);
 
             RayIntersection::new(n, if inside { -normal } else { normal })
         })
@@ -45,11 +46,12 @@ impl<P, M> RayCast<P, M> for Ball<<P::Vect as Vect>::Scalar>
 
     #[inline]
     fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let (inside, inter) = ball_toi_with_ray(&m.translate(&na::orig()), self.radius(), ray, solid);
+        let center = m.translate(&na::orig());
+        let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
-            let pos    = ray.orig + ray.dir * n;
-            let normal = na::normalize(pos.as_vec());
+            let pos    = ray.orig + ray.dir * n - center;
+            let normal = na::normalize(&pos);
             let uv     = ball_uv(&normal);
 
             RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, uv)
