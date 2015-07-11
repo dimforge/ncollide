@@ -195,10 +195,11 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn get_and_remove(&mut self, key: &K) -> Option<Entry<K, V>> {
         let h = self.hash.hash(key) & self.mask;
 
-        let mut obji;
         let mut o = self.htable[h];
 
         if o != -1 {
+            let obji;
+
             if self.table[o as usize].key != *key {
                 while self.next[o as usize] != -1 && self.table[self.next[o as usize] as usize].key != *key {
                     o = self.next[o as usize]
