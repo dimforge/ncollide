@@ -1,13 +1,13 @@
-use std::rand::IsaacRng;
 use test::Bencher;
 use test;
+use rand::IsaacRng;
 use na::Iso3;
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3};
 use ncollide::geometry;
 use common::{unref, generate};
 
 #[path="../common/macros.rs"]
-mod macros;
+#[macro_use] mod macros;
 
 bench_free_fn!(bench_ball_against_ball, geometry::contact,
                m1: Iso3<f32>, b1: Ball3<f32>,

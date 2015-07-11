@@ -1,4 +1,4 @@
-use std::rand::IsaacRng;
+use rand::IsaacRng;
 use test::Bencher;
 use test;
 use na::{Iso3, Vec3};
@@ -9,7 +9,7 @@ use common::{unref, generate};
 
 
 #[path="../common/macros.rs"]
-mod macros;
+#[macro_use] mod macros;
 
 bench_method!(bench_ball_support_map, support_point, c: Ball3<f32>, m: Iso3<f32>, dir: Vec3<f32>);
 bench_method!(bench_cuboid_support_map, support_point, c: Cuboid3<f32>, m: Iso3<f32>, dir: Vec3<f32>);

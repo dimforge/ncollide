@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use std::rand::Rng;
+use rand::Rng;
 use na::{Vec3, Pnt2, Pnt3};
 use ncollide::shape::{TriMesh, TriMesh3};
 

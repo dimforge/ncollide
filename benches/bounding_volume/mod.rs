@@ -1,8 +1,8 @@
-use ncollide::bounding_volume::{BoundingVolume, HasAABB, HasBoundingSphere};
-use std::rand::IsaacRng;
 use test::Bencher;
 use test;
+use rand::IsaacRng;
 use na::Iso3;
+use ncollide::bounding_volume::{BoundingVolume, HasAABB, HasBoundingSphere};
 use ncollide::bounding_volume::{AABB3, BoundingSphere3};
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, TriMesh3, Segment3, Triangle3,
                       Convex3};
@@ -10,7 +10,7 @@ use common::{unref, generate, generate_trimesh_around_origin};
 
 
 #[path="../common/macros.rs"]
-mod macros;
+#[macro_use] mod macros;
 
 /*
  * Bounding volume methods.

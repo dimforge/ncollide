@@ -1,7 +1,8 @@
-#![feature(macro_rules)]
+#![feature(test)]
 
 extern crate test;
-extern crate "nalgebra" as na;
+extern crate rand;
+extern crate nalgebra as na;
 extern crate ncollide;
 
 mod geometry;

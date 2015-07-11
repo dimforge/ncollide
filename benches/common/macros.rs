@@ -1,26 +1,24 @@
-#![macro_escape]
-
 macro_rules! bench_free_fn(
-    ($name: ident, $function: path $(, $args: ident: $types: ty)*) => {
-        bench_free_fn_gen!($name, $function $(, $args: $types = generate)*);
+    ($name: ident, $function: path, $($args: ident: $types: ty),*) => {
+        bench_free_fn_gen!($name, $function, $($args: $types = generate),*);
     }
 );
 
 macro_rules! bench_method(
-    ($name: ident, $method: ident, $arg: ident: $typ: ty $(, $args: ident: $types: ty)*) => {
-        bench_method_gen!($name, $method, $arg: $typ = generate $(, $args: $types = generate)*);
+    ($name: ident, $method: ident, $arg: ident: $typ: ty, $($args: ident: $types: ty),*) => {
+        bench_method_gen!($name, $method, $arg: $typ = generate, $($args: $types = generate),*);
     }
 );
 
 macro_rules! bench_free_fn_gen(
-    ($name: ident, $function: path $(, $args: ident: $types: ty = $gens: path)*) => {
+    ($name: ident, $function: path, $($args: ident: $types: ty = $gens: path),*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
             let mut rng = IsaacRng::new_unseeded();
 
-            $(let $args: Vec<$types> = Vec::from_fn(LEN, |_| $gens(&mut rng));)*
+            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
             let mut i = 0;
 
             bh.iter(|| {
@@ -35,15 +33,15 @@ macro_rules! bench_free_fn_gen(
 );
 
 macro_rules! bench_method_gen(
-    ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path $(, $args: ident: $types: ty = $gens: path)*) => {
+    ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path, $($args: ident: $types: ty = $gens: path),*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let $arg: Vec<$typ> = Vec::from_fn(LEN, |_| $gen(&mut rng));
-            $(let $args: Vec<$types> = Vec::from_fn(LEN, |_| $gens(&mut rng));)*
+            let $arg: Vec<$typ> = (0usize .. LEN).map(|_| $gen(&mut rng)).collect();
+            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
             let mut i = 0;
 
             bh.iter(|| {

@@ -1,12 +1,17 @@
-use ncollide::math::Scalar;
-
 pub trait Unref<T> {
     fn unref(a: Self) -> T;
 }
 
-impl<'a, N: Scalar> Unref<N> for &'a N {
+impl<'a> Unref<f32> for &'a f32 {
     #[inline(always)]
-    fn unref(a: &N) -> N {
+    fn unref(a: &f32) -> f32 {
+        *a
+    }
+}
+
+impl<'a> Unref<f64> for &'a f64 {
+    #[inline(always)]
+    fn unref(a: &f64) -> f64 {
         *a
     }
 }
