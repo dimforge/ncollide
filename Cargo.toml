@@ -31,3 +31,6 @@ ncollide_queries = "*"
 ncollide_pipeline = "*"
 ncollide_procedural = "*"
 ncollide_transformation = "*"
+
+[dev-dependencies]
+nalgebra = "*"
