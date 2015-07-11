@@ -34,3 +34,4 @@ ncollide_transformation = "*"
 
 [dev-dependencies]
 nalgebra = "*"
+rand = "*"
