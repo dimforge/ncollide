@@ -36,7 +36,7 @@ pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2
     }
     else if let (Some(s1), Some(s2)) =
             (inspection::maybe_repr_desc_as_support_map::<P, M>(r1), inspection::maybe_repr_desc_as_support_map::<P, M>(r2)) {
-        distance_internal::support_map_against_support_map(m1, s1, m2, s2)
+        distance_internal::support_map_against_support_map::<P, _, _, _>(m1, s1, m2, s2)
     }
     else if let Some(c1) = inspection::maybe_repr_desc_as_composite_shape::<P, M>(r1) {
         distance_internal::composite_shape_against_any(m1, c1, m2, g2)

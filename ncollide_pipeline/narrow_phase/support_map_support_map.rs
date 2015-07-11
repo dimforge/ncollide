@@ -54,7 +54,7 @@ impl<P, M, S> CollisionDetector<P, M> for SupportMapSupportMap<P, M, S>
               mb: &M,
               b:  &Repr<P, M>)
               -> bool {
-        if let (Some(sma), Some(smb)) = (inspection::maybe_as_support_map(a), inspection::maybe_as_support_map(b)) {
+        if let (Some(sma), Some(smb)) = (inspection::maybe_as_support_map::<P, M, _>(a), inspection::maybe_as_support_map::<P, M, _>(b)) {
             let initial_direction = match self.contact {
                 GJKResult::NoIntersection(ref separator) => Some(separator.clone()),
                 GJKResult::Projection(ref contact)       => Some(contact.normal.clone()),

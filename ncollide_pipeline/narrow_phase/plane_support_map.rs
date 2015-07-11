@@ -66,12 +66,13 @@ impl<P, M> CollisionDetector<P, M> for PlaneSupportMap<P, M>
               _:     &CollisionDispatcher<P, M>, 
               ma:    &M,
               plane: &Repr<P, M>,
-              mb:    &M, b:     &Repr<P, M>)
+              mb:    &M,
+              b:     &Repr<P, M>)
               -> bool {
         let rp = plane.repr();
 
         if let (Some(p), Some(sm)) =
-            (rp.downcast_ref::<Plane<P::Vect>>(), inspection::maybe_as_support_map(b)) {
+            (rp.downcast_ref::<Plane<P::Vect>>(), inspection::maybe_as_support_map::<P, M, _>(b)) {
                 self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, self.prediction);
 
                 true
@@ -112,7 +113,7 @@ impl<P, M> CollisionDetector<P, M> for SupportMapPlane<P, M>
         let rp = plane.repr();
 
         if let (Some(sm), Some(p)) =
-            (inspection::maybe_as_support_map(a), rp.downcast_ref::<Plane<P::Vect>>()) {
+            (inspection::maybe_as_support_map::<P, M, _>(a), rp.downcast_ref::<Plane<P::Vect>>()) {
                 self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, self.prediction);
 
                 true
