@@ -40,7 +40,7 @@ impl<V> Plane<V> {
 impl<P, M> Repr<P, M> for Plane<P::Vect>
     where P: Point {
     #[inline(always)]
-    fn repr(&self) -> ReprDesc {
+    fn repr(&self) -> ReprDesc<P, M> {
         unsafe {
             ReprDesc::new(
                 TypeId::of::<Plane<P::Vect>>(),
