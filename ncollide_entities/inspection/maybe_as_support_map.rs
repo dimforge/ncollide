@@ -12,7 +12,7 @@ pub fn support_map_repr_id<P: Any, M: Any>() -> TypeId {
 
 /// Converts a shape descriptor to a support map if possible.
 #[inline]
-pub fn maybe_repr_desc_as_support_map<'a, P: Any, M: Any>(desc: ReprDesc<'a>) -> Option<&'a (SupportMap<P, M> + 'a)> {
+pub fn maybe_repr_desc_as_support_map<'a, P: Any, M: Any>(desc: ReprDesc<'a, P, M>) -> Option<&'a (SupportMap<P, M> + 'a)> {
     if desc.repr_id() == support_map_repr_id::<P, M>() {
         Some(unsafe { mem::transmute(desc.repr()) })
     }
@@ -36,7 +36,7 @@ macro_rules! impl_support_map_repr(
             where P: Point,
                   M: Isometry<P, P::Vect> {
                 #[inline(always)]
-                fn repr(&self) -> ReprDesc {
+                fn repr(&self) -> ReprDesc<P, M> {
                     unsafe {
                         ReprDesc::new(
                             TypeId::of::<$t>(),

@@ -15,24 +15,28 @@ pub struct TraitObject {
 }
 
 #[derive(Clone, Copy)]
-pub struct ReprDesc<'a> {
-    type_id: TypeId,
-    repr_id: TypeId,
-    repr:    TraitObject,
-    life:    PhantomData<fn() -> &'a ()>
+pub struct ReprDesc<'a, P, M> {
+    type_id:      TypeId,
+    repr_id:      TypeId,
+    repr:         TraitObject,
+    life:         PhantomData<fn() -> &'a ()>,
+    _point_type:  PhantomData<P>,
+    _matrix_type: PhantomData<M>,
 }
 
-impl<'a> ReprDesc<'a> {
+impl<'a, P, M> ReprDesc<'a, P, M> {
     /// Creates a new representation descriptor.
     ///
     /// This is unsafe as there is no way to check that the given triple of data are valid.
     #[inline]
-    pub unsafe fn new(type_id: TypeId, repr_id: TypeId, repr: TraitObject) -> ReprDesc<'a> {
+    pub unsafe fn new(type_id: TypeId, repr_id: TypeId, repr: TraitObject) -> ReprDesc<'a, P, M> {
         ReprDesc {
-            type_id: type_id,
-            repr_id: repr_id,
-            repr:    repr,
-            life:    PhantomData
+            type_id:      type_id,
+            repr_id:      repr_id,
+            repr:         repr,
+            life:         PhantomData,
+            _point_type:  PhantomData,
+            _matrix_type: PhantomData,
         }
     }
 
@@ -69,5 +73,5 @@ impl<'a> ReprDesc<'a> {
 /// An object with a unique runtime geometric representation.
 pub trait Repr<P, M>: Send + Sync + 'static {
     /// Gets a reference to this object's main representation.
-    fn repr<'a>(&'a self) -> ReprDesc<'a>;
+    fn repr<'a>(&'a self) -> ReprDesc<'a, P, M>;
 }

@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
 use entities::inspection;
@@ -18,26 +19,30 @@ use narrow_phase::{
 };
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct BasicCollisionDispatcher<N> {
-    prediction: N
+pub struct BasicCollisionDispatcher<P: Point, M> {
+    prediction:   <P::Vect as Vect>::Scalar,
+    _point_type:  PhantomData<P>,
+    _matrix_type: PhantomData<M>,
 }
 
-impl<N> BasicCollisionDispatcher<N> {
+impl<P: Point, M> BasicCollisionDispatcher<P, M> {
     /// Creates a new basic collision dispatcher.
-    pub fn new(prediction: N) -> BasicCollisionDispatcher<N> {
+    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> BasicCollisionDispatcher<P, M> {
         BasicCollisionDispatcher {
-            prediction: prediction
+            prediction:   prediction,
+            _point_type:  PhantomData,
+            _matrix_type: PhantomData,
         }
     }
 }
 
-impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<<P::Vect as Vect>::Scalar>
+impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<P, M>
     where P: Point,
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
                                                 Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
-    fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<P, M>> {
+    fn get_collision_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<CollisionAlgorithm<P, M>> {
         let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
         let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
 

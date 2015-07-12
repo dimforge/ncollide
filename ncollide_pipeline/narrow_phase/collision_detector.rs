@@ -28,5 +28,5 @@ pub type CollisionAlgorithm<P, M> = Box<CollisionDetector<P, M> + 'static>;
 
 pub trait CollisionDispatcher<P, M> {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_collision_algorithm(&self, a: &ReprDesc, b: &ReprDesc) -> Option<CollisionAlgorithm<P, M>>;
+    fn get_collision_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<CollisionAlgorithm<P, M>>;
 }

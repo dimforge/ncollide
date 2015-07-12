@@ -23,3 +23,7 @@ mod maybe_as_support_map;
 pub type Repr2<N> = Repr<Pnt2<N>, Iso2<N>>;
 /// A 3d dynamic representation object.
 pub type Repr3<N> = Repr<Pnt3<N>, Iso3<N>>;
+/// A 2d dynamic representation descriptor.
+pub type ReprDesc2<'a, N> = ReprDesc<'a, Pnt2<N>, Iso2<N>>;
+/// A 3d dynamic representation descriptor.
+pub type ReprDesc3<'a, N> = ReprDesc<'a, Pnt3<N>, Iso3<N>>;
