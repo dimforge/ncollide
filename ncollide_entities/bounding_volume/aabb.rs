@@ -12,6 +12,15 @@ pub trait HasAABB<P, M> {
     fn aabb(&self, &M) -> AABB<P>;
 }
 
+// Seems useful to help type inference. See issue #84.
+/// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
+///
+/// Same as `g.aabb(m)`.
+pub fn aabb<P, M, G>(g: &G, m: &M) -> AABB<P>
+    where G: HasAABB<P, M> {
+    g.aabb(m)
+}
+
 /// An Axis Aligned Bounding Box.
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct AABB<P> {

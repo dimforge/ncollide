@@ -11,6 +11,16 @@ pub trait HasBoundingSphere<P, M> {
     fn bounding_sphere(&self, m: &M) -> BoundingSphere<P>;
 }
 
+// Seems useful to help type inference. See issue #84.
+/// Computes the bounding sphere of a shape `g` transformed by `m`.
+///
+/// Same as `g.bounding_sphere(m)`.
+pub fn bounding_sphere<P, M, G>(g: &G, m: &M) -> BoundingSphere<P>
+    where P: Point,
+          G: HasBoundingSphere<P, M> {
+    g.bounding_sphere(m)
+}
+
 /// A Bounding Sphere.
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct BoundingSphere<P: Point> {
