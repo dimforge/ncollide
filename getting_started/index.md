@@ -26,8 +26,8 @@ name    = "example-using-ncollide"
 version = "0.0.0"
 authors = [ "You" ]
 
-[dependencies.ncollide]
-git = "http://github.com/sebcrozet/ncollide"
+[dependencies]
+ncollide = "*"
 
 [[bin]]
 name = "example"
