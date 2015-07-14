@@ -4,6 +4,16 @@
 
 -----
 
+<center>
+<p style="border:2px solid #FF0000;background-color:#FFDDDD"><i> This
+documentation is very much out of date. It is currently undergoing a complete
+update. In the mean time, feel free to ask anything related to the library
+usage by opening an
+[issue](https://github.com/sebcrozet/ncollide/issues).<br/><br/>You may follow
+[this issue](https://github.com/sebcrozet/ncollide/issues/93) to be notified
+whenever this update is completed!</i></p>
+</center>
+
 **ncollide** is a 2 and 3-dimensional collision detection library written using
 the [Rust](http://rust-lang.org) programming language. Collision detection and
 computational geometry in general are ubiquitous in computer physics, graphics
