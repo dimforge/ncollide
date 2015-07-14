@@ -70,7 +70,7 @@ the HACD algorithm (middle), and the resulting convex decomposition (right):
 
 ![hacd](../img/hacd.png)
 
-## Example <span class="d3" onclick="window.open('../src/hacd3d.rs')" ></span>
+## Example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/hacd3d.rs')" ></span>
 
 The following example creates a concave object using a
 [path-based](../mesh_generation/paths.md) mesh generation and approximates it

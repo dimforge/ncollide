@@ -16,7 +16,7 @@ dimensions a sphere, centered at the origin.
 | --          | --       |
 | `.radius()` | The radius of the ball. |
 
-###### Example <span class="btn-primary" onclick="window.open('../src/ball.rs')"></span>
+###### Example <span class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ball.rs')"></span>
 
 ```rust
 let ball = Ball::new(1.0f32);
@@ -38,7 +38,7 @@ half length along each coordinate axis.
 | --          | --       |
 | `.half_extents()` | The half extents of the cuboid. |
 
-###### 2D example <span class="d2" onclick="window.open('../src/cuboid2d.rs')"></span>
+###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid2d.rs')"></span>
 
 ```rust
 let cuboid = Cuboid::new(Vec2::new(2.0f32, 1.0));
@@ -47,7 +47,7 @@ assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
 ```
 
-###### 3D example <span class="d3" onclick="window.open('../src/cuboid3d.rs')"></span>
+###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid3d.rs')"></span>
 
 ```rust
 let cuboid = Cuboid::new(Vec3::new(2.0f32, 1.0, 3.0));
@@ -74,7 +74,7 @@ positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the cylinder. |
 | `.radius()` | The radius of the cylinder basis. |
 
-###### Example<span class="btn-primary" onclick="window.open('../src/cylinder.rs')"></span>
+###### Example<span class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cylinder.rs')"></span>
 ```rust
 let cylinder = Cylinder::new(0.5f32, 1.0);
 
@@ -98,7 +98,7 @@ Its principal axis is the positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the cone. |
 | `.radius()` | The radius of the cone basis. |
 
-###### Example<span class="btn-primary" onclick="window.open('../src/cone.rs')"></span>
+###### Example<span class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cone.rs')"></span>
 
 ```rust
 let cone = Cone::new(0.5f32, 0.75);
@@ -122,7 +122,7 @@ Its principal axis is the positive $$\bf y$$ axis.
 | `.half_height()` | The half height of the capsule. |
 | `.radius()` | The radius of the capsule extremities. |
 
-###### Example <span class="btn-primary" onclick="window.open('../src/capsule.rs')"></span>
+###### Example <span class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/capsule.rs')"></span>
 ```rust
 let capsule = Capsule::new(0.5f32, 0.75);
 
@@ -152,7 +152,7 @@ takes a constant time.
 | --        | --           |
 | `.points()`  | The points used to create the `Convex` shape. |
 
-###### 2D example<span class="d2" onclick="window.open('../src/convex2d.rs')"></span>
+###### 2D example<span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex2d.rs')"></span>
 ```rust
 let points = vec![
     Pnt2::new(-1.0f32, 1.0), Pnt2::new(-0.5, -0.5),
@@ -169,7 +169,7 @@ assert!(convex.points().len() == 5);
 ![2d convex](../img/convex2d.png)
 </center>
 
-###### 3D example<span class="d3" onclick="window.open('../src/convex3d.rs')"></span>
+###### 3D example<span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex3d.rs')"></span>
 ```rust
 let points = vec![
     Pnt3::new(0.0f32, 0.0, 1.0),
@@ -200,7 +200,7 @@ _outside_ of the plane.
 | --          | --        |
 | `.normal()` | The normal of the plane. |
 
-###### 2D example<span class="d2" onclick="window.open('../src/plane2d.rs')"></span>
+###### 2D example<span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane2d.rs')"></span>
 ```rust
 let plane = Plane::new(Vec2::new(0.0f32, 1.0));
 
@@ -208,7 +208,7 @@ assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
 ```
 
-###### 3D example<span class="d3" onclick="window.open('../src/plane3d.rs')"></span>
+###### 3D example<span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane3d.rs')"></span>
 ```rust
 let plane = Plane::new(Vec3::new(0.0f32, 1.0, 0.0));
 
@@ -239,20 +239,20 @@ Note that to create a `Mesh`, it is necessary to give its type explicitely with
 one of the type aliases `shape::Mesh2` or `shape::Mesh3`. Otherwise, you will
 have compilation errors.
 
-###### 2D example<span class="d2" onclick="window.open('../src/mesh2d.rs')"></span>
+###### 2D example<span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh2d.rs')"></span>
 
 ```rust
 let points = vec!(
     Pnt2::new(0.0, 1.0),  Pnt2::new(-1.0, -1.0),
     Pnt2::new(0.0, -0.5), Pnt2::new(1.0, -1.0));
 
-let indices = vec!(0u, 1,
-                   1,  2,
-                   2,  3,
-                   3,  1);
+let indices = vec!(Pnt2::new(0usize, 1),
+                   Pnt2::new(1,  2),
+                   Pnt2::new(2,  3),
+                   Pnt2::new(3,  1));
 
 // Build the mesh.
-let mesh: Mesh2<f32> = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
+let mesh = Polyline::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
 ```
@@ -262,19 +262,19 @@ assert!(mesh.vertices().len() == 4);
 </center>
 
 
-###### 3D example<span class="d3" onclick="window.open('../src/mesh3d.rs')"></span>
+###### 3D example<span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh3d.rs')"></span>
 
 ```rust
 let points = vec!(
     Pnt3::new(0.0, 1.0, 0.0), Pnt3::new(-1.0, -0.5, 0.0),
     Pnt3::new(0.0, -0.5, -1.0), Pnt3::new(1.0, -0.5, 0.0));
 
-let indices = vec!(0u, 1, 2,
-                   0,  2, 3,
-                   0,  3, 1);
+let indices = vec!(Pnt3::new(0usize, 1, 2),
+                   Pnt3::new(0,  2, 3),
+                   Pnt3::new(0,  3, 1));
 
 // Build the mesh.
-let mesh: Mesh3<f32> = Mesh::new(Arc::new(points), Arc::new(indices), None, None);
+let mesh = TriMesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
 ```
@@ -282,4 +282,3 @@ assert!(mesh.vertices().len() == 4);
 <center>
 ![3d mesh](../img/mesh3d.png)
 </center>
-

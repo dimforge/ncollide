@@ -76,7 +76,7 @@ The following example creates four balls, adds them to a `DBVTBroadPhase`,
 deactivates, reactivates, and removes them. The `bounding_volume::WithAABB`
 structure associates a position to a shape that implement the `HasAABB` trait.
 
-###### 2D example <span class="d2" onclick="window.open('../src/dbvt_broad_phase2d.rs')" ></span>
+###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase2d.rs')" ></span>
 ```rust
 type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
 
@@ -140,7 +140,7 @@ bf.update();
 assert!(bf.num_interferences() == 1)
 ```
 
-###### 3D example <span class="d3" onclick="window.open('../src/dbvt_broad_phase3d.rs')" ></span>
+###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase3d.rs')" ></span>
 ```rust
 type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
 

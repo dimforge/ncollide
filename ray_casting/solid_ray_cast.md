@@ -19,7 +19,7 @@ The following example creates a cuboid and casts two rays on it. The first ray
 starts inside of the cuboid and will return different time of impacts depending
 on the solidity of the cast. The second ray should miss its target.
 
-###### 2D example <span class="d2" onclick="window.open('../src/solid_ray_cast2d.rs')" ></span>
+###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_ray_cast2d.rs')" ></span>
 
 ```rust
 let cuboid     = Cuboid::new(Vec2::new(1.0, 2.0));
@@ -33,7 +33,7 @@ assert!(cuboid.toi_with_ray(&ray_miss, false).is_none());
 assert!(cuboid.toi_with_ray(&ray_miss, true).is_none());
 ```
 
-###### 3D example <span class="d3" onclick="window.open('../src/solid_ray_cast3d.rs')" ></span>
+###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_ray_cast3d.rs')" ></span>
 
 ```rust
 let cuboid     = Cuboid::new(Vec3::new(1.0, 2.0, 1.0));

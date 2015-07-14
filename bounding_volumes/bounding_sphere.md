@@ -53,7 +53,7 @@ The following example computes the bounding spheres of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder bounding
 sphere, and performs some tests.
 
-###### 2D example <span class="d2" onclick="window.open('../src/bounding_sphere2d.rs')"></span>
+###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere2d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
@@ -76,7 +76,7 @@ assert!(!bounding_sphere_cone.contains(&bounding_bounding_sphere));
 assert!(loose_bounding_sphere_cylinder.contains(&bounding_sphere_cylinder));
 ```
 
-###### 3D example <span class="d3" onclick="window.open('../src/bounding_sphere3d.rs')"></span>
+###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere3d.rs')"></span>
 ```rust
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
