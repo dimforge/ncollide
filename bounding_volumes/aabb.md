@@ -62,19 +62,28 @@ performs some tests.
 
 ###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb2d.rs')"></span>
 ```rust
+/*
+ * Initialize the shapes.
+ */
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
 
-let cone_pos     = Iso2::new(Vec2::y(), na::zero());
-let cylinder_pos = na::one();
+let cone_pos     = Iso2::new(Vec2::y(), na::zero()); // 1.0 along the `y` axis.
+let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.
 
+/*
+ * Compute their bounding spheres.
+ */
 let aabb_cone     = cone.aabb(&cone_pos);
 let aabb_cylinder = cylinder.aabb(&cylinder_pos);
 
+// Merge the two spheres.
 let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
 
+// Enlarge the cylinder bounding sphere.
 let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
 
+// Intersection and inclusion tests.
 assert!(aabb_cone.intersects(&aabb_cylinder));
 assert!(bounding_aabb.contains(&aabb_cone));
 assert!(bounding_aabb.contains(&aabb_cylinder));
@@ -85,19 +94,28 @@ assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
 
 ###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb3d.rs')"></span>
 ```rust
+/*
+ * Initialize the shapes.
+ */
 let cone     = Cone::new(0.5, 0.5);
 let cylinder = Cylinder::new(1.0, 0.5);
 
-let cone_pos     = Iso3::new(Vec3::z(), na::zero());
-let cylinder_pos = na::one();
+let cone_pos     = Iso3::new(Vec3::z(), na::zero()); // 1.0 along the `z` axis.
+let cylinder_pos = na::one::<Iso3<f32>>();           // Identity matrix.
 
+/*
+ * Compute their bounding spheres.
+ */
 let aabb_cone     = cone.aabb(&cone_pos);
 let aabb_cylinder = cylinder.aabb(&cylinder_pos);
 
+// Merge the two spheres.
 let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
 
+// Enlarge the cylinder bounding sphere.
 let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
 
+// Intersection and inclusion tests.
 assert!(aabb_cone.intersects(&aabb_cylinder));
 assert!(bounding_aabb.contains(&aabb_cone));
 assert!(bounding_aabb.contains(&aabb_cylinder));

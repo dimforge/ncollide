@@ -42,75 +42,12 @@ development is to expose each feature by a trait located on its own module.
 Thus, you will usually find one folder per major feature. Each folder contains
 a similarly named file which declares the relevant traits. Finally, those
 traits are implemented for the relevant structures on explicitly named files
-located on the very same folder.  For example, the `Implicit` trait is declared
-on the `implicit/implicit.rs` file and its implementation for e.g.  the `Ball`
-shape is located on `implicit/implicit_ball.rs` while its implementation for
-e.g. the `Cuboid` shape is located on `implicit/implicit_cuboid.rs`. You
-will find similar naming patterns for most features.
-
-
-Another rule is to never use explicit scalar types like `f32` and `f64`.
-Explicit vector and matrix types should be avoided too when possible. Instead,
-use the aliases defined by the `math` module. They automatically change
-depending on the version of **ncollide** chosen by the user:
-
-| Alias name | Value for 2df32 | Value for 2df64 | Value for 3df32 | Value for 3df64 |
-| --         | --              | --              | --              | --              |
-| `Scalar`         | `f32`           | `f64`           | `f32`           | `f64` |
-| `Vect`           | `Vec2<f32>`     | `Vec2<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
-| `Point`          | `Pnt2<f32>`     | `Pnt2<f64>`     | `Pnt3<f32>`     | `Pnt3<f64>` |
-| `Orientation`    | `Vec1<f32>`     | `Vec1<f64>`     | `Vec3<f32>`     | `Vec3<f64>` |
-| `Matrix`         | `Iso2<f32>`     | `Iso2<f64>`     | `Iso3<f32>`     | `Iso3<f64>` |
-| `RotationMatrix` | `Rot2<f32>`     | `Rot2<f64>`     | `Rot3<f32>`     | `Rot3<f64>` |
-| `AngularInertia` | `Mat1<f32>`     | `Mat1<f64>`     | `Mat3<f32>`     | `Mat3<f64>` |
-
-If you need to convert a constant like `42.0` to a `math::Scalar`, use the
-function `na::cast` from
-[nalgebra](http://nalgebra.org/doc/nalgebra/na/fn.cast.html):
-
-```rust
-let value: Scalar = na::cast(42.0);
-```
-
-
-Finally, if you need to implement something that is dimension-specific (i.e.
-2D-only or 3D-only), use one (and only one) of the following attributes with
-your `fn`, `impl`, `struct` and `trait` definitions:
-
-| Attribute | Effect |
-| --        | --     |
-| `#[dim2]` | Compiles the affected code only for the 2D version of **ncollide**. |
-| `#[dim3]` | Compiles the affected code only for the 3D version of **ncollide**. |
-| `#[dim4]` | Compiles the affected code only for the 4D version of **ncollide**. |
-| `#[not_dim2]` | Compiles the affected code only for all but the 2D version of **ncollide**. |
-| `#[not_dim3]` | Compiles the affected code only for all but the 3D version of **ncollide**. |
-| `#[not_dim4]` | Compiles the affected code only for all but the 4D version of **ncollide**. |
-
-Here is an example of dummy code using those attributes:
-
-```rust
-use nalgebra::na;
-use math::Vect; // no `ncollide::`, we assume file is on the source tree of ncollide.
-
-#[dim2]
-fn doit() { // compile this implementation for the 2D case.
-    assert!(na::dim::<Vect>() == 2);
-}
-
-#[dim3]
-fn doit() { // compile this implementation for the 3D case.
-    assert!(na::dim::<Vect>() == 3);
-}
-
-#[dim4]
-fn doit() { // compile this implementation for the 4D case.
-    assert!(na::dim::<Vect>() == 4);
-}
-```
-
-Note that those attributes will not work on `use` statements. Thus, you might
-end up with _legitimate_ unused import warnings (we will not blame you for
-letting them).
+located on the very same folder.  For example, the `SupportMap` trait is
+declared on the `support_map/support_map.rs` file and its implementation for
+e.g.  the `Ball` shape is located on `support_map/ball_support_map.rs` while
+its implementation for e.g. the `Cuboid` shape is located on
+`support_map/cuboid_support_map.rs`. You will find similar naming patterns for
+most features.
 
 
 ### Financial contribution

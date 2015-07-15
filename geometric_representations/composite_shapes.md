@@ -29,14 +29,17 @@ let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
 let delta2 = Iso2::new(Vec2::new(-1.5f32, 0.0), na::zero());
 let delta3 = Iso2::new(Vec2::new(1.5f32,  0.0), na::zero());
 
-// 1) Initialize the CompoundData.
-let mut compound_data = CompoundData::new();
-compound_data.push_shape(delta1, Cuboid::new(Vec2::new(1.5f32, 0.25)), 1.0);
-compound_data.push_shape(delta2, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
-compound_data.push_shape(delta3, Cuboid::new(Vec2::new(0.25f32, 1.5)), 1.0);
+// 1) Initialize the shape list.
+let mut shapes = Vec::new();
+let horizontal_box = Arc::new(Box::new(Cuboid::new(Vec2::new(1.5f32,  0.25))) as Box<Repr2<f32>>);
+let vertical_box   = Arc::new(Box::new(Cuboid::new(Vec2::new(0.25f32, 1.5))) as Box<Repr2<f32>>);
+
+shapes.push((delta1, horizontal_box));
+shapes.push((delta2, vertical_box.clone()));
+shapes.push((delta3, vertical_box));
 
 // 2) Create the compound shape.
-let compound = Compound::new(compound_data);
+let compound = Compound::new(shapes);
 
 assert!(compound.shapes().len() == 3)
 ```
@@ -52,14 +55,17 @@ let delta1 = Iso3::new(Vec3::new(0.0f32, -1.5, 0.0), na::zero());
 let delta2 = Iso3::new(Vec3::new(-1.5f32, 0.0, 0.0), na::zero());
 let delta3 = Iso3::new(Vec3::new(1.5f32, 0.0,  0.0), na::zero());
 
-// 1) Initialize the CompoundData.
-let mut compound_data = CompoundData::new();
-compound_data.push_shape(delta1, Cuboid::new(Vec3::new(1.5f32, 0.25, 0.25)), 1.0);
-compound_data.push_shape(delta2, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
-compound_data.push_shape(delta3, Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25)), 1.0);
+// 1) Initialize the shape list.
+let mut shapes = Vec::new();
+let horizontal_box = Arc::new(Box::new(Cuboid::new(Vec3::new(1.5f32,  0.25, 0.25))) as Box<Repr3<f32>>);
+let vertical_box   = Arc::new(Box::new(Cuboid::new(Vec3::new(0.25f32, 1.5, 0.25))) as Box<Repr3<f32>>);
+
+shapes.push((delta1, horizontal_box));
+shapes.push((delta2, vertical_box.clone()));
+shapes.push((delta3, vertical_box));
 
 // 2) Create the compound shape.
-let compound = Compound::new(compound_data);
+let compound = Compound::new(shapes);
 
 assert!(compound.shapes().len() == 3)
 ```
@@ -67,75 +73,6 @@ assert!(compound.shapes().len() == 3)
 <center>
 ![3d compound](../img/compound3d.png)
 </center>
-
-#### More about `CompoundData`
-The previous examples show the simplest way of initializing the `CompoundData`
-structure. However using the `compound_data.push_shape(...)` method works only
-for shapes that implement both the `Shape` **and** the `Volumetric` traits.
-In addition every shape added with `push_shape(...)` are moved out. To save
-memory, we might want those to be shared by multiple composite shapes.
-Therefore, there are three ways of adding a shape to a `CompoundData`:
-
-1. `push_shape(...)`: use this if your shape implements `Volumetric` and does
-   *not* have to be shared.
-2. `push_shape_with_mass_properties(...)`: use this if your shape does *not*
-   implement `Volumetric` and does *not* have to be shared. This time, the
-   object surface, mass, center of mass and angular inertia tensor must be
-   provided.
-3. `push_shared_shape_with_mass_properties(...)`: use this if your shape has
-   to be shared.  This time, even if your shape did implement the `Volumetric`
-   trait, the object surface, mass, center of mass and angular inertia tensor
-   must be provided.
-
-###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound_data2d.rs')"></span>
-```rust
-// delta transformation matrices.
-let delta1 = Iso2::new(Vec2::new(0.0f32, -1.5), na::zero());
-let delta2 = Iso2::new(Vec2::new(-1.5f32, 0.0), na::zero());
-let delta3 = Iso2::new(Vec2::new(1.5f32,  0.0), na::zero());
-
-// 1) initialize the CompoundData.
-let mut compound_data = CompoundData::new();
-
-/*
- * push_shape
- */
-// The mass, center of mass and angular inertia tensor are automatically
-// computed.
-compound_data.push_shape(delta1, Cuboid::new(Vec2::new(1.5f32, 0.75)), 1.0);
-
-/*
- * push_shape_with_mass_properties
- */
-// mass = 10.0
-// center of mass = the origin (na::zero())
-// angular inertia tensor = identity matrix (na::one())
-compound_data.push_shape_with_mass_properties(
-    delta2,
-    Plane::new(Vec2::new(1f32, 0.0)),
-    (10.0f32, na::zero(), na::one()));
-
-/*
- * push_shared_shape_with_mass_properties
- */
-// The shape we want to share.
-let cuboid = Cuboid::new(Vec2::new(0.75f32, 1.5));
-// Make ncollide compute the mass properties of the cuboid.
-let mass_properties = cuboid.mass_properties(&1.0); // density = 1.0
-// Build the shared shape.
-let shared_cuboid = Rc::new(box cuboid as Box<Shape + Send + Sync>);
-// Add the shape to the compound data.
-compound_data.push_shared_shape_with_mass_properties(
-    delta3,
-    shared_cuboid.clone(),
-    mass_properties);
-// `shared_cuboid` can still be used thereafter…
-
-// 2) create the compound shape.
-let compound = Compound::new(compound_data);
-
-assert!(compound.shapes().len() == 3);
-```
 
 ## Reflection
 The `Reflection` structure describes the reflection of a shape $$\mathcal{A}$$
@@ -154,7 +91,7 @@ Note that the reflected shape and the reflection itself are lifetime-bound.
 ###### 2D and 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/reflection3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/reflection2d.rs')"></span>
 
 ```rust
-let cone = Cone::new(0.5, 0.75);
+let cone = Cone::new(0.5f32, 0.75);
 
 // Build the reflection.
 let _ = Reflection::new(&cone);
@@ -189,11 +126,11 @@ the Minkowski sum are lifetime-bound with the Minkowski sum herself.
 ###### 2D and 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum3d.rs')"></span><span class="sp"></span><span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum2d.rs')"></span>
 
 ```rust
-let cylinder = Cylinder::new(0.5, 0.75);
-let cone     = Cone::new(0.75, 0.75);
+let cylinder = Cylinder::new(0.5f32, 0.75);
+let cone     = Cone::new(0.75f32, 0.75);
 
-let delta_cylinder = na::one(); // identity matrix.
-let delta_cone     = na::one(); // identity matrix.
+let delta_cylinder = na::one::<Iso3<f32>>(); // identity matrix.
+let delta_cone     = na::one::<Iso3<f32>>(); // identity matrix.
 
 let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 ```
@@ -217,13 +154,14 @@ complex environment. Note that this is obviously **not** reflexive. It can be
 constructed using the `MinkowskiSum` and `Reflection` shapes:
 
 ```rust
-let cylinder   = Cylinder::new(0.5, 0.75);
-let cone       = Cone::new(0.75, 0.75);
+let cylinder   = Cylinder::new(0.5f32, 0.75);
+let cone       = Cone::new(0.75f32, 0.75);
 let reflection = Reflection::new(&cone); // Take the reflection of the cone.
 
-let delta_cylinder = na::one(); // identity matrix.
-let delta_cone     = na::one(); // identity matrix.
+let delta_cylinder = na::one::<Iso3<f32>>(); // identity matrix.
+let delta_cone     = na::one::<Iso3<f32>>(); // identity matrix.
 
+// Build the Configuration Space Obstacle.
 let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
 ```
 

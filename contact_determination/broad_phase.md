@@ -78,128 +78,88 @@ structure associates a position to a shape that implement the `HasAABB` trait.
 
 ###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase2d.rs')" ></span>
 ```rust
-type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
-
 /*
  * Create the objects.
  */
-let pos1 = Iso2::new(Vec2::new(0.0, 0.0), na::zero());
-let pos2 = Iso2::new(Vec2::new(0.0, 0.5), na::zero());
-let pos3 = Iso2::new(Vec2::new(0.5, 0.0), na::zero());
-let pos4 = Iso2::new(Vec2::new(0.5, 0.5), na::zero());
+let poss = [ Iso2::new(Vec2::new(0.0, 0.0), na::zero()),
+             Iso2::new(Vec2::new(0.0, 0.5), na::zero()),
+             Iso2::new(Vec2::new(0.5, 0.0), na::zero()),
+             Iso2::new(Vec2::new(0.5, 0.5), na::zero()) ];
 
-let shape1 = Ball::new(0.5);
-let shape2 = Ball::new(0.5);
-let shape3 = Ball::new(0.5);
-let shape4 = Ball::new(0.5);
-
-let obj1 = Rc::new(RefCell::new(WithAABB(pos1, shape1)));
-let obj2 = Rc::new(RefCell::new(WithAABB(pos2, shape2)));
-let obj3 = Rc::new(RefCell::new(WithAABB(pos3, shape3)));
-let obj4 = Rc::new(RefCell::new(WithAABB(pos4, shape4)));
+// We will use the same geometry for the four objects.
+let ball = Ball::new(0.5);
 
 /*
  * Create the broad phase.
+ * We know we will use small uids (from 0 to 3)so we can pass `true` as the second argument.
  */
-let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher::new();
-let mut bf = DBVTBroadPhase::new(dispatcher, 0.2);
+let mut bf = DBVTBroadPhase::new(0.2, true);
 
-bf.add(obj1.clone());
-bf.add(obj2.clone());
-bf.add(obj3.clone());
-bf.add(obj4.clone());
+// First parameter:  a unique id for each object.
+// Second parameter: the object bounding box.
+// Third parameter:  some data (here, the id that identify each object).
+bf.defered_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
+bf.defered_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
+bf.defered_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
+bf.defered_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
 
-bf.update();
-
-assert!(bf.num_interferences() == 6);
-
-// Deactivate everybody.
-bf.deactivate(&obj1);
-bf.deactivate(&obj2);
-bf.deactivate(&obj3);
-bf.deactivate(&obj4);
-
-// Deactivated bodies do not interfere with each other.
-assert_eq!(bf.num_interferences(), 0);
-
-// Reactivate everybody.
-bf.activate(&obj1, |_, _, _| { });
-bf.activate(&obj2, |_, _, _| { });
-bf.activate(&obj3, |_, _, _| { });
-bf.activate(&obj4, |_, _, _| { });
+// Update the broad phase.
+// The collision filter (first closure) prevents self-collision.
+bf.update(&mut |a, b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 6);
 
 // Remove two objects.
-bf.remove(&obj1);
-bf.remove(&obj2);
+bf.defered_remove(0);
+bf.defered_remove(1);
 
 // Update the broad phase.
-bf.update();
+// The collision filter (first closure) prevents self-collision.
+bf.update(&mut |a ,b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 1)
 ```
 
 ###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase3d.rs')" ></span>
 ```rust
-type Shape<'a> = Rc<RefCell<WithAABB<Ball>>>;
-
 /*
  * Create the objects.
  */
-let pos1 = Iso3::new(Vec3::new(0.0, 0.0, 0.0), na::zero());
-let pos2 = Iso3::new(Vec3::new(0.0, 0.5, 0.0), na::zero());
-let pos3 = Iso3::new(Vec3::new(0.5, 0.0, 0.0), na::zero());
-let pos4 = Iso3::new(Vec3::new(0.5, 0.5, 0.0), na::zero());
+let poss = [ Iso3::new(Vec3::new(0.0, 0.0, 0.0), na::zero()),
+             Iso3::new(Vec3::new(0.0, 0.5, 0.0), na::zero()),
+             Iso3::new(Vec3::new(0.5, 0.0, 0.0), na::zero()),
+             Iso3::new(Vec3::new(0.5, 0.5, 0.0), na::zero()) ];
 
-let shape1 = Ball::new(0.5);
-let shape2 = Ball::new(0.5);
-let shape3 = Ball::new(0.5);
-let shape4 = Ball::new(0.5);
-
-let obj1 = Rc::new(RefCell::new(WithAABB(pos1, shape1)));
-let obj2 = Rc::new(RefCell::new(WithAABB(pos2, shape2)));
-let obj3 = Rc::new(RefCell::new(WithAABB(pos3, shape3)));
-let obj4 = Rc::new(RefCell::new(WithAABB(pos4, shape4)));
+// We will use the same geometry for the four objects.
+let ball = Ball::new(0.5);
 
 /*
  * Create the broad phase.
+ * We know we will use small uids (from 0 to 3)so we can pass `true` as the second argument.
  */
-let dispatcher: NoIdDispatcher<Shape> = NoIdDispatcher::new();
-let mut bf = DBVTBroadPhase::new(dispatcher, 0.2);
+let mut bf = DBVTBroadPhase::new(0.2, true);
 
-bf.add(obj1.clone());
-bf.add(obj2.clone());
-bf.add(obj3.clone());
-bf.add(obj4.clone());
+// First parameter:  a unique id for each object.
+// Second parameter: the object bounding box.
+// Third parameter:  some data (here, the id that identify each object).
+bf.defered_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
+bf.defered_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
+bf.defered_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
+bf.defered_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
 
-bf.update();
-
-assert!(bf.num_interferences() == 6);
-
-// Deactivate everybody.
-bf.deactivate(&obj1);
-bf.deactivate(&obj2);
-bf.deactivate(&obj3);
-bf.deactivate(&obj4);
-
-// Deactivated bodies do not interfere with each other.
-assert_eq!(bf.num_interferences(), 0);
-
-// Reactivate everybody.
-bf.activate(&obj1, |_, _, _| { });
-bf.activate(&obj2, |_, _, _| { });
-bf.activate(&obj3, |_, _, _| { });
-bf.activate(&obj4, |_, _, _| { });
+// Update the broad phase.
+// The collision filter (first closure) prevents self-collision.
+bf.update(&mut |a, b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 6);
 
 // Remove two objects.
-bf.remove(&obj1);
-bf.remove(&obj2);
+bf.defered_remove(0);
+bf.defered_remove(1);
 
 // Update the broad phase.
-bf.update();
+// The collision filter (first closure) prevents self-collision.
+bf.update(&mut |a ,b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 1)
 ```

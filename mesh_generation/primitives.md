@@ -1,14 +1,14 @@
 # Primitives
 
-Besides the `ToTriMesh` and `ToLinestrip` traits, the `procedural` module
-exports free functions that generates various meshes and line strips, including
-those accessible by the two former traits.
+Besides the `ToTriMesh` and `ToLinestrip` traits, the `procedural` and
+`transformation` modules export free functions that generate various meshes and
+line strips, including those accessible by the two former traits.
 
 It also exposes functions to compute the convex hull of a set of point using
 the [QuickHull algorithm](http://en.wikipedia.org/wiki/QuickHull) which has an
-average $$O(n \log{n})$$ time complexity.  Because computing the convex hull of
-2d and 3d shapes is so common, two functions are always available no
-matter the number of dimensions you chose to compile **ncollide** for:
+average $$O(n \log{n})$$ time complexity. There is currently not a single
+convex hull algorithm implemented for any dimension, though individual
+functions exist for the 2D and 3D cases:
 
 | Function             | Description                                     |
 | --                   | --                                              |
@@ -30,7 +30,7 @@ for _ in range(0u, 100000) {
     points.push(rand::random::<Pnt2<f32>>() * 2.0f32);
 }
 
-let convex_hull = procedural::convex_hull2d(points.as_slice());
+let convex_hull = transformation::convex_hull2d(&points[..]);
 ```
 
 ###### 3D example <span class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/primitives3d.rs')"></span>
@@ -40,7 +40,7 @@ for _ in range(0u, 100000) {
     points.push(rand::random::<Pnt3<f32>>() * 2.0f32);
 }
 
-let convex_hull = procedural::convex_hull3d(points.as_slice());
+let convex_hull = transformation::convex_hull3d(&points[..]);
 ```
 
 <center>

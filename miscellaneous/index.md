@@ -3,8 +3,7 @@
 Besides the main collision detection and mesh generation related features,
 **ncollide** exposes a number of unclassified operations that are used
 internally by the library. Those operations are exported by the `utils` module.
-Here are listed some useful operations. Most of them are dimension-generic (no
-matter which version of **ncollide** you use):
+Here are listed some of the most useful operations:
 
 | Function                    | Description                                          |
 |--                           | --                                                   |
@@ -23,5 +22,5 @@ Some optimization-related functions are also implemented:
 | `bfgs(...)`   | Minimizes a function using the [BFGS](http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm) method. |
 
 See the
-[documentation](http://ncollide.org/doc/ncollide3df32/utils/index.html) for an
+[documentation](http://ncollide.org/doc/ncollide/utils/index.html) for an
 exhaustive list.
