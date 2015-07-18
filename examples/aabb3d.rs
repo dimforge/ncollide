@@ -13,7 +13,7 @@ fn main() {
     let cylinder = Cylinder::new(1.0, 0.5);
 
     let cone_pos     = Iso3::new(Vec3::z(), na::zero()); // 1.0 along the `z` axis.
-    let cylinder_pos = na::one::<Iso3<f32>>();                        // Identity matrix.
+    let cylinder_pos = na::one::<Iso3<f32>>();           // Identity matrix.
 
     /*
      * Compute their bounding spheres.

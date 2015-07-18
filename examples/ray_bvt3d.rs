@@ -7,6 +7,9 @@ use ncollide::shape::{Cone, Ball, Cuboid, Capsule};
 use ncollide::ray::{RayInterferencesCollector, RayCast, Ray};
 use ncollide::bounding_volume::HasBoundingSphere;
 
+/*
+ * Custom trait to group `HasBoudingSphere` and `RayCast` together.
+ */
 trait Shape3: HasBoundingSphere<Pnt3<f64>, Iso3<f64>> +
               RayCast<Pnt3<f64>, Iso3<f64>> {
 }
