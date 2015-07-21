@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::{Vec3, Iso3};
-use ncollide::bounding_volume::{BoundingVolume, HasBoundingSphere};
+use ncollide::bounding_volume::{self, BoundingVolume};
 use ncollide::shape::{Cone, Cylinder};
 
 fn main() {
@@ -18,8 +18,8 @@ fn main() {
     /*
      * Compute their bounding spheres.
      */
-    let bounding_sphere_cone     = cone.bounding_sphere(&cone_pos);
-    let bounding_sphere_cylinder = cylinder.bounding_sphere(&cylinder_pos);
+    let bounding_sphere_cone     = bounding_volume::bounding_sphere(&cone, &cone_pos);
+    let bounding_sphere_cylinder = bounding_volume::bounding_sphere(&cylinder, &cylinder_pos);
 
     // Merge the two spheres.
     let bounding_bounding_sphere = bounding_sphere_cone.merged(&bounding_sphere_cylinder);
