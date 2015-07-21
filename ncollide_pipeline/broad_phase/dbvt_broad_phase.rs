@@ -6,7 +6,7 @@ use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::hash_map::HashMap;
 use math::{Scalar, Point, Vect};
-use entities::bounding_volume::{HasBoundingVolume, BoundingVolume, BoundingVolumeInterferencesCollector};
+use entities::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use entities::partitioning::{DBVT, DBVTLeaf};
 use queries::ray::{Ray, RayCast, RayInterferencesCollector};
 use queries::point::{PointQuery, PointInterferencesCollector};

@@ -5,7 +5,7 @@
 use std::sync::Arc;
 use na::Translate;
 use na;
-use bounding_volume::{HasAABB, AABB, BoundingVolume};
+use bounding_volume::{self, AABB, BoundingVolume};
 use partitioning::BVT;
 use math::{Point, Vect, Isometry};
 use inspection::Repr;
@@ -44,7 +44,7 @@ impl<P, M> Compound<P, M>
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             // loosen for better persistancy
-            let bv = shape.aabb(delta).loosened(na::cast(0.04f64));
+            let bv = bounding_volume::aabb(&***shape, delta).loosened(na::cast(0.04f64));
 
             bvs.push(bv.clone());
             leaves.push((i, bv));

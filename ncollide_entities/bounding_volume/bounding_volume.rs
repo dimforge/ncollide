@@ -1,7 +1,7 @@
 /// Traits of objects having a bounding volume.
-pub trait HasBoundingVolume<BV> {
-    /// The object bounding volume.
-    fn bounding_volume(&self) -> BV;
+pub trait HasBoundingVolume<M, BV> {
+    /// The bounding volume of `self` transformed by `m`.
+    fn bounding_volume(&self, m: &M) -> BV;
 }
 
 /// Trait of bounding volumes.

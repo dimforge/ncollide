@@ -4,7 +4,7 @@ use na::{Translate, Cross, Translation, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::inspection::Repr;
-use entities::bounding_volume::{AABB, HasAABB};
+use entities::bounding_volume::{self, AABB};
 use queries::geometry::Contact;
 use queries::ray::{RayCast, Ray, RayIntersection};
 use queries::point::PointQuery;
@@ -66,7 +66,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
         let mut collision_object = CollisionObject::new(position, shape, collision_groups, data);
         collision_object.timestamp = self.timestamp;
-        let aabb = collision_object.shape.aabb(&collision_object.position);
+        let aabb = bounding_volume::aabb(&**collision_object.shape, &collision_object.position);
         let fk = self.objects.insert(uid, collision_object).0;
         self.broad_phase.defered_add(fk.uid(), aabb, fk)
     }
@@ -113,7 +113,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             if let Some(co) = self.objects.get_fast_mut(fk) {
                 co.position = pos.clone();
                 co.timestamp = self.timestamp;
-                self.broad_phase.defered_set_bounding_volume(fk.uid(), co.shape.aabb(pos));
+                self.broad_phase.defered_set_bounding_volume(fk.uid(), bounding_volume::aabb(&**co.shape, pos));
             }
         }
 
@@ -141,7 +141,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.timestamp = self.timestamp + 1;
     }
 
-    /// Iterats through all the contact pairs.
+    /// Iterates through all the contact pairs.
     #[inline(always)]
     pub fn contact_pairs<F>(&self, f: F)
           where F: FnMut(&T, &T, &CollisionAlgorithm<P, M>) {
@@ -155,7 +155,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.narrow_phase.contacts(&self.objects, f)
     }
 
-    /// Computes the interferences between every rigid bodies of a given broad phase, and a ray.
+    /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline(always)]
     pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P>, mut f: F)
           where F: FnMut(&T, RayIntersection<P::Vect>) {

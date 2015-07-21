@@ -5,17 +5,17 @@ use na::{Pnt3, Vec3, Iso3};
 use ncollide::partitioning::BVT;
 use ncollide::shape::{Cone, Ball, Cuboid, Capsule};
 use ncollide::ray::{RayInterferencesCollector, RayCast, Ray};
-use ncollide::bounding_volume::HasBoundingSphere;
+use ncollide::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
 /*
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
-trait Shape3: HasBoundingSphere<Pnt3<f64>, Iso3<f64>> +
+trait Shape3: HasBoundingVolume<Iso3<f64>, BoundingSphere<Pnt3<f64>>> +
               RayCast<Pnt3<f64>, Iso3<f64>> {
 }
 
 impl<T> Shape3 for T
-    where T: HasBoundingSphere<Pnt3<f64>, Iso3<f64>> +
+    where T: HasBoundingVolume<Iso3<f64>, BoundingSphere<Pnt3<f64>>> +
              RayCast<Pnt3<f64>, Iso3<f64>> {
 }
 
@@ -39,11 +39,11 @@ fn main() {
         Iso3::new(Vec3::new(0.0, 2.0, 4.0), na::zero())
     ];
 
-    let idx_and_bounding_spheres  = vec!(
-        (0usize, shapes[0].bounding_sphere(&poss[0])),
-        (1usize, shapes[1].bounding_sphere(&poss[1])),
-        (2usize, shapes[2].bounding_sphere(&poss[2])),
-        (3usize, shapes[3].bounding_sphere(&poss[3]))
+    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<Pnt3<f64>>)> = vec!(
+        (0usize, bounding_volume::bounding_sphere::<Pnt3<f64>, _, _>(shapes[0], &poss[0])),
+        (1usize, bounding_volume::bounding_sphere(shapes[1], &poss[1])),
+        (2usize, bounding_volume::bounding_sphere(shapes[2], &poss[2])),
+        (3usize, bounding_volume::bounding_sphere(shapes[3], &poss[3]))
     );
 
     let bvt      = BVT::new_balanced(idx_and_bounding_spheres);

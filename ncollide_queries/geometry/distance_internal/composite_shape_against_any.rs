@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use na::{Identity, Translate, Translation};
 use na;
-use entities::bounding_volume::{HasAABB, AABB};
+use entities::bounding_volume::{self, HasBoundingVolume, AABB};
 use entities::partitioning::BVTCostFn;
 use entities::shape::CompositeShape;
 use entities::inspection::Repr;
@@ -15,7 +15,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasAABB<P, M> {
+          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
 
     g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res).expect("The composite shape must not be empty.")
@@ -26,7 +26,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
-          G1: Repr<P, M> + HasAABB<P, M>,
+          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1)
 }
@@ -47,12 +47,12 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P,
     where P:  Point,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasAABB<P, M> {
+          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
         -> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2> {
 
         let ls_m2 = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
-        let ls_aabb2 = g2.aabb(&ls_m2);
+        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2);
 
         CompositeShapeAgainstAnyDistCostFn {
             msum_shift:  -ls_aabb2.center().to_vec(),
@@ -73,7 +73,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasAABB<P, M> {
+          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
     #[inline]
     fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         // Compute the minkowski sum of the two AABBs.

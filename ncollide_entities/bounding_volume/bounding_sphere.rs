@@ -3,22 +3,16 @@
 use na::{Translation, Norm, Transform, Translate};
 use na;
 use math::{Scalar, Point, Vect};
-use bounding_volume::BoundingVolume;
-
-/// Trait implemented by objects having a bounding sphere.
-pub trait HasBoundingSphere<P, M> {
-    /// The object bounding sphere.
-    fn bounding_sphere(&self, m: &M) -> BoundingSphere<P>;
-}
+use bounding_volume::{BoundingVolume, HasBoundingVolume};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the bounding sphere of a shape `g` transformed by `m`.
 ///
 /// Same as `g.bounding_sphere(m)`.
-pub fn bounding_sphere<P, M, G>(g: &G, m: &M) -> BoundingSphere<P>
+pub fn bounding_sphere<P, M, G: ?Sized>(g: &G, m: &M) -> BoundingSphere<P>
     where P: Point,
-          G: HasBoundingSphere<P, M> {
-    g.bounding_sphere(m)
+          G: HasBoundingVolume<M, BoundingSphere<P>> {
+    g.bounding_volume(m)
 }
 
 /// A Bounding Sphere.

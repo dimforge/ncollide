@@ -16,15 +16,15 @@ fn main() {
     let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.
 
     /*
-     * Compute their bounding spheres.
+     * Compute their axis-aligned bounding boxes.
      */
     let aabb_cone     = bounding_volume::aabb(&cone, &cone_pos);
     let aabb_cylinder = bounding_volume::aabb(&cylinder, &cylinder_pos);
 
-    // Merge the two spheres.
+    // Merge the two boxes.
     let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
 
-    // Enlarge the cylinder bounding sphere.
+    // Enlarge the cylinder aabb.
     let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
 
     // Intersection and inclusion tests.
