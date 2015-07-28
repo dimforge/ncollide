@@ -206,7 +206,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         if self.purge_all || (self.to_update.len() != 0 && self.pairs.len() != 0) {
             let len          = self.pairs.len();
             let num_removals;
-            
+
             if self.purge_all {
                 self.update_off = 0;
                 num_removals = len;
@@ -248,7 +248,11 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                 }
             }
 
-            self.update_off = (self.update_off + num_removals) % self.pairs.len();
+            self.update_off = if self.pairs.len() != 0 {
+                (self.update_off + num_removals) % self.pairs.len()
+            } else {
+                0
+            };
         }
 
         self.to_update.clear();
