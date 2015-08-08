@@ -157,7 +157,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline(always)]
-    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P>, mut f: F)
+    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P>, groups: &CollisionGroups, mut f: F)
           where F: FnMut(&T, RayIntersection<P::Vect>) {
         let mut bodies = Vec::new();
 
@@ -166,17 +166,19 @@ impl<P, M, T> CollisionWorld<P, M, T>
         for b in bodies.into_iter() {
             let co = &self.objects[*b];
 
-            let inter = co.shape.toi_and_normal_with_ray(&co.position, ray, true);
+            if co.collision_groups.can_collide_with_groups(groups) {
+                let inter = co.shape.toi_and_normal_with_ray(&co.position, ray, true);
 
-            if let Some(inter) = inter {
-                f(&co.data, inter)
+                if let Some(inter) = inter {
+                    f(&co.data, inter)
+                }
             }
         }
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
     #[inline(always)]
-    pub fn interferences_with_point<F>(&self, point: &P, mut f: F)
+    pub fn interferences_with_point<F>(&self, point: &P, groups: &CollisionGroups, mut f: F)
           where F: FnMut(&T) {
         let mut bodies = Vec::new();
 
@@ -185,8 +187,10 @@ impl<P, M, T> CollisionWorld<P, M, T>
         for b in bodies.into_iter() {
             let co = &self.objects[*b];
 
-            if co.shape.contains_point(&co.position, point) {
-                f(&co.data)
+            if co.collision_groups.can_collide_with_groups(groups) {
+                if co.shape.contains_point(&co.position, point) {
+                    f(&co.data)
+                }
             }
         }
     }
@@ -194,14 +198,18 @@ impl<P, M, T> CollisionWorld<P, M, T>
     // FIXME: replace by iterators.
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline(always)]
-    pub fn interferences_with_aabb<F>(&self, aabb: &AABB<P>, mut f: F)
+    pub fn interferences_with_aabb<F>(&self, aabb: &AABB<P>, groups: &CollisionGroups, mut f: F)
           where F: FnMut(&T) {
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_bounding_volume(aabb, &mut fks);
 
         for fk in fks.into_iter() {
-            f(&self.objects[*fk].data)
+            let co = &self.objects[*fk];
+
+            if co.collision_groups.can_collide_with_groups(groups) {
+                f(&co.data)
+            }
         }
     }
 }
