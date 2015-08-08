@@ -1,5 +1,6 @@
 use std::ops::Mul;
 use std::sync::Arc;
+use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Scalar, Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
@@ -157,59 +158,141 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline(always)]
-    pub fn interferences_with_ray<'a, F>(&'a mut self, ray: &Ray<P>, groups: &CollisionGroups, mut f: F)
-          where F: FnMut(&T, RayIntersection<P::Vect>) {
-        let mut bodies = Vec::new();
+    pub fn interferences_with_ray<'a>(&'a mut self, ray: &'a Ray<P>, groups: &'a CollisionGroups)
+        -> InterferencesWithRay<'a, P, M, T> {
+        let mut fks = Vec::new();
 
-        self.broad_phase.interferences_with_ray(ray, &mut bodies);
+        self.broad_phase.interferences_with_ray(ray, &mut fks);
 
-        for b in bodies.into_iter() {
-            let co = &self.objects[*b];
-
-            if co.collision_groups.can_collide_with_groups(groups) {
-                let inter = co.shape.toi_and_normal_with_ray(&co.position, ray, true);
-
-                if let Some(inter) = inter {
-                    f(&co.data, inter)
-                }
-            }
+        InterferencesWithRay {
+            ray:     ray,
+            groups:  groups,
+            objects: &self.objects,
+            idx:     fks.into_iter()
         }
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
     #[inline(always)]
-    pub fn interferences_with_point<F>(&self, point: &P, groups: &CollisionGroups, mut f: F)
-          where F: FnMut(&T) {
-        let mut bodies = Vec::new();
+    pub fn interferences_with_point<'a>(&'a self, point: &'a P, groups: &'a CollisionGroups)
+        -> InterferencesWithPoint<'a, P, M, T> {
+        let mut fks = Vec::new();
 
-        self.broad_phase.interferences_with_point(point, &mut bodies);
+        self.broad_phase.interferences_with_point(point, &mut fks);
 
-        for b in bodies.into_iter() {
-            let co = &self.objects[*b];
-
-            if co.collision_groups.can_collide_with_groups(groups) {
-                if co.shape.contains_point(&co.position, point) {
-                    f(&co.data)
-                }
-            }
+        InterferencesWithPoint {
+            point:   point,
+            groups:  groups,
+            objects: &self.objects,
+            idx:     fks.into_iter()
         }
     }
 
-    // FIXME: replace by iterators.
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline(always)]
-    pub fn interferences_with_aabb<F>(&self, aabb: &AABB<P>, groups: &CollisionGroups, mut f: F)
-          where F: FnMut(&T) {
+    pub fn interferences_with_aabb<'a>(&'a self, aabb: &'a AABB<P>, groups: &'a CollisionGroups)
+        -> InterferencesWithAABB<'a, P, M, T> {
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_bounding_volume(aabb, &mut fks);
 
-        for fk in fks.into_iter() {
-            let co = &self.objects[*fk];
+        InterferencesWithAABB {
+            groups:  groups,
+            objects: &self.objects,
+            idx:     fks.into_iter()
+        }
+    }
+}
 
-            if co.collision_groups.can_collide_with_groups(groups) {
-                f(&co.data)
-            }
+/// Iterator through all the objects on the world that intersect a specific ray.
+pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
+    ray:     &'a Ray<P>,
+    objects: &'a UidRemap<CollisionObject<P, M, T>>,
+    groups:  &'a CollisionGroups,
+    idx:     IntoIter<&'a FastKey>,
+}
+
+impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
+    where P: Point,
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>);
+
+    #[inline]
+    fn next(&mut self) -> Option<(&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>)> {
+        match self.idx.next() {
+            Some(id) => {
+                let co = &self.objects[*id];
+
+                if co.collision_groups.can_collide_with_groups(self.groups) {
+                    let inter = co.shape.toi_and_normal_with_ray(&co.position, self.ray, true);
+
+                    if let Some(inter) = inter {
+                        return Some((co, inter))
+                    }
+                }
+                None
+            },
+            None => None
+        }
+    }
+}
+
+/// Iterator through all the objects on the world that intersect a specific point.
+pub struct InterferencesWithPoint<'a, P: 'a, M: 'a, T: 'a> {
+    point:   &'a P,
+    objects: &'a UidRemap<CollisionObject<P, M, T>>,
+    groups:  &'a CollisionGroups,
+    idx:     IntoIter<&'a FastKey>,
+}
+
+impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
+    where P: Point,
+          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+    type Item = &'a CollisionObject<P, M, T>;
+
+    #[inline]
+    fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
+        match self.idx.next() {
+            Some(id) => {
+                let co = &self.objects[*id];
+
+                if co.collision_groups.can_collide_with_groups(self.groups) &&
+                   co.shape.contains_point(&co.position, self.point) {
+                    Some(co)
+                }
+                else {
+                    None
+                }
+            },
+            None => None
+        }
+    }
+}
+
+/// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
+pub struct InterferencesWithAABB<'a, P: 'a, M: 'a, T: 'a> {
+    objects: &'a UidRemap<CollisionObject<P, M, T>>,
+    groups:  &'a CollisionGroups,
+    idx:     IntoIter<&'a FastKey>,
+}
+
+impl<'a, P, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
+    type Item = &'a CollisionObject<P, M, T>;
+
+    #[inline]
+    fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
+        match self.idx.next() {
+            Some(id) => {
+                let co = &self.objects[*id];
+
+                if co.collision_groups.can_collide_with_groups(self.groups) {
+                    Some(co)
+                }
+                else {
+                    None
+                }
+            },
+            None => None
         }
     }
 }
