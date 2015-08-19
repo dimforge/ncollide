@@ -26,8 +26,8 @@ Box (OBB), and a convex hull:
 Currently, **ncollide** only supports [Bounding
 Spheres](../bounding_volumes/bounding_sphere.html) and
 [AABB](../bounding_volumes/aabb.html). Also note that bounding volumes are very
-different from regular shapes: their position in space is completely
-contained by the bounding volume structure (no need to use it together with a
+different from regular shapes: their position in space is completely contained
+by the bounding volume structure (no need to use them together with a
 transformation matrix).
 
 
@@ -42,19 +42,20 @@ Bounding volumes must implement the `bounding_volume::BoundingVolume` trait:
 | `.contains(bv)`   | Returns `true` if `bv` is completely inside of `self`. |
 | `.merge(bv)`      | Merge `self` and `bv` in place. |
 | `.merged(bv)`     | Returns a bounding volume, result of the merge of `self` with `bv`. |
+| `.loosen(m)`      | Dilates `self` by a ball of radius `m` in place.          |
+| `.loosened(m)`    | Returns a copy of `self` dilated by a ball of radius `m`. |
+| `.tighten(m)`     | Erodes `self` by a ball of radius `m` in place.          |
+| `.tightened(m)`   | Returns a copy of `self` eroded by a ball of radius `m`. |
 
-Some bounding volume may also implement the
-`bounding_volume::LooseBoundingVolume` trait. This gives the ability to enlarge
-the volume by a given margin which is useful to optimize some [broad
-phase](../contact_determination/broad_phase.html) algorithms:
+The `.loosen(...)` and `.loosened(...)` (resp. `.tighten(...)` and
+`.tightened(...)`) methods allow you to dilate (resp. erode) the bounding
+volume by a given margin. This will effectively make the new bounding volume
+strictly larger (resp. thinner) than the original one.  This is useful e.g.
+to optimize some [broad phase](../contact_determination/broad_phase.html)
+algorithms.
 
 
-| Method         | Description                               |
-|--              | --                                        |
-| `.loosen(m)`   | Enlarges `self` by `m` in place.          |
-| `.loosened(m)` | Returns a copy of `self` enlarged by `m`. |
-
-Finally, some algorithms work with objects that can compute their own bounding
+Finally, some algorithm work with objects that can compute their own bounding
 volumes all by themselves. This requirement is exposed by the
 `bounding_volume::HasBoundingVolume` trait which is parametrized by the type of
 the returned bounding volume:

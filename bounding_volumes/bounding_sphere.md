@@ -7,7 +7,7 @@ bounded shape.
 ![bounding sphere](../img/bounding_volume_bounding_sphere.svg)
 </center>
 
-Being an unorientable shape, it is completely defined by its center and its
+Being an unorientable shape, it is fully defined by its center and its
 radius:
 
 | Method      | Description                                                    |
@@ -16,36 +16,42 @@ radius:
 | `.radius()` | The bounding sphere radius. |
 
 
-The bounding sphere implements the `LooseBoundingVolume` trait so it can be
-enlarged by an arbitrary margin $$m$$:
+Of course, the bounding sphere implements the `BoundingVolume` trait. The
+following shows the effect of the `.loosen(m)` method on it:
 
 <center>
 ![loose bounding sphere](../img/bounding_volume_bounding_sphere_loose.svg)
 </center>
 
-Finally, note that a bounding sphere supports ray casting as described by the
-[RayCast](../ray_casting/index.html) trait.
+Finally, note that a bounding sphere supports ray casting and point queries as described
+by the [RayCast](../ray_casting/index.html) and
+[PointQuery](../point_query/index.html) traits.
 
 ## Creating a Bounding Sphere
 
-There are two ways to create a bounding sphere. The main one is to use the usual
+There are three ways to create a bounding sphere. The main one is to use the usual
 static method `BoundingSphere::new(center, radius)`.
 
+The second is to use the `bounding_volume.bounding_sphere(g, m)` function,
+where `g` and `m` are the shape and its position (e.g. a transformation
+matrix).
 
-The second method is using the `bounding_volume::HasBoundingSphere` trait
-implemented by any `Geom`:
+While this is not recommended except for generic programming, you may as well
+directly call the method from the `bounding_volume::HasBoundingVolume` trait
+implemented by any shape of `ncollide`:
 
 | Method                | Description                                                |
 |--                     | --                                                         |
-| `.bounding_sphere(m)` | Computes the bounding sphere of `self` transformed by `m`. |
+| `.bounding_volume(m)` | Computes the bounding sphere of `self` transformed by `m`. |
 
-This is the simplest way to compute the bounding sphere of a shape defined
-by **ncollide**. Do not forget to explicitly import the trait in order to be
-allowed to call this method:
-
-```rust
-use ncollide::bounding_volume::HasBoundingSphere;
-```
+While using the trait method directly works (this is actually what
+`bounding_volume.bounding_sphere(...)` does under the hood), the compiler might
+sometimes fail to infer correctly the types involved in the trait
+implementation and output a cryptic error message. Also note that the
+`BoundingVolume` trait actually takes the bounding volume type as a type
+parameter. Therefore, you may have to specify explicitly the return type of
+the method in order to use it, e.g. `let bs: BoundingSphere<Pnt3<f32>> =
+g.bounding_volume(m);`.
 
 ## Example
 
@@ -67,8 +73,8 @@ let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.
 /*
  * Compute their bounding spheres.
  */
-let bounding_sphere_cone     = cone.bounding_sphere(&cone_pos);
-let bounding_sphere_cylinder = cylinder.bounding_sphere(&cylinder_pos);
+let bounding_sphere_cone     = bounding_volume::bounding_sphere(&cone, &cone_pos);
+let bounding_sphere_cylinder = bounding_volume::bounding_sphere(&cylinder, &cylinder_pos);
 
 // Merge the two spheres.
 let bounding_bounding_sphere = bounding_sphere_cone.merged(&bounding_sphere_cylinder);
@@ -99,8 +105,8 @@ let cylinder_pos = na::one::<Iso3<f32>>();           // Identity matrix.
 /*
  * Compute their bounding spheres.
  */
-let bounding_sphere_cone     = cone.bounding_sphere(&cone_pos);
-let bounding_sphere_cylinder = cylinder.bounding_sphere(&cylinder_pos);
+let bounding_sphere_cone     = bounding_volume::bounding_sphere(&cone, &cone_pos);
+let bounding_sphere_cylinder = bounding_volume::bounding_sphere(&cylinder, &cylinder_pos);
 
 // Merge the two spheres.
 let bounding_bounding_sphere = bounding_sphere_cone.merged(&bounding_sphere_cylinder);

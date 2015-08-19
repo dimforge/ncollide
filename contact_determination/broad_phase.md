@@ -6,35 +6,20 @@ common geometric queries:
 
 | Method                 | Description                                     |
 |--                      | --                                              |
-| `.add(object)`         | Adds `object` to this broad phase algorithm.      |
-| `.remove(object)`      | Removes `object` from this broad phase algorithm. |
-| `.update()`            | Updates this broad phase algorithm.             |
-| `.update_object(object)` | Partially updates this broad phase algohithm so that all the pairs involving `object` are detected. |
-| `.interferences_with_bounding_volume(bv, result)` | Clones to `result` any object that intersects the bounding volume `bv`. |
-| `.interferences_with_ray(ray, result)` | Clones to `result` any object that intersects the bounding volume `bv`. |
-| `.interferences_with_point(point, result)` | Clones to `result` any object that contains the point `point`. |
-| `.for_each_pair(f)`     | Applies the closure `f` to each contact pair and its _associated data_. |
-| `.for_each_pair_mut(f)` | Applies the closure `f` to each contact pair and a mutable reference to its _associated data_. 
-| `.deactivate(object)`   | Deactivates `object`. Two deactivated objects cannot be in contact. |
-| `.activate(object, f)`  | Activates `object` and applies the closure `f` on each new contact pairs involving the activated object. | 
+| `.defered_add(uid, bv, data)`                     | Informs the broad phase algorithm that a new object with the identifier `uid`, the bounding volume `bv`, and the associated data `data` has to be added during the next update. |
+| `.defered_remove(object)`                         | Informs the broad phase algorithm that the object identified by `uid` must be removed at the next update. |
+| `.defered_set_bounding_volume(uid, bv)`           | Informs the broad phase algorithm that the object identified by `uid`’s bounding volume has to be replaced by `bv` at the next update. |
+| `.update(filter, callback)`                       | Updates this broad phase algorithm, actually performing object addition and removal. `filter` is a predicate that indicates if a new potential collision pair is valid. If it is (`filter` returns `true`), `callback` will be called for each such now collision pair. `callback` is also called |
+| `.interferences_with_bounding_volume(bv, result)` | Fills `result` with references to each object which bounding volume intersects the bounding volume `bv`. |
+| `.interferences_with_ray(ray, result)`            | Fills `result` with references to each object which bounding volume intersects the ray `ray`. |
+| `.interferences_with_point(point, result)`        | Fills `result` with references to each object which bounding volume contains the point `point`. |
 
-Let us clarify what _associated data_ means here. A broad phase must associate
-some data to each collision pair. Usually, this data is a collision detector
-algorithm that will be used during the [Narrow
-Phase](../contact_determination/narrow_phase.html). The method used by the
-broad phase to generate this piece of data for each potential collision pair is
-implementation-specific but most of the time it will use a factory that
-implements the `broad_phase::Dispatcher` trait:
-
-| Method                   | Description                                     |
-|--                        | --                                              |
-| `.dispatch(object1, object2)` | Instantiates the data associated to the potential contact pair involving `object1` and `object2`. |
-| `.is_valid(object1, object2)` | Tests if a collision pair between `object1` and `object2` is valid. |
-
-Note that the life lengths of those _associated data_ is also
-implementation-dependent. Therefore, if you write generic code that do not know
-the exact type of the broad phase, you should not rely on the destruction time
-(i.e. call to the `drop` method) of the data to perform useful tasks.
+Let us clarify what _associated data_ means here. A broad phase is guaranteed
+to associate some pieces of data to each object. Those data are completely
+user-defined (e.g. they can even be as general as `Box<Any>`) and are passed as
+argument to the user-defined callbacks when the `update` method is called.
+Therefore, feel free to store in there any piece of data that may be useful to
+identify the object on your side and to filter out unwanted collision pairs.
 
 ### The DBVT broad phase
 
@@ -54,13 +39,10 @@ AABB. Note that, instead of the exact bounding volumes (read), the
 ![dbvt](../img/AABB_tree_DBVT.svg)
 </center>
 
-Creating a `DBVTBroadPhase` is simple as long as you have a structure that
-implements the `Dispatcher` trait described above. You must also give the
-desired margin the bounding volumes will be loosened by.
-
+Creating a `DBVTBroadPhase` is simple using the idiomatically named
+`::new(margin, small_keys)` function:
 ```rust
-let dispatcher = NoIdDispatcher::new(); // No self-interference.
-let mut dbvt   = DBVTBroadPhase::new(dispatcher, 0.08);
+let mut dbvt = DBVTBroadPhase::new(0.08, false);
 ```
 Storing the loosened bounding volumes instead of the exact ones is a
 significant optimization for scenes where the broad phase has to track contact
@@ -69,12 +51,17 @@ displacement of an object is large enough to make its exact bounding volume
 move out of the loosened version stored on the tree. That way objects moving at
 high frequency but low amplitude will almost never trigger an update, at the
 cost of a less tight bounding volume for interference detection (i.e. more
-false positives).
+false positives). The amount of loosening is controlled by the first argument
+`margin`. The second argument `small_keys` is here for optimization
+purpose. Set it to `true` if and only if you know that the integer keys you use
+to identify your objects are small enough (as in "small enough for them to be
+used as keys on a `Vec` instead of a `HashMap`"). If you are not sure of the
+values your keys may take, set `small_keys` to `false`.
+
 
 ## Example
 The following example creates four balls, adds them to a `DBVTBroadPhase`,
-deactivates, reactivates, and removes them. The `bounding_volume::WithAABB`
-structure associates a position to a shape that implement the `HasAABB` trait.
+updates the broad phase, and removes some of them.
 
 ###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase2d.rs')" ></span>
 ```rust

@@ -17,18 +17,19 @@ each coordinate axis):
 | `.maxs()` | The AABB vertex with the greatest coordinates along each axis. |
 
 
-The AABB implements the `LooseBoundingVolume` trait so it can be enlarged by an
-arbitrary margin $$m$$:
+Of course, the AABB implements the `BoundingVolume` trait. The
+following shows the effect of the `.loosen(m)` method on it:
 
 <center>
 ![loose aabb](../img/bounding_volume_aabb_loose.svg)
 </center>
 
-Finally, note that an AABB supports ray casting as described by the
-[RayCast](../ray_casting/index.html) trait.
+Finally, note that an AABB supports ray casting and point queries as described
+by the [RayCast](../ray_casting/index.html) and
+[PointQuery](../point_query/index.html) traits.
 
 ## Creating an AABB
-There are three ways to create an AABB. The main one is to use the usual
+There are four ways to create an AABB. The main one is to use the usual
 static method `AABB::new(mins, maxs)`. This will fail if one component of
 `mins` is strictly greater than the corresponding component of `maxs`. The
 second one is to use the unsafe constructor `AABB::new_invalid()`. It is unsafe
@@ -38,21 +39,25 @@ its `maxs` field is set to
 [-Bounded::max_value()](http://doc.rust-lang.org/std/num/trait.Bounded.html).
 This is useful to initiate the merging of multiple AABB.
 
+The third is to use the `bounding_volume.aabb(g, m)` function, where `g` and
+`m` are the shape and its position (e.g. a transformation matrix).
 
-The last method to create an AABB is using the `boundoing_volume::HasAABB`
-trait implemented by any `Geom`:
+Finally, while this is not recommended except for generic programming, you may
+as well directly call the method from the `bounding_volume::HasBoundingVolume`
+trait implemented by any shape of `ncollide`:
 
-| Method    | Description                                     |
-|--         | --                                              |
-| `.aabb(m)` | Computes the AABB of `self` transformed by `m`. |
+| Method                | Description                                                |
+|--                     | --                                                         |
+| `.bounding_volume(m)` | Computes the aabb of `self` transformed by `m`. |
 
-This is the simplest way to compute the AABB of a shape defined by
-**ncollide**. Do not forget to explicitly import the trait in order to be
-allowed call this method:
-
-```rust
-use ncollide::bounding_volume::HasAABB;
-```
+While using the trait method directly works (this is actually what
+`bounding_volume.aabb(...)` does under the hood), the compiler might
+sometimes fail to infer correctly the types involved in the trait
+implementation and output a cryptic error message. Also note that the
+`BoundingVolume` trait actually takes the bounding volume type as a type
+parameter. Therefore, you may have to specify explicitly the return type of
+the method in order to use it, e.g. `let bs: AABB<Pnt3<f32>> =
+g.bounding_volume(m);`.
 
 ## Example
 
@@ -72,15 +77,15 @@ let cone_pos     = Iso2::new(Vec2::y(), na::zero()); // 1.0 along the `y` axis.
 let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.
 
 /*
- * Compute their bounding spheres.
+ * Compute their axis-aligned bounding boxes.
  */
-let aabb_cone     = cone.aabb(&cone_pos);
-let aabb_cylinder = cylinder.aabb(&cylinder_pos);
+let aabb_cone     = bounding_volume::aabb(&cone, &cone_pos);
+let aabb_cylinder = bounding_volume::aabb(&cylinder, &cylinder_pos);
 
-// Merge the two spheres.
+// Merge the two boxes.
 let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
 
-// Enlarge the cylinder bounding sphere.
+// Enlarge the cylinder aabb.
 let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
 
 // Intersection and inclusion tests.
@@ -104,15 +109,15 @@ let cone_pos     = Iso3::new(Vec3::z(), na::zero()); // 1.0 along the `z` axis.
 let cylinder_pos = na::one::<Iso3<f32>>();           // Identity matrix.
 
 /*
- * Compute their bounding spheres.
+ * Compute their axis-aligned bounding boxes.
  */
-let aabb_cone     = cone.aabb(&cone_pos);
-let aabb_cylinder = cylinder.aabb(&cylinder_pos);
+let aabb_cone     = bounding_volume::aabb(&cone, &cone_pos);
+let aabb_cylinder = bounding_volume::aabb(&cylinder, &cylinder_pos);
 
-// Merge the two spheres.
+// Merge the two boxes.
 let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
 
-// Enlarge the cylinder bounding sphere.
+// Enlarge the cylinder aabb.
 let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
 
 // Intersection and inclusion tests.
