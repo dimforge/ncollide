@@ -158,7 +158,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline(always)]
-    pub fn interferences_with_ray<'a>(&'a mut self, ray: &'a Ray<P>, groups: &'a CollisionGroups)
+    pub fn interferences_with_ray<'a>(&'a self, ray: &'a Ray<P>, groups: &'a CollisionGroups)
         -> InterferencesWithRay<'a, P, M, T> {
         let mut fks = Vec::new();
 
