@@ -40,7 +40,7 @@ fn denormalize<P>(coords: &mut [P], center: &P, diag: <P::Vect as Vect>::Scalar)
 /// Computes the convex hull of a set of 3d points.
 pub fn convex_hull3<P>(points: &[P]) -> TriMesh<P>
     where P: Point,
-          P::Vect: Outer,
+          P::Vect: Outer + Mul<<<P as Point>::Vect as Outer>::OuterProductType, Output = <P as Point>::Vect>,
           <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
                                                 Mul<P, Output = P> +
                                                 Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType> +
@@ -184,7 +184,7 @@ fn build_degenerate_mesh_segment<P>(dir: &P::Vect, points: &[P]) -> TriMesh<P>
 
 fn get_initial_mesh<P>(points: &mut [P], undecidable: &mut Vec<usize>) -> InitialMesh<P, <P::Vect as Outer>::OuterProductType>
     where P: Point,
-          P::Vect: Outer,
+          P::Vect: Outer + Mul<<<P as Point>::Vect as Outer>::OuterProductType, Output = <P as Point>::Vect>,
           <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
                                                 Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType> +
                                                 Zero + Copy {

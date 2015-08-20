@@ -1,5 +1,6 @@
 use entities::inspection::{Repr, ReprDesc};
 use queries::geometry::Contact;
+use math::Point;
 
 /// Trait of the algorithms executed during the so-called Narrow Phase.
 ///
@@ -10,7 +11,7 @@ use queries::geometry::Contact;
 /// # Arguments
 /// * `G1`- the type of the first object involved on the collision detection.
 /// * `G2`- the type of the second object involved on the collision detection.
-pub trait CollisionDetector<P, M> {
+pub trait CollisionDetector<P: Point, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.

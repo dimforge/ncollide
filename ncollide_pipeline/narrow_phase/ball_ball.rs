@@ -40,7 +40,7 @@ impl<P: Point, M> BallBall<P, M> {
 
 impl<P, M> CollisionDetector<P, M> for BallBall<P, M>
     where P: Point,
-          M: Translate<P> {
+          M: 'static + Translate<P> {
     fn update(&mut self,
               _:  &CollisionDispatcher<P, M>,
               ma: &M,

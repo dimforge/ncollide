@@ -14,7 +14,7 @@ pub struct CollisionObjectsDispatcher<P, M, T> {
     pairs:            HashMap<Pair, CollisionAlgorithm<P, M>, PairTWHash>
 }
 
-impl<P: Point, M, T> CollisionObjectsDispatcher<P, M, T> {
+impl<P: Point, M: 'static, T> CollisionObjectsDispatcher<P, M, T> {
     /// Creates a new `CollisionObjectsDispatcher`.
     pub fn new(shape_dispatcher: Box<CollisionDispatcher<P, M> + 'static>)
         -> CollisionObjectsDispatcher<P, M, T> {

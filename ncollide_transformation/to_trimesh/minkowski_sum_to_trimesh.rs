@@ -11,7 +11,7 @@ use math::{Scalar, Point, Vect};
 // XXX: Implemente this for other dimensions (harder because of the concavities.
 impl<'a, P, M1, G1, G2, A, B> ToTriMesh<P, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> + Outer,
+          P::Vect: Translate<P> + Outer + Mul<<<P as Point>::Vect as Outer>::OuterProductType, Output = <P as Point>::Vect>,
           G1: ToTriMesh<P, A>,
           G2: ToTriMesh<P, B>,
           <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vect>::Scalar, P::Vect> +
