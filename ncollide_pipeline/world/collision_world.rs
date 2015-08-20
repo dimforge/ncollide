@@ -219,21 +219,19 @@ impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
 
     #[inline]
     fn next(&mut self) -> Option<(&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>)> {
-        match self.idx.next() {
-            Some(id) => {
-                let co = &self.objects[*id];
+        while let Some(id) = self.idx.next() {
+            let co = &self.objects[*id];
 
-                if co.collision_groups.can_collide_with_groups(self.groups) {
-                    let inter = co.shape.toi_and_normal_with_ray(&co.position, self.ray, true);
+            if co.collision_groups.can_collide_with_groups(self.groups) {
+                let inter = co.shape.toi_and_normal_with_ray(&co.position, self.ray, true);
 
-                    if let Some(inter) = inter {
-                        return Some((co, inter))
-                    }
+                if let Some(inter) = inter {
+                    return Some((co, inter))
                 }
-                None
-            },
-            None => None
+            }
         }
+
+        None
     }
 }
 
@@ -252,20 +250,16 @@ impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
 
     #[inline]
     fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
-        match self.idx.next() {
-            Some(id) => {
-                let co = &self.objects[*id];
+        while let Some(id) = self.idx.next() {
+            let co = &self.objects[*id];
 
-                if co.collision_groups.can_collide_with_groups(self.groups) &&
-                   co.shape.contains_point(&co.position, self.point) {
-                    Some(co)
-                }
-                else {
-                    None
-                }
-            },
-            None => None
+            if co.collision_groups.can_collide_with_groups(self.groups) &&
+               co.shape.contains_point(&co.position, self.point) {
+                return Some(co)
+            }
         }
+
+        None
     }
 }
 
@@ -281,19 +275,15 @@ impl<'a, P, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
 
     #[inline]
     fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
-        match self.idx.next() {
-            Some(id) => {
-                let co = &self.objects[*id];
+        while let Some(id) = self.idx.next() {
+            let co = &self.objects[*id];
 
-                if co.collision_groups.can_collide_with_groups(self.groups) {
-                    Some(co)
-                }
-                else {
-                    None
-                }
-            },
-            None => None
+            if co.collision_groups.can_collide_with_groups(self.groups) {
+                return Some(co)
+            }
         }
+
+        None
     }
 }
 
