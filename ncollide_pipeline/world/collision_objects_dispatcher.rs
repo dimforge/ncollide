@@ -1,8 +1,10 @@
-use utils::data::hash_map::HashMap;
+use std::slice::Iter;
+use utils::data::hash_map::{HashMap, Entry};
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use queries::geometry::Contact;
-use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal, ContactSignalHandler};
+use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal, ContactSignalHandler,
+                   CollisionDetector};
 use world::CollisionObject;
 use math::Point;
 
@@ -53,39 +55,25 @@ impl<P: Point, M: 'static, T> CollisionObjectsDispatcher<P, M, T> {
     }
 
     /// Iterates through all the contact pairs.
-    #[inline(always)]
-    pub fn contact_pairs<F>(&self,
-                         objects: &UidRemap<CollisionObject<P, M, T>>,
-                         mut f: F)
-          where F: FnMut(&T, &T, &CollisionAlgorithm<P, M>) {
-        for e in self.pairs.elements().iter() {
-            let co1 = &objects[e.key.first];
-            let co2 = &objects[e.key.second];
-
-            f(&co1.data, &co2.data, &e.value)
+    #[inline]
+    pub fn contact_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+                             -> ContactPairs<'a, P, M, T> {
+        ContactPairs {
+            objects: objects,
+            pairs:   self.pairs.elements().iter()
         }
     }
 
-    /// Calls a closures on each contact between two objects.
-    #[inline(always)]
-    pub fn contacts<F>(&self,
-                    objects: &UidRemap<CollisionObject<P, M, T>>,
-                    mut f: F)
-          where F: FnMut(&T, &T, &Contact<P>) {
-        // FIXME: avoid allocation.
-        let mut collector = Vec::new();
-
-        for e in self.pairs.elements().iter() {
-            let co1 = &objects[e.key.first];
-            let co2 = &objects[e.key.second];
-
-            e.value.colls(&mut collector);
-
-            for c in collector[..].iter() {
-                f(&co1.data, &co2.data, c)
-            }
-
-            collector.clear();
+    /// Iterates through all the contacts detected since the last update.
+    #[inline]
+    pub fn contacts<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>) -> Contacts<'a, P, M, T> {
+        Contacts {
+            objects:      objects,
+            co1:          None,
+            co2:          None,
+            pairs:        self.pairs.elements().iter(),
+            collector:    Vec::new(), // FIXME: avoid allocations.
+            curr_contact: 0
         }
     }
 
@@ -157,3 +145,77 @@ impl<P: Point, M: 'static, T> CollisionObjectsDispatcher<P, M, T> {
         }
     }
 }
+
+/// Iterator through contact pairs.
+pub struct ContactPairs<'a, P: 'a, M: 'a, T: 'a> {
+    objects: &'a UidRemap<CollisionObject<P, M, T>>,
+    pairs:   Iter<'a, Entry<Pair, Box<CollisionDetector<P, M> + 'static>>>
+}
+
+impl<'a, P, M, T> Iterator for ContactPairs<'a, P, M, T> {
+    type Item = (&'a CollisionObject<P, M, T>,
+                 &'a CollisionObject<P, M, T>,
+                 &'a CollisionAlgorithm<P, M>);
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.pairs.next() {
+            Some(p) => {
+                let co1 = &self.objects[p.key.first];
+                let co2 = &self.objects[p.key.second];
+
+                Some((&co1, &co2, &p.value))
+            }
+            None => None
+        }
+    }
+}
+
+    /// An iterator through contacts.
+    pub struct Contacts<'a, P: 'a + Point, M: 'a, T: 'a> {
+        objects:      &'a UidRemap<CollisionObject<P, M, T>>,
+        // FIXME: do we want to pay the cost of Options here? We already know those references will
+        // never be null anyway so we could avoid the Option and init them with
+        // `mem::uninitialized()` instead.
+        co1:          Option<&'a CollisionObject<P, M, T>>,
+        co2:          Option<&'a CollisionObject<P, M, T>>,
+        pairs:        Iter<'a, Entry<Pair, Box<CollisionDetector<P, M>>>>,
+        collector:    Vec<Contact<P>>,
+        curr_contact: usize
+    }
+
+    impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
+        type Item = (&'a CollisionObject<P, M, T>, &'a CollisionObject<P, M, T>, Contact<P>);
+
+        #[inline]
+        fn next(&mut self) -> Option<Self::Item> {
+            // FIXME: is there a more efficient way to do this (i-e. avoid using an index)?
+            if self.curr_contact < self.collector.len() {
+                self.curr_contact = self.curr_contact + 1;
+
+                // FIXME: would be nice to avoid the `clone` and return a reference
+                // instead (but what would be its lifetime?).
+                Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[self.curr_contact - 1].clone()))
+            }
+            else {
+                self.collector.clear();
+
+                while let Some(p) = self.pairs.next() {
+                    p.value.colls(&mut self.collector);
+
+                    if !self.collector.is_empty() {
+                        self.co1 = Some(&self.objects[p.key.first]);
+                        self.co2 = Some(&self.objects[p.key.second]);
+                        self.curr_contact = 1; // Start at 1 instead of 0 because we will return the first one here.
+
+                        // FIXME: would be nice to avoid the `clone` and return a reference
+                        // instead (but what would be its lifetime?).
+                        return Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[0].clone()))
+                    }
+                }
+
+                None
+            }
+        }
+    }
+

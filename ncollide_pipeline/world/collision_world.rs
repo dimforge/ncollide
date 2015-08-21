@@ -6,12 +6,11 @@ use math::{Scalar, Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::inspection::Repr;
 use entities::bounding_volume::{self, AABB};
-use queries::geometry::Contact;
 use queries::ray::{RayCast, Ray, RayIntersection};
 use queries::point::PointQuery;
-use narrow_phase::{BasicCollisionDispatcher, ContactSignalHandler, CollisionAlgorithm};
+use narrow_phase::{BasicCollisionDispatcher, ContactSignalHandler};
 use broad_phase::{BroadPhase, DBVTBroadPhase};
-use world::{CollisionObjectsDispatcher, CollisionObject, CollisionGroups};
+use world::{CollisionObjectsDispatcher, CollisionObject, CollisionGroups, ContactPairs, Contacts};
 
 use na::{Pnt2, Pnt3, Iso2, Iso3};
 
@@ -142,24 +141,23 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.timestamp = self.timestamp + 1;
     }
 
-    /// Iterates through all the contact pairs.
-    #[inline(always)]
-    pub fn contact_pairs<F>(&self, f: F)
-          where F: FnMut(&T, &T, &CollisionAlgorithm<P, M>) {
-        self.narrow_phase.contact_pairs(&self.objects, f)
+    /// Iterates through all the contact pairs detected since the last update.
+    #[inline]
+    pub fn contact_pairs(&self) -> ContactPairs<P, M, T> {
+        self.narrow_phase.contact_pairs(&self.objects)
     }
 
-    /// Collects every contact detected since the last update.
-    #[inline(always)]
-    pub fn contacts<F>(&self, f: F)
-          where F: FnMut(&T, &T, &Contact<P>) {
-        self.narrow_phase.contacts(&self.objects, f)
+    /// Iterates through every contact detected since the last update.
+    #[inline]
+    pub fn contacts(&self) -> Contacts<P, M, T> {
+        self.narrow_phase.contacts(&self.objects)
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
-    #[inline(always)]
+    #[inline]
     pub fn interferences_with_ray<'a>(&'a self, ray: &'a Ray<P>, groups: &'a CollisionGroups)
         -> InterferencesWithRay<'a, P, M, T> {
+        // FIXME: avoid allocation.
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_ray(ray, &mut fks);
@@ -173,9 +171,10 @@ impl<P, M, T> CollisionWorld<P, M, T>
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
-    #[inline(always)]
+    #[inline]
     pub fn interferences_with_point<'a>(&'a self, point: &'a P, groups: &'a CollisionGroups)
         -> InterferencesWithPoint<'a, P, M, T> {
+        // FIXME: avoid allocation.
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_point(point, &mut fks);
@@ -189,9 +188,10 @@ impl<P, M, T> CollisionWorld<P, M, T>
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
-    #[inline(always)]
+    #[inline]
     pub fn interferences_with_aabb<'a>(&'a self, aabb: &'a AABB<P>, groups: &'a CollisionGroups)
         -> InterferencesWithAABB<'a, P, M, T> {
+        // FIXME: avoid allocation.
         let mut fks = Vec::new();
 
         self.broad_phase.interferences_with_bounding_volume(aabb, &mut fks);
@@ -218,7 +218,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
     type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>);
 
     #[inline]
-    fn next(&mut self) -> Option<(&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>)> {
+    fn next(&mut self) -> Option<Self::Item> {
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
@@ -249,7 +249,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
-    fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
+    fn next(&mut self) -> Option<Self::Item> {
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
@@ -274,7 +274,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
-    fn next(&mut self) -> Option<&'a CollisionObject<P, M, T>> {
+    fn next(&mut self) -> Option<Self::Item> {
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
