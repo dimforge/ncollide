@@ -61,15 +61,16 @@ pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (
 }
 
 /// Minimizes a function using the bfgs method.
-pub fn minimize_with_bfgs<V, F: Fn(&V) -> V::Scalar, D: Fn(&V) -> V>(
-                          niter:       usize,
-                          num_guesses: usize,
-                          domain_min:  &V,
-                          domain_max:  &V,
-                          f:  &mut F,
-                          df: &mut D)
-                          -> (V, V::Scalar)
-    where V: Vect + Outer,
+pub fn minimize_with_bfgs<V, F, D>(niter:       usize,
+                                   num_guesses: usize,
+                                   domain_min:  &V,
+                                   domain_max:  &V,
+                                   f:           &mut F,
+                                   df:          &mut D)
+                                   -> (V, V::Scalar)
+    where V: Vect + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+          F: Fn(&V) -> V::Scalar,
+          D: Fn(&V) -> V,
           V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
                                Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
@@ -150,15 +151,16 @@ impl<N, V> LineSearch<N, V> for BacktrackingLineSearch<N>
 }
 
 /// Minimizes a function using the quasi-newton BFGS method.
-pub fn bfgs<V, SS, F: Fn(&V) -> V::Scalar, D: Fn(&V) -> V>(
-            niter:   usize,
-            ss:      &SS,
-            guess:   V,
-            hessian: V::OuterProductType,
-            f:       &mut F,
-            df:      &mut D)
-            -> V
-    where V: Vect + Outer,
+pub fn bfgs<V, SS, F, D>(niter:   usize,
+                         ss:      &SS,
+                         guess:   V,
+                         hessian: V::OuterProductType,
+                         f:       &mut F,
+                         df:      &mut D)
+                         -> V
+    where V: Vect + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+          F: Fn(&V) -> V::Scalar,
+          D: Fn(&V) -> V,
           V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
                                Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +

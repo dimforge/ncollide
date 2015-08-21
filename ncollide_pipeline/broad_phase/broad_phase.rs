@@ -1,7 +1,8 @@
 use queries::ray::Ray;
+use math::Point;
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<P, BV, T> {
+pub trait BroadPhase<P: Point, BV, T> {
     /// Tells the broad phase to add an element during the next update.
     fn defered_add(&mut self, uid: usize, bv: BV, data: T);
 

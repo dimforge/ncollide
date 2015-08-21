@@ -16,7 +16,7 @@ pub struct PolylinePattern<N: Scalar, C1, C2> {
 }
 
 /// Trait to be implemented by caps compatible with a `PolylinePattern`.
-pub trait PolylineCompatibleCap<N> {
+pub trait PolylineCompatibleCap<N: Scalar> {
     /// Generates the mesh for the cap at the beginning of a path.
     fn gen_start_cap(&self,
                      attach_id: u32,

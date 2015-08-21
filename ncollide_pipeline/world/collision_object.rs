@@ -2,6 +2,7 @@ use std::sync::Arc;
 use entities::inspection::Repr;
 use world::CollisionGroups;
 
+// FIXME: really keep all the fields public?
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<P, M, T> {
     /// The position of the collision object.
