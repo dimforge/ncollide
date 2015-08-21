@@ -78,7 +78,10 @@ impl<P, B, BV> DBVT<P, B, BV>
         self.len = self.len + 1;
     }
 
-    /// Visit this tree using… a visitor!
+    /// Traverses this tree using an object implementing the `BVTVisitor`trait.
+    ///
+    /// This will traverse the whole tree and call the visitor `.visit_internal(...)` (resp.
+    /// `.visit_leaf(...)`) method on each internal (resp. leaf) node.
     pub fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match self.tree {
             Some(ref t) => t.visit(visitor),

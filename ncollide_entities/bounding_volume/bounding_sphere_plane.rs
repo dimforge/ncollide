@@ -1,14 +1,14 @@
 use na::Bounded;
 use na;
-use bounding_volume::{HasBoundingSphere, BoundingSphere};
+use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Plane;
 use math::{Point, Vect};
 
 
-impl<P, M> HasBoundingSphere<P, M> for Plane<P::Vect>
+impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Plane<P::Vect>
     where P: Point {
     #[inline]
-    fn bounding_sphere(&self, _: &M) -> BoundingSphere<P> {
+    fn bounding_volume(&self, _: &M) -> BoundingSphere<P> {
         let center = na::orig();
         let radius = Bounded::max_value(); // FIXME: is this a good idea?
 

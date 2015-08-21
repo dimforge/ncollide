@@ -1,7 +1,7 @@
 use na::{Translate, Translation};
 use na;
 use entities::partitioning::BoundingVolumeInterferencesCollector;
-use entities::bounding_volume::{BoundingVolume, HasAABB};
+use entities::bounding_volume::{self, BoundingVolume, HasBoundingVolume, AABB};
 use entities::inspection::Repr;
 use entities::shape::CompositeShape;
 use geometry::Contact;
@@ -74,10 +74,10 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasAABB<P, M> {
+          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
     // Find new collisions
     let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
-    let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
+    let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction);
 
     let mut interferences = Vec::new();
 
@@ -120,7 +120,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
-          G1: Repr<P, M> + HasAABB<P, M>,
+          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
           G2: CompositeShape<P, M> {
     let mut res = composite_shape_against_any(m2, g2, m1, g1, prediction);
 

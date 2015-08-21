@@ -5,17 +5,17 @@ use na::{Pnt2, Vec2, Iso2};
 use ncollide::partitioning::BVT;
 use ncollide::shape::{Cone, Ball, Cuboid, Capsule};
 use ncollide::ray::{RayInterferencesCollector, Ray, RayCast};
-use ncollide::bounding_volume::HasBoundingSphere;
+use ncollide::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
 /*
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
-trait Shape2: HasBoundingSphere<Pnt2<f64>, Iso2<f64>> +
+trait Shape2: HasBoundingVolume<Iso2<f64>, BoundingSphere<Pnt2<f64>>> +
               RayCast<Pnt2<f64>, Iso2<f64>> {
 }
 
 impl<T> Shape2 for T
-    where T: HasBoundingSphere<Pnt2<f64>, Iso2<f64>> +
+    where T: HasBoundingVolume<Iso2<f64>, BoundingSphere<Pnt2<f64>>> +
              RayCast<Pnt2<f64>, Iso2<f64>> {
 }
 
@@ -39,11 +39,12 @@ fn main() {
         Iso2::new(Vec2::new(4.0, 2.0), na::zero())
     ];
 
-    let idx_and_bounding_spheres  = vec!(
-        (0usize, shapes[0].bounding_sphere(&poss[0])),
-        (1usize, shapes[1].bounding_sphere(&poss[1])),
-        (2usize, shapes[2].bounding_sphere(&poss[2])),
-        (3usize, shapes[3].bounding_sphere(&poss[3]))
+    // FIXME: why do we need the explicit type annotation here?
+    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<Pnt2<f64>>)> = vec!(
+        (0usize, bounding_volume::bounding_sphere(shapes[0], &poss[0])),
+        (1usize, bounding_volume::bounding_sphere(shapes[1], &poss[1])),
+        (2usize, bounding_volume::bounding_sphere(shapes[2], &poss[2])),
+        (3usize, bounding_volume::bounding_sphere(shapes[3], &poss[3]))
     );
 
     let bvt      = BVT::new_balanced(idx_and_bounding_spheres);

@@ -1,12 +1,12 @@
-use bounding_volume::{AABB, HasAABB};
+use bounding_volume::{AABB, HasBoundingVolume};
 use bounding_volume::aabb_utils;
 use shape::BezierCurve;
 use math::Matrix;
 use math::{Scalar, Point, Vect};
 
-impl HasAABB for BezierCurve {
+impl HasBoundingVolume for BezierCurve {
     #[inline]
-    fn aabb(&self, m: &Matrix) -> AABB {
+    fn bounding_volume(&self, m: &Matrix) -> AABB {
         aabb_utils::point_cloud_aabb(m, self.control_points())
     }
 }

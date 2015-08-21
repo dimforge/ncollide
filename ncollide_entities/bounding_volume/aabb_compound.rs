@@ -1,15 +1,15 @@
 use na::{Translation, AbsoluteRotate, Transform, Translate};
 use na;
-use bounding_volume::{AABB, HasAABB};
+use bounding_volume::{AABB, HasBoundingVolume};
 use shape::Compound;
 use math::{Scalar, Point, Vect};
 
-impl<P, M, M2> HasAABB<P, M2> for Compound<P, M>
+impl<P, M, M2> HasBoundingVolume<M2, AABB<P>> for Compound<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M2: Transform<P> + AbsoluteRotate<P::Vect> {
     #[inline]
-    fn aabb(&self, m: &M2) -> AABB<P> {
+    fn bounding_volume(&self, m: &M2) -> AABB<P> {
         let bv              = self.bvt().root_bounding_volume().unwrap();
         let ls_center       = na::orig::<P>() + bv.translation();
         let center          = m.transform(&ls_center);

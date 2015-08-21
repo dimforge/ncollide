@@ -3,9 +3,9 @@
 #[doc(inline)]
 pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume};
 #[doc(inline)]
-pub use bounding_volume::aabb::{HasAABB, AABB, aabb};
+pub use bounding_volume::aabb::{AABB, aabb};
 #[doc(inline)]
-pub use bounding_volume::bounding_sphere::{HasBoundingSphere, BoundingSphere, bounding_sphere};
+pub use bounding_volume::bounding_sphere::{BoundingSphere, bounding_sphere};
 
 pub use bounding_volume::aabb_utils::{implicit_shape_aabb, point_cloud_aabb};
 pub use bounding_volume::aabb_ball::ball_aabb;

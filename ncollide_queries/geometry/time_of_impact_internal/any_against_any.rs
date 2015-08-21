@@ -4,7 +4,7 @@ use math::{Scalar, Point, Vect, Isometry};
 use entities::inspection;
 use entities::inspection::Repr;
 use entities::shape::{Ball, Plane};
-use entities::bounding_volume::HasAABB;
+use entities::bounding_volume::{HasBoundingVolume, AABB};
 use geometry::time_of_impact_internal;
 
 /// Computes the smallest time of impact of two shapes under translational movement.
@@ -16,8 +16,8 @@ pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1:
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
-          G1: Repr<P, M> + HasAABB<P, M>,
-          G2: Repr<P, M> + HasAABB<P, M> {
+          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
+          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
     let r1 = g1.repr();
     let r2 = g2.repr();
 

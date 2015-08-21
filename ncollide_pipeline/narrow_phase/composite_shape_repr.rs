@@ -3,7 +3,7 @@ use na::Translate;
 use math::{Scalar, Point, Vect, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
-use entities::bounding_volume::{HasAABB, BoundingVolume};
+use entities::bounding_volume::{self, BoundingVolume};
 use entities::partitioning::BoundingVolumeInterferencesCollector;
 use entities::shape::CompositeShape;
 use entities::inspection::Repr;
@@ -45,7 +45,7 @@ impl<P, M> CompositeShapeRepr<P, M>
                  swap:       bool) {
         // Find new collisions
         let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
-        let ls_aabb2 = g2.aabb(&ls_m2).loosened(self.prediction);
+        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(self.prediction);
 
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);

@@ -3,22 +3,16 @@
 use std::ops::Neg;
 use na::{Translation, POrd, Translate, Bounded};
 use na;
-use bounding_volume::BoundingVolume;
+use bounding_volume::{BoundingVolume, HasBoundingVolume};
 use math::{Scalar, Point, Vect};
-
-/// Trait of objects that can be bounded by an AABB.
-pub trait HasAABB<P, M> {
-    /// The object’s AABB.
-    fn aabb(&self, &M) -> AABB<P>;
-}
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
 ///
 /// Same as `g.aabb(m)`.
-pub fn aabb<P, M, G>(g: &G, m: &M) -> AABB<P>
-    where G: HasAABB<P, M> {
-    g.aabb(m)
+pub fn aabb<P, M, G: ?Sized>(g: &G, m: &M) -> AABB<P>
+    where G: HasBoundingVolume<M, AABB<P>> {
+    g.bounding_volume(m)
 }
 
 /// An Axis Aligned Bounding Box.

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::marker::PhantomData;
 use na::{Translate, Identity, Pnt2};
 use partitioning::BVT;
-use bounding_volume::{HasAABB, AABB};
+use bounding_volume::{self, HasBoundingVolume, AABB};
 use math::{Scalar, Point, Vect};
 
 
@@ -43,7 +43,7 @@ impl<P, I, E> Clone for BaseMesh<P, I, E>
 impl<P, I, E> BaseMesh<P, I, E>
     where P: Point,
           P::Vect: Translate<P>,
-          E: BaseMeshElement<I, P> + HasAABB<P, Identity> {
+          E: BaseMeshElement<I, P> + HasBoundingVolume<Identity, AABB<P>> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<I>>,
@@ -65,7 +65,7 @@ impl<P, I, E> BaseMesh<P, I, E>
                 let vs: &[P] = &vs[..];
                 let element: E = BaseMeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
-                let bv = element.aabb(&Identity::new());
+                let bv = bounding_volume::aabb(&element, &Identity::new());
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
