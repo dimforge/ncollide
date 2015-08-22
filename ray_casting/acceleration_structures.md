@@ -9,12 +9,13 @@ triangles):
 </center>
 
 If your objects can move, you may use a [broad
-phase](../contact_determination/broad_phase.html) that implements the
-`broad::RayCastBroadPhase` trait. A lighter, often simpler, alternative is to
-use the `partitioning::DBVT` structure directly (it is used by one
-of the broad phase algorithms).
+phase](../contact_determination/broad_phase.html) since the `BroadPhase` trait
+warrants ray-casting capabilities. Though a lighter and often simpler
+alternative is to use a space-partitioning structure like the
+`partitioning::DBVT` directly.
 
-If your objects do not move, the `partitioning::BVT`  will be more efficient.
+If your objects do not move, the `partitioning::BVT` will be more efficient and
+usable on a multi-threaded context.
 
 ## The BVT
 For a static scene, better performances will be achieved by an immutable
@@ -45,7 +46,7 @@ median. This will generate a balanced tree.
 
 The second constructor of the BVT is `::new_balanced(...)` which simply invokes
 `::new_with_partitioner(...)` with your objects and the
-`balanced_partitionner(...)`.
+`::balanced_partitionner(...)`.
 
 #### Using a BVT
 
@@ -57,7 +58,7 @@ let bvt           = BVT::new_balanced(your_objects);
 let intersections = Vec::new();
 
 {
-    let visitor = RayInterferencesCollector::new(&bvt, &mut intersections);
+    let visitor = RayInterferencesCollector::new(&ray, &mut intersections);
     bvt.visit(&mut visitor);
 }
 
@@ -65,25 +66,46 @@ let intersections = Vec::new();
 ```
 
 If you are not interested in the complete set of objects that intersect the ray
-but only the closest one, using the BVT `.cast_ray(...)` method will be far
-more efficient. It requires a closure that is able to cast a ray on the
-objects and returns a tuple containing the associated time of impact (if any)
-and an user-defined result. The end-result is the user-defined one that had the
-smallest time of impact.
+but only the closest one, using the BVT `.best_first_search(...)` method:
+
+```rust
+let bvt = BVT::new_balanced(your_objects);
+
+let visitor = RayIntersectionCostFn::new(&ray, true, false);
+match bvt.best_first_search(&mut visitor) {
+    Some((body, ray_intersection)) => {
+        // The ray intersected some objects and `body` is the closest one.
+    },
+    None => {
+        // No intersection found.
+    }
+}
+```
+
+The end-result is the objects which bounding volume has the smallest time of
+impact with the ray and the related geometric informations of type
+`RayIntersection`.
+
+
+**Attention:** note that while the cost function `RayIntersectionCostFn` performs a
+ray cast on both the objects and their bounding volumes, the visitor
+`RayInterferencesCollector` only works with the bounding volume. So if you are
+using the latter, you need to check if the ray actually intersects the objects
+yourself!
 
 ## Example
 
-The following example creates four shapes, sets up a `BVT` to associate
-indices to their bounding spheres, and casts some rays on it using the
-`.ray_cast(...)` method and the `RayInterferencesCollector` visitor.
+The following example creates four shapes, sets up a `BVT` to associate indices
+to their bounding spheres, and casts some rays on it using the
+`RayInterferencesCollector` visitor.
 
 ###### 2D example <span class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ray_bvt2d.rs')"></span>
 ```rust
 /*
  * Custom trait to group HasBoudingSphere and RayCast together.
  */
-trait Shape2: HasBoundingSphere<Pnt2<f64>, Iso2<f64>> +
-              RayCast<Pnt2<f64>, Iso2<f64>> {
+trait Shape2 : HasBoundingSphere<Pnt2<f64>, Iso2<f64>> +
+               RayCast<Pnt2<f64>, Iso2<f64>> {
 }
 
 impl<T> Shape2 for T

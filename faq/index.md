@@ -65,7 +65,7 @@ fn main() {
 ```
 
 If doing so does not work, double check the [API
-documentation](../index.html#about-this-guide): you might just have mispelled
+documentation](../doc/ncollide): you might just have mispelled
 the method name.
 
 --------

@@ -80,11 +80,14 @@ purpose, including commercial applications, without paying anything (see the
 # Contributors
 
 As of today, this reference guide and the **ncollide** project are almost
-completely developed by me, a French Computer Science student named Sébastien
-Crozet (aka. _sebcrozet_). I do that during my free time, trying to help making
-Rust a great language for the development of real-time geometry-intensive
-applications. For more informations about my professional background, check out
-my [LinkedIn](https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en)
+completely developed by me, a French Ph.D Student named Sébastien Crozet (aka.
+_sebcrozet_). My researches are about finding new methods to perform fast
+collision detection between complex CAD models that include smooth trimmed
+surfaces like NURBS. Besides that I work on **ncolide** during my free time,
+trying to help making Rust a great language for the development of real-time
+geometry-intensive applications. For more informations about my professional
+background, check out my
+[LinkedIn](https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en)
 profile.
 
 
@@ -95,14 +98,25 @@ as freely as you use **ncollide**!
 
 -----
 
-Except me, here are the known contributors (including donors) to the
-**ncollide** project:
+Except me, here are the known contributors to the **ncollide** project, sorted
+in alphabetical order:
 
 * [Alexander Mistakidis](https://github.com/aamistak)
 * [Ben Foppa](https://github.com/bfops)
 * [Brandon Waskiewicz](https://github.com/brandonw)
 * [Corey Richardson](https://github.com/cmr)
-* [Peter Nguyen](https://github.com/cacteye)
+* [Dabo Ross](https://github.com/daboross)
+* [Felix Rath](https://github.com/Futile)
+* [Jake Kerr](https://github.com/jakerr)
+* Jan Nockemann
+* [Jeroen Bollen](https://github.com/Binero)
+* [John P Mayer](https://github.com/johnpmayer)
+* [Matt Brennan](https://github.com/quarterto)
+* [Michael Riss](https://github.com/MichaelRiss)
+* [Peter Nguyen](https://github.com/artichokes)
+* [Smith Wendell](https://github.com/wackywendell)
+* [Sven Nilsen](https://github.com/bvssvni)
+
 
 If your name should or should not be on this list, or if it should be linked
 with another website, please send me an [email](mailto:developer@crozet.re) or

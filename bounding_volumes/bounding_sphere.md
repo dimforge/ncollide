@@ -48,7 +48,7 @@ While using the trait method directly works (this is actually what
 `bounding_volume.bounding_sphere(...)` does under the hood), the compiler might
 sometimes fail to infer correctly the types involved in the trait
 implementation and output a cryptic error message. Also note that the
-`BoundingVolume` trait actually takes the bounding volume type as a type
+`HasBoundingVolume` trait actually takes the bounding volume type as a type
 parameter. Therefore, you may have to specify explicitly the return type of
 the method in order to use it, e.g. `let bs: BoundingSphere<Pnt3<f32>> =
 g.bounding_volume(m);`.

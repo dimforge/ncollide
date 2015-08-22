@@ -41,8 +41,10 @@ function. It takes three arguments:
 
 Let us define what _normalized concavity_ means. Because there is no official
 definition of the concavity of a 3D object, we are using the maximal distance
-between the triangle mesh vertex and its convex hull. This distance $$d$$ is
-computed along the direction of the vertex normal:
+between the triangle mesh vertex and its convex hull. Let $$d$$ be the distance
+computed along the direction of the vertex normal (hence, it is usually
+different from the intuitive distance obtained by orthogonal projection of the
+point on the closest convex hull face):
 
 <center>
 ![Concavity measure](../img/concavity.svg)

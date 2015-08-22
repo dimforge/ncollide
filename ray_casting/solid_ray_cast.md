@@ -11,7 +11,7 @@ the shape is hollow and will propagate on its inside until until hits a border:
 </center>
 
 Consequently, if the starting point of the ray is outside of any shape, then
-the `solid` flag has no effect. Also note that a solid ray cast is usually
+the `solid` flag has no effect. Also note that a solid ray cast is usually much
 **faster** than the non-solid one.
 
 ## Example
@@ -29,7 +29,7 @@ let ray_miss   = Ray::new(Pnt2::new(2.0, 2.0), Vec2::new(1.0, 1.0));
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, true).unwrap()  == 0.0); // solid cast.
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, false).unwrap() == 2.0); // non-solid cast.
 
-// The other ray does not intersect this shape.
+// The other ray does not intersect this shape so the `solid` flag has no influence.
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, false).is_none());
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
 ```
@@ -44,7 +44,7 @@ let ray_miss   = Ray::new(Pnt3::new(2.0, 2.0, 2.0), Vec3::new(1.0, 1.0, 1.0));
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, true).unwrap()  == 0.0); // solid cast.
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, false).unwrap() == 2.0); // non-solid cast.
 
-// The other ray does not intersect this shape.
+// The other ray does not intersect this shape so the `solid` flag has no influence.
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, false).is_none());
 assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
 ```

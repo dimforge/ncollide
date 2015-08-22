@@ -55,11 +55,10 @@ to optimize some [broad phase](../contact_determination/broad_phase.html)
 algorithms.
 
 
-Finally, some algorithm work with objects that can compute their own bounding
-volumes all by themselves. This requirement is exposed by the
-`bounding_volume::HasBoundingVolume` trait which is parametrized by the type of
-the returned bounding volume:
+Finally, the `bounding_volume::HasBoundingVolume` trait which is parametrized by the type of
+the returned bounding volume is implemented by structures that can construct
+their bounding volume, given a transformation matrix:
 
 | Method               | Description |
 | --                   | --          |
-| `.bounding_volume()` | Computes the bounding volume of `self`. |
+| `.bounding_volume(m)` | Computes the bounding volume of `self` transformed by `m`. |
