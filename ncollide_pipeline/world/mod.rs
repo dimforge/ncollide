@@ -2,7 +2,7 @@
 
 pub use self::collision_object::CollisionObject;
 pub use self::collision_groups::CollisionGroups;
-pub use self::collision_objects_dispatcher::CollisionObjectsDispatcher;
+pub use self::collision_objects_dispatcher::{CollisionObjectsDispatcher, ContactPairs, Contacts};
 pub use self::collision_world::{BroadPhaseObject, CollisionWorld};
 
 use na::{Pnt3, Iso3, Pnt2, Iso2};
