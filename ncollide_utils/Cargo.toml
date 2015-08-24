@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_utils"
-version = "0.2.2"
+version = "0.2.3"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 

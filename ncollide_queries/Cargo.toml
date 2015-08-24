@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_queries"
-version = "0.3.0"
+version = "0.3.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module for geometric queries like distances computation, ray casting and contact determination."

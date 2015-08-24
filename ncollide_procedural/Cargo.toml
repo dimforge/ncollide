@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_procedural"
-version = "0.2.2"
+version = "0.2.3"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module for procedural generation of discrete geometric objects."
