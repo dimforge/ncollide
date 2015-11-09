@@ -24,6 +24,7 @@ pub struct CollisionWorld<P, M, T> {
     broad_phase:   BroadPhaseObject<P>,
     narrow_phase:  CollisionObjectsDispatcher<P, M, T>,
     pos_to_update: Vec<(FastKey, M)>,
+    objects_to_remove: Vec<usize>,
     timestamp:     usize
     // FIXME: allow modification of the other properties too.
 }
@@ -51,6 +52,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             broad_phase:   broad_phase,
             narrow_phase:  narrow_phase,
             pos_to_update: Vec::new(),
+            objects_to_remove: Vec::new(),
             timestamp:     0
         }
     }
@@ -73,9 +75,8 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     /// Remove a collision object from the world.
     pub fn remove(&mut self, uid: usize) {
-        if let Some((fk, _)) = self.objects.remove(uid) {
-            self.broad_phase.defered_remove(fk.uid());
-        }
+        // mark the object to be removed
+        self.objects_to_remove.push(uid);
     }
 
     /// Updates the collision world.
@@ -86,6 +87,15 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.perform_position_update();
         self.perform_broad_phase();
         self.perform_narrow_phase();
+        
+        // clean up objects that have been marked as removed
+        while self.objects_to_remove.len() > 0 {
+			let uid = self.objects_to_remove.pop().expect("no uid found to remove");
+			// remove objects marked to as removed
+			if let Some((fk, _)) = self.objects.remove(uid) {
+		        self.broad_phase.defered_remove(fk.uid());
+		    }
+		}
     }
 
     /// Sets the position the collision object attached to the specified object will have during
