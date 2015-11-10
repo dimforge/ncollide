@@ -20,12 +20,12 @@ pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey> + 'static>;
 
 /// A world that handles collision objects.
 pub struct CollisionWorld<P, M, T> {
-    objects:       UidRemap<CollisionObject<P, M, T>>,
-    broad_phase:   BroadPhaseObject<P>,
-    narrow_phase:  CollisionObjectsDispatcher<P, M, T>,
-    pos_to_update: Vec<(FastKey, M)>,
+    objects:           UidRemap<CollisionObject<P, M, T>>,
+    broad_phase:       BroadPhaseObject<P>,
+    narrow_phase:      CollisionObjectsDispatcher<P, M, T>,
+    pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
-    timestamp:     usize
+    timestamp:         usize
     // FIXME: allow modification of the other properties too.
 }
 
@@ -48,12 +48,12 @@ impl<P, M, T> CollisionWorld<P, M, T>
         let narrow_phase = CollisionObjectsDispatcher::new(sdispatcher);
 
         CollisionWorld {
-            objects:       objects,
-            broad_phase:   broad_phase,
-            narrow_phase:  narrow_phase,
-            pos_to_update: Vec::new(),
+            objects:           objects,
+            broad_phase:       broad_phase,
+            narrow_phase:      narrow_phase,
+            pos_to_update:     Vec::new(),
             objects_to_remove: Vec::new(),
-            timestamp:     0
+            timestamp:         0
         }
     }
 
@@ -70,13 +70,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
         collision_object.timestamp = self.timestamp;
         let aabb = bounding_volume::aabb(&**collision_object.shape, &collision_object.position);
         let fk = self.objects.insert(uid, collision_object).0;
-        self.broad_phase.defered_add(fk.uid(), aabb, fk)
-    }
-
-    /// Remove a collision object from the world.
-    pub fn remove(&mut self, uid: usize) {
-        // mark the object to be removed
-        self.objects_to_remove.push(uid);
+        self.broad_phase.deferred_add(fk.uid(), aabb, fk)
     }
 
     /// Updates the collision world.
@@ -85,22 +79,21 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// narrow phase.
     pub fn update(&mut self) {
         self.perform_position_update();
-        self.perform_broad_phase();
+        self.perform_removals_and_broad_phase(); // this will perform the Broad Phase as well.
         self.perform_narrow_phase();
-        
-        // clean up objects that have been marked as removed
-        while self.objects_to_remove.len() > 0 {
-			let uid = self.objects_to_remove.pop().expect("no uid found to remove");
-			// remove objects marked to as removed
-			if let Some((fk, _)) = self.objects.remove(uid) {
-		        self.broad_phase.defered_remove(fk.uid());
-		    }
-		}
+    }
+
+    /// Marks a collision object for removal from the world during the next update.
+    pub fn deferred_remove(&mut self, uid: usize) {
+        // mark the object to be removed
+        if self.objects.contains_key(uid) {
+            self.objects_to_remove.push(uid);
+        }
     }
 
     /// Sets the position the collision object attached to the specified object will have during
     /// the next update.
-    pub fn defered_set_position(&mut self, uid: usize, pos: M) {
+    pub fn deferred_set_position(&mut self, uid: usize, pos: M) {
         if let Some(fk) = self.objects.get_fast_key(uid) {
             self.pos_to_update.push((fk, pos))
         }
@@ -123,7 +116,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             if let Some(co) = self.objects.get_fast_mut(fk) {
                 co.position = pos.clone();
                 co.timestamp = self.timestamp;
-                self.broad_phase.defered_set_bounding_volume(fk.uid(), bounding_volume::aabb(&**co.shape, pos));
+                self.broad_phase.deferred_set_bounding_volume(fk.uid(), bounding_volume::aabb(&**co.shape, pos));
             }
         }
 
@@ -143,6 +136,24 @@ impl<P, M, T> CollisionWorld<P, M, T>
             &mut |b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
             &mut |b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
         );
+    }
+
+    /// Actually removes all the objects marked by `.deferred_remove(...)` and updates the broad
+    /// phase.
+    pub fn perform_removals_and_broad_phase(&mut self) {
+        // clean up objects that have been marked as removed
+        for uid in self.objects_to_remove.iter() {
+            if let Some(fk) = self.objects.get_fast_key(*uid) {
+                self.broad_phase.deferred_remove(fk.uid());
+            }
+        }
+
+        self.perform_broad_phase();
+
+        // clean up objects that have been marked as removed
+        while let Some(uid) = self.objects_to_remove.pop() {
+            let _ = self.objects.remove(uid);
+        }
     }
 
     /// Executes the narrow phase of the collision detection pipeline.

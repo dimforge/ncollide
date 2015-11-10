@@ -34,4 +34,5 @@ fn issue_57_object_remove() {
     world.update();
     world.remove(0);
     world.update();
+    world.update();
 }
