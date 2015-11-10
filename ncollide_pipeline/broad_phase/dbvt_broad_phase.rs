@@ -37,8 +37,10 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     purge_all:  bool,
 
     // Just to avoid dynamic allocations.
-    collector:  Vec<FastKey>,
-    to_update:  Vec<(FastKey, BV)>,
+    collector:         Vec<FastKey>,
+    pairs_to_remove:   Vec<Pair>,
+    proxies_to_remove: Vec<usize>,
+    to_update:         Vec<(FastKey, BV)>,
 }
 
 impl<P, BV, T> DBVTBroadPhase<P, BV, T>
@@ -56,7 +58,9 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
             purge_all:  false,
             collector:  Vec::new(),
             to_update:  Vec::new(),
-            margin:     margin
+            pairs_to_remove:   Vec::new(),
+            proxies_to_remove: Vec::new(),
+            margin:            margin
         }
     }
 
@@ -72,7 +76,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
           BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> +
               RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
     #[inline]
-    fn defered_add(&mut self, uid: usize, bv: BV, data: T) {
+    fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
         let lbv = bv.loosened(self.margin.clone());
         let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
         let leaf = Rc::new(RefCell::new(leaf));
@@ -87,7 +91,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         self.to_update.push((proxy_key, lbv));
     }
 
-    fn defered_remove(&mut self, uid: usize) {
+    fn deferred_remove(&mut self, uid: usize) {
         let proxy_key = match self.proxies.get_fast_key(uid) {
             None      => return,
             Some(uid) => uid
@@ -107,6 +111,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
 
             self.purge_all = true;
         }
+
+        self.proxies_to_remove.push(uid);
     }
 
     fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, handler: &mut FnMut(&T, &T, bool)) {
@@ -185,26 +191,12 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         }
 
         /*
-         * Update activation states.
-         */
-        for (_, proxy) in self.proxies.iter_mut() {
-            if proxy.active == 1 {
-                proxy.active = 0;
-                self.tree.remove(&mut proxy.leaf);
-                self.stree.insert(proxy.leaf.clone());
-            }
-            else if proxy.active > 1 {
-                proxy.active = proxy.active - 1;
-            }
-        }
-
-        /*
          * Remove some of the outdated collisions.
          */
         // NOTE: the exact same code is used on `brute_force_bounding_volume_broad_phase.rs`.
         // Refactor that?
         if self.purge_all || (self.to_update.len() != 0 && self.pairs.len() != 0) {
-            let len          = self.pairs.len();
+            let len = self.pairs.len();
             let num_removals;
 
             if self.purge_all {
@@ -217,12 +209,11 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             }
 
             for i in self.update_off .. self.update_off + num_removals {
-                let id = i % self.pairs.len();
+                let id   = i % self.pairs.len();
+                let elts = self.pairs.elements();
+                let ids  = elts[id].key;
 
                 let remove = {
-                    let elts = self.pairs.elements();
-                    let ids = elts[id].key;
-
                     let proxy1 = &self.proxies[ids.first];
                     let proxy2 = &self.proxies[ids.second];
 
@@ -244,7 +235,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                 };
 
                 if remove {
-                    self.pairs.remove_elem_at(id);
+                    self.pairs_to_remove.push(ids);
                 }
             }
 
@@ -256,9 +247,47 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         }
 
         self.to_update.clear();
+
+        /*
+         * Actually remove the pairs.
+         */
+        for pair in self.pairs_to_remove.iter() { 
+            self.pairs.remove(pair);
+        }
+        self.pairs_to_remove.clear();
+
+        /*
+         * Update activation states.
+         * FIXME: could we avoid having to iterate through _all_ the proxies at each update?
+         * (for example, using a timestamp instead of a counter).
+         */
+        for (_, proxy) in self.proxies.iter_mut() {
+            if proxy.active == 1 {
+                proxy.active = 0;
+                self.tree.remove(&mut proxy.leaf);
+                self.stree.insert(proxy.leaf.clone());
+            }
+            else if proxy.active > 1 {
+                proxy.active = proxy.active - 1;
+            }
+        }
+
+        for uid in self.proxies_to_remove.iter() {
+            if let Some((_, mut proxy)) = self.proxies.remove(*uid) {
+                if proxy.active == REMOVE_FROM_TREE {
+                    self.tree.remove(&mut proxy.leaf);
+                }
+                else {
+                    assert!(proxy.active == REMOVE_FROM_STREE);
+                    self.stree.remove(&mut proxy.leaf);
+                }
+            }
+        }
+
+        self.proxies_to_remove.clear();
     }
 
-    fn defered_set_bounding_volume(&mut self, uid: usize, bounding_volume: BV) {
+    fn deferred_set_bounding_volume(&mut self, uid: usize, bounding_volume: BV) {
         if let Some(proxy_key) = self.proxies.get_fast_key(uid) {
             let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap();
 

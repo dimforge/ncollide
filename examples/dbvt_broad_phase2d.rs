@@ -27,10 +27,10 @@ fn main() {
     // First parameter:  a unique id for each object.
     // Second parameter: the object bounding box.
     // Third parameter:  some data (here, the id that identify each object).
-    bf.defered_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
-    bf.defered_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
-    bf.defered_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
-    bf.defered_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
+    bf.deferred_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
+    bf.deferred_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
+    bf.deferred_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
+    bf.deferred_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
@@ -39,8 +39,8 @@ fn main() {
     assert!(bf.num_interferences() == 6);
 
     // Remove two objects.
-    bf.defered_remove(0);
-    bf.defered_remove(1);
+    bf.deferred_remove(0);
+    bf.deferred_remove(1);
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.

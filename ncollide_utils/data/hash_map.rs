@@ -209,13 +209,13 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                     return None
                 }
 
-                obji                             = self.next[o as usize];
-                self.next[o as usize]    = self.next[obji as usize];
+                obji = self.next[o as usize];
+                self.next[o as usize] = self.next[obji as usize];
                 self.next[obji as usize] = -1;
             }
             else {
                 obji = o;
-                self.htable[h]       = self.next[o as usize];
+                self.htable[h] = self.next[o as usize];
                 self.next[o as usize] = -1;
             }
 
@@ -239,7 +239,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
                     self.next[no as usize] = obji;
                 }
 
-                self.next[obji as usize]  = self.next[self.num_elem];
+                self.next[obji as usize] = self.next[self.num_elem];
                 self.next[self.num_elem] = -1;
             }
 
