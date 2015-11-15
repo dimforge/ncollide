@@ -10,7 +10,7 @@ fn main() {
         Pnt3::new(0.0, 1.0, 0.0), Pnt3::new(-1.0, -0.5, 0.0),
         Pnt3::new(0.0, -0.5, -1.0), Pnt3::new(1.0, -0.5, 0.0));
 
-    let indices = vec!(Pnt3::new(0usize, 1, 2),
+    let indices = vec!(Pnt3::new(0u32, 1, 2),
                        Pnt3::new(0,  2, 3),
                        Pnt3::new(0,  3, 1));
 

@@ -39,9 +39,9 @@ impl<P> Segment<P> {
     }
 }
 
-impl<P: Dim + Copy> BaseMeshElement<Pnt2<usize>, P> for Segment<P> {
+impl<P: Dim + Copy> BaseMeshElement<Pnt2<u32>, P> for Segment<P> {
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt2<usize>) -> Segment<P> {
-        Segment::new(vs[is.x], vs[is.y])
+    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt2<u32>) -> Segment<P> {
+        Segment::new(vs[is.x as usize], vs[is.y as usize])
     }
 }

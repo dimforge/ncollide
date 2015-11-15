@@ -10,7 +10,7 @@ use math::{Scalar, Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {
-    mesh: BaseMesh<P, Pnt2<usize>, Segment<P>>
+    mesh: BaseMesh<P, Pnt2<u32>, Segment<P>>
 }
 
 impl<P: Point> Clone for Polyline<P> {
@@ -26,7 +26,7 @@ impl<P> Polyline<P>
           P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Pnt2<usize>>>,
+               indices:  Arc<Vec<Pnt2<u32>>>,
                uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
                normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
                -> Polyline<P> {
@@ -40,7 +40,7 @@ impl<P> Polyline<P>
     where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt2<usize>, Segment<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt2<u32>, Segment<P>> {
         &self.mesh
     }
 
@@ -58,7 +58,7 @@ impl<P> Polyline<P>
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Arc<Vec<Pnt2<usize>>> {
+    pub fn indices(&self) -> &Arc<Vec<Pnt2<u32>>> {
         unsafe { mem::transmute(self.mesh.indices()) }
     }
 
