@@ -47,9 +47,9 @@ impl<P> Triangle<P> {
     }
 }
 
-impl<P: Copy + Dim> BaseMeshElement<Pnt3<usize>, P> for Triangle<P> {
+impl<P: Copy + Dim> BaseMeshElement<Pnt3<u32>, P> for Triangle<P> {
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt3<usize>) -> Triangle<P> {
-        Triangle::new(vs[is.x], vs[is.y], vs[is.z])
+    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt3<u32>) -> Triangle<P> {
+        Triangle::new(vs[is.x as usize], vs[is.y as usize], vs[is.z as usize])
     }
 }

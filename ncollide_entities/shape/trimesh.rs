@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<P: Point> {
-    mesh: BaseMesh<P, Pnt3<usize>, Triangle<P>>
+    mesh: BaseMesh<P, Pnt3<u32>, Triangle<P>>
 }
 
 impl<P: Point> Clone for TriMesh<P> {
@@ -25,7 +25,7 @@ impl<P> TriMesh<P>
           P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Pnt3<usize>>>,
+               indices:  Arc<Vec<Pnt3<u32>>>,
                uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
                normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
                -> TriMesh<P> {
@@ -39,7 +39,7 @@ impl<P> TriMesh<P>
     where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt3<usize>, Triangle<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt3<u32>, Triangle<P>> {
         &self.mesh
     }
 
@@ -57,7 +57,7 @@ impl<P> TriMesh<P>
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Arc<Vec<Pnt3<usize>>> {
+    pub fn indices(&self) -> &Arc<Vec<Pnt3<u32>>> {
         self.mesh.indices()
     }
 
