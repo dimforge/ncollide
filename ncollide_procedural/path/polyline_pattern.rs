@@ -85,14 +85,14 @@ impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
                 PathSample::InnerPoint(ref pt, ref dir) |
                 PathSample::EndPoint(ref pt, ref dir)   => {
                     let mut new_polyline = self.pattern.clone();
-                    let mut transform    = Iso3::new(na::zero(), na::zero());
+                    let transform;
 
                     if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                        transform.look_at_z(pt, &(*pt + *dir), &Vec3::x());
+                        transform = Iso3::look_at_z(pt, &(*pt + *dir), &Vec3::x());
                     }
 
                     else {
-                        transform.look_at_z(pt, &(*pt + *dir), &Vec3::y());
+                        transform = Iso3::look_at_z(pt, &(*pt + *dir), &Vec3::y());
                     }
 
                     new_polyline.transform_by(&transform);
