@@ -15,8 +15,8 @@ name = "ncollide_procedural"
 path = "lib.rs"
 
 [dependencies]
-rustc-serialize = "*"
-num = "*"
-nalgebra = "*"
-ncollide_utils = "*"
-ncollide_math = "*"
+rustc-serialize = "0.3.*"
+num = "0.1.*"
+nalgebra = "0.5.*"
+ncollide_math = { path = "../ncollide_math", version = "0.2.*" }
+ncollide_utils = { path = "../ncollide_utils", version = "0.2.*" }

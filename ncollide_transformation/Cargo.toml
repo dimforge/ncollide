@@ -15,11 +15,11 @@ name = "ncollide_transformation"
 path = "lib.rs"
 
 [dependencies]
-rustc-serialize = "*"
-num = "*"
-nalgebra = "*"
-ncollide_math = "*"
-ncollide_utils = "*"
-ncollide_entities = "*"
-ncollide_queries = "*"
-ncollide_procedural = "*"
+rustc-serialize = "0.3.*"
+num = "0.1.*"
+nalgebra = "0.5.*"
+ncollide_math = { path = "../ncollide_math", version = "0.2.*" }
+ncollide_utils = { path = "../ncollide_utils", version = "0.2.*" }
+ncollide_entities = { path = "../ncollide_entities", version = "0.4.*" }
+ncollide_queries = { path = "../ncollide_queries", version = "0.3.*" }
+ncollide_procedural = { path = "../ncollide_procedural", version = "0.2.*" }
