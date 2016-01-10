@@ -20,4 +20,4 @@ rustc-serialize = "*"
 rand = "*"
 num = "*"
 nalgebra = "*"
-ncollide_math = "*"
+ncollide_math = { path = "../ncollide_math", version = "*" }

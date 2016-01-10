@@ -17,7 +17,7 @@ path = "lib.rs"
 [dependencies]
 rustc-serialize = "*"
 nalgebra = "*"
-ncollide_math = "*"
-ncollide_utils = "*"
-ncollide_entities = "*"
-ncollide_queries = "*"
+ncollide_math = { path = "../ncollide_math", version = "*" }
+ncollide_utils = { path = "../ncollide_utils", version = "*" }
+ncollide_entities = { path = "../ncollide_entities", version = "*" }
+ncollide_queries = { path = "../ncollide_queries", version = "*" }

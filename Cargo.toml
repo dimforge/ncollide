@@ -24,13 +24,13 @@ name = "ncollide"
 path = "src/lib.rs"
 
 [dependencies]
-ncollide_math = "*"
-ncollide_utils = "*"
-ncollide_entities = "*"
-ncollide_queries = "*"
-ncollide_pipeline = "*"
-ncollide_procedural = "*"
-ncollide_transformation = "*"
+ncollide_math = { path = "ncollide_math", version = "*" }
+ncollide_utils = { path = "ncollide_utils", version = "*" }
+ncollide_entities = { path = "ncollide_entities", version = "*" }
+ncollide_queries = { path = "ncollide_queries", version = "*" }
+ncollide_pipeline = { path = "ncollide_pipeline", version = "*" }
+ncollide_procedural = { path = "ncollide_procedural", version = "*" }
+ncollide_transformation = { path = "ncollide_transformation", version = "*" }
 
 [dev-dependencies]
 nalgebra = "*"
