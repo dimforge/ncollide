@@ -33,5 +33,5 @@ ncollide_procedural = { path = "ncollide_procedural", version = "0.2.*" }
 ncollide_transformation = { path = "ncollide_transformation", version = "0.2.*" }
 
 [dev-dependencies]
-nalgebra = "0.4.*"
+nalgebra = "0.5.*"
 rand = "0.3.*"
