@@ -1,6 +1,6 @@
 use na::Translate;
 use na;
-use math::{Point, Vect};
+use math::Point;
 use entities::shape::MinkowskiSum;
 use procedural::Polyline;
 use super::ToPolyline;

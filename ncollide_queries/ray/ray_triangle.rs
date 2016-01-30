@@ -4,7 +4,7 @@ use na;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 use utils;
 

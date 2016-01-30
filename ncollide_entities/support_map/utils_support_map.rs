@@ -1,6 +1,6 @@
 use na::Bounded;
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 // FIXME: move this to `utils::`?
 /// Computes the support point of a cloud of points.

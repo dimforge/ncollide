@@ -3,7 +3,7 @@ use na::{Iterable, Translate, Rotate, Transform, Cross, Pnt2, Pnt3};
 use na;
 use super::utils;
 use ncollide_utils::AsBytes;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]

@@ -1,7 +1,7 @@
 use num::Float;
 use na;
 use utils;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?

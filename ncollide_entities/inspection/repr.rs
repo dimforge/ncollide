@@ -4,7 +4,6 @@ use std::marker::PhantomData;
 
 // Define our own because it is unstable.
 /// Raw representation of a trait-object.
-#[allow(raw_pointer_derive)]
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct TraitObject {

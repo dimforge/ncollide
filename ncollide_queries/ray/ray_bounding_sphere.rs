@@ -2,7 +2,7 @@ use na::{Identity, Transform, Rotate, Translate};
 use ray::{Ray, RayCast, RayIntersection};
 use entities::shape::Ball;
 use entities::bounding_volume::BoundingSphere;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> RayCast<P, M> for BoundingSphere<P>

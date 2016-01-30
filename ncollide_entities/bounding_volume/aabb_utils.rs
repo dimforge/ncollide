@@ -2,7 +2,7 @@ use na::Transform;
 use na;
 use support_map::SupportMap;
 use bounding_volume::AABB;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 

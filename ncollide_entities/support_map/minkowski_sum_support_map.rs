@@ -1,7 +1,7 @@
 use na::Identity;
 use support_map::SupportMap;
 use shape::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, Reflection};
-use math::{Point, Vect};
+use math::Point;
 
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Identity> for MinkowskiSum<'a, M, G1, G2>

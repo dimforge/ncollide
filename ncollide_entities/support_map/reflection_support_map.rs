@@ -1,6 +1,6 @@
 use support_map::SupportMap;
 use shape::Reflection;
-use math::{Point, Vect};
+use math::Point;
 
 
 impl<'a, P, M, G: ?Sized> SupportMap<P, M> for Reflection<'a, G>

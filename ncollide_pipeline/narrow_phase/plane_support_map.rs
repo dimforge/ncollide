@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::marker::PhantomData;
 use na::{Translate, Rotate};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use entities::shape::Plane;
 use entities::inspection;
 use entities::inspection::Repr;

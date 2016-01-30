@@ -2,7 +2,7 @@ use na::{Translation, AbsoluteRotate, Transform, Translate};
 use na;
 use bounding_volume::{AABB, HasBoundingVolume};
 use shape::Compound;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M, M2> HasBoundingVolume<M2, AABB<P>> for Compound<P, M>
     where P: Point,

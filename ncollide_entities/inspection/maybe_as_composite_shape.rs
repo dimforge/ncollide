@@ -1,6 +1,6 @@
 use std::mem;
 use std::any::{TypeId, Any};
-use math::{Point, Vect, Isometry};
+use math::{Point, Isometry};
 use shape::{Compound, TriMesh, Polyline, CompositeShape};
 use inspection::{Repr, ReprDesc};
 

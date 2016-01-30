@@ -1,6 +1,6 @@
 use std::ops::Mul;
 use na;
-use math::{Point, Vect, Isometry};
+use math::{Point, Isometry};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Compound, TriMesh, Polyline};

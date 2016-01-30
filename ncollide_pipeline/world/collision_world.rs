@@ -2,7 +2,7 @@ use std::ops::Mul;
 use std::sync::Arc;
 use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::inspection::Repr;
 use entities::bounding_volume::{self, AABB};

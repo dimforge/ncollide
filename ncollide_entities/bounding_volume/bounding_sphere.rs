@@ -2,7 +2,7 @@
 
 use na::{Translation, Norm, Transform, Translate};
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
 
 // Seems useful to help type inference. See issue #84.

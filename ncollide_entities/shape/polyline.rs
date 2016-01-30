@@ -6,7 +6,7 @@ use na::{Translate, Pnt2};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Segment, BaseMesh};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {

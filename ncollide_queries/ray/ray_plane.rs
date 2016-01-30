@@ -2,7 +2,7 @@ use na::{Transform, Rotate};
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use entities::shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]

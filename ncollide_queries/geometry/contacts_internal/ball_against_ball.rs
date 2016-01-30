@@ -1,6 +1,6 @@
 use num::{Float, Zero};
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use geometry::Contact;
 use entities::shape::Ball;
 

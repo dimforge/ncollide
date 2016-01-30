@@ -5,7 +5,7 @@ use std::collections::hash_map::Entry;
 use num::Float;
 use na::{BaseFloat, Pnt3};
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use utils;
 use entities::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};

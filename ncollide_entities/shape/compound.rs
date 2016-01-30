@@ -7,7 +7,7 @@ use na::Translate;
 use na;
 use bounding_volume::{self, AABB, BoundingVolume};
 use partitioning::BVT;
-use math::{Point, Vect, Isometry};
+use math::{Point, Isometry};
 use inspection::Repr;
 
 /// A compound shape with an aabb bounding volume.

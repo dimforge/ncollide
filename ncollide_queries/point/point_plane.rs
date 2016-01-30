@@ -3,7 +3,7 @@ use na::Transform;
 use na;
 use point::PointQuery;
 use entities::shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> PointQuery<P, M> for Plane<P::Vect>
     where P: Point,

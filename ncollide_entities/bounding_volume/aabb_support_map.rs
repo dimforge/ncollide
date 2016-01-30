@@ -3,7 +3,7 @@ use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
 use shape::{Cone, Cylinder, Capsule};
 use shape::{Triangle, Segment};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> HasBoundingVolume<M, AABB<P>> for Cone<<P::Vect as Vect>::Scalar>
     where P: Point,

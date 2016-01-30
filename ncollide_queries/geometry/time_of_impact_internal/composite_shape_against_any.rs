@@ -1,6 +1,6 @@
 use na::{Identity, Translate};
 use na;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use entities::bounding_volume::{self, HasBoundingVolume, AABB};
 use entities::partitioning::BVTCostFn;
 use entities::inspection::Repr;

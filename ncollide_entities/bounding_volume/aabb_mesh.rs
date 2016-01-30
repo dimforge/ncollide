@@ -2,7 +2,7 @@ use na::{Translate, Translation, Transform, AbsoluteRotate};
 use na;
 use bounding_volume::{self, AABB, HasBoundingVolume};
 use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M, I, E> HasBoundingVolume<M, AABB<P>> for BaseMesh<P, I, E>

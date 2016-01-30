@@ -7,7 +7,7 @@ use entities::shape::CompositeShape;
 use entities::inspection::Repr;
 use point::PointQuery;
 use geometry::distance_internal;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2) -> <P::Vect as Vect>::Scalar

@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use num::Zero;
 use na::{Identity, Pnt2, Pnt3, Norm, Col, Diag, Outer, EigenQR, Bounded};
 use na;
-use math::{Scalar, Point, Vect, FloatError};
+use math::{Point, Vect, FloatError};
 use utils;
 use entities::bounding_volume;
 use entities::support_map;

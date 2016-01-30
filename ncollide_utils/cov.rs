@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use num::Zero;
 use na::{Outer, Inv};
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 // FIXME: move this to nalgebra?
 

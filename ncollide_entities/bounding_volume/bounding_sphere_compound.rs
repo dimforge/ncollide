@@ -1,7 +1,7 @@
 use na::{Transform, Translate};
 use bounding_volume::{self, BoundingVolume, BoundingSphere, HasBoundingVolume};
 use shape::Compound;
-use math::{Point, Vect, Isometry};
+use math::{Point, Isometry};
 
 
 impl<P, M, M2> HasBoundingVolume<M2, BoundingSphere<P>> for Compound<P, M>

@@ -3,7 +3,7 @@ use na::{Pnt2, Rotate, Translate, BaseFloat};
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use entities::shape::Ball;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 #[inline]

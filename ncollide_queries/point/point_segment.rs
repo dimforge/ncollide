@@ -2,7 +2,7 @@ use na::Transform;
 use na;
 use entities::shape::Segment;
 use point::PointQuery;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> PointQuery<P, M> for Segment<P>

@@ -1,6 +1,6 @@
 use num::Float;
 use na;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use entities::shape::Ball;
 
 /// Distance between balls.

@@ -10,7 +10,7 @@ use geometry::algorithms::minkowski_sampling;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use geometry::Contact;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Contact between support-mapped shapes (`Cuboid`, `Convex`, etc.)

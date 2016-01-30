@@ -3,7 +3,7 @@ use na;
 use entities::bounding_volume::AABB;
 use entities::shape::Cuboid;
 use ray::{Ray, RayCast, RayIntersection};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> RayCast<P, M> for Cuboid<P::Vect>

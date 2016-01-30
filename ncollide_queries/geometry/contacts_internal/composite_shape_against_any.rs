@@ -6,7 +6,7 @@ use entities::inspection::Repr;
 use entities::shape::CompositeShape;
 use geometry::Contact;
 use geometry::contacts_internal;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 
 /*
 /// Contacts between a composite shape (`Mesh`, `Compound`) and any other shape.

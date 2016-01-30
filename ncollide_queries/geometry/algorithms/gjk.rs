@@ -8,7 +8,7 @@ use entities::support_map::SupportMap;
 use geometry::algorithms::simplex::Simplex;
 use ray::Ray;
 use ray;
-use math::{Scalar, Point, Vect, FloatError};
+use math::{Point, Vect, FloatError};
 
 
 /// Results of the GJK algorithm.
