@@ -3,7 +3,7 @@ use na;
 use geometry::Contact;
 use entities::support_map::SupportMap;
 use entities::shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Contact between a plane and a support-mapped shape (Cuboid, Convex, etc.)
 pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::Vect>,

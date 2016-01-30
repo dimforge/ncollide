@@ -1,5 +1,5 @@
 use na::Translation;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;

@@ -4,7 +4,7 @@ use std::ops::Neg;
 use na::{Translation, POrd, Translate, Bounded};
 use na;
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.

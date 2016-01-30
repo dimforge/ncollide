@@ -5,7 +5,7 @@ use na;
 use entities::shape::MinkowskiSum;
 use procedural::TriMesh;
 use super::ToTriMesh;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 // XXX: Implemente this for other dimensions (harder because of the concavities.

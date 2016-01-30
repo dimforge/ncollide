@@ -2,7 +2,7 @@ use na::Translate;
 use na;
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Ball;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Ball<<P::Vect as Vect>::Scalar>

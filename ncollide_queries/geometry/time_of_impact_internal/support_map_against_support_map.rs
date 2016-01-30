@@ -3,7 +3,7 @@ use na;
 use entities::support_map::SupportMap;
 use entities::shape::{Reflection, MinkowskiSum};
 use ray::{Ray, RayCast};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Time of impacts between two support-mapped shapes under translational movement.

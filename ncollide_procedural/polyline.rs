@@ -1,6 +1,6 @@
 use na;
 use na::{Translate, Rotate, Transform};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Shapeetric description of a polyline.
 #[derive(Clone)]

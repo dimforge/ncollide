@@ -4,7 +4,7 @@ use point::PointQuery;
 use entities::shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use entities::bounding_volume::AABB;
 use entities::partitioning::{BVTCostFn, BVTVisitor};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>

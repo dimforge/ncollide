@@ -2,7 +2,7 @@ use std::iter;
 use std::ptr;
 use na;
 use super::{TriMesh, Polyline};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.

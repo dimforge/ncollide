@@ -9,7 +9,7 @@ use na::Translation;
 use na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::BVTVisitor;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 #[derive(RustcEncodable, RustcDecodable)]
@@ -131,7 +131,6 @@ impl<P: Point, BV: Translation<P::Vect>, B> DBVTInternal<P, B, BV> {
     }
 }
 
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 /// State of a leaf.
 enum DBVTLeafState<P, B, BV> {

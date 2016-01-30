@@ -1,7 +1,7 @@
 use std::ops::Mul;
 use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use entities::inspection;
 use entities::inspection::ReprDesc;
 use entities::shape::{Ball, Plane};

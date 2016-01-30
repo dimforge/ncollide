@@ -6,7 +6,7 @@ use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::support_map::SupportMap;
 use entities::support_map;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Distance between support-mapped shapes.

@@ -3,7 +3,7 @@ use na;
 use entities::bounding_volume::AABB;
 use entities::shape::Cuboid;
 use point::PointQuery;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> PointQuery<P, M> for Cuboid<P::Vect>
     where P: Point,

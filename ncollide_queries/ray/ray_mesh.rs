@@ -6,7 +6,7 @@ use ray;
 use entities::shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use entities::bounding_volume::AABB;
 use entities::partitioning::BVTCostFn;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M, I, E> RayCast<P, M> for BaseMesh<P, I, E>

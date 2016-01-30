@@ -6,7 +6,7 @@ use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
 use entities::support_map::SupportMap;
 use ray::{Ray, RayCast, RayIntersection};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Cast a ray on a shape using the GJK algorithm.

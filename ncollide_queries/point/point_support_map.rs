@@ -7,7 +7,7 @@ use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::{Cylinder, Cone, Capsule, Convex};
 use entities::support_map::SupportMap;
 use point::PointQuery;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<P, M, S, G>(m:       &M,

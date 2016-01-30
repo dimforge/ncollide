@@ -3,7 +3,7 @@ use na::{Rotate, Transform, Norm};
 use na;
 use support_map::SupportMap;
 use shape::Cylinder;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 

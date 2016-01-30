@@ -2,7 +2,7 @@ use na::Translate;
 use na;
 use bounding_volume::{HasBoundingVolume, AABB};
 use shape::Ball;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Computes the Axis-Aligned Bounding Box of a ball.
 #[inline]

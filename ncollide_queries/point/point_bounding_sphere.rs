@@ -2,7 +2,7 @@ use na::{Identity, Transform};
 use point::PointQuery;
 use entities::shape::Ball;
 use entities::bounding_volume::BoundingSphere;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> PointQuery<P, M> for BoundingSphere<P>
     where P: Point,

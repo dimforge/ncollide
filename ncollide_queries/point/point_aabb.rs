@@ -3,7 +3,7 @@ use na::{Transform, Rotate, Bounded};
 use na;
 use point::PointQuery;
 use entities::bounding_volume::AABB;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> PointQuery<P, M> for AABB<P>
     where P: Point,

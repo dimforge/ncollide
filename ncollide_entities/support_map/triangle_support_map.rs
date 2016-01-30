@@ -2,7 +2,7 @@ use na::{Transform, Rotate};
 use na;
 use support_map::SupportMap;
 use shape::Triangle;
-use math::{Point, Vect};
+use math::Point;
 
 
 impl<P, M> SupportMap<P, M> for Triangle<P>

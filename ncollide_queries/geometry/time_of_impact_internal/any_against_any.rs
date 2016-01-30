@@ -1,6 +1,6 @@
 use na::Translate;
 use na;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use entities::inspection;
 use entities::inspection::Repr;
 use entities::shape::{Ball, Plane};

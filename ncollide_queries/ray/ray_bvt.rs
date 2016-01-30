@@ -1,5 +1,5 @@
 use na::Identity;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
 use ray::{RayCast, Ray, RayIntersection};
 

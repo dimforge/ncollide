@@ -2,7 +2,7 @@ use na::Bounded;
 use na;
 use bounding_volume::{HasBoundingVolume, AABB};
 use shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> HasBoundingVolume<M, AABB<P>> for Plane<P::Vect>

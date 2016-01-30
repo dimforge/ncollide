@@ -2,7 +2,7 @@ use na::{Transform, Rotate};
 use na;
 use shape::Cuboid;
 use support_map::SupportMap;
-use math::{Point, Vect};
+use math::Point;
 
 
 impl<P, M> SupportMap<P, M> for Cuboid<P::Vect>

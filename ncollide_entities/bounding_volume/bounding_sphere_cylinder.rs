@@ -3,7 +3,7 @@ use na::{Translate};
 use na;
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Cylinder;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Cylinder<<P::Vect as Vect>::Scalar>

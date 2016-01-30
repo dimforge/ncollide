@@ -3,7 +3,7 @@ use na::Translate;
 use na;
 use point::PointQuery;
 use entities::shape::Ball;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 impl<P, M> PointQuery<P, M> for Ball<<P::Vect as Vect>::Scalar>
     where P: Point,

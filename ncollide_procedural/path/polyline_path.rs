@@ -1,7 +1,7 @@
 use na::Norm;
 use path::{PathSample, CurveSampler};
 use polyline::Polyline;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// A path with its sample points given by a polyline.
 ///

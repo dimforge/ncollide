@@ -4,7 +4,7 @@ use na::{Transform, Rotate, Pnt2, Bounded};
 use na;
 use ray::{Ray, RayCast, RayIntersection};
 use entities::bounding_volume::AABB;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> RayCast<P, M> for AABB<P>

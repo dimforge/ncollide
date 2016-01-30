@@ -1,6 +1,6 @@
 use na;
 use na::Translate;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use entities::bounding_volume::{self, BoundingVolume};

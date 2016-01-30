@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use na::{Axpy, Bounded};
 use na;
 use geometry::algorithms::simplex::Simplex;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));

@@ -3,7 +3,7 @@ use na::{Rotate, Transform, Norm};
 use na;
 use support_map::SupportMap;
 use shape::Cone;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> SupportMap<P, M> for Cone<<P::Vect as Vect>::Scalar>

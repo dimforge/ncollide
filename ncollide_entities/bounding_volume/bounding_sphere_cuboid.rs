@@ -2,7 +2,7 @@ use na::Translate;
 use na;
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Cuboid;
-use math::{Point, Vect};
+use math::Point;
 
 
 

@@ -7,7 +7,7 @@ use entities::shape::{MinkowskiSum, AnnotatedPoint, Reflection};
 use entities::support_map::SupportMap;
 use geometry::algorithms::gjk;
 use geometry::algorithms::simplex::Simplex;
-use math::{Point, Vect};
+use math::Point;
 
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the

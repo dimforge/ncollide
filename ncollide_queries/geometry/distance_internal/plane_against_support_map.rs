@@ -2,7 +2,7 @@ use na::{Translate, Rotate};
 use na;
 use entities::support_map::SupportMap;
 use entities::shape::Plane;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Distance between a plane and a support-mapped shape.
 pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::Vect>,

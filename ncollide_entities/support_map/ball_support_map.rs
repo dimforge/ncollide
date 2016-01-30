@@ -2,7 +2,7 @@ use na;
 use na::Translate;
 use support_map::SupportMap;
 use shape::Ball;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl< P, M> SupportMap<P, M> for Ball<<P::Vect as Vect>::Scalar>

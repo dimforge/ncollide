@@ -4,7 +4,7 @@ use point::PointQuery;
 use entities::bounding_volume::AABB;
 use entities::shape::{Compound, CompositeShape};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 
 
 impl<P, M> PointQuery<P, M> for Compound<P, M>

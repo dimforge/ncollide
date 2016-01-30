@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use na::{Translate, Identity, Pnt2};
 use partitioning::BVT;
 use bounding_volume::{self, HasBoundingVolume, AABB};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 /// Trait implemented by elements usable on the Mesh.

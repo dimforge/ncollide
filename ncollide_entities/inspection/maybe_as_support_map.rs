@@ -1,6 +1,6 @@
 use std::mem;
 use std::any::{Any, TypeId};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 use shape::{Ball, Capsule, Cone, Convex, Cuboid, Cylinder, Segment, Triangle};
 use support_map::SupportMap;
 use inspection::{Repr, ReprDesc};

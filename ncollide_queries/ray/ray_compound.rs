@@ -3,7 +3,7 @@ use entities::bounding_volume::AABB;
 use entities::shape::Compound;
 use entities::partitioning::BVTCostFn;
 use ray::{Ray, RayCast, RayIntersection};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Point, Vect, Isometry};
 
 
 // XXX: if solid == false, this might return internal intersection.

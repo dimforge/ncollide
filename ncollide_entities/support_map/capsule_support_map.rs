@@ -3,7 +3,7 @@ use na;
 use na::{Rotate, Transform};
 use support_map::SupportMap;
 use shape::Capsule;
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 
 impl<P, M> SupportMap<P, M> for Capsule<<P::Vect as Vect>::Scalar>
