@@ -47,13 +47,13 @@ And various traits for collision detectors and broad phase collision detection.
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/doc")]
 
-extern crate ncollide_math;
-extern crate ncollide_utils;
-extern crate ncollide_entities;
-extern crate ncollide_queries;
-extern crate ncollide_pipeline;
-extern crate ncollide_procedural;
-extern crate ncollide_transformation;
+pub extern crate ncollide_math;
+pub extern crate ncollide_utils;
+pub extern crate ncollide_entities;
+pub extern crate ncollide_queries;
+pub extern crate ncollide_pipeline;
+pub extern crate ncollide_procedural;
+pub extern crate ncollide_transformation;
 
 pub use ncollide_math as math;
 pub use ncollide_utils as utils;
