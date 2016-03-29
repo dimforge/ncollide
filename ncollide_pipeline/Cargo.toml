@@ -1,10 +1,10 @@
 [package]
 name    = "ncollide_pipeline"
-version = "0.5.0"
+version = "0.6.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the collision detection pipeline (broad phase/narrow phase) of ncollide."
-documentation = "http://ncollide.org/doc/ncollide"
+documentation = "http://ncollide.org/doc/ncollide_pipeline"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
