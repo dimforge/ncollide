@@ -13,7 +13,7 @@ use std::fmt::Debug;
 use std::ops::{IndexMut, Mul, Neg};
 use std::any::Any;
 use num::{Signed, One};
-use na::{Pnt1, Pnt2, Pnt3, Pnt4, Vec1, Vec2, Vec3, Vec4, Mat1, Mat3, Iso2, Iso3, Iso4, Identity};
+use na::{Pnt1, Pnt2, Pnt3, Vec1, Vec2, Vec3, Mat1, Mat3, Iso2, Iso3, Identity};
 use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample,
          Rotate, Transform, AbsoluteRotate, Inv, FloatPnt, Shape, Absolute, Iterable, BaseFloat,
          Bounded, Repeat};
@@ -85,20 +85,16 @@ impl Scalar for f64 { }
 impl<N: Scalar> Point for Pnt1<N> { type Vect = Vec1<N>; }
 impl<N: Scalar> Point for Pnt2<N> { type Vect = Vec2<N>; }
 impl<N: Scalar> Point for Pnt3<N> { type Vect = Vec3<N>; }
-impl<N: Scalar> Point for Pnt4<N> { type Vect = Vec4<N>; }
 
 impl<N: Scalar> Vect for Vec1<N> { type Scalar = N; }
 impl<N: Scalar> Vect for Vec2<N> { type Scalar = N; }
 impl<N: Scalar> Vect for Vec3<N> { type Scalar = N; }
-impl<N: Scalar> Vect for Vec4<N> { type Scalar = N; }
 
 impl<N: Scalar> Isometry<Pnt2<N>, Vec2<N>> for Iso2<N> { }
 impl<N: Scalar> Isometry<Pnt3<N>, Vec3<N>> for Iso3<N> { }
-impl<N: Scalar> Isometry<Pnt4<N>, Vec4<N>> for Iso4<N> { }
 
 impl<N: Scalar> Isometry<Pnt2<N>, Vec2<N>> for Identity { }
 impl<N: Scalar> Isometry<Pnt3<N>, Vec3<N>> for Identity { }
-impl<N: Scalar> Isometry<Pnt4<N>, Vec4<N>> for Identity { }
 
 impl<N> HasInertiaMatrix<Mat1<N>> for Vec2<N> { }
 impl<N> HasInertiaMatrix<Mat3<N>> for Vec3<N> { }

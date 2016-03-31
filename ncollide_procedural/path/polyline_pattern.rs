@@ -88,11 +88,11 @@ impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
                     let transform;
 
                     if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                        transform = Iso3::look_at_z(pt, &(*pt + *dir), &Vec3::x());
+                        transform = Iso3::new_observer_frame(pt, &(*pt + *dir), &Vec3::x());
                     }
 
                     else {
-                        transform = Iso3::look_at_z(pt, &(*pt + *dir), &Vec3::y());
+                        transform = Iso3::new_observer_frame(pt, &(*pt + *dir), &Vec3::y());
                     }
 
                     new_polyline.transform_by(&transform);
