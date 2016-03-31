@@ -54,11 +54,11 @@ impl<N> ArrowheadCap<N>
             let back_shift = *dir * back_dist_to_head;
 
             if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                transform = Iso3::look_at_z(&(*pt - back_shift), &(*pt + *dir), &Vec3::x());
+                transform = Iso3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vec3::x());
             }
 
             else {
-                transform = Iso3::look_at_z(&(*pt - back_shift), &(*pt + *dir), &Vec3::y());
+                transform = Iso3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vec3::y());
             }
 
             new_pattern.transform_by(&transform);

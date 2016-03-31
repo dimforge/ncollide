@@ -11,7 +11,7 @@ use ncollide::geometry;
 fn test_ball_ball_toi() {
     let b  = Ball::new(0.5f64);
     let m1 = Iso3::new(na::zero(), na::zero());
-    let m2 = Iso3::new(na::Vec3::new(0.0, 10.0, 0.0), na::zero());
+    let m2 = Iso3::new(Vec3::new(0.0, 10.0, 0.0), na::zero());
 
     let cast = geometry::time_of_impact(&m1, &Vec3::new(0.0, 10.0, 0.0), &b, &m2, &na::zero(), &b);
 

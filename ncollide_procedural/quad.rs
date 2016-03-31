@@ -1,7 +1,7 @@
 use na;
 use na::{Pnt3, Pnt2};
 use super::{TriMesh, IndexBuffer};
-use math::{Scalar, Point, Vect};
+use math::{Point, Vect};
 
 /// Adds a double-sided quad to the scene.
 ///
