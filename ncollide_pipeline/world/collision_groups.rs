@@ -5,7 +5,7 @@ const NO_GROUP: u32 = 0;
 /// Groups of collision used to filter which object collide with which other one.
 ///
 /// There are at most 30 groups indexed from 0 to 29 (included). This identifies collidable
-/// entities by combining three attributes: 
+/// entities by combining three attributes:
 ///    * A set of group this structure is member of.
 ///    * A collision group whitelist.
 ///    * A collision group blacklist.
@@ -54,7 +54,7 @@ impl CollisionGroups {
     }
 
     #[inline]
-    fn modify_mask(mask: &mut u32, group_id: usize, add: bool) {
+    fn modify_mask(mask: &mut u32, group_id: u32, add: bool) {
         assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
 
         if add {
@@ -67,19 +67,19 @@ impl CollisionGroups {
 
     /// Adds or removes this entity from the given group.
     #[inline]
-    pub fn modify_membership(&mut self, group_id: usize, add: bool) {
+    pub fn modify_membership(&mut self, group_id: u32, add: bool) {
         CollisionGroups::modify_mask(&mut self.membership, group_id, add);
     }
 
     /// Adds or removes the given group from this entity whitelist.
     #[inline]
-    pub fn modify_whitelist(&mut self, group_id: usize, add: bool) {
+    pub fn modify_whitelist(&mut self, group_id: u32, add: bool) {
         CollisionGroups::modify_mask(&mut self.whitelist, group_id, add);
     }
 
     /// Adds or removes this entity from the given group.
     #[inline]
-    pub fn modify_blacklist(&mut self, group_id: usize, add: bool) {
+    pub fn modify_blacklist(&mut self, group_id: u32, add: bool) {
         CollisionGroups::modify_mask(&mut self.blacklist, group_id, add);
     }
 
@@ -96,26 +96,26 @@ impl CollisionGroups {
     }
 
     #[inline]
-    fn is_inside_mask(mask: u32, group_id: usize) -> bool {
+    fn is_inside_mask(mask: u32, group_id: u32) -> bool {
         assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
         mask & (1 << group_id) != 0
     }
 
     /// Tests if this entity is part of the given group.
     #[inline]
-    pub fn is_member_of(&self, group_id: usize) -> bool {
+    pub fn is_member_of(&self, group_id: u32) -> bool {
         CollisionGroups::is_inside_mask(self.membership, group_id)
     }
 
     /// Tests if the given group is whitelisted.
     #[inline]
-    pub fn is_group_whitelisted(&self, group_id: usize) -> bool {
+    pub fn is_group_whitelisted(&self, group_id: u32) -> bool {
         CollisionGroups::is_inside_mask(self.whitelist, group_id)
     }
 
     /// Tests if the given group is blacklisted.
     #[inline]
-    pub fn is_group_blacklisted(&self, group_id: usize) -> bool {
+    pub fn is_group_blacklisted(&self, group_id: u32) -> bool {
         CollisionGroups::is_inside_mask(self.blacklist, group_id)
     }
 
@@ -123,7 +123,7 @@ impl CollisionGroups {
     ///
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]
-    pub fn can_collide_with(&self, group_id: usize) -> bool {
+    pub fn can_collide_with(&self, group_id: u32) -> bool {
         !CollisionGroups::is_inside_mask(self.blacklist, group_id) &&
         CollisionGroups::is_inside_mask(self.whitelist, group_id)
     }
