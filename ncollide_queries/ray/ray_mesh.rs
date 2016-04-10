@@ -101,10 +101,11 @@ struct BaseMeshRayToiCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     ray:   &'a Ray<P>
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
-for BaseMeshRayToiCostFn<'a, P, I, E>
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for BaseMeshRayToiCostFn<'a, P, I, E>
     where P: Point,
           E: BaseMeshElement<I, P> + RayCast<P, Identity> {
+    type UserData = <P::Vect as Vect>::Scalar;
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(&Identity::new(), self.ray, true)
@@ -121,10 +122,11 @@ struct BaseMeshRayToiAndNormalCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     ray:   &'a Ray<P>
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, RayIntersection<P::Vect>>
-for BaseMeshRayToiAndNormalCostFn<'a, P, I, E>
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for BaseMeshRayToiAndNormalCostFn<'a, P, I, E>
     where P: Point,
           E: BaseMeshElement<I, P> + RayCast<P, Identity> {
+    type UserData = RayIntersection<P::Vect>;
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(&Identity::new(), self.ray, true)
@@ -141,11 +143,13 @@ struct BaseMeshRayToiAndNormalAndUVsCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     ray:   &'a Ray<P>
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, (RayIntersection<P::Vect>, Vec3<<P::Vect as Vect>::Scalar>)>
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>>
 for BaseMeshRayToiAndNormalAndUVsCostFn<'a, P, I, E>
     where P: Point,
           I: Index<usize, Output = usize>,
           E: BaseMeshElement<I, P> + RayCast<P, Identity> {
+    type UserData = (RayIntersection<P::Vect>, Vec3<<P::Vect as Vect>::Scalar>);
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(&Identity::new(), self.ray, true)

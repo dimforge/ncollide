@@ -45,9 +45,11 @@ struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, P> for CompoundPointProjCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P, P::Vect> + Translation<P::Vect> {
+    type UserData = P;
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         Some(aabb.distance_to_point(&Identity::new(), self.point))

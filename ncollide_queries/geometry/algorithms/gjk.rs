@@ -6,6 +6,7 @@ use na;
 use entities::shape::{AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
 use entities::support_map::SupportMap;
 use geometry::algorithms::simplex::Simplex;
+use geometry::Proximity;
 use ray::Ray;
 use ray;
 use math::{Point, Vect, FloatError};
@@ -18,7 +19,9 @@ pub enum GJKResult<P, V> {
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
     Projection(P),
-    /// Result of the GJK algorithm when the origin is to far away from the polytope.
+    /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
+    Proximity(V),
+    /// Result of the GJK algorithm when the origin is too far away from the polytope.
     NoIntersection(V)
 }
 
@@ -44,8 +47,7 @@ pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(m1:      &M,
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    // XXX: we need to specify S because of a bug on the compiler.
-    project_origin::<_, _, S, _>(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -*p.orig2()))
+    project_origin(&Identity::new(), &cso, simplex).map(|p| (p.orig1().clone(), -*p.orig2()))
 }
 
 /// Computes the closest points between two convex shapes unsing the GJK algorithm.
@@ -70,11 +72,11 @@ pub fn closest_points_with_max_dist<P, M, S, G1: ?Sized, G2: ?Sized>(m1:       &
     let reflect2 = Reflection::new(g2);
     let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    // XXX: we need to specify S because of a bug on the compiler.
-    match project_origin_with_max_dist::<_, _, S, _>(&Identity::new(), &cso, max_dist, simplex) {
+    match project_origin_with_max_dist(&Identity::new(), &cso, max_dist, true, simplex) {
         GJKResult::Projection(p)       => GJKResult::Projection((p.orig1().clone(), -*p.orig2())),
         GJKResult::Intersection        => GJKResult::Intersection,
-        GJKResult::NoIntersection(dir) => GJKResult::NoIntersection(dir.clone())
+        GJKResult::NoIntersection(dir) => GJKResult::NoIntersection(dir.clone()),
+        GJKResult::Proximity(_)        => unreachable!()
     }
 }
 
@@ -87,7 +89,8 @@ pub fn closest_points_with_max_dist<P, M, S, G1: ?Sized, G2: ?Sized>(m1:       &
 /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
-pub fn distance<P, M, S, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S) -> <P::Vect as Vect>::Scalar
+pub fn distance<P, M, S, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G2, simplex: &mut S)
+                                                 -> <P::Vect as Vect>::Scalar
     where P:  Point,
           S:  Simplex<P>,
           G1: SupportMap<P, M>,
@@ -95,10 +98,39 @@ pub fn distance<P, M, S, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &G
     let reflect2 = Reflection::new(g2);
     let cso      = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    // XXX: we need to specify S because of a bug on the compiler.
-    match project_origin::<_, _, S, _>(&Identity::new(), &cso, simplex) {
+    match project_origin(&Identity::new(), &cso, simplex) {
         Some(c) => na::norm(c.as_vec()),
         None    => na::zero()
+    }
+}
+
+/// Computes the closest points between two convex shapes unsing the GJK algorithm.
+///
+/// # Arguments:
+/// * `g1`      - first shape.
+/// * `g2`      - second shape.
+/// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
+///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
+///               to compute such point.
+pub fn proximity<P, M, S, G1: ?Sized, G2: ?Sized>(m1:       &M,
+                                                  g1:       &G1,
+                                                  m2:       &M,
+                                                  g2:       &G2,
+                                                  max_dist: <P::Vect as Vect>::Scalar,
+                                                  simplex:  &mut S)
+                                                  -> (Proximity, P::Vect)
+    where P:  Point,
+          S:  Simplex<AnnotatedPoint<P>>,
+          G1: SupportMap<P, M>,
+          G2: SupportMap<P, M> {
+    let reflect2 = Reflection::new(g2);
+    let cso      = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
+
+    match project_origin_with_max_dist(&Identity::new(), &cso, max_dist, false, simplex) {
+        GJKResult::NoIntersection(data) => (Proximity::Disjoint, data),
+        GJKResult::Proximity(data)      => (Proximity::WithinMargin, data),
+        GJKResult::Intersection         => (Proximity::Intersecting, na::zero()),
+        GJKResult::Projection(_)        => unreachable!()
     }
 }
 
@@ -116,8 +148,8 @@ pub fn project_origin<P, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> 
           S: Simplex<P>,
           G: SupportMap<P, M> {
     // FIXME: reset the simplex if it is empty?
-    let mut proj       = simplex.project_origin_and_reduce();
-    let mut sq_len_dir = na::sqnorm(proj.as_vec());
+    let mut proj      = simplex.project_origin_and_reduce();
+    let mut max_bound = na::sqnorm(proj.as_vec());
 
     let _eps: <P::Vect as Vect>::Scalar = FloatError::epsilon();
     let _eps_tol = _eps * na::cast(100.0f64);
@@ -125,13 +157,13 @@ pub fn project_origin<P, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> 
     let _dim     = na::dim::<P>();
 
     loop {
-        if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
+        if simplex.dimension() == _dim || max_bound <= _eps_tol /* * simplex.max_sq_len()*/ {
             return None // point inside of the cso
         }
 
         let support_point = shape.support_point(m, &-*proj.as_vec());
 
-        if sq_len_dir - na::dot(proj.as_vec(), support_point.as_vec()) <= _eps_rel * sq_len_dir {
+        if max_bound - na::dot(proj.as_vec(), support_point.as_vec()) <= _eps_rel * max_bound {
             return Some(proj) // the distance found has a good enough precision
         }
 
@@ -141,11 +173,11 @@ pub fn project_origin<P, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> 
 
         proj = simplex.project_origin_and_reduce();
 
-        let old_sq_len_dir = sq_len_dir;
+        let old_max_bound = max_bound ;
 
-        sq_len_dir = na::sqnorm(proj.as_vec());
+        max_bound = na::sqnorm(proj.as_vec());
 
-        if sq_len_dir >= old_sq_len_dir {
+        if max_bound >= old_max_bound {
             return Some(old_proj) // upper bounds inconsistencies
         }
     }
@@ -162,17 +194,23 @@ pub fn project_origin<P, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> 
 /// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
-pub fn project_origin_with_max_dist<P, M, S, G: ?Sized>(m:        &M,
-                                                        shape:    &G,
-                                                        max_dist: <P::Vect as Vect>::Scalar,
-                                                        simplex:  &mut S)
+/// * exact_dist - if `false`, the gjk will stop as soon as it can prove that the origin is at
+/// a distance smaller than `max_dist` but not inside of `shape`. In that case, it returns a
+/// `GJKResult::Proximity(sep_axis)` where `sep_axis` is a separating axis. If `false` the gjk will
+/// compute the exact distance and return `GJKResult::Projection(point)` if the origin is closer
+/// than `max_dist` but not inside `shape`.
+pub fn project_origin_with_max_dist<P, M, S, G: ?Sized>(m:          &M,
+                                                        shape:      &G,
+                                                        max_dist:   <P::Vect as Vect>::Scalar,
+                                                        exact_dist: bool,
+                                                        simplex:    &mut S)
                                                         -> GJKResult<P, P::Vect>
     where P: Point,
           S: Simplex<P>,
           G: SupportMap<P, M> {
     // FIXME: reset the simplex if it is empty?
-    let mut proj       = simplex.project_origin_and_reduce();
-    let mut sq_len_dir = na::sqnorm(proj.as_vec());
+    let mut proj      = simplex.project_origin_and_reduce();
+    let mut max_bound = na::sqnorm(proj.as_vec());
 
     let _eps: <P::Vect as Vect>::Scalar = FloatError::epsilon();
     let _eps_tol = _eps * na::cast(100.0f64);
@@ -180,21 +218,26 @@ pub fn project_origin_with_max_dist<P, M, S, G: ?Sized>(m:        &M,
     let _dim     = na::dim::<P>();
 
     loop {
-        if simplex.dimension() == _dim || sq_len_dir <= _eps_tol /* * simplex.max_sq_len()*/ {
+        if simplex.dimension() == _dim || max_bound <= _eps_tol /* * simplex.max_sq_len()*/ {
             return GJKResult::Intersection // point inside of the cso
         }
 
         let support_point = shape.support_point(m, &-*proj.as_vec());
 
-        let dot = na::dot(proj.as_vec(), support_point.as_vec());
+        let min_bound = na::dot(proj.as_vec(), support_point.as_vec());
 
         // FIXME: find a way to avoid the sqrt here
-        if dot > max_dist * na::norm(proj.as_vec()) {
+        if min_bound > max_dist * na::norm(proj.as_vec()) {
             return GJKResult::NoIntersection(proj.to_vec());
         }
 
-        if sq_len_dir - dot <= _eps_rel * sq_len_dir {
-            return GJKResult::Projection(proj) // the distance found has a good enough precision
+        if max_bound - min_bound <= _eps_rel * max_bound {
+            if exact_dist {
+                return GJKResult::Projection(proj) // the distance found has a good enough precision
+            }
+            else {
+                return GJKResult::Proximity(proj.to_vec())
+            }
         }
 
         simplex.add_point(support_point);
@@ -203,12 +246,21 @@ pub fn project_origin_with_max_dist<P, M, S, G: ?Sized>(m:        &M,
 
         proj = simplex.project_origin_and_reduce();
 
-        let old_sq_len_dir = sq_len_dir;
+        let old_max_bound = max_bound ;
 
-        sq_len_dir = na::sqnorm(proj.as_vec());
+        max_bound = na::sqnorm(proj.as_vec());
 
-        if sq_len_dir >= old_sq_len_dir {
-            return GJKResult::Projection(old_proj) // upper bounds inconsistencies
+        if max_bound >= old_max_bound {
+            if exact_dist {
+                return GJKResult::Projection(old_proj) // upper bounds inconsistencies
+            }
+            else {
+                return GJKResult::Proximity(old_proj.to_vec())
+            }
+        }
+
+        if !exact_dist && min_bound > na::zero() && max_bound <= max_dist * max_dist {
+            return GJKResult::Proximity(old_proj.to_vec())
         }
     }
 }
@@ -237,7 +289,7 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
         dir[0] = na::one();
     }
 
-    let mut old_sq_len: <P::Vect as Vect>::Scalar = Bounded::max_value();
+    let mut old_max_bound: <P::Vect as Vect>::Scalar = Bounded::max_value();
 
     let mut ldir = dir.clone();
     // FIXME: this converges in more than 100 iterations… something is wrong here…
@@ -270,7 +322,7 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
                     // FIXME: could we simply translate the simpex by old_orig - new_orig ?
                     simplex.reset(na::orig::<P>() + (-dir));
                     let _max: <P::Vect as Vect>::Scalar = Bounded::max_value();
-                    old_sq_len = _max;
+                    old_max_bound = _max;
                     continue
                 }
             },
@@ -284,23 +336,23 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
 
         simplex.add_point(na::orig::<P>() + (support_point - curr_ray.orig));
 
-        let proj       = simplex.project_origin_and_reduce().to_vec();
-        let sq_len_dir = na::sqnorm(&proj);
+        let proj      = simplex.project_origin_and_reduce().to_vec();
+        let max_bound = na::sqnorm(&proj);
 
         if simplex.dimension() == _dim {
             return Some((ltoi, ldir))
         }
-        else if sq_len_dir <= _eps_tol * simplex.max_sq_len() {
+        else if max_bound <= _eps_tol * simplex.max_sq_len() {
             // Return ldir: the last projection plane is tangeant to the intersected surface.
             return Some((ltoi, ldir))
         }
-        else if sq_len_dir >= old_sq_len {
+        else if max_bound >= old_max_bound {
             // use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
             return Some((ltoi, dir))
         }
 
-        old_sq_len = sq_len_dir;
-        dir        = -proj;
+        old_max_bound = max_bound;
+        dir           = -proj;
     }
 }

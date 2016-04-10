@@ -369,7 +369,7 @@ impl<N: Scalar> DualGraphEdge<N> {
         let border_1 = dual_graph[v1].border.as_ref().unwrap();
         let border_2 = dual_graph[v2].border.as_ref().unwrap();
         let mut perimeter = na::zero::<N>();
-        
+
         for d in border_1.symmetric_difference(border_2).map(|e| na::dist(&coords[e.x], &coords[e.y])) {
             perimeter = perimeter + d;
         }

@@ -21,11 +21,12 @@ impl<'a, P: Point> RayIntersectionCostFn<'a, P> {
     }
 }
 
-impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vect>::Scalar, B, BV, RayIntersection<P::Vect>>
-for RayIntersectionCostFn<'a, P>
+impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vect>::Scalar, B, BV> for RayIntersectionCostFn<'a, P>
     where P:  Point,
           B:  RayCast<P, Identity>,
           BV: RayCast<P, Identity> {
+    type UserData = RayIntersection<P::Vect>;
+
     #[inline]
     fn compute_bv_cost(&mut self, bv: &BV) -> Option<<P::Vect as Vect>::Scalar> {
         bv.toi_with_ray(&Identity::new(), self.ray, true)

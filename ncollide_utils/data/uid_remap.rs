@@ -213,8 +213,8 @@ impl<O> UidRemap<O> {
 
     /// Returns an iterator visiting all keys.
     #[inline]
-    pub fn keys<'a>(&'a self) -> Keys<'a, O> {
-        self.values.keys()
+    pub fn keys<'a>(&'a self) -> FastKeys<'a, O> {
+        FastKeys { raw_keys: self.values.keys() }
     }
 
     /// Returns an iterator visiting all values.
@@ -226,14 +226,71 @@ impl<O> UidRemap<O> {
 
     /// Returns an iterator visiting all key-value pairs.
     #[inline]
-    pub fn iter<'a>(&'a self) -> Iter<'a, O> {
-        self.values.iter()
+    pub fn iter<'a>(&'a self) -> FastKeysAndValues<'a, O> {
+        FastKeysAndValues { iter: self.values.iter() }
     }
 
     /// Returns an iterator visiting all key-value pairs with mutable references to the values.
     #[inline]
-    pub fn iter_mut<'a>(&'a mut self) -> IterMut<'a, O> {
-        self.values.iter_mut()
+    pub fn iter_mut<'a>(&'a mut self) -> FastKeysAndValuesMut<'a, O> {
+        FastKeysAndValuesMut { iter_mut: self.values.iter_mut() }
+    }
+}
+
+/// An iterator through a `UidRemap` fast keys in use.
+pub struct FastKeys<'a, O: 'a> {
+    raw_keys: Keys<'a, O>
+}
+
+impl<'a, O> Iterator for FastKeys<'a, O> {
+    type Item = FastKey;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.raw_keys.next() {
+            Some(key) => {
+                Some(FastKey { uid: key })
+            }
+            None => None
+        }
+    }
+}
+
+/// An iterator through a `UidRemap` fast keys and values.
+pub struct FastKeysAndValues<'a, O: 'a> {
+    iter: Iter<'a, O>
+}
+
+impl<'a, O> Iterator for FastKeysAndValues<'a, O> {
+    type Item = (FastKey, &'a O);
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iter.next() {
+            Some(key_val) => {
+                Some((FastKey { uid: key_val.0 }, key_val.1))
+            }
+            None => None
+        }
+    }
+}
+
+/// An iterator through a `UidRemap` fast keys and values.
+pub struct FastKeysAndValuesMut<'a, O: 'a> {
+    iter_mut: IterMut<'a, O>
+}
+
+impl<'a, O> Iterator for FastKeysAndValuesMut<'a, O> {
+    type Item = (FastKey, &'a mut O);
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iter_mut.next() {
+            Some(key_val) => {
+                Some((FastKey { uid: key_val.0 }, key_val.1))
+            }
+            None => None
+        }
     }
 }
 

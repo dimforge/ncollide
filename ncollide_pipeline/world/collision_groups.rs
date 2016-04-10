@@ -1,11 +1,15 @@
+use broad_phase::BroadPhasePairFilter;
+use world::CollisionObject;
+use math::Point;
+
 const SELF_COLLISION: u32 = 1 << 31;
-const ALL_GROUPS: u32 = (1 << 30) - 1;
-const NO_GROUP: u32 = 0;
+const ALL_GROUPS:     u32 = (1 << 30) - 1;
+const NO_GROUP:       u32 = 0;
 
 /// Groups of collision used to filter which object collide with which other one.
 ///
 /// There are at most 30 groups indexed from 0 to 29 (included). This identifies collidable
-/// entities by combining three attributes: 
+/// entities by combining three attributes:
 ///    * A set of group this structure is member of.
 ///    * A collision group whitelist.
 ///    * A collision group blacklist.
@@ -65,6 +69,14 @@ impl CollisionGroups {
         }
     }
 
+    #[inline]
+    fn set_mask(mask: &mut u32, groups: &[usize]) {
+        *mask = 0;
+        for g in groups.iter() {
+            CollisionGroups::modify_mask(mask, *g, true);
+        }
+    }
+
     /// Adds or removes this entity from the given group.
     #[inline]
     pub fn modify_membership(&mut self, group_id: usize, add: bool) {
@@ -81,6 +93,42 @@ impl CollisionGroups {
     #[inline]
     pub fn modify_blacklist(&mut self, group_id: usize, add: bool) {
         CollisionGroups::modify_mask(&mut self.blacklist, group_id, add);
+    }
+
+    /// Make this object member of the given groups only.
+    #[inline]
+    pub fn set_membership(&mut self, groups: &[usize]) {
+        CollisionGroups::set_mask(&mut self.membership, groups);
+    }
+
+    /// Whitelists the given groups only (others will be un-whitelisted).
+    #[inline]
+    pub fn set_whitelist(&mut self, groups: &[usize]) {
+        CollisionGroups::set_mask(&mut self.whitelist, groups);
+    }
+
+    /// Blacklists the given groups only (others will be un-blacklisted).
+    #[inline]
+    pub fn set_blacklist(&mut self, groups: &[usize]) {
+        CollisionGroups::set_mask(&mut self.blacklist, groups);
+    }
+
+    /// Copies the membership of another collision groups.
+    #[inline]
+    pub fn copy_membership(&mut self, other: &CollisionGroups) {
+        self.membership = other.membership
+    }
+
+    /// Copies the whitelist of another collision groups.
+    #[inline]
+    pub fn copy_whitelist(&mut self, other: &CollisionGroups) {
+        self.whitelist = other.whitelist
+    }
+
+    /// Copies the blacklist of another collision groups.
+    #[inline]
+    pub fn copy_blacklist(&mut self, other: &CollisionGroups) {
+        self.blacklist = other.blacklist
     }
 
     /// Enables self collision detection.
@@ -142,5 +190,30 @@ impl CollisionGroups {
     #[inline]
     pub fn can_collide_with_self(&self) -> bool {
         self.whitelist & SELF_COLLISION != 0
+    }
+}
+
+/// A collision filter based collision groups.
+pub struct CollisionGroupsPairFilter;
+
+impl CollisionGroupsPairFilter {
+    /// Creates a new collision filter based collision groups.
+    #[inline]
+    pub fn new() -> CollisionGroupsPairFilter {
+        CollisionGroupsPairFilter
+    }
+}
+
+impl<P: Point, M, T> BroadPhasePairFilter<CollisionObject<P, M, T>> for CollisionGroupsPairFilter {
+    fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool {
+        let id1 = b1 as *const CollisionObject<P, M, T> as usize;
+        let id2 = b2 as *const CollisionObject<P, M, T> as usize;
+
+        if id1 == id2 {
+            b1.collision_groups.can_collide_with_self()
+        }
+        else {
+            b1.collision_groups.can_collide_with_groups(&b2.collision_groups)
+        }
     }
 }

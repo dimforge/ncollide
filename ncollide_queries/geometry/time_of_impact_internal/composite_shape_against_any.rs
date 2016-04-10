@@ -72,14 +72,15 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, P, 
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized>
-BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
+impl<'a, P, M, G1: ?Sized, G2: ?Sized> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>>
 for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+    type UserData = <P::Vect as Vect>::Scalar;
+
     #[inline]
     fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         // Compute the minkowski sum of the two AABBs.
@@ -95,8 +96,7 @@ for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
         let mut res = None;
 
         self.g1.map_transformed_part_at(self.m1, *b, &mut |m1, g1|
-            res = time_of_impact_internal::any_against_any(m1, self.vel1, g1,
-                                                           self.m2, self.vel2, self.g2)
+            res = time_of_impact_internal::time_of_impact(m1, self.vel1, g1, self.m2, self.vel2, self.g2)
                   .map(|toi| (toi, toi))
         );
 

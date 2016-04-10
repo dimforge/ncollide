@@ -1,22 +1,21 @@
 use entities::inspection::{Repr, ReprDesc};
 use queries::geometry::Contact;
-use math::Point;
+use math::{Point, Vect};
 
-/// Trait of the algorithms executed during the so-called Narrow Phase.
-///
-/// The goal of the narrow phase is to determine exactly if two objects collide. If there is
-/// collision, it must be able to compute the exact contact point(s), normal and penetration depth
-/// in order to give enough informations to the constraint solver.
-///
-/// # Arguments
-/// * `G1`- the type of the first object involved on the collision detection.
-/// * `G2`- the type of the second object involved on the collision detection.
+/// Trait implemented algorithms that compute contact points, normals and penetration depths.
 pub trait CollisionDetector<P: Point, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
     // FIXME: use ReprDesc instead of Repr (to avoid useless virtual method calls) ?
-    fn update(&mut self, &CollisionDispatcher<P, M>, &M, &Repr<P, M>, &M, &Repr<P, M>) -> bool;
+    fn update(&mut self,
+              dispatcher: &CollisionDispatcher<P, M>,
+              ma:         &M,
+              a:          &Repr<P, M>,
+              mb:         &M,
+              b:          &Repr<P, M>,
+              prediction: <P::Vect as Vect>::Scalar)
+              -> bool;
 
     /// The number of collision detected during the last update.
     fn num_colls(&self) -> usize;

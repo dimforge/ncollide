@@ -72,14 +72,14 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
-    // FIXME: internalize the type parameter R using associated types.
     // FIXME: really return a ref to B ?
     /// Performs a best-fist-search on the tree.
     ///
-    /// Returns the content of the best leaf nound, and a result of user-defined type.
-    pub fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+    /// Returns the content of the leaf with the smallest associated cost, and a result of
+    /// user-defined type.
+    pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
         where N:   Scalar,
-              BFS: BVTCostFn<N, B, BV, R> {
+              BFS: BVTCostFn<N, B, BV> {
         match self.tree {
             Some(ref t) => t.best_first_search(algorithm),
             None        => None
@@ -169,9 +169,9 @@ impl<B, BV> BVTNode<B, BV> {
         }
     }
 
-    fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+    fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
         where N:   Scalar,
-              BFS: BVTCostFn<N, B, BV, R> {
+              BFS: BVTCostFn<N, B, BV> {
         let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<B, BV>>> = BinaryHeap::new();
         let mut best_cost = Bounded::max_value();
         let mut result    = None;

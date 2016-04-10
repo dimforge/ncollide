@@ -21,9 +21,9 @@ impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
     where P:  Point,
           CD: CollisionDetector<P, M> {
     /// Creates a new one shot contact manifold generator.
-    pub fn new(prediction: <P::Vect as Vect>::Scalar, cd: CD) -> OneShotContactManifoldGenerator<P, M, CD> {
+    pub fn new(cd: CD) -> OneShotContactManifoldGenerator<P, M, CD> {
         OneShotContactManifoldGenerator {
-            sub_detector: IncrementalContactManifoldGenerator::new(prediction, cd)
+            sub_detector: IncrementalContactManifoldGenerator::new(cd)
         }
     }
 }
@@ -40,11 +40,12 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
               m1: &M,
               g1: &Repr<P, M>,
               m2: &M,
-              g2: &Repr<P, M>)
+              g2: &Repr<P, M>,
+              prediction: <P::Vect as Vect>::Scalar)
               -> bool {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
-            match self.sub_detector.get_sub_collision(d, m1, g1, m2, g2) {
+            match self.sub_detector.get_sub_collision(d, m1, g1, m2, g2, prediction) {
                 Some(Some(coll)) => {
                     na::orthonormal_subspace_basis(&coll.normal, |b| {
                         let mut rot_axis = na::cross(&coll.normal, &b);
@@ -54,17 +55,17 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
 
                         let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vec());
 
-                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2);
+                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
 
                         // second perturbation (opposite direction)
                         let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, coll.world1.as_vec());
 
-                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2);
+                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
 
                         true
                     });
 
-                    self.sub_detector.update_contacts(m1, m2);
+                    self.sub_detector.update_contacts(m1, m2, prediction);
 
                     true
                 },
@@ -74,7 +75,7 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
         }
         else {
             // otherwise, let the incremental manifold do its job
-            self.sub_detector.update(d, m1, g1, m2, g2)
+            self.sub_detector.update(d, m1, g1, m2, g2, prediction)
         }
     }
 

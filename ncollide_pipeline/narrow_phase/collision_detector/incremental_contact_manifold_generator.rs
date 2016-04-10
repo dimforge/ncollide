@@ -37,7 +37,6 @@ impl<P> ContactWLocals<P>
 pub struct IncrementalContactManifoldGenerator<P: Point, M, CD> {
     contacts:     Vec<ContactWLocals<P>>, // FIXME: replace by a vec slice to avoid allocations ?
     collector:    Vec<Contact<P>>,        // FIXME: replace by a vec slice to avoid allocations ?
-    prediction:   <P::Vect as Vect>::Scalar,
     sub_detector: CD,
     _matrix:      PhantomData<M>
 }
@@ -49,11 +48,10 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     ///
     /// # Arguments:
     /// * `cd` - collision detection sub-algorithm used to generate the contact points.
-    pub fn new(prediction: <P::Vect as Vect>::Scalar, cd: CD) -> IncrementalContactManifoldGenerator<P, M, CD> {
+    pub fn new(cd: CD) -> IncrementalContactManifoldGenerator<P, M, CD> {
         IncrementalContactManifoldGenerator {
             contacts:     Vec::new(),
             collector:    Vec::new(),
-            prediction:   prediction,
             sub_detector: cd,
             _matrix:      PhantomData
         }
@@ -67,13 +65,14 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
     pub fn get_sub_collision(&mut self,
-                             d:  &CollisionDispatcher<P, M>,
-                             m1: &M,
-                             g1: &Repr<P, M>,
-                             m2: &M,
-                             g2: &Repr<P, M>)
+                             d:          &CollisionDispatcher<P, M>,
+                             m1:         &M,
+                             g1:         &Repr<P, M>,
+                             m2:         &M,
+                             g2:         &Repr<P, M>,
+                             prediction: <P::Vect as Vect>::Scalar)
                              -> Option<Option<Contact<P>>> {
-        if !self.sub_detector.update(d, m1, g1, m2, g2) {
+        if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
             None
         }
         else {
@@ -98,10 +97,11 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
                             m1: &M,
                             g1: &Repr<P, M>,
                             m2: &M,
-                            g2: &Repr<P, M>)
+                            g2: &Repr<P, M>,
+                            prediction: <P::Vect as Vect>::Scalar)
                             -> bool {
         // add the new ones
-        if !self.sub_detector.update(d, m1, g1, m2, g2) {
+        if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
             false
         }
         else {
@@ -126,7 +126,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     }
 
     /// Updates the contacts already existing on this manifold.
-    pub fn update_contacts(&mut self, m1: &M, m2: &M) {
+    pub fn update_contacts(&mut self, m1: &M, m2: &M, prediction: <P::Vect as Vect>::Scalar) {
         // cleanup existing contacts
         let mut i = 0;
         while i != self.contacts.len() {
@@ -138,7 +138,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
                 let dw    = world1 - world2;
                 let depth = na::dot(&dw, &c.contact.normal);
 
-                if depth >= -self.prediction &&
+                if depth >= -prediction &&
                    na::sqnorm(&(dw - c.contact.normal * depth)) <= na::cast(0.01f64) {
                    c.contact.depth  = depth;
                    c.contact.world1 = world1;
@@ -167,14 +167,15 @@ impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P
           CD: CollisionDetector<P, M> {
     #[inline]
     fn update(&mut self,
-              d:  &CollisionDispatcher<P, M>,
-              m1: &M,
-              g1: &Repr<P, M>,
-              m2: &M,
-              g2: &Repr<P, M>)
+              d:          &CollisionDispatcher<P, M>,
+              m1:         &M,
+              g1:         &Repr<P, M>,
+              m2:         &M,
+              g2:         &Repr<P, M>,
+              prediction: <P::Vect as Vect>::Scalar)
               -> bool {
-        self.update_contacts(m1, m2);
-        self.add_new_contacts(d, m1, g1, m2, g2)
+        self.update_contacts(m1, m2, prediction);
+        self.add_new_contacts(d, m1, g1, m2, g2, prediction)
     }
 
     #[inline]

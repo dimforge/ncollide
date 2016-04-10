@@ -30,7 +30,8 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
         m1, g1, m2, g2, prediction, &mut JohnsonSimplex::new_w_tls(), None) {
         GJKResult::Projection(c)     => Some(c),
         GJKResult::NoIntersection(_) => None,
-        GJKResult::Intersection      => unreachable!()
+        GJKResult::Intersection      => unreachable!(),
+        GJKResult::Proximity(_)      => unreachable!()
     }
 }
 
@@ -77,7 +78,8 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
             }
         },
         GJKResult::NoIntersection(dir) => return GJKResult::NoIntersection(dir),
-        GJKResult::Intersection        => { } // fallback
+        GJKResult::Intersection        => { }, // fallback
+        GJKResult::Proximity(_)        => unreachable!()
     }
 
     // The point is inside of the CSO: use the fallback algorithm

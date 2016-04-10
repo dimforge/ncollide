@@ -41,10 +41,10 @@ struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, <P::Vect as Vect>::Scalar>
-for CompoundRayToiCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for CompoundRayToiCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P, P::Vect> {
+    type UserData = <P::Vect as Vect>::Scalar;
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(&Identity::new(), self.ray, self.solid)
@@ -63,10 +63,12 @@ struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, RayIntersection<P::Vect>>
+impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>>
 for CompoundRayToiAndNormalCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P, P::Vect> {
+    type UserData = RayIntersection<P::Vect>;
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         aabb.toi_with_ray(&Identity::new(), self.ray, self.solid)

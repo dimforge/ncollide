@@ -251,7 +251,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         /*
          * Actually remove the pairs.
          */
-        for pair in self.pairs_to_remove.iter() { 
+        for pair in self.pairs_to_remove.iter() {
             self.pairs.remove(pair);
         }
         self.pairs_to_remove.clear();
@@ -305,6 +305,14 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
 
                     proxy.active = DEACTIVATION_THRESHOLD - 1;
                 }
+            }
+        }
+    }
+
+    fn defered_recompute_all_proximities(&mut self) {
+        for proxy in self.proxies.iter() {
+            if proxy.1.active >= 0 {
+                self.to_update.push((proxy.0, proxy.1.leaf.borrow().bounding_volume.clone()));
             }
         }
     }

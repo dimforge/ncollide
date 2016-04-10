@@ -44,9 +44,11 @@ struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     point: &'a P
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, P> for BaseMeshPointProjCostFn<'a, P, I, E>
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
     where P: Point,
           E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
+    type UserData = P;
+
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
         Some(aabb.distance_to_point(&Identity::new(), self.point))
@@ -55,7 +57,7 @@ impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, P> for Ba
     #[inline]
     fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, P)> {
         let proj = self.mesh.element_at(*b).project_point(&Identity::new(), self.point, true);
-        
+
         Some((na::dist(self.point, &proj), proj))
     }
 }

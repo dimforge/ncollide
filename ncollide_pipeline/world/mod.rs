@@ -1,15 +1,13 @@
 //! High level API to detect collisions in large, complex scenes.
 
-pub use self::collision_object::CollisionObject;
-pub use self::collision_groups::CollisionGroups;
-pub use self::collision_objects_dispatcher::{CollisionObjectsDispatcher, ContactPairs, Contacts};
+pub use self::collision_object::{CollisionQueryType, CollisionObject, CollisionShape, CollisionShapeHandle};
+pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
 pub use self::collision_world::{BroadPhaseObject, CollisionWorld};
 
 use na::{Pnt3, Iso3, Pnt2, Iso2};
 
 mod collision_object;
 mod collision_groups;
-mod collision_objects_dispatcher;
 mod collision_world;
 
 
