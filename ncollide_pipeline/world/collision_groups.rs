@@ -38,7 +38,7 @@ const NO_GROUP:       u32 = 0;
 ///    * A and B will **not** collide because B is part of the group 1 which is blacklisted by A.
 ///    * Finally, B and C will **not** collide either because, even if C whitelists the group 3
 ///    (which B is part of), B does not whitelists the groups 6 nor 9 (which B is part of).
-#[derive(RustcEncodable, RustcDecodable, Clone, Debug)]
+#[derive(RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct CollisionGroups {
     membership: u32,
     whitelist:  u32,
@@ -55,6 +55,12 @@ impl CollisionGroups {
             whitelist:  ALL_GROUPS,
             blacklist:  NO_GROUP
         }
+    }
+
+    /// The maximum allowed group identifier.
+    #[inline]
+    pub fn max_group_id() -> usize {
+        29
     }
 
     #[inline]

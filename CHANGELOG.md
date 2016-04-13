@@ -4,3 +4,4 @@
   return by leaves) is now an associated type.
 * The shape handles `Arc<Box<Repr<P, M>>>` are now wrapped into a structure
   with a more explicit name: `ShapeHandle<P, M>`.
+* Add methods to set directly collision group membership/whitelist/blacklist.
