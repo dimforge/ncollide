@@ -2,13 +2,12 @@
 //! Shape composed from the union of primitives.
 //!
 
-use std::sync::Arc;
 use na::Translate;
 use na;
 use bounding_volume::{self, AABB, BoundingVolume};
 use partitioning::BVT;
 use math::{Point, Isometry};
-use inspection::Repr;
+use shape::ShapeHandle;
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -16,14 +15,12 @@ use inspection::Repr;
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 pub struct Compound<P: Point, M> {
-    shapes:  Vec<(M, Arc<Box<Repr<P, M>>>)>,
+    shapes:  Vec<(M, ShapeHandle<P, M>)>,
     bvt:     BVT<usize, AABB<P>>,
     bvs:     Vec<AABB<P>>
 }
 
-impl<P, M> Clone for Compound<P, M>
-    where P: Point,
-          M: Clone {
+impl<P: Point, M: Clone> Clone for Compound<P, M> {
     fn clone(&self) -> Compound<P, M> {
         Compound {
             shapes: self.shapes.clone(),
@@ -34,17 +31,17 @@ impl<P, M> Clone for Compound<P, M>
 }
 
 impl<P, M> Compound<P, M>
-    where P: Point,
+    where P:       Point,
           P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
+          M:       Isometry<P, P::Vect> {
     /// Builds a new compound shape.
-    pub fn new(shapes: Vec<(M, Arc<Box<Repr<P, M>>>)>) -> Compound<P, M> {
+    pub fn new(shapes: Vec<(M, ShapeHandle<P, M>)>) -> Compound<P, M> {
         let mut bvs    = Vec::new();
         let mut leaves = Vec::new();
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             // loosen for better persistancy
-            let bv = bounding_volume::aabb(&***shape, delta).loosened(na::cast(0.04f64));
+            let bv = bounding_volume::aabb(shape.as_ref(), delta).loosened(na::cast(0.04f64));
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
@@ -60,11 +57,10 @@ impl<P, M> Compound<P, M>
     }
 }
 
-impl<P, M> Compound<P, M>
-    where P: Point {
+impl<P: Point, M> Compound<P, M> {
     /// The shapes of this compound shape.
     #[inline]
-    pub fn shapes(&self) -> &[(M, Arc<Box<Repr<P, M>>>)] {
+    pub fn shapes(&self) -> &[(M, ShapeHandle<P, M>)] {
         &self.shapes[..]
     }
 

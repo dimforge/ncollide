@@ -31,14 +31,14 @@ impl<P, M> CompositeShape<P, M> for Compound<P, M>
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Repr<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];
 
-        f(m, &***g)
+        f(m, g.as_ref())
     }
 
     #[inline(always)]
     fn map_transformed_part_at(&self, m: &M, i: usize, f: &mut FnMut(&M, &Repr<P, M>)) {
         let elt = &self.shapes()[i];
 
-        f(&(*m * elt.0), &**elt.1)
+        f(&(*m * elt.0), elt.1.as_ref())
     }
 
     #[inline]

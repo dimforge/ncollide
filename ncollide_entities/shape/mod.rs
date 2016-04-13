@@ -17,6 +17,7 @@ pub use shape::segment::Segment;
 pub use shape::triangle::Triangle;
 pub use shape::torus::Torus;
 pub use shape::composite_shape::CompositeShape;
+pub use shape::shape::ShapeHandle;
 
 use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
 
@@ -37,6 +38,7 @@ mod torus;
 mod compound;
 mod convex;
 mod composite_shape;
+mod shape;
 
 /*
  *
@@ -54,6 +56,7 @@ mod composite_shape;
 #[doc = "A 2D triangle."] pub type Triangle2<N> = Triangle<Pnt2<N>>;
 #[doc = "A 2D polyline."] pub type Polyline2<N> = Polyline<Pnt2<N>>;
 #[doc = "A 2D compound shape."] pub type Compound2<N> = Compound<Pnt2<N>, Iso2<N>>;
+#[doc = "A 2D shared shape handle."] pub type ShapeHandle2<N> = ShapeHandle<Pnt2<N>, Iso2<N>>;
 
 #[doc = "A 3D ball."] pub type Ball3<N> = Ball<N>;
 #[doc = "A 3D plane."] pub type Plane3<N> = Plane<Vec3<N>>;
@@ -67,3 +70,4 @@ mod composite_shape;
 #[doc = "A 3D polyline."] pub type Polyline3<N> = Polyline<Pnt3<N>>;
 #[doc = "A 3D triangle mesh."] pub type TriMesh3<N> = TriMesh<Pnt3<N>>;
 #[doc = "A 3D compound shape."] pub type Compound3<N> = Compound<Pnt3<N>, Iso3<N>>;
+#[doc = "A 3D shared shape handle."] pub type ShapeHandle3<N> = ShapeHandle<Pnt3<N>, Iso3<N>>;

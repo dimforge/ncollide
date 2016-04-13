@@ -5,13 +5,14 @@ use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vect, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::bounding_volume::{self, BoundingVolume, AABB};
+use entities::shape::ShapeHandle;
 use queries::ray::{RayCast, Ray, RayIntersection};
 use queries::point::PointQuery;
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
                    ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
                    ProximitySignal};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
-use world::{CollisionObject, CollisionQueryType, CollisionShapeHandle, CollisionGroups, CollisionGroupsPairFilter};
+use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
 use na::{Pnt2, Pnt3, Iso2, Iso3};
 
@@ -68,7 +69,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     pub fn add(&mut self,
                uid:              usize,
                position:         M,
-               shape:            CollisionShapeHandle<P, M>,
+               shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
                query_type:       CollisionQueryType<<P::Vect as Vect>::Scalar>,
                data:             T) {
@@ -76,7 +77,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
         let mut collision_object = CollisionObject::new(position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
-        let mut aabb = bounding_volume::aabb(&**collision_object.shape, &collision_object.position);
+        let mut aabb = bounding_volume::aabb(collision_object.shape.as_ref(), &collision_object.position);
         aabb.loosen(query_type.query_limit());
         let fk = self.objects.insert(uid, collision_object).0;
         self.broad_phase.deferred_add(fk.uid(), aabb, fk)
@@ -155,7 +156,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             if let Some(co) = self.objects.get_fast_mut(fk) {
                 co.position = pos.clone();
                 co.timestamp = self.timestamp;
-                let mut aabb = bounding_volume::aabb(&**co.shape, pos);
+                let mut aabb = bounding_volume::aabb(co.shape.as_ref(), pos);
                 aabb.loosen(co.query_type.query_limit());
                 self.broad_phase.deferred_set_bounding_volume(fk.uid(), aabb);
             }

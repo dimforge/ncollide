@@ -1,12 +1,6 @@
-use std::sync::Arc;
 use math::{Scalar, Point, Vect};
-use entities::inspection::Repr;
+use entities::shape::ShapeHandle;
 use world::CollisionGroups;
-
-/// A dynamically typed geometrical shape of a collision object.
-pub type CollisionShape<P, M> = Box<Repr<P, M>>;
-/// Handle to a dynamically typed geometrical shape of a collision object.
-pub type CollisionShapeHandle<P, M> = Arc<CollisionShape<P, M>>;
 
 /// The kind of query a CollisionObject may be involved on.
 ///
@@ -46,7 +40,7 @@ pub struct CollisionObject<P: Point, M, T> {
     /// The collision object position.
     pub position: M,
     /// The collision object shape.
-    pub shape: CollisionShapeHandle<P, M>,
+    pub shape: ShapeHandle<P, M>,
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The kind of queries this collision object is expected to .
@@ -60,7 +54,7 @@ pub struct CollisionObject<P: Point, M, T> {
 impl<P: Point, M, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
     pub fn new(position:   M,
-               shape:      CollisionShapeHandle<P, M>,
+               shape:      ShapeHandle<P, M>,
                groups:     CollisionGroups,
                query_type: CollisionQueryType<<P::Vect as Vect>::Scalar>,
                data:       T)

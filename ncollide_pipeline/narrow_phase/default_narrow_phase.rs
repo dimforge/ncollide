@@ -47,8 +47,8 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                 let had_colls = e.value.num_colls() != 0;
 
                 e.value.update(&*self.collision_dispatcher,
-                               &co1.position, &**co1.shape,
-                               &co2.position, &**co2.shape,
+                               &co1.position, co1.shape.as_ref(),
+                               &co2.position, co2.shape.as_ref(),
                                co1.query_type.query_limit() + co2.query_type.query_limit());
 
                 if e.value.num_colls() == 0 {
@@ -72,8 +72,8 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                 let prev_prox = e.value.proximity();
 
                 e.value.update(&*self.proximity_dispatcher,
-                               &co1.position, &**co1.shape,
-                               &co2.position, &**co2.shape,
+                               &co1.position, co1.shape.as_ref(),
+                               &co2.position, co2.shape.as_ref(),
                                co1.query_type.query_limit() + co2.query_type.query_limit());
 
                 let new_prox = e.value.proximity();
