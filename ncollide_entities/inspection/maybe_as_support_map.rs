@@ -1,7 +1,7 @@
 use std::mem;
 use std::any::{Any, TypeId};
 use math::{Point, Vect, Isometry};
-use shape::{Ball, Capsule, Cone, Convex, Cuboid, Cylinder, Segment, Triangle};
+use shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
 use support_map::SupportMap;
 use inspection::{Repr, ReprDesc};
 
@@ -52,7 +52,7 @@ macro_rules! impl_support_map_repr(
 impl_support_map_repr!(Ball<<P::Vect as Vect>::Scalar>);
 impl_support_map_repr!(Capsule<<P::Vect as Vect>::Scalar>);
 impl_support_map_repr!(Cone<<P::Vect as Vect>::Scalar>);
-impl_support_map_repr!(Convex<P>);
+impl_support_map_repr!(ConvexHull<P>);
 impl_support_map_repr!(Cuboid<P::Vect>);
 impl_support_map_repr!(Cylinder<<P::Vect as Vect>::Scalar>);
 impl_support_map_repr!(Segment<P>);

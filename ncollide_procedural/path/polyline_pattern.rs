@@ -48,9 +48,9 @@ impl<N, C1, C2> PolylinePattern<N, C1, C2>
                start_cap: C1,
                end_cap:   C2)
                -> PolylinePattern<N, C1, C2> {
-        let mut coords3d = Vec::with_capacity(pattern.coords.len());
+        let mut coords3d = Vec::with_capacity(pattern.coords().len());
 
-        for v in pattern.coords.iter() {
+        for v in pattern.coords().iter() {
             coords3d.push(Pnt3::new(v.x.clone(), v.y.clone(), na::zero()));
         }
 
@@ -72,7 +72,7 @@ impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
         where C: CurveSampler<Pnt3<N>> {
         let mut vertices = Vec::new();
         let mut indices  = Vec::new();
-        let npts         = self.pattern.coords.len() as u32;
+        let npts         = self.pattern.coords().len() as u32;
         // FIXME: collect the normals too.
         // let mut normals  = Vec::new();
 
@@ -99,7 +99,7 @@ impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
 
                     let new_start_id = vertices.len() as u32;
 
-                    vertices.extend(new_polyline.coords.into_iter());
+                    vertices.extend(new_polyline.unwrap().0.into_iter());
 
                     if new_start_id != 0 {
                         if self.closed {

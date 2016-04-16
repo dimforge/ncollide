@@ -2,7 +2,7 @@ use rand::Rng;
 use na;
 use na::{Vec2, Vec3, Vec4, Pnt2, Pnt3, Pnt4, Mat2, Mat3, Mat4, Iso2, Iso3, Identity};
 use ncollide::bounding_volume::{AABB, BoundingSphere};
-use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, Convex};
+use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, ConvexHull};
 use ncollide::math::{Scalar, Point, Vect};
 use ncollide::ray::Ray;
 
@@ -100,13 +100,13 @@ impl<P> DefaultGen for Triangle<P>
     }
 }
 
-impl<P> DefaultGen for Convex<P>
+impl<P> DefaultGen for ConvexHull<P>
     where P: Point {
-    fn generate<R: Rng>(rng: &mut R) -> Convex<P> {
+    fn generate<R: Rng>(rng: &mut R) -> ConvexHull<P> {
         // It is recommanded to have at most 100 points.
         // Otherwise, a smarter structure like the DK hierarchy would be needed.
         let pts = (0 .. 100).map(|_| na::orig::<P>() + rng.gen::<P::Vect>()).collect();
-        Convex::new(pts)
+        ConvexHull::new(pts)
     }
 }
 

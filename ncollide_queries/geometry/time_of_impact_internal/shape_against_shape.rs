@@ -3,7 +3,7 @@ use std::intrinsics::TypeId;
 use std::any::AnyRefExt;
 use na::Translate;
 use geometry::time_of_impact;
-use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
+use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, ConvexHull, Compound, Mesh, Segment,
                       Triangle};
 use geometry::traits::Shape;
 use math::{Scalar, Point, Vect, Isometry};

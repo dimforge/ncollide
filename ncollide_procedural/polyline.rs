@@ -6,14 +6,18 @@ use math::{Point, Vect};
 #[derive(Clone)]
 pub struct Polyline<P: Point> {
     /// Coordinates of the polyline vertices.
-    pub coords:  Vec<P>,
+    coords:  Vec<P>,
     /// Coordinates of the polyline normals.
-    pub normals: Option<Vec<P::Vect>>,
+    normals: Option<Vec<P::Vect>>,
 }
 
 impl<P: Point> Polyline<P> {
     /// Creates a new polyline.
     pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vect>>) -> Polyline<P> {
+        if let Some(ref ns) = normals {
+            assert!(coords.len() == ns.len(), "There must be exactly one normal per vertex.");
+        }
+
         Polyline {
             coords:  coords,
             normals: normals,
@@ -22,6 +26,41 @@ impl<P: Point> Polyline<P> {
 }
 
 impl<P: Point> Polyline<P> {
+    /// Moves the polyline data out of it.
+    pub fn unwrap(self) -> (Vec<P>, Option<Vec<P::Vect>>) {
+        (self.coords, self.normals)
+    }
+
+    /// The coordinates of this polyline vertices.
+    #[inline]
+    pub fn coords(&self) -> &[P] {
+        &self.coords[..]
+    }
+
+    /// The mutable coordinates of this polyline vertices.
+    #[inline]
+    pub fn coords_mut(&mut self) -> &mut [P] {
+        &mut self.coords[..]
+    }
+
+    /// The normals of this polyline vertices.
+    #[inline]
+    pub fn normals(&self) -> Option<&[P::Vect]> {
+        match self.normals {
+            Some(ref ns) => Some(&ns[..]),
+            None         => None
+        }
+    }
+
+    /// The mutable normals of this polyline vertices.
+    #[inline]
+    pub fn normals_mut(&mut self) -> Option<&mut [P::Vect]> {
+        match self.normals {
+            Some(ref mut ns) => Some(&mut ns[..]),
+            None             => None
+        }
+    }
+
     /// Translates each vertex of this polyline.
     pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {

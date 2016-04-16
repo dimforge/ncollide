@@ -4,7 +4,7 @@ use geometry::algorithms::gjk;
 use geometry::algorithms::minkowski_sampling;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use entities::shape::{Cylinder, Cone, Capsule, Convex};
+use entities::shape::{Cylinder, Cone, Capsule, ConvexHull};
 use entities::support_map::SupportMap;
 use point::PointQuery;
 use math::{Point, Vect};
@@ -104,7 +104,7 @@ impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> PointQuery<P, M> for Convex<P>
+impl<P, M> PointQuery<P, M> for ConvexHull<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]

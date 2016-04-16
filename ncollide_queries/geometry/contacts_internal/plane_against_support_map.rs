@@ -5,7 +5,7 @@ use entities::support_map::SupportMap;
 use entities::shape::Plane;
 use math::{Point, Vect};
 
-/// Contact between a plane and a support-mapped shape (Cuboid, Convex, etc.)
+/// Contact between a plane and a support-mapped shape (Cuboid, ConvexHull, etc.)
 pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::Vect>,
                                                   mother: &M, other: &G,
                                                   prediction: <P::Vect as Vect>::Scalar)
@@ -29,7 +29,7 @@ pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::V
     }
 }
 
-/// Contact between a support-mapped shape (Cuboid, Convex, etc.) and a plane.
+/// Contact between a support-mapped shape (Cuboid, ConvexHull, etc.) and a plane.
 pub fn support_map_against_plane<P, M, G: ?Sized>(mother: &M, other: &G,
                                                   mplane: &M, plane: &Plane<P::Vect>,
                                                   prediction: <P::Vect as Vect>::Scalar)

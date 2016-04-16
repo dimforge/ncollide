@@ -89,7 +89,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
     fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, <P::Vect as Vect>::Scalar)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(self.m1, *b, &mut |m1, g1| {
+        self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {
             let dist = distance_internal::distance(m1, g1, self.m2, self.g2);
 
             res = Some((dist, dist))

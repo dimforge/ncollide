@@ -1,11 +1,11 @@
 use na::{Transform, Rotate};
 use support_map::SupportMap;
 use support_map;
-use shape::Convex;
+use shape::ConvexHull;
 use math::Point;
 
 
-impl<P, M> SupportMap<P, M> for Convex<P>
+impl<P, M> SupportMap<P, M> for ConvexHull<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]

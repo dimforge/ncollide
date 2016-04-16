@@ -56,7 +56,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
         // First, test if the previously intersecting shapes are still intersecting.
         if self.proximity == Proximity::Intersecting {
             let detector = self.sub_detectors.find_mut(&self.intersecting_key).unwrap();
-            g1.map_transformed_part_at(m1, self.intersecting_key, &mut |m1, g1| {
+            g1.map_transformed_part_at(self.intersecting_key, m1, &mut |m1, g1| {
                 assert!(detector.update(disp, m1, g1, m2, g2, margin), "The shape was no longer valid.");
             });
 
@@ -82,7 +82,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
             }
 
             if ls_aabb2.intersects(g1.aabb_at(key)) {
-                g1.map_transformed_part_at(m1, key, &mut |m1, g1| {
+                g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
                     assert!(detector.value.update(disp, m1, g1, m2, g2, margin), "The shape was no longer valid.");
                 });
 
@@ -124,7 +124,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
             );
 
             if let Some(sub_detector) = detector {
-                g1.map_transformed_part_at(m1, *key, &mut |m1, g1| {
+                g1.map_transformed_part_at(*key, m1, &mut |m1, g1| {
                     sub_detector.update(disp, m1, g1, m2, g2, margin);
                 });
 

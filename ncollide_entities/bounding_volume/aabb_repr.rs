@@ -1,7 +1,7 @@
 use na::Translate;
 use bounding_volume::{self, HasBoundingVolume, AABB};
 use math::{Point, Vect, Isometry};
-use shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
+use shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
             Segment, Triangle};
 use inspection::Repr;
 
@@ -25,7 +25,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Repr<P, M>
         else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
             bounding_volume::aabb(c, m)
         }
-        else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
+        else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
             bounding_volume::aabb(c, m)
         }
         else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {

@@ -3,7 +3,7 @@
 use std::sync::Arc;
 use na::Translate;
 use na;
-use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, Convex, Compound, Mesh, Segment,
+use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, ConvexHull, Compound, Mesh, Segment,
                       Triangle};
 use geometry::traits::Shape;
 use geometry::time_of_impact_internal;

@@ -117,7 +117,7 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
     fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, Proximity)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(self.m1, *b, &mut |m1, g1| {
+        self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {
             res = match proximity_internal::proximity_internal(m1, g1, self.m2, self.g2, self.margin) {
                 Proximity::Disjoint     => None,
                 Proximity::WithinMargin => Some((self.margin, Proximity::WithinMargin)),

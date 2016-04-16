@@ -41,7 +41,7 @@ impl<N> ArrowheadCap<N>
         let back_dist_to_head  = if negative_shifts { -self.back_dist_to_head } else { self.back_dist_to_head };
         let pointy_thing  = *pt + *dir * front_dist_to_head;
         let start_id      = coords.len() as u32;
-        let npts          = pattern.coords.len() as u32;
+        let npts          = pattern.coords().len() as u32;
         let mut attach_id = attach_id;
 
         if !(self.radius_scale == na::cast(1.0)) || !back_dist_to_head.is_zero() {
@@ -63,7 +63,7 @@ impl<N> ArrowheadCap<N>
 
             new_pattern.transform_by(&transform);
 
-            coords.extend(new_pattern.coords.into_iter());
+            coords.extend(new_pattern.coords().into_iter());
 
             if closed {
                 utils::push_ring_indices(attach_id, start_id, npts, indices)
@@ -81,6 +81,7 @@ impl<N> ArrowheadCap<N>
         else {
             utils::push_degenerate_open_top_ring_indices(attach_id, coords.len() as u32 , npts, indices);
         }
+
         coords.push(pointy_thing);
     }
 }

@@ -79,14 +79,14 @@ impl<P, M> CompositeShapeReprCollisionDetector<P, M>
         for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
             if ls_aabb2.intersects(g1.aabb_at(key)) {
-                g1.map_transformed_part_at(m1, key, &mut |m1, g1| {
+                g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
                     if swap {
                         assert!(detector.value.update(dispatcher, m2, g2, m1, g1, prediction),
-                                "The shape was no longer valid.");
+                                "Internal error: the shape was no longer valid.");
                     }
                     else {
                         assert!(detector.value.update(dispatcher, m1, g1, m2, g2, prediction),
-                                "The shape was no longer valid.");
+                                "Internal error: the shape was no longer valid.");
                     }
                 });
             }

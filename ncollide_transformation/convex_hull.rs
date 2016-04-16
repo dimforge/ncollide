@@ -567,7 +567,7 @@ impl<P> TriangleFacet<P>
 
         let mut normal = utils::cross3(&p1p2, &p1p3);
         if normal.normalize_mut().is_zero() {
-            panic!("Convex hull failure: a facet must not be affinely dependent.");
+            panic!("ConvexHull hull failure: a facet must not be affinely dependent.");
         }
 
         TriangleFacet {
@@ -863,7 +863,7 @@ impl<P> SegmentFacet<P>
         });
 
         if normal.normalize_mut().is_zero() {
-            panic!("Convex hull failure: a segment must not be affinely dependent.");
+            panic!("ConvexHull hull failure: a segment must not be affinely dependent.");
         }
 
         SegmentFacet {

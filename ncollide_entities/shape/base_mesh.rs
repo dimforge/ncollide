@@ -93,6 +93,12 @@ impl<P, I, E> BaseMesh<P, I, E>
         &self.vertices
     }
 
+    /// The number of primitives on thes mesh.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.bvs.len()
+    }
+
     /// Bounding volumes of the subsimplices.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<P>] {

@@ -11,7 +11,7 @@ use geometry::Proximity;
 use math::{Point, Vect};
 
 
-/// Proximity between support-mapped shapes (`Cuboid`, `Convex`, etc.)
+/// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
                                        m1:         &M,
                                        g1:         &G1,
@@ -27,7 +27,7 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
     support_map_against_support_map_with_params(m1, g1, m2, g2, margin, &mut JohnsonSimplex::new_w_tls(), None).0
 }
 
-/// Proximity between support-mapped shapes (`Cuboid`, `Convex`, etc.)
+/// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
 pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(

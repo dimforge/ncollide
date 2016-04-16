@@ -3,7 +3,7 @@ use na;
 use geometry::algorithms::gjk;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use entities::shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, Convex};
+use entities::shape::{MinkowskiSum, Segment, Cylinder, Cone, Capsule, ConvexHull};
 use entities::support_map::SupportMap;
 use ray::{Ray, RayCast, RayIntersection};
 use math::{Point, Vect};
@@ -96,7 +96,7 @@ impl<P, M> RayCast<P, M> for Capsule<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> RayCast<P, M> for Convex<P>
+impl<P, M> RayCast<P, M> for ConvexHull<P>
     where P: Point,
           M: Transform<P> + Translate<P> + Rotate<P::Vect> {
     fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {

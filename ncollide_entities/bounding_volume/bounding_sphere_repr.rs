@@ -1,7 +1,7 @@
 use na::Translate;
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use math::{Point, Vect, Isometry};
-use shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
+use shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
             Segment, Triangle};
 use inspection::Repr;
 
@@ -26,7 +26,7 @@ impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Repr<P, M>
         else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
             c.bounding_volume(m)
         }
-        else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
+        else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
             c.bounding_volume(m)
         }
         else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {

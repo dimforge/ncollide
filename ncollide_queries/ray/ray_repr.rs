@@ -1,5 +1,5 @@
 use math::{Point, Vect, Isometry};
-use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
+use entities::shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
 use ray::{RayCast, Ray, RayIntersection};
@@ -21,7 +21,7 @@ macro_rules! dispatch(
             else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
+            else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
