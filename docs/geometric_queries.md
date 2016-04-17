@@ -1,0 +1,398 @@
+## Single-shape queries
+Geometric queries involving only one shape are exposed through traits. Most of
+them declare several method that achieve similar goals but with different
+levels of details: from simple boolean tests to complete geometric descriptions
+of the result. Of course, a general rule is to assume that the less detailed
+queries are be the fastest to execute.
+
+### Point projection
+It is possible to check whether or not a point is inside of a shape, to project
+it, or compute the distance from a point to a shape. Those queries are
+exposed by the `point::PointQuery` trait:
+
+| Method | Description |
+|--      | --          |
+| `.project_point(m, pt, solid)`                   | Projects the point `pt` on `self` transformed by `m`. |
+| `.distance_to_point(m, pt, solid)`               | Computes the distance between the point `pt` and `self` transformed by `m`. |
+| `.contains_point(m, pt)` | Tests whether the point `pt` is inside of `self` transformed by `m`. |
+
+The `solid` flag indicates whether the projection is solid or not. If `solid`
+is set to `false` then, the point will be projected on the shape border even if
+it is located on its inside. If `solid` is set to `true` then a copy of point
+to be projected is returned if it is inside of the shape. Note that a solid
+point projection (or distance computation) is usually much more efficient than
+a non-solid one.
+
+<center>
+![point projection](../img/solid_point_projection.svg)
+</center>
+
+The result of point projection is given by the `point::PointProjection`
+structure:
+
+| Field    | Description                               |
+|--        | --                                        |
+| `is_inside` | Set to `true` if the point is inside of the shape. |
+| `point`     | The projection.  |
+
+The result of the distance computation with `.distance_to_point(...)` is a
+signed real number. If the projection is non-solid and the returned distance
+negative, then the point is located inside of the shape. Then, the absolute
+value of the returned number gives the shortest distance between the point and
+the shape border. If the projection is solid and the point locate inside of the
+shape, then the returned distance is zero.
+
+
+The following examples attempt to project two points `point_inside` and
+`point_outside` on a cuboid. Because `point_inside` is
+located inside of the cuboid, the resulting distance will be zero if the
+ray cast is solid, or negative otherwise. The distance of `point_outside` from
+the cuboid is not affected by the `solid` flag because it is outside of
+it.
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_point_query2d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector2::new(1.0, 2.0));
+let pt_inside  = na::origin::<Point2<f32>>();
+let pt_outside = Point2::new(2.0, 2.0);
+
+// Solid projection.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_inside, true), 0.0);
+
+// Non-solid projection.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_inside, false), -1.0);
+
+// The other point is outside of the cuboid so the `solid` flag has no effect.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_outside, false), 1.0);
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_outside, true), 1.0);
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_point_query3d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector3::new(1.0, 2.0, 2.0));
+let pt_inside  = na::origin::<Point3<f32>>();
+let pt_outside = Point3::new(2.0, 2.0, 2.0);
+
+// Solid projection.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_inside, true), 0.0);
+
+// Non-solid projection.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_inside, false), -1.0);
+
+// The other point is outside of the cuboid so the `solid` flag has no effect.
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_outside, false), 1.0);
+assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_outside, true), 1.0);
+```
+
+### Ray casting
+
+Ray casting is also one of the core geometric queries in the field of collision
+detection. Besides the fact it can be used for rendering (using ray-tracing
+like methods), it is useful for e.g. continuous collision detection and
+navigation on a virtual environment. Therefore **ncollide** has efficient ray
+casting algorithms for all the shapes it implements (including functions that
+are able to cast rays on arbitrary
+[support-mapped](../geometric_representations/index.html#support-map) convex
+shapes). The main ray-casting related data structure is the `ray::Ray` itself:
+
+| Field  | Description                    |
+|--      | --                             |
+| `orig` | The ray starting point.        |
+| `dir`  | The ray propagation direction. |
+
+
+The result of a successful ray-cast is given by the `ray::RayIntersection`
+structure:
+
+| Field    | Description                               |
+|--        | --                                        |
+| `toi`    | The _time of impact_ of the ray on the object. |
+| `normal` | The normal (in absolute coordinates) at the intersection point of the shape hit by the ray.  |
+| `uvs`    | If available, the texture coordinates at the intersection point of the shape hit by the ray. If the texture coordinates information is not computable, this is set to `None`. |
+
+Recall that the exact point of intersection may be computed from the
+ _time of impact_ with the following:
+
+```rust
+let intersection_point = ray.orig + ray.dir * result.toi
+```
+A physical interpretation of the time of impact is the time needed for a point
+with velocity `ray.dir` to travel from the position `ray.orig` to the object
+hit.
+
+
+The `ray::RayCast` trait is implemented by shapes that can be intersected by a
+ray:
+
+| Method | Description |
+|--      | --          |
+| `.toi_with_ray(m, ray, solid)`                   | Computes the time of impact of the intersection between `ray` and `self` transformed by `m`. |
+| `.toi_and_normal_with_ray(m, ray, solid)`        | Computes the time of impact and normal of the intersection between `ray` and `self` transformed by `m`. |
+| `.toi_and_normal_and_uv_with_ray(m, ray, solid)` | Computes the time of impact , normal, and texture coordinates of the intersection between `ray` and `self` transformed by `m`. |
+| `.intersects_ray(m, ray)`                        | Tests whether `ray` intersects `self` transformed by `m`. |
+
+Note that if you implement this trait for your own shape, only the second method
+of this list (namely `.toi_and_normal_with_ray(...)` is required. The other
+ones are automatically inferred (but for optimization purpose you might want to
+specialize the other methods as well).
+
+
+If the starting point of a ray is inside of a shape, the result depends on the
+value of the `solid` flag. A solid ray cast (`solid` is set to `true`) will
+return an intersection with its `toi` field set to zero and its `normal`
+undefined. A non-solid ray cast (`solid` is set to `false`) will assume that
+the shape is hollow and will propagate on its inside until until hits a border:
+
+<center>
+![solid ray cast](../img/solid_ray_cast.svg)
+</center>
+
+Consequently, if the starting point of the ray is outside of any shape, then
+the `solid` flag has no effect. Also note that a solid ray cast is usually much
+**faster** than the non-solid one. The following examples create a cuboid and
+cast two rays on it. The first ray starts inside of the cuboid and will return
+different time of impacts depending on the solidity of the cast. The second ray
+should miss its target.
+
+The following examples attempt to cast two rays `ray_inside` and `ray_miss` on
+a cuboid. Because the starting point of `ray_inside` is located inside of the
+cuboid, the resulting time of impact will be zero if the ray cast is solid, or
+not-zero otherwise. Casting `ray_miss` will fail because it starts and points
+away from the cuboid.
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_ray_cast2d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector2::new(1.0, 2.0));
+let ray_inside = Ray::new(na::orig::<Point2<f32>>(), Vector2::y());
+let ray_miss   = Ray::new(Point2::new(2.0, 2.0), Vector2::new(1.0, 1.0));
+
+// Solid cast.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, true).unwrap()  == 0.0);
+
+// Non-solid cast.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, false).unwrap() == 2.0);
+
+// The other ray does not intersect this shape so the `solid` flag has no influence.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, false).is_none());
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/solid_ray_cast3d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector3::new(1.0, 2.0, 1.0));
+let ray_inside = Ray::new(na::orig::<Point3<f32>>(), Vector3::y());
+let ray_miss   = Ray::new(Point3::new(2.0, 2.0, 2.0), Vector3::new(1.0, 1.0, 1.0));
+
+// Solid cast.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, true).unwrap()  == 0.0);
+
+// Non-solid cast.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_inside, false).unwrap() == 2.0);
+
+// The other ray does not intersect this shape so the `solid` flag has no influence.
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, false).is_none());
+assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
+```
+
+## Pairwise queries
+Instead of being exposed by traits, pairwise geometric queries for shapes
+having a [dynamic
+representation](../geometric_representations/#dynamic-shape-representation) are
+defined by free-functions on the `geometry::` module. Those functions will
+inspect the shape representation in order to select the right algorithm for the
+query. To avoid this dynamic dispatch when you already know at compile-time
+which types of shapes are involved, the _internal_ submodules, e.g.,
+`geometry::distance_internal`, contains functions dedicated to specific shapes
+or shape representations.
+
+### Proximity
+
+The proximity query `geometry::proximity(m1, g1, m2, g2, margin)` tests if the
+shapes `g1` and `g2`, respectively transformed by `m1` and `m2`, are
+intersecting. It will not provide any specific detail regarding the exact
+distance separating them. Its result is is described by the
+`geometry::Proximity` enumeration:
+
+| Variant        | Description                               |
+|--              | --                                        |
+| `Intersecting` | The two objects interior are overlapping. |
+| `WithinMargin` | The two object have disjoint interiors but are closer than some _margin_. |
+| `Disjoint`     | The two objects are separated by distance larger than some _margin_. |
+
+Because it might be useful to know when two objects are not intersecting but
+close to each another, the user may specify a _margin_ which must be a positive
+value (or zero). If the two objects are separated by a distance smaller than
+this margin, the proximity is said to be _within the margin_.
+
+
+In the following example, the margin is depicted as a red curve around the
+rectangle. The sphere being closer than the margin is equivalent to it
+intersecting the red curve:
+
+<center>
+![proximity](../img/proximity.svg)
+</center>
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/proximity_query2d.rs')" ></div>
+
+```rust
+let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));
+let ball   = Ball::new(1.0);
+let margin = 1.0;
+
+let cuboid_pos             = na::one();
+let ball_pos_intersecting  = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
+let ball_pos_within_margin = Isometry2::new(Vector2::new(2.0, 2.0), na::zero());
+let ball_pos_disjoint      = Isometry2::new(Vector2::new(3.0, 3.0), na::zero());
+
+let prox_intersecting = geometry::proximity(&ball_pos_intersecting, &ball,
+                                            &cuboid_pos,            &cuboid,
+                                            margin);
+let prox_within_margin = geometry::proximity(&ball_pos_within_margin, &ball,
+                                             &cuboid_pos,             &cuboid,
+                                             margin);
+let prox_disjoint = geometry::proximity(&ball_pos_disjoint, &ball,
+                                        &cuboid_pos,        &cuboid,
+                                        margin);
+
+assert_eq!(prox_intersecting, Proximity::Intersecting);
+assert_eq!(prox_within_margin, Proximity::WithinMargin);
+assert_eq!(prox_disjoint, Proximity::Disjoint);
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/proximity_query3d.rs')" ></div>
+
+```rust
+let cuboid = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));
+let ball   = Ball::new(1.0);
+let margin = 1.0;
+
+let cuboid_pos             = na::one();
+let ball_pos_intersecting  = Isometry3::new(Vector3::new(1.0, 1.0, 1.0), na::zero());
+let ball_pos_within_margin = Isometry3::new(Vector3::new(2.0, 2.0, 2.0), na::zero());
+let ball_pos_disjoint      = Isometry3::new(Vector3::new(3.0, 3.0, 3.0), na::zero());
+
+let prox_intersecting = geometry::proximity(&ball_pos_intersecting, &ball,
+                                            &cuboid_pos,            &cuboid,
+                                            margin);
+let prox_within_margin = geometry::proximity(&ball_pos_within_margin, &ball,
+                                             &cuboid_pos,             &cuboid,
+                                             margin);
+let prox_disjoint = geometry::proximity(&ball_pos_disjoint, &ball,
+                                        &cuboid_pos,        &cuboid,
+                                        margin);
+
+assert_eq!(prox_intersecting, Proximity::Intersecting);
+assert_eq!(prox_within_margin, Proximity::WithinMargin);
+assert_eq!(prox_disjoint, Proximity::Disjoint);
+```
+
+### Distance
+
+The minimal distance between two shapes `g1` and `g2`, respectively transformed
+by `m1` and `m2`, can be computed by `geometry::distance(m1, g1, m2, g2)`. This
+will return a positive value if the objects are not intersecting and zero
+otherwise. The following example compute the distance between a cube and a
+sphere.
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/distance_query2d.rs')" ></div>
+
+```rust
+extern crate nalgebra as na;
+extern crate ncollide;
+
+use na::{Isometry2, Vector2};
+use ncollide::shape::{Cuboid, Ball};
+use ncollide::geometry;
+
+fn main() {
+    let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));
+    let ball   = Ball::new(1.0);
+
+    let cuboid_pos             = na::one();
+    let ball_pos_intersecting  = Isometry2::new(Vector2::new(1.0, 0.0), na::zero());
+    let ball_pos_disjoint      = Isometry2::new(Vector2::new(3.0, 0.0), na::zero());
+
+    let dist_intersecting = geometry::distance(&ball_pos_intersecting, &ball,
+                                               &cuboid_pos,            &cuboid);
+    let dist_disjoint     = geometry::distance(&ball_pos_disjoint, &ball,
+                                               &cuboid_pos,        &cuboid);
+
+    assert_eq!(dist_intersecting, 0.0);
+    assert!(na::approx_eq(&dist_disjoint, &1.0));
+}
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/distance_query3d.rs')" ></div>
+
+```rust
+extern crate nalgebra as na;
+extern crate ncollide;
+
+use na::{Isometry3, Vector3};
+use ncollide::shape::{Cuboid, Ball};
+use ncollide::geometry;
+
+fn main() {
+    let cuboid = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));
+    let ball   = Ball::new(1.0);
+
+    let cuboid_pos             = na::one();
+    let ball_pos_intersecting  = Isometry3::new(Vector3::new(1.0, 0.0, 0.0), na::zero());
+    let ball_pos_disjoint      = Isometry3::new(Vector3::new(3.0, 0.0, 0.0), na::zero());
+
+    let dist_intersecting = geometry::distance(&ball_pos_intersecting, &ball,
+                                               &cuboid_pos,            &cuboid);
+    let dist_disjoint     = geometry::distance(&ball_pos_disjoint, &ball,
+                                               &cuboid_pos,        &cuboid);
+
+    assert_eq!(dist_intersecting, 0.0);
+    assert!(na::approx_eq(&dist_disjoint, &1.0));
+}
+```
+
+
+### Contact
+
+Contact determination is the core feature of any collision detection library.
+It is the process of determining if two objects are in contact. If they are,
+the contact geometry is computed and stored into the `geometry::Contact`
+structure:
+
+
+| Field    | Description                                                              |
+|--        | --                                                                       |
+| `world1` | The contact point on the first object expressed in the absolute coordinate system. |
+| `world2` | The contact point on the second object expressed in the absolute coordinate system. |
+| `normal` | The contact normal expressed in the absolute coordinate system. It points toward the exterior of the first object. |
+| `depth`  | The penetration depth of this contact. |
+
+
+Here, _absolute coordinate system_ (sometimes called _world coordinate system_)
+designs the set of axises that are not relative to any object.
+
+
+The last field requires some details. Sometimes, the objects in contact
+are penetrating each other. Notably, if you are using **ncollide** for physical
+simulation, this is an unrealistic configuration where the inside of the two
+objects are overlapping. This penetration can be described geometrically in
+several forms, including the penetration volume (left) and the minimal
+translational distance (right):
+
+<center>
+![penetration depth](../img/penetration_depth.svg)
+</center>
+
+**ncollide** implements the latter: the minimal translational distance, also
+known as the _penetration depth_. This is the smallest translation along the
+contact normal needed to remove any overlap between the two objects interiors.
+
+### Time of impact
+
+The time of impact returned by `geometry::time_of_impact(m1, v1, g1, m2, v2, g2)`
+is the time a shape would take `g1` and `g2` to touch if they both move with
+linear velocities `v1` and `v2` starting with the position and orientation
+given by `m1` and `m2`.

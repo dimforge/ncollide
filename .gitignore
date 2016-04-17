@@ -6,3 +6,4 @@ Cargo.lock
 target
 run.sh
 doc
+docs/rustdoc

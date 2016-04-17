@@ -1,0 +1,34 @@
+site_name: ncollide
+pages:
+  - Home: index.md
+  - '<i class="fa fa-book"></i>&nbsp User Guide':
+    - 'Getting Started': getting_started.md
+    - 'Geometric Representations': geometric_representations.md
+    - 'Bounding Volumes': bounding_volumes.md
+    - 'Geometric Queries': geometric_queries.md
+    - 'Collision Detection Pipeline': collision_detection_pipeline.md
+    - 'Mesh Generation': mesh_generation.md
+    - 'Miscellaneous': miscellaneous.md
+    - 'FAQ': faq.md
+  - '<i class="fa fa-align-left"></i>&nbsp API Documentation': rustdoc_ncollide.md
+  - '<i class="fa fa-question-circle"></i>&nbsp About': about.md
+theme_dir: custom_flatly
+site_author: 'Sébastion Crozet'
+site_favicon: img/favicon.ico
+site_url: http://ncollide.org
+
+# the third-party extenison mdx_math.py comes with a setup.py script
+# Thank you Dmitry Shachnev (https://github.com/mitya57/python-markdown-math) 
+markdown_extensions: 
+    - mdx_math:
+        enable_dollar_delimiter: True #for use of inline $..$
+    - fenced_code
+    - codehilite
+    - footnotes
+    - smarty
+    - admonition
+    - toc:
+        permalink: '§'
+
+# Required to load the MathJax javascript for the mdx_math.py
+extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML']
