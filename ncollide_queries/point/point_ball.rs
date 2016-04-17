@@ -3,33 +3,33 @@ use na::Translate;
 use na;
 use point::PointQuery;
 use entities::shape::Ball;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
-impl<P, M> PointQuery<P, M> for Ball<<P::Vect as Vect>::Scalar>
+impl<P, M> PointQuery<P, M> for Ball<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Translate<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
-        let ls_pt  = m.inv_translate(pt);
-        let sqdist = na::sqnorm(ls_pt.as_vec());
+        let ls_pt  = m.inverse_translate(pt);
+        let distance_squared = na::norm_squared(ls_pt.as_vector());
 
-        if sqdist <= self.radius() * self.radius() && solid {
+        if distance_squared <= self.radius() * self.radius() && solid {
             pt.clone()
         }
         else {
-            let ls_proj = na::orig::<P>() + *ls_pt.as_vec() / sqdist.sqrt();
+            let ls_proj = na::origin::<P>() + *ls_pt.as_vector() / distance_squared.sqrt();
 
             m.translate(&ls_proj)
         }
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        (na::norm(m.inv_translate(pt).as_vec()) - self.radius()).max(na::zero())
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        (na::norm(m.inverse_translate(pt).as_vector()) - self.radius()).max(na::zero())
     }
 
     #[inline]
     fn contains_point(&self, m: &M, pt: &P) -> bool {
-        na::sqnorm(m.inv_translate(pt).as_vec()) <= self.radius() * self.radius()
+        na::norm_squared(m.inverse_translate(pt).as_vector()) <= self.radius() * self.radius()
     }
 }

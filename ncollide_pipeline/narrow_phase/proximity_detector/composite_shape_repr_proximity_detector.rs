@@ -1,6 +1,6 @@
 use na;
 use na::Translate;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use entities::bounding_volume::{self, BoundingVolume};
@@ -44,7 +44,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
                  g1:     &CompositeShape<P, M>,
                  m2:     &M,
                  g2:     &Repr<P, M>,
-                 margin: <P::Vect as Vect>::Scalar) {
+                 margin: <P::Vect as Vector>::Scalar) {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
             self.sub_detectors.remove(key);
@@ -69,7 +69,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
 
         self.proximity = Proximity::Disjoint;
 
-        let m12      = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let m12      = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = bounding_volume::aabb(g2, &m12).loosened(margin);
 
         // Update all collisions
@@ -169,7 +169,7 @@ impl<P, M> ProximityDetector<P, M> for CompositeShapeReprProximityDetector<P, M>
               disp:   &ProximityDispatcher<P, M>,
               m1: &M, g1: &Repr<P, M>,
               m2: &M, g2: &Repr<P, M>,
-              margin: <P::Vect as Vect>::Scalar)
+              margin: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs1) = inspection::maybe_as_composite_shape(g1) {
             self.do_update(disp, m1, cs1, m2, g2, margin);
@@ -194,7 +194,7 @@ impl<P, M> ProximityDetector<P, M> for ReprCompositeShapeProximityDetector<P, M>
               disp:  &ProximityDispatcher<P, M>,
               m1: &M, g1: &Repr<P, M>,
               m2: &M, g2: &Repr<P, M>,
-              margin: <P::Vect as Vect>::Scalar)
+              margin: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs2) = inspection::maybe_as_composite_shape(g2) {
             self.sub_detector.do_update(disp, m2, cs2, m1, g1, margin);

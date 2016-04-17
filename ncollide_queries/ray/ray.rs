@@ -1,32 +1,32 @@
 //! Traits and structure needed to cast rays.
 
-use na::Pnt2;
-use math::{Point, Vect};
+use na::Point2;
+use math::{Point, Vector};
 
 /// A Ray.
 #[derive(Debug, RustcEncodable, RustcDecodable, Clone)]
 pub struct Ray<P: Point> {
     /// Starting point of the ray.
-    pub orig: P,
+    pub origin: P,
     /// Direction of the ray.
     pub dir:  P::Vect
 }
 
 impl<P: Point> Ray<P> {
-    /// Creates a new ray starting from `orig` and with the direction `dir`. `dir` must be
+    /// Creates a new ray starting from `origin` and with the direction `dir`. `dir` must be
     /// normalized.
-    pub fn new(orig: P, dir: P::Vect) -> Ray<P> {
+    pub fn new(origin: P, dir: P::Vect) -> Ray<P> {
         Ray {
-            orig: orig,
+            origin: origin,
             dir:  dir
         }
     }
 }
 
 /// Structure containing the result of a successful ray cast.
-pub struct RayIntersection<V: Vect> {
+pub struct RayIntersection<V: Vector> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
-    /// with: `orig + dir * toi` where `orig` is the origin of the ray; `dir` is its direction and
+    /// with: `origin + dir * toi` where `origin` is the origin of the ray; `dir` is its direction and
     /// `toi` is the value of this field.
     pub toi:    V::Scalar,
 
@@ -37,13 +37,13 @@ pub struct RayIntersection<V: Vect> {
 
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    pub uvs:    Option<Pnt2<V::Scalar>>
+    pub uvs:    Option<Point2<V::Scalar>>
 }
 
-impl<V: Vect> RayIntersection<V> {
+impl<V: Vector> RayIntersection<V> {
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new_with_uvs(toi: V::Scalar, normal: V, uvs: Option<Pnt2<V::Scalar>>) -> RayIntersection<V> {
+    pub fn new_with_uvs(toi: V::Scalar, normal: V, uvs: Option<Point2<V::Scalar>>) -> RayIntersection<V> {
         RayIntersection {
             toi:    toi,
             normal: normal,
@@ -65,7 +65,7 @@ impl<V: Vect> RayIntersection<V> {
 /// Traits of objects which can be transformed and tested for intersection with a ray.
 pub trait RayCast<P: Point, M> {
     /// Computes the time of impact between this transform shape and a ray.
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vector>::Scalar> {
         self.toi_and_normal_with_ray(m, ray, solid).map(|inter| inter.toi)
     }
 

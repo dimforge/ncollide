@@ -7,7 +7,7 @@ use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, ConvexHull, 
                       Triangle};
 use geometry::traits::Shape;
 use geometry::time_of_impact_internal;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Scalar, Point, Vector, Isometry};
 
 /// Trait implemented by object that can have their Time Of Impact under translational movement
 /// computed.
@@ -24,7 +24,7 @@ pub fn time_of_impact<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &V, g1: 
                                                           -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
+          V:  Vector<N> + Translate<P>,
           M:  Isometry<N, P, V>,
           G1: TimeOfImpactWith<N, P, V, M, G2> {
     TimeOfImpactWith::time_of_impact(m1, vel1, g1, m2, vel2, g2)
@@ -42,7 +42,7 @@ macro_rules! impl_time_of_impact_with(
         impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, $g2> for $g1
             where N: Scalar,
                   P: Point<N, V>,
-                  V: Vect<N> + Translate<P> ,
+                  V: Vector<N> + Translate<P> ,
                   M: Isometry<N, P, V> {
             #[inline]
             fn time_of_impact(m1: &M, vel1: &V, g1: &$g1, m2: &M, vel2: &V, g2: &$g2) -> Option<N> {
@@ -62,12 +62,12 @@ apply_with_mixed_args!(impl_time_of_impact_with,
 impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
     where N: Scalar,
           P: Point<N, V>,
-          V: Vect<N>,
+          V: Vector<N>,
           M: Isometry<N, P, V> {
     #[inline]
     fn time_of_impact(m1: &M, vel1: &V, g1: &Ball<N>, m2: &M, vel2: &V, g2: &Ball<N>) -> Option<N> {
-        let p1 = m1.translate(&na::orig());
-        let p2 = m2.translate(&na::orig());
+        let p1 = m1.translate(&na::origin());
+        let p2 = m2.translate(&na::origin());
         time_of_impact_internal::ball_against_ball(&p1, vel1, g1, &p2, vel2, g2)
     }
 }
@@ -76,7 +76,7 @@ impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
 impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Shape<N, P, V, M> + Send + Sync> for Shape<N, P, V, M> + Send + Sync
     where N: Scalar,
           P: Point<N, V>,
-          V: Vect<N> + Translate<P>,
+          V: Vector<N> + Translate<P>,
           M: Isometry<N, P, V> {
     #[inline]
     fn time_of_impact(m1: &M, g1: &Shape<N, P, V, M> + Send + Sync,

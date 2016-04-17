@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use na::{Axpy, Bounded};
 use na;
 use geometry::algorithms::simplex::Simplex;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));
@@ -19,7 +19,7 @@ pub struct JohnsonSimplex<P: Point> {
     recursion_template: Arc<Vec<RecursionTemplate>>,
     points:             Vec<P>,
     exchange_points:    Vec<P>,
-    determinants:       Vec<<P::Vect as Vect>::Scalar>
+    determinants:       Vec<<P::Vect as Vector>::Scalar>
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
@@ -41,12 +41,12 @@ pub struct RecursionTemplate {
 
 impl RecursionTemplate {
     /// Creates a new set of Recursion simplex sharable between any Johnson simplex having a
-    /// dimension inferior or equal to `dim`.
-    pub fn new(dim: usize) -> Arc<Vec<RecursionTemplate>> {
-        let mut template = Vec::with_capacity(dim + 1);
+    /// dimension inferior or equal to `dimension`.
+    pub fn new(dimension: usize) -> Arc<Vec<RecursionTemplate>> {
+        let mut template = Vec::with_capacity(dimension + 1);
 
-        for dim in 0usize .. dim + 1 {
-            template.push(RecursionTemplate::make_permutation_list(dim))
+        for dimension in 0usize .. dimension + 1 {
+            template.push(RecursionTemplate::make_permutation_list(dimension))
         }
 
         Arc::new(template)
@@ -65,9 +65,9 @@ impl RecursionTemplate {
     // the algorithm is executed. Instead, it should be pre-computed, or computed
     // only once for all. The resulting GC-managed list is intented to be shared
     // between all other simplicis with the same dimension.
-    fn make_permutation_list(dim: usize) -> RecursionTemplate {
+    fn make_permutation_list(dimension: usize) -> RecursionTemplate {
         // The number of points on the biggest subsimplex
-        let max_num_points      = dim + 1;
+        let max_num_points      = dimension + 1;
 
         let mut pts              = Vec::new(); // the result
         let mut offsets          = Vec::new();
@@ -77,10 +77,10 @@ impl RecursionTemplate {
         let mut last_dim_begin  = 0;
 
         // the end of the last subsimplices list
-        let mut last_dim_end    = dim + 1 + 1;
+        let mut last_dim_end    = dimension + 1 + 1;
 
         // the number of points of the last subsimplices
-        let mut last_num_points = dim + 1;
+        let mut last_num_points = dimension + 1;
 
         let mut map             = BTreeMap::<Vec<usize>, usize>::new();
 
@@ -96,7 +96,7 @@ impl RecursionTemplate {
         offsets.push(max_num_points + 1);
 
         // ... then remove one point each time
-        for i in 0usize .. dim + 1 {
+        for i in 0usize .. dimension + 1 {
             // for each sub-simplex ...
             let mut curr      = last_dim_begin;
             let mut num_added = 0;
@@ -195,12 +195,12 @@ impl<P> JohnsonSimplex<P>
     where P: Point {
     /// Creates a new, empty, Johnson simplex.
     pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<P> {
-        let _dim = na::dim::<P>();
+        let _dimension = na::dimension::<P>();
 
         JohnsonSimplex {
-            points:             Vec::with_capacity(_dim + 1),
-            exchange_points:    Vec::with_capacity(_dim + 1),
-            determinants:       iter::repeat(na::zero()).take(recursion[_dim].num_determinants).collect(),
+            points:             Vec::with_capacity(_dimension + 1),
+            exchange_points:    Vec::with_capacity(_dimension + 1),
+            determinants:       iter::repeat(na::zero()).take(recursion[_dimension].num_determinants).collect(),
             recursion_template: recursion
         }
     }
@@ -208,8 +208,8 @@ impl<P> JohnsonSimplex<P>
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<P> {
         KEY_RECURSION_TEMPLATE.with(|rec| {
-            if rec.borrow().len() <= na::dim::<P>() {
-                *rec.borrow_mut() = RecursionTemplate::new(na::dim::<P>());
+            if rec.borrow().len() <= na::dimension::<P>() {
+                *rec.borrow_mut() = RecursionTemplate::new(na::dimension::<P>());
             }
             JohnsonSimplex::new(rec.borrow().clone())
         })
@@ -254,7 +254,7 @@ impl<P> JohnsonSimplex<P>
             // for each sub-simplex ...
             while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant: <P::Vect as Vect>::Scalar = na::zero();
+                    let mut determinant: <P::Vect as Vector>::Scalar = na::zero();
                     let kpt = (*self.points[..].get_unchecked(*recursion.permutation_list[..].get_unchecked(curr + 1usize))).clone();
                     let jpt = (*self.points[..].get_unchecked(*recursion.permutation_list[..].get_unchecked(curr))).clone();
 
@@ -264,7 +264,7 @@ impl<P> JohnsonSimplex<P>
                         let i_pid = *recursion.permutation_list[..].get_unchecked(i);
                         let sub_determinant = (*self.determinants[..].get_unchecked(
                                                 *recursion.sub_determinants[..].get_unchecked(i))).clone();
-                        let delta = sub_determinant * na::dot(&(kpt - jpt), self.points[..].get_unchecked(i_pid).as_vec());
+                        let delta = sub_determinant * na::dot(&(kpt - jpt), self.points[..].get_unchecked(i_pid).as_vector());
 
                         determinant = determinant + delta;
                     }
@@ -321,8 +321,8 @@ impl<P> JohnsonSimplex<P>
                 if foundit {
                     // we found a projection!
                     // re-run the same iteration but, this time, compute the projection
-                    let mut total_det: <P::Vect as Vect>::Scalar = na::zero();
-                    let mut proj: P = na::orig();
+                    let mut total_det: <P::Vect as Vector>::Scalar = na::zero();
+                    let mut proj: P = na::origin();
 
                     unsafe {
                         for i in 0usize .. curr_num_pts { // FIXME: change this when decreasing loops are implemented
@@ -358,7 +358,7 @@ impl<P> JohnsonSimplex<P>
             curr_num_pts = curr_num_pts - 1;
         }
 
-        na::orig()
+        na::origin()
     }
 }
 
@@ -376,11 +376,11 @@ impl<P> Simplex<P> for JohnsonSimplex<P>
     }
 
     #[inline]
-    fn max_sq_len(&self) -> <P::Vect as Vect>::Scalar {
+    fn max_sq_len(&self) -> <P::Vect as Vector>::Scalar {
         let mut max_sq_len = na::zero();
 
         for p in self.points.iter() {
-            let norm = na::sqnorm(p.as_vec());
+            let norm = na::norm_squared(p.as_vector());
 
             if norm > max_sq_len {
                 max_sq_len = norm
@@ -398,7 +398,7 @@ impl<P> Simplex<P> for JohnsonSimplex<P>
     #[inline]
     fn add_point(&mut self, pt: P) {
         self.points.push(pt);
-        assert!(self.points.len() <= na::dim::<P>() + 1);
+        assert!(self.points.len() <= na::dimension::<P>() + 1);
     }
 
     #[inline]
@@ -423,7 +423,7 @@ impl<P> Simplex<P> for JohnsonSimplex<P>
 //     fn to_str(&self) -> ~str {
 //         let mut res  = ~"RecursionTemplate { ";
 //         let mut curr = self.num_leaves;
-//         let mut dim  = 1;
+//         let mut dimension  = 1;
 //
 //         res = res + "num_determinants: " + self.num_determinants.to_str();
 //
@@ -434,27 +434,27 @@ impl<P> Simplex<P> for JohnsonSimplex<P>
 //             while curr != off {
 //                 res = res + "\n(@" + self.sub_determinants[curr].to_str() + " -> ";
 //
-//                 for i in 0u .. dim {
+//                 for i in 0u .. dimension {
 //                     res = res + self.permutation_list[i + curr].to_str();
-//                     if i != dim - 1 {
+//                     if i != dimension - 1 {
 //                         res = res + " ";
 //                     }
 //                 }
 //
 //                 res = res + " - ";
 //
-//                 for i in 1u .. dim {
+//                 for i in 1u .. dimension {
 //                     res = res + self.sub_determinants[i + curr].to_str();
-//                     if i != dim - 1 {
+//                     if i != dimension - 1 {
 //                         res = res + " ";
 //                     }
 //                 }
 //
 //                 res  = res + ")";
-//                 curr = curr + dim;
+//                 curr = curr + dimension;
 //             }
 //
-//             dim = dim + 1;
+//             dimension = dimension + 1;
 //         }
 //
 //         res = res + " }\n";

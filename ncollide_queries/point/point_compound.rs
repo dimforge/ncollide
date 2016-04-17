@@ -4,7 +4,7 @@ use point::PointQuery;
 use entities::bounding_volume::AABB;
 use entities::shape::{Compound, CompositeShape};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 
 
 impl<P, M> PointQuery<P, M> for Compound<P, M>
@@ -13,20 +13,20 @@ impl<P, M> PointQuery<P, M> for Compound<P, M>
     // XXX: if solid == false, this might return internal projection.
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
-        let ls_pt = m.inv_transform(point);
+        let ls_pt = m.inverse_transform(point);
         let mut cost_fn = CompoundPointProjCostFn { compound: self, point: &ls_pt, solid: solid };
 
         m.transform(&self.bvt().best_first_search(&mut cost_fn).unwrap().1)
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(point, &self.project_point(m, point, true))
+    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(point, &self.project_point(m, point, true))
     }
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
-        let ls_pt = m.inv_transform(point);
+        let ls_pt = m.inverse_transform(point);
         let mut test = PointContainementTest { compound: self, point: &ls_pt, found: false };
 
         self.bvt().visit(&mut test);
@@ -45,24 +45,24 @@ struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P, P::Vect> + Translation<P::Vect> {
     type UserData = P;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
         Some(aabb.distance_to_point(&Identity::new(), self.point))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, P)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, P)> {
         let mut res = None;
 
         self.compound.map_part_at(*b, &mut |objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
-            res = Some((na::dist(self.point, &proj), proj));
+            res = Some((na::distance(self.point, &proj), proj));
         });
 
         res

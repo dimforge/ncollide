@@ -1,6 +1,6 @@
 use na;
 use na::Translate;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use entities::bounding_volume::{self, BoundingVolume};
@@ -40,10 +40,10 @@ impl<P, M> CompositeShapeReprCollisionDetector<P, M>
                  g1:         &CompositeShape<P, M>,
                  m2:         &M,
                  g2:         &Repr<P, M>,
-                 prediction: <P::Vect as Vect>::Scalar,
+                 prediction: <P::Vect as Vector>::Scalar,
                  swap:       bool) {
         // Find new collisions
-        let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction);
 
         {
@@ -129,7 +129,7 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeReprCollisionDetector<P, M>
               a:  &Repr<P, M>,
               mb: &M,
               b:  &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(a) {
             self.do_update(d, ma, cs, mb, b, prediction, false);
@@ -168,7 +168,7 @@ impl<P, M> CollisionDetector<P, M> for ReprCompositeShapeCollisionDetector<P, M>
               a:  &Repr<P, M>,
               mb: &M,
               b:  &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(b) {
             self.sub_detector.do_update(d, mb, cs, ma, a, prediction, true);

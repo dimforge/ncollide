@@ -1,4 +1,4 @@
-use na::{Pnt2, Pnt3, Vec3, Iso3};
+use na::{Point2, Point3, Vector3, Isometry3};
 use na;
 use polyline::Polyline;
 use trimesh::{TriMesh, IndexBuffer};
@@ -8,7 +8,7 @@ use math::Scalar;
 
 /// A pattern composed of polyline and two caps.
 pub struct PolylinePattern<N: Scalar, C1, C2> {
-    pattern:       Polyline<Pnt3<N>>,
+    pattern:       Polyline<Point3<N>>,
     closed:        bool,
     last_start_id: u32,
     start_cap:     C1,
@@ -20,22 +20,22 @@ pub trait PolylineCompatibleCap<N: Scalar> {
     /// Generates the mesh for the cap at the beginning of a path.
     fn gen_start_cap(&self,
                      attach_id: u32,
-                     pattern:   &Polyline<Pnt3<N>>,
-                     pt:        &Pnt3<N>,
-                     dir:       &Vec3<N>,
+                     pattern:   &Polyline<Point3<N>>,
+                     pt:        &Point3<N>,
+                     dir:       &Vector3<N>,
                      closed:    bool,
-                     coords:    &mut Vec<Pnt3<N>>,
-                     indices:   &mut Vec<Pnt3<u32>>);
+                     coords:    &mut Vec<Point3<N>>,
+                     indices:   &mut Vec<Point3<u32>>);
 
     /// Generates the mesh for the cap at the end of a path.
     fn gen_end_cap(&self,
                    attach_id: u32,
-                   pattern:   &Polyline<Pnt3<N>>,
-                   pt:        &Pnt3<N>,
-                   dir:       &Vec3<N>,
+                   pattern:   &Polyline<Point3<N>>,
+                   pt:        &Point3<N>,
+                   dir:       &Vector3<N>,
                    closed:    bool,
-                   coords:    &mut Vec<Pnt3<N>>,
-                   indices:   &mut Vec<Pnt3<u32>>);
+                   coords:    &mut Vec<Point3<N>>,
+                   indices:   &mut Vec<Point3<u32>>);
 }
 
 impl<N, C1, C2> PolylinePattern<N, C1, C2>
@@ -43,7 +43,7 @@ impl<N, C1, C2> PolylinePattern<N, C1, C2>
           C1: PolylineCompatibleCap<N>,
           C2: PolylineCompatibleCap<N> {
     /// Creates a new polyline pattern.
-    pub fn new(pattern:   &Polyline<Pnt2<N>>,
+    pub fn new(pattern:   &Polyline<Point2<N>>,
                closed:    bool,
                start_cap: C1,
                end_cap:   C2)
@@ -51,7 +51,7 @@ impl<N, C1, C2> PolylinePattern<N, C1, C2>
         let mut coords3d = Vec::with_capacity(pattern.coords().len());
 
         for v in pattern.coords().iter() {
-            coords3d.push(Pnt3::new(v.x.clone(), v.y.clone(), na::zero()));
+            coords3d.push(Point3::new(v.x.clone(), v.y.clone(), na::zero()));
         }
 
         PolylinePattern {
@@ -64,12 +64,12 @@ impl<N, C1, C2> PolylinePattern<N, C1, C2>
     }
 }
 
-impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
+impl<N, C1, C2> StrokePattern<Point3<N>> for PolylinePattern<N, C1, C2>
     where N: Scalar,
           C1: PolylineCompatibleCap<N>,
           C2: PolylineCompatibleCap<N>{
-    fn stroke<C>(&mut self, sampler: &mut C) -> TriMesh<Pnt3<N>>
-        where C: CurveSampler<Pnt3<N>> {
+    fn stroke<C>(&mut self, sampler: &mut C) -> TriMesh<Point3<N>>
+        where C: CurveSampler<Point3<N>> {
         let mut vertices = Vec::new();
         let mut indices  = Vec::new();
         let npts         = self.pattern.coords().len() as u32;
@@ -88,11 +88,11 @@ impl<N, C1, C2> StrokePattern<Pnt3<N>> for PolylinePattern<N, C1, C2>
                     let transform;
 
                     if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                        transform = Iso3::new_observer_frame(pt, &(*pt + *dir), &Vec3::x());
+                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::x());
                     }
 
                     else {
-                        transform = Iso3::new_observer_frame(pt, &(*pt + *dir), &Vec3::y());
+                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::y());
                     }
 
                     new_polyline.transform_by(&transform);

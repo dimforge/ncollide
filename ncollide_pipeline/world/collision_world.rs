@@ -2,7 +2,7 @@ use std::mem;
 use std::ops::Mul;
 use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use entities::bounding_volume::{self, BoundingVolume, AABB};
 use entities::shape::ShapeHandle;
@@ -14,7 +14,7 @@ use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, 
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
-use na::{Pnt2, Pnt3, Iso2, Iso3};
+use na::{Point2, Point3, Isometry2, Isometry3};
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T> + 'static>;
@@ -38,12 +38,12 @@ pub struct CollisionWorld<P: Point, M, T> {
 impl<P, M, T> CollisionWorld<P, M, T>
     where P: Point,
           P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
-                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
+                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M:  Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
-    pub fn new(margin: <P::Vect as Vect>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
+    pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
         let objects          = UidRemap::new(small_uids);
         let coll_dispatcher  = Box::new(DefaultCollisionDispatcher::new());
         let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
@@ -71,7 +71,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
                position:         M,
                shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
-               query_type:       CollisionQueryType<<P::Vect as Vect>::Scalar>,
+               query_type:       CollisionQueryType<<P::Vect as Vector>::Scalar>,
                data:             T) {
         // FIXME: test that we did not add this object already ?
 
@@ -387,6 +387,6 @@ impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
 
 
 /// 2D collision world containing objects of type `T`.
-pub type CollisionWorld2<N, T> = CollisionWorld<Pnt2<N>, Iso2<N>, T>;
+pub type CollisionWorld2<N, T> = CollisionWorld<Point2<N>, Isometry2<N>, T>;
 /// 3D collision world containing objects of type `T`.
-pub type CollisionWorld3<N, T> = CollisionWorld<Pnt3<N>, Iso3<N>, T>;
+pub type CollisionWorld3<N, T> = CollisionWorld<Point3<N>, Isometry3<N>, T>;

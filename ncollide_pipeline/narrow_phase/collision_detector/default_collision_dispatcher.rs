@@ -1,7 +1,7 @@
 use std::ops::Mul;
 use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use entities::inspection;
 use entities::inspection::ReprDesc;
 use entities::shape::{Ball, Plane};
@@ -37,12 +37,12 @@ impl<P: Point, M> DefaultCollisionDispatcher<P, M> {
 impl<P, M> CollisionDispatcher<P, M> for DefaultCollisionDispatcher<P, M>
     where P: Point,
           P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
-                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
+                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     fn get_collision_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<CollisionAlgorithm<P, M>> {
-        let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
-        let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
+        let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
+        let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallCollisionDetector::<P, M>::new()))

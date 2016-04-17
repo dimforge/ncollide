@@ -312,7 +312,7 @@ impl<O: Clone> UidRemap<O> {
     pub fn update_with_key<F: Fn(&usize, O, O) -> O>(&mut self, key: usize, val: O, ff: F) -> bool {
         let new_val = match self.get(key) {
             None => val,
-            Some(orig) => ff(&key, (*orig).clone(), val)
+            Some(origin) => ff(&key, (*origin).clone(), val)
         };
         self.insert(key, new_val).1.is_none()
     }

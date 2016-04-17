@@ -2,7 +2,7 @@
 
 use na::Iterable;
 use na;
-use math::Vect;
+use math::Vector;
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -10,7 +10,7 @@ pub struct Cuboid<V> {
     half_extents: V,
 }
 
-impl<V: Vect> Cuboid<V> {
+impl<V: Vector> Cuboid<V> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]

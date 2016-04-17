@@ -26,7 +26,7 @@ pub use cylinder::{unit_cylinder, cylinder};
 pub use quad::{quad, unit_quad, quad_with_vertices};
 pub use sphere::{sphere, unit_sphere, circle, unit_circle, unit_hemisphere};
 
-use na::{Pnt2, Pnt3};
+use na::{Point2, Point3};
 
 pub mod utils;
 pub mod path;
@@ -42,11 +42,11 @@ mod quad;
 mod sphere;
 
 /// A 3D triangle mesh.
-pub type TriMesh3<N> = TriMesh<Pnt3<N>>;
+pub type TriMesh3<N> = TriMesh<Point3<N>>;
 /// A 3D polyline.
-pub type Polyline3<N> = Polyline<Pnt3<N>>;
+pub type Polyline3<N> = Polyline<Point3<N>>;
 
 /// A 2D triangle mesh.
-pub type TriMesh2<N> = TriMesh<Pnt2<N>>;
+pub type TriMesh2<N> = TriMesh<Point2<N>>;
 /// A 2D polyline.
-pub type Polyline2<N> = Polyline<Pnt2<N>>;
+pub type Polyline2<N> = Polyline<Point2<N>>;

@@ -10,7 +10,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Identity> for MinkowskiSum<
           G2: SupportMap<P, M> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &P::Vect) -> P {
-        self.g1().support_point(self.m1(), dir) + *self.g2().support_point(self.m2(), dir).as_vec()
+        self.g1().support_point(self.m1(), dir) + *self.g2().support_point(self.m2(), dir).as_vector()
     }
 }
 
@@ -23,7 +23,7 @@ SupportMap<AnnotatedPoint<P>, Identity> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     fn support_point(&self, _: &Identity, dir: &P::Vect) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
         let orig2 = self.g2().support_point(self.m2(), dir);
-        let point = orig1 + *orig2.as_vec();
+        let point = orig1 + *orig2.as_vector();
 
         AnnotatedPoint::new(orig1, orig2, point)
     }

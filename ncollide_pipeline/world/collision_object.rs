@@ -1,4 +1,4 @@
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vector};
 use entities::shape::ShapeHandle;
 use world::CollisionGroups;
 
@@ -44,7 +44,7 @@ pub struct CollisionObject<P: Point, M, T> {
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The kind of queries this collision object is expected to .
-    pub query_type: CollisionQueryType<<P::Vect as Vect>::Scalar>,
+    pub query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
     /// The user-defined data associated to this object.
     pub data: T,
     #[doc(hidden)]
@@ -56,7 +56,7 @@ impl<P: Point, M, T> CollisionObject<P, M, T> {
     pub fn new(position:   M,
                shape:      ShapeHandle<P, M>,
                groups:     CollisionGroups,
-               query_type: CollisionQueryType<<P::Vect as Vect>::Scalar>,
+               query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
                data:       T)
                -> CollisionObject<P, M, T> {
         CollisionObject {

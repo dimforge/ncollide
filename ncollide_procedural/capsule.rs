@@ -1,5 +1,5 @@
 use na;
-use na::Pnt3;
+use na::Point3;
 use super::{TriMesh, IndexBuffer};
 use super::{sphere, utils};
 use math::Scalar;
@@ -9,7 +9,7 @@ pub fn capsule<N>(caps_diameter:   &N,
                   cylinder_height: &N,
                   ntheta_subdiv:   u32,
                   nphi_subdiv:     u32)
-                  -> TriMesh<Pnt3<N>>
+                  -> TriMesh<Point3<N>>
     where N: Scalar {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh { coords, normals, indices, .. } = top.clone();

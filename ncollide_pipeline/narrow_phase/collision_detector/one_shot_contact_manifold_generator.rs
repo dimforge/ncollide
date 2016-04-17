@@ -1,7 +1,7 @@
 use std::ops::Mul;
 use na::{Cross, Transform, Translation, Rotation};
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::inspection::Repr;
 use queries::geometry::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactManifoldGenerator};
@@ -31,8 +31,8 @@ impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
 impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M, CD>
     where P:       Point,
           P::Vect: Cross,
-          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
-                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
+                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M:  Transform<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType>,
           CD: CollisionDetector<P, M> {
     fn update(&mut self,
@@ -41,7 +41,7 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
               g1: &Repr<P, M>,
               m2: &M,
               g2: &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if self.sub_detector.num_colls() == 0 {
             // do the one-shot manifold generation
@@ -51,14 +51,14 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
                         let mut rot_axis = na::cross(&coll.normal, &b);
 
                         // first perturbation
-                        rot_axis = rot_axis * na::cast::<f64, <P::Vect as Vect>::Scalar>(0.01f64);
+                        rot_axis = rot_axis * na::cast::<f64, <P::Vect as Vector>::Scalar>(0.01f64);
 
-                        let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vec());
+                        let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vector());
 
                         self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
 
                         // second perturbation (opposite direction)
-                        let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, coll.world1.as_vec());
+                        let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, coll.world1.as_vector());
 
                         self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
 

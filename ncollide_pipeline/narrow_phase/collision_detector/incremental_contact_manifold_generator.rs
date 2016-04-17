@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use na::Transform;
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use queries::geometry::Contact;
 use entities::inspection::Repr;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
@@ -19,8 +19,8 @@ impl<P> ContactWLocals<P>
     where P: Point {
     fn new_with_contact<M: Transform<P>>(contact: Contact<P>, m1: &M, m2: &M) -> ContactWLocals<P> {
             ContactWLocals {
-                local1: m1.inv_transform(&contact.world1),
-                local2: m2.inv_transform(&contact.world2),
+                local1: m1.inverse_transform(&contact.world1),
+                local2: m2.inverse_transform(&contact.world2),
                 center: na::center(&contact.world1, &contact.world2),
                 contact: contact
             }
@@ -70,7 +70,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
                              g1:         &Repr<P, M>,
                              m2:         &M,
                              g2:         &Repr<P, M>,
-                             prediction: <P::Vect as Vect>::Scalar)
+                             prediction: <P::Vect as Vector>::Scalar)
                              -> Option<Option<Contact<P>>> {
         if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
             None
@@ -98,7 +98,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
                             g1: &Repr<P, M>,
                             m2: &M,
                             g2: &Repr<P, M>,
-                            prediction: <P::Vect as Vect>::Scalar)
+                            prediction: <P::Vect as Vector>::Scalar)
                             -> bool {
         // add the new ones
         if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
@@ -108,7 +108,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
             self.sub_detector.colls(&mut self.collector);
 
             // remove duplicates
-            let _max_num_contact = (na::dim::<P>() - 1) * 2;
+            let _max_num_contact = (na::dimension::<P>() - 1) * 2;
 
             for c in self.collector.iter() {
                 if self.contacts.len() == _max_num_contact {
@@ -126,7 +126,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     }
 
     /// Updates the contacts already existing on this manifold.
-    pub fn update_contacts(&mut self, m1: &M, m2: &M, prediction: <P::Vect as Vect>::Scalar) {
+    pub fn update_contacts(&mut self, m1: &M, m2: &M, prediction: <P::Vect as Vector>::Scalar) {
         // cleanup existing contacts
         let mut i = 0;
         while i != self.contacts.len() {
@@ -139,7 +139,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
                 let depth = na::dot(&dw, &c.contact.normal);
 
                 if depth >= -prediction &&
-                   na::sqnorm(&(dw - c.contact.normal * depth)) <= na::cast(0.01f64) {
+                   na::norm_squared(&(dw - c.contact.normal * depth)) <= na::cast(0.01f64) {
                    c.contact.depth  = depth;
                    c.contact.world1 = world1;
                    c.contact.world2 = world2;
@@ -172,7 +172,7 @@ impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P
               g1:         &Repr<P, M>,
               m2:         &M,
               g2:         &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         self.update_contacts(m1, m2, prediction);
         self.add_new_contacts(d, m1, g1, m2, g2, prediction)
@@ -209,7 +209,7 @@ fn add_reduce_by_variance<P, M>(pts: &mut [ContactWLocals<P>], to_add: Contact<P
     pts[argmax] = ContactWLocals::new_with_contact(to_add, m1, m2);
 }
 
-fn approx_variance<P>(pts: &[ContactWLocals<P>], to_add: &Contact<P>, to_ignore: usize) -> <P::Vect as Vect>::Scalar
+fn approx_variance<P>(pts: &[ContactWLocals<P>], to_add: &Contact<P>, to_ignore: usize) -> <P::Vect as Vector>::Scalar
     where P: Point {
     // first: compute the mean
     let to_add_center = na::center(&to_add.world1, &to_add.world2);
@@ -218,7 +218,7 @@ fn approx_variance<P>(pts: &[ContactWLocals<P>], to_add: &Contact<P>, to_ignore:
 
     for i in 0usize .. pts.len() {
         if i != to_ignore {
-            mean = mean + *pts[i].center.as_vec()
+            mean = mean + *pts[i].center.as_vector()
         }
     }
 
@@ -226,11 +226,11 @@ fn approx_variance<P>(pts: &[ContactWLocals<P>], to_add: &Contact<P>, to_ignore:
     mean = mean * na::cast(divisor);
 
     // compute the sum of variances along all axis
-    let mut sum = na::sqnorm(&(to_add_center - mean));
+    let mut sum = na::norm_squared(&(to_add_center - mean));
 
     for i in 0usize .. pts.len() {
         if i != to_ignore {
-            sum = sum + na::sqnorm(&(pts[i].center - mean));
+            sum = sum + na::norm_squared(&(pts[i].center - mean));
         }
     }
 

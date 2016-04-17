@@ -13,9 +13,9 @@ use std::fmt::Debug;
 use std::ops::{IndexMut, Mul, Neg};
 use std::any::Any;
 use num::{Signed, One};
-use na::{Pnt1, Pnt2, Pnt3, Vec1, Vec2, Vec3, Mat1, Mat3, Iso2, Iso3, Identity};
-use na::{ApproxEq, Cast, POrd, FloatVec, Translate, UniformSphereSample,
-         Rotate, Transform, AbsoluteRotate, Inv, FloatPnt, Shape, Absolute, Iterable, BaseFloat,
+use na::{Point1, Point2, Point3, Vector1, Vector2, Vector3, Matrix1, Matrix3, Isometry2, Isometry3, Identity};
+use na::{ApproxEq, Cast, PartialOrder, FloatVector, Translate, UniformSphereSample,
+         Rotate, Transform, AbsoluteRotate, Inverse, FloatPoint, Shape, Absolute, Iterable, BaseFloat,
          Bounded, Repeat};
 
 /// Trait for constant helping handling floating point computations.
@@ -32,25 +32,26 @@ pub trait Scalar: Copy + Send + Sync + 'static + Debug + Signed +
 
 /// Trait implemented by point types.
 pub trait Point: Send + Sync + 'static + Clone + Copy + Debug +
-                 FloatPnt<<<Self as Point>::Vect as Vect>::Scalar, <Self as Point>::Vect> +
-                 POrd    +
+                 FloatPoint<<<Self as Point>::Vect as Vector>::Scalar, Vector = <Self as Point>::Vect> +
+                 PartialOrder +
                  Bounded +
-                 IndexMut<usize, Output = <<Self as Point>::Vect as Vect>::Scalar> +
+                 IndexMut<usize, Output = <<Self as Point>::Vect as Vector>::Scalar> +
                  Neg<Output = Self> +
                  Decodable + Encodable +
-                 Repeat<<<Self as Point>::Vect as Vect>::Scalar> +
+                 Repeat<<<Self as Point>::Vect as Vector>::Scalar> +
                  Any {
-    type Vect: Vect;
+    /// Type of a point's tangent space element, i.e., the vector type.
+    type Vect: Vector;
 }
 
 
 /// Trait implemented by vector types.
-pub trait Vect: Send + Sync + 'static +
-                FloatVec<<Self as Vect>::Scalar> + UniformSphereSample + Clone +
-                IndexMut<usize, Output = <Self as Vect>::Scalar> + Rand + Shape<usize> +
-                POrd + Absolute<Self> + Iterable<<Self as Vect>::Scalar> +
-                Copy + Neg<Output = Self> + Debug + Any + Decodable + Encodable +
-                Repeat<<Self as Vect>::Scalar> {
+pub trait Vector: Send + Sync + 'static +
+                  FloatVector<<Self as Vector>::Scalar> + UniformSphereSample + Clone +
+                  IndexMut<usize, Output = <Self as Vector>::Scalar> + Rand + Shape<usize> +
+                  PartialOrder + Absolute<Self> + Iterable<<Self as Vector>::Scalar> +
+                  Copy + Neg<Output = Self> + Debug + Any + Decodable + Encodable +
+                  Repeat<<Self as Vector>::Scalar> {
     type Scalar: Scalar;
 }
 
@@ -59,7 +60,7 @@ pub trait Isometry<P, V>: // FIXME: we actually want associated types here.
                           Send           + Sync           + 'static                  +
                           One            + Rotate<V>      +
                           Translate<P>   + Transform<P>   + AbsoluteRotate<V>        +
-                          Inv            + Clone          + Mul<Self, Output = Self> +
+                          Inverse        + Clone          + Mul<Self, Output = Self> +
                           Copy           + Debug          + Any                      +
                           Decodable      + Encodable {
 }
@@ -82,19 +83,19 @@ impl FloatError for f64 {
 impl Scalar for f32 { }
 impl Scalar for f64 { }
 
-impl<N: Scalar> Point for Pnt1<N> { type Vect = Vec1<N>; }
-impl<N: Scalar> Point for Pnt2<N> { type Vect = Vec2<N>; }
-impl<N: Scalar> Point for Pnt3<N> { type Vect = Vec3<N>; }
+impl<N: Scalar> Point for Point1<N> { type Vect = Vector1<N>; }
+impl<N: Scalar> Point for Point2<N> { type Vect = Vector2<N>; }
+impl<N: Scalar> Point for Point3<N> { type Vect = Vector3<N>; }
 
-impl<N: Scalar> Vect for Vec1<N> { type Scalar = N; }
-impl<N: Scalar> Vect for Vec2<N> { type Scalar = N; }
-impl<N: Scalar> Vect for Vec3<N> { type Scalar = N; }
+impl<N: Scalar> Vector for Vector1<N> { type Scalar = N; }
+impl<N: Scalar> Vector for Vector2<N> { type Scalar = N; }
+impl<N: Scalar> Vector for Vector3<N> { type Scalar = N; }
 
-impl<N: Scalar> Isometry<Pnt2<N>, Vec2<N>> for Iso2<N> { }
-impl<N: Scalar> Isometry<Pnt3<N>, Vec3<N>> for Iso3<N> { }
+impl<N: Scalar> Isometry<Point2<N>, Vector2<N>> for Isometry2<N> { }
+impl<N: Scalar> Isometry<Point3<N>, Vector3<N>> for Isometry3<N> { }
 
-impl<N: Scalar> Isometry<Pnt2<N>, Vec2<N>> for Identity { }
-impl<N: Scalar> Isometry<Pnt3<N>, Vec3<N>> for Identity { }
+impl<N: Scalar> Isometry<Point2<N>, Vector2<N>> for Identity { }
+impl<N: Scalar> Isometry<Point3<N>, Vector3<N>> for Identity { }
 
-impl<N> HasInertiaMatrix<Mat1<N>> for Vec2<N> { }
-impl<N> HasInertiaMatrix<Mat3<N>> for Vec3<N> { }
+impl<N> HasInertiaMatrix<Matrix1<N>> for Vector2<N> { }
+impl<N> HasInertiaMatrix<Matrix3<N>> for Vector3<N> { }

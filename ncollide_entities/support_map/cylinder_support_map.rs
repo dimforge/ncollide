@@ -3,15 +3,15 @@ use na::{Rotate, Transform, Norm};
 use na;
 use support_map::SupportMap;
 use shape::Cylinder;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 
-impl<P, M> SupportMap<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+impl<P, M> SupportMap<P, M> for Cylinder<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inv_rotate(dir);
+        let local_dir = m.inverse_rotate(dir);
 
         let mut vres = local_dir.clone();
 
@@ -33,6 +33,6 @@ impl<P, M> SupportMap<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
             vres[1] = self.half_height()
         }
 
-        m.transform(&(na::orig::<P>() + vres))
+        m.transform(&(na::origin::<P>() + vres))
     }
 }

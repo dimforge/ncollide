@@ -2,15 +2,15 @@
 
 use std::mem;
 use std::sync::Arc;
-use na::{Translate, Pnt2};
+use na::{Translate, Point2};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Segment, BaseMesh};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {
-    mesh: BaseMesh<P, Pnt2<usize>, Segment<P>>
+    mesh: BaseMesh<P, Point2<usize>, Segment<P>>
 }
 
 impl<P: Point> Clone for Polyline<P> {
@@ -26,8 +26,8 @@ impl<P> Polyline<P>
           P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Pnt2<usize>>>,
-               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               indices:  Arc<Vec<Point2<usize>>>,
+               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
                normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
                -> Polyline<P> {
         Polyline {
@@ -40,7 +40,7 @@ impl<P> Polyline<P>
     where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt2<usize>, Segment<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Point2<usize>, Segment<P>> {
         &self.mesh
     }
 
@@ -58,13 +58,13 @@ impl<P> Polyline<P>
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Arc<Vec<Pnt2<usize>>> {
+    pub fn indices(&self) -> &Arc<Vec<Point2<usize>>> {
         unsafe { mem::transmute(self.mesh.indices()) }
     }
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
         self.mesh.uvs()
     }
 

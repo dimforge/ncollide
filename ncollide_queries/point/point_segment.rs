@@ -2,7 +2,7 @@ use na::Transform;
 use na;
 use entities::shape::Segment;
 use point::PointQuery;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 impl<P, M> PointQuery<P, M> for Segment<P>
@@ -10,11 +10,11 @@ impl<P, M> PointQuery<P, M> for Segment<P>
           M: Transform<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, _: bool) -> P {
-        let ls_pt = m.inv_transform(pt);
+        let ls_pt = m.inverse_transform(pt);
         let ab    = *self.b() - *self.a();
         let ap    = ls_pt - *self.a();
         let ab_ap = na::dot(&ab, &ap);
-        let sqnab = na::sqnorm(&ab);
+        let sqnab = na::norm_squared(&ab);
 
         if ab_ap <= na::zero() {
             // voronoï region of vertex 'a'.
@@ -32,8 +32,8 @@ impl<P, M> PointQuery<P, M> for Segment<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]

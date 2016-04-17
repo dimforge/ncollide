@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::marker::PhantomData;
 use na::{self, Translate, Translation};
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::inspection;
 use entities::inspection::Repr;
 use entities::shape::AnnotatedPoint;
@@ -50,7 +50,7 @@ impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
               ma: &M, a: &Repr<P, M>,
               mb: &M, b: &Repr<P, M>,
-              margin: <P::Vect as Vect>::Scalar)
+              margin: <P::Vect as Vector>::Scalar)
               -> bool {
         if let (Some(sma), Some(smb)) = (inspection::maybe_as_support_map::<P, M, _>(a),
                                          inspection::maybe_as_support_map::<P, M, _>(b)) {

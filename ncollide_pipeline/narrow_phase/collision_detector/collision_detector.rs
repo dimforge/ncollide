@@ -1,6 +1,6 @@
 use entities::inspection::{Repr, ReprDesc};
 use queries::geometry::Contact;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
 pub trait CollisionDetector<P: Point, M> {
@@ -14,7 +14,7 @@ pub trait CollisionDetector<P: Point, M> {
               a:          &Repr<P, M>,
               mb:         &M,
               b:          &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool;
 
     /// The number of collision detected during the last update.

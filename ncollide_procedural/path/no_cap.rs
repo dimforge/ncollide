@@ -1,4 +1,4 @@
-use na::{Pnt3, Vec3};
+use na::{Point3, Vector3};
 use polyline::Polyline;
 use path::PolylineCompatibleCap;
 use math::Scalar;
@@ -17,21 +17,21 @@ impl NoCap {
 impl<N: Scalar> PolylineCompatibleCap<N> for NoCap {
     fn gen_start_cap(&self,
                      _: u32,
-                     _: &Polyline<Pnt3<N>>,
-                     _: &Pnt3<N>,
-                     _: &Vec3<N>,
+                     _: &Polyline<Point3<N>>,
+                     _: &Point3<N>,
+                     _: &Vector3<N>,
                      _: bool,
-                     _: &mut Vec<Pnt3<N>>,
-                     _: &mut Vec<Pnt3<u32>>) {
+                     _: &mut Vec<Point3<N>>,
+                     _: &mut Vec<Point3<u32>>) {
     }
 
     fn gen_end_cap(&self,
                    _: u32,
-                   _: &Polyline<Pnt3<N>>,
-                   _: &Pnt3<N>,
-                   _: &Vec3<N>,
+                   _: &Polyline<Point3<N>>,
+                   _: &Point3<N>,
+                   _: &Vector3<N>,
                    _: bool,
-                   _: &mut Vec<Pnt3<N>>,
-                   _: &mut Vec<Pnt3<u32>>) {
+                   _: &mut Vec<Point3<N>>,
+                   _: &mut Vec<Point3<u32>>) {
     }
 }

@@ -6,7 +6,7 @@ use geometry::time_of_impact;
 use entities::shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, ConvexHull, Compound, Mesh, Segment,
                       Triangle};
 use geometry::traits::Shape;
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Scalar, Point, Vector, Isometry};
 
 
 macro_rules! dispatch_part(
@@ -30,7 +30,7 @@ pub fn shape_against_shape<N, P, V, M>(m1: &M, vel1: &V, g1: &Shape<N, P, V, M>,
                                        -> Option<N>
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P>,
+          V:  Vector<N> + Translate<P>,
           M:  Isometry<N, P, V> {
     let tg1 = g1.get_type_id();
     let tg2 = g2.get_type_id();

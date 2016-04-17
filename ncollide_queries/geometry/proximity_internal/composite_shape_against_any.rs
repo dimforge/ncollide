@@ -8,13 +8,13 @@ use point::PointQuery;
 use entities::shape::CompositeShape;
 use geometry::Proximity;
 use geometry::proximity_internal;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
-                                   margin: <P::Vect as Vect>::Scalar)
+                                   margin: <P::Vect as Vector>::Scalar)
                                    -> Proximity
     where P:  Point,
           P::Vect: Translate<P>,
@@ -33,7 +33,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
 pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(
                                    m1: &M, g1: &G1,
                                    m2: &M, g2: &G2,
-                                   margin: <P::Vect as Vect>::Scalar)
+                                   margin: <P::Vect as Vector>::Scalar)
                                    -> Proximity
     where P:  Point,
           P::Vect: Translate<P>,
@@ -51,7 +51,7 @@ struct CompositeShapeAgainstAnyInterfCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized
     g1: &'a G1,
     m2: &'a M,
     g2: &'a G2,
-    margin: <P::Vect as Vect>::Scalar,
+    margin: <P::Vect as Vector>::Scalar,
 
     found_intersection: bool,
 
@@ -63,14 +63,14 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, 
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
-    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2, margin: <P::Vect as Vect>::Scalar)
+    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2, margin: <P::Vect as Vector>::Scalar)
                -> CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2> {
 
-        let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2);
 
         CompositeShapeAgainstAnyInterfCostFn {
-            msum_shift:         -ls_aabb2.center().to_vec(),
+            msum_shift:         -ls_aabb2.center().to_vector(),
             msum_margin:        ls_aabb2.half_extents(),
             m1:                 m1,
             g1:                 g1,
@@ -83,7 +83,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, 
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>>
+impl<'a, P, M, G1: ?Sized, G2: ?Sized> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>>
 for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
     where P:  Point,
           P::Vect: Translate<P>,
@@ -93,7 +93,7 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
     type UserData = Proximity;
 
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
+    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
         // No need to continue if some parts intersect.
         if self.found_intersection {
             return None;
@@ -104,9 +104,9 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
                              *bv.maxs() + self.msum_shift + self.msum_margin);
 
         // Compute the distance to the origin.
-        let dist = msum.distance_to_point(&Identity::new(), &na::orig());
-        if dist <= self.margin {
-            Some(dist)
+        let distance = msum.distance_to_point(&Identity::new(), &na::origin());
+        if distance <= self.margin {
+            Some(distance)
         }
         else {
             None
@@ -114,7 +114,7 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, Proximity)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, Proximity)> {
         let mut res = None;
 
         self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {

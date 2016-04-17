@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vec2, Iso2};
+use na::{Vector2, Isometry2};
 use ncollide::shape::Ball;
 use ncollide::bounding_volume;
 use ncollide::broad_phase::{DBVTBroadPhase, BroadPhase};
@@ -10,10 +10,10 @@ fn main() {
     /*
      * Create the objects.
      */
-    let poss = [ Iso2::new(Vec2::new(0.0, 0.0), na::zero()),
-                 Iso2::new(Vec2::new(0.0, 0.5), na::zero()),
-                 Iso2::new(Vec2::new(0.5, 0.0), na::zero()),
-                 Iso2::new(Vec2::new(0.5, 0.5), na::zero()) ];
+    let poss = [ Isometry2::new(Vector2::new(0.0, 0.0), na::zero()),
+                 Isometry2::new(Vector2::new(0.0, 0.5), na::zero()),
+                 Isometry2::new(Vector2::new(0.5, 0.0), na::zero()),
+                 Isometry2::new(Vector2::new(0.5, 0.5), na::zero()) ];
 
     // We will use the same geometry for the four objects.
     let ball = Ball::new(0.5);

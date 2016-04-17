@@ -12,7 +12,7 @@ pub use bounding_volume::aabb_ball::ball_aabb;
 pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere_with_center, point_cloud_bounding_sphere};
 pub use bounding_volume::bounding_volume_bvt::BoundingVolumeInterferencesCollector;
 
-use na::{Pnt2, Pnt3};
+use na::{Point2, Point3};
 
 #[doc(hidden)]
 pub mod bounding_volume;
@@ -52,11 +52,11 @@ mod bounding_sphere_repr;
  *
  */
 /// A 2D bounding sphere.
-pub type BoundingSphere2<N> = BoundingSphere<Pnt2<N>>;
+pub type BoundingSphere2<N> = BoundingSphere<Point2<N>>;
 /// A 2D AABB.
-pub type AABB2<N> = AABB<Pnt2<N>>;
+pub type AABB2<N> = AABB<Point2<N>>;
 
 /// A 3D bounding sphere:
-pub type BoundingSphere3<N> = BoundingSphere<Pnt3<N>>;
+pub type BoundingSphere3<N> = BoundingSphere<Point3<N>>;
 /// A 3D AABB.
-pub type AABB3<N> = AABB<Pnt3<N>>;
+pub type AABB3<N> = AABB<Point3<N>>;

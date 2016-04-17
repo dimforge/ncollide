@@ -34,7 +34,7 @@ pub use self::contact_signal::{ContactSignal, ContactSignalHandler};
 #[doc(inline)]
 pub use self::proximity_signal::{ProximitySignal, ProximitySignalHandler};
 //
-// use na::{Pnt2, Pnt3, Vec2, Vec3, Iso2, Iso3};
+// use na::{Point2, Point3, Vector2, Vector3, Isometry2, Isometry3};
 
 // FIXME: un-hide this and move everything to a folder.
 #[doc(hidden)]

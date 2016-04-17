@@ -1,13 +1,13 @@
 use na::Norm;
 use path::{PathSample, CurveSampler};
 use polyline::Polyline;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// A path with its sample points given by a polyline.
 ///
 /// This will return sequencially each vertex of the polyline.
 pub struct PolylinePath<'a, P: 'a + Point> {
-    curr_len:               <P::Vect as Vect>::Scalar,
+    curr_len:               <P::Vect as Vector>::Scalar,
     curr_dir:               P::Vect,
     curr_pt_id:             usize,
     curr_pt:                P,
@@ -20,7 +20,7 @@ impl<'a, P: Point> PolylinePath<'a, P> {
         assert!(polyline.coords().len() > 1, "The polyline must have at least two points.");
 
         let mut dir: P::Vect  = polyline.coords()[1] - polyline.coords()[0];
-        let len: <P::Vect as Vect>::Scalar = dir.normalize_mut();
+        let len: <P::Vect as Vector>::Scalar = dir.normalize_mut();
 
         PolylinePath {
             curr_len:   len,

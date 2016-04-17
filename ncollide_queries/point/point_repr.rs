@@ -1,5 +1,5 @@
 use na::Translation;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
@@ -10,16 +10,16 @@ macro_rules! dispatch(
         {
             let repr = $sself.repr();
 
-            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
+            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>() {
                 b.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
@@ -28,7 +28,7 @@ macro_rules! dispatch(
             else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
@@ -65,7 +65,7 @@ impl<P, M> PointQuery<P, M> for Repr<P, M>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
         dispatch!(self.distance_to_point(m, pt))
     }
 

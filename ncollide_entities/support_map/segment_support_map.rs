@@ -10,9 +10,9 @@ impl<P, M> SupportMap<P, M> for Segment<P>
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inv_rotate(dir);
+        let local_dir = m.inverse_rotate(dir);
 
-        if na::dot(self.a().as_vec(), &local_dir) > na::dot(self.b().as_vec(), &local_dir) {
+        if na::dot(self.a().as_vector(), &local_dir) > na::dot(self.b().as_vector(), &local_dir) {
             m.transform(self.a())
         }
         else {

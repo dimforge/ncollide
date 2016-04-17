@@ -2,7 +2,7 @@ use na::Transform;
 use na;
 use entities::shape::Triangle;
 use point::PointQuery;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 impl<P, M> PointQuery<P, M> for Triangle<P>
@@ -20,7 +20,7 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
         let a = self.a().clone();
         let b = self.b().clone();
         let c = self.c().clone();
-        let p = m.inv_transform(pt);
+        let p = m.inverse_transform(pt);
 
         let ab = b - a;
         let ac = c - a;
@@ -75,8 +75,8 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
         }
 
         // Voronoï region of the face.
-        if na::dim::<P>() != 2 {
-            let denom = na::one::<<P::Vect as Vect>::Scalar>() / (va + vb + vc);
+        if na::dimension::<P>() != 2 {
+            let denom = na::one::<<P::Vect as Vector>::Scalar>() / (va + vb + vc);
             let v = vb * denom;
             let w = vc * denom;
 
@@ -97,9 +97,9 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
                 let u = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // proj on bc = b + bc * u
 
                 let bc = c - b;
-                let d_ab = na::sqnorm(&ap) - (na::sqnorm(&ab) * v * v);
-                let d_ac = na::sqnorm(&ap) - (na::sqnorm(&ac) * u * u);
-                let d_bc = na::sqnorm(&bp) - (na::sqnorm(&bc) * w * w);
+                let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
+                let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
+                let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
 
                 if d_ab < d_ac {
                     if d_ab < d_bc {
@@ -126,8 +126,8 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]

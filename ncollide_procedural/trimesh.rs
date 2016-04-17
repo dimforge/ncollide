@@ -1,23 +1,23 @@
 use std::collections::HashMap;
-use na::{Iterable, Translate, Rotate, Transform, Cross, Pnt2, Pnt3};
+use na::{Iterable, Translate, Rotate, Transform, Cross, Point2, Point3};
 use na;
 use super::utils;
 use ncollide_utils::AsBytes;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
-    Unified(Vec<Pnt3<u32>>),
+    Unified(Vec<Point3<u32>>),
     /// The vertex, normal, and uvs have different indices.
-    Split(Vec<Pnt3<Pnt3<u32>>>)
+    Split(Vec<Point3<Point3<u32>>>)
 }
 
 impl IndexBuffer {
     /// Returns the unified index buffer data or fails.
     #[inline]
-    pub fn unwrap_unified(self) -> Vec<Pnt3<u32>> {
+    pub fn unwrap_unified(self) -> Vec<Point3<u32>> {
         match self {
             IndexBuffer::Unified(b) => b,
             _ => panic!("Unable to unwrap to an unified buffer.")
@@ -26,7 +26,7 @@ impl IndexBuffer {
 
     /// Returns the split index buffer data or fails.
     #[inline]
-    pub fn unwrap_split(self) -> Vec<Pnt3<Pnt3<u32>>> {
+    pub fn unwrap_split(self) -> Vec<Point3<Point3<u32>>> {
         match self {
             IndexBuffer::Split(b) => b,
             _ => panic!("Unable to unwrap to a split buffer.")
@@ -43,7 +43,7 @@ pub struct TriMesh<P: Point> {
     /// Coordinates of the mesh normals.
     pub normals: Option<Vec<P::Vect>>,
     /// Textures coordinates of the mesh.
-    pub uvs:     Option<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>,
+    pub uvs:     Option<Vec<Point2<<P::Vect as Vector>::Scalar>>>,
     /// Index buffer of the mesh.
     pub indices: IndexBuffer
 }
@@ -54,13 +54,13 @@ impl<P: Point> TriMesh<P> {
     /// If no `indices` is provided, trivial, sequential indices are generated.
     pub fn new(coords:  Vec<P>,
                normals: Option<Vec<P::Vect>>,
-               uvs:     Option<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>,
+               uvs:     Option<Vec<Point2<<P::Vect as Vector>::Scalar>>>,
                indices: Option<IndexBuffer>)
                -> TriMesh<P> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(||
            IndexBuffer::Unified(
-               (0 .. coords.len() / 3).map(|i| Pnt3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2)).collect()
+               (0 .. coords.len() / 3).map(|i| Point3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2)).collect()
            )
         );
 
@@ -124,7 +124,7 @@ impl<P: Point> TriMesh<P> {
     // to wait for the trait reform.
     pub fn rotate_by<R: Rotate<P::Vect>>(&mut self, r: &R) {
         for c in self.coords.iter_mut() {
-            let rc = r.rotate(c.as_vec());
+            let rc = r.rotate(c.as_vector());
             c.set_coords(rc);
         }
 
@@ -153,7 +153,7 @@ impl<P> TriMesh<P>
                 // XXX: too bad we have to reconstruct the index buffer here.
                 // The utils::recompute_normals function should be generic wrt. the index buffer
                 // type (it could use an iterator instead).
-                let coord_idx: Vec<Pnt3<u32>> = idx.iter().map(|t| Pnt3::new(t.x.x, t.y.x, t.z.x)).collect();
+                let coord_idx: Vec<Point3<u32>> = idx.iter().map(|t| Point3::new(t.x.x, t.y.x, t.z.x)).collect();
 
                 utils::compute_normals(&self.coords[..], &coord_idx[..], &mut new_normals);
             }
@@ -169,7 +169,7 @@ impl<P> TriMesh<P>
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vect) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dim::<P::Vect>() {
+            for i in 0 .. na::dimension::<P::Vect>() {
                 c[i] = (*c)[i] * s[i];
             }
         }
@@ -180,7 +180,7 @@ impl<P> TriMesh<P>
 impl<P: Point> TriMesh<P> {
     /// Scales each vertex of this mesh.
     #[inline]
-    pub fn scale_by_scalar(&mut self, s: <P::Vect as Vect>::Scalar) {
+    pub fn scale_by_scalar(&mut self, s: <P::Vect as Vector>::Scalar) {
         for c in self.coords.iter_mut() {
             *c = *c * s
         }
@@ -196,11 +196,11 @@ impl<P: Point> TriMesh<P> {
     pub fn unify_index_buffer(&mut self) {
         let new_indices = match self.indices {
             IndexBuffer::Split(ref ids) => {
-                let mut vt2id:HashMap<Pnt3<u32>, u32> = HashMap::new();
+                let mut vt2id:HashMap<Point3<u32>, u32> = HashMap::new();
                 let mut resi: Vec<u32>                = Vec::new();
                 let mut resc: Vec<P>                  = Vec::new();
                 let mut resn: Option<Vec<P::Vect>>    = self.normals.as_ref().map(|_| Vec::new());
-                let mut resu: Option<Vec<Pnt2<<P::Vect as Vect>::Scalar>>> = self.uvs.as_ref().map(|_| Vec::new());
+                let mut resu: Option<Vec<Point2<<P::Vect as Vector>::Scalar>>> = self.uvs.as_ref().map(|_| Vec::new());
 
                 for triangle in ids.iter() {
                     for point in triangle.iter() {
@@ -232,7 +232,7 @@ impl<P: Point> TriMesh<P> {
 
                 assert!(resi.len() % 3 == 0);
                 for f in resi[..].chunks(3) {
-                    batched_indices.push(Pnt3::new(f[0], f[1], f[2]));
+                    batched_indices.push(Point3::new(f[0], f[1], f[2]));
                 }
 
                 Some(IndexBuffer::Unified(batched_indices))

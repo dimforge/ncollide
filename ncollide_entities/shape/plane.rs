@@ -4,7 +4,7 @@ use std::mem;
 use std::any::TypeId;
 use na;
 use inspection::{Repr, ReprDesc};
-use math::{Vect, Point};
+use math::{Vector, Point};
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -13,7 +13,7 @@ pub struct Plane<V> {
     normal: V
 }
 
-impl<V: Vect> Plane<V> {
+impl<V: Vector> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub fn new(normal: V) -> Plane<V> {

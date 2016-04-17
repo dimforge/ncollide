@@ -1,9 +1,9 @@
 use std::ops::Mul;
 use std::fmt::Debug;
 use num::Zero;
-use na::{Outer, Inv};
+use na::{Outer, Inverse};
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 // FIXME: move this to nalgebra?
 
@@ -22,7 +22,7 @@ pub fn cov_and_center<P>(pts: &[P]) -> (<P::Vect as Outer>::OuterProductType, P)
           <P::Vect as Outer>::OuterProductType: Zero {
     let center = ::center(pts);
     let mut cov: <P::Vect as Outer>::OuterProductType = na::zero();
-    let normalizer: <P::Vect as Vect>::Scalar = na::cast(1.0 / (pts.len() as f64));
+    let normalizer: <P::Vect as Vector>::Scalar = na::cast(1.0 / (pts.len() as f64));
 
     for p in pts.iter() {
         let cp = *p - center;
@@ -39,17 +39,17 @@ pub fn cov_and_center<P>(pts: &[P]) -> (<P::Vect as Outer>::OuterProductType, P)
 /// unchanged).
 pub fn center_reduce<P>(pts: &mut [P]) -> (<P::Vect as Outer>::OuterProductType, P, bool)
     where P: Point,
-          P::Vect: Vect + Outer,
-          <P::Vect as Outer>::OuterProductType: Zero + Mul<P, Output = P> + Inv + Copy + Debug {
+          P::Vect: Vector + Outer,
+          <P::Vect as Outer>::OuterProductType: Zero + Mul<P, Output = P> + Inverse + Copy + Debug {
     let (cov, center) = cov_and_center(pts);
 
-    match na::inv(&cov) {
+    match na::inverse(&cov) {
         None       => (cov, center, false),
         Some(icov) => {
             for pt in pts.iter_mut() {
                 // FIXME: the `+ (-` is ugly but required until the trait reform is implemented in
                 // rustc!
-                *pt = icov * (*pt + (-*center.as_vec()));
+                *pt = icov * (*pt + (-*center.as_vector()));
             }
 
             (cov, center, true)

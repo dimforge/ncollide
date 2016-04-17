@@ -1,8 +1,8 @@
 use std::ops::{Add, Sub, Mul};
 use rand::{self, Rand};
-use na::{Inv, POrd, SquareMat, Outer, Dot};
+use na::{Inverse, PartialOrder, SquareMatrix, Outer, Dot};
 use na;
-use math::{Scalar, Vect, FloatError};
+use math::{Scalar, Vector, FloatError};
 
 
 // FIXME: implement a proper metaheuristic.
@@ -16,8 +16,8 @@ pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
                             df: &mut D)
                             -> (V, N)
     where N: Scalar,
-          V: Add<V, Output = V> + Sub<V, Output = V> + Mul<V, Output = V> + Clone + Rand + POrd + Copy,
-          M: Inv + Mul<V, Output = V> + Copy {
+          V: Add<V, Output = V> + Sub<V, Output = V> + Mul<V, Output = V> + Clone + Rand + PartialOrder + Copy,
+          M: Inverse + Mul<V, Output = V> + Copy {
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
@@ -44,13 +44,13 @@ pub fn maximize_with_newton<N, V, M, F: Fn(&V) -> N, D: Fn(&V) -> (V, M)>(
 /// Finds the root of a function using the Newton method.
 pub fn newton<V, M, F: Fn(&V) -> (V, M)>(niter: usize, guess: V, f: &mut F) -> (V, bool)
     where V: Sub<V, Output = V>,
-          M: Inv + Mul<V, Output = V> + Copy {
+          M: Inverse + Mul<V, Output = V> + Copy {
     let mut curr = guess;
 
     for _ in 0 .. niter {
         let (value, mut jacobian) = (*f)(&curr);
 
-        if !jacobian.inv_mut() {
+        if !jacobian.inverse_mut() {
             return (curr, false)
         }
 
@@ -68,10 +68,10 @@ pub fn minimize_with_bfgs<V, F, D>(niter:       usize,
                                    f:           &mut F,
                                    df:          &mut D)
                                    -> (V, V::Scalar)
-    where V: Vect + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+    where V: Vector + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
           F: Fn(&V) -> V::Scalar,
           D: Fn(&V) -> V,
-          V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
+          V::OuterProductType: SquareMatrix<<V as Vector>::Scalar, V> +
                                Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Clone + Copy {
@@ -158,10 +158,10 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
                          f:       &mut F,
                          df:      &mut D)
                          -> V
-    where V: Vect + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+    where V: Vector + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
           F: Fn(&V) -> V::Scalar,
           D: Fn(&V) -> V,
-          V::OuterProductType: SquareMat<<V as Vect>::Scalar, V> +
+          V::OuterProductType: SquareMatrix<<V as Vector>::Scalar, V> +
                                Add<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Sub<<V as Outer>::OuterProductType, Output = <V as Outer>::OuterProductType> +
                                Clone + Copy,
@@ -170,7 +170,7 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
     let mut hx = hessian;
     let mut dx = na::zero();
 
-    if !hx.inv_mut() {
+    if !hx.inverse_mut() {
         hx = na::one();
     }
 
@@ -186,7 +186,7 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
 
         let _eps: V::Scalar = FloatError::epsilon();
         let _eps = _eps * na::cast(100.0);
-        if na::sqnorm(&new_dx) <= _eps {
+        if na::norm_squared(&new_dx) <= _eps {
             break;
         }
 
@@ -222,7 +222,7 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
 #[cfg(test)]
 mod test {
     use symbolic::{BivariateFn, U, V, sin, cos};
-    use na::{Vec2, Mat2};
+    use na::{Vector2, Mat2};
     use na;
     use super::{BacktrackingLineSearch, bfgs};
 
@@ -232,9 +232,9 @@ mod test {
         let h = na::one::<Mat2<f64>>();
         let ss = BacktrackingLineSearch::new(1.0f64, 0.5, 0.5, 1000);
 
-        let o = bfgs(100, &ss, Vec2::new(-0.5, -0.5), h,
+        let o = bfgs(100, &ss, Vector2::new(-0.5, -0.5), h,
                      &mut |uv| f.d0(uv.x, uv.y),
-                     &mut |uv| Vec2::new(f.du(uv.x, uv.y), f.dv(uv.x, uv.y)));
+                     &mut |uv| Vector2::new(f.du(uv.x, uv.y), f.dv(uv.x, uv.y)));
 
         println!("Minimum: f({}) = {}", o, f.d0(o.x, o.y));
         assert!(f.d0(o.x, o.y) == -1.0);
@@ -248,10 +248,10 @@ mod test {
 
         let o = bfgs(10000,
                      &ss,
-                     Vec2::new(-0.5, -0.5),
+                     Vector2::new(-0.5, -0.5),
                      h,
                      &mut |uv| f.d0(uv.x, uv.y),
-                     &mut |uv| Vec2::new(f.du(uv.x, uv.y), f.dv(uv.x, uv.y)));
+                     &mut |uv| Vector2::new(f.du(uv.x, uv.y), f.dv(uv.x, uv.y)));
 
         println!("Minimum: f({}) = {}", o, f.d0(o.x, o.y));
         assert!(f.d0(o.x, o.y) == -2.0);

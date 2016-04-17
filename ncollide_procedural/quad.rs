@@ -1,7 +1,7 @@
 use na;
-use na::{Pnt3, Pnt2};
+use na::{Point3, Point2};
 use super::{TriMesh, IndexBuffer};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Adds a double-sided quad to the scene.
 ///
@@ -16,8 +16,8 @@ use math::{Point, Vect};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<P>(width:    <P::Vect as Vect>::Scalar,
-               height:   <P::Vect as Vect>::Scalar,
+pub fn quad<P>(width:    <P::Vect as Vector>::Scalar,
+               height:   <P::Vect as Vector>::Scalar,
                usubdivs: usize,
                vsubdivs: usize)
                -> TriMesh<P>
@@ -28,7 +28,7 @@ pub fn quad<P>(width:    <P::Vect as Vect>::Scalar,
     s[0] = width;
     s[1] = height;
 
-    for i in 2 .. na::dim::<P::Vect>() {
+    for i in 2 .. na::dimension::<P::Vect>() {
         s[i] = na::one();
     }
 
@@ -71,10 +71,10 @@ pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -
 pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     where P: Point {
     assert!(usubdivs > 0 && vsubdivs > 0, "The number of subdivisions cannot be zero");
-    assert!(na::dim::<P::Vect>() >= 2);
+    assert!(na::dimension::<P::Vect>() >= 2);
 
-    let wstep    = na::one::<<P::Vect as Vect>::Scalar>() / na::cast(usubdivs as f64);
-    let hstep    = na::one::<<P::Vect as Vect>::Scalar>() / na::cast(vsubdivs as f64);
+    let wstep    = na::one::<<P::Vect as Vector>::Scalar>() / na::cast(usubdivs as f64);
+    let hstep    = na::one::<<P::Vect as Vector>::Scalar>() / na::cast(vsubdivs as f64);
     let cw       = na::cast(0.5);
     let ch       = na::cast(0.5);
 
@@ -86,15 +86,15 @@ pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     // create the vertices
     for i in 0usize .. vsubdivs + 1 {
         for j in 0usize .. usubdivs + 1 {
-            let ni: <P::Vect as Vect>::Scalar = na::cast(i as f64);
-            let nj: <P::Vect as Vect>::Scalar = na::cast(j as f64);
+            let ni: <P::Vect as Vector>::Scalar = na::cast(i as f64);
+            let nj: <P::Vect as Vector>::Scalar = na::cast(j as f64);
 
-            let mut v = na::orig::<P>();
+            let mut v = na::origin::<P>();
             v[0] = nj * wstep - cw;
             v[1] = ni * hstep - ch;
             vertices.push(v);
-            let _1 = na::one::<<P::Vect as Vect>::Scalar>();
-            tex_coords.push(Pnt2::new(_1 - nj * wstep, _1 - ni * hstep))
+            let _1 = na::one::<<P::Vect as Vector>::Scalar>();
+            tex_coords.push(Point2::new(_1 - nj * wstep, _1 - ni * hstep))
         }
     }
 
@@ -106,12 +106,12 @@ pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     }
 
     // create triangles
-    fn dl_triangle(i: u32, j: u32, ws: u32) -> Pnt3<u32> {
-        Pnt3::new((i + 1) * ws + j, i * ws + j, (i + 1) * ws + j + 1)
+    fn dl_triangle(i: u32, j: u32, ws: u32) -> Point3<u32> {
+        Point3::new((i + 1) * ws + j, i * ws + j, (i + 1) * ws + j + 1)
     }
 
-    fn ur_triangle(i: u32, j: u32, ws: u32) -> Pnt3<u32> {
-        Pnt3::new(i * ws + j, i * ws + (j + 1), (i + 1) * ws + j + 1)
+    fn ur_triangle(i: u32, j: u32, ws: u32) -> Point3<u32> {
+        Point3::new(i * ws + j, i * ws + (j + 1), (i + 1) * ws + j + 1)
     }
 
     for i in 0usize .. vsubdivs {

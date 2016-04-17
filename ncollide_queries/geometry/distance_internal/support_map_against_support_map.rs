@@ -6,13 +6,13 @@ use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::support_map::SupportMap;
 use entities::support_map;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 /// Distance between support-mapped shapes.
 pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
                                                                      m2: &M, g2: &G2)
-                                                                     -> <P::Vect as Vect>::Scalar
+                                                                     -> <P::Vect as Vector>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Translation<P::Vect>,
@@ -31,7 +31,7 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
                                                    g2:         &G2,
                                                    simplex:    &mut S,
                                                    init_dir:   Option<P::Vect>)
-                                                   -> <P::Vect as Vect>::Scalar
+                                                   -> <P::Vect as Vector>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Translation<P::Vect>,

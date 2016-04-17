@@ -2,7 +2,7 @@ use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
 use shape::Triangle;
 use math::Matrix;
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vector};
 
 impl HasBoundingVolume for Triangle {
     #[inline]

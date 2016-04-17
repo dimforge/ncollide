@@ -7,7 +7,7 @@ use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};
 use bounding_volume::BoundingVolume;
 use utils::data::ref_with_cost::RefWithCost;
 use utils;
-use math::{Scalar, Vect};
+use math::{Scalar, Vector};
 
 
 /// A Boundig Volume Tree.
@@ -111,7 +111,7 @@ impl<B, BV> BVT<B, BV> {
 impl<B, BV> BVT<B, BV> {
     /// Creates a balanced `BVT`.
     pub fn new_balanced<V>(leaves: Vec<(B, BV)>) -> BVT<B, BV>
-        where V: Vect,
+        where V: Vector,
               BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
         BVT::new_with_partitioner(leaves, &mut median_partitioner)
     }
@@ -239,7 +239,7 @@ impl<B, BV> BVTNode<B, BV> {
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
         (depth: usize, leaves: Vec<(B, BV)>, center: &mut F) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vect,
+    where V:  Vector,
           BV: BoundingVolume<V::Scalar> + Clone {
     if leaves.len() == 0 {
         panic!("Cannot build a tree without leaves.");
@@ -249,7 +249,7 @@ pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
         (bv, BinaryPartition::Part(b))
     }
     else {
-        let sep_axis = depth % na::dim::<V>();
+        let sep_axis = depth % na::dimension::<V>();
 
         // compute the median along sep_axis
         let mut median = Vec::new();
@@ -297,7 +297,7 @@ pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 pub fn median_partitioner<V, B, BV>(depth: usize, leaves: Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vect,
+    where V:  Vector,
           BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
     median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }

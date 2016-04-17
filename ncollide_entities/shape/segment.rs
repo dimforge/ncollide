@@ -1,6 +1,6 @@
 //! Definition of the segment shape.
 
-use na::{Dim, Pnt2};
+use na::{Dimension, Point2};
 use na;
 use shape::BaseMeshElement;
 
@@ -12,11 +12,11 @@ pub struct Segment<P> {
     b: P
 }
 
-impl<P: Dim> Segment<P> {
+impl<P: Dimension> Segment<P> {
     /// Creates a new segment from two points.
     #[inline]
     pub fn new(a: P, b: P) -> Segment<P> {
-        assert!(na::dim::<P>() > 1);
+        assert!(na::dimension::<P>() > 1);
 
         Segment {
             a: a,
@@ -39,9 +39,9 @@ impl<P> Segment<P> {
     }
 }
 
-impl<P: Dim + Copy> BaseMeshElement<Pnt2<usize>, P> for Segment<P> {
+impl<P: Dimension + Copy> BaseMeshElement<Point2<usize>, P> for Segment<P> {
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt2<usize>) -> Segment<P> {
+    fn new_with_vertices_and_indices(vs: &[P], is: &Point2<usize>) -> Segment<P> {
         Segment::new(vs[is.x], vs[is.y])
     }
 }

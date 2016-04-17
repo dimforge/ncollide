@@ -13,7 +13,7 @@ impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G
           G1: ToPolyline<P, A>,
           G2: ToPolyline<P, B> {
     fn to_polyline(&self, (a, b): (A, B)) -> Polyline<P> {
-        assert!(na::dim::<P>() == 2);
+        assert!(na::dimension::<P>() == 2);
 
         let poly1 = self.g1().to_polyline(a);
         let poly2 = self.g2().to_polyline(b);
@@ -36,7 +36,7 @@ impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G
         for pt in p2.coords().iter() {
             let mut cpy = p1.clone();
 
-            cpy.translate_by(pt.as_vec());
+            cpy.translate_by(pt.as_vector());
 
             all_points.extend(cpy.coords().into_iter());
         }

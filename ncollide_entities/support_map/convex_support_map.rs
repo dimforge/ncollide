@@ -10,7 +10,7 @@ impl<P, M> SupportMap<P, M> for ConvexHull<P>
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inv_rotate(dir);
+        let local_dir = m.inverse_rotate(dir);
 
         let best_pt = support_map::point_cloud_support_point(&local_dir, self.points());
 

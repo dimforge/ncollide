@@ -4,7 +4,7 @@ use na::{Translate, Cross, Rotation};
 use geometry::Contact;
 use entities::shape::Ball;
 use narrow_phase::{CollisionDetector, OneShotContactManifoldGenerator};
-use math::{Scalar, Point, Vect, Isometry};
+use math::{Scalar, Point, Vector, Isometry};
 
 /// Generates a contact manifold from an existing single-contact generator.
 pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &M, g1: &G1,
@@ -14,8 +14,8 @@ pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &M, g1: &G1,
                                                          out: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
           P:  Point<N, V>,
-          V:  Vect<N> + Translate<P> + Cross<AV>,
-          AV: Vect<N>,
+          V:  Vector<N> + Translate<P> + Cross<AV>,
+          AV: Vector<N>,
           M:  Isometry<N, P, V> + Rotation<AV>,
           G1: Any,
           G2: Any {

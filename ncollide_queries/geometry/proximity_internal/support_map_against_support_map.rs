@@ -8,7 +8,7 @@ use geometry::algorithms::gjk;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use geometry::Proximity;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 /// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
@@ -17,7 +17,7 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
                                        g1:         &G1,
                                        m2:         &M,
                                        g2:         &G2,
-                                       margin: <P::Vect as Vect>::Scalar)
+                                       margin: <P::Vect as Vector>::Scalar)
                                        -> Proximity
     where P:  Point,
           P::Vect: Translate<P>,
@@ -35,7 +35,7 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
                                                    g1:       &G1,
                                                    m2:       &M,
                                                    g2:       &G2,
-                                                   margin:   <P::Vect as Vect>::Scalar,
+                                                   margin:   <P::Vect as Vector>::Scalar,
                                                    simplex:  &mut S,
                                                    init_dir: Option<P::Vect>)
                                                    -> (Proximity, P::Vect)

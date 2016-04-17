@@ -1,11 +1,11 @@
 //! Minkowski sum.
 
-use std::ops::{Index, IndexMut, Add, Sub, Mul, Div, Neg};
-use na::{Dim, ApproxEq, Orig, PntAsVec, Axpy, Translate, NumPnt, POrd,
-         POrdering, FloatPnt, Bounded, Repeat};
+use std::ops::{Index, IndexMut, Add, Sub, Mul, Div, AddAssign, MulAssign, DivAssign, Neg};
+use na::{Dimension, ApproxEq, Origin, PointAsVector, Axpy, Translate, NumPoint, PartialOrder,
+         PartialOrdering, FloatPoint, Bounded, Repeat};
 use na;
 use shape::Reflection;
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vector};
 
 
 /// Type of an implicit representation of the Configuration Space Obstacle
@@ -169,19 +169,21 @@ impl<P> AnnotatedPoint<P> {
     }
 }
 
-impl<P: PntAsVec<V>, V> PntAsVec<V> for AnnotatedPoint<P> {
+impl<P: PointAsVector> PointAsVector for AnnotatedPoint<P> {
+    type Vector = P::Vector;
+
     #[inline]
-    fn to_vec(self) -> V {
-        self.point.to_vec()
+    fn to_vector(self) -> P::Vector {
+        self.point.to_vector()
     }
 
     #[inline]
-    fn as_vec<'a>(&'a self) -> &'a V {
-        self.point.as_vec()
+    fn as_vector<'a>(&'a self) -> &'a P::Vector {
+        self.point.as_vector()
     }
 
     #[inline]
-    fn set_coords(&mut self, _: V) {
+    fn set_coords(&mut self, _: P::Vector) {
         panic!(".set_coords is not implemented for annotated points.")
     }
 }
@@ -202,7 +204,7 @@ impl<P: IndexMut<usize>> IndexMut<usize> for AnnotatedPoint<P> {
     }
 }
 
-impl<P> POrd for AnnotatedPoint<P> {
+impl<P> PartialOrder for AnnotatedPoint<P> {
     fn inf(&self, _: &AnnotatedPoint<P>) -> AnnotatedPoint<P> {
         unimplemented!()
     }
@@ -211,20 +213,20 @@ impl<P> POrd for AnnotatedPoint<P> {
         unimplemented!()
     }
 
-    fn partial_cmp(&self, _: &AnnotatedPoint<P>) -> POrdering {
+    fn partial_cmp(&self, _: &AnnotatedPoint<P>) -> PartialOrdering {
         unimplemented!()
     }
 }
 
-impl<P: Orig> Orig for AnnotatedPoint<P> {
+impl<P: Origin> Origin for AnnotatedPoint<P> {
     #[inline]
-    fn orig() -> AnnotatedPoint<P> {
-        AnnotatedPoint::new(na::orig(), na::orig(), na::orig())
+    fn origin() -> AnnotatedPoint<P> {
+        AnnotatedPoint::new(na::origin(), na::origin(), na::origin())
     }
 
     #[inline]
-    fn is_orig(&self) -> bool {
-        self.point.is_orig()
+    fn is_origin(&self) -> bool {
+        self.point.is_origin()
     }
 }
 
@@ -234,7 +236,7 @@ impl<P> Add<P::Vect> for AnnotatedPoint<P>
 
     #[inline]
     fn add(self, other: P::Vect) -> AnnotatedPoint<P> {
-        let _0_5: <P::Vect as Vect>::Scalar = na::cast(0.5f64);
+        let _0_5: <P::Vect as Vector>::Scalar = na::cast(0.5f64);
 
         AnnotatedPoint::new(
             self.orig1 + other * _0_5,
@@ -243,6 +245,20 @@ impl<P> Add<P::Vect> for AnnotatedPoint<P>
         )
     }
 }
+
+impl<P> AddAssign<P::Vect> for AnnotatedPoint<P>
+    where P: Point {
+
+    #[inline]
+    fn add_assign(&mut self, other: P::Vect) {
+        let _0_5: <P::Vect as Vector>::Scalar = na::cast(0.5f64);
+
+        self.orig1 += other * _0_5;
+        self.orig2 += other * _0_5;
+        self.point += other;
+    }
+}
+
 
 impl<N, P: Axpy<N>> Axpy<N> for AnnotatedPoint<P> {
     #[inline]
@@ -270,10 +286,10 @@ impl<P: Neg<Output = P>> Neg for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Dim> Dim for AnnotatedPoint<P> {
+impl<P: Dimension> Dimension for AnnotatedPoint<P> {
     #[inline]
-    fn dim(_: Option<AnnotatedPoint<P>>) -> usize {
-        na::dim::<P>()
+    fn dimension(_: Option<AnnotatedPoint<P>>) -> usize {
+        na::dimension::<P>()
     }
 }
 
@@ -286,12 +302,30 @@ impl<N: Copy, P: Div<N, Output = P>> Div<N> for AnnotatedPoint<P> {
     }
 }
 
+impl<N: Copy, P: DivAssign<N>> DivAssign<N> for AnnotatedPoint<P> {
+    #[inline]
+    fn div_assign(&mut self, n: N) {
+        self.orig1 /= n;
+        self.orig2 /= n;
+        self.point /= n;
+    }
+}
+
 impl<N: Copy, P: Mul<N, Output = P>> Mul<N> for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
     fn mul(self, n: N) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(self.orig1 * n, self.orig2 * n, self.point * n)
+    }
+}
+
+impl<N: Copy, P: MulAssign<N>> MulAssign<N> for AnnotatedPoint<P> {
+    #[inline]
+    fn mul_assign(&mut self, n: N) {
+        self.orig1 *= n;
+        self.orig2 *= n;
+        self.point *= n;
     }
 }
 
@@ -341,17 +375,17 @@ impl<P> Bounded for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Repeat<<P::Vect as Vect>::Scalar> for AnnotatedPoint<P> {
-    fn repeat(_: <P::Vect as Vect>::Scalar) -> AnnotatedPoint<P> {
+impl<P: Point> Repeat<<P::Vect as Vector>::Scalar> for AnnotatedPoint<P> {
+    fn repeat(_: <P::Vect as Vector>::Scalar) -> AnnotatedPoint<P> {
         panic!("`Repeat` is not implemented for `AnnotatedPoint`.");
     }
 }
 
-impl<P> NumPnt<<P::Vect as Vect>::Scalar, P::Vect> for AnnotatedPoint<P>
+impl<P> NumPoint<<P::Vect as Vector>::Scalar> for AnnotatedPoint<P>
     where P: Point {
 }
 
-impl<P> FloatPnt<<P::Vect as Vect>::Scalar, P::Vect> for AnnotatedPoint<P>
+impl<P> FloatPoint<<P::Vect as Vector>::Scalar> for AnnotatedPoint<P>
     where P: Point {
 }
 

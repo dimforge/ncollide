@@ -2,7 +2,7 @@
 
 use na::{Translation, Norm, Transform, Translate};
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
 
 // Seems useful to help type inference. See issue #84.
@@ -19,13 +19,13 @@ pub fn bounding_sphere<P, M, G: ?Sized>(g: &G, m: &M) -> BoundingSphere<P>
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct BoundingSphere<P: Point> {
     center: P,
-    radius: <P::Vect as Vect>::Scalar
+    radius: <P::Vect as Vector>::Scalar
 }
 
 impl<P> BoundingSphere<P>
     where P: Point {
     /// Creates a new bounding sphere.
-    pub fn new(center: P, radius: <P::Vect as Vect>::Scalar) -> BoundingSphere<P> {
+    pub fn new(center: P, radius: <P::Vect as Vector>::Scalar) -> BoundingSphere<P> {
         BoundingSphere {
             center: center,
             radius: radius
@@ -40,7 +40,7 @@ impl<P> BoundingSphere<P>
 
     /// The bounding sphere radius.
     #[inline]
-    pub fn radius(&self) -> <P::Vect as Vect>::Scalar {
+    pub fn radius(&self) -> <P::Vect as Vector>::Scalar {
         self.radius.clone()
     }
 
@@ -51,25 +51,25 @@ impl<P> BoundingSphere<P>
     }
 }
 
-impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for BoundingSphere<P>
+impl<P> BoundingVolume<<P::Vect as Vector>::Scalar> for BoundingSphere<P>
     where P: Point,
           P::Vect: Translate<P> {
     #[inline]
     fn intersects(&self, other: &BoundingSphere<P>) -> bool {
         // FIXME: refactor that with the code from narrow_phase::ball_ball::collide(...) ?
         let delta_pos  = other.center - self.center;
-        let sqdist     = na::sqnorm(&delta_pos);
+        let distance_squared     = na::norm_squared(&delta_pos);
         let sum_radius = self.radius + other.radius;
 
-        sqdist <= sum_radius * sum_radius
+        distance_squared <= sum_radius * sum_radius
     }
 
     #[inline]
     fn contains(&self, other: &BoundingSphere<P>) -> bool {
         let delta_pos  = other.center - self.center;
-        let dist       = na::norm(&delta_pos);
+        let distance       = na::norm(&delta_pos);
 
-        dist + other.radius <= self.radius
+        distance + other.radius <= self.radius
     }
 
     #[inline]
@@ -83,8 +83,8 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for BoundingSphere<P>
             }
         }
         else {
-            let s_center_dir = na::dot(self.center.as_vec(), &dir);
-            let o_center_dir = na::dot(other.center.as_vec(), &dir);
+            let s_center_dir = na::dot(self.center.as_vector(), &dir);
+            let o_center_dir = na::dot(other.center.as_vector(), &dir);
 
             let right;
             let left;
@@ -97,14 +97,14 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for BoundingSphere<P>
             }
 
             if -s_center_dir + self.radius > -o_center_dir + other.radius {
-                left = (dir * self.radius).inv_translate(&self.center);
+                left = (dir * self.radius).inverse_translate(&self.center);
             }
             else {
-                left = (dir * other.radius).inv_translate(&other.center);
+                left = (dir * other.radius).inverse_translate(&other.center);
             }
 
             self.center = na::center(&left, &right);
-            self.radius = na::dist(&right, &self.center);
+            self.radius = na::distance(&right, &self.center);
         }
     }
 
@@ -118,26 +118,26 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for BoundingSphere<P>
     }
 
     #[inline]
-    fn loosen(&mut self, amount: <P::Vect as Vect>::Scalar) {
+    fn loosen(&mut self, amount: <P::Vect as Vector>::Scalar) {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
         self.radius = self.radius + amount
     }
 
     #[inline]
-    fn loosened(&self, amount: <P::Vect as Vect>::Scalar) -> BoundingSphere<P> {
+    fn loosened(&self, amount: <P::Vect as Vector>::Scalar) -> BoundingSphere<P> {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
         BoundingSphere::new(self.center.clone(), self.radius + amount)
     }
 
     #[inline]
-    fn tighten(&mut self, amount: <P::Vect as Vect>::Scalar) {
+    fn tighten(&mut self, amount: <P::Vect as Vector>::Scalar) {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
         assert!(amount <= self.radius, "The tightening margin is to large.");
         self.radius = self.radius - amount
     }
 
     #[inline]
-    fn tightened(&self, amount: <P::Vect as Vect>::Scalar) -> BoundingSphere<P> {
+    fn tightened(&self, amount: <P::Vect as Vector>::Scalar) -> BoundingSphere<P> {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
         assert!(amount <= self.radius, "The tightening margin is to large.");
         BoundingSphere::new(self.center.clone(), self.radius - amount)
@@ -148,11 +148,11 @@ impl<P> Translation<P::Vect> for BoundingSphere<P>
     where P: Point {
     #[inline]
     fn translation(&self) -> P::Vect {
-        self.center.as_vec().clone()
+        self.center.as_vector().clone()
     }
 
     #[inline]
-    fn inv_translation(&self) -> P::Vect {
+    fn inverse_translation(&self) -> P::Vect {
         -self.translation()
     }
 
@@ -178,6 +178,6 @@ impl<P> Translation<P::Vect> for BoundingSphere<P>
 
     #[inline]
     fn set_translation(&mut self, v: P::Vect) {
-        self.center = na::orig::<P>() + v
+        self.center = na::origin::<P>() + v
     }
 }

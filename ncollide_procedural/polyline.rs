@@ -1,6 +1,6 @@
 use na;
 use na::{Translate, Rotate, Transform};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Shapeetric description of a polyline.
 #[derive(Clone)]
@@ -74,7 +74,7 @@ impl<P: Point> Polyline<P> {
     // to wait for the trait reform.
     pub fn rotate_by<R: Rotate<P::Vect>>(&mut self, r: &R) {
         for c in self.coords.iter_mut() {
-            let rc = r.rotate(c.as_vec());
+            let rc = r.rotate(c.as_vector());
             c.set_coords(rc);
         }
 
@@ -99,7 +99,7 @@ impl<P: Point> Polyline<P> {
     }
 
     /// Scales each vertex of this polyline.
-    pub fn scale_by_scalar(&mut self, s: &<P::Vect as Vect>::Scalar) {
+    pub fn scale_by_scalar(&mut self, s: &<P::Vect as Vector>::Scalar) {
         for c in self.coords.iter_mut() {
             *c = *c * *s
         }
@@ -113,7 +113,7 @@ impl<P> Polyline<P>
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vect) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dim::<P::Vect>() {
+            for i in 0 .. na::dimension::<P::Vect>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

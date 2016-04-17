@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::marker::PhantomData;
 use na::{Translate, Rotate};
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::shape::Plane;
 use entities::inspection;
 use entities::inspection::Repr;
@@ -64,7 +64,7 @@ impl<P, M> CollisionDetector<P, M> for PlaneSupportMapCollisionDetector<P, M>
               plane:      &Repr<P, M>,
               mb:         &M,
               b:          &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         let rp = plane.repr();
 
@@ -106,7 +106,7 @@ impl<P, M> CollisionDetector<P, M> for SupportMapPlaneCollisionDetector<P, M>
               a:          &Repr<P, M>,
               mb:         &M,
               plane:      &Repr<P, M>,
-              prediction: <P::Vect as Vect>::Scalar)
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         let rp = plane.repr();
 

@@ -11,7 +11,7 @@ impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Cuboid<P::Vect>
           M: Translate<P> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
-        let center = m.translate(&na::orig::<P>());
+        let center = m.translate(&na::origin::<P>());
         let radius = na::norm(self.half_extents());
 
         BoundingSphere::new(center, radius)

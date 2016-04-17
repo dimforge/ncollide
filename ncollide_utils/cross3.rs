@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut};
 use num::Zero;
-use na::Dim;
+use na::Dimension;
 use na;
 use math::Scalar;
 
@@ -13,8 +13,8 @@ use math::Scalar;
 #[inline]
 pub fn cross3<N, V>(a: &V, b: &V) -> V
     where N: Scalar,
-          V: Zero + Index<usize, Output = N> + IndexMut<usize, Output = N> + Dim {
-    assert!(na::dim::<V>() == 3);
+          V: Zero + Index<usize, Output = N> + IndexMut<usize, Output = N> + Dimension {
+    assert!(na::dimension::<V>() == 3);
 
     let mut res = na::zero::<V>();
 

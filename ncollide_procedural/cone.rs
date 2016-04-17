@@ -1,33 +1,33 @@
 use na;
-use na::{Pnt3, Vec3, BaseFloat};
+use na::{Point3, Vector3, BaseFloat};
 use super::{TriMesh, IndexBuffer};
 use super::utils;
 use math::Scalar;
 
 /// Generates a cone with a given height and diameter.
-pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Pnt3<N>>
+pub fn cone<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Point3<N>>
     where N: Scalar {
     let mut cone = unit_cone(nsubdiv);
 
-    cone.scale_by(&Vec3::new(diameter, height, diameter));
+    cone.scale_by(&Vector3::new(diameter, height, diameter));
 
     cone
 }
 
 /// Generates a cone with unit height and diameter.
-pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<Pnt3<N>>
+pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<Point3<N>>
     where N: Scalar {
     let two_pi: N   = BaseFloat::two_pi();
     let dtheta      = two_pi / na::cast(nsubdiv as f64);
     let mut coords  = Vec::new();
     let mut indices = Vec::new();
-    let mut normals: Vec<Vec3<N>>;
+    let mut normals: Vec<Vector3<N>>;
 
     utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(-0.5), &mut coords);
 
-    normals = coords.iter().map(|p| p.as_vec().clone()).collect();
+    normals = coords.iter().map(|p| p.as_vector().clone()).collect();
 
-    coords.push(Pnt3::new(na::zero(), na::cast(0.5), na::zero()));
+    coords.push(Point3::new(na::zero(), na::cast(0.5), na::zero()));
 
     utils::push_degenerate_top_ring_indices(0, coords.len() as u32 - 1, nsubdiv, &mut indices);
     utils::push_filled_circle_indices(0, nsubdiv, &mut indices);
@@ -49,7 +49,7 @@ pub fn unit_cone<N>(nsubdiv: u32) -> TriMesh<Pnt3<N>>
     }
 
     // normal for the basis
-    normals.push(Vec3::new(na::zero(), -na::one::<N>(), na::zero()));
+    normals.push(Vector3::new(na::zero(), -na::one::<N>(), na::zero()));
 
     let ilen = indices.len();
     let nlen = normals.len() as u32;

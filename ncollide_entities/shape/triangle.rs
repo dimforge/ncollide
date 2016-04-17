@@ -1,6 +1,6 @@
 //! Definition of the triangle shape.
 
-use na::{Dim, Pnt3};
+use na::{Dimension, Point3};
 use na;
 use shape::BaseMeshElement;
 
@@ -13,11 +13,11 @@ pub struct Triangle<P> {
     c: P
 }
 
-impl<P: Dim> Triangle<P> {
+impl<P: Dimension> Triangle<P> {
     /// Creates a triangle from three points.
     #[inline]
     pub fn new(a: P, b: P, c: P) -> Triangle<P> {
-        assert!(na::dim::<P>() > 1);
+        assert!(na::dimension::<P>() > 1);
 
         Triangle {
             a: a,
@@ -47,9 +47,9 @@ impl<P> Triangle<P> {
     }
 }
 
-impl<P: Copy + Dim> BaseMeshElement<Pnt3<usize>, P> for Triangle<P> {
+impl<P: Copy + Dimension> BaseMeshElement<Point3<usize>, P> for Triangle<P> {
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[P], is: &Pnt3<usize>) -> Triangle<P> {
+    fn new_with_vertices_and_indices(vs: &[P], is: &Point3<usize>) -> Triangle<P> {
         Triangle::new(vs[is.x], vs[is.y], vs[is.z])
     }
 }

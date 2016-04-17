@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use na::Translate;
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::shape::Ball;
 use entities::inspection::Repr;
 use queries::geometry::Proximity;
@@ -44,17 +44,17 @@ impl<P, M> ProximityDetector<P, M> for BallBallProximityDetector<P, M>
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
               ma: &M, a: &Repr<P, M>,
               mb: &M, b: &Repr<P, M>,
-              margin: <P::Vect as Vect>::Scalar)
+              margin: <P::Vect as Vector>::Scalar)
               -> bool {
         let ra = a.repr();
         let rb = b.repr();
 
-        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>(),
-                                     rb.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>()) {
+        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>(),
+                                     rb.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>()) {
             self.proximity = proximity_internal::ball_against_ball(
-                &ma.translate(&na::orig()),
+                &ma.translate(&na::origin()),
                 a,
-                &mb.translate(&na::orig()),
+                &mb.translate(&na::origin()),
                 b,
                 margin);
 
