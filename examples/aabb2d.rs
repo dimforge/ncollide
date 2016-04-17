@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vec2, Iso2};
+use na::{Vector2, Isometry2};
 use ncollide::bounding_volume::{self, BoundingVolume};
 use ncollide::shape::{Cone, Cylinder};
 
@@ -12,8 +12,8 @@ fn main() {
     let cone     = Cone::new(0.5, 0.5);
     let cylinder = Cylinder::new(1.0, 0.5);
 
-    let cone_pos     = Iso2::new(Vec2::y(), na::zero()); // 1.0 along the `y` axis.
-    let cylinder_pos = na::one::<Iso2<f32>>();           // Identity matrix.
+    let cone_pos     = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
+    let cylinder_pos = na::one::<Isometry2<f32>>();           // Identity matrix.
 
     /*
      * Compute their axis-aligned bounding boxes.

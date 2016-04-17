@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vec3, Iso3};
+use na::{Vector3, Isometry3};
 use ncollide::bounding_volume::{self, BoundingVolume};
 use ncollide::shape::{Cone, Cylinder};
 
@@ -12,8 +12,8 @@ fn main() {
     let cone     = Cone::new(0.5, 0.5);
     let cylinder = Cylinder::new(1.0, 0.5);
 
-    let cone_pos     = Iso3::new(Vec3::z(), na::zero()); // 1.0 along the `z` axis.
-    let cylinder_pos = na::one::<Iso3<f32>>();           // Identity matrix.
+    let cone_pos     = Isometry3::new(Vector3::z(), na::zero()); // 1.0 along the `z` axis.
+    let cylinder_pos = na::one::<Isometry3<f32>>();           // Identity matrix.
 
     /*
      * Compute their bounding spheres.

@@ -1,18 +1,18 @@
 use std::ops::{Sub, Mul, Index, IndexMut};
 use num::Zero;
-use na::{Cross, Norm, Dim, Axpy};
+use na::{Cross, Norm, Dimension, Axpy};
 use na;
 use num::Float;
-use math::{Scalar, Point, Vect, FloatError};
+use math::{Scalar, Point, Vector, FloatError};
 
 /// Computes the area of a triangle.
 #[inline]
-pub fn triangle_area<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vect>::Scalar
+pub fn triangle_area<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vector>::Scalar
     where P: Point {
     // Kahan's formula.
-    let mut a = na::dist(pa, pb);
-    let mut b = na::dist(pb, pc);
-    let mut c = na::dist(pc, pa);
+    let mut a = na::distance(pa, pb);
+    let mut b = na::distance(pb, pc);
+    let mut c = na::distance(pc, pa);
 
     let (c, b, a) = ::sort3(&mut a, &mut b, &mut c);
     let a = *a;
@@ -34,30 +34,30 @@ pub fn triangle_center<N, P>(pa: &P, pb: &P, pc: &P) -> P
 
 /// Computes the perimeter of a triangle.
 #[inline]
-pub fn triangle_perimeter<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vect>::Scalar
+pub fn triangle_perimeter<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vector>::Scalar
     where P: Point {
-    na::dist(pa, pb) + na::dist(pb, pc) + na::dist(pc, pa)
+    na::distance(pa, pb) + na::distance(pb, pc) + na::distance(pc, pa)
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vect>::Scalar)
+pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scalar)
     where P: Point {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
-    let na = na::sqnorm(&a);
-    let nb = na::sqnorm(&b);
+    let na = na::norm_squared(&a);
+    let nb = na::norm_squared(&b);
 
     let dab = na::dot(&a, &b);
 
-    let _2: <P::Vect as Vect>::Scalar = na::cast(2.0);
+    let _2: <P::Vect as Vector>::Scalar = na::cast(2.0);
     let denom = _2 * (na * nb - dab * dab);
 
     if denom.is_zero() {
         // The triangle is degenerate (the three points are colinear).
         // So we find the longest segment and take its center.
         let c = *pa - *pb;
-        let nc = na::sqnorm(&c);
+        let nc = na::norm_squared(&c);
 
         if nc >= na && nc >= nb {
             // Longest segment: [pa, pb]
@@ -76,7 +76,7 @@ pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vect>::Scalar)
         let k = b * na - a * nb;
 
         let center = *pc + (a * na::dot(&k, &b) - b * na::dot(&k, &a)) / denom;
-        let radius = na::dist(pa, &center);
+        let radius = na::distance(pa, &center);
 
         (center, radius)
     }
@@ -87,7 +87,7 @@ pub fn is_affinely_dependent_triangle3<N, P, V>(p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
           P: Sub<P, Output = V> + Copy,
           V: Zero + Norm<N> + Index<usize, Output = N> +
-             IndexMut<usize, Output = N> + Dim + Copy {
+             IndexMut<usize, Output = N> + Dimension + Copy {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -95,7 +95,7 @@ pub fn is_affinely_dependent_triangle3<N, P, V>(p1: &P, p2: &P, p3: &P) -> bool
     let _eps: N = FloatError::epsilon(); // FIXME: use Float::epsilon instead?
     let _eps_tol = _eps * na::cast(100.0f64);
 
-    na::approx_eq_eps(&na::sqnorm(&::cross3(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
+    na::approx_eq_eps(&na::norm_squared(&::cross3(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
 }
 
 /// Tests if three points are exactly aligned.
@@ -111,13 +111,13 @@ pub fn is_affinely_dependent_triangle<N, P, V, AV>(p1: &P, p2: &P, p3: &P) -> bo
     let _eps: N  = FloatError::epsilon(); // FIXME: use Float::epsilon instead?
     let _eps_tol = _eps * na::cast(100.0f64);
 
-    na::approx_eq_eps(&na::sqnorm(&na::cross(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
+    na::approx_eq_eps(&na::norm_squared(&na::cross(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
 }
 
 /// Tests if a point is inside of a triangle.
 pub fn is_point_in_triangle<P, V>(p: &P, p1: &P, p2: &P, p3: &P) -> bool
     where P: Sub<P, Output = V> + Copy,
-          V: Vect {
+          V: Vector {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;
@@ -130,21 +130,21 @@ pub fn is_point_in_triangle<P, V>(p: &P, p1: &P, p2: &P, p3: &P) -> bool
     let d12 = na::dot(&p2p, &p2p3);
     let d13 = na::dot(&p3p, &p3p1);
 
-    d11 >= na::zero() && d11 <= na::sqnorm(&p1p2) &&
-    d12 >= na::zero() && d12 <= na::sqnorm(&p2p3) &&
-    d13 >= na::zero() && d13 <= na::sqnorm(&p3p1)
+    d11 >= na::zero() && d11 <= na::norm_squared(&p1p2) &&
+    d12 >= na::zero() && d12 <= na::norm_squared(&p2p3) &&
+    d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
 }
 
 #[cfg(test)]
 mod test {
     use na;
-    use na::Pnt3;
+    use na::Point3;
 
     #[test]
     fn test_triangle_area() {
-        let pa = Pnt3::new(0.0f64, 5.0, 0.0);
-        let pb = Pnt3::new(0.0f64, 0.0, 0.0);
-        let pc = Pnt3::new(0.0f64, 0.0, 4.0);
+        let pa = Point3::new(0.0f64, 5.0, 0.0);
+        let pb = Point3::new(0.0f64, 0.0, 0.0);
+        let pc = Point3::new(0.0f64, 0.0, 4.0);
 
         assert!(na::approx_eq(&super::triangle_area(&pa, &pb, &pc), &10.0));
     }

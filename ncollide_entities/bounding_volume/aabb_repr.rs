@@ -1,7 +1,7 @@
 use na::Translate;
 use bounding_volume::{self, HasBoundingVolume, AABB};
-use math::{Point, Vect, Isometry};
-use shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
+use math::{Point, Vector, Isometry};
+use shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
             Segment, Triangle};
 use inspection::Repr;
 
@@ -13,25 +13,25 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Repr<P, M>
     fn bounding_volume(&self, m: &M) -> AABB<P> {
         let repr = self.repr();
 
-        if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
+        if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>() {
             bounding_volume::aabb(b, m)
         }
-        else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
+        else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vector>::Scalar>>() {
             bounding_volume::aabb(c, m)
         }
         else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
             bounding_volume::aabb(c, m)
         }
-        else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
+        else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vector>::Scalar>>() {
             bounding_volume::aabb(c, m)
         }
-        else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
+        else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
             bounding_volume::aabb(c, m)
         }
         else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
             bounding_volume::aabb(c, m)
         }
-        else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
+        else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vector>::Scalar>>() {
             bounding_volume::aabb(c, m)
         }
         else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {

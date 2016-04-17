@@ -1,4 +1,4 @@
-use na::{Pnt2, Pnt3, Pnt4, Vec2, Vec3, Vec4, Transform, Rotate, Translation};
+use na::{Point2, Point3, Point4, Vector2, Vector3, Vec4, Transform, Rotate, Translation};
 use support_map::SupportMap;
 
 use shape::{Ball2, Ball3, Ball4,
@@ -21,26 +21,26 @@ macro_rules! specialize_implicit_impl(
     )
 )
 
-specialize_implicit_impl!(Ball2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Cuboid2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Capsule2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Cone2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Cylinder2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Segment2, Pnt2, Vec2, f32)
-specialize_implicit_impl!(Triangle2, Pnt2, Vec2, f32)
+specialize_implicit_impl!(Ball2, Point2, Vector2, f32)
+specialize_implicit_impl!(Cuboid2, Point2, Vector2, f32)
+specialize_implicit_impl!(Capsule2, Point2, Vector2, f32)
+specialize_implicit_impl!(Cone2, Point2, Vector2, f32)
+specialize_implicit_impl!(Cylinder2, Point2, Vector2, f32)
+specialize_implicit_impl!(Segment2, Point2, Vector2, f32)
+specialize_implicit_impl!(Triangle2, Point2, Vector2, f32)
 
-specialize_implicit_impl!(Ball3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Cuboid3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Capsule3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Cone3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Cylinder3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Segment3, Pnt3, Vec3, f32)
-specialize_implicit_impl!(Triangle3, Pnt3, Vec3, f32)
+specialize_implicit_impl!(Ball3, Point3, Vector3, f32)
+specialize_implicit_impl!(Cuboid3, Point3, Vector3, f32)
+specialize_implicit_impl!(Capsule3, Point3, Vector3, f32)
+specialize_implicit_impl!(Cone3, Point3, Vector3, f32)
+specialize_implicit_impl!(Cylinder3, Point3, Vector3, f32)
+specialize_implicit_impl!(Segment3, Point3, Vector3, f32)
+specialize_implicit_impl!(Triangle3, Point3, Vector3, f32)
 
-specialize_implicit_impl!(Ball4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Cuboid4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Capsule4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Cone4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Cylinder4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Segment4, Pnt4, Vec4, f32)
-specialize_implicit_impl!(Triangle4, Pnt4, Vec4, f32)
+specialize_implicit_impl!(Ball4, Point4, Vec4, f32)
+specialize_implicit_impl!(Cuboid4, Point4, Vec4, f32)
+specialize_implicit_impl!(Capsule4, Point4, Vec4, f32)
+specialize_implicit_impl!(Cone4, Point4, Vec4, f32)
+specialize_implicit_impl!(Cylinder4, Point4, Vec4, f32)
+specialize_implicit_impl!(Segment4, Point4, Vec4, f32)
+specialize_implicit_impl!(Triangle4, Point4, Vec4, f32)

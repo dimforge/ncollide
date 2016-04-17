@@ -1,9 +1,9 @@
 use rand::Rng;
 use na;
-use na::{Vec2, Vec3, Vec4, Pnt2, Pnt3, Pnt4, Mat2, Mat3, Mat4, Iso2, Iso3, Identity};
+use na::{Vector2, Vector3, Vec4, Point2, Point3, Point4, Mat2, Mat3, Mat4, Isometry2, Isometry3, Identity};
 use ncollide::bounding_volume::{AABB, BoundingSphere};
-use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, Convex};
-use ncollide::math::{Scalar, Point, Vect};
+use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, ConvexHull};
+use ncollide::math::{Scalar, Point, Vector};
 use ncollide::ray::Ray;
 
 pub trait DefaultGen {
@@ -24,28 +24,28 @@ macro_rules! impl_rand_default_gen(
     }
 );
 
-impl_rand_default_gen!(Vec2<f32>);
-impl_rand_default_gen!(Vec3<f32>);
+impl_rand_default_gen!(Vector2<f32>);
+impl_rand_default_gen!(Vector3<f32>);
 impl_rand_default_gen!(Vec4<f32>);
-impl_rand_default_gen!(Pnt2<f32>);
-impl_rand_default_gen!(Pnt3<f32>);
-impl_rand_default_gen!(Pnt4<f32>);
+impl_rand_default_gen!(Point2<f32>);
+impl_rand_default_gen!(Point3<f32>);
+impl_rand_default_gen!(Point4<f32>);
 impl_rand_default_gen!(Mat2<f32>);
 impl_rand_default_gen!(Mat3<f32>);
 impl_rand_default_gen!(Mat4<f32>);
-impl_rand_default_gen!(Iso2<f32>);
-impl_rand_default_gen!(Iso3<f32>);
-impl_rand_default_gen!(Vec2<f64>);
-impl_rand_default_gen!(Vec3<f64>);
+impl_rand_default_gen!(Isometry2<f32>);
+impl_rand_default_gen!(Isometry3<f32>);
+impl_rand_default_gen!(Vector2<f64>);
+impl_rand_default_gen!(Vector3<f64>);
 impl_rand_default_gen!(Vec4<f64>);
-impl_rand_default_gen!(Pnt2<f64>);
-impl_rand_default_gen!(Pnt3<f64>);
-impl_rand_default_gen!(Pnt4<f64>);
+impl_rand_default_gen!(Point2<f64>);
+impl_rand_default_gen!(Point3<f64>);
+impl_rand_default_gen!(Point4<f64>);
 impl_rand_default_gen!(Mat2<f64>);
 impl_rand_default_gen!(Mat3<f64>);
 impl_rand_default_gen!(Mat4<f64>);
-impl_rand_default_gen!(Iso2<f64>);
-impl_rand_default_gen!(Iso3<f64>);
+impl_rand_default_gen!(Isometry2<f64>);
+impl_rand_default_gen!(Isometry3<f64>);
 impl_rand_default_gen!(f32);
 impl_rand_default_gen!(f64);
 impl_rand_default_gen!(bool);
@@ -62,7 +62,7 @@ impl<N: Scalar> DefaultGen for Ball<N> {
     }
 }
 
-impl<V: Vect> DefaultGen for Cuboid<V> {
+impl<V: Vector> DefaultGen for Cuboid<V> {
     fn generate<R: Rng>(rng: &mut R) -> Cuboid<V> {
         Cuboid::new(na::abs(&rng.gen::<V>()))
     }
@@ -89,24 +89,24 @@ impl<N: Scalar> DefaultGen for Cylinder<N> {
 impl<P> DefaultGen for Segment<P>
     where P: Point {
     fn generate<R: Rng>(rng: &mut R) -> Segment<P> {
-        Segment::new(na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen())
+        Segment::new(na::origin::<P>() + rng.gen(), na::origin::<P>() + rng.gen())
     }
 }
 
 impl<P> DefaultGen for Triangle<P>
     where P: Point {
     fn generate<R: Rng>(rng: &mut R) -> Triangle<P> {
-        Triangle::new(na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen(), na::orig::<P>() + rng.gen())
+        Triangle::new(na::origin::<P>() + rng.gen(), na::origin::<P>() + rng.gen(), na::origin::<P>() + rng.gen())
     }
 }
 
-impl<P> DefaultGen for Convex<P>
+impl<P> DefaultGen for ConvexHull<P>
     where P: Point {
-    fn generate<R: Rng>(rng: &mut R) -> Convex<P> {
+    fn generate<R: Rng>(rng: &mut R) -> ConvexHull<P> {
         // It is recommanded to have at most 100 points.
         // Otherwise, a smarter structure like the DK hierarchy would be needed.
-        let pts = (0 .. 100).map(|_| na::orig::<P>() + rng.gen::<P::Vect>()).collect();
-        Convex::new(pts)
+        let pts = (0 .. 100).map(|_| na::origin::<P>() + rng.gen::<P::Vect>()).collect();
+        ConvexHull::new(pts)
     }
 }
 
@@ -115,7 +115,7 @@ impl<P> DefaultGen for Ray<P>
     fn generate<R: Rng>(rng: &mut R) -> Ray<P> {
         // The generate ray will always point to the origin.
         let shift = rng.gen::<P::Vect>() * na::cast(10.0f64);
-        Ray::new(na::orig::<P>() + shift, -shift)
+        Ray::new(na::origin::<P>() + shift, -shift)
     }
 }
 
@@ -124,7 +124,7 @@ impl<P> DefaultGen for AABB<P>
     fn generate<R: Rng>(rng: &mut R) -> AABB<P> {
         // an AABB centered at the origin.
         let half_extents = na::abs(&rng.gen::<P::Vect>());
-        AABB::new(na::orig::<P>() + (-half_extents), na::orig::<P>() + half_extents)
+        AABB::new(na::origin::<P>() + (-half_extents), na::origin::<P>() + half_extents)
     }
 }
 
@@ -132,6 +132,6 @@ impl<P> DefaultGen for BoundingSphere<P>
     where P: Point {
     fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<P> {
         // a bounding sphere centered at the origin.
-        BoundingSphere::new(na::orig(), na::abs(&rng.gen::<<P::Vect as Vect>::Scalar>()))
+        BoundingSphere::new(na::origin(), na::abs(&rng.gen::<<P::Vect as Vector>::Scalar>()))
     }
 }

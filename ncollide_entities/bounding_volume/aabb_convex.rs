@@ -1,10 +1,10 @@
 use na::Transform;
 use bounding_volume::{AABB, HasBoundingVolume};
 use bounding_volume::aabb_utils;
-use shape::Convex;
+use shape::ConvexHull;
 use math::Point;
 
-impl<P, M> HasBoundingVolume<M, AABB<P>> for Convex<P>
+impl<P, M> HasBoundingVolume<M, AABB<P>> for ConvexHull<P>
     where P: Point,
           M: Transform<P> {
     #[inline]

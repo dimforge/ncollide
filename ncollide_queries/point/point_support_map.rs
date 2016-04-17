@@ -4,10 +4,10 @@ use geometry::algorithms::gjk;
 use geometry::algorithms::minkowski_sampling;
 use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use entities::shape::{Cylinder, Cone, Capsule, Convex};
+use entities::shape::{Cylinder, Cone, Capsule, ConvexHull};
 use entities::support_map::SupportMap;
 use point::PointQuery;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<P, M, S, G>(m:       &M,
@@ -20,15 +20,15 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
           M: Translation<P::Vect>,
           S: Simplex<P>,
           G: SupportMap<P, M> {
-    let m = na::append_translation(m, &-*point.as_vec());
+    let m = na::append_translation(m, &-*point.as_vector());
 
-    let support_point = shape.support_point(&m, &-*point.as_vec());
+    let support_point = shape.support_point(&m, &-*point.as_vector());
 
     simplex.reset(support_point);
 
     match gjk::project_origin(&m, shape, simplex) {
         Some(p) => {
-            p + *point.as_vec()
+            p + *point.as_vector()
         },
         None => {
             // Fallback algorithm.
@@ -36,7 +36,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
             // in the future.
             if !solid {
                 match minkowski_sampling::project_origin(&m, shape, simplex) {
-                    Some(p) => p + *point.as_vec(),
+                    Some(p) => p + *point.as_vector(),
                     None    => point.clone()
                 }
             }
@@ -47,7 +47,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
     }
 }
 
-impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
+impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
@@ -56,8 +56,8 @@ impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]
@@ -66,7 +66,7 @@ impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vect>::Scalar>
+impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
@@ -75,8 +75,8 @@ impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vect>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]
@@ -85,7 +85,7 @@ impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vect>::Scalar>
+impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
@@ -94,8 +94,8 @@ impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vect>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]
@@ -104,7 +104,7 @@ impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> PointQuery<P, M> for Convex<P>
+impl<P, M> PointQuery<P, M> for ConvexHull<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
@@ -113,8 +113,8 @@ impl<P, M> PointQuery<P, M> for Convex<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, true))
     }
 
     #[inline]

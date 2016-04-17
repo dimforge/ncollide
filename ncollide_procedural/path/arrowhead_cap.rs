@@ -1,4 +1,4 @@
-use na::{Pnt3, Vec3, Iso3};
+use na::{Point3, Vector3, Isometry3};
 use na;
 use path::PolylineCompatibleCap;
 use polyline::Polyline;
@@ -30,18 +30,18 @@ impl<N> ArrowheadCap<N>
 
     fn do_gen_cap(&self,
                   attach_id:       u32,
-                  pattern:         &Polyline<Pnt3<N>>,
-                  pt:              &Pnt3<N>,
-                  dir:             &Vec3<N>,
+                  pattern:         &Polyline<Point3<N>>,
+                  pt:              &Point3<N>,
+                  dir:             &Vector3<N>,
                   closed:          bool,
                   negative_shifts: bool,
-                  coords:          &mut Vec<Pnt3<N>>,
-                  indices:         &mut Vec<Pnt3<u32>>) {
+                  coords:          &mut Vec<Point3<N>>,
+                  indices:         &mut Vec<Point3<u32>>) {
         let front_dist_to_head = if negative_shifts { -self.front_dist_to_head } else { self.front_dist_to_head };
         let back_dist_to_head  = if negative_shifts { -self.back_dist_to_head } else { self.back_dist_to_head };
         let pointy_thing  = *pt + *dir * front_dist_to_head;
         let start_id      = coords.len() as u32;
-        let npts          = pattern.coords.len() as u32;
+        let npts          = pattern.coords().len() as u32;
         let mut attach_id = attach_id;
 
         if !(self.radius_scale == na::cast(1.0)) || !back_dist_to_head.is_zero() {
@@ -54,16 +54,16 @@ impl<N> ArrowheadCap<N>
             let back_shift = *dir * back_dist_to_head;
 
             if dir.x.is_zero() && dir.z.is_zero() { // FIXME: this might not be enough to avoid singularities.
-                transform = Iso3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vec3::x());
+                transform = Isometry3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vector3::x());
             }
 
             else {
-                transform = Iso3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vec3::y());
+                transform = Isometry3::new_observer_frame(&(*pt - back_shift), &(*pt + *dir), &Vector3::y());
             }
 
             new_pattern.transform_by(&transform);
 
-            coords.extend(new_pattern.coords.into_iter());
+            coords.extend(new_pattern.coords().into_iter());
 
             if closed {
                 utils::push_ring_indices(attach_id, start_id, npts, indices)
@@ -81,6 +81,7 @@ impl<N> ArrowheadCap<N>
         else {
             utils::push_degenerate_open_top_ring_indices(attach_id, coords.len() as u32 , npts, indices);
         }
+
         coords.push(pointy_thing);
     }
 }
@@ -89,12 +90,12 @@ impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
     where N: Scalar {
     fn gen_end_cap(&self,
                    attach_id: u32,
-                   pattern:   &Polyline<Pnt3<N>>,
-                   pt:        &Pnt3<N>,
-                   dir:       &Vec3<N>,
+                   pattern:   &Polyline<Point3<N>>,
+                   pt:        &Point3<N>,
+                   dir:       &Vector3<N>,
                    closed:    bool,
-                   coords:    &mut Vec<Pnt3<N>>,
-                   indices:   &mut Vec<Pnt3<u32>>) {
+                   coords:    &mut Vec<Point3<N>>,
+                   indices:   &mut Vec<Point3<u32>>) {
         let start_indices_id = indices.len();
 
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, false, coords, indices);
@@ -103,12 +104,12 @@ impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
 
     fn gen_start_cap(&self,
                      attach_id: u32,
-                     pattern:   &Polyline<Pnt3<N>>,
-                     pt:        &Pnt3<N>,
-                     dir:       &Vec3<N>,
+                     pattern:   &Polyline<Point3<N>>,
+                     pt:        &Point3<N>,
+                     dir:       &Vector3<N>,
                      closed:    bool,
-                     coords:    &mut Vec<Pnt3<N>>,
-                     indices:   &mut Vec<Pnt3<u32>>) {
+                     coords:    &mut Vec<Point3<N>>,
+                     indices:   &mut Vec<Point3<u32>>) {
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, true, coords, indices)
     }
 }

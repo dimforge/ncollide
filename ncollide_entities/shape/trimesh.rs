@@ -1,15 +1,15 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
 use std::sync::Arc;
-use na::{Translate, Pnt2, Pnt3};
+use na::{Translate, Point2, Point3};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Triangle, BaseMesh};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<P: Point> {
-    mesh: BaseMesh<P, Pnt3<usize>, Triangle<P>>
+    mesh: BaseMesh<P, Point3<usize>, Triangle<P>>
 }
 
 impl<P: Point> Clone for TriMesh<P> {
@@ -25,8 +25,8 @@ impl<P> TriMesh<P>
           P::Vect: Translate<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Pnt3<usize>>>,
-               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               indices:  Arc<Vec<Point3<usize>>>,
+               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
                normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
                -> TriMesh<P> {
         TriMesh {
@@ -39,7 +39,7 @@ impl<P> TriMesh<P>
     where P: Point {
     /// The base representation of this mesh.
     #[inline]
-    pub fn base_mesh(&self) -> &BaseMesh<P, Pnt3<usize>, Triangle<P>> {
+    pub fn base_mesh(&self) -> &BaseMesh<P, Point3<usize>, Triangle<P>> {
         &self.mesh
     }
 
@@ -57,13 +57,13 @@ impl<P> TriMesh<P>
 
     /// The indices of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Arc<Vec<Pnt3<usize>>> {
+    pub fn indices(&self) -> &Arc<Vec<Point3<usize>>> {
         self.mesh.indices()
     }
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
         self.mesh.uvs()
     }
 

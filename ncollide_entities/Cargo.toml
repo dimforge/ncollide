@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_entities"
-version = "0.4.1"
+version = "0.5.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the geometric entities and their mathematical definitions."
@@ -17,6 +17,6 @@ path = "lib.rs"
 [dependencies]
 rustc-serialize = "0.3.*"
 num = "0.1.*"
-nalgebra = "0.6.*"
-ncollide_math = { path = "../ncollide_math", version = "0.2.*" }
-ncollide_utils = { path = "../ncollide_utils", version = "0.2.*" }
+nalgebra = "0.8.*"
+ncollide_math = { path = "../ncollide_math", version = "0.3.*" }
+ncollide_utils = { path = "../ncollide_utils", version = "0.3.*" }

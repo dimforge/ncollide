@@ -3,21 +3,21 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use num::Float;
-use na::{BaseFloat, Pnt3};
+use na::{BaseFloat, Point3};
 use na;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use utils;
 use entities::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};
 
 struct Triangle<P: Point> {
-    idx:                    Pnt3<usize>,
+    idx:                    Point3<usize>,
     circumcircle_center:    P,
-    circumcircle_sq_radius: <P::Vect as Vect>::Scalar,
+    circumcircle_sq_radius: <P::Vect as Vector>::Scalar,
 }
 
 impl<P: Point> Triangle<P> {
-    pub fn new(idx: Pnt3<usize>, pts: &[P]) -> Triangle<P> {
+    pub fn new(idx: Point3<usize>, pts: &[P]) -> Triangle<P> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
         let pc = &pts[idx.z];
@@ -33,7 +33,7 @@ impl<P: Point> Triangle<P> {
     }
 
     pub fn circumcircle_contains_point(&self, pt: &P) -> bool {
-        na::sqdist(pt, &self.circumcircle_center) <= self.circumcircle_sq_radius
+        na::distance_squared(pt, &self.circumcircle_center) <= self.circumcircle_sq_radius
     }
 }
 
@@ -52,7 +52,7 @@ impl<P> Triangulator<P>
 
         Triangulator {
             // FIXME: why do we have to specify the type explicitely here ?
-            triangles: vec!(Triangle::<P>::new(Pnt3::new(0, 1, 2), &vertices[..])),
+            triangles: vec!(Triangle::<P>::new(Point3::new(0, 1, 2), &vertices[..])),
             vertices:  vertices,
             edges:     HashMap::new()
         }
@@ -68,7 +68,7 @@ impl<P> Triangulator<P>
         for (&(ia, ib), num) in self.edges.iter() {
             if *num == 1 {
                 // FIXME: why do we have to specify the type explicitely here ?
-                let t = Triangle::<P>::new(Pnt3::new(ia, ib, ipt), &self.vertices[..]);
+                let t = Triangle::<P>::new(Point3::new(ia, ib, ipt), &self.vertices[..]);
 
                 self.triangles.push(t)
             }
@@ -153,7 +153,7 @@ pub fn triangulate<P>(pts: &[P]) -> TriMesh<P>
     let radius           = radius * na::cast(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
-    let pi: <P::Vect as Vect>::Scalar = BaseFloat::pi();
+    let pi: <P::Vect as Vector>::Scalar = BaseFloat::pi();
     let right_shift = radius / (pi / na::cast(6.0)).tan();
     let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
 

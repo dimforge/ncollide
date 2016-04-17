@@ -2,10 +2,10 @@
 
 use std::sync::Arc;
 use std::marker::PhantomData;
-use na::{Translate, Identity, Pnt2};
+use na::{Translate, Identity, Point2};
 use partitioning::BVT;
 use bounding_volume::{self, HasBoundingVolume, AABB};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 /// Trait implemented by elements usable on the Mesh.
@@ -20,7 +20,7 @@ pub struct BaseMesh<P: Point, I, E> {
     bvs:      Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
     indices:  Arc<Vec<I>>,
-    uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+    uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
     normals:  Option<Arc<Vec<P::Vect>>>,
     elt:      PhantomData<E>
 }
@@ -47,7 +47,7 @@ impl<P, I, E> BaseMesh<P, I, E>
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<I>>,
-               uvs:      Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>>,
+               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
                normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
                -> BaseMesh<P, I, E> {
         for uvs in uvs.iter() {
@@ -93,6 +93,12 @@ impl<P, I, E> BaseMesh<P, I, E>
         &self.vertices
     }
 
+    /// The number of primitives on thes mesh.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.bvs.len()
+    }
+
     /// Bounding volumes of the subsimplices.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<P>] {
@@ -107,7 +113,7 @@ impl<P, I, E> BaseMesh<P, I, E>
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Pnt2<<P::Vect as Vect>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
         &self.uvs
     }
 

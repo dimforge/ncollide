@@ -1,5 +1,5 @@
-use math::{Point, Vect, Isometry};
-use entities::shape::{Ball, Capsule, Compound, Cone, Convex, Cuboid, Cylinder, TriMesh, Polyline, Plane,
+use math::{Point, Vector, Isometry};
+use entities::shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
 use ray::{RayCast, Ray, RayIntersection};
@@ -9,25 +9,25 @@ macro_rules! dispatch(
         {
             let repr = $sself.repr();
 
-            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>() {
+            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>() {
                 b.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Convex<P>>() {
+            else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vect>::Scalar>>() {
+            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
             else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
@@ -59,7 +59,7 @@ impl<P, M> RayCast<P, M> for Repr<P, M>
     where P: Point,
           M: Isometry<P, P::Vect> {
     #[inline]
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vect>::Scalar> {
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vector>::Scalar> {
         dispatch!(self.toi_with_ray(m, ray, solid))
     }
 

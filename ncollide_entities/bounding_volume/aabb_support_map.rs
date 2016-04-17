@@ -3,9 +3,9 @@ use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
 use shape::{Cone, Cylinder, Capsule};
 use shape::{Triangle, Segment};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
-impl<P, M> HasBoundingVolume<M, AABB<P>> for Cone<<P::Vect as Vect>::Scalar>
+impl<P, M> HasBoundingVolume<M, AABB<P>> for Cone<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
@@ -14,7 +14,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Cone<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> HasBoundingVolume<M, AABB<P>> for Cylinder<<P::Vect as Vect>::Scalar>
+impl<P, M> HasBoundingVolume<M, AABB<P>> for Cylinder<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
@@ -23,7 +23,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Cylinder<<P::Vect as Vect>::Scalar>
     }
 }
 
-impl<P, M> HasBoundingVolume<M, AABB<P>> for Capsule<<P::Vect as Vect>::Scalar>
+impl<P, M> HasBoundingVolume<M, AABB<P>> for Capsule<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]

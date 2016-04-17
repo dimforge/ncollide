@@ -1,19 +1,23 @@
 use na;
 use na::{Translate, Rotate, Transform};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Shapeetric description of a polyline.
 #[derive(Clone)]
 pub struct Polyline<P: Point> {
     /// Coordinates of the polyline vertices.
-    pub coords:  Vec<P>,
+    coords:  Vec<P>,
     /// Coordinates of the polyline normals.
-    pub normals: Option<Vec<P::Vect>>,
+    normals: Option<Vec<P::Vect>>,
 }
 
 impl<P: Point> Polyline<P> {
     /// Creates a new polyline.
     pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vect>>) -> Polyline<P> {
+        if let Some(ref ns) = normals {
+            assert!(coords.len() == ns.len(), "There must be exactly one normal per vertex.");
+        }
+
         Polyline {
             coords:  coords,
             normals: normals,
@@ -22,6 +26,41 @@ impl<P: Point> Polyline<P> {
 }
 
 impl<P: Point> Polyline<P> {
+    /// Moves the polyline data out of it.
+    pub fn unwrap(self) -> (Vec<P>, Option<Vec<P::Vect>>) {
+        (self.coords, self.normals)
+    }
+
+    /// The coordinates of this polyline vertices.
+    #[inline]
+    pub fn coords(&self) -> &[P] {
+        &self.coords[..]
+    }
+
+    /// The mutable coordinates of this polyline vertices.
+    #[inline]
+    pub fn coords_mut(&mut self) -> &mut [P] {
+        &mut self.coords[..]
+    }
+
+    /// The normals of this polyline vertices.
+    #[inline]
+    pub fn normals(&self) -> Option<&[P::Vect]> {
+        match self.normals {
+            Some(ref ns) => Some(&ns[..]),
+            None         => None
+        }
+    }
+
+    /// The mutable normals of this polyline vertices.
+    #[inline]
+    pub fn normals_mut(&mut self) -> Option<&mut [P::Vect]> {
+        match self.normals {
+            Some(ref mut ns) => Some(&mut ns[..]),
+            None             => None
+        }
+    }
+
     /// Translates each vertex of this polyline.
     pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
@@ -35,7 +74,7 @@ impl<P: Point> Polyline<P> {
     // to wait for the trait reform.
     pub fn rotate_by<R: Rotate<P::Vect>>(&mut self, r: &R) {
         for c in self.coords.iter_mut() {
-            let rc = r.rotate(c.as_vec());
+            let rc = r.rotate(c.as_vector());
             c.set_coords(rc);
         }
 
@@ -60,7 +99,7 @@ impl<P: Point> Polyline<P> {
     }
 
     /// Scales each vertex of this polyline.
-    pub fn scale_by_scalar(&mut self, s: &<P::Vect as Vect>::Scalar) {
+    pub fn scale_by_scalar(&mut self, s: &<P::Vect as Vector>::Scalar) {
         for c in self.coords.iter_mut() {
             *c = *c * *s
         }
@@ -74,7 +113,7 @@ impl<P> Polyline<P>
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vect) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dim::<P::Vect>() {
+            for i in 0 .. na::dimension::<P::Vect>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

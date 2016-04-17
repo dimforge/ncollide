@@ -1,10 +1,9 @@
 //! Axis Aligned Bounding Box.
 
-use std::ops::Neg;
-use na::{Translation, POrd, Translate, Bounded};
+use na::{Translation, Translate, Bounded};
 use na;
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
@@ -22,7 +21,7 @@ pub struct AABB<P> {
     maxs: P
 }
 
-impl<P: POrd> AABB<P> {
+impl<P: Point> AABB<P> {
     /// Creates a new AABB.
     ///
     /// # Arguments:
@@ -39,7 +38,7 @@ impl<P: POrd> AABB<P> {
     }
 }
 
-impl<P: Neg<Output = P> + POrd + Bounded> AABB<P> {
+impl<P: Point> AABB<P> {
     /// Creates an invalid AABB with:
     /// * `mins = Bounded::max_value()`
     /// * `maxs = Bounded::max_value()`.
@@ -82,7 +81,7 @@ impl<P> AABB<P>
     }
 }
 
-impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for AABB<P>
+impl<P> BoundingVolume<<P::Vect as Vector>::Scalar> for AABB<P>
     where P: Point {
     #[inline]
     fn intersects(&self, other: &AABB<P>) -> bool {
@@ -111,14 +110,14 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for AABB<P>
     }
 
     #[inline]
-    fn loosen(&mut self, amount: <P::Vect as Vect>::Scalar) {
+    fn loosen(&mut self, amount: <P::Vect as Vector>::Scalar) {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
         self.mins = self.mins + na::repeat(-amount);
         self.maxs = self.maxs + na::repeat(amount);
     }
 
     #[inline]
-    fn loosened(&self, amount: <P::Vect as Vect>::Scalar) -> AABB<P> {
+    fn loosened(&self, amount: <P::Vect as Vector>::Scalar) -> AABB<P> {
         assert!(amount >= na::zero(), "The loosening margin must be positive.");
         AABB {
             mins: self.mins + na::repeat(-amount),
@@ -127,7 +126,7 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for AABB<P>
     }
 
     #[inline]
-    fn tighten(&mut self, amount: <P::Vect as Vect>::Scalar) {
+    fn tighten(&mut self, amount: <P::Vect as Vector>::Scalar) {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
         self.mins = self.mins + na::repeat(amount);
         self.maxs = self.maxs + na::repeat(-amount);
@@ -135,7 +134,7 @@ impl<P> BoundingVolume<<P::Vect as Vect>::Scalar> for AABB<P>
     }
 
     #[inline]
-    fn tightened(&self, amount: <P::Vect as Vect>::Scalar) -> AABB<P> {
+    fn tightened(&self, amount: <P::Vect as Vector>::Scalar) -> AABB<P> {
         assert!(amount >= na::zero(), "The tightening margin must be positive.");
 
         AABB::new(self.mins + na::repeat(amount), self.maxs + na::repeat(-amount))
@@ -147,11 +146,11 @@ impl<P> Translation<P::Vect> for AABB<P>
           P::Vect: Translate<P> {
     #[inline]
     fn translation(&self) -> P::Vect {
-        na::center(&self.mins, &self.maxs).to_vec()
+        na::center(&self.mins, &self.maxs).to_vector()
     }
 
     #[inline]
-    fn inv_translation(&self) -> P::Vect {
+    fn inverse_translation(&self) -> P::Vect {
         -self.translation()
     }
 
@@ -181,7 +180,7 @@ impl<P> Translation<P::Vect> for AABB<P>
         let center = self.translation();
         let total_translation = center + v;
 
-        self.mins = na::inv_translate(&total_translation, &self.mins);
-        self.maxs = na::inv_translate(&total_translation, &self.maxs);
+        self.mins = na::inverse_translate(&total_translation, &self.mins);
+        self.maxs = na::inverse_translate(&total_translation, &self.maxs);
     }
 }

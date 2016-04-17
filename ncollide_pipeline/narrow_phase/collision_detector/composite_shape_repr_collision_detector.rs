@@ -1,6 +1,6 @@
 use na;
 use na::Translate;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use entities::bounding_volume::{self, BoundingVolume};
@@ -13,18 +13,16 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
 
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeRepr<P: Point, M> {
-    prediction:    <P::Vect as Vect>::Scalar,
+pub struct CompositeShapeReprCollisionDetector<P: Point, M> {
     sub_detectors: HashMap<usize, CollisionAlgorithm<P, M>, UintTWHash>,
     to_delete:     Vec<usize>,
     interferences: Vec<usize>
 }
 
-impl<P: Point, M> CompositeShapeRepr<P, M> {
+impl<P: Point, M> CompositeShapeReprCollisionDetector<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> CompositeShapeRepr<P, M> {
-        CompositeShapeRepr {
-            prediction:    prediction,
+    pub fn new() -> CompositeShapeReprCollisionDetector<P, M> {
+        CompositeShapeReprCollisionDetector {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete:     Vec::new(),
             interferences: Vec::new()
@@ -32,7 +30,7 @@ impl<P: Point, M> CompositeShapeRepr<P, M> {
     }
 }
 
-impl<P, M> CompositeShapeRepr<P, M>
+impl<P, M> CompositeShapeReprCollisionDetector<P, M>
     where P:  Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
@@ -42,10 +40,11 @@ impl<P, M> CompositeShapeRepr<P, M>
                  g1:         &CompositeShape<P, M>,
                  m2:         &M,
                  g2:         &Repr<P, M>,
+                 prediction: <P::Vect as Vector>::Scalar,
                  swap:       bool) {
         // Find new collisions
-        let ls_m2    = na::inv(m1).expect("The transformation `m1` must be inversible.") * *m2;
-        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(self.prediction);
+        let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction);
 
         {
             let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
@@ -53,26 +52,25 @@ impl<P, M> CompositeShapeRepr<P, M>
         }
 
         for i in self.interferences.iter() {
-            let mut detector = None;
+            let _= self.sub_detectors.find_or_insert_lazy(*i,
+                || {
+                    let mut new_detector = None;
 
-            g1.map_part_at(*i, &mut |_, g1| {
-                let r1 = g1.repr();
-                let r2 = g2.repr();
+                    g1.map_part_at(*i, &mut |_, g1| {
+                        let r1 = g1.repr();
+                        let r2 = g2.repr();
 
-                if swap {
-                    detector = dispatcher.get_collision_algorithm(&r2, &r1)
+                        if swap {
+                            new_detector = dispatcher.get_collision_algorithm(&r2, &r1)
+                        }
+                        else {
+                            new_detector = dispatcher.get_collision_algorithm(&r1, &r2)
+                        }
+                    });
+
+                    new_detector
                 }
-                else {
-                    detector = dispatcher.get_collision_algorithm(&r1, &r2)
-                }
-            });
-
-            match detector {
-                Some(detector) => {
-                    let _ = self.sub_detectors.insert_or_replace(*i, detector, false);
-                },
-                None => { }
-            }
+            );
         }
 
         self.interferences.clear();
@@ -81,12 +79,14 @@ impl<P, M> CompositeShapeRepr<P, M>
         for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
             if ls_aabb2.intersects(g1.aabb_at(key)) {
-                g1.map_transformed_part_at(m1, key, &mut |m1, g1| {
+                g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
                     if swap {
-                        assert!(detector.value.update(dispatcher, m2, g2, m1, g1), "The shape was no longer valid.");
+                        assert!(detector.value.update(dispatcher, m2, g2, m1, g1, prediction),
+                                "Internal error: the shape was no longer valid.");
                     }
                     else {
-                        assert!(detector.value.update(dispatcher, m1, g1, m2, g2), "The shape was nolonger valid.");
+                        assert!(detector.value.update(dispatcher, m1, g1, m2, g2, prediction),
+                                "Internal error: the shape was no longer valid.");
                     }
                 });
             }
@@ -106,20 +106,20 @@ impl<P, M> CompositeShapeRepr<P, M>
 }
 
 /// Collision detector between a shape and a concave shape.
-pub struct ReprCompositeShape<P: Point, M> {
-    sub_detector: CompositeShapeRepr<P, M>
+pub struct ReprCompositeShapeCollisionDetector<P: Point, M> {
+    sub_detector: CompositeShapeReprCollisionDetector<P, M>
 }
 
-impl<P: Point, M> ReprCompositeShape<P, M> {
+impl<P: Point, M> ReprCompositeShapeCollisionDetector<P, M> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> ReprCompositeShape<P, M> {
-        ReprCompositeShape {
-            sub_detector: CompositeShapeRepr::new(prediction)
+    pub fn new() -> ReprCompositeShapeCollisionDetector<P, M> {
+        ReprCompositeShapeCollisionDetector {
+            sub_detector: CompositeShapeReprCollisionDetector::new()
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for CompositeShapeRepr<P, M>
+impl<P, M> CollisionDetector<P, M> for CompositeShapeReprCollisionDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
@@ -128,10 +128,11 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeRepr<P, M>
               ma: &M,
               a:  &Repr<P, M>,
               mb: &M,
-              b:  &Repr<P, M>)
+              b:  &Repr<P, M>,
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(a) {
-            self.do_update(d, ma, cs, mb, b, false);
+            self.do_update(d, ma, cs, mb, b, prediction, false);
 
             true
         }
@@ -157,7 +158,7 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeRepr<P, M>
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for ReprCompositeShape<P, M>
+impl<P, M> CollisionDetector<P, M> for ReprCompositeShapeCollisionDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
@@ -166,10 +167,11 @@ impl<P, M> CollisionDetector<P, M> for ReprCompositeShape<P, M>
               ma: &M,
               a:  &Repr<P, M>,
               mb: &M,
-              b:  &Repr<P, M>)
+              b:  &Repr<P, M>,
+              prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if let Some(cs) = inspection::maybe_as_composite_shape(b) {
-            self.sub_detector.do_update(d, mb, cs, ma, a, true);
+            self.sub_detector.do_update(d, mb, cs, ma, a, prediction, true);
 
             true
         }

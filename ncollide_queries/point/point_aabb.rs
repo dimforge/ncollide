@@ -3,14 +3,14 @@ use na::{Transform, Rotate, Bounded};
 use na;
 use point::PointQuery;
 use entities::bounding_volume::AABB;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 impl<P, M> PointQuery<P, M> for AABB<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
-        let ls_pt   = m.inv_transform(pt);
+        let ls_pt   = m.inverse_transform(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
         let shift   = na::sup(&na::zero(), &mins_pt) - na::sup(&na::zero(), &pt_maxs);
@@ -19,11 +19,11 @@ impl<P, M> PointQuery<P, M> for AABB<P>
             *pt + m.rotate(&shift)
         }
         else {
-            let _max: <P::Vect as Vect>::Scalar = Bounded::max_value();
+            let _max: <P::Vect as Vector>::Scalar = Bounded::max_value();
             let mut best    = -_max;
             let mut best_id = 0isize;
 
-            for i in 0 .. na::dim::<P::Vect>() {
+            for i in 0 .. na::dimension::<P::Vect>() {
                 let mins_pt_i = mins_pt[i];
                 let pt_maxs_i = pt_maxs[i];
 
@@ -53,8 +53,8 @@ impl<P, M> PointQuery<P, M> for AABB<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vect>::Scalar {
-        let ls_pt   = m.inv_transform(pt);
+    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+        let ls_pt   = m.inverse_transform(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
 
@@ -63,9 +63,9 @@ impl<P, M> PointQuery<P, M> for AABB<P>
 
     #[inline]
     fn contains_point(&self, m: &M, pt: &P) -> bool {
-        let ls_pt = m.inv_transform(pt);
+        let ls_pt = m.inverse_transform(pt);
 
-        for i in 0 .. na::dim::<P>() {
+        for i in 0 .. na::dimension::<P>() {
             if ls_pt[i] < self.mins()[i] || ls_pt[i] > self.maxs()[i] {
                 return false
             }

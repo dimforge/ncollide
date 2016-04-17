@@ -29,11 +29,11 @@ pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
 
     na::sample_sphere(|sample: P::Vect| {
         let support = cso.support_point(&Identity::new(), &sample);
-        let dist    = na::dot(&sample, support.as_vec());
+        let distance    = na::dot(&sample, support.as_vector());
 
-        if dist < min_dist {
+        if distance < min_dist {
             best_dir = sample;
-            min_dist = dist;
+            min_dist = distance;
         }
     });
 
@@ -116,11 +116,11 @@ pub fn project_origin<P, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option<P>
 
     na::sample_sphere(|sample: P::Vect| {
         let support = g.support_point(m, &sample);
-        let dist    = na::dot(&sample, support.as_vec());
+        let distance    = na::dot(&sample, support.as_vector());
 
-        if dist < min_dist {
+        if distance < min_dist {
             best_dir = sample;
-            min_dist = dist;
+            min_dist = distance;
         }
     });
 
@@ -134,13 +134,13 @@ pub fn project_origin<P, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option<P>
     match gjk::project_origin(&tm, g, simplex) {
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some(p) => {
-            let mut normal = -*p.as_vec();
+            let mut normal = -*p.as_vector();
             let dist_err   = normal.normalize_mut();
 
             if !dist_err.is_zero() {
                 let nmin_dist = na::dot(&normal, &best_dir) * (min_dist + extra_shift);
 
-                Some(na::orig::<P>() + normal * (nmin_dist - dist_err))
+                Some(na::origin::<P>() + normal * (nmin_dist - dist_err))
             }
             else {
                 // FIXME: something went wrong here.

@@ -1,7 +1,7 @@
 use std::ops::Mul;
 use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use entities::inspection;
 use entities::inspection::ReprDesc;
 use entities::shape::{Ball, Plane};
@@ -9,52 +9,50 @@ use queries::geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use narrow_phase::{
     CollisionDispatcher,
     CollisionAlgorithm,
-    BallBall,
-    PlaneSupportMap,
-    SupportMapPlane,
-    SupportMapSupportMap,
-    CompositeShapeRepr,
-    ReprCompositeShape,
+    BallBallCollisionDetector,
+    PlaneSupportMapCollisionDetector,
+    SupportMapPlaneCollisionDetector,
+    SupportMapSupportMapCollisionDetector,
+    CompositeShapeReprCollisionDetector,
+    ReprCompositeShapeCollisionDetector,
     OneShotContactManifoldGenerator
 };
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct BasicCollisionDispatcher<P: Point, M> {
-    prediction:   <P::Vect as Vect>::Scalar,
+pub struct DefaultCollisionDispatcher<P: Point, M> {
     _point_type:  PhantomData<P>,
     _matrix_type: PhantomData<M>,
 }
 
-impl<P: Point, M> BasicCollisionDispatcher<P, M> {
+impl<P: Point, M> DefaultCollisionDispatcher<P, M> {
     /// Creates a new basic collision dispatcher.
-    pub fn new(prediction: <P::Vect as Vect>::Scalar) -> BasicCollisionDispatcher<P, M> {
-        BasicCollisionDispatcher {
-            prediction:   prediction,
+    pub fn new() -> DefaultCollisionDispatcher<P, M> {
+        DefaultCollisionDispatcher {
             _point_type:  PhantomData,
             _matrix_type: PhantomData,
         }
     }
 }
 
-impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<P, M>
+impl<P, M> CollisionDispatcher<P, M> for DefaultCollisionDispatcher<P, M>
     where P: Point,
           P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
-                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
+                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     fn get_collision_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<CollisionAlgorithm<P, M>> {
-        let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
-        let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>().is_some();
+        let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
+        let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
 
         if a_is_ball && b_is_ball {
-            Some(Box::new(BallBall::<P, M>::new(self.prediction)))
+            Some(Box::new(BallBallCollisionDetector::<P, M>::new()))
         }
         else if a.downcast_ref::<Plane<P::Vect>>().is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, M>(*b).is_some() {
-            let wo_manifold = PlaneSupportMap::<P, M>::new(self.prediction);
+            let wo_manifold = PlaneSupportMapCollisionDetector::<P, M>::new();
 
             if !b_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
+                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                 Some(Box::new(manifold))
             }
             else {
@@ -63,10 +61,10 @@ impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<P, M>
         }
         else if b.downcast_ref::<Plane<P::Vect>>().is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, M>(*a).is_some() {
-            let wo_manifold = SupportMapPlane::<P, M>::new(self.prediction);
+            let wo_manifold = SupportMapPlaneCollisionDetector::<P, M>::new();
 
             if !b_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
+                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                 Some(Box::new(manifold))
             }
             else {
@@ -76,10 +74,10 @@ impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<P, M>
         else if inspection::maybe_repr_desc_as_support_map::<P, M>(*a).is_some() &&
                 inspection::maybe_repr_desc_as_support_map::<P, M>(*b).is_some() {
             let simplex = JohnsonSimplex::new_w_tls();
-            let wo_manifold = SupportMapSupportMap::new(self.prediction, simplex);
+            let wo_manifold = SupportMapSupportMapCollisionDetector::new(simplex);
 
             if !b_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(self.prediction, wo_manifold);
+                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                 Some(Box::new(manifold))
             }
             else {
@@ -87,10 +85,10 @@ impl<P, M> CollisionDispatcher<P, M> for BasicCollisionDispatcher<P, M>
             }
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<P, M>(*a).is_some() {
-            Some(Box::new(CompositeShapeRepr::<P, M>::new(self.prediction)))
+            Some(Box::new(CompositeShapeReprCollisionDetector::<P, M>::new()))
         }
         else if inspection::maybe_repr_desc_as_composite_shape::<P, M>(*b).is_some() {
-            Some(Box::new(ReprCompositeShape::<P, M>::new(self.prediction)))
+            Some(Box::new(ReprCompositeShapeCollisionDetector::<P, M>::new()))
         }
         else {
             None

@@ -4,7 +4,7 @@ use point::PointQuery;
 use entities::shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use entities::bounding_volume::AABB;
 use entities::partitioning::{BVTCostFn, BVTVisitor};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
@@ -13,20 +13,20 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
           E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, _: bool) -> P {
-        let ls_pt = m.inv_transform(point);
+        let ls_pt = m.inverse_transform(point);
         let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
 
         m.transform(&self.bvt().best_first_search(&mut cost_fn).unwrap().1)
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vect>::Scalar {
-        na::dist(point, &self.project_point(m, point, true))
+    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
+        na::distance(point, &self.project_point(m, point, true))
     }
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
-        let ls_pt = m.inv_transform(point);
+        let ls_pt = m.inverse_transform(point);
         let mut test = PointContainementTest { mesh: self, point: &ls_pt, found: false };
 
         self.bvt().visit(&mut test);
@@ -44,19 +44,21 @@ struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     point: &'a P
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vect>::Scalar, usize, AABB<P>, P> for BaseMeshPointProjCostFn<'a, P, I, E>
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
     where P: Point,
           E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
+    type UserData = P;
+
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vect>::Scalar> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
         Some(aabb.distance_to_point(&Identity::new(), self.point))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vect>::Scalar, P)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, P)> {
         let proj = self.mesh.element_at(*b).project_point(&Identity::new(), self.point, true);
-        
-        Some((na::dist(self.point, &proj), proj))
+
+        Some((na::distance(self.point, &proj), proj))
     }
 }
 
@@ -100,7 +102,7 @@ impl<P, M> PointQuery<P, M> for TriMesh<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vect>::Scalar {
+    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
         self.base_mesh().distance_to_point(m, point)
     }
 
@@ -119,7 +121,7 @@ impl<P, M> PointQuery<P, M> for Polyline<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vect>::Scalar {
+    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
         self.base_mesh().distance_to_point(m, point)
     }
 

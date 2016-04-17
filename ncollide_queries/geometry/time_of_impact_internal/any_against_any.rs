@@ -1,6 +1,6 @@
 use na::Translate;
 use na;
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use entities::inspection;
 use entities::inspection::Repr;
 use entities::shape::{Ball, Plane};
@@ -12,7 +12,7 @@ use geometry::time_of_impact_internal;
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1: &G1,
                                                      m2: &M, vel2: &P::Vect, g2: &G2)
-                                                     -> Option<<P::Vect as Vect>::Scalar>
+                                                     -> Option<<P::Vect as Vector>::Scalar>
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
@@ -21,10 +21,10 @@ pub fn any_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1:
     let r1 = g1.repr();
     let r2 = g2.repr();
 
-    if let (Some(b1), Some(b2)) = (r1.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>(),
-                                   r2.downcast_ref::<Ball<<P::Vect as Vect>::Scalar>>()) {
-        let p1 = m1.translate(&na::orig());
-        let p2 = m2.translate(&na::orig());
+    if let (Some(b1), Some(b2)) = (r1.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>(),
+                                   r2.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>()) {
+        let p1 = m1.translate(&na::origin());
+        let p2 = m2.translate(&na::origin());
 
         time_of_impact_internal::ball_against_ball(&p1, vel1, b1, &p2, vel2, b2)
     }

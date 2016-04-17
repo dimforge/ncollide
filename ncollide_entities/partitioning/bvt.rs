@@ -7,7 +7,7 @@ use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};
 use bounding_volume::BoundingVolume;
 use utils::data::ref_with_cost::RefWithCost;
 use utils;
-use math::{Scalar, Vect};
+use math::{Scalar, Vector};
 
 
 /// A Boundig Volume Tree.
@@ -72,14 +72,14 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
-    // FIXME: internalize the type parameter R using associated types.
     // FIXME: really return a ref to B ?
     /// Performs a best-fist-search on the tree.
     ///
-    /// Returns the content of the best leaf nound, and a result of user-defined type.
-    pub fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+    /// Returns the content of the leaf with the smallest associated cost, and a result of
+    /// user-defined type.
+    pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
         where N:   Scalar,
-              BFS: BVTCostFn<N, B, BV, R> {
+              BFS: BVTCostFn<N, B, BV> {
         match self.tree {
             Some(ref t) => t.best_first_search(algorithm),
             None        => None
@@ -111,7 +111,7 @@ impl<B, BV> BVT<B, BV> {
 impl<B, BV> BVT<B, BV> {
     /// Creates a balanced `BVT`.
     pub fn new_balanced<V>(leaves: Vec<(B, BV)>) -> BVT<B, BV>
-        where V: Vect,
+        where V: Vector,
               BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
         BVT::new_with_partitioner(leaves, &mut median_partitioner)
     }
@@ -169,9 +169,9 @@ impl<B, BV> BVTNode<B, BV> {
         }
     }
 
-    fn best_first_search<'a, N, BFS, R>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, R)>
+    fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
         where N:   Scalar,
-              BFS: BVTCostFn<N, B, BV, R> {
+              BFS: BVTCostFn<N, B, BV> {
         let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<B, BV>>> = BinaryHeap::new();
         let mut best_cost = Bounded::max_value();
         let mut result    = None;
@@ -239,7 +239,7 @@ impl<B, BV> BVTNode<B, BV> {
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
         (depth: usize, leaves: Vec<(B, BV)>, center: &mut F) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vect,
+    where V:  Vector,
           BV: BoundingVolume<V::Scalar> + Clone {
     if leaves.len() == 0 {
         panic!("Cannot build a tree without leaves.");
@@ -249,7 +249,7 @@ pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
         (bv, BinaryPartition::Part(b))
     }
     else {
-        let sep_axis = depth % na::dim::<V>();
+        let sep_axis = depth % na::dimension::<V>();
 
         // compute the median along sep_axis
         let mut median = Vec::new();
@@ -297,7 +297,7 @@ pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
 
 /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
 pub fn median_partitioner<V, B, BV>(depth: usize, leaves: Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vect,
+    where V:  Vector,
           BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
     median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
 }

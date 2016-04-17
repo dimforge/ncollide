@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_utils"
-version = "0.2.6"
+version = "0.3.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 
@@ -19,5 +19,5 @@ path = "lib.rs"
 rustc-serialize = "0.3.*"
 rand = "0.3.*"
 num = "0.1.*"
-nalgebra = "0.6.*"
-ncollide_math = { path = "../ncollide_math", version = "0.2.*" }
+nalgebra = "0.8.*"
+ncollide_math = { path = "../ncollide_math", version = "0.3.*" }

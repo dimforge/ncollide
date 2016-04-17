@@ -7,18 +7,18 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use num::Float;
 use na;
-use na::{Pnt3, Dim, Cross, Orig};
+use na::{Point3, Dimension, Cross, Origin};
 use ncollide_utils::{HashablePartialEq, AsBytes};
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vector};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[inline]
-pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Pnt3<N>>) {
+pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Point3<N>>) {
     let mut curr_theta: N = na::zero();
 
     for _ in 0 .. nsubdiv {
-        out.push(Pnt3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
+        out.push(Point3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
         curr_theta = curr_theta + dtheta;
     }
 }
@@ -28,13 +28,13 @@ pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mu
 #[inline]
 pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
     where N: Scalar,
-          P: Dim + Orig + Index<usize, Output = N> + IndexMut<usize, Output = N> {
-    assert!(na::dim::<P>() >= 2);
+          P: Dimension + Origin + Index<usize, Output = N> + IndexMut<usize, Output = N> {
+    assert!(na::dimension::<P>() >= 2);
 
     let mut curr_theta: N = na::zero();
 
     for _ in 0 .. nsubdiv {
-        let mut pt = na::orig::<P>();
+        let mut pt = na::origin::<P>();
 
         pt[0] = curr_theta.cos() * radius;
         pt[1] = curr_theta.sin() * radius;
@@ -49,7 +49,7 @@ pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
 pub fn push_ring_indices(base_lower_circle: u32,
                          base_upper_circle: u32,
                          nsubdiv:           u32,
-                         out:               &mut Vec<Pnt3<u32>>) {
+                         out:               &mut Vec<Point3<u32>>) {
     push_open_ring_indices(base_lower_circle, base_upper_circle, nsubdiv, out);
 
     // adjust the last two triangles
@@ -62,7 +62,7 @@ pub fn push_ring_indices(base_lower_circle: u32,
 pub fn push_open_ring_indices(base_lower_circle: u32,
                               base_upper_circle: u32,
                               nsubdiv:           u32,
-                              out:               &mut Vec<Pnt3<u32>>) {
+                              out:               &mut Vec<Point3<u32>>) {
     assert!(nsubdiv > 0);
 
     for i in 0 .. nsubdiv - 1 {
@@ -78,10 +78,10 @@ pub fn push_open_ring_indices(base_lower_circle: u32,
 pub fn push_degenerate_top_ring_indices(base_circle: u32,
                                         point:       u32,
                                         nsubdiv:     u32,
-                                        out:         &mut Vec<Pnt3<u32>>) {
+                                        out:         &mut Vec<Point3<u32>>) {
     push_degenerate_open_top_ring_indices(base_circle, point, nsubdiv, out);
 
-    out.push(Pnt3::new(base_circle + nsubdiv - 1, point, base_circle));
+    out.push(Point3::new(base_circle + nsubdiv - 1, point, base_circle));
 }
 
 /// Creates the faces from a circle and a point that is shared by all triangle.
@@ -89,11 +89,11 @@ pub fn push_degenerate_top_ring_indices(base_circle: u32,
 pub fn push_degenerate_open_top_ring_indices(base_circle: u32,
                                              point:       u32,
                                              nsubdiv:     u32,
-                                             out:         &mut Vec<Pnt3<u32>>) {
+                                             out:         &mut Vec<Point3<u32>>) {
     assert!(nsubdiv > 0);
 
     for i in 0 .. nsubdiv - 1 {
-        out.push(Pnt3::new(base_circle + i, point, base_circle + i + 1));
+        out.push(Point3::new(base_circle + i, point, base_circle + i + 1));
     }
 }
 
@@ -101,9 +101,9 @@ pub fn push_degenerate_open_top_ring_indices(base_circle: u32,
 /// `base_circle` point in common.
 /// Pushes `nsubdiv - 2` elements to `out`.
 #[inline]
-pub fn push_filled_circle_indices(base_circle: u32, nsubdiv: u32, out: &mut Vec<Pnt3<u32>>) {
+pub fn push_filled_circle_indices(base_circle: u32, nsubdiv: u32, out: &mut Vec<Point3<u32>>) {
     for i in base_circle + 1 .. base_circle + nsubdiv - 1 {
-        out.push(Pnt3::new(base_circle, i, i + 1));
+        out.push(Point3::new(base_circle, i, i + 1));
     }
 }
 
@@ -115,14 +115,14 @@ pub fn push_filled_circle_indices(base_circle: u32, nsubdiv: u32, out: &mut Vec<
 /// * `dr` - the down-left point.
 /// * `ur` - the up-left point.
 #[inline]
-pub fn push_rectangle_indices<T: Clone>(ul: T, ur: T, dl: T, dr: T, out: &mut Vec<Pnt3<T>>) {
-    out.push(Pnt3::new(ul.clone(), dl, dr.clone()));
-    out.push(Pnt3::new(dr        , ur, ul));
+pub fn push_rectangle_indices<T: Clone>(ul: T, ur: T, dl: T, dr: T, out: &mut Vec<Point3<T>>) {
+    out.push(Point3::new(ul.clone(), dl, dr.clone()));
+    out.push(Point3::new(dr        , ur, ul));
 }
 
 /// Reverses the clockwising of a set of faces.
 #[inline]
-pub fn reverse_clockwising(indices: &mut [Pnt3<u32>]) {
+pub fn reverse_clockwising(indices: &mut [Point3<u32>]) {
     for i in indices.iter_mut() {
         mem::swap(&mut i.x, &mut i.y);
     }
@@ -132,15 +132,15 @@ pub fn reverse_clockwising(indices: &mut [Pnt3<u32>]) {
 ///
 /// For example: [ (0.0, 1.0, 2.0) ] becomes: [ (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), (2.0, 2.0, 2.0)].
 #[inline]
-pub fn split_index_buffer(indices: &[Pnt3<u32>]) -> Vec<Pnt3<Pnt3<u32>>> {
+pub fn split_index_buffer(indices: &[Point3<u32>]) -> Vec<Point3<Point3<u32>>> {
     let mut resi = Vec::new();
 
     for vertex in indices.iter() {
         resi.push(
-            Pnt3::new(
-                Pnt3::new(vertex.x, vertex.x, vertex.x),
-                Pnt3::new(vertex.y, vertex.y, vertex.y),
-                Pnt3::new(vertex.z, vertex.z, vertex.z)
+            Point3::new(
+                Point3::new(vertex.x, vertex.x, vertex.x),
+                Point3::new(vertex.y, vertex.y, vertex.y),
+                Point3::new(vertex.z, vertex.z, vertex.z)
                 )
             );
     }
@@ -152,9 +152,9 @@ pub fn split_index_buffer(indices: &[Pnt3<u32>]) -> Vec<Pnt3<Pnt3<u32>>> {
 /// identical vertex.
 #[inline]
 pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
-                                               indices: &[Pnt3<u32>],
+                                               indices: &[Point3<u32>],
                                                coords:  &[P])
-                                               -> (Vec<Pnt3<Pnt3<u32>>>, Vec<P>) {
+                                               -> (Vec<Point3<Point3<u32>>>, Vec<P>) {
     let mut vtx_to_id  = HashMap::new();
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out        = Vec::with_capacity(indices.len());
@@ -188,10 +188,10 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
         let oc = t.z;
 
         out.push(
-            Pnt3::new(
-                Pnt3::new(va, oa, oa),
-                Pnt3::new(vb, ob, ob),
-                Pnt3::new(vc, oc, oc)
+            Point3::new(
+                Point3::new(va, oa, oa),
+                Point3::new(vb, ob, ob),
+                Point3::new(vc, oc, oc)
                 )
             );
     }
@@ -203,10 +203,10 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
 
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<P>(coordinates: &[P], faces: &[Pnt3<u32>], normals: &mut Vec<P::Vect>)
+pub fn compute_normals<P>(coordinates: &[P], faces: &[Point3<u32>], normals: &mut Vec<P::Vect>)
     where P: Point,
-          P::Vect: Vect + Cross<CrossProductType = <P as Point>::Vect> {
-    let mut divisor: Vec<<P::Vect as Vect>::Scalar> = iter::repeat(na::zero()).take(coordinates.len()).collect();
+          P::Vect: Vector + Cross<CrossProductType = <P as Point>::Vect> {
+    let mut divisor: Vec<<P::Vect as Vector>::Scalar> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
     if normals.len() > coordinates.len() {

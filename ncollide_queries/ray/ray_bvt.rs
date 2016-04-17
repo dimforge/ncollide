@@ -1,5 +1,5 @@
 use na::Identity;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
 use ray::{RayCast, Ray, RayIntersection};
 
@@ -21,18 +21,19 @@ impl<'a, P: Point> RayIntersectionCostFn<'a, P> {
     }
 }
 
-impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vect>::Scalar, B, BV, RayIntersection<P::Vect>>
-for RayIntersectionCostFn<'a, P>
+impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vector>::Scalar, B, BV> for RayIntersectionCostFn<'a, P>
     where P:  Point,
           B:  RayCast<P, Identity>,
           BV: RayCast<P, Identity> {
+    type UserData = RayIntersection<P::Vect>;
+
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &BV) -> Option<<P::Vect as Vect>::Scalar> {
+    fn compute_bv_cost(&mut self, bv: &BV) -> Option<<P::Vect as Vector>::Scalar> {
         bv.toi_with_ray(&Identity::new(), self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &B) -> Option<(<P::Vect as Vect>::Scalar, RayIntersection<P::Vect>)> {
+    fn compute_b_cost(&mut self, b: &B) -> Option<(<P::Vect as Vector>::Scalar, RayIntersection<P::Vect>)> {
         if self.uvs {
             b.toi_and_normal_and_uv_with_ray(&Identity::new(), self.ray, self.solid).map(|i| (i.toi, i))
         }

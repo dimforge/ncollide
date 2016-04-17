@@ -1,15 +1,15 @@
 use geometry::algorithm::{JohnsonSimplex, RecursionTemplate};
 use geometry::algorithms::simplex::Simplex;
-use na::{Pnt3, Vec3};
+use na::{Point3, Vector3};
 use test::Bencher;
 use test;
 
 #[bench]
 fn bench_johnson_simplex(bh: &mut Bencher) {
-    let a = Pnt3::new(-0.5f32, -0.5, -0.5);
-    let b = Pnt3::new(0.0, 0.5, 0.0);
-    let c = Pnt3::new(0.5, -0.5, -0.5);
-    let d = Pnt3::new(0.0, -0.5, -0.5);
+    let a = Point3::new(-0.5f32, -0.5, -0.5);
+    let b = Point3::new(0.0, 0.5, 0.0);
+    let c = Point3::new(0.5, -0.5, -0.5);
+    let d = Point3::new(0.0, -0.5, -0.5);
     let recursion = RecursionTemplate::new(3);
 
     bh.iter(|| {
@@ -27,11 +27,11 @@ fn bench_johnson_simplex(bh: &mut Bencher) {
 
 #[bench]
 fn bench_johnson_simplex_tls(bh: &mut Bencher) {
-    let a = Pnt3::new(-0.5f32, -0.5, -0.5);
-    let b = Pnt3::new(0.0, 0.5, 0.0);
-    let c = Pnt3::new(0.5, -0.5, -0.5);
-    let d = Pnt3::new(0.0, -0.5, -0.5);
-    let _ = JohnsonSimplex::<f64, Pnt3<f64>, Vec3<f64>>::new_w_tls();
+    let a = Point3::new(-0.5f32, -0.5, -0.5);
+    let b = Point3::new(0.0, 0.5, 0.0);
+    let c = Point3::new(0.5, -0.5, -0.5);
+    let d = Point3::new(0.0, -0.5, -0.5);
+    let _ = JohnsonSimplex::<f64, Point3<f64>, Vector3<f64>>::new_w_tls();
 
     bh.iter(|| {
         let mut spl = JohnsonSimplex::new_w_tls();

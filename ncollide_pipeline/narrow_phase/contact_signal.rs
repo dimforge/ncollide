@@ -4,6 +4,20 @@ pub trait ContactSignalHandler<B> {
     fn handle_contact(&mut self, b1: &B, b2: &B, started: bool);
 }
 
+impl<B> ContactSignalHandler<B> for fn(&B, &B, bool) {
+    #[inline]
+    fn handle_contact(&mut self, b1: &B, b2: &B, started: bool) {
+        self(b1, b2, started)
+    }
+}
+
+impl<B> ContactSignalHandler<B> for Fn(&B, &B, bool) {
+    #[inline]
+    fn handle_contact(&mut self, b1: &B, b2: &B, started: bool) {
+        self(b1, b2, started)
+    }
+}
+
 /// Signal for contact start/stop.
 pub struct ContactSignal<B> {
     contact_signal_handlers: Vec<(String, Box<ContactSignalHandler<B> + 'static>)>,
@@ -19,8 +33,8 @@ impl<B> ContactSignal<B> {
 
     /// Registers an event handler.
     pub fn register_contact_signal_handler(&mut self,
-                                             name:     &str,
-                                             callback: Box<ContactSignalHandler<B> + 'static>) {
+                                           name:     &str,
+                                           callback: Box<ContactSignalHandler<B> + 'static>) {
         for &mut (ref mut n, ref mut f) in self.contact_signal_handlers.iter_mut() {
             if name == &n[..] {
                 *f = callback;

@@ -2,7 +2,7 @@ use std::mem;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
-use na::{Pnt3, Vec2, Vec3, Identity, Iterable, Norm, Bounded};
+use na::{Point3, Vector2, Vector3, Identity, Iterable, Norm, Bounded};
 use na;
 use math::Scalar;
 use utils;
@@ -17,10 +17,10 @@ use queries::ray;
 use procedural::{TriMesh, IndexBuffer};
 
 /// Approximate convex decomposition of a triangle mesh.
-pub fn hacd<N>(mesh:           TriMesh<Pnt3<N>>,
+pub fn hacd<N>(mesh:           TriMesh<Point3<N>>,
                error:          N,
                min_components: usize)
-               -> (Vec<TriMesh<Pnt3<N>>>, Vec<Vec<usize>>)
+               -> (Vec<TriMesh<Point3<N>>>, Vec<Vec<usize>>)
     where N: Scalar {
     assert!(mesh.normals.is_some(), "Vertex normals are required to compute the convex decomposition.");
 
@@ -148,21 +148,21 @@ pub fn hacd<N>(mesh:           TriMesh<Pnt3<N>>,
     (result, parts)
 }
 
-fn normalize<N: Scalar>(mesh: &mut TriMesh<Pnt3<N>>) -> (Pnt3<N>, N) {
+fn normalize<N: Scalar>(mesh: &mut TriMesh<Point3<N>>) -> (Point3<N>, N) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Identity::new(), &mesh.coords[..]);
-    let diag   = na::dist(&mins, &maxs);
+    let diag   = na::distance(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
-    mesh.translate_by(&(-*center.as_vec()));
+    mesh.translate_by(&(-*center.as_vector()));
     let _1: N = na::one();
     mesh.scale_by_scalar(_1 / diag);
 
     (center, diag)
 }
 
-fn denormalize<N: Scalar>(mesh: &mut TriMesh<Pnt3<N>>, center: &Pnt3<N>, diag: N) {
+fn denormalize<N: Scalar>(mesh: &mut TriMesh<Point3<N>>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
-    mesh.translate_by(center.as_vec());
+    mesh.translate_by(center.as_vector());
 }
 
 struct DualGraphVertex<N: Scalar> {
@@ -170,18 +170,18 @@ struct DualGraphVertex<N: Scalar> {
     neighbors:  Option<HashSet<usize>>, // vertices adjascent to this one.
     ancestors:  Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
     uancestors: Option<HashSet<usize>>,
-    border:     Option<HashSet<Vec2<usize>>>,
-    chull:      Option<TriMesh<Pnt3<N>>>,
+    border:     Option<HashSet<Vector2<usize>>>,
+    chull:      Option<TriMesh<Point3<N>>>,
     parts:      Option<Vec<usize>>,
     timestamp:  usize,
     concavity:  N,
     area:       N,
-    aabb:       AABB<Pnt3<N>>
+    aabb:       AABB<Point3<N>>
 }
 
 impl<N: Scalar> DualGraphVertex<N> {
     pub fn new(ancestor: usize,
-               mesh:     &TriMesh<Pnt3<N>>,
+               mesh:     &TriMesh<Point3<N>>,
                raymap:   &HashMap<(u32, u32), usize>) // FIXME: we could get rid of the raymap.
                -> DualGraphVertex<N> {
         let (idx, ns) =
@@ -189,7 +189,7 @@ impl<N: Scalar> DualGraphVertex<N> {
                 IndexBuffer::Unified(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
                 IndexBuffer::Split(ref idx) => {
                     let t = idx[ancestor];
-                    (Pnt3::new(t.x.x, t.y.x, t.z.x), Pnt3::new(t.x.y, t.y.y, t.z.y))
+                    (Point3::new(t.x.x, t.y.x, t.z.x), Point3::new(t.x.y, t.y.y, t.z.y))
                 }
             };
 
@@ -356,7 +356,7 @@ impl<N: Scalar> DualGraphEdge<N> {
                v1:            usize,
                v2:            usize,
                dual_graph:    &[DualGraphVertex<N>],
-               coords:        &[Pnt3<N>],
+               coords:        &[Point3<N>],
                max_concavity: N)
                -> DualGraphEdge<N> {
         let mut v1 = v1;
@@ -369,8 +369,8 @@ impl<N: Scalar> DualGraphEdge<N> {
         let border_1 = dual_graph[v1].border.as_ref().unwrap();
         let border_2 = dual_graph[v2].border.as_ref().unwrap();
         let mut perimeter = na::zero::<N>();
-        
-        for d in border_1.symmetric_difference(border_2).map(|e| na::dist(&coords[e.x], &coords[e.y])) {
+
+        for d in border_1.symmetric_difference(border_2).map(|e| na::distance(&coords[e.x], &coords[e.y])) {
             perimeter = perimeter + d;
         }
 
@@ -378,7 +378,7 @@ impl<N: Scalar> DualGraphEdge<N> {
 
         // FIXME: refactor this.
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
-        let diagonal = na::dist(aabb.mins(), aabb.maxs());
+        let diagonal = na::distance(aabb.mins(), aabb.maxs());
         let shape_cost;
 
         if na::is_zero(&area) || na::is_zero(&diagonal) {
@@ -412,8 +412,8 @@ impl<N: Scalar> DualGraphEdge<N> {
 
     pub fn compute_decimation_cost(&mut self,
                                    dual_graph:    &[DualGraphVertex<N>],
-                                   rays:          &[Ray<Pnt3<N>>],
-                                   bvt:           &BVT<usize, AABB<Pnt3<N>>>,
+                                   rays:          &[Ray<Point3<N>>],
+                                   bvt:           &BVT<usize, AABB<Point3<N>>>,
                                    max_cost:      N,
                                    max_concavity: N) {
         assert!(self.is_valid(dual_graph));
@@ -435,23 +435,23 @@ impl<N: Scalar> DualGraphEdge<N> {
         let max_concavity = max_concavity.min(max_cost - max_concavity * self.shape);
 
         fn cast_ray<'a, N: Scalar>(chull:      &ConvexPair<'a, N>,
-                                   ray:        &Ray<Pnt3<N>>,
+                                   ray:        &Ray<Point3<N>>,
                                    id:         usize,
                                    concavity:  &mut N,
                                    ancestors:  &mut BinaryHeap<VertexWithConcavity<N>>) {
             let sv   = chull.support_point(&Identity::new(), &ray.dir);
-            let dist = na::dot(sv.as_vec(), &ray.dir);
+            let distance = na::dot(sv.as_vector(), &ray.dir);
 
-            if !na::approx_eq(&dist, &na::zero()) {
+            if !na::approx_eq(&distance, &na::zero()) {
                 let shift: N = na::cast(0.1f64);
-                let outside_point = ray.orig + ray.dir * (dist + shift);
+                let outside_point = ray.origin + ray.dir * (distance + shift);
 
                 match chull.toi_with_ray(&Identity::new(), &Ray::new(outside_point, -ray.dir), true) {
                     None      => {
                         ancestors.push(VertexWithConcavity::new(id, na::zero()))
                     },
                     Some(toi) => {
-                        let new_concavity = dist + shift - toi;
+                        let new_concavity = distance + shift - toi;
                         ancestors.push(VertexWithConcavity::new(id, new_concavity));
                         if *concavity < new_concavity {
                             *concavity = new_concavity
@@ -618,22 +618,22 @@ impl<N: PartialOrd> Ord for VertexWithConcavity<N> {
 }
 
 #[inline]
-fn edge(a: u32, b: u32) -> Vec2<usize> {
+fn edge(a: u32, b: u32) -> Vector2<usize> {
     if a > b {
-        Vec2::new(b as usize, a as usize)
+        Vector2::new(b as usize, a as usize)
     }
     else {
-        Vec2::new(a as usize, b as usize)
+        Vector2::new(a as usize, b as usize)
     }
 }
 
-fn compute_ray_bvt<N: Scalar>(rays: &[Ray<Pnt3<N>>]) -> BVT<usize, AABB<Pnt3<N>>> {
-    let aabbs = rays.iter().enumerate().map(|(i, r)| (i, AABB::new(r.orig, r.orig))).collect();
+fn compute_ray_bvt<N: Scalar>(rays: &[Ray<Point3<N>>]) -> BVT<usize, AABB<Point3<N>>> {
+    let aabbs = rays.iter().enumerate().map(|(i, r)| (i, AABB::new(r.origin, r.origin))).collect();
 
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: Scalar>(mesh: &TriMesh<Pnt3<N>>) -> (Vec<Ray<Pnt3<N>>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: Scalar>(mesh: &TriMesh<Point3<N>>) -> (Vec<Ray<Point3<N>>>, HashMap<(u32, u32), usize>) {
     let mut rays   = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -682,7 +682,7 @@ fn compute_rays<N: Scalar>(mesh: &TriMesh<Pnt3<N>>) -> (Vec<Ray<Pnt3<N>>>, HashM
 }
 
 
-fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Pnt3<N>>,
+fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Point3<N>>,
                                  raymap: &HashMap<(u32, u32), usize>)
                                  -> Vec<DualGraphVertex<N>> {
     // XXX Loss of determinism because of the randomized HashMap.
@@ -691,7 +691,7 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Pnt3<N>>,
         (0 .. mesh.num_triangles()).map(|i| DualGraphVertex::new(i, mesh, raymap)).collect();
 
     {
-        let mut add_triangle_edges = Box::new(|i: usize, t: &Pnt3<u32>| {
+        let mut add_triangle_edges = Box::new(|i: usize, t: &Point3<u32>| {
             let es = [ edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x) ];
 
             for e in es.iter() {
@@ -716,7 +716,7 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Pnt3<N>>,
             },
             IndexBuffer::Split(ref b) => {
                 for (i, t) in b.iter().enumerate() {
-                    let t_idx = Pnt3::new(t.x.x, t.y.x, t.z.x);
+                    let t_idx = Point3::new(t.x.x, t.y.x, t.z.x);
                     add_triangle_edges(i, &t_idx)
                 }
             }
@@ -727,12 +727,12 @@ fn compute_dual_graph<N: Scalar>(mesh:   &TriMesh<Pnt3<N>>,
 }
 
 struct ConvexPair<'a, N: 'a> {
-    a: &'a [Pnt3<N>],
-    b: &'a [Pnt3<N>]
+    a: &'a [Point3<N>],
+    b: &'a [Point3<N>]
 }
 
 impl<'a, N> ConvexPair<'a, N> {
-    pub fn new(a: &'a [Pnt3<N>], b: &'a [Pnt3<N>]) -> ConvexPair<'a, N> {
+    pub fn new(a: &'a [Point3<N>], b: &'a [Point3<N>]) -> ConvexPair<'a, N> {
         ConvexPair {
             a: a,
             b: b
@@ -740,13 +740,13 @@ impl<'a, N> ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> SupportMap<Pnt3<N>, Identity> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> SupportMap<Point3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
-    fn support_point(&self, _: &Identity, dir: &Vec3<N>) -> Pnt3<N> {
+    fn support_point(&self, _: &Identity, dir: &Vector3<N>) -> Point3<N> {
         let sa = support_map::point_cloud_support_point(dir, self.a);
         let sb = support_map::point_cloud_support_point(dir, self.b);
 
-        if na::dot(sa.as_vec(), dir) > na::dot(sb.as_vec(), dir) {
+        if na::dot(sa.as_vector(), dir) > na::dot(sb.as_vector(), dir) {
             sa
         }
         else {
@@ -755,13 +755,13 @@ impl<'a, N: Scalar> SupportMap<Pnt3<N>, Identity> for ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> RayCast<Pnt3<N>, Identity> for ConvexPair<'a, N> {
+impl<'a, N: Scalar> RayCast<Point3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
-    fn toi_and_normal_with_ray(&self, id: &Identity, ray: &Ray<Pnt3<N>>, solid: bool) -> Option<RayIntersection<Vec3<N>>> {
+    fn toi_and_normal_with_ray(&self, id: &Identity, ray: &Ray<Point3<N>>, solid: bool) -> Option<RayIntersection<Vector3<N>>> {
         ray::implicit_toi_and_normal_with_ray(
             id,
             self,
-            &mut JohnsonSimplex::<Pnt3<N>>::new_w_tls(),
+            &mut JohnsonSimplex::<Point3<N>>::new_w_tls(),
             ray,
             solid)
     }

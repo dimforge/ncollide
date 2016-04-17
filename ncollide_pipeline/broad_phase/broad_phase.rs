@@ -12,6 +12,9 @@ pub trait BroadPhase<P: Point, BV, T> {
     /// Sets the next bounding volume to be used during the update of this broad phase.
     fn deferred_set_bounding_volume(&mut self, uid: usize, bv: BV);
 
+    /// Forces the broad-phase to recompute and re-report all the proximities.
+    fn defered_recompute_all_proximities(&mut self);
+
     /// Updates the object additions, removals, and interferences detection.
     fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, proximity_handler: &mut FnMut(&T, &T, bool));
 

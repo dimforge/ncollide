@@ -2,7 +2,7 @@ use na::Transform;
 use na;
 use support_map::SupportMap;
 use bounding_volume::AABB;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 
@@ -10,17 +10,17 @@ use math::{Point, Vect};
 pub fn implicit_shape_aabb<P, M, G>(m: &M, i: &G) -> AABB<P>
         where P: Point,
               G: SupportMap<P, M> {
-        let mut min   = na::orig::<P>();
-        let mut max   = na::orig::<P>();
+        let mut min   = na::origin::<P>();
+        let mut max   = na::origin::<P>();
         let mut basis = na::zero::<P::Vect>();
 
-        for d in 0 .. na::dim::<P::Vect>() {
+        for d in 0 .. na::dimension::<P::Vect>() {
             // FIXME: this could be further improved iterating on `m`'s columns, and passing
             // Identity as the transformation matrix.
             basis[d] = na::one();
             max[d] = i.support_point(m, &basis)[d];
 
-            basis[d] = -na::one::<<P::Vect as Vect>::Scalar>();
+            basis[d] = -na::one::<<P::Vect as Vector>::Scalar>();
             min[d] = i.support_point(m, &basis)[d];
 
             basis[d] = na::zero();

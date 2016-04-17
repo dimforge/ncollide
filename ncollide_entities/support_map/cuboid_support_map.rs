@@ -10,12 +10,12 @@ impl<P, M> SupportMap<P, M> for Cuboid<P::Vect>
           M: Rotate<P::Vect> + Transform<P> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inv_rotate(dir);
+        let local_dir = m.inverse_rotate(dir);
 
-        let mut pres: P = na::orig();
+        let mut pres: P = na::origin();
 
         let he = self.half_extents();
-        for i in 0usize .. na::dim::<P>() {
+        for i in 0usize .. na::dimension::<P>() {
             if local_dir[i] < na::zero() {
                 pres[i] = -he[i];
             }

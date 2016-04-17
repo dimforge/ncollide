@@ -1,28 +1,34 @@
+use std::mem;
 use std::ops::Mul;
-use std::sync::Arc;
 use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vect, Isometry};
+use math::{Point, Vector, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
-use entities::inspection::Repr;
-use entities::bounding_volume::{self, AABB};
+use entities::bounding_volume::{self, BoundingVolume, AABB};
+use entities::shape::ShapeHandle;
 use queries::ray::{RayCast, Ray, RayIntersection};
 use queries::point::PointQuery;
-use narrow_phase::{BasicCollisionDispatcher, ContactSignalHandler};
-use broad_phase::{BroadPhase, DBVTBroadPhase};
-use world::{CollisionObjectsDispatcher, CollisionObject, CollisionGroups, ContactPairs, Contacts};
+use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
+                   ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
+                   ProximitySignal};
+use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
+use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
-use na::{Pnt2, Pnt3, Iso2, Iso3};
+use na::{Point2, Point3, Isometry2, Isometry3};
 
-// FIXME: be generic wrt the BV?
+/// Type of the narrow phase trait-object used by the collision world.
+pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T> + 'static>;
 /// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey> + 'static>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<P, M, T> {
+pub struct CollisionWorld<P: Point, M, T> {
     objects:           UidRemap<CollisionObject<P, M, T>>,
     broad_phase:       BroadPhaseObject<P>,
-    narrow_phase:      CollisionObjectsDispatcher<P, M, T>,
+    narrow_phase:      Box<NarrowPhase<P, M, T>>,
+    contact_signal:    ContactSignal<T>,
+    proximity_signal:  ProximitySignal<T>,
+    pair_filters:      BroadPhasePairFilters<CollisionObject<P, M, T>>,
     pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
     timestamp:         usize
@@ -32,25 +38,27 @@ pub struct CollisionWorld<P, M, T> {
 impl<P, M, T> CollisionWorld<P, M, T>
     where P: Point,
           P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vect<Scalar = <P::Vect as Vect>::Scalar> +
-                                                Mul<<P::Vect as Vect>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
+          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
+                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M:  Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
-    // FIXME: use default values for `margin` and `prediction` and allow their modification by the
-    // user ?
-    pub fn new(margin:     <P::Vect as Vect>::Scalar,
-               prediction: <P::Vect as Vect>::Scalar,
-               small_uids: bool)
-               -> CollisionWorld<P, M, T> {
-        let objects = UidRemap::new(small_uids);
-        let sdispatcher = Box::new(BasicCollisionDispatcher::new(prediction));
-        let broad_phase = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
-        let narrow_phase = CollisionObjectsDispatcher::new(sdispatcher);
+    // FIXME: use default values for `margin` and allow its modification by the user ?
+    pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
+        let objects          = UidRemap::new(small_uids);
+        let coll_dispatcher  = Box::new(DefaultCollisionDispatcher::new());
+        let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
+        let broad_phase      = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
+        let narrow_phase     = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
+        let contact_signal   = ContactSignal::new();
+        let proximity_signal = ProximitySignal::new();
 
         CollisionWorld {
+            contact_signal:    contact_signal,
+            proximity_signal:  proximity_signal,
             objects:           objects,
             broad_phase:       broad_phase,
-            narrow_phase:      narrow_phase,
+            narrow_phase:      Box::new(narrow_phase),
+            pair_filters:      BroadPhasePairFilters::new(),
             pos_to_update:     Vec::new(),
             objects_to_remove: Vec::new(),
             timestamp:         0
@@ -59,16 +67,18 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     /// Adds a collision object to the world.
     pub fn add(&mut self,
-               uid: usize,
-               position: M,
-               shape: Arc<Box<Repr<P, M>>>,
+               uid:              usize,
+               position:         M,
+               shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
-               data: T) {
+               query_type:       CollisionQueryType<<P::Vect as Vector>::Scalar>,
+               data:             T) {
         // FIXME: test that we did not add this object already ?
 
-        let mut collision_object = CollisionObject::new(position, shape, collision_groups, data);
+        let mut collision_object = CollisionObject::new(position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
-        let aabb = bounding_volume::aabb(&**collision_object.shape, &collision_object.position);
+        let mut aabb = bounding_volume::aabb(collision_object.shape.as_ref(), &collision_object.position);
+        aabb.loosen(query_type.query_limit());
         let fk = self.objects.insert(uid, collision_object).0;
         self.broad_phase.deferred_add(fk.uid(), aabb, fk)
     }
@@ -99,15 +109,45 @@ impl<P, M, T> CollisionWorld<P, M, T>
         }
     }
 
+    /// Adds a filter that tells if a potential collision pair should be ignored or not.
+    ///
+    /// The proximity filter returns `false` for a given pair of collision objects if they should
+    /// be ignored by the narrow phase. Keep in mind that modifying the proximity filter will have
+    /// a non-trivial overhead during the next update as it will force re-detection of all
+    /// collision pairs.
+    pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
+        where F: BroadPhasePairFilter<CollisionObject<P, M, T>> + 'static {
+        self.pair_filters.register_collision_filter(name, Box::new(filter));
+        self.broad_phase.defered_recompute_all_proximities();
+    }
+
+    /// Removes the pair filter named `name`.
+    pub fn unregister_broad_phase_pair_filter(&mut self, name: &str) {
+        if self.pair_filters.unregister_collision_filter(name) {
+            self.broad_phase.defered_recompute_all_proximities();
+        }
+    }
+
     /// Registers a handler for contact start/stop events.
     pub fn register_contact_signal_handler<H>(&mut self, name: &str, handler: H)
         where H: ContactSignalHandler<T> + 'static {
-        self.narrow_phase.register_contact_signal_handler(name, Box::new(handler))
+        self.contact_signal.register_contact_signal_handler(name, Box::new(handler));
     }
 
     /// Unregisters a handler for contact start/stop events.
     pub fn unregister_contact_signal_handler(&mut self, name: &str) {
-        self.narrow_phase.unregister_contact_signal_handler(name)
+        self.contact_signal.unregister_contact_signal_handler(name);
+    }
+
+    /// Registers a handler for proximity status change events.
+    pub fn register_proximity_signal_handler<H>(&mut self, name: &str, handler: H)
+        where H: ProximitySignalHandler<T> + 'static {
+        self.proximity_signal.register_proximity_signal_handler(name, Box::new(handler));
+    }
+
+    /// Unregisters a handler for proximity status change events.
+    pub fn unregister_proximity_signal_handler(&mut self, name: &str) {
+        self.proximity_signal.unregister_proximity_signal_handler(name);
     }
 
     /// Executes the position updates.
@@ -116,27 +156,15 @@ impl<P, M, T> CollisionWorld<P, M, T>
             if let Some(co) = self.objects.get_fast_mut(fk) {
                 co.position = pos.clone();
                 co.timestamp = self.timestamp;
-                self.broad_phase.deferred_set_bounding_volume(fk.uid(), bounding_volume::aabb(&**co.shape, pos));
+                let mut aabb = bounding_volume::aabb(co.shape.as_ref(), pos);
+                aabb.loosen(co.query_type.query_limit());
+                self.broad_phase.deferred_set_bounding_volume(fk.uid(), aabb);
             }
         }
 
         self.pos_to_update.clear();
     }
 
-    /// Executes the broad phase of the collision detection pipeline.
-    ///
-    /// Not that this does not take in account the changes made to the collision updates after the
-    /// last `.perform_position_update()` call.
-    pub fn perform_broad_phase(&mut self) {
-        let bf = &mut self.broad_phase;
-        let nf = &mut self.narrow_phase;
-        let objs = &self.objects;
-
-        bf.update(
-            &mut |b1, b2| CollisionObjectsDispatcher::is_proximity_allowed(objs, b1, b2),
-            &mut |b1, b2, started| nf.handle_proximity(objs, b1, b2, started)
-        );
-    }
 
     /// Actually removes all the objects marked by `.deferred_remove(...)` and updates the broad
     /// phase.
@@ -156,10 +184,45 @@ impl<P, M, T> CollisionWorld<P, M, T>
         }
     }
 
+    /// Executes the broad phase of the collision detection pipeline.
+    ///
+    /// Note that this does not take in account the changes made to the collision updates after the
+    /// last `.perform_position_update()` call.
+    pub fn perform_broad_phase(&mut self) {
+        let bf    = &mut self.broad_phase;
+        let nf    = &mut self.narrow_phase;
+        let sig   = &mut self.contact_signal;
+        let prox  = &mut self.proximity_signal;
+        let filts = &self.pair_filters;
+        let objs  = &self.objects;
+
+        bf.update(
+            // Filter:
+            &mut |b1, b2| CollisionWorld::filter_collision(filts, objs, b1, b2),
+            // Handler:
+            &mut |b1, b2, started| nf.handle_proximity(sig, prox, objs, b1, b2, started));
+    }
+
     /// Executes the narrow phase of the collision detection pipeline.
     pub fn perform_narrow_phase(&mut self) {
-        self.narrow_phase.update(&self.objects, self.timestamp);
+        self.narrow_phase.update(
+            &self.objects,
+            &mut self.contact_signal,
+            &mut self.proximity_signal,
+            self.timestamp);
         self.timestamp = self.timestamp + 1;
+    }
+
+    /// Sets a new narrow phase and returns the previous one.
+    ///
+    /// Keep in mind that modifying the narrow-pase will have a non-trivial overhead during the
+    /// next update as it will force re-detection of all collision pairs and their associated
+    /// contacts.
+    pub fn set_narrow_phase(&mut self, narrow_phase: Box<NarrowPhase<P, M, T>>) -> Box<NarrowPhase<P, M, T>> {
+        let old = mem::replace(&mut self.narrow_phase, narrow_phase);
+        self.broad_phase.defered_recompute_all_proximities();
+
+        old
     }
 
     /// Iterates through all the contact pairs detected since the last update.
@@ -171,7 +234,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// Iterates through every contact detected since the last update.
     #[inline]
     pub fn contacts(&self) -> Contacts<P, M, T> {
-        self.narrow_phase.contacts(&self.objects)
+        self.narrow_phase.contact_pairs(&self.objects).contacts()
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
@@ -223,7 +286,21 @@ impl<P, M, T> CollisionWorld<P, M, T>
             idx:     fks.into_iter()
         }
     }
+
+    // Filters by group and by the user-provided callback.
+    #[inline]
+    fn filter_collision(filters: &BroadPhasePairFilters<CollisionObject<P, M, T>>,
+                        objects: &UidRemap<CollisionObject<P, M, T>>,
+                        fk1:     &FastKey,
+                        fk2:     &FastKey) -> bool {
+        let o1 = &objects[*fk1];
+        let o2 = &objects[*fk2];
+        let filter_by_groups = CollisionGroupsPairFilter;
+
+        filter_by_groups.is_pair_valid(o1, o2) && filters.is_pair_valid(o1, o2)
+    }
 }
+
 
 /// Iterator through all the objects on the world that intersect a specific ray.
 pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
@@ -257,7 +334,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, P: 'a, M: 'a, T: 'a> {
+pub struct InterferencesWithPoint<'a, P: 'a + Point, M: 'a, T: 'a> {
     point:   &'a P,
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
     groups:  &'a CollisionGroups,
@@ -285,13 +362,13 @@ impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, P: 'a, M: 'a, T: 'a> {
+pub struct InterferencesWithAABB<'a, P: 'a + Point, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
     groups:  &'a CollisionGroups,
     idx:     IntoIter<&'a FastKey>,
 }
 
-impl<'a, P, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
+impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
@@ -308,7 +385,8 @@ impl<'a, P, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
     }
 }
 
+
 /// 2D collision world containing objects of type `T`.
-pub type CollisionWorld2<N, T> = CollisionWorld<Pnt2<N>, Iso2<N>, T>;
+pub type CollisionWorld2<N, T> = CollisionWorld<Point2<N>, Isometry2<N>, T>;
 /// 3D collision world containing objects of type `T`.
-pub type CollisionWorld3<N, T> = CollisionWorld<Pnt3<N>, Iso3<N>, T>;
+pub type CollisionWorld3<N, T> = CollisionWorld<Point3<N>, Isometry3<N>, T>;

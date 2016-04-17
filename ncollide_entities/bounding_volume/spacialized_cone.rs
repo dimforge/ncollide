@@ -1,28 +1,28 @@
 use na::{Translation, Norm, RotationMatrix, BaseFloat};
 use na;
-use math::{N, Vect, Matrix};
+use math::{N, Vector, Matrix};
 use bounding_volume::{BoundingVolume, BoundingSphere};
-use math::{Scalar, Point, Vect};
+use math::{Scalar, Point, Vector};
 
 // FIXME: make a structure 'cone' ?
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 /// A normal cone with a bounding sphere.
 pub struct SpacializedCone {
     sphere:  BoundingSphere,
-    axis:    Vect,
+    axis:    Vector,
     hangle:  N,
 }
 
 impl SpacializedCone {
     /// Creates a new spacialized cone with a given bounding sphere, axis, and half-angle.
-    pub fn new(sphere: BoundingSphere, axis: Vect, hangle: N) -> SpacializedCone {
+    pub fn new(sphere: BoundingSphere, axis: Vector, hangle: N) -> SpacializedCone {
         let axis = na::normalize(&axis);
 
         unsafe { SpacializedCone::new_normalized(sphere, axis, hangle) }
     }
 
     /// Creates a new spacialized cone with a given bounding sphere, unit axis, and half-angle.
-    pub unsafe fn new_normalized(sphere: BoundingSphere, axis: Vect, hangle: N) -> SpacializedCone {
+    pub unsafe fn new_normalized(sphere: BoundingSphere, axis: Vector, hangle: N) -> SpacializedCone {
         SpacializedCone {
             sphere:  sphere,
             axis:    axis,
@@ -38,7 +38,7 @@ impl SpacializedCone {
 
     /// This cone axis.
     #[inline]
-    pub fn axis<'a>(&'a self) -> &'a Vect {
+    pub fn axis<'a>(&'a self) -> &'a Vector {
         &self.axis
     }
 
@@ -60,7 +60,7 @@ impl SpacializedCone {
     // FIXME: create a Cone bounding volume and move this method to it.
     /// Tests whether the given direction is inside of the cone.
     #[inline]
-    pub fn contains_direction(&self, dir: &Vect) -> bool {
+    pub fn contains_direction(&self, dir: &Vector) -> bool {
         let angle = na::dot(&self.axis, dir);
         let angle = na::clamp(angle, -na::one::<N>(), na::one()).acos();
 
@@ -131,24 +131,24 @@ impl BoundingVolume for SpacializedCone {
     }
 }
 
-impl Translation<Vect> for SpacializedCone {
+impl Translation<Vector> for SpacializedCone {
     #[inline]
-    fn translation(&self) -> Vect {
-        self.sphere.center().as_vec().clone()
+    fn translation(&self) -> Vector {
+        self.sphere.center().as_vector().clone()
     }
 
     #[inline]
-    fn inv_translation(&self) -> Vect {
+    fn inverse_translation(&self) -> Vector {
         -self.sphere.translation()
     }
 
     #[inline]
-    fn append_translation(&mut self, dv: &Vect) {
+    fn append_translation(&mut self, dv: &Vector) {
         self.sphere.append_translation(dv);
     }
 
     #[inline]
-    fn append_translation_cpy(sc: &SpacializedCone, dv: &Vect) -> SpacializedCone {
+    fn append_translation_cpy(sc: &SpacializedCone, dv: &Vector) -> SpacializedCone {
         SpacializedCone::new(
             Translation::append_translation_cpy(&sc.sphere, dv),
             sc.axis.clone(),
@@ -156,24 +156,24 @@ impl Translation<Vect> for SpacializedCone {
     }
 
     #[inline]
-    fn prepend_translation(&mut self, dv: &Vect) {
+    fn prepend_translation(&mut self, dv: &Vector) {
         self.sphere.append_translation(dv)
     }
 
     #[inline]
-    fn prepend_translation_cpy(sc: &SpacializedCone, dv: &Vect) -> SpacializedCone {
+    fn prepend_translation_cpy(sc: &SpacializedCone, dv: &Vector) -> SpacializedCone {
         Translation::append_translation_cpy(sc, dv)
     }
 
     #[inline]
-    fn set_translation(&mut self, v: Vect) {
+    fn set_translation(&mut self, v: Vector) {
         self.sphere.set_translation(v)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use na::Vec3;
+    use na::Vector3;
     use na;
     use super::SpacializedCone;
     use bounding_volume::{BoundingVolume, BoundingSphere};
@@ -182,11 +182,11 @@ mod test {
     #[test]
     #[cfg(feature = "3d")]
     fn test_merge_vee() {
-        let sp   = BoundingSphere::new(na::orig(), na::one());
+        let sp   = BoundingSphere::new(na::origin(), na::one());
         let pi: N = BaseFloat::pi();
         let pi_12 = pi / na::cast(12.0f64);
-        let a    = SpacializedCone::new(sp.clone(), Vec3::new(1.0, 1.0, 0.0), pi_12);
-        let b    = SpacializedCone::new(sp.clone(), Vec3::new(-1.0, 1.0, 0.0), pi_12);
+        let a    = SpacializedCone::new(sp.clone(), Vector3::new(1.0, 1.0, 0.0), pi_12);
+        let b    = SpacializedCone::new(sp.clone(), Vector3::new(-1.0, 1.0, 0.0), pi_12);
 
         let ab = a.merged(&b);
 

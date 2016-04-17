@@ -7,7 +7,7 @@ pub use ray::ray_support_map::implicit_toi_and_normal_with_ray;
 pub use ray::ray_ball::ball_toi_with_ray;
 pub use ray::ray_bvt::{RayIntersectionCostFn, RayInterferencesCollector};
 
-use na::{Pnt2, Vec2, Pnt3, Vec3};
+use na::{Point2, Vector2, Point3, Vector3};
 
 #[doc(hidden)]
 pub mod ray;
@@ -29,13 +29,13 @@ mod ray_bvt;
  *
  */
 /// A 3D ray.
-pub type Ray3<N> = Ray<Pnt3<N>>;
+pub type Ray3<N> = Ray<Point3<N>>;
 
 /// A 2D ray.
-pub type Ray2<N> = Ray<Pnt2<N>>;
+pub type Ray2<N> = Ray<Point2<N>>;
 
 /// A 3D ray intersection.
-pub type RayIntersection3<N> = RayIntersection<Vec3<N>>;
+pub type RayIntersection3<N> = RayIntersection<Vector3<N>>;
 
 /// A 2D ray intersection.
-pub type RayIntersection2<N> = RayIntersection<Vec2<N>>;
+pub type RayIntersection2<N> = RayIntersection<Vector2<N>>;

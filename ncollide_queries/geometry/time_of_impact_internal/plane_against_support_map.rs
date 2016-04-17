@@ -2,12 +2,12 @@ use na::{Rotate, Transform};
 use entities::support_map::SupportMap;
 use entities::shape::Plane;
 use ray::{Ray, RayCast};
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, vel_plane: &P::Vect, plane: &Plane<P::Vect>,
                                                   mother: &M, vel_other: &P::Vect, other: &G)
-                                                  -> Option<<P::Vect as Vect>::Scalar>
+                                                  -> Option<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Rotate<P::Vect> + Transform<P>,
           G: SupportMap<P, M> {
@@ -21,7 +21,7 @@ pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, vel_plane: &P::Vec
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn support_map_against_plane<P, M, G: ?Sized>(mother: &M, vel_other: &P::Vect, other: &G,
                                                   mplane: &M, vel_plane: &P::Vect, plane: &Plane<P::Vect>)
-                                                  -> Option<<P::Vect as Vect>::Scalar>
+                                                  -> Option<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Rotate<P::Vect> + Transform<P>,
           G: SupportMap<P, M> {

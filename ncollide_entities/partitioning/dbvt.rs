@@ -9,7 +9,7 @@ use na::Translation;
 use na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::BVTVisitor;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 
 #[derive(RustcEncodable, RustcDecodable)]
@@ -40,7 +40,7 @@ impl<P, B, BV> DBVT<P, B, BV> {
 
 impl<P, B, BV> DBVT<P, B, BV>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> + Clone,
+          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> + Translation<P::Vect> + Clone,
           B:  'static + Clone {
     /// Removes a leaf from the tree. Fails if the tree is empty.
     pub fn remove(&mut self, leaf: &mut Rc<RefCell<DBVTLeaf<P, B, BV>>>) {
@@ -121,7 +121,7 @@ impl<P: Point, BV: Translation<P::Vect>, B> DBVTInternal<P, B, BV> {
            right:           DBVTNode<P, B, BV>)
            -> DBVTInternal<P, B, BV> {
         DBVTInternal {
-            center:          na::orig::<P>() + bounding_volume.translation(),
+            center:          na::origin::<P>() + bounding_volume.translation(),
             bounding_volume: bounding_volume,
             left:            left,
             right:           right,
@@ -218,7 +218,7 @@ impl<P: Point, B: 'static, BV: Translation<P::Vect> + 'static> DBVTLeaf<P, B, BV
     /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<P, B, BV> {
         DBVTLeaf {
-            center:          na::orig::<P>() + bounding_volume.translation(),
+            center:          na::origin::<P>() + bounding_volume.translation(),
             bounding_volume: bounding_volume,
             object:          object,
             parent:          DBVTLeafState::Detached
@@ -305,14 +305,14 @@ impl<P: Point, B: 'static, BV: Translation<P::Vect> + 'static> DBVTLeaf<P, B, BV
 
 impl<P, BV, B> DBVTNode<P, B, BV>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar>,
+          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar>,
           B: 'static {
-    fn sqdist_to(&self, to: &P) -> <P::Vect as Vect>::Scalar {
+    fn sqdist_to(&self, to: &P) -> <P::Vect as Vector>::Scalar {
         match *self {
-            DBVTNode::Internal(ref i) => na::sqdist(&i.center, to),
+            DBVTNode::Internal(ref i) => na::distance_squared(&i.center, to),
             DBVTNode::Leaf(ref l)     => {
                 let bl = l.borrow();
-                na::sqdist(&bl.center, to)
+                na::distance_squared(&bl.center, to)
             },
             DBVTNode::Invalid => unreachable!()
         }
@@ -321,7 +321,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
 
 impl<P, B, BV> DBVTInternal<P, B, BV>
     where P:  Point,
-          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vect>::Scalar>,
+          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vector>::Scalar>,
           B:  'static {
     fn is_closest_to_left(&self, pt: &P) -> bool {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
@@ -330,7 +330,7 @@ impl<P, B, BV> DBVTInternal<P, B, BV>
 
 impl<P, BV, B> DBVTNode<P, B, BV>
     where P:  Point,
-          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vect>::Scalar>,
+          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vector>::Scalar>,
           B:  'static {
     /// Inserts a new leaf on this tree.
     fn insert(self,

@@ -1,5 +1,5 @@
 use std::mem;
-use math::{Point, Vect};
+use math::{Point, Vector};
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
@@ -14,13 +14,13 @@ pub struct Contact<P: Point> {
     pub normal: P::Vect,
 
     /// Penetration depth
-    pub depth:  <P::Vect as Vect>::Scalar
+    pub depth:  <P::Vect as Vector>::Scalar
 }
 
 impl<P: Point> Contact<P> {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: P, world2: P, normal: P::Vect, depth: <P::Vect as Vect>::Scalar) -> Contact<P> {
+    pub fn new(world1: P, world2: P, normal: P::Vect, depth: <P::Vect as Vector>::Scalar) -> Contact<P> {
         Contact {
             world1: world1,
             world2: world2,

@@ -10,11 +10,11 @@ impl<P, M> SupportMap<P, M> for Triangle<P>
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inv_rotate(dir);
+        let local_dir = m.inverse_rotate(dir);
 
-        let d1 = na::dot(self.a().as_vec(), &local_dir);
-        let d2 = na::dot(self.b().as_vec(), &local_dir);
-        let d3 = na::dot(self.c().as_vec(), &local_dir);
+        let d1 = na::dot(self.a().as_vector(), &local_dir);
+        let d2 = na::dot(self.b().as_vector(), &local_dir);
+        let d3 = na::dot(self.c().as_vector(), &local_dir);
 
         let res =
             if d1 > d2 {

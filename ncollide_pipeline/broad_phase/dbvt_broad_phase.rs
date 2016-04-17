@@ -5,7 +5,7 @@ use na;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::hash_map::HashMap;
-use math::{Point, Vect};
+use math::{Point, Vector};
 use entities::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use entities::partitioning::{DBVT, DBVTLeaf};
 use queries::ray::{Ray, RayCast, RayInterferencesCollector};
@@ -32,7 +32,7 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     tree:       DBVT<P, FastKey, BV>, // DBVT for moving objects.
     stree:      DBVT<P, FastKey, BV>, // DBVT for static objects.
     pairs:      HashMap<Pair, (), PairTWHash>, // Pairs detected (FIXME: use a Vec instead?)
-    margin:     <P::Vect as Vect>::Scalar, // The margin added to each bounding volume.
+    margin:     <P::Vect as Vector>::Scalar, // The margin added to each bounding volume.
     update_off: usize, // Incremental pairs removal index.
     purge_all:  bool,
 
@@ -45,9 +45,9 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
 
 impl<P, BV, T> DBVTBroadPhase<P, BV, T>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> + Clone {
+          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> + Translation<P::Vect> + Clone {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(margin: <P::Vect as Vect>::Scalar, small_keys: bool)
+    pub fn new(margin: <P::Vect as Vector>::Scalar, small_keys: bool)
                -> DBVTBroadPhase<P, BV, T> {
         DBVTBroadPhase {
             proxies:    UidRemap::new(small_keys),
@@ -73,7 +73,7 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vect>::Scalar> + Translation<P::Vect> +
+          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> + Translation<P::Vect> +
               RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
     #[inline]
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
@@ -251,7 +251,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         /*
          * Actually remove the pairs.
          */
-        for pair in self.pairs_to_remove.iter() { 
+        for pair in self.pairs_to_remove.iter() {
             self.pairs.remove(pair);
         }
         self.pairs_to_remove.clear();
@@ -305,6 +305,14 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
 
                     proxy.active = DEACTIVATION_THRESHOLD - 1;
                 }
+            }
+        }
+    }
+
+    fn defered_recompute_all_proximities(&mut self) {
+        for proxy in self.proxies.iter() {
+            if proxy.1.active >= 0 {
+                self.to_update.push((proxy.0, proxy.1.leaf.borrow().bounding_volume.clone()));
             }
         }
     }
