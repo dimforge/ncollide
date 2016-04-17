@@ -1,10 +1,8 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use std::sync::Arc;
 use na::{Isometry2, Vector2};
-use ncollide::shape::{Cuboid, Compound};
-use ncollide::inspection::Repr2;
+use ncollide::shape::{Cuboid, Compound, ShapeHandle};
 
 fn main() {
     // Delta transformation matrices.
@@ -14,8 +12,8 @@ fn main() {
 
     // 1) Initialize the shape list.
     let mut shapes = Vec::new();
-    let horizontal_box = Arc::new(Box::new(Cuboid::new(Vector2::new(1.5f32,  0.25))) as Box<Repr2<f32>>);
-    let vertical_box   = Arc::new(Box::new(Cuboid::new(Vector2::new(0.25f32, 1.5))) as Box<Repr2<f32>>);
+    let horizontal_box = ShapeHandle::new(Cuboid::new(Vector2::new(1.5f32,  0.25)));
+    let vertical_box   = ShapeHandle::new(Cuboid::new(Vector2::new(0.25f32, 1.5)));
 
     shapes.push((delta1, horizontal_box));
     shapes.push((delta2, vertical_box.clone()));

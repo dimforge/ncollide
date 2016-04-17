@@ -6,12 +6,12 @@ extern crate ncollide;
 use na::{Point3, Isometry3};
 use ncollide::inspection::Repr;
 use ncollide::shape::{Ball, Cylinder, Cone};
-use ncollide::narrow_phase::{CollisionDispatcher, BasicCollisionDispatcher, PlaneSupportMap,
+use ncollide::narrow_phase::{CollisionDispatcher, DefaultCollisionDispatcher, PlaneSupportMapCollisionDetector,
                              IncrementalContactManifoldGenerator, OneShotContactManifoldGenerator};
 
 
 fn main() {
-    let dispatcher: BasicCollisionDispatcher<Point3<f64>, Isometry3<f64>> = BasicCollisionDispatcher::new(0.10f64);
+    let dispatcher: DefaultCollisionDispatcher<Point3<f64>, Isometry3<f64>> = DefaultCollisionDispatcher::new();
     let shape1 = Ball::new(0.5);
     let shape2 = Cylinder::new(0.5, 1.0);
     let shape3 = Cone::new(0.5, 1.0);
@@ -21,10 +21,12 @@ fn main() {
     let cylinder_vs_cone_detector = dispatcher.get_collision_algorithm(&shape2.repr(), &shape3.repr());
 
 
-    let plane_vs_ball: PlaneSupportMap<Point3<f32>, Isometry3<f32>> = PlaneSupportMap::new(0.04);
-    let full_manifold_plane_vs_ball = IncrementalContactManifoldGenerator::new(0.04, plane_vs_ball);
+    let plane_vs_ball: PlaneSupportMapCollisionDetector<Point3<f32>, Isometry3<f32>> =
+        PlaneSupportMapCollisionDetector::new();
+    let full_manifold_plane_vs_ball = IncrementalContactManifoldGenerator::new(plane_vs_ball);
 
 
-    let plane_vs_ball: PlaneSupportMap<Point3<f32>, Isometry3<f32>> = PlaneSupportMap::new(0.04);
-    let full_manifold_plane_vs_ball = OneShotContactManifoldGenerator::new(0.04, plane_vs_ball);
+    let plane_vs_ball: PlaneSupportMapCollisionDetector<Point3<f32>, Isometry3<f32>> =
+        PlaneSupportMapCollisionDetector::new();
+    let full_manifold_plane_vs_ball = OneShotContactManifoldGenerator::new(plane_vs_ball);
 }

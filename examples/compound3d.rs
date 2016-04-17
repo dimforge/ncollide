@@ -4,7 +4,7 @@ extern crate ncollide;
 use std::sync::Arc;
 use na::{Isometry3, Vector3};
 use ncollide::inspection::Repr3;
-use ncollide::shape::{Cuboid, Compound};
+use ncollide::shape::{Cuboid, Compound, ShapeHandle};
 
 fn main() {
     // Delta transformation matrices.
@@ -14,8 +14,8 @@ fn main() {
 
     // 1) Initialize the shape list.
     let mut shapes = Vec::new();
-    let horizontal_box = Arc::new(Box::new(Cuboid::new(Vector3::new(1.5f32,  0.25, 0.25))) as Box<Repr3<f32>>);
-    let vertical_box   = Arc::new(Box::new(Cuboid::new(Vector3::new(0.25f32, 1.5, 0.25))) as Box<Repr3<f32>>);
+    let horizontal_box = ShapeHandle::new(Cuboid::new(Vector3::new(1.5f32,  0.25, 0.25)));
+    let vertical_box   = ShapeHandle::new(Cuboid::new(Vector3::new(0.25f32, 1.5, 0.25)));
 
     shapes.push((delta1, horizontal_box));
     shapes.push((delta2, vertical_box.clone()));
