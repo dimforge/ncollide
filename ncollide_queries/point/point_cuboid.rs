@@ -16,10 +16,10 @@ impl<P, M> PointQuery<P, M> for Cuboid<P::Vect>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
         let dl = na::origin::<P>() + (-*self.half_extents());
         let ur = na::origin::<P>() + *self.half_extents();
-        AABB::new(dl, ur).distance_to_point(m, pt)
+        AABB::new(dl, ur).distance_to_point(m, pt, solid)
     }
 
     #[inline]

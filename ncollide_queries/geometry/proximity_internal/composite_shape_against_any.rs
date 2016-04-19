@@ -104,7 +104,7 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
                              *bv.maxs() + self.msum_shift + self.msum_margin);
 
         // Compute the distance to the origin.
-        let distance = msum.distance_to_point(&Identity::new(), &na::origin());
+        let distance = msum.distance_to_point(&Identity::new(), &na::origin(), true);
         if distance <= self.margin {
             Some(distance)
         }

@@ -65,8 +65,8 @@ impl<P, M> PointQuery<P, M> for Repr<P, M>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        dispatch!(self.distance_to_point(m, pt))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        dispatch!(self.distance_to_point(m, pt, solid))
     }
 
     #[inline]

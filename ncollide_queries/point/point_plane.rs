@@ -1,4 +1,3 @@
-use num::Float;
 use na::Transform;
 use na;
 use point::PointQuery;
@@ -22,10 +21,21 @@ impl<P, M> PointQuery<P, M> for Plane<P::Vect>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
         let ls_pt = m.inverse_transform(pt);
+        let dist  = na::dot(self.normal(), ls_pt.as_vector());
 
-        na::dot(self.normal(), ls_pt.as_vector()).max(na::zero())
+        if dist < na::zero() {
+            if solid {
+                na::zero()
+            }
+            else {
+                -dist
+            }
+        }
+        else {
+            dist
+        }
     }
 
     #[inline]

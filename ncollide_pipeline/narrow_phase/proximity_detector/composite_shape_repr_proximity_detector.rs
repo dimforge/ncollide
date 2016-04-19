@@ -81,7 +81,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
                 continue;
             }
 
-            if ls_aabb2.intersects(g1.aabb_at(key)) {
+            if ls_aabb2.intersects(&g1.aabb_at(key)) {
                 g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
                     assert!(detector.value.update(disp, m1, g1, m2, g2, margin), "The shape was no longer valid.");
                 });

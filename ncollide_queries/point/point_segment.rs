@@ -32,12 +32,12 @@ impl<P, M> PointQuery<P, M> for Segment<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, solid))
     }
 
     #[inline]
     fn contains_point(&self, m: &M, pt: &P) -> bool {
-        na::approx_eq(&self.distance_to_point(m, pt), &na::zero())
+        na::approx_eq(&self.distance_to_point(m, pt, true), &na::zero())
     }
 }

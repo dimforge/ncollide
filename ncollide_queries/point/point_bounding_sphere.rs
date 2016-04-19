@@ -16,10 +16,10 @@ impl<P, M> PointQuery<P, M> for BoundingSphere<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
         let ls_pt = m.inverse_transform(pt) + (-*self.center().as_vector());
 
-        Ball::new(self.radius()).distance_to_point(&Identity::new(), &ls_pt)
+        Ball::new(self.radius()).distance_to_point(&Identity::new(), &ls_pt, solid)
     }
 
     #[inline]

@@ -10,7 +10,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Cone<<P::Vect as Vector>::Scalar>
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
-        bounding_volume::implicit_shape_aabb(m, self)
+        bounding_volume::support_map_aabb(m, self)
     }
 }
 
@@ -19,7 +19,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Cylinder<<P::Vect as Vector>::Scala
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
-        bounding_volume::implicit_shape_aabb(m, self)
+        bounding_volume::support_map_aabb(m, self)
     }
 }
 
@@ -28,7 +28,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Capsule<<P::Vect as Vector>::Scalar
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
-        bounding_volume::implicit_shape_aabb(m, self)
+        bounding_volume::support_map_aabb(m, self)
     }
 }
 
@@ -38,7 +38,7 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Triangle<P>
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
         // FIXME: optimize that
-        bounding_volume::implicit_shape_aabb(m, self)
+        bounding_volume::support_map_aabb(m, self)
     }
 }
 
@@ -48,6 +48,6 @@ impl<P, M> HasBoundingVolume<M, AABB<P>> for Segment<P>
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
         // FIXME: optimize that
-        bounding_volume::implicit_shape_aabb(m, self)
+        bounding_volume::support_map_aabb(m, self)
     }
 }

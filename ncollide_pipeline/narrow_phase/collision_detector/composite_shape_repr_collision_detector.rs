@@ -78,7 +78,7 @@ impl<P, M> CompositeShapeReprCollisionDetector<P, M>
         // Update all collisions
         for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
-            if ls_aabb2.intersects(g1.aabb_at(key)) {
+            if ls_aabb2.intersects(&g1.aabb_at(key)) {
                 g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
                     if swap {
                         assert!(detector.value.update(dispatcher, m2, g2, m1, g1, prediction),

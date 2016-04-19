@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.0] - WIP
+## Modified
+    * `::implicit_shape_aabb(...)` becomes `::support_map_aabb(...)`
+    * `CompositeShape::aabb_at(...)` now returns an AABB by-value (instead of
+      by-ref).
+    * `PointQuery::distance_to_point(...)` now has a `solid` flag as well.
 
 ## [0.8.0]
 ### Added

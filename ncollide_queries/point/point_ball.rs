@@ -24,8 +24,20 @@ impl<P, M> PointQuery<P, M> for Ball<<P::Vect as Vector>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        (na::norm(m.inverse_translate(pt).as_vector()) - self.radius()).max(na::zero())
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        let dist = na::norm(m.inverse_translate(pt).as_vector()) - self.radius();
+
+        if dist < na::zero() {
+            if solid {
+                na::zero()
+            }
+            else {
+                -dist
+            }
+        }
+        else {
+            dist
+        }
     }
 
     #[inline]

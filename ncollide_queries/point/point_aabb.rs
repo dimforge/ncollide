@@ -30,12 +30,12 @@ impl<P, M> PointQuery<P, M> for AABB<P>
                 if mins_pt_i < pt_maxs_i {
                     if pt_maxs[i] > best {
                         best_id = i as isize;
-                        best = pt_maxs_i
+                        best    = pt_maxs_i
                     }
                 }
                 else if mins_pt_i > best {
                     best_id = -(i as isize);
-                    best = mins_pt_i
+                    best    = mins_pt_i
                 }
             }
 
@@ -53,12 +53,19 @@ impl<P, M> PointQuery<P, M> for AABB<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
         let ls_pt   = m.inverse_transform(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
+        let shift = na::sup(&na::zero(), &na::sup(&mins_pt, &pt_maxs));
 
-        na::norm(&na::sup(&na::zero(), &na::sup(&mins_pt, &pt_maxs)))
+        if solid || !shift.is_zero() {
+            na::norm(&shift)
+        }
+        else {
+            // FIXME: optimize that.
+            na::distance(pt, &self.project_point(m, pt, solid))
+        }
     }
 
     #[inline]

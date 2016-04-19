@@ -1,5 +1,6 @@
 //! Traits and methods to inspect and retrieve the capabilities and representations of shapes at runtime.
 
+#[doc(inline)]
 pub use self::repr::{ReprDesc, Repr};
 pub use self::maybe_as_composite_shape::{
     maybe_as_composite_shape,

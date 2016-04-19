@@ -21,7 +21,7 @@ pub trait CompositeShape<P: Point, M> {
 
     // FIXME: the following two methods really are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.
-    fn aabb_at(&self, i: usize) -> &AABB<P>;
+    fn aabb_at(&self, i: usize) -> AABB<P>;
     /// Gets the acceleration structure of the concave shape.
     fn bvt(&self) -> &BVT<usize, AABB<P>>;
 }
@@ -49,8 +49,8 @@ impl<P, M> CompositeShape<P, M> for Compound<P, M>
     }
 
     #[inline]
-    fn aabb_at(&self, i: usize) -> &AABB<P> {
-        &self.bounding_volumes()[i]
+    fn aabb_at(&self, i: usize) -> AABB<P> {
+        self.bounding_volumes()[i].clone()
     }
 
     #[inline]
@@ -82,8 +82,8 @@ impl<P, M> CompositeShape<P, M> for TriMesh<P>
     }
 
     #[inline]
-    fn aabb_at(&self, i: usize) -> &AABB<P> {
-        &self.bounding_volumes()[i]
+    fn aabb_at(&self, i: usize) -> AABB<P> {
+        self.bounding_volumes()[i].clone()
     }
 
     #[inline]
@@ -115,8 +115,8 @@ impl<P, M> CompositeShape<P, M> for Polyline<P>
     }
 
     #[inline]
-    fn aabb_at(&self, i: usize) -> &AABB<P> {
-        &self.bounding_volumes()[i]
+    fn aabb_at(&self, i: usize) -> AABB<P> {
+        self.bounding_volumes()[i].clone()
     }
 
     #[inline]

@@ -56,8 +56,8 @@ impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vector>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, solid))
     }
 
     #[inline]
@@ -75,8 +75,8 @@ impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vector>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, solid))
     }
 
     #[inline]
@@ -94,8 +94,8 @@ impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vector>::Scalar>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, solid))
     }
 
     #[inline]
@@ -113,8 +113,8 @@ impl<P, M> PointQuery<P, M> for ConvexHull<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, true))
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(pt, &self.project_point(m, pt, solid))
     }
 
     #[inline]

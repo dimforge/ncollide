@@ -20,8 +20,8 @@ impl<P, M> PointQuery<P, M> for Compound<P, M>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(point, &self.project_point(m, point, true))
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(point, &self.project_point(m, point, solid))
     }
 
     #[inline]
@@ -52,7 +52,7 @@ impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for Compou
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
-        Some(aabb.distance_to_point(&Identity::new(), self.point))
+        Some(aabb.distance_to_point(&Identity::new(), self.point, true))
     }
 
     #[inline]

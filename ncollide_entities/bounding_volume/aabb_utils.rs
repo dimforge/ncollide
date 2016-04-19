@@ -7,7 +7,7 @@ use math::{Point, Vector};
 
 
 /// Computes the AABB of an support mapped shape.
-pub fn implicit_shape_aabb<P, M, G>(m: &M, i: &G) -> AABB<P>
+pub fn support_map_aabb<P, M, G>(m: &M, i: &G) -> AABB<P>
         where P: Point,
               G: SupportMap<P, M> {
         let mut min   = na::origin::<P>();

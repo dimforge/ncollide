@@ -20,8 +20,8 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
-        na::distance(point, &self.project_point(m, point, true))
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        na::distance(point, &self.project_point(m, point, solid))
     }
 
     #[inline]
@@ -51,7 +51,7 @@ impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for Bas
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
-        Some(aabb.distance_to_point(&Identity::new(), self.point))
+        Some(aabb.distance_to_point(&Identity::new(), self.point, true))
     }
 
     #[inline]
@@ -102,8 +102,8 @@ impl<P, M> PointQuery<P, M> for TriMesh<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
-        self.base_mesh().distance_to_point(m, point)
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        self.base_mesh().distance_to_point(m, point, solid)
     }
 
     #[inline]
@@ -121,8 +121,8 @@ impl<P, M> PointQuery<P, M> for Polyline<P>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P) -> <P::Vect as Vector>::Scalar {
-        self.base_mesh().distance_to_point(m, point)
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+        self.base_mesh().distance_to_point(m, point, solid)
     }
 
     #[inline]
