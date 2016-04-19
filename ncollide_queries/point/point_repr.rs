@@ -3,7 +3,7 @@ use math::{Point, Vector, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
 use entities::inspection::Repr;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 
 macro_rules! dispatch(
     ($sself: ident.$name: ident($($argN: ident),*)) => {
@@ -60,7 +60,7 @@ impl<P, M> PointQuery<P, M> for Repr<P, M>
     where P: Point,
           M: Isometry<P, P::Vect> + Translation<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         dispatch!(self.project_point(m, pt, solid))
     }
 

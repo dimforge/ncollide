@@ -6,7 +6,7 @@ use geometry::algorithms::simplex::Simplex;
 use geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use entities::shape::{Cylinder, Cone, Capsule, ConvexHull};
 use entities::support_map::SupportMap;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use math::{Point, Vector};
 
 /// Projects a point on a shape using the GJK algorithm.
@@ -15,7 +15,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
                                                 simplex: &mut S,
                                                 point:   &P,
                                                 solid:   bool)
-                                                -> P
+                                                -> PointProjection<P>
     where P: Point,
           M: Translation<P::Vect>,
           S: Simplex<P>,
@@ -28,21 +28,25 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
 
     match gjk::project_origin(&m, shape, simplex) {
         Some(p) => {
-            p + *point.as_vector()
+            PointProjection::new(false, p + *point.as_vector())
         },
         None => {
+            let proj;
+
             // Fallback algorithm.
             // FIXME: we use the Minkowski Sampling for now, but this should be changed for the EPA
             // in the future.
             if !solid {
                 match minkowski_sampling::project_origin(&m, shape, simplex) {
-                    Some(p) => p + *point.as_vector(),
-                    None    => point.clone()
+                    Some(p) => proj = p + *point.as_vector(),
+                    None    => proj = point.clone()
                 }
             }
             else {
-                point.clone()
+                proj = point.clone()
             }
+
+            PointProjection::new(true, proj)
         }
     }
 }
@@ -51,18 +55,8 @@ impl<P, M> PointQuery<P, M> for Cylinder<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
-    }
-
-    #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, solid))
-    }
-
-    #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        self.project_point(m, pt, true) == *pt
     }
 }
 
@@ -70,18 +64,8 @@ impl<P, M> PointQuery<P, M> for Cone<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
-    }
-
-    #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, solid))
-    }
-
-    #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        self.project_point(m, pt, true) == *pt
     }
 }
 
@@ -89,18 +73,8 @@ impl<P, M> PointQuery<P, M> for Capsule<<P::Vect as Vector>::Scalar>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
-    }
-
-    #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, solid))
-    }
-
-    #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        self.project_point(m, pt, true) == *pt
     }
 }
 
@@ -108,17 +82,7 @@ impl<P, M> PointQuery<P, M> for ConvexHull<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> + Translation<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
-    }
-
-    #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(pt, &self.project_point(m, pt, solid))
-    }
-
-    #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        self.project_point(m, pt, true) == *pt
     }
 }

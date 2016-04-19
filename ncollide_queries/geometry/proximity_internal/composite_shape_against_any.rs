@@ -21,6 +21,8 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
           G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+    assert!(margin >= na::zero(), "The proximity margin must be positive or null.");
+
     let mut cost_fn = CompositeShapeAgainstAnyInterfCostFn::new(m1, g1, m2, g2, margin);
 
     match g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res) {

@@ -45,6 +45,8 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
           S:  Simplex<AnnotatedPoint<P>>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
+    assert!(margin >= na::zero(), "The proximity margin must be positive or null.");
+
     let mut dir =
         match init_dir {
             None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?

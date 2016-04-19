@@ -1,6 +1,6 @@
 use na::{Identity, Translation};
 use na;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use entities::bounding_volume::AABB;
 use entities::shape::{Compound, CompositeShape};
 use entities::partitioning::{BVTCostFn, BVTVisitor};
@@ -12,16 +12,14 @@ impl<P, M> PointQuery<P, M> for Compound<P, M>
           M: Isometry<P, P::Vect> + Translation<P::Vect> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform(point);
         let mut cost_fn = CompoundPointProjCostFn { compound: self, point: &ls_pt, solid: solid };
 
-        m.transform(&self.bvt().best_first_search(&mut cost_fn).unwrap().1)
-    }
+        let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        proj.point = m.transform(&proj.point);
 
-    #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(point, &self.project_point(m, point, solid))
+        proj
     }
 
     #[inline]
@@ -48,7 +46,7 @@ struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
 impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P, P::Vect> + Translation<P::Vect> {
-    type UserData = P;
+    type UserData = PointProjection<P>;
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
@@ -56,13 +54,13 @@ impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for Compou
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, P)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, PointProjection<P>)> {
         let mut res = None;
 
         self.compound.map_part_at(*b, &mut |objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
-            res = Some((na::distance(self.point, &proj), proj));
+            res = Some((na::distance(self.point, &proj.point), proj));
         });
 
         res

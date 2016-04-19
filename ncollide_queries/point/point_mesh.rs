@@ -1,6 +1,6 @@
 use na::{Transform, Identity};
 use na;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use entities::shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use entities::bounding_volume::AABB;
 use entities::partitioning::{BVTCostFn, BVTVisitor};
@@ -12,16 +12,14 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
           M: Transform<P>,
           E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, _: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, _: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform(point);
         let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
 
-        m.transform(&self.bvt().best_first_search(&mut cost_fn).unwrap().1)
-    }
+        let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        proj.point = m.transform(&proj.point);
 
-    #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        na::distance(point, &self.project_point(m, point, solid))
+        proj
     }
 
     #[inline]
@@ -47,7 +45,7 @@ struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
 impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
     where P: Point,
           E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
-    type UserData = P;
+    type UserData = PointProjection<P>;
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
@@ -55,10 +53,10 @@ impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for Bas
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, P)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, PointProjection<P>)> {
         let proj = self.mesh.element_at(*b).project_point(&Identity::new(), self.point, true);
 
-        Some((na::distance(self.point, &proj), proj))
+        Some((na::distance(self.point, &proj.point), proj))
     }
 }
 
@@ -97,7 +95,7 @@ impl<P, M> PointQuery<P, M> for TriMesh<P>
     where P: Point,
           M: Transform<P> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         self.base_mesh().project_point(m, point, solid)
     }
 
@@ -116,7 +114,7 @@ impl<P, M> PointQuery<P, M> for Polyline<P>
     where P: Point,
           M: Transform<P> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         self.base_mesh().project_point(m, point, solid)
     }
 

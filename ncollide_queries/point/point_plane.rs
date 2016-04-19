@@ -1,6 +1,6 @@
 use na::Transform;
 use na;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use entities::shape::Plane;
 use math::{Point, Vector};
 
@@ -8,15 +8,17 @@ impl<P, M> PointQuery<P, M> for Plane<P::Vect>
     where P: Point,
           M: Transform<P> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform(pt);
         let d     = na::dot(self.normal(), ls_pt.as_vector());
 
-        if d < na::zero() && solid {
-            pt.clone()
+        let inside = d <= na::zero();
+
+        if inside && solid {
+            PointProjection::new(true, pt.clone())
         }
         else {
-            *pt + (-*self.normal() * d)
+            PointProjection::new(inside, *pt + (-*self.normal() * d))
         }
     }
 
@@ -25,15 +27,11 @@ impl<P, M> PointQuery<P, M> for Plane<P::Vect>
         let ls_pt = m.inverse_transform(pt);
         let dist  = na::dot(self.normal(), ls_pt.as_vector());
 
-        if dist < na::zero() {
-            if solid {
-                na::zero()
-            }
-            else {
-                -dist
-            }
+        if dist < na::zero() && solid {
+            na::zero()
         }
         else {
+            // This will automatically be negative if the point is inside.
             dist
         }
     }

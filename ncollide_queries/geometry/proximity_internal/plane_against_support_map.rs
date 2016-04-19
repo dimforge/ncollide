@@ -13,6 +13,8 @@ pub fn plane_against_support_map<P, M, G: ?Sized>(mplane: &M, plane: &Plane<P::V
     where P: Point,
           M: Translate<P> + Rotate<P::Vect>,
           G: SupportMap<P, M> {
+    assert!(margin >= na::zero(), "The proximity margin must be positive or null.");
+
     let plane_normal = mplane.rotate(plane.normal());
     let plane_center = mplane.translate(&na::origin());
     let deepest      = other.support_point(mother, &-plane_normal);

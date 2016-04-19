@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     * `CompositeShape::aabb_at(...)` now returns an AABB by-value (instead of
       by-ref).
     * `PointQuery::distance_to_point(...)` now has a `solid` flag as well.
+    * Point queries result now indicates if the point was inside of the object
+      or not by returning a `PointProjection` structure instead of just the
+      point.
 
 ## [0.8.0]
 ### Added

@@ -38,6 +38,7 @@ pub trait Point: Send + Sync + 'static + Clone + Copy + Debug +
                  IndexMut<usize, Output = <<Self as Point>::Vect as Vector>::Scalar> +
                  Neg<Output = Self> +
                  Decodable + Encodable +
+                 ApproxEq<<<Self as Point>::Vect as Vector>::Scalar> +
                  Repeat<<<Self as Point>::Vect as Vector>::Scalar> +
                  Any {
     /// Type of a point's tangent space element, i.e., the vector type.

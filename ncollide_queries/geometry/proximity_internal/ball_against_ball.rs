@@ -10,6 +10,8 @@ pub fn ball_against_ball<P>(center1: &P, b1: &Ball<<P::Vect as Vector>::Scalar>,
                             margin: <P::Vect as Vector>::Scalar)
                             -> Proximity
     where P: Point {
+    assert!(margin >= na::zero(), "The proximity margin must be positive or null.");
+
     let r1         = b1.radius();
     let r2         = b2.radius();
     let delta_pos  = *center2 - *center1;

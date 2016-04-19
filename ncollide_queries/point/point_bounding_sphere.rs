@@ -1,5 +1,5 @@
 use na::{Identity, Transform};
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use entities::shape::Ball;
 use entities::bounding_volume::BoundingSphere;
 use math::{Point, Vector};
@@ -8,11 +8,13 @@ impl<P, M> PointQuery<P, M> for BoundingSphere<P>
     where P: Point,
           M: Transform<P> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform(pt) + (-*self.center().as_vector());
-        let proj  = Ball::new(self.radius()).project_point(&Identity::new(), &ls_pt, solid);
+        let mut proj = Ball::new(self.radius()).project_point(&Identity::new(), &ls_pt, solid);
 
-        m.transform(&proj) + *self.center().as_vector()
+        proj.point = m.transform(&proj.point) + *self.center().as_vector();
+
+        proj
     }
 
     #[inline]

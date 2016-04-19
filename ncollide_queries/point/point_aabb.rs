@@ -1,7 +1,7 @@
 use num::Zero;
 use na::{Transform, Rotate, Bounded};
 use na;
-use point::PointQuery;
+use point::{PointQuery, PointProjection};
 use entities::bounding_volume::AABB;
 use math::{Point, Vector};
 
@@ -9,14 +9,16 @@ impl<P, M> PointQuery<P, M> for AABB<P>
     where P: Point,
           M: Transform<P> + Rotate<P::Vect> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> P {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let ls_pt   = m.inverse_transform(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
         let shift   = na::sup(&na::zero(), &mins_pt) - na::sup(&na::zero(), &pt_maxs);
 
-        if !shift.is_zero() || solid {
-            *pt + m.rotate(&shift)
+        let inside = shift.is_zero();
+
+        if !inside || solid {
+            PointProjection::new(inside, *pt + m.rotate(&shift))
         }
         else {
             let _max: <P::Vect as Vector>::Scalar = Bounded::max_value();
@@ -48,7 +50,7 @@ impl<P, M> PointQuery<P, M> for AABB<P>
                 shift[best_id as usize] = -best;
             }
 
-            *pt + m.rotate(&shift)
+            PointProjection::new(inside, *pt + m.rotate(&shift))
         }
     }
 
@@ -64,7 +66,7 @@ impl<P, M> PointQuery<P, M> for AABB<P>
         }
         else {
             // FIXME: optimize that.
-            na::distance(pt, &self.project_point(m, pt, solid))
+            -na::distance(pt, &self.project_point(m, pt, solid).point)
         }
     }
 
