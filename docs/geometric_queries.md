@@ -205,7 +205,7 @@ defined by free-functions on the `geometry::` module. Those functions will
 inspect the shape representation in order to select the right algorithm for the
 query. To avoid this dynamic dispatch when you already know at compile-time
 which types of shapes are involved, the _internal_ submodules, e.g.,
-`geometry::distance_internal`, contains functions dedicated to specific shapes
+`geometry::distance_internal`, contain functions dedicated to specific shapes
 or shape representations.
 
 ### Proximity
@@ -295,7 +295,7 @@ assert_eq!(prox_disjoint, Proximity::Disjoint);
 The minimal distance between two shapes `g1` and `g2`, respectively transformed
 by `m1` and `m2`, can be computed by `geometry::distance(m1, g1, m2, g2)`. This
 will return a positive value if the objects are not intersecting and zero
-otherwise. The following example compute the distance between a cube and a
+otherwise. The following example computes the distance between a cube and a
 sphere.
 
 #### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/distance_query2d.rs')" ></div>
@@ -358,9 +358,10 @@ fn main() {
 ### Contact
 
 Contact determination is the core feature of any collision detection library.
-It is the process of determining if two objects are in contact. If they are,
-the contact geometry is computed and stored into the `geometry::Contact`
-structure:
+The function `geometry::contact(m1, g1, m2, g2, prediction)` will compute a
+pair of closest points between two objects if they are penetrating, touching,
+or separated by a distance smaller than `prediction`. If such contact is found,
+it is described by the `geometry::Contact` structure:
 
 
 | Field    | Description                                                              |
@@ -392,7 +393,82 @@ contact normal needed to remove any overlap between the two objects interiors.
 
 ### Time of impact
 
-The time of impact returned by `geometry::time_of_impact(m1, v1, g1, m2, v2, g2)`
-is the time a shape would take `g1` and `g2` to touch if they both move with
-linear velocities `v1` and `v2` starting with the position and orientation
-given by `m1` and `m2`.
+The time of impact (aka. $\mathit{toi}$) returned by `geometry::time_of_impact(m1,
+v1, g1, m2, v2, g2)` is the time it would take `g1` and `g2` to touch if they
+both move with linear velocities `v1` and `v2` starting with the positions and
+orientations given by `m1` and `m2`. This is commonly used for, e.g.,
+continuous collision detection to avoid tunnelling effects on physics engines:
+objects that traverse each other in-between iterations if the objects are
+moving too fast or if the time step is too large.
+
+
+The following example depicts the three possible scenarios:
+
+1. The shapes are already touching at their original positions, i.e., at time $\mathit{toi} = 0$.
+2. The shapes start intersecting at some time $\mathit{toi} > 0$. This means
+   that `g1` and `g2` start touching at the positions
+   `na::append_translation(&m1, &(v1 * toi))` and `na::append_translation(&m2,
+   &(v2 * toi))`.
+3. The shapes will never intersect. In this case `None` is returned.
+
+<center>
+![time of impact](../img/time_of_impact.svg)
+</center>
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact2d.rs')" ></div>
+
+```rust
+let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));
+let ball   = Ball::new(1.0);
+
+let cuboid_pos            = na::one();
+let ball_pos_intersecting = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
+let ball_pos_will_touch   = Isometry2::new(Vector2::new(2.0, 2.0), na::zero());
+let ball_pos_wont_touch   = Isometry2::new(Vector2::new(3.0, 3.0), na::zero());
+
+let box_vel1 = Vector2::new(-1.0, 1.0);
+let box_vel2 = Vector2::new(1.0, 1.0);
+
+let ball_vel1 = Vector2::new(2.0, 2.0);
+let ball_vel2 = Vector2::new(-0.5, -0.5);
+
+let toi_intersecting = geometry::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
+                                                &cuboid_pos,            &box_vel1,  &cuboid);
+let toi_will_touch = geometry::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
+                                              &cuboid_pos,          &box_vel2,  &cuboid);
+let toi_wont_touch = geometry::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
+                                              &cuboid_pos,          &box_vel1,  &cuboid);
+
+assert_eq!(toi_intersecting, Some(0.0));
+assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
+assert_eq!(toi_wont_touch, None);
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact3d.rs')" ></div>
+
+```rust
+let cuboid = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));
+let ball   = Ball::new(1.0);
+
+let cuboid_pos            = na::one();
+let ball_pos_intersecting = Isometry3::new(Vector3::new(1.0, 1.0, 1.0), na::zero());
+let ball_pos_will_touch   = Isometry3::new(Vector3::new(2.0, 2.0, 2.0), na::zero());
+let ball_pos_wont_touch   = Isometry3::new(Vector3::new(3.0, 3.0, 3.0), na::zero());
+
+let box_vel1 = Vector3::new(-1.0, 1.0, 1.0);
+let box_vel2 = Vector3::new(1.0, 1.0, 1.0);
+
+let ball_vel1 = Vector3::new(2.0, 2.0, 2.0);
+let ball_vel2 = Vector3::new(-0.5, -0.5, -0.5);
+
+let toi_intersecting = geometry::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
+                                                &cuboid_pos,            &box_vel1,  &cuboid);
+let toi_will_touch = geometry::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
+                                              &cuboid_pos,          &box_vel2,  &cuboid);
+let toi_wont_touch = geometry::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
+                                              &cuboid_pos,          &box_vel1,  &cuboid);
+
+assert_eq!(toi_intersecting, Some(0.0));
+assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
+assert_eq!(toi_wont_touch, None);
+```
