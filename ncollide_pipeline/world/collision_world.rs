@@ -118,13 +118,13 @@ impl<P, M, T> CollisionWorld<P, M, T>
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
         where F: BroadPhasePairFilter<CollisionObject<P, M, T>> + 'static {
         self.pair_filters.register_collision_filter(name, Box::new(filter));
-        self.broad_phase.defered_recompute_all_proximities();
+        self.broad_phase.deferred_recompute_all_proximities();
     }
 
     /// Removes the pair filter named `name`.
     pub fn unregister_broad_phase_pair_filter(&mut self, name: &str) {
         if self.pair_filters.unregister_collision_filter(name) {
-            self.broad_phase.defered_recompute_all_proximities();
+            self.broad_phase.deferred_recompute_all_proximities();
         }
     }
 
@@ -220,7 +220,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// contacts.
     pub fn set_narrow_phase(&mut self, narrow_phase: Box<NarrowPhase<P, M, T>>) -> Box<NarrowPhase<P, M, T>> {
         let old = mem::replace(&mut self.narrow_phase, narrow_phase);
-        self.broad_phase.defered_recompute_all_proximities();
+        self.broad_phase.deferred_recompute_all_proximities();
 
         old
     }

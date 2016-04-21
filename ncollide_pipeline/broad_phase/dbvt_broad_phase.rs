@@ -309,7 +309,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         }
     }
 
-    fn defered_recompute_all_proximities(&mut self) {
+    fn deferred_recompute_all_proximities(&mut self) {
         for proxy in self.proxies.iter() {
             if proxy.1.active >= 0 {
                 self.to_update.push((proxy.0, proxy.1.leaf.borrow().bounding_volume.clone()));
