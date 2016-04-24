@@ -2,10 +2,15 @@
 
 echo "Integrating rust documentation to the website..."
 cssfile=./docs/rustdoc/rustdoc.css
-cat custom_flatly/css/bootstrap-custom.min2.css >> $cssfile
-cat custom_flatly/css/base2.css >> $cssfile
-cat custom_flatly/css/font-awesome-4.0.3.css >> $cssfile
-sed -i 's/margin-left: 230px;//g' $cssfile
+tmpcssfile=./docs/rustdoc/rustdoc.css.tmp
+
+echo '@import url("//fonts.googleapis.com/css?family=Lato:400,700,900,400italic");' > $tmpcssfile
+cat $cssfile >> $tmpcssfile
+cat custom_flatly/css/bootstrap-custom.min2.css >> $tmpcssfile
+cat custom_flatly/css/base2.css >> $tmpcssfile
+cat custom_flatly/css/font-awesome-4.0.3.css >> $tmpcssfile
+sed -i 's/margin-left: 230px;//g' $tmpcssfile
+mv $tmpcssfile $cssfile
 
 #files="./docs/rustdoc/ncollide/**/*.html"
 files=`find ./docs/rustdoc -name \*.html -printf '%p '`

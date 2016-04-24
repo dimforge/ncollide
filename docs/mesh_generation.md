@@ -1,11 +1,11 @@
 # Mesh generation
 
 While not directly part of the collision detection problem, mesh generation is
-useful to extend the range of shapes supported by **ncollide** by
-discretizing them such that they can be approximated with a `shape::Mesh`, a
-`shape::Convex`, and/or a `shape::Compound`. It is also useful to obtain a
-renderer-compliant representation of non-polyhedral models such that balls,
-capsules, parametric surfaces, etc.
+useful to extend the range of shapes supported by **ncollide** by discretizing
+them such that they can be approximated with a `shape::TriMesh`, a
+`shape::Polyline`, a `shape::ConvexHull`, and/or a `shape::Compound`. It is
+also useful to obtain a renderer-compliant representation of non-polyhedral
+models such that balls, capsules, parametric surfaces, etc.
 
 
 The two main types of mesh generation results are `procedural::TriMesh` and
@@ -135,7 +135,7 @@ correctly to form a topologically sound `TriMesh`. This allows you to easily
 stroke paths with possibly very different shapes and connectivity using the
 same pattern.
 
-### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/path.rs')"></div>
+#### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/path.rs')"></div>
 The following example uses the `procedural::path::PolylinePath` together with
 the `procedural::path::PolylinePattern` to stroke the arrowed Bézier curve
 shown at the beginning of this section.
@@ -198,8 +198,6 @@ functions exist for the 2D and 3D cases:
 If you are not interested in the `Polyline` representation of the 2D convex
 hull but only on the original indices of the vertices it contains, use the
 `_idx` variant of the function − namely `convex_hull2d_idx(...)`.
-
-### Example
 The following example creates 100,000 random points and compute their
 convex hull.
 
@@ -300,7 +298,7 @@ the HACD algorithm (middle), and the resulting convex decomposition (right):
 
 ![hacd](../img/hacd.png)
 
-### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/hacd3d.rs')" ></div>
+#### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/hacd3d.rs')" ></div>
 
 The following example creates a concave object using a
 [path-based](#paths) mesh generation and approximates it

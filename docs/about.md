@@ -1,5 +1,6 @@
 # About
 
+<a href="https://github.com/sebcrozet"><img id="left_float_img" src="http://www.gravatar.com/avatar/24f8431a2a28f633cba972f1176921e4?s=125"></img></a>
 As of today, this website and the **ncollide** project are almost completely
 developed by Sébastien Crozet (aka.
 [sebcrozet](https://github.com/sebcrozet)), a French Ph.D Student. His

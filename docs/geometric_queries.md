@@ -358,30 +358,30 @@ fn main() {
 ### Contact
 
 Contact determination is the core feature of any collision detection library.
-The function `geometry::contact(m1, g1, m2, g2, prediction)` will compute a
+The function `geometry::contact(m1, g1, m2, g2, prediction)` will compute one
 pair of closest points between two objects if they are penetrating, touching,
-or separated by a distance smaller than `prediction`. If such contact is found,
-it is described by the `geometry::Contact` structure:
+or separated by a distance smaller than `prediction`. If the shapes are concave
+or in conforming contact, you may need multiple contact points. This can be
+achieved by [persistent collision
+detection](../collision_detection_pipeline/#narrow-phase) structures. In any
+cases, a contact is described by the `geometry::Contact` structure:
 
 
 | Field    | Description                                                              |
 |--        | --                                                                       |
 | `world1` | The contact point on the first object expressed in the absolute coordinate system. |
 | `world2` | The contact point on the second object expressed in the absolute coordinate system. |
-| `normal` | The contact normal expressed in the absolute coordinate system. It points toward the exterior of the first object. |
+| `normal` | The contact normal expressed in the absolute coordinate system. Points toward the first object's exterior. |
 | `depth`  | The penetration depth of this contact. |
 
 
-Here, _absolute coordinate system_ (sometimes called _world coordinate system_)
-designs the set of axises that are not relative to any object.
-
-
-The last field requires some details. Sometimes, the objects in contact
-are penetrating each other. Notably, if you are using **ncollide** for physical
-simulation, this is an unrealistic configuration where the inside of the two
-objects are overlapping. This penetration can be described geometrically in
-several forms, including the penetration volume (left) and the minimal
-translational distance (right):
+Here, _absolute coordinate system_ is the set of axises that are not relative
+to any object. The last `depth` field requires some details. Sometimes, the
+objects in contact are penetrating each other. Notably, if you are using
+**ncollide** within the context of physics simulation, penetrations are
+unrealistic configurations where the inside of the two objects are overlapping.
+This can be described geometrically in several forms including the penetration
+volume (left) and the minimal translational distance (right):
 
 <center>
 ![penetration depth](../img/penetration_depth.svg)
@@ -389,12 +389,74 @@ translational distance (right):
 
 **ncollide** implements the latter: the minimal translational distance, also
 known as the _penetration depth_. This is the smallest translation along the
-contact normal needed to remove any overlap between the two objects interiors.
+contact normal needed to make both shapes touch each other without overlap.
+Therefore, the contact `depth` field is set to a positive value if the objects
+are penetrating. If they are disjoint but closer than `prediction`, the `depth`
+field is set to a negative value corresponding to the signed distance
+separating both objects along the contact normal.
+
+The following example depicts three configurations where the shapes are either
+penetrating, separated by a distance smaller, or larger, than the `prediction`
+parameter set to `1.0`.
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/contact_query2d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector2::new(1.0, 1.0));
+let ball       = Ball::new(1.0);
+let prediction = 1.0;
+
+let cuboid_pos             = na::one();
+let ball_pos_penetrating   = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
+let ball_pos_in_prediction = Isometry2::new(Vector2::new(2.0, 2.0), na::zero());
+let ball_pos_too_far       = Isometry2::new(Vector2::new(3.0, 3.0), na::zero());
+
+let ctct_penetrating = geometry::contact(&ball_pos_penetrating, &ball,
+                                         &cuboid_pos,           &cuboid,
+                                         prediction);
+let ctct_in_prediction = geometry::contact(&ball_pos_in_prediction, &ball,
+                                           &cuboid_pos,             &cuboid,
+                                           prediction);
+let ctct_too_far = geometry::contact(&ball_pos_too_far, &ball,
+                                     &cuboid_pos,       &cuboid,
+                                     prediction);
+
+assert!(ctct_penetrating.unwrap().depth > 0.0);
+assert!(ctct_in_prediction.unwrap().depth < 0.0);
+assert_eq!(ctct_too_far, None);
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/contact_query3d.rs')" ></div>
+
+```rust
+let cuboid     = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));
+let ball       = Ball::new(1.0);
+let prediction = 1.0;
+
+let cuboid_pos             = na::one();
+let ball_pos_penetrating   = Isometry3::new(Vector3::new(1.0, 1.0, 1.0), na::zero());
+let ball_pos_in_prediction = Isometry3::new(Vector3::new(2.0, 2.0, 2.0), na::zero());
+let ball_pos_too_far       = Isometry3::new(Vector3::new(3.0, 3.0, 3.0), na::zero());
+
+let ctct_penetrating = geometry::contact(&ball_pos_penetrating, &ball,
+                                         &cuboid_pos,           &cuboid,
+                                         prediction);
+let ctct_in_prediction = geometry::contact(&ball_pos_in_prediction, &ball,
+                                           &cuboid_pos,             &cuboid,
+                                           prediction);
+let ctct_too_far = geometry::contact(&ball_pos_too_far, &ball,
+                                     &cuboid_pos,       &cuboid,
+                                     prediction);
+
+assert!(ctct_penetrating.unwrap().depth > 0.0);
+assert!(ctct_in_prediction.unwrap().depth < 0.0);
+assert_eq!(ctct_too_far, None);
+```
 
 ### Time of impact
 
 The time of impact (aka. $\mathit{toi}$) returned by `geometry::time_of_impact(m1,
-v1, g1, m2, v2, g2)` is the time it would take `g1` and `g2` to touch if they
+v1, g1, m2, v2, g2)` is the positive time it would take `g1` and `g2` to touch if they
 both move with linear velocities `v1` and `v2` starting with the positions and
 orientations given by `m1` and `m2`. This is commonly used for, e.g.,
 continuous collision detection to avoid tunnelling effects on physics engines:
@@ -415,7 +477,7 @@ The following example depicts the three possible scenarios:
 ![time of impact](../img/time_of_impact.svg)
 </center>
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact2d.rs')" ></div>
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact_query2d.rs')" ></div>
 
 ```rust
 let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));
@@ -444,7 +506,7 @@ assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
 assert_eq!(toi_wont_touch, None);
 ```
 
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact3d.rs')" ></div>
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact_query3d.rs')" ></div>
 
 ```rust
 let cuboid = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));

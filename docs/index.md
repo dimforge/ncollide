@@ -11,13 +11,17 @@
 
 <span class="h1 headline">2D and 3D collision detection library</span>
 <div></div>
-<span class="subheadline">For the [Rust](https://www.rust-lang.org) programming language.</span>
+<span class="subheadline">… for the [Rust](https://www.rust-lang.org) programming language.</span>
 </center>
 
 -----
 
+**TODO**: feature list with small images that can be clicked on to redirect to the
+corresponding user guide page.
+
+
 ## Demonstrations
-1. [nphysics](http://nphysics.org) − a 2d and 3d physics engine available on
+1. [nphysics](http://nphysics.org) − a 2D and 3D physics engine available on
    [crates.io](http://crates.io) as the `nphysics2d` and `nphysics3d` crates.
    It completely relies on **ncollide** for contact points computation and
    proximity detection. It has at least one example per collision detection
@@ -27,9 +31,10 @@
 <iframe width="560" height="315" src="http://www.youtube.com/embed/CANjXZ5rocI" frameborder="0" allowfullscreen></iframe>
 </center>
 </p>
-2. [kiss3d](http://kiss3d.org) − a simplistic 3d graphics engine. It relies on
-   mesh generation to render everything that is not triangular (sphere, cone,
-   Bézier surfaces, etc.) In particular it has a
+2. [kiss3d](http://kiss3d.org) − a simplistic 3d graphics engine available on
+   [crates.io](http://crates.io). It relies on mesh generation to render
+   everything that is not triangular (sphere, cone, Bézier surfaces, etc.) In
+   particular it has a
    [demo](https://github.com/sebcrozet/kiss3d/blob/master/examples/procedural.rs)
    that uses most mesh generation algorithms of **ncollide**. In fact, every
    single 3d illustration of the [Mesh generation](mesh_generation/index.html)

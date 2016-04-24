@@ -7,6 +7,13 @@ h4 {
     color: #777777;
 }
 
+#left_float_img {
+    float: left;
+    display: inline;
+    margin-right: 1em;
+    margin-top: 0.5em;
+}
+
 a:hover .user_forum {
     color: #ff8f2e;
 }

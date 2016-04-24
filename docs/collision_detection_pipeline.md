@@ -1,21 +1,25 @@
 # Collision detection pipeline
 
-While detecting contacts between only two objects might be useful, we are often
-interested to work with complex scenes involving thousands of objects that may
-move. Iterating through each pair of object and testing each of them for
-intersection is a $O(n^2)$ process which is not practicable in real-time.
+While detecting proximities and computing contacts between only two objects
+might be useful to compute their immediate interactions, we often work with
+complex scenes involving thousands of objects instead. Iterating through each
+pair of object and testing each of them for intersection is a
+$\mathcal{O}(n^2)$ process where $n$ is the number of objects. This is
+obviously not practicable in real-time.
 
 
-To avoid this, the collision detection pipeline is usually decomposed into two
-steps: the [broad phase](../contact_determination/broad_phase.html) and the
-[narrow phase](../contact_determination/narrow_phase.html). The first one is
-aware of the position of every object (i.e. not only two) so it can use
-spacial partitioning with conservative interference detection algorithms to
-find all the potential collision pairs. The second phase iterates on all those
-pairs and performs the exact contact determination. Note that the two objects
-paired by the broad phase may not actually be in contact (_false positives_).
-On the other hand, a broad phase is guaranteed not to produce _false
-negatives_: two interfering objects are guaranteed to be paired.
+To overcome this issue, **ncollide** implements a collision detection pipeline
+decomposed into two stages: the [broad phase](#broad-phase) and the [narrow
+phase](#narrow-phase). The broad phase has a global knowledge of the position
+of every object simultaneously so it can use spacial partitioning with
+conservative interference detection algorithms to find all the potential
+collision pairs very efficiently: $\mathcal{O}(n \log(n))$ time in average or
+even $\mathcal{O}(1)$ if time coherence is high. Then the narrow phase iterates
+on those pairs individually and performs the exact contact determination. Note
+that some objects paired by the broad phase may not actually be in contact
+(_false positives_) as it only performs approximate tests. On the other hand, a
+broad phase is guaranteed not to produce any _false negative_: two interfering
+objects are always guaranteed to be paired and reported to the narrow phase.
 
 
 # Broad phase
@@ -26,10 +30,11 @@ common geometric queries:
 
 | Method                 | Description                                     |
 |--                      | --                                              |
-| `.defered_add(uid, bv, data)`                     | Informs the broad phase algorithm that a new object with the identifier `uid`, the bounding volume `bv`, and the associated data `data` has to be added during the next update. |
-| `.defered_remove(object)`                         | Informs the broad phase algorithm that the object identified by `uid` must be removed at the next update. |
-| `.defered_set_bounding_volume(uid, bv)`           | Informs the broad phase algorithm that the object identified by `uid`’s bounding volume has to be replaced by `bv` at the next update. |
-| `.update(filter, callback)`                       | Updates this broad phase algorithm, actually performing object addition and removal. `filter` is a predicate that indicates if a new potential collision pair is valid. If it is (`filter` returns `true`), `callback` will be called for each such now collision pair. `callback` is also called |
+| `.deferred_add(uid, bv, data)`                     | Informs the broad phase algorithm that a new object with the identifier `uid`, the bounding volume `bv`, and the associated data `data` has to be added during the next update. |
+| `.deferred_remove(object)`                         | Informs the broad phase algorithm that the object identified by `uid` must be removed at the next update. |
+| `.deferred_set_bounding_volume(uid, bv)`           | Informs the broad phase algorithm that the object identified by `uid`’s bounding volume has to be replaced by `bv` at the next update. |
+| `.deferred_recompute_all_proximities()` | Forces the broad phase to recompute and re-report all collision pairs at the next update. |
+| `.update(filter, callback)`                       | Updates this broad phase algorithm, actually performing object addition and removal. `filter` is a predicate that indicates if a new potential collision pair is valid. If it returns `true` for a given pair, `callback` will be called. |
 | `.interferences_with_bounding_volume(bv, result)` | Fills `result` with references to each object which bounding volume intersects the bounding volume `bv`. |
 | `.interferences_with_ray(ray, result)`            | Fills `result` with references to each object which bounding volume intersects the ray `ray`. |
 | `.interferences_with_point(point, result)`        | Fills `result` with references to each object which bounding volume contains the point `point`. |
@@ -41,45 +46,58 @@ argument to the user-defined callbacks when the `update` method is called.
 Therefore, feel free to store in there any piece of data that may be useful to
 identify the object on your side and to filter out unwanted collision pairs.
 
+Note that methods with names prefixed by `deferred_` have no effect until the
+next call to `.update(...)`. This allows the broad phase to perform one global
+update even if several objects are moved individually. This update relies
+on a collision filter and a callback. First, the filter should always have
+results constant wrt. time. _Constant_ means that if at some time the filter
+returns `true` (resp. `false`) for some object pair $(\mathcal{A},
+\mathcal{B})$, it is expected to always return `true` (resp. `false`) for
+$(\mathcal{A}, \mathcal{B})$ at any time in the future as well. If the filter
+changes at some point (hence breaking this constancy), the method
+`.deferred_recompute_all_proximities()` must be called in order to inform the
+broad phase that it should be re-executed on all potential collision pairs
+already detected. Second, the callback is the main link between the broad phase
+and the narrow phase.  A broad phase algorithm being inherently incremental,
+keep in mind that `callback` will be called only once on each new potential
+contact pair created or removed as a consequence of filter change or objects
+being moved. Pairs unaffected by recent changes will **not** be re-reported.
+
 ### The DBVT broad phase
 
-The `broad_phase::DBVTBroadPhase` is based on a Dynamic Bounding Volume Tree (DBVT)
-to detect interferences. It implements all four broad phase-related traits
-described above.
-
-
+The `broad_phase::DBVTBroadPhase` is based on a Dynamic Bounding Volume Tree
+(DBVT) to detect interferences. It implements the `BroadPhase` described above.
 The `partitioning::DBVT` structure itself is a proper binary tree that maps a
-bounding volume to the object it bounds on its leaves. The internal nodes only
-contain a bounding volume that bounds all its children. The following figure
-shows an example of tree that bounds a set of brown objects with their red
-AABB. Note that, instead of the exact bounding volumes (read), the
+bounding volume to the object it bounds on its leaves. Internal nodes only
+contain a bounding volume that spacially bounds all its children. The following
+figure shows an example of tree that contains a set of brown objects with their
+red AABB. Note that, instead of the exact bounding volumes (red), the
 `DBVTBroadPhase` stores their loosened version (black):
 
 <center>
 ![dbvt](../img/AABB_tree_DBVT.svg)
 </center>
 
-Creating a `DBVTBroadPhase` is simple using the idiomatically named
-`::new(margin, small_keys)` function:
+Creating an empty `DBVTBroadPhase` is simple using the usual `::new(margin,
+small_keys)` function:
 ```rust
 let mut dbvt = DBVTBroadPhase::new(0.08, false);
 ```
 Storing the loosened bounding volumes instead of the exact ones is a
 significant optimization for scenes where the broad phase has to track contact
-pairs involving slow-moving objects: the DBVT is updated only when the
-displacement of an object is large enough to make its exact bounding volume
-move out of the loosened version stored on the tree. That way objects moving at
-high frequency but low amplitude will almost never trigger an update, at the
-cost of a less tight bounding volume for interference detection (i.e. more
-false positives). The amount of loosening is controlled by the first argument
-`margin`. The second argument `small_keys` is here for optimization
-purpose. Set it to `true` if and only if you know that the integer keys you use
-to identify your objects are small enough (as in "small enough for them to be
-used as keys on a `Vec` instead of a `HashMap`"). If you are not sure of the
-values your keys may take, set `small_keys` to `false`.
+pairs involving slow-moving objects: the DBVT is modified by the broad phase
+only when the displacement of an object is large enough to make its exact
+bounding volume move out of the loosened version stored on the tree. That way
+objects moving at high frequency but low amplitude will almost never trigger an
+update, at the cost of slightly less tight bounding volumes for interference
+detection. The amount of loosening is controlled by the first argument
+`margin`. The second argument `small_keys` is here for optimization purpose.
+Set it to `true` if and only if you know that the integer keys you use to
+identify your objects are small enough (as in "small enough for them to be used
+as keys on a `Vec` instead of a `HashMap`"). If you are not sure of the values
+your keys may take, set `small_keys` to `false`.
 
 
-## Example
 The following example creates four balls, adds them to a `DBVTBroadPhase`,
 updates the broad phase, and removes some of them.
 
@@ -105,10 +123,10 @@ let mut bf = DBVTBroadPhase::new(0.2, true);
 // First parameter:  a unique id for each object.
 // Second parameter: the object bounding box.
 // Third parameter:  some data (here, the id that identify each object).
-bf.defered_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
-bf.defered_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
-bf.defered_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
-bf.defered_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
+bf.deferred_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
+bf.deferred_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
+bf.deferred_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
+bf.deferred_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
 
 // Update the broad phase.
 // The collision filter (first closure) prevents self-collision.
@@ -117,8 +135,8 @@ bf.update(&mut |a, b| *a != *b, &mut |_, _, _| { });
 assert!(bf.num_interferences() == 6);
 
 // Remove two objects.
-bf.defered_remove(0);
-bf.defered_remove(1);
+bf.deferred_remove(0);
+bf.deferred_remove(1);
 
 // Update the broad phase.
 // The collision filter (first closure) prevents self-collision.
@@ -149,10 +167,10 @@ let mut bf = DBVTBroadPhase::new(0.2, true);
 // First parameter:  a unique id for each object.
 // Second parameter: the object bounding box.
 // Third parameter:  some data (here, the id that identify each object).
-bf.defered_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
-bf.defered_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
-bf.defered_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
-bf.defered_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
+bf.deferred_add(0, bounding_volume::aabb(&ball, &poss[0]), 0);
+bf.deferred_add(1, bounding_volume::aabb(&ball, &poss[1]), 1);
+bf.deferred_add(2, bounding_volume::aabb(&ball, &poss[2]), 2);
+bf.deferred_add(3, bounding_volume::aabb(&ball, &poss[3]), 3);
 
 // Update the broad phase.
 // The collision filter (first closure) prevents self-collision.
@@ -161,8 +179,8 @@ bf.update(&mut |a, b| *a != *b, &mut |_, _, _| { });
 assert!(bf.num_interferences() == 6);
 
 // Remove two objects.
-bf.defered_remove(0);
-bf.defered_remove(1);
+bf.deferred_remove(0);
+bf.deferred_remove(1);
 
 // Update the broad phase.
 // The collision filter (first closure) prevents self-collision.
