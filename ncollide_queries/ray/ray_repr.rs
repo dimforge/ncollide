@@ -1,48 +1,48 @@
 use math::{Point, Vector, Isometry};
 use entities::shape::{Ball, Capsule, Compound, Cone, ConvexHull, Cuboid, Cylinder, TriMesh, Polyline, Plane,
                       Segment, Triangle};
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use ray::{RayCast, Ray, RayIntersection};
 
 macro_rules! dispatch(
     ($sself: ident.$name: ident($($argN: ident),*)) => {
         {
-            let repr = $sself.repr();
+            let repr = $sself.desc();
 
-            if let Some(b) = repr.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>() {
+            if let Some(b) = repr.as_shape::<Ball<<P::Vect as Vector>::Scalar>>() {
                 b.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Capsule<<P::Vect as Vector>::Scalar>>() {
+            else if let Some(c) = repr.as_shape::<Capsule<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Compound<P, M>>() {
+            else if let Some(c) = repr.as_shape::<Compound<P, M>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cone<<P::Vect as Vector>::Scalar>>() {
+            else if let Some(c) = repr.as_shape::<Cone<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<ConvexHull<P>>() {
+            else if let Some(c) = repr.as_shape::<ConvexHull<P>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cuboid<P::Vect>>() {
+            else if let Some(c) = repr.as_shape::<Cuboid<P::Vect>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(c) = repr.downcast_ref::<Cylinder<<P::Vect as Vector>::Scalar>>() {
+            else if let Some(c) = repr.as_shape::<Cylinder<<P::Vect as Vector>::Scalar>>() {
                 c.$name($($argN,)*)
             }
-            else if let Some(t) = repr.downcast_ref::<TriMesh<P>>() {
+            else if let Some(t) = repr.as_shape::<TriMesh<P>>() {
                 t.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Polyline<P>>() {
+            else if let Some(p) = repr.as_shape::<Polyline<P>>() {
                 p.$name($($argN,)*)
             }
-            else if let Some(p) = repr.downcast_ref::<Plane<P::Vect>>() {
+            else if let Some(p) = repr.as_shape::<Plane<P::Vect>>() {
                 p.$name($($argN,)*)
             }
-            else if let Some(s) = repr.downcast_ref::<Segment<P>>() {
+            else if let Some(s) = repr.as_shape::<Segment<P>>() {
                 s.$name($($argN,)*)
             }
-            else if let Some(t) = repr.downcast_ref::<Triangle<P>>() {
+            else if let Some(t) = repr.as_shape::<Triangle<P>>() {
                 t.$name($($argN,)*)
             }
             else {
@@ -55,7 +55,7 @@ macro_rules! dispatch(
     }
 );
 
-impl<P, M> RayCast<P, M> for Repr<P, M>
+impl<P, M> RayCast<P, M> for Shape<P, M>
     where P: Point,
           M: Isometry<P, P::Vect> {
     #[inline]

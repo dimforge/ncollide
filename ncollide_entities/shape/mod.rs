@@ -17,7 +17,7 @@ pub use shape::segment::Segment;
 pub use shape::triangle::Triangle;
 pub use shape::torus::Torus;
 pub use shape::composite_shape::CompositeShape;
-pub use shape::shape::ShapeHandle;
+pub use shape::shape_handle::ShapeHandle;
 
 use na::{Point2, Point3, Vector2, Vector3, Isometry2, Isometry3};
 
@@ -38,7 +38,7 @@ mod torus;
 mod compound;
 mod convex;
 mod composite_shape;
-mod shape;
+mod shape_handle;
 
 /*
  *

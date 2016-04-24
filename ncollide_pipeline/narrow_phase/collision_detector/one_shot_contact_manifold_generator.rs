@@ -2,7 +2,7 @@ use std::ops::Mul;
 use na::{Cross, Transform, Translation, Rotation};
 use na;
 use math::{Point, Vector};
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use queries::geometry::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactManifoldGenerator};
 
@@ -38,9 +38,9 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
     fn update(&mut self,
               d:  &CollisionDispatcher<P, M>,
               m1: &M,
-              g1: &Repr<P, M>,
+              g1: &Shape<P, M>,
               m2: &M,
-              g2: &Repr<P, M>,
+              g2: &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         if self.sub_detector.num_colls() == 0 {

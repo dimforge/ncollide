@@ -2,8 +2,7 @@ use std::any::Any;
 use std::marker::PhantomData;
 use na::{Translate, Translation};
 use math::{Point, Vector};
-use entities::inspection;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use entities::shape::AnnotatedPoint;
 use queries::geometry::algorithms::simplex::Simplex;
 use queries::geometry::algorithms::gjk::GJKResult;
@@ -48,13 +47,12 @@ impl<P, M, S> CollisionDetector<P, M> for SupportMapSupportMapCollisionDetector<
     fn update(&mut self,
               _:          &CollisionDispatcher<P, M>,
               ma:         &M,
-              a:          &Repr<P, M>,
+              a:          &Shape<P, M>,
               mb:         &M,
-              b:          &Repr<P, M>,
+              b:          &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let (Some(sma), Some(smb)) = (inspection::maybe_as_support_map::<P, M, _>(a),
-                                         inspection::maybe_as_support_map::<P, M, _>(b)) {
+        if let (Some(sma), Some(smb)) = (a.desc().as_support_map(), b.desc().as_support_map()) {
             let initial_direction = match self.contact {
                 GJKResult::NoIntersection(ref separator) => Some(separator.clone()),
                 GJKResult::Projection(ref contact)       => Some(contact.normal.clone()),

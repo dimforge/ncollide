@@ -1,4 +1,4 @@
-use entities::inspection::{Repr, ReprDesc};
+use entities::inspection::{Shape, ShapeDesc};
 use queries::geometry::Contact;
 use math::{Point, Vector};
 
@@ -7,13 +7,13 @@ pub trait CollisionDetector<P: Point, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    // FIXME: use ReprDesc instead of Repr (to avoid useless virtual method calls) ?
+    // FIXME: use ShapeDesc instead of Shape (to avoid useless virtual method calls) ?
     fn update(&mut self,
               dispatcher: &CollisionDispatcher<P, M>,
               ma:         &M,
-              a:          &Repr<P, M>,
+              a:          &Shape<P, M>,
               mb:         &M,
-              b:          &Repr<P, M>,
+              b:          &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool;
 
@@ -28,5 +28,5 @@ pub type CollisionAlgorithm<P, M> = Box<CollisionDetector<P, M> + 'static>;
 
 pub trait CollisionDispatcher<P, M> {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_collision_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<CollisionAlgorithm<P, M>>;
+    fn get_collision_algorithm(&self, a: &ShapeDesc<P, M>, b: &ShapeDesc<P, M>) -> Option<CollisionAlgorithm<P, M>>;
 }

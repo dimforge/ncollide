@@ -3,8 +3,7 @@ use std::marker::PhantomData;
 use na::{Translate, Rotate};
 use math::{Point, Vector};
 use entities::shape::Plane;
-use entities::inspection;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use queries::geometry::Proximity;
 use queries::geometry::proximity_internal;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
@@ -53,14 +52,14 @@ impl<P, M> ProximityDetector<P, M> for PlaneSupportMapProximityDetector<P, M>
           M: Translate<P> + Rotate<P::Vect> + Any {
     #[inline]
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
-              ma: &M, plane: &Repr<P, M>,
-              mb: &M, b: &Repr<P, M>,
+              ma: &M, plane: &Shape<P, M>,
+              mb: &M, b: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        let rp = plane.repr();
+        let rp = plane.desc();
+        let rb = b.desc();
 
-        if let (Some(p), Some(sm)) =
-            (rp.downcast_ref::<Plane<P::Vect>>(), inspection::maybe_as_support_map::<P, M, _>(b)) {
+        if let (Some(p), Some(sm)) = (rp.as_shape::<Plane<P::Vect>>(), rb.as_support_map()) {
                 self.proximity = proximity_internal::plane_against_support_map(ma, p, mb, sm, margin);
 
                 true
@@ -81,8 +80,8 @@ impl<P, M> ProximityDetector<P, M> for SupportMapPlaneProximityDetector<P, M>
           M: Translate<P> + Rotate<P::Vect> + Any {
     #[inline]
     fn update(&mut self, disp: &ProximityDispatcher<P, M>,
-              ma: &M, a: &Repr<P, M>,
-              mb: &M, b: &Repr<P, M>,
+              ma: &M, a: &Shape<P, M>,
+              mb: &M, b: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
         self.subdetector.update(disp, mb, b, ma, a, margin)

@@ -3,7 +3,7 @@ use na::{Identity, Translate, Translation};
 use na;
 use entities::bounding_volume::{self, HasBoundingVolume, AABB};
 use entities::partitioning::BVTCostFn;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use point::PointQuery;
 use entities::shape::CompositeShape;
 use geometry::Proximity;
@@ -20,7 +20,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     assert!(margin >= na::zero(), "The proximity margin must be positive or null.");
 
     let mut cost_fn = CompositeShapeAgainstAnyInterfCostFn::new(m1, g1, m2, g2, margin);
@@ -40,7 +40,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
-          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
+          G1: Shape<P, M> + HasBoundingVolume<M, AABB<P>>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1, margin)
 }
@@ -64,7 +64,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, 
     where P:  Point,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2, margin: <P::Vect as Vector>::Scalar)
                -> CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2> {
 
@@ -91,7 +91,7 @@ for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1, G2>
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     type UserData = Proximity;
 
     #[inline]

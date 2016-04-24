@@ -99,7 +99,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         match (co1.query_type, co2.query_type) {
             (CollisionQueryType::Contacts(_), CollisionQueryType::Contacts(_)) => {
                 if started {
-                    let cd = self.collision_dispatcher.get_collision_algorithm(&co1.shape.repr(), &co2.shape.repr());
+                    let cd = self.collision_dispatcher.get_collision_algorithm(&co1.shape.desc(), &co2.shape.desc());
 
                     if let Some(cd) = cd {
                         let _ = self.collision_detectors.insert(key, cd);
@@ -120,7 +120,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             },
             (_, CollisionQueryType::Proximity(_)) | (CollisionQueryType::Proximity(_), _) => {
                 if started {
-                    let cd = self.proximity_dispatcher.get_proximity_algorithm(&co1.shape.repr(), &co2.shape.repr());
+                    let cd = self.proximity_dispatcher.get_proximity_algorithm(&co1.shape.desc(), &co2.shape.desc());
 
                     if let Some(cd) = cd {
                         let _ = self.proximity_detectors.insert(key, cd);

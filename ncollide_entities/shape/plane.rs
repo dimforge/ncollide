@@ -3,7 +3,7 @@ use std::any::Any;
 use std::mem;
 use std::any::TypeId;
 use na;
-use inspection::{Repr, ReprDesc};
+use inspection::{Shape, ShapeDesc};
 use math::{Vector, Point};
 
 /// SupportMap description of a plane.
@@ -37,12 +37,12 @@ impl<V> Plane<V> {
     }
 }
 
-impl<P, M> Repr<P, M> for Plane<P::Vect>
+impl<P, M> Shape<P, M> for Plane<P::Vect>
     where P: Point {
     #[inline(always)]
-    fn repr(&self) -> ReprDesc<P, M> {
+    fn desc(&self) -> ShapeDesc<P, M> {
         unsafe {
-            ReprDesc::new(
+            ShapeDesc::new(
                 TypeId::of::<Plane<P::Vect>>(),
                 TypeId::of::<&Any>(),
                 mem::transmute(self as &Any)

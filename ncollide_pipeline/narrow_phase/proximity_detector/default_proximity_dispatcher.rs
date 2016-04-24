@@ -2,8 +2,7 @@ use std::ops::Mul;
 use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
-use entities::inspection;
-use entities::inspection::ReprDesc;
+use entities::inspection::ShapeDesc;
 use entities::shape::{Ball, Plane};
 use queries::geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use narrow_phase::proximity_detector::{
@@ -13,8 +12,8 @@ use narrow_phase::proximity_detector::{
     PlaneSupportMapProximityDetector,
     SupportMapPlaneProximityDetector,
     SupportMapSupportMapProximityDetector,
-    CompositeShapeReprProximityDetector,
-    ReprCompositeShapeProximityDetector,
+    CompositeShapeShapeProximityDetector,
+    ShapeCompositeShapeProximityDetector,
 };
 
 /// Proximity dispatcher for shapes defined by `ncollide_entities`.
@@ -39,31 +38,28 @@ impl<P, M> ProximityDispatcher<P, M> for DefaultProximityDispatcher<P, M>
           <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
                                                 Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
-    fn get_proximity_algorithm(&self, a: &ReprDesc<P, M>, b: &ReprDesc<P, M>) -> Option<ProximityAlgorithm<P, M>> {
-        let a_is_ball = a.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
-        let b_is_ball = b.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>().is_some();
+    fn get_proximity_algorithm(&self, a: &ShapeDesc<P, M>, b: &ShapeDesc<P, M>) -> Option<ProximityAlgorithm<P, M>> {
+        let a_is_ball = a.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
+        let b_is_ball = b.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallProximityDetector::<P, M>::new()))
         }
-        else if a.downcast_ref::<Plane<P::Vect>>().is_some() &&
-                inspection::maybe_repr_desc_as_support_map::<P, M>(*b).is_some() {
+        else if a.is_shape::<Plane<P::Vect>>() && b.is_support_map() {
             Some(Box::new(PlaneSupportMapProximityDetector::<P, M>::new()))
         }
-        else if b.downcast_ref::<Plane<P::Vect>>().is_some() &&
-                inspection::maybe_repr_desc_as_support_map::<P, M>(*a).is_some() {
+        else if b.is_shape::<Plane<P::Vect>>() && a.is_support_map() {
             Some(Box::new(SupportMapPlaneProximityDetector::<P, M>::new()))
         }
-        else if inspection::maybe_repr_desc_as_support_map::<P, M>(*a).is_some() &&
-                inspection::maybe_repr_desc_as_support_map::<P, M>(*b).is_some() {
+        else if a.is_support_map() && b.is_support_map() {
             let simplex = JohnsonSimplex::new_w_tls();
             Some(Box::new(SupportMapSupportMapProximityDetector::new(simplex)))
         }
-        else if inspection::maybe_repr_desc_as_composite_shape::<P, M>(*a).is_some() {
-            Some(Box::new(CompositeShapeReprProximityDetector::<P, M>::new()))
+        else if a.is_composite_shape() {
+            Some(Box::new(CompositeShapeShapeProximityDetector::<P, M>::new()))
         }
-        else if inspection::maybe_repr_desc_as_composite_shape::<P, M>(*b).is_some() {
-            Some(Box::new(ReprCompositeShapeProximityDetector::<P, M>::new()))
+        else if b.is_composite_shape() {
+            Some(Box::new(ShapeCompositeShapeProximityDetector::<P, M>::new()))
         }
         else {
             None

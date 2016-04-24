@@ -3,8 +3,7 @@ use std::marker::PhantomData;
 use na::{Translate, Rotate};
 use math::{Point, Vector};
 use entities::shape::Plane;
-use entities::inspection;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use queries::geometry::Contact;
 use queries::geometry::contacts_internal;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
@@ -61,15 +60,15 @@ impl<P, M> CollisionDetector<P, M> for PlaneSupportMapCollisionDetector<P, M>
     fn update(&mut self,
               _:          &CollisionDispatcher<P, M>,
               ma:         &M,
-              plane:      &Repr<P, M>,
+              plane:      &Shape<P, M>,
               mb:         &M,
-              b:          &Repr<P, M>,
+              b:          &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        let rp = plane.repr();
+        let rp = plane.desc();
+        let rb = b.desc();
 
-        if let (Some(p), Some(sm)) =
-            (rp.downcast_ref::<Plane<P::Vect>>(), inspection::maybe_as_support_map::<P, M, _>(b)) {
+        if let (Some(p), Some(sm)) = (rp.as_shape::<Plane<P::Vect>>(), rb.as_support_map()) {
                 self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction);
 
                 true
@@ -103,15 +102,15 @@ impl<P, M> CollisionDetector<P, M> for SupportMapPlaneCollisionDetector<P, M>
     fn update(&mut self,
               _:          &CollisionDispatcher<P, M>,
               ma:         &M,
-              a:          &Repr<P, M>,
+              a:          &Shape<P, M>,
               mb:         &M,
-              plane:      &Repr<P, M>,
+              plane:      &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        let rp = plane.repr();
+        let rp = plane.desc();
+        let ra = a.desc();
 
-        if let (Some(sm), Some(p)) =
-            (inspection::maybe_as_support_map::<P, M, _>(a), rp.downcast_ref::<Plane<P::Vect>>()) {
+        if let (Some(sm), Some(p)) = (ra.as_support_map(), rp.as_shape::<Plane<P::Vect>>()) {
                 self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction);
 
                 true

@@ -3,7 +3,7 @@ use na;
 use math::{Point, Vector, Isometry};
 use entities::bounding_volume::{self, HasBoundingVolume, AABB};
 use entities::partitioning::BVTCostFn;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use entities::shape::CompositeShape;
 use ray::{Ray, RayCast};
 use geometry::time_of_impact_internal;
@@ -16,7 +16,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     let mut cost_fn = CompositeShapeAgainstAnyTOICostFn::new(m1, vel1, g1, m2, vel2, g2);
 
     g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
@@ -29,7 +29,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, vel1: &
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
-          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
+          G1: Shape<P, M> + HasBoundingVolume<M, AABB<P>>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, vel2, g2, m1, vel1, g1)
 }
@@ -51,7 +51,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, P, 
     where P:  Point,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     pub fn new(m1: &'a M, vel1: &'a P::Vect, g1: &'a G1, m2: &'a M, vel2: &'a P::Vect, g2: &'a G2)
         -> CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2> {
 
@@ -78,7 +78,7 @@ for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1, G2>
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     type UserData = <P::Vect as Vector>::Scalar;
 
     #[inline]

@@ -1,30 +1,19 @@
 //! Traits and methods to inspect and retrieve the capabilities and representations of shapes at runtime.
 
 #[doc(inline)]
-pub use self::repr::{ReprDesc, Repr};
-pub use self::maybe_as_composite_shape::{
-    maybe_as_composite_shape,
-    maybe_repr_desc_as_composite_shape,
-    composite_shape_repr_id
-};
-pub use self::maybe_as_support_map::{
-    maybe_as_support_map,
-    maybe_repr_desc_as_support_map,
-    support_map_repr_id
-};
-
+pub use self::shape::{ShapeDesc, Shape};
 use na::{Point2, Isometry2, Point3, Isometry3};
 
 #[doc(hidden)]
-pub mod repr;
-mod maybe_as_composite_shape;
-mod maybe_as_support_map;
+pub mod shape;
+mod impl_support_map_desc;
+mod impl_composite_shape_desc;
 
 /// A 2d dynamic representation object.
-pub type Repr2<N> = Repr<Point2<N>, Isometry2<N>>;
+pub type Shape2<N> = Shape<Point2<N>, Isometry2<N>>;
 /// A 3d dynamic representation object.
-pub type Repr3<N> = Repr<Point3<N>, Isometry3<N>>;
+pub type Shape3<N> = Shape<Point3<N>, Isometry3<N>>;
 /// A 2d dynamic representation descriptor.
-pub type ReprDesc2<'a, N> = ReprDesc<'a, Point2<N>, Isometry2<N>>;
+pub type ShapeDesc2<'a, N> = ShapeDesc<'a, Point2<N>, Isometry2<N>>;
 /// A 3d dynamic representation descriptor.
-pub type ReprDesc3<'a, N> = ReprDesc<'a, Point3<N>, Isometry3<N>>;
+pub type ShapeDesc3<'a, N> = ShapeDesc<'a, Point3<N>, Isometry3<N>>;

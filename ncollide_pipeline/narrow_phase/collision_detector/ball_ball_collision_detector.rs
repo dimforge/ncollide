@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 use na::Translate;
 use na;
-use math::{Point, Vector};
+use math::{Point, Vector, Isometry};
 use entities::shape::Ball;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use queries::geometry::Contact;
 use queries::geometry::contacts_internal;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
@@ -37,20 +37,20 @@ impl<P: Point, M> BallBallCollisionDetector<P, M> {
 
 impl<P, M> CollisionDetector<P, M> for BallBallCollisionDetector<P, M>
     where P: Point,
-          M: 'static + Translate<P> {
+          M: Isometry<P, P::Vect> {
     fn update(&mut self,
               _:          &CollisionDispatcher<P, M>,
               ma:         &M,
-              a:          &Repr<P, M>,
+              a:          &Shape<P, M>,
               mb:         &M,
-              b:          &Repr<P, M>,
+              b:          &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        let ra = a.repr();
-        let rb = b.repr();
+        let ra = a.desc();
+        let rb = b.desc();
 
-        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>(),
-                                     rb.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>()) {
+        if let (Some(a), Some(b)) = (ra.as_shape::<Ball<<P::Vect as Vector>::Scalar>>(),
+                                     rb.as_shape::<Ball<<P::Vect as Vector>::Scalar>>()) {
             self.contact = contacts_internal::ball_against_ball(
                 &ma.translate(&na::origin()),
                 a,

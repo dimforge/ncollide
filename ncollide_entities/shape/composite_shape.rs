@@ -4,7 +4,7 @@ use math::{Point, Isometry};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Compound, TriMesh, Polyline};
-use inspection::Repr;
+use inspection::Shape;
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
 ///
@@ -14,10 +14,10 @@ pub trait CompositeShape<P: Point, M> {
     /// The number of parts on this composite shapes.
     fn len(&self) -> usize;
     /// Applies a function to each sub-shape of this concave shape.
-    fn map_part_at(&self, usize, &mut FnMut(&M, &Repr<P, M>));
+    fn map_part_at(&self, usize, &mut FnMut(&M, &Shape<P, M>));
     /// Applies a transformation matrix and a function to each sub-shape of this concave
     /// shape.
-    fn map_transformed_part_at(&self, usize, m: &M, &mut FnMut(&M, &Repr<P, M>));
+    fn map_transformed_part_at(&self, usize, m: &M, &mut FnMut(&M, &Shape<P, M>));
 
     // FIXME: the following two methods really are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.
@@ -35,14 +35,14 @@ impl<P, M> CompositeShape<P, M> for Compound<P, M>
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];
 
         f(m, g.as_ref())
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
         let elt = &self.shapes()[i];
 
         f(&(*m * elt.0), elt.1.as_ref())
@@ -68,14 +68,14 @@ impl<P, M> CompositeShape<P, M> for TriMesh<P>
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let one: M = na::one();
 
         self.map_transformed_part_at(i, &one, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
         let element = self.triangle_at(i);
 
         f(m, &element)
@@ -101,14 +101,14 @@ impl<P, M> CompositeShape<P, M> for Polyline<P>
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let one: M = na::one();
 
         self.map_transformed_part_at(i, &one, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Repr<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
         let element = self.segment_at(i);
 
         f(m, &element)

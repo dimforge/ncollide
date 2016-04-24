@@ -4,7 +4,7 @@ use na;
 use entities::bounding_volume::{self, HasBoundingVolume, AABB};
 use entities::partitioning::BVTCostFn;
 use entities::shape::CompositeShape;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use point::PointQuery;
 use geometry::distance_internal;
 use math::{Point, Vector, Isometry};
@@ -15,7 +15,7 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
 
     g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res).expect("The composite shape must not be empty.")
@@ -26,7 +26,7 @@ pub fn any_against_composite_shape<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
-          G1: Repr<P, M> + HasBoundingVolume<M, AABB<P>>,
+          G1: Shape<P, M> + HasBoundingVolume<M, AABB<P>>,
           G2: CompositeShape<P, M> {
     composite_shape_against_any(m2, g2, m1, g1)
 }
@@ -47,7 +47,7 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P,
     where P:  Point,
           M:  Isometry<P, P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2)
         -> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2> {
 
@@ -73,7 +73,7 @@ for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1, G2>
           P::Vect: Translate<P>,
           M:  Isometry<P, P::Vect> + Translation<P::Vect>,
           G1: CompositeShape<P, M>,
-          G2: Repr<P, M> + HasBoundingVolume<M, AABB<P>> {
+          G2: Shape<P, M> + HasBoundingVolume<M, AABB<P>> {
     type UserData = <P::Vect as Vector>::Scalar;
     #[inline]
     fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {

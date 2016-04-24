@@ -11,7 +11,7 @@ pub use self::collision_detector::{
     BallBallCollisionDetector,
     PlaneSupportMapCollisionDetector, SupportMapPlaneCollisionDetector,
     SupportMapSupportMapCollisionDetector,
-    CompositeShapeReprCollisionDetector, ReprCompositeShapeCollisionDetector,
+    CompositeShapeShapeCollisionDetector, ShapeCompositeShapeCollisionDetector,
     IncrementalContactManifoldGenerator,
     OneShotContactManifoldGenerator
 };
@@ -25,8 +25,8 @@ pub use self::proximity_detector::{
     BallBallProximityDetector,
     PlaneSupportMapProximityDetector, SupportMapPlaneProximityDetector,
     SupportMapSupportMapProximityDetector,
-    CompositeShapeReprProximityDetector,
-    ReprCompositeShapeProximityDetector
+    CompositeShapeShapeProximityDetector,
+    ShapeCompositeShapeProximityDetector
 };
 
 #[doc(inline)]

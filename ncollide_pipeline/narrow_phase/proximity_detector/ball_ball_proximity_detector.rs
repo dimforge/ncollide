@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 use na::Translate;
 use na;
-use math::{Point, Vector};
+use math::{Point, Vector, Isometry};
 use entities::shape::Ball;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use queries::geometry::Proximity;
 use queries::geometry::proximity_internal;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
@@ -40,17 +40,17 @@ impl<P: Point, M> BallBallProximityDetector<P, M> {
 
 impl<P, M> ProximityDetector<P, M> for BallBallProximityDetector<P, M>
     where P: Point,
-          M: 'static + Translate<P> {
+          M: Isometry<P, P::Vect> {
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
-              ma: &M, a: &Repr<P, M>,
-              mb: &M, b: &Repr<P, M>,
+              ma: &M, a: &Shape<P, M>,
+              mb: &M, b: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        let ra = a.repr();
-        let rb = b.repr();
+        let ra = a.desc();
+        let rb = b.desc();
 
-        if let (Some(a), Some(b)) = (ra.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>(),
-                                     rb.downcast_ref::<Ball<<P::Vect as Vector>::Scalar>>()) {
+        if let (Some(a), Some(b)) = (ra.as_shape::<Ball<<P::Vect as Vector>::Scalar>>(),
+                                     rb.as_shape::<Ball<<P::Vect as Vector>::Scalar>>()) {
             self.proximity = proximity_internal::ball_against_ball(
                 &ma.translate(&na::origin()),
                 a,

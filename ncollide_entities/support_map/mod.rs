@@ -1,5 +1,7 @@
 //! Definition of support functions.
 
+use na::{Point2, Isometry2, Point3, Isometry3};
+
 #[doc(inline)]
 pub use support_map::support_map::SupportMap;
 pub use support_map::minkowski_sum_support_map::cso_support_point;
@@ -20,3 +22,8 @@ mod triangle_support_map;
 mod segment_support_map;
 mod minkowski_sum_support_map;
 // mod implicit_spec;
+
+/// A 2-dimensional support-map trait object.
+pub type SupportMap2<N> = SupportMap<Point2<N>, Isometry2<N>>;
+/// A 3-dimensional support-map trait object.
+pub type SupportMap3<N> = SupportMap<Point3<N>, Isometry3<N>>;

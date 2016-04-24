@@ -6,14 +6,13 @@ use utils::data::hash::UintTWHash;
 use entities::bounding_volume::{self, BoundingVolume};
 use entities::partitioning::BoundingVolumeInterferencesCollector;
 use entities::shape::CompositeShape;
-use entities::inspection::Repr;
-use entities::inspection;
+use entities::inspection::Shape;
 use queries::geometry::Proximity;
 use narrow_phase::{ProximityDetector, ProximityDispatcher, ProximityAlgorithm};
 
 
 /// Proximity detector between a concave shape and another shape.
-pub struct CompositeShapeReprProximityDetector<P: Point, M> {
+pub struct CompositeShapeShapeProximityDetector<P: Point, M> {
     proximity:        Proximity,
     sub_detectors:    HashMap<usize, ProximityAlgorithm<P, M>, UintTWHash>,
     to_delete:        Vec<usize>,
@@ -21,10 +20,10 @@ pub struct CompositeShapeReprProximityDetector<P: Point, M> {
     intersecting_key: usize
 }
 
-impl<P: Point, M> CompositeShapeReprProximityDetector<P, M> {
+impl<P: Point, M> CompositeShapeShapeProximityDetector<P, M> {
     /// Creates a new proximity detector between a concave shape and another shape.
-    pub fn new() -> CompositeShapeReprProximityDetector<P, M> {
-        CompositeShapeReprProximityDetector {
+    pub fn new() -> CompositeShapeShapeProximityDetector<P, M> {
+        CompositeShapeShapeProximityDetector {
             proximity:        Proximity::Disjoint,
             sub_detectors:    HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete:        Vec::new(),
@@ -34,7 +33,7 @@ impl<P: Point, M> CompositeShapeReprProximityDetector<P, M> {
     }
 }
 
-impl<P, M> CompositeShapeReprProximityDetector<P, M>
+impl<P, M> CompositeShapeShapeProximityDetector<P, M>
     where P:  Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
@@ -43,7 +42,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
                  m1:     &M,
                  g1:     &CompositeShape<P, M>,
                  m2:     &M,
-                 g2:     &Repr<P, M>,
+                 g2:     &Shape<P, M>,
                  margin: <P::Vect as Vector>::Scalar) {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
@@ -116,7 +115,7 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
                     let mut new_detector = None;
 
                     g1.map_part_at(*key, &mut |_, g1| {
-                        new_detector = disp.get_proximity_algorithm(&g1.repr(), &g2.repr())
+                        new_detector = disp.get_proximity_algorithm(&g1.desc(), &g2.desc())
                     });
 
                     new_detector
@@ -148,30 +147,30 @@ impl<P, M> CompositeShapeReprProximityDetector<P, M>
 }
 
 /// Proximity detector between a shape and a concave shape.
-pub struct ReprCompositeShapeProximityDetector<P: Point, M> {
-    sub_detector: CompositeShapeReprProximityDetector<P, M>
+pub struct ShapeCompositeShapeProximityDetector<P: Point, M> {
+    sub_detector: CompositeShapeShapeProximityDetector<P, M>
 }
 
-impl<P: Point, M> ReprCompositeShapeProximityDetector<P, M> {
+impl<P: Point, M> ShapeCompositeShapeProximityDetector<P, M> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new() -> ReprCompositeShapeProximityDetector<P, M> {
-        ReprCompositeShapeProximityDetector {
-            sub_detector: CompositeShapeReprProximityDetector::new()
+    pub fn new() -> ShapeCompositeShapeProximityDetector<P, M> {
+        ShapeCompositeShapeProximityDetector {
+            sub_detector: CompositeShapeShapeProximityDetector::new()
         }
     }
 }
 
-impl<P, M> ProximityDetector<P, M> for CompositeShapeReprProximityDetector<P, M>
+impl<P, M> ProximityDetector<P, M> for CompositeShapeShapeProximityDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
     fn update(&mut self,
               disp:   &ProximityDispatcher<P, M>,
-              m1: &M, g1: &Repr<P, M>,
-              m2: &M, g2: &Repr<P, M>,
+              m1: &M, g1: &Shape<P, M>,
+              m2: &M, g2: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let Some(cs1) = inspection::maybe_as_composite_shape(g1) {
+        if let Some(cs1) = g1.desc().as_composite_shape() {
             self.do_update(disp, m1, cs1, m2, g2, margin);
 
             true
@@ -186,17 +185,17 @@ impl<P, M> ProximityDetector<P, M> for CompositeShapeReprProximityDetector<P, M>
     }
 }
 
-impl<P, M> ProximityDetector<P, M> for ReprCompositeShapeProximityDetector<P, M>
+impl<P, M> ProximityDetector<P, M> for ShapeCompositeShapeProximityDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P, P::Vect> {
     fn update(&mut self,
               disp:  &ProximityDispatcher<P, M>,
-              m1: &M, g1: &Repr<P, M>,
-              m2: &M, g2: &Repr<P, M>,
+              m1: &M, g1: &Shape<P, M>,
+              m2: &M, g2: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let Some(cs2) = inspection::maybe_as_composite_shape(g2) {
+        if let Some(cs2) = g2.desc().as_composite_shape() {
             self.sub_detector.do_update(disp, m2, cs2, m1, g1, margin);
 
             true

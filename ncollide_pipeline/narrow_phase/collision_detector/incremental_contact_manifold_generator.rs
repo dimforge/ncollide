@@ -3,7 +3,7 @@ use na::Transform;
 use na;
 use math::{Point, Vector};
 use queries::geometry::Contact;
-use entities::inspection::Repr;
+use entities::inspection::Shape;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 
@@ -67,9 +67,9 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     pub fn get_sub_collision(&mut self,
                              d:          &CollisionDispatcher<P, M>,
                              m1:         &M,
-                             g1:         &Repr<P, M>,
+                             g1:         &Shape<P, M>,
                              m2:         &M,
-                             g2:         &Repr<P, M>,
+                             g2:         &Shape<P, M>,
                              prediction: <P::Vect as Vector>::Scalar)
                              -> Option<Option<Contact<P>>> {
         if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
@@ -95,9 +95,9 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     pub fn add_new_contacts(&mut self,
                             d:  &CollisionDispatcher<P, M>,
                             m1: &M,
-                            g1: &Repr<P, M>,
+                            g1: &Shape<P, M>,
                             m2: &M,
-                            g2: &Repr<P, M>,
+                            g2: &Shape<P, M>,
                             prediction: <P::Vect as Vector>::Scalar)
                             -> bool {
         // add the new ones
@@ -169,9 +169,9 @@ impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P
     fn update(&mut self,
               d:          &CollisionDispatcher<P, M>,
               m1:         &M,
-              g1:         &Repr<P, M>,
+              g1:         &Shape<P, M>,
               m2:         &M,
-              g2:         &Repr<P, M>,
+              g2:         &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
         self.update_contacts(m1, m2, prediction);

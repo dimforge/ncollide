@@ -4,7 +4,7 @@ pub use self::proximity_detector::{ProximityDetector, ProximityDispatcher, Proxi
 pub use self::ball_ball_proximity_detector::BallBallProximityDetector;
 pub use self::plane_support_map_proximity_detector::{PlaneSupportMapProximityDetector, SupportMapPlaneProximityDetector};
 pub use self::support_map_support_map_proximity_detector::SupportMapSupportMapProximityDetector;
-pub use self::composite_shape_repr_proximity_detector::{CompositeShapeReprProximityDetector, ReprCompositeShapeProximityDetector};
+pub use self::composite_shape_repr_proximity_detector::{CompositeShapeShapeProximityDetector, ShapeCompositeShapeProximityDetector};
 pub use self::default_proximity_dispatcher::DefaultProximityDispatcher;
 
 #[doc(hidden)]
