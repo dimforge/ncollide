@@ -184,7 +184,7 @@ assert!(capsule.radius() == 0.75);
 ```
 
 <center>
-![2D capsule](../img/capsule2d.png) 
+![2D capsule](../img/capsule2d.png)
 ![3D capsule](../img/capsule3d.png)
 </center>
 
@@ -272,7 +272,7 @@ let _ = Reflection::new(&cone);
 ```
 
 <center>
-![reflected 2D cone](../img/refl2d.png) 
+![reflected 2D cone](../img/refl2d.png)
 ![reflected 3D cone](../img/refl3d.png)
 </center>
 
@@ -345,8 +345,8 @@ let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
 ```
 
 <center>
-![2D cylinder - cone](../img/cso2d.png) 
-![3D cylinder - cone](../img/cso3d.png) 
+![2D cylinder - cone](../img/cso2d.png)
+![3D cylinder - cone](../img/cso3d.png)
 </center>
 
 # Composite shapes
@@ -537,28 +537,55 @@ assert!(plane.normal().z == 0.0);
 
 # Dynamic shape representation
 
-In order to select the right algorithms for specific shapes, `ncollide` has to
-be able to distinguish different shapes from their types and they capabilities.
-Three elements have to be provided for each shape by implementing the
-`inspection::Repr` trait that allows the construction of a
-`inspection::ReprDesc` object which is the aggregation of:
+In order to select the right algorithms for geometric queries on specific
+shapes, `ncollide` has to be able to distinguish at runtime different shapes
+from their types and they capabilities.  As described
+[later](../geometric_queries) in this guide, there are two kinds of geometric
+queries: those that operate on a [single
+shape](../geometric_queries/#single-shape-queries) and those that operate on
+[two shapes](../geometric_queries/#pairwise-queries) simultaneously.  In the
+first case, runtime algorithm selection is performed with the help of traits
+which can be easily implemented for user-defined shapes and exposed at runtime
+by a `Shape` trait-object. On the other hand, queries involving two shapes
+require more complex dispatch mechanisms that are not yet fully customizable by
+the user. At the moment, only **persistant** pairwise geometric queries
+performed by the [collision detection
+pipeline](../collision_detection_pipeline) are customizable by changing some of
+its components.
+.
 
-* An identifier for the shape type, e.g., `TypeId::of<Ball<f32>>()`.
-* An identifier for the shape's abstract geometric representation, e.g.,<br/>`TypeId::of<&SupportMap<Point2<f32>, Isometry2<f32>>>()`.
-* The trait-object raw data corresponding to this abstract geometric representation.
 
-This allows the object data and abstract geometric representation's _vtable_ to
-be packed together so that either one may be used by `ncollide` at runtime to
-choose among different algorithms. Creating a `ReprDesc` is an unsafe operation
-and should be done with great care otherwise it may lead to the dreaded Undefined
-Behaviour. Note that implementing `Repr` is not required for all the features
-exposed by `ncollide`. They are necessary only when the exact shape type is not
-known at runtime (throughout the whole [collison
-pipeline](../collision_detection_pipeline) for example), or to create a
-`ShapeHandle`.
+### The ShapeHandle
+Elements to inspect shape representation and capabilities are provided for each
+shape by implementing the `shape::Shape` trait. The `shape::ShapeHandle`
+structure is nothing more than a `Shape` trait-object wrapped into an `Arc`.
 
-### The shape handle
-### Custom support-mapped shape
+| Method                    | Description |
+|--                         | --          |
+| `.aabb(m: &M)`            | The AABB of the shape transformed by `m`.            |
+| `.bounding_sphere(m: &M)` | The bounding sphere of the shape transformed by `M`. |
+| `.as_ray_cast()`          | Converts `self` to a `RayCast` trait-object.         |
+| `.as_point_query()`       | Converts `self` to a `PointQuery` trait-object.      |
+| `.as_support_map()`       | Converts `self` to a `SupportMap` trait-object.      |
+| `.as_composite_shape()`   | Converts `self` to a `ComposteShape` trait-object.   |
+| `.is_support_map()`       | Returns `true` if this shape has a support-mapping.  |
+| `.is_composite_shape()`   | Returns `true` if this shape is a composite shape.   |
+
+All the conversion methods have a default implementation returning `None`.
+This allows you to only partially implement the trait if some of those features
+are of no interest to you or even not applicable for your specific shape. For
+example it is extremely rare to implement both `.as_composite_shape()` and
+`.as_support_map()` as algorithms applicable to the latter will almost always
+be more efficient than for the former.
+
+Methods related to bounding volumes have default implementations as well
+except for AABB construction. AABBs are widely used throughout **ncollide** so
+their tightness is critical for good performances. Other bounding volumes are
+less used so by default they are deduced from the AABB itself. Those default
+implementations will unfortunately only result in very loose bounding volumes
+so it is advised to provide your own to ensure optimal performances.
+
+### Custom support-mapped shape <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_support_map.rs')"></div>
 In this section we detail an example to define your own support-mapped shape
 suitable to be wrapped into a `ShapeHandle`. Too keep the maths simple, we will
 define a simple 2-dimensional ellipse centered at the origin with radius $a$
@@ -582,7 +609,7 @@ given by $f(x, y) = \left(\frac{x}{a}\right)^2 + \left(\frac{y}{b}\right)^2 - 1
 \frac{2x}{a^2}, \frac{2y}{b^2} \right]^\intercal$.  Then, for some direction
 $\mathbf{v} = [ x_v, y_v ]^\intercal \in \mathbb{R}^2$, convex analysis tells
 us that the point $ [ x^*, y^* ]^\intercal \in \mathcal{F}$ that maximizes or
-minimize the dot product with $\mathbf{v}$ is such that $v \times
+minimizes the dot product with $\mathbf{v}$ is such that $v \times
 \nabla{}f(x^*, y^*) = \frac{x_vy^*}{b^2} - \frac{y_vx^*}{a^2} = 0$. Thus, we
 have to solve the quadratic algebraic system:
 
@@ -602,7 +629,6 @@ Now, we only have to code this into a `SupportMap` implementation for our
 
 ```rust
 impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
-    #[inline]
     fn support_point(&self, transform: &Isometry2<f32>, dir: &Vector2<f32>) -> Point2<f32> {
         // Bring `dir` into the ellipse's local frame.
         let local_dir = transform.inverse_rotate(&dir);
@@ -625,36 +651,18 @@ With this, we will be able to pass an instance of `Ellipse` to many geometric
 queries from the `geometry::algorithms` module and all the functions with names
 that contains `support_map` on the other submodules of the `geometry` module.
 If we want to benefit from a higher-level interface based on the dynamic
-dispatch mechanism on **ncollide**, we have to implement the `Repr` trait:
+dispatch mechanism on **ncollide**, we have to implement the `Shape` trait
+providing at least an AABB and a conversion to the `SupportMap` trait-object:
 
 ```rust
-impl Repr<Point2<f32>, Isometry2<f32>> for Ellipse {
-    #[inline(always)]
-    fn repr(&self) -> ReprDesc2<f32> {
-        unsafe {
-            ReprDesc2::new(
-                // Dynamic type identifier for an ellipse.
-                TypeId::of::<Ellipse>(),
-                // Dynamic type identifier for a support-mapped object.
-                TypeId::of::<&SupportMap<Point2<f32>, Isometry2<f32>>>(),
-                // Informations for dynamic method dispatch of the SupportMap trait-object.
-                mem::transmute(self as &SupportMap<Point2<f32>, Isometry2<f32>>)
-            )
-        }
-    }
-}
-```
-
-Finally, it is usually necessary to be able to compute the
-[AABB](/bounding_volumes/#axis-aligned-bounding-box) of any shape. Because our
-`Ellipse` implements `SupportMap`, a generic method already exists to get its
-tighted AABB no matter its orientation:
-
-```rust
-impl HasBoundingVolume<Isometry2<f32>, AABB2<f32>> for Ellipse {
-    fn bounding_volume(&self, m: &Isometry2<f32>) -> AABB2<f32> {
+impl Shape<Point2<f32>, Isometry2<f32>> for Ellipse {
+    fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // Generic method to compute the aabb of a support-mapped shape.
         bounding_volume::support_map_aabb(m, self)
+    }
+
+    fn as_support_map(&self) -> Option<&SupportMap2<f32>> {
+        Some(self)
     }
 }
 ```
@@ -662,8 +670,8 @@ impl HasBoundingVolume<Isometry2<f32>, AABB2<f32>> for Ellipse {
 That's it! You will now be able to pass our ellipse to various functions of
 the `geometry` module, and even wrap it on a `ShapeHandle` to use it as a
 `CollisionObject` shape for complex interactions with a `CollisionWorld` using
-the [collision detection pipeline](../collision_detection_pipeline). Here are
-some example of some pairwise [geometric
+the [collision detection pipeline](../collision_detection_pipeline). The
+following is an example of some pairwise [geometric
 queries](../geometric_queries/#pairwise-queries) involving our own ellipse:
 
 ```rust
@@ -673,16 +681,16 @@ let cuboid  = Cuboid::new(Vector2::new(1.0, 1.0));
 let ellipse_pos = na::one();
 let cuboid_pos  = Isometry2::new(Vector2::new(4.0, 0.0), na::zero());
 
-let dist = geometry::distance(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid);
-let prox = geometry::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
-let ctct = geometry::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
+let dist = query::distance(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid);
+let prox = query::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
+let ctct = query::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
 
 assert!(na::approx_eq(&dist, &1.0));
 assert_eq!(prox, Proximity::Disjoint);
 assert!(ctct.is_none());
 ```
 
-### Custom composite shape
+### Custom composite shape <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_composite_shape.rs')"></div>
 In this section we detail an example to define your own composite shape
 suitable to be wrapped into a `ShapeHandle`.  We will define a simple 2D
 cross-shaped object with only two part:
@@ -754,7 +762,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         2 // There are only two parts.
     }
 
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Repr2<f32>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 
@@ -768,7 +776,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn map_transformed_part_at(&self,
                                i: usize,
                                m: &Isometry2<f32>,
-                               f: &mut FnMut(&Isometry2<f32>, &Repr2<f32>)) {
+                               f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m.prepend_translation(&Vector2::new(1.0, 1.0));
 
@@ -797,38 +805,19 @@ is too restrictive and will be removed in future versions of **ncollide**.
 Just like in the previous section, implementing the `CompositeShape` trait is
 enough to use some pairwise geometric queries, e.g., those from the submodule
 of `geometry` module with names that contains the word `composite`. For a more
-complete integration the `Repr` trait has to be implemented as well:
+complete integration, we have to implement the `Shape` trait providing at least
+an AABB and a conversion to the `CompositeShape` trait-object:
 
 ```rust
-impl Repr<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
-    #[inline(always)]
-    fn repr(&self) -> ReprDesc2<f32> {
-        unsafe {
-            ReprDesc2::new(
-                // Dynamic type identifier for an cross.
-                TypeId::of::<CrossedCuboids>(),
-                // Dynamic type identifier for a support-mapped object.
-                TypeId::of::<&CompositeShape<Point2<f32>, Isometry2<f32>>>(),
-                // Informations for dynamic method dispatch of the CompositeShape trait-object.
-                mem::transmute(self as &CompositeShape<Point2<f32>, Isometry2<f32>>)
-            )
-        }
-    }
-}
-```
-
-Finally, it is usually necessary to be able to compute the
-[AABB](/bounding_volumes/#axis-aligned-bounding-box) of any shape. Constructing
-a tight AABB for a composite shape is not easy when it can assume any
-orientation. To simplify, we use a very coarse approximation on this
-example.
-
-```rust
-impl HasBoundingVolume<Isometry2<f32>, AABB2<f32>> for CrossedCuboids {
-    fn bounding_volume(&self, m: &Isometry2<f32>) -> AABB2<f32> {
+impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
+    fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // This is far from an optimal AABB.
         AABB2::new(Point2::new(-10.0, -10.0) + m.translation(),
                    Point2::new(10.0, 10.0)   + m.translation())
+    }
+
+    fn as_composite_shape(&self) -> Option<&CompositeShape2<f32>> {
+        Some(self)
     }
 }
 ```
@@ -837,7 +826,7 @@ That's it! You will now be able to pass our cross-like shape to various
 functions of the `geometry` module, and even wrap it on a `ShapeHandle` to use
 it as a `CollisionObject` shape for complex interactions with a
 `CollisionWorld` using the [collision detection
-pipeline](../collision_detection_pipeline). Here are some example of some
+pipeline](../collision_detection_pipeline). The following is an example of some
 pairwise [geometric queries](../geometric_queries/#pairwise-queries)
 involving our own composite shape:
 
@@ -848,9 +837,9 @@ let cuboid = Cuboid2::new(Vector2::new(1.0, 1.0));
 let cross_pos  = na::one();
 let cuboid_pos = Isometry2::new(Vector2::new(6.0, 0.0), na::zero());
 
-let dist = geometry::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);
-let prox = geometry::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
-let ctct = geometry::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
+let dist = query::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);
+let prox = query::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
+let ctct = query::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
 
 assert!(na::approx_eq(&dist, &2.0));
 assert_eq!(prox, Proximity::Disjoint);
