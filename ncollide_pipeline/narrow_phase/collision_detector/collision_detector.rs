@@ -1,5 +1,5 @@
 use geometry::shape::Shape;
-use geometry::geometry::Contact;
+use geometry::query::Contact;
 use math::{Point, Vector};
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.

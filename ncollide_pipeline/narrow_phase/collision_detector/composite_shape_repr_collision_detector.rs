@@ -6,7 +6,7 @@ use utils::data::hash::UintTWHash;
 use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{Shape, CompositeShape};
-use geometry::geometry::Contact;
+use geometry::query::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
 
 

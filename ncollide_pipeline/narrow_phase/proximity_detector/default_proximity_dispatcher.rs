@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Ball, Plane};
-use geometry::geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
 use narrow_phase::proximity_detector::{
     ProximityDispatcher,
     ProximityAlgorithm,

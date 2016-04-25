@@ -3,7 +3,7 @@ extern crate ncollide;
 
 use na::{Vector2, Point2, Isometry2, Rotate};
 use ncollide::shape::SupportMap;
-use ncollide::geometry::{self, Proximity};
+use ncollide::query::{self, Proximity};
 use ncollide::shape::{Shape, Cuboid};
 use ncollide::bounding_volume::{self, AABB2};
 
@@ -49,9 +49,9 @@ fn main() {
     let ellipse_pos = na::one();
     let cuboid_pos  = Isometry2::new(Vector2::new(4.0, 0.0), na::zero());
 
-    let dist = geometry::distance(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid);
-    let prox = geometry::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
-    let ctct = geometry::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
+    let dist = query::distance(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid);
+    let prox = query::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
+    let ctct = query::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
 
     assert!(na::approx_eq(&dist, &1.0));
     assert_eq!(prox, Proximity::Disjoint);

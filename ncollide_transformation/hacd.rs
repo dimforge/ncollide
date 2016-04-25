@@ -9,7 +9,7 @@ use utils;
 use geometry::shape::SupportMap;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::partitioning::{BVT, BoundingVolumeInterferencesCollector};
-use geometry::geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
 use geometry::ray::{self, Ray, RayCast, RayIntersection};
 use procedural::{TriMesh, IndexBuffer};
 

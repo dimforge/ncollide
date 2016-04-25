@@ -1,9 +1,9 @@
 use na::{Translation, Rotate, Transform};
 use na;
-use geometry::algorithms::gjk;
-use geometry::algorithms::minkowski_sampling;
-use geometry::algorithms::simplex::Simplex;
-use geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::gjk;
+use query::algorithms::minkowski_sampling;
+use query::algorithms::simplex::Simplex;
+use query::algorithms::johnson_simplex::JohnsonSimplex;
 use shape::{SupportMap, Cylinder, Cone, Capsule, ConvexHull};
 use point::{PointQuery, PointProjection};
 use math::{Point, Vector};

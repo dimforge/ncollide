@@ -2,7 +2,7 @@ use na;
 use na::{Translate, Translation};
 use math::{Point, Vector, Isometry};
 use shape::{Shape, Ball, Plane};
-use geometry::distance_internal;
+use query::distance_internal;
 
 /// Computes the minimum distance separating two shapes.
 ///

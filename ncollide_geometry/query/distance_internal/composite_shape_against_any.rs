@@ -5,7 +5,7 @@ use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use shape::{Shape, CompositeShape};
 use point::PointQuery;
-use geometry::distance_internal;
+use query::distance_internal;
 use math::{Point, Vector, Isometry};
 
 /// Smallest distance between a composite shape and any other shape.

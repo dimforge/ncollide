@@ -3,10 +3,10 @@ use std::marker::PhantomData;
 use na::{Translate, Translation};
 use math::{Point, Vector};
 use geometry::shape::{Shape, AnnotatedPoint};
-use geometry::geometry::algorithms::simplex::Simplex;
-use geometry::geometry::algorithms::gjk::GJKResult;
-use geometry::geometry::contacts_internal;
-use geometry::geometry::Contact;
+use geometry::query::algorithms::simplex::Simplex;
+use geometry::query::algorithms::gjk::GJKResult;
+use geometry::query::contacts_internal;
+use geometry::query::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 

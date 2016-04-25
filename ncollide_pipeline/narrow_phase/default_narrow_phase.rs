@@ -1,7 +1,7 @@
 use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::uid_remap::{UidRemap, FastKey};
-use geometry::geometry::Proximity;
+use geometry::query::Proximity;
 use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal,   CollisionDetector,
                    ProximityDispatcher, ProximityAlgorithm, ProximitySignal, ProximityDetector,
                    NarrowPhase, ContactPairs};

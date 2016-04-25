@@ -5,8 +5,8 @@ use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use point::PointQuery;
 use shape::{Shape, CompositeShape};
-use geometry::Proximity;
-use geometry::proximity_internal;
+use query::Proximity;
+use query::proximity_internal;
 use math::{Point, Vector, Isometry};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.

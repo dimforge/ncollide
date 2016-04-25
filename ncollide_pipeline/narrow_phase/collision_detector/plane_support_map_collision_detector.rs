@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Plane};
-use geometry::geometry::Contact;
-use geometry::geometry::contacts_internal;
+use geometry::query::Contact;
+use geometry::query::contacts_internal;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 

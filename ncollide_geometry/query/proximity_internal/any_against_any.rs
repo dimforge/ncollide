@@ -2,8 +2,8 @@ use na;
 use na::{Translate, Translation};
 use math::{Point, Vector, Isometry};
 use shape::{Shape, Ball, Plane};
-use geometry::Proximity;
-use geometry::proximity_internal;
+use query::Proximity;
+use query::proximity_internal;
 
 /// Tests whether two shapes are in intersecting or separated by a distance smaller than `margin`.
 pub fn any_against_any<P, M>(m1: &M, g1: &Shape<P, M>,

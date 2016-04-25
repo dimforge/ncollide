@@ -1,10 +1,10 @@
 use num::Zero;
 use na::{self, Translation, Translate};
 use shape::{self, SupportMap, AnnotatedPoint};
-use geometry::algorithms::gjk;
-use geometry::algorithms::simplex::Simplex;
-use geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use geometry::Proximity;
+use query::algorithms::gjk;
+use query::algorithms::simplex::Simplex;
+use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::Proximity;
 use math::{Point, Vector};
 
 

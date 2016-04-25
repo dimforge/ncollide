@@ -3,8 +3,8 @@ use na;
 use partitioning::BoundingVolumeInterferencesCollector;
 use bounding_volume::BoundingVolume;
 use shape::{Shape, CompositeShape};
-use geometry::Contact;
-use geometry::contacts_internal;
+use query::Contact;
+use query::contacts_internal;
 use math::{Point, Vector, Isometry};
 
 /*

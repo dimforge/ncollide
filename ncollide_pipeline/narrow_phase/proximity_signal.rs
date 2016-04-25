@@ -1,4 +1,4 @@
-use geometry::geometry::Proximity;
+use geometry::query::Proximity;
 
 /// A signal handler for proximity detection.
 pub trait ProximitySignalHandler<B> {

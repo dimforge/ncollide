@@ -6,7 +6,7 @@ use utils::data::hash::UintTWHash;
 use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{Shape, CompositeShape};
-use geometry::geometry::Proximity;
+use geometry::query::Proximity;
 use narrow_phase::{ProximityDetector, ProximityDispatcher, ProximityAlgorithm};
 
 

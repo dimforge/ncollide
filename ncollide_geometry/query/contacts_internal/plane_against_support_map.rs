@@ -1,6 +1,6 @@
 use na::{Translate, Rotate};
 use na;
-use geometry::Contact;
+use query::Contact;
 use shape::{SupportMap, Plane};
 use math::{Point, Vector};
 

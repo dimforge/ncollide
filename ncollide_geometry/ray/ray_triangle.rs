@@ -1,7 +1,7 @@
 use num::Float;
 use na::{Vector3, Identity, Transform, Rotate};
 use na;
-use geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::johnson_simplex::JohnsonSimplex;
 use shape::Triangle;
 use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::{Point, Vector};

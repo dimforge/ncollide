@@ -1,7 +1,7 @@
 use num::{Float, Zero};
 use na;
 use math::{Point, Vector};
-use geometry::Contact;
+use query::Contact;
 use shape::Ball;
 
 /// Contact between balls.

@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Plane};
-use geometry::geometry::Proximity;
-use geometry::geometry::proximity_internal;
+use geometry::query::Proximity;
+use geometry::query::proximity_internal;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 

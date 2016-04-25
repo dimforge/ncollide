@@ -5,7 +5,11 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.0] - WIP
-## Modified
+
+### Modified
+    * Merge the `ncollide_queries` and `ncollide_entities` crates into
+      `ncollide_geometry`.
+    * Rename the `geometry` module to `query`.
     * `::implicit_shape_aabb(...)` becomes `::support_map_aabb(...)`
     * `CompositeShape::aabb_at(...)` now returns an AABB by-value (instead of
       by-ref).

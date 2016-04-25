@@ -3,9 +3,9 @@ use std::marker::PhantomData;
 use na::{self, Translate, Translation};
 use math::{Point, Vector};
 use geometry::shape::{Shape, AnnotatedPoint};
-use geometry::geometry::algorithms::simplex::Simplex;
-use geometry::geometry::proximity_internal;
-use geometry::geometry::Proximity;
+use geometry::query::algorithms::simplex::Simplex;
+use geometry::query::proximity_internal;
+use geometry::query::Proximity;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 

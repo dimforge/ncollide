@@ -3,7 +3,7 @@ use na::{Cross, Transform, Translation, Rotation};
 use na;
 use math::{Point, Vector};
 use geometry::shape::Shape;
-use geometry::geometry::Contact;
+use geometry::query::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactManifoldGenerator};
 
 

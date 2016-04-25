@@ -5,8 +5,8 @@ use na::{Identity, Norm, Translation, Translate, Bounded};
 use na;
 use shape::{MinkowskiSum, AnnotatedPoint, Reflection};
 use shape::SupportMap;
-use geometry::algorithms::gjk;
-use geometry::algorithms::simplex::Simplex;
+use query::algorithms::gjk;
+use query::algorithms::simplex::Simplex;
 use math::Point;
 
 

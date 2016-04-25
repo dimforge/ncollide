@@ -2,8 +2,8 @@ use na;
 use na::{Translate, Translation};
 use math::{Point, Vector, Isometry};
 use shape::{Shape, Ball, Plane};
-use geometry::contacts_internal;
-use geometry::contacts_internal::Contact;
+use query::contacts_internal;
+use query::contacts_internal::Contact;
 
 /// Computes one contact point between two shapes.
 ///

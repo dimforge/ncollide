@@ -1,4 +1,4 @@
-use geometry::geometry::Proximity;
+use geometry::query::Proximity;
 use geometry::shape::Shape;
 use math::{Point, Vector};
 

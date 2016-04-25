@@ -1,12 +1,12 @@
 use num::Zero;
 use na::{self, Translation, Translate, Norm};
 use shape::{self, SupportMap, AnnotatedPoint};
-use geometry::algorithms::gjk::GJKResult;
-use geometry::algorithms::gjk;
-use geometry::algorithms::minkowski_sampling;
-use geometry::algorithms::simplex::Simplex;
-use geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use geometry::Contact;
+use query::algorithms::gjk::GJKResult;
+use query::algorithms::gjk;
+use query::algorithms::minkowski_sampling;
+use query::algorithms::simplex::Simplex;
+use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::Contact;
 use math::{Point, Vector};
 
 

@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::{Vector2, Point2, Isometry2, Translation};
-use ncollide::geometry::{self, Proximity};
+use ncollide::query::{self, Proximity};
 use ncollide::shape::{CompositeShape, Shape, Cuboid2};
 use ncollide::partitioning::BVT;
 use ncollide::bounding_volume::AABB2;
@@ -112,9 +112,9 @@ fn main() {
     let cross_pos  = na::one();
     let cuboid_pos = Isometry2::new(Vector2::new(6.0, 0.0), na::zero());
 
-    let dist = geometry::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);
-    let prox = geometry::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
-    let ctct = geometry::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
+    let dist = query::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);
+    let prox = query::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
+    let ctct = query::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
 
     assert!(na::approx_eq(&dist, &2.0));
     assert_eq!(prox, Proximity::Disjoint);

@@ -1,6 +1,6 @@
 use na;
 use math::{Point, Vector};
-use geometry::Proximity;
+use query::Proximity;
 use shape::Ball;
 
 /// Proximity between balls.

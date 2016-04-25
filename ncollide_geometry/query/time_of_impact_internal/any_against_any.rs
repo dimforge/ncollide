@@ -2,7 +2,7 @@ use na::Translate;
 use na;
 use math::{Point, Vector, Isometry};
 use shape::{Shape, Ball, Plane};
-use geometry::time_of_impact_internal;
+use query::time_of_impact_internal;
 
 /// Computes the smallest time of impact of two shapes under translational movement.
 ///

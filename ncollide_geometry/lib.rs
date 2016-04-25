@@ -18,6 +18,6 @@ extern crate ncollide_utils as utils;
 pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;
-pub mod geometry;
+pub mod query;
 pub mod point;
 pub mod ray;

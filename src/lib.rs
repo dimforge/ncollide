@@ -56,7 +56,7 @@ pub extern crate ncollide_transformation;
 
 pub use ncollide_math as math;
 pub use ncollide_utils as utils;
-pub use ncollide_geometry::{shape, bounding_volume, partitioning, geometry, point, ray};
+pub use ncollide_geometry::{shape, bounding_volume, partitioning, query, point, ray};
 pub use ncollide_pipeline::{narrow_phase, broad_phase, world};
 pub use ncollide_procedural as procedural;
 pub use ncollide_transformation as transformation;

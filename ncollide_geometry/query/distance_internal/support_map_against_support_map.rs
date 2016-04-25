@@ -1,8 +1,8 @@
 use num::Zero;
 use na::{self, Translation, Translate};
-use geometry::algorithms::gjk;
-use geometry::algorithms::simplex::Simplex;
-use geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::gjk;
+use query::algorithms::simplex::Simplex;
+use query::algorithms::johnson_simplex::JohnsonSimplex;
 use shape::{self, SupportMap};
 use math::{Point, Vector};
 

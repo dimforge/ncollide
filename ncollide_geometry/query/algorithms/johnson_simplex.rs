@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::collections::BTreeMap;
 use na::{Axpy, Bounded};
 use na;
-use geometry::algorithms::simplex::Simplex;
+use query::algorithms::simplex::Simplex;
 use math::{Point, Vector};
 
 
