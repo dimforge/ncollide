@@ -8,9 +8,9 @@ use ray::{Ray, RayCast};
 use query::time_of_impact_internal;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
-pub fn composite_shape_against_any<P, M, G1: ?Sized>(m1: &M, vel1: &P::Vect, g1: &G1,
-                                                     m2: &M, vel2: &P::Vect, g2: &Shape<P, M>)
-                                                     -> Option<<P::Vect as Vector>::Scalar>
+pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, vel1: &P::Vect, g1: &G1,
+                                                       m2: &M, vel2: &P::Vect, g2: &Shape<P, M>)
+                                                       -> Option<<P::Vect as Vector>::Scalar>
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P>,
@@ -21,14 +21,14 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized>(m1: &M, vel1: &P::Vect, g1:
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
-pub fn any_against_composite_shape<P, M, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1: &Shape<P, M>,
-                                                     m2: &M, vel2: &P::Vect, g2: &G2)
-                                                     -> Option<<P::Vect as Vector>::Scalar>
+pub fn shape_against_composite_shape<P, M, G2: ?Sized>(m1: &M, vel1: &P::Vect, g1: &Shape<P, M>,
+                                                       m2: &M, vel2: &P::Vect, g2: &G2)
+                                                       -> Option<<P::Vect as Vector>::Scalar>
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P>,
           G2: CompositeShape<P, M> {
-    composite_shape_against_any(m2, vel2, g2, m1, vel1, g1)
+    composite_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
 }
 
 struct CompositeShapeAgainstAnyTOICostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {

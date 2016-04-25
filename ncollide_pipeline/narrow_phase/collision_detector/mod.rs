@@ -7,7 +7,7 @@ pub use self::plane_support_map_collision_detector::{PlaneSupportMapCollisionDet
 pub use self::support_map_support_map_collision_detector::SupportMapSupportMapCollisionDetector;
 pub use self::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 pub use self::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
-pub use self::composite_shape_repr_collision_detector::{CompositeShapeShapeCollisionDetector, ShapeCompositeShapeCollisionDetector};
+pub use self::composite_shape_shape_collision_detector::{CompositeShapeShapeCollisionDetector, ShapeCompositeShapeCollisionDetector};
 
 // FIXME: un-hide this and move everything to a folder.
 #[doc(hidden)]
@@ -18,4 +18,4 @@ mod plane_support_map_collision_detector;
 mod support_map_support_map_collision_detector;
 mod incremental_contact_manifold_generator;
 mod one_shot_contact_manifold_generator;
-mod composite_shape_repr_collision_detector;
+mod composite_shape_shape_collision_detector;

@@ -7,7 +7,7 @@ use query::distance_internal;
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn any_against_any<P, M>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &Shape<P, M>) -> <P::Vect as Vector>::Scalar
+pub fn shape_against_shape<P, M>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &Shape<P, M>) -> <P::Vect as Vector>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P> + Translation<P::Vect> {
@@ -28,10 +28,10 @@ pub fn any_against_any<P, M>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &Shape<P, M>)
         distance_internal::support_map_against_support_map::<P, _, _, _>(m1, s1, m2, s2)
     }
     else if let Some(c1) = g1.as_composite_shape() {
-        distance_internal::composite_shape_against_any(m1, c1, m2, g2)
+        distance_internal::composite_shape_against_shape(m1, c1, m2, g2)
     }
     else if let Some(c2) = g2.as_composite_shape() {
-        distance_internal::any_against_composite_shape(m1, g1, m2, c2)
+        distance_internal::shape_against_composite_shape(m1, g1, m2, c2)
     }
     else {
         panic!("No algorithm known to compute a contact point between the given pair of shapes.")

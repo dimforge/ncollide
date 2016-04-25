@@ -10,11 +10,10 @@ use query::proximity_internal;
 use math::{Point, Vector, Isometry};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_any<P, M, G1: ?Sized>(
-                                   m1: &M, g1: &G1,
-                                   m2: &M, g2: &Shape<P, M>,
-                                   margin: <P::Vect as Vector>::Scalar)
-                                   -> Proximity
+pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
+                                                       m2: &M, g2: &Shape<P, M>,
+                                                       margin: <P::Vect as Vector>::Scalar)
+                                                       -> Proximity
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P> + Translation<P::Vect>,
@@ -30,16 +29,15 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized>(
 }
 
 /// Proximity between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn any_against_composite_shape<P, M, G2: ?Sized>(
-                                   m1: &M, g1: &Shape<P, M>,
-                                   m2: &M, g2: &G2,
-                                   margin: <P::Vect as Vector>::Scalar)
-                                   -> Proximity
+pub fn shape_against_composite_shape<P, M, G2: ?Sized>(m1: &M, g1: &Shape<P, M>,
+                                                       m2: &M, g2: &G2,
+                                                       margin: <P::Vect as Vector>::Scalar)
+                                                       -> Proximity
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P> + Translation<P::Vect>,
           G2: CompositeShape<P, M> {
-    composite_shape_against_any(m2, g2, m1, g1, margin)
+    composite_shape_against_shape(m2, g2, m1, g1, margin)
 }
 
 struct CompositeShapeAgainstAnyInterfCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {

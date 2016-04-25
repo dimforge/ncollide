@@ -8,10 +8,10 @@ use query::contacts_internal::Contact;
 /// Computes one contact point between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `prediction`.
-pub fn any_against_any<P, M>(m1: &M, g1: &Shape<P, M>,
-                             m2: &M, g2: &Shape<P, M>,
-                             prediction: <P::Vect as Vector>::Scalar)
-                             -> Option<Contact<P>>
+pub fn shape_against_shape<P, M>(m1: &M, g1: &Shape<P, M>,
+                                 m2: &M, g2: &Shape<P, M>,
+                                 prediction: <P::Vect as Vector>::Scalar)
+                                 -> Option<Contact<P>>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P> + Translation<P::Vect> {
@@ -32,10 +32,10 @@ pub fn any_against_any<P, M>(m1: &M, g1: &Shape<P, M>,
         contacts_internal::support_map_against_support_map(m1, s1, m2, s2, prediction)
     }
     else if let Some(c1) = g1.as_composite_shape() {
-        contacts_internal::composite_shape_against_any(m1, c1, m2, g2, prediction)
+        contacts_internal::composite_shape_against_shape(m1, c1, m2, g2, prediction)
     }
     else if let Some(c2) = g2.as_composite_shape() {
-        contacts_internal::any_against_composite_shape(m1, g1, m2, c2, prediction)
+        contacts_internal::shape_against_composite_shape(m1, g1, m2, c2, prediction)
     }
     else {
         panic!("No algorithm known to compute a contact point between the given pair of shapes.")

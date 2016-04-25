@@ -9,7 +9,7 @@ use query::distance_internal;
 use math::{Point, Vector, Isometry};
 
 /// Smallest distance between a composite shape and any other shape.
-pub fn composite_shape_against_any<P, M, G1: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &Shape<P, M>) -> <P::Vect as Vector>::Scalar
+pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1, m2: &M, g2: &Shape<P, M>) -> <P::Vect as Vector>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P> + Translation<P::Vect>,
@@ -20,12 +20,12 @@ pub fn composite_shape_against_any<P, M, G1: ?Sized>(m1: &M, g1: &G1, m2: &M, g2
 }
 
 /// Smallest distance between a shape and a composite shape.
-pub fn any_against_composite_shape<P, M, G2: ?Sized>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &G2) -> <P::Vect as Vector>::Scalar
+pub fn shape_against_composite_shape<P, M, G2: ?Sized>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &G2) -> <P::Vect as Vector>::Scalar
     where P:  Point,
           P::Vect: Translate<P>,
           M:  Isometry<P> + Translation<P::Vect>,
           G2: CompositeShape<P, M> {
-    composite_shape_against_any(m2, g2, m1, g1)
+    composite_shape_against_shape(m2, g2, m1, g1)
 }
 
 struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {

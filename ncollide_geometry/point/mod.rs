@@ -16,5 +16,5 @@ mod point_segment;
 mod point_triangle;
 mod point_compound;
 mod point_mesh;
-mod point_repr;
+mod point_shape;
 mod point_bvt;
