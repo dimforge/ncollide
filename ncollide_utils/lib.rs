@@ -34,6 +34,7 @@ pub use cov::{cov, cov_and_center, center_reduce};
 pub use median::median;
 pub use sort::sort3;
 pub use cross3::cross3;
+pub use point_cloud_support_point::point_cloud_support_point;
 
 
 pub mod data;
@@ -51,3 +52,4 @@ mod cov;
 mod median;
 mod sort;
 mod cross3;
+mod point_cloud_support_point;

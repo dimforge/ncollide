@@ -1,7 +1,7 @@
 use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::uid_remap::{UidRemap, FastKey};
-use queries::geometry::Proximity;
+use geometry::geometry::Proximity;
 use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal,   CollisionDetector,
                    ProximityDispatcher, ProximityAlgorithm, ProximitySignal, ProximityDetector,
                    NarrowPhase, ContactPairs};
@@ -99,7 +99,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         match (co1.query_type, co2.query_type) {
             (CollisionQueryType::Contacts(_), CollisionQueryType::Contacts(_)) => {
                 if started {
-                    let cd = self.collision_dispatcher.get_collision_algorithm(&co1.shape.desc(), &co2.shape.desc());
+                    let cd = self.collision_dispatcher.get_collision_algorithm(co1.shape.as_ref(), co2.shape.as_ref());
 
                     if let Some(cd) = cd {
                         let _ = self.collision_detectors.insert(key, cd);
@@ -120,7 +120,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             },
             (_, CollisionQueryType::Proximity(_)) | (CollisionQueryType::Proximity(_), _) => {
                 if started {
-                    let cd = self.proximity_dispatcher.get_proximity_algorithm(&co1.shape.desc(), &co2.shape.desc());
+                    let cd = self.proximity_dispatcher.get_proximity_algorithm(co1.shape.as_ref(), co2.shape.as_ref());
 
                     if let Some(cd) = cd {
                         let _ = self.proximity_detectors.insert(key, cd);

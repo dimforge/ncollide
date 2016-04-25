@@ -1,6 +1,6 @@
 use na::Point3;
 use na;
-use entities::shape::Cylinder3;
+use geometry::shape::Cylinder3;
 use procedural::TriMesh3;
 use procedural;
 use super::ToTriMesh;

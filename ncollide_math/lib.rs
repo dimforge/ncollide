@@ -57,13 +57,12 @@ pub trait Vector: Send + Sync + 'static +
 }
 
 /// Trait implemented by transformation matrices types.
-pub trait Isometry<P, V>: // FIXME: we actually want associated types here.
-                          Send           + Sync           + 'static                  +
-                          One            + Rotate<V>      +
-                          Translate<P>   + Transform<P>   + AbsoluteRotate<V>        +
-                          Inverse        + Clone          + Mul<Self, Output = Self> +
-                          Copy           + Debug          + Any                      +
-                          Decodable      + Encodable {
+pub trait Isometry<P: Point>: Send         + Sync            + 'static                  +
+                              One          + Rotate<P::Vect> +
+                              Translate<P> + Transform<P>    + AbsoluteRotate<P::Vect>  +
+                              Inverse      + Clone           + Mul<Self, Output = Self> +
+                              Copy         + Debug           + Any                      +
+                              Decodable    + Encodable {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.
@@ -92,11 +91,11 @@ impl<N: Scalar> Vector for Vector1<N> { type Scalar = N; }
 impl<N: Scalar> Vector for Vector2<N> { type Scalar = N; }
 impl<N: Scalar> Vector for Vector3<N> { type Scalar = N; }
 
-impl<N: Scalar> Isometry<Point2<N>, Vector2<N>> for Isometry2<N> { }
-impl<N: Scalar> Isometry<Point3<N>, Vector3<N>> for Isometry3<N> { }
+impl<N: Scalar> Isometry<Point2<N>> for Isometry2<N> { }
+impl<N: Scalar> Isometry<Point3<N>> for Isometry3<N> { }
 
-impl<N: Scalar> Isometry<Point2<N>, Vector2<N>> for Identity { }
-impl<N: Scalar> Isometry<Point3<N>, Vector3<N>> for Identity { }
+impl<N: Scalar> Isometry<Point2<N>> for Identity { }
+impl<N: Scalar> Isometry<Point3<N>> for Identity { }
 
 impl<N> HasInertiaMatrix<Matrix1<N>> for Vector2<N> { }
 impl<N> HasInertiaMatrix<Matrix3<N>> for Vector3<N> { }

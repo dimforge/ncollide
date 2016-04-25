@@ -1,16 +1,11 @@
 extern crate nalgebra as na;
-#[macro_use]
-extern crate ncollide_entities;
 extern crate ncollide;
 
-use std::mem;
-use std::any::TypeId;
 use na::{Vector2, Point2, Isometry2, Translation};
-use ncollide::inspection::{Shape, Shape2, ShapeDesc2};
 use ncollide::geometry::{self, Proximity};
-use ncollide::shape::{CompositeShape, Cuboid2};
+use ncollide::shape::{CompositeShape, Shape, Cuboid2};
 use ncollide::partitioning::BVT;
-use ncollide::bounding_volume::{HasBoundingVolume, AABB2};
+use ncollide::bounding_volume::AABB2;
 
 struct CrossedCuboids {
     bvt: BVT<usize, AABB2<f32>>
@@ -62,7 +57,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         2 // There are only two parts.
     }
 
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape<Point2<f32>, Isometry2<f32>>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 
@@ -76,7 +71,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn map_transformed_part_at(&self,
                                i: usize,
                                m: &Isometry2<f32>,
-                               f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
+                               f: &mut FnMut(&Isometry2<f32>, &Shape<Point2<f32>, Isometry2<f32>>)) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m.prepend_translation(&Vector2::new(1.0, 1.0));
 
@@ -98,14 +93,15 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     }
 }
 
-
-impl_composite_shape_desc!(CrossedCuboids, Point2<f32>, Isometry2<f32>);
-
-impl HasBoundingVolume<Isometry2<f32>, AABB2<f32>> for CrossedCuboids {
-    fn bounding_volume(&self, m: &Isometry2<f32>) -> AABB2<f32> {
+impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
+    fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // This is far from an optimal AABB.
         AABB2::new(Point2::new(-10.0, -10.0) + m.translation(),
                    Point2::new(10.0, 10.0)   + m.translation())
+    }
+
+    fn as_composite_shape(&self) -> Option<&CompositeShape<Point2<f32>, Isometry2<f32>>> {
+        Some(self)
     }
 }
 

@@ -1,14 +1,11 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use std::mem;
-use std::any::TypeId;
 use na::{Vector2, Point2, Isometry2, Rotate};
-use ncollide::inspection::{Shape, ShapeDesc2};
-use ncollide::support_map::SupportMap;
+use ncollide::shape::SupportMap;
 use ncollide::geometry::{self, Proximity};
-use ncollide::shape::Cuboid;
-use ncollide::bounding_volume::{self, HasBoundingVolume, AABB2};
+use ncollide::shape::{Shape, Cuboid};
+use ncollide::bounding_volume::{self, AABB2};
 
 struct Ellipse {
     a: f32, // The first radius.
@@ -35,25 +32,13 @@ impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
 }
 
 impl Shape<Point2<f32>, Isometry2<f32>> for Ellipse {
-    #[inline(always)]
-    fn desc(&self) -> ShapeDesc2<f32> {
-        unsafe {
-            ShapeDesc2::new(
-                // Dynamic type identifier for an ellipse.
-                TypeId::of::<Ellipse>(),
-                // Dynamic type identifier for a support-mapped object.
-                TypeId::of::<&SupportMap<Point2<f32>, Isometry2<f32>>>(),
-                // Informations for dynamic method dispatch of the SupportMap trait-object.
-                mem::transmute(self as &SupportMap<Point2<f32>, Isometry2<f32>>)
-            )
-        }
-    }
-}
-
-impl HasBoundingVolume<Isometry2<f32>, AABB2<f32>> for Ellipse {
-    fn bounding_volume(&self, m: &Isometry2<f32>) -> AABB2<f32> {
+    fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // Generic method to compute the aabb of a support-mapped shape.
         bounding_volume::support_map_aabb(m, self)
+    }
+
+    fn as_support_map(&self) -> Option<&SupportMap<Point2<f32>, Isometry2<f32>>> {
+        Some(self)
     }
 }
 

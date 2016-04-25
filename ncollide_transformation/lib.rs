@@ -14,8 +14,7 @@ extern crate num;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
-extern crate ncollide_entities as entities;
-extern crate ncollide_queries as queries;
+extern crate ncollide_geometry as geometry;
 extern crate ncollide_procedural as procedural;
 
 

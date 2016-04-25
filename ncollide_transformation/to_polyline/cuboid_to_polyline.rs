@@ -1,7 +1,7 @@
 use na::Point2;
 use na;
 use math::Scalar;
-use entities::shape::Cuboid2;
+use geometry::shape::Cuboid2;
 use procedural::Polyline2;
 use super::ToPolyline;
 use procedural;

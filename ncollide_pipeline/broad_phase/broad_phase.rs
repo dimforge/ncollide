@@ -1,4 +1,4 @@
-use queries::ray::Ray;
+use geometry::ray::Ray;
 use math::Point;
 
 /// Trait all broad phase must implement.

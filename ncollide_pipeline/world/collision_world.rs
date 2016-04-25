@@ -4,10 +4,10 @@ use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
-use entities::bounding_volume::{self, BoundingVolume, AABB};
-use entities::shape::ShapeHandle;
-use queries::ray::{RayCast, Ray, RayIntersection};
-use queries::point::PointQuery;
+use geometry::bounding_volume::{self, BoundingVolume, AABB};
+use geometry::shape::ShapeHandle;
+use geometry::ray::{RayCast, Ray, RayIntersection};
+use geometry::point::PointQuery;
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
                    ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
                    ProximitySignal};
@@ -40,7 +40,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
                                                 Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M:  Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+          M:  Isometry<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
     pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
@@ -312,7 +312,7 @@ pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
 
 impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
     where P: Point,
-          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+          M: Isometry<P> + Translation<P::Vect> {
     type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>);
 
     #[inline]
@@ -343,7 +343,7 @@ pub struct InterferencesWithPoint<'a, P: 'a + Point, M: 'a, T: 'a> {
 
 impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
     where P: Point,
-          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+          M: Isometry<P> + Translation<P::Vect> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]

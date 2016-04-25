@@ -2,11 +2,10 @@ use std::any::Any;
 use std::marker::PhantomData;
 use na::{self, Translate, Translation};
 use math::{Point, Vector};
-use entities::inspection::Shape;
-use entities::shape::AnnotatedPoint;
-use queries::geometry::algorithms::simplex::Simplex;
-use queries::geometry::proximity_internal;
-use queries::geometry::Proximity;
+use geometry::shape::{Shape, AnnotatedPoint};
+use geometry::geometry::algorithms::simplex::Simplex;
+use geometry::geometry::proximity_internal;
+use geometry::geometry::Proximity;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 
@@ -51,7 +50,7 @@ impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<
               mb: &M, b: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let (Some(sma), Some(smb)) = (a.desc().as_support_map(), b.desc().as_support_map()) {
+        if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction;
             if self.proximity == Proximity::Disjoint {
                 initial_direction = None

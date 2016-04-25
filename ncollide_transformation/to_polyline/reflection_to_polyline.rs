@@ -1,4 +1,4 @@
-use entities::shape::Reflection;
+use geometry::shape::Reflection;
 use math::Point;
 use procedural::Polyline;
 use super::ToPolyline;

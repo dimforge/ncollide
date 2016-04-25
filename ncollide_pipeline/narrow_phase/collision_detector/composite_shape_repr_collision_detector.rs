@@ -3,11 +3,10 @@ use na::Translate;
 use math::{Point, Vector, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
-use entities::bounding_volume::{self, BoundingVolume};
-use entities::partitioning::BoundingVolumeInterferencesCollector;
-use entities::shape::CompositeShape;
-use entities::inspection::Shape;
-use queries::geometry::Contact;
+use geometry::bounding_volume::{self, BoundingVolume};
+use geometry::partitioning::BoundingVolumeInterferencesCollector;
+use geometry::shape::{Shape, CompositeShape};
+use geometry::geometry::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
 
 
@@ -32,7 +31,7 @@ impl<P: Point, M> CompositeShapeShapeCollisionDetector<P, M> {
 impl<P, M> CompositeShapeShapeCollisionDetector<P, M>
     where P:  Point,
           P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P> {
     fn do_update(&mut self,
                  dispatcher: &CollisionDispatcher<P, M>,
                  m1:         &M,
@@ -56,14 +55,11 @@ impl<P, M> CompositeShapeShapeCollisionDetector<P, M>
                     let mut new_detector = None;
 
                     g1.map_part_at(*i, &mut |_, g1| {
-                        let r1 = g1.desc();
-                        let r2 = g2.desc();
-
                         if swap {
-                            new_detector = dispatcher.get_collision_algorithm(&r2, &r1)
+                            new_detector = dispatcher.get_collision_algorithm(g2, g1)
                         }
                         else {
-                            new_detector = dispatcher.get_collision_algorithm(&r1, &r2)
+                            new_detector = dispatcher.get_collision_algorithm(g1, g2)
                         }
                     });
 
@@ -121,7 +117,7 @@ impl<P: Point, M> ShapeCompositeShapeCollisionDetector<P, M> {
 impl<P, M> CollisionDetector<P, M> for CompositeShapeShapeCollisionDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P> {
     fn update(&mut self,
               d:  &CollisionDispatcher<P, M>,
               ma: &M,
@@ -130,7 +126,7 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeShapeCollisionDetector<P, M
               b:  &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let Some(cs) = a.desc().as_composite_shape() {
+        if let Some(cs) = a.as_composite_shape() {
             self.do_update(d, ma, cs, mb, b, prediction, false);
 
             true
@@ -160,7 +156,7 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeShapeCollisionDetector<P, M
 impl<P, M> CollisionDetector<P, M> for ShapeCompositeShapeCollisionDetector<P, M>
     where P: Point,
           P::Vect: Translate<P>,
-          M: Isometry<P, P::Vect> {
+          M: Isometry<P> {
     fn update(&mut self,
               d:  &CollisionDispatcher<P, M>,
               ma: &M,
@@ -169,7 +165,7 @@ impl<P, M> CollisionDetector<P, M> for ShapeCompositeShapeCollisionDetector<P, M
               b:  &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        if let Some(cs) = b.desc().as_composite_shape() {
+        if let Some(cs) = b.as_composite_shape() {
             self.sub_detector.do_update(d, mb, cs, ma, a, prediction, true);
 
             true

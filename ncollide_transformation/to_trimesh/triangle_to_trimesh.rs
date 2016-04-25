@@ -1,5 +1,5 @@
 use na::Point3;
-use entities::shape::Triangle3;
+use geometry::shape::Triangle3;
 use procedural::{TriMesh, TriMesh3};
 use super::ToTriMesh;
 use math::Scalar;

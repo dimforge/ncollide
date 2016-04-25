@@ -1,11 +1,8 @@
-use std::any::Any;
 use std::marker::PhantomData;
-use na::{Translate, Rotate};
-use math::{Point, Vector};
-use entities::shape::Plane;
-use entities::inspection::Shape;
-use queries::geometry::Proximity;
-use queries::geometry::proximity_internal;
+use math::{Point, Vector, Isometry};
+use geometry::shape::{Shape, Plane};
+use geometry::geometry::Proximity;
+use geometry::geometry::proximity_internal;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 
@@ -49,17 +46,14 @@ impl<P: Point, M> SupportMapPlaneProximityDetector<P, M> {
 
 impl<P, M> ProximityDetector<P, M> for PlaneSupportMapProximityDetector<P, M>
     where P: Point,
-          M: Translate<P> + Rotate<P::Vect> + Any {
+          M: Isometry<P> {
     #[inline]
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
               ma: &M, plane: &Shape<P, M>,
               mb: &M, b: &Shape<P, M>,
               margin: <P::Vect as Vector>::Scalar)
               -> bool {
-        let rp = plane.desc();
-        let rb = b.desc();
-
-        if let (Some(p), Some(sm)) = (rp.as_shape::<Plane<P::Vect>>(), rb.as_support_map()) {
+        if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vect>>(), b.as_support_map()) {
                 self.proximity = proximity_internal::plane_against_support_map(ma, p, mb, sm, margin);
 
                 true
@@ -77,7 +71,7 @@ impl<P, M> ProximityDetector<P, M> for PlaneSupportMapProximityDetector<P, M>
 
 impl<P, M> ProximityDetector<P, M> for SupportMapPlaneProximityDetector<P, M>
     where P: Point,
-          M: Translate<P> + Rotate<P::Vect> + Any {
+          M: Isometry<P> {
     #[inline]
     fn update(&mut self, disp: &ProximityDispatcher<P, M>,
               ma: &M, a: &Shape<P, M>,

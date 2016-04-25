@@ -7,7 +7,7 @@ use na::{BaseFloat, Point3};
 use na;
 use math::{Point, Vector};
 use utils;
-use entities::bounding_volume;
+use geometry::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};
 
 struct Triangle<P: Point> {

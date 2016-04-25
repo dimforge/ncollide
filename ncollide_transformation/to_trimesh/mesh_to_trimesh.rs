@@ -1,7 +1,7 @@
 use na;
 use na::Point3;
 use math::Scalar;
-use entities::shape;
+use geometry::shape;
 use procedural::{TriMesh, TriMesh3, IndexBuffer};
 use super::ToTriMesh;
 

@@ -1,5 +1,5 @@
 use math::{Scalar, Point, Vector};
-use entities::shape::ShapeHandle;
+use geometry::shape::ShapeHandle;
 use world::CollisionGroups;
 
 /// The kind of query a CollisionObject may be involved on.

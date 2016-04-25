@@ -2,8 +2,8 @@ use std::marker::PhantomData;
 use na::Transform;
 use na;
 use math::{Point, Vector};
-use queries::geometry::Contact;
-use entities::inspection::Shape;
+use geometry::geometry::Contact;
+use geometry::shape::Shape;
 use narrow_phase::{CollisionDetector, CollisionDispatcher};
 
 

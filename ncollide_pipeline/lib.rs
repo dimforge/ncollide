@@ -14,8 +14,7 @@ extern crate rustc_serialize;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
-extern crate ncollide_entities as entities;
-extern crate ncollide_queries as queries;
+extern crate ncollide_geometry as geometry;
 
 pub mod broad_phase;
 pub mod narrow_phase;

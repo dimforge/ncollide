@@ -2,7 +2,7 @@ use std::slice::Iter;
 use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
 use utils::data::uid_remap::{UidRemap, FastKey};
-use queries::geometry::Contact;
+use geometry::geometry::Contact;
 use narrow_phase::{CollisionAlgorithm, ContactSignal, CollisionDetector, ProximitySignal};
 use world::CollisionObject;
 use math::Point;

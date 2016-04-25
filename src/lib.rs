@@ -49,16 +49,14 @@ And various traits for collision detectors and broad phase collision detection.
 
 pub extern crate ncollide_math;
 pub extern crate ncollide_utils;
-pub extern crate ncollide_entities;
-pub extern crate ncollide_queries;
+pub extern crate ncollide_geometry;
 pub extern crate ncollide_pipeline;
 pub extern crate ncollide_procedural;
 pub extern crate ncollide_transformation;
 
 pub use ncollide_math as math;
 pub use ncollide_utils as utils;
-pub use ncollide_entities::{shape, inspection, bounding_volume, partitioning, support_map};
-pub use ncollide_queries::{geometry, point, ray};
+pub use ncollide_geometry::{shape, bounding_volume, partitioning, geometry, point, ray};
 pub use ncollide_pipeline::{narrow_phase, broad_phase, world};
 pub use ncollide_procedural as procedural;
 pub use ncollide_transformation as transformation;

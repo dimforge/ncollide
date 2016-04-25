@@ -6,10 +6,10 @@ use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::hash_map::HashMap;
 use math::{Point, Vector};
-use entities::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use entities::partitioning::{DBVT, DBVTLeaf};
-use queries::ray::{Ray, RayCast, RayInterferencesCollector};
-use queries::point::{PointQuery, PointInterferencesCollector};
+use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
+use geometry::partitioning::{DBVT, DBVTLeaf};
+use geometry::ray::{Ray, RayCast, RayInterferencesCollector};
+use geometry::point::{PointQuery, PointInterferencesCollector};
 use broad_phase::BroadPhase;
 
 struct DBVTBroadPhaseProxy<P, BV, T> {

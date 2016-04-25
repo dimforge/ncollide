@@ -1,6 +1,6 @@
 use na::Point3;
 use na;
-use entities::shape::Capsule3;
+use geometry::shape::Capsule3;
 use procedural::TriMesh3;
 use procedural;
 use super::ToTriMesh;

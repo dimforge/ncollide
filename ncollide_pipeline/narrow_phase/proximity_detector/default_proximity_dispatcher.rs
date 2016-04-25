@@ -2,9 +2,8 @@ use std::ops::Mul;
 use std::marker::PhantomData;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
-use entities::inspection::ShapeDesc;
-use entities::shape::{Ball, Plane};
-use queries::geometry::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::shape::{Shape, Ball, Plane};
+use geometry::geometry::algorithms::johnson_simplex::JohnsonSimplex;
 use narrow_phase::proximity_detector::{
     ProximityDispatcher,
     ProximityAlgorithm,
@@ -37,8 +36,8 @@ impl<P, M> ProximityDispatcher<P, M> for DefaultProximityDispatcher<P, M>
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
                                                 Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M: Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
-    fn get_proximity_algorithm(&self, a: &ShapeDesc<P, M>, b: &ShapeDesc<P, M>) -> Option<ProximityAlgorithm<P, M>> {
+          M: Isometry<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+    fn get_proximity_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<ProximityAlgorithm<P, M>> {
         let a_is_ball = a.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
         let b_is_ball = b.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
 

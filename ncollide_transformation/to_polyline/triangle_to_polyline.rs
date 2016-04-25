@@ -1,6 +1,6 @@
 use na::Point2;
 use math::Scalar;
-use entities::shape::Triangle2;
+use geometry::shape::Triangle2;
 use procedural::{Polyline, Polyline2};
 use super::ToPolyline;
 

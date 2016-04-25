@@ -2,8 +2,8 @@ use std::ops::Mul;
 use na::{Cross, Transform, Translation, Rotation};
 use na;
 use math::{Point, Vector};
-use entities::inspection::Shape;
-use queries::geometry::Contact;
+use geometry::shape::Shape;
+use geometry::geometry::Contact;
 use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactManifoldGenerator};
 
 
