@@ -10,7 +10,7 @@ use geometry::ray::{RayCast, Ray, RayIntersection};
 use geometry::point::PointQuery;
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
                    ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
-                   ProximitySignal};
+                   ProximitySignal, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
@@ -73,7 +73,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
                collision_groups: CollisionGroups,
                query_type:       CollisionQueryType<<P::Vect as Vector>::Scalar>,
                data:             T) {
-        // FIXME: test that we did not add this object already ?
+        assert!(!self.objects.contains_key(uid), "Unable to add a collision object with the same uid twice.");
 
         let mut collision_object = CollisionObject::new(position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
@@ -231,10 +231,22 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.narrow_phase.contact_pairs(&self.objects)
     }
 
+    /// Iterates through all the proximity pairs detected since the last update.
+    #[inline]
+    pub fn proximity_pairs(&self) -> ProximityPairs<P, M, T> {
+        self.narrow_phase.proximity_pairs(&self.objects)
+    }
+
     /// Iterates through every contact detected since the last update.
     #[inline]
     pub fn contacts(&self) -> Contacts<P, M, T> {
         self.narrow_phase.contact_pairs(&self.objects).contacts()
+    }
+
+    /// Returns a reference to the collision object identified by `uid`.
+    #[inline]
+    pub fn collision_object(&self, uid: usize) -> Option<&CollisionObject<P, M, T>> {
+        self.objects.get(uid)
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.

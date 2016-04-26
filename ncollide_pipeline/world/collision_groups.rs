@@ -46,8 +46,8 @@ pub struct CollisionGroups {
 }
 
 impl CollisionGroups {
-    /// Creates a new `CollisionGroups` that enables collisions with everything except
-    /// self-collision.
+    /// Creates a new `CollisionGroups` that enables interactions with everything except
+    /// self-interaction.
     #[inline]
     pub fn new() -> CollisionGroups {
         CollisionGroups {
@@ -137,15 +137,15 @@ impl CollisionGroups {
         self.blacklist = other.blacklist
     }
 
-    /// Enables self collision detection.
+    /// Allows the object to interact with itself.
     #[inline]
-    pub fn enable_self_collision(&mut self) {
+    pub fn enable_self_interaction(&mut self) {
         self.whitelist = self.whitelist | SELF_COLLISION;
     }
 
-    /// Disables self collision detection.
+    /// Prevents the object from interacting with itself.
     #[inline]
-    pub fn disable_self_collision(&mut self) {
+    pub fn disable_self_interaction(&mut self) {
         self.whitelist = self.whitelist & !SELF_COLLISION;
     }
 
@@ -173,7 +173,7 @@ impl CollisionGroups {
         CollisionGroups::is_inside_mask(self.blacklist, group_id)
     }
 
-    /// Tests whether collisions with a given group is possible.
+    /// Tests whether interactinos with a given group is possible.
     ///
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]
@@ -192,7 +192,7 @@ impl CollisionGroups {
         other.membership & self.whitelist  != 0
     }
 
-    /// Tests whether self-collision is enabled.
+    /// Tests whether self-interaction is enabled.
     #[inline]
     pub fn can_interact_with_self(&self) -> bool {
         self.whitelist & SELF_COLLISION != 0

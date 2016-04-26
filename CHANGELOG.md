@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.9.0] - WIP
 ### Added
     * Added a method to the narrow phase to retrieve all the proximity pairs.
+    * Added a method to the collision world to retrieve all the proximity pairs.
+    * Added a method to the collision world to retrieve the collision object
+    from its identifier.
 ### Modified
     * Merge the `ncollide_queries` and `ncollide_entities` crates into
       `ncollide_geometry`.
