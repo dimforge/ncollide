@@ -4,7 +4,7 @@ use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Proximity;
 use narrow_phase::{CollisionDispatcher, CollisionAlgorithm, ContactSignal,   CollisionDetector,
                    ProximityDispatcher, ProximityAlgorithm, ProximitySignal, ProximityDetector,
-                   NarrowPhase, ContactPairs};
+                   NarrowPhase, ContactPairs, ProximityPairs};
 use world::{CollisionObject, CollisionQueryType};
 use math::Point;
 
@@ -85,13 +85,13 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         }
     }
 
-    fn handle_proximity(&mut self,
-                        contact_signal:   &mut ContactSignal<T>,
-                        proximity_signal: &mut ProximitySignal<T>,
-                        objects:          &UidRemap<CollisionObject<P, M, T>>,
-                        fk1:              &FastKey,
-                        fk2:              &FastKey,
-                        started:          bool) {
+    fn handle_interaction(&mut self,
+                          contact_signal:   &mut ContactSignal<T>,
+                          proximity_signal: &mut ProximitySignal<T>,
+                          objects:          &UidRemap<CollisionObject<P, M, T>>,
+                          fk1:              &FastKey,
+                          fk2:              &FastKey,
+                          started:          bool) {
         let key = Pair::new(*fk1, *fk2);
         let co1 = &objects[*fk1];
         let co2 = &objects[*fk2];
@@ -148,5 +148,10 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
     fn contact_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
                          -> ContactPairs<'a, P, M, T> {
         ContactPairs::new(objects, self.collision_detectors.elements().iter())
+    }
+
+    fn proximity_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+                           -> ProximityPairs<'a, P, M, T> {
+        ProximityPairs::new(objects, self.proximity_detectors.elements().iter())
     }
 }

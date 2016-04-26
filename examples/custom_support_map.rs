@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::{Vector2, Point2, Isometry2, Rotate};
-use ncollide::shape::SupportMap;
+use ncollide::shape::{SupportMap, SupportMap2};
 use ncollide::query::{self, Proximity};
 use ncollide::shape::{Shape, Cuboid};
 use ncollide::bounding_volume::{self, AABB2};
@@ -13,7 +13,6 @@ struct Ellipse {
 }
 
 impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
-    #[inline]
     fn support_point(&self, transform: &Isometry2<f32>, dir: &Vector2<f32>) -> Point2<f32> {
         // Bring `dir` into the ellipse's local frame.
         let local_dir = transform.inverse_rotate(&dir);
@@ -37,7 +36,7 @@ impl Shape<Point2<f32>, Isometry2<f32>> for Ellipse {
         bounding_volume::support_map_aabb(m, self)
     }
 
-    fn as_support_map(&self) -> Option<&SupportMap<Point2<f32>, Isometry2<f32>>> {
+    fn as_support_map(&self) -> Option<&SupportMap2<f32>> {
         Some(self)
     }
 }

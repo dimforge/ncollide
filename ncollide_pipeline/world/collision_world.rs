@@ -200,7 +200,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             // Filter:
             &mut |b1, b2| CollisionWorld::filter_collision(filts, objs, b1, b2),
             // Handler:
-            &mut |b1, b2, started| nf.handle_proximity(sig, prox, objs, b1, b2, started));
+            &mut |b1, b2, started| nf.handle_interaction(sig, prox, objs, b1, b2, started));
     }
 
     /// Executes the narrow phase of the collision detection pipeline.
@@ -320,7 +320,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) {
+            if co.collision_groups.can_interact_with_groups(self.groups) {
                 let inter = co.shape.toi_and_normal_with_ray(&co.position, self.ray, true);
 
                 if let Some(inter) = inter {
@@ -351,7 +351,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) &&
+            if co.collision_groups.can_interact_with_groups(self.groups) &&
                co.shape.contains_point(&co.position, self.point) {
                 return Some(co)
             }
@@ -376,7 +376,7 @@ impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) {
+            if co.collision_groups.can_interact_with_groups(self.groups) {
                 return Some(co)
             }
         }

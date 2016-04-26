@@ -6,7 +6,7 @@ const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS:     u32 = (1 << 30) - 1;
 const NO_GROUP:       u32 = 0;
 
-/// Groups of collision used to filter which object collide with which other one.
+/// Groups of collision used to filter which object interact with which other one.
 ///
 /// There are at most 30 groups indexed from 0 to 29 (included). This identifies collidable
 /// entities by combining three attributes:
@@ -14,29 +14,29 @@ const NO_GROUP:       u32 = 0;
 ///    * A collision group whitelist.
 ///    * A collision group blacklist.
 ///
-/// For two entities to collide, they must be member of at least one group part of each-other's
+/// For two entities to interact, they must be member of at least one group part of each-other's
 /// whitelists, and must not be part of any blacklisted group. The blacklist always has priority on
 /// the whitelist.
 ///
 /// ### Example
 /// For example if the object A is such that:
 ///    * It is part of the groups 1, 3, and 6.
-///    * It whitelists the groups 3 and 7.
+///    * It whitelists the groups 6 and 7.
 ///    * It blacklists the group 1.
 /// Let the object B be such that:
 ///    * It is part of the groups 1, 3, and 7.
 ///    * It whitelists the groups 3 and 7.
 ///    * It does not blacklist anything.
 /// For example if the object C is such that:
-///    * It is part of the groups 6, 9.
+///    * It is part of the groups 6 and 9.
 ///    * It whitelists the groups 3 and 7.
 ///    * It does not blacklist anything.
 ///
 /// Then we have:
-///    * A and C can collide because A whitelists the group 6 (which C is part of), and,
+///    * A and C can interact because A whitelists the group 6 (which C is part of), and,
 ///    reciprocally, C whitelists the group 3 (which A is part of).
-///    * A and B will **not** collide because B is part of the group 1 which is blacklisted by A.
-///    * Finally, B and C will **not** collide either because, even if C whitelists the group 3
+///    * A and B will **not** interact because B is part of the group 1 which is blacklisted by A.
+///    * Finally, B and C will **not** interact either because, even if C whitelists the group 3
 ///    (which B is part of), B does not whitelists the groups 6 nor 9 (which B is part of).
 #[derive(RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct CollisionGroups {
@@ -177,14 +177,14 @@ impl CollisionGroups {
     ///
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]
-    pub fn can_collide_with(&self, group_id: usize) -> bool {
+    pub fn can_interact_with(&self, group_id: usize) -> bool {
         !CollisionGroups::is_inside_mask(self.blacklist, group_id) &&
         CollisionGroups::is_inside_mask(self.whitelist, group_id)
     }
 
     /// Tests whether two collision groups have at least one group in common.
     #[inline]
-    pub fn can_collide_with_groups(&self, other: &CollisionGroups) -> bool {
+    pub fn can_interact_with_groups(&self, other: &CollisionGroups) -> bool {
         // FIXME: is there a more bitwise-y way of doing this?
         self.membership  & other.blacklist == 0 &&
         other.membership & self.blacklist  == 0 &&
@@ -194,7 +194,7 @@ impl CollisionGroups {
 
     /// Tests whether self-collision is enabled.
     #[inline]
-    pub fn can_collide_with_self(&self) -> bool {
+    pub fn can_interact_with_self(&self) -> bool {
         self.whitelist & SELF_COLLISION != 0
     }
 }
@@ -216,10 +216,10 @@ impl<P: Point, M, T> BroadPhasePairFilter<CollisionObject<P, M, T>> for Collisio
         let id2 = b2 as *const CollisionObject<P, M, T> as usize;
 
         if id1 == id2 {
-            b1.collision_groups.can_collide_with_self()
+            b1.collision_groups.can_interact_with_self()
         }
         else {
-            b1.collision_groups.can_collide_with_groups(&b2.collision_groups)
+            b1.collision_groups.can_interact_with_groups(&b2.collision_groups)
         }
     }
 }

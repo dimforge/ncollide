@@ -3,7 +3,7 @@ extern crate ncollide;
 
 use na::{Vector2, Point2, Isometry2, Translation};
 use ncollide::query::{self, Proximity};
-use ncollide::shape::{CompositeShape, Shape, Cuboid2};
+use ncollide::shape::{CompositeShape, CompositeShape2, Shape, Shape2, Cuboid2};
 use ncollide::partitioning::BVT;
 use ncollide::bounding_volume::AABB2;
 
@@ -57,7 +57,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         2 // There are only two parts.
     }
 
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape<Point2<f32>, Isometry2<f32>>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 
@@ -71,7 +71,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn map_transformed_part_at(&self,
                                i: usize,
                                m: &Isometry2<f32>,
-                               f: &mut FnMut(&Isometry2<f32>, &Shape<Point2<f32>, Isometry2<f32>>)) {
+                               f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m.prepend_translation(&Vector2::new(1.0, 1.0));
 
@@ -100,7 +100,7 @@ impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
                    Point2::new(10.0, 10.0)   + m.translation())
     }
 
-    fn as_composite_shape(&self) -> Option<&CompositeShape<Point2<f32>, Isometry2<f32>>> {
+    fn as_composite_shape(&self) -> Option<&CompositeShape2<f32>> {
         Some(self)
     }
 }

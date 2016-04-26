@@ -5,7 +5,8 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.0] - WIP
-
+### Added
+    * Added a method to the narrow phase to retrieve all the proximity pairs.
 ### Modified
     * Merge the `ncollide_queries` and `ncollide_entities` crates into
       `ncollide_geometry`.
@@ -17,6 +18,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     * Point queries result now indicates if the point was inside of the object
       or not by returning a `PointProjection` structure instead of just the
       point.
+    * Rename `CollisionGroups::can_collide_with` to `CollisionGroups::can_interact_with`.
+    * Rename `NarrowPhase::handle_proximity` to `NarrowPhase::handle_interaction`.
 
 ## [0.8.0]
 ### Added

@@ -1,5 +1,5 @@
 //! Persistant collision detection algorithms to compute contact points.
-pub use self::narrow_phase::{NarrowPhase, ContactPairs, Contacts};
+pub use self::narrow_phase::{NarrowPhase, ContactPairs, Contacts, ProximityPairs};
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
