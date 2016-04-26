@@ -31,14 +31,16 @@ ready.
 
 You can contribute to this website by completing, improving, and correcting
 it. Do not hesitate to correct even the smallest, insignificant detail
-(especially English mistakes including typography). We love nitpicking!  This
+(especially English mistakes, including typography). We love nitpicking!  This
 website is composed of a set of markdown files located on the
 [gh-pages](https://github.com/sebcrozet/ncollide/tree/gh-pages) branch of the
 main **ncollide** repository. It is compiled using
 [MkDocs](https://www.mkdocs.org/). As explained in the next section, you need
-to fork, fix, and create a pull request to make your contribution upstreamable.
-There are no specific rules, except that all compilable code to generate
-illustrations and downloadable examples must be located on the `src` folder.
+to fork, fix, and create a pull request to make your contribution integrable
+into our code base. There are no specific rules, except that all compilable
+code to generate illustrations must be located on the `src` folder.
+Downloadable examples have to be located on the `examples` directory of the
+main project, i.e., on the `master` branch.
 
 
 #### Working on the library
@@ -86,6 +88,7 @@ alphabetical order:
 * [Alexander Mistakidis](https://github.com/aamistak)
 * [Ben Foppa](https://github.com/bfops)
 * [Brandon Waskiewicz](https://github.com/brandonw)
+* [Clément Renault](https://github.com/Kerosene2000)
 * [Corey Richardson](https://github.com/cmr)
 * [Dabo Ross](https://github.com/daboross)
 * [Felix Rath](https://github.com/Futile)

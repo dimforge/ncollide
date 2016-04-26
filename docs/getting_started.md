@@ -38,7 +38,7 @@ path = "./example.rs"
 # Project structure
 The **ncollide** crate is only an interface for several, smaller interdependent
 crates part of the **ncollide** project. Thus if only a subset of the features
-is of interest to you, you may depend on them directly:
+is of interest to you, you may directly depend on them individually:
 
 Crate name                  | Description
 ----------------------------|-------------
