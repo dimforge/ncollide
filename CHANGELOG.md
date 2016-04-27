@@ -23,6 +23,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       point.
     * Rename `CollisionGroups::can_collide_with` to `CollisionGroups::can_interact_with`.
     * Rename `NarrowPhase::handle_proximity` to `NarrowPhase::handle_interaction`.
+    * Rename all `.*CollisionDetector` to `.*ContactGenerator`. Methods have
+      been renamed as well (e.g. `.get_collision_algorithm` becomes
+      `.get_contact_algorithm`, `.colls` becomes `.contacts`, etc.)
+    * Rename `CollisionQueryType` to `GeometricQueryType`.
+### Removed
+    * Removed the `CompositeShape::len()` method.
 
 ## [0.8.0]
 ### Added

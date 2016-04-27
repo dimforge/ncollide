@@ -7,7 +7,7 @@ use geometry::query::algorithms::simplex::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
 use geometry::query::Contact;
-use narrow_phase::{CollisionDetector, CollisionDispatcher};
+use narrow_phase::{ContactGenerator, ContactDispatcher};
 
 
 /// Persistent collision detector between two shapes having a support mapping function.
@@ -15,21 +15,21 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct SupportMapSupportMapCollisionDetector<P: Point, M, S> {
+pub struct SupportMapSupportMapContactGenerator<P: Point, M, S> {
     simplex:  S,
     contact:  GJKResult<Contact<P>, P::Vect>,
     mat_type: PhantomData<M> // FIXME: can we avoid this?
 }
 
-impl<P, M, S> SupportMapSupportMapCollisionDetector<P, M, S>
+impl<P, M, S> SupportMapSupportMapContactGenerator<P, M, S>
     where P: Point,
           S: Simplex<AnnotatedPoint<P>> {
     /// Creates a new persistant collision detector between two shapes with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: S) -> SupportMapSupportMapCollisionDetector<P, M, S> {
-        SupportMapSupportMapCollisionDetector {
+    pub fn new(simplex: S) -> SupportMapSupportMapContactGenerator<P, M, S> {
+        SupportMapSupportMapContactGenerator {
             simplex:  simplex,
             contact:  GJKResult::Intersection,
             mat_type: PhantomData
@@ -37,14 +37,14 @@ impl<P, M, S> SupportMapSupportMapCollisionDetector<P, M, S>
     }
 }
 
-impl<P, M, S> CollisionDetector<P, M> for SupportMapSupportMapCollisionDetector<P, M, S>
+impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapContactGenerator<P, M, S>
     where P: Point,
           P::Vect: Translate<P>,
           M: Translation<P::Vect> + Any,
           S: Simplex<AnnotatedPoint<P>> {
     #[inline]
     fn update(&mut self,
-              _:          &CollisionDispatcher<P, M>,
+              _:          &ContactDispatcher<P, M>,
               ma:         &M,
               a:          &Shape<P, M>,
               mb:         &M,
@@ -76,7 +76,7 @@ impl<P, M, S> CollisionDetector<P, M> for SupportMapSupportMapCollisionDetector<
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         match self.contact {
             GJKResult::Projection(_) => 1,
             _                        => 0
@@ -84,9 +84,9 @@ impl<P, M, S> CollisionDetector<P, M> for SupportMapSupportMapCollisionDetector<
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
-            GJKResult::Projection(ref c) => out_colls.push(c.clone()),
+            GJKResult::Projection(ref c) => out_contacts.push(c.clone()),
             _                            => ()
         }
     }

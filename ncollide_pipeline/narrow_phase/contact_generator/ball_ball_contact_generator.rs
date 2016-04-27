@@ -5,40 +5,40 @@ use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Ball};
 use geometry::query::Contact;
 use geometry::query::contacts_internal;
-use narrow_phase::{CollisionDetector, CollisionDispatcher};
+use narrow_phase::{ContactGenerator, ContactDispatcher};
 
 
 /// Collision detector between two balls.
-pub struct BallBallCollisionDetector<P: Point, M> {
+pub struct BallBallContactGenerator<P: Point, M> {
     contact:  Option<Contact<P>>,
     mat_type: PhantomData<M> // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallBallCollisionDetector<P, M> {
-    fn clone(&self) -> BallBallCollisionDetector<P, M> {
-        BallBallCollisionDetector {
+impl<P: Point, M> Clone for BallBallContactGenerator<P, M> {
+    fn clone(&self) -> BallBallContactGenerator<P, M> {
+        BallBallContactGenerator {
             contact:  self.contact.clone(),
             mat_type: PhantomData
         }
     }
 }
 
-impl<P: Point, M> BallBallCollisionDetector<P, M> {
+impl<P: Point, M> BallBallContactGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBallCollisionDetector<P, M> {
-        BallBallCollisionDetector {
+    pub fn new() -> BallBallContactGenerator<P, M> {
+        BallBallContactGenerator {
             contact:  None,
             mat_type: PhantomData
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for BallBallCollisionDetector<P, M>
+impl<P, M> ContactGenerator<P, M> for BallBallContactGenerator<P, M>
     where P: Point,
           M: Isometry<P> {
     fn update(&mut self,
-              _:          &CollisionDispatcher<P, M>,
+              _:          &ContactDispatcher<P, M>,
               ma:         &M,
               a:          &Shape<P, M>,
               mb:         &M,
@@ -62,7 +62,7 @@ impl<P, M> CollisionDetector<P, M> for BallBallCollisionDetector<P, M>
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         match self.contact {
             None    => 0,
             Some(_) => 1
@@ -70,9 +70,9 @@ impl<P, M> CollisionDetector<P, M> for BallBallCollisionDetector<P, M>
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
-            Some(ref c) => out_colls.push(c.clone()),
+            Some(ref c) => out_contacts.push(c.clone()),
             None        => ()
         }
     }

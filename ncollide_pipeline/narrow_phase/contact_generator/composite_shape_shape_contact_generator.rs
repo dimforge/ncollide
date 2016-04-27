@@ -7,20 +7,20 @@ use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{Shape, CompositeShape};
 use geometry::query::Contact;
-use narrow_phase::{CollisionDetector, CollisionDispatcher, CollisionAlgorithm};
+use narrow_phase::{ContactGenerator, ContactDispatcher, ContactAlgorithm};
 
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeCollisionDetector<P: Point, M> {
-    sub_detectors: HashMap<usize, CollisionAlgorithm<P, M>, UintTWHash>,
+pub struct CompositeShapeShapeContactGenerator<P: Point, M> {
+    sub_detectors: HashMap<usize, ContactAlgorithm<P, M>, UintTWHash>,
     to_delete:     Vec<usize>,
     interferences: Vec<usize>
 }
 
-impl<P: Point, M> CompositeShapeShapeCollisionDetector<P, M> {
+impl<P: Point, M> CompositeShapeShapeContactGenerator<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new() -> CompositeShapeShapeCollisionDetector<P, M> {
-        CompositeShapeShapeCollisionDetector {
+    pub fn new() -> CompositeShapeShapeContactGenerator<P, M> {
+        CompositeShapeShapeContactGenerator {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete:     Vec::new(),
             interferences: Vec::new()
@@ -28,12 +28,12 @@ impl<P: Point, M> CompositeShapeShapeCollisionDetector<P, M> {
     }
 }
 
-impl<P, M> CompositeShapeShapeCollisionDetector<P, M>
+impl<P, M> CompositeShapeShapeContactGenerator<P, M>
     where P:  Point,
           P::Vect: Translate<P>,
           M: Isometry<P> {
     fn do_update(&mut self,
-                 dispatcher: &CollisionDispatcher<P, M>,
+                 dispatcher: &ContactDispatcher<P, M>,
                  m1:         &M,
                  g1:         &CompositeShape<P, M>,
                  m2:         &M,
@@ -56,10 +56,10 @@ impl<P, M> CompositeShapeShapeCollisionDetector<P, M>
 
                     g1.map_part_at(*i, &mut |_, g1| {
                         if swap {
-                            new_detector = dispatcher.get_collision_algorithm(g2, g1)
+                            new_detector = dispatcher.get_contact_algorithm(g2, g1)
                         }
                         else {
-                            new_detector = dispatcher.get_collision_algorithm(g1, g2)
+                            new_detector = dispatcher.get_contact_algorithm(g1, g2)
                         }
                     });
 
@@ -101,25 +101,25 @@ impl<P, M> CompositeShapeShapeCollisionDetector<P, M>
 }
 
 /// Collision detector between a shape and a concave shape.
-pub struct ShapeCompositeShapeCollisionDetector<P: Point, M> {
-    sub_detector: CompositeShapeShapeCollisionDetector<P, M>
+pub struct ShapeCompositeShapeContactGenerator<P: Point, M> {
+    sub_detector: CompositeShapeShapeContactGenerator<P, M>
 }
 
-impl<P: Point, M> ShapeCompositeShapeCollisionDetector<P, M> {
+impl<P: Point, M> ShapeCompositeShapeContactGenerator<P, M> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new() -> ShapeCompositeShapeCollisionDetector<P, M> {
-        ShapeCompositeShapeCollisionDetector {
-            sub_detector: CompositeShapeShapeCollisionDetector::new()
+    pub fn new() -> ShapeCompositeShapeContactGenerator<P, M> {
+        ShapeCompositeShapeContactGenerator {
+            sub_detector: CompositeShapeShapeContactGenerator::new()
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for CompositeShapeShapeCollisionDetector<P, M>
+impl<P, M> ContactGenerator<P, M> for CompositeShapeShapeContactGenerator<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<P, M>,
+              d:  &ContactDispatcher<P, M>,
               ma: &M,
               a:  &Shape<P, M>,
               mb: &M,
@@ -136,29 +136,29 @@ impl<P, M> CollisionDetector<P, M> for CompositeShapeShapeCollisionDetector<P, M
         }
     }
 
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         let mut res = 0;
 
         for detector in self.sub_detectors.elements().iter() {
-            res = res + detector.value.num_colls()
+            res = res + detector.value.num_contacts()
         }
 
         res
     }
 
-    fn colls(&self, out: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out: &mut Vec<Contact<P>>) {
         for detector in self.sub_detectors.elements().iter() {
-            detector.value.colls(out);
+            detector.value.contacts(out);
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for ShapeCompositeShapeCollisionDetector<P, M>
+impl<P, M> ContactGenerator<P, M> for ShapeCompositeShapeContactGenerator<P, M>
     where P: Point,
           P::Vect: Translate<P>,
           M: Isometry<P> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<P, M>,
+              d:  &ContactDispatcher<P, M>,
               ma: &M,
               a:  &Shape<P, M>,
               mb: &M,
@@ -175,11 +175,11 @@ impl<P, M> CollisionDetector<P, M> for ShapeCompositeShapeCollisionDetector<P, M
         }
     }
 
-    fn num_colls(&self) -> usize {
-        self.sub_detector.num_colls()
+    fn num_contacts(&self) -> usize {
+        self.sub_detector.num_contacts()
     }
 
-    fn colls(&self, out: &mut Vec<Contact<P>>) {
-        self.sub_detector.colls(out)
+    fn contacts(&self, out: &mut Vec<Contact<P>>) {
+        self.sub_detector.contacts(out)
     }
 }

@@ -4,7 +4,7 @@ use na;
 use math::{Point, Vector};
 use geometry::query::Contact;
 use geometry::shape::Shape;
-use narrow_phase::{CollisionDetector, CollisionDispatcher};
+use narrow_phase::{ContactGenerator, ContactDispatcher};
 
 
 #[derive(RustcEncodable, RustcDecodable, Clone)]
@@ -43,7 +43,7 @@ pub struct IncrementalContactManifoldGenerator<P: Point, M, CD> {
 
 impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     where P:  Point,
-          CD: CollisionDetector<P, M> {
+          CD: ContactGenerator<P, M> {
     /// Creates a new incremental contact manifold generator.
     ///
     /// # Arguments:
@@ -61,11 +61,11 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
 impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     where P:  Point,
           M:  Transform<P>,
-          CD: CollisionDetector<P, M> {
+          CD: ContactGenerator<P, M> {
     /// Gets a collision from the sub-detector used by this manifold generator. This does not
     /// update the manifold itself.
     pub fn get_sub_collision(&mut self,
-                             d:          &CollisionDispatcher<P, M>,
+                             d:          &ContactDispatcher<P, M>,
                              m1:         &M,
                              g1:         &Shape<P, M>,
                              m2:         &M,
@@ -76,7 +76,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
             None
         }
         else {
-            self.sub_detector.colls(&mut self.collector);
+            self.sub_detector.contacts(&mut self.collector);
 
             let res = if self.collector.len() == 0 {
                 Some(None)
@@ -93,7 +93,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
 
     /// Updates the current manifold by adding one point.
     pub fn add_new_contacts(&mut self,
-                            d:  &CollisionDispatcher<P, M>,
+                            d:  &ContactDispatcher<P, M>,
                             m1: &M,
                             g1: &Shape<P, M>,
                             m2: &M,
@@ -105,7 +105,7 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
             false
         }
         else {
-            self.sub_detector.colls(&mut self.collector);
+            self.sub_detector.contacts(&mut self.collector);
 
             // remove duplicates
             let _max_num_contact = (na::dimension::<P>() - 1) * 2;
@@ -161,13 +161,13 @@ impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>
     }
 }
 
-impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P, M, CD>
+impl<P, M, CD> ContactGenerator<P, M> for IncrementalContactManifoldGenerator<P, M, CD>
     where P:  Point,
           M:  Transform<P>,
-          CD: CollisionDetector<P, M> {
+          CD: ContactGenerator<P, M> {
     #[inline]
     fn update(&mut self,
-              d:          &CollisionDispatcher<P, M>,
+              d:          &ContactDispatcher<P, M>,
               m1:         &M,
               g1:         &Shape<P, M>,
               m2:         &M,
@@ -179,14 +179,14 @@ impl<P, M, CD> CollisionDetector<P, M> for IncrementalContactManifoldGenerator<P
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         self.contacts.len()
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         for c in self.contacts.iter() {
-            out_colls.push(c.contact.clone())
+            out_contacts.push(c.contact.clone())
         }
     }
 }

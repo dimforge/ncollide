@@ -4,13 +4,13 @@ use world::CollisionGroups;
 
 /// The kind of query a CollisionObject may be involved on.
 ///
-/// The following queries are executed for a given pair of `CollisionQueryType` associated with two
+/// The following queries are executed for a given pair of `GeometricQueryType` associated with two
 /// collision objects:
 ///     * Contacts + Contacts = exact contact point coputation.
 ///     * Contacts + Proximity = proximity test only.
 ///     * Proximity + Proximity = proximity test only.
 #[derive(Debug, PartialEq, Clone, Copy, RustcEncodable, RustcDecodable)]
-pub enum CollisionQueryType<N: Scalar> {
+pub enum GeometricQueryType<N: Scalar> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N),
     /// This object can respond to proximity tests only.
@@ -18,7 +18,7 @@ pub enum CollisionQueryType<N: Scalar> {
     // FIXME: not yet implemented: Distance
 }
 
-impl<N: Scalar> CollisionQueryType<N> {
+impl<N: Scalar> GeometricQueryType<N> {
     /// The numerical limit of relevance for this query.
     ///
     /// If two objects are separated by a distance greater than the sum of their respective
@@ -28,8 +28,8 @@ impl<N: Scalar> CollisionQueryType<N> {
     #[inline]
     pub fn query_limit(&self) -> N {
         match *self {
-            CollisionQueryType::Contacts(ref val)  => *val,
-            CollisionQueryType::Proximity(ref val) => *val
+            GeometricQueryType::Contacts(ref val)  => *val,
+            GeometricQueryType::Proximity(ref val) => *val
         }
     }
 }
@@ -44,7 +44,7 @@ pub struct CollisionObject<P: Point, M, T> {
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The kind of queries this collision object is expected to .
-    pub query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
+    pub query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
     /// The user-defined data associated to this object.
     pub data: T,
     #[doc(hidden)]
@@ -56,7 +56,7 @@ impl<P: Point, M, T> CollisionObject<P, M, T> {
     pub fn new(position:   M,
                shape:      ShapeHandle<P, M>,
                groups:     CollisionGroups,
-               query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
+               query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
                data:       T)
                -> CollisionObject<P, M, T> {
         CollisionObject {

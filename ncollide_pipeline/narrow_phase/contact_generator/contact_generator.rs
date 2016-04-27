@@ -3,12 +3,12 @@ use geometry::query::Contact;
 use math::{Point, Vector};
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
-pub trait CollisionDetector<P: Point, M> {
+pub trait ContactGenerator<P: Point, M> {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
     fn update(&mut self,
-              dispatcher: &CollisionDispatcher<P, M>,
+              dispatcher: &ContactDispatcher<P, M>,
               ma:         &M,
               a:          &Shape<P, M>,
               mb:         &M,
@@ -16,16 +16,16 @@ pub trait CollisionDetector<P: Point, M> {
               prediction: <P::Vect as Vector>::Scalar)
               -> bool;
 
-    /// The number of collision detected during the last update.
-    fn num_colls(&self) -> usize;
+    /// The number of contacts generated the last update.
+    fn num_contacts(&self) -> usize;
 
-    /// Collects the collisions detected during the last update.
-    fn colls(&self, &mut Vec<Contact<P>>);
+    /// Collects the contacts generated during the last update.
+    fn contacts(&self, &mut Vec<Contact<P>>);
 }
 
-pub type CollisionAlgorithm<P, M> = Box<CollisionDetector<P, M> + 'static>;
+pub type ContactAlgorithm<P, M> = Box<ContactGenerator<P, M> + 'static>;
 
-pub trait CollisionDispatcher<P, M> {
+pub trait ContactDispatcher<P, M> {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_collision_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<CollisionAlgorithm<P, M>>;
+    fn get_contact_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<ContactAlgorithm<P, M>>;
 }

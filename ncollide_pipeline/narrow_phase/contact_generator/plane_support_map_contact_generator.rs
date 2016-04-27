@@ -3,7 +3,7 @@ use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Plane};
 use geometry::query::Contact;
 use geometry::query::contacts_internal;
-use narrow_phase::{CollisionDetector, CollisionDispatcher};
+use narrow_phase::{ContactGenerator, ContactDispatcher};
 
 
 /// Collision detector between a plane and a shape implementing the `SupportMap` trait.
@@ -11,17 +11,17 @@ use narrow_phase::{CollisionDetector, CollisionDispatcher};
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct PlaneSupportMapCollisionDetector<P: Point, M> {
+pub struct PlaneSupportMapContactGenerator<P: Point, M> {
     contact:  Option<Contact<P>>,
     mat_type: PhantomData<M> // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> PlaneSupportMapCollisionDetector<P, M> {
+impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new() -> PlaneSupportMapCollisionDetector<P, M> {
-        PlaneSupportMapCollisionDetector {
+    pub fn new() -> PlaneSupportMapContactGenerator<P, M> {
+        PlaneSupportMapContactGenerator {
             contact:  None,
             mat_type: PhantomData
         }
@@ -33,29 +33,29 @@ impl<P: Point, M> PlaneSupportMapCollisionDetector<P, M> {
 /// This detector generates only one contact point. For a full manifold generation, see
 /// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct SupportMapPlaneCollisionDetector<P: Point, M> {
+pub struct SupportMapPlaneContactGenerator<P: Point, M> {
     contact:  Option<Contact<P>>,
     mat_type: PhantomData<M> // FIXME: can we avoid this.
 }
 
-impl<P: Point, M> SupportMapPlaneCollisionDetector<P, M> {
+impl<P: Point, M> SupportMapPlaneContactGenerator<P, M> {
     /// Creates a new persistent collision detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new() -> SupportMapPlaneCollisionDetector<P, M> {
-        SupportMapPlaneCollisionDetector {
+    pub fn new() -> SupportMapPlaneContactGenerator<P, M> {
+        SupportMapPlaneContactGenerator {
             contact:  None,
             mat_type: PhantomData
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for PlaneSupportMapCollisionDetector<P, M>
+impl<P, M> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M>
     where P: Point,
           M: Isometry<P> {
     #[inline]
     fn update(&mut self,
-              _:          &CollisionDispatcher<P, M>,
+              _:          &ContactDispatcher<P, M>,
               ma:         &M,
               plane:      &Shape<P, M>,
               mb:         &M,
@@ -73,7 +73,7 @@ impl<P, M> CollisionDetector<P, M> for PlaneSupportMapCollisionDetector<P, M>
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         match self.contact {
             None    => 0,
             Some(_) => 1
@@ -81,20 +81,20 @@ impl<P, M> CollisionDetector<P, M> for PlaneSupportMapCollisionDetector<P, M>
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
-            Some(ref c) => out_colls.push(c.clone()),
+            Some(ref c) => out_contacts.push(c.clone()),
             None        => ()
         }
     }
 }
 
-impl<P, M> CollisionDetector<P, M> for SupportMapPlaneCollisionDetector<P, M>
+impl<P, M> ContactGenerator<P, M> for SupportMapPlaneContactGenerator<P, M>
     where P: Point,
           M: Isometry<P> {
     #[inline]
     fn update(&mut self,
-              _:          &CollisionDispatcher<P, M>,
+              _:          &ContactDispatcher<P, M>,
               ma:         &M,
               a:          &Shape<P, M>,
               mb:         &M,
@@ -112,7 +112,7 @@ impl<P, M> CollisionDetector<P, M> for SupportMapPlaneCollisionDetector<P, M>
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
+    fn num_contacts(&self) -> usize {
         match self.contact {
             None    => 0,
             Some(_) => 1
@@ -120,9 +120,9 @@ impl<P, M> CollisionDetector<P, M> for SupportMapPlaneCollisionDetector<P, M>
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
-            Some(ref c) => out_colls.push(c.clone()),
+            Some(ref c) => out_contacts.push(c.clone()),
             None        => ()
         }
     }

@@ -8,11 +8,11 @@ use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
 use geometry::ray::{RayCast, Ray, RayIntersection};
 use geometry::point::PointQuery;
-use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
+use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher,
                    ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
                    ProximitySignal, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
-use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
+use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
 use na::{Point2, Point3, Isometry2, Isometry3};
 
@@ -45,7 +45,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     // FIXME: use default values for `margin` and allow its modification by the user ?
     pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
         let objects          = UidRemap::new(small_uids);
-        let coll_dispatcher  = Box::new(DefaultCollisionDispatcher::new());
+        let coll_dispatcher  = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
         let broad_phase      = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
         let narrow_phase     = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
@@ -71,7 +71,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
                position:         M,
                shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
-               query_type:       CollisionQueryType<<P::Vect as Vector>::Scalar>,
+               query_type:       GeometricQueryType<<P::Vect as Vector>::Scalar>,
                data:             T) {
         assert!(!self.objects.contains_key(uid), "Unable to add a collision object with the same uid twice.");
 

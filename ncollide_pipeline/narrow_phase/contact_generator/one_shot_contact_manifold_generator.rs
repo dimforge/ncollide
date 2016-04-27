@@ -4,7 +4,7 @@ use na;
 use math::{Point, Vector};
 use geometry::shape::Shape;
 use geometry::query::Contact;
-use narrow_phase::{CollisionDetector, CollisionDispatcher, IncrementalContactManifoldGenerator};
+use narrow_phase::{ContactGenerator, ContactDispatcher, IncrementalContactManifoldGenerator};
 
 
 /// Contact manifold generator producing a full manifold at the first update.
@@ -19,7 +19,7 @@ pub struct OneShotContactManifoldGenerator<P: Point, M, CD> {
 
 impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
     where P:  Point,
-          CD: CollisionDetector<P, M> {
+          CD: ContactGenerator<P, M> {
     /// Creates a new one shot contact manifold generator.
     pub fn new(cd: CD) -> OneShotContactManifoldGenerator<P, M, CD> {
         OneShotContactManifoldGenerator {
@@ -28,22 +28,22 @@ impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
     }
 }
 
-impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M, CD>
+impl<P, M, CD> ContactGenerator<P, M> for OneShotContactManifoldGenerator<P, M, CD>
     where P:       Point,
           P::Vect: Cross,
           <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
                                                 Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
           M:  Transform<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType>,
-          CD: CollisionDetector<P, M> {
+          CD: ContactGenerator<P, M> {
     fn update(&mut self,
-              d:  &CollisionDispatcher<P, M>,
+              d:  &ContactDispatcher<P, M>,
               m1: &M,
               g1: &Shape<P, M>,
               m2: &M,
               g2: &Shape<P, M>,
               prediction: <P::Vect as Vector>::Scalar)
               -> bool {
-        if self.sub_detector.num_colls() == 0 {
+        if self.sub_detector.num_contacts() == 0 {
             // do the one-shot manifold generation
             match self.sub_detector.get_sub_collision(d, m1, g1, m2, g2, prediction) {
                 Some(Some(coll)) => {
@@ -80,12 +80,12 @@ impl<P, M, CD> CollisionDetector<P, M> for OneShotContactManifoldGenerator<P, M,
     }
 
     #[inline]
-    fn num_colls(&self) -> usize {
-        self.sub_detector.num_colls()
+    fn num_contacts(&self) -> usize {
+        self.sub_detector.num_contacts()
     }
 
     #[inline]
-    fn colls(&self, out_colls: &mut Vec<Contact<P>>) {
-        self.sub_detector.colls(out_colls)
+    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
+        self.sub_detector.contacts(out_contacts)
     }
 }

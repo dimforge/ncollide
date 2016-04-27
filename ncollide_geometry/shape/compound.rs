@@ -87,11 +87,6 @@ impl<P: Point, M> Compound<P, M> {
 impl<P, M> CompositeShape<P, M> for Compound<P, M>
     where P: Point,
           M: Copy + Mul<M, Output = M> {
-    #[inline]
-    fn len(&self) -> usize {
-        self.shapes().len()
-    }
-
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];

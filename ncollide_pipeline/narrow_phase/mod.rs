@@ -3,15 +3,15 @@ pub use self::narrow_phase::{NarrowPhase, ContactPairs, Contacts, ProximityPairs
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
-pub use self::collision_detector::{
-    CollisionDetector,
-    CollisionDispatcher,
-    CollisionAlgorithm,
-    DefaultCollisionDispatcher,
-    BallBallCollisionDetector,
-    PlaneSupportMapCollisionDetector, SupportMapPlaneCollisionDetector,
-    SupportMapSupportMapCollisionDetector,
-    CompositeShapeShapeCollisionDetector, ShapeCompositeShapeCollisionDetector,
+pub use self::contact_generator::{
+    ContactGenerator,
+    ContactDispatcher,
+    ContactAlgorithm,
+    DefaultContactDispatcher,
+    BallBallContactGenerator,
+    PlaneSupportMapContactGenerator, SupportMapPlaneContactGenerator,
+    SupportMapSupportMapContactGenerator,
+    CompositeShapeShapeContactGenerator, ShapeCompositeShapeContactGenerator,
     IncrementalContactManifoldGenerator,
     OneShotContactManifoldGenerator
 };
@@ -38,7 +38,7 @@ pub use self::proximity_signal::{ProximitySignal, ProximitySignalHandler};
 
 // FIXME: un-hide this and move everything to a folder.
 #[doc(hidden)]
-pub mod collision_detector;
+pub mod contact_generator;
 #[doc(hidden)]
 pub mod proximity_detector;
 #[doc(hidden)]

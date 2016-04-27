@@ -3,7 +3,7 @@ use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Contact;
-use narrow_phase::{CollisionAlgorithm, ContactSignal, CollisionDetector,
+use narrow_phase::{ContactAlgorithm, ContactSignal, ContactGenerator,
                    ProximityAlgorithm, ProximitySignal, ProximityDetector};
 use world::CollisionObject;
 use math::Point;
@@ -44,14 +44,14 @@ pub trait NarrowPhase<P: Point, M, T> {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<CollisionDetector<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<CollisionDetector<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>)
                -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -76,7 +76,7 @@ impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
 impl<'a, P: Point, M, T> Iterator for ContactPairs<'a, P, M, T> {
     type Item = (&'a CollisionObject<P, M, T>,
                  &'a CollisionObject<P, M, T>,
-                 &'a CollisionAlgorithm<P, M>);
+                 &'a ContactAlgorithm<P, M>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -97,7 +97,7 @@ pub struct Contacts<'a, P: 'a + Point, M: 'a, T: 'a> {
     objects:      &'a UidRemap<CollisionObject<P, M, T>>,
     co1:          Option<&'a CollisionObject<P, M, T>>,
     co2:          Option<&'a CollisionObject<P, M, T>>,
-    pairs:        Iter<'a, Entry<Pair, Box<CollisionDetector<P, M>>>>,
+    pairs:        Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>,
     collector:    Vec<Contact<P>>,
     curr_contact: usize
 }
@@ -119,7 +119,7 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
             self.collector.clear();
 
             while let Some(p) = self.pairs.next() {
-                p.value.colls(&mut self.collector);
+                p.value.contacts(&mut self.collector);
 
                 if !self.collector.is_empty() {
                     self.co1 = Some(&self.objects[p.key.first]);

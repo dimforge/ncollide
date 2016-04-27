@@ -53,10 +53,6 @@ impl CrossedCuboids {
 }
 
 impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
-    fn len(&self) -> usize {
-        2 // There are only two parts.
-    }
-
     fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
