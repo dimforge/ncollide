@@ -1,17 +1,17 @@
 # Geometric representations
 Different representations of geometric objects will lead to different
-algorithms. At the moment **ncollide** relies a lot on convex shapes described
-by a [support mapping](#support-mappings). However, working exclusively with
+algorithms. Currently, **ncollide** relies a lot on convex shapes described by
+a [support mapping](#support-mappings). However, working exclusively with
 convex shapes is too restrictive so **ncollide** provides [composite
-shapes](#composite-shapes) that allows the construction of a concave
-shape from its convex parts.
+shapes](#composite-shapes) that allows the construction of a concave shape from
+its convex parts.
 
 
 Geometric primitives supported by **ncollide** are defined on the `shape`
 module and share a common [dynamic representation](#dynamic-shape-representation).
-Note that all geometric primitives have a predefined constant local frame to
-the identity matrix. Thus, one usually has to store his own transformation
-matrix separately from the shape itself in order to reach any position and
+Note that all geometric primitives have a predefined constant local frame equal
+to the identity matrix. Thus, one usually has to store his own transformation
+matrix separately from the shape itself in order to reach any location and
 orientation.
 
 # Support mappings
@@ -26,7 +26,7 @@ $$
 s_{\mathcal{A}}(\mathbf{v}) = \arg \max\limits_{\mathbf{p} \in \mathcal{A}} \left< \mathbf{p}, \mathbf{v} \right>
 $$
 
-If several point are eligible to be support points for a given direction
+If several points are eligible to be support points for a given direction
 $\mathbf{v}$, any one of them has to be returned (preferably a corner). This
 can be seen as a function that returns a point of the support mapped shape
 which is _the furthest on the given direction_. Such a function is enough to
@@ -112,7 +112,7 @@ assert!(cuboid.half_extents().z == 3.0);
 
 ### Cylinder
 The `Cylinder` structure describes a rectangle in two dimensions, or a cylinder
-in three dimensions. Its principal axis is the positive $\mathbf{y}$ axis.
+in three dimensions. Its principal axis is the $\mathbf{y}$ axis.
 
 
 | Method | Description |
@@ -167,7 +167,7 @@ assert!(cone.radius() == 0.75);
 The `Capsule` structure describes the Minkowski sum of a segment and a ball. In
 other words, this is a cylinder with its flat extremities replaced by
 half-balls. A capsule is defined by its _half height_ and the _radius_ of its
-extremities.  It is centered at the origin and principal axis is the positive
+extremities.  It is centered at the origin and its principal axis is the
 $\mathbf{y}$ axis.
 
 | Method | Description |
@@ -255,8 +255,8 @@ $$
 -\mathcal{A} = \left\{ -\mathbf{a} \mid{} \mathbf{a} \in \mathcal{A} \right\}
 $$
 
-Note that the reflected shape and the reflection itself are lifetime-bound so
-it cannot be used to create a [shape handle](#dynamic-shape-representation).
+The reflected shape and the reflection itself are lifetime-bound so it cannot
+be used to create a [shape handle](#dynamic-shape-representation).
 
 | Method | Description |
 | --       | --        |
@@ -281,7 +281,7 @@ let _ = Reflection::new(&cone);
 ### Minkowski sum
 The `MinkowskiSum` structure describes the Minkoswki sum of two shapes
 implementing the `SupportMap` trait. If $\mathcal{A}$ and $\mathcal{B}$ are
-two (possibly infinite) sets of points their Minkowski sum is given by the set:
+two (possibly infinite) sets of points, their Minkowski sum is given by the set:
 
 $$
 \mathcal{A} \oplus \mathcal{B} = \left\{ \mathbf{a} + \mathbf{b} \mid{} \mathbf{a} \in \mathcal{A}, \mathbf{b} \in \mathcal{B} \right\}
@@ -290,7 +290,7 @@ $$
 In other words, this is the union of all points of one shape successively
 translated by each point of the other one. This is extremely useful for
 discrete and continuous collision detection. Note that `MinkowskiSum` does not
-compute the sum explicitely so its construction is $\mathcal{O}(1)$. It is
+compute the sum explicitly so its construction is $\mathcal{O}(1)$. It is
 lifetime-bound to the shapes involved on the sum so it cannot be used to create
 a [shape handle](#dynamic-shape-representation).
 
@@ -307,8 +307,8 @@ a [shape handle](#dynamic-shape-representation).
 let cylinder = Cylinder::new(0.5f32, 0.75);
 let cone     = Cone::new(0.75f32, 0.75);
 
-let delta_cylinder = na::one::<Isometry3<f32>>(); // identity matrix.
-let delta_cone     = na::one::<Isometry3<f32>>(); // identity matrix.
+let delta_cylinder = na::one::<Isometry3<f32>>(); // Identity matrix.
+let delta_cone     = na::one::<Isometry3<f32>>(); // Identity matrix.
 
 let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 ```
@@ -326,9 +326,9 @@ $$
 \mathcal{A} \ominus \mathcal{B} = \mathcal{A} \oplus -\mathcal{B} = \left\{ \mathbf{a} - \mathbf{b} \mid{} \mathbf{a} \in \mathcal{A}, \mathbf{b} \in \mathcal{B} \right\}
 $$
 
-This concept is extencively used, e.g., in robotics and interference detection
+This concept is extensively used, e.g., in robotics and interference detection
 to compute all the impossible positions of the center of mass of an object that
-evolves in a complex environment. Note that this is obviously **not** a
+evolves in a complex environment. This is obviously **not** a
 commutative operator. It can be constructed using the `MinkowskiSum` and
 `Reflection` shapes:
 
@@ -337,8 +337,8 @@ let cylinder   = Cylinder::new(0.5f32, 0.75);
 let cone       = Cone::new(0.75f32, 0.75);
 let reflection = Reflection::new(&cone); // Take the reflection of the cone.
 
-let delta_cylinder = na::one::<Isometry3<f32>>(); // identity matrix.
-let delta_cone     = na::one::<Isometry3<f32>>(); // identity matrix.
+let delta_cylinder = na::one::<Isometry3<f32>>(); // Identity matrix.
+let delta_cone     = na::one::<Isometry3<f32>>(); // Identity matrix.
 
 // Build the Configuration Space Obstacle.
 let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
@@ -353,28 +353,30 @@ let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
 
 **ncollide** supports shapes that are defined as aggregations of others. Every
 composite shape must implement the `shape::CompositeShape` trait which defines
-methods for accessing their individual parts using indices. Indices ranging
-from 0 to `.len() - 1` are required to be valid. The composite is assumed to be
-immutable, i.e., an index must always map to a shape and local transformation
-that remain the same over time.
+methods for accessing their individual parts using indices. The composite is
+assumed to be immutable, i.e., an index must always map to a shape and local
+transformation that remain the same over time. However, the actual range of
+index value is implementation-defined (theoretically, it does not even need to
+be finite).
 
 | Method | Description |
 | --          | --        |
-| `.len()` | The number of parts in the composite shape. |
 | `.map_part_at(i, f)` | Applies the closure `f` to the `i`-th part and its local transformation matrix. |
 | `.map_transformed_part_at(i, m, f)` | Applies the closure `f` to the `i`-th part and its local transformation matrix with `m` appended to it. |
 | `.aabb_at(i)` | The `AABB` of the `i`-th part of the composite shape. |
 | `.bvt()` | The space-partitioning acceleration structure used by the composite shape. |
 
+The requirement to use a `BVT` for space-partitioning is extremely restrictive
+and will be replaced by a more flexible system in the future.
+
 Currently, three composite shapes are available on **ncollide**. The `Compound`
-describes the union of any shape supported by **ncollide**. The `TriMesh`
-and `Polyline` are optimized exclusively for assemblies of triangles and
+describes the union of any shape supported by **ncollide**. The `TriMesh` and
+the `Polyline` are optimized exclusively for assemblies of triangles and
 segments.
 
 ### Compound
 The `Compound` structure is the main way of describing concave shapes from
-convex ones. It differs from `Mesh` in that it is not a set of triangles but a
-set of any [shape handle](#dynamic-shape-representation).
+convex ones. It is a set of any [shape handle](#dynamic-shape-representation).
 
 | Method | Description |
 | --          | --        |
@@ -510,9 +512,9 @@ Some shapes do not fall into any of the general categories described above.
 
 ### Plane
 The `Plane` structure describes a solid closed half-space. The border of a
-plane contains the origin and is defined by its _normal_. Every point that has
-a negative or null dot product with the plane normal is considered _inside_ of
-it. Other points are _outside_ of the plane.
+plane contains the origin and is characterized by its _normal_. Every point
+that has a negative or null dot product with the plane normal is considered
+_inside_ of it. Other points are _outside_ of the plane.
 
 | Method   | Description  |
 | --          | --        |
@@ -538,20 +540,17 @@ assert!(plane.normal().z == 0.0);
 # Dynamic shape representation
 
 In order to select the right algorithms for geometric queries on specific
-shapes, `ncollide` has to be able to distinguish at runtime different shapes
-from their types and they capabilities.  As described
-[later](../geometric_queries) in this guide, there are two kinds of geometric
-queries: those that operate on a [single
+shapes, `ncollide` has to be able to distinguish different shapes from their
+types and they capabilities at runtime. As described
+by [another chapter](../geometric_queries) of this guide, there are two kinds
+of geometric queries: those that operate on a [single
 shape](../geometric_queries/#single-shape-queries) and those that operate on
 [two shapes](../geometric_queries/#pairwise-queries) simultaneously.  In the
 first case, runtime algorithm selection is performed with the help of traits
 which can be easily implemented for user-defined shapes and exposed at runtime
 by a `Shape` trait-object. On the other hand, queries involving two shapes
-require more complex dispatch mechanisms that are not yet fully customizable by
-the user. At the moment, only **persistant** pairwise geometric queries
-performed by the [collision detection
-pipeline](../collision_detection_pipeline) are customizable by changing some of
-its components.
+require more complex dispatch mechanisms that are not yet customizable by
+the user.
 .
 
 
@@ -648,10 +647,10 @@ impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
 ```
 
 With this, we will be able to pass an instance of `Ellipse` to many geometric
-queries from the `geometry::algorithms` module and all the functions with names
-that contains `support_map` on the other submodules of the `geometry` module.
+queries from the `query::algorithms` module and all the functions with names
+that contains `support_map` on the other submodules of the `query` module.
 If we want to benefit from a higher-level interface based on the dynamic
-dispatch mechanism on **ncollide**, we have to implement the `Shape` trait
+dispatch mechanism of **ncollide**, we have to implement the `Shape` trait
 providing at least an AABB and a conversion to the `SupportMap` trait-object:
 
 ```rust
@@ -668,11 +667,12 @@ impl Shape<Point2<f32>, Isometry2<f32>> for Ellipse {
 ```
 
 That's it! You will now be able to pass our ellipse to various functions of
-the `geometry` module, and even wrap it on a `ShapeHandle` to use it as a
-`CollisionObject` shape for complex interactions with a `CollisionWorld` using
-the [collision detection pipeline](../collision_detection_pipeline). The
-following is an example of some pairwise [geometric
-queries](../geometric_queries/#pairwise-queries) involving our own ellipse:
+the `query` module, and even wrap it on a `ShapeHandle` to use it in a
+[collision object](../collision_detection_pipeline#collision-objects) for
+complex interactions with a `CollisionWorld` using the [collision detection
+pipeline](../collision_detection_pipeline). The following is an example of some
+pairwise [geometric queries](../geometric_queries/#pairwise-queries) involving
+our own ellipse:
 
 ```rust
 let ellipse = Ellipse { a: 2.0f32, b: 1.0 };
@@ -758,10 +758,6 @@ Now we have to implement the `CompositeShape` trait.
 
 ```rust
 impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
-    fn len(&self) -> usize {
-        2 // There are only two parts.
-    }
-
     fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
@@ -799,12 +795,9 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 }
 ```
 
-Note that the requirement to use a `BVT` as an internal acceleration structure
-is too restrictive and will be removed in future versions of **ncollide**.
-
 Just like in the previous section, implementing the `CompositeShape` trait is
 enough to use some pairwise geometric queries, e.g., those from the submodule
-of `geometry` module with names that contains the word `composite`. For a more
+of `query` module with names that contains the word `composite`. For a more
 complete integration, we have to implement the `Shape` trait providing at least
 an AABB and a conversion to the `CompositeShape` trait-object:
 
@@ -823,11 +816,11 @@ impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 ```
 
 That's it! You will now be able to pass our cross-like shape to various
-functions of the `geometry` module, and even wrap it on a `ShapeHandle` to use
-it as a `CollisionObject` shape for complex interactions with a
-`CollisionWorld` using the [collision detection
-pipeline](../collision_detection_pipeline). The following is an example of some
-pairwise [geometric queries](../geometric_queries/#pairwise-queries)
+functions of the `query` module, and even wrap it on a `ShapeHandle` to use
+it in a [collision object](../collision_detection_pipeline#collision-objects)
+for complex interactions with a `CollisionWorld` using the [collision detection
+pipeline](../collision_detection_pipeline). The following is an example of
+some pairwise [geometric queries](../geometric_queries/#pairwise-queries)
 involving our own composite shape:
 
 ```rust

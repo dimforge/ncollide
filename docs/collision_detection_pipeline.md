@@ -15,7 +15,7 @@ of every object simultaneously so it can use spacial partitioning with
 conservative interference detection algorithms to find all the potential
 collision pairs very efficiently: $\mathcal{O}(n \log(n))$ time in average or
 even $\mathcal{O}(1)$ if time coherence is high. Then the narrow phase iterates
-on those pairs individually and performs the exact geometric query.  Note that
+on those pairs individually and performs the exact geometric query. Note that
 some objects paired by the broad phase may not actually be in contact (_false
 positives_) as it only performs approximate tests. On the other hand, a broad
 phase is guaranteed not to produce any _false negative_: two interfering
@@ -56,28 +56,35 @@ expected to always return `true` (resp. `false`) for $(\mathcal{A},
 \mathcal{B})$ at any time in the future as well. If the filter changes at some
 point (hence breaking this constancy), the method
 `.deferred_recompute_all_proximities()` must be called in order to inform the
-broad phase that it should be re-executed on all potential collision pairs
-already detected. The second closure `callback` passed at update-time is the
-bridge between the broad phase and the narrow phase: it will be called on each
-potential collision pair that has not been filtered out.
+broad phase that the (new) filter should be re-executed on all potential
+collision pairs already detected. The second closure `callback` passed at
+update-time is the bridge between the broad phase and the narrow phase: it will
+be called on each potential collision pair that has not been filtered out.
 
-Finally, a broad phase algorithm often being inherently incremental, keep in
-mind that `callback` will usually be called only once on each new potential
-contact pair created or removed as a consequence of filter change or objects
-being moved. Pairs unaffected by recent changes will usually **not** be
-re-reported.
+Finally, a broad phase algorithm being inherently incremental, the `callback`
+will usually be called only once on each new potential contact pair created or
+removed as a consequence of filter change or objects being moved. Pairs
+unaffected by recent changes will **not necessarily** be re-reported.
+
+### The Brute Force broad phase
+The `broad_phase::BruteForceBroadPhase` is the simplest broad phase with a
+$\mathcal{O}(n^2)$ time complexity. It should not be used for anything
+but debugging: if you suspect another broad phase implementation to have a bug,
+you may want to try the brute-force broad phase and compare its result with the
+other one.
 
 ### The DBVT broad phase
 
 The `broad_phase::DBVTBroadPhase` is based on a Dynamic Bounding Volume Tree
-(DBVT) to detect interferences. It implements the `BroadPhase` trait described
-above.  The `partitioning::DBVT` structure itself is a proper binary tree that
-maps a bounding volume to the object it bounds on its leaves. Internal nodes
-only contain a bounding volume that spatially bounds all the leaves of the
-sub-tree it is root of. The following figure shows an example of tree that
-contains a set of brown objects with their red AABB. Note that, instead of the
-exact bounding volumes (red), the `DBVTBroadPhase` stores their loosened
-version (black):
+(DBVT) to detect interferences with an average $\mathcal{O}(n \log(n))$ time
+complexity, or even $\mathcal{O}(1)$ if time coherence is high. The
+`partitioning::DBVT` structure itself is a proper binary tree that maps a
+bounding volume to the object it bounds on its leaves. Internal nodes only
+contain a bounding volume that spatially bounds all the leaves of the sub-tree
+it is root of. The following figure shows an example of tree that contains a
+set of brown objects with their red AABB. Note that, instead of the exact
+bounding volumes (red), the `DBVTBroadPhase` stores their loosened version
+(black):
 
 <center>
 ![dbvt](../img/AABB_tree_DBVT.svg)
@@ -97,10 +104,10 @@ objects moving at high frequency but low amplitude will almost never trigger an
 update, at the cost of slightly less tight bounding volumes for interference
 detection. The amount of loosening is controlled by the first constructor
 argument `margin`. The second argument `small_keys` is here for optimization
-purpose.  Set it to `true` if and only if you know that the integer keys you
-use to identify your objects are small (as in "small enough for them to be used
-as keys on a `Vec` instead of a `HashMap`"). If you are not sure of the values
-your keys may take, set `small_keys` to `false`.
+purpose as well.  Set it to `true` if and only if you know that the integer
+keys you use to identify your objects are small (as in "small enough for them
+to be used as keys on a `Vec` instead of a `HashMap`"). If you are not sure of
+the values your keys may take, set `small_keys` to `false`.
 
 
 The following example creates four balls, adds them to a `DBVTBroadPhase`,
@@ -196,9 +203,9 @@ assert!(bf.num_interferences() == 1)
 
 
 # Narrow phase
-As the broad phase detects pairs of objects that may potentially interact, they
+When the broad phase detects pairs of objects that may potentially interact, they
 can be passed to the narrow phase which will instantiate the persistent
-algorithms to perform exact proximity detection or contact point computation.
+algorithms to perform exact proximity detections or contact point computations.
 The narrow phase is also responsible for notifying the user when an interaction
 (proximity, contact, etc.) starts or stops. Every narrow phase must implement
 the `narrow_phase::NarrowPhase` trait.
@@ -207,8 +214,8 @@ the `narrow_phase::NarrowPhase` trait.
 |--      | --          |
 | `.update(...)` | Updates the narrow phase actually performing contact and proximity computation. |
 | `.handle_interaction(..., objs, fk1, fk2, started)` | Tells the narrow phase that the objects given by `objs[fk1]` and `objs[fk2]` start or stop interacting. |
-| `.contact_pairs(objects)` | Returns all the contact pairs. |
-| `.proximity_pairs(objects)` | Returns all the proximity pairs. |
+| `.contact_pairs(objs)` | Returns all the contact pairs. |
+| `.proximity_pairs(objs)` | Returns all the proximity pairs. |
 
 The `.handle_interaction(...)` method will instantiate the correct persistent
 contact or proximity detection algorithm for the given pair of objects. It will
@@ -220,7 +227,8 @@ callbacks that are called when a contact or proximity starts or stops. Hence,
 the user may add their own contact and proximity event handlers to those.
 
 The `narrow_phase::DefaultNarrowPhase` is the default implementation of the
-narrow phase and should be suitable for most applications.
+narrow phase and should be suitable for most applications. It handles both
+persistent proximity detection and persistent contact generation.
 
 ## Persistent proximity detection
 Persistent proximity detection algorithms differ from the
@@ -228,8 +236,8 @@ Persistent proximity detection algorithms differ from the
 former require a structure to be instantiated. This structure can then be
 re-used over time with the same shapes but with different positions and
 proximity margins. This allows the proximity detector to perform significant
-optimizations if the positions change slowly over time − this is usually called
-_temporal coherence_. A persistent proximity detector must implement the
+optimizations if the positions change only slowly over time − this is usually
+called _temporal coherence_. A persistent proximity detector must implement the
 `narrow_phase::ProximityDetector` trait.
 
 | Method | Description |
@@ -237,13 +245,13 @@ _temporal coherence_. A persistent proximity detector must implement the
 | `.update(dispatcher, ma, a, mb, b, margin)` | Actually performs the proximity determination between the objects `a` and `b` respectively transformed by `ma` and `mb`. |
 | `.proximity(&self)` | Returns the result of the last update. |
 
-Note that for a given proximity dector instance, the shapes `a` and `b` are
-assumed never to change over time. Changing them may lead to unexpected
-results. The `margin` argument has the same semantic as with the
-`query::proximity(...)` [function](../geometric_queries/#proximity). The
-`dispatcher` argument is a trait-object that is responsible for instantiating
-the correct proximity algorithm for a given pair of shapes. This is useful when
-the proximity determination algorithm is recursive, e.g., for [composite
+For a given proximity dector instance, the shapes `a` and `b` are assumed never
+to change over time. Changing them may lead to unexpected results. The `margin`
+argument has the same semantic as with the `query::proximity(...)`
+[function](../geometric_queries/#proximity). The `dispatcher` argument is a
+trait-object that is responsible for instantiating the correct proximity
+algorithm for a given pair of shapes. This is useful when the proximity
+determination algorithm is recursive, e.g., for [composite
 shapes](../geometric_representations/#composite-shapes). This trait-object of
 type `narrow_phase::ProximityDispatcher` has only one method that may return
 `None` if no algorithm is known for the given shapes:
@@ -255,16 +263,16 @@ type `narrow_phase::ProximityDispatcher` has only one method that may return
 The `narrow_phase::ProximityAlgorithm` return type is just an alias for a boxed
 `ProximityDetector` trait-object.
 
-Note that if you are not interested by the whole collision detection pipeline
-but only by the persistent proximity determination algorithms, the
-`narrow_phase::DefaultProximityDispatcher` can be used alone to retrieve the correct
-proximity detection algorithm, depending on your geometries:
+If you are not interested by the whole collision detection pipeline but only by
+the persistent proximity determination algorithms, the
+`narrow_phase::DefaultProximityDispatcher` can be used alone to retrieve the
+correct proximity detection algorithm, depending on your geometries:
 
 ```rust
 let dispatcher = DefaultProximityDispatcher2::new();
-let shape1 = Ball::new(0.5);
-let shape2 = Cylinder::new(0.5, 1.0);
-let shape3 = Cone::new(0.5, 1.0);
+let shape1 = Ball::new(0.5f32);
+let shape2 = Cylinder::new(0.5f32, 1.0);
+let shape3 = Cone::new(0.5f32, 1.0);
 
 let ball_vs_cylinder_detector = dispatcher.get_proximity_algorithm(&shape1, &shape2);
 let ball_vs_cone_detector     = dispatcher.get_proximity_algorithm(&shape1, &shape3);
@@ -273,45 +281,45 @@ let cylinder_vs_cone_detector = dispatcher.get_proximity_algorithm(&shape2, &sha
 
 ## Persistent contact generation
 
-Persistent contact generation follow the same logic as persistent proximity
-detection, but for  multiple contact points computation. Such collision
-detector the `narrow_phase::CollisionDetector` trait.
+Persistent contact generation follows the same logic as persistent proximity
+detection, but for  multiple contact points computation. Contact generators
+implement the `narrow_phase::ContactGenerator` trait.
 
 | Method | Description |
 |--      | --          |
-| `.update(...)`  | Given the two shapes and their position, determines their contact geometry without returning it. |
-| `.num_colls() ` | The number of contacts generated by the last update.  |
-| `.colls(out)`   | Collects to `out` the contacts generated by the last update. |
+| `.update(...)`     | Given the two shapes and their position, determines their contact geometry without returning it. |
+| `.num_contacts() ` | The number of contacts generated by the last update.  |
+| `.contacts(out)`   | Collects to `out` the contacts generated by the last update. |
 
 Just like the proximity detectors, the `.update(...)` method requires a
-dispatcher which is a trait-object of type `CollisionDispatcher` with one
+dispatcher which is a trait-object of type `ContactDispatcher` with one
 method that may return `None` if no algorithm is known for the given shapes:
 
 | Method                           | Description |
 |--                                | --          |
-| `.get_collision_algorithm(a, b)` | Returns the persistent contact computation algorithm dedicated to the shapes `a` and `b`. |
+| `.get_contact_algorithm(a, b)` | Returns the persistent contact computation algorithm dedicated to the shapes `a` and `b`. |
 
-The `narrow_phase::CollisionAlgorithm` return type is just an alias for a boxed
-`CollisionDetector` trait-object.
+The `narrow_phase::ContactAlgorithm` return type is just an alias for a boxed
+`ContactGenerator` trait-object.
 
 If you are not interested by the whole collision detection pipeline but only by
 the persistent contact determination algorithms, the
-`narrow_phase::DefaultCollisionDispatcher` can be used alone to retrieve the
+`narrow_phase::DefaultContactDispatcher` can be used alone to retrieve the
 correct collision detection algorithm, depending on your geometries:
 
 ```rust
-let dispatcher = DefaultCollisionDispatcher2::new();
-let shape1 = Ball::new(0.5);
-let shape2 = Cylinder::new(0.5, 1.0);
-let shape3 = Cone::new(0.5, 1.0);
+let dispatcher = DefaultContactDispatcher2::new();
+let shape1 = Ball::new(0.5f32);
+let shape2 = Cylinder::new(0.5f32, 1.0);
+let shape3 = Cone::new(0.5f32, 1.0);
 
-let ball_vs_cylinder_detector = dispatcher.get_collision_algorithm(&shape1, &shape2);
-let ball_vs_cone_detector     = dispatcher.get_collision_algorithm(&shape1, &shape3);
-let cylinder_vs_cone_detector = dispatcher.get_collision_algorithm(&shape2, &shape3);
+let ball_vs_cylinder_detector = dispatcher.get_contact_algorithm(&shape1, &shape2);
+let ball_vs_cone_detector     = dispatcher.get_contact_algorithm(&shape1, &shape3);
+let cylinder_vs_cone_detector = dispatcher.get_contact_algorithm(&shape2, &shape3);
 ```
 
 ### Conforming contacts
-Most specific algorithms implemented on **ncollide** are limited to punctual
+Most contact generators implemented on **ncollide** are limited to one punctual
 contacts. Therefore if you have a cube lying on a plane, only one contact will
 be returned (left) instead of a theoretically infinite set of point (right):
 
@@ -323,9 +331,9 @@ be returned (left) instead of a theoretically infinite set of point (right):
 Those planar contacts that cannot be assimilated to a single point are called
 _conforming contacts_. Approximating the shape of such contact with more than
 one point is critical for, e.g., physics simulation applications with contact
-laws based exclusively on a discrete number of isolated contact points. The
-following figure shows what would happen on this kind of physics simulation
-with a conforming contact approximated by only one point:
+laws based exclusively on a discrete number of isolated points. The following
+figure shows what would happen on this kind of physics simulation with a
+conforming contact approximated by only one point:
 
 <center>
 ![](../img/contact.svg)
@@ -333,10 +341,10 @@ with a conforming contact approximated by only one point:
 
 Here, the cube is falling toward the plane. When a contact is detected, the
 cube is penetrating the plane and the physics engine will try to correct this
-situation by applying a force to the contact point. This forces the object to
-(unrealistically) rotate, moving the contact point to the over side.  This
+situation by applying a force to the contact point. This makes the object
+rotate unrealistically, moving the contact point to the over side.  This
 alternation between two contact points due to unwanted rotations makes the
-simulation instable and unrealistic. That is why **ncollide** provides contact
+simulation unstable and unrealistic. That is why **ncollide** provides contact
 determination algorithms wrappers that can generate a full contact manifold
 either incrementally or in a single shot.
 
@@ -357,11 +365,11 @@ contact has been removed from the last part of the previous figure because it
 is less significant than the two others.
 
 The `IncrementalContactManifoldGenerator` can be used to wrap any structure
-that implements the `CollisionDetector` trait and that generates a single
+that implements the `ContactGenerator` trait and that generates a single
 contact point:
 
 ```rust
-let single_point_generator  = PlaneSupportMapCollisionDetector2::new();
+let single_point_generator  = PlaneSupportMapContactGenerator2::new();
 let full_manifold_generator = IncrementalContactManifoldGenerator::new(plane_vs_support_map);
 ```
 
@@ -382,11 +390,11 @@ To reduce the computation times of this wrapper, the
 like the incremental one as long as the manifold has been generated once.
 
 The `OneShotContactManifoldGenerator` can be used to wrap any structure
-that implements the `CollisionDetector` trait and that generates a single
+that implements the `ContactGenerator` trait and that generates a single
 contact point:
 
 ```rust
-let single_point_generator  = PlaneSupportMapCollisionDetector2::new();
+let single_point_generator  = PlaneSupportMapContactGenerator2::new();
 let full_manifold_generator = OneShotContactManifoldGenerator::new(plane_vs_support_map);
 ```
 
@@ -399,13 +407,13 @@ user and its geometrical scene. It groups:
 * A narrow phase set to the  `DefaultNarrowPhase` by default.
 
 All those are hidden between a high-level interface so that the user does not
-have to manually modify and synchronize the two collision detection stages.  An
-empty collision world is created with the constructor
+have to manually modify and synchronize the various collision detection stages.
+An empty collision world is created with the constructor
 `CollisionWorld::new(margin, small_uids)`. Both arguments are only for
 optimization purpose and have the same semantic as their
 [counterparts](#the-dbvt-broad-phase) for the creation of the DBVT broad-phase:
 the `margin` is the amount of loosening for each bounding volume (this does not
-affect the geometric shapes). While this value is depends on your specific
+affect the exact geometric shapes). While this value depends on your specific
 application, a value of 0.02 is usually good enough if your objects have an
 average size of 1 (no matter which
 [units](../faq/#which-units-are-used-by-ncollide) you use). The `small_uids`
@@ -414,20 +422,20 @@ indices of a `Vec` instead of a `HashMap`. It should be set to `false` if you
 are not sure.
 
 ## Collision objects
-The `world::CollisionObject` structures are the main citizens of the collision
-world. They contain all information needed to describe an object and its
-position in space.
+Instances of the `world::CollisionObject` structure are the main citizens of the collision
+world. They contain all information needed to describe a shape and its
+position in space:
 
-| Field               | Description                                                         |
-|--                   | --                                                                  |
-| `.position`         | The collision object position in space.                             |
-| `.shape`            | The geometrical shape on the collision object.                      |
+| Field               | Description                                                  |
+|--                   | --                                                           |
+| `.position`         | The collision object position in space.                      |
+| `.shape`            | The geometrical shape of the collision object.               |
 | `.collision_groups` | Groups used to prevent interactions with some other objects. |
-| `.query_type`       | The kind of query this object is to be involved in.                 |
+| `.query_type`       | The kind of query this object can be involved in.            |
 | `.data`             | User-defined data associated to this object. This will never be modified by **ncollide**. |
 
 The two fields `.collision_groups` and `.query_type` affect how the object will
-interact with the others on the collision world and are detailed in subsequent
+interact with the others on the collision world and are detailed in the next
 sections.
 
 A collision object should not be created directly by the user. Instead it
@@ -435,9 +443,9 @@ is initialized internally by the collision world with the
 `CollisionWorld::add(uid, ...)` method. Its first argument is a unique
 identifier of your choice that allows you to update this collision object
 later. The `CollisionObject` instance created by the world can be retrieved
-with the `.collision_object(uid)` method. Currently, a collision object can
+using the `.collision_object(uid)` method. Currently, a collision object can
 only be moved or removed from the collision world. Future versions of
-**ncollide** will allow you to modify its shape, collision groups and query
+**ncollide** will allow you to modify its shape, collision groups, and query
 types as well. All those modifications will wait until the next call to
 `.update()` to be actually performed efficiently:
 
@@ -447,10 +455,10 @@ types as well. All those modifications will wait until the next call to
 | `.deferred_remove(uid)`            | Removes the collision object identified by `uid` at the next update. |
 
 Adding an object with the same `uid` as another one already present on the
-collision world will panic. Therefore, keep in mind that because object removal
-is deferred until the next update it is necessary to wait for the next call to
-`.update()` in order to be able to re-use a removed object's identifier. For
-example, the following (pseudo-code) panics:
+collision world will panic. In particular, keep in mind that because object
+removal is deferred until the next update it is necessary to wait for the next
+call to `.update()` in order to be able to re-use a removed object's
+identifier. For example, the following (pseudo-code) panics:
 
 ```rust
 collision_world.add(0, ...);
@@ -473,9 +481,9 @@ collision_world.add(0, ...); // ... so it can be re-used for another object.
 
 ### Collision groups
 Collision groups are the main way to prevent some object from interacting with
-each other. Internally, it is represented as a few bit fields so verifying if
-two object can interact is only a matter of performing bitwise operations. The
-`world::CollisionGroups` structure defined three masks:
+each other. Internally, it is represented as a few bit fields such that verifying
+if two objects can interact is only a matter of performing bitwise operations.
+The `world::CollisionGroups` structure defined three masks:
 
 1. The **membership** mask − the list of groups this collision object is part
    of.
@@ -485,10 +493,10 @@ two object can interact is only a matter of performing bitwise operations. The
    interact with.
 
 Note that the blacklist has precedence over the whitelist, i.e., if a group is
-on both lists, interactions will be forbidden. Setting up a `CollisionGroups`
-structure must follow the following reasoning: each object can be member of
-several group. If it encounters another object, a geometric query will be
-performed by the narrow phase if and only if:
+on both lists, interactions will be forbidden anyway. Setting up a
+`CollisionGroups` structure must follow the following reasoning: each object
+can be member of several group. If it encounters another object, a geometric
+query will be performed by the narrow phase if and only if:
 
 * Each object is member of **at least one** group part of the other object's whitelist.
 * **None** of the object is member of any group part of the other object's
@@ -505,7 +513,7 @@ Finally, there exists one special group for self-collision. Because this is
 meaningful only for deformable shapes (which are not yet explicitly supported
 by **ncollide**), it is disabled by default. It may be enabled with the
 `.enable_self_collision()` method. This will allow the narrow phase to perform
-geometric queries involving the same collision object twice.
+a geometric query involving this collision object twice.
 
 #### Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/collision_groups.rs')"></div>
 
@@ -560,10 +568,11 @@ assert!(a.can_interact_with_groups(&c));
 ```
 
 ### Query type
-The query type indicates which kind of geometric query should be executed by
-the narrow phase on this object. Two choices are given by the
-`world::CollisionQueryType` enumeration. More query types for, e.g., minimal
-distance computation only, may be added in the future:
+The query type stored in the `.query_type` field of collision objects indicates
+which kind of geometric query should be executed by the narrow phase on it.
+Two choices are given by the `world::GeometricQueryType` enumeration. More
+query types for, e.g., minimal distance computation, may be added in the
+future:
 
 1. `::Contacts(prediction)` − two objects with this query
    type will have their [contact points](../geometric_queries/#contact)
@@ -574,15 +583,15 @@ distance computation only, may be added in the future:
    performed. Shapes separated by a distance larger than the sum of their
    `margin` will be considered disjoint.
 
-Note that if the two shapes request different query types, only the simplest is
+If the two shapes request different query types, only the simplest is
 performed. For example, one shape having a `::Contact(prediction1)` query type
-interacting with a shape with a `::Proximity(margin2)` query type will generate
-only a proximity query. In other words, the contact query type is implicitly
-reinterpreted as a `::Proximity(prediction1)` query type.
+interacting with a shape with a `::Proximity(margin2)` query type will result
+in a proximity query. In other words, the first `::Contact(...)` query type is
+implicitly reinterpreted as `::Proximity(...)`.
 
 ## World-scale geometric queries
-Because is groups collision object with efficient acceleration data structure,
-it is natural that the collision world allows the user to apply
+Because the collision world groups collision object with efficient acceleration
+data structure, it is natural to give the user the ability to apply
 [single-shape](./geometric_queries/#single-shape-queries) geometric queries to
 all the objects at the same time:
 
@@ -592,17 +601,16 @@ all the objects at the same time:
 | `.interferences_with_point(point, groups)` | Returns an iterator through all objects able to interact with `groups` and containing `point`. |
 | `.interferences_with_aabb(aabb, groups)` | Returns an iterator through all object that can interact with `groups` and with an AABB that intersects `aabb`.  |
 
-Notice that not all collision object have to be affected by the geometric
-query: only those with a collision groups compatible with `groups` will
-actually perform the actual query. The results of pairwise geometric queries
-performed by the narrow phase can be retrieved as well through the collision
-world:
+Not all collision object have to be affected by the geometric query: only those
+with a collision groups that can interact with `groups` will actually execute
+the query. The results of pairwise geometric queries performed by the narrow
+phase can be retrieved as well through the collision world:
 
 | Method                | Description |
 |--                     | --          |
-| `.contact_pairs()`    | An iterator through the contact pairs created by the narrow phase.   |
-| `.proximity_pairs()`  | An iterator through the proximity pairs created by the narrow phase. |
-| `.contacts()`         | An iterator through the contacts computed by the narrow phase.       |
+| `.contact_pairs()`    | Gets an iterator through the contact pairs created by the narrow phase.   |
+| `.proximity_pairs()`  | Gets an iterator through the proximity pairs created by the narrow phase. |
+| `.contacts()`         | Gets an iterator through the contacts computed by the narrow phase.       |
 
 ## Custom filters and callbacks
 

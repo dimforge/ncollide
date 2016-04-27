@@ -133,29 +133,25 @@ ray:
 | `.toi_and_normal_and_uv_with_ray(m, ray, solid)` | Computes the time of impact , normal, and texture coordinates of the intersection between `ray` and `self` transformed by `m`. |
 | `.intersects_ray(m, ray)`                        | Tests whether `ray` intersects `self` transformed by `m`. |
 
-Note that if you implement this trait for your own shape, only the second method
-of this list (namely `.toi_and_normal_with_ray(...)` is required. The other
-ones are automatically inferred (but for optimization purpose you might want to
-specialize the other methods as well).
+If you implement this trait for your own shape, only the second method of this
+list (namely `.toi_and_normal_with_ray(...)` is required. The other ones are
+automatically inferred (but for optimization purpose you might want to
+specialize them as well).
 
 
 If the starting point of a ray is inside of a shape, the result depends on the
 value of the `solid` flag. A solid ray cast (`solid` is set to `true`) will
 return an intersection with its `toi` field set to zero and its `normal`
 undefined. A non-solid ray cast (`solid` is set to `false`) will assume that
-the shape is hollow and will propagate on its inside until until hits a border:
+the shape is hollow and will propagate on its inside until it hits a border:
 
 <center>
 ![solid ray cast](../img/solid_ray_cast.svg)
 </center>
 
-Consequently, if the starting point of the ray is outside of any shape, then
-the `solid` flag has no effect. Also note that a solid ray cast is usually much
-**faster** than the non-solid one. The following examples create a cuboid and
-cast two rays on it. The first ray starts inside of the cuboid and will return
-different time of impacts depending on the solidity of the cast. The second ray
-should miss its target.
-
+Of course, if the starting point of the ray is outside of any shape, then
+the `solid` flag has no effect. Note that a solid ray cast is usually much
+**faster** than a non-solid one.
 The following examples attempt to cast two rays `ray_inside` and `ray_miss` on
 a cuboid. Because the starting point of `ray_inside` is located inside of the
 cuboid, the resulting time of impact will be zero if the ray cast is solid, or
@@ -201,20 +197,20 @@ assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
 Instead of being exposed by traits, pairwise geometric queries for shapes
 having a [dynamic
 representation](../geometric_representations/#dynamic-shape-representation) are
-defined by free-functions on the `geometry::` module. Those functions will
+defined by free-functions on the `query::` module. Those functions will
 inspect the shape representation in order to select the right algorithm for the
 query. To avoid this dynamic dispatch when you already know at compile-time
 which types of shapes are involved, the _internal_ submodules, e.g.,
-`geometry::distance_internal`, contain functions dedicated to specific shapes
+`query::distance_internal`, contain functions dedicated to specific shapes
 or shape representations.
 
 ### Proximity
 
-The proximity query `geometry::proximity(m1, g1, m2, g2, margin)` tests if the
+The proximity query `query::proximity(m1, g1, m2, g2, margin)` tests if the
 shapes `g1` and `g2`, respectively transformed by `m1` and `m2`, are
 intersecting. It will not provide any specific detail regarding the exact
-distance separating them. Its result is is described by the
-`geometry::Proximity` enumeration:
+distance separating them. Its result is described by the `query::Proximity`
+enumeration:
 
 | Variant        | Description                               |
 |--              | --                                        |
@@ -248,15 +244,15 @@ let ball_pos_intersecting  = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 let ball_pos_within_margin = Isometry2::new(Vector2::new(2.0, 2.0), na::zero());
 let ball_pos_disjoint      = Isometry2::new(Vector2::new(3.0, 3.0), na::zero());
 
-let prox_intersecting = geometry::proximity(&ball_pos_intersecting, &ball,
-                                            &cuboid_pos,            &cuboid,
-                                            margin);
-let prox_within_margin = geometry::proximity(&ball_pos_within_margin, &ball,
-                                             &cuboid_pos,             &cuboid,
-                                             margin);
-let prox_disjoint = geometry::proximity(&ball_pos_disjoint, &ball,
-                                        &cuboid_pos,        &cuboid,
-                                        margin);
+let prox_intersecting = query::proximity(&ball_pos_intersecting, &ball,
+                                         &cuboid_pos,            &cuboid,
+                                         margin);
+let prox_within_margin = query::proximity(&ball_pos_within_margin, &ball,
+                                          &cuboid_pos,             &cuboid,
+                                          margin);
+let prox_disjoint = query::proximity(&ball_pos_disjoint, &ball,
+                                     &cuboid_pos,        &cuboid,
+                                     margin);
 
 assert_eq!(prox_intersecting, Proximity::Intersecting);
 assert_eq!(prox_within_margin, Proximity::WithinMargin);
@@ -275,15 +271,15 @@ let ball_pos_intersecting  = Isometry3::new(Vector3::new(1.0, 1.0, 1.0), na::zer
 let ball_pos_within_margin = Isometry3::new(Vector3::new(2.0, 2.0, 2.0), na::zero());
 let ball_pos_disjoint      = Isometry3::new(Vector3::new(3.0, 3.0, 3.0), na::zero());
 
-let prox_intersecting = geometry::proximity(&ball_pos_intersecting, &ball,
-                                            &cuboid_pos,            &cuboid,
-                                            margin);
-let prox_within_margin = geometry::proximity(&ball_pos_within_margin, &ball,
-                                             &cuboid_pos,             &cuboid,
-                                             margin);
-let prox_disjoint = geometry::proximity(&ball_pos_disjoint, &ball,
-                                        &cuboid_pos,        &cuboid,
-                                        margin);
+let prox_intersecting = query::proximity(&ball_pos_intersecting, &ball,
+                                         &cuboid_pos,            &cuboid,
+                                         margin);
+let prox_within_margin = query::proximity(&ball_pos_within_margin, &ball,
+                                          &cuboid_pos,             &cuboid,
+                                          margin);
+let prox_disjoint = query::proximity(&ball_pos_disjoint, &ball,
+                                     &cuboid_pos,        &cuboid,
+                                     margin);
 
 assert_eq!(prox_intersecting, Proximity::Intersecting);
 assert_eq!(prox_within_margin, Proximity::WithinMargin);
@@ -293,7 +289,7 @@ assert_eq!(prox_disjoint, Proximity::Disjoint);
 ### Distance
 
 The minimal distance between two shapes `g1` and `g2`, respectively transformed
-by `m1` and `m2`, can be computed by `geometry::distance(m1, g1, m2, g2)`. This
+by `m1` and `m2`, can be computed by `query::distance(m1, g1, m2, g2)`. This
 will return a positive value if the objects are not intersecting and zero
 otherwise. The following example computes the distance between a cube and a
 sphere.
@@ -316,10 +312,10 @@ fn main() {
     let ball_pos_intersecting  = Isometry2::new(Vector2::new(1.0, 0.0), na::zero());
     let ball_pos_disjoint      = Isometry2::new(Vector2::new(3.0, 0.0), na::zero());
 
-    let dist_intersecting = geometry::distance(&ball_pos_intersecting, &ball,
-                                               &cuboid_pos,            &cuboid);
-    let dist_disjoint     = geometry::distance(&ball_pos_disjoint, &ball,
-                                               &cuboid_pos,        &cuboid);
+    let dist_intersecting = query::distance(&ball_pos_intersecting, &ball,
+                                            &cuboid_pos,            &cuboid);
+    let dist_disjoint     = query::distance(&ball_pos_disjoint, &ball,
+                                            &cuboid_pos,        &cuboid);
 
     assert_eq!(dist_intersecting, 0.0);
     assert!(na::approx_eq(&dist_disjoint, &1.0));
@@ -344,10 +340,10 @@ fn main() {
     let ball_pos_intersecting  = Isometry3::new(Vector3::new(1.0, 0.0, 0.0), na::zero());
     let ball_pos_disjoint      = Isometry3::new(Vector3::new(3.0, 0.0, 0.0), na::zero());
 
-    let dist_intersecting = geometry::distance(&ball_pos_intersecting, &ball,
-                                               &cuboid_pos,            &cuboid);
-    let dist_disjoint     = geometry::distance(&ball_pos_disjoint, &ball,
-                                               &cuboid_pos,        &cuboid);
+    let dist_intersecting = query::distance(&ball_pos_intersecting, &ball,
+                                            &cuboid_pos,            &cuboid);
+    let dist_disjoint     = query::distance(&ball_pos_disjoint, &ball,
+                                            &cuboid_pos,        &cuboid);
 
     assert_eq!(dist_intersecting, 0.0);
     assert!(na::approx_eq(&dist_disjoint, &1.0));
@@ -358,13 +354,14 @@ fn main() {
 ### Contact
 
 Contact determination is the core feature of any collision detection library.
-The function `geometry::contact(m1, g1, m2, g2, prediction)` will compute one
+The function `query::contact(m1, g1, m2, g2, prediction)` will compute one
 pair of closest points between two objects if they are penetrating, touching,
 or separated by a distance smaller than `prediction`. If the shapes are concave
-or in conforming contact, you may need multiple contact points. This can be
-achieved by [persistent collision
+or in [conforming
+contact](./collision_detection_pipeline/#conforming-contacts), you may need
+multiple contact points instead. This can be achieved by [persistent collision
 detection](../collision_detection_pipeline/#narrow-phase) structures. In any
-cases, a contact is described by the `geometry::Contact` structure:
+cases, a contact is described by the `query::Contact` structure:
 
 
 | Field    | Description                                                              |
@@ -411,15 +408,15 @@ let ball_pos_penetrating   = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 let ball_pos_in_prediction = Isometry2::new(Vector2::new(2.0, 2.0), na::zero());
 let ball_pos_too_far       = Isometry2::new(Vector2::new(3.0, 3.0), na::zero());
 
-let ctct_penetrating = geometry::contact(&ball_pos_penetrating, &ball,
-                                         &cuboid_pos,           &cuboid,
-                                         prediction);
-let ctct_in_prediction = geometry::contact(&ball_pos_in_prediction, &ball,
-                                           &cuboid_pos,             &cuboid,
-                                           prediction);
-let ctct_too_far = geometry::contact(&ball_pos_too_far, &ball,
-                                     &cuboid_pos,       &cuboid,
-                                     prediction);
+let ctct_penetrating = query::contact(&ball_pos_penetrating, &ball,
+                                      &cuboid_pos,           &cuboid,
+                                      prediction);
+let ctct_in_prediction = query::contact(&ball_pos_in_prediction, &ball,
+                                        &cuboid_pos,             &cuboid,
+                                        prediction);
+let ctct_too_far = query::contact(&ball_pos_too_far, &ball,
+                                  &cuboid_pos,       &cuboid,
+                                  prediction);
 
 assert!(ctct_penetrating.unwrap().depth > 0.0);
 assert!(ctct_in_prediction.unwrap().depth < 0.0);
@@ -438,15 +435,15 @@ let ball_pos_penetrating   = Isometry3::new(Vector3::new(1.0, 1.0, 1.0), na::zer
 let ball_pos_in_prediction = Isometry3::new(Vector3::new(2.0, 2.0, 2.0), na::zero());
 let ball_pos_too_far       = Isometry3::new(Vector3::new(3.0, 3.0, 3.0), na::zero());
 
-let ctct_penetrating = geometry::contact(&ball_pos_penetrating, &ball,
-                                         &cuboid_pos,           &cuboid,
-                                         prediction);
-let ctct_in_prediction = geometry::contact(&ball_pos_in_prediction, &ball,
-                                           &cuboid_pos,             &cuboid,
-                                           prediction);
-let ctct_too_far = geometry::contact(&ball_pos_too_far, &ball,
-                                     &cuboid_pos,       &cuboid,
-                                     prediction);
+let ctct_penetrating = query::contact(&ball_pos_penetrating, &ball,
+                                      &cuboid_pos,           &cuboid,
+                                      prediction);
+let ctct_in_prediction = query::contact(&ball_pos_in_prediction, &ball,
+                                        &cuboid_pos,             &cuboid,
+                                        prediction);
+let ctct_too_far = query::contact(&ball_pos_too_far, &ball,
+                                  &cuboid_pos,       &cuboid,
+                                  prediction);
 
 assert!(ctct_penetrating.unwrap().depth > 0.0);
 assert!(ctct_in_prediction.unwrap().depth < 0.0);
@@ -455,7 +452,7 @@ assert_eq!(ctct_too_far, None);
 
 ### Time of impact
 
-The time of impact (aka. $\mathit{toi}$) returned by `geometry::time_of_impact(m1,
+The time of impact (aka. $\mathit{toi}$) returned by `query::time_of_impact(m1,
 v1, g1, m2, v2, g2)` is the positive time it would take `g1` and `g2` to touch if they
 both move with linear velocities `v1` and `v2` starting with the positions and
 orientations given by `m1` and `m2`. This is commonly used for, e.g.,
@@ -494,12 +491,12 @@ let box_vel2 = Vector2::new(1.0, 1.0);
 let ball_vel1 = Vector2::new(2.0, 2.0);
 let ball_vel2 = Vector2::new(-0.5, -0.5);
 
-let toi_intersecting = geometry::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
-                                                &cuboid_pos,            &box_vel1,  &cuboid);
-let toi_will_touch = geometry::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
-                                              &cuboid_pos,          &box_vel2,  &cuboid);
-let toi_wont_touch = geometry::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
-                                              &cuboid_pos,          &box_vel1,  &cuboid);
+let toi_intersecting = query::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
+                                             &cuboid_pos,            &box_vel1,  &cuboid);
+let toi_will_touch = query::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
+                                           &cuboid_pos,          &box_vel2,  &cuboid);
+let toi_wont_touch = query::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
+                                           &cuboid_pos,          &box_vel1,  &cuboid);
 
 assert_eq!(toi_intersecting, Some(0.0));
 assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
@@ -523,12 +520,12 @@ let box_vel2 = Vector3::new(1.0, 1.0, 1.0);
 let ball_vel1 = Vector3::new(2.0, 2.0, 2.0);
 let ball_vel2 = Vector3::new(-0.5, -0.5, -0.5);
 
-let toi_intersecting = geometry::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
-                                                &cuboid_pos,            &box_vel1,  &cuboid);
-let toi_will_touch = geometry::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
-                                              &cuboid_pos,          &box_vel2,  &cuboid);
-let toi_wont_touch = geometry::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
-                                              &cuboid_pos,          &box_vel1,  &cuboid);
+let toi_intersecting = query::time_of_impact(&ball_pos_intersecting, &ball_vel1, &ball,
+                                             &cuboid_pos,            &box_vel1,  &cuboid);
+let toi_will_touch = query::time_of_impact(&ball_pos_will_touch, &ball_vel2, &ball,
+                                           &cuboid_pos,          &box_vel2,  &cuboid);
+let toi_wont_touch = query::time_of_impact(&ball_pos_wont_touch, &ball_vel1, &ball,
+                                           &cuboid_pos,          &box_vel1,  &cuboid);
 
 assert_eq!(toi_intersecting, Some(0.0));
 assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
