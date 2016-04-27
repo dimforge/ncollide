@@ -1,0 +1,91 @@
+mtllib francois.mtl
+
+camera
+    output out.png
+    resolution 560 315
+    eye 0 0 2
+    at  0 0 3
+    fovy 45.0
+    aa 100 1.0
+
+geometry
+    box 0.5 0.5 0.5
+    pos 1 -0.24 5
+    angle 0 0 0
+    material A
+    refl 0.0 0.0
+    refr 1.5
+
+geometry
+    box 0.5 0.5 0.5
+    pos -1 0.01 7
+    angle 0 0 0
+    material spiral
+    refl 0.0 0.0
+    refr 1.5
+
+geometry
+    ball 0.5
+    pos 0 1 7
+    angle 0 0 0
+    material C
+    refl 1.0 0.2
+
+geometry
+    plane -1 0 0
+    pos 3 0 0
+    material E
+    angle 0 0 0
+    refl 0.0 0.0
+
+geometry
+    plane 0 1 0
+    pos 0 -0.75 0
+    angle 0 0 0
+    material D
+    refl 0.0 0.0
+
+geometry
+    plane 1 0 0
+    pos -3 0 0
+    angle 0 0 0
+    material E
+    refl 0.0 0.0
+
+geometry
+    plane 0 0 -1
+    pos 0 0 10
+    angle 0 0 0
+    material F
+    refl 0.0 0.0
+
+geometry
+    plane 0 1 0
+    angle 0 0 0
+    pos 0 -3 0
+    material F
+    refl 0.0 0.0
+
+light
+    pos 2.9 2.9 9.9
+    color 0.2 0.2 0.2
+    radius  0.5
+    nsample 50
+ 
+light
+    pos 2.9 2.9 0
+    color 0.2 0.2 0.2
+    radius  0.5
+    nsample 50
+ 
+light
+    pos -2.9 2.9 9.9
+    color 0.2 0.2 0.2
+    radius  0.5
+    nsample 50
+
+light
+    pos -2.9 2.9 0
+    color 0.2 0.2 0.2
+    radius  0.5
+    nsample 50

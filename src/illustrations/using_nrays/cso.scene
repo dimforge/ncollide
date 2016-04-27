@@ -1,0 +1,24 @@
+mtllib materials.mtl
+
+camera
+    output out.png
+    resolution 200 200
+    eye  -1.0 -2.0 -4.5
+    at   0.0 0.3 0.0
+    fovy 45.0
+    aa   100 2.0
+
+light
+    pos  -1.0 -2.0 -4.5
+    color 1.0 1.0 1.0
+    radius 0.1
+    nsample 10
+
+# We are cheating here because nrays does not support the Minkowski difference..
+# We have: cylinder - cone = -(-cylinder + cone) = rot(pi, 0.0, 0.0) * (cylinder + cone)
+geometry
+    cylinder 0.5 0.75
+    cone     0.75 0.75
+    pos      0.0 0.0 0.0
+    angle    180 0.0 0.0
+    material blue

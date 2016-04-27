@@ -1,0 +1,27 @@
+[package]
+name    = "ncollide-user-guide-hacd"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[dependencies]
+rand = "*"
+sfml = "0.11.*"
+nalgebra = "*"
+ncollide = "*"
+kiss3d = "*"
+
+[[bin]]
+name = "hacd"
+path = "./hacd.rs"
+
+[[bin]]
+name = "convex_hull"
+path = "./convex_hull.rs"
+
+[[bin]]
+name = "path"
+path = "./path.rs"
+
+[[bin]]
+name = "simple_geometries2d"
+path = "./simple_geometries2d.rs"

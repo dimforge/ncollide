@@ -571,8 +571,7 @@ assert!(a.can_interact_with_groups(&c));
 The query type stored in the `.query_type` field of collision objects indicates
 which kind of geometric query should be executed by the narrow phase on it.
 Two choices are given by the `world::GeometricQueryType` enumeration. More
-query types for, e.g., minimal distance computation, may be added in the
-future:
+queries for, e.g., minimal distance computation, may be allowed in the future:
 
 1. `::Contacts(prediction)` − two objects with this query
    type will have their [contact points](../geometric_queries/#contact)

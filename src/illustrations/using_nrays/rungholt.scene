@@ -1,0 +1,17 @@
+camera
+    output out.png
+    resolution 1024 1024
+    eye  150.0 150.2 0.0
+    at   0.0 0.2 0.0
+    fovy 45.0
+
+light
+    pos   0.0 1000.0 0.0
+    color 1.0 1.0 1.0
+
+geometry
+    obj      media/rungholt/rungholt.obj media/rungholt
+    pos      0.0 0.0 0.0
+    angle    0.0 0.0 0.0
+    material default
+    refl     0.0 0.0
