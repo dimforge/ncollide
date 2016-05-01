@@ -99,11 +99,11 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         match (co1.query_type, co2.query_type) {
             (GeometricQueryType::Contacts(_), GeometricQueryType::Contacts(_)) => {
                 if started {
-                    let cd = self.contact_dispatcher.get_contact_algorithm(co1.shape.as_ref(), co2.shape.as_ref());
+                    let dispatcher = &self.contact_dispatcher;
 
-                    if let Some(cd) = cd {
-                        let _ = self.contact_generators.insert(key, cd);
-                    }
+                    let _ = self.contact_generators.find_or_insert_lazy(key, || {
+                        dispatcher.get_contact_algorithm(co1.shape.as_ref(), co2.shape.as_ref())
+                    });
                 }
                 else {
                     // Proximity stopped.
@@ -120,11 +120,11 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             },
             (_, GeometricQueryType::Proximity(_)) | (GeometricQueryType::Proximity(_), _) => {
                 if started {
-                    let cd = self.proximity_dispatcher.get_proximity_algorithm(co1.shape.as_ref(), co2.shape.as_ref());
+                    let dispatcher = &self.proximity_dispatcher;
 
-                    if let Some(cd) = cd {
-                        let _ = self.proximity_detectors.insert(key, cd);
-                    }
+                    let _ = self.proximity_detectors.find_or_insert_lazy(key, || {
+                        dispatcher.get_proximity_algorithm(co1.shape.as_ref(), co2.shape.as_ref())
+                    });
                 }
                 else {
                     // Proximity stopped.
