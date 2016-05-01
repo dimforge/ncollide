@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="22.781769mm"
+   height="22.482216mm"
+   viewBox="0 0 80.722803 79.661395"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="feature_bounding_volumes.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.919596"
+     inkscape:cx="22.101451"
+     inkscape:cy="39.722522"
+     inkscape:document-units="px"
+     inkscape:current-layer="g4313"
+     showgrid="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1918"
+     inkscape:window-height="1061"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3336"
+       originx="-199.22535"
+       originy="-559.51081" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-199.22535,-413.19003)">
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.33860871;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.3386087, 0.67721739;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3338"
+       width="79.661392"
+       height="79.661392"
+       x="199.51079"
+       y="413.19003" />
+    <g
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.92654723;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="g4313"
+       transform="matrix(1.0792758,0,0,1.0792758,-121.47985,250.73872)">
+      <title
+         id="title4315">Layer 1</title>
+      <path
+         style="fill:#ffffff;stroke-width:0.92654723;stroke-miterlimit:4;stroke-dasharray:none"
+         inkscape:connector-curvature="0"
+         d="m 347.49704,189.67873 -2.63025,6.87901 8.88172,3.39926 7.75074,-6.7197 -11.33759,4.15794 3.911,-3.4617 -4.76501,1.73743 22.17108,-21.30958 z"
+         id="path4327" />
+      <path
+         style="fill:#f2f2f2;stroke-width:3.60754228;stroke-miterlimit:4;stroke-dasharray:none"
+         inkscape:connector-curvature="0"
+         d="m 303.95536,190.02132 -2.63025,6.87901 8.88172,3.39927 7.75074,-6.71971 -11.33759,4.15794 3.911,-3.46169 -4.76501,1.73743 22.17107,-21.30959 z"
+         id="path4323" />
+      <path
+         style="stroke:#000000;stroke-width:0.69491042;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+         inkscape:connector-curvature="0"
+         d="m 303.95536,190.02132 -2.63025,6.87901 8.88172,3.39927 7.75074,-6.71971 -11.33759,4.15794 3.911,-3.46169 -4.76501,1.73743 22.17107,-21.30959 z"
+         id="path4325" />
+      <path
+         style="stroke:#000000;stroke-width:0.69491042;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;fill:#f2f2f2"
+         inkscape:connector-curvature="0"
+         d="m 347.49704,189.67873 -2.63025,6.87901 8.88172,3.39926 7.75074,-6.7197 -11.33759,4.15794 3.911,-3.4617 -4.76501,1.73743 22.17108,-21.30958 z"
+         id="path4329" />
+      <rect
+         style="stroke:#ff0000;stroke-width:0.92654723;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+         x="344.86679"
+         y="174.36139"
+         width="26.611938"
+         height="25.595615"
+         id="rect4319" />
+      <ellipse
+         style="stroke:#ff0000;stroke-width:0.92654723;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+         cx="315.35052"
+         cy="186.69173"
+         rx="17.738739"
+         ry="17.712439"
+         id="ellipse4321" />
+    </g>
+  </g>
+</svg>

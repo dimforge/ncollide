@@ -8,7 +8,7 @@ queries are be the fastest to execute.
 ### Point projection
 It is possible to check whether or not a point is inside of a shape, to project
 it, or compute the distance from a point to a shape. Those queries are
-exposed by the `point::PointQuery` trait:
+exposed by the `query::PointQuery` trait:
 
 | Method | Description |
 |--      | --          |
@@ -27,7 +27,7 @@ a non-solid one.
 ![point projection](../img/solid_point_projection.svg)
 </center>
 
-The result of point projection is given by the `point::PointProjection`
+The result of point projection is given by the `query::PointProjection`
 structure:
 
 | Field    | Description                               |
@@ -95,7 +95,7 @@ navigation on a virtual environment. Therefore **ncollide** has efficient ray
 casting algorithms for all the shapes it implements (including functions that
 are able to cast rays on arbitrary
 [support-mapped](../geometric_representations/index.html#support-map) convex
-shapes). The main ray-casting related data structure is the `ray::Ray` itself:
+shapes). The main ray-casting related data structure is the `query::Ray` itself:
 
 | Field  | Description                    |
 |--      | --                             |
@@ -103,7 +103,7 @@ shapes). The main ray-casting related data structure is the `ray::Ray` itself:
 | `dir`  | The ray propagation direction. |
 
 
-The result of a successful ray-cast is given by the `ray::RayIntersection`
+The result of a successful ray-cast is given by the `query::RayIntersection`
 structure:
 
 | Field    | Description                               |
@@ -123,7 +123,7 @@ with velocity `ray.dir` to travel from the position `ray.orig` to the object
 hit.
 
 
-The `ray::RayCast` trait is implemented by shapes that can be intersected by a
+The `query::RayCast` trait is implemented by shapes that can be intersected by a
 ray:
 
 | Method | Description |
