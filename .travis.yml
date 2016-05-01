@@ -6,6 +6,7 @@ rust:
     - nightly
 matrix:
   allow_failures:
+    - rust: beta 
     - rust: nightly
 addons:
   apt:
