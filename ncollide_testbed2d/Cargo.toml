@@ -14,9 +14,12 @@ recording = [ "mpeg_encoder" ]
 path = ".."
 
 [dependencies]
-sfml = "0.11.*"
 nalgebra = "0.8.*"
 time = "*"
 num = "*"
 rand = "*"
 mpeg_encoder = { version = "0.2.*", optional = true }
+
+[dependencies.sfml]
+version = "0.11.*"
+git = "https://github.com/sebcrozet/rust-sfml.git"
