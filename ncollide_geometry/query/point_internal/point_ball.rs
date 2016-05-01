@@ -1,7 +1,6 @@
 use num::Float;
-use na::Translate;
-use na;
-use point::{PointQuery, PointProjection};
+use na::{self, Translate};
+use query::{PointQuery, PointProjection};
 use shape::Ball;
 use math::{Point, Vector};
 

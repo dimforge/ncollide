@@ -1,9 +1,9 @@
 use num::Float;
-use na::{Vector3, Identity, Transform, Rotate};
-use na;
+use na::{self, Vector3, Identity, Transform, Rotate};
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::{Ray, RayCast, RayIntersection};
+use query::ray_internal;
 use shape::Triangle;
-use ray::{Ray, RayCast, RayIntersection, implicit_toi_and_normal_with_ray};
 use math::{Point, Vector};
 
 use utils;
@@ -19,8 +19,10 @@ impl<P, M> RayCast<P, M> for Triangle<P>
             triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray).map(|(r, _)| r)
         }
         else {
-            implicit_toi_and_normal_with_ray(&Identity::new(), self,
-                                             &mut JohnsonSimplex::<P>::new_w_tls(), &ls_ray, solid)
+            ray_internal::implicit_toi_and_normal_with_ray(&Identity::new(), self,
+                                                           &mut JohnsonSimplex::<P>::new_w_tls(),
+                                                           &ls_ray,
+                                                           solid)
         };
 
         res.map(|mut r| { r.normal = m.rotate(&r.normal); r })

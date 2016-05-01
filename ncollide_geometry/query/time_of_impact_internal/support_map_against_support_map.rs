@@ -1,6 +1,6 @@
 use na::{self, Rotate, Transform, Identity};
 use shape::{SupportMap, Reflection, MinkowskiSum};
-use ray::{Ray, RayCast};
+use query::{Ray, RayCast};
 use math::{Point, Vector};
 
 

@@ -1,11 +1,9 @@
-use na::{Identity, Translate};
-use na;
+use na::{self, Identity, Translate};
 use math::{Point, Vector, Isometry};
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use shape::{Shape, CompositeShape};
-use ray::{Ray, RayCast};
-use query::time_of_impact_internal;
+use query::{time_of_impact_internal, Ray, RayCast};
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, vel1: &P::Vect, g1: &G1,

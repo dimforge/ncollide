@@ -29,9 +29,10 @@ enum RunMode {
 }
 
 pub struct Testbed<N: Scalar> {
-    window:   RenderWindow,
-    graphics: GraphicsManagerHandle<N>,
-    running:  RunMode,
+    window:     RenderWindow,
+    graphics:   GraphicsManagerHandle<N>,
+    running:    RunMode,
+    background: Color,
 
     draw_colls:     bool,
     camera:         Camera,
@@ -65,10 +66,11 @@ impl<N: Scalar> Testbed<N> {
         let camera  = Camera::new(&window);
 
         Testbed {
-            window:   window,
-            graphics: Rc::new(RefCell::new(GraphicsManager::new())),
-            running:  RunMode::Run,
-            recorder: None,
+            window:     window,
+            graphics:   Rc::new(RefCell::new(GraphicsManager::new())),
+            running:    RunMode::Run,
+            recorder:   None,
+            background: Color::black(),
 
             draw_colls:     false,
             camera:         camera,
@@ -134,8 +136,15 @@ impl<N: Scalar> Testbed<N> {
         world.update();
     }
 
+    pub fn set_background_color(&mut self, color: Point3<f32>) {
+        self.background = Color::new_rgb(
+            (color.x * 255.0) as u8,
+            (color.y * 255.0) as u8,
+            (color.z * 255.0) as u8);
+    }
+
     pub fn render<T>(&mut self, world: &mut CollisionWorld2<N, T>) {
-        self.window.clear(&Color::black());
+        self.window.clear(&self.background);
         // self.fps.draw_registered(&mut self.window);
         self.graphics.borrow_mut().draw(world, &mut self.window, &self.camera);
         self.camera.activate_scene(&mut self.window);

@@ -1,8 +1,7 @@
 use std::mem;
 use num::Float;
-use na::{Transform, Rotate, Point2, Bounded};
-use na;
-use ray::{Ray, RayCast, RayIntersection};
+use na::{self, Transform, Rotate, Point2, Bounded};
+use query::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Point, Vector};
 

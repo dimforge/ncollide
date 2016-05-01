@@ -1,11 +1,10 @@
-use na::{Translation, Rotate, Transform};
-use na;
+use na::{self, Translation, Rotate, Transform};
 use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::{PointQuery, PointProjection};
 use shape::{SupportMap, Cylinder, Cone, Capsule, ConvexHull};
-use point::{PointQuery, PointProjection};
 use math::{Point, Vector};
 
 /// Projects a point on a shape using the GJK algorithm.

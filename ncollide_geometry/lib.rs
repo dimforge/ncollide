@@ -1,4 +1,4 @@
-//! Geometric entities manipulated by ncollide.
+//! Geometric entities manipulated by ncollide and operations on them.
 
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
@@ -19,5 +19,3 @@ pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;
 pub mod query;
-pub mod point;
-pub mod ray;

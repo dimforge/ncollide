@@ -1,7 +1,7 @@
 use na::{Rotate, Transform};
 use shape::SupportMap;
 use shape::Plane;
-use ray::{Ray, RayCast};
+use query::{Ray, RayCast};
 use math::{Point, Vector};
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.

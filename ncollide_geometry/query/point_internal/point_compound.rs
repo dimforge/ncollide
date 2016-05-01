@@ -1,6 +1,5 @@
-use na::{Identity, Translation};
-use na;
-use point::{PointQuery, PointProjection};
+use na::{self, Identity, Translation};
+use query::{PointQuery, PointProjection};
 use bounding_volume::AABB;
 use shape::{Compound, CompositeShape};
 use partitioning::{BVTCostFn, BVTVisitor};

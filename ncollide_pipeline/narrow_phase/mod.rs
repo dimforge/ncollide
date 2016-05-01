@@ -1,4 +1,4 @@
-//! Persistant collision detection algorithms to compute contact points.
+//! Persistent collision detection algorithms to compute contact points.
 
 use na::{Point2, Point3, Isometry2, Isometry3};
 pub use self::narrow_phase::{NarrowPhase, ContactPairs, Contacts, ProximityPairs};

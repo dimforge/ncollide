@@ -1,6 +1,5 @@
-use na::Transform;
-use na;
-use point::{PointQuery, PointProjection};
+use na::{self, Transform};
+use query::{PointQuery, PointProjection};
 use shape::Plane;
 use math::{Point, Vector};
 

@@ -1,5 +1,5 @@
 use na::{Identity, Transform};
-use point::{PointQuery, PointProjection};
+use query::{PointQuery, PointProjection};
 use shape::Ball;
 use bounding_volume::BoundingSphere;
 use math::{Point, Vector};

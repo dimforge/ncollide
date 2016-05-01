@@ -1,7 +1,7 @@
 use na::Translation;
 use math::{Point, Vector, Isometry};
 use shape::Shape;
-use point::{PointQuery, PointProjection};
+use query::{PointQuery, PointProjection};
 
 
 impl<P, M> PointQuery<P, M> for Shape<P, M>

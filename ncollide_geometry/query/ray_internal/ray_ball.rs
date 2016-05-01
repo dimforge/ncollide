@@ -1,7 +1,6 @@
 use num::Float;
-use na::{Point2, Rotate, Translate, BaseFloat};
-use na;
-use ray::{Ray, RayCast, RayIntersection};
+use na::{self, Point2, Rotate, Translate, BaseFloat};
+use query::{Ray, RayCast, RayIntersection};
 use shape::Ball;
 use math::{Point, Vector};
 

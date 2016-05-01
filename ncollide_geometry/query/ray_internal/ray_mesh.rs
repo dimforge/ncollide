@@ -1,8 +1,6 @@
 use std::ops::Index;
-use na::{Point2, Vector3, Identity, Transform, Rotate, Norm};
-use na;
-use ray::{Ray, RayCast, RayIntersection};
-use ray;
+use na::{self, Point2, Vector3, Identity, Transform, Rotate, Norm};
+use query::{ray_internal, Ray, RayCast, RayIntersection};
 use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
@@ -165,7 +163,7 @@ for BaseMeshRayToiAndNormalAndUVsCostFn<'a, P, I, E>
         let b = &vs[idx[1]];
         let c = &vs[idx[2]];
 
-        ray::triangle_ray_intersection(a, b, c, self.ray).map(|inter| (inter.0.toi.clone(), inter))
+        ray_internal::triangle_ray_intersection(a, b, c, self.ray).map(|inter| (inter.0.toi.clone(), inter))
     }
 }
 

@@ -1,6 +1,5 @@
-use na::{Transform, Rotate};
-use na;
-use ray::{Ray, RayCast, RayIntersection};
+use na::{self, Transform, Rotate};
+use query::{Ray, RayCast, RayIntersection};
 use shape::Plane;
 use math::{Point, Vector};
 

@@ -1,7 +1,7 @@
 use na::{self, Transform, Rotate};
 use bounding_volume::AABB;
 use shape::Cuboid;
-use point::{PointQuery, PointProjection};
+use query::{PointQuery, PointProjection};
 use math::{Point, Vector};
 
 impl<P, M> PointQuery<P, M> for Cuboid<P::Vect>

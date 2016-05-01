@@ -28,6 +28,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       been renamed as well (e.g. `.get_collision_algorithm` becomes
       `.get_contact_algorithm`, `.colls` becomes `.contacts`, etc.)
     * Rename `CollisionQueryType` to `GeometricQueryType`.
+    * Moved the `ray` and `point` modules into the `query` module. Also, they
+      are renamed `ray_internal` and `point_internal`.
 ### Removed
     * Removed the `CompositeShape::len()` method.
 

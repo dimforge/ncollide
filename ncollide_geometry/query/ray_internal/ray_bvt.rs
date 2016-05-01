@@ -1,7 +1,7 @@
 use na::Identity;
 use math::{Point, Vector};
 use partitioning::{BVTCostFn, BVTVisitor};
-use ray::{RayCast, Ray, RayIntersection};
+use query::{RayCast, Ray, RayIntersection};
 
 /// A search thet selects the objects that has the smallest time of impact with a given ray.
 pub struct RayIntersectionCostFn<'a, P: 'a + Point> {

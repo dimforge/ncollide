@@ -1,6 +1,6 @@
 use math::{Point, Vector, Isometry};
 use shape::Shape;
-use ray::{RayCast, Ray, RayIntersection};
+use query::{RayCast, Ray, RayIntersection};
 
 impl<P, M> RayCast<P, M> for Shape<P, M>
     where P: Point,

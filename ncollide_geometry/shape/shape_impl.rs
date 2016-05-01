@@ -1,7 +1,6 @@
 use na::{Translation, Translate};
 use bounding_volume::{self, AABB, BoundingSphere};
-use point::PointQuery;
-use ray::RayCast;
+use query::{PointQuery, RayCast};
 use shape::{Shape, Triangle, Segment, Ball, Plane, Cuboid, Cylinder, Cone, ConvexHull, Compound,
             TriMesh, Polyline, CompositeShape, SupportMap};
 use math::{Point, Vector, Isometry};

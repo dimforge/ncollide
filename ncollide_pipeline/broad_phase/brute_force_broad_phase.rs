@@ -1,8 +1,7 @@
 use na::Identity;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::bounding_volume::BoundingVolume;
-use geometry::ray::{Ray, RayCast};
-use geometry::point::PointQuery;
+use geometry::query::{Ray, RayCast, PointQuery};
 use broad_phase::BroadPhase;
 use math::{Point, Vector};
 

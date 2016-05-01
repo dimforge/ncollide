@@ -1,14 +1,11 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
 use num::{Float, Zero};
-use na::{Identity, Translate, Bounded, Norm};
-use na;
-use shape::{AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
-use shape::SupportMap;
+use na::{self, Identity, Translate, Bounded, Norm};
+use shape::{SupportMap, AnnotatedPoint, AnnotatedMinkowskiSum, MinkowskiSum, Reflection};
 use query::algorithms::simplex::Simplex;
 use query::Proximity;
-use ray::Ray;
-use ray;
+use query::{ray_internal, Ray};
 use math::{Point, Vector, FloatError};
 
 
@@ -311,7 +308,7 @@ pub fn cast_ray<P, M, S, G: ?Sized>(m:       &M,
         //          < 0        |  > 0  | New lower bound, move the origin.
         //          > 0        |  < 0  | Miss. No intersection.
         //          > 0        |  > 0  | New higher bound.
-        match ray::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
+        match ray_internal::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
             Some(t) => {
                 if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
                     // new lower bound

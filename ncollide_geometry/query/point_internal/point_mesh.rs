@@ -1,6 +1,5 @@
-use na::{Transform, Identity};
-use na;
-use point::{PointQuery, PointProjection};
+use na::{self, Transform, Identity};
+use query::{PointQuery, PointProjection};
 use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};

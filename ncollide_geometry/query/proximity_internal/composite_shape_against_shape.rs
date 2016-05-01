@@ -3,9 +3,8 @@ use na::{Identity, Translate, Translation};
 use na;
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
-use point::PointQuery;
 use shape::{Shape, CompositeShape};
-use query::Proximity;
+use query::{Proximity, PointQuery};
 use query::proximity_internal;
 use math::{Point, Vector, Isometry};
 

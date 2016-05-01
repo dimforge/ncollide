@@ -1,10 +1,9 @@
-use na::{Identity, Translate, Rotate, Transform};
-use na;
+use na::{self, Identity, Translate, Rotate, Transform};
 use query::algorithms::gjk;
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::{Ray, RayCast, RayIntersection};
 use shape::{SupportMap, MinkowskiSum, Segment, Cylinder, Cone, Capsule, ConvexHull};
-use ray::{Ray, RayCast, RayIntersection};
 use math::{Point, Vector};
 
 

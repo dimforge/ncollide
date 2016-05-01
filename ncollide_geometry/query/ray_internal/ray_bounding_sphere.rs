@@ -1,5 +1,5 @@
 use na::{Identity, Transform, Rotate, Translate};
-use ray::{Ray, RayCast, RayIntersection};
+use query::{Ray, RayCast, RayIntersection};
 use shape::Ball;
 use bounding_volume::BoundingSphere;
 use math::{Point, Vector};

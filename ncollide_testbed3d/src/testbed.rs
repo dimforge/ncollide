@@ -10,7 +10,7 @@ use kiss3d::window::Window;
 use kiss3d::light::Light;
 use kiss3d::text::Font;
 use kiss3d::loader::obj;
-use ncollide::ray::{self, Ray};
+use ncollide::query::{ray_internal, Ray};
 use ncollide::world::{CollisionWorld3, CollisionGroups};
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
 
@@ -273,7 +273,7 @@ impl Testbed {
 
                         let (ref ppos, ref pdir) = self.grabbed_object_plane;
 
-                        match ray::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir)) {
+                        match ray_internal::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir)) {
                             Some(inter) => {
                                 let new_pos = Isometry3::new((pos + dir * inter).to_vector(), na::zero());
                                 world.deferred_set_position(uid, new_pos);

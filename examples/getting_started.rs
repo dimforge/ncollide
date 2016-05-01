@@ -3,7 +3,7 @@ extern crate ncollide;
 
 use na::{Identity, Point3, Vector3};
 use ncollide::shape::Cuboid;
-use ncollide::ray::{Ray, RayCast};
+use ncollide::query::{Ray, RayCast};
 
 fn main() {
     let cube = Cuboid::new(Vector3::new(1.0f32, 1.0, 1.0));

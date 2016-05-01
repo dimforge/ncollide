@@ -1,6 +1,6 @@
 use na::Identity;
 use partitioning::BVTVisitor;
-use point::PointQuery;
+use query::PointQuery;
 use math::Point;
 
 // FIXME: add a point cost fn.

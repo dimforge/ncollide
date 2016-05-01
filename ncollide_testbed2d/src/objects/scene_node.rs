@@ -60,7 +60,7 @@ pub fn update_scene_node<'a, N: Scalar, T, SN>(node:   &mut SN,
         GeometricQueryType::Proximity(_) => {
             // FIXME: what is the impact on performance of doing those at each update ?
             node.set_fill_color(&Color::new_rgba(0, 0, 0, 0));
-            node.set_outline_thickness(2.0);
+            node.set_outline_thickness(4.0);
             node.set_outline_color(&Color::new_rgb(color.x, color.y, color.z));
         },
         GeometricQueryType::Contacts(_) => {

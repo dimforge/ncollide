@@ -1,15 +1,13 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use na::{Translation, Identity};
-use na;
+use na::{self, Translation, Identity};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::hash_map::HashMap;
 use math::{Point, Vector};
 use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use geometry::partitioning::{DBVT, DBVTLeaf};
-use geometry::ray::{Ray, RayCast, RayInterferencesCollector};
-use geometry::point::{PointQuery, PointInterferencesCollector};
+use geometry::query::{Ray, RayCast, RayInterferencesCollector, PointQuery, PointInterferencesCollector};
 use broad_phase::BroadPhase;
 
 struct DBVTBroadPhaseProxy<P, BV, T> {

@@ -2,7 +2,7 @@ use na::Identity;
 use bounding_volume::AABB;
 use shape::Compound;
 use partitioning::BVTCostFn;
-use ray::{Ray, RayCast, RayIntersection};
+use query::{Ray, RayCast, RayIntersection};
 use math::{Point, Vector, Isometry};
 
 

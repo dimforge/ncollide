@@ -1,11 +1,11 @@
 //! Ray-casting related definitions and implementations.
 #[doc(inline)]
-pub use ray::ray::{Ray, RayCast, RayIntersection};
-pub use ray::ray_plane::plane_toi_with_ray;
-pub use ray::ray_triangle::triangle_ray_intersection;
-pub use ray::ray_support_map::implicit_toi_and_normal_with_ray;
-pub use ray::ray_ball::ball_toi_with_ray;
-pub use ray::ray_bvt::{RayIntersectionCostFn, RayInterferencesCollector};
+pub use self::ray::{Ray, RayCast, RayIntersection};
+pub use self::ray_plane::plane_toi_with_ray;
+pub use self::ray_triangle::triangle_ray_intersection;
+pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
+pub use self::ray_ball::ball_toi_with_ray;
+pub use self::ray_bvt::{RayIntersectionCostFn, RayInterferencesCollector};
 
 use na::{Point2, Vector2, Point3, Vector3};
 

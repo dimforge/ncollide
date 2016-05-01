@@ -10,7 +10,7 @@ use geometry::shape::SupportMap;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::partitioning::{BVT, BoundingVolumeInterferencesCollector};
 use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
-use geometry::ray::{self, Ray, RayCast, RayIntersection};
+use geometry::query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{TriMesh, IndexBuffer};
 
 /// Approximate convex decomposition of a triangle mesh.
@@ -755,7 +755,7 @@ impl<'a, N: Scalar> SupportMap<Point3<N>, Identity> for ConvexPair<'a, N> {
 impl<'a, N: Scalar> RayCast<Point3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
     fn toi_and_normal_with_ray(&self, id: &Identity, ray: &Ray<Point3<N>>, solid: bool) -> Option<RayIntersection<Vector3<N>>> {
-        ray::implicit_toi_and_normal_with_ray(
+        ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,
             &mut JohnsonSimplex::<Point3<N>>::new_w_tls(),

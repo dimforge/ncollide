@@ -8,8 +8,7 @@ use math::Point;
 use shape::{CompositeShape, SupportMap};
 // Queries.
 use bounding_volume::{AABB, BoundingSphere};
-use ray::RayCast;
-use point::PointQuery;
+use query::{RayCast, PointQuery};
 
 /// Trait implemented by all shapes supported by ncollide.
 ///

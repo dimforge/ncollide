@@ -1,7 +1,6 @@
-use na::Transform;
-use na;
+use na::{self, Transform};
 use shape::Triangle;
-use point::{PointQuery, PointProjection};
+use query::{PointQuery, PointProjection};
 use math::{Point, Vector};
 
 #[inline]

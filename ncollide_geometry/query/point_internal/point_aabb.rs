@@ -1,7 +1,6 @@
 use num::Zero;
-use na::{Transform, Rotate, Bounded};
-use na;
-use point::{PointQuery, PointProjection};
+use na::{self, Transform, Rotate, Bounded};
+use query::{PointQuery, PointProjection};
 use bounding_volume::AABB;
 use math::{Point, Vector};
 

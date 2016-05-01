@@ -116,7 +116,7 @@ fn main() {
     let plane_top    = ShapeHandle2::new(Plane::new(-Vector2::y()));
 
     // Shared cuboid for the rectangular areas.
-    let rect = ShapeHandle2::new(Cuboid::new(Vector2::new(4.9f32, 4.9)));
+    let rect = ShapeHandle2::new(Cuboid::new(Vector2::new(4.8f32, 4.8)));
 
     // Ball shape.
     let ball = ShapeHandle2::new(Ball::new(0.5f32));
@@ -132,8 +132,8 @@ fn main() {
     // Position of the rectangles.
     let rects_pos = [
         Isometry2::new(Vector2::new(-5.0, 5.0),  na::zero()),
-        Isometry2::new(Vector2::new(5.0, 5.0),   na::zero()),
         Isometry2::new(Vector2::new(5.0, -5.0),  na::zero()),
+        Isometry2::new(Vector2::new(5.0, 5.0),   na::zero()),
         Isometry2::new(Vector2::new(-5.0, -5.0), na::zero())
     ];
 
@@ -191,11 +191,12 @@ fn main() {
     let timestep = 0.016;
 
     let mut testbed = Testbed::new();
-    testbed.set_color(4, Point3::new(0.5, 0.0, 0.5));
-    testbed.set_color(5, Point3::new(0.0, 0.0, 1.0));
-    testbed.set_color(6, Point3::new(0.0, 1.0, 0.0));
-    testbed.set_color(7, Point3::new(1.0, 1.0, 0.0));
-    testbed.set_color(8, Point3::new(1.0, 1.0, 1.0));
+    testbed.set_color(4, Point3::new(0.7, 0.0, 0.7));
+    testbed.set_color(5, Point3::new(0.0, 0.0, 0.9));
+    testbed.set_color(6, Point3::new(0.0, 0.8, 0.0));
+    testbed.set_color(7, Point3::new(0.8, 0.8, 0.0));
+    testbed.set_color(8, Point3::new(0.0, 0.0, 0.0));
+    testbed.set_background_color(Point3::new(1.0, 1.0, 1.0));
 
     // let mut i = 0;
     // testbed.start_recording("bouncing_ball.mpg");
@@ -216,7 +217,7 @@ fn main() {
         world.deferred_set_position(8, ball_pos);
 
         // i += 1;
-        // if i == 96 * 5 {
+        // if i == 480 {
         //     testbed.stop_recording()
         // }
     }

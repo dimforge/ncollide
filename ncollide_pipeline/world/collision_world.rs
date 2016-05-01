@@ -7,8 +7,7 @@ use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::vec_map::Values;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
-use geometry::ray::{RayCast, Ray, RayIntersection};
-use geometry::point::PointQuery;
+use geometry::query::{RayCast, Ray, RayIntersection, PointQuery};
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher,
                    ContactHandler, ContactPairs, Contacts, ContactSignal, ProximityHandler,
                    ProximitySignal, ProximityPairs};
