@@ -567,6 +567,70 @@ assert!(!b.can_interact_with_groups(&c));
 assert!(a.can_interact_with_groups(&c));
 ```
 
+### Custom collision filters
+If collision groups are not flexible enough for your specific needs, you may
+register arbitrary filters with the collision world's
+`.register_broad_phase_pair_filter(name, filter)` method. A filter may be
+removed using his name with `.unregister_broad_phase_pair_filter(name)`.
+Custom filters are called only if the collision groups do not reject the
+interaction. If multiple filters are registered, they are applied successively
+until one returns `false`. The interaction is allowed for the tested pair iff.
+they all return `true`. A collision filter must implement the
+`broad_phase::BroadPhasePairFilter` trait:
+
+| Method                     | Description |
+|--                          | --          |
+| `.is_pair_valid(co1, co2)` | Returns `true` if the two collision objects are allowed to interact. |
+
+The same _constancy_ rule as for the [broad phase](#broad-phase) `.update(...)`
+filter argument applies here. If you which to modify you filter's semantic, it
+has to be removed and re-added. 
+
+The following examples add to the collision world a very arbitrary rule that
+filters interactions in a way that would be impossible using collision groups.
+We will allow interactions between collision objects with identifiers sharing
+the same parity only.
+
+#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter2d.rs')"></div>
+
+```rust
+struct ParityFilter;
+
+impl BroadPhasePairFilter<Point2<f32>, Isometry2<f32>, ()> for ParityFilter {
+    fn is_pair_valid(&self,
+                     b1: &CollisionObject2<f32, ()>,
+                     b2: &CollisionObject2<f32, ()>)
+                     -> bool {
+        b1.uid % 2 == b2.uid % 2
+    }
+}
+```
+
+Then, this filter should be added to the collision world with:
+```rust
+world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
+```
+
+#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter3d.rs')"></div>
+
+```rust
+struct ParityFilter;
+
+impl BroadPhasePairFilter<Point3<f32>, Isometry3<f32>, ()> for ParityFilter {
+    fn is_pair_valid(&self,
+                     b1: &CollisionObject3<f32, ()>,
+                     b2: &CollisionObject3<f32, ()>)
+                     -> bool {
+        b1.uid % 2 == b2.uid % 2
+    }
+}
+```
+
+Then, this filter should be added to the collision world with:
+```rust
+world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
+```
+
 ### Query type
 The query type stored in the `.query_type` field of collision objects indicates
 which kind of geometric query should be executed by the narrow phase on it.
@@ -583,9 +647,9 @@ queries for, e.g., minimal distance computation, may be allowed in the future:
    `margin` will be considered disjoint.
 
 If the two shapes request different query types, only the simplest is
-performed. For example, one shape having a `::Contact(prediction1)` query type
+performed. For example, one shape having a `::Contacts(prediction1)` query type
 interacting with a shape with a `::Proximity(margin2)` query type will result
-in a proximity query. In other words, the first `::Contact(...)` query type is
+in a proximity query. In other words, the first `::Contacts(...)` query type is
 implicitly reinterpreted as `::Proximity(...)`.
 
 ## World-scale geometric queries
@@ -611,6 +675,268 @@ phase can be retrieved as well through the collision world:
 | `.proximity_pairs()`  | Gets an iterator through the proximity pairs created by the narrow phase. |
 | `.contacts()`         | Gets an iterator through the contacts computed by the narrow phase.       |
 
-## Custom filters and callbacks
+## Event handling
 
-## Example
+## Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball.rs')"></div>
+
+The following example simulates the trajectory of a 2D ball trapped into a
+square-shaped room. The room itself is split into four areas of different
+colours. When the ball hits a wall, it bounce against it following a simple
+reflection along the contact normal. The coloured areas act as sensors: a
+message is printed when the ball enters and leaves each of them. Bouncing will
+be reported by contact events while entering and leaving coloured areas will be
+reported by proximity events. The proposed implementation may not be the most
+efficient one but has the benefit to illustrate several features of the
+collision detection pipeline.
+
+<center>
+![bouncing balls](../img/bouncing_ball.gif)
+</center>
+
+We first define a `CollisionObjectData` structure that will be attached to our
+collision objets. When a proximity or contact event occurs, we need to be able
+to:
+
+1. Identify each wall. We give each area a name as a string. This name will be
+   directly used by the message printer as the ball enters or leaves the area.
+   (Note that instead of a string we could have simply used the collision
+   object `.uid` field to identify the wall.)
+2. Be able to modify the ball velocity. Because **ncollide** provides immutable
+   references to proximity objects involved in a proximity event, we have to
+   use a `Cell` to benefit from interior mutability. The ball is the only one
+   to have a velocity different than `None`.
+
+```rust
+#[derive(Clone)]
+struct CollisionObjectData {
+    pub name:     &'static str,
+    pub velocity: Option<Cell<Vector2<f32>>>
+}
+
+impl CollisionObjectData {
+    pub fn new(name: &'static str, velocity: Option<Vector2<f32>>) -> CollisionObjectData {
+        let init_velocity;
+        if let Some(velocity) = velocity {
+            init_velocity = Some(Cell::new(velocity))
+        }
+        else {
+            init_velocity = None
+        }
+
+        CollisionObjectData {
+            name:     name,
+            velocity: init_velocity
+        }
+    }
+}
+```
+
+Our proximity handler `ProximityMessage` must implement the `ProximityHandler`
+trait. When a proximity event occurs, we first find the area's name by taking
+the one from the collision object without velocity. Then the new proximity
+status is tested to display the corresponding message. The
+`Proximity::WithinMargin` case will never occur because our collision objects
+will be initialized with a zero proximity margin.
+
+```rust
+struct ProximityMessage;
+
+impl ProximityHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for ProximityMessage {
+    fn handle_proximity(&mut self,
+                        co1: &CollisionObject2<f32, CollisionObjectData>,
+                        co2: &CollisionObject2<f32, CollisionObjectData>,
+                        _:             Proximity,
+                        new_proximity: Proximity) {
+        // The collision object with a None velocity is the coloured area.
+        let area_name;
+
+        if co1.data.velocity.is_none() {
+            area_name = co1.data.name;
+        }
+        else {
+            area_name = co2.data.name;
+        }
+
+        if new_proximity == Proximity::Intersecting {
+            println!("The ball enters the {} area.", area_name);
+        }
+        else if new_proximity == Proximity::Disjoint {
+            println!("The ball leaves the {} area.", area_name);
+        }
+    }
+}
+```
+
+Our contact handler `VelocityBouncer` must implement the `ContactHandler`
+trait. We first collect the contacts with the wall. Because the contact starts,
+we already have the guarantee that at least one contact is available. Then, the
+velocity of the ball can be modified by flipping its component along the first
+contact normal.
+
+```rust
+struct VelocityBouncer;
+
+impl ContactHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for VelocityBouncer {
+    fn handle_contact_started(&mut self,
+                              co1: &CollisionObject2<f32, CollisionObjectData>,
+                              co2: &CollisionObject2<f32, CollisionObjectData>,
+                              alg: &ContactAlgorithm2<f32>) {
+        // NOTE: real-life applications would avoid this systematic allocation.
+        let mut collector = Vec::new();
+        alg.contacts(&mut collector);
+
+        // The ball is the one with a non-None velocity.
+        if let Some(ref vel) = co1.data.velocity {
+            let normal = collector[0].normal;
+            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
+        }
+        if let Some(ref vel) = co2.data.velocity {
+            let normal = -collector[0].normal;
+            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
+        }
+    }
+
+    fn handle_contact_stopped(&mut self,
+                              _: &CollisionObject2<f32, CollisionObjectData>,
+                              _: &CollisionObject2<f32, CollisionObjectData>) {
+        // We don't care.
+    }
+}
+```
+
+Finally, we have to setup the collision world:
+
+1. Initialize the shapes. All the coloured areas can share the same cuboid.
+2. Initialize the collision groups. We do not want any proximity event to be
+   reported between two coloured areas or between a wall and coloured area.  We
+   do not want to detect contacts between two planes either. This filtering is
+   easily done using [collision groups](#collision-groups). The ball is
+   member of a group different from all the other objects. Then, the other
+   objects whitelist the ball only so that they will not interact with each
+   other.
+3. Add our event handlers and collision objects to the world.
+
+The final loop simply retrieve the ball's velocity and computes/sets its next
+position.
+
+```rust
+/*
+ * Setup initial object properties.
+ */
+// Plane shapes.
+let plane_left   = ShapeHandle2::new(Plane::new(Vector2::x()));
+let plane_bottom = ShapeHandle2::new(Plane::new(Vector2::y()));
+let plane_right  = ShapeHandle2::new(Plane::new(-Vector2::x()));
+let plane_top    = ShapeHandle2::new(Plane::new(-Vector2::y()));
+
+// Shared cuboid for the rectangular areas.
+let rect = ShapeHandle2::new(Cuboid::new(Vector2::new(4.9f32, 4.9)));
+
+// Ball shape.
+let ball = ShapeHandle2::new(Ball::new(0.5f32));
+
+// Positions of the planes.
+let planes_pos = [
+    Isometry2::new(Vector2::new(-10.0, 0.0), na::zero()),
+    Isometry2::new(Vector2::new(0.0, -10.0), na::zero()),
+    Isometry2::new(Vector2::new(10.0, 0.0),  na::zero()),
+    Isometry2::new(Vector2::new(0.0,  10.0), na::zero())
+];
+
+// Position of the rectangles.
+let rects_pos = [
+    Isometry2::new(Vector2::new(-5.0, 5.0),  na::zero()),
+    Isometry2::new(Vector2::new(5.0, 5.0),   na::zero()),
+    Isometry2::new(Vector2::new(5.0, -5.0),  na::zero()),
+    Isometry2::new(Vector2::new(-5.0, -5.0), na::zero())
+];
+
+// Position of the ball.
+let ball_pos = Isometry2::new(Vector2::new(5.0, 5.0), na::zero());
+
+// The ball is part of group 1 and can interact with everything.
+let mut ball_groups = CollisionGroups::new();
+ball_groups.set_membership(&[1]);
+
+// All the other objects are part of the group 2 and interact only with the ball (but not with
+// each other).
+let mut others_groups = CollisionGroups::new();
+others_groups.set_membership(&[2]);
+others_groups.set_whitelist(&[1]);
+
+let plane_data       = CollisionObjectData::new("ground", None);
+let rect_data_purple = CollisionObjectData::new("purple", None);
+let rect_data_blue   = CollisionObjectData::new("blue", None);
+let rect_data_green  = CollisionObjectData::new("green", None);
+let rect_data_yellow = CollisionObjectData::new("yellow", None);
+let ball_data        = CollisionObjectData::new("ball", Some(Vector2::new(10.0, 5.0)));
+
+/*
+ * Setup the world.
+ */
+// Collision world 0.02 optimization margin and small object identifiers.
+let mut world = CollisionWorld::new(0.02, true);
+
+// Add the planes to the world.
+let contacts_query  = GeometricQueryType::Contacts(0.0);
+let proximity_query = GeometricQueryType::Proximity(0.0);
+
+world.add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
+world.add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
+world.add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
+world.add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
+
+// Add the colored rectangles to the world.
+world.add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
+world.add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
+world.add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
+world.add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
+
+// Add the ball to the world.
+world.add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
+
+// Register our handlers.
+world.register_proximity_handler("ProximityMessage", ProximityMessage);
+world.register_contact_handler("VelocityBouncer", VelocityBouncer);
+
+/*
+ * Run indefinitely.
+ */
+let timestep = 0.016;
+
+loop {
+    let ball_pos;
+
+    {
+        // Integrate the velocities.
+        let ball_object   = world.collision_object(8).unwrap();
+        let ball_velocity = ball_object.data.velocity.as_ref().unwrap();
+
+        // Integrate the positions.
+        ball_pos = ball_object.position.append_translation(&(timestep * ball_velocity.get()));
+    }
+
+    // Submit the position update to the world.
+    world.deferred_set_position(8, ball_pos);
+    world.update();
+}
+```
+
+The following should be printed on the console:
+
+```markdown
+The ball enters the blue area.
+The ball enters the purple area.
+The ball leaves the blue area.
+The ball enters the yellow area.
+The ball leaves the purple area.
+The ball enters the green area.
+The ball leaves the yellow area.
+The ball enters the yellow area.
+The ball leaves the green area.
+The ball enters the purple area.
+The ball leaves the yellow area.
+The ball enters the blue area.
+The ball leaves the purple area.
+...
+```
