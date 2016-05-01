@@ -1,10 +1,12 @@
 extern crate rand;
 extern crate time;
 extern crate glfw;
-extern crate mpeg_encoder;
 extern crate kiss3d;
 extern crate nalgebra as na;
 extern crate ncollide;
+
+#[cfg(feature = "recording")]
+extern crate mpeg_encoder;
 
 
 pub use testbed::Testbed;

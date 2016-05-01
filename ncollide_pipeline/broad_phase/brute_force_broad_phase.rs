@@ -16,6 +16,18 @@ pub struct BruteForceBroadPhase<BV, T> {
     to_update: Vec<(FastKey, BV)>
 }
 
+impl<BV, T> BruteForceBroadPhase<BV, T> {
+    /// Creates a new brute-force broad phase.
+    pub fn new() -> BruteForceBroadPhase<BV, T> {
+        BruteForceBroadPhase {
+            proxies:   UidRemap::new(false),
+            to_remove: Vec::new(),
+            to_add:    Vec::new(),
+            to_update: Vec::new()
+        }
+    }
+}
+
 impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<BV, T> where
     BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> +
         RayCast<P, Identity> + PointQuery<P, Identity> + Clone {

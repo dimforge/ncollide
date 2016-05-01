@@ -1,44 +1,27 @@
-sudo: required
-dist: trusty
-
+sudo: false
 language: rust
 rust:
     - stable
     - beta
     - nightly
 matrix:
-    allow_failures:
-        - rust: nightly
+  allow_failures:
+    - rust: nightly
 addons:
   apt:
+    sources:
+      - kalakris-cmake
     packages:
       - cmake
       - libxxf86vm-dev
       - libglew-dev
       - libopenal-dev
       - libsndfile1-dev
-      - build-essential
 cache:
   cargo: true
   apt: true
   directories:
-      - $HOME/local
-before_install:
-  - sudo apt-get update -q
-  # From https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
-  - sudo apt-get -y --force-yes install autoconf automake build-essential libass-dev libfreetype6-dev libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev
-  - sudo apt-get install yasm
-  - pushd ~
-  - git clone https://github.com/FFmpeg/FFmpeg.git
-  - cd FFmpeg
-  - git checkout release/3.0
-  - mkdir ~/FFmpeg-build
-  - cd ~/FFmpeg-build
-  - ../FFmpeg/configure --disable-ffprobe --disable-ffserver --disable-doc --enable-avresample
-  - make -j
-  - sudo make install
-  - make distclean
-  - popd
+  - $HOME/local
 install:
   - export PATH="$PATH:$HOME/local/bin"
   - export LIBRARY_PATH="$LIBRARY_PATH:$HOME/local/lib"

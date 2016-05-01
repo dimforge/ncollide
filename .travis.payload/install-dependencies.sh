@@ -32,16 +32,3 @@ if [ ! -d "$HOME/local/lib" ]; then
 else
   echo 'Using cached directory.';
 fi
-
-# From https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
-pushd ~
-git clone https://github.com/FFmpeg/FFmpeg.git
-cd FFmpeg
-git checkout release/3.0
-mkdir ~/FFmpeg-build
-cd ~/FFmpeg-build
-../FFmpeg/configure --disable-ffprobe --disable-ffserver --disable-doc --enable-avresample
-make -j
-make install
-make distclean
-popd

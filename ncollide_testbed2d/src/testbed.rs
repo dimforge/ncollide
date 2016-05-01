@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::path::Path;
 use sfml::graphics::{RenderWindow, RenderTarget};
 use sfml::window::{ContextSettings, VideoMode};
 use sfml::window::window_style;
@@ -12,11 +11,15 @@ use na::{self, Point2, Point3, Translation, Transform};
 use ncollide::world::{CollisionWorld2, CollisionGroups};
 use ncollide::shape::Plane2;
 use ncollide::math::Scalar;
-use mpeg_encoder::Encoder;
 use camera::Camera;
 // use fps::Fps;
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
 use draw_helper;
+
+#[cfg(feature = "recording")]
+use mpeg_encoder::Encoder;
+#[cfg(feature = "recording")]
+use std::path::Path;
 
 #[derive(PartialEq, Eq, Debug)]
 enum RunMode {
@@ -29,14 +32,18 @@ pub struct Testbed<N: Scalar> {
     window:   RenderWindow,
     graphics: GraphicsManagerHandle<N>,
     running:  RunMode,
-    recorder: Option<Encoder>,
 
     draw_colls:     bool,
     camera:         Camera,
     // font:           Font,
     // fps:            Fps<'static>,
     grabbed_object: Option<usize>,
-    grab_anchor:    Point2<N>
+    grab_anchor:    Point2<N>,
+
+    #[cfg(feature = "recording")]
+    recorder: Option<Encoder>,
+    #[cfg(not(feature = "recording"))]
+    recorder: Option<()>
 }
 
 impl<N: Scalar> Testbed<N> {
@@ -89,6 +96,7 @@ impl<N: Scalar> Testbed<N> {
         capture.save_to_file(path);
     }
 
+    #[cfg(feature = "recording")]
     pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
         let sz = self.window.get_size();
 
@@ -138,12 +146,23 @@ impl<N: Scalar> Testbed<N> {
 
         self.window.display();
 
+        self.record_frame_if_enabled();
+
+    }
+
+    #[cfg(feature = "recording")]
+    fn record_frame_if_enabled(&mut self) {
         if let Some(ref mut recorder) = self.recorder {
             let sz      = self.window.get_size();
             let capture = self.window.capture().unwrap();
             let memory  = capture.get_memory();
             recorder.encode_rgba(sz.x as usize, sz.y as usize, memory, false);
         }
+    }
+
+    #[cfg(not(feature = "recording"))]
+    fn record_frame_if_enabled(&self) {
+        // Do nothing.
     }
 
     fn process_events<T>(&mut self, world: &mut CollisionWorld2<N, T>) {

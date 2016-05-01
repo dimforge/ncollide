@@ -12,8 +12,10 @@ use kiss3d::text::Font;
 use kiss3d::loader::obj;
 use ncollide::ray::{self, Ray};
 use ncollide::world::{CollisionWorld3, CollisionGroups};
-use mpeg_encoder::Encoder;
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
+
+#[cfg(feature = "recording")]
+use mpeg_encoder::Encoder;
 
 
 #[derive(PartialEq, Eq, Debug)]
@@ -28,13 +30,17 @@ pub struct Testbed {
     window:               Window,
     graphics:             GraphicsManagerHandle,
     running:              RunMode,
-    recorder:             Option<Encoder>,
     font:                 Rc<Font>,
     grabbed_object:       Option<usize>,
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
     cursor_pos:           Point2<f32>,
     draw_colls:           bool,
-    update_time:          f64
+    update_time:          f64,
+
+    #[cfg(feature = "recording")]
+    recorder: Option<Encoder>,
+    #[cfg(not(feature = "recording"))]
+    recorder: Option<()>,
 }
 
 impl Testbed {
@@ -104,6 +110,7 @@ impl Testbed {
         self.graphics.borrow_mut().set_visible(uid, visible);
     }
 
+    #[cfg(feature = "recording")]
     pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
         let sz = self.window.size();
 
@@ -156,12 +163,8 @@ impl Testbed {
         let time_str = format!("Update time: {:.*}sec.", 4, self.update_time);
         self.window.draw_text(&time_str[..], &na::origin(), &self.font, &color);
         if self.window.render_with_camera(self.graphics.borrow_mut().camera_mut()) {
-            if let Some(ref mut recorder) = self.recorder {
-                let mut memory = Vec::new();
-                let sz = self.window.size();
-                self.window.snap(&mut memory);
-                recorder.encode_rgba(sz.x as usize, sz.y as usize, &memory[..], false);
-            }
+
+            self.record_frame_if_enabled();
 
             true
         }
@@ -169,6 +172,22 @@ impl Testbed {
             false
         }
     }
+
+    #[cfg(feature = "recording")]
+    fn record_frame_if_enabled(&mut self) {
+        if let Some(ref mut recorder) = self.recorder {
+            let mut memory = Vec::new();
+            let sz = self.window.size();
+            self.window.snap(&mut memory);
+            recorder.encode_rgba(sz.x as usize, sz.y as usize, &memory[..], false);
+        }
+    }
+
+    #[cfg(not(feature = "recording"))]
+    fn record_frame_if_enabled(&self) {
+        // Do nothing.
+    }
+
 
     fn process_events<T>(&mut self, world: &mut CollisionWorld3<f32, T>) {
         for mut event in self.window.events().iter() {
