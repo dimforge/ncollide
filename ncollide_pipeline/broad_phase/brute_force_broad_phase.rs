@@ -9,18 +9,20 @@ use math::{Point, Vector};
 /// A broad phase testing explicitly all bounding volume pairs.
 ///
 /// Use this for debugging purposes only.
-pub struct BruteForceBroadPhase<BV, T> {
+pub struct BruteForceBroadPhase<N, BV, T> {
     proxies:   UidRemap<(BV, T)>,
+    margin:    N, // The margin added to each bounding volume.
     to_remove: Vec<usize>,
     to_add:    Vec<(usize, BV, T)>,
     to_update: Vec<(FastKey, BV)>
 }
 
-impl<BV, T> BruteForceBroadPhase<BV, T> {
+impl<N, BV, T> BruteForceBroadPhase<N, BV, T> {
     /// Creates a new brute-force broad phase.
-    pub fn new() -> BruteForceBroadPhase<BV, T> {
+    pub fn new(margin: N, small_keys: bool) -> BruteForceBroadPhase<N, BV, T> {
         BruteForceBroadPhase {
-            proxies:   UidRemap::new(false),
+            proxies:   UidRemap::new(small_keys),
+            margin:    margin,
             to_remove: Vec::new(),
             to_add:    Vec::new(),
             to_update: Vec::new()
@@ -28,7 +30,7 @@ impl<BV, T> BruteForceBroadPhase<BV, T> {
     }
 }
 
-impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<BV, T> where
+impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<<P::Vect as Vector>::Scalar, BV, T> where
     BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> +
         RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
@@ -46,7 +48,9 @@ impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<BV, T> where
 
     fn deferred_set_bounding_volume(&mut self, uid: usize, bv: BV) {
         if let Some(key) = self.proxies.get_fast_key(uid) {
-            self.to_update.push((key, bv));
+            if !self.proxies[key].0.contains(&bv) {
+                self.to_update.push((key, bv.loosened(self.margin)));
+            }
         }
     }
 
@@ -58,8 +62,9 @@ impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<BV, T> where
 
     fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, proximity_handler: &mut FnMut(&T, &T, bool)) {
         for (uid, bv, data) in self.to_add.drain(..) {
-            let key = self.proxies.insert(uid, (bv.clone(), data));
-            self.to_update.push((key.0, bv))
+            let lbv = bv.loosened(self.margin.clone());
+            let key = self.proxies.insert(uid, (lbv.clone(), data));
+            self.to_update.push((key.0, lbv))
         }
 
         for rm in self.to_remove.drain(..) {
