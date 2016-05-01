@@ -676,10 +676,63 @@ phase can be retrieved as well through the collision world:
 | `.contacts()`         | Gets an iterator through the contacts computed by the narrow phase.       |
 
 ## Event handling
+It is often useful to react when two objects start/stop being in contact or
+when their proximity status change. For example, when two object start
+colliding we might want to play a sound, display a message, apply some IA
+logic, etc. Those status changes can be detected by the user by registering an
+_event handler_ on the collision world. If several handlers are added to the
+world, they will all be executed successively by the narrow phase when the
+relevant event occurs. The [next section](#example_1) provides a detailed
+example of event handling.
 
-## Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball.rs')"></div>
+### Proximity event
+Proximity events are triggered when two collision objects subject to proximity
+queries transition between two different proximity statuses. A proximity event
+handler is a structure that implements the `world::ProximityHandler` trait:
 
-The following example simulates the trajectory of a 2D ball trapped into a
+| Method                | Description |
+|--                     | --          |
+| `.handle_proximity(co1, co2, prev, new)` | Called when `co1` and `co2` transition between the `prev` proximity status and the `new` proximity status. |
+
+Only transitions are reported, so `prev != new` is guaranteed. On the other
+hand, keep in mind that collision objects are not required to have smooth
+motions. Thus, the transition from, e.g., `Proximity::Intersecting` to
+`Proximity::Disjoint` is possible even if a smooth motion would have
+necessarily triggered transitions from `::Intersecting` to `::WithinMargin` and
+then from `::WithMargin` to `::Disjoint` instead. Proximity event handlers are
+added and removed to the collision world by the methods:
+
+* `.register_proximity_handler(name, handler)`: adds a proximity event handler
+  identified by `name`. If `name` has already been added, the existing handler
+  is replaced by `handler`.
+* `.unregister_proximity_handler(name)`: removes the handler identified by
+  `name`. Does nothing if it is not found.
+
+### Contact event
+Contact events are triggered when two collision objects subject to contact
+queries transition between having zero contact point and at least one.
+Transitioning between one to more than one contact point is not reported. A
+contact event handler is a structure that implements the
+`world::ContactHandler` trait:
+
+| Method                | Description |
+|--                     | --          |
+| `.handle_contact_started(co1, co2, generator)` | Called when `co1` and `co2` start being in contact. |
+| `.handle_contact_stopped(co1, co2)` | Called when `co1` and `co2` stop being in contact. |
+
+In case of starting contacts, `generator` may be used to retrieve the contact
+informations. It is guaranteed to generate at least one contact.
+
+* `.register_contact_handler(name, handler)`: adds a contact event handler
+  identified by `name`. If `name` has already been added, the existing handler
+  is replaced by `handler`.
+* `.unregister_contact_handler(name)`: removes the handler identified by
+  `name`. Does nothing if it is not found.
+
+
+## Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball2d.rs')"></div>
+
+This detailed example simulates the trajectory of a 2D ball trapped into a
 square-shaped room. The room itself is split into four areas of different
 colours. When the ball hits a wall, it bounce against it following a simple
 reflection along the contact normal. The coloured areas act as sensors: a
@@ -687,7 +740,8 @@ message is printed when the ball enters and leaves each of them. Bouncing will
 be reported by contact events while entering and leaving coloured areas will be
 reported by proximity events. The proposed implementation may not be the most
 efficient one but has the benefit to illustrate several features of the
-collision detection pipeline.
+collision detection pipeline. A 3D version of this example is almost identical
+and may be downloaded using the button above.
 
 <center>
 ![bouncing balls](../img/bouncing_ball.gif)
