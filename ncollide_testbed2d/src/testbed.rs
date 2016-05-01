@@ -12,10 +12,10 @@ use na::{self, Point2, Point3, Translation, Transform};
 use ncollide::world::{CollisionWorld2, CollisionGroups};
 use ncollide::shape::Plane2;
 use ncollide::math::Scalar;
+use mpeg_encoder::Encoder;
 use camera::Camera;
 // use fps::Fps;
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
-use mpeg_encoder::Encoder;
 use draw_helper;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -84,6 +84,21 @@ impl<N: Scalar> Testbed<N> {
         self.window.is_open()
     }
 
+    pub fn take_snapshot(&mut self, path: &str) {
+        let capture = self.window.capture().unwrap();
+        capture.save_to_file(path);
+    }
+
+    pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
+        let sz = self.window.get_size();
+
+        self.recorder = Some(Encoder::new(path, sz.x as usize, sz.y as usize));
+    }
+
+    pub fn stop_recording(&mut self) {
+        self.recorder = None;
+    }
+
     pub fn step<T>(&mut self, world: &mut CollisionWorld2<N, T>) -> bool {
         self.graphics.borrow_mut().update(world);
 
@@ -129,21 +144,6 @@ impl<N: Scalar> Testbed<N> {
             let memory  = capture.get_memory();
             recorder.encode_rgba(sz.x as usize, sz.y as usize, memory, false);
         }
-    }
-
-    pub fn take_snapshot(&mut self, path: &str) {
-        let capture = self.window.capture().unwrap();
-        capture.save_to_file(path);
-    }
-
-    pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
-        let sz = self.window.get_size();
-
-        self.recorder = Some(Encoder::new(path, sz.x as usize, sz.y as usize));
-    }
-
-    pub fn stop_recording(&mut self) {
-        self.recorder = None;
     }
 
     fn process_events<T>(&mut self, world: &mut CollisionWorld2<N, T>) {

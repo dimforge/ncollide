@@ -22,7 +22,9 @@ pub type GraphicsManagerHandle = Rc<RefCell<GraphicsManager>>;
 
 pub struct GraphicsManager {
     rand:             XorShiftRng,
+    // FIXME: merge thote three hashaps into a single one.
     uid2sn:           HashMap<usize, Vec<Node>>,
+    uid2visible:      HashMap<usize, bool>,
     uid2color:        HashMap<usize, Point3<f32>>,
     arc_ball:         ArcBall,
     first_person:     FirstPerson,
@@ -47,6 +49,7 @@ impl GraphicsManager {
             first_person:     first_person,
             curr_is_arc_ball: true,
             rand:             rng,
+            uid2visible:      HashMap::new(),
             uid2sn:           HashMap::new(),
             uid2color:        HashMap::new(),
             aabbs:            Vec::new()
@@ -87,6 +90,34 @@ impl GraphicsManager {
         if let Some(ns) = self.uid2sn.get_mut(&uid) {
             for n in ns.iter_mut() {
                 n.set_color(color)
+            }
+        }
+    }
+
+    pub fn set_visible(&mut self, uid: usize, visible: bool) {
+        if let Some(ns) = self.uid2sn.get_mut(&uid) {
+            for n in ns.iter_mut() {
+                n.set_visible(visible)
+            }
+        }
+        else {
+            self.uid2visible.insert(uid, visible);
+        }
+    }
+
+    pub fn update<T>(&mut self, window: &mut Window, world: &CollisionWorld3<f32, T>) {
+        for object in world.collision_objects() {
+            if !self.uid2sn.contains_key(&object.uid) {
+                self.add(window, object);
+
+                let visible = match self.uid2visible.get(&object.uid) {
+                    Some(visible) => *visible,
+                    None          => true
+                };
+
+                if !visible  {
+                    self.set_visible(object.uid, false);
+                }
             }
         }
     }

@@ -20,6 +20,10 @@ pub enum Node {
 }
 
 impl Node {
+    pub fn set_visible(&mut self, visible: bool) {
+        self.scene_node_mut().set_visible(visible)
+    }
+
     pub fn select(&mut self) {
         match *self {
             Node::Plane(ref mut n)    => n.select(),

@@ -12,6 +12,7 @@ time = "0.1.*"
 rand = "0.3.*"
 glfw = "0.2.*"
 kiss3d = "*"
+mpeg_encoder = "0.2.*"
 
 [dependencies.ncollide]
 path = ".."

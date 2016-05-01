@@ -6,12 +6,12 @@ use math::Point;
 pub trait ContactHandler<P: Point, M, T> {
     /// Activate an action for when two objects start being in contact.
     fn handle_contact_started(&mut self,
-                              b1:       &CollisionObject<P, M, T>,
-                              b2:       &CollisionObject<P, M, T>,
+                              co1:      &CollisionObject<P, M, T>,
+                              co2:      &CollisionObject<P, M, T>,
                               contacts: &ContactAlgorithm<P, M>);
 
     /// Activate an action for when two objects stop being in contact.
-    fn handle_contact_stopped(&mut self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>);
+    fn handle_contact_stopped(&mut self, co1: &CollisionObject<P, M, T>, co2: &CollisionObject<P, M, T>);
 }
 
 /// Signal for contact start/stop.
@@ -59,20 +59,20 @@ impl<P: Point, M, T> ContactSignal<P, M, T> {
     // FIXME: do we really want to use &mut here ?
     /// Activates the contact started signal, executing all the event handlers.
     pub fn trigger_contact_started_signal(&mut self,
-                                          b1:       &CollisionObject<P, M, T>,
-                                          b2:       &CollisionObject<P, M, T>,
+                                          co1:      &CollisionObject<P, M, T>,
+                                          co2:      &CollisionObject<P, M, T>,
                                           contacts: &ContactAlgorithm<P, M>) {
         for &mut (_, ref mut f) in self.contact_handlers.iter_mut() {
-            f.handle_contact_started(b1, b2, contacts)
+            f.handle_contact_started(co1, co2, contacts)
         }
     }
 
     /// Activates the contact stopped signal, executing all the event handlers.
     pub fn trigger_contact_stopped_signal(&mut self,
-                                          b1: &CollisionObject<P, M, T>,
-                                          b2: &CollisionObject<P, M, T>) {
+                                          co1: &CollisionObject<P, M, T>,
+                                          co2: &CollisionObject<P, M, T>) {
         for &mut (_, ref mut f) in self.contact_handlers.iter_mut() {
-            f.handle_contact_stopped(b1, b2)
+            f.handle_contact_stopped(co1, co2)
         }
     }
 }
