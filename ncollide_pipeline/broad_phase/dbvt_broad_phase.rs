@@ -41,6 +41,7 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     pairs_to_remove:   Vec<Pair>,
     proxies_to_remove: Vec<usize>,
     to_update:         Vec<(FastKey, BV)>,
+    to_add:            Vec<(usize, BV, T)>
 }
 
 impl<P, BV, T> DBVTBroadPhase<P, BV, T>
@@ -58,6 +59,7 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
             purge_all:  false,
             collector:  Vec::new(),
             to_update:  Vec::new(),
+            to_add:     Vec::new(),
             pairs_to_remove:   Vec::new(),
             proxies_to_remove: Vec::new(),
             margin:            margin
@@ -77,18 +79,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
               RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
     #[inline]
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
-        let lbv = bv.loosened(self.margin.clone());
-        let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
-        let leaf = Rc::new(RefCell::new(leaf));
-        let proxy = DBVTBroadPhaseProxy {
-            data:   data,
-            leaf:   leaf.clone(),
-            active: DEACTIVATION_THRESHOLD
-        };
-
-        let (proxy_key, _) = self.proxies.insert(uid, proxy);
-        leaf.borrow_mut().object = proxy_key.clone();
-        self.to_update.push((proxy_key, lbv));
+        self.to_add.push((uid, bv, data));
     }
 
     fn deferred_remove(&mut self, uid: usize) {
@@ -116,6 +107,24 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     }
 
     fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, handler: &mut FnMut(&T, &T, bool)) {
+        /*
+         * Perform additions.
+         */
+        for (uid, bv, data) in self.to_add.drain(..) {
+            let lbv = bv.loosened(self.margin.clone());
+            let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
+            let leaf = Rc::new(RefCell::new(leaf));
+            let proxy = DBVTBroadPhaseProxy {
+                data:   data,
+                leaf:   leaf.clone(),
+                active: DEACTIVATION_THRESHOLD
+            };
+
+            let (proxy_key, _) = self.proxies.insert(uid, proxy);
+            leaf.borrow_mut().object = proxy_key.clone();
+            self.to_update.push((proxy_key, lbv));
+        }
+
         /*
          * Remove all the outdated nodes.
          */
