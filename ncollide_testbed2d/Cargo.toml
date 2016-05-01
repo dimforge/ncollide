@@ -1,0 +1,18 @@
+[package]
+name    = "ncollide_testbed2d"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_testbed2d"
+
+[dependencies.ncollide]
+path = ".."
+
+[dependencies]
+sfml = "0.11.*"
+nalgebra = "0.8.*"
+time = "*"
+num = "*"
+rand = "*"
+mpeg_encoder = "0.2.*"

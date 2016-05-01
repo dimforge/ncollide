@@ -16,14 +16,14 @@ pub trait NarrowPhase<P: Point, M, T> {
     /// Updates this narrow phase.
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
-              contact_signal:   &mut ContactSignal<T>,
-              proximity_signal: &mut ProximitySignal<T>,
+              contact_signal:   &mut ContactSignal<P, M, T>,
+              proximity_signal: &mut ProximitySignal<P, M, T>,
               timestamp:        usize);
 
     /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
     fn handle_interaction(&mut self,
-                          contact_signal:   &mut ContactSignal<T>,
-                          proximity_signal: &mut ProximitySignal<T>,
+                          contact_signal:   &mut ContactSignal<P, M, T>,
+                          proximity_signal: &mut ProximitySignal<P, M, T>,
                           objects:          &UidRemap<CollisionObject<P, M, T>>,
                           fk1:              &FastKey,
                           fk2:              &FastKey,

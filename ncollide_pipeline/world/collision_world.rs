@@ -4,12 +4,13 @@ use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
+use utils::data::vec_map::Values;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
 use geometry::ray::{RayCast, Ray, RayIntersection};
 use geometry::point::PointQuery;
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher,
-                   ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
+                   ContactHandler, ContactPairs, Contacts, ContactSignal, ProximityHandler,
                    ProximitySignal, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
@@ -26,9 +27,9 @@ pub struct CollisionWorld<P: Point, M, T> {
     objects:           UidRemap<CollisionObject<P, M, T>>,
     broad_phase:       BroadPhaseObject<P>,
     narrow_phase:      Box<NarrowPhase<P, M, T>>,
-    contact_signal:    ContactSignal<T>,
-    proximity_signal:  ProximitySignal<T>,
-    pair_filters:      BroadPhasePairFilters<CollisionObject<P, M, T>>,
+    contact_signal:    ContactSignal<P, M, T>,
+    proximity_signal:  ProximitySignal<P, M, T>,
+    pair_filters:      BroadPhasePairFilters<P, M, T>,
     pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
     timestamp:         usize
@@ -75,7 +76,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
                data:             T) {
         assert!(!self.objects.contains_key(uid), "Unable to add a collision object with the same uid twice.");
 
-        let mut collision_object = CollisionObject::new(position, shape, collision_groups, query_type, data);
+        let mut collision_object = CollisionObject::new(uid, position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
         let mut aabb = bounding_volume::aabb(collision_object.shape.as_ref(), &collision_object.position);
         aabb.loosen(query_type.query_limit());
@@ -116,7 +117,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-        where F: BroadPhasePairFilter<CollisionObject<P, M, T>> + 'static {
+        where F: BroadPhasePairFilter<P, M, T> + 'static {
         self.pair_filters.register_collision_filter(name, Box::new(filter));
         self.broad_phase.deferred_recompute_all_proximities();
     }
@@ -129,25 +130,25 @@ impl<P, M, T> CollisionWorld<P, M, T>
     }
 
     /// Registers a handler for contact start/stop events.
-    pub fn register_contact_signal_handler<H>(&mut self, name: &str, handler: H)
-        where H: ContactSignalHandler<T> + 'static {
-        self.contact_signal.register_contact_signal_handler(name, Box::new(handler));
+    pub fn register_contact_handler<H>(&mut self, name: &str, handler: H)
+        where H: ContactHandler<P, M, T> + 'static {
+        self.contact_signal.register_contact_handler(name, Box::new(handler));
     }
 
     /// Unregisters a handler for contact start/stop events.
-    pub fn unregister_contact_signal_handler(&mut self, name: &str) {
-        self.contact_signal.unregister_contact_signal_handler(name);
+    pub fn unregister_contact_handler(&mut self, name: &str) {
+        self.contact_signal.unregister_contact_handler(name);
     }
 
     /// Registers a handler for proximity status change events.
-    pub fn register_proximity_signal_handler<H>(&mut self, name: &str, handler: H)
-        where H: ProximitySignalHandler<T> + 'static {
-        self.proximity_signal.register_proximity_signal_handler(name, Box::new(handler));
+    pub fn register_proximity_handler<H>(&mut self, name: &str, handler: H)
+        where H: ProximityHandler<P, M, T> + 'static {
+        self.proximity_signal.register_proximity_handler(name, Box::new(handler));
     }
 
     /// Unregisters a handler for proximity status change events.
-    pub fn unregister_proximity_signal_handler(&mut self, name: &str) {
-        self.proximity_signal.unregister_proximity_signal_handler(name);
+    pub fn unregister_proximity_handler(&mut self, name: &str) {
+        self.proximity_signal.unregister_proximity_handler(name);
     }
 
     /// Executes the position updates.
@@ -243,6 +244,12 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.narrow_phase.contact_pairs(&self.objects).contacts()
     }
 
+    /// Iterates through all collision objects.
+    #[inline]
+    pub fn collision_objects(&self) -> Values<CollisionObject<P, M, T>> {
+        self.objects.values()
+    }
+
     /// Returns a reference to the collision object identified by `uid`.
     #[inline]
     pub fn collision_object(&self, uid: usize) -> Option<&CollisionObject<P, M, T>> {
@@ -301,7 +308,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     // Filters by group and by the user-provided callback.
     #[inline]
-    fn filter_collision(filters: &BroadPhasePairFilters<CollisionObject<P, M, T>>,
+    fn filter_collision(filters: &BroadPhasePairFilters<P, M, T>,
                         objects: &UidRemap<CollisionObject<P, M, T>>,
                         fk1:     &FastKey,
                         fk2:     &FastKey) -> bool {

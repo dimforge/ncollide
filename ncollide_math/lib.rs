@@ -9,7 +9,7 @@ use std::f32;
 use std::f64;
 use rustc_serialize::{Encodable, Decodable};
 use rand::Rand;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::ops::{IndexMut, Mul, Neg};
 use std::any::Any;
 use num::{Signed, One};
@@ -25,13 +25,13 @@ pub trait FloatError {
 }
 
 /// Trait implemented by scalar types.
-pub trait Scalar: Copy + Send + Sync + 'static + Debug + Signed +
+pub trait Scalar: Copy + Send + Sync + 'static + Debug + Display + Signed +
                   BaseFloat + ApproxEq<Self> + Cast<f64> + Rand + Bounded +
                   FloatError + Decodable + Encodable + Any {
 }
 
 /// Trait implemented by point types.
-pub trait Point: Send + Sync + 'static + Clone + Copy + Debug +
+pub trait Point: Send + Sync + 'static + Clone + Copy + Debug + Display +
                  FloatPoint<<<Self as Point>::Vect as Vector>::Scalar, Vector = <Self as Point>::Vect> +
                  PartialOrder +
                  Bounded +
@@ -51,7 +51,7 @@ pub trait Vector: Send + Sync + 'static +
                   FloatVector<<Self as Vector>::Scalar> + UniformSphereSample + Clone +
                   IndexMut<usize, Output = <Self as Vector>::Scalar> + Rand + Shape<usize> +
                   PartialOrder + Absolute<Self> + Iterable<<Self as Vector>::Scalar> +
-                  Copy + Neg<Output = Self> + Debug + Any + Decodable + Encodable +
+                  Copy + Neg<Output = Self> + Debug + Display + Any + Decodable + Encodable +
                   Repeat<<Self as Vector>::Scalar> {
     type Scalar: Scalar;
 }
@@ -61,8 +61,8 @@ pub trait Isometry<P: Point>: Send         + Sync            + 'static          
                               One          + Rotate<P::Vect> +
                               Translate<P> + Transform<P>    + AbsoluteRotate<P::Vect>  +
                               Inverse      + Clone           + Mul<Self, Output = Self> +
-                              Copy         + Debug           + Any                      +
-                              Decodable    + Encodable {
+                              Copy         + Debug           + Display                  +
+                              Any          + Decodable       + Encodable {
 }
 
 /// Trait implement by vectors that are transformable by the inertia matrix `I`.

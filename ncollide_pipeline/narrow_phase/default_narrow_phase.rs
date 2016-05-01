@@ -36,8 +36,8 @@ impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
 impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> {
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
-              contact_signal:   &mut ContactSignal<T>,
-              proximity_signal: &mut ProximitySignal<T>,
+              contact_signal:   &mut ContactSignal<P, M, T>,
+              proximity_signal: &mut ProximitySignal<P, M, T>,
               timestamp:        usize) {
         for e in self.contact_generators.elements_mut().iter_mut() {
             let co1 = &objects[e.key.first];
@@ -53,12 +53,12 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
 
                 if e.value.num_contacts() == 0 {
                     if had_contacts {
-                        contact_signal.trigger_contact_signal(&co1.data, &co2.data, false);
+                        contact_signal.trigger_contact_stopped_signal(&co1, &co2);
                     }
                 }
                 else {
                     if !had_contacts {
-                        contact_signal.trigger_contact_signal(&co1.data, &co2.data, true)
+                        contact_signal.trigger_contact_started_signal(&co1, &co2, &e.value)
                     }
                 }
             }
@@ -79,15 +79,15 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                 let new_prox = e.value.proximity();
 
                 if new_prox != prev_prox {
-                    proximity_signal.trigger_proximity_signal(&co1.data, &co2.data, prev_prox, new_prox);
+                    proximity_signal.trigger_proximity_signal(&co1, &co2, prev_prox, new_prox);
                 }
             }
         }
     }
 
     fn handle_interaction(&mut self,
-                          contact_signal:   &mut ContactSignal<T>,
-                          proximity_signal: &mut ProximitySignal<T>,
+                          contact_signal:   &mut ContactSignal<P, M, T>,
+                          proximity_signal: &mut ProximitySignal<P, M, T>,
                           objects:          &UidRemap<CollisionObject<P, M, T>>,
                           fk1:              &FastKey,
                           fk2:              &FastKey,
@@ -111,7 +111,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                         Some(detector) => {
                             // Trigger the collision lost signal if there was a contact.
                             if detector.value.num_contacts() != 0 {
-                                contact_signal.trigger_contact_signal(&co1.data, &co2.data, false);
+                                contact_signal.trigger_contact_stopped_signal(&co1, &co2);
                             }
                         },
                         None => { }
@@ -133,8 +133,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                             // Trigger the proximity lost signal if they were not disjoint.
                             let prev_prox = detector.value.proximity();
                             if prev_prox != Proximity::Disjoint {
-                                proximity_signal.trigger_proximity_signal(&co1.data, &co2.data,
-                                                                          prev_prox, Proximity::Disjoint);
+                                proximity_signal.trigger_proximity_signal(&co1, &co2, prev_prox, Proximity::Disjoint);
                             }
                         },
                         None => { }

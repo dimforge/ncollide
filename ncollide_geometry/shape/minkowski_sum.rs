@@ -1,5 +1,6 @@
 //! Minkowski sum.
 
+use std::fmt::{self, Display};
 use std::ops::{Index, IndexMut, Add, Sub, Mul, Div, AddAssign, MulAssign, DivAssign, Neg};
 use na::{self, Dimension, ApproxEq, Origin, PointAsVector, Axpy, Translate, NumPoint, PartialOrder,
          PartialOrdering, FloatPoint, Bounded, Repeat, Identity};
@@ -386,6 +387,15 @@ impl<P> NumPoint<<P::Vect as Vector>::Scalar> for AnnotatedPoint<P>
 
 impl<P> FloatPoint<<P::Vect as Vector>::Scalar> for AnnotatedPoint<P>
     where P: Point {
+}
+
+impl<P> Display for AnnotatedPoint<P>
+    where P: Display {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        try!(writeln!(f, "Original point 1: {}", self.orig1));
+        try!(writeln!(f, "Original point 2: {}", self.orig2));
+        writeln!(f, "Resulting point: {}", self.point)
+    }
 }
 
 impl<P> Point for AnnotatedPoint<P>
