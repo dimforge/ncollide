@@ -12,15 +12,6 @@ specialized for 2D and 3D.
 
 --------
 
-#### How should I write and pronounce **ncollide**?
-
-It is written without capitals (not _Ncollide_, _nCollide_, or _NcOlLiDe_),
-without dashes (not _n-collide_), and without spaces (not _n collide_): it is
-just as simple as **ncollide**. It is pronounced starting with the letter _n_
-`/ɛn/` followed by the world _collide_ `/kəˈlaɪd/`.
-
---------
-
 #### Which units are used by **ncollide**?
 
 This is left to your imagination. They can as well be kilometers, miles,

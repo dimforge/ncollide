@@ -3,9 +3,9 @@
 </center>
 <br/>
 <center>
+[![Travis.ci Status](https://travis-ci.org/sebcrozet/ncollide.svg?branch=master)](https://travis-ci.org/sebcrozet/ncollide)
 [![Crates.io Status](http://meritbadge.herokuapp.com/ncollide)](https://crates.io/crates/ncollide)
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat)](http://opensource.org/licenses/BSD-3-Clause)
-[![Star](http://githubbadges.com/star.svg?user=sebcrozet&repo=ncollide&background=18bc9c&color=fff&style=flat)](http://github.com/sebcrozet/ncollide)
 
 -----
 

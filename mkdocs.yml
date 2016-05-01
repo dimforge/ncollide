@@ -9,7 +9,7 @@ pages:
     - 'Collision Detection Pipeline': collision_detection_pipeline.md
     - 'Mesh Generation': mesh_generation.md
     - 'Miscellaneous': miscellaneous.md
-    - 'The ncollide Testbeds': ncollide_testbeds.md
+      # - 'The ncollide Testbeds': ncollide_testbeds.md
     - 'FAQ': faq.md
   - '<i class="fa fa-align-left"></i>&nbsp API Documentation': rustdoc_ncollide.md
   - '<i class="fa fa-question-circle"></i>&nbsp About': about.md
