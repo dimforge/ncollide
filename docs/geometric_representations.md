@@ -220,9 +220,6 @@ let convex = ConvexHull::new(points);
 // ConvexHull does not compute explicitly the convex hull (which has 4 vertices)!
 assert!(convex.points().len() == 5);
 ```
-<center>
-![2D convex](../img/convex2d.png)
-</center>
 
 #### 3D example<div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex3d.rs')"></div>
 ```rust
@@ -242,6 +239,7 @@ let convex = ConvexHull::new(points);
 assert!(convex.points().len() == 7);
 ```
 <center>
+![2D convex](../img/convex2d.png)
 ![3D convex](../img/convex3d.png)
 </center>
 
@@ -367,12 +365,10 @@ be finite).
 | `.bvt()` | The space-partitioning acceleration structure used by the composite shape. |
 
 The requirement to use a `BVT` for space-partitioning is extremely restrictive
-and will be replaced by a more flexible system in the future.
-
-Currently, three composite shapes are available on **ncollide**. The `Compound`
-describes the union of any shape supported by **ncollide**. The `TriMesh` and
-the `Polyline` are optimized exclusively for assemblies of triangles and
-segments.
+and will be replaced by a more flexible system in the future.  Currently, three
+composite shapes are available on **ncollide**. The `Compound` describes the
+union of any shape supported by **ncollide**. The `TriMesh` and the `Polyline`
+are optimized exclusively for assemblies of triangles and segments.
 
 ### Compound
 The `Compound` structure is the main way of describing concave shapes from
@@ -413,10 +409,6 @@ let compound = Compound::new(shapes);
 assert!(compound.shapes().len() == 3)
 ```
 
-<center>
-![2D compound](../img/compound2d.png)
-</center>
-
 #### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound3d.rs')"></div>
 ```rust
 // Delta transformation matrices.
@@ -439,7 +431,9 @@ let compound = Compound::new(shapes);
 assert!(compound.shapes().len() == 3)
 ```
 
+
 <center>
+![2D compound](../img/compound2d.png)
 ![3D compound](../img/compound3d.png)
 </center>
 
@@ -481,10 +475,6 @@ let polyline = Polyline::new(Arc::new(points), Arc::new(indices), None, None);
 assert!(polyline.vertices().len() == 4);
 ```
 
-<center>
-![2D mesh](../img/mesh2d.png)
-</center>
-
 
 #### 3D example<div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh3d.rs')"></div>
 
@@ -504,6 +494,7 @@ assert!(mesh.vertices().len() == 4);
 ```
 
 <center>
+![2D mesh](../img/mesh2d.png)
 ![3D mesh](../img/mesh3d.png)
 </center>
 

@@ -824,10 +824,6 @@ nav.stickynav {
 	.rst-versions.shift {
 		display:block
 	}
-	img {
-		width:100%;
-		height:auto
-	}
 }
 .rst-content img {
 	max-width:100%;

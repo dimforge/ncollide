@@ -2,6 +2,39 @@ body {
     padding-top: 70px;
 }
 
+
+@media(min-width:768px) {
+  #show_small {
+    display: none;
+  }
+  #small_navbar_icon {
+    display: none;
+  }
+  .navbar_container {
+    padding-right: 100px;
+  }
+}
+
+@media(max-width:768px) {
+  #hide_small {
+    display: none;
+  }
+  #small_navbar_icon {
+    display: block;
+    float: left;
+    height: 1em;
+	  padding:10px 10px;
+	  margin-top:20px;
+	  margin-left:15px;
+  }
+}
+
+@media(max-width:992px) {
+  #hide_medium {
+    display: none;
+  }
+}
+
 .section-header:hover a:after {
     content: '\00a7';
     padding-left: .5em;

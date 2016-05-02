@@ -17,7 +17,7 @@ files=`find ./docs/rustdoc -name \*.html -printf '%p '`
 sidebar='<nav class="sidebar">'
 sub='<nav class="sub">'
 container='<div class="container">'
-class3='<div class="col-md-3">'
+class3='<div id="hide_medium" class="col-md-3">'
 class9='<div class="col-md-9">'
 end_div='</div>'
 footer='<section class="footer"></section>'

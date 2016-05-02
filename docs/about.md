@@ -1,17 +1,25 @@
 # About
 
+<table>
+<tr>
+<td id="nostyle_table" style="vertical-align:middle">
 <a href="https://github.com/sebcrozet"><img id="left_float_img" src="http://www.gravatar.com/avatar/24f8431a2a28f633cba972f1176921e4?s=125"></img></a>
-As of today, this website and the **ncollide** project are almost completely
-developed by Sébastien Crozet (aka.
-[sebcrozet](https://github.com/sebcrozet)), a French Ph.D Student. His
+</td>
+<td id="nostyle_table">
+As of today, this website and the <b>ncollide</b> project are mostly developed
+by Sébastien Crozet (aka.  <a
+href="https://github.com/sebcrozet">sebcrozet</a>), a French Ph.D Student. His
 researches are about finding new methods to perform fast collision detection
 between complex CAD models that include smooth trimmed surfaces like NURBS.
-Besides his fulltime job, he works on **ncolide** trying to help making Rust a
-great language for the development of real-time geometry-intensive
+Besides his fulltime job, he works on <b>ncolide</b> trying to help making Rust
+a great language for the development of real-time geometry-intensive
 applications. For more informations about his professional background, check
 out his
-[LinkedIn](https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en)
+<a href="https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en">LinkedIn</a>
 profile.
+</td>
+</tr>
+</table>
 
 # How to contribute
 
@@ -35,12 +43,12 @@ it. Do not hesitate to correct even the smallest, insignificant detail
 website is composed of a set of markdown files located on the
 [gh-pages](https://github.com/sebcrozet/ncollide/tree/gh-pages) branch of the
 main **ncollide** repository. It is compiled using
-[MkDocs](https://www.mkdocs.org/). As explained in the next section, you need
-to fork, fix, and create a pull request to make your contribution integrable
-into our code base. There are no specific rules, except that all compilable
-code to generate illustrations must be located on the `src` folder.
-Downloadable examples have to be located on the `examples` directory of the
-main project, i.e., on the `master` branch.
+[MkDocs v0.15.3](https://www.mkdocs.org/). As explained in the next section,
+you need to fork, fix, and create a pull request (targeting the **gh-pages**
+branch) to make your contribution integrable into our code base. There are no
+specific rules, except that all compilable code to generate illustrations must
+be located on the `src` folder.  Downloadable examples have to be located on
+the `examples` directory of the main project, i.e., on the `master` branch.
 
 
 #### Working on the library
@@ -49,8 +57,9 @@ If you intend to work on the source code of **ncollide**, you should start by
 [forking](https://help.github.com/articles/fork-a-repo) the
 [repository](https://github.com/sebcrozet/ncollide). Once you are done making
 modifications to your own copy of **ncollide**, you have to [create a pull
-request](https://help.github.com/articles/creating-a-pull-request) so that your
-contribution can be reviewed, commented, and merged to the `master` branch.
+request](https://help.github.com/articles/creating-a-pull-request) targeting
+the **master** branch so that your contribution can be reviewed, commented, and
+eventually merged.
 
 
 ### Financial contribution

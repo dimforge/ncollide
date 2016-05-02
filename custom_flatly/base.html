@@ -22,7 +22,6 @@
         <link href="{{ base_url }}/css/font-awesome-4.0.3.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ base_url }}/css/highlight.css">
         <link href="{{ base_url }}/css/base.css" rel="stylesheet">
-        <link href="{{ base_url }}/css/code_highlight.css" rel="stylesheet">
         <link href="{{ base_url }}/css/download_buttons.css" rel="stylesheet">
         <!--
         {%- for path in extra_css %}
@@ -55,7 +54,27 @@
         <div class="container">
           {% if page_title %}
             <div class="col-md-3">{% include "toc.html" %}</div>
-            <div class="col-md-9" role="main">{% include "content.html" %}</div>
+            <div class="col-md-9" role="main">
+                {% include "content.html" %}
+
+                {% if page_title != '<i class="fa fa-question-circle"></i>&nbsp About' %}
+                    <hr>
+                    {% if previous_page.title != "Home" %}
+                        <span style="float:left">
+                        <a href="{{ previous_page.url }}">
+                            <i class="fa fa-arrow-left"></i> {{ previous_page.title }}
+                        </a>
+                        </span>
+                    {% endif %}
+                    {% if page_title != "FAQ" %}
+                        <span style="float:right">
+                        <a href="{{ next_page.url }}">
+                           {{ next_page.title }} <i class="fa fa-arrow-right"></i>
+                        </a>
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
           {% else %}
             <div class="main_page_col">{% include "content.html" %}</div>
           {% endif %}

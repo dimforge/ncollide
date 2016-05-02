@@ -1,11 +1,14 @@
 <div> <!-- FIXME: without those two first divs, jquery from rustdoc seems to fail. I have no idea why. !-->
 <div id = "common_navbar">
   <div class="navbar {% if config.extra.theme_inverse %}navbar-inverse{% else %}navbar-default{% endif %} navbar-fixed-top" role="navigation">
-    <a href="https://github.com/sebcrozet/ncollide"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-    <div class="container">
+    <a id="hide_small" href="https://github.com/sebcrozet/ncollide"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <div class="container navbar_container">
+
 
       <!-- Collapsed navigation -->
       <div class="navbar-header">
+        <a href="/"><span id="small_navbar_icon" class="navbar_icon"></span></a>
+
         <!-- Expander button -->
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <span class="sr-only">Toggle navigation</span>
@@ -38,7 +41,8 @@
                 <li {% if nav_item.active %}class="active"{% endif %}>
                 <a href="{{ nav_item.url }}">
                   {% if nav_item.title == "Home" %}
-                    <span class="navbar_icon" height = "1em"></span>
+                    <span id="hide_small" class="navbar_icon" height = "1em"></span>
+                    <span id="show_small"><i class="fa fa-home"></i> Home</span>
                   {% else %}
                     <span>{{ nav_item.title }}</span>
                   {% endif %}
@@ -58,12 +62,12 @@
                     </a>
                 </li>
                 -->
-          <li {% if not previous_page %}class="disabled"{% endif %}>
+          <li id="hide_medium" {% if not previous_page %}class="disabled"{% endif %}>
           <a rel="next" {% if previous_page %}href="{{ previous_page.url }}"{% endif %}>
             <i class="fa fa-arrow-left"></i> Previous
           </a>
           </li>
-          <li {% if not next_page %}class="disabled"{% endif %}>
+          <li id="hide_medium" {% if not next_page %}class="disabled"{% endif %}>
           <a rel="prev" {% if next_page %}href="{{ next_page.url }}"{% endif %}>
             Next <i class="fa fa-arrow-right"></i>
           </a>
@@ -72,6 +76,13 @@
           <a href="http://users.nphysics.org">
               <span class="user_forum">
                   <i class="fa  fa-users"></i> User forum
+              </span>
+          </a>
+          </li>
+          <li>
+          <a id="show_small" href="https://github.com/sebcrozet/ncollide">
+              <span class="user_forum">
+                  <i class="fa  fa-github"></i> View on GitHub
               </span>
           </a>
           </li>

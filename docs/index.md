@@ -20,92 +20,141 @@
 <tr>
     <td><a href="../geometric_representations"><img src="../img/feature_complex_shapes.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Complex shapes</big></b><br>
+    <a href="../geometric_representations" id="no_highlight">
+    <div>
+    <b><big>Complex shapes</big></b>
+    <br>
     Complex geometric queries for collision detection are available for 2D and
     3D shapes with various levels of complexity: from simple spheres to
     arbitrary triangle meshes and unions of convex shapes.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../bounding_volumes"><img src="../img/feature_bounding_volumes.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Bounding volumes</big></b><br>
+    <a href="../bounding_volumes" id="no_highlight">
+    <div>
+    <b><big>Bounding volumes</big></b>
+    <br>
     Complex shapes may be approximated by simpler ones like AABB and bounding
     spheres. Those can be used for approximating some geometric queries
     efficiently and avoid useless exact computations.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../geometric_queries/#ray-casting"><img src="../img/feature_ray_casting.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Ray casting</big></b><br>
-    Computation of intersection between a ray and any shape exposed by
-    **ncollide**.
+    <a href="../geometric_queries/#ray-casting" id="no_highlight">
+    <div>
+    <b><big>Ray casting</big></b>
+    <br>
+    Computation of intersection between a ray and any shape.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../geometric_queries/#point-projection"><img src="../img/feature_point_projection.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Point projection</big></b><br>
+    <a href="../geometric_queries/#point-projection" id="no_highlight">
+    <div>
+    <b><big>Point projection</big></b>
+    <br>
     Point containment test, distance to point, and point projection on any
     shape.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../geometric_queries/#contact"><img src="../img/feature_contact_points.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Contact points</big></b><br>
+    <a href="../geometric_queries/#contact" id="no_highlight">
+    <div>
+    <b><big>Contact points</big></b>
+    <br>
     Find the closest points between objects in close proximity.  If they are
     penetrating, the minimal translational distance can be obtained as well!
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../geometric_queries/#time-of-impact"><img src="../img/feature_time_of_impact.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Time-of-impact</big></b><br>
+    <a href="../geometric_queries/#time-of-impact" id="no_highlight">
+    <div>
+    <b><big>Time-of-impact</big></b>
+    <br>
     Compute the time it would take for two moving shapes to start being in
     contact.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../geometric_queries/#distance"><img src="../img/feature_smallest_distance.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Smallest distance</big></b><br>
+    <a href="../geometric_queries/#distance" id="no_highlight">
+    <div>
+    <b><big>Smallest distance</big></b>
+    <br>
     Compute the global minimal distance between two shapes.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../bounding_volumes/#spacial-partitioning"><img src="../img/feature_spacial_partitioning.svg"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Spacial partitioning</big></b><br>
+    <a href="../bounding_volumes/#spacial-partitioning" id="no_highlight">
+    <div>
+    <b><big>Spacial partitioning</big></b>
+    <br>
     Efficient data structures to perform geometric queries efficiently on
     thousands of objects.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../collision_detection_pipeline"><img src="../img/feature_collision_detection_pipeline.gif"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Collision detection pipeline</big></b><br>
+    <a href="../collision_detection_pipeline" id="no_highlight">
+    <div>
+    <b><big>Collision detection pipeline</big></b>
+    <br>
     A complete and efficient collision detection pipeline including a broad
     phase and a narrow phase. Enables real-time contacts generation, proximity events,
     ray-casting and more, for scenes with hundreds of objects.
+    </div>
+    </a>
     </td>
 </tr>
 
 <tr>
     <td><a href="../mesh_generation"><img src="../img/feature_mesh_generation.png"></img></a></td>
     <td style="vertical-align:middle">
-    <b><big>Mesh generation</big></b><br>
+    <a href="../mesh_generation" id="no_highlight">
+    <div>
+    <b><big>Mesh generation</big></b>
+    <br>
     Generate triangle meshes from smooth objects, compute their convex hull, or
     decompose them approximately into their convex components.
+    </div>
+    </a>
     </td>
 </tr>
 
@@ -141,9 +190,9 @@ section has been rendered by **kiss3d**.
 </p>
 <p>
 <big>[**nrays**](https://github.com/sebcrozet/nrays)</big> − a toy 3d and 4d
-ray tracer in Rust. Obviously, it is used to test the ray-casting capabilities
-of **ncollide**. In fact, most 3d illustration of this guide have been rendered
-by **nrays**.
+ray tracer in Rust. Obviously, it is used to stress-test the ray-casting
+capabilities of **ncollide**. In fact, most 3d illustration of this guide have
+been rendered by **nrays**.
 </p>
 <p>
 <center>

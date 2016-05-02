@@ -9,7 +9,7 @@ cd -
 rm -rf docs/rustdoc
 cp -r $ncollide_dir/target/doc $out_dir
 
-for crate in ncollide_entities ncollide_pipeline ncollide_queries ncollide_utils ncollide_cl_pipeline ncollide_math ncollide_procedural ncollide_transformation
+for crate in ncollide_geom ncollide_pipeline ncollide_utils ncollide_math ncollide_procedural ncollide_transformation
 do
     cd $ncollide_dir/$crate; cargo doc --no-deps
     cd -
