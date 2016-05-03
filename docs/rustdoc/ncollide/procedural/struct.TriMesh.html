@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>procedural</a></p><script>window.sidebarCurrent = {name: 'TriMesh', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>procedural</a>::<wbr><a class='struct' href=''>TriMesh</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-399' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/trimesh/struct.TriMesh.html?gotosrc=399' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-377' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/trimesh/struct.TriMesh.html?gotosrc=377' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct TriMesh&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
     pub coords: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P&gt;,
     pub normals: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt;&gt;,
@@ -55,13 +56,13 @@
 }</pre><div class='docblock'><p>Shapeetric description of a mesh.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
-                                  <td id='structfield.coords'><code>coords</code></td><td><div class='docblock'><p>Coordinates of the mesh vertices.</p>
+                             <td id='structfield.coords'><code>coords</code></td><td><div class='docblock'><p>Coordinates of the mesh vertices.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.normals'><code>normals</code></td><td><div class='docblock'><p>Coordinates of the mesh normals.</p>
+                             <td id='structfield.normals'><code>normals</code></td><td><div class='docblock'><p>Coordinates of the mesh normals.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.uvs'><code>uvs</code></td><td><div class='docblock'><p>Textures coordinates of the mesh.</p>
+                             <td id='structfield.uvs'><code>uvs</code></td><td><div class='docblock'><p>Textures coordinates of the mesh.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.indices'><code>indices</code></td><td><div class='docblock'><p>Index buffer of the mesh.</p>
+                             <td id='structfield.indices'><code>indices</code></td><td><div class='docblock'><p>Index buffer of the mesh.</p>
 </div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;P&gt; <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(coords: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P&gt;, normals: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt;&gt;, uvs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point2.html' title='nalgebra::structs::point::Point2'>Point2</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt;&gt;&gt;, indices: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a>&gt;) -&gt; <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt;</code></h4>
 <div class='docblock'><p>Creates a new <code>TriMesh</code>.</p>
 
@@ -94,8 +95,8 @@ Use this method to transform the mesh data to a OpenGL-compliant format.</p>
 <div class='docblock'><p>Forces the mesh to use a different index for the vertices, normals and uvs.</p>
 
 <p>If <code>recover_topology</code> is true, this will merge exactly identical vertices together.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;P&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
-</div><h3 class='impl'><code>impl&lt;P&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;P&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;P&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt;</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

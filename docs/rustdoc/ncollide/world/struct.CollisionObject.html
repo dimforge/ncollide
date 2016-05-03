@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>world</a></p><script>window.sidebarCurrent = {name: 'CollisionObject', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,30 +44,35 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>world</a>::<wbr><a class='struct' href=''>CollisionObject</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1658' class='srclink' href='http://ncollide.org/doc/ncollide_pipeline/world/collision_object/struct.CollisionObject.html?gotosrc=1658' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1666' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_pipeline/world/collision_object/struct.CollisionObject.html?gotosrc=1666' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct CollisionObject&lt;P, M, T&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
+    pub uid: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
     pub position: M,
     pub shape: <a class='struct' href='../../ncollide/shape/struct.ShapeHandle.html' title='ncollide::shape::ShapeHandle'>ShapeHandle</a>&lt;P, M&gt;,
     pub collision_groups: <a class='struct' href='../../ncollide/world/struct.CollisionGroups.html' title='ncollide::world::CollisionGroups'>CollisionGroups</a>,
-    pub query_type: <a class='enum' href='../../ncollide/world/enum.CollisionQueryType.html' title='ncollide::world::CollisionQueryType'>CollisionQueryType</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt;,
+    pub query_type: <a class='enum' href='../../ncollide/world/enum.GeometricQueryType.html' title='ncollide::world::GeometricQueryType'>GeometricQueryType</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt;,
     pub data: T,
     // some fields omitted
 }</pre><div class='docblock'><p>A stand-alone object that has a position and a shape.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
-                                  <td id='structfield.position'><code>position</code></td><td><div class='docblock'><p>The collision object position.</p>
+                             <td id='structfield.uid'><code>uid</code></td><td><div class='docblock'><p>The collsion object unique identifier.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.shape'><code>shape</code></td><td><div class='docblock'><p>The collision object shape.</p>
+                             <td id='structfield.position'><code>position</code></td><td><div class='docblock'><p>The collision object position.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.collision_groups'><code>collision_groups</code></td><td><div class='docblock'><p>The collision groups of the collision object.</p>
+                             <td id='structfield.shape'><code>shape</code></td><td><div class='docblock'><p>The collision object shape.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.query_type'><code>query_type</code></td><td><div class='docblock'><p>The kind of queries this collision object is expected to .</p>
+                             <td id='structfield.collision_groups'><code>collision_groups</code></td><td><div class='docblock'><p>The collision groups of the collision object.</p>
 </div></td></tr><tr class='stab '>
-                                  <td id='structfield.data'><code>data</code></td><td><div class='docblock'><p>The user-defined data associated to this object.</p>
-</div></td></tr></table></section>
+                             <td id='structfield.query_type'><code>query_type</code></td><td><div class='docblock'><p>The kind of queries this collision object is expected to .</p>
+</div></td></tr><tr class='stab '>
+                             <td id='structfield.data'><code>data</code></td><td><div class='docblock'><p>The user-defined data associated to this object.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;P, M, T&gt; <a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(uid: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, position: M, shape: <a class='struct' href='../../ncollide/shape/struct.ShapeHandle.html' title='ncollide::shape::ShapeHandle'>ShapeHandle</a>&lt;P, M&gt;, groups: <a class='struct' href='../../ncollide/world/struct.CollisionGroups.html' title='ncollide::world::CollisionGroups'>CollisionGroups</a>, query_type: <a class='enum' href='../../ncollide/world/enum.GeometricQueryType.html' title='ncollide::world::GeometricQueryType'>GeometricQueryType</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt;, data: T) -&gt; <a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt;</code></h4>
+<div class='docblock'><p>Creates a new collision object.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>partitioning</a></p><script>window.sidebarCurrent = {name: 'median_partitioner_with_centers', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,11 +44,11 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>partitioning</a>::<wbr><a class='fn' href=''>median_partitioner_with_centers</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-3031' class='srclink' href='http://ncollide.org/doc/ncollide_entities/partitioning/bvt/fn.median_partitioner_with_centers.html?gotosrc=3031' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn median_partitioner_with_centers&lt;V, B, BV, F&gt;(depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, leaves: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>B, BV<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;, center: &amp;mut F) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>BV, <a class='enum' href='../../ncollide/partitioning/enum.BinaryPartition.html' title='ncollide::partitioning::BinaryPartition'>BinaryPartition</a>&lt;B, BV&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a> <span class='where'>where V: <a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Vector</a>, F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;B, &amp;BV) -&gt; V, BV: <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;V::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></pre><div class='docblock'><p>Construction function for a kdree to be used with <code>BVT::new_with_partitioner</code>.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-3167' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/partitioning/bvt/fn.median_partitioner_with_centers.html?gotosrc=3167' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn median_partitioner_with_centers&lt;V, B, BV, F&gt;(depth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, leaves: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>B, BV<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;, center: &amp;mut F) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>BV, <a class='enum' href='../../ncollide/partitioning/enum.BinaryPartition.html' title='ncollide::partitioning::BinaryPartition'>BinaryPartition</a>&lt;B, BV&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a> <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;B, &amp;BV) -&gt; V, V: <a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Vector</a>, BV: <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;V::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></pre><div class='docblock'><p>Construction function for a kdree to be used with <code>BVT::new_with_partitioner</code>.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 

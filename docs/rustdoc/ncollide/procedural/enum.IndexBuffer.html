@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>procedural</a></p><script>window.sidebarCurrent = {name: 'IndexBuffer', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content enum">
 <h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>procedural</a>::<wbr><a class='enum' href=''>IndexBuffer</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-372' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/trimesh/enum.IndexBuffer.html?gotosrc=372' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-350' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/trimesh/enum.IndexBuffer.html?gotosrc=350' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum IndexBuffer {
     Unified(<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;),
     Split(<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;&gt;),
@@ -58,8 +59,8 @@
 <div class='docblock'><p>Returns the unified index buffer data or fails.</p>
 </div><h4 id='method.unwrap_split' class='method'><code>fn <a href='#method.unwrap_split' class='fnname'>unwrap_split</a>(self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;&gt;</code></h4>
 <div class='docblock'><p>Returns the split index buffer data or fails.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../ncollide/procedural/enum.IndexBuffer.html' title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

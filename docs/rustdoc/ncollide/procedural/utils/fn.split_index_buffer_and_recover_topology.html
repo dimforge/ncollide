@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>utils</a></p><script>window.sidebarCurrent = {name: 'split_index_buffer_and_recover_topology', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>utils</a>::<wbr><a class='fn' href=''>split_index_buffer_and_recover_topology</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-108' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/utils/fn.split_index_buffer_and_recover_topology.html?gotosrc=108' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-94' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/utils/fn.split_index_buffer_and_recover_topology.html?gotosrc=94' title='goto source code'>[src]</a></span></h1>
 <pre class='rust fn'>pub fn split_index_buffer_and_recover_topology&lt;P&gt;(indices: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, coords: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[P]</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a> <span class='where'>where P: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&lt;P&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../../../ncollide/utils/trait.AsBytes.html' title='ncollide::utils::AsBytes'>AsBytes</a></span></pre><div class='docblock'><p>Duplicates the indices of each triangle on the given index buffer, giving the same id to each
 identical vertex.</p>
 </div></section>

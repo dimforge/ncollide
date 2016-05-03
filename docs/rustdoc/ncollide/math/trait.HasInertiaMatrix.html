@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a></p><script>window.sidebarCurrent = {name: 'HasInertiaMatrix', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,17 +44,19 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a>::<wbr><a class='trait' href=''>HasInertiaMatrix</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span></span></h1>
 <pre class='rust trait'>pub trait HasInertiaMatrix&lt;I&gt; { }</pre><div class='docblock'><p>Trait implement by vectors that are transformable by the inertia matrix <code>I</code>.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    </ul><script type="text/javascript" async
-                              src="../../implementors/ncollide_math/trait.HasInertiaMatrix.js">
-                      </script></section>
+    <li><code>impl&lt;N&gt; HasInertiaMatrix for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vector/struct.Vector2.html' title='nalgebra::structs::vector::Vector2'>Vector2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; HasInertiaMatrix for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vector/struct.Vector3.html' title='nalgebra::structs::vector::Vector3'>Vector3</a>&lt;N&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/ncollide_math/trait.HasInertiaMatrix.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

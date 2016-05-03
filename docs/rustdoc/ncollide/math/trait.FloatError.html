@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a></p><script>window.sidebarCurrent = {name: 'FloatError', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a>::<wbr><a class='trait' href=''>FloatError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span></span></h1>
 <pre class='rust trait'>pub trait FloatError {
     fn <a href='#tymethod.epsilon' class='fnname'>epsilon</a>() -&gt; Self;
 }</pre><div class='docblock'><p>Trait for constant helping handling floating point computations.</p>
@@ -57,9 +58,11 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    </ul><script type="text/javascript" async
-                              src="../../implementors/ncollide_math/trait.FloatError.js">
-                      </script></section>
+    <li><code>impl FloatError for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
+<li><code>impl FloatError for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/ncollide_math/trait.FloatError.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>utils</a></p><script>window.sidebarCurrent = {name: 'compute_normals', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>utils</a>::<wbr><a class='fn' href=''>compute_normals</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-133' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/utils/fn.compute_normals.html?gotosrc=133' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-117' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/utils/fn.compute_normals.html?gotosrc=117' title='goto source code'>[src]</a></span></h1>
 <pre class='rust fn'>pub fn compute_normals&lt;P&gt;(coordinates: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[P]</a>, faces: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, normals: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P::<a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt;) <span class='where'>where P: <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, P::<a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='../../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Vector</a>, P::<a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Cross.html' title='nalgebra::traits::geometry::Cross'>Cross</a>, P::<a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Cross.html' title='nalgebra::traits::geometry::Cross'>CrossProductType</a> == P::<a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a></span></pre><div class='docblock'><p>Computes the normals of a set of vertices.</p>
 </div></section>
     <section id='search' class="content hidden"></section>

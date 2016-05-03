@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>transformation</a></p><script>window.sidebarCurrent = {name: 'triangulate', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>transformation</a>::<wbr><a class='fn' href=''>triangulate</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1183' class='srclink' href='http://ncollide.org/doc/ncollide_transformation/triangulate/fn.triangulate.html?gotosrc=1183' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1084' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_transformation/triangulate/fn.triangulate.html?gotosrc=1084' title='goto source code'>[src]</a></span></h1>
 <pre class='rust fn'>pub fn triangulate&lt;P&gt;(pts: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[P]</a>) -&gt; <a class='struct' href='../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></pre><div class='docblock'><p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
 
 <p>If the points do not lie on the same 2d plane, strange things might happends (triangle might be

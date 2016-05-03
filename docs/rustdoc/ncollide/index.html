@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'></p><script>window.sidebarCurrent = {name: 'ncollide', ty: 'mod', relpath: '../'};</script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>ncollide</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/ncollide/src/lib.rs.html#1-64' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-0' class='srclink' href='../src/ncollide/src/lib.rs.html#1-62' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id='ncollide' class='section-header'><a href='#ncollide'>ncollide</a></h1>
 <p><strong>ncollide</strong> is a 2 and 3-dimensional collision detection library written with
@@ -83,128 +84,85 @@ yet implemented)</li>
 
 <p>And various traits for collision detectors and broad phase collision detection.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub extern crate ncollide_math;</code></td></tr><tr><td><code>pub extern crate ncollide_utils;</code></td></tr><tr><td><code>pub extern crate ncollide_entities;</code></td></tr><tr><td><code>pub extern crate ncollide_queries;</code></td></tr><tr><td><code>pub extern crate ncollide_pipeline;</code></td></tr><tr><td><code>pub extern crate ncollide_procedural;</code></td></tr><tr><td><code>pub extern crate ncollide_transformation;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table><tr><td><code>pub extern crate <a class='mod' href='../ncollide/math/index.html' title='ncollide::math'>ncollide_math</a>;</code></td></tr><tr><td><code>pub extern crate <a class='mod' href='../ncollide/utils/index.html' title='ncollide::utils'>ncollide_utils</a>;</code></td></tr><tr><td><code>pub extern crate <a class='mod' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/index.html' title='ncollide_geometry'>ncollide_geometry</a>;</code></td></tr><tr><td><code>pub extern crate <a class='mod' href='http://wip.ncollide.org/rustdoc/ncollide_pipeline/index.html' title='ncollide_pipeline'>ncollide_pipeline</a>;</code></td></tr><tr><td><code>pub extern crate <a class='mod' href='../ncollide/procedural/index.html' title='ncollide::procedural'>ncollide_procedural</a>;</code></td></tr><tr><td><code>pub extern crate <a class='mod' href='../ncollide/transformation/index.html' title='ncollide::transformation'>ncollide_transformation</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='bounding_volume/index.html'
-                               title='ncollide::bounding_volume'>bounding_volume</a></td>
-                        <td class='docblock short'>
-                             <p>Bounding volumes.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='broad_phase/index.html'
-                               title='ncollide::broad_phase'>broad_phase</a></td>
-                        <td class='docblock short'>
-                             <p>Broad phases.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='geometry/index.html'
-                               title='ncollide::geometry'>geometry</a></td>
-                        <td class='docblock short'>
-                             <p>Non-persistant pairwise geometric queries.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='inspection/index.html'
-                               title='ncollide::inspection'>inspection</a></td>
-                        <td class='docblock short'>
-                             <p>Traits and methods to inspect and retrieve the capabilities and representations of shapes at runtime.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='math/index.html'
-                               title='ncollide::math'>math</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='narrow_phase/index.html'
-                               title='ncollide::narrow_phase'>narrow_phase</a></td>
-                        <td class='docblock short'>
-                             <p>Persistant collision detection algorithms to compute contact points.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='partitioning/index.html'
-                               title='ncollide::partitioning'>partitioning</a></td>
-                        <td class='docblock short'>
-                             <p>Spatial partitioning tools.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='point/index.html'
-                               title='ncollide::point'>point</a></td>
-                        <td class='docblock short'>
-                             <p>Point inclusion and projection.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='procedural/index.html'
-                               title='ncollide::procedural'>procedural</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='ray/index.html'
-                               title='ncollide::ray'>ray</a></td>
-                        <td class='docblock short'>
-                             <p>Ray-casting related definitions and implementations.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='shape/index.html'
-                               title='ncollide::shape'>shape</a></td>
-                        <td class='docblock short'>
-                             <p>Collision shapes supported by ncollide.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='support_map/index.html'
-                               title='ncollide::support_map'>support_map</a></td>
-                        <td class='docblock short'>
-                             <p>Definition of support functions.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='transformation/index.html'
-                               title='ncollide::transformation'>transformation</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='utils/index.html'
-                               title='ncollide::utils'>utils</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='world/index.html'
-                               title='ncollide::world'>world</a></td>
-                        <td class='docblock short'>
-                             <p>High level API to detect collisions in large, complex scenes.</p>
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='bounding_volume/index.html'
+                                  title='ncollide::bounding_volume'>bounding_volume</a></td>
+                           <td class='docblock short'>
+                                <p>Bounding volumes.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='broad_phase/index.html'
+                                  title='ncollide::broad_phase'>broad_phase</a></td>
+                           <td class='docblock short'>
+                                <p>Broad phases.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='math/index.html'
+                                  title='ncollide::math'>math</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='narrow_phase/index.html'
+                                  title='ncollide::narrow_phase'>narrow_phase</a></td>
+                           <td class='docblock short'>
+                                <p>Persistent collision detection algorithms to compute contact points.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='partitioning/index.html'
+                                  title='ncollide::partitioning'>partitioning</a></td>
+                           <td class='docblock short'>
+                                <p>Spatial partitioning tools.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='procedural/index.html'
+                                  title='ncollide::procedural'>procedural</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='query/index.html'
+                                  title='ncollide::query'>query</a></td>
+                           <td class='docblock short'>
+                                <p>Non-persistant pairwise geometric queries.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='shape/index.html'
+                                  title='ncollide::shape'>shape</a></td>
+                           <td class='docblock short'>
+                                <p>Collision shapes supported by ncollide.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='transformation/index.html'
+                                  title='ncollide::transformation'>transformation</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='utils/index.html'
+                                  title='ncollide::utils'>utils</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='world/index.html'
+                                  title='ncollide::world'>world</a></td>
+                           <td class='docblock short'>
+                                <p>High level API to detect collisions in large, complex scenes.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

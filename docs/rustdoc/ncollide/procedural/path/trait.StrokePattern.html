@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a></p><script>window.sidebarCurrent = {name: 'StrokePattern', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a>::<wbr><a class='trait' href=''>StrokePattern</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-252' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/path/path/trait.StrokePattern.html?gotosrc=252' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-232' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/path/path/trait.StrokePattern.html?gotosrc=232' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait StrokePattern&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
     fn <a href='#tymethod.stroke' class='fnname'>stroke</a>&lt;C&gt;(&amp;mut self, sampler: &amp;mut C) -&gt; <a class='struct' href='../../../ncollide/procedural/struct.TriMesh.html' title='ncollide::procedural::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where C: <a class='trait' href='../../../ncollide/procedural/path/trait.CurveSampler.html' title='ncollide::procedural::path::CurveSampler'>CurveSampler</a>&lt;P&gt;</span>;
 }</pre><div class='docblock'><p>A pattern that is replicated along a path.</p>
@@ -59,10 +60,10 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N, C1, C2&gt; <a class='trait' href='../../../ncollide/procedural/path/trait.StrokePattern.html' title='ncollide::procedural::path::StrokePattern'>StrokePattern</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;&gt; for <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePattern.html' title='ncollide::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt; <span class='where'>where C2: <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, C1: <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+    <li><code>impl&lt;N, C1, C2&gt; StrokePattern for <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePattern.html' title='ncollide::procedural::path::PolylinePattern'>PolylinePattern</a>&lt;N, C1, C2&gt; <span class='where'>where C2: <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;, N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a>, C1: <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../../implementors/ncollide_procedural/path/path/trait.StrokePattern.js">
-                      </script></section>
+                         src="../../../implementors/ncollide_procedural/path/path/trait.StrokePattern.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

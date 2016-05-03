@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>bounding_volume</a></p><script>window.sidebarCurrent = {name: 'BoundingVolumeInterferencesCollector', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,17 +44,17 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>bounding_volume</a>::<wbr><a class='struct' href=''>BoundingVolumeInterferencesCollector</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1746' class='srclink' href='http://ncollide.org/doc/ncollide_entities/bounding_volume/bounding_volume_bvt/struct.BoundingVolumeInterferencesCollector.html?gotosrc=1746' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1920' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/bounding_volume/bounding_volume_bvt/struct.BoundingVolumeInterferencesCollector.html?gotosrc=1920' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct BoundingVolumeInterferencesCollector&lt;'a, N, B, BV&gt; <span class='where'>where N: 'a, B: 'a, BV: 'a</span> {
     // some fields omitted
 }</pre><div class='docblock'><p>Bounding Volume Tree visitor collecting interferences with a given bounding volume.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, N, B, BV&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingVolumeInterferencesCollector.html' title='ncollide::bounding_volume::BoundingVolumeInterferencesCollector'>BoundingVolumeInterferencesCollector</a>&lt;'a, N, B, BV&gt; <span class='where'>where BV: <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;N&gt;</span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(bv: &amp;'a BV, buffer: &amp;'a mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;B&gt;) -&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingVolumeInterferencesCollector.html' title='ncollide::bounding_volume::BoundingVolumeInterferencesCollector'>BoundingVolumeInterferencesCollector</a>&lt;'a, N, B, BV&gt;</code></h4>
 <div class='docblock'><p>Creates a new <code>BoundingVolumeInterferencesCollector</code>.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, N, B, BV&gt; <a class='trait' href='../../ncollide/partitioning/trait.BVTVisitor.html' title='ncollide::partitioning::BVTVisitor'>BVTVisitor</a>&lt;B, BV&gt; for <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingVolumeInterferencesCollector.html' title='ncollide::bounding_volume::BoundingVolumeInterferencesCollector'>BoundingVolumeInterferencesCollector</a>&lt;'a, N, B, BV&gt; <span class='where'>where BV: <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;N&gt;, B: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></h3><div class='impl-items'><h4 id='method.visit_internal' class='method'><code>fn <a href='../../ncollide/partitioning/trait.BVTVisitor.html#method.visit_internal' class='fnname'>visit_internal</a>(&amp;mut self, bv: &amp;BV) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.visit_leaf' class='method'><code>fn <a href='../../ncollide/partitioning/trait.BVTVisitor.html#method.visit_leaf' class='fnname'>visit_leaf</a>(&amp;mut self, b: &amp;B, bv: &amp;BV)</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, N, B, BV&gt; <a class='trait' href='../../ncollide/partitioning/trait.BVTVisitor.html' title='ncollide::partitioning::BVTVisitor'>BVTVisitor</a>&lt;B, BV&gt; for <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingVolumeInterferencesCollector.html' title='ncollide::bounding_volume::BoundingVolumeInterferencesCollector'>BoundingVolumeInterferencesCollector</a>&lt;'a, N, B, BV&gt; <span class='where'>where B: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;N&gt;</span></code></h3><div class='impl-items'><h4 id='method.visit_internal' class='method'><code>fn <a href='../../ncollide/partitioning/trait.BVTVisitor.html#tymethod.visit_internal' class='fnname'>visit_internal</a>(&amp;mut self, bv: &amp;BV) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.visit_leaf' class='method'><code>fn <a href='../../ncollide/partitioning/trait.BVTVisitor.html#tymethod.visit_leaf' class='fnname'>visit_leaf</a>(&amp;mut self, b: &amp;B, bv: &amp;BV)</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

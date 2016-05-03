@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a></p><script>window.sidebarCurrent = {name: 'Isometry', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,17 +44,21 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>math</a>::<wbr><a class='trait' href=''>Isometry</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span></span></h1>
-<pre class='rust trait'>pub trait Isometry&lt;P, V&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> + <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> + <a class='trait' href='http://rust-num.github.io/num/num/traits/trait.One.html' title='num::traits::One'>One</a> + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translate.html' title='nalgebra::traits::geometry::Translate'>Translate</a>&lt;P&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Rotate.html' title='nalgebra::traits::geometry::Rotate'>Rotate</a>&lt;V&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.AbsoluteRotate.html' title='nalgebra::traits::geometry::AbsoluteRotate'>AbsoluteRotate</a>&lt;V&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Transform.html' title='nalgebra::traits::geometry::Transform'>Transform</a>&lt;P&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/operations/trait.Inverse.html' title='nalgebra::traits::operations::Inverse'>Inverse</a> { }</pre><div class='docblock'><p>Trait implemented by transformation matrices types.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span></span></h1>
+<pre class='rust trait'>pub trait Isometry&lt;P&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> + 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> + <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> + <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> + One + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translate.html' title='nalgebra::traits::geometry::Translate'>Translate</a>&lt;P&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Rotate.html' title='nalgebra::traits::geometry::Rotate'>Rotate</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.AbsoluteRotate.html' title='nalgebra::traits::geometry::AbsoluteRotate'>AbsoluteRotate</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Transform.html' title='nalgebra::traits::geometry::Transform'>Transform</a>&lt;P&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/operations/trait.Inverse.html' title='nalgebra::traits::operations::Inverse'>Inverse</a> <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> { }</pre><div class='docblock'><p>Trait implemented by transformation matrices types.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    </ul><script type="text/javascript" async
-                              src="../../implementors/ncollide_math/trait.Isometry.js">
-                      </script></section>
+    <li><code>impl&lt;N&gt; Isometry for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/isometry/struct.Isometry2.html' title='nalgebra::structs::isometry::Isometry2'>Isometry2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+<li><code>impl&lt;N&gt; Isometry for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/isometry/struct.Isometry3.html' title='nalgebra::structs::isometry::Isometry3'>Isometry3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+<li><code>impl&lt;N&gt; Isometry for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/matrix/struct.Identity.html' title='nalgebra::structs::matrix::Identity'>Identity</a> <span class='where'>where N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+<li><code>impl&lt;N&gt; Isometry for <a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/matrix/struct.Identity.html' title='nalgebra::structs::matrix::Identity'>Identity</a> <span class='where'>where N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/ncollide_math/trait.Isometry.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

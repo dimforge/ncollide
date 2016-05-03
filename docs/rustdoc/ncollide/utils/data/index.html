@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>utils</a></p><script>window.sidebarCurrent = {name: 'data', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
@@ -43,78 +44,70 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>utils</a>::<wbr><a class='mod' href=''>data</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-22' class='srclink' href='http://ncollide.org/doc/ncollide_utils/data/index.html?gotosrc=22' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_utils/data/index.html?gotosrc=23' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Data structure utilities.</p>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='hash/index.html'
-                               title='ncollide::utils::data::hash'>hash</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for hash functions.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='hash_map/index.html'
-                               title='ncollide::utils::data::hash_map'>hash_map</a></td>
-                        <td class='docblock short'>
-                             <p>An hash map with a customizable hash function.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='owned_allocation_cache/index.html'
-                               title='ncollide::utils::data::owned_allocation_cache'>owned_allocation_cache</a></td>
-                        <td class='docblock short'>
-                             <p>Allocation cache for owned objects.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='pair/index.html'
-                               title='ncollide::utils::data::pair'>pair</a></td>
-                        <td class='docblock short'>
-                             <p>Hashable pair of objects implementing <code>HasUid</code>.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='ref_with_cost/index.html'
-                               title='ncollide::utils::data::ref_with_cost'>ref_with_cost</a></td>
-                        <td class='docblock short'>
-                             <p>A reference packed with a cost value.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='uid_remap/index.html'
-                               title='ncollide::utils::data::uid_remap'>uid_remap</a></td>
-                        <td class='docblock short'>
-                             <p>A map allowing a slow lookup for arbitrary <code>usize</code> and fast lookup for small ones.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='vec_map/index.html'
-                               title='ncollide::utils::data::vec_map'>vec_map</a></td>
-                        <td class='docblock short'>
-                             <p>A simple map based on a vector for small integer keys. Space requirements
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='hash/index.html'
+                                  title='ncollide::utils::data::hash'>hash</a></td>
+                           <td class='docblock short'>
+                                <p>Trait for hash functions.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='hash_map/index.html'
+                                  title='ncollide::utils::data::hash_map'>hash_map</a></td>
+                           <td class='docblock short'>
+                                <p>An hash map with a customizable hash function.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='owned_allocation_cache/index.html'
+                                  title='ncollide::utils::data::owned_allocation_cache'>owned_allocation_cache</a></td>
+                           <td class='docblock short'>
+                                <p>Allocation cache for owned objects.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='pair/index.html'
+                                  title='ncollide::utils::data::pair'>pair</a></td>
+                           <td class='docblock short'>
+                                <p>Hashable pair of objects implementing <code>HasUid</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='ref_with_cost/index.html'
+                                  title='ncollide::utils::data::ref_with_cost'>ref_with_cost</a></td>
+                           <td class='docblock short'>
+                                <p>A reference packed with a cost value.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='uid_remap/index.html'
+                                  title='ncollide::utils::data::uid_remap'>uid_remap</a></td>
+                           <td class='docblock short'>
+                                <p>A map allowing a slow lookup for arbitrary <code>usize</code> and fast lookup for small ones.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='vec_map/index.html'
+                                  title='ncollide::utils::data::vec_map'>vec_map</a></td>
+                           <td class='docblock short'>
+                                <p>A simple map based on a vector for small integer keys. Space requirements
 are O(highest integer key).</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='vec_slice/index.html'
-                               title='ncollide::utils::data::vec_slice'>vec_slice</a></td>
-                        <td class='docblock short'>
-                             <p>Slicing on non-contiguous data.</p>
-                        </td>
-                    </tr>
-                </table></section>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='vec_slice/index.html'
+                                  title='ncollide::utils::data::vec_slice'>vec_slice</a></td>
+                           <td class='docblock short'>
+                                <p>Slicing on non-contiguous data.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

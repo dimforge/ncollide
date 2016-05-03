@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a></p><script>window.sidebarCurrent = {name: 'transformation', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
@@ -43,70 +44,63 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>ncollide</a>::<wbr><a class='mod' href=''>transformation</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='http://ncollide.org/doc//transformation/index.html?gotosrc=0' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-0' class='srclink' href='http://wip.ncollide.org/rustdoc//transformation/index.html?gotosrc=0' title='goto source code'>[src]</a></span></h1>
 <h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToPolyline.html'
-                               title='ncollide::transformation::ToPolyline'>ToPolyline</a></td>
-                        <td class='docblock short'>
-                             <p>Trait implemented by shapes that can be approximated by a triangle mesh.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToTriMesh.html'
-                               title='ncollide::transformation::ToTriMesh'>ToTriMesh</a></td>
-                        <td class='docblock short'>
-                             <p>Trait implemented by shapes that can be approximated by a triangle mesh.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.ToPolyline.html'
+                                  title='ncollide::transformation::ToPolyline'>ToPolyline</a></td>
+                           <td class='docblock short'>
+                                <p>Trait implemented by shapes that can be approximated by a triangle mesh.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.ToTriMesh.html'
+                                  title='ncollide::transformation::ToTriMesh'>ToTriMesh</a></td>
+                           <td class='docblock short'>
+                                <p>Trait implemented by shapes that can be approximated by a triangle mesh.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.convex_hull2.html'
-                               title='ncollide::transformation::convex_hull2'>convex_hull2</a></td>
-                        <td class='docblock short'>
-                             <p>Computes the convex hull of a set of 2d points.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.convex_hull2_idx.html'
-                               title='ncollide::transformation::convex_hull2_idx'>convex_hull2_idx</a></td>
-                        <td class='docblock short'>
-                             <p>Computes the convex hull of a set of 2d points and returns only the indices of the hull
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.convex_hull2.html'
+                                  title='ncollide::transformation::convex_hull2'>convex_hull2</a></td>
+                           <td class='docblock short'>
+                                <p>Computes the convex hull of a set of 2d points.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.convex_hull2_idx.html'
+                                  title='ncollide::transformation::convex_hull2_idx'>convex_hull2_idx</a></td>
+                           <td class='docblock short'>
+                                <p>Computes the convex hull of a set of 2d points and returns only the indices of the hull
 vertices.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.convex_hull3.html'
-                               title='ncollide::transformation::convex_hull3'>convex_hull3</a></td>
-                        <td class='docblock short'>
-                             <p>Computes the convex hull of a set of 3d points.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.hacd.html'
-                               title='ncollide::transformation::hacd'>hacd</a></td>
-                        <td class='docblock short'>
-                             <p>Approximate convex decomposition of a triangle mesh.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.triangulate.html'
-                               title='ncollide::transformation::triangulate'>triangulate</a></td>
-                        <td class='docblock short'>
-                             <p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
-                        </td>
-                    </tr>
-                </table></section>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.convex_hull3.html'
+                                  title='ncollide::transformation::convex_hull3'>convex_hull3</a></td>
+                           <td class='docblock short'>
+                                <p>Computes the convex hull of a set of 3d points.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.hacd.html'
+                                  title='ncollide::transformation::hacd'>hacd</a></td>
+                           <td class='docblock short'>
+                                <p>Approximate convex decomposition of a triangle mesh.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.triangulate.html'
+                                  title='ncollide::transformation::triangulate'>triangulate</a></td>
+                           <td class='docblock short'>
+                                <p>Triangulates a set of point (sort of) lying on the same 2d plane.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

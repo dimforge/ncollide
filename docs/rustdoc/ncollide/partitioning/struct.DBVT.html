@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>partitioning</a></p><script>window.sidebarCurrent = {name: 'DBVT', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,16 +44,16 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>partitioning</a>::<wbr><a class='struct' href=''>DBVT</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-2572' class='srclink' href='http://ncollide.org/doc/ncollide_entities/partitioning/dbvt/struct.DBVT.html?gotosrc=2572' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2708' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/partitioning/dbvt/struct.DBVT.html?gotosrc=2708' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct DBVT&lt;P, B, BV&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>A Dynamic Bounding Volume Tree.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;P, B, BV&gt; <a class='struct' href='../../ncollide/partitioning/struct.DBVT.html' title='ncollide::partitioning::DBVT'>DBVT</a>&lt;P, B, BV&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../../ncollide/partitioning/struct.DBVT.html' title='ncollide::partitioning::DBVT'>DBVT</a>&lt;P, B, BV&gt;</code></h4>
 <div class='docblock'><p>Creates a new Dynamic Bounding Volume Tree.</p>
-</div></div><h3 class='impl'><code>impl&lt;P, B, BV&gt; <a class='struct' href='../../ncollide/partitioning/struct.DBVT.html' title='ncollide::partitioning::DBVT'>DBVT</a>&lt;P, B, BV&gt; <span class='where'>where BV: 'static + <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, B: 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></h3><div class='impl-items'><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, leaf: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html' title='core::cell::RefCell'>RefCell</a>&lt;<a class='struct' href='../../ncollide/partitioning/struct.DBVTLeaf.html' title='ncollide::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;P, B, BV&gt;&gt;&gt;)</code></h4>
+</div></div><h3 class='impl'><code>impl&lt;P, B, BV&gt; <a class='struct' href='../../ncollide/partitioning/struct.DBVT.html' title='ncollide::partitioning::DBVT'>DBVT</a>&lt;P, B, BV&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, B: 'static + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, BV: 'static + <a class='trait' href='../../ncollide/bounding_volume/trait.BoundingVolume.html' title='ncollide::bounding_volume::BoundingVolume'>BoundingVolume</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>::<a class='trait' href='../../ncollide/math/trait.Vector.html' title='ncollide::math::Vector'>Scalar</a>&gt; + <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/geometry/trait.Translation.html' title='nalgebra::traits::geometry::Translation'>Translation</a>&lt;P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></h3><div class='impl-items'><h4 id='method.remove' class='method'><code>fn <a href='#method.remove' class='fnname'>remove</a>(&amp;mut self, leaf: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html' title='core::cell::RefCell'>RefCell</a>&lt;<a class='struct' href='../../ncollide/partitioning/struct.DBVTLeaf.html' title='ncollide::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;P, B, BV&gt;&gt;&gt;)</code></h4>
 <div class='docblock'><p>Removes a leaf from the tree. Fails if the tree is empty.</p>
 </div><h4 id='method.insert_new' class='method'><code>fn <a href='#method.insert_new' class='fnname'>insert_new</a>(&amp;mut self, b: B, bv: BV) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.RefCell.html' title='core::cell::RefCell'>RefCell</a>&lt;<a class='struct' href='../../ncollide/partitioning/struct.DBVTLeaf.html' title='ncollide::partitioning::DBVTLeaf'>DBVTLeaf</a>&lt;P, B, BV&gt;&gt;&gt;</code></h4>
 <div class='docblock'><p>Creates, inserts, and returns a new leaf with the given content.</p>

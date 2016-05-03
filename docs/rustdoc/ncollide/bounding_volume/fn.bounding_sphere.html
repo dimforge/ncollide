@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>bounding_volume</a></p><script>window.sidebarCurrent = {name: 'bounding_sphere', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,11 +44,11 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>bounding_volume</a>::<wbr><a class='fn' href=''>bounding_sphere</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-2138' class='srclink' href='http://ncollide.org/doc/ncollide_entities/bounding_volume/bounding_sphere/fn.bounding_sphere.html?gotosrc=2138' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn bounding_sphere&lt;P, M, G&gt;(g: &amp;G, m: &amp;M) -&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingSphere.html' title='ncollide::bounding_volume::BoundingSphere'>BoundingSphere</a>&lt;P&gt; <span class='where'>where G: <a class='trait' href='../../ncollide/bounding_volume/trait.HasBoundingVolume.html' title='ncollide::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;M, <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingSphere.html' title='ncollide::bounding_volume::BoundingSphere'>BoundingSphere</a>&lt;P&gt;&gt; + ?<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a>, P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></pre><div class='docblock'><p>Computes the bounding sphere of a shape <code>g</code> transformed by <code>m</code>.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2293' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/bounding_volume/bounding_sphere/fn.bounding_sphere.html?gotosrc=2293' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn bounding_sphere&lt;P, M, G&gt;(g: &amp;G, m: &amp;M) -&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingSphere.html' title='ncollide::bounding_volume::BoundingSphere'>BoundingSphere</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, G: <a class='trait' href='../../ncollide/bounding_volume/trait.HasBoundingVolume.html' title='ncollide::bounding_volume::HasBoundingVolume'>HasBoundingVolume</a>&lt;M, <a class='struct' href='../../ncollide/bounding_volume/struct.BoundingSphere.html' title='ncollide::bounding_volume::BoundingSphere'>BoundingSphere</a>&lt;P&gt;&gt; + ?<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a></span></pre><div class='docblock'><p>Computes the bounding sphere of a shape <code>g</code> transformed by <code>m</code>.</p>
 
 <p>Same as <code>g.bounding_sphere(m)</code>.</p>
 </div></section>

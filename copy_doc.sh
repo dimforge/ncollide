@@ -4,12 +4,12 @@ out_dir=./docs/rustdoc
 ncollide_dir=../ncollide
 
 echo "Generating the documentation..."
-cd $ncollide_dir; make doc
+cd $ncollide_dir; cargo doc --no-deps
 cd -
 rm -rf docs/rustdoc
 cp -r $ncollide_dir/target/doc $out_dir
 
-for crate in ncollide_geom ncollide_pipeline ncollide_utils ncollide_math ncollide_procedural ncollide_transformation
+for crate in ncollide_geometry ncollide_pipeline ncollide_utils ncollide_math ncollide_procedural ncollide_transformation
 do
     cd $ncollide_dir/$crate; cargo doc --no-deps
     cd -

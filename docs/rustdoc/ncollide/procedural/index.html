@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a></p><script>window.sidebarCurrent = {name: 'procedural', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
@@ -43,240 +44,212 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>ncollide</a>::<wbr><a class='mod' href=''>procedural</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='http://ncollide.org/doc//procedural/index.html?gotosrc=0' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-0' class='srclink' href='http://wip.ncollide.org/rustdoc//procedural/index.html?gotosrc=0' title='goto source code'>[src]</a></span></h1>
 <h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='path/index.html'
-                               title='ncollide::procedural::path'>path</a></td>
-                        <td class='docblock short'>
-                             <p>Path generation.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='utils/index.html'
-                               title='ncollide::procedural::utils'>utils</a></td>
-                        <td class='docblock short'>
-                             <p>Utilities useful for various generations tasks.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='path/index.html'
+                                  title='ncollide::procedural::path'>path</a></td>
+                           <td class='docblock short'>
+                                <p>Path generation.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='utils/index.html'
+                                  title='ncollide::procedural::utils'>utils</a></td>
+                           <td class='docblock short'>
+                                <p>Utilities useful for various generations tasks.</p>
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Polyline.html'
-                               title='ncollide::procedural::Polyline'>Polyline</a></td>
-                        <td class='docblock short'>
-                             <p>Shapeetric description of a polyline.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.TriMesh.html'
-                               title='ncollide::procedural::TriMesh'>TriMesh</a></td>
-                        <td class='docblock short'>
-                             <p>Shapeetric description of a mesh.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Polyline.html'
+                                  title='ncollide::procedural::Polyline'>Polyline</a></td>
+                           <td class='docblock short'>
+                                <p>Shapeetric description of a polyline.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.TriMesh.html'
+                                  title='ncollide::procedural::TriMesh'>TriMesh</a></td>
+                           <td class='docblock short'>
+                                <p>Shapeetric description of a mesh.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.IndexBuffer.html'
-                               title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>Different representations of the index buffer.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.IndexBuffer.html'
+                                  title='ncollide::procedural::IndexBuffer'>IndexBuffer</a></td>
+                           <td class='docblock short'>
+                                <p>Different representations of the index buffer.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.bezier_curve.html'
-                               title='ncollide::procedural::bezier_curve'>bezier_curve</a></td>
-                        <td class='docblock short'>
-                             <p>Given a set of control points, generates a (non-rational) Bezier curve.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.bezier_surface.html'
-                               title='ncollide::procedural::bezier_surface'>bezier_surface</a></td>
-                        <td class='docblock short'>
-                             <p>Given a set of control points, generates a (non-rational) Bezier surface.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.capsule.html'
-                               title='ncollide::procedural::capsule'>capsule</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a capsule.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.circle.html'
-                               title='ncollide::procedural::circle'>circle</a></td>
-                        <td class='docblock short'>
-                             <p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.cone.html'
-                               title='ncollide::procedural::cone'>cone</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cone with a given height and diameter.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.cuboid.html'
-                               title='ncollide::procedural::cuboid'>cuboid</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cuboid shape with a split index buffer.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.cylinder.html'
-                               title='ncollide::procedural::cylinder'>cylinder</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cylinder with a given height and diameter.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.quad.html'
-                               title='ncollide::procedural::quad'>quad</a></td>
-                        <td class='docblock short'>
-                             <p>Adds a double-sided quad to the scene.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.quad_with_vertices.html'
-                               title='ncollide::procedural::quad_with_vertices'>quad_with_vertices</a></td>
-                        <td class='docblock short'>
-                             <p>Adds a double-sided quad with the specified grid of vertices.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.rectangle.html'
-                               title='ncollide::procedural::rectangle'>rectangle</a></td>
-                        <td class='docblock short'>
-                             <p>The contour of a cuboid lying on the x-y plane.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.sphere.html'
-                               title='ncollide::procedural::sphere'>sphere</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a UV sphere.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_circle.html'
-                               title='ncollide::procedural::unit_circle'>unit_circle</a></td>
-                        <td class='docblock short'>
-                             <p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_cone.html'
-                               title='ncollide::procedural::unit_cone'>unit_cone</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cone with unit height and diameter.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_cuboid.html'
-                               title='ncollide::procedural::unit_cuboid'>unit_cuboid</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cuboid shape with a split index buffer.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_cylinder.html'
-                               title='ncollide::procedural::unit_cylinder'>unit_cylinder</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a cylinder with unit height and diameter.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_hemisphere.html'
-                               title='ncollide::procedural::unit_hemisphere'>unit_hemisphere</a></td>
-                        <td class='docblock short'>
-                             <p>Creates an hemisphere with a diameter of 1.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_quad.html'
-                               title='ncollide::procedural::unit_quad'>unit_quad</a></td>
-                        <td class='docblock short'>
-                             <p>Adds a double-sided quad with unit size to the scene.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_rectangle.html'
-                               title='ncollide::procedural::unit_rectangle'>unit_rectangle</a></td>
-                        <td class='docblock short'>
-                             <p>The contour of a unit cuboid lying on the x-y plane.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.unit_sphere.html'
-                               title='ncollide::procedural::unit_sphere'>unit_sphere</a></td>
-                        <td class='docblock short'>
-                             <p>Generates a UV sphere centered at the origin and with a unit diameter.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.bezier_curve.html'
+                                  title='ncollide::procedural::bezier_curve'>bezier_curve</a></td>
+                           <td class='docblock short'>
+                                <p>Given a set of control points, generates a (non-rational) Bezier curve.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.bezier_surface.html'
+                                  title='ncollide::procedural::bezier_surface'>bezier_surface</a></td>
+                           <td class='docblock short'>
+                                <p>Given a set of control points, generates a (non-rational) Bezier surface.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.capsule.html'
+                                  title='ncollide::procedural::capsule'>capsule</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a capsule.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.circle.html'
+                                  title='ncollide::procedural::circle'>circle</a></td>
+                           <td class='docblock short'>
+                                <p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.cone.html'
+                                  title='ncollide::procedural::cone'>cone</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cone with a given height and diameter.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.cuboid.html'
+                                  title='ncollide::procedural::cuboid'>cuboid</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cuboid shape with a split index buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.cylinder.html'
+                                  title='ncollide::procedural::cylinder'>cylinder</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cylinder with a given height and diameter.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.quad.html'
+                                  title='ncollide::procedural::quad'>quad</a></td>
+                           <td class='docblock short'>
+                                <p>Adds a double-sided quad to the scene.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.quad_with_vertices.html'
+                                  title='ncollide::procedural::quad_with_vertices'>quad_with_vertices</a></td>
+                           <td class='docblock short'>
+                                <p>Adds a double-sided quad with the specified grid of vertices.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.rectangle.html'
+                                  title='ncollide::procedural::rectangle'>rectangle</a></td>
+                           <td class='docblock short'>
+                                <p>The contour of a cuboid lying on the x-y plane.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.sphere.html'
+                                  title='ncollide::procedural::sphere'>sphere</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a UV sphere.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_circle.html'
+                                  title='ncollide::procedural::unit_circle'>unit_circle</a></td>
+                           <td class='docblock short'>
+                                <p>Creates a circle lying on the <code>(x,y)</code> plane.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_cone.html'
+                                  title='ncollide::procedural::unit_cone'>unit_cone</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cone with unit height and diameter.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_cuboid.html'
+                                  title='ncollide::procedural::unit_cuboid'>unit_cuboid</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cuboid shape with a split index buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_cylinder.html'
+                                  title='ncollide::procedural::unit_cylinder'>unit_cylinder</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a cylinder with unit height and diameter.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_hemisphere.html'
+                                  title='ncollide::procedural::unit_hemisphere'>unit_hemisphere</a></td>
+                           <td class='docblock short'>
+                                <p>Creates an hemisphere with a diameter of 1.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_quad.html'
+                                  title='ncollide::procedural::unit_quad'>unit_quad</a></td>
+                           <td class='docblock short'>
+                                <p>Adds a double-sided quad with unit size to the scene.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_rectangle.html'
+                                  title='ncollide::procedural::unit_rectangle'>unit_rectangle</a></td>
+                           <td class='docblock short'>
+                                <p>The contour of a unit cuboid lying on the x-y plane.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.unit_sphere.html'
+                                  title='ncollide::procedural::unit_sphere'>unit_sphere</a></td>
+                           <td class='docblock short'>
+                                <p>Generates a UV sphere centered at the origin and with a unit diameter.</p>
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.Polyline2.html'
-                               title='ncollide::procedural::Polyline2'>Polyline2</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.Polyline3.html'
-                               title='ncollide::procedural::Polyline3'>Polyline3</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.TriMesh2.html'
-                               title='ncollide::procedural::TriMesh2'>TriMesh2</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.TriMesh3.html'
-                               title='ncollide::procedural::TriMesh3'>TriMesh3</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Polyline2.html'
+                                  title='ncollide::procedural::Polyline2'>Polyline2</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Polyline3.html'
+                                  title='ncollide::procedural::Polyline3'>Polyline3</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.TriMesh2.html'
+                                  title='ncollide::procedural::TriMesh2'>TriMesh2</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.TriMesh3.html'
+                                  title='ncollide::procedural::TriMesh3'>TriMesh3</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

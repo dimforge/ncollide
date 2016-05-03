@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a></p><script>window.sidebarCurrent = {name: 'broad_phase', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
@@ -43,46 +44,49 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>ncollide</a>::<wbr><a class='mod' href=''>broad_phase</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-10' class='srclink' href='http://ncollide.org/doc/ncollide_pipeline/broad_phase/index.html?gotosrc=10' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-9' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_pipeline/broad_phase/index.html?gotosrc=9' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Broad phases.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.BroadPhasePairFilters.html'
-                               title='ncollide::broad_phase::BroadPhasePairFilters'>BroadPhasePairFilters</a></td>
-                        <td class='docblock short'>
-                             <p>Filters deciding whether a proximity is to be further investigated by the narrow phase or not.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.DBVTBroadPhase.html'
-                               title='ncollide::broad_phase::DBVTBroadPhase'>DBVTBroadPhase</a></td>
-                        <td class='docblock short'>
-                             <p>Broad phase based on a Dynamic Bounding Volume Tree.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.BroadPhasePairFilters.html'
+                                  title='ncollide::broad_phase::BroadPhasePairFilters'>BroadPhasePairFilters</a></td>
+                           <td class='docblock short'>
+                                <p>Filters deciding whether a proximity is to be further investigated by the narrow phase or not.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.BruteForceBroadPhase.html'
+                                  title='ncollide::broad_phase::BruteForceBroadPhase'>BruteForceBroadPhase</a></td>
+                           <td class='docblock short'>
+                                <p>A broad phase testing explicitly all bounding volume pairs.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.DBVTBroadPhase.html'
+                                  title='ncollide::broad_phase::DBVTBroadPhase'>DBVTBroadPhase</a></td>
+                           <td class='docblock short'>
+                                <p>Broad phase based on a Dynamic Bounding Volume Tree.</p>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.BroadPhase.html'
-                               title='ncollide::broad_phase::BroadPhase'>BroadPhase</a></td>
-                        <td class='docblock short'>
-                             <p>Trait all broad phase must implement.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.BroadPhasePairFilter.html'
-                               title='ncollide::broad_phase::BroadPhasePairFilter'>BroadPhasePairFilter</a></td>
-                        <td class='docblock short'>
-                             <p>A signal handler for contact detection.</p>
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.BroadPhase.html'
+                                  title='ncollide::broad_phase::BroadPhase'>BroadPhase</a></td>
+                           <td class='docblock short'>
+                                <p>Trait all broad phase must implement.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.BroadPhasePairFilter.html'
+                                  title='ncollide::broad_phase::BroadPhasePairFilter'>BroadPhasePairFilter</a></td>
+                           <td class='docblock short'>
+                                <p>A signal handler for contact detection.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a></p><script>window.sidebarCurrent = {name: 'PolylinePath', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a>::<wbr><a class='struct' href=''>PolylinePath</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-340' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/path/polyline_path/struct.PolylinePath.html?gotosrc=340' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-318' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/path/polyline_path/struct.PolylinePath.html?gotosrc=318' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct PolylinePath&lt;'a, P&gt; <span class='where'>where P: 'a + <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
     // some fields omitted
 }</pre><div class='docblock'><p>A path with its sample points given by a polyline.</p>
@@ -54,7 +55,7 @@
 <p>This will return sequencially each vertex of the polyline.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, P&gt; <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePath.html' title='ncollide::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, P&gt; <span class='where'>where P: <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(polyline: &amp;'a <a class='struct' href='../../../ncollide/procedural/struct.Polyline.html' title='ncollide::procedural::Polyline'>Polyline</a>&lt;P&gt;) -&gt; <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePath.html' title='ncollide::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, P&gt;</code></h4>
 <div class='docblock'><p>Creates a new polyline-based path.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, P&gt; <a class='trait' href='../../../ncollide/procedural/path/trait.CurveSampler.html' title='ncollide::procedural::path::CurveSampler'>CurveSampler</a>&lt;P&gt; for <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePath.html' title='ncollide::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, P&gt; <span class='where'>where P: <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.next' class='method'><code>fn <a href='../../../ncollide/procedural/path/trait.CurveSampler.html#method.next' class='fnname'>next</a>(&amp;mut self) -&gt; <a class='enum' href='../../../ncollide/procedural/path/enum.PathSample.html' title='ncollide::procedural::path::PathSample'>PathSample</a>&lt;P&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a, P&gt; <a class='trait' href='../../../ncollide/procedural/path/trait.CurveSampler.html' title='ncollide::procedural::path::CurveSampler'>CurveSampler</a>&lt;P&gt; for <a class='struct' href='../../../ncollide/procedural/path/struct.PolylinePath.html' title='ncollide::procedural::path::PolylinePath'>PolylinePath</a>&lt;'a, P&gt; <span class='where'>where P: <a class='trait' href='../../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.next' class='method'><code>fn <a href='../../../ncollide/procedural/path/trait.CurveSampler.html#tymethod.next' class='fnname'>next</a>(&amp;mut self) -&gt; <a class='enum' href='../../../ncollide/procedural/path/enum.PathSample.html' title='ncollide::procedural::path::PathSample'>PathSample</a>&lt;P&gt;</code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
 

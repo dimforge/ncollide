@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a></p><script>window.sidebarCurrent = {name: 'PolylineCompatibleCap', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,10 +44,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>ncollide</a>::<wbr><a href='../index.html'>procedural</a>::<wbr><a href='index.html'>path</a>::<wbr><a class='trait' href=''>PolylineCompatibleCap</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-276' class='srclink' href='http://ncollide.org/doc/ncollide_procedural/path/polyline_pattern/trait.PolylineCompatibleCap.html?gotosrc=276' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-256' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_procedural/path/polyline_pattern/trait.PolylineCompatibleCap.html?gotosrc=256' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait PolylineCompatibleCap&lt;N&gt; <span class='where'>where N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span> {
     fn <a href='#tymethod.gen_start_cap' class='fnname'>gen_start_cap</a>(&amp;self, attach_id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, pattern: &amp;<a class='struct' href='../../../ncollide/procedural/struct.Polyline.html' title='ncollide::procedural::Polyline'>Polyline</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;&gt;, pt: &amp;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;, dir: &amp;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vector/struct.Vector3.html' title='nalgebra::structs::vector::Vector3'>Vector3</a>&lt;N&gt;, closed: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, coords: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;&gt;, indices: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;);
     fn <a href='#tymethod.gen_end_cap' class='fnname'>gen_end_cap</a>(&amp;self, attach_id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, pattern: &amp;<a class='struct' href='../../../ncollide/procedural/struct.Polyline.html' title='ncollide::procedural::Polyline'>Polyline</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;&gt;, pt: &amp;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;, dir: &amp;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/vector/struct.Vector3.html' title='nalgebra::structs::vector::Vector3'>Vector3</a>&lt;N&gt;, closed: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, coords: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;N&gt;&gt;, indices: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='http://nalgebra.org/doc/nalgebra/structs/point/struct.Point3.html' title='nalgebra::structs::point::Point3'>Point3</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt;&gt;);
@@ -59,11 +60,11 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt; for <a class='struct' href='../../../ncollide/procedural/path/struct.NoCap.html' title='ncollide::procedural::path::NoCap'>NoCap</a> <span class='where'>where N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../../../ncollide/procedural/path/trait.PolylineCompatibleCap.html' title='ncollide::procedural::path::PolylineCompatibleCap'>PolylineCompatibleCap</a>&lt;N&gt; for <a class='struct' href='../../../ncollide/procedural/path/struct.ArrowheadCap.html' title='ncollide::procedural::path::ArrowheadCap'>ArrowheadCap</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+    <li><code>impl&lt;N&gt; PolylineCompatibleCap for <a class='struct' href='../../../ncollide/procedural/path/struct.NoCap.html' title='ncollide::procedural::path::NoCap'>NoCap</a> <span class='where'>where N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
+<li><code>impl&lt;N&gt; PolylineCompatibleCap for <a class='struct' href='../../../ncollide/procedural/path/struct.ArrowheadCap.html' title='ncollide::procedural::path::ArrowheadCap'>ArrowheadCap</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../../implementors/ncollide_procedural/path/polyline_pattern/trait.PolylineCompatibleCap.js">
-                      </script></section>
+                         src="../../../implementors/ncollide_procedural/path/polyline_pattern/trait.PolylineCompatibleCap.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

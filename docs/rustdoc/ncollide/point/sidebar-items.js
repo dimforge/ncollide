@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["PointInterferencesCollector","Bounding Volume Tree visitor collecting nodes that may contain a given point."],["PointProjection","Description of the projection of a point on a shape."]],"trait":[["PointQuery","Trait of objects that can be tested for point inclusion and projection."]]});

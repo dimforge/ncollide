@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a></p><script>window.sidebarCurrent = {name: 'world', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
@@ -43,79 +44,85 @@
 
     <section id='main' class="content mod">
 <h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>ncollide</a>::<wbr><a class='mod' href=''>world</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1562' class='srclink' href='http://ncollide.org/doc/ncollide_pipeline/world/index.html?gotosrc=1562' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1566' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_pipeline/world/index.html?gotosrc=1566' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>High level API to detect collisions in large, complex scenes.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.CollisionGroups.html'
-                               title='ncollide::world::CollisionGroups'>CollisionGroups</a></td>
-                        <td class='docblock short'>
-                             <p>Groups of collision used to filter which object collide with which other one.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.CollisionGroupsPairFilter.html'
-                               title='ncollide::world::CollisionGroupsPairFilter'>CollisionGroupsPairFilter</a></td>
-                        <td class='docblock short'>
-                             <p>A collision filter based collision groups.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.CollisionObject.html'
-                               title='ncollide::world::CollisionObject'>CollisionObject</a></td>
-                        <td class='docblock short'>
-                             <p>A stand-alone object that has a position and a shape.</p>
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.CollisionWorld.html'
-                               title='ncollide::world::CollisionWorld'>CollisionWorld</a></td>
-                        <td class='docblock short'>
-                             <p>A world that handles collision objects.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CollisionGroups.html'
+                                  title='ncollide::world::CollisionGroups'>CollisionGroups</a></td>
+                           <td class='docblock short'>
+                                <p>Groups of collision used to filter which object interact with which other one.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CollisionGroupsPairFilter.html'
+                                  title='ncollide::world::CollisionGroupsPairFilter'>CollisionGroupsPairFilter</a></td>
+                           <td class='docblock short'>
+                                <p>A collision filter based collision groups.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CollisionObject.html'
+                                  title='ncollide::world::CollisionObject'>CollisionObject</a></td>
+                           <td class='docblock short'>
+                                <p>A stand-alone object that has a position and a shape.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CollisionWorld.html'
+                                  title='ncollide::world::CollisionWorld'>CollisionWorld</a></td>
+                           <td class='docblock short'>
+                                <p>A world that handles collision objects.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.CollisionQueryType.html'
-                               title='ncollide::world::CollisionQueryType'>CollisionQueryType</a></td>
-                        <td class='docblock short'>
-                             <p>The kind of query a CollisionObject may be involved on.</p>
-                        </td>
-                    </tr>
-                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.GeometricQueryType.html'
+                                  title='ncollide::world::GeometricQueryType'>GeometricQueryType</a></td>
+                           <td class='docblock short'>
+                                <p>The kind of query a CollisionObject may be involved on.</p>
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.BroadPhaseObject.html'
-                               title='ncollide::world::BroadPhaseObject'>BroadPhaseObject</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.CollisionWorld2.html'
-                               title='ncollide::world::CollisionWorld2'>CollisionWorld2</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.CollisionWorld3.html'
-                               title='ncollide::world::CollisionWorld3'>CollisionWorld3</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.BroadPhaseObject.html'
+                                  title='ncollide::world::BroadPhaseObject'>BroadPhaseObject</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.CollisionObject2.html'
+                                  title='ncollide::world::CollisionObject2'>CollisionObject2</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.CollisionObject3.html'
+                                  title='ncollide::world::CollisionObject3'>CollisionObject3</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.CollisionWorld2.html'
+                                  title='ncollide::world::CollisionWorld2'>CollisionWorld2</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.CollisionWorld3.html'
+                                  title='ncollide::world::CollisionWorld3'>CollisionWorld3</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

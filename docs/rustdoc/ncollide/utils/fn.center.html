@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>utils</a></p><script>window.sidebarCurrent = {name: 'center', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,11 +44,11 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>utils</a>::<wbr><a class='fn' href=''>center</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1329' class='srclink' href='http://ncollide.org/doc/ncollide_utils/center/fn.center.html?gotosrc=1329' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn center&lt;N, P&gt;(pts: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[P]</a>) -&gt; P <span class='where'>where P: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/operations/trait.Axpy.html' title='nalgebra::traits::operations::Axpy'>Axpy</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N, Output=P&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>, N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a></span></pre><div class='docblock'><p>Computes the center of a set of point.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1314' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_utils/center/fn.center.html?gotosrc=1314' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn center&lt;N, P&gt;(pts: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[P]</a>) -&gt; P <span class='where'>where N: <a class='trait' href='../../ncollide/math/trait.Scalar.html' title='ncollide::math::Scalar'>Scalar</a>, P: <a class='trait' href='http://nalgebra.org/doc/nalgebra/traits/operations/trait.Axpy.html' title='nalgebra::traits::operations::Axpy'>Axpy</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N, Output=P&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></pre><div class='docblock'><p>Computes the center of a set of point.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 

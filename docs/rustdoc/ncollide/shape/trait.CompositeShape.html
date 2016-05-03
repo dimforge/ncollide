@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>shape</a></p><script>window.sidebarCurrent = {name: 'CompositeShape', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,14 +44,13 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>shape</a>::<wbr><a class='trait' href=''>CompositeShape</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1312' class='srclink' href='http://ncollide.org/doc/ncollide_entities/shape/composite_shape/trait.CompositeShape.html?gotosrc=1312' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-37' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_geometry/shape/composite_shape/trait.CompositeShape.html?gotosrc=37' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait CompositeShape&lt;P, M&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
-    fn <a href='#tymethod.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>;
-    fn <a href='#tymethod.map_part_at' class='fnname'>map_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/inspection/trait.Repr.html' title='ncollide::inspection::Repr'>Repr</a>&lt;P, M&gt; + 'static));
-    fn <a href='#tymethod.map_transformed_part_at' class='fnname'>map_transformed_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, m: &amp;M, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/inspection/trait.Repr.html' title='ncollide::inspection::Repr'>Repr</a>&lt;P, M&gt; + 'static));
+    fn <a href='#tymethod.map_part_at' class='fnname'>map_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/shape/trait.Shape.html' title='ncollide::shape::Shape'>Shape</a>&lt;P, M&gt; + 'static));
+    fn <a href='#tymethod.map_transformed_part_at' class='fnname'>map_transformed_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, m: &amp;M, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/shape/trait.Shape.html' title='ncollide::shape::Shape'>Shape</a>&lt;P, M&gt; + 'static));
     fn <a href='#tymethod.aabb_at' class='fnname'>aabb_at</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.AABB.html' title='ncollide::bounding_volume::AABB'>AABB</a>&lt;P&gt;;
     fn <a href='#tymethod.bvt' class='fnname'>bvt</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../ncollide/partitioning/struct.BVT.html' title='ncollide::partitioning::BVT'>BVT</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='struct' href='../../ncollide/bounding_volume/struct.AABB.html' title='ncollide::bounding_volume::AABB'>AABB</a>&lt;P&gt;&gt;;
 }</pre><div class='docblock'><p>Trait implemented by shapes composed of multiple simpler shapes.</p>
@@ -60,21 +60,20 @@ a concave shape.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.len' class='method stab '><code>fn <a href='#tymethod.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h3><div class='docblock'><p>The number of parts on this composite shapes.</p>
-</div><h3 id='tymethod.map_part_at' class='method stab '><code>fn <a href='#tymethod.map_part_at' class='fnname'>map_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/inspection/trait.Repr.html' title='ncollide::inspection::Repr'>Repr</a>&lt;P, M&gt; + 'static))</code></h3><div class='docblock'><p>Applies a function to each sub-shape of this concave shape.</p>
-</div><h3 id='tymethod.map_transformed_part_at' class='method stab '><code>fn <a href='#tymethod.map_transformed_part_at' class='fnname'>map_transformed_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, m: &amp;M, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/inspection/trait.Repr.html' title='ncollide::inspection::Repr'>Repr</a>&lt;P, M&gt; + 'static))</code></h3><div class='docblock'><p>Applies a transformation matrix and a function to each sub-shape of this concave
+        <h3 id='tymethod.map_part_at' class='method stab '><code>fn <a href='#tymethod.map_part_at' class='fnname'>map_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/shape/trait.Shape.html' title='ncollide::shape::Shape'>Shape</a>&lt;P, M&gt; + 'static))</code></h3><div class='docblock'><p>Applies a function to each sub-shape of this concave shape.</p>
+</div><h3 id='tymethod.map_transformed_part_at' class='method stab '><code>fn <a href='#tymethod.map_transformed_part_at' class='fnname'>map_transformed_part_at</a>(&amp;self, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, m: &amp;M, &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;M, &amp;<a class='trait' href='../../ncollide/shape/trait.Shape.html' title='ncollide::shape::Shape'>Shape</a>&lt;P, M&gt; + 'static))</code></h3><div class='docblock'><p>Applies a transformation matrix and a function to each sub-shape of this concave
 shape.</p>
 </div><h3 id='tymethod.aabb_at' class='method stab '><code>fn <a href='#tymethod.aabb_at' class='fnname'>aabb_at</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='struct' href='../../ncollide/bounding_volume/struct.AABB.html' title='ncollide::bounding_volume::AABB'>AABB</a>&lt;P&gt;</code></h3><div class='docblock'><p>Gets the AABB of the shape identified by the index <code>i</code>.</p>
 </div><h3 id='tymethod.bvt' class='method stab '><code>fn <a href='#tymethod.bvt' class='fnname'>bvt</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../ncollide/partitioning/struct.BVT.html' title='ncollide::partitioning::BVT'>BVT</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='struct' href='../../ncollide/bounding_volume/struct.AABB.html' title='ncollide::bounding_volume::AABB'>AABB</a>&lt;P&gt;&gt;</code></h3><div class='docblock'><p>Gets the acceleration structure of the concave shape.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;P, M&gt; <a class='trait' href='../../ncollide/shape/trait.CompositeShape.html' title='ncollide::shape::CompositeShape'>CompositeShape</a>&lt;P, M&gt; for <a class='struct' href='../../ncollide/shape/struct.Compound.html' title='ncollide::shape::Compound'>Compound</a>&lt;P, M&gt; <span class='where'>where M: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M, Output=M&gt;, P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></li>
-<li><code>impl&lt;P, M&gt; <a class='trait' href='../../ncollide/shape/trait.CompositeShape.html' title='ncollide::shape::CompositeShape'>CompositeShape</a>&lt;P, M&gt; for <a class='struct' href='../../ncollide/shape/struct.TriMesh.html' title='ncollide::shape::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, M: <a class='trait' href='../../ncollide/math/trait.Isometry.html' title='ncollide::math::Isometry'>Isometry</a>&lt;P, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt;</span></code></li>
-<li><code>impl&lt;P, M&gt; <a class='trait' href='../../ncollide/shape/trait.CompositeShape.html' title='ncollide::shape::CompositeShape'>CompositeShape</a>&lt;P, M&gt; for <a class='struct' href='../../ncollide/shape/struct.Polyline.html' title='ncollide::shape::Polyline'>Polyline</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, M: <a class='trait' href='../../ncollide/math/trait.Isometry.html' title='ncollide::math::Isometry'>Isometry</a>&lt;P, P::<a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Vect</a>&gt;</span></code></li>
+    <li><code>impl&lt;P, M&gt; CompositeShape for <a class='struct' href='../../ncollide/shape/struct.TriMesh.html' title='ncollide::shape::TriMesh'>TriMesh</a>&lt;P&gt; <span class='where'>where M: <a class='trait' href='../../ncollide/math/trait.Isometry.html' title='ncollide::math::Isometry'>Isometry</a>&lt;P&gt;, P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></li>
+<li><code>impl&lt;P, M&gt; CompositeShape for <a class='struct' href='../../ncollide/shape/struct.Polyline.html' title='ncollide::shape::Polyline'>Polyline</a>&lt;P&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a>, M: <a class='trait' href='../../ncollide/math/trait.Isometry.html' title='ncollide::math::Isometry'>Isometry</a>&lt;P&gt;</span></code></li>
+<li><code>impl&lt;P, M&gt; CompositeShape for <a class='struct' href='../../ncollide/shape/struct.Compound.html' title='ncollide::shape::Compound'>Compound</a>&lt;P, M&gt; <span class='where'>where M: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M, Output=M&gt;, P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../implementors/ncollide_entities/shape/composite_shape/trait.CompositeShape.js">
-                      </script></section>
+                         src="../../implementors/ncollide_geometry/shape/composite_shape/trait.CompositeShape.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>

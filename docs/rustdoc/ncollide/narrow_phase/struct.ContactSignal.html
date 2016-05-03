@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
@@ -25,7 +26,7 @@
 
     
 
-    <div class="container"><div class="col-md-3"><nav class="sidebar">
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
         <p class='location'><a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>narrow_phase</a></p><script>window.sidebarCurrent = {name: 'ContactSignal', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
@@ -43,14 +44,24 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ncollide</a>::<wbr><a href='index.html'>narrow_phase</a>::<wbr><a class='struct' href=''>ContactSignal</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1470' class='srclink' href='http://ncollide.org/doc/ncollide_pipeline/narrow_phase/contact_signal/struct.ContactSignal.html?gotosrc=1470' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct ContactSignal&lt;B&gt; {
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1485' class='srclink' href='http://wip.ncollide.org/rustdoc/ncollide_pipeline/narrow_phase/contact_signal/struct.ContactSignal.html?gotosrc=1485' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct ContactSignal&lt;P, M, T&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span> {
     // some fields omitted
 }</pre><div class='docblock'><p>Signal for contact start/stop.</p>
-</div></section>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;P, M, T&gt; <a class='struct' href='../../ncollide/narrow_phase/struct.ContactSignal.html' title='ncollide::narrow_phase::ContactSignal'>ContactSignal</a>&lt;P, M, T&gt; <span class='where'>where P: <a class='trait' href='../../ncollide/math/trait.Point.html' title='ncollide::math::Point'>Point</a></span></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../../ncollide/narrow_phase/struct.ContactSignal.html' title='ncollide::narrow_phase::ContactSignal'>ContactSignal</a>&lt;P, M, T&gt;</code></h4>
+<div class='docblock'><p>Creates a new <code>ContactSignal</code> with no event handler registered.</p>
+</div><h4 id='method.register_contact_handler' class='method'><code>fn <a href='#method.register_contact_handler' class='fnname'>register_contact_handler</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, callback: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../../ncollide/narrow_phase/trait.ContactHandler.html' title='ncollide::narrow_phase::ContactHandler'>ContactHandler</a>&lt;P, M, T&gt; + 'static&gt;)</code></h4>
+<div class='docblock'><p>Registers an event handler.</p>
+</div><h4 id='method.unregister_contact_handler' class='method'><code>fn <a href='#method.unregister_contact_handler' class='fnname'>unregister_contact_handler</a>(&amp;mut self, name: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>)</code></h4>
+<div class='docblock'><p>Unregisters an event handler.</p>
+</div><h4 id='method.trigger_contact_started_signal' class='method'><code>fn <a href='#method.trigger_contact_started_signal' class='fnname'>trigger_contact_started_signal</a>(&amp;mut self, co1: &amp;<a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt;, co2: &amp;<a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt;, contacts: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../../ncollide/narrow_phase/trait.ContactGenerator.html' title='ncollide::narrow_phase::ContactGenerator'>ContactGenerator</a>&lt;P, M&gt; + 'static&gt;)</code></h4>
+<div class='docblock'><p>Activates the contact started signal, executing all the event handlers.</p>
+</div><h4 id='method.trigger_contact_stopped_signal' class='method'><code>fn <a href='#method.trigger_contact_stopped_signal' class='fnname'>trigger_contact_stopped_signal</a>(&amp;mut self, co1: &amp;<a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt;, co2: &amp;<a class='struct' href='../../ncollide/world/struct.CollisionObject.html' title='ncollide::world::CollisionObject'>CollisionObject</a>&lt;P, M, T&gt;)</code></h4>
+<div class='docblock'><p>Activates the contact stopped signal, executing all the event handlers.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>
