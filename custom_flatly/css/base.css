@@ -2,6 +2,26 @@ body {
     padding-top: 70px;
 }
 
+div.tab-pane pre {
+  overflow-y: auto;
+  max-height: 600px;
+  border-radius: 0px;
+  border-top-color: transparent;
+}
+
+.nav-tabs {
+  border-bottom: solid 1px #ccc;
+}
+
+#tab_nav_link {
+  color: #777777;
+  border-color: #ccc;
+  border-bottom-color: transparent;
+  font-size: 17.5px;
+  font-weight: bold;
+  outline: 0;
+}
+
 #prev_page {
     float: left
 }
@@ -56,6 +76,7 @@ body {
 
 h4 {
     color: #777777;
+    font-weight: bold;
 }
 
 #left_float_img {

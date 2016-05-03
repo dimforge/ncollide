@@ -63,3 +63,15 @@
   height: 27px;
   float: right;
 }
+
+ul.nav-tabs div.btn-primary {
+  margin-top: 10px;
+}
+
+ul.nav-tabs div.d2 {
+  margin-top: 10px;
+}
+
+ul.nav-tabs div.d3 {
+  margin-top: 10px;
+}

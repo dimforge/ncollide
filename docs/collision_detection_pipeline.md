@@ -113,7 +113,16 @@ the values your keys may take, set `small_keys` to `false`.
 The following example creates four balls, adds them to a `DBVTBroadPhase`,
 updates the broad phase, and removes some of them.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase2d.rs')" ></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#dbvt_broad_phase_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#dbvt_broad_phase_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="dbvt_broad_phase_2D" class="tab-pane in active">
 ```rust
 /*
  * Create the objects.
@@ -156,8 +165,8 @@ bf.update(&mut |a ,b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 1)
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/dbvt_broad_phase3d.rs')" ></div>
+  </div>
+  <div id="dbvt_broad_phase_3D" class="tab-pane">
 ```rust
 /*
  * Create the objects.
@@ -200,6 +209,8 @@ bf.update(&mut |a ,b| *a != *b, &mut |_, _, _| { });
 
 assert!(bf.num_interferences() == 1)
 ```
+  </div>
+</div>
 
 
 # Narrow phase
@@ -591,8 +602,16 @@ filters interactions in a way that would be impossible using collision groups.
 We will allow interactions between collision objects with identifiers sharing
 the same parity only.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#custom_collision_filter_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#custom_collision_filter_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter2d.rs')"></div>
+</ul>
 
+<div class="tab-content" markdown="1">
+  <div id="custom_collision_filter_2D" class="tab-pane in active">
 ```rust
 struct ParityFilter;
 
@@ -605,14 +624,8 @@ impl BroadPhasePairFilter<Point2<f32>, Isometry2<f32>, ()> for ParityFilter {
     }
 }
 ```
-
-Then, this filter should be added to the collision world with:
-```rust
-world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
-```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_collision_filter3d.rs')"></div>
-
+  </div>
+  <div id="custom_collision_filter_3D" class="tab-pane">
 ```rust
 struct ParityFilter;
 
@@ -625,6 +638,8 @@ impl BroadPhasePairFilter<Point3<f32>, Isometry3<f32>, ()> for ParityFilter {
     }
 }
 ```
+</div>
+</div>
 
 Then, this filter should be added to the collision world with:
 ```rust

@@ -16,13 +16,13 @@
 
 <br>
 
-<table>
+<table markdown="1">
 <tr>
-    <td><a href="../geometric_representations"><img src="../img/feature_complex_shapes.svg"></img></a></td>
+    <td>[![](../img/feature_complex_shapes.svg)](../geometric_representations)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_representations" id="no_highlight">
     <div>
-    <b><big>Complex shapes</big></b>
+    <big>**Complex shapes**</big>
     <br>
     Complex geometric queries for collision detection are available for 2D and
     3D shapes with various levels of complexity: from simple spheres to
@@ -31,13 +31,12 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../bounding_volumes"><img src="../img/feature_bounding_volumes.svg"></img></a></td>
+    <td>[![](../img/feature_bounding_volumes.svg)](../bounding_volumes)</td>
     <td style="vertical-align:middle">
     <a href="../bounding_volumes" id="no_highlight">
     <div>
-    <b><big>Bounding volumes</big></b>
+    <big>**Bounding volumes**</big>
     <br>
     Complex shapes may be approximated by simpler ones like AABB and bounding
     spheres. Those can be used for approximating some geometric queries
@@ -46,26 +45,24 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../geometric_queries/#ray-casting"><img src="../img/feature_ray_casting.svg"></img></a></td>
+    <td>[![](../img/feature_ray_casting.svg)](../geometric_queries/#ray-casting)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_queries/#ray-casting" id="no_highlight">
     <div>
-    <b><big>Ray casting</big></b>
+    <big>**Ray casting**</big>
     <br>
     Computation of intersection between a ray and any shape.
     </div>
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../geometric_queries/#point-projection"><img src="../img/feature_point_projection.svg"></img></a></td>
+    <td>[![](../img/feature_point_projection.svg)](../geometric_queries/#point-projection)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_queries/#point-projection" id="no_highlight">
     <div>
-    <b><big>Point projection</big></b>
+    <big>**Point projection**</big>
     <br>
     Point containment test, distance to point, and point projection on any
     shape.
@@ -73,13 +70,12 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../geometric_queries/#contact"><img src="../img/feature_contact_points.svg"></img></a></td>
+    <td>[![](../img/feature_contact_points.svg)](../geometric_queries/#contact)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_queries/#contact" id="no_highlight">
     <div>
-    <b><big>Contact points</big></b>
+    <big>**Contact points**</big>
     <br>
     Find the closest points between objects in close proximity.  If they are
     penetrating, the minimal translational distance can be obtained as well!
@@ -87,13 +83,12 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../geometric_queries/#time-of-impact"><img src="../img/feature_time_of_impact.svg"></img></a></td>
+    <td>[![](../img/feature_time_of_impact.svg)](../geometric_queries/#time-of-impact)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_queries/#time-of-impact" id="no_highlight">
     <div>
-    <b><big>Time-of-impact</big></b>
+    <big>**Time-of-impact**</big>
     <br>
     Compute the time it would take for two moving shapes to start being in
     contact.
@@ -101,26 +96,24 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../geometric_queries/#distance"><img src="../img/feature_smallest_distance.svg"></img></a></td>
+    <td>[![](../img/feature_smallest_distance.svg)](../geometric_queries/#distance)</td>
     <td style="vertical-align:middle">
     <a href="../geometric_queries/#distance" id="no_highlight">
     <div>
-    <b><big>Smallest distance</big></b>
+    <big>**Smallest distance**</big>
     <br>
     Compute the global minimal distance between two shapes.
     </div>
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../bounding_volumes/#spacial-partitioning"><img src="../img/feature_spacial_partitioning.svg"></img></a></td>
+    <td>[![](../img/feature_spacial_partitioning.svg)](../bounding_volumes/#spacial-partitioning)</td>
     <td style="vertical-align:middle">
     <a href="../bounding_volumes/#spacial-partitioning" id="no_highlight">
     <div>
-    <b><big>Spacial partitioning</big></b>
+    <big>**Spacial partitioning**</big>
     <br>
     Efficient data structures to perform geometric queries efficiently on
     thousands of objects.
@@ -128,13 +121,12 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../collision_detection_pipeline"><img src="../img/feature_collision_detection_pipeline.gif"></img></a></td>
+    <td>[![](../img/feature_collision_detection_pipeline.gif)](../collision_detection_pipeline)</td>
     <td style="vertical-align:middle">
     <a href="../collision_detection_pipeline" id="no_highlight">
     <div>
-    <b><big>Collision detection pipeline</big></b>
+    <big>**Collision detection pipeline**</big>
     <br>
     A complete and efficient collision detection pipeline including a broad
     phase and a narrow phase. Enables real-time contacts generation, proximity events,
@@ -143,13 +135,12 @@
     </a>
     </td>
 </tr>
-
 <tr>
-    <td><a href="../mesh_generation"><img src="../img/feature_mesh_generation.png"></img></a></td>
+    <td>[![](../img/feature_mesh_generation.png)](../mesh_generation)</td>
     <td style="vertical-align:middle">
     <a href="../mesh_generation" id="no_highlight">
     <div>
-    <b><big>Mesh generation</big></b>
+    <big>**Mesh generation**</big>
     <br>
     Generate triangle meshes from smooth objects, compute their convex hull, or
     decompose them approximately into their convex components.
@@ -157,8 +148,6 @@
     </a>
     </td>
 </tr>
-
-
 </table>
 
 ----

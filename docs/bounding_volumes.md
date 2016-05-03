@@ -112,13 +112,22 @@ parameter. Therefore, you may have to specify explicitly the return type of
 the method in order to use it, e.g. `let bs: BoundingSphere<Point3<f32>> =
 g.bounding_volume(m);`.
 
-### Example
-
 The following example computes the bounding spheres of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder bounding
 sphere, and performs some tests.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#bsphere_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#bsphere_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere2d.rs')"></div>
+
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="bsphere_2D" class="tab-pane in active">
 ```rust
 /*
  * Initialize the shapes.
@@ -149,8 +158,8 @@ assert!(!bounding_sphere_cylinder.contains(&bounding_bounding_sphere));
 assert!(!bounding_sphere_cone.contains(&bounding_bounding_sphere));
 assert!(loose_bounding_sphere_cylinder.contains(&bounding_sphere_cylinder));
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bounding_sphere3d.rs')"></div>
+  </div>
+  <div id="bsphere_3D" class="tab-pane">
 ```rust
 /*
  * Initialize the shapes.
@@ -181,6 +190,8 @@ assert!(!bounding_sphere_cylinder.contains(&bounding_bounding_sphere));
 assert!(!bounding_sphere_cone.contains(&bounding_bounding_sphere));
 assert!(loose_bounding_sphere_cylinder.contains(&bounding_sphere_cylinder));
 ```
+  </div>
+</div>
 
 ## Axis-Aligned Bounding Box
 
@@ -248,7 +259,18 @@ The following example computes the AABB of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder AABB, and
 performs some tests.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#aabb_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#aabb_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb2d.rs')"></div>
+
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="aabb_2D" class="tab-pane in active">
 ```rust
 /*
  * Initialize the shapes.
@@ -279,8 +301,8 @@ assert!(!aabb_cylinder.contains(&bounding_aabb));
 assert!(!aabb_cone.contains(&bounding_aabb));
 assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/aabb3d.rs')"></div>
+  </div>
+  <div id="aabb_3D" class="tab-pane">
 ```rust
 /*
  * Initialize the shapes.
@@ -311,85 +333,152 @@ assert!(!aabb_cylinder.contains(&bounding_aabb));
 assert!(!aabb_cone.contains(&bounding_aabb));
 assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
 ```
+  </div>
+</div>
 
 
 # Spacial partitioning
 
-Without an efficient spacial partitioning structure, we would not be able to
+Acceleration structures like spacial partitioning and bounding volume
+hierarchies are generalizations of bounding volumes to more than one shape.
+They are necessary to efficiently perform geometric queries on scenes with
+hundreds on objects. Acceleration structures allow to filter out quickly the
+majority of objects that would make the geometric query fail. For example,
+without an efficient spacial partitioning structure, we would not be able to
 ray-trace a complex scene with millions of triangles like this one (6,704,264
-triangles):
+triangles) in just a few seconds:
 
 <center>
 ![rungholt](../img/rungholt.png)
 </center>
 
-If your objects can move, you may use a [broad
-phase](../contact_determination/broad_phase.html) since the `BroadPhase` trait
-warrants ray-casting capabilities. Though a lighter and often simpler
-alternative is to use a space-partitioning structure like the
-`partitioning::DBVT` directly.
+For a high-level interface you may use a [broad
+phase](../contact_determination/broad_phase.html) algorithm. Under the hood,
+they use accelerations structures from the `partitioning` module. Those
+may be used directly as well. At the moment, **ncollide** has only one
+tree-based structure: the Bounding Volume Tree, aka., `BVT`. The similar
+structure `DBVT` is less efficient but modifiable after initialization.
 
-If your objects do not move, the `partitioning::BVT` will be more efficient and
-usable on a multi-threaded context.
-
-## The bounding volume tree
-For a static scene, better performances will be achieved by an immutable
-spacial partitioning structure. At the moment, the only one implemented by
-**ncollide** is the Bounding Volume Tree `BVT`. For example, the following
-figure depicts a set of 2D objects (brown), their AABB (black) and the
-corresponding AABB Tree (one color per depth):
+## The Bounding Volume Tree
+The Bounding Volume Tree is a proper binary tree containing shapes on its
+leaves only. Any interior node contains a bounding volume that are required to
+contain all the shapes on the leaves of the subtree it is root of.  For
+example, the following figure depicts a set of 2D objects (brown), their AABB
+(black) and the corresponding AABB Tree (one color per depth):
 
 <center>
 ![BVT with AABB](../img/AABB_tree_BVT.svg)
 </center>
 
-Note that even if this example uses AABB, the `BVT` is generic with regard to
-the type of bounding volume (we could use e.g. bounding spheres instead).
+Note that even if this example uses AABB, the `BVT` and `DBVT` are generic with
+regard to the type of bounding volume so we could use, e.g., bounding spheres
+instead.
 
 ### Creating a BVT
-Because the BVT is an immutable data structure, it must be created at once and
-cannot be modified after. The `::new_with_partitioner(...)` is its main
-constructor and requires a list of tuples containing the objects that will be
-stored on the BVT leaves and their bounding volumes. The objects themselves do
-not have to implement any specific trait. The other argument is a
-partitioning scheme that will, given an array of bounding volumes, split them
-into two groups. This splitting process is known as the _top-down_ tree
-construction approach. One example of such partitioning scheme is the
-`partitioning::balanced_partitionner(...)` that will distribute the objects
+Because the `BVT` is an immutable data structure, it must be created at once
+and cannot be modified after. The `::new_with_partitioner(leaves, f)` is its
+main constructor and requires a list `leaves` of tuples containing the objects
+that will be stored on the BVT leaves and their bounding volumes. The objects
+themselves are just associated data opaque to the `BVT` and do not have to
+implement any specific trait. The second argument `f` is a closure (the
+partitioning scheme) that will split any given array of bounding volumes into
+two groups. This splitting process is known as the _top-down_ tree construction
+approach, i.e., starting with the tree root and recursively splitting our way
+to the leaves. One example of such partitioning scheme is the
+`partitioning::balanced_partitioner(...)` that will distribute the objects
 depending on their bounding volumes position along one axis relative to their
-median. This will generate a balanced tree.
+median. This will generate a balanced tree (with does not guarantee best
+performances for some applications).
 
-The second constructor of the BVT is `::new_balanced(...)` which simply invokes
-`::new_with_partitioner(...)` with your objects and the
-`::balanced_partitionner(...)`.
+The second constructor of the `BVT` is `::new_balanced(...)` which simply
+invokes `::new_with_partitioner(...)` with your objects and the
+`::balanced_partitioner(...)`.
 
 ### Using a BVT
 
-There are two ways of using the BVT for ray casting. The first one is using the
-`partitioning::RayInterferencesCollector` visitor:
+A `BVT` can be exploited using the [visitor
+pattern](https://en.wikipedia.org/wiki/Visitor_pattern). Three kinds of
+traversals are available depending on your needs:
+
+1. **Depth-first traversal** with `.visit(...)` controlled by a user-defined
+   visitor implementing the `BVTVisitor` trait. An example of application of
+   depth-first traversal is the search for all nodes intersecting a given
+   bounding volume.
+2. **Best-first traversal** with `.best_fisrt_search(...)` controlled by a
+   user-defined cost function implementing the `BVTCostFn` trait. An example of
+   application of best-first traversals is ray-tracing where you are only
+   interested in the closest ray intersection. Best-first traversals are
+   usually much more efficient than a complete traversal if only one result is
+   needed.
+3. **Simultaneous depth-first traversal** of two BVTs with `.visit_bvtt(...)`.
+   This will traverse two BVT simultaneously, applying a user-defined visitor
+   implementing the `BVTTVisitor` trait on each pair of nodes (one from each
+   BVT) traversed. The `BVTT` acronym stands for Bounding Volume Test Tree
+   because such traversal can be visualized as a tree as well. Simultaneous BVT
+   traversal is typically use to check two composite object for intersection.
+   Note that both BVT involved in the traversal may be the same one.
+
+A few visitors and cost functions are already implemented on **ncollide**:
+
+* The `BoundingVolumeInterferencesCollector` will collect references to all
+  objects which bounding volume intersects the one given as argument
+  to the visitor's constructor:
 
 ```rust
-let bvt           = BVT::new_balanced(your_objects);
-let intersections = Vec::new();
+let interferences = Vec::new();
 
 {
-    let visitor = RayInterferencesCollector::new(&ray, &mut intersections);
+    let visitor = RayInterferencesCollector::new(&bv, &mut interferences);
     bvt.visit(&mut visitor);
 }
 
-// Now `intersections` contains the list of all objects which bounding volume intersects the ray.
+// Now `interferences` contains the list of all objects which
+// bounding volume intersects `bv`.
 ```
 
-If you are not interested in the complete set of objects that intersect the ray
-but only the closest one, using the BVT `.best_first_search(...)` method:
+* The `RayInterferencesCollector` will collect references to all objects which
+  bounding volume intersects the ray given as argument to the visitor's
+  constructor:
 
 ```rust
-let bvt = BVT::new_balanced(your_objects);
+let result = Vec::new();
 
+{
+    let visitor = RayInterferencesCollector::new(&ray, &mut result);
+    bvt.visit(&mut visitor);
+}
+
+// Now `result` contains the list of all objects which
+// bounding volume intersects `ray`.
+```
+
+* The `PointInterferencesCollector` will collect references to all objects
+  which bounding volume contains the point given as argument to the visitor's
+  constructor:
+
+```rust
+let result = Vec::new();
+
+{
+    let visitor = PointInterferencesCollector::new(&point, &mut result);
+    bvt.visit(&mut visitor);
+}
+
+// Now `result` contains the list of all objects which
+// bounding volume intersects `ray`.
+```
+
+* The `RayIntersectionCostFn` will search for the closest object that
+  intersecting the ray given as argument to the visitor's constructor. The BVT
+  user-data must implement the `RayCast` trait:
+
+```rust
 let visitor = RayIntersectionCostFn::new(&ray, true, false);
+
 match bvt.best_first_search(&mut visitor) {
     Some((body, ray_intersection)) => {
         // The ray intersected some objects and `body` is the closest one.
+        // `ray_intersection` contains the ray-cast result.
     },
     None => {
         // No intersection found.
@@ -397,26 +486,32 @@ match bvt.best_first_search(&mut visitor) {
 }
 ```
 
-The end-result is the objects which bounding volume has the smallest time of
-impact with the ray and the related geometric informations of type
-`RayIntersection`.
-
-
-**Attention:** note that while the cost function `RayIntersectionCostFn` performs a
-ray cast on both the objects and their bounding volumes, the visitor
-`RayInterferencesCollector` only works with the bounding volume. So if you are
-using the latter, you need to check if the ray actually intersects the objects
-yourself!
+**Attention:** note that while the cost function `RayIntersectionCostFn`
+performs a ray cast on both the objects and their bounding volumes, the other
+visitors like `RayInterferencesCollector` only work with the bounding volumes.
+So if you are using the latter, you need to check if the query actually
+succeeds on the collected objects!
 
 
 The following example creates four shapes, sets up a `BVT` to associate indices
 to their bounding spheres, and casts some rays on it using the
 `RayInterferencesCollector` visitor.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ray_bvt2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#bvt_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#bvt_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ray_bvt3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ray_bvt2d.rs')"></div>
+
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="bvt_2D" class="tab-pane in active">
 ```rust
 /*
- * Custom trait to group HasBoudingSphere and RayCast together.
+ * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
 trait Shape2: HasBoundingSphere<Point2<f64>, Isometry2<f64>> +
               RayCast<Point2<f64>, Isometry2<f64>> {
@@ -477,8 +572,8 @@ fn main() {
     assert!(collector_miss.len() == 0);
 }
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ray_bvt3d.rs')"></div>
+  </div>
+  <div id="bvt_3D" class="tab-pane">
 ```rust
 /*
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
@@ -542,3 +637,30 @@ fn main() {
     assert!(collector_miss.len() == 0);
 }
 ```
+  </div>
+</div>
+
+### The DBVT
+The Dynamic Bounding Volume Tree shares the same structure as the `BVT` but is
+modifiable after initialization. It allows:
+
+* Insersion of a new object `b` with its bounding volume `bv` with
+  `.insert_new(b, bv)`. This will return a leaf that may be manipulated later.
+  This usually has a $\mathcal{O}(\log(n))$ average time complexity.
+* Removal of a leaf from the tree with `.remove(leaf)`. This has a
+  $\mathcal{O}(1)$ time complexity.
+* Insertion of an unrooted leaf with `.insert(leaf)`. An unrooted leaf is one
+  that has been removed from its tree. The same leaf may not be added to two
+  trees simultaneously but it can be moved to another `DBVT` instance after
+  being removed from the original one. This has a $\mathcal{O}(\log(n))$
+  average time complexity.
+
+After an insertion or a removal, the `DBVT` must recompute some internal node
+bounding volumes in order to ensure they still bound their subtree's leaves.
+This refitting is performed immediately at insertion-time and lazily after a
+removal.
+
+Currently, the only way to traverse the `DBVT` is with the `.visit(...)` method
+which will perform a **depth-first traversal** using a user-defined visitor
+implementing the `BVTVisitor` trait.
+

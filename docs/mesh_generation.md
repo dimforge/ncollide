@@ -135,11 +135,17 @@ correctly to form a topologically sound `TriMesh`. This allows you to easily
 stroke paths with possibly very different shapes and connectivity using the
 same pattern.
 
-#### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/path.rs')"></div>
 The following example uses the `procedural::path::PolylinePath` together with
 the `procedural::path::PolylinePattern` to stroke the arrowed Bézier curve
 shown at the beginning of this section.
 
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#path_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/path3d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="path_3D" class="tab-pane in active">
 ```rust
 let control_points = [
     Point3::new(0.0f32, 1.0, 0.0),
@@ -169,6 +175,8 @@ let mut pattern = PolylinePattern::new(&pattern, true, start_cap, end_cap);
 // Stroke!
 let _ = pattern.stroke(&mut path);
 ```
+  </div>
+</div>
 
 # Mesh transformation
 
@@ -201,7 +209,16 @@ hull but only on the original indices of the vertices it contains, use the
 The following example creates 100,000 random points and compute their
 convex hull.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/primitives2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#convex_hull_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#convex_hull_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex_hull3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex_hull2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="convex_hull_2D" class="tab-pane in active">
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {
@@ -210,8 +227,8 @@ for _ in range(0u, 100000) {
 
 let convex_hull = transformation::convex_hull2d(&points[..]);
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/primitives3d.rs')"></div>
+  </div>
+  <div id="convex_hull_3D" class="tab-pane">
 ```rust
 let mut points = Vec::new();
 for _ in range(0u, 100000) {
@@ -220,6 +237,8 @@ for _ in range(0u, 100000) {
 
 let convex_hull = transformation::convex_hull3d(&points[..]);
 ```
+  </div>
+</div>
 
 <center>
 ![](../img/convex_hull3d.png)
@@ -298,14 +317,19 @@ the HACD algorithm (middle), and the resulting convex decomposition (right):
 
 ![hacd](../img/hacd.png)
 
-#### Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/hacd3d.rs')" ></div>
-
 The following example creates a concave object using a
 [path-based](#paths) mesh generation and approximates it
 using the HACD algorithm. Together with
 [kiss3d](http://github.com/sebcrozet/kiss3d), this code was used to generate
-the last figure.
+the figure above.
 
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#hacd_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/hacd3d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="hacd_3D" class="tab-pane in active">
 ```rust
 let control_points = [
     Point3::new(0.0f32, 1.0, 0.0),
@@ -341,3 +365,4 @@ let (decomp, partitioning) = transformation::hacd(trimesh.clone(), 0.03, 0);
 assert!(decomp.len() == 7);
 assert!(partitioning.len() == 7);
 ```
+</div>

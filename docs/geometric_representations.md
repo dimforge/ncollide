@@ -60,12 +60,19 @@ dimensions a sphere, both centered at the origin.
 | --          | --       |
 | `.radius()` | The radius of the ball. |
 
-#### Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ball.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#ball">Example</a></li>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/ball.rs')"></div>
+</ul>
 
+<div class="tab-content" markdown="1">
+  <div id="ball" class="tab-pane in active">
 ```rust
 let ball = Ball::new(1.0f32);
 assert!(ball.radius() == 1.0);
 ```
+  </div>
+</div>
 
 <center>
 ![2D ball](../img/ball2d.png)
@@ -83,17 +90,24 @@ half length along each coordinate axis.
 | --          | --       |
 | `.half_extents()` | The half extents of the cuboid. |
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cuboid_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#cuboid_3D">3D example</a></li>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid2d.rs')"></div>
+</ul>
 
+<div class="tab-content" markdown="1">
+  <div id="cuboid_2D" class="tab-pane in active">
 ```rust
 let cuboid = Cuboid::new(Vector2::new(2.0f32, 1.0));
 
 assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cuboid3d.rs')"></div>
-
+  </div>
+  <div id="cuboid_3D" class="tab-pane">
 ```rust
 let cuboid = Cuboid::new(Vector3::new(2.0f32, 1.0, 3.0));
 
@@ -101,6 +115,8 @@ assert!(cuboid.half_extents().x == 2.0);
 assert!(cuboid.half_extents().y == 1.0);
 assert!(cuboid.half_extents().z == 3.0);
 ```
+  </div>
+</div>
 
 <center>
 ![2D cuboid](../img/cuboid2d.png)
@@ -120,13 +136,21 @@ in three dimensions. Its principal axis is the $\mathbf{y}$ axis.
 | `.half_height()` | The half height of the cylinder. |
 | `.radius()` | The radius of the cylinder basis. |
 
-#### Example<div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cylinder.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cylinder">Example</a></li>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cylinder.toml')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="cylinder" class="tab-pane in active">
 ```rust
 let cylinder = Cylinder::new(0.5f32, 1.0);
 
 assert!(cylinder.half_height() == 0.5);
 assert!(cylinder.radius() == 1.0);
 ```
+  </div>
+</div>
 
 <center>
 ![cylinder](../img/cylinder3d.png)
@@ -147,14 +171,21 @@ apex has coordinates $(0, \text{cone.half_height()}, 0)$.
 | `.half_height()` | The half height of the cone. |
 | `.radius()` | The radius of the cone basis. |
 
-#### Example<div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cone.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cone">Example</a></li>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cone.toml')"></div>
+</ul>
 
+<div class="tab-content" markdown="1">
+  <div id="cone" class="tab-pane in active">
 ```rust
 let cone = Cone::new(0.5f32, 0.75);
 
 assert!(cone.half_height() == 0.5);
 assert!(cone.radius() == 0.75);
 ```
+</div>
+</div>
 
 <center>
 ![2D cone](../img/cone2d.png)
@@ -175,13 +206,21 @@ $\mathbf{y}$ axis.
 | `.half_height()` | The half height of the capsule. |
 | `.radius()` | The radius of the capsule extremities. |
 
-#### Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/capsule.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#capsule">Example</a></li>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/capsule.toml')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="capsule" class="tab-pane in active">
 ```rust
 let capsule = Capsule::new(0.5f32, 0.75);
 
 assert!(capsule.half_height() == 0.5);
 assert!(capsule.radius() == 0.75);
 ```
+</div>
+</div>
 
 <center>
 ![2D capsule](../img/capsule2d.png)
@@ -207,7 +246,17 @@ constant time.
 | --        | --           |
 | `.points()`  | The points used to create the `ConvexHull` shape. |
 
-#### 2D example<div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#convex_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#convex_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="convex_2D" class="tab-pane in active">
 ```rust
 let points = vec![
     Point2::new(-1.0f32, 1.0), Point2::new(-0.5, -0.5),
@@ -220,8 +269,8 @@ let convex = ConvexHull::new(points);
 // ConvexHull does not compute explicitly the convex hull (which has 4 vertices)!
 assert!(convex.points().len() == 5);
 ```
-
-#### 3D example<div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/convex3d.rs')"></div>
+  </div>
+  <div id="convex_3D" class="tab-pane">
 ```rust
 let points = vec![
     Point3::new(0.0f32, 0.0, 1.0),
@@ -238,6 +287,9 @@ let convex = ConvexHull::new(points);
 // ConvexHull does not compute explicitly the convex hull (which has 6 vertices)!
 assert!(convex.points().len() == 7);
 ```
+  </div>
+</div>
+
 <center>
 ![2D convex](../img/convex2d.png)
 ![3D convex](../img/convex3d.png)
@@ -260,14 +312,21 @@ be used to create a [shape handle](#dynamic-shape-representation).
 | --       | --        |
 | `.shape()` | The shape affected by the reflection. |
 
-#### 2D and 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/reflection3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/reflection2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#reflection">Example</a></li>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/reflection.rs')"></div>
+</ul>
 
+<div class="tab-content" markdown="1">
+  <div id="reflection" class="tab-pane in active">
 ```rust
 let cone = Cone::new(0.5f32, 0.75);
 
 // Build the reflection.
 let _ = Reflection::new(&cone);
 ```
+</div>
+</div>
 
 <center>
 ![reflected 2D cone](../img/refl2d.png)
@@ -299,8 +358,28 @@ a [shape handle](#dynamic-shape-representation).
 | `.g1()` | The **first** shape involved in the sum. |
 | `.g2()` | The **second** shape involved in the sum. |
 
-#### 2D and 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#minkowski_sum_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#minkowski_sum_3D">3D example</a></li>
 
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/minkowski_sum2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="minkowski_sum_2D" class="tab-pane in active">
+```rust
+let cylinder = Cylinder::new(0.5f32, 0.75);
+let cone     = Cone::new(0.75f32, 0.75);
+
+let delta_cylinder = na::one::<Isometry2<f32>>(); // Identity matrix.
+let delta_cone     = na::one::<Isometry2<f32>>(); // Identity matrix.
+
+let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
+```
+  </div>
+  <div id="minkowski_sum_3D" class="tab-pane">
 ```rust
 let cylinder = Cylinder::new(0.5f32, 0.75);
 let cone     = Cone::new(0.75f32, 0.75);
@@ -310,6 +389,8 @@ let delta_cone     = na::one::<Isometry3<f32>>(); // Identity matrix.
 
 let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 ```
+</div>
+</div>
 
 <center>
 ![2D cylinder + cone](../img/msum2d.png)
@@ -387,7 +468,17 @@ Two steps are necessary to create a `Compound`:
    relative to the origin.
 2. Call `Compound::new` with this vector.
 
-#### 2D example <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#compound_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#compound_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="compound_2D" class="tab-pane in active">
 ```rust
 // Delta transformation matrices.
 let delta1 = Isometry2::new(Vector2::new(0.0f32, -1.5), na::zero());
@@ -408,8 +499,8 @@ let compound = Compound::new(shapes);
 
 assert!(compound.shapes().len() == 3)
 ```
-
-#### 3D example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/compound3d.rs')"></div>
+  </div>
+  <div id="compound_3D" class="tab-pane">
 ```rust
 // Delta transformation matrices.
 let delta1 = Isometry3::new(Vector3::new(0.0f32, -1.5, 0.0), na::zero());
@@ -430,6 +521,8 @@ let compound = Compound::new(shapes);
 
 assert!(compound.shapes().len() == 3)
 ```
+  </div>
+</div>
 
 
 <center>
@@ -457,8 +550,17 @@ ray-tracing applications.
 | `.bvt()` | The space-partitioning acceleration structure used by the mesh. |
 
 
-#### 2D example<div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#mesh_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#mesh_3D">3D example</a></li>
 
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="mesh_2D" class="tab-pane in active">
 ```rust
 let points = vec!(
     Point2::new(0.0, 1.0),  Point2::new(-1.0, -1.0),
@@ -474,10 +576,8 @@ let polyline = Polyline::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(polyline.vertices().len() == 4);
 ```
-
-
-#### 3D example<div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/mesh3d.rs')"></div>
-
+  </div>
+  <div id="mesh_3D" class="tab-pane">
 ```rust
 let points = vec!(
     Point3::new(0.0, 1.0, 0.0), Point3::new(-1.0, -0.5, 0.0),
@@ -492,6 +592,8 @@ let mesh = TriMesh::new(Arc::new(points), Arc::new(indices), None, None);
 
 assert!(mesh.vertices().len() == 4);
 ```
+</div>
+</div>
 
 <center>
 ![2D mesh](../img/mesh2d.png)
@@ -511,15 +613,25 @@ _inside_ of it. Other points are _outside_ of the plane.
 | --          | --        |
 | `.normal()` | The normal of the plane. |
 
-#### 2D example<div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane2d.rs')"></div>
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#plane_2D">2D example</a></li>
+  <li><a id="tab_nav_link" data-toggle="tab" href="#plane_3D">3D example</a></li>
+
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane3d.rs')"></div>
+  <div class="sp"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane2d.rs')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="plane_2D" class="tab-pane in active">
 ```rust
 let plane = Plane::new(Vector2::new(0.0f32, 1.0));
 
 assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
 ```
-
-#### 3D example<div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/plane3d.rs')"></div>
+  </div>
+  <div id="plane_3D" class="tab-pane">
 ```rust
 let plane = Plane::new(Vector3::new(0.0f32, 1.0, 0.0));
 
@@ -527,6 +639,8 @@ assert!(plane.normal().x == 0.0);
 assert!(plane.normal().y == 1.0);
 assert!(plane.normal().z == 0.0);
 ```
+  </div>
+</div>
 
 # Dynamic shape representation
 
@@ -575,7 +689,7 @@ less used so by default they are deduced from the AABB itself. Those default
 implementations will unfortunately only result in very loose bounding volumes
 so it is advised to provide your own to ensure optimal performances.
 
-### Custom support-mapped shape <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_support_map.rs')"></div>
+### Custom support mapping <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_support_map.rs')"></div>
 In this section we detail an example to define your own support-mapped shape
 suitable to be wrapped into a `ShapeHandle`. Too keep the maths simple, we will
 define a simple 2-dimensional ellipse centered at the origin with radius $a$

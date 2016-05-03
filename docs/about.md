@@ -1,21 +1,20 @@
 # About
 
-<table>
+<table markdown="1">
 <tr>
 <td id="nostyle_table" style="vertical-align:middle">
 <a href="https://github.com/sebcrozet"><img id="left_float_img" src="http://www.gravatar.com/avatar/24f8431a2a28f633cba972f1176921e4?s=125"></img></a>
 </td>
 <td id="nostyle_table">
-As of today, this website and the <b>ncollide</b> project are mostly developed
-by Sébastien Crozet (aka.  <a
-href="https://github.com/sebcrozet">sebcrozet</a>), a French Ph.D Student. His
-researches are about finding new methods to perform fast collision detection
-between complex CAD models that include smooth trimmed surfaces like NURBS.
-Besides his fulltime job, he works on <b>ncolide</b> trying to help making Rust
-a great language for the development of real-time geometry-intensive
-applications. For more informations about his professional background, check
-out his
-<a href="https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en">LinkedIn</a>
+As of today, this website and the **ncollide** project are mostly developed by
+Sébastien Crozet (aka.  [sebcrozet](https://github.com/sebcrozet)), a French
+Ph.D Student. His researches are about finding new methods to perform fast
+collision detection between complex CAD models that include smooth trimmed
+surfaces like NURBS.  Besides his fulltime job, he works on **ncollide** trying
+to help making Rust a great language for the development of real-time
+geometry-intensive applications. For more informations about his professional
+background, check out his
+[LinkedIn](https://www.linkedin.com/pub/s%C3%A9bastien-crozet/25/875/416/en)
 profile.
 </td>
 </tr>

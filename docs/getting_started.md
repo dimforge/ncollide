@@ -3,7 +3,7 @@
 for compilation and dependency resolution. Therefore, making **ncollide**
 ready to be used by your project is simply a matter of adding a new dependency
 to your `Cargo.toml` file.
-```yaml
+```toml
 [dependencies]
 ncollide = "0.9.0"
 ```
@@ -20,8 +20,15 @@ extern crate ncollide;
 You may use this `Cargo.toml` file to compile the downloadable examples of this
 guide. Simply replace `example.rs` by the actual example's file name.
 
-#### Example <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cargo/Cargo.toml')"></div>
-```yaml
+<ul class="nav nav-tabs">
+  <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cargo">Example</a></li>
+
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/Cargo.toml')"></div>
+</ul>
+
+<div class="tab-content" markdown="1">
+  <div id="cargo" class="tab-pane in active">
+```toml
 [package]
 name    = "example-using-ncollide"
 version = "0.0.0"
@@ -34,6 +41,8 @@ ncollide = "0.9.0"
 name = "example"
 path = "./example.rs"
 ```
+  </div>
+</div>
 
 # Project structure
 The **ncollide** crate is only an interface for several, smaller interdependent
@@ -42,12 +51,12 @@ is of interest to you, you may directly depend on them individually:
 
 Crate name                  | Description
 ----------------------------|-------------
-**ncollide_math**           | Traits that must be satisfied by algebraic entities usable on the whole project. |
-**ncollide_utils**          | [Miscellaneous](../miscellaneous) data structures and geometrical operations used by all the other crates. |
-**ncollide_geom**           | This is the geometric kernel of **ncollide**. It defines [shapes](../geometric_representations), [bounding volumes](../bounding_volumes), spacial partitioning structures and [geometric queries](../geometric_queries) operating on them. |
+**ncollide_math**           | Traits that must be satisfied by algebraic entities used by the whole project. |
+**ncollide_utils**          | [Miscellaneous](../miscellaneous) data structures and basic geometrical operations needed by all the other crates. |
+**ncollide_geom**           | The geometric kernel of **ncollide**. It defines [shapes](../geometric_representations), [bounding volumes](../bounding_volumes), structures for [spacial partitioning](../bounding_volumes/#spacial-partitioning), and [geometric queries](../geometric_queries) operating on all of them. |
 **ncollide_procedural**     | Procedural [mesh generation](mesh_generation/#mesh-generation) from parameters provided by the user. |
-**ncollide_transformation** | Operators that creates an alternative geometrical representation of a shape or mesh given in input. This includes [convex hull](../mesh_generation/#primitives), [convex decomposition](../mesh_generation/#convex-decomposition), and smooth shapes discretization. |
-**ncollide_pipeline**       | Persistent structures for recurrent (over time) geometric queries exploiting time-coherence. This exploits time-coherence and implements explicitly the concepts of [Broad Phase](collision_detection_pipeline/#broad-phase) and [Narrow Phase](collision_detection_pipeline/#narrow-phase). This also includes the [collision world](collision_detection_pipeline/#collision-world) which is the main interface between the user **ncollide**. |
+**ncollide_transformation** | Operators that creates an alternative geometrical representation of a shape or mesh given in input. This includes [convex hull](../mesh_generation/#primitives), [convex decomposition](../mesh_generation/#convex-decomposition), and shapes discretization. |
+**ncollide_pipeline**       | Persistent structures for recurrent geometric queries. This exploits time coherence and implements explicitly the concepts of [broad phase](collision_detection_pipeline/#broad-phase) and [narrow phase](collision_detection_pipeline/#narrow-phase). This also includes the [collision world](collision_detection_pipeline/#collision-world) which is the main interface between the user **ncollide**. |
 
 To use any of those crates, simply add a corresponding dependency entry to your
 `Cargo.toml`. Note that you should not expect the version numbers of those

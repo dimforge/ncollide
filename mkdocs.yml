@@ -21,10 +21,12 @@ site_url: http://ncollide.org
 # the third-party extenison mdx_math.py comes with a setup.py script
 # Thank you Dmitry Shachnev (https://github.com/mitya57/python-markdown-math) 
 markdown_extensions: 
+    - extra
     - mdx_math:
         enable_dollar_delimiter: True #for use of inline $..$
     - fenced_code
-    - codehilite
+    - codehilite:
+        use_pygments: False
     - footnotes
     - smarty
     - admonition
