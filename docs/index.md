@@ -161,7 +161,7 @@ and proximity detection. It has at least one example per collision detection
 algorithm provided by **ncollide**.
 <p>
 <center>
-<iframe width="560" height="315" src="http://www.youtube.com/embed/CANjXZ5rocI" frameborder="0" allowfullscreen></iframe>
+<iframe class="youtube_video" width="560" height="315" src="http://www.youtube.com/embed/CANjXZ5rocI" frameborder="0" allowfullscreen></iframe>
 </center>
 </p>
 <big>[**kiss3d**](http://kiss3d.org)</big> − a simplistic 3d graphics engine

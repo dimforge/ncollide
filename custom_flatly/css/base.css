@@ -42,28 +42,47 @@ div.tab-pane pre {
 }
 
 @media(min-width:768px) {
-  #show_small {
+  #show_small, #small_navbar_icon {
     display: none;
   }
-  #small_navbar_icon {
-    display: none;
-  }
+
   .navbar_container {
     padding-right: 100px;
   }
 }
 
 @media(max-width:768px) {
-  #hide_small {
+  #hide_small, .d2, .d3, .btn-primary {
     display: none;
   }
+
   #small_navbar_icon {
-    display: block;
-    float: left;
-    height: 1em;
-	  padding:10px 10px;
-	  margin-top:20px;
-	  margin-left:15px;
+      display: block;
+      float: left;
+      padding: 13px 10px;
+      margin-top:20px;
+      margin-left:15px;
+      background : url("/img/logo_ncollide_orange.png") no-repeat center center;
+      width: 7em;
+      background-size: cover;
+  }
+
+  a:hover #small_navbar_icon {
+      background : url("/img/logo_ncollide_green.png") no-repeat center center;
+      width: 7em;
+      background-size: cover;
+  }
+
+  img {
+      max-width: 100%;
+  }
+
+  td img {
+      max-width: none;
+  }
+
+  .youtube_video {
+      max-width: 100%;
   }
 }
 

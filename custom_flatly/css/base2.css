@@ -19,13 +19,22 @@ body {
   #hide_small {
     display: none;
   }
+
   #small_navbar_icon {
-    display: block;
-    float: left;
-    height: 1em;
-	  padding:10px 10px;
-	  margin-top:20px;
-	  margin-left:15px;
+      display: block;
+      float: left;
+      padding: 13px 10px;
+      margin-top:20px;
+      margin-left:15px;
+      background : url("/img/logo_ncollide_orange.png") no-repeat center center;
+      width: 7em;
+      background-size: cover;
+  }
+
+  a:hover #small_navbar_icon {
+      background : url("/img/logo_ncollide_green.png") no-repeat center center;
+      width: 7em;
+      background-size: cover;
   }
 }
 
