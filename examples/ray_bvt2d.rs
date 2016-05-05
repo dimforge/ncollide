@@ -4,7 +4,7 @@ extern crate ncollide;
 use na::{Point2, Vector2, Isometry2};
 use ncollide::partitioning::BVT;
 use ncollide::shape::{Cone, Ball, Cuboid, Capsule};
-use ncollide::ray::{RayInterferencesCollector, Ray, RayCast};
+use ncollide::query::{RayInterferencesCollector, Ray, RayCast};
 use ncollide::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
 /*
