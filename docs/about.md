@@ -99,6 +99,7 @@ alphabetical order:
 * [Clément Renault](https://github.com/Kerosene2000)
 * [Corey Richardson](https://github.com/cmr)
 * [Dabo Ross](https://github.com/daboross)
+* [Eduard Bopp](https://github.com/aepsil0n)
 * [Felix Rath](https://github.com/Futile)
 * [Jake Kerr](https://github.com/jakerr)
 * Jan Nockemann
@@ -109,6 +110,7 @@ alphabetical order:
 * [Peter Nguyen](https://github.com/artichokes)
 * [Smith Wendell](https://github.com/wackywendell)
 * [Sven Nilsen](https://github.com/bvssvni)
+* [Wesley Powell](https://github.com/wspowell)
 
 
 If your name should or should not be on this list, or if it should be linked
