@@ -50,8 +50,8 @@ pub struct Testbed<N: Scalar> {
 impl<N: Scalar> Testbed<N> {
     pub fn new() -> Testbed<N> {
         let mode = VideoMode::new_init(800, 600, 32);
-        let mut ctxt = ContextSettings::default();
-        ctxt.antialiasing(3);
+        let ctxt = ContextSettings::default();
+        // ctxt.antialiasing(3);
 
         let mut window =
             match RenderWindow::new(mode, "ncollide 2d testbed", window_style::CLOSE, &ctxt) {
