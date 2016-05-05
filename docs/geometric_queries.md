@@ -523,9 +523,9 @@ The following example depicts the three possible scenarios:
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#time_of_impact_2D">2D example</a></li>
   <li><a id="tab_nav_link" data-toggle="tab" href="#time_of_impact_3D">3D example</a></li>
-  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact3d.rs')"></div>
+  <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact_query3d.rs')"></div>
   <div class="sp"></div>
-  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact2d.rs')"></div>
+  <div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/time_of_impact_query2d.rs')"></div>
 </ul>
 
 <div class="tab-content" markdown="1">

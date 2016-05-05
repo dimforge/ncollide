@@ -139,7 +139,7 @@ in three dimensions. Its principal axis is the $\mathbf{y}$ axis.
 
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cylinder">Example</a></li>
-  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cylinder.toml')"></div>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cylinder.rs')"></div>
 </ul>
 
 <div class="tab-content" markdown="1">
@@ -174,7 +174,7 @@ coordinates $(0, \text{cone.half_height()}, 0)$.
 
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cone">Example</a></li>
-  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cone.toml')"></div>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/cone.rs')"></div>
 </ul>
 
 <div class="tab-content" markdown="1">
@@ -209,7 +209,7 @@ axis is the $\mathbf{y}$ axis.
 
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#capsule">Example</a></li>
-  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/capsule.toml')"></div>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/capsule.rs')"></div>
 </ul>
 
 <div class="tab-content" markdown="1">
