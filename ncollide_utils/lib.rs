@@ -8,7 +8,7 @@
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)] // FIXME: deny this.
-#![doc(html_root_url = "http://ncollide.org/doc")]
+#![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate rand;
 extern crate rustc_serialize;

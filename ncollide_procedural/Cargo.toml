@@ -1,10 +1,10 @@
 [package]
 name    = "ncollide_procedural"
-version = "0.3.0"
+version = "0.3.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module for procedural generation of discrete geometric objects."
-documentation = "http://ncollide.org/doc/ncollide_procedural"
+documentation = "http://ncollide.org/rustdoc/ncollide_procedural"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]

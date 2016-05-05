@@ -8,7 +8,7 @@
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
-#![doc(html_root_url = "http://ncollide.org/doc")]
+#![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate rustc_serialize;
 extern crate nalgebra as na;

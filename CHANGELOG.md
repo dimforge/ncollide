@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.9.0] - WIP
+## [0.9.0]
 ### Added
     * Added 2D and 3D testbeds (available on crates.io as `ncollide_testbed2d` and `ncollide_testbed3d`).
     * Added a method to the narrow phase to retrieve all the proximity pairs.

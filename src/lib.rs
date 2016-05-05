@@ -10,7 +10,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 dimensions (never tried).
 
 The official user guide is available [here](http://ncollide.org).
-The rustdoc documentation is available [here](http://ncollide.org/doc/ncollide).
+The rustdoc documentation is available [here](http://ncollide.org/rustdoc/ncollide).
 
 ## Compilation
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
@@ -20,7 +20,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-ncollide = "*"
+ncollide = "0.9.*"
 ```
 
 
@@ -45,7 +45,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
-#![doc(html_root_url = "http://ncollide.org/doc")]
+#![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 pub extern crate ncollide_math;
 pub extern crate ncollide_utils;
