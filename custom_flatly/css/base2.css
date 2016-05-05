@@ -67,6 +67,9 @@ a:hover .navbar_icon {
   background-size: 100%;
 }
 
+:target {
+    background: none;
+}
 
 /*
  * The code below adds some padding to the top of the current anchor target so
@@ -85,7 +88,7 @@ a:hover .navbar_icon {
     margin-top: -75px;
     height: 75px;
     pointer-events: none;
-    animation: 0s 1s forwards collapse-anchor-padding-1;
+    animation: 0s 1ms forwards collapse-anchor-padding-1;
 }
 
 body.clicky :target::before {

@@ -1,3 +1,2 @@
 all:
-	rm -rf site
-	mkdocs build
+	mkdocs build --clean
