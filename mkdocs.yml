@@ -2,12 +2,12 @@ site_name: ncollide
 pages:
   - Home: index.md
   - '<i class="fa fa-book"></i>&nbsp User Guide':
-    - 'Getting Started': getting_started.md
-    - 'Geometric Representations': geometric_representations.md
-    - 'Bounding Volumes': bounding_volumes.md
-    - 'Geometric Queries': geometric_queries.md
-    - 'Collision Detection Pipeline': collision_detection_pipeline.md
-    - 'Mesh Generation': mesh_generation.md
+    - 'Getting started': getting_started.md
+    - 'Geometric representations': geometric_representations.md
+    - 'Bounding volumes': bounding_volumes.md
+    - 'Geometric queries': geometric_queries.md
+    - 'Collision detection pipeline': collision_detection_pipeline.md
+    - 'Mesh generation': mesh_generation.md
     - 'Miscellaneous': miscellaneous.md
       # - 'The ncollide Testbeds': ncollide_testbeds.md
     - 'FAQ': faq.md

@@ -2,15 +2,11 @@
 
 While not directly part of the collision detection problem, mesh generation is
 useful to extend the range of shapes supported by **ncollide** by discretizing
-them such that they can be approximated with a `shape::TriMesh`, a
-`shape::Polyline`, a `shape::ConvexHull`, and/or a `shape::Compound`. It is
-also useful to obtain a renderer-compliant representation of non-polyhedral
-models such that balls, capsules, parametric surfaces, etc.
-
-
-The two main types of mesh generation results are `procedural::TriMesh` and
-`procedural::Polyline`. They are both generic with regard the vector and scalar
-type.
+them such that they can be approximated with a `TriMesh`, a `Polyline`, a
+`ConvexHull`, and/or a `Compound`. It is also useful to obtain a
+renderer-compliant representation of non-polyhedral models such that balls,
+capsules, parametric surfaces, etc. The two main types of mesh generators
+output are `TriMesh` and `Polyline`.
 
 ### Triangle mesh
 The `TriMesh` structure describes a triangle mesh with optional per-vertex
@@ -24,20 +20,21 @@ normals and texture coordinates:
 | `uvs`     | The vertex texture coordinates.      |
 | `indices` | The triangles vertices index buffer. |
 
-The index buffer may take two forms. In its `procedural::UnifiedIndexBuffer`
-form, the index of a triangle vertex is the same as the index identifying its
-normal and uvs. This implies that the coordinate, normals and texture coordinate
-buffers should have the same size. While not very memory-efficient, this is the
-required representation for renderers based on e.g. OpenGL. In the following
-figure, each disc corresponds to one index (i.e. one integer):
+The index buffer may take two forms. In its `UnifiedIndexBuffer` form, the
+index of a triangle vertex is the same as the index identifying its normal and
+texture coordinates. This implies that the coordinate, normals and texture
+coordinate buffers should have the same size. While not very memory-efficient,
+this is the required representation for renderers based on, e.g., OpenGL. In
+the following figure, each disc corresponds to one index (i.e. one integer) and
+each square to one buffer element:
 
 ![Unified index buffer](../img/unified_index_buffer.svg)
 
-In its `procedural::SplitIndexBuffer` form, each triangle vertex have three
-indices: one for its position, one for its normal, and one for its texture
-coordinate. This representation is usually topologically more interesting than
-the unified index buffer. In the following figure, each disc corresponds to one
-index that identifies the type of element that shares the same color:
+In its `SplitIndexBuffer` form, each triangle vertex as three indices: one
+for its position, one for its normal, and one for its texture coordinate. This
+    representation is usually topologically more interesting than the unified
+    index buffer. In the following figure, each disc corresponds to one index
+    that identifies the type of element that shares the same color:
 
 ![Split index buffer](../img/split_index_buffer.svg)
 
@@ -47,27 +44,27 @@ buffers:
 | Method                  | Description                     |
 |--                       | --                              |
 | `.unify_index_buffer()` | Transforms the current `TriMesh` index buffer to a `UnifiedIndexBuffer`. This copies the relevant data in order to make sure that every attributes of a single vertex is accessible using the same index. |
-| `.split_index_buffer(heal)` | Transforms the current `TriMesh` index buffer to a `SplitIndexBuffer`. If `heal` is set to `true` it will try to recover the original mesh topology, identifying with the same index vertices having the exact same position. |
+| `.split_index_buffer(heal)` | Transforms the current `TriMesh` index buffer to a `SplitIndexBuffer`. If `heal` is set to `true` it will attempt to recover the original mesh topology, identifying with the same index vertices having the exact same position. |
 
 The simplest way to build a `TriMesh` from most primitive shapes defined by
-**ncollide** is to import the `procedural::ToTriMesh` trait and call the
-corresponding method.
+**ncollide** is to import the `ToTriMesh` trait and call the corresponding
+method.
 
 | Method             | Description                                    |
 |--                  | --                                             |
 | `.to_trimesh(...)` | Creates a polyhedral representation of `self`. |
 
-Note that this method require a parameter that allows you to control the
-discretization process. The exact type of this parameter depends on the type
-that implements the trait. For example, a `Ball` requires two integers (one for
-the number of subdivisions of each spherical coordinate) to be transformed to a
-`TriMesh`; the `Cuboid` however requires a parameter equal to `()` because it
-does not need any user-defined information in order to be discretized.
+This method requires a parameter that allows you to control the discretization
+process. The exact type of this parameter depends on the type that implements
+the trait. For example, a `Ball` requires two integers (one for the number of
+subdivisions of each spherical coordinate) to be transformed to a `TriMesh`;
+the `Cuboid` however requires a parameter equal to `()` because it does not
+need any user-defined information in order to be discretized.
 
 ### Polygonal line
 
 The `Polyline` is a much simpler data structure than the `TriMesh`. It does not
-have an index or texture coordinates buffer:
+have an index nor texture coordinates buffer:
 
 | Field     | Description             |
 |--         | --                      |
@@ -81,49 +78,48 @@ is why it should be changed to a more traditional index-buffer based
 representation in future versions of **ncollide**.
 
 The simplest way to build a `Polyline` from most primitive shapes defined by
-**ncollide** is to import the `procedural::Polyline` trait and call the
-corresponding method.
+**ncollide** is to import the `Polyline` trait and call the corresponding
+method.
 
 | Method              | Description                                      |
 |--                   | --                                               |
 | `.to_polyline(...)` | Creates a polylineical representation of `self`. |
 
-Note that this method require a parameter that allows you to control the
-discretization process. The exact type of this parameter depends on the type
-that implements the trait. For example, a `Ball` requires one integer (for the
-number of subdivisions) to be transformed to a `TriMesh`; the `Cuboid` however
-requires a parameter equal to `()` because it does not need any user-defined
-information in order to be discretized.
+This method requires a parameter that allows you to control the discretization
+process. The exact type of this parameter depends on the type that implements
+the trait. For example, a `Ball` requires one integer (for the number of
+subdivisions) to be transformed to a `TriMesh`; the `Cuboid` however requires a
+parameter equal to `()` because it does not need any user-defined information
+in order to be discretized.
 
 ## Paths
 
 Path-based mesh generation exposed by the `procedural::path` module allows you
-to create more complex shapes by replicating a pattern along a path. Note that
-this feature is still extremely immature and at most incomplete. Use with care.
+to create more complex 3D shapes by replicating a pattern along a path. Note
+that this feature is still extremely immature and at most incomplete. Use with
+care.
 
 <center>
 ![](../img/path.png)
 </center>
 
-The path-based mesh generation API is based on two traits. The
-`procedural::path::CurveSampler` trait is implemented by a structure that is
-capable of generating a path (i.e. a set of points assumed to form a polyline).
+The path-based mesh generation API is based on two traits. The `CurveSampler`
+trait is implemented by a structure that is capable of generating a path, i.e.,
+a set of points assumed to form a polyline:
 
 
 | Method    | Description                         |
 | --        | --                                  |
 | `.next()` | Returns the next point of the path. |
 
-The returned point may be either a `procedural::path::StartPoint`, an
-`InnerPoint` or an `EndPoint`. If `EndOfSample` is returned, then the
-path generation is assumed to be completed. There may be several pairs of
-`StartPoint, InnerPoint` inside of the same path. This allows patterns like
-dashed lines.
+The returned point may be either a `StartPoint`, an `InnerPoint` or an
+`EndPoint`. If `EndOfSample` is returned, then the path generation is assumed
+to be completed. There may be several pairs of `StartPoint, InnerPoint` inside
+of the same path. This allows patterns like dashed lines.
 
 
 Together with the path, we need the pattern that will be  replicated at each
-point of the path. Such pattern must implement the
-`procedural::path::StrokePattern` trait.
+point of the path. Such pattern must implement the `StrokePattern` trait.
 
 | Method         | Description                                     |
 | --             | --                                              |
@@ -135,9 +131,9 @@ correctly to form a topologically sound `TriMesh`. This allows you to easily
 stroke paths with possibly very different shapes and connectivity using the
 same pattern.
 
-The following example uses the `procedural::path::PolylinePath` together with
-the `procedural::path::PolylinePattern` to stroke the arrowed Bézier curve
-shown at the beginning of this section.
+The following example uses the `PolylinePath` together with the
+`PolylinePattern` to stroke the arrowed Bézier curve shown at the beginning of
+this section.
 
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#path_3D">3D example</a></li>
@@ -182,8 +178,8 @@ let _ = pattern.stroke(&mut path);
 
 Meshes can be computed from other meshes as well. This may be useful to make
 them usable by some geometric queries that have specific requirements. For
-example most queries on **ncollide** require the objects to be convex or the
-union of several convex objects; a [convex decomposition](#convex-decomposition)
+example most queries on **ncollide** require the objects to be convex or to be
+the union of several convex objects. A convex hull or a convex decomposition
 may thus help to pre-process complex concave meshes.
 
 ## Convex Hull
@@ -194,14 +190,14 @@ line strips, including those accessible by the two former traits.
 
 It also exposes functions to compute the convex hull of a set of point using
 the [QuickHull algorithm](http://en.wikipedia.org/wiki/QuickHull) which has an
-average $O(n \log{n})$ time complexity. There is currently not a single
-convex hull algorithm implemented for any dimension, though individual
-functions exist for the 2D and 3D cases:
+average $O(n \log{n})$ time complexity. It is currently not implemented
+generically enough to handle any dimension. Therefore only individual functions
+exist for the 2D and 3D cases:
 
-| Function             | Description                                     |
-| --                   | --                                              |
-| `convex_hull2d(...)` | Computes the convex hull of a set of 2D points. |
-| `convex_hull3d(...)` | Computes the convex hull of a set of 3D points. |
+| Function            | Description                                     |
+| --                  | --                                              |
+| `convex_hull2(...)` | Computes the convex hull of a set of 2D points. |
+| `convex_hull3(...)` | Computes the convex hull of a set of 3D points. |
 
 If you are not interested in the `Polyline` representation of the 2D convex
 hull but only on the original indices of the vertices it contains, use the
@@ -225,7 +221,7 @@ for _ in range(0u, 100000) {
     points.push(rand::random::<Point2<f32>>() * 2.0f32);
 }
 
-let convex_hull = transformation::convex_hull2d(&points[..]);
+let convex_hull = transformation::convex_hull2(&points[..]);
 ```
   </div>
   <div id="convex_hull_3D" class="tab-pane">
@@ -235,7 +231,7 @@ for _ in range(0u, 100000) {
     points.push(rand::random::<Point3<f32>>() * 2.0f32);
 }
 
-let convex_hull = transformation::convex_hull3d(&points[..]);
+let convex_hull = transformation::convex_hull3(&points[..]);
 ```
   </div>
 </div>
@@ -248,13 +244,11 @@ let convex_hull = transformation::convex_hull3d(&points[..]);
 
 ## Convex decomposition
 
-As you might have noticed, a large variety of objects supported by **ncollide**
-are convex. This is so because
-[convex](../geometric_representations/simple_shapes.html#convex) objects
-have nice properties that help designing efficient algorithms. However, studies
-show that using only convex objects leads to very boring applications! That is
-why **ncollide** allows the description of concave objects from its convex
-parts using the `Compound` shape. For example, one could describe the following
+While [convex](../geometric_representations/simple_shapes.html#convex) objects
+have nice properties that help designing efficient algorithms, studies show
+that using only convex objects leads to very boring applications! That is why
+**ncollide** allows the description of concave objects from its convex parts
+using the `Compound` shape. For example, one could describe the following
 object as the union of two convex parts:
 
 <center>
@@ -263,7 +257,7 @@ object as the union of two convex parts:
 
 But decomposing manually a concave polyhedra into its convex parts is a very
 tedious task and computing an exact convex decomposition is often not
-necessary. That is why **ncollide** implements Khaled Mamou's 3D
+necessary. That is why **ncollide** implements the 3D
 [HACD](http://kmamou.blogspot.fr/2011/10/hacd-hierarchical-approximate-convex.html)
 algorithm that computes an **approximate** convex decomposition. It is not yet
 implemented in 2D.
@@ -274,7 +268,7 @@ implemented in 2D.
 The HACD is simply a clustering algorithm based on a concavity criterion to
 separate the different groups. It will group triangles together until the
 directional distances between their vertices and their convex hull do not
-exceeding an user-defined limit.
+exceed an user-defined limit.
 
 To compute the decomposition of a triangle mesh, use the `procedural::hacd`
 function. It takes three arguments:
@@ -287,7 +281,7 @@ function. It takes three arguments:
 
 Let us define what _normalized concavity_ means. Because there is no official
 definition of the concavity of a 3D object, we are using the maximal distance
-between the triangle mesh vertex and its convex hull. Let $d$ be the distance
+between the triangle mesh vertices and its convex hull. This distance is
 computed along the direction of the vertex normal (hence, it is usually
 different from the intuitive distance obtained by orthogonal projection of the
 point on the closest convex hull face):
@@ -313,7 +307,8 @@ indices of the triangles used to compute each convex object.
 
 
 The following figure shows a tube (left), the result of the clustering done by
-the HACD algorithm (middle), and the resulting convex decomposition (right):
+the HACD algorithm (middle), and the resulting approximate convex decomposition
+(right):
 
 ![hacd](../img/hacd.png)
 

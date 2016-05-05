@@ -6,19 +6,19 @@
 
 **ncollide** is some kind of abbreviation for _n-dimensional collision
 detection library_, where `n` is usually equal to 2 or 3 for common uses.
-Higher dimensions will work fine as well, except for the modules
+Higher finite dimensions will work fine as well, except for
 **ncollide_procedural** and **ncollide_transformation** which are both mostly
 specialized for 2D and 3D.
 
 --------
 
-#### Which units are used by **ncollide**?
+#### What units are used by **ncollide**?
 
 This is left to your imagination. They can as well be kilometers, miles,
 litters, lumens, or nyan cats. It all depends on your application. Just try to
 choose your units such that the quantities (especially sizes) remain close
 to 1.0. Therefore it is generally a **very bad idea** to choose one pixel as
-your principal distance unit! In addition, significant size ratios (_big_
+your reference distance unit! In addition, significant size ratios (_big_
 objects interacting with _small_ objects) should be avoided as they are very
 prone to generate rounding errors.
 
@@ -66,8 +66,8 @@ fn main() {
 ```
 
 If doing so does not work, double check the [API
-documentation](../doc/ncollide): you might just have mispelled
-the method name.
+documentation](../rustdoc/ncollide): you might just have misspelled the method
+name.
 
 --------
 

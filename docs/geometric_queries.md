@@ -1,14 +1,14 @@
 ## Single-shape queries
 Geometric queries involving only one shape are exposed through traits. Most of
-them declare several method that achieve similar goals but with different
+them declare several methods that achieve similar goals but with different
 levels of details: from simple boolean tests to complete geometric descriptions
-of the result. Of course, a general rule is to assume that the less detailed
+of the results. Of course, a general rule is to assume that the less detailed
 queries are be the fastest to execute.
 
 ### Point projection
 It is possible to check whether or not a point is inside of a shape, to project
-it, or compute the distance from a point to a shape. Those queries are
-exposed by the `query::PointQuery` trait:
+it, or to compute the distance from a point to a shape. Those queries are
+exposed by the `PointQuery` trait:
 
 | Method | Description |
 |--      | --          |
@@ -27,7 +27,7 @@ a non-solid one.
 ![point projection](../img/solid_point_projection.svg)
 </center>
 
-The result of point projection is given by the `query::PointProjection`
+The result of point projection is given by the `PointProjection`
 structure:
 
 | Field    | Description                               |
@@ -37,18 +37,17 @@ structure:
 
 The result of the distance computation with `.distance_to_point(...)` is a
 signed real number. If the projection is non-solid and the returned distance
-negative, then the point is located inside of the shape. Then, the absolute
-value of the returned number gives the shortest distance between the point and
-the shape border. If the projection is solid and the point locate inside of the
-shape, then the returned distance is zero.
+negative, then the point is located inside of the shape and this number's
+absolute value gives the shortest distance between the point and the shape
+border. It is zero if the projection is solid and the point located inside of
+the shape.
 
 
 The following examples attempt to project two points `point_inside` and
-`point_outside` on a cuboid. Because `point_inside` is
-located inside of the cuboid, the resulting distance will be zero if the
-ray cast is solid, or negative otherwise. The distance of `point_outside` from
-the cuboid is not affected by the `solid` flag because it is outside of
-it.
+`point_outside` on a cuboid. Because `point_inside` is located inside of the
+cuboid, the resulting distance will be zero if the projection is solid, or
+negative otherwise. The distance from `point_outside` to the cuboid is not
+affected by the `solid` flag because it is outside of it anyway.
 
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#solid_point_query_2D">2D example</a></li>
@@ -98,13 +97,14 @@ assert_eq!(cuboid.distance_to_point(&Identity::new(), &pt_outside, true), 1.0);
 ### Ray casting
 
 Ray casting is also one of the core geometric queries in the field of collision
-detection. Besides the fact it can be used for rendering (using ray-tracing
-like methods), it is useful for e.g. continuous collision detection and
-navigation on a virtual environment. Therefore **ncollide** has efficient ray
-casting algorithms for all the shapes it implements (including functions that
-are able to cast rays on arbitrary
-[support-mapped](../geometric_representations/index.html#support-map) convex
-shapes). The main ray-casting related data structure is the `query::Ray` itself:
+detection. Besides the fact it can be used for rendering (like ray-tracing), it
+is useful for, e.g., continuous collision detection and navigation on a virtual
+environment. Therefore **ncollide** has efficient ray casting algorithms for
+all the shapes it implements (including functions that are able to cast rays on
+arbitrary
+[support-mapped](../geometric_representations/index.html#support-mappings)
+convex shapes). The main ray-casting related data structure is the `Ray`
+itself:
 
 | Field  | Description                    |
 |--      | --                             |
@@ -112,7 +112,7 @@ shapes). The main ray-casting related data structure is the `query::Ray` itself:
 | `dir`  | The ray propagation direction. |
 
 
-The result of a successful ray-cast is given by the `query::RayIntersection`
+The result of a successful ray-cast is given by the `RayIntersection`
 structure:
 
 | Field    | Description                               |
@@ -122,18 +122,17 @@ structure:
 | `uvs`    | If available, the texture coordinates at the intersection point of the shape hit by the ray. If the texture coordinates information is not computable, this is set to `None`. |
 
 Recall that the exact point of intersection may be computed from the
- _time of impact_ with the following:
+ _time of impact_:
 
 ```rust
 let intersection_point = ray.orig + ray.dir * result.toi
 ```
-A physical interpretation of the time of impact is the time needed for a point
-with velocity `ray.dir` to travel from the position `ray.orig` to the object
-hit.
+Because `ray.dir` does not need to be normalized, a physical interpretation of
+the time of impact is the time needed for a point with velocity `ray.dir` to
+travel from the position `ray.orig` to the object.
 
 
-The `query::RayCast` trait is implemented by shapes that can be intersected by a
-ray:
+The `RayCast` trait is implemented by shapes that can be intersected by a ray:
 
 | Method | Description |
 |--      | --          |
@@ -143,7 +142,7 @@ ray:
 | `.intersects_ray(m, ray)`                        | Tests whether `ray` intersects `self` transformed by `m`. |
 
 If you implement this trait for your own shape, only the second method of this
-list (namely `.toi_and_normal_with_ray(...)` is required. The other ones are
+list − namely `.toi_and_normal_with_ray(...)` − is required. The other ones are
 automatically inferred (but for optimization purpose you might want to
 specialize them as well).
 
@@ -159,12 +158,13 @@ the shape is hollow and will propagate on its inside until it hits a border:
 </center>
 
 Of course, if the starting point of the ray is outside of any shape, then
-the `solid` flag has no effect. Note that a solid ray cast is usually much
-**faster** than a non-solid one.
+the `solid` flag has no effect. Note that a solid ray cast is usually **much
+faster** than a non-solid one.
+
 The following examples attempt to cast two rays `ray_inside` and `ray_miss` on
 a cuboid. Because the starting point of `ray_inside` is located inside of the
-cuboid, the resulting time of impact will be zero if the ray cast is solid, or
-not-zero otherwise. Casting `ray_miss` will fail because it starts and points
+cuboid, the resulting time of impact will be zero if the ray cast is solid and
+non-zero otherwise. Casting `ray_miss` will fail because it starts and points
 away from the cuboid.
 
 
@@ -217,31 +217,31 @@ assert!(cuboid.toi_with_ray(&Identity::new(), &ray_miss, true).is_none());
 Instead of being exposed by traits, pairwise geometric queries for shapes
 having a [dynamic
 representation](../geometric_representations/#dynamic-shape-representation) are
-defined by free-functions on the `query::` module. Those functions will
-inspect the shape representation in order to select the right algorithm for the
-query. To avoid this dynamic dispatch when you already know at compile-time
-which types of shapes are involved, the _internal_ submodules, e.g.,
-`query::distance_internal`, contain functions dedicated to specific shapes
-or shape representations.
+defined by free-functions on the `query` module. Those functions will inspect
+the shape representation in order to select the right algorithm for the query.
+To avoid this dynamic dispatch when you already know at compile-time which
+types of shapes are involved, the _internal_ submodules, e.g.,
+`query::distance_internal`, contain functions dedicated to specific shape types
+or representations.
 
 ### Proximity
 
 The proximity query `query::proximity(m1, g1, m2, g2, margin)` tests if the
 shapes `g1` and `g2`, respectively transformed by `m1` and `m2`, are
 intersecting. It will not provide any specific detail regarding the exact
-distance separating them. Its result is described by the `query::Proximity`
+distance separating them. Its result is described by the `Proximity`
 enumeration:
 
 | Variant        | Description                               |
 |--              | --                                        |
 | `Intersecting` | The two objects interior are overlapping. |
-| `WithinMargin` | The two object have disjoint interiors but are closer than some _margin_. |
-| `Disjoint`     | The two objects are separated by distance larger than some _margin_. |
+| `WithinMargin` | The two object have disjoint interiors but are closer than `margin`. |
+| `Disjoint`     | The two objects are separated by a distance larger than `margin`. |
 
 Because it might be useful to know when two objects are not intersecting but
-close to each another, the user may specify a _margin_ which must be a positive
-value (or zero). If the two objects are separated by a distance smaller than
-this margin, the proximity is said to be _within the margin_.
+close to each another, the user may specifies a `margin` which must be positive
+or zero. If the two objects are separated by a distance smaller than this
+margin, the proximity is said to be _within the margin_.
 
 
 In the following example, the margin is depicted as a red curve around the
@@ -397,9 +397,9 @@ pair of closest points between two objects if they are penetrating, touching,
 or separated by a distance smaller than `prediction`. If the shapes are concave
 or in [conforming
 contact](./collision_detection_pipeline/#conforming-contacts), you may need
-multiple contact points instead. This can be achieved by [persistent collision
-detection](../collision_detection_pipeline/#narrow-phase) structures. In any
-cases, a contact is described by the `query::Contact` structure:
+multiple contact points instead. This can be achieved by [persistent contact
+generation](../collision_detection_pipeline/#persistent-contact-generation)
+structures. In any cases, a contact is described by the `Contact` structure:
 
 
 | Field    | Description                                                              |
@@ -416,7 +416,7 @@ objects in contact are penetrating each other. Notably, if you are using
 **ncollide** within the context of physics simulation, penetrations are
 unrealistic configurations where the inside of the two objects are overlapping.
 This can be described geometrically in several forms including the penetration
-volume (left) and the minimal translational distance (right):
+volume (left) or the minimal translational distance (right):
 
 <center>
 ![penetration depth](../img/penetration_depth.svg)
@@ -499,13 +499,13 @@ assert_eq!(ctct_too_far, None);
 
 ### Time of impact
 
-The time of impact (aka. $\mathit{toi}$) returned by `query::time_of_impact(m1,
-v1, g1, m2, v2, g2)` is the positive time it would take `g1` and `g2` to touch if they
+The time of impact − aka. $\mathit{toi}$ − returned by `query::time_of_impact(m1,
+v1, g1, m2, v2, g2)` is the time it would take `g1` and `g2` to touch if they
 both move with linear velocities `v1` and `v2` starting with the positions and
 orientations given by `m1` and `m2`. This is commonly used for, e.g.,
 continuous collision detection to avoid tunnelling effects on physics engines:
-objects that traverse each other in-between iterations if the objects are
-moving too fast or if the time step is too large.
+objects that traverse each other in-between iterations if they are moving too
+fast or if the simulation time step is too large.
 
 
 The following example depicts the three possible scenarios:
@@ -513,8 +513,7 @@ The following example depicts the three possible scenarios:
 1. The shapes are already touching at their original positions, i.e., at time $\mathit{toi} = 0$.
 2. The shapes start intersecting at some time $\mathit{toi} > 0$. This means
    that `g1` and `g2` start touching at the positions
-   `na::append_translation(&m1, &(v1 * toi))` and `na::append_translation(&m2,
-   &(v2 * toi))`.
+   `m1.append_translation(&(v1 * toi))` and `m2.append_translation(&(v2 * toi))`.
 3. The shapes will never intersect. In this case `None` is returned.
 
 <center>

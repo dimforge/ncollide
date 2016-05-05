@@ -2,9 +2,19 @@ body {
     padding-top: 70px;
 }
 
+.hljs {
+  display: inline-block;
+  word-wrap: normal;
+  white-space: pre;
+}
+
+pre {
+  overflow-x: auto;
+}
+
 div.tab-pane pre {
   overflow-y: auto;
-  max-height: 600px;
+  max-height: 650px;
   border-radius: 0px;
   border-top-color: transparent;
 }

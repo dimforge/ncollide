@@ -1,19 +1,19 @@
 # Bounding volumes
 
 Performing some tests on an approximation of the shape of an object is often
-useful to fasten several geometric queries. For example testing two convex
+useful to accelerate several geometric queries. For example testing two convex
 polyhedrons for intersection is extremely time-consuming. Instead, we could
-test that their spherical approximations (namely, their bounding spheres)
-intersect; and if the approximations fail this test there is no need to perform
-the same query on the original polyhedra. This test-on-the-approximations-first
-approach is known as _prunning_.
+test that their spherical approximations (namely, their [bounding
+spheres](#bounding-sphere)) intersect. Then if the approximations fail this
+test there is no need to perform the same query on the original polyhedra. This
+test-on-the-approximations-first approach is known as _pruning_.
 
 
 The approximations presented here are conservative with regard to the object
 volume, i.e., the approximated shape is completely contained inside of the
-approximating object. This is called a bounding volume. Many bounding volumes
-exist on the literature, depending on their specific uses. For example, the
-following figure shows a 2D polygon bounded by a bounding sphere, an Axis
+approximating object. Those are called _bounding volumes_. Many bounding
+volumes exist on the literature, depending on their specific uses. For example,
+the following figure shows a 2D polygon bounded by a bounding sphere, an Axis
 Aligned Bounding Box (AABB), an Oriented Bounding Box (OBB), and a convex hull.
 Not all of them are implemented on **ncollide** yet:
 
@@ -22,9 +22,9 @@ Not all of them are implemented on **ncollide** yet:
 </center>
 
 Note that bounding volumes are very different from regular shapes: their
-position in space is completely contained by the bounding volume structure so
-they do not require a separate transformation matrix to reach any position in
-space. In addition, they must implement the `bounding_volume::BoundingVolume`
+positions and orientations are completely encoded in the bounding volume
+structure so they do not require a separate transformation matrix to reach any
+position in space. All bounding volume must implement the `BoundingVolume`
 trait:
 
 
@@ -43,14 +43,13 @@ The `.loosen(...)` and `.loosened(...)` (resp. `.tighten(...)` and
 `.tightened(...)`) methods allow you to dilate (resp. erode) the bounding
 volume by a given margin. This will effectively make the new bounding volume
 strictly larger (resp. thinner) than the original one if `m` is not zero.  This
-is useful, e.g., to optimize some [broad phase](../contact_determination/broad_phase.html)
-algorithms.
+is useful, e.g., to optimize some [broad
+phase](../collision_detection_pipeline/#broad-phase) algorithms.
 
 
-Finally, the `bounding_volume::HasBoundingVolume` trait which is parametrized
-by the type of the returned bounding volume is implemented by shapes and other
-entities that can construct their bounding volume, given a transformation
-matrix:
+Finally, the `HasBoundingVolume` trait which is parametrized by the type of the
+returned bounding volume is implemented by shapes and other entities that can
+construct their own bounding volume given a transformation matrix:
 
 | Method               | Description |
 | --                   | --          |
@@ -59,11 +58,12 @@ matrix:
 
 ## Bounding Sphere
 
-The `bounding_volume::BoundingSphere` is a sphere that contains completely the
-bounded shape. While this is the less tight bounding volume, it has the benefit
-of being invariant with regard to isometric transformations. Thus, translating
-and rotating the bounded shape do not modify the radius of the bounding
-sphere.
+The `BoundingSphere` is a sphere that contains completely the bounded shape.
+While this is the less tight bounding volume, it has the benefit of being
+invariant with regard to isometric transformations. Thus, translating and
+rotating the bounded shape will not modify the radius of its bounding sphere.
+Bounding spheres support [ray casting](../../geometric_queries/#ray-casting) and
+[point queries](../geometric_queries/#point-projection).
 
 <center>
 ![bounding sphere](../img/bounding_volume_bounding_sphere.svg)
@@ -78,39 +78,18 @@ It is fully defined by its center and its radius:
 
 
 Of course, the bounding sphere implements the `BoundingVolume` trait. The
-following shows the effect of the `.loosen(m)` and `.tighten(m)` method on it:
+following shows the effect of the `.loosen(m)` and `.tighten(m)` methods on it:
 
 <center>
 ![Bounding sphere loosening](../img/bounding_volume_bounding_sphere_loose.svg)
 ![Bounding sphere tightening](../img/bounding_volume_bounding_sphere_tight.svg)
 </center>
 
-Finally, note that a bounding sphere supports ray casting and point queries as
-described by the [RayCast](../ray_casting/index.html) and
-[PointQuery](../point_query/index.html) traits.
-
-### Creating a Bounding Sphere
-
-There are three ways to create a bounding sphere. The main one is to use the usual
-static method `BoundingSphere::new(center, radius)`. The second is to use the
-`bounding_volume.bounding_sphere(g, m)` function, where `g` and `m` are the
-shape and its position (e.g. a transformation matrix).  While this is not
-recommended except for generic programming, you may as well directly call the
-method from the `bounding_volume::HasBoundingVolume` trait implemented by any
-shape of `ncollide`:
-
-| Method                | Description                                                |
-|--                     | --                                                         |
-| `.bounding_volume(m)` | Computes the bounding sphere of `self` transformed by `m`. |
-
-While using the trait method directly works (this is actually what
-`bounding_volume.bounding_sphere(...)` does under the hood), the compiler might
-sometimes fail to infer correctly the types involved in the trait
-implementation and output a cryptic error message. Also note that the
-`HasBoundingVolume` trait actually takes the bounding volume type as a type
-parameter. Therefore, you may have to specify explicitly the return type of
-the method in order to use it, e.g. `let bs: BoundingSphere<Point3<f32>> =
-g.bounding_volume(m);`.
+There are three ways to create a bounding sphere. The two main ones are to use
+the usual static method `BoundingSphere::new(center, radius)` or with the
+`bounding_volume::bounding_sphere(g, m)` function, where `g` and `m` are the
+shape and its position (e.g. a transformation matrix). In generic code, you
+might as well use the `HasBoundingVolume` trait.
 
 The following example computes the bounding spheres of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder bounding
@@ -195,8 +174,8 @@ assert!(loose_bounding_sphere_cylinder.contains(&bounding_sphere_cylinder));
 
 ## Axis-Aligned Bounding Box
 
-As suggested by its name, the `bounding_volume::AABB` is a box with principal
-axis aligned with the positive coordinate axises $\mathbf{x}$, $\mathbf{y}$, $\mathbf{z}$.
+As suggested by its name, the `AABB` is a box with principal axis aligned with
+the positive coordinate axises $\mathbf{x}$, $\mathbf{y}$, $\mathbf{z}$.
 
 <center>
 ![AABB](../img/bounding_volume_aabb.svg)
@@ -220,40 +199,20 @@ the effect of the `.loosen(m)` and `.tighten(m)` method on it:
 ![AABB tightening](../img/bounding_volume_aabb_tight.svg)
 </center>
 
-Finally, note that an AABB supports ray casting and point queries as described
-by the [RayCast](../ray_casting/index.html) and
-[PointQuery](../point_query/index.html) traits.
+An AABB supports [ray casting](../../geometric_queries/#ray-casting) and [point queries](../geometric_queries/#point-projection) as well.
 
-### Creating an AABB
 There are four ways to create an AABB. The main one is to use the usual
 static method `AABB::new(mins, maxs)`. This will fail if one component of
 `mins` is strictly greater than the corresponding component of `maxs`. The
 second one is to use the unsafe constructor `AABB::new_invalid()`. It is unsafe
 because the result AABB is invalid: its `mins` field is set to
-[Bounded::max_value()](http://doc.rust-lang.org/std/num/trait.Bounded.html) and
+[Bounded::max_value()](http://rust-num.github.io/num/num/trait.Bounded.html) and
 its `maxs` field is set to
-[-Bounded::max_value()](http://doc.rust-lang.org/std/num/trait.Bounded.html).
+[-Bounded::max_value()](http://rust-num.github.io/num/num/trait.Bounded.html).
 This is useful to initiate the merging of multiple AABB. The third construction
 method is to use the `bounding_volume.aabb(g, m)` function, where `g` and `m`
-are the shape and its position (e.g. a transformation matrix).  Finally, while
-this is not recommended except for generic programming, you may as well
-directly call the method from the `bounding_volume::HasBoundingVolume` trait
-implemented by any shape of `ncollide`:
-
-| Method                | Description                                                |
-|--                     | --                                                         |
-| `.bounding_volume(m)` | Computes the aabb of `self` transformed by `m`. |
-
-While using the trait method directly works (this is actually what
-`bounding_volume.aabb(...)` does under the hood), the compiler might
-sometimes fail to infer correctly the types involved in the trait
-implementation and output a cryptic error message. Also note that the
-`HasBoundingVolume` trait actually takes the bounding volume type as a type
-parameter. Therefore, you may have to specify explicitly the return type of
-the method in order to use it, e.g. `let bs: AABB<Point3<f32>> =
-g.bounding_volume(m);`.
-
-### Example
+are the shape and its position (e.g. a transformation matrix). Finally, generic
+applications may directly call the method from the `HasBoundingVolume` trait.
 
 The following example computes the AABB of a cone and a cylinder,
 merges them together, creates an enlarged version of the cylinder AABB, and
@@ -353,18 +312,18 @@ triangles) in just a few seconds:
 </center>
 
 For a high-level interface you may use a [broad
-phase](../contact_determination/broad_phase.html) algorithm. Under the hood,
-they use accelerations structures from the `partitioning` module. Those
-may be used directly as well. At the moment, **ncollide** has only one
-tree-based structure: the Bounding Volume Tree, aka., `BVT`. The similar
-structure `DBVT` is less efficient but modifiable after initialization.
+phase](../collision_detection_pipeline/#broad-phase) algorithm. Under the hood,
+they use accelerations structures from the `partitioning` module that may be
+used directly instead. At the moment, **ncollide** has only one tree-based
+structure: the Bounding Volume Tree, aka., `BVT`. The similar structure `DBVT`
+is less efficient but modifiable after initialization.
 
 ## The Bounding Volume Tree
 The Bounding Volume Tree is a proper binary tree containing shapes on its
-leaves only. Any interior node contains a bounding volume that are required to
-contain all the shapes on the leaves of the subtree it is root of.  For
-example, the following figure depicts a set of 2D objects (brown), their AABB
-(black) and the corresponding AABB Tree (one color per depth):
+leaves only. Any interior node contains a bounding volume that is required to
+bound all the shapes on the leaves of the subtree it is root of.  For example,
+the following figure depicts a set of 2D objects (brown), their AABB (red) and
+the corresponding AABB Tree (one color per depth):
 
 <center>
 ![BVT with AABB](../img/AABB_tree_BVT.svg)
@@ -383,12 +342,11 @@ themselves are just associated data opaque to the `BVT` and do not have to
 implement any specific trait. The second argument `f` is a closure (the
 partitioning scheme) that will split any given array of bounding volumes into
 two groups. This splitting process is known as the _top-down_ tree construction
-approach, i.e., starting with the tree root and recursively splitting our way
-to the leaves. One example of such partitioning scheme is the
+approach, i.e., starting with the tree root and recursively splitting its way
+down to the leaves. One example of such partitioning scheme is the
 `partitioning::balanced_partitioner(...)` that will distribute the objects
-depending on their bounding volumes position along one axis relative to their
-median. This will generate a balanced tree (with does not guarantee best
-performances for some applications).
+depending on their bounding volumes position along one axis. This will generate
+a balanced tree (with is not necessarily optimal for all applications).
 
 The second constructor of the `BVT` is `::new_balanced(...)` which simply
 invokes `::new_with_partitioner(...)` with your objects and the
@@ -396,7 +354,7 @@ invokes `::new_with_partitioner(...)` with your objects and the
 
 ### Using a BVT
 
-A `BVT` can be exploited using the [visitor
+A `BVT` can be traversed using the [visitor
 pattern](https://en.wikipedia.org/wiki/Visitor_pattern). Three kinds of
 traversals are available depending on your needs:
 
@@ -413,9 +371,9 @@ traversals are available depending on your needs:
 3. **Simultaneous depth-first traversal** of two BVTs with `.visit_bvtt(...)`.
    This will traverse two BVT simultaneously, applying a user-defined visitor
    implementing the `BVTTVisitor` trait on each pair of nodes (one from each
-   BVT) traversed. The `BVTT` acronym stands for Bounding Volume Test Tree
+   BVT) traversed. The BVTT acronym stands for Bounding Volume Test Tree
    because such traversal can be visualized as a tree as well. Simultaneous BVT
-   traversal is typically use to check two composite object for intersection.
+   traversal is typically used to check two composite object for intersection.
    Note that both BVT involved in the traversal may be the same one.
 
 A few visitors and cost functions are already implemented on **ncollide**:
@@ -469,7 +427,7 @@ let result = Vec::new();
 ```
 
 * The `RayIntersectionCostFn` will search for the closest object that
-  intersecting the ray given as argument to the visitor's constructor. The BVT
+  intersects the ray given as argument to the visitor's constructor. The BVT
   user-data must implement the `RayCast` trait:
 
 ```rust
@@ -487,10 +445,10 @@ match bvt.best_first_search(&mut visitor) {
 ```
 
 **Attention:** note that while the cost function `RayIntersectionCostFn`
-performs a ray cast on both the objects and their bounding volumes, the other
+performs a ray cast on both objects and their bounding volumes, the other
 visitors like `RayInterferencesCollector` only work with the bounding volumes.
 So if you are using the latter, you need to check if the query actually
-succeeds on the collected objects!
+succeeds on the collected objects yourself!
 
 
 The following example creates four shapes, sets up a `BVT` to associate indices
@@ -641,24 +599,24 @@ fn main() {
 </div>
 
 ### The DBVT
-The Dynamic Bounding Volume Tree shares the same structure as the `BVT` but is
-modifiable after initialization. It allows:
+The Dynamic Bounding Volume Tree shares the same overall structure as the `BVT`
+but is modifiable after initialization. It allows:
 
 * Insersion of a new object `b` with its bounding volume `bv` with
   `.insert_new(b, bv)`. This will return a leaf that may be manipulated later.
-  This usually has a $\mathcal{O}(\log(n))$ average time complexity.
+  This has a $\mathcal{O}(\log(n))$ average time complexity.
 * Removal of a leaf from the tree with `.remove(leaf)`. This has a
   $\mathcal{O}(1)$ time complexity.
-* Insertion of an unrooted leaf with `.insert(leaf)`. An unrooted leaf is one
-  that has been removed from its tree. The same leaf may not be added to two
-  trees simultaneously but it can be moved to another `DBVT` instance after
-  being removed from the original one. This has a $\mathcal{O}(\log(n))$
-  average time complexity.
+* Insertion of an unrooted leaf with `.insert(leaf)`.  This has a
+  $\mathcal{O}(\log(n))$ average time complexity.  An unrooted leaf is one that
+  has been removed from its tree. The same leaf may not be added to two trees
+  simultaneously but it can be moved to another `DBVT` instance after being
+  removed from the original one.
 
 After an insertion or a removal, the `DBVT` must recompute some internal node
 bounding volumes in order to ensure they still bound their subtree's leaves.
-This refitting is performed immediately at insertion-time and lazily after a
-removal.
+This refitting is performed immediately at insertion-time and lazily after
+removals.
 
 Currently, the only way to traverse the `DBVT` is with the `.visit(...)` method
 which will perform a **depth-first traversal** using a user-defined visitor

@@ -42,9 +42,9 @@ it. Do not hesitate to correct even the smallest, insignificant detail
 website is composed of a set of markdown files located on the
 [gh-pages](https://github.com/sebcrozet/ncollide/tree/gh-pages) branch of the
 main **ncollide** repository. It is compiled using
-[MkDocs v0.15.3](https://www.mkdocs.org/). As explained in the next section,
-you need to fork, fix, and create a pull request (targeting the **gh-pages**
-branch) to make your contribution integrable into our code base. There are no
+[MkDocs v0.15.3](http://www.mkdocs.org/). As explained in the next section,
+you need to fork, fix, and create a pull request targeting the **gh-pages**
+branch to make your contribution integrable into our code base. There are no
 specific rules, except that all compilable code to generate illustrations must
 be located on the `src` folder.  Downloadable examples have to be located on
 the `examples` directory of the main project, i.e., on the `master` branch.
@@ -113,5 +113,5 @@ alphabetical order:
 
 If your name should or should not be on this list, or if it should be linked
 with another website, please send an [email](mailto:developer@crozet.re) or
-open an issue on [github](https://github.com/sebcrozet/ncollide/issue).
+open an issue on [GitHub](https://github.com/sebcrozet/ncollide/issues).
 

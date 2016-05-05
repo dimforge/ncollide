@@ -3,6 +3,10 @@ body {
 }
 
 
+a:hover .user_forum {
+    color: #ff8f2e;
+}
+
 @media(min-width:768px) {
   #show_small {
     display: none;

@@ -24,9 +24,9 @@
     <div>
     <big>**Complex shapes**</big>
     <br>
-    Complex geometric queries for collision detection are available for 2D and
-    3D shapes with various levels of complexity: from simple spheres to
-    arbitrary triangle meshes and unions of convex shapes.
+    Geometric queries for collision detection available for 2D and 3D shapes
+    with various levels of complexity: from simple spheres to arbitrary
+    triangle meshes and unions of convex shapes.
     </div>
     </a>
     </td>
@@ -38,9 +38,9 @@
     <div>
     <big>**Bounding volumes**</big>
     <br>
-    Complex shapes may be approximated by simpler ones like AABB and bounding
-    spheres. Those can be used for approximating some geometric queries
-    efficiently and avoid useless exact computations.
+    Bound complex shapes with simpler ones like AABB and bounding spheres.
+    Perform approximate geometric queries efficiently to avoid useless exact
+    computations.
     </div>
     </a>
     </td>
@@ -52,7 +52,7 @@
     <div>
     <big>**Ray casting**</big>
     <br>
-    Computation of intersection between a ray and any shape.
+    Compute intersections between a ray and any shape.
     </div>
     </a>
     </td>
@@ -64,8 +64,8 @@
     <div>
     <big>**Point projection**</big>
     <br>
-    Point containment test, distance to point, and point projection on any
-    shape.
+    Test a point for containment, compute distances to a point, or project it
+    on any shape.
     </div>
     </a>
     </td>
@@ -116,7 +116,7 @@
     <big>**Spacial partitioning**</big>
     <br>
     Efficient data structures to perform geometric queries efficiently on
-    thousands of objects.
+    hundreds of objects.
     </div>
     </a>
     </td>
@@ -129,8 +129,9 @@
     <big>**Collision detection pipeline**</big>
     <br>
     A complete and efficient collision detection pipeline including a broad
-    phase and a narrow phase. Enables real-time contacts generation, proximity events,
-    ray-casting and more, for scenes with hundreds of objects.
+    phase and a narrow phase. Featuring real-time contacts generation,
+    proximity events, ray-casting, and more, for scenes with hundreds of
+    objects.
     </div>
     </a>
     </td>
@@ -169,19 +170,19 @@ available on [crates.io](http://crates.io). It relies on mesh generation to
 render everything that is not triangular (sphere, cone, Bézier surfaces, etc.)
 In particular it has a
 [demo](https://github.com/sebcrozet/kiss3d/blob/master/examples/procedural.rs)
-that uses most mesh generation algorithms of **ncollide**. In fact, every
-single 3d illustration of the [Mesh generation](mesh_generation/index.html)
-section has been rendered by **kiss3d**.
+that uses most mesh generation algorithms of **ncollide**. Every single 3d
+illustration of the [Mesh generation](mesh_generation/index.html) section has
+been rendered by **kiss3d**.
 <p>
 <center>
 ![Mesh generation rendered by kiss3d](img/kiss3d.png)
 </center>
 </p>
 <p>
-<big>[**nrays**](https://github.com/sebcrozet/nrays)</big> − a toy 3d and 4d
-ray tracer in Rust. Obviously, it is used to stress-test the ray-casting
-capabilities of **ncollide**. In fact, most 3d illustration of this guide have
-been rendered by **nrays**.
+<big>[**nrays**](https://github.com/sebcrozet/nrays)</big> − a toy ray tracer
+in Rust. Obviously, it is used to stress-test the ray-casting capabilities of
+**ncollide**. Most 3d illustrations of this guide have been rendered by
+**nrays**.
 </p>
 <p>
 <center>

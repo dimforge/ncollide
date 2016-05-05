@@ -5,6 +5,7 @@ cssfile=./docs/rustdoc/rustdoc.css
 tmpcssfile=./docs/rustdoc/rustdoc.css.tmp
 
 echo '@import url("//fonts.googleapis.com/css?family=Lato:400,700,900,400italic");' > $tmpcssfile
+echo '@import url("//cdn.rawgit.com/piscis/github-fork-ribbon-css-bem/v0.1.22/dist/gh-fork-ribbon-bem.min.css");' >> $tmpcssfile
 cat $cssfile >> $tmpcssfile
 cat custom_flatly/css/bootstrap-custom.min2.css >> $tmpcssfile
 cat custom_flatly/css/base2.css >> $tmpcssfile

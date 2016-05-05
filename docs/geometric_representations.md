@@ -8,11 +8,11 @@ its convex parts.
 
 
 Geometric primitives supported by **ncollide** are defined on the `shape`
-module and share a common [dynamic representation](#dynamic-shape-representation).
-Note that all geometric primitives have a predefined constant local frame equal
-to the identity matrix. Thus, one usually has to store his own transformation
-matrix separately from the shape itself in order to reach any location and
-orientation.
+module. They all share a common [dynamic
+representation](#dynamic-shape-representation).  Note that all geometric
+primitives have a predefined constant local frame equal to the identity matrix.
+Thus, one usually has to store a transformation matrix separately from
+the shape itself in order to reach any location and orientation.
 
 # Support mappings
 
@@ -26,29 +26,30 @@ $$
 s_{\mathcal{A}}(\mathbf{v}) = \arg \max\limits_{\mathbf{p} \in \mathcal{A}} \left< \mathbf{p}, \mathbf{v} \right>
 $$
 
-If several points are eligible to be support points for a given direction
-$\mathbf{v}$, any one of them has to be returned (preferably a corner). This
-can be seen as a function that returns a point of the support mapped shape
-which is _the furthest on the given direction_. Such a function is enough to
-describe completely a convex object.  The following shows support points for
-the shapes $\mathcal{A}, \mathcal{B}$ and $\mathcal{C}$, given two directions
-$\mathbf u$ and $\mathbf v$:
+ This can be seen as a function that returns a point of the support mapped
+ shape which is _the furthest on the given direction_. Such a function is
+ enough to describe completely a convex object. If several points are eligible
+ to be support points for a given direction $\mathbf{v}$, any one of them can
+ be returned (preferably a corner). The following shows support points for the
+ shapes $\mathcal{A}, \mathcal{B}$ and $\mathcal{C}$, given two directions
+ $\mathbf u$ and $\mathbf v$:
 
 <center>
 ![Support function](../img/support_fun_simple.svg)
 </center>
 
-The support mapping function is exposed by the `shape::SupportMap` trait.
+The support mapping function is exposed by the `SupportMap` trait.
 
 | Method                            | Description |
 |--                                 | --          |
-| `.support_point(m, v)`            | Computes the support point of the caller transformed by the transformation matrix `m`, in the direction `v`. |
+| `.support_point(m, v)`            | Computes the support point (in the direction `v`) of the caller transformed by the transformation matrix `m`. |
 
-Most basic geometric primitives like balls, cubes, and cones, and more complex
+Most basic geometric primitives like balls, cubes, cones, and even more complex
 ones like a Minkowski Sum of convex shapes can be described by their support
 mappings. This allows a useful level of genericity for several geometric
-queries on **ncollide**. Moreover, support mapping-based algorithms can also
-operate on shapes embedded on a space of dimension higher than 3.
+queries on **ncollide**. Moreover, allogithms based on support algorithms can
+usually general enough to be able to operate on shapes embedded on a space of
+finite dimension higher than 3.
 
 ### Ball
 Mathematically speaking, the `Ball` structure describes a closed ball on the
@@ -82,7 +83,7 @@ assert!(ball.radius() == 1.0);
 -----------
 
 ### Cuboid
-The `Cuboid` structure describes a rectangle in two dimensions, or a cuboid in
+The `Cuboid` structure describes a rectangle in two dimensions or a cuboid in
 three dimensions. A cuboid is defined by its _half extents_, i.e., its
 half length along each coordinate axis.
 
@@ -127,7 +128,7 @@ assert!(cuboid.half_extents().z == 3.0);
 -----------
 
 ### Cylinder
-The `Cylinder` structure describes a rectangle in two dimensions, or a cylinder
+The `Cylinder` structure describes a rectangle in two dimensions or a cylinder
 in three dimensions. Its principal axis is the $\mathbf{y}$ axis.
 
 
@@ -160,11 +161,11 @@ assert!(cylinder.radius() == 1.0);
 -----------
 
 ### Cone
-The `Cone` structure describes an isosceles triangle in two dimensions, or a
-cone of revolution in tree dimensions. A cone is defined by the _radius_ of its
+The `Cone` structure describes an isosceles triangle in two dimensions or a
+cone of revolution in three dimensions. A cone is defined by the _radius_ of its
 basis and its _half height_ − the half distance between the basis and the apex.
-It points upward, its principal axis is the positive $\mathbf{y}$ axis, and its
-apex has coordinates $(0, \text{cone.half_height()}, 0)$.
+It points upward, its principal axis is the $\mathbf{y}$ axis, and its apex has
+coordinates $(0, \text{cone.half_height()}, 0)$.
 
 | Method | Description |
 | --          | --       |
@@ -196,14 +197,14 @@ assert!(cone.radius() == 0.75);
 
 ### Capsule
 The `Capsule` structure describes the Minkowski sum of a segment and a ball. In
-other words, this is a cylinder with its flat extremities replaced by
-half-balls. A capsule is defined by its _half height_ and the _radius_ of its
-extremities.  It is centered at the origin and its principal axis is the
-$\mathbf{y}$ axis.
+other words, this is a cylinder with extremities replaced by half-balls. A
+capsule is defined by the _half height_ of its cylindrical part and the
+_radius_ of its extremities.  It is centered at the origin and its principal
+axis is the $\mathbf{y}$ axis.
 
 | Method | Description |
 | --          | --       |
-| `.half_height()` | The half height of the capsule. |
+| `.half_height()` | The half height of the capsule cylindrical part. |
 | `.radius()` | The radius of the capsule extremities. |
 
 <ul class="nav nav-tabs">
@@ -239,8 +240,8 @@ and if it contains any segment joining two of its points:
 </center>
 
 The `ConvexHull` shape is created from a set of points. Note that it does not
-compute explicitly the convex hull of the points so its creation takes a
-constant time.
+compute explicitly the convex hull of the points so its creation takes
+$\mathcal{O}(1)$ time.
 
 | Method | Description  |
 | --        | --           |
@@ -306,7 +307,7 @@ $$
 $$
 
 The reflected shape and the reflection itself are lifetime-bound so it cannot
-be used to create a [shape handle](#dynamic-shape-representation).
+be used to create a [shape handle](#the-shape-handle).
 
 | Method | Description |
 | --       | --        |
@@ -348,7 +349,7 @@ In other words, this is the union of all points of one shape successively
 translated by each point of the other one. This is extremely useful for
 discrete and continuous collision detection. Note that `MinkowskiSum` does not
 compute the sum explicitly so its construction is $\mathcal{O}(1)$. It is
-lifetime-bound to the shapes involved on the sum so it cannot be used to create
+lifetime-bound to the shapes involved in the sum so it cannot be used to create
 a [shape handle](#dynamic-shape-representation).
 
 | Method | Description |
@@ -431,12 +432,12 @@ let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &reflection);
 # Composite shapes
 
 **ncollide** supports shapes that are defined as aggregations of others. Every
-composite shape must implement the `shape::CompositeShape` trait which defines
-methods for accessing their individual parts using indices. The composite is
-assumed to be immutable, i.e., an index must always map to a shape and local
-transformation that remain the same over time. However, the actual range of
-index value is implementation-defined (theoretically, it does not even need to
-be finite).
+composite shape must implement the `CompositeShape` trait which defines methods
+for accessing their individual parts using indices. The composite is assumed to
+be immutable, i.e., an index must always map to a shape and local
+transformation that both remain constant over time. However, the actual range
+of index values is implementation-defined and does not even have to be
+contiguous nor finite.
 
 | Method | Description |
 | --          | --        |
@@ -446,10 +447,10 @@ be finite).
 | `.bvt()` | The space-partitioning acceleration structure used by the composite shape. |
 
 The requirement to use a `BVT` for space-partitioning is extremely restrictive
-and will be replaced by a more flexible system in the future.  Currently, three
+and will be replaced by a more flexible system in the future. Currently, three
 composite shapes are available on **ncollide**. The `Compound` describes the
 union of any shape supported by **ncollide**. The `TriMesh` and the `Polyline`
-are optimized exclusively for assemblies of triangles and segments.
+are dedicated to assemblies of triangles and segments.
 
 ### Compound
 The `Compound` structure is the main way of describing concave shapes from
@@ -464,7 +465,7 @@ convex ones. It is a set of any [shape handle](#dynamic-shape-representation).
 
 Two steps are necessary to create a `Compound`:
 
-1. Initialize a vector of shape handles with their positions and orientation
+1. Initialize a vector of shape handles with their positions and orientations
    relative to the origin.
 2. Call `Compound::new` with this vector.
 
@@ -645,24 +646,22 @@ assert!(plane.normal().z == 0.0);
 # Dynamic shape representation
 
 In order to select the right algorithms for geometric queries on specific
-shapes, `ncollide` has to be able to distinguish different shapes from their
-types and they capabilities at runtime. As described
-by [another chapter](../geometric_queries) of this guide, there are two kinds
-of geometric queries: those that operate on a [single
+shapes, `ncollide` has to be able to distinguish at runtime different shapes
+from their types and they capabilities. As described by [another
+chapter](../geometric_queries) of this guide, there are two kinds of geometric
+queries: those that operate on a [single
 shape](../geometric_queries/#single-shape-queries) and those that operate on
 [two shapes](../geometric_queries/#pairwise-queries) simultaneously.  In the
 first case, runtime algorithm selection is performed with the help of traits
 which can be easily implemented for user-defined shapes and exposed at runtime
 by a `Shape` trait-object. On the other hand, queries involving two shapes
-require more complex dispatch mechanisms that are not yet customizable by
-the user.
-.
+require more complex dispatch mechanisms that are not yet customizable by the
+user.
 
-
-### The ShapeHandle
+### The shape handle
 Elements to inspect shape representation and capabilities are provided for each
-shape by implementing the `shape::Shape` trait. The `shape::ShapeHandle`
-structure is nothing more than a `Shape` trait-object wrapped into an `Arc`.
+shape by implementing the `Shape` trait. The `ShapeHandle` structure is nothing
+more than a `Shape` trait-object wrapped into an `Arc`.
 
 | Method                    | Description |
 |--                         | --          |
@@ -692,8 +691,7 @@ so it is advised to provide your own to ensure optimal performances.
 ### Custom support mapping <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/custom_support_map.rs')"></div>
 In this section we detail an example to define your own support-mapped shape
 suitable to be wrapped into a `ShapeHandle`. Too keep the maths simple, we will
-define a simple 2-dimensional ellipse centered at the origin with radius $a$
-and $b$:
+define a 2-dimensional ellipse centered at the origin with radii $a$ and $b$:
 
 <center>
 ![crossed cuboids](../img/ellipse.svg)
@@ -753,7 +751,7 @@ impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
 
 With this, we will be able to pass an instance of `Ellipse` to many geometric
 queries from the `query::algorithms` module and all the functions with names
-that contains `support_map` on the other submodules of the `query` module.
+that contain `support_map` on the other submodules of the `query` module.
 If we want to benefit from a higher-level interface based on the dynamic
 dispatch mechanism of **ncollide**, we have to implement the `Shape` trait
 providing at least an AABB and a conversion to the `SupportMap` trait-object:
@@ -771,7 +769,7 @@ impl Shape<Point2<f32>, Isometry2<f32>> for Ellipse {
 }
 ```
 
-That's it! You will now be able to pass our ellipse to various functions of
+That's it! You will now be able to pass an ellipse to various functions of
 the `query` module, and even wrap it on a `ShapeHandle` to use it in a
 [collision object](../collision_detection_pipeline#collision-objects) for
 complex interactions with a `CollisionWorld` using the [collision detection
@@ -902,7 +900,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 
 Just like in the previous section, implementing the `CompositeShape` trait is
 enough to use some pairwise geometric queries, e.g., those from the submodule
-of `query` module with names that contains the word `composite`. For a more
+of `query` module with names that contain the word `composite`. For a more
 complete integration, we have to implement the `Shape` trait providing at least
 an AABB and a conversion to the `CompositeShape` trait-object:
 
@@ -920,7 +918,7 @@ impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 }
 ```
 
-That's it! You will now be able to pass our cross-like shape to various
+That's it! You will now be able to pass a cross-like shape to various
 functions of the `query` module, and even wrap it on a `ShapeHandle` to use
 it in a [collision object](../collision_detection_pipeline#collision-objects)
 for complex interactions with a `CollisionWorld` using the [collision detection
