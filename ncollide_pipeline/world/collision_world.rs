@@ -4,15 +4,15 @@ use std::vec::IntoIter;
 use na::{Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
-use entities::bounding_volume::{self, BoundingVolume, AABB};
-use entities::shape::ShapeHandle;
-use queries::ray::{RayCast, Ray, RayIntersection};
-use queries::point::PointQuery;
-use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultCollisionDispatcher, DefaultProximityDispatcher,
-                   ContactSignalHandler, ContactPairs, Contacts, ContactSignal, ProximitySignalHandler,
-                   ProximitySignal};
+use utils::data::vec_map::Values;
+use geometry::bounding_volume::{self, BoundingVolume, AABB};
+use geometry::shape::ShapeHandle;
+use geometry::query::{RayCast, Ray, RayIntersection, PointQuery};
+use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher,
+                   ContactHandler, ContactPairs, Contacts, ContactSignal, ProximityHandler,
+                   ProximitySignal, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
-use world::{CollisionObject, CollisionQueryType, CollisionGroups, CollisionGroupsPairFilter};
+use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
 use na::{Point2, Point3, Isometry2, Isometry3};
 
@@ -26,9 +26,9 @@ pub struct CollisionWorld<P: Point, M, T> {
     objects:           UidRemap<CollisionObject<P, M, T>>,
     broad_phase:       BroadPhaseObject<P>,
     narrow_phase:      Box<NarrowPhase<P, M, T>>,
-    contact_signal:    ContactSignal<T>,
-    proximity_signal:  ProximitySignal<T>,
-    pair_filters:      BroadPhasePairFilters<CollisionObject<P, M, T>>,
+    contact_signal:    ContactSignal<P, M, T>,
+    proximity_signal:  ProximitySignal<P, M, T>,
+    pair_filters:      BroadPhasePairFilters<P, M, T>,
     pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
     timestamp:         usize
@@ -40,12 +40,12 @@ impl<P, M, T> CollisionWorld<P, M, T>
           P::Vect: Translate<P> + Cross,
           <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
                                                 Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M:  Isometry<P, P::Vect> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+          M:  Isometry<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
     pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
         let objects          = UidRemap::new(small_uids);
-        let coll_dispatcher  = Box::new(DefaultCollisionDispatcher::new());
+        let coll_dispatcher  = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
         let broad_phase      = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
         let narrow_phase     = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
@@ -71,11 +71,11 @@ impl<P, M, T> CollisionWorld<P, M, T>
                position:         M,
                shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
-               query_type:       CollisionQueryType<<P::Vect as Vector>::Scalar>,
+               query_type:       GeometricQueryType<<P::Vect as Vector>::Scalar>,
                data:             T) {
-        // FIXME: test that we did not add this object already ?
+        assert!(!self.objects.contains_key(uid), "Unable to add a collision object with the same uid twice.");
 
-        let mut collision_object = CollisionObject::new(position, shape, collision_groups, query_type, data);
+        let mut collision_object = CollisionObject::new(uid, position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
         let mut aabb = bounding_volume::aabb(collision_object.shape.as_ref(), &collision_object.position);
         aabb.loosen(query_type.query_limit());
@@ -116,38 +116,38 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-        where F: BroadPhasePairFilter<CollisionObject<P, M, T>> + 'static {
+        where F: BroadPhasePairFilter<P, M, T> + 'static {
         self.pair_filters.register_collision_filter(name, Box::new(filter));
-        self.broad_phase.defered_recompute_all_proximities();
+        self.broad_phase.deferred_recompute_all_proximities();
     }
 
     /// Removes the pair filter named `name`.
     pub fn unregister_broad_phase_pair_filter(&mut self, name: &str) {
         if self.pair_filters.unregister_collision_filter(name) {
-            self.broad_phase.defered_recompute_all_proximities();
+            self.broad_phase.deferred_recompute_all_proximities();
         }
     }
 
     /// Registers a handler for contact start/stop events.
-    pub fn register_contact_signal_handler<H>(&mut self, name: &str, handler: H)
-        where H: ContactSignalHandler<T> + 'static {
-        self.contact_signal.register_contact_signal_handler(name, Box::new(handler));
+    pub fn register_contact_handler<H>(&mut self, name: &str, handler: H)
+        where H: ContactHandler<P, M, T> + 'static {
+        self.contact_signal.register_contact_handler(name, Box::new(handler));
     }
 
     /// Unregisters a handler for contact start/stop events.
-    pub fn unregister_contact_signal_handler(&mut self, name: &str) {
-        self.contact_signal.unregister_contact_signal_handler(name);
+    pub fn unregister_contact_handler(&mut self, name: &str) {
+        self.contact_signal.unregister_contact_handler(name);
     }
 
     /// Registers a handler for proximity status change events.
-    pub fn register_proximity_signal_handler<H>(&mut self, name: &str, handler: H)
-        where H: ProximitySignalHandler<T> + 'static {
-        self.proximity_signal.register_proximity_signal_handler(name, Box::new(handler));
+    pub fn register_proximity_handler<H>(&mut self, name: &str, handler: H)
+        where H: ProximityHandler<P, M, T> + 'static {
+        self.proximity_signal.register_proximity_handler(name, Box::new(handler));
     }
 
     /// Unregisters a handler for proximity status change events.
-    pub fn unregister_proximity_signal_handler(&mut self, name: &str) {
-        self.proximity_signal.unregister_proximity_signal_handler(name);
+    pub fn unregister_proximity_handler(&mut self, name: &str) {
+        self.proximity_signal.unregister_proximity_handler(name);
     }
 
     /// Executes the position updates.
@@ -200,7 +200,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
             // Filter:
             &mut |b1, b2| CollisionWorld::filter_collision(filts, objs, b1, b2),
             // Handler:
-            &mut |b1, b2, started| nf.handle_proximity(sig, prox, objs, b1, b2, started));
+            &mut |b1, b2, started| nf.handle_interaction(sig, prox, objs, b1, b2, started));
     }
 
     /// Executes the narrow phase of the collision detection pipeline.
@@ -220,7 +220,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// contacts.
     pub fn set_narrow_phase(&mut self, narrow_phase: Box<NarrowPhase<P, M, T>>) -> Box<NarrowPhase<P, M, T>> {
         let old = mem::replace(&mut self.narrow_phase, narrow_phase);
-        self.broad_phase.defered_recompute_all_proximities();
+        self.broad_phase.deferred_recompute_all_proximities();
 
         old
     }
@@ -231,10 +231,28 @@ impl<P, M, T> CollisionWorld<P, M, T>
         self.narrow_phase.contact_pairs(&self.objects)
     }
 
+    /// Iterates through all the proximity pairs detected since the last update.
+    #[inline]
+    pub fn proximity_pairs(&self) -> ProximityPairs<P, M, T> {
+        self.narrow_phase.proximity_pairs(&self.objects)
+    }
+
     /// Iterates through every contact detected since the last update.
     #[inline]
     pub fn contacts(&self) -> Contacts<P, M, T> {
         self.narrow_phase.contact_pairs(&self.objects).contacts()
+    }
+
+    /// Iterates through all collision objects.
+    #[inline]
+    pub fn collision_objects(&self) -> Values<CollisionObject<P, M, T>> {
+        self.objects.values()
+    }
+
+    /// Returns a reference to the collision object identified by `uid`.
+    #[inline]
+    pub fn collision_object(&self, uid: usize) -> Option<&CollisionObject<P, M, T>> {
+        self.objects.get(uid)
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
@@ -289,7 +307,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
     // Filters by group and by the user-provided callback.
     #[inline]
-    fn filter_collision(filters: &BroadPhasePairFilters<CollisionObject<P, M, T>>,
+    fn filter_collision(filters: &BroadPhasePairFilters<P, M, T>,
                         objects: &UidRemap<CollisionObject<P, M, T>>,
                         fk1:     &FastKey,
                         fk2:     &FastKey) -> bool {
@@ -312,7 +330,7 @@ pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
 
 impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
     where P: Point,
-          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+          M: Isometry<P> + Translation<P::Vect> {
     type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>);
 
     #[inline]
@@ -320,7 +338,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) {
+            if co.collision_groups.can_interact_with_groups(self.groups) {
                 let inter = co.shape.toi_and_normal_with_ray(&co.position, self.ray, true);
 
                 if let Some(inter) = inter {
@@ -343,7 +361,7 @@ pub struct InterferencesWithPoint<'a, P: 'a + Point, M: 'a, T: 'a> {
 
 impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
     where P: Point,
-          M: Isometry<P, P::Vect> + Translation<P::Vect> {
+          M: Isometry<P> + Translation<P::Vect> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
@@ -351,7 +369,7 @@ impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) &&
+            if co.collision_groups.can_interact_with_groups(self.groups) &&
                co.shape.contains_point(&co.position, self.point) {
                 return Some(co)
             }
@@ -376,7 +394,7 @@ impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
         while let Some(id) = self.idx.next() {
             let co = &self.objects[*id];
 
-            if co.collision_groups.can_collide_with_groups(self.groups) {
+            if co.collision_groups.can_interact_with_groups(self.groups) {
                 return Some(co)
             }
         }

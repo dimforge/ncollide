@@ -1,9 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use std::sync::Arc;
 use na::{Isometry3, Vector3};
-use ncollide::inspection::Repr3;
 use ncollide::shape::{Cuboid, Compound, ShapeHandle};
 
 fn main() {

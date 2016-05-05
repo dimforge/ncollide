@@ -1,10 +1,10 @@
 [package]
 name    = "ncollide_transformation"
-version = "0.3.0"
+version = "0.3.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module for transforming a geometric entity to another one by means of approximation/fitting."
-documentation = "http://ncollide.org/doc/ncollide_transformation"
+documentation = "http://ncollide.org/rustdoc/ncollide_transformation"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
@@ -20,6 +20,5 @@ num = "0.1.*"
 nalgebra = "0.8.*"
 ncollide_math = { path = "../ncollide_math", version = "0.3.*" }
 ncollide_utils = { path = "../ncollide_utils", version = "0.3.*" }
-ncollide_entities = { path = "../ncollide_entities", version = "0.5.*" }
-ncollide_queries = { path = "../ncollide_queries", version = "0.4.*" }
+ncollide_geometry = { path = "../ncollide_geometry", version = "0.1.*" }
 ncollide_procedural = { path = "../ncollide_procedural", version = "0.3.*" }

@@ -1,11 +1,11 @@
 [package]
 name    = "ncollide_utils"
-version = "0.3.0"
+version = "0.3.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 
 description = "2 and 3-dimensional collision detection library in Rust: module for various common and simple geometric and mathematical operations."
-documentation = "http://ncollide.org/doc/ncollide_utils"
+documentation = "http://ncollide.org/rustdoc/ncollide_utils"
 homepage = "http://ncollide.org"
 repository = "https://github.com/sebcrozet/ncollide"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]

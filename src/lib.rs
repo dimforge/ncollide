@@ -10,7 +10,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 dimensions (never tried).
 
 The official user guide is available [here](http://ncollide.org).
-The rustdoc documentation is available [here](http://ncollide.org/doc/ncollide).
+The rustdoc documentation is available [here](http://ncollide.org/rustdoc/ncollide).
 
 ## Compilation
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
@@ -20,7 +20,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-ncollide = "*"
+ncollide = "0.9.*"
 ```
 
 
@@ -45,20 +45,18 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
-#![doc(html_root_url = "http://ncollide.org/doc")]
+#![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 pub extern crate ncollide_math;
 pub extern crate ncollide_utils;
-pub extern crate ncollide_entities;
-pub extern crate ncollide_queries;
+pub extern crate ncollide_geometry;
 pub extern crate ncollide_pipeline;
 pub extern crate ncollide_procedural;
 pub extern crate ncollide_transformation;
 
 pub use ncollide_math as math;
 pub use ncollide_utils as utils;
-pub use ncollide_entities::{shape, inspection, bounding_volume, partitioning, support_map};
-pub use ncollide_queries::{geometry, point, ray};
+pub use ncollide_geometry::{shape, bounding_volume, partitioning, query};
 pub use ncollide_pipeline::{narrow_phase, broad_phase, world};
 pub use ncollide_procedural as procedural;
 pub use ncollide_transformation as transformation;

@@ -6,14 +6,11 @@ use na::{Point3, Vector2, Vector3, Identity, Iterable, Norm, Bounded};
 use na;
 use math::Scalar;
 use utils;
-use entities::support_map::SupportMap;
-use entities::support_map;
-use entities::bounding_volume::{BoundingVolume, AABB};
-use entities::bounding_volume;
-use entities::partitioning::{BVT, BoundingVolumeInterferencesCollector};
-use queries::geometry::algorithms::johnson_simplex::JohnsonSimplex;
-use queries::ray::{Ray, RayCast, RayIntersection};
-use queries::ray;
+use geometry::shape::SupportMap;
+use geometry::bounding_volume::{self, BoundingVolume, AABB};
+use geometry::partitioning::{BVT, BoundingVolumeInterferencesCollector};
+use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{TriMesh, IndexBuffer};
 
 /// Approximate convex decomposition of a triangle mesh.
@@ -743,8 +740,8 @@ impl<'a, N> ConvexPair<'a, N> {
 impl<'a, N: Scalar> SupportMap<Point3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Identity, dir: &Vector3<N>) -> Point3<N> {
-        let sa = support_map::point_cloud_support_point(dir, self.a);
-        let sb = support_map::point_cloud_support_point(dir, self.b);
+        let sa = utils::point_cloud_support_point(dir, self.a);
+        let sb = utils::point_cloud_support_point(dir, self.b);
 
         if na::dot(sa.as_vector(), dir) > na::dot(sb.as_vector(), dir) {
             sa
@@ -758,7 +755,7 @@ impl<'a, N: Scalar> SupportMap<Point3<N>, Identity> for ConvexPair<'a, N> {
 impl<'a, N: Scalar> RayCast<Point3<N>, Identity> for ConvexPair<'a, N> {
     #[inline]
     fn toi_and_normal_with_ray(&self, id: &Identity, ray: &Ray<Point3<N>>, solid: bool) -> Option<RayIntersection<Vector3<N>>> {
-        ray::implicit_toi_and_normal_with_ray(
+        ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,
             &mut JohnsonSimplex::<Point3<N>>::new_w_tls(),

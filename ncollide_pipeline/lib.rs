@@ -8,14 +8,13 @@
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
-#![doc(html_root_url = "http://ncollide.org/doc")]
+#![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate rustc_serialize;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
-extern crate ncollide_entities as entities;
-extern crate ncollide_queries as queries;
+extern crate ncollide_geometry as geometry;
 
 pub mod broad_phase;
 pub mod narrow_phase;

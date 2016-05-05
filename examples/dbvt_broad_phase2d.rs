@@ -15,12 +15,13 @@ fn main() {
                  Isometry2::new(Vector2::new(0.5, 0.0), na::zero()),
                  Isometry2::new(Vector2::new(0.5, 0.5), na::zero()) ];
 
-    // We will use the same geometry for the four objects.
+    // We will use the same shape for the four objects.
     let ball = Ball::new(0.5);
 
     /*
      * Create the broad phase.
-     * We know we will use small uids (from 0 to 3)so we can pass `true` as the second argument.
+     * We know we will use small uids (from 0 to 3)so we can pass `true`
+     * as the second argument.
      */
     let mut bf = DBVTBroadPhase::new(0.2, true);
 

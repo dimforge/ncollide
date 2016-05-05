@@ -1,8 +1,36 @@
+sudo: false
 language: rust
 rust:
     - stable
     - beta
     - nightly
+matrix:
+  allow_failures:
+    - rust: beta 
+    - rust: nightly
+addons:
+  apt:
+    sources:
+      - kalakris-cmake
+    packages:
+      - cmake
+      - libxxf86vm-dev
+      - libglew-dev
+      - libopenal-dev
+      - libsndfile1-dev
+cache:
+  cargo: true
+  apt: true
+  directories:
+  - $HOME/local
+install:
+  - export PATH="$PATH:$HOME/local/bin"
+  - export LIBRARY_PATH="$LIBRARY_PATH:$HOME/local/lib"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/local/lib"
+  - bash $TRAVIS_BUILD_DIR/.travis.payload/install-dependencies.sh
 before_script:
-    - bash .travis.configure.sh
-    - cat ~/.cargo/config
+  - bash .travis.configure.sh
+script:
+  - cd $TRAVIS_BUILD_DIR
+  - make all
+  - make test

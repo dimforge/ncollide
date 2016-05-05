@@ -6,8 +6,7 @@ use na::{Identity, Point2, Point3, Norm, Column, Diagonal, Outer, EigenQR, Bound
 use na;
 use math::{Point, Vector, FloatError};
 use utils;
-use entities::bounding_volume;
-use entities::support_map;
+use geometry::bounding_volume;
 use procedural::{Polyline, TriMesh, IndexBuffer};
 
 /*
@@ -173,8 +172,8 @@ fn build_degenerate_mesh_point<P>(point: P) -> TriMesh<P>
 
 fn build_degenerate_mesh_segment<P>(dir: &P::Vect, points: &[P]) -> TriMesh<P>
     where P: Point {
-    let a = support_map::point_cloud_support_point(dir, points);
-    let b = support_map::point_cloud_support_point(&-*dir, points);
+    let a = utils::point_cloud_support_point(dir, points);
+    let b = utils::point_cloud_support_point(&-*dir, points);
 
     let ta = Point3::new(0u32, 1, 0);
     let tb = Point3::new(1u32, 0, 0);

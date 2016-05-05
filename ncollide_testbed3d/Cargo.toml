@@ -1,0 +1,22 @@
+[package]
+name    = "ncollide_testbed3d"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_testbed3d"
+
+[features]
+default = [ ]
+recording = [ "mpeg_encoder" ]
+
+[dependencies]
+nalgebra = "0.8.*"
+time = "0.1.*"
+rand = "0.3.*"
+glfw = "0.2.*"
+kiss3d = "*"
+mpeg_encoder = { version = "0.2.*", optional = true }
+
+[dependencies.ncollide]
+path = ".."

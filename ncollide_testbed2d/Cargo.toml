@@ -1,0 +1,25 @@
+[package]
+name    = "ncollide_testbed2d"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+[lib]
+name = "ncollide_testbed2d"
+
+[features]
+default = [ ]
+recording = [ "mpeg_encoder" ]
+
+[dependencies.ncollide]
+path = ".."
+
+[dependencies]
+nalgebra = "0.8.*"
+time = "*"
+num = "*"
+rand = "*"
+mpeg_encoder = { version = "0.2.*", optional = true }
+
+[dependencies.sfml]
+version = "0.11.*"
+git = "https://github.com/sebcrozet/rust-sfml.git"

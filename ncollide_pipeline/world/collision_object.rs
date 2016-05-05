@@ -1,16 +1,17 @@
 use math::{Scalar, Point, Vector};
-use entities::shape::ShapeHandle;
+use geometry::shape::ShapeHandle;
 use world::CollisionGroups;
 
 /// The kind of query a CollisionObject may be involved on.
 ///
-/// The following queries are executed for a given pair of `CollisionQueryType` associated with two
+/// The following queries are executed for a given pair of `GeometricQueryType` associated with two
 /// collision objects:
-///     * Contacts + Contacts = exact contact point coputation.
-///     * Contacts + Proximity = proximity test only.
-///     * Proximity + Proximity = proximity test only.
+///
+/// * Contacts + Contacts = exact contact point coputation.
+/// * Contacts + Proximity = proximity test only.
+/// * Proximity + Proximity = proximity test only.
 #[derive(Debug, PartialEq, Clone, Copy, RustcEncodable, RustcDecodable)]
-pub enum CollisionQueryType<N: Scalar> {
+pub enum GeometricQueryType<N: Scalar> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N),
     /// This object can respond to proximity tests only.
@@ -18,7 +19,7 @@ pub enum CollisionQueryType<N: Scalar> {
     // FIXME: not yet implemented: Distance
 }
 
-impl<N: Scalar> CollisionQueryType<N> {
+impl<N: Scalar> GeometricQueryType<N> {
     /// The numerical limit of relevance for this query.
     ///
     /// If two objects are separated by a distance greater than the sum of their respective
@@ -28,8 +29,30 @@ impl<N: Scalar> CollisionQueryType<N> {
     #[inline]
     pub fn query_limit(&self) -> N {
         match *self {
-            CollisionQueryType::Contacts(ref val)  => *val,
-            CollisionQueryType::Proximity(ref val) => *val
+            GeometricQueryType::Contacts(ref val)  => *val,
+            GeometricQueryType::Proximity(ref val) => *val
+        }
+    }
+
+    /// Returns `true` if this is a contacts query type.
+    #[inline]
+    pub fn is_contacts_query(&self) -> bool {
+        if let GeometricQueryType::Contacts(_) = *self {
+            true
+        }
+        else {
+            false
+        }
+    }
+
+    /// Returns `true` if this is a proximity query type.
+    #[inline]
+    pub fn is_proximity_query(&self) -> bool {
+        if let GeometricQueryType::Proximity(_) = *self {
+            true
+        }
+        else {
+            false
         }
     }
 }
@@ -37,6 +60,8 @@ impl<N: Scalar> CollisionQueryType<N> {
 // FIXME: really keep all the fields public?
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<P: Point, M, T> {
+    /// The collsion object unique identifier.
+    pub uid: usize,
     /// The collision object position.
     pub position: M,
     /// The collision object shape.
@@ -44,7 +69,7 @@ pub struct CollisionObject<P: Point, M, T> {
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The kind of queries this collision object is expected to .
-    pub query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
+    pub query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
     /// The user-defined data associated to this object.
     pub data: T,
     #[doc(hidden)]
@@ -53,13 +78,15 @@ pub struct CollisionObject<P: Point, M, T> {
 
 impl<P: Point, M, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
-    pub fn new(position:   M,
+    pub fn new(uid:        usize,
+               position:   M,
                shape:      ShapeHandle<P, M>,
                groups:     CollisionGroups,
-               query_type: CollisionQueryType<<P::Vect as Vector>::Scalar>,
+               query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
                data:       T)
                -> CollisionObject<P, M, T> {
         CollisionObject {
+            uid:              uid,
             position:         position,
             shape:            shape,
             collision_groups: groups,

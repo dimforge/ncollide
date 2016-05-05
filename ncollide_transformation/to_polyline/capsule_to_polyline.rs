@@ -1,7 +1,7 @@
 use na::{Point2, Vector2, BaseFloat};
 use na;
 use math::Scalar;
-use entities::shape::Capsule2;
+use geometry::shape::Capsule2;
 use procedural::{Polyline, Polyline2};
 use procedural::utils;
 use super::ToPolyline;

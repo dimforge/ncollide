@@ -1,4 +1,4 @@
-use queries::ray::Ray;
+use geometry::query::Ray;
 use math::Point;
 
 /// Trait all broad phase must implement.
@@ -13,7 +13,7 @@ pub trait BroadPhase<P: Point, BV, T> {
     fn deferred_set_bounding_volume(&mut self, uid: usize, bv: BV);
 
     /// Forces the broad-phase to recompute and re-report all the proximities.
-    fn defered_recompute_all_proximities(&mut self);
+    fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
     fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, proximity_handler: &mut FnMut(&T, &T, bool));

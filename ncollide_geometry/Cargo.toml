@@ -1,0 +1,22 @@
+[package]
+name    = "ncollide_geometry"
+version = "0.1.0"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+description = "2 and 3-dimensional collision detection library in Rust: module describing the geometric entities and their mathematical definitions."
+documentation = "http://ncollide.org/rustdoc/ncollide_geometry"
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
+license = "BSD-3-Clause"
+
+[lib]
+name = "ncollide_geometry"
+path = "lib.rs"
+
+[dependencies]
+rustc-serialize = "0.3.*"
+num = "0.1.*"
+nalgebra = "0.8.*"
+ncollide_math = { path = "../ncollide_math", version = "0.3.*" }
+ncollide_utils = { path = "../ncollide_utils", version = "0.3.*" }

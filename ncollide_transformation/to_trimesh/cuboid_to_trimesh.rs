@@ -1,7 +1,7 @@
 use na::Point3;
 use na;
 use math::Scalar;
-use entities::shape::Cuboid3;
+use geometry::shape::Cuboid3;
 use procedural::TriMesh3;
 use procedural;
 use super::ToTriMesh;

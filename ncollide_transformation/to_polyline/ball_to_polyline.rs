@@ -1,7 +1,7 @@
 use na::Point2;
 use na;
 use math::Scalar;
-use entities::shape::Ball2;
+use geometry::shape::Ball2;
 use procedural::Polyline2;
 use procedural;
 use super::ToPolyline;

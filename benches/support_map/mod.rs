@@ -4,7 +4,7 @@ use test;
 use na::{Isometry3, Vector3};
 use ncollide::shape::{Ball3, Cuboid3, Capsule3, Cone3, Cylinder3, Segment3, Triangle3,
                       Convex3};
-use ncollide::support_map::SupportMap;
+use ncollide::shape::SupportMap;
 use common::{unref, generate};
 
 

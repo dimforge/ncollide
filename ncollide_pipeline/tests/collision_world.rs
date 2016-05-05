@@ -3,8 +3,8 @@ extern crate ncollide_entities;
 extern crate nalgebra;
 
 use ncollide_pipeline::world::{CollisionGroups, CollisionWorld, CollisionWorld2};
-use ncollide_entities::shape::Ball;
-use ncollide_entities::inspection::Repr2;
+use ncollide_geometry::shape::Ball;
+use ncollide_geometry::inspection::Repr2;
 use nalgebra::{Vec1, Vector2, Isometry2};
 use std::sync::Arc;
 
