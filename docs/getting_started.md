@@ -23,7 +23,7 @@ guide. Simply replace `example.rs` by the actual example's file name.
 <ul class="nav nav-tabs">
   <li class="active"><a id="tab_nav_link" data-toggle="tab" href="#cargo">Example</a></li>
 
-  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/Cargo.toml')"></div>
+  <div class="btn-primary" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/gh-pages/src/cargo/Cargo.toml')"></div>
 </ul>
 
 <div class="tab-content" markdown="1">
