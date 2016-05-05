@@ -3,6 +3,12 @@ name    = "ncollide_testbed2d"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+description = "2D testbed for ncollide."
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+keywords = [ "ncollide", "geometry", "2D", "graphics", "testbed" ]
+license = "BSD-3-Clause"
+
 [lib]
 name = "ncollide_testbed2d"
 
@@ -12,14 +18,12 @@ recording = [ "mpeg_encoder" ]
 
 [dependencies.ncollide]
 path = ".."
+version = "0.9.0"
 
 [dependencies]
 nalgebra = "0.8.*"
-time = "*"
-num = "*"
-rand = "*"
+time = "0.1.*"
+num = "0.1.*"
+rand = "0.3.*"
 mpeg_encoder = { version = "0.2.*", optional = true }
-
-[dependencies.sfml]
-version = "0.11.*"
-git = "https://github.com/sebcrozet/rust-sfml.git"
+sfml = "0.11.*"

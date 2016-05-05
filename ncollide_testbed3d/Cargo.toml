@@ -3,6 +3,12 @@ name    = "ncollide_testbed3d"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
+description = "3D testbed for ncollide."
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+keywords = [ "ncollide", "geometry", "3D", "graphics", "testbed" ]
+license = "BSD-3-Clause"
+
 [lib]
 name = "ncollide_testbed3d"
 
@@ -15,8 +21,9 @@ nalgebra = "0.8.*"
 time = "0.1.*"
 rand = "0.3.*"
 glfw = "0.2.*"
-kiss3d = "*"
+kiss3d = "0.4.*"
 mpeg_encoder = { version = "0.2.*", optional = true }
 
 [dependencies.ncollide]
 path = ".."
+version = "0.9.0"
