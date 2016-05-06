@@ -13,7 +13,10 @@ pub use self::distance_internal::distance;
 #[doc(inline)]
 pub use self::time_of_impact_internal::time_of_impact;
 #[doc(inline)]
-pub use self::ray_internal::{Ray, RayIntersection, RayCast, RayInterferencesCollector, RayIntersectionCostFn};
+pub use self::ray_internal::{Ray, Ray2, Ray3,
+                             RayIntersection, RayIntersection2, RayIntersection3,
+                             RayCast, RayInterferencesCollector,
+                             RayIntersectionCostFn};
 #[doc(inline)]
 pub use self::point_internal::{PointProjection, PointQuery, PointInterferencesCollector};
 

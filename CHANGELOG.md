@@ -4,6 +4,11 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.0] - WIP
+### Added
+    * Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on
+      the `query` module.
+
 ## [0.9.0]
 ### Added
     * Added 2D and 3D testbeds (available on crates.io as `ncollide_testbed2d` and `ncollide_testbed3d`).
