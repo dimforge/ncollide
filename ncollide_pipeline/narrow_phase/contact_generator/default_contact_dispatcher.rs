@@ -59,7 +59,7 @@ impl<P, M> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M>
         else if b.is_shape::<Plane<P::Vect>>() && a.is_support_map() {
             let wo_manifold = SupportMapPlaneContactGenerator::<P, M>::new();
 
-            if !b_is_ball {
+            if !a_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                 Some(Box::new(manifold))
             }
@@ -68,10 +68,10 @@ impl<P, M> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M>
             }
         }
         else if a.is_support_map() && b.is_support_map() {
-            let simplex = JohnsonSimplex::new_w_tls();
+            let simplex     = JohnsonSimplex::new_w_tls();
             let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
 
-            if !b_is_ball {
+            if !a_is_ball && !b_is_ball {
                 let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                 Some(Box::new(manifold))
             }
