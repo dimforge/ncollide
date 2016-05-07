@@ -34,3 +34,8 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - make all
   - make test
+  - cd ncollide_testbed2d
+  - make test
+  - cd $TRAVIS_BUILD_DIR
+  - cd ncollide_testbed3d
+  - make test

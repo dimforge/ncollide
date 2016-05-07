@@ -34,5 +34,3 @@ ncollide_transformation = { path = "ncollide_transformation", version = "0.4.*" 
 [dev-dependencies]
 nalgebra = "0.8.*"
 rand = "0.3.*"
-ncollide_testbed2d = { path = "ncollide_testbed2d", version = "0.1.*" }
-ncollide_testbed3d = { path = "ncollide_testbed3d", version = "0.1.*" }
