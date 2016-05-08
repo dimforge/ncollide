@@ -12,6 +12,8 @@ pub struct Segment<P> {
     b: P
 }
 
+impl<P> Copy for Segment<P> where P: Copy {}
+
 impl<P: Dimension> Segment<P> {
     /// Creates a new segment from two points.
     #[inline]
