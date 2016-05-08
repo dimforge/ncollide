@@ -13,6 +13,8 @@ pub struct Cone<N> {
     radius:      N,
 }
 
+impl<N> Copy for Cone<N> where N: Copy {}
+
 impl<N> Cone<N>
     where N: Scalar {
     /// Creates a new cone.
