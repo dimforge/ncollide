@@ -10,6 +10,8 @@ pub struct Cuboid<V> {
     half_extents: V,
 }
 
+impl<V> Copy for Cuboid<V> where V: Copy {}
+
 impl<V: Vector> Cuboid<V> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
