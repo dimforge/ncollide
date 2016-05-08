@@ -6,6 +6,8 @@ pub struct Torus<N> {
     minor_radius: N
 }
 
+impl<N> Copy for Torus<N> where N: Copy {}
+
 impl<N> Torus<N> {
     /// Creates a new torus with the given radiuses.
     #[inline]
