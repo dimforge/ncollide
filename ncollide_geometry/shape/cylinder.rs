@@ -15,6 +15,8 @@ pub struct Cylinder<N> {
     radius:      N,
 }
 
+impl<N> Copy for Cylinder<N> where N: Copy {}
+
 impl<N> Cylinder<N>
     where N: Scalar {
     /// Creates a new cylinder.
