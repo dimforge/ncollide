@@ -756,7 +756,7 @@ informations. It is guaranteed to generate at least one contact.
   `name`. Does nothing if it is not found.
 
 
-## Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/examples/bouncing_ball2d.rs')"></div>
+## Example <div class="d3" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/ncollide_testbed3d/examples/bouncing_ball3d.rs')"></div><div class="sp"></div><div class="d2" onclick="window.open('https://raw.githubusercontent.com/sebcrozet/ncollide/master/ncollide_testbed2d/examples/bouncing_ball2d.rs')"></div>
 
 This detailed example simulates the trajectory of a 2D ball trapped into a
 square-shaped room. The room itself is split into four areas of different

@@ -47,7 +47,7 @@ you need to fork, fix, and create a pull request targeting the **gh-pages**
 branch to make your contribution integrable into our code base. There are no
 specific rules, except that all compilable code to generate illustrations must
 be located on the `src` folder.  Downloadable examples have to be located on
-the `examples` directory of the main project, i.e., on the `master` branch.
+the `examples` directory of the main project, i.e., on the **master** branch.
 
 
 #### Working on the library
