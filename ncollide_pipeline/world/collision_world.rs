@@ -31,6 +31,7 @@ pub struct CollisionWorld<P: Point, M, T> {
     pair_filters:      BroadPhasePairFilters<P, M, T>,
     pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
+    objects_to_add:    Vec<CollisionObject<P, M, T>>,
     timestamp:         usize
     // FIXME: allow modification of the other properties too.
 }
@@ -61,12 +62,13 @@ impl<P, M, T> CollisionWorld<P, M, T>
             pair_filters:      BroadPhasePairFilters::new(),
             pos_to_update:     Vec::new(),
             objects_to_remove: Vec::new(),
+            objects_to_add:    Vec::new(),
             timestamp:         0
         }
     }
 
     /// Adds a collision object to the world.
-    pub fn add(&mut self,
+    pub fn deferred_add(&mut self,
                uid:              usize,
                position:         M,
                shape:            ShapeHandle<P, M>,
@@ -77,10 +79,8 @@ impl<P, M, T> CollisionWorld<P, M, T>
 
         let mut collision_object = CollisionObject::new(uid, position, shape, collision_groups, query_type, data);
         collision_object.timestamp = self.timestamp;
-        let mut aabb = bounding_volume::aabb(collision_object.shape.as_ref(), &collision_object.position);
-        aabb.loosen(query_type.query_limit());
-        let fk = self.objects.insert(uid, collision_object).0;
-        self.broad_phase.deferred_add(fk.uid(), aabb, fk)
+
+        self.objects_to_add.push((collision_object));
     }
 
     /// Updates the collision world.
@@ -89,15 +89,19 @@ impl<P, M, T> CollisionWorld<P, M, T>
     /// narrow phase.
     pub fn update(&mut self) {
         self.perform_position_update();
-        self.perform_removals_and_broad_phase(); // this will perform the Broad Phase as well.
+        self.perform_additions_removals_and_broad_phase(); // this will perform the Broad Phase as well.
         self.perform_narrow_phase();
     }
 
     /// Marks a collision object for removal from the world during the next update.
     pub fn deferred_remove(&mut self, uid: usize) {
-        // mark the object to be removed
+        // Mark the object to be removed.
         if self.objects.contains_key(uid) {
             self.objects_to_remove.push(uid);
+        }
+        else {
+            panic!("Attempting to remove an unknown object. \
+                    Did you forgot to call `.update()` after `.deferred_add()`-ing your objects?");
         }
     }
 
@@ -106,6 +110,10 @@ impl<P, M, T> CollisionWorld<P, M, T>
     pub fn deferred_set_position(&mut self, uid: usize, pos: M) {
         if let Some(fk) = self.objects.get_fast_key(uid) {
             self.pos_to_update.push((fk, pos))
+        }
+        else {
+            panic!("Attempting to set the position of an unknown object. \
+                    Did you forgot to call `.update()` after `.deferred_add()`-ing your objects?");
         }
     }
 
@@ -166,10 +174,21 @@ impl<P, M, T> CollisionWorld<P, M, T>
     }
 
 
-    /// Actually removes all the objects marked by `.deferred_remove(...)` and updates the broad
-    /// phase.
-    pub fn perform_removals_and_broad_phase(&mut self) {
-        // clean up objects that have been marked as removed
+    /// Actually adds or removes all the objects marked by `.deferred_add(...)` or
+    /// `.deferred_remove(...)` and updates the broad phase.
+    pub fn perform_additions_removals_and_broad_phase(&mut self) {
+        // Add objects.
+        for co in self.objects_to_add.drain(..) {
+            let mut aabb = bounding_volume::aabb(co.shape.as_ref(), &co.position);
+            aabb.loosen(co.query_type.query_limit());
+            let fk = self.objects.insert(co.uid, co).0;
+            self.broad_phase.deferred_add(fk.uid(), aabb, fk)
+        }
+
+        self.objects_to_add.shrink_to_fit();
+
+
+        // Clean up objects that have been marked as removed
         for uid in self.objects_to_remove.iter() {
             if let Some(fk) = self.objects.get_fast_key(*uid) {
                 self.broad_phase.deferred_remove(fk.uid());

@@ -26,10 +26,10 @@ fn main() {
 
     world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
 
-    world.add(0, na::one(), shape.clone(), groups, query, ());
-    world.add(1, na::one(), shape.clone(), groups, query, ());
-    world.add(2, na::one(), shape.clone(), groups, query, ());
-    world.add(3, na::one(), shape.clone(), groups, query, ());
+    world.deferred_add(0, na::one(), shape.clone(), groups, query, ());
+    world.deferred_add(1, na::one(), shape.clone(), groups, query, ());
+    world.deferred_add(2, na::one(), shape.clone(), groups, query, ());
+    world.deferred_add(3, na::one(), shape.clone(), groups, query, ());
 
     world.update();
 

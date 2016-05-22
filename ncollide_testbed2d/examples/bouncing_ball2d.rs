@@ -167,19 +167,19 @@ fn main() {
     let contacts_query  = GeometricQueryType::Contacts(0.0);
     let proximity_query = GeometricQueryType::Proximity(0.0);
 
-    world.add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
-    world.add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
-    world.add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
-    world.add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
+    world.deferred_add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
+    world.deferred_add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
+    world.deferred_add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
+    world.deferred_add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
 
     // Add the colored rectangles to the world.
-    world.add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
-    world.add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
-    world.add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
-    world.add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
+    world.deferred_add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
+    world.deferred_add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
+    world.deferred_add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
+    world.deferred_add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
 
     // Add the ball to the world.
-    world.add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
+    world.deferred_add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
 
     // Register our handlers.
     world.register_proximity_handler("ProximityMessage", ProximityMessage);
