@@ -17,7 +17,6 @@ default = [ ]
 recording = [ "mpeg_encoder" ]
 
 [dependencies]
-time = "0.1.*"
 rand = "0.3.*"
 glfw = "0.2.*"
 kiss3d = "0.4.*"

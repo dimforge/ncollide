@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::path::Path;
-use time;
+use std::time::{Duration, Instant};
 use glfw;
 use glfw::{MouseButton, Key, Action, WindowEvent};
 use na::{Point2, Point3, Vector3, Translate, Isometry3, Bounded};
@@ -35,7 +35,7 @@ pub struct Testbed {
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
     cursor_pos:           Point2<f32>,
     draw_colls:           bool,
-    update_time:          f64,
+    update_time:          Duration,
 
     #[cfg(feature = "recording")]
     recorder: Option<Encoder>,
@@ -63,7 +63,7 @@ impl Testbed {
             grabbed_object_plane: (na::origin(), na::zero()),
             cursor_pos:           na::origin(),
             draw_colls:           false,
-            update_time:          0.0
+            update_time:          Duration::new(0, 0)
         }
     }
 
@@ -84,13 +84,13 @@ impl Testbed {
         let empty   = Path::new("_some_non_existant_folder"); // dont bother loading mtl files correctly
         let objects = obj::parse_file(&path, &empty, "").ok().expect("Unable to open the obj file.");
 
-        let mut res = Vec::new();
+        let mut res = Vec::with_capacity(objects.len());
 
         for (_, m, _) in objects.into_iter() {
             let vertices = m.coords().read().unwrap().to_owned().unwrap();
             let indices  = m.faces().read().unwrap().to_owned().unwrap();
 
-            let mut flat_indices = Vec::new();
+            let mut flat_indices = Vec::with_capacity(indices.len() * 3);
 
             for i in indices.into_iter() {
                 flat_indices.push(i.x as usize);
@@ -145,9 +145,9 @@ impl Testbed {
     pub fn update<T>(&mut self, world: &mut CollisionWorld3<f32, T>) {
         self.process_events(world);
 
-        let before = time::precise_time_s();
+        let before = Instant::now();
         world.update();
-        self.update_time = time::precise_time_s() - before;
+        self.update_time = before.elapsed();
     }
 
     pub fn render<T>(&mut self, world: &mut CollisionWorld3<f32, T>) -> bool {
@@ -160,7 +160,8 @@ impl Testbed {
 
         let color = Point3::new(1.0, 1.0, 1.0);
 
-        let time_str = format!("Update time: {:.*}sec.", 4, self.update_time);
+        let time_f64 = self.update_time.as_secs() as f64 + self.update_time.subsec_nanos() as f64 / 1000_000_000.0;
+        let time_str = format!("Update time: {:.*}sec.", 4, time_f64);
         self.window.draw_text(&time_str[..], &na::origin(), &self.font, &color);
         if self.window.render_with_camera(self.graphics.borrow_mut().camera_mut()) {
 

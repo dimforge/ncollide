@@ -2,7 +2,6 @@
 
 extern crate num;
 extern crate rand;
-extern crate time;
 extern crate sfml;
 extern crate nalgebra as na;
 extern crate ncollide;

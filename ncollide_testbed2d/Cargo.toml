@@ -17,7 +17,6 @@ default = [ ]
 recording = [ "mpeg_encoder" ]
 
 [dependencies]
-time = "0.1.*"
 num = "0.1.*"
 rand = "0.3.*"
 mpeg_encoder = { version = "0.2.*", optional = true }
