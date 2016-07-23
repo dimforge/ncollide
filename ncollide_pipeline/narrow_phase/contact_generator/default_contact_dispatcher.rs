@@ -1,6 +1,6 @@
 use std::ops::Mul;
 use std::marker::PhantomData;
-use na::{Translate, Cross, Translation, Rotation};
+use na::{self, Translate, Cross, Translation, Rotation};
 use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Ball, Plane};
 use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
@@ -8,8 +8,8 @@ use narrow_phase::{
     ContactDispatcher,
     ContactAlgorithm,
     BallBallContactGenerator,
-    PlaneSupportMapContactGenerator,
-    SupportMapPlaneContactGenerator,
+    PlaneSupportMapContactManifoldGenerator,
+    SupportMapPlaneContactManifoldGenerator,
     SupportMapSupportMapContactGenerator,
     CompositeShapeShapeContactGenerator,
     ShapeCompositeShapeContactGenerator,
@@ -46,26 +46,13 @@ impl<P, M> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M>
             Some(Box::new(BallBallContactGenerator::<P, M>::new()))
         }
         else if a.is_shape::<Plane<P::Vect>>() && b.is_support_map() {
-            let wo_manifold = PlaneSupportMapContactGenerator::<P, M>::new();
-
-            if !b_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
-                Some(Box::new(manifold))
-            }
-            else {
-                Some(Box::new(wo_manifold))
-            }
+            // FIXME: do not hard-code the tolerances.
+            Some(Box::new(PlaneSupportMapContactManifoldGenerator::<P, M>::new(na::cast(0.017), 3)))
+            //                                                               one degree ^^^^^
         }
         else if b.is_shape::<Plane<P::Vect>>() && a.is_support_map() {
-            let wo_manifold = SupportMapPlaneContactGenerator::<P, M>::new();
-
-            if !a_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
-                Some(Box::new(manifold))
-            }
-            else {
-                Some(Box::new(wo_manifold))
-            }
+            // FIXME: do not hard-code the tolerances.
+            Some(Box::new(SupportMapPlaneContactManifoldGenerator::<P, M>::new(na::cast(0.017), 3)))
         }
         else if a.is_support_map() && b.is_support_map() {
             let simplex     = JohnsonSimplex::new_w_tls();

@@ -34,4 +34,18 @@ impl<P, M> SupportMap<P, M> for Ball<<P::Vect as Vector>::Scalar>
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         m.translate(&na::origin()) + na::normalize(dir) * self.radius()
     }
+
+    #[inline]
+    fn support_point_set(&self,
+                         transform:  &M,
+                         dir:        &P::Vect,
+                         _:          <P::Vect as Vector>::Scalar,
+                         _:          usize,
+                         out_points: &mut Vec<P>)
+                         -> usize {
+         let pt = self.support_point(transform, dir);
+         out_points.push(pt);
+
+         1
+     }
 }

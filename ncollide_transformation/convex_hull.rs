@@ -9,10 +9,7 @@ use utils;
 use geometry::bounding_volume;
 use procedural::{Polyline, TriMesh, IndexBuffer};
 
-/*
- * XXX: when conditional dispatch is supported by rustc, create a generic convex hull function
- * for both 2D and 3D.
- */
+
 
 // FIXME: factorize with the one on hacd.
 fn normalize<P>(coords: &mut [P]) -> (P, <P::Vect as Vector>::Scalar)

@@ -5,7 +5,7 @@ use std::iter;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::collections::BTreeMap;
-use na::{Axpy, Bounded};
+use na::Bounded;
 use na;
 use query::algorithms::simplex::Simplex;
 use math::{Point, Vector};

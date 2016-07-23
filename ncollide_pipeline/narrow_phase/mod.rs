@@ -12,6 +12,7 @@ pub use self::contact_generator::{
     DefaultContactDispatcher,
     BallBallContactGenerator,
     PlaneSupportMapContactGenerator, SupportMapPlaneContactGenerator,
+    PlaneSupportMapContactManifoldGenerator, SupportMapPlaneContactManifoldGenerator,
     SupportMapSupportMapContactGenerator,
     CompositeShapeShapeContactGenerator, ShapeCompositeShapeContactGenerator,
     IncrementalContactManifoldGenerator,

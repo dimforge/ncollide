@@ -2,8 +2,8 @@ use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Proximity;
-use narrow_phase::{ContactDispatcher, ContactAlgorithm, ContactSignal,   ContactGenerator,
-                   ProximityDispatcher, ProximityAlgorithm, ProximitySignal, ProximityDetector,
+use narrow_phase::{ContactDispatcher, ContactAlgorithm, ContactSignal,
+                   ProximityDispatcher, ProximityAlgorithm, ProximitySignal,
                    NarrowPhase, ContactPairs, ProximityPairs};
 use world::{CollisionObject, GeometricQueryType};
 use math::Point;

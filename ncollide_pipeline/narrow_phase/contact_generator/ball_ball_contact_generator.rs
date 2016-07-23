@@ -1,5 +1,4 @@
 use std::marker::PhantomData;
-use na::Translate;
 use na;
 use math::{Point, Vector, Isometry};
 use geometry::shape::{Shape, Ball};

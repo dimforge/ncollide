@@ -19,7 +19,7 @@ recording = [ "mpeg_encoder" ]
 [dependencies]
 time = "0.1.*"
 rand = "0.3.*"
-glfw = "0.2.*"
+glfw = "0.8.*"
 kiss3d = "0.4.*"
 mpeg_encoder = { version = "0.2.*", optional = true }
 nalgebra = "0.8.*"

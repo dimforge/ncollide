@@ -25,7 +25,7 @@ pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey> + 'static>;
 pub struct CollisionWorld<P: Point, M, T> {
     objects:           UidRemap<CollisionObject<P, M, T>>,
     broad_phase:       BroadPhaseObject<P>,
-    narrow_phase:      Box<NarrowPhase<P, M, T>>,
+    narrow_phase:      NarrowPhaseObject<P, M, T>,
     contact_signal:    ContactSignal<P, M, T>,
     proximity_signal:  ProximitySignal<P, M, T>,
     pair_filters:      BroadPhasePairFilters<P, M, T>,

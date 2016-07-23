@@ -9,7 +9,7 @@ use narrow_phase::{ContactGenerator, ContactDispatcher};
 /// Collision detector between a plane and a shape implementing the `SupportMap` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
-/// `IncrementalContactManifoldGenerator`.
+/// `PlaneSupportMapContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct PlaneSupportMapContactGenerator<P: Point, M> {
     contact:  Option<Contact<P>>,
@@ -31,7 +31,7 @@ impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
 /// Collision detector between a plane and a shape implementing the `SupportMap` trait.
 ///
 /// This detector generates only one contact point. For a full manifold generation, see
-/// `IncrementalContactManifoldGenerator`.
+/// `PlaneSupportMapContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct SupportMapPlaneContactGenerator<P: Point, M> {
     contact:  Option<Contact<P>>,

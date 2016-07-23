@@ -1,6 +1,7 @@
 //! Support mapping based Cuboid shape.
 
-use na::{self, Iterable, Transform, Rotate};
+use num::Float;
+use na::{self, Transform, Rotate};
 use shape::SupportMap;
 use math::{Point, Vector};
 
@@ -52,4 +53,115 @@ impl<P, M> SupportMap<P, M> for Cuboid<P::Vect>
 
         m.transform(&pres)
     }
+
+    fn support_point_set(&self,
+                         m:          &M,
+                         dir:        &P::Vect,
+                         angtol:     <P::Vect as Vector>::Scalar,
+                         _:          usize,
+                         out_points: &mut Vec<P>)
+                         -> usize {
+        assert!(na::dimension::<P>() <= 3,
+                "Set-valued support point computation not yet implemented for dimensions > 3.");
+
+        let local_dir = na::normalize(&m.inverse_rotate(dir));
+
+        let he      = self.half_extents();
+        let cangtol = angtol.cos();
+        let sangtol = angtol.sin();
+
+        if na::dimension::<P>() == 1 {
+            let p = self.support_point(m, dir);
+            out_points.push(p);
+            return 1;
+        }
+        else if na::dimension::<P>() == 2 {
+            for i in 0usize .. 2 {
+                let j = (i + 1) % 2;
+
+                if na::abs(&local_dir[i]) > cangtol {
+                    let mut p = na::origin::<P>() + *he;
+                    if local_dir[i] < na::zero() {
+                        p[i] = -p[i];
+                    }
+
+                    out_points.push(m.transform(&p));
+                    p[j] = -p[j];
+                    out_points.push(m.transform(&p));
+
+                    return 2;
+                }
+            }
+        }
+        else {
+            // Test faces for support points.
+            for i in 0usize .. 3 {
+                if na::abs(&local_dir[i]) > cangtol {
+                    let j = (i + 1) % 3;
+                    let k = (i + 2) % 3;
+
+                    // Return the whole face.
+                    let mut p = na::origin::<P>() + *he;
+
+                    if local_dir[i] < na::zero() {
+                        p[i] = -p[i];
+                    }
+
+                    out_points.push(m.transform(&p));
+
+                    // Flip one component at a time.
+                    p[j] = -p[j];
+                    out_points.push(m.transform(&p));
+
+                    p[k] = -p[k];
+                    out_points.push(m.transform(&p));
+
+                    p[j] = -p[j];
+                    out_points.push(m.transform(&p));
+
+                    return 4;
+                }
+            }
+
+            // Test edges for support points.
+            for i in 0usize .. 3 {
+                if na::abs(&local_dir[i]) < sangtol {
+                    let j = (i + 1) % 3;
+                    let k = (i + 2) % 3;
+
+                    // Return the edge parallel to the i-th direction.
+                    let mut p = na::origin::<P>() + *he;
+
+                    if local_dir[j] < na::zero() {
+                        p[j] = -he[j];
+                    }
+                    if local_dir[k] < na::zero() {
+                        p[k] = -he[k];
+                    }
+
+                    out_points.push(m.transform(&p));
+                    p[i] = -p[i];
+                    out_points.push(m.transform(&p));
+
+                    return 2;
+                }
+            }
+        }
+
+        // The support point is only one vertex.
+        let mut pres: P = na::origin();
+
+        for i in 0usize .. na::dimension::<P>() {
+            if local_dir[i] < na::zero() {
+                pres[i] = -he[i];
+            }
+            else {
+                pres[i] = he[i];
+            }
+        }
+
+        out_points.push(m.transform(&pres));
+
+        1
+     }
 }

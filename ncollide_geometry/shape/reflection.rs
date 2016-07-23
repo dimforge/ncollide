@@ -1,5 +1,5 @@
 use shape::SupportMap;
-use math::Point;
+use math::{Point, Vector};
 
 /// SupportMap representation of the reflection of a shape.
 ///
@@ -31,4 +31,22 @@ impl<'a, P, M, G: ?Sized> SupportMap<P, M> for Reflection<'a, G>
     fn support_point(&self, m: &M, dir: &P::Vect) -> P {
         -self.shape().support_point(m, &-*dir)
     }
+
+    #[inline]
+    fn support_point_set(&self,
+                         transform:    &M,
+                         dir:          &P::Vect,
+                         eps:          <P::Vect as Vector>::Scalar,
+                         approx_count: usize,
+                         out_points:   &mut Vec<P>)
+                         -> usize {
+         let start_id = out_points.len();
+         let npts     = self.shape().support_point_set(transform, &-*dir, eps, approx_count, out_points);
+
+         for pts in &mut out_points[start_id ..] {
+             *pts = -*pts;
+         }
+
+         npts
+     }
 }

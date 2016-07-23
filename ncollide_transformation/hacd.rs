@@ -2,7 +2,7 @@ use std::mem;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 use std::collections::hash_map::Entry;
-use na::{Point3, Vector2, Vector3, Identity, Iterable, Norm, Bounded};
+use na::{Point3, Vector2, Vector3, Identity, Norm, Bounded};
 use na;
 use math::Scalar;
 use utils;
