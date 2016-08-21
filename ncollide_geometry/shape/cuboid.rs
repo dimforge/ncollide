@@ -1,6 +1,6 @@
 //! Support mapping based Cuboid shape.
 
-use na::{self, Iterable, Transform, Rotate};
+use na::{self, Transform, Rotate};
 use shape::SupportMap;
 use math::{Point, Vector};
 

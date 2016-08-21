@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.10.0] - WIP
+## [0.10.0]
 ### Added
     * Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on
       the `query` module.

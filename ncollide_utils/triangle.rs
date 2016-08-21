@@ -86,7 +86,7 @@ pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scala
 pub fn is_affinely_dependent_triangle3<N, P, V>(p1: &P, p2: &P, p3: &P) -> bool
     where N: Scalar,
           P: Sub<P, Output = V> + Copy,
-          V: Zero + Norm<N> + Index<usize, Output = N> +
+          V: Zero + Norm<NormType = N> + Index<usize, Output = N> +
              IndexMut<usize, Output = N> + Dimension + Copy {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
@@ -102,8 +102,8 @@ pub fn is_affinely_dependent_triangle3<N, P, V>(p1: &P, p2: &P, p3: &P) -> bool
 pub fn is_affinely_dependent_triangle<N, P, V, AV>(p1: &P, p2: &P, p3: &P) -> bool
     where N:  Scalar,
           P:  Sub<P, Output = V> + Copy,
-          V:  Cross<CrossProductType = AV> + Norm<N> + Copy,
-          AV: Norm<N> {
+          V:  Cross<CrossProductType = AV> + Norm<NormType = N> + Copy,
+          AV: Norm<NormType = N> {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
