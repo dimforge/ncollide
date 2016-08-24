@@ -194,15 +194,15 @@ in Rust. Obviously, it is used to stress-test the ray-casting capabilities of
 
 ### Version 0.10.0
 #### Added
-    * Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on
-      the `query` module.
+* Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on the
+  `query` module.
 #### Modified
-    * Rename `.perform_removals_and_broad_phase()` -> `.perform_additions_removals_and_broad_phase()`.
-    * Rename the collision world method `.add()` to `.deferred_add()`.
-    * The collision world `.deferred_set_position()` now fails with a
-      meaningful error when the user attempts to set the position of an object
-      not actually added (including those that have been `.deferred_add()`-ed
-      without a subsequent `.update()`.
+* Rename `.perform_removals_and_broad_phase()` -> `.perform_additions_removals_and_broad_phase()`.
+* Rename the collision world method `.add()` to `.deferred_add()`.
+* The collision world `.deferred_set_position()` now fails with a meaningful
+  error when the user attempts to set the position of an object not actually
+  added (including those that have been `.deferred_add()`-ed without a
+  subsequent `.update()`.
 
 ### Version 0.9.0
 #### Added
@@ -210,8 +210,8 @@ in Rust. Obviously, it is used to stress-test the ray-casting capabilities of
 * Added 2D and 3D testbeds (available on crates.io as `ncollide_testbed2d` and `ncollide_testbed3d`).
 * Added a method to the narrow phase to retrieve all the proximity pairs.
 * Added a method to the collision world to retrieve all the proximity pairs.
-* Added a method to the collision world to retrieve the collision object
-from its identifier.
+* Added a method to the collision world to retrieve the collision object from
+  its identifier.
 
 #### Modified
 
