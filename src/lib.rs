@@ -20,7 +20,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-ncollide = "0.9.*"
+ncollide = "0.10.*"
 ```
 
 
