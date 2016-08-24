@@ -461,7 +461,7 @@ sections.
 
 A collision object should not be created directly by the user. Instead it
 is initialized internally by the collision world with the
-`CollisionWorld::add(uid, ...)` method. Its first argument is a unique
+`CollisionWorld::deferred_add(uid, ...)` method. Its first argument is a unique
 identifier of your choice that allows you to update this collision object
 later. The `CollisionObject` instance created by the world can be retrieved
 using the `.collision_object(uid)` method. Currently, a collision object can
@@ -482,22 +482,22 @@ next call to `.update()` in order to be able to re-use a removed object's
 identifier. For example, the following pseudo-code panics:
 
 ```rust
-collision_world.add(0, ...);
+collision_world.deferred_add(0, ...);
 collision_world.update();
 collision_world.deferred_remove(0);
 
-collision_world.add(0, ...); // Panic! The uid 0 is already present.
+collision_world.deferred_add(0, ...); // Panic! The uid 0 is already present.
 ```
 
 While the following will work as expected:
 
 ```rust
-collision_world.add(0, ...);
+collision_world.deferred_add(0, ...);
 collision_world.update();
 collision_world.deferred_remove(0);
 
 collision_world.update();    // Actually remove 0 ...
-collision_world.add(0, ...); // ... so it can be re-used for another object.
+collision_world.deferred_add(0, ...); // ... so it can be re-used for another object.
 ```
 
 ### Collision groups
@@ -961,19 +961,19 @@ let mut world = CollisionWorld::new(0.02, true);
 let contacts_query  = GeometricQueryType::Contacts(0.0);
 let proximity_query = GeometricQueryType::Proximity(0.0);
 
-world.add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
-world.add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
-world.add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
-world.add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
+world.deferred_add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
+world.deferred_add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
+world.deferred_add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
+world.deferred_add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
 
 // Add the colored rectangles to the world.
-world.add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
-world.add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
-world.add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
-world.add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
+world.deferred_add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
+world.deferred_add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
+world.deferred_add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
+world.deferred_add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
 
 // Add the ball to the world.
-world.add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
+world.deferred_add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
 
 // Register our handlers.
 world.register_proximity_handler("ProximityMessage", ProximityMessage);

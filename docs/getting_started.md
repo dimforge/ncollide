@@ -5,7 +5,7 @@ making **ncollide** ready to be used by your project is simply a matter of
 adding a new dependency to your `Cargo.toml` file.
 ```toml
 [dependencies]
-ncollide = "0.9.0"
+ncollide = "0.10.0"
 ```
 
 Until **ncollide** reaches 1.0, it is strongly recommended to always use its
@@ -35,7 +35,7 @@ version = "0.0.0"
 authors = [ "You" ]
 
 [dependencies]
-ncollide = "0.9.0"
+ncollide = "0.10.0"
 
 [[bin]]
 name = "example"
@@ -60,5 +60,5 @@ Crate name                  | Description
 
 To use any of those crates, simply add a corresponding dependency entry to your
 `Cargo.toml`. Note that you should not expect the version numbers of those
-crates to be identical. For example, **ncollide** being in version `0.9.0` does
-not implies that **ncollide_geometry** (say) is at its version `0.9.0` as well.
+crates to be identical. For example, **ncollide** being in version `0.10.0` does
+not implies that **ncollide_geometry** (say) is at its version `0.10.0` as well.
