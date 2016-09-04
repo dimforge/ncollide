@@ -23,6 +23,7 @@
     <a href="../geometric_representations" id="no_highlight">
     <div>
     <big>**Complex shapes**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Geometric queries for collision detection available for 2D and 3D shapes
     with various levels of complexity: from simple spheres to arbitrary
@@ -37,6 +38,7 @@
     <a href="../bounding_volumes" id="no_highlight">
     <div>
     <big>**Bounding volumes**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Bound complex shapes with simpler ones like AABB and bounding spheres.
     Perform approximate geometric queries efficiently to avoid useless exact
@@ -51,6 +53,7 @@
     <a href="../geometric_queries/#ray-casting" id="no_highlight">
     <div>
     <big>**Ray casting**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Compute intersections between a ray and any shape.
     </div>
@@ -63,6 +66,7 @@
     <a href="../geometric_queries/#point-projection" id="no_highlight">
     <div>
     <big>**Point projection**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Test a point for containment, compute distances to a point, or project it
     on any shape.
@@ -76,6 +80,7 @@
     <a href="../geometric_queries/#contact" id="no_highlight">
     <div>
     <big>**Contact points**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Find the closest points between objects in close proximity.  If they are
     penetrating, the minimal translational distance can be obtained as well!
@@ -89,6 +94,7 @@
     <a href="../geometric_queries/#time-of-impact" id="no_highlight">
     <div>
     <big>**Time-of-impact**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Compute the time it would take for two moving shapes to start being in
     contact.
@@ -102,6 +108,7 @@
     <a href="../geometric_queries/#distance" id="no_highlight">
     <div>
     <big>**Smallest distance**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Compute the global minimal distance between two shapes.
     </div>
@@ -114,6 +121,7 @@
     <a href="../bounding_volumes/#spacial-partitioning" id="no_highlight">
     <div>
     <big>**Spacial partitioning**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Efficient data structures to perform geometric queries efficiently on
     hundreds of objects.
@@ -127,6 +135,7 @@
     <a href="../collision_detection_pipeline" id="no_highlight">
     <div>
     <big>**Collision detection pipeline**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     A complete and efficient collision detection pipeline including a broad
     phase and a narrow phase. Featuring real-time contacts generation,
@@ -142,6 +151,7 @@
     <a href="../mesh_generation" id="no_highlight">
     <div>
     <big>**Mesh generation**</big>
+    <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
     <br>
     Generate triangle meshes from smooth objects, compute their convex hull, or
     decompose them approximately into their convex components.
@@ -189,70 +199,3 @@ in Rust. Obviously, it is used to stress-test the ray-casting capabilities of
 ![Ray tracing demo](img/demo_ray_tracer.png)
 </center>
 </p>
-
------
-
-### Version 0.10.0
-#### Added
-* Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on the
-  `query` module.
-#### Modified
-* Rename `.perform_removals_and_broad_phase()` -> `.perform_additions_removals_and_broad_phase()`.
-* Rename the collision world method `.add()` to `.deferred_add()`.
-* The collision world `.deferred_set_position()` now fails with a meaningful
-  error when the user attempts to set the position of an object not actually
-  added (including those that have been `.deferred_add()`-ed without a
-  subsequent `.update()`.
-
-### Version 0.9.0
-#### Added
-
-* Added 2D and 3D testbeds (available on crates.io as `ncollide_testbed2d` and `ncollide_testbed3d`).
-* Added a method to the narrow phase to retrieve all the proximity pairs.
-* Added a method to the collision world to retrieve all the proximity pairs.
-* Added a method to the collision world to retrieve the collision object from
-  its identifier.
-
-#### Modified
-
-* Merge the `ncollide_queries` and `ncollide_entities` crates into
-  `ncollide_geometry`.
-* Rename the `geometry` module to `query`.
-* `::implicit_shape_aabb(...)` becomes `::support_map_aabb(...)`
-* `CompositeShape::aabb_at(...)` now returns an AABB by-value (instead of
-  by-ref).
-* `PointQuery::distance_to_point(...)` now has a `solid` flag as well.
-* Point queries result now indicates if the point was inside of the object
-  or not by returning a `PointProjection` structure instead of just the
-  point.
-* Rename `CollisionGroups::can_collide_with` to `CollisionGroups::can_interact_with`.
-* Rename `NarrowPhase::handle_proximity` to `NarrowPhase::handle_interaction`.
-* Rename all `.*CollisionDetector` to `.*ContactGenerator`. Methods have
-  been renamed as well (e.g. `.get_collision_algorithm` becomes
-  `.get_contact_algorithm`, `.colls` becomes `.contacts`, etc.)
-* Rename `CollisionQueryType` to `GeometricQueryType`.
-* Moved the `ray` and `point` modules into the `query` module. Also, they
-  are renamed `ray_internal` and `point_internal`.
-
-#### Removed
-
-* Removed the `CompositeShape::len()` method.
-
------
-
-### Version 0.8.0
-#### Added
-
-* Added proximity queries, including persistant proximity detector and
-  algorithm dispatcher.
-* Added methods to set directly collision group membership/whitelist/blacklist.
-
-#### Modified
-
-* The last type parameter of the `BVTCostFn` trait (the user-defined data
-  return by leaves) is now an associated type.
-* The shape handles `Arc<Box<Repr<P, M>>>` are now wrapped into a structure
-  with a more explicit name: `ShapeHandle<P, M>`.
-* Renamed `Convex` to `ConvexHull`
-* Swapped the first two arguments of `CompositeShape::map_transformed_part_at`.
-* All fields of `Polyline` are now private. Added corresponding accessors.

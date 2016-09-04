@@ -12,7 +12,9 @@ pages:
       # - 'The ncollide Testbeds': ncollide_testbeds.md
     - 'FAQ': faq.md
   - '<i class="fa fa-align-left"></i>&nbsp API Documentation': rustdoc_ncollide.md
-  - '<i class="fa fa-question-circle"></i>&nbsp About': about.md
+  - '<i class="fa fa-question-circle"></i>&nbsp About':
+      - 'Contributing': about.md
+      - 'Release notes': changelog.md
 theme_dir: custom_flatly
 site_author: 'Sébastion Crozet'
 site_favicon: img/favicon.ico

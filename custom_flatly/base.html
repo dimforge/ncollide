@@ -60,7 +60,8 @@
             <div class="col-md-9" role="main">
                 {% include "content.html" %}
 
-                {% if page_title != '<i class="fa fa-question-circle"></i>&nbsp About' %}
+                {% if page_title != 'Contributing' %}
+                {% if page_title != 'Release notes' %}
                     <hr>
                     {% if previous_page.title != "Home" %}
                         <span style="float:left">
@@ -76,6 +77,7 @@
                         </a>
                         </span>
                     {% endif %}
+                {% endif %}
                 {% endif %}
             </div>
           {% else %}

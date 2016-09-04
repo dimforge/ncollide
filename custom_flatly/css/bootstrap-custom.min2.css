@@ -3372,7 +3372,10 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 }
 .navbar-default .navbar-nav>.active>a,.navbar-default .navbar-nav>.active>a:hover,.navbar-default .navbar-nav>.active>a:focus {
 	color:#fff;
-	background-color:#1a242f
+	background-color:#1a242f;
+    border-color:#1a242f;
+    border-style:solid;
+    border-width:1px;
 }
 .navbar-default .navbar-nav>.disabled>a,.navbar-default .navbar-nav>.disabled>a:hover,.navbar-default .navbar-nav>.disabled>a:focus {
 	color:#ccc;

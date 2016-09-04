@@ -43,14 +43,16 @@
                 </li>
               {% else %}
                 <li {% if nav_item.active %}class="active"{% endif %}>
-                <a href="{{ nav_item.url }}">
                   {% if nav_item.title == "Home" %}
+                  <a id="noborder" href="{{ nav_item.url }}">
                     <span id="hide_small" class="navbar_icon" height = "1em"></span>
                     <span id="show_small"><i class="fa fa-home"></i> Home</span>
+                  </a>
                   {% else %}
+                  <a href="{{ nav_item.url }}">
                     <span>{{ nav_item.title }}</span>
+                  </a>
                   {% endif %}
-                </a>
                 </li>
               {% endif %}
             {% endif %}

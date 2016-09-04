@@ -32,6 +32,16 @@ div.tab-pane pre {
   outline: 0;
 }
 
+span.home_dummy_link {
+    float:right;
+    color: #eeeeee;
+}
+
+td:hover span.home_dummy_link {
+    color: #00A6EA;
+    display:initial;
+}
+
 #prev_page {
     float: left
 }
@@ -141,6 +151,10 @@ a:hover .user_forum {
 a:hover .navbar_icon {
   background : url("/img/logo_ncollide_small_green.png") no-repeat center center;
   background-size: 100%;
+}
+
+#noborder {
+  border-style: none;
 }
 
 /*

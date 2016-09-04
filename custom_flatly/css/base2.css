@@ -7,6 +7,16 @@ a:hover .user_forum {
     color: #ff8f2e;
 }
 
+span.home_dummy_link {
+    float:right;
+    color: #eeeeee;
+}
+
+td:hover span.home_dummy_link {
+    color: #00A6EA;
+    display:initial;
+}
+
 @media(min-width:768px) {
   #show_small {
     display: none;
@@ -69,6 +79,10 @@ a:hover .navbar_icon {
 
 :target {
     background: none;
+}
+
+#noborder {
+  border-style: none;
 }
 
 /*
