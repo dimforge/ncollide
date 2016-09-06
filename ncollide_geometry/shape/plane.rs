@@ -9,6 +9,8 @@ pub struct Plane<V> {
     normal: V
 }
 
+impl<N> Copy for Plane<N> where N: Copy {}
+
 impl<V: Vector> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]

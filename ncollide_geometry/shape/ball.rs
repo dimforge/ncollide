@@ -9,6 +9,8 @@ pub struct Ball<N> {
     radius: N
 }
 
+impl<N> Copy for Ball<N> where N: Copy {}
+
 impl<N: Scalar> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]

@@ -13,6 +13,8 @@ pub struct Triangle<P> {
     c: P
 }
 
+impl<P> Copy for Triangle<P> where P: Copy {}
+
 impl<P: Dimension> Triangle<P> {
     /// Creates a triangle from three points.
     #[inline]

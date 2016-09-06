@@ -13,6 +13,8 @@ pub struct Capsule<N> {
     radius:      N,
 }
 
+impl<N> Copy for Capsule<N> where N: Copy {}
+
 impl<N> Capsule<N>
     where N: Scalar {
     /// Creates a new capsule.
