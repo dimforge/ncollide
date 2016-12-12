@@ -96,7 +96,7 @@ alphabetical order:
 * [Alexander Mistakidis](https://github.com/aamistak)
 * [Ben Foppa](https://github.com/bfops)
 * [Brandon Waskiewicz](https://github.com/brandonw)
-* [Clément Renault](https://github.com/Kerosene2000)
+* [Clément Renault](https://github.com/Kerollmops)
 * [Corey Richardson](https://github.com/cmr)
 * [Dabo Ross](https://github.com/daboross)
 * [Eduard Bopp](https://github.com/aepsil0n)
