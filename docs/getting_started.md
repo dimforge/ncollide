@@ -2,9 +2,14 @@
 **ncollide** relies on the official Rust package manager
 [Cargo](http://crates.io) for dependency resolution and compilation. Therefore,
 making **ncollide** ready to be used by your project is simply a matter of
-adding a new dependency to your `Cargo.toml` file.
+adding a new dependency to your `Cargo.toml` file. Note that you will probably
+need **nalgebra** version 0.9.0 as well because it defines algebraic entities
+(vectors, points, transformation matrices) used by most types of **ncollide**.
+The version 0.10.0 of **nalgebra** is not yet supported.
+
 ```toml
 [dependencies]
+nalgebra = "0.9.0"
 ncollide = "0.10.0"
 ```
 
