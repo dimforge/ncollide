@@ -1,7 +1,7 @@
 use na::{Translation, Translate};
 use bounding_volume::{self, AABB, BoundingSphere};
 use query::{PointQuery, RayCast};
-use shape::{Shape, Triangle, Segment, Ball, Plane, Cuboid, Cylinder, Cone, ConvexHull, Compound,
+use shape::{Shape, Triangle, Segment, Ball, Plane, Capsule, Cuboid, Cylinder, Cone, ConvexHull, Compound,
             TriMesh, Polyline, CompositeShape, SupportMap};
 use math::{Point, Vector, Isometry};
 
@@ -68,6 +68,13 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Segment<P> {
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<<P::Vect as Vector>::Scalar> {
+    impl_shape_common!();
+    impl_as_support_map!();
+}
+
+impl<P, M> Shape<P, M> for Capsule<<P::Vect as Vector>::Scalar>
+    where P: Point,
+          M: Isometry<P> + Translation<P::Vect> {
     impl_shape_common!();
     impl_as_support_map!();
 }
