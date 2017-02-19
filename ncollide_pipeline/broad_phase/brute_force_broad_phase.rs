@@ -1,9 +1,9 @@
-use na::Identity;
+use alga::general::Id;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::bounding_volume::BoundingVolume;
 use geometry::query::{Ray, RayCast, PointQuery};
 use broad_phase::BroadPhase;
-use math::{Point, Vector};
+use math::Point;
 
 /// A broad phase testing explicitly all bounding volume pairs.
 ///
@@ -29,9 +29,9 @@ impl<N, BV, T> BruteForceBroadPhase<N, BV, T> {
     }
 }
 
-impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<<P::Vect as Vector>::Scalar, BV, T> where
-    BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> +
-        RayCast<P, Identity> + PointQuery<P, Identity> + Clone {
+impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<P::Real, BV, T> where
+    BV: 'static + BoundingVolume<P> +
+        RayCast<P, Id> + PointQuery<P, Id> + Clone {
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
         // XXX: should not be inserted now!
         let (key, _) = self.proxies.insert(uid, (bv.clone(), data));
@@ -97,7 +97,7 @@ impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<<P::Vect as 
 
     fn interferences_with_ray<'a>(&'a self, ray: &Ray<P>, out: &mut Vec<&'a T>) {
         for proxy in self.proxies.values() {
-            if proxy.0.intersects_ray(&Identity::new(), ray) {
+            if proxy.0.intersects_ray(&Id::new(), ray) {
                 out.push(&proxy.1)
             }
         }
@@ -105,7 +105,7 @@ impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<<P::Vect as 
 
     fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a T>) {
         for proxy in self.proxies.values() {
-            if proxy.0.contains_point(&Identity::new(), point) {
+            if proxy.0.contains_point(&Id::new(), point) {
                 out.push(&proxy.1)
             }
         }

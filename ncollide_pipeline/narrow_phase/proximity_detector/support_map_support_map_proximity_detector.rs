@@ -1,7 +1,6 @@
-use std::any::Any;
 use std::marker::PhantomData;
-use na::{self, Translate, Translation};
-use math::{Point, Vector};
+use na;
+use math::{Point, Isometry};
 use geometry::shape::{Shape, AnnotatedPoint};
 use geometry::query::algorithms::simplex::Simplex;
 use geometry::query::proximity_internal;
@@ -16,7 +15,7 @@ use narrow_phase::{ProximityDetector, ProximityDispatcher};
 pub struct SupportMapSupportMapProximityDetector<P: Point, M, S> {
     simplex:   S,
     proximity: Proximity,
-    sep_axis:  P::Vect,
+    sep_axis:  P::Vector,
     pt_type:   PhantomData<P>, // FIXME: can we avoid this?
     mat_type:  PhantomData<M>  // FIXME: can we avoid this?
 }
@@ -41,14 +40,13 @@ impl<P, M, S> SupportMapSupportMapProximityDetector<P, M, S>
 
 impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<P, M, S>
     where P: Point,
-          P::Vect: Translate<P>,
-          M: Translation<P::Vect> + Any,
+          M: Isometry<P>,
           S: Simplex<AnnotatedPoint<P>> {
     #[inline]
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
               ma: &M, a: &Shape<P, M>,
               mb: &M, b: &Shape<P, M>,
-              margin: <P::Vect as Vector>::Scalar)
+              margin: P::Real)
               -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction;

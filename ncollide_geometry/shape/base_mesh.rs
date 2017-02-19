@@ -2,10 +2,12 @@
 
 use std::sync::Arc;
 use std::marker::PhantomData;
-use na::{Translate, Identity, Point2};
+
+use alga::general::Id;
+use na::Point2;
 use partitioning::BVT;
 use bounding_volume::{self, HasBoundingVolume, AABB};
-use math::{Point, Vector};
+use math::Point;
 
 
 /// Trait implemented by elements usable on the Mesh.
@@ -20,8 +22,8 @@ pub struct BaseMesh<P: Point, I, E> {
     bvs:      Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
     indices:  Arc<Vec<I>>,
-    uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
-    normals:  Option<Arc<Vec<P::Vect>>>,
+    uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
+    normals:  Option<Arc<Vec<P::Vector>>>,
     elt:      PhantomData<E>
 }
 
@@ -42,13 +44,12 @@ impl<P, I, E> Clone for BaseMesh<P, I, E>
 
 impl<P, I, E> BaseMesh<P, I, E>
     where P: Point,
-          P::Vect: Translate<P>,
-          E: BaseMeshElement<I, P> + HasBoundingVolume<Identity, AABB<P>> {
+          E: BaseMeshElement<I, P> + HasBoundingVolume<Id, AABB<P>> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<I>>,
-               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
-               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
+               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
                -> BaseMesh<P, I, E> {
         for uvs in uvs.iter() {
             assert!(uvs.len() == vertices.len());
@@ -65,7 +66,7 @@ impl<P, I, E> BaseMesh<P, I, E>
                 let vs: &[P] = &vs[..];
                 let element: E = BaseMeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
-                let bv = bounding_volume::aabb(&element, &Identity::new());
+                let bv = bounding_volume::aabb(&element, &Id::new());
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }
@@ -113,13 +114,13 @@ impl<P, I, E> BaseMesh<P, I, E>
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<P::Real>>>> {
         &self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vector>>> {
         &self.normals
     }
 

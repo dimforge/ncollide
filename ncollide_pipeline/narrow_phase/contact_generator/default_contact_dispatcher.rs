@@ -1,7 +1,5 @@
-use std::ops::Mul;
 use std::marker::PhantomData;
-use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use geometry::shape::{Shape, Ball, Plane};
 use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
 use narrow_phase::{
@@ -32,20 +30,15 @@ impl<P: Point, M> DefaultContactDispatcher<P, M> {
     }
 }
 
-impl<P, M> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M>
-    where P: Point,
-          P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
-                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M: Isometry<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M> {
     fn get_contact_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<ContactAlgorithm<P, M>> {
-        let a_is_ball = a.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
-        let b_is_ball = b.is_shape::<Ball<<P::Vect as Vector>::Scalar>>();
+        let a_is_ball = a.is_shape::<Ball<P::Real>>();
+        let b_is_ball = b.is_shape::<Ball<P::Real>>();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallContactGenerator::<P, M>::new()))
         }
-        else if a.is_shape::<Plane<P::Vect>>() && b.is_support_map() {
+        else if a.is_shape::<Plane<P::Vector>>() && b.is_support_map() {
             let wo_manifold = PlaneSupportMapContactGenerator::<P, M>::new();
 
             if !b_is_ball {
@@ -56,7 +49,7 @@ impl<P, M> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M>
                 Some(Box::new(wo_manifold))
             }
         }
-        else if b.is_shape::<Plane<P::Vect>>() && a.is_support_map() {
+        else if b.is_shape::<Plane<P::Vector>>() && a.is_support_map() {
             let wo_manifold = SupportMapPlaneContactGenerator::<P, M>::new();
 
             if !a_is_ball {

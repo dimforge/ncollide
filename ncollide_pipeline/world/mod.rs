@@ -2,7 +2,7 @@
 
 pub use self::collision_object::{GeometricQueryType, CollisionObject};
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
-pub use self::collision_world::{BroadPhaseObject, CollisionWorld};
+pub use self::collision_world::{BroadPhaseObject, NarrowPhaseObject, CollisionWorld};
 
 use na::{Point3, Isometry3, Point2, Isometry2};
 

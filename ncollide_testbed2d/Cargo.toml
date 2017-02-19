@@ -17,10 +17,11 @@ default = [ ]
 recording = [ "mpeg_encoder" ]
 
 [dependencies]
-time = "0.1.*"
-num = "0.1.*"
-rand = "0.3.*"
-mpeg_encoder = { version = "0.2.*", optional = true }
-sfml = "0.11.*"
-nalgebra = "0.9.*"
-ncollide = "0.10.*"
+time         = "0.1"
+num          = "0.1"
+rand         = "0.3"
+mpeg_encoder = { version = "0.2", optional = true }
+sfml         = "0.11"
+alga         = "0.5"
+nalgebra     = "0.11"
+ncollide     = { path = "..", version = "0.10" }

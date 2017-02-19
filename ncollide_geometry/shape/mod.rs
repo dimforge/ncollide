@@ -7,7 +7,9 @@ pub use self::capsule::Capsule;
 pub use self::cone::Cone;
 pub use self::cylinder::Cylinder;
 pub use self::convex::ConvexHull;
-pub use self::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum, AnnotatedPoint, cso_support_point};
+pub use self::minkowski_sum::{MinkowskiSum, AnnotatedMinkowskiSum,
+                              CSO, AnnotatedCSO,
+                              AnnotatedPoint, cso_support_point};
 pub use self::reflection::Reflection;
 pub use self::compound::Compound;
 pub use self::base_mesh::{BaseMesh, BaseMeshElement};

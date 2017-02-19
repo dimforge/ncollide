@@ -4,8 +4,7 @@ use super::ToTriMesh;
 use math::Point;
 
 
-impl<'a, P, G: ToTriMesh<P, I>, I> ToTriMesh<P, I> for Reflection<'a, G>
-    where P: Point {
+impl<'a, P: Point, G: ToTriMesh<P, I>, I> ToTriMesh<P, I> for Reflection<'a, G> {
     fn to_trimesh(&self, parameter: I) -> TriMesh<P> {
         let mut res = self.shape().to_trimesh(parameter);
 

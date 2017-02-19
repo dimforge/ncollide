@@ -1,10 +1,12 @@
 //! Support mapping based Cone shape.
 
-use num::Signed;
-use na::{Rotate, Transform, Norm};
+use num::{Signed, Zero};
+
+use alga::general::Real;
+use alga::linear::NormedSpace;
 use na;
 use shape::SupportMap;
-use math::{Scalar, Point, Vector};
+use math::{Point, Isometry};
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -13,8 +15,7 @@ pub struct Cone<N> {
     radius:      N,
 }
 
-impl<N> Cone<N>
-    where N: Scalar {
+impl<N: Real> Cone<N> {
     /// Creates a new cone.
     ///
     /// # Arguments:
@@ -32,29 +33,27 @@ impl<N> Cone<N>
     /// The cone half length along the `y` axis.
     #[inline]
     pub fn half_height(&self) -> N {
-        self.half_height.clone()
+        self.half_height
     }
 
     /// The radius of the cone along all but the `y` axis.
     #[inline]
     pub fn radius(&self) -> N {
-        self.radius.clone()
+        self.radius
     }
 }
 
 
-impl<P, M> SupportMap<P, M> for Cone<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cone<P::Real> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inverse_rotate(dir);
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        let local_dir = m.inverse_rotate_vector(dir);
 
-        let mut vres = local_dir.clone();
+        let mut vres = local_dir;
 
         vres[1] = na::zero();
 
-        if na::is_zero(&vres.normalize_mut()) {
+        if vres.normalize_mut().is_zero() {
             vres = na::zero();
 
             if local_dir[1].is_negative() {
@@ -74,6 +73,6 @@ impl<P, M> SupportMap<P, M> for Cone<<P::Vect as Vector>::Scalar>
             }
         }
 
-        m.transform(&(na::origin::<P>() + vres))
+        m.transform_point(&P::from_coordinates(vres))
     }
 }

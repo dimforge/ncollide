@@ -8,21 +8,21 @@ use math::{Point, Vector};
 // FIXME: move this to nalgebra?
 
 /// Computes the convariance matrix of a set of points.
-pub fn cov<P>(pts: &[P]) -> <P::Vect as Outer>::OuterProductType
+pub fn cov<P>(pts: &[P]) -> <P::Vector as Outer>::OuterProductType
     where P: Point,
-          P::Vect: Outer,
-          <P::Vect as Outer>::OuterProductType: Zero {
+          P::Vector: Outer,
+          <P::Vector as Outer>::OuterProductType: Zero {
     cov_and_center(pts).0
 }
 
 /// Computes the covariance matrix and center of a set of points.
-pub fn cov_and_center<P>(pts: &[P]) -> (<P::Vect as Outer>::OuterProductType, P)
+pub fn cov_and_center<P>(pts: &[P]) -> (<P::Vector as Outer>::OuterProductType, P)
     where P: Point,
-          P::Vect: Outer,
-          <P::Vect as Outer>::OuterProductType: Zero {
+          P::Vector: Outer,
+          <P::Vector as Outer>::OuterProductType: Zero {
     let center = ::center(pts);
-    let mut cov: <P::Vect as Outer>::OuterProductType = na::zero();
-    let normalizer: <P::Vect as Vector>::Scalar = na::cast(1.0 / (pts.len() as f64));
+    let mut cov: <P::Vector as Outer>::OuterProductType = na::zero();
+    let normalizer: P::Real = na::convert(1.0 / (pts.len() as f64));
 
     for p in pts.iter() {
         let cp = *p - center;
@@ -37,10 +37,10 @@ pub fn cov_and_center<P>(pts: &[P]) -> (<P::Vect as Outer>::OuterProductType, P)
 /// Returns the covariance matrix, the center of the data, and a boolean that is `true` if the
 /// operation succeeded (otherwise, the returned value as valid, by the input points are left
 /// unchanged).
-pub fn center_reduce<P>(pts: &mut [P]) -> (<P::Vect as Outer>::OuterProductType, P, bool)
+pub fn center_reduce<P>(pts: &mut [P]) -> (<P::Vector as Outer>::OuterProductType, P, bool)
     where P: Point,
-          P::Vect: Vector + Outer,
-          <P::Vect as Outer>::OuterProductType: Zero + Mul<P, Output = P> + Inverse + Copy + Debug {
+          P::Vector: Vector + Outer,
+          <P::Vector as Outer>::OuterProductType: Zero + Mul<P, Output = P> + Inverse + Copy + Debug {
     let (cov, center) = cov_and_center(pts);
 
     match na::inverse(&cov) {

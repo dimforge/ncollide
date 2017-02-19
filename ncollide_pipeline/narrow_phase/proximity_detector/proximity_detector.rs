@@ -1,6 +1,6 @@
 use geometry::query::Proximity;
 use geometry::shape::Shape;
-use math::{Point, Vector};
+use math::Point;
 
 /// Trait implemented by algorithms that determine if two objects are in close proximity.
 pub trait ProximityDetector<P: Point, M> {
@@ -12,7 +12,7 @@ pub trait ProximityDetector<P: Point, M> {
               a:          &Shape<P, M>,
               mb:         &M,
               b:          &Shape<P, M>,
-              margin:     <P::Vect as Vector>::Scalar)
+              margin:     P::Real)
               -> bool;
 
     /// The number of collision detected during the last update.

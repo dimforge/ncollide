@@ -1,6 +1,6 @@
 //! Support mapping based Plane shape.
-use na;
 use math::Vector;
+use na;
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]

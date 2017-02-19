@@ -1,15 +1,13 @@
-use na::{self, Transform};
+use na;
 use shape::Segment;
 use query::{PointQuery, PointProjection};
-use math::Point;
+use math::{Point, Isometry};
 
 
-impl<P, M> PointQuery<P, M> for Segment<P>
-    where P: Point,
-          M: Transform<P> {
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, _: bool) -> PointProjection<P> {
-        let ls_pt = m.inverse_transform(pt);
+        let ls_pt = m.inverse_transform_point(pt);
         let ab    = *self.b() - *self.a();
         let ap    = ls_pt - *self.a();
         let ab_ap = na::dot(&ab, &ap);
@@ -19,21 +17,21 @@ impl<P, M> PointQuery<P, M> for Segment<P>
 
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
-            proj = m.transform(self.a());
+            proj = m.transform_point(self.a());
         }
         else if ab_ap >= sqnab {
             // Voronoï region of vertex 'b'.
-            proj = m.transform(self.b());
+            proj = m.transform_point(self.b());
         }
         else {
             assert!(sqnab != na::zero());
 
             // Voronoï region of the segment interior.
-            proj = m.transform(&(*self.a() + ab * (ab_ap / sqnab)));
+            proj = m.transform_point(&(*self.a() + ab * (ab_ap / sqnab)));
         }
 
         // FIXME: is this acceptable?
-        let inside = na::approx_eq(&proj, pt);
+        let inside = relative_eq!(proj, *pt);
 
         PointProjection::new(inside, proj)
     }

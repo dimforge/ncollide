@@ -2,11 +2,12 @@
 
 use std::mem;
 use std::sync::Arc;
-use na::{self, Translate, Point2};
+
+use na::{self, Point2};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Segment, BaseMesh, CompositeShape, Shape};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {
@@ -21,14 +22,12 @@ impl<P: Point> Clone for Polyline<P> {
     }
 }
 
-impl<P> Polyline<P>
-    where P: Point,
-          P::Vect: Translate<P> {
+impl<P: Point> Polyline<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<Point2<usize>>>,
-               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
-               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
+               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
                -> Polyline<P> {
         Polyline {
             mesh: BaseMesh::new(vertices, indices, uvs, normals)
@@ -36,8 +35,7 @@ impl<P> Polyline<P>
     }
 }
 
-impl<P> Polyline<P>
-    where P: Point {
+impl<P: Point> Polyline<P> {
     /// The base representation of this mesh.
     #[inline]
     pub fn base_mesh(&self) -> &BaseMesh<P, Point2<usize>, Segment<P>> {
@@ -64,13 +62,13 @@ impl<P> Polyline<P>
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<P::Real>>>> {
         self.mesh.uvs()
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vector>>> {
         self.mesh.normals()
     }
 
@@ -89,9 +87,7 @@ impl<P: Point> Polyline<P> {
     }
 }
 
-impl<P, M> CompositeShape<P, M> for Polyline<P>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Polyline<P> {
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let one: M = na::one();

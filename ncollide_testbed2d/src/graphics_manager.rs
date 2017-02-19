@@ -3,25 +3,27 @@ use std::cell::RefCell;
 use std::sync::Arc;
 use std::collections::HashMap;
 use rand::{SeedableRng, XorShiftRng, Rng};
+use num::ToPrimitive;
 use sfml::graphics::RenderWindow;
+
+use alga::general::Real;
 use na::{Point2, Point3, Isometry2};
 use na;
 use ncollide::world::{CollisionWorld2, CollisionObject2};
 use ncollide::transformation;
 use ncollide::shape::{Shape2, Plane2, Ball2, Cuboid2, Compound2, Polyline2, ConvexHull2, Segment2};
-use ncollide::math::Scalar;
 use camera::Camera;
 use objects::{SceneNode, Ball, Box, Lines, Segment};
 
 pub type GraphicsManagerHandle<N> = Rc<RefCell<GraphicsManager<'static, N>>>;
 
-pub struct GraphicsManager<'a, N> {
+pub struct GraphicsManager<'a, N: Real> {
     rand:      XorShiftRng,
     uid2sn:    HashMap<usize, Vec<SceneNode<'a, N>>>,
     uid2color: HashMap<usize, Point3<u8>>
 }
 
-impl<'a, N: Scalar> GraphicsManager<'a, N> {
+impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
     pub fn new() -> GraphicsManager<'a, N> {
         GraphicsManager {
             rand:      SeedableRng::from_seed([0, 1, 2, 3]),

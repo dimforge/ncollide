@@ -1,7 +1,11 @@
+#[macro_use]
+extern crate approx;
+extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector2, Point2, Isometry2, Rotate};
+use alga::linear::ProjectiveTransformation;
+use na::{Vector2, Point2, Isometry2};
 use ncollide::shape::{SupportMap, SupportMap2};
 use ncollide::query::{self, Proximity};
 use ncollide::shape::{Shape, Cuboid};
@@ -15,7 +19,7 @@ struct Ellipse {
 impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
     fn support_point(&self, transform: &Isometry2<f32>, dir: &Vector2<f32>) -> Point2<f32> {
         // Bring `dir` into the ellipse's local frame.
-        let local_dir = transform.inverse_rotate(&dir);
+        let local_dir = transform.inverse_transform_vector(dir);
 
         // Compute the denominator.
         let denom = f32::sqrt(local_dir.x * local_dir.x * self.a * self.a +
@@ -52,7 +56,7 @@ fn main() {
     let prox = query::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
     let ctct = query::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
 
-    assert!(na::approx_eq(&dist, &1.0));
+    assert!(relative_eq!(dist, 1.0, epsilon = 1.0e-6));
     assert_eq!(prox, Proximity::Disjoint);
     assert!(ctct.is_none());
 }

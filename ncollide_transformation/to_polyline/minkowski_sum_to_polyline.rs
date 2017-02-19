@@ -1,4 +1,3 @@
-use na::Translate;
 use na;
 use math::Point;
 use geometry::shape::MinkowskiSum;
@@ -9,7 +8,6 @@ use super::ToPolyline;
 // XXX: Implemented this for other dimensions (harder because of the concavities.
 impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P>,
           G1: ToPolyline<P, A>,
           G2: ToPolyline<P, B> {
     fn to_polyline(&self, (a, b): (A, B)) -> Polyline<P> {
@@ -36,7 +34,7 @@ impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G
         for pt in p2.coords().iter() {
             let mut cpy = p1.clone();
 
-            cpy.translate_by(pt.as_vector());
+            cpy += pt.coordinates();
 
             all_points.extend(cpy.coords().into_iter());
         }

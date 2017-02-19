@@ -1,11 +1,10 @@
-use na::{Translate, Translation};
 use na;
 use partitioning::BoundingVolumeInterferencesCollector;
 use bounding_volume::BoundingVolume;
 use shape::{Shape, CompositeShape};
 use query::Contact;
 use query::contacts_internal;
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 
 /*
 /// Contacts between a composite shape (`Mesh`, `Compound`) and any other shape.
@@ -22,7 +21,7 @@ pub fn manifold_composite_shape_against_shape<N, P, V, AV, M, G1, G2>(
           G1: CompositeShape<N, P, V, M>,
           G2: Shape<N, P, V, M> {
     // Find new collisions
-    let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
+    let ls_m2    = na::inverse(m1) * *m2;
     let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
     let g2       = g2 as &Shape<N, P, V, M>;
 
@@ -66,14 +65,13 @@ pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
                                                        m2: &M, g2: &Shape<P, M>,
-                                                       prediction: <P::Vect as Vector>::Scalar)
+                                                       prediction: P::Real)
                                                        -> Option<Contact<P>>
     where P:  Point,
-          P::Vect: Translate<P>,
-          M:  Isometry<P> + Translation<P::Vect>,
+          M:  Isometry<P>,
           G1: CompositeShape<P, M> {
     // Find new collisions
-    let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
+    let ls_m2    = na::inverse(m1) * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
 
     let mut interferences = Vec::new();
@@ -111,11 +109,10 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
 pub fn shape_against_composite_shape<P, M, G2: ?Sized>(m1: &M, g1: &Shape<P, M>,
                                                        m2: &M, g2: &G2,
-                                                       prediction: <P::Vect as Vector>::Scalar)
+                                                       prediction: P::Real)
                                                        -> Option<Contact<P>>
     where P:  Point,
-          P::Vect: Translate<P>,
-          M:  Isometry<P> + Translation<P::Vect>,
+          M:  Isometry<P>,
           G2: CompositeShape<P, M> {
     let mut res = composite_shape_against_shape(m2, g2, m1, g1, prediction);
 

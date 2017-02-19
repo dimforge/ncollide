@@ -1,16 +1,12 @@
-use na::Translate;
-use na;
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Ball;
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
 
-impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Ball<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Translate<P> {
+impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Ball<P::Real> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
-        let center = m.translate(&na::origin());
+        let center = m.translate_point(&P::origin());
         let radius = self.radius();
 
         BoundingSphere::new(center, radius)

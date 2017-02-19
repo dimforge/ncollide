@@ -1,20 +1,17 @@
-use na::Bounded;
 use na;
 use bounding_volume::{HasBoundingVolume, AABB};
 use shape::Plane;
-use math::{Point, Vector};
+use math::Point;
 
 
-impl<P, M> HasBoundingVolume<M, AABB<P>> for Plane<P::Vect>
+impl<P, M> HasBoundingVolume<M, AABB<P>> for Plane<P::Vector>
     where P: Point {
     #[inline]
     fn bounding_volume(&self, _: &M) -> AABB<P> {
-        // we divide by 2.0  so that we can still make some operations with it (like loosening)
+        // We divide by 2.0  so that we can still make some operations with it (like loosening)
         // without breaking the box.
-        let max: P = Bounded::max_value();
-        let half: <P::Vect as Vector>::Scalar = na::cast(0.5f64);
-        let half_max = max * half;
+        let max = P::max_value() * na::convert(0.5f64);
 
-        AABB::new(-half_max, half_max)
+        AABB::new(-max, max)
     }
 }

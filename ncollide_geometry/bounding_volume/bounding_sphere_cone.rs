@@ -1,17 +1,14 @@
-use num::Float;
-use na::{Translate};
-use na;
+use alga::general::Real;
+
 use bounding_volume::{HasBoundingVolume, BoundingSphere};
 use shape::Cone;
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
 
-impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Cone<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Translate<P> {
+impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Cone<P::Real> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
-        let center = m.translate(&na::origin());
+        let center = m.translate_point(&P::origin());
         let radius = (self.radius() * self.radius() + self.half_height() * self.half_height()).sqrt();
 
         BoundingSphere::new(center, radius)

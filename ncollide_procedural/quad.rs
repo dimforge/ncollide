@@ -1,7 +1,7 @@
 use na;
 use na::{Point3, Point2};
 use super::{TriMesh, IndexBuffer};
-use math::{Point, Vector};
+use math::Point;
 
 /// Adds a double-sided quad to the scene.
 ///
@@ -16,19 +16,19 @@ use math::{Point, Vector};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<P>(width:    <P::Vect as Vector>::Scalar,
-               height:   <P::Vect as Vector>::Scalar,
+pub fn quad<P>(width:    P::Real,
+               height:   P::Real,
                usubdivs: usize,
                vsubdivs: usize)
                -> TriMesh<P>
     where P: Point {
     let mut quad = unit_quad::<P>(usubdivs, vsubdivs);
 
-    let mut s = na::zero::<P::Vect>();
+    let mut s = na::zero::<P::Vector>();
     s[0] = width;
     s[1] = height;
 
-    for i in 2 .. na::dimension::<P::Vect>() {
+    for i in 2 .. na::dimension::<P::Vector>() {
         s[i] = na::one();
     }
 
@@ -71,12 +71,12 @@ pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -
 pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     where P: Point {
     assert!(usubdivs > 0 && vsubdivs > 0, "The number of subdivisions cannot be zero");
-    assert!(na::dimension::<P::Vect>() >= 2);
+    assert!(na::dimension::<P::Vector>() >= 2);
 
-    let wstep    = na::one::<<P::Vect as Vector>::Scalar>() / na::cast(usubdivs as f64);
-    let hstep    = na::one::<<P::Vect as Vector>::Scalar>() / na::cast(vsubdivs as f64);
-    let cw       = na::cast(0.5);
-    let ch       = na::cast(0.5);
+    let wstep    = na::one::<P::Real>() / na::convert(usubdivs as f64);
+    let hstep    = na::one::<P::Real>() / na::convert(vsubdivs as f64);
+    let cw       = na::convert(0.5);
+    let ch       = na::convert(0.5);
 
     let mut vertices   = Vec::new();
     let mut normals    = Vec::new();
@@ -86,21 +86,21 @@ pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     // create the vertices
     for i in 0usize .. vsubdivs + 1 {
         for j in 0usize .. usubdivs + 1 {
-            let ni: <P::Vect as Vector>::Scalar = na::cast(i as f64);
-            let nj: <P::Vect as Vector>::Scalar = na::cast(j as f64);
+            let ni: P::Real = na::convert(i as f64);
+            let nj: P::Real = na::convert(j as f64);
 
-            let mut v = na::origin::<P>();
+            let mut v = P::origin();
             v[0] = nj * wstep - cw;
             v[1] = ni * hstep - ch;
             vertices.push(v);
-            let _1 = na::one::<<P::Vect as Vector>::Scalar>();
+            let _1 = na::one::<P::Real>();
             tex_coords.push(Point2::new(_1 - nj * wstep, _1 - ni * hstep))
         }
     }
 
     // create the normals
     for _ in 0 .. (vsubdivs + 1) * (usubdivs + 1) {
-        let mut n = na::zero::<P::Vect>();
+        let mut n = na::zero::<P::Vector>();
         n[0] = na::one();
         normals.push(n)
     }

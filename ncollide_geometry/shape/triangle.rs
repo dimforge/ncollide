@@ -1,8 +1,8 @@
 //! Definition of the triangle shape.
 
-use na::{self, Dimension, Transform, Rotate, Point3};
+use na::{self, Point3};
 use shape::{BaseMeshElement, SupportMap};
-use math::Point;
+use math::{Point, Isometry};
 
 
 /// A triangle shape.
@@ -13,11 +13,11 @@ pub struct Triangle<P> {
     c: P
 }
 
-impl<P: Dimension> Triangle<P> {
+impl<P: Point> Triangle<P> {
     /// Creates a triangle from three points.
     #[inline]
     pub fn new(a: P, b: P, c: P) -> Triangle<P> {
-        assert!(na::dimension::<P>() > 1);
+        assert!(na::dimension::<P::Vector>() > 1);
 
         Triangle {
             a: a,
@@ -47,23 +47,21 @@ impl<P> Triangle<P> {
     }
 }
 
-impl<P: Copy + Dimension> BaseMeshElement<Point3<usize>, P> for Triangle<P> {
+impl<P: Point> BaseMeshElement<Point3<usize>, P> for Triangle<P> {
     #[inline]
     fn new_with_vertices_and_indices(vs: &[P], is: &Point3<usize>) -> Triangle<P> {
         Triangle::new(vs[is.x], vs[is.y], vs[is.z])
     }
 }
 
-impl<P, M> SupportMap<P, M> for Triangle<P>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inverse_rotate(dir);
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        let local_dir = m.inverse_rotate_vector(dir);
 
-        let d1 = na::dot(self.a().as_vector(), &local_dir);
-        let d2 = na::dot(self.b().as_vector(), &local_dir);
-        let d3 = na::dot(self.c().as_vector(), &local_dir);
+        let d1 = na::dot(&self.a().coordinates(), &local_dir);
+        let d2 = na::dot(&self.b().coordinates(), &local_dir);
+        let d3 = na::dot(&self.c().coordinates(), &local_dir);
 
         let res =
             if d1 > d2 {
@@ -83,6 +81,6 @@ impl<P, M> SupportMap<P, M> for Triangle<P>
                 }
             };
 
-        m.transform(res)
+        m.transform_point(res)
     }
 }

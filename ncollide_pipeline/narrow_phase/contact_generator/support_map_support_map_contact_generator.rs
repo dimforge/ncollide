@@ -1,7 +1,5 @@
-use std::any::Any;
 use std::marker::PhantomData;
-use na::{Translate, Translation};
-use math::{Point, Vector};
+use math::{Point, Isometry};
 use geometry::shape::{Shape, AnnotatedPoint};
 use geometry::query::algorithms::simplex::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
@@ -17,7 +15,7 @@ use narrow_phase::{ContactGenerator, ContactDispatcher};
 #[derive(Clone)]
 pub struct SupportMapSupportMapContactGenerator<P: Point, M, S> {
     simplex:  S,
-    contact:  GJKResult<Contact<P>, P::Vect>,
+    contact:  GJKResult<Contact<P>, P::Vector>,
     mat_type: PhantomData<M> // FIXME: can we avoid this?
 }
 
@@ -39,8 +37,7 @@ impl<P, M, S> SupportMapSupportMapContactGenerator<P, M, S>
 
 impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapContactGenerator<P, M, S>
     where P: Point,
-          P::Vect: Translate<P>,
-          M: Translation<P::Vect> + Any,
+          M: Isometry<P>,
           S: Simplex<AnnotatedPoint<P>> {
     #[inline]
     fn update(&mut self,
@@ -49,7 +46,7 @@ impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapContactGenerator<P,
               a:          &Shape<P, M>,
               mb:         &M,
               b:          &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction = match self.contact {

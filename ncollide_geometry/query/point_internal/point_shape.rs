@@ -1,12 +1,11 @@
-use na::Translation;
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use shape::Shape;
 use query::{PointQuery, PointProjection};
 
 
 impl<P, M> PointQuery<P, M> for Shape<P, M>
     where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+          M: Isometry<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         self.as_point_query()
@@ -15,7 +14,7 @@ impl<P, M> PointQuery<P, M> for Shape<P, M>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {
         self.as_point_query()
             .expect("No PointQuery implementation for the underlying shape.")
             .distance_to_point(m, pt, solid)

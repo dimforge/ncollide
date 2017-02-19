@@ -2,20 +2,21 @@ use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::{CircleShape, Color, RenderTarget, Shape, Transformable};
 use sfml::system::Vector2f;
+
+use alga::general::Real;
 use na::{Point3, Isometry2};
 use ncollide::world::CollisionObject2;
-use ncollide::math::Scalar;
 use draw_helper::DRAW_SCALE;
 use objects;
 
-pub struct Ball<'a, N> {
+pub struct Ball<'a, N: Real> {
     color:      Point3<u8>,
     base_color: Point3<u8>,
     delta:      Isometry2<N>,
     gfx:        CircleShape<'a>
 }
 
-impl<'a, N: ToPrimitive> Ball<'a, N> {
+impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
     pub fn new(delta: Isometry2<N>, radius: N, color:  Point3<u8>) -> Ball<'a, N> {
         let dradius = radius.to_f32().unwrap() * DRAW_SCALE;
 
@@ -34,7 +35,7 @@ impl<'a, N: ToPrimitive> Ball<'a, N> {
     }
 }
 
-impl<'a, N: Scalar> Ball<'a, N> {
+impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
     pub fn update<T>(&mut self, object: &CollisionObject2<N, T>) {
         objects::update_scene_node(&mut self.gfx, &object, &self.color, &self.delta)
     }

@@ -1,17 +1,17 @@
-use na::BaseFloat;
+use alga::general::Real;
+
 use na;
-use math::Scalar;
 
 /// Computes the n-th derivative of the cosinus function.
-pub fn dcos<N: Scalar>(n: usize, x: N) -> N {
-    let n: N = na::cast(n as f64);
-    (x + n * BaseFloat::frac_pi_2()).cos()
+pub fn dcos<N: Real>(n: usize, x: N) -> N {
+    let n: N = na::convert(n as f64);
+    (x + n * N::frac_pi_2()).cos()
 }
 
 /// Computes the n-th derivative of the sinus function.
-pub fn dsin<N: Scalar>(n: usize, x: N) -> N {
-    let n: N = na::cast(n as f64);
-    (x + n * BaseFloat::frac_pi_2()).sin()
+pub fn dsin<N: Real>(n: usize, x: N) -> N {
+    let n: N = na::convert(n as f64);
+    (x + n * N::frac_pi_2()).sin()
 }
 
 // FIXME: this has nothing to do here…

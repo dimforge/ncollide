@@ -24,13 +24,15 @@ name = "ncollide"
 path = "src/lib.rs"
 
 [dependencies]
-ncollide_math = { path = "ncollide_math", version = "0.5.*" }
-ncollide_utils = { path = "ncollide_utils", version = "0.5.*" }
-ncollide_geometry = { path = "ncollide_geometry", version = "0.2.*" }
-ncollide_pipeline = { path = "ncollide_pipeline", version = "0.9.*" }
-ncollide_procedural = { path = "ncollide_procedural", version = "0.5.*" }
-ncollide_transformation = { path = "ncollide_transformation", version = "0.5.*" }
+ncollide_math = { path = "ncollide_math", version = "0.5" }
+ncollide_utils = { path = "ncollide_utils", version = "0.5" }
+ncollide_geometry = { path = "ncollide_geometry", version = "0.2" }
+ncollide_pipeline = { path = "ncollide_pipeline", version = "0.9" }
+ncollide_procedural = { path = "ncollide_procedural", version = "0.5" }
+ncollide_transformation = { path = "ncollide_transformation", version = "0.5" }
 
 [dev-dependencies]
-nalgebra = "0.9.*"
-rand = "0.3.*"
+approx   = "0.1"
+alga     = "0.5"
+nalgebra = "0.11"
+rand     = "0.3"
