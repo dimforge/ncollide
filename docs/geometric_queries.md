@@ -334,12 +334,14 @@ sphere.
 <div class="tab-content" markdown="1">
   <div id="distance_query_2D" class="tab-pane in active">
 ```rust
+#[macro_use]
+extern crate approx; // for relative_eq!
 extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::{Isometry2, Vector2};
 use ncollide::shape::{Cuboid, Ball};
-use ncollide::geometry;
+use ncollide::query;
 
 fn main() {
     let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));
@@ -355,18 +357,20 @@ fn main() {
                                             &cuboid_pos,        &cuboid);
 
     assert_eq!(dist_intersecting, 0.0);
-    assert!(na::approx_eq(&dist_disjoint, &1.0));
+    assert!(relative_eq!(dist_disjoint, 1.0, epsilon = 1.0e-7));
 }
 ```
   </div>
   <div id="distance_query_3D" class="tab-pane">
 ```rust
+#[macro_use]
+extern crate approx; // for relative_eq!
 extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::{Isometry3, Vector3};
 use ncollide::shape::{Cuboid, Ball};
-use ncollide::geometry;
+use ncollide::query;
 
 fn main() {
     let cuboid = Cuboid::new(Vector3::new(1.0, 1.0, 1.0));
@@ -382,7 +386,7 @@ fn main() {
                                             &cuboid_pos,        &cuboid);
 
     assert_eq!(dist_intersecting, 0.0);
-    assert!(na::approx_eq(&dist_disjoint, &1.0));
+    assert!(relative_eq!(dist_disjoint, 1.0, epsilon = 1.0e-7));
 }
 ```
   </div>

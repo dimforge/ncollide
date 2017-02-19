@@ -733,7 +733,7 @@ Now, we only have to code this into a `SupportMap` implementation for our
 impl SupportMap<Point2<f32>, Isometry2<f32>> for Ellipse {
     fn support_point(&self, transform: &Isometry2<f32>, dir: &Vector2<f32>) -> Point2<f32> {
         // Bring `dir` into the ellipse's local frame.
-        let local_dir = transform.inverse_rotate(&dir);
+        let local_dir = transform.inverse_transform_vector(dir);
 
         // Compute the denominator.
         let denom = f32::sqrt(local_dir.x * local_dir.x * self.a * self.a +
@@ -877,7 +877,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
                                m: &Isometry2<f32>,
                                f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
-        let transform = m.prepend_translation(&Vector2::new(1.0, 1.0));
+        let transform = m * Translation2::new(1.0, 1.0);
 
         // Create the cuboid on-the-fly.
         let cuboid = CrossedCuboids::generate_cuboid(i);
@@ -908,8 +908,8 @@ an AABB and a conversion to the `CompositeShape` trait-object:
 impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // This is far from an optimal AABB.
-        AABB2::new(Point2::new(-10.0, -10.0) + m.translation(),
-                   Point2::new(10.0, 10.0)   + m.translation())
+        AABB2::new(m.translation * Point2::new(-10.0, -10.0),
+                   m.translation * Point2::new(10.0, 10.0))
     }
 
     fn as_composite_shape(&self) -> Option<&CompositeShape2<f32>> {
@@ -927,17 +927,17 @@ some pairwise [geometric queries](../geometric_queries/#pairwise-queries)
 involving our own composite shape:
 
 ```rust
-let cross  = CrossedCuboids::new();
-let cuboid = Cuboid2::new(Vector2::new(1.0, 1.0));
+let ellipse = Ellipse { a: 2.0f32, b: 1.0 };
+let cuboid  = Cuboid::new(Vector2::new(1.0, 1.0));
 
-let cross_pos  = na::one();
-let cuboid_pos = Isometry2::new(Vector2::new(6.0, 0.0), na::zero());
+let ellipse_pos = na::one();
+let cuboid_pos  = Isometry2::new(Vector2::new(4.0, 0.0), na::zero());
 
-let dist = query::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);
-let prox = query::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
-let ctct = query::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
+let dist = query::distance(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid);
+let prox = query::proximity(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
+let ctct = query::contact(&ellipse_pos, &ellipse, &cuboid_pos, &cuboid, 0.0);
 
-assert!(na::approx_eq(&dist, &2.0));
+assert!(relative_eq!(dist, 1.0, epsilon = 1.0e-6));
 assert_eq!(prox, Proximity::Disjoint);
 assert!(ctct.is_none());
 ```
