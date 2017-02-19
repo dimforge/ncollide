@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_geometry"
-version = "0.2.0"
+version = "0.3.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the geometric entities and their mathematical definitions."
@@ -20,5 +20,5 @@ num-traits      = "0.1"
 alga            = "0.5"
 nalgebra        = "0.11"
 approx          = "0.1"
-ncollide_math = { path = "../ncollide_math", version = "0.5" }
-ncollide_utils = { path = "../ncollide_utils", version = "0.5" }
+ncollide_math  = { path = "../ncollide_math",  version = "0.6" }
+ncollide_utils = { path = "../ncollide_utils", version = "0.6" }
