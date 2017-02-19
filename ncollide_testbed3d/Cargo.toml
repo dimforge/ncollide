@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_testbed3d"
-version = "0.2.1"
+version = "0.3.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "3D testbed for ncollide."
@@ -24,9 +24,9 @@ glfw         = "0.8"
 kiss3d       = "0.7"
 mpeg_encoder = { version = "0.2", optional = true }
 nalgebra     = "0.11"
-ncollide     = { path = "..", version = "0.10" }
+ncollide     = { path = "..", version = "0.11" }
 
 [replace]
-"kiss3d:0.7.0"    = { path = '../../kiss3d' }
-"ncollide_procedural:0.5.0" = { path = '../ncollide_procedural' }
-"ncollide_transformation:0.5.0" = { path = '../ncollide_transformation' }
+"kiss3d:0.7.0"                  = { path = '../../kiss3d' }
+"ncollide_procedural:0.6.0"     = { path = '../ncollide_procedural' }
+"ncollide_transformation:0.6.0" = { path = '../ncollide_transformation' }
