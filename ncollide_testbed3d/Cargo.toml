@@ -21,12 +21,11 @@ time         = "0.1"
 rand         = "0.3"
 num-traits   = "0.1"
 glfw         = "0.8"
-kiss3d       = "0.7"
+kiss3d       = "0.8"
 mpeg_encoder = { version = "0.2", optional = true }
 nalgebra     = "0.11"
 ncollide     = { path = "..", version = "0.11" }
 
 [replace]
-"kiss3d:0.7.0"                  = { path = '../../kiss3d' }
 "ncollide_procedural:0.6.0"     = { path = '../ncollide_procedural' }
 "ncollide_transformation:0.6.0" = { path = '../ncollide_transformation' }
