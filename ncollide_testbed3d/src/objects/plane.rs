@@ -1,4 +1,4 @@
-use na;
+use num::Zero;
 use kiss3d::window;
 use kiss3d::scene::SceneNode;
 use na::{Point3, Vector3};
@@ -27,7 +27,7 @@ impl Plane {
 
         let up;
 
-        if na::is_zero(&world_normal.z) && na::is_zero(&world_normal.y) {
+        if world_normal.z.is_zero() && world_normal.y.is_zero() {
             up = Vector3::z();
         }
         else {

@@ -1,18 +1,15 @@
-use na::Transform;
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
 use shape::Segment;
-use math::Point;
+use math::{Point, Isometry};
 
 
-impl<P, M> HasBoundingVolume<M, BoundingSphere<P>> for Segment<P>
-    where P: Point,
-          M: Transform<P> {
+impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Segment<P> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
-        let pts = [ self.a().clone(), self.b().clone() ];
+        let pts = [ *self.a(), *self.b() ];
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(&pts[..]);
 
-        BoundingSphere::new(m.transform(&center), radius)
+        BoundingSphere::new(m.transform_point(&center), radius)
     }
 }

@@ -1,5 +1,7 @@
 use num::Zero;
-use na::{self, Translation, Translate, Norm};
+
+use alga::linear::{NormedSpace, Translation};
+use na;
 use shape::{self, SupportMap, AnnotatedPoint};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
@@ -7,7 +9,7 @@ use query::algorithms::minkowski_sampling;
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
 use query::Contact;
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
@@ -16,11 +18,10 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
                                        g1:         &G1,
                                        m2:         &M,
                                        g2:         &G2,
-                                       prediction: <P::Vect as Vector>::Scalar)
+                                       prediction: P::Real)
                                        -> Option<Contact<P>>
     where P:  Point,
-          P::Vect: Translate<P>,
-          M:  Translation<P::Vect>,
+          M:  Isometry<P>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
     match support_map_against_support_map_with_params(
@@ -40,19 +41,19 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
                                                    g1:         &G1,
                                                    m2:         &M,
                                                    g2:         &G2,
-                                                   prediction: <P::Vect as Vector>::Scalar,
+                                                   prediction: P::Real,
                                                    simplex:    &mut S,
-                                                   init_dir:   Option<P::Vect>)
-                                                   -> GJKResult<Contact<P>, P::Vect>
+                                                   init_dir:   Option<P::Vector>)
+                                                   -> GJKResult<Contact<P>, P::Vector>
     where P:  Point,
-          P::Vect: Translate<P>,
-          M:  Translation<P::Vect>,
+          M:  Isometry<P>,
           S:  Simplex<AnnotatedPoint<P>>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
     let mut dir =
         match init_dir {
-            None      => m1.translation() - m2.translation(), // FIXME: or m2.translation - m1.translation ?
+            // FIXME: or m2.translation - m1.translation ?
+            None      => m1.translation().to_vector() - m2.translation().to_vector(),
             Some(dir) => dir
         };
 

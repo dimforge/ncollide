@@ -1,6 +1,5 @@
 use na;
-use na::Translate;
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use geometry::bounding_volume::{self, BoundingVolume};
@@ -32,17 +31,14 @@ impl<P: Point, M> CompositeShapeShapeProximityDetector<P, M> {
     }
 }
 
-impl<P, M> CompositeShapeShapeProximityDetector<P, M>
-    where P:  Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> CompositeShapeShapeProximityDetector<P, M> {
     fn do_update(&mut self,
                  disp:   &ProximityDispatcher<P, M>,
                  m1:     &M,
                  g1:     &CompositeShape<P, M>,
                  m2:     &M,
                  g2:     &Shape<P, M>,
-                 margin: <P::Vect as Vector>::Scalar) {
+                 margin: P::Real) {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
             self.sub_detectors.remove(key);
@@ -67,7 +63,7 @@ impl<P, M> CompositeShapeShapeProximityDetector<P, M>
 
         self.proximity = Proximity::Disjoint;
 
-        let m12      = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let m12      = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &m12).loosened(margin);
 
         // Update all collisions
@@ -159,15 +155,12 @@ impl<P: Point, M> ShapeCompositeShapeProximityDetector<P, M> {
     }
 }
 
-impl<P, M> ProximityDetector<P, M> for CompositeShapeShapeProximityDetector<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ProximityDetector<P, M> for CompositeShapeShapeProximityDetector<P, M> {
     fn update(&mut self,
               disp:   &ProximityDispatcher<P, M>,
               m1: &M, g1: &Shape<P, M>,
               m2: &M, g2: &Shape<P, M>,
-              margin: <P::Vect as Vector>::Scalar)
+              margin: P::Real)
               -> bool {
         if let Some(cs1) = g1.as_composite_shape() {
             self.do_update(disp, m1, cs1, m2, g2, margin);
@@ -184,15 +177,12 @@ impl<P, M> ProximityDetector<P, M> for CompositeShapeShapeProximityDetector<P, M
     }
 }
 
-impl<P, M> ProximityDetector<P, M> for ShapeCompositeShapeProximityDetector<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ProximityDetector<P, M> for ShapeCompositeShapeProximityDetector<P, M> {
     fn update(&mut self,
               disp:  &ProximityDispatcher<P, M>,
               m1: &M, g1: &Shape<P, M>,
               m2: &M, g2: &Shape<P, M>,
-              margin: <P::Vect as Vector>::Scalar)
+              margin: P::Real)
               -> bool {
         if let Some(cs2) = g2.as_composite_shape() {
             self.sub_detector.do_update(disp, m2, cs2, m1, g1, margin);

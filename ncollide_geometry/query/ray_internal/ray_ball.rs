@@ -1,17 +1,17 @@
-use num::Float;
-use na::{self, Point2, Rotate, Translate, BaseFloat};
+use alga::general::Real;
+use na::{self, Point2};
+
 use query::{Ray, RayCast, RayIntersection};
 use shape::Ball;
-use math::{Point, Vector};
+use math::{Point, Vector, Isometry};
 
 
 #[inline]
-fn ball_uv<V>(normal: &V) -> Option<Point2<V::Scalar>>
-    where V: Vector {
+fn ball_uv<V: Vector>(normal: &V) -> Option<Point2<V::Real>> {
     if na::dimension::<V>() == 3 {
-        let two_pi: V::Scalar = BaseFloat::two_pi();
-        let pi:     V::Scalar = BaseFloat::pi();
-        let _0_5:   V::Scalar = na::cast(0.5f64);
+        let two_pi: V::Real = Real::two_pi();
+        let pi:     V::Real = Real::pi();
+        let _0_5:   V::Real = na::convert(0.5f64);
         let uvx = _0_5 + normal[2].atan2(normal[0]) / two_pi;
         let uvy = _0_5 - normal[1].asin() / pi;
 
@@ -22,17 +22,15 @@ fn ball_uv<V>(normal: &V) -> Option<Point2<V::Scalar>>
     }
 }
 
-impl<P, M> RayCast<P, M> for Ball<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Translate<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> RayCast<P, M> for Ball<P::Real> {
     #[inline]
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vector>::Scalar> {
-        ball_toi_with_ray(&m.translate(&na::origin()), self.radius(), ray, solid).1
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<P::Real> {
+        ball_toi_with_ray(&m.translate_point(&P::origin()), self.radius(), ray, solid).1
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let center = m.translate(&na::origin());
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+        let center = m.translate_point(&P::origin());
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
@@ -44,8 +42,8 @@ impl<P, M> RayCast<P, M> for Ball<<P::Vect as Vector>::Scalar>
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let center = m.translate(&na::origin());
+    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+        let center = m.translate_point(&P::origin());
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
@@ -61,10 +59,10 @@ impl<P, M> RayCast<P, M> for Ball<<P::Vect as Vector>::Scalar>
 /// Computes the time of impact of a ray on a ball.
 #[inline]
 pub fn ball_toi_with_ray<P>(center: &P,
-                            radius: <P::Vect as Vector>::Scalar,
+                            radius: P::Real,
                             ray:    &Ray<P>,
                             solid:  bool)
-                            -> (bool, Option<<P::Vect as Vector>::Scalar>)
+                            -> (bool, Option<P::Real>)
     where P: Point {
     let dcenter = ray.origin - *center;
 

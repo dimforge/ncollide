@@ -12,7 +12,7 @@ use math::Point;
 /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
     contact_dispatcher: Box<ContactDispatcher<P, M> + 'static>,
-    contact_generators:  HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
+    contact_generators: HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
 
     proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>,
     proximity_detectors:  HashMap<Pair, ProximityAlgorithm<P, M>, PairTWHash>,
@@ -20,7 +20,7 @@ pub struct DefaultNarrowPhase<P, M> {
 
 impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     /// Creates a new `DefaultNarrowPhase`.
-    pub fn new(contact_dispatcher: Box<ContactDispatcher<P, M> + 'static>,
+    pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M> + 'static>,
                proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>)
                -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {

@@ -1,13 +1,13 @@
+use alga::general::Real;
 use na::{Point2, Point3, Vector3, Isometry3};
 use na;
 use polyline::Polyline;
 use trimesh::{TriMesh, IndexBuffer};
 use utils;
 use path::{StrokePattern, CurveSampler, PathSample};
-use math::Scalar;
 
 /// A pattern composed of polyline and two caps.
-pub struct PolylinePattern<N: Scalar, C1, C2> {
+pub struct PolylinePattern<N: Real, C1, C2> {
     pattern:       Polyline<Point3<N>>,
     closed:        bool,
     last_start_id: u32,
@@ -16,7 +16,7 @@ pub struct PolylinePattern<N: Scalar, C1, C2> {
 }
 
 /// Trait to be implemented by caps compatible with a `PolylinePattern`.
-pub trait PolylineCompatibleCap<N: Scalar> {
+pub trait PolylineCompatibleCap<N: Real> {
     /// Generates the mesh for the cap at the beginning of a path.
     fn gen_start_cap(&self,
                      attach_id: u32,
@@ -39,7 +39,7 @@ pub trait PolylineCompatibleCap<N: Scalar> {
 }
 
 impl<N, C1, C2> PolylinePattern<N, C1, C2>
-    where N: Scalar,
+    where N:  Real,
           C1: PolylineCompatibleCap<N>,
           C2: PolylineCompatibleCap<N> {
     /// Creates a new polyline pattern.
@@ -65,7 +65,7 @@ impl<N, C1, C2> PolylinePattern<N, C1, C2>
 }
 
 impl<N, C1, C2> StrokePattern<Point3<N>> for PolylinePattern<N, C1, C2>
-    where N: Scalar,
+    where N:  Real,
           C1: PolylineCompatibleCap<N>,
           C2: PolylineCompatibleCap<N>{
     fn stroke<C>(&mut self, sampler: &mut C) -> TriMesh<Point3<N>>

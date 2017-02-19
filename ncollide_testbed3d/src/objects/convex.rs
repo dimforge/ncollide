@@ -1,8 +1,7 @@
 use kiss3d::window::Window;
 use kiss3d::scene::SceneNode;
-use na::{Point3, Isometry3};
-use na;
-use ncollide::procedural::TriMesh;
+use na::{Vector3, Point3, Isometry3};
+use ncollide::procedural::TriMesh3;
 use ncollide::world::{CollisionObject3, GeometricQueryType};
 use objects::node;
 
@@ -16,7 +15,7 @@ pub struct Convex {
 impl Convex {
     pub fn new<T>(object: &CollisionObject3<f32, T>,
                   delta:  Isometry3<f32>,
-                  convex: &TriMesh<Point3<f32>>,
+                  convex: &TriMesh3<f32>,
                   color:  Point3<f32>,
                   window: &mut Window)
                   -> Convex {
@@ -24,7 +23,7 @@ impl Convex {
             color:      color,
             base_color: color,
             delta:      delta,
-            gfx:        window.add_trimesh(convex.clone(), na::one())
+            gfx:        window.add_trimesh(convex.clone(), Vector3::from_element(1.0))
         };
 
         if let GeometricQueryType::Proximity(_) = object.query_type {

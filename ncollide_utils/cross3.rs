@@ -1,8 +1,5 @@
-use std::ops::{Index, IndexMut};
-use num::Zero;
-use na::Dimension;
+use alga::linear::FiniteDimInnerSpace;
 use na;
-use math::Scalar;
 
 /// A 3d cross product that do not require the `Cross<Self, Self>` trait impl.
 ///
@@ -11,9 +8,7 @@ use math::Scalar;
 ///
 /// Fails if the dimension of `V` is not 3.
 #[inline]
-pub fn cross3<N, V>(a: &V, b: &V) -> V
-    where N: Scalar,
-          V: Zero + Index<usize, Output = N> + IndexMut<usize, Output = N> + Dimension {
+pub fn cross3<V: FiniteDimInnerSpace>(a: &V, b: &V) -> V {
     assert!(na::dimension::<V>() == 3);
 
     let mut res = na::zero::<V>();

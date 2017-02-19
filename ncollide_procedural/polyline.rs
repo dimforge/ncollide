@@ -1,6 +1,6 @@
+use alga::linear::{Rotation, Translation};
 use na;
-use na::{Translate, Rotate, Transform};
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
@@ -8,12 +8,12 @@ pub struct Polyline<P: Point> {
     /// Coordinates of the polyline vertices.
     coords:  Vec<P>,
     /// Coordinates of the polyline normals.
-    normals: Option<Vec<P::Vect>>,
+    normals: Option<Vec<P::Vector>>,
 }
 
 impl<P: Point> Polyline<P> {
     /// Creates a new polyline.
-    pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vect>>) -> Polyline<P> {
+    pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vector>>) -> Polyline<P> {
         if let Some(ref ns) = normals {
             assert!(coords.len() == ns.len(), "There must be exactly one normal per vertex.");
         }
@@ -27,7 +27,7 @@ impl<P: Point> Polyline<P> {
 
 impl<P: Point> Polyline<P> {
     /// Moves the polyline data out of it.
-    pub fn unwrap(self) -> (Vec<P>, Option<Vec<P::Vect>>) {
+    pub fn unwrap(self) -> (Vec<P>, Option<Vec<P::Vector>>) {
         (self.coords, self.normals)
     }
 
@@ -45,7 +45,7 @@ impl<P: Point> Polyline<P> {
 
     /// The normals of this polyline vertices.
     #[inline]
-    pub fn normals(&self) -> Option<&[P::Vect]> {
+    pub fn normals(&self) -> Option<&[P::Vector]> {
         match self.normals {
             Some(ref ns) => Some(&ns[..]),
             None         => None
@@ -54,7 +54,7 @@ impl<P: Point> Polyline<P> {
 
     /// The mutable normals of this polyline vertices.
     #[inline]
-    pub fn normals_mut(&mut self) -> Option<&mut [P::Vect]> {
+    pub fn normals_mut(&mut self) -> Option<&mut [P::Vector]> {
         match self.normals {
             Some(ref mut ns) => Some(&mut ns[..]),
             None             => None
@@ -62,44 +62,40 @@ impl<P: Point> Polyline<P> {
     }
 
     /// Translates each vertex of this polyline.
-    pub fn translate_by<T: Translate<P>>(&mut self, t: &T) {
+    pub fn translate_by<T: Translation<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
-            *c = t.translate(c);
+            *c = t.transform_point(c);
         }
     }
 
     /// Rotates each vertex and normal of this polyline.
-    // XXX: we should use Rotate<P> instead of the .set_coord.
-    // Wa cannot make it a Rotate because the `Rotate` bound cannot appear twice… we have, again,
-    // to wait for the trait reform.
-    pub fn rotate_by<R: Rotate<P::Vect>>(&mut self, r: &R) {
+    pub fn rotate_by<R: Rotation<P>>(&mut self, r: &R) {
         for c in self.coords.iter_mut() {
-            let rc = r.rotate(c.as_vector());
-            c.set_coords(rc);
+            *c = r.transform_point(c);
         }
 
         for n in self.normals.iter_mut() {
             for n in n.iter_mut() {
-                *n = r.rotate(n);
+                *n = r.transform_vector(n);
             }
         }
     }
 
     /// Transforms each vertex and rotates each normal of this polyline.
-    pub fn transform_by<T: Transform<P> + Rotate<P::Vect>>(&mut self, t: &T) {
+    pub fn transform_by<T: Isometry<P>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
-            *c = t.transform(c);
+            *c = t.transform_point(c);
         }
 
         for n in self.normals.iter_mut() {
             for n in n.iter_mut() {
-                *n = t.rotate(n);
+                *n = t.rotate_vector(n);
             }
         }
     }
 
     /// Scales each vertex of this polyline.
-    pub fn scale_by_scalar(&mut self, s: &<P::Vect as Vector>::Scalar) {
+    pub fn scale_by_scalar(&mut self, s: &P::Real) {
         for c in self.coords.iter_mut() {
             *c = *c * *s
         }
@@ -111,9 +107,9 @@ impl<P> Polyline<P>
     where P: Point {
     /// Scales each vertex of this mesh.
     #[inline]
-    pub fn scale_by(&mut self, s: &P::Vect) {
+    pub fn scale_by(&mut self, s: &P::Vector) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dimension::<P::Vect>() {
+            for i in 0 .. na::dimension::<P::Vector>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

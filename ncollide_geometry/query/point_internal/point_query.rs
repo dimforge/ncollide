@@ -1,5 +1,5 @@
 use na;
-use math::{Point, Vector};
+use math::Point;
 
 /// Description of the projection of a point on a shape.
 pub struct PointProjection<P: Point> {
@@ -27,7 +27,7 @@ pub trait PointQuery<P: Point, M> {
 
     /// Computes the minimal distance between a point and `self` transformed by `m`.
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {
         let proj = self.project_point(m, pt, solid);
         let dist = na::distance(pt, &proj.point);
 

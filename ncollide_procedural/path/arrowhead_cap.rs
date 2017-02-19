@@ -1,9 +1,9 @@
+use alga::general::Real;
 use na::{Point3, Vector3, Isometry3};
 use na;
 use path::PolylineCompatibleCap;
 use polyline::Polyline;
 use utils;
-use math::Scalar;
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {
@@ -12,8 +12,7 @@ pub struct ArrowheadCap<N> {
     back_dist_to_head:  N
 }
 
-impl<N> ArrowheadCap<N>
-    where N: Scalar {
+impl<N: Real> ArrowheadCap<N> {
     /// Creates a cap that looks like an arrow.
     ///
     /// # Arguments:
@@ -44,7 +43,7 @@ impl<N> ArrowheadCap<N>
         let npts          = pattern.coords().len() as u32;
         let mut attach_id = attach_id;
 
-        if !(self.radius_scale == na::cast(1.0)) || !back_dist_to_head.is_zero() {
+        if !(self.radius_scale == na::convert(1.0)) || !back_dist_to_head.is_zero() {
             let mut new_pattern = pattern.clone();
             new_pattern.scale_by_scalar(&self.radius_scale);
 
@@ -86,8 +85,7 @@ impl<N> ArrowheadCap<N>
     }
 }
 
-impl<N> PolylineCompatibleCap<N> for ArrowheadCap<N>
-    where N: Scalar {
+impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_end_cap(&self,
                    attach_id: u32,
                    pattern:   &Polyline<Point3<N>>,

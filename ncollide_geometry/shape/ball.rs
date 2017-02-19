@@ -1,7 +1,8 @@
+use alga::general::Real;
 use na;
-use na::Translate;
+
 use shape::SupportMap;
-use math::{Scalar, Point, Vector};
+use math::{Point, Isometry};
 
 /// A Ball shape.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -9,11 +10,11 @@ pub struct Ball<N> {
     radius: N
 }
 
-impl<N: Scalar> Ball<N> {
+impl<N: Real> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: N) -> Ball<N> {
-        assert!(radius > na::zero(), "A ball radius must be strictly positive.");
+        assert!(radius > N::zero(), "A ball radius must be strictly positive.");
 
         Ball {
             radius: radius
@@ -23,15 +24,13 @@ impl<N: Scalar> Ball<N> {
     /// The ball radius.
     #[inline]
     pub fn radius(&self) -> N {
-        self.radius.clone()
+        self.radius
     }
 }
 
-impl<P, M> SupportMap<P, M> for Ball<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Translate<P> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Ball<P::Real> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        m.translate(&na::origin()) + na::normalize(dir) * self.radius()
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        m.translate_point(&P::origin()) + na::normalize(dir) * self.radius()
     }
 }

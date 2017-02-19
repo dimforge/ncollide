@@ -57,7 +57,7 @@ impl<N, P, V, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for AdHocContactG
           P: Clone,
           V: Clone {
     fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
-        self.contact = (self.generator)(m1, g1, m2, g2, self.prediction.clone());
+        self.contact = (self.generator)(m1, g1, m2, g2, self.prediction);
     }
 
     #[inline]

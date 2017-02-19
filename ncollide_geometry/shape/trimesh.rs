@@ -1,11 +1,12 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
 use std::sync::Arc;
-use na::{self, Translate, Point2, Point3};
+
+use na::{self, Point2, Point3};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{Triangle, BaseMesh, CompositeShape, Shape};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<P: Point> {
@@ -20,23 +21,18 @@ impl<P: Point> Clone for TriMesh<P> {
     }
 }
 
-impl<P> TriMesh<P>
-    where P: Point,
-          P::Vect: Translate<P> {
+impl<P: Point> TriMesh<P> {
     /// Builds a new mesh.
     pub fn new(vertices: Arc<Vec<P>>,
                indices:  Arc<Vec<Point3<usize>>>,
-               uvs:      Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>>,
-               normals:  Option<Arc<Vec<P::Vect>>>) // a loosening margin for the BVT.
+               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
+               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
                -> TriMesh<P> {
         TriMesh {
             mesh: BaseMesh::new(vertices, indices, uvs, normals)
         }
     }
-}
 
-impl<P> TriMesh<P>
-    where P: Point {
     /// The base representation of this mesh.
     #[inline]
     pub fn base_mesh(&self) -> &BaseMesh<P, Point3<usize>, Triangle<P>> {
@@ -63,13 +59,13 @@ impl<P> TriMesh<P>
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<<P::Vect as Vector>::Scalar>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<P::Real>>>> {
         self.mesh.uvs()
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<P::Vect>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<P::Vector>>> {
         self.mesh.normals()
     }
 
@@ -88,9 +84,7 @@ impl<P: Point> TriMesh<P> {
     }
 }
 
-impl<P, M> CompositeShape<P, M> for TriMesh<P>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for TriMesh<P> {
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let one: M = na::one();

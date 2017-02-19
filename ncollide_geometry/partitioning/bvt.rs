@@ -1,13 +1,14 @@
 //! A read-only Bounding Volume Tree.
 
 use std::collections::BinaryHeap;
-use na::{Translation, Bounded};
+
+use alga::general::Real;
 use na;
 use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};
 use bounding_volume::BoundingVolume;
 use utils::data::ref_with_cost::RefWithCost;
 use utils;
-use math::{Scalar, Vector};
+use math::Point;
 
 
 /// A Boundig Volume Tree.
@@ -48,7 +49,7 @@ impl<B, BV> BVT<B, BV> {
         }
         else {
             BVT {
-                tree: Some(_new_with_partitioner(0, leaves, partitioner))
+                tree: Some(Self::_new_with_partitioner(0, leaves, partitioner))
             }
         }
     }
@@ -78,7 +79,7 @@ impl<B, BV> BVT<B, BV> {
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
     pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
-        where N:   Scalar,
+        where N:   Real,
               BFS: BVTCostFn<N, B, BV> {
         match self.tree {
             Some(ref t) => t.best_first_search(algorithm),
@@ -110,10 +111,90 @@ impl<B, BV> BVT<B, BV> {
 
 impl<B, BV> BVT<B, BV> {
     /// Creates a balanced `BVT`.
-    pub fn new_balanced<V>(leaves: Vec<(B, BV)>) -> BVT<B, BV>
-        where V: Vector,
-              BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
-        BVT::new_with_partitioner(leaves, &mut median_partitioner)
+    pub fn new_balanced<P>(leaves: Vec<(B, BV)>) -> BVT<B, BV>
+        where P:  Point,
+              BV: BoundingVolume<P> + Clone {
+        BVT::new_with_partitioner(leaves, &mut Self::median_partitioner)
+    }
+
+    /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
+    pub fn median_partitioner_with_centers<P, F: FnMut(&B, &BV) -> P>
+            (depth: usize, leaves: Vec<(B, BV)>, center: &mut F) -> (BV, BinaryPartition<B, BV>)
+        where P:  Point,
+              BV: BoundingVolume<P> + Clone {
+        if leaves.len() == 0 {
+            panic!("Cannot build a tree without leaves.");
+        }
+        else if leaves.len() == 1 {
+            let (b, bv) = leaves.into_iter().next().unwrap();
+            (bv, BinaryPartition::Part(b))
+        }
+        else {
+            let sep_axis = depth % na::dimension::<P::Vector>();
+
+            // compute the median along sep_axis
+            let mut median = Vec::new();
+
+            for l in leaves.iter() {
+                let c = (*center)(&l.0, &l.1);
+                median.push(c[sep_axis]);
+            }
+
+            let median = utils::median(&mut median[..]);
+
+            // build the partitions
+            let mut right = Vec::new();
+            let mut left  = Vec::new();
+            let mut bounding_bounding_volume = leaves[0].1.clone();
+
+            let mut insert_left = false;
+
+            for (b, bv) in leaves.into_iter() {
+                bounding_bounding_volume.merge(&bv);
+
+                let pos = (*center)(&b, &bv)[sep_axis];
+
+                if pos < median || (pos == median && insert_left) {
+                    left.push((b, bv));
+                    insert_left = false;
+                }
+                else {
+                    right.push((b, bv));
+                    insert_left = true;
+                }
+            }
+
+            // XXX: hack to avoid degeneracies.
+            if left.len() == 0 {
+                left.push(right.pop().unwrap());
+            }
+            else if right.len() == 0 {
+                right.push(left.pop().unwrap());
+            }
+
+            (bounding_bounding_volume, BinaryPartition::Parts(left, right))
+        }
+    }
+
+    /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
+    pub fn median_partitioner<P>(depth: usize, leaves: Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)
+        where P:  Point,
+              BV: BoundingVolume<P> + Clone {
+        Self::median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.center())
+    }
+
+    fn _new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
+                             (depth: usize, leaves: Vec<(B, BV)>, partitioner: &mut F) -> BVTNode<B, BV> {
+        let (bv, partitions) = partitioner(depth, leaves);
+
+        match partitions {
+            BinaryPartition::Part(b)            => BVTNode::Leaf(bv, b),
+            BinaryPartition::Parts(left, right) => {
+                let left  = Self::_new_with_partitioner(depth + 1, left, partitioner);
+                let right = Self::_new_with_partitioner(depth + 1, right, partitioner);
+                BVTNode::Internal(bv, Box::new(left), Box::new(right))
+            }
+        }
     }
 }
 
@@ -170,10 +251,10 @@ impl<B, BV> BVTNode<B, BV> {
     }
 
     fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
-        where N:   Scalar,
+        where N:   Real,
               BFS: BVTCostFn<N, B, BV> {
         let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<B, BV>>> = BinaryHeap::new();
-        let mut best_cost = Bounded::max_value();
+        let mut best_cost = N::max_value();
         let mut result    = None;
 
         match algorithm.compute_bv_cost(self.bounding_volume()) {
@@ -232,91 +313,6 @@ impl<B, BV> BVTNode<B, BV> {
         match *self {
             BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
             BVTNode::Leaf(_, _) => 1
-        }
-    }
-}
-
-/// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-pub fn median_partitioner_with_centers<V, B, BV, F: FnMut(&B, &BV) -> V>
-        (depth: usize, leaves: Vec<(B, BV)>, center: &mut F) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vector,
-          BV: BoundingVolume<V::Scalar> + Clone {
-    if leaves.len() == 0 {
-        panic!("Cannot build a tree without leaves.");
-    }
-    else if leaves.len() == 1 {
-        let (b, bv) = leaves.into_iter().next().unwrap();
-        (bv, BinaryPartition::Part(b))
-    }
-    else {
-        let sep_axis = depth % na::dimension::<V>();
-
-        // compute the median along sep_axis
-        let mut median = Vec::new();
-
-        for l in leaves.iter() {
-            let c = (*center)(&l.0, &l.1);
-            median.push(c[sep_axis]);
-        }
-
-        let median = utils::median(&mut median[..]);
-
-        // build the partitions
-        let mut right = Vec::new();
-        let mut left  = Vec::new();
-        let mut bounding_bounding_volume = leaves[0].1.clone();
-
-        let mut insert_left = false;
-
-        for (b, bv) in leaves.into_iter() {
-            bounding_bounding_volume.merge(&bv);
-
-            let pos = (*center)(&b, &bv)[sep_axis];
-
-            if pos < median || (pos == median && insert_left) {
-                left.push((b, bv));
-                insert_left = false;
-            }
-            else {
-                right.push((b, bv));
-                insert_left = true;
-            }
-        }
-
-        // XXX: hack to avoid degeneracies.
-        if left.len() == 0 {
-            left.push(right.pop().unwrap());
-        }
-        else if right.len() == 0 {
-            right.push(left.pop().unwrap());
-        }
-
-        (bounding_bounding_volume, BinaryPartition::Parts(left, right))
-    }
-}
-
-/// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-pub fn median_partitioner<V, B, BV>(depth: usize, leaves: Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)
-    where V:  Vector,
-          BV: Translation<V> + BoundingVolume<V::Scalar> + Clone {
-    median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.translation())
-}
-
-fn _new_with_partitioner<B, BV, F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-                         (depth: usize, leaves: Vec<(B, BV)>, partitioner: &mut F) -> BVTNode<B, BV> {
-    __new_with_partitioner(depth, leaves, partitioner)
-}
-
-fn __new_with_partitioner<B, BV, F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-                          (depth: usize, leaves: Vec<(B, BV)>, partitioner: &mut F) -> BVTNode<B, BV> {
-    let (bv, partitions) = partitioner(depth, leaves);
-
-    match partitions {
-        BinaryPartition::Part(b)            => BVTNode::Leaf(bv, b),
-        BinaryPartition::Parts(left, right) => {
-            let left  = __new_with_partitioner(depth + 1, left, partitioner);
-            let right = __new_with_partitioner(depth + 1, right, partitioner);
-            BVTNode::Internal(bv, Box::new(left), Box::new(right))
         }
     }
 }

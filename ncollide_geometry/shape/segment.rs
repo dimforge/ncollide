@@ -1,8 +1,8 @@
 //! Definition of the segment shape.
 
-use na::{self, Dimension, Transform, Rotate, Point2};
+use na::{self, Point2};
 use shape::{SupportMap, BaseMeshElement};
-use math::Point;
+use math::{Point, Isometry};
 
 
 /// A segment shape.
@@ -12,11 +12,11 @@ pub struct Segment<P> {
     b: P
 }
 
-impl<P: Dimension> Segment<P> {
+impl<P: Point> Segment<P> {
     /// Creates a new segment from two points.
     #[inline]
     pub fn new(a: P, b: P) -> Segment<P> {
-        assert!(na::dimension::<P>() > 1);
+        assert!(na::dimension::<P::Vector>() > 1);
 
         Segment {
             a: a,
@@ -39,25 +39,23 @@ impl<P> Segment<P> {
     }
 }
 
-impl<P: Dimension + Copy> BaseMeshElement<Point2<usize>, P> for Segment<P> {
+impl<P: Point> BaseMeshElement<Point2<usize>, P> for Segment<P> {
     #[inline]
     fn new_with_vertices_and_indices(vs: &[P], is: &Point2<usize>) -> Segment<P> {
         Segment::new(vs[is.x], vs[is.y])
     }
 }
 
-impl<P, M> SupportMap<P, M> for Segment<P>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Segment<P> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inverse_rotate(dir);
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        let local_dir = m.inverse_transform_vector(dir);
 
-        if na::dot(self.a().as_vector(), &local_dir) > na::dot(self.b().as_vector(), &local_dir) {
-            m.transform(self.a())
+        if na::dot(&self.a().coordinates(), &local_dir) > na::dot(&self.b().coordinates(), &local_dir) {
+            m.transform_point(self.a())
         }
         else {
-            m.transform(self.b())
+            m.transform_point(self.b())
         }
     }
 }

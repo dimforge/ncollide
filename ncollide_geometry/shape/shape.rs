@@ -2,13 +2,15 @@ use std::mem;
 use std::any::{Any, TypeId};
 use std::ops::Deref;
 use std::sync::Arc;
+
 use na;
-use math::Point;
+
 // Repr.
 use shape::{CompositeShape, SupportMap};
 // Queries.
 use bounding_volume::{AABB, BoundingSphere};
 use query::{RayCast, PointQuery};
+use math::Point;
 
 /// Trait implemented by all shapes supported by ncollide.
 ///

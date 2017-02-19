@@ -2,10 +2,11 @@
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use num::Float;
-use na::{BaseFloat, Point3};
+
+use alga::general::Real;
+use na::Point3;
 use na;
-use math::{Point, Vector};
+use math::Point;
 use utils;
 use geometry::bounding_volume;
 use procedural::{TriMesh, IndexBuffer};
@@ -13,7 +14,7 @@ use procedural::{TriMesh, IndexBuffer};
 struct Triangle<P: Point> {
     idx:                    Point3<usize>,
     circumcircle_center:    P,
-    circumcircle_sq_radius: <P::Vect as Vector>::Scalar,
+    circumcircle_sq_radius: P::Real,
 }
 
 impl<P: Point> Triangle<P> {
@@ -44,8 +45,7 @@ pub struct Triangulator<P: Point> {
     edges:     HashMap<(usize, usize), usize>
 }
 
-impl<P> Triangulator<P>
-    where P: Point {
+impl<P: Point> Triangulator<P> {
     /// Creates a new Triangulator.
     pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<P> {
         let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
@@ -101,7 +101,7 @@ impl<P> Triangulator<P>
                     shifted_idx.z -= num_ids;
                 }
 
-                idx.push(na::cast(shifted_idx));
+                idx.push(na::convert(shifted_idx));
             }
         }
 
@@ -146,21 +146,20 @@ impl<P> Triangulator<P>
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<P>(pts: &[P]) -> TriMesh<P>
-    where P: Point {
+pub fn triangulate<P: Point>(pts: &[P]) -> TriMesh<P> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
-    let radius           = radius * na::cast(2.0);
+    let radius           = radius * na::convert(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
-    let pi: <P::Vect as Vector>::Scalar = BaseFloat::pi();
-    let right_shift = radius / (pi / na::cast(6.0)).tan();
+    let pi          = P::Real::pi();
+    let right_shift = radius / (pi / na::convert(6.0)).tan();
     let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
 
-    let mut up = na::zero::<P::Vect>();
+    let mut up = na::zero::<P::Vector>();
     up[0] = na::one();
 
-    let mut right = na::zero::<P::Vect>();
+    let mut right = na::zero::<P::Vector>();
     right[1] = na::one();
 
     // Triangle:

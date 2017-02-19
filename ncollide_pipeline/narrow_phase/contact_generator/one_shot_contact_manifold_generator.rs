@@ -1,7 +1,6 @@
-use std::ops::Mul;
-use na::{Cross, Transform, Translation, Rotation};
+use alga::linear::{FiniteDimInnerSpace, Rotation};
 use na;
-use math::{Point, Vector};
+use math::{Point, Isometry};
 use geometry::shape::Shape;
 use geometry::query::Contact;
 use narrow_phase::{ContactGenerator, ContactDispatcher, IncrementalContactManifoldGenerator};
@@ -12,7 +11,7 @@ use narrow_phase::{ContactGenerator, ContactDispatcher, IncrementalContactManifo
 /// Whenever a new contact is detected (i.e. when the current manifold is empty) a full manifold is
 /// generated. Then, the manifold is incrementally updated by an
 /// `IncrementalContactManifoldGenerator`.
-#[derive(RustcEncodable, RustcDecodable, Clone)]
+#[derive(Clone)]
 pub struct OneShotContactManifoldGenerator<P: Point, M, CD> {
     sub_detector: IncrementalContactManifoldGenerator<P, M, CD>
 }
@@ -28,12 +27,18 @@ impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
     }
 }
 
+static ROT_ERROR: &'static str =
+    "The provided transformation does not have enough \
+     rotational degree of freedom for to work ith the \
+     one-shot contact manifold generator.";
+static TR_ERROR: &'static str =
+    "The provided transformation does not have enough    \
+     translational degree of freedom for to work ith the \
+     one-shot contact manifold generator.";
+
 impl<P, M, CD> ContactGenerator<P, M> for OneShotContactManifoldGenerator<P, M, CD>
-    where P:       Point,
-          P::Vect: Cross,
-          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
-                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M:  Transform<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType>,
+    where P:  Point,
+          M:  Isometry<P>,
           CD: ContactGenerator<P, M> {
     fn update(&mut self,
               d:  &ContactDispatcher<P, M>,
@@ -41,26 +46,24 @@ impl<P, M, CD> ContactGenerator<P, M> for OneShotContactManifoldGenerator<P, M, 
               g1: &Shape<P, M>,
               m2: &M,
               g2: &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
         if self.sub_detector.num_contacts() == 0 {
             // do the one-shot manifold generation
             match self.sub_detector.get_sub_collision(d, m1, g1, m2, g2, prediction) {
                 Some(Some(coll)) => {
-                    na::orthonormal_subspace_basis(&coll.normal, |b| {
-                        let mut rot_axis = na::cross(&coll.normal, &b);
+                    P::Vector::orthonormal_subspace_basis(&[coll.normal], |b| {
+                        let perturbation = M::Rotation::scaled_rotation_between(&coll.normal, &b, na::convert(0.01))
+                                           .expect(ROT_ERROR);
+                        let shifted_m1   = m1.append_rotation_wrt_point(&perturbation, &coll.world1)
+                                           .expect(TR_ERROR);
 
-                        // first perturbation
-                        rot_axis = rot_axis * na::cast::<f64, <P::Vect as Vector>::Scalar>(0.01f64);
-
-                        let rot_mat: M = na::append_rotation_wrt_point(m1, &rot_axis, coll.world1.as_vector());
-
-                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
+                        self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
 
                         // second perturbation (opposite direction)
-                        let rot_mat = na::append_rotation_wrt_point(m1, &-rot_axis, coll.world1.as_vector());
-
-                        self.sub_detector.add_new_contacts(d, &rot_mat, g1, m2, g2, prediction);
+                        let shifted_m1 = m1.append_rotation_wrt_point(&na::inverse(&perturbation), &coll.world1)
+                                         .expect(TR_ERROR);
+                        self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
 
                         true
                     });

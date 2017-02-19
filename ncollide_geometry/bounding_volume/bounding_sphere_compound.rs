@@ -1,4 +1,3 @@
-use na::{Transform, Translate};
 use bounding_volume::{BoundingVolume, BoundingSphere, HasBoundingVolume};
 use shape::Compound;
 use math::{Point, Isometry};
@@ -6,9 +5,8 @@ use math::{Point, Isometry};
 
 impl<P, M, M2> HasBoundingVolume<M2, BoundingSphere<P>> for Compound<P, M>
     where P:  Point,
-          P::Vect: Translate<P>,
           M:  Isometry<P>,
-          M2: Transform<P> + Translate<P> {
+          M2: Isometry<P> {
     #[inline]
     fn bounding_volume(&self, m: &M2) -> BoundingSphere<P> {
         let shapes = self.shapes();
@@ -19,6 +17,6 @@ impl<P, M, M2> HasBoundingVolume<M2, BoundingSphere<P>> for Compound<P, M>
             res.merge(&s.bounding_sphere(t));
         }
 
-        BoundingSphere::new(m.transform(res.center()), res.radius())
+        BoundingSphere::new(m.transform_point(res.center()), res.radius())
     }
 }

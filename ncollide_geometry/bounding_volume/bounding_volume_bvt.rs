@@ -1,19 +1,21 @@
 use std::marker::PhantomData;
 use bounding_volume::BoundingVolume;
 use partitioning::BVTVisitor;
+use math::Point;
 
 /// Bounding Volume Tree visitor collecting interferences with a given bounding volume.
-pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, B: 'a, BV: 'a> {
+pub struct BoundingVolumeInterferencesCollector<'a, P: 'a, B: 'a, BV: 'a> {
     bv:        &'a BV,
     collector: &'a mut Vec<B>,
-    _scalar:   PhantomData<N>
+    _scalar:   PhantomData<P>
 }
 
-impl<'a, N, B, BV> BoundingVolumeInterferencesCollector<'a, N, B, BV>
-    where BV: BoundingVolume<N> {
+impl<'a, P, B, BV> BoundingVolumeInterferencesCollector<'a, P, B, BV>
+    where P: Point,
+          BV: BoundingVolume<P> {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
     #[inline]
-    pub fn new(bv: &'a BV, buffer: &'a mut Vec<B>) -> BoundingVolumeInterferencesCollector<'a, N, B, BV> {
+    pub fn new(bv: &'a BV, buffer: &'a mut Vec<B>) -> BoundingVolumeInterferencesCollector<'a, P, B, BV> {
         BoundingVolumeInterferencesCollector {
             bv:        bv,
             collector: buffer,
@@ -22,9 +24,10 @@ impl<'a, N, B, BV> BoundingVolumeInterferencesCollector<'a, N, B, BV>
     }
 }
 
-impl<'a, N, B, BV> BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, N, B, BV>
-    where B: Clone,
-          BV: BoundingVolume<N> {
+impl<'a, P, B, BV> BVTVisitor<B, BV> for BoundingVolumeInterferencesCollector<'a, P, B, BV>
+    where P: Point,
+          B: Clone,
+          BV: BoundingVolume<P> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.intersects(self.bv)

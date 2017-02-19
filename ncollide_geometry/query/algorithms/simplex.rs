@@ -1,6 +1,6 @@
 //! Abstract definition of a simplex usable by the GJK algorithm.
 
-use math::{Point, Vector};
+use math::Point;
 
 /// Trait of a simplex usable by the GJK algorithm.
 pub trait Simplex<P: Point> {
@@ -26,7 +26,7 @@ pub trait Simplex<P: Point> {
     fn dimension(&self) -> usize;
 
     /// The maximum among the simplex point squared lengths.
-    fn max_sq_len(&self) -> <P::Vect as Vector>::Scalar;
+    fn max_sq_len(&self) -> P::Real;
 
     /// Modifies the points contained by this simplex.
     fn modify_pnts(&mut self, f: &Fn(&mut P));

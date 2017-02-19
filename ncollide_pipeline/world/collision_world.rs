@@ -1,8 +1,6 @@
 use std::mem;
-use std::ops::Mul;
 use std::vec::IntoIter;
-use na::{Translate, Cross, Translation, Rotation};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::vec_map::Values;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
@@ -13,8 +11,6 @@ use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, De
                    ProximitySignal, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
-
-use na::{Point2, Point3, Isometry2, Isometry3};
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T> + 'static>;
@@ -36,15 +32,10 @@ pub struct CollisionWorld<P: Point, M, T> {
     // FIXME: allow modification of the other properties too.
 }
 
-impl<P, M, T> CollisionWorld<P, M, T>
-    where P: Point,
-          P::Vect: Translate<P> + Cross,
-          <P::Vect as Cross>::CrossProductType: Vector<Scalar = <P::Vect as Vector>::Scalar> +
-                                                Mul<<P::Vect as Vector>::Scalar, Output = <P::Vect as Cross>::CrossProductType>, // FIXME: why do we need this?
-          M:  Isometry<P> + Translation<P::Vect> + Rotation<<P::Vect as Cross>::CrossProductType> {
+impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
-    pub fn new(margin: <P::Vect as Vector>::Scalar, small_uids: bool) -> CollisionWorld<P, M, T> {
+    pub fn new(margin: P::Real, small_uids: bool) -> CollisionWorld<P, M, T> {
         let objects          = UidRemap::new(small_uids);
         let coll_dispatcher  = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
@@ -73,7 +64,7 @@ impl<P, M, T> CollisionWorld<P, M, T>
                position:         M,
                shape:            ShapeHandle<P, M>,
                collision_groups: CollisionGroups,
-               query_type:       GeometricQueryType<<P::Vect as Vector>::Scalar>,
+               query_type:       GeometricQueryType<P::Real>,
                data:             T) {
         assert!(!self.objects.contains_key(uid), "Unable to add a collision object with the same uid twice.");
 
@@ -347,10 +338,8 @@ pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
     idx:     IntoIter<&'a FastKey>,
 }
 
-impl<'a, P, M, T> Iterator for InterferencesWithRay<'a, P, M, T>
-    where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
-    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vect>);
+impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, P, M, T> {
+    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vector>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -378,9 +367,7 @@ pub struct InterferencesWithPoint<'a, P: 'a + Point, M: 'a, T: 'a> {
     idx:     IntoIter<&'a FastKey>,
 }
 
-impl<'a, P, M, T> Iterator for InterferencesWithPoint<'a, P, M, T>
-    where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
@@ -421,9 +408,3 @@ impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
         None
     }
 }
-
-
-/// 2D collision world containing objects of type `T`.
-pub type CollisionWorld2<N, T> = CollisionWorld<Point2<N>, Isometry2<N>, T>;
-/// 3D collision world containing objects of type `T`.
-pub type CollisionWorld3<N, T> = CollisionWorld<Point3<N>, Isometry3<N>, T>;

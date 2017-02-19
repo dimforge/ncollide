@@ -1,11 +1,13 @@
+use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::Color;
+
+use alga::general::Real;
 use na::{Point2, Point3, Isometry2};
 use ncollide::world::CollisionObject2;
-use ncollide::math::Scalar;
 use draw_helper::draw_line;
 
-pub struct Segment<N> {
+pub struct Segment<N: Real> {
     color:      Point3<u8>,
     base_color: Point3<u8>,
     delta:      Isometry2<N>,
@@ -13,7 +15,7 @@ pub struct Segment<N> {
     b:          Point2<N>,
 }
 
-impl<N> Segment<N> {
+impl<N: Real + ToPrimitive> Segment<N> {
     pub fn new(delta:  Isometry2<N>,
                a:      Point2<N>,
                b:      Point2<N>,
@@ -29,7 +31,7 @@ impl<N> Segment<N> {
     }
 }
 
-impl<N: Scalar> Segment<N> {
+impl<N: Real + ToPrimitive> Segment<N> {
     pub fn update(&mut self) {
     }
 

@@ -3,7 +3,7 @@ extern crate ncollide;
 extern crate ncollide_testbed3d;
 
 use std::cell::Cell;
-use na::{Vector3, Point3, Isometry3, Translation};
+use na::{Vector3, Point3, Isometry3, Translation3};
 use ncollide::world::{CollisionWorld, CollisionGroups, GeometricQueryType, CollisionObject3};
 use ncollide::narrow_phase::{ProximityHandler, ContactHandler, ContactAlgorithm3};
 use ncollide::shape::{Plane, Ball, Cuboid, ShapeHandle3};
@@ -237,7 +237,8 @@ fn main() {
             let ball_velocity = ball_object.data.velocity.as_ref().unwrap();
 
             // Integrate the positions.
-            ball_pos = ball_object.position.append_translation(&(timestep * ball_velocity.get()));
+            let displacement = Translation3::from_vector(timestep * ball_velocity.get());
+            ball_pos = displacement * ball_object.position;
         }
 
         // Submit the position update to the world.

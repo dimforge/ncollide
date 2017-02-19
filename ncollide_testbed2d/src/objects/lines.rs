@@ -1,12 +1,14 @@
 use std::sync::Arc;
+use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::Color;
+
+use alga::general::Real;
 use na::{Point2, Point3, Isometry2};
 use ncollide::world::CollisionObject2;
-use ncollide::math::Scalar;
 use draw_helper::draw_line;
 
-pub struct Lines<N> {
+pub struct Lines<N: Real> {
     color:      Point3<u8>,
     base_color: Point3<u8>,
     delta:      Isometry2<N>,
@@ -14,7 +16,7 @@ pub struct Lines<N> {
     vertices:   Arc<Vec<Point2<N>>>
 }
 
-impl<N> Lines<N> {
+impl<N: Real> Lines<N> {
     pub fn new(delta:    Isometry2<N>,
                vertices: Arc<Vec<Point2<N>>>,
                indices:  Arc<Vec<Point2<usize>>>,
@@ -30,7 +32,7 @@ impl<N> Lines<N> {
     }
 }
 
-impl<N: Scalar> Lines<N> {
+impl<N: Real + ToPrimitive> Lines<N> {
     pub fn update(&mut self) {
     }
 

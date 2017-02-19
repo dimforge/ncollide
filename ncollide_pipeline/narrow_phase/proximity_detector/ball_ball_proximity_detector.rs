@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
-use na;
-use math::{Point, Vector, Isometry};
+
+use alga::linear::Translation;
+use math::{Point, Isometry};
 use geometry::shape::{Shape, Ball};
 use geometry::query::Proximity;
 use geometry::query::proximity_internal;
@@ -36,20 +37,18 @@ impl<P: Point, M> BallBallProximityDetector<P, M> {
     }
 }
 
-impl<P, M> ProximityDetector<P, M> for BallBallProximityDetector<P, M>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ProximityDetector<P, M> for BallBallProximityDetector<P, M> {
     fn update(&mut self, _: &ProximityDispatcher<P, M>,
               ma: &M, a: &Shape<P, M>,
               mb: &M, b: &Shape<P, M>,
-              margin: <P::Vect as Vector>::Scalar)
+              margin: P::Real)
               -> bool {
-        if let (Some(a), Some(b)) = (a.as_shape::<Ball<<P::Vect as Vector>::Scalar>>(),
-                                     b.as_shape::<Ball<<P::Vect as Vector>::Scalar>>()) {
+        if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(),
+                                     b.as_shape::<Ball<P::Real>>()) {
             self.proximity = proximity_internal::ball_against_ball(
-                &ma.translate(&na::origin()),
+                &P::from_coordinates(ma.translation().to_vector()),
                 a,
-                &mb.translate(&na::origin()),
+                &P::from_coordinates(mb.translation().to_vector()),
                 b,
                 margin);
 

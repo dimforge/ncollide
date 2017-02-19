@@ -1,15 +1,15 @@
-use na::{Point2, Vector2, BaseFloat};
+use alga::general::Real;
+use na::{Point2, Vector2};
 use na;
-use math::Scalar;
 use geometry::shape::Capsule2;
 use procedural::{Polyline, Polyline2};
 use procedural::utils;
 use super::ToPolyline;
 
-impl<N: Scalar> ToPolyline<Point2<N>, u32> for Capsule2<N> {
+impl<N: Real> ToPolyline<Point2<N>, u32> for Capsule2<N> {
     fn to_polyline(&self, nsubdiv: u32) -> Polyline2<N> {
-        let pi: N = BaseFloat::pi();
-        let dtheta     = pi / na::cast(nsubdiv as f64);
+        let pi     = N::pi();
+        let dtheta = pi / na::convert(nsubdiv as f64);
 
         let mut points: Vec<Point2<N>> = Vec::with_capacity(nsubdiv as usize);
 

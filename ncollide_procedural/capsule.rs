@@ -1,8 +1,8 @@
+use alga::general::Real;
 use na;
 use na::Point3;
 use super::{TriMesh, IndexBuffer};
 use super::{sphere, utils};
-use math::Scalar;
 
 /// Generates a capsule.
 pub fn capsule<N>(caps_diameter:   &N,
@@ -10,7 +10,7 @@ pub fn capsule<N>(caps_diameter:   &N,
                   ntheta_subdiv:   u32,
                   nphi_subdiv:     u32)
                   -> TriMesh<Point3<N>>
-    where N: Scalar {
+    where N: Real {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh { coords, normals, indices, .. } = top.clone();
     let mut bottom_coords  = coords;
@@ -23,7 +23,7 @@ pub fn capsule<N>(caps_diameter:   &N,
     let top_normals     = normals.unwrap();
     let mut top_indices = indices.unwrap_unified();
 
-    let half_height = *cylinder_height * na::cast(0.5);
+    let half_height = *cylinder_height * na::convert(0.5);
 
     // shift the top
     for coord in top_coords.iter_mut() {

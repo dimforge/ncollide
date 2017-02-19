@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
+use num::ToPrimitive;
 use sfml::graphics::{RenderWindow, RenderTarget};
 use sfml::window::{ContextSettings, VideoMode};
 use sfml::window::window_style;
@@ -7,10 +8,12 @@ use sfml::window::event::Event;
 use sfml::window::{Key, MouseButton};
 use sfml::graphics::Color;
 use sfml::system::Vector2i;
-use na::{self, Point2, Point3, Translation, Transform};
+
+use alga::general::Real;
+use alga::linear::ProjectiveTransformation;
+use na::{self, Point2, Point3, Translation2};
 use ncollide::world::{CollisionWorld2, CollisionGroups};
 use ncollide::shape::Plane2;
-use ncollide::math::Scalar;
 use camera::Camera;
 // use fps::Fps;
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
@@ -28,7 +31,7 @@ enum RunMode {
     Step
 }
 
-pub struct Testbed<N: Scalar> {
+pub struct Testbed<N: Real> {
     window:     RenderWindow,
     graphics:   GraphicsManagerHandle<N>,
     running:    RunMode,
@@ -47,7 +50,7 @@ pub struct Testbed<N: Scalar> {
     recorder: Option<()>
 }
 
-impl<N: Scalar> Testbed<N> {
+impl<N: Real + ToPrimitive> Testbed<N> {
     pub fn new() -> Testbed<N> {
         let mode = VideoMode::new_init(800, 600, 32);
         let ctxt = ContextSettings::default();
@@ -216,12 +219,12 @@ impl<N: Scalar> Testbed<N> {
                 // We give the priority to contacts-enabled objects.
                 let mut grabbed_solid = false; // The grabbed is not a sensor.
 
-                for object in world.interferences_with_point(&na::cast(mapped_point), all_groups) {
+                for object in world.interferences_with_point(&na::convert(mapped_point), all_groups) {
                     // Planes are infinite so it is more ergonomic to prevent them from being
                     // grabbed.
                     if !object.shape.is_shape::<Plane2<N>>() {
                         if object.query_type.is_contacts_query() || !grabbed_solid {
-                            self.grab_anchor = object.position.inverse_transform(&na::cast(mapped_point));
+                            self.grab_anchor = object.position.inverse_transform_point(&na::convert(mapped_point));
                             self.grabbed_object = Some(object.uid);
                             grabbed_solid = object.query_type.is_contacts_query();
                         }
@@ -266,9 +269,10 @@ impl<N: Scalar> Testbed<N> {
 
             if let Some(obj) = world.collision_object(uid) {
                 let anchor = obj.position * self.grab_anchor;
-                let new_pt: Point2<N> = na::cast(mapped_point);
+                let new_pt: Point2<N> = na::convert(mapped_point);
 
-                new_pos = obj.position.append_translation(&(new_pt - anchor));
+                let t = Translation2::from_vector(new_pt - anchor);
+                new_pos = t * obj.position;
             }
 
             world.deferred_set_position(uid, new_pos);

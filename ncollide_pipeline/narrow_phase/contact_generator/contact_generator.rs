@@ -1,6 +1,6 @@
 use geometry::shape::Shape;
 use geometry::query::Contact;
-use math::{Point, Vector};
+use math::Point;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
 pub trait ContactGenerator<P: Point, M> {
@@ -13,7 +13,7 @@ pub trait ContactGenerator<P: Point, M> {
               a:          &Shape<P, M>,
               mb:         &M,
               b:          &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool;
 
     /// The number of contacts generated the last update.

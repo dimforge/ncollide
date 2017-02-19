@@ -1,5 +1,6 @@
-use na::Identity;
-use math::{Point, Vector};
+use alga::general::Id;
+
+use math::Point;
 use partitioning::{BVTCostFn, BVTVisitor};
 use query::{RayCast, Ray, RayIntersection};
 
@@ -21,24 +22,24 @@ impl<'a, P: Point> RayIntersectionCostFn<'a, P> {
     }
 }
 
-impl<'a, P, B, BV> BVTCostFn<<P::Vect as Vector>::Scalar, B, BV> for RayIntersectionCostFn<'a, P>
+impl<'a, P, B, BV> BVTCostFn<P::Real, B, BV> for RayIntersectionCostFn<'a, P>
     where P:  Point,
-          B:  RayCast<P, Identity>,
-          BV: RayCast<P, Identity> {
-    type UserData = RayIntersection<P::Vect>;
+          B:  RayCast<P, Id>,
+          BV: RayCast<P, Id> {
+    type UserData = RayIntersection<P::Vector>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &BV) -> Option<<P::Vect as Vector>::Scalar> {
-        bv.toi_with_ray(&Identity::new(), self.ray, true)
+    fn compute_bv_cost(&mut self, bv: &BV) -> Option<P::Real> {
+        bv.toi_with_ray(&Id::new(), self.ray, true)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &B) -> Option<(<P::Vect as Vector>::Scalar, RayIntersection<P::Vect>)> {
+    fn compute_b_cost(&mut self, b: &B) -> Option<(P::Real, RayIntersection<P::Vector>)> {
         if self.uvs {
-            b.toi_and_normal_and_uv_with_ray(&Identity::new(), self.ray, self.solid).map(|i| (i.toi, i))
+            b.toi_and_normal_and_uv_with_ray(&Id::new(), self.ray, self.solid).map(|i| (i.toi, i))
         }
         else {
-            b.toi_and_normal_with_ray(&Identity::new(), self.ray, self.solid).map(|i| (i.toi, i))
+            b.toi_and_normal_with_ray(&Id::new(), self.ray, self.solid).map(|i| (i.toi, i))
         }
     }
 }
@@ -63,15 +64,15 @@ impl<'a, P: Point, B> RayInterferencesCollector<'a, P, B> {
 impl<'a, P, B, BV> BVTVisitor<B, BV> for RayInterferencesCollector<'a, P, B>
     where P:  Point,
           B:  Clone,
-          BV: RayCast<P, Identity> {
+          BV: RayCast<P, Id> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
-        bv.intersects_ray(&Identity::new(), self.ray)
+        bv.intersects_ray(&Id::new(), self.ray)
     }
 
     #[inline]
     fn visit_leaf(&mut self, b: &B, bv: &BV) {
-        if bv.intersects_ray(&Identity::new(), self.ray) {
+        if bv.intersects_ray(&Id::new(), self.ray) {
             self.collector.push(b.clone())
         }
     }

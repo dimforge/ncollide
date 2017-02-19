@@ -2,21 +2,21 @@ use std::iter;
 use std::ptr;
 use na;
 use super::{TriMesh, Polyline};
-use math::{Point, Vector};
+use math::Point;
 
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<P>(control_points: &[P], t: <P::Vect as Vector>::Scalar, cache: &mut Vec<P>) -> P
+pub fn bezier_curve_at<P>(control_points: &[P], t: P::Real, cache: &mut Vec<P>) -> P
     where P: Point {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
-        cache.extend(iter::repeat(na::origin::<P>()).take(diff))
+        cache.extend(iter::repeat(P::origin()).take(diff))
     }
 
     let cache = &mut cache[..];
 
-    let _1: <P::Vect as Vector>::Scalar = na::cast(1.0);
+    let _1: P::Real = na::convert(1.0);
     let t_1 = _1 - t;
 
     // XXX: not good if the objects are not POD.
@@ -26,7 +26,7 @@ pub fn bezier_curve_at<P>(control_points: &[P], t: <P::Vect as Vector>::Scalar, 
 
     for i in 1usize .. control_points.len() {
         for j in 0usize .. control_points.len() - i {
-            cache[j] = cache[j] * t_1 + *cache[j + 1].as_vector() * t;
+            cache[j] = cache[j] * t_1 + cache[j + 1].coordinates() * t;
         }
     }
 
@@ -39,15 +39,15 @@ pub fn bezier_surface_at<P>(
                          control_points: &[P],
                          nupoints:       usize,
                          nvpoints:       usize,
-                         u:              <P::Vect as Vector>::Scalar,
-                         v:              <P::Vect as Vector>::Scalar,
+                         u:              P::Real,
+                         v:              P::Real,
                          ucache:         &mut Vec<P>,
                          vcache:         &mut Vec<P>)
                          -> P
     where P: Point {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
-        vcache.extend(iter::repeat(na::origin::<P>()).take(diff));
+        vcache.extend(iter::repeat(P::origin()).take(diff));
     }
 
     // FIXME: start with u or v, depending on which dimension has more control points.
@@ -68,8 +68,8 @@ pub fn bezier_curve<P>(control_points: &[P], nsubdivs: usize) -> Polyline<P>
     where P: Point {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache  = Vec::new();
-    let tstep      = na::cast(1.0 / (nsubdivs as f64));
-    let mut t      = na::zero::<<P::Vect as Vector>::Scalar>();
+    let tstep      = na::convert(1.0 / (nsubdivs as f64));
+    let mut t      = na::zero::<P::Real>();
 
     while t <= na::one() {
         coords.push(bezier_curve_at(control_points, t, &mut cache));

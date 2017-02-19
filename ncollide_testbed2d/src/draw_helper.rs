@@ -2,15 +2,16 @@ use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::{Vertex, VertexArray, Color, RenderTarget};
 use sfml::system::Vector2f;
+
+use alga::general::Real;
 use na::Point2;
 use na;
 use ncollide::world::CollisionWorld2;
-use ncollide::math::Scalar;
 
 pub static DRAW_SCALE: f32 = 20.0;
 
-pub fn draw_colls<N: Scalar + ToPrimitive, T>(window: &mut graphics::RenderWindow,
-                                              world:  &mut CollisionWorld2<N, T>) {
+pub fn draw_colls<N: Real + ToPrimitive, T>(window: &mut graphics::RenderWindow,
+                                            world:  &mut CollisionWorld2<N, T>) {
     for c in world.contacts() {
         draw_line(
             window,
@@ -33,10 +34,10 @@ pub fn draw_colls<N: Scalar + ToPrimitive, T>(window: &mut graphics::RenderWindo
     }
 }
 
-pub fn draw_line<N: ToPrimitive>(window: &mut graphics::RenderWindow,
-                                 v1:     &Point2<N>,
-                                 v2:     &Point2<N>,
-                                 color:  &Color) {
+pub fn draw_line<N: Real + ToPrimitive>(window: &mut graphics::RenderWindow,
+                                        v1:     &Point2<N>,
+                                        v2:     &Point2<N>,
+                                        color:  &Color) {
     let mut vertices = VertexArray::new().unwrap();
 
     vertices.append(&Vertex::new(
