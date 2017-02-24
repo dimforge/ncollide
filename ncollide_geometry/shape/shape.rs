@@ -103,7 +103,7 @@ impl<P: Point, M: 'static> Shape<P, M> {
 /// A shared immutable handle to an abstract shape.
 #[derive(Clone)]
 pub struct ShapeHandle<P: Point, M> {
-    handle: Arc<Box<Shape<P, M>>>
+    handle: Arc<Shape<P, M>>
 }
 
 impl<P: Point, M> ShapeHandle<P, M> {
@@ -111,7 +111,7 @@ impl<P: Point, M> ShapeHandle<P, M> {
     #[inline]
     pub fn new<S: Shape<P, M>>(shape: S) -> ShapeHandle<P, M> {
         ShapeHandle {
-            handle: Arc::new(Box::new(shape) as Box<Shape<P, M>>)
+            handle: Arc::new(shape)
         }
     }
 }
@@ -128,7 +128,7 @@ impl<P: Point, M> Deref for ShapeHandle<P, M> {
 
     #[inline]
     fn deref(&self) -> &Shape<P, M> {
-        &**self.handle
+        self.handle.deref()
     }
 }
 
