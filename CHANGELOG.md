@@ -4,6 +4,14 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - WIP
+### Modified
+    * The `ShapeHandle` is now a `Arc<Shape<P, M>>` instead of `Arc<Box<Shape<P, M>>>`
+    (this removes one allocation indirection).
+
+## [0.11.0]
+    * Update to nalgebra 0.11.0.
+
 ## [0.10.0]
 ### Added
     * Re-export `Ray2`, `Ray3`, `RayIntersection2`, and `RayIntersection3` on
