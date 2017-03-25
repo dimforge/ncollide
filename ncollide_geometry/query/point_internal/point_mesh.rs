@@ -53,7 +53,7 @@ impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, PointProjection<P>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, Self::UserData)> {
         let proj = self.mesh.element_at(*b).project_point(&Id::new(), self.point, true);
 
         Some((na::distance(self.point, &proj.point), proj))
