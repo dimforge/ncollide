@@ -20,6 +20,15 @@ impl<P: Point, I> PointProjection<P, I> {
             info:      info,
         }
     }
+
+    /// Strips the additional, query-specific information
+    pub fn without_info(self) -> PointProjection<P> {
+        PointProjection {
+            is_inside: self.is_inside,
+            point:     self.point,
+            info:      (),
+        }
+    }
 }
 
 /// Trait of objects that can be tested for point inclusion and projection.
