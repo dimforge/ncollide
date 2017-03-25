@@ -27,7 +27,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
 
     match gjk::project_origin(&m, shape, simplex) {
         Some(p) => {
-            PointProjection::new(false, p + point.coordinates())
+            PointProjection::new(false, p + point.coordinates(), ())
         },
         None => {
             let proj;
@@ -45,7 +45,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
                 proj = *point
             }
 
-            PointProjection::new(true, proj)
+            PointProjection::new(true, proj, ())
         }
     }
 }

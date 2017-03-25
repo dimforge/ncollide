@@ -6,12 +6,12 @@ use math::{Point, Isometry};
 #[inline]
 fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
    if na::dimension::<P::Vector>() == 2 {
-       PointProjection::new(*pt == proj, proj)
+       PointProjection::new(*pt == proj, proj, ())
    }
    else {
        // FIXME: is this acceptable to assume the point is inside of the triangle if it is close
        // enough?
-       PointProjection::new(relative_eq!(proj, *pt), proj)
+       PointProjection::new(relative_eq!(proj, *pt), proj, ())
    }
 }
 
@@ -94,7 +94,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
             // Special treatement if we work in 2d because in this case we really are inside of the
             // object.
             if solid {
-                PointProjection::new(true, *pt)
+                PointProjection::new(true, *pt, ())
             }
             else {
                 // We have to project on the closest edge.
@@ -132,7 +132,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
                     }
                 }
 
-                PointProjection::new(true, proj)
+                PointProjection::new(true, proj, ())
             }
         }
     }

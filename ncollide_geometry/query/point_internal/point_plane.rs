@@ -12,10 +12,10 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Plane<P::Vector> {
         let inside = d <= na::zero();
 
         if inside && solid {
-            PointProjection::new(true, *pt)
+            PointProjection::new(true, *pt, ())
         }
         else {
-            PointProjection::new(inside, *pt + (-*self.normal() * d))
+            PointProjection::new(inside, *pt + (-*self.normal() * d), ())
         }
     }
 

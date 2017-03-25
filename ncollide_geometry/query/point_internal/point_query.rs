@@ -2,19 +2,22 @@ use na;
 use math::Point;
 
 /// Description of the projection of a point on a shape.
-pub struct PointProjection<P: Point> {
+pub struct PointProjection<P: Point, I = ()> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
     /// The projection result.
     pub point: P,
+    /// Additional projection results whose type is dependent on the shape type.
+    pub info: I,
 }
 
-impl<P: Point> PointProjection<P> {
+impl<P: Point, I> PointProjection<P, I> {
     /// Initializes a new `PointProjection`.
-    pub fn new(is_inside: bool, point: P) -> PointProjection<P> {
+    pub fn new(is_inside: bool, point: P, info: I) -> PointProjection<P, I> {
         PointProjection {
             is_inside: is_inside,
-            point:     point
+            point:     point,
+            info:      info,
         }
     }
 }

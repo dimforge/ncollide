@@ -33,7 +33,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
         // FIXME: is this acceptable?
         let inside = relative_eq!(proj, *pt);
 
-        PointProjection::new(inside, proj)
+        PointProjection::new(inside, proj, ())
     }
 
     // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was

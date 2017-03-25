@@ -15,7 +15,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
         let inside = shift == na::zero();
 
         if !inside || solid {
-            PointProjection::new(inside, *pt + m.rotate_vector(&shift))
+            PointProjection::new(inside, *pt + m.rotate_vector(&shift), ())
         }
         else {
             let _max: P::Real = Bounded::max_value();
@@ -47,7 +47,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
                 shift[best_id as usize] = -best;
             }
 
-            PointProjection::new(inside, *pt + m.rotate_vector(&shift))
+            PointProjection::new(inside, *pt + m.rotate_vector(&shift), ())
         }
     }
 

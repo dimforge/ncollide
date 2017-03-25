@@ -14,12 +14,12 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Ball<P::Real> {
         let inside = distance_squared <= self.radius() * self.radius();
 
         if inside && solid {
-            PointProjection::new(true, *pt)
+            PointProjection::new(true, *pt, ())
         }
         else {
             let ls_proj = P::origin() + ls_pt.coordinates() / distance_squared.sqrt();
 
-            PointProjection::new(inside, m.translate_point(&ls_proj))
+            PointProjection::new(inside, m.translate_point(&ls_proj), ())
         }
     }
 
