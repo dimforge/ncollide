@@ -16,10 +16,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
 }
 
 impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Segment<P> {
-    // Implementing this trait while providing no projection info might seem
-    // nonsensical, but it actually makes it possible to complete the
-    // `RichPointQuery` implementation for `BaseMesh`.
-    type ExtraInfo = ();
+    type ExtraInfo = P::Real;
 
     #[inline]
     fn project_point_with_extra_info(&self, m: &M, pt: &P, _: bool)
@@ -32,25 +29,29 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Segment<P> {
         let sqnab = na::norm_squared(&ab);
 
         let proj;
+        let position_on_segment;
 
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
+            position_on_segment = na::zero();
             proj = m.transform_point(self.a());
         }
         else if ab_ap >= sqnab {
             // Voronoï region of vertex 'b'.
+            position_on_segment = na::one();
             proj = m.transform_point(self.b());
         }
         else {
             assert!(sqnab != na::zero());
 
             // Voronoï region of the segment interior.
-            proj = m.transform_point(&(*self.a() + ab * (ab_ap / sqnab)));
+            position_on_segment = ab_ap / sqnab;
+            proj = m.transform_point(&(*self.a() + ab * position_on_segment));
         }
 
         // FIXME: is this acceptable?
         let inside = relative_eq!(proj, *pt);
 
-        (PointProjection::new(inside, proj), ())
+        (PointProjection::new(inside, proj), position_on_segment)
     }
 }
