@@ -1,7 +1,7 @@
 use alga::general::Id;
 use na;
 use query::{PointQuery, PointProjection, RichPointQuery};
-use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
+use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Point, Isometry};
@@ -148,10 +148,12 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
     }
 }
 
+
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        self.base_mesh().project_point(m, point, solid)
+        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
+        projection
     }
 
     #[inline]
@@ -162,5 +164,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
         self.base_mesh().contains_point(m, point)
+    }
+}
+
+impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Polyline<P> {
+    type ExtraInfo = PointProjectionInfo<<Segment<P> as RichPointQuery<P, M>>::ExtraInfo>;
+
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, point: &P, solid: bool)
+        -> (PointProjection<P>, Self::ExtraInfo)
+    {
+        self.base_mesh().project_point_with_extra_info(m, point, solid)
     }
 }
