@@ -1,12 +1,30 @@
 use na;
 use shape::Segment;
-use query::{PointQuery, PointProjection};
+use query::{PointQuery, PointProjection, RichPointQuery};
 use math::{Point, Isometry};
 
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, _: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+        let (projection, _) = self.project_point_with_extra_info(m, pt, solid);
+        projection
+    }
+
+    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
+    // eaten by the `::approx_eq(...)` on `project_point(...)`.
+}
+
+impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Segment<P> {
+    // Implementing this trait while providing no projection info might seem
+    // nonsensical, but it actually makes it possible to complete the
+    // `RichPointQuery` implementation for `BaseMesh`.
+    type ExtraInfo = ();
+
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, pt: &P, _: bool)
+        -> (PointProjection<P>, Self::ExtraInfo)
+    {
         let ls_pt = m.inverse_transform_point(pt);
         let ab    = *self.b() - *self.a();
         let ap    = ls_pt - *self.a();
@@ -33,9 +51,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
         // FIXME: is this acceptable?
         let inside = relative_eq!(proj, *pt);
 
-        PointProjection::new(inside, proj)
+        (PointProjection::new(inside, proj), ())
     }
-
-    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
-    // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
