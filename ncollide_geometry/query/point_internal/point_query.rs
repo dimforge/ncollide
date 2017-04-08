@@ -45,3 +45,32 @@ pub trait PointQuery<P: Point, M> {
         self.project_point(m, pt, false).is_inside
     }
 }
+
+/// Returns shape-specific info in addition to generic projection information
+///
+/// One requirement for the `PointQuery` trait is to be usable as a trait
+/// object. Unfortunately this precludes us from adding an associated type to it
+/// that might allow us to return shape-specific information in addition to the
+/// general information provided in `PointProjection`. This is where
+/// `RichPointQuery` comes in. It forgoes the ability to be used as a trait
+/// object in exchange for being able to provide shape-specific projection
+/// information.
+///
+/// Any shapes that implement `PointQuery` but are able to provide extra
+/// information, can implement `RichPointQuery` in addition and have their
+/// `PointQuery::project_point` implementation just call out to
+/// `RichPointQuery::project_point_with_extra_info`.
+pub trait RichPointQuery<P: Point, M> {
+    /// Additional shape-specific projection information
+    ///
+    /// In addition to the generic projection information returned in
+    /// `PointProjection`, implementations might provide shape-specific
+    /// projection info. The type of this shape-specific information is defined
+    /// by this associated type.
+    type ExtraInfo;
+
+    /// Projects a point on `self` transformed by `m`.
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
+        -> (PointProjection<P>, Self::ExtraInfo);
+}
