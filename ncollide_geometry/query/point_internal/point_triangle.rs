@@ -1,6 +1,6 @@
 use na;
 use shape::Triangle;
-use query::{PointQuery, PointProjection};
+use query::{AdvancedPointQuery, PointQuery, PointProjection};
 use math::{Point, Isometry};
 
 #[inline]
@@ -18,6 +18,23 @@ fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+        self.project_point_with_info(m, pt, solid).without_info()
+    }
+
+    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
+    // eaten by the `::approx_eq(...)` on `project_point(...)`.
+}
+
+impl<P: Point, M: Isometry<P>> AdvancedPointQuery<P, M> for Triangle<P> {
+    // Implementing this trait while providing no projection info might seem
+    // nonsensical, but it actually makes it possible to complete the
+    // `AdvancedPointQuery` implementation for `BaseMesh`.
+    type ProjectionInfo = ();
+
+    #[inline]
+    fn project_point_with_info(&self, m: &M, pt: &P, solid: bool)
+        -> PointProjection<P, Self::ProjectionInfo>
+    {
         /*
          * This comes from the book `Real Time Collision Detection`.
          * This is actually a trivial Voronoï region based approach, except that great care has
@@ -136,7 +153,4 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
             }
         }
     }
-
-    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
-    // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
