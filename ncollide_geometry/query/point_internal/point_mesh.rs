@@ -1,7 +1,7 @@
 use alga::general::Id;
 use na;
 use query::{AdvancedPointQuery, PointQuery, PointProjection};
-use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
+use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Point, Isometry};
@@ -152,10 +152,11 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
     }
 }
 
+
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        self.base_mesh().project_point(m, point, solid)
+        self.project_point_with_info(m, point, solid).without_info()
     }
 
     #[inline]
@@ -166,5 +167,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
         self.base_mesh().contains_point(m, point)
+    }
+}
+
+impl<P: Point, M: Isometry<P>> AdvancedPointQuery<P, M> for Polyline<P> {
+    type ProjectionInfo = PointProjectionInfo<<Segment<P> as AdvancedPointQuery<P, M>>::ProjectionInfo>;
+
+    #[inline]
+    fn project_point_with_info(&self, m: &M, point: &P, solid: bool)
+        -> PointProjection<P, Self::ProjectionInfo>
+    {
+        self.base_mesh().project_point_with_info(m, point, solid)
     }
 }
