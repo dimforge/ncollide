@@ -11,7 +11,7 @@ use utils;
 use math::Point;
 
 
-/// A Boundig Volume Tree.
+/// A Bounding Volume Tree.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>
