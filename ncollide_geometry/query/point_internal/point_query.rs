@@ -11,6 +11,7 @@ pub struct PointProjection<P: Point> {
 
 impl<P: Point> PointProjection<P> {
     /// Initializes a new `PointProjection`.
+    #[inline]
     pub fn new(is_inside: bool, point: P) -> PointProjection<P> {
         PointProjection {
             is_inside: is_inside,
@@ -22,7 +23,6 @@ impl<P: Point> PointProjection<P> {
 /// Trait of objects that can be tested for point inclusion and projection.
 pub trait PointQuery<P: Point, M> {
     /// Projects a point on `self` transformed by `m`.
-    #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P>;
 
     /// Computes the minimal distance between a point and `self` transformed by `m`.
@@ -70,7 +70,6 @@ pub trait RichPointQuery<P: Point, M> {
     type ExtraInfo;
 
     /// Projects a point on `self` transformed by `m`.
-    #[inline]
     fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
         -> (PointProjection<P>, Self::ExtraInfo);
 }

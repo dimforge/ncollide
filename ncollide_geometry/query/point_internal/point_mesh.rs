@@ -13,8 +13,7 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
           E: BaseMeshElement<I, P> + PointQuery<P, Id> + RichPointQuery<P, Id> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
-        projection
+        self.project_point_with_extra_info(m, point, solid).0
     }
 
     #[inline]
@@ -152,8 +151,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
-        projection
+        self.project_point_with_extra_info(m, point, solid).0
     }
 
     #[inline]
