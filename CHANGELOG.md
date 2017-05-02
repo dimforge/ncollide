@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Modified
     * The `ShapeHandle` is now a `Arc<Shape<P, M>>` instead of `Arc<Box<Shape<P, M>>>`
     (this removes one allocation indirection).
+    * Update to nalgebra 0.12.
 
 ## [0.11.0]
     * Update to nalgebra 0.11.0.
