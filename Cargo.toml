@@ -39,4 +39,5 @@ rand     = "0.3"
 
 [workspace]
 members = [ "ncollide_math", "ncollide_utils", "ncollide_geometry", "ncollide_pipeline",
-            "ncollide_procedural", "ncollide_transformation" ]
+            "ncollide_procedural", "ncollide_transformation", "ncollide_testbed2d",
+            "ncollide_testbed3d" ]
