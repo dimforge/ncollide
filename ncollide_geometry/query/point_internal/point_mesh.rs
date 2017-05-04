@@ -113,6 +113,7 @@ impl<'a, P, I, E> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, I,
 
 
 /// Additional point pojection info for base meshes
+#[derive(Debug)]
 pub struct PointProjectionInfo<C> {
     /// The index of the base mesh element the point was projected on
     ///
