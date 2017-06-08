@@ -71,13 +71,16 @@ pub fn key_from_pair(a: usize, b: usize) -> usize {
 pub fn tomas_wang_hash(k: usize) -> usize {
     let mut res = Wrapping(k);
 
-    res = res + !(res << 32);
+    let x: Wrapping<usize> = res << 32;
+    res = res + !(x);
     res = res ^ (res >> 22);
-    res = res + !(res << 13);
+    let x: Wrapping<usize> = res << 13;
+    res = res + !(x);
     res = res ^ (res >> 8);
     res = res + (res << 3);
     res = res ^ (res >> 15);
-    res = res + !(res << 27);
+    let x: Wrapping<usize> = res << 27;
+    res = res + !(x);
     res = res ^ (res >> 31);
 
     let Wrapping(res_val) = res;
