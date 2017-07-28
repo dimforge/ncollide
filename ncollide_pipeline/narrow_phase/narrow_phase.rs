@@ -1,10 +1,11 @@
+use std::vec::IntoIter;
 use std::slice::Iter;
 use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Contact;
-use narrow_phase::{ContactAlgorithm, ContactSignal, ContactGenerator,
-                   ProximityAlgorithm, ProximitySignal, ProximityDetector};
+use narrow_phase::{ContactAlgorithm, ContactSignal,
+                   ProximityAlgorithm, ProximitySignal};
 use world::CollisionObject;
 use math::Point;
 
@@ -44,14 +45,14 @@ pub trait NarrowPhase<P: Point, M, T> {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, ContactAlgorithm<P, M>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, ContactAlgorithm<P, M>>>)
                -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -64,11 +65,8 @@ impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     pub fn contacts(self) -> Contacts<'a, P, M, T> {
         Contacts {
             objects:      self.objects,
-            co1:          None,
-            co2:          None,
+            curr:         None,
             pairs:        self.pairs,
-            collector:    Vec::new(), // FIXME: avoid allocations.
-            curr_contact: 0
         }
     }
 }
@@ -95,11 +93,8 @@ impl<'a, P: Point, M, T> Iterator for ContactPairs<'a, P, M, T> {
 /// An iterator through contacts.
 pub struct Contacts<'a, P: 'a + Point, M: 'a, T: 'a> {
     objects:      &'a UidRemap<CollisionObject<P, M, T>>,
-    co1:          Option<&'a CollisionObject<P, M, T>>,
-    co2:          Option<&'a CollisionObject<P, M, T>>,
-    pairs:        Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>,
-    collector:    Vec<Contact<P>>,
-    curr_contact: usize
+    curr:         Option<(&'a CollisionObject<P, M, T>, &'a CollisionObject<P, M, T>, IntoIter<Contact<P>>)>,
+    pairs:        Iter<'a, Entry<Pair, ContactAlgorithm<P, M>>>,
 }
 
 impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
@@ -107,33 +102,33 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        // FIXME: is there a more efficient way to do this (i-e. avoid using an index)?
-        if self.curr_contact < self.collector.len() {
-            self.curr_contact = self.curr_contact + 1;
 
-            // FIXME: would be nice to avoid the `clone` and return a reference
-            // instead (but what would be its lifetime?).
-            Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[self.curr_contact - 1].clone()))
+        if let Some((co1, co2, ref mut iter)) = self.curr {
+            if let Some(contact) = iter.next() {
+                return Some((co1, co2, contact));
+            }
         }
-        else {
-            self.collector.clear();
 
-            while let Some(p) = self.pairs.next() {
-                p.value.contacts(&mut self.collector);
+        while let Some(p) = self.pairs.next() {
+            if p.value.num_contacts() > 0 {
 
-                if !self.collector.is_empty() {
-                    self.co1 = Some(&self.objects[p.key.first]);
-                    self.co2 = Some(&self.objects[p.key.second]);
-                    self.curr_contact = 1; // Start at 1 instead of 0 because we will return the first one here.
+                let mut collector = Vec::new(); // FIXME: Avoid allocations
+                p.value.contacts(&mut collector);
+                let mut iter = collector.into_iter();
 
-                    // FIXME: would be nice to avoid the `clone` and return a reference
-                    // instead (but what would be its lifetime?).
-                    return Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[0].clone()))
-                }
+                let co1 = &self.objects[p.key.first];
+                let co2 = &self.objects[p.key.second];
+                let first = iter.next().unwrap();
+
+                self.curr = Some((co1, co2, iter));
+
+                return Some((co1, co2, first));
             }
 
-            None
         }
+
+        None
+
     }
 }
 
@@ -141,14 +136,14 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 /// Iterator through proximity pairs.
 pub struct ProximityPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, ProximityAlgorithm<P, M>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ProximityPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, ProximityAlgorithm<P, M>>>)
                -> ProximityPairs<'a, P, M, T> {
         ProximityPairs {
             objects: objects,
