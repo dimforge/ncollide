@@ -6,3 +6,4 @@ lib
 target
 private
 Cargo.lock
+Makefile
