@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_testbed3d"
-version = "0.4.0"
+version = "0.5.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "3D testbed for ncollide."
@@ -24,4 +24,4 @@ glfw         = "0.8"
 kiss3d       = "0.9"
 mpeg_encoder = { version = "0.2", optional = true }
 nalgebra     = "0.13"
-ncollide     = "0.12"
+ncollide     = "0.13"

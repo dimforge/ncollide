@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide"
-version = "0.12.0"
+version = "0.13.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
@@ -24,12 +24,12 @@ name = "ncollide"
 path = "src/lib.rs"
 
 [dependencies]
-ncollide_math           = { path = "ncollide_math",           version = "0.7" }
-ncollide_utils          = { path = "ncollide_utils",          version = "0.7" }
-ncollide_geometry       = { path = "ncollide_geometry",       version = "0.4" }
-ncollide_pipeline       = { path = "ncollide_pipeline",       version = "0.11" }
-ncollide_procedural     = { path = "ncollide_procedural",     version = "0.7" }
-ncollide_transformation = { path = "ncollide_transformation", version = "0.7" }
+ncollide_math           = { path = "ncollide_math",           version = "0.8" }
+ncollide_utils          = { path = "ncollide_utils",          version = "0.8" }
+ncollide_geometry       = { path = "ncollide_geometry",       version = "0.5" }
+ncollide_pipeline       = { path = "ncollide_pipeline",       version = "0.12" }
+ncollide_procedural     = { path = "ncollide_procedural",     version = "0.8" }
+ncollide_transformation = { path = "ncollide_transformation", version = "0.8" }
 
 [dev-dependencies]
 approx   = "0.1"

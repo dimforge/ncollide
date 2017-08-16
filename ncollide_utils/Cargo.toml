@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_utils"
-version = "0.7.0"
+version = "0.8.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 
@@ -22,4 +22,4 @@ num-traits = "0.1"
 approx     = "0.1"
 alga       = "0.5"
 nalgebra   = "0.13"
-ncollide_math = { path = "../ncollide_math", version = "0.7" }
+ncollide_math = { path = "../ncollide_math", version = "0.8" }
