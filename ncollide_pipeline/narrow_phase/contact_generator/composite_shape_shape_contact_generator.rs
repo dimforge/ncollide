@@ -89,7 +89,7 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
 
         // Remove outdated sub detectors
         for i in self.to_delete.iter() {
-            self.sub_detectors.remove(i);
+            let _ = self.sub_detectors.remove(i);
         }
 
         self.to_delete.clear();

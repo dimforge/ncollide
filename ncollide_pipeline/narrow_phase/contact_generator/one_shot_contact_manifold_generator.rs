@@ -58,12 +58,12 @@ impl<P, M, CD> ContactGenerator<P, M> for OneShotContactManifoldGenerator<P, M, 
                         let shifted_m1   = m1.append_rotation_wrt_point(&perturbation, &coll.world1)
                                            .expect(TR_ERROR);
 
-                        self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
+                        let _ = self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
 
                         // second perturbation (opposite direction)
                         let shifted_m1 = m1.append_rotation_wrt_point(&na::inverse(&perturbation), &coll.world1)
                                          .expect(TR_ERROR);
-                        self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
+                        let _ = self.sub_detector.add_new_contacts(d, &shifted_m1, g1, m2, g2, prediction);
 
                         true
                     });

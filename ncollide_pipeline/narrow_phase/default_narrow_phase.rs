@@ -46,10 +46,10 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let had_contacts = e.value.num_contacts() != 0;
 
-                e.value.update(&*self.contact_dispatcher,
-                               &co1.position, co1.shape.as_ref(),
-                               &co2.position, co2.shape.as_ref(),
-                               co1.query_type.query_limit() + co2.query_type.query_limit());
+                let _ = e.value.update(&*self.contact_dispatcher,
+                                       &co1.position, co1.shape.as_ref(),
+                                       &co2.position, co2.shape.as_ref(),
+                                       co1.query_type.query_limit() + co2.query_type.query_limit());
 
                 if e.value.num_contacts() == 0 {
                     if had_contacts {
@@ -71,7 +71,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let prev_prox = e.value.proximity();
 
-                e.value.update(&*self.proximity_dispatcher,
+                let _ = e.value.update(&*self.proximity_dispatcher,
                                &co1.position, co1.shape.as_ref(),
                                &co2.position, co2.shape.as_ref(),
                                co1.query_type.query_limit() + co2.query_type.query_limit());

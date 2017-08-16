@@ -4,10 +4,10 @@ use approx::ApproxEq;
 
 use alga::general::{Lattice, Real};
 use alga::linear::{InnerSpace, FiniteDimInnerSpace};
-use na::{self, ColumnVector};
-use na::dimension::{U1, U2, U3};
-use na::storage::OwnedStorage;
-use na::allocator::{Allocator, OwnedAllocator};
+use na::{self, DefaultAllocator, Vector2, Vector3};
+use na::dimension::{U2, U3};
+use na::storage::Owned;
+use na::allocator::Allocator;
 
 /// Trait implemented by vector types usable by ncollide.
 pub trait Vector: Copy + Send + Sync + 'static +
@@ -20,11 +20,10 @@ pub trait Vector: Copy + Send + Sync + 'static +
     fn sample_sphere<F: FnMut(Self)>(F);
 }
 
-impl<N, S> Vector for ColumnVector<N, U2, S>
+impl<N> Vector for Vector2<N>
     where N: Real + Display,
-          S: Send + Sync + Copy + 'static + OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> +
-                    Allocator<usize, U2, U1> {
+          DefaultAllocator: Allocator<N, U2> + Allocator<usize, U2>,
+          Owned<N, U2>: Copy + Sync + Send + 'static {
 
     #[inline(always)]
     fn sample_sphere<F: FnMut(Self)>(mut f: F) {
@@ -37,11 +36,10 @@ impl<N, S> Vector for ColumnVector<N, U2, S>
     }
 }
 
-impl<N, S> Vector for ColumnVector<N, U3, S>
+impl<N> Vector for Vector3<N>
     where N: Real + Display,
-          S: Send + Sync + Copy + 'static + OwnedStorage<N, U3, U1>,
-          S::Alloc: OwnedAllocator<N, U3, U1, S> +
-                    Allocator<usize, U3, U1> {
+          DefaultAllocator: Allocator<N, U3> + Allocator<usize, U3>,
+          Owned<N, U3>: Copy + Sync + Send + 'static {
 
     #[inline(always)]
     fn sample_sphere<F: FnMut(Self)>(mut f: F) {

@@ -41,7 +41,7 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeProximityDetector<P, M> {
                  margin: P::Real) {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
-            self.sub_detectors.remove(key);
+            let _ = self.sub_detectors.remove(key);
         }
 
         self.to_delete.clear();
@@ -119,7 +119,7 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeProximityDetector<P, M> {
 
             if let Some(sub_detector) = detector {
                 g1.map_transformed_part_at(*key, m1, &mut |m1, g1| {
-                    sub_detector.update(disp, m1, g1, m2, g2, margin);
+                    let _ = sub_detector.update(disp, m1, g1, m2, g2, margin);
                 });
 
                 match sub_detector.proximity() {

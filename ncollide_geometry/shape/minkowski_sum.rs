@@ -8,7 +8,7 @@ use approx::ApproxEq;
 
 use alga::general::{Id, MeetSemilattice, JoinSemilattice, Lattice};
 use alga::linear::{AffineSpace, EuclideanSpace};
-use na::{self, Axpy};
+use na;
 use shape::{SupportMap, Reflection};
 use math::Point;
 
@@ -242,15 +242,6 @@ impl<P: Point> IndexMut<usize> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Axpy<P::Real> for AnnotatedPoint<P> {
-    #[inline]
-    fn axpy(&mut self, a: P::Real, x: &Self) {
-        self.orig1.axpy(a, &x.orig1);
-        self.orig2.axpy(a, &x.orig2);
-        self.point.axpy(a, &x.point);
-    }
-}
-
 impl<P: Point> Add<P::Vector> for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
@@ -425,6 +416,13 @@ impl<P: Point> ApproxEq for AnnotatedPoint<P> {
 
 impl<P: Point> Point for AnnotatedPoint<P> {
     type Vector = P::Vector;
+
+    #[inline]
+    fn axpy(&mut self, a: P::Real, x: &Self) {
+        self.orig1.axpy(a, &x.orig1);
+        self.orig2.axpy(a, &x.orig2);
+        self.point.axpy(a, &x.point);
+    }
 }
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M, G1, G2>

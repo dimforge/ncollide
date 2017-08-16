@@ -261,7 +261,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
          * Actually remove the pairs.
          */
         for pair in self.pairs_to_remove.iter() {
-            self.pairs.remove(pair);
+            let _ = self.pairs.remove(pair);
         }
         self.pairs_to_remove.clear();
 

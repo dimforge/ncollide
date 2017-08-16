@@ -212,14 +212,14 @@ impl<N: Real> DualGraphVertex<N> {
             VertexWithConcavity::new(r3, na::zero())
         );
         let mut uancestors = HashSet::new();
-        uancestors.insert(r1);
-        uancestors.insert(r2);
-        uancestors.insert(r3);
+        let _ = uancestors.insert(r1);
+        let _ = uancestors.insert(r2);
+        let _ = uancestors.insert(r3);
 
         let mut border = HashSet::new();
-        border.insert(edge(idx.x, idx.y));
-        border.insert(edge(idx.y, idx.z));
-        border.insert(edge(idx.z, idx.x));
+        let _ = border.insert(edge(idx.x, idx.y));
+        let _ = border.insert(edge(idx.y, idx.z));
+        let _ = border.insert(edge(idx.z, idx.x));
 
         DualGraphVertex {
             neighbors:  Some(HashSet::new()),
@@ -254,8 +254,8 @@ impl<N: Real> DualGraphVertex<N> {
                 let ga = &mut graph[*neighbor];
 
                 // Replace `other` by `valid`.
-                ga.neighbors.as_mut().unwrap().remove(&other);
-                ga.neighbors.as_mut().unwrap().insert(valid);
+                let _ = ga.neighbors.as_mut().unwrap().remove(&other);
+                let _ = ga.neighbors.as_mut().unwrap().insert(valid);
             }
         }
 
@@ -291,7 +291,7 @@ impl<N: Real> DualGraphVertex<N> {
 
         {
             for i in other_uancestors.iter() {
-                valid_uancestors.insert(*i);
+                let _ = valid_uancestors.insert(*i);
             }
         }
 
@@ -326,8 +326,8 @@ impl<N: Real> DualGraphVertex<N> {
         gvalid.chull = Some(chull);
         gvalid.aabb = new_aabb;
         gvalid.neighbors.as_mut().unwrap().extend(other_neighbors.into_iter());
-        gvalid.neighbors.as_mut().unwrap().remove(&other);
-        gvalid.neighbors.as_mut().unwrap().remove(&valid);
+        let _ = gvalid.neighbors.as_mut().unwrap().remove(&other);
+        let _ = gvalid.neighbors.as_mut().unwrap().remove(&valid);
         gvalid.ancestors = Some(new_ancestors);
         gvalid.area = gvalid.area + other_area;
         gvalid.concavity = edge.concavity;
@@ -701,8 +701,8 @@ fn compute_dual_graph<N: Real>(mesh:   &TriMesh<Point3<N>>,
 
                 if *other != i {
                     // register the adjascency.
-                    dual_vertices[i].neighbors.as_mut().unwrap().insert(*other);
-                    dual_vertices[*other].neighbors.as_mut().unwrap().insert(i);
+                    let _ = dual_vertices[i].neighbors.as_mut().unwrap().insert(*other);
+                    let _ = dual_vertices[*other].neighbors.as_mut().unwrap().insert(i);
                 }
             }
         });

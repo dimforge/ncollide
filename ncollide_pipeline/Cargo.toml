@@ -17,7 +17,7 @@ path = "lib.rs"
 [dependencies]
 rustc-serialize = "0.3"
 alga            = "0.5"
-nalgebra        = "0.12"
+nalgebra        = "0.13"
 
 ncollide_math     = { path = "../ncollide_math",     version = "0.7" }
 ncollide_utils    = { path = "../ncollide_utils",    version = "0.7" }

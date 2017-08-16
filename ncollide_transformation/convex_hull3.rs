@@ -164,7 +164,8 @@ fn get_initial_mesh<N: Real>(points: &mut [Point3<N>], undecidable: &mut Vec<usi
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
     let cov_mat          = cov(points);
-    let (eigvec, eigval) = cov_mat.eig(N::default_epsilon(), 1000);
+    let eig = cov_mat.symmetric_eigen();
+    let (eigvec, eigval) = (eig.eigenvectors, eig.eigenvalues);
     let mut eigpairs = [
         (eigvec.column(0).into_owned(), eigval[0]),
         (eigvec.column(1).into_owned(), eigval[1]),
