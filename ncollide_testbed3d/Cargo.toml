@@ -21,7 +21,7 @@ time         = "0.1"
 rand         = "0.3"
 num-traits   = "0.1"
 glfw         = "0.8"
-kiss3d       = "0.9"
+kiss3d       = "0.10"
 mpeg_encoder = { version = "0.2", optional = true }
 nalgebra     = "0.13"
 ncollide     = "0.13"
