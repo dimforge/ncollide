@@ -77,9 +77,11 @@ a:hover .navbar_icon {
   background-size: 100%;
 }
 
+/*
 :target {
     background: none;
 }
+*/
 
 #noborder {
   border-style: none;
