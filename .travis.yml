@@ -11,14 +11,18 @@ matrix:
 addons:
   apt:
     sources:
+      - kalakris-cmake
       - kubuntu-backports
     packages:
       - cmake
+      - libxi-dev
+      - libxrandr-dev
       - libxxf86vm-dev
       - libglew-dev
       - libopenal-dev
       - libsndfile1-dev
-      - xorg-dev
+      - libxinerama-dev
+      - libxcursor-dev
 cache:
   cargo: true
   apt: true
