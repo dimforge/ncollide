@@ -76,10 +76,15 @@ licence](https://github.com/sebcrozet/ncollide/blob/master/LICENSE)).
 
 The list of constributors can be found [there](https://github.com/sebcrozet/ncollide/graphs/contributors). Here are additional contributors, including Patrons:
 
+
+
+* 8zu
 * Anselm Eickhoff
 * Camille Viot
+* Jac
 * Jan Nockemann
 * Jeb Brooks
+* J. Ryan Stinnett
 * Kasper Møller Andersen
 * Kyle Gretchev
 * Mark Stacey
