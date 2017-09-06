@@ -2,7 +2,7 @@ use world::CollisionObject;
 use math::Point;
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<P: Point, M, T> {
+pub trait BroadPhasePairFilter<P: Point, M, T> : Sync + Send {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool;
 }

@@ -35,7 +35,7 @@ impl<P, M, S> SupportMapSupportMapContactGenerator<P, M, S>
     }
 }
 
-impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapContactGenerator<P, M, S>
+impl<P, M, S: Sync + Send> ContactGenerator<P, M> for SupportMapSupportMapContactGenerator<P, M, S>
     where P: Point,
           M: Isometry<P>,
           S: Simplex<AnnotatedPoint<P>> {

@@ -29,7 +29,7 @@ impl<N, BV, T> BruteForceBroadPhase<N, BV, T> {
     }
 }
 
-impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<P::Real, BV, T> where
+impl<P: Point, BV: Sync + Send, T: Sync + Send> BroadPhase<P, BV, T> for BruteForceBroadPhase<P::Real, BV, T> where
     BV: 'static + BoundingVolume<P> +
         RayCast<P, Id> + PointQuery<P, Id> + Clone {
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {

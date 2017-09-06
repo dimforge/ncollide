@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use alga::general::Id;
 use na;
 use utils::data::uid_remap::{UidRemap, FastKey};
@@ -14,7 +11,7 @@ use broad_phase::BroadPhase;
 
 struct DBVTBroadPhaseProxy<P, BV, T> {
     data:   T,
-    leaf:   Rc<RefCell<DBVTLeaf<P, FastKey, BV>>>,
+    leaf:   DBVTLeaf<P, FastKey, BV>,
     active: isize // Negative => removed.
 }
 
@@ -75,7 +72,8 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     where P:  Point,
-          BV: 'static + BoundingVolume<P> +
+          T: Sync + Send,
+          BV: 'static + BoundingVolume<P> + Sync + Send +
               RayCast<P, Id> + PointQuery<P, Id> + Clone {
     #[inline]
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
@@ -112,8 +110,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
          */
         for (uid, bv, data) in self.to_add.drain(..) {
             let lbv = bv.loosened(self.margin.clone());
-            let leaf: DBVTLeaf<P, FastKey, BV> = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
-            let leaf = Rc::new(RefCell::new(leaf));
+            let mut leaf = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
             let proxy = DBVTBroadPhaseProxy {
                 data:   data,
                 leaf:   leaf.clone(),
@@ -121,7 +118,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             };
 
             let (proxy_key, _) = self.proxies.insert(uid, proxy);
-            leaf.borrow_mut().object = proxy_key.clone();
+            leaf.set_object(vec!(&mut self.tree, &mut self.stree), proxy_key.clone());
             self.to_update.push((proxy_key, lbv));
         }
 
@@ -136,7 +133,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             // If the activation number is < than the threshold then the leaf has not been removed
             // yet.
             if proxy.active == 0 {
-                proxy.leaf.borrow_mut().bounding_volume = bv.clone();
+                proxy.leaf.set_bounding_volume(vec!(&mut self.tree, &mut self.stree), bv.clone());
                 self.stree.remove(&mut proxy.leaf);
                 proxy.active = DEACTIVATION_THRESHOLD;
             }
@@ -147,7 +144,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                 self.stree.remove(&mut proxy.leaf);
             }
             else if proxy.active < DEACTIVATION_THRESHOLD {
-                proxy.leaf.borrow_mut().bounding_volume = bv.clone();
+                proxy.leaf.set_bounding_volume(vec!(&mut self.tree, &mut self.stree), bv.clone());
                 self.tree.remove(&mut proxy.leaf);
                 proxy.active = DEACTIVATION_THRESHOLD;
             }
@@ -159,7 +156,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         for &(ref proxy_key1, _) in self.to_update.iter().rev() {
             let proxy1 = &self.proxies[*proxy_key1];
 
-            if !proxy1.leaf.borrow().is_detached() {
+            if !proxy1.leaf.is_detached(vec!(&self.tree, &self.stree)) {
                 continue;
             }
 
@@ -168,9 +165,9 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             }
 
             {
-                let node1 = proxy1.leaf.borrow();
+                let node1_bounding_volume = proxy1.leaf.bounding_volume(vec!(&self.tree, &self.stree));
                 let mut visitor = BoundingVolumeInterferencesCollector::new(
-                    &node1.bounding_volume,
+                    &node1_bounding_volume,
                     &mut self.collector);
 
                 self.tree.visit(&mut visitor);
@@ -226,8 +223,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                     let proxy1 = &self.proxies[ids.first];
                     let proxy2 = &self.proxies[ids.second];
 
-                    let bv1 = &proxy1.leaf.borrow().bounding_volume;
-                    let bv2 = &proxy2.leaf.borrow().bounding_volume;
+                    let bv1 = &proxy1.leaf.bounding_volume(vec!(&self.tree, &self.stree));
+                    let bv2 = &proxy2.leaf.bounding_volume(vec!(&self.tree, &self.stree));
 
                     let filtered_out = proxy1.active < 0 ||
                                        proxy2.active < 0 ||
@@ -301,7 +298,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             let proxy = self.proxies.get_fast_mut(&proxy_key).unwrap();
 
             if proxy.active >= 0 {
-                let needs_update = !proxy.leaf.borrow().bounding_volume.contains(&bounding_volume);
+                let needs_update = !proxy.leaf.bounding_volume(vec!(&self.tree, &self.stree)).contains(&bounding_volume);
 
                 if needs_update {
                     self.to_update.push((proxy_key, bounding_volume.loosened(self.margin)));
@@ -321,7 +318,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
     fn deferred_recompute_all_proximities(&mut self) {
         for proxy in self.proxies.iter() {
             if proxy.1.active >= 0 {
-                self.to_update.push((proxy.0, proxy.1.leaf.borrow().bounding_volume.clone()));
+                self.to_update.push((proxy.0, proxy.1.leaf.bounding_volume(vec!(&self.tree, &self.stree)).clone()));
             }
         }
     }

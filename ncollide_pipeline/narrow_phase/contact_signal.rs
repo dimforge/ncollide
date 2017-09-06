@@ -3,7 +3,7 @@ use narrow_phase::ContactAlgorithm;
 use math::Point;
 
 /// A signal handler for contact detection.
-pub trait ContactHandler<P: Point, M, T> {
+pub trait ContactHandler<P: Point, M, T> : Sync + Send {
     /// Activate an action for when two objects start being in contact.
     fn handle_contact_started(&mut self,
                               co1:      &CollisionObject<P, M, T>,

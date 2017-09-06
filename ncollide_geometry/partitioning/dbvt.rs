@@ -26,6 +26,9 @@ pub struct DBVT<P, B, BV> {
     len:   usize
 }
 
+unsafe impl<P, B, BV> Send for DBVT<P, B, BV> {}
+unsafe impl<P, B, BV> Sync for DBVT<P, B, BV> {}
+
 impl<P, B, BV> DBVT<P, B, BV> {
     /// Creates a new Dynamic Bounding Volume Tree.
     pub fn new() -> DBVT<P, B, BV> {
@@ -42,10 +45,10 @@ impl<P, B, BV> DBVT<P, B, BV>
           BV: 'static + BoundingVolume<P> + Clone,
           B:  'static + Clone {
     /// Removes a leaf from the tree. Fails if the tree is empty.
-    pub fn remove(&mut self, leaf: &mut Rc<RefCell<DBVTLeaf<P, B, BV>>>) {
+    pub fn remove(&mut self, leaf: &mut DBVTLeaf<P, B, BV>) {
         let self_tree = self.tree.take().expect("This tree was empty.");
 
-        let mut bleaf = (*leaf).borrow_mut();
+        let mut bleaf = leaf.0.borrow_mut();
         self.tree = bleaf.unlink(&mut self.cache, self_tree);
         self.len  = self.len - 1;
     }
@@ -53,8 +56,8 @@ impl<P, B, BV> DBVT<P, B, BV>
     // FIXME: it feels strange that this method takes (B, BV) in this order while the leaves
     // constructor takes (BV, B)…
     /// Creates, inserts, and returns a new leaf with the given content.
-    pub fn insert_new(&mut self, b: B, bv: BV) -> Rc<RefCell<DBVTLeaf<P, B, BV>>> {
-        let leaf = Rc::new(RefCell::new(DBVTLeaf::new(bv, b)));
+    pub fn insert_new(&mut self, b: B, bv: BV) -> DBVTLeaf<P, B, BV> {
+        let leaf = DBVTLeaf::new(bv, b);
 
         self.insert(leaf.clone());
 
@@ -62,13 +65,13 @@ impl<P, B, BV> DBVT<P, B, BV>
     }
 
     /// Inserts a leaf to the tree.
-    pub fn insert(&mut self, leaf: Rc<RefCell<DBVTLeaf<P, B, BV>>>) {
+    pub fn insert(&mut self, leaf: DBVTLeaf<P, B, BV>) {
         let mut self_tree = None;
         mem::swap(&mut self_tree, &mut self.tree);
 
         self.tree = match self_tree {
             None    => {
-                leaf.borrow_mut().parent = DBVTLeafState::Root;
+                leaf.0.borrow_mut().parent = DBVTLeafState::Root;
                 Some(DBVTNode::Leaf(leaf))
             },
             Some(t) => Some(DBVTNode::Internal(t.insert(&mut self.cache, leaf)))
@@ -92,7 +95,7 @@ impl<P, B, BV> DBVT<P, B, BV>
 /// Node of the Dynamic Bounding Volume Tree.
 enum DBVTNode<P, B, BV> {
     Internal(Box<DBVTInternal<P, B, BV>>),
-    Leaf(Rc<RefCell<DBVTLeaf<P, B, BV>>>),
+    Leaf(DBVTLeaf<P, B, BV>),
     Invalid
 }
 
@@ -174,8 +177,73 @@ impl<P, B, BV> DBVTLeafState<P, B, BV> {
 }
 
 /// Leaf of a Dynamic Bounding Volume Tree.
+///
+/// Clone the leaf only clone the reference to it.
+///
+/// All method require a trees argument: it is a vec that must contains all dbvt that might
+/// contains this leaf. This argument is not used and is only needed for compile time check.
+pub struct DBVTLeaf<P, B, BV>(Rc<RefCell<DBVTLeafInner<P, B, BV>>>);
+
+unsafe impl<P, B, BV> Send for DBVTLeaf<P, B, BV> {}
+unsafe impl<P, B, BV> Sync for DBVTLeaf<P, B, BV> {}
+
+impl<P: Point, B: Clone + 'static, BV: BoundingVolume<P> + Clone + 'static> DBVTLeaf<P, B, BV> {
+    /// Creates a new leaf.
+    pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<P, B, BV> {
+        DBVTLeaf(Rc::new(RefCell::new(DBVTLeafInner::new(bounding_volume, object))))
+    }
+
+    /// Tests if this node is the root.
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    #[inline]
+    pub fn is_detached(&self, _trees: Vec<&DBVT<P, B, BV>>) -> bool {
+        self.0.borrow().is_detached()
+    }
+
+    /// Set bounding volume
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    // FIXME: should we update center too ?
+    #[inline]
+    pub fn set_bounding_volume(&mut self, _trees: Vec<&mut DBVT<P, B, BV>>, bounding_volume: BV) {
+        self.0.borrow_mut().bounding_volume = bounding_volume;
+    }
+
+    /// Get clone of bounding volume
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    #[inline]
+    pub fn bounding_volume(&self, _trees: Vec<&DBVT<P, B, BV>>) -> BV {
+        self.0.borrow().bounding_volume.clone()
+    }
+
+    /// Set object
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    #[inline]
+    pub fn set_object(&mut self, _trees: Vec<&mut DBVT<P, B, BV>>, object: B) {
+        self.0.borrow_mut().object = object;
+    }
+
+    /// Get clone of object
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    #[inline]
+    pub fn object(&self, _trees: Vec<&DBVT<P, B, BV>>) -> B {
+        self.0.borrow().object.clone()
+    }
+}
+
+impl<P, B, BV> Clone for DBVTLeaf<P, B, BV> {
+    fn clone(&self) -> Self {
+        DBVTLeaf(self.0.clone())
+    }
+}
+
+/// Leaf of a Dynamic Bounding Volume Tree.
 #[derive(Clone)]
-pub struct DBVTLeaf<P, B, BV> {
+struct DBVTLeafInner<P, B, BV> {
     /// The bounding volume of this node.
     pub bounding_volume: BV,
     /// The center of this node bounding volume.
@@ -213,10 +281,10 @@ impl<P, B, BV> DBVTInternal<P, B, BV> {
     }
 }
 
-impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeaf<P, B, BV> {
+impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeafInner<P, B, BV> {
     /// Creates a new leaf.
-    pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<P, B, BV> {
-        DBVTLeaf {
+    fn new(bounding_volume: BV, object: B) -> DBVTLeafInner<P, B, BV> {
+        DBVTLeafInner {
             center:          bounding_volume.center(),
             bounding_volume: bounding_volume,
             object:          object,
@@ -225,12 +293,12 @@ impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeaf<P, B, BV> {
     }
 
     /// Tests if this node is the root.
-    pub fn is_root(&self) -> bool {
+    fn is_root(&self) -> bool {
         self.parent.is_root()
     }
 
     /// Tests if this node has no parent.
-    pub fn is_detached(&self) -> bool {
+    fn is_detached(&self) -> bool {
         self.parent.is_detached()
     }
 
@@ -259,7 +327,7 @@ impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeaf<P, B, BV> {
                     match other {
                         DBVTNode::Internal(ref mut i) => i.parent = pp,
                         DBVTNode::Leaf(ref mut l)     => {
-                            (**l).borrow_mut().parent =
+                            l.0.borrow_mut().parent =
                                 if is_p_right_to_pp { DBVTLeafState::RightChildOf(pp) }
                                 else { DBVTLeafState::LeftChildOf(pp) }
                         },
@@ -286,7 +354,7 @@ impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeaf<P, B, BV> {
                 // the root changes to the other child
                 match other {
                     DBVTNode::Internal(ref mut i) => i.parent = ptr::null_mut(),
-                    DBVTNode::Leaf(ref l)         => (**l).borrow_mut().parent = DBVTLeafState::Root,
+                    DBVTNode::Leaf(ref l)         => l.0.borrow_mut().parent = DBVTLeafState::Root,
                     DBVTNode::Invalid             => unreachable!()
                 }
 
@@ -310,7 +378,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
         match *self {
             DBVTNode::Internal(ref i) => na::distance_squared(&i.center, to),
             DBVTNode::Leaf(ref l)     => {
-                let bl = l.borrow();
+                let bl = l.0.borrow();
                 na::distance_squared(&bl.center, to)
             },
             DBVTNode::Invalid => unreachable!()
@@ -334,11 +402,11 @@ impl<P, BV, B> DBVTNode<P, B, BV>
     /// Inserts a new leaf on this tree.
     fn insert(self,
               cache:     &mut Cache<P, B, BV>,
-              to_insert: Rc<RefCell<DBVTLeaf<P, B, BV>>>)
+              to_insert: DBVTLeaf<P, B, BV>)
               -> Box<DBVTInternal<P, B, BV>> {
-        assert!(to_insert.borrow().is_detached(), "Cannot insert the same node twice.");
+        assert!(to_insert.0.borrow().is_detached(), "Cannot insert the same node twice.");
 
-        let mut bto_insert = (*to_insert).borrow_mut();
+        let mut bto_insert = to_insert.0.borrow_mut();
         let pto_insert     = &mut *bto_insert;
 
         match self {
@@ -386,7 +454,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
                                 parent = &mut **ci as *mut DBVTInternal<P, B, BV>;
                             },
                             DBVTNode::Leaf(ref l) => {
-                                let mut bl       = (**l).borrow_mut();
+                                let mut bl       = l.0.borrow_mut();
                                 let     pl       = &mut *bl;
                                 let mut internal = cache.alloc(DBVTInternal::new(
                                     pl.bounding_volume.merged(&pto_insert.bounding_volume),
@@ -416,7 +484,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
             },
             DBVTNode::Leaf(l) => {
                 let     cl = l.clone();
-                let mut bl = (*cl).borrow_mut();
+                let mut bl = cl.0.borrow_mut();
                 let     pl = &mut *bl;
 
                 // create the root
@@ -444,7 +512,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
                 }
             },
             DBVTNode::Leaf(ref l) => {
-                let bl = l.borrow();
+                let bl = l.0.borrow();
                 visitor.visit_leaf(&bl.object, &bl.bounding_volume)
             },
             DBVTNode::Invalid => unreachable!()

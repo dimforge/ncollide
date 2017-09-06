@@ -3,7 +3,7 @@ use world::CollisionObject;
 use math::Point;
 
 /// A signal handler for proximity detection.
-pub trait ProximityHandler<P: Point, M, T> {
+pub trait ProximityHandler<P: Point, M, T> : Sync + Send {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn handle_proximity(&mut self,
                         co1: &CollisionObject<P, M, T>,
