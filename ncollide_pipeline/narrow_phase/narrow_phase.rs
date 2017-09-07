@@ -4,8 +4,9 @@ use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Contact;
-use narrow_phase::{ContactAlgorithm, ContactSignal, ContactGenerator,
+use narrow_phase::{ContactAlgorithm, ContactGenerator,
                    ProximityAlgorithm, ProximitySignal, ProximityDetector};
+use events::{ContactEvents, ProximityEvents};
 use world::CollisionObject;
 use math::Point;
 
@@ -17,14 +18,14 @@ pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     /// Updates this narrow phase.
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
-              contact_signal:   &mut ContactSignal<P, M, T>,
-              proximity_signal: &mut ProximitySignal<P, M, T>,
+              contact_events:   &mut ContactEvents,
+              proximity_events: &mut ProximityEvents,
               timestamp:        usize);
 
     /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
     fn handle_interaction(&mut self,
-                          contact_signal:   &mut ContactSignal<P, M, T>,
-                          proximity_signal: &mut ProximitySignal<P, M, T>,
+                          contact_signal:   &mut ContactEvents,
+                          proximity_signal: &mut ProximityEvents,
                           objects:          &UidRemap<CollisionObject<P, M, T>>,
                           fk1:              &FastKey,
                           fk2:              &FastKey,
