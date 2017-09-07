@@ -1,9 +1,10 @@
 //! Abstract definition of a simplex usable by the GJK algorithm.
 
+use std::any::Any;
 use math::Point;
 
 /// Trait of a simplex usable by the GJK algorithm.
-pub trait Simplex<P: Point> {
+pub trait Simplex<P: Point>: Any + Send + Sync {
     /// Replace the point of the simplex by a single one. The simplex is reduced to be
     /// 0-dimensional.
     fn reset(&mut self, P);

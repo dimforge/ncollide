@@ -333,14 +333,6 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         self.get_and_remove(key).is_some()
     }
 
-    // pub fn swap(&mut self, _: K, _: V) -> Option<V> {
-    //     panic!("Not yet implemented.")
-    // }
-
-    // pub fn pop(&mut self, _: &K) -> Option<V> {
-    //     panic!("Not yet implemented.")
-    // }
-
     /// Gets a mutable reference to an element of the hashmap.
     pub fn find_mut<'a>(&'a mut self, key: &K) -> Option<&'a mut V> {
         let entry = self.find_entry_id(key);

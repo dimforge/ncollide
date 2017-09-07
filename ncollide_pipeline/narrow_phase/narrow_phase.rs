@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::slice::Iter;
 use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
@@ -12,7 +13,7 @@ use math::Point;
 ///
 /// The narrow phase manager is responsible for creating, updating and generating contact pairs
 /// between objects identified by the broad phase.
-pub trait NarrowPhase<P: Point, M, T> {
+pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     /// Updates this narrow phase.
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
@@ -44,14 +45,14 @@ pub trait NarrowPhase<P: Point, M, T> {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>)
                -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -141,14 +142,14 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 /// Iterator through proximity pairs.
 pub struct ProximityPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ProximityPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>)
                -> ProximityPairs<'a, P, M, T> {
         ProximityPairs {
             objects: objects,
