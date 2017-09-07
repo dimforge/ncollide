@@ -65,7 +65,7 @@ impl<B, BV> BVT<B, BV> {
         }
     }
 
-    /// Visits the bounding volume traversal tree implicitely formed with `other`.
+    /// Visits the bounding volume traversal tree implicitly formed with `other`.
     pub fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVT<B, BV>, visitor: &mut Vis) {
         match (&self.tree, &other.tree) {
             (&Some(ref ta), &Some(ref tb)) => ta.visit_bvtt(tb, visitor),

@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use alga::general::Id;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::bounding_volume::BoundingVolume;
@@ -30,8 +32,9 @@ impl<N, BV, T> BruteForceBroadPhase<N, BV, T> {
 }
 
 impl<P: Point, BV, T> BroadPhase<P, BV, T> for BruteForceBroadPhase<P::Real, BV, T> where
-    BV: 'static + BoundingVolume<P> +
-        RayCast<P, Id> + PointQuery<P, Id> + Clone {
+    BV: BoundingVolume<P> + RayCast<P, Id> + PointQuery<P, Id> + 
+        Any + Send + Sync + Clone,
+    T: Any + Send + Sync {
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T) {
         // XXX: should not be inserted now!
         let (key, _) = self.proxies.insert(uid, (bv.clone(), data));
