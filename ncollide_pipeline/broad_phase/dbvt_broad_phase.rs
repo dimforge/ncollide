@@ -113,7 +113,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             let mut leaf = DBVTLeaf::new(lbv.clone(), FastKey::new_invalid());
             let proxy = DBVTBroadPhaseProxy {
                 data:   data,
-                leaf:   leaf.clone(),
+                leaf:   leaf.clone(vec!(&mut self.tree, &mut self.stree)),
                 active: DEACTIVATION_THRESHOLD
             };
 
@@ -193,7 +193,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             }
 
             self.collector.clear();
-            self.tree.insert(proxy1.leaf.clone());
+            let proxy1_leaf_clone = proxy1.leaf.clone(vec!(&mut self.tree, &mut self.stree));
+            self.tree.insert(proxy1_leaf_clone);
         }
 
         /*
@@ -271,7 +272,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
             if proxy.active == 1 {
                 proxy.active = 0;
                 self.tree.remove(&mut proxy.leaf);
-                self.stree.insert(proxy.leaf.clone());
+                let proxy_leaf_clone = proxy.leaf.clone(vec!(&mut self.tree, &mut self.stree));
+                self.stree.insert(proxy_leaf_clone);
             }
             else if proxy.active > 1 {
                 proxy.active = proxy.active - 1;
@@ -306,7 +308,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                 else if proxy.active != DEACTIVATION_THRESHOLD { // If == the object might already be on the update list.
                     if proxy.active == 0 {
                         self.stree.remove(&mut proxy.leaf);
-                        self.tree.insert(proxy.leaf.clone());
+                        let proxy_leaf_clone = proxy.leaf.clone(vec!(&mut self.tree, &mut self.stree));
+                        self.tree.insert(proxy_leaf_clone);
                     }
 
                     proxy.active = DEACTIVATION_THRESHOLD - 1;

@@ -59,7 +59,7 @@ impl<P, B, BV> DBVT<P, B, BV>
     pub fn insert_new(&mut self, b: B, bv: BV) -> DBVTLeaf<P, B, BV> {
         let leaf = DBVTLeaf::new(bv, b);
 
-        self.insert(leaf.clone());
+        self.insert(leaf.unsafe_clone());
 
         leaf
     }
@@ -235,8 +235,17 @@ impl<P: Point, B: Clone + 'static, BV: BoundingVolume<P> + Clone + 'static> DBVT
     }
 }
 
-impl<P, B, BV> Clone for DBVTLeaf<P, B, BV> {
-    fn clone(&self) -> Self {
+impl<P, B, BV> DBVTLeaf<P, B, BV> {
+    /// Clone the leaf only clone the reference to it.
+    ///
+    /// _tress vector must contains all dbvt that might contains this leaf
+    #[inline]
+    pub fn clone(&self, _trees: Vec<&mut DBVT<P, B, BV>>) -> Self {
+        self.unsafe_clone()
+    }
+
+    #[inline]
+    fn unsafe_clone(&self) -> Self {
         DBVTLeaf(self.0.clone())
     }
 }
@@ -459,8 +468,8 @@ impl<P, BV, B> DBVTNode<P, B, BV>
                                 let mut internal = cache.alloc(DBVTInternal::new(
                                     pl.bounding_volume.merged(&pto_insert.bounding_volume),
                                     parent,
-                                    DBVTNode::Leaf(l.clone()),
-                                    DBVTNode::Leaf(to_insert.clone())));
+                                    DBVTNode::Leaf(l.unsafe_clone()),
+                                    DBVTNode::Leaf(to_insert.unsafe_clone())));
 
                                 pl.parent = DBVTLeafState::LeftChildOf(&mut *internal as *mut DBVTInternal<P, B, BV>);
                                 pto_insert.parent =
@@ -483,7 +492,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
                 mut_internal
             },
             DBVTNode::Leaf(l) => {
-                let     cl = l.clone();
+                let     cl = l.unsafe_clone();
                 let mut bl = cl.0.borrow_mut();
                 let     pl = &mut *bl;
 
@@ -492,7 +501,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
                     pl.bounding_volume.merged(&pto_insert.bounding_volume),
                     ptr::null_mut(),
                     DBVTNode::Leaf(l),
-                    DBVTNode::Leaf(to_insert.clone())));
+                    DBVTNode::Leaf(to_insert.unsafe_clone())));
 
                 pl.parent = DBVTLeafState::LeftChildOf(&mut *root as *mut DBVTInternal<P, B, BV>);
                 pto_insert.parent = DBVTLeafState::RightChildOf(&mut *root as *mut DBVTInternal<P, B, BV>);
