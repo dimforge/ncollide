@@ -11,12 +11,12 @@ pub trait HashFun<K> {
 
 /// Hash function for pairs of `usize`, using the Tomas Wang hash.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
-pub struct UintPairTWHash { unused: usize }
+pub struct UintPairTWHash;
 
 impl UintPairTWHash {
     /// Creates a new UintPairTWHash.
     pub fn new() -> UintPairTWHash {
-        UintPairTWHash { unused: 0 }
+        UintPairTWHash
     }
 }
 
@@ -36,12 +36,12 @@ impl HashFun<(usize, usize)> for UintPairTWHash {
 
 /// Hash function for `usize`.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
-pub struct UintTWHash { unused: usize } // FIXME: ICE if the struct is zero-sized
+pub struct UintTWHash;
 
 impl UintTWHash {
     /// Creates a new UintTWHash.
     pub fn new() -> UintTWHash {
-        UintTWHash { unused: 0 }
+        UintTWHash
     }
 }
 

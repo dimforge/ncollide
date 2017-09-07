@@ -1,9 +1,11 @@
+use std::any::Any;
+
 use world::CollisionObject;
 use narrow_phase::ContactAlgorithm;
 use math::Point;
 
 /// A signal handler for contact detection.
-pub trait ContactHandler<P: Point, M, T> {
+pub trait ContactHandler<P: Point, M, T>: Any + Send + Sync {
     /// Activate an action for when two objects start being in contact.
     fn handle_contact_started(&mut self,
                               co1:      &CollisionObject<P, M, T>,
@@ -16,7 +18,7 @@ pub trait ContactHandler<P: Point, M, T> {
 
 /// Signal for contact start/stop.
 pub struct ContactSignal<P: Point, M, T> {
-    contact_handlers: Vec<(String, Box<ContactHandler<P, M, T> + 'static>)>,
+    contact_handlers: Vec<(String, Box<ContactHandler<P, M, T>>)>,
 }
 
 impl<P: Point, M, T> ContactSignal<P, M, T> {
@@ -30,7 +32,7 @@ impl<P: Point, M, T> ContactSignal<P, M, T> {
     /// Registers an event handler.
     pub fn register_contact_handler(&mut self,
                                     name:     &str,
-                                    callback: Box<ContactHandler<P, M, T> + 'static>) {
+                                    callback: Box<ContactHandler<P, M, T>>) {
         for &mut (ref mut n, ref mut f) in self.contact_handlers.iter_mut() {
             if name == &n[..] {
                 *f = callback;

@@ -1,9 +1,11 @@
+use std::any::Any;
+
 use geometry::query::Proximity;
 use world::CollisionObject;
 use math::Point;
 
 /// A signal handler for proximity detection.
-pub trait ProximityHandler<P: Point, M, T> {
+pub trait ProximityHandler<P: Point, M, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn handle_proximity(&mut self,
                         co1: &CollisionObject<P, M, T>,
@@ -14,7 +16,7 @@ pub trait ProximityHandler<P: Point, M, T> {
 
 /// Signal for proximity start/stop.
 pub struct ProximitySignal<P: Point, M, T> {
-    proximity_handlers: Vec<(String, Box<ProximityHandler<P, M, T> + 'static>)>,
+    proximity_handlers: Vec<(String, Box<ProximityHandler<P, M, T>>)>,
 }
 
 impl<P: Point, M, T> ProximitySignal<P, M, T> {
@@ -28,7 +30,7 @@ impl<P: Point, M, T> ProximitySignal<P, M, T> {
     /// Registers an event handler.
     pub fn register_proximity_handler(&mut self,
                                       name:     &str,
-                                      callback: Box<ProximityHandler<P, M, T> + 'static>) {
+                                      callback: Box<ProximityHandler<P, M, T>>) {
         for &mut (ref mut n, ref mut f) in self.proximity_handlers.iter_mut() {
             if name == &n[..] {
                 *f = callback;

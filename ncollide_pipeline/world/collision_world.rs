@@ -13,9 +13,9 @@ use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePa
 use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
 
 /// Type of the narrow phase trait-object used by the collision world.
-pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T> + 'static>;
+pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
 /// Type of the broad phase trait-object used by the collision world.
-pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey> + 'static>;
+pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, FastKey>>;
 
 /// A world that handles collision objects.
 pub struct CollisionWorld<P: Point, M, T> {
@@ -115,7 +115,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-        where F: BroadPhasePairFilter<P, M, T> + 'static {
+        where F: BroadPhasePairFilter<P, M, T> {
         self.pair_filters.register_collision_filter(name, Box::new(filter));
         self.broad_phase.deferred_recompute_all_proximities();
     }
@@ -129,7 +129,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Registers a handler for contact start/stop events.
     pub fn register_contact_handler<H>(&mut self, name: &str, handler: H)
-        where H: ContactHandler<P, M, T> + 'static {
+        where H: ContactHandler<P, M, T> {
         self.contact_signal.register_contact_handler(name, Box::new(handler));
     }
 
@@ -140,7 +140,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Registers a handler for proximity status change events.
     pub fn register_proximity_handler<H>(&mut self, name: &str, handler: H)
-        where H: ProximityHandler<P, M, T> + 'static {
+        where H: ProximityHandler<P, M, T> {
         self.proximity_signal.register_proximity_handler(name, Box::new(handler));
     }
 

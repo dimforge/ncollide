@@ -1,3 +1,4 @@
+// XXX Remove this when the old DBVT is removed.
 //! Allocation cache for owned objects.
 
 // FIXME: add a limit to the cache?
