@@ -7,10 +7,10 @@ use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
 use geometry::query::{RayCast, Ray, RayIntersection, PointQuery};
 use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher,
-                   ContactHandler, ContactPairs, Contacts, ContactSignal, ProximityHandler,
-                   ProximitySignal, ProximityPairs};
+                   ContactPairs, Contacts, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
+use events::{ContactEvents, ProximityEvents};
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
@@ -22,8 +22,8 @@ pub struct CollisionWorld<P: Point, M, T> {
     objects:           UidRemap<CollisionObject<P, M, T>>,
     broad_phase:       BroadPhaseObject<P>,
     narrow_phase:      Box<NarrowPhase<P, M, T>>,
-    contact_signal:    ContactSignal<P, M, T>,
-    proximity_signal:  ProximitySignal<P, M, T>,
+    contact_events:    ContactEvents,
+    proximity_events:  ProximityEvents,
     pair_filters:      BroadPhasePairFilters<P, M, T>,
     pos_to_update:     Vec<(FastKey, M)>,
     objects_to_remove: Vec<usize>,
@@ -41,12 +41,10 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
         let prox_dispatcher  = Box::new(DefaultProximityDispatcher::new());
         let broad_phase      = Box::new(DBVTBroadPhase::<P, AABB<P>, FastKey>::new(margin, true));
         let narrow_phase     = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
-        let contact_signal   = ContactSignal::new();
-        let proximity_signal = ProximitySignal::new();
 
         CollisionWorld {
-            contact_signal:    contact_signal,
-            proximity_signal:  proximity_signal,
+            contact_events:    ContactEvents::new(),
+            proximity_events:  ProximityEvents::new(),
             objects:           objects,
             broad_phase:       broad_phase,
             narrow_phase:      Box::new(narrow_phase),
@@ -127,28 +125,6 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
         }
     }
 
-    /// Registers a handler for contact start/stop events.
-    pub fn register_contact_handler<H>(&mut self, name: &str, handler: H)
-        where H: ContactHandler<P, M, T> {
-        self.contact_signal.register_contact_handler(name, Box::new(handler));
-    }
-
-    /// Unregisters a handler for contact start/stop events.
-    pub fn unregister_contact_handler(&mut self, name: &str) {
-        self.contact_signal.unregister_contact_handler(name);
-    }
-
-    /// Registers a handler for proximity status change events.
-    pub fn register_proximity_handler<H>(&mut self, name: &str, handler: H)
-        where H: ProximityHandler<P, M, T> {
-        self.proximity_signal.register_proximity_handler(name, Box::new(handler));
-    }
-
-    /// Unregisters a handler for proximity status change events.
-    pub fn unregister_proximity_handler(&mut self, name: &str) {
-        self.proximity_signal.unregister_proximity_handler(name);
-    }
-
     /// Executes the position updates.
     pub fn perform_position_update(&mut self) {
         for &(ref fk, ref pos) in self.pos_to_update.iter() {
@@ -201,8 +177,8 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     pub fn perform_broad_phase(&mut self) {
         let bf    = &mut self.broad_phase;
         let nf    = &mut self.narrow_phase;
-        let sig   = &mut self.contact_signal;
-        let prox  = &mut self.proximity_signal;
+        let sig   = &mut self.contact_events;
+        let prox  = &mut self.proximity_events;
         let filts = &self.pair_filters;
         let objs  = &self.objects;
 
@@ -217,8 +193,8 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     pub fn perform_narrow_phase(&mut self) {
         self.narrow_phase.update(
             &self.objects,
-            &mut self.contact_signal,
-            &mut self.proximity_signal,
+            &mut self.contact_events,
+            &mut self.proximity_events,
             self.timestamp);
         self.timestamp = self.timestamp + 1;
     }

@@ -4,6 +4,10 @@ use math::Point;
 use geometry::shape::ShapeHandle;
 use world::CollisionGroups;
 
+// FIXME: use this or a FastKey?
+pub type CollisionObjectHandle = usize;
+
+
 /// The kind of query a CollisionObject may be involved on.
 ///
 /// The following queries are executed for a given pair of `GeometricQueryType` associated with two
