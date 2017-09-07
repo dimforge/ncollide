@@ -1,12 +1,15 @@
+use std::any::Any;
 use geometry::query::Ray;
 use math::Point;
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<P: Point, BV, T> {
+pub trait BroadPhase<P: Point, BV, T>: Any + Sync + Send {
     /// Tells the broad phase to add an element during the next update.
+    ///
+    /// If the element already exists, it is replaced.
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T);
 
-    /// Tells the broad phase to remove an element during the next update.
+    /// Tells the broad phase to remove an element during the next update if it exists.
     fn deferred_remove(&mut self, uid: usize);
 
     /// Sets the next bounding volume to be used during the update of this broad phase.
@@ -16,7 +19,9 @@ pub trait BroadPhase<P: Point, BV, T> {
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self, allow_proximity: &mut FnMut(&T, &T) -> bool, proximity_handler: &mut FnMut(&T, &T, bool));
+    fn update(&mut self,
+              allow_proximity:   &mut FnMut(&T, &T) -> bool,
+              proximity_handler: &mut FnMut(&T, &T, bool));
 
     /*
      * FIXME: the following are not flexible enough.

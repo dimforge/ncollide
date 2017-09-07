@@ -1,9 +1,11 @@
+use std::any::Any;
+
 use geometry::shape::Shape;
 use geometry::query::Contact;
 use math::Point;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
-pub trait ContactGenerator<P: Point, M> {
+pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
@@ -23,9 +25,9 @@ pub trait ContactGenerator<P: Point, M> {
     fn contacts(&self, &mut Vec<Contact<P>>);
 }
 
-pub type ContactAlgorithm<P, M> = Box<ContactGenerator<P, M> + 'static>;
+pub type ContactAlgorithm<P, M> = Box<ContactGenerator<P, M>>;
 
-pub trait ContactDispatcher<P, M> {
+pub trait ContactDispatcher<P, M>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
     fn get_contact_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<ContactAlgorithm<P, M>>;
 }

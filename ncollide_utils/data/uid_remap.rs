@@ -1,11 +1,12 @@
 //! A map allowing a slow lookup for arbitrary `usize` and fast lookup for small ones.
 
 use std::iter::{FromIterator, IntoIterator};
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 use std::default::Default;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap};
 use num::Bounded;
+use data::hash::{HashFun, UintTWHash};
 use data::vec_map::{VecMap, Iter, IterMut, Values, Keys};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
@@ -150,10 +151,23 @@ impl<O> UidRemap<O> {
     }
 
     /// Inserts a key-value pair to the map. If the key already had a value
-    /// present in the map, that value and its fast key are returned. Otherwise, `None` is
-    /// returned.
+    /// present in the map, that value and its fast key are returned. Otherwise, `None` and a new
+    /// fast key is returned.
     #[inline]
     pub fn insert(&mut self, uid: usize, value: O) -> (FastKey, Option<O>) {
+        self.insert_or_replace(uid, value, true)
+    }
+
+    /// Inserts a key-value pair to the map and possibly replace it if it already exists.
+    ///
+    /// If the element already exists, then the old value is replaced by `value` if `replace` is
+    /// set to `true`. If `replace` is `false` then any old value is left unchanged.
+    ///
+    /// # Return
+    /// Returns None if the entry was not found.  If the entry is found return Some(value) if
+    /// replace is false, or the old value if replace is true.
+    #[inline]
+    pub fn insert_or_replace(&mut self, uid: usize, value: O, replace: bool) -> (FastKey, Option<O>) {
         match self.lookup {
             None => {
                 let fast_key = FastKey { uid: uid };
@@ -166,12 +180,13 @@ impl<O> UidRemap<O> {
 
                 match data.uid2key.entry(uid) {
                     Entry::Occupied(entry) => {
-                        let fast_key = entry.remove();
-                        let old_value = self.values.insert(fast_key.uid, value);
-                        // The key exists already in `uid2key` so `ord_value` should not be None.
-                        assert!(old_value.is_some());
-
-                        (fast_key, old_value)
+                        let fast_key = *entry.get();
+                        if replace {
+                            (fast_key, self.values.insert(fast_key.uid, value))
+                        }
+                        else {
+                            (fast_key, Some(value))
+                        }
                     },
                     Entry::Vacant(entry) => {
                         // The key does not exist yet.
@@ -342,5 +357,23 @@ impl<O> Index<FastKey> for UidRemap<O> {
     #[inline]
     fn index(&self, key: FastKey) -> &O {
         self.get_fast(&key).expect("key not present")
+    }
+}
+
+impl<O> IndexMut<FastKey> for UidRemap<O> {
+    #[inline]
+    fn index_mut(&mut self, key: FastKey) -> &mut O {
+        self.get_fast_mut(&key).expect("key not present")
+    }
+}
+
+/// A fast hasher for FastKey objects.
+pub struct FastKeyTWHash;
+
+impl HashFun<FastKey> for FastKeyTWHash {
+    #[inline]
+    fn hash(&self, key: &FastKey) -> usize {
+        let hasher = UintTWHash;
+        hasher.hash(&key.uid)
     }
 }

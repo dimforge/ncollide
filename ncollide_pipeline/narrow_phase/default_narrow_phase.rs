@@ -11,17 +11,17 @@ use math::Point;
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
-    contact_dispatcher: Box<ContactDispatcher<P, M> + 'static>,
+    contact_dispatcher: Box<ContactDispatcher<P, M>>,
     contact_generators: HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
 
-    proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>,
+    proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
     proximity_detectors:  HashMap<Pair, ProximityAlgorithm<P, M>, PairTWHash>,
 }
 
 impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     /// Creates a new `DefaultNarrowPhase`.
-    pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M> + 'static>,
-               proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>)
+    pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M>>,
+               proximity_dispatcher: Box<ProximityDispatcher<P, M>>)
                -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {
             contact_dispatcher: contact_dispatcher,
