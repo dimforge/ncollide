@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_math"
-version = "0.4.0"
+version = "0.8.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the algebraic entities used by ncollide."
@@ -15,7 +15,9 @@ name = "ncollide_math"
 path = "lib.rs"
 
 [dependencies]
-rustc-serialize = "0.3.*"
-rand = "0.3.*"
-num = "0.1.*"
-nalgebra = "0.8.*"
+rustc-serialize = "0.3"
+rand       = "0.3"
+num-traits = "0.1"
+approx     = "0.1"
+alga       = "0.5"
+nalgebra   = "0.13"

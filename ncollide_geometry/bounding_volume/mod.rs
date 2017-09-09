@@ -28,7 +28,7 @@ mod aabb_convex;
 mod aabb_compound;
 mod aabb_mesh;
 mod aabb_utils;
-mod aabb_repr;
+mod aabb_shape;
 
 #[doc(hidden)]
 pub mod bounding_sphere;
@@ -44,7 +44,7 @@ mod bounding_sphere_triangle;
 mod bounding_sphere_segment;
 mod bounding_sphere_mesh;
 mod bounding_sphere_utils;
-mod bounding_sphere_repr;
+mod bounding_sphere_shape;
 
 /*
  *

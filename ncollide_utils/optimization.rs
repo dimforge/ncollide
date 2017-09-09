@@ -78,7 +78,7 @@ pub fn minimize_with_bfgs<V, F, D>(niter:       usize,
     let mut best_sol     = domain_min.clone();
     let mut best_sol_val = (*f)(domain_min);
     let domain_width     = *domain_max - *domain_min;
-    let ss               = BacktrackingLineSearch::new(na::one::<V::Scalar>(), na::cast(0.5), na::cast(0.5), 1000);
+    let ss               = BacktrackingLineSearch::new(na::one::<V::Scalar>(), na::convert(0.5), na::convert(0.5), 1000);
 
     for _ in 0 .. num_guesses {
         let mut guess: V = rand::random();
@@ -185,7 +185,7 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
         }
 
         let _eps: V::Scalar = FloatError::epsilon();
-        let _eps = _eps * na::cast(100.0);
+        let _eps = _eps * na::convert(100.0);
         if na::norm_squared(&new_dx) <= _eps {
             break;
         }

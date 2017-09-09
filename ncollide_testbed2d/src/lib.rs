@@ -3,6 +3,7 @@
 extern crate num;
 extern crate rand;
 extern crate sfml;
+extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide;
 

@@ -5,11 +5,10 @@ use std::rc::Rc;
 use std::ptr;
 use std::mem;
 use utils::data::owned_allocation_cache::OwnedAllocationCache;
-use na::Translation;
 use na;
 use bounding_volume::BoundingVolume;
 use partitioning::bvt_visitor::BVTVisitor;
-use math::{Point, Vector};
+use math::Point;
 
 
 #[derive(RustcEncodable, RustcDecodable)]
@@ -40,7 +39,7 @@ impl<P, B, BV> DBVT<P, B, BV> {
 
 impl<P, B, BV> DBVT<P, B, BV>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar> + Translation<P::Vect> + Clone,
+          BV: 'static + BoundingVolume<P> + Clone,
           B:  'static + Clone {
     /// Removes a leaf from the tree. Fails if the tree is empty.
     pub fn remove(&mut self, leaf: &mut Rc<RefCell<DBVTLeaf<P, B, BV>>>) {
@@ -113,7 +112,7 @@ struct DBVTInternal<P, B, BV> {
     state:           UpdateState
 }
 
-impl<P: Point, BV: Translation<P::Vect>, B> DBVTInternal<P, B, BV> {
+impl<P: Point, BV: BoundingVolume<P>, B> DBVTInternal<P, B, BV> {
     /// Creates a new internal node.
     fn new(bounding_volume: BV,
            parent:          *mut DBVTInternal<P, B, BV>,
@@ -121,7 +120,7 @@ impl<P: Point, BV: Translation<P::Vect>, B> DBVTInternal<P, B, BV> {
            right:           DBVTNode<P, B, BV>)
            -> DBVTInternal<P, B, BV> {
         DBVTInternal {
-            center:          na::origin::<P>() + bounding_volume.translation(),
+            center:          bounding_volume.center(),
             bounding_volume: bounding_volume,
             left:            left,
             right:           right,
@@ -214,11 +213,11 @@ impl<P, B, BV> DBVTInternal<P, B, BV> {
     }
 }
 
-impl<P: Point, B: 'static, BV: Translation<P::Vect> + 'static> DBVTLeaf<P, B, BV> {
+impl<P: Point, B: 'static, BV: BoundingVolume<P> + 'static> DBVTLeaf<P, B, BV> {
     /// Creates a new leaf.
     pub fn new(bounding_volume: BV, object: B) -> DBVTLeaf<P, B, BV> {
         DBVTLeaf {
-            center:          na::origin::<P>() + bounding_volume.translation(),
+            center:          bounding_volume.center(),
             bounding_volume: bounding_volume,
             object:          object,
             parent:          DBVTLeafState::Detached
@@ -305,9 +304,9 @@ impl<P: Point, B: 'static, BV: Translation<P::Vect> + 'static> DBVTLeaf<P, B, BV
 
 impl<P, BV, B> DBVTNode<P, B, BV>
     where P:  Point,
-          BV: 'static + BoundingVolume<<P::Vect as Vector>::Scalar>,
+          BV: 'static + BoundingVolume<P>,
           B: 'static {
-    fn sqdist_to(&self, to: &P) -> <P::Vect as Vector>::Scalar {
+    fn sqdist_to(&self, to: &P) -> P::Real {
         match *self {
             DBVTNode::Internal(ref i) => na::distance_squared(&i.center, to),
             DBVTNode::Leaf(ref l)     => {
@@ -321,7 +320,7 @@ impl<P, BV, B> DBVTNode<P, B, BV>
 
 impl<P, B, BV> DBVTInternal<P, B, BV>
     where P:  Point,
-          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vector>::Scalar>,
+          BV: 'static + BoundingVolume<P>,
           B:  'static {
     fn is_closest_to_left(&self, pt: &P) -> bool {
         self.right.sqdist_to(pt) > self.left.sqdist_to(pt)
@@ -330,7 +329,7 @@ impl<P, B, BV> DBVTInternal<P, B, BV>
 
 impl<P, BV, B> DBVTNode<P, B, BV>
     where P:  Point,
-          BV: 'static + Translation<P::Vect> + BoundingVolume<<P::Vect as Vector>::Scalar>,
+          BV: 'static + BoundingVolume<P>,
           B:  'static {
     /// Inserts a new leaf on this tree.
     fn insert(self,

@@ -1,4 +1,5 @@
 extern crate rand;
+extern crate num_traits as num;
 extern crate glfw;
 extern crate kiss3d;
 extern crate nalgebra as na;

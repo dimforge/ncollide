@@ -1,14 +1,13 @@
-use std::ops::{Sub, Mul, Index, IndexMut};
 use num::Zero;
-use na::{Cross, Norm, Dimension, Axpy};
+use approx::ApproxEq;
+
+use alga::general::Real;
 use na;
-use num::Float;
-use math::{Scalar, Point, Vector, FloatError};
+use math::Point;
 
 /// Computes the area of a triangle.
 #[inline]
-pub fn triangle_area<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vector>::Scalar
-    where P: Point {
+pub fn triangle_area<P: Point>(pa: &P, pb: &P, pc: &P) -> P::Real {
     // Kahan's formula.
     let mut a = na::distance(pa, pb);
     let mut b = na::distance(pb, pc);
@@ -21,27 +20,23 @@ pub fn triangle_area<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vector>::Scalar
 
     let sqr = (a + (b + c)) * (c - (a - b)) * (c + (a - b)) * (a + (b - c));
 
-    sqr.sqrt() * na::cast(0.25)
+    sqr.sqrt() * na::convert(0.25)
 }
 
 /// Computes the center of a triangle.
 #[inline]
-pub fn triangle_center<N, P>(pa: &P, pb: &P, pc: &P) -> P
-    where N: Scalar,
-          P: Axpy<N> + Mul<N, Output = P> + Copy {
+pub fn triangle_center<P: Point>(pa: &P, pb: &P, pc: &P) -> P {
     ::center(&[ *pa, *pb, *pc ])
 }
 
 /// Computes the perimeter of a triangle.
 #[inline]
-pub fn triangle_perimeter<P>(pa: &P, pb: &P, pc: &P) -> <P::Vect as Vector>::Scalar
-    where P: Point {
+pub fn triangle_perimeter<P: Point>(pa: &P, pb: &P, pc: &P) -> P::Real {
     na::distance(pa, pb) + na::distance(pb, pc) + na::distance(pc, pa)
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scalar)
-    where P: Point {
+pub fn circumcircle<P: Point>(pa: &P, pb: &P, pc: &P) -> (P, P::Real) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
@@ -50,7 +45,7 @@ pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scala
 
     let dab = na::dot(&a, &b);
 
-    let _2: <P::Vect as Vector>::Scalar = na::cast(2.0);
+    let _2: P::Real = na::convert(2.0);
     let denom = _2 * (na * nb - dab * dab);
 
     if denom.is_zero() {
@@ -61,15 +56,15 @@ pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scala
 
         if nc >= na && nc >= nb {
             // Longest segment: [pa, pb]
-            (na::center(pa, pb), nc.sqrt() / na::cast(2.0f64))
+            (na::center(pa, pb), nc.sqrt() / na::convert(2.0f64))
         }
         else if na >= nb && na >= nc {
             // Longest segment: [pa, pc]
-            (na::center(pa, pc), na.sqrt() / na::cast(2.0f64))
+            (na::center(pa, pc), na.sqrt() / na::convert(2.0f64))
         }
         else {
             // Longest segment: [pb, pc]
-            (na::center(pb, pc), nb.sqrt() / na::cast(2.0f64))
+            (na::center(pb, pc), nb.sqrt() / na::convert(2.0f64))
         }
     }
     else {
@@ -82,42 +77,20 @@ pub fn circumcircle<P>(pa: &P, pb: &P, pc: &P) -> (P, <P::Vect as Vector>::Scala
     }
 }
 
-/// Tests if three 3D points are exactly aligned without the need of the `Cross` trait.
-pub fn is_affinely_dependent_triangle3<N, P, V>(p1: &P, p2: &P, p3: &P) -> bool
-    where N: Scalar,
-          P: Sub<P, Output = V> + Copy,
-          V: Zero + Norm<N> + Index<usize, Output = N> +
-             IndexMut<usize, Output = N> + Dimension + Copy {
+/// Tests if three 3D points are approximately aligned.
+pub fn is_affinely_dependent_triangle3<P: Point>(p1: &P, p2: &P, p3: &P) -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
     // FIXME: use this as nalgebra standard epsilon?
-    let _eps: N = FloatError::epsilon(); // FIXME: use Float::epsilon instead?
-    let _eps_tol = _eps * na::cast(100.0f64);
+    let _eps    = P::Real::default_epsilon(); // FIXME: use Float::epsilon instead?
+    let _eps_tol = _eps * na::convert(100.0f64);
 
-    na::approx_eq_eps(&na::norm_squared(&::cross3(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
-}
-
-/// Tests if three points are exactly aligned.
-pub fn is_affinely_dependent_triangle<N, P, V, AV>(p1: &P, p2: &P, p3: &P) -> bool
-    where N:  Scalar,
-          P:  Sub<P, Output = V> + Copy,
-          V:  Cross<CrossProductType = AV> + Norm<N> + Copy,
-          AV: Norm<N> {
-    let p1p2 = *p2 - *p1;
-    let p1p3 = *p3 - *p1;
-
-    // FIXME: use this as nalgebra standard epsilon?
-    let _eps: N  = FloatError::epsilon(); // FIXME: use Float::epsilon instead?
-    let _eps_tol = _eps * na::cast(100.0f64);
-
-    na::approx_eq_eps(&na::norm_squared(&na::cross(&p1p2, &p1p3)), &na::zero(), &(_eps_tol * _eps_tol))
+    relative_eq!(na::norm_squared(&::cross3(&p1p2, &p1p3)), na::zero(), epsilon = _eps_tol * _eps_tol)
 }
 
 /// Tests if a point is inside of a triangle.
-pub fn is_point_in_triangle<P, V>(p: &P, p1: &P, p2: &P, p3: &P) -> bool
-    where P: Sub<P, Output = V> + Copy,
-          V: Vector {
+pub fn is_point_in_triangle<P: Point>(p: &P, p1: &P, p2: &P, p3: &P) -> bool {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;

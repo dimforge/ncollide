@@ -1,20 +1,22 @@
 use std::f32;
 use sfml::graphics::{Color, Shape, Transformable};
 use sfml::system::Vector2f;
-use na::{self, Point3, Isometry2};
+use num::ToPrimitive;
+
+use alga::general::Real;
+use na::{Point3, Isometry2};
 use ncollide::world::{CollisionObject2, GeometricQueryType};
-use ncollide::math::Scalar;
 use objects::{Ball, Box, Lines, Segment};
 use draw_helper::DRAW_SCALE;
 
-pub enum SceneNode<'a, N> {
+pub enum SceneNode<'a, N: Real> {
     BallNode(Ball<'a, N>),
     BoxNode(Box<'a, N>),
     LinesNode(Lines<N>),
     SegmentNode(Segment<N>)
 }
 
-impl<'a, N: Scalar> SceneNode<'a, N> {
+impl<'a, N: Real + ToPrimitive> SceneNode<'a, N> {
     pub fn select(&mut self) {
         match *self {
             SceneNode::BallNode(ref mut n)    => n.select(),
@@ -43,18 +45,18 @@ impl<'a, N: Scalar> SceneNode<'a, N> {
     }
 }
 
-pub fn update_scene_node<'a, N: Scalar, T, SN>(node:   &mut SN,
-                                               object: &CollisionObject2<N, T>,
-                                               color:  &Point3<u8>,
-                                               delta:  &Isometry2<N>)
+pub fn update_scene_node<'a, N: Real + ToPrimitive, T, SN>(node:   &mut SN,
+                                                           object: &CollisionObject2<N, T>,
+                                                           color:  &Point3<u8>,
+                                                           delta:  &Isometry2<N>)
         where SN: Transformable + Shape<'a> {
     let transform = object.position * *delta;
-    let pos       = na::translation(&transform);
-    let rot       = na::rotation(&transform);
+    let pos       = transform.translation.vector;
+    let rot       = transform.rotation.angle();
 
     node.set_position(&Vector2f::new(pos.x.to_f32().unwrap() as f32 * DRAW_SCALE,
                                      pos.y.to_f32().unwrap() as f32 * DRAW_SCALE));
-    node.set_rotation(rot.x.to_f32().unwrap() * 180.0 / f32::consts::PI as f32);
+    node.set_rotation(rot.to_f32().unwrap() * 180.0 / f32::consts::PI as f32);
 
     match object.query_type {
         GeometricQueryType::Proximity(_) => {

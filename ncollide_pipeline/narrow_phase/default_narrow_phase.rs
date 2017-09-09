@@ -2,8 +2,8 @@ use utils::data::hash_map::HashMap;
 use utils::data::pair::{Pair, PairTWHash};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Proximity;
-use narrow_phase::{ContactDispatcher, ContactAlgorithm, ContactSignal,   ContactGenerator,
-                   ProximityDispatcher, ProximityAlgorithm, ProximitySignal, ProximityDetector,
+use narrow_phase::{ContactDispatcher, ContactAlgorithm, ContactSignal,
+                   ProximityDispatcher, ProximityAlgorithm, ProximitySignal,
                    NarrowPhase, ContactPairs, ProximityPairs};
 use world::{CollisionObject, GeometricQueryType};
 use math::Point;
@@ -12,7 +12,7 @@ use math::Point;
 /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
     contact_dispatcher: Box<ContactDispatcher<P, M> + 'static>,
-    contact_generators:  HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
+    contact_generators: HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
 
     proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>,
     proximity_detectors:  HashMap<Pair, ProximityAlgorithm<P, M>, PairTWHash>,
@@ -20,7 +20,7 @@ pub struct DefaultNarrowPhase<P, M> {
 
 impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     /// Creates a new `DefaultNarrowPhase`.
-    pub fn new(contact_dispatcher: Box<ContactDispatcher<P, M> + 'static>,
+    pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M> + 'static>,
                proximity_dispatcher: Box<ProximityDispatcher<P, M> + 'static>)
                -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {
@@ -46,10 +46,10 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let had_contacts = e.value.num_contacts() != 0;
 
-                e.value.update(&*self.contact_dispatcher,
-                               &co1.position, co1.shape.as_ref(),
-                               &co2.position, co2.shape.as_ref(),
-                               co1.query_type.query_limit() + co2.query_type.query_limit());
+                let _ = e.value.update(&*self.contact_dispatcher,
+                                       &co1.position, co1.shape.as_ref(),
+                                       &co2.position, co2.shape.as_ref(),
+                                       co1.query_type.query_limit() + co2.query_type.query_limit());
 
                 if e.value.num_contacts() == 0 {
                     if had_contacts {
@@ -71,7 +71,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let prev_prox = e.value.proximity();
 
-                e.value.update(&*self.proximity_dispatcher,
+                let _ = e.value.update(&*self.proximity_dispatcher,
                                &co1.position, co1.shape.as_ref(),
                                &co2.position, co2.shape.as_ref(),
                                co1.query_type.query_limit() + co2.query_type.query_limit());

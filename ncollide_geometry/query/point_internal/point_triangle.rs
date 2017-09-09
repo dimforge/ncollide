@@ -1,25 +1,41 @@
-use na::{self, Transform};
+use na;
 use shape::Triangle;
-use query::{PointQuery, PointProjection};
-use math::{Point, Vector};
+use query::{PointQuery, PointProjection, RichPointQuery};
+use math::{Point, Isometry};
 
 #[inline]
 fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
-   if na::dimension::<P>() == 2 {
+   if na::dimension::<P::Vector>() == 2 {
        PointProjection::new(*pt == proj, proj)
    }
    else {
        // FIXME: is this acceptable to assume the point is inside of the triangle if it is close
        // enough?
-       PointProjection::new(na::approx_eq(&proj, pt), proj)
+       PointProjection::new(relative_eq!(proj, *pt), proj)
    }
 }
 
-impl<P, M> PointQuery<P, M> for Triangle<P>
-    where P: Point,
-          M: Transform<P> {
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+        let (projection, _) = self.project_point_with_extra_info(m, pt, solid);
+        projection
+    }
+
+    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
+    // eaten by the `::approx_eq(...)` on `project_point(...)`.
+}
+
+impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
+    // Implementing this trait while providing no projection info might seem
+    // nonsensical, but it actually makes it possible to complete the
+    // `RichPointQuery` implementation for `BaseMesh`.
+    type ExtraInfo = ();
+
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
+        -> (PointProjection<P>, Self::ExtraInfo)
+    {
         /*
          * This comes from the book `Real Time Collision Detection`.
          * This is actually a trivial Voronoï region based approach, except that great care has
@@ -27,10 +43,10 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
          *
          * We keep the original (somehow, obscure like d1 ... d6) notations for future reference.
          */
-        let a = self.a().clone();
-        let b = self.b().clone();
-        let c = self.c().clone();
-        let p = m.inverse_transform(pt);
+        let a = *self.a();
+        let b = *self.b();
+        let c = *self.c();
+        let p = m.inverse_transform_point(pt);
 
         let ab = b - a;
         let ac = c - a;
@@ -41,7 +57,7 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
 
         if d1 <= na::zero() && d2 <= na::zero() {
             // Voronoï region of `a`.
-            return compute_result(pt, m.transform(&a));
+            return (compute_result(pt, m.transform_point(&a)), ());
         }
 
         let bp = p - b;
@@ -50,14 +66,14 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
 
         if d3 >= na::zero() && d4 <= d3 {
             // Voronoï region of `b`.
-            return compute_result(pt, m.transform(&b));
+            return (compute_result(pt, m.transform_point(&b)), ());
         }
 
         let vc = d1 * d4 - d3 * d2;
         if vc <= na::zero() && d1 >= na::zero() && d3 <= na::zero() {
             // Voronoï region of `ab`.
             let v = d1 / (d1 - d3);
-            return compute_result(pt, m.transform(&(a + ab * v)));
+            return (compute_result(pt, m.transform_point(&(a + ab * v))), ());
         }
 
         let cp = p - c;
@@ -66,7 +82,7 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
 
         if d6 >= na::zero() && d5 <= d6 {
             // Voronoï region of `c`.
-            return compute_result(pt, m.transform(&c));
+            return (compute_result(pt, m.transform_point(&c)), ());
         }
 
         let vb = d5 * d2 - d1 * d6;
@@ -74,29 +90,29 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
         if vb <= na::zero() && d2 >= na::zero() && d6 <= na::zero() {
             // Voronoï region of `ac`.
             let w = d2 / (d2 - d6);
-            return compute_result(pt, m.transform(&(a + ac * w)));
+            return (compute_result(pt, m.transform_point(&(a + ac * w))), ());
         }
 
         let va = d3 * d6 - d5 * d4;
         if va <= na::zero() && d4 - d3 >= na::zero() && d5 - d6 >= na::zero() {
             // Voronoï region of `bc`.
             let w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            return compute_result(pt, m.transform(&(b + (c - b) * w)));
+            return (compute_result(pt, m.transform_point(&(b + (c - b) * w))), ());
         }
 
         // Voronoï region of the face.
-        if na::dimension::<P>() != 2 {
-            let denom = na::one::<<P::Vect as Vector>::Scalar>() / (va + vb + vc);
+        if na::dimension::<P::Vector>() != 2 {
+            let denom = na::one::<P::Real>() / (va + vb + vc);
             let v = vb * denom;
             let w = vc * denom;
 
-            return compute_result(pt, m.transform(&(a + ab * v + ac * w)));
+            return (compute_result(pt, m.transform_point(&(a + ab * v + ac * w))), ());
         }
         else {
             // Special treatement if we work in 2d because in this case we really are inside of the
             // object.
             if solid {
-                PointProjection::new(true, pt.clone())
+                (PointProjection::new(true, *pt), ())
             }
             else {
                 // We have to project on the closest edge.
@@ -116,29 +132,26 @@ impl<P, M> PointQuery<P, M> for Triangle<P>
                 if d_ab < d_ac {
                     if d_ab < d_bc {
                         // ab
-                        proj = m.transform(&(a + ab * v));
+                        proj = m.transform_point(&(a + ab * v));
                     }
                     else {
                         // bc
-                        proj = m.transform(&(b + bc * u));
+                        proj = m.transform_point(&(b + bc * u));
                     }
                 }
                 else {
                     if d_ac < d_bc {
                         // ac
-                        proj = m.transform(&(a + ac * w));
+                        proj = m.transform_point(&(a + ac * w));
                     }
                     else {
                         // bc
-                        proj = m.transform(&(b + bc * u));
+                        proj = m.transform_point(&(b + bc * u));
                     }
                 }
 
-                PointProjection::new(true, proj)
+                (PointProjection::new(true, proj), ())
             }
         }
     }
-
-    // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
-    // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }

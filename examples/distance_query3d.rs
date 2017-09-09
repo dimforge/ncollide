@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate approx; // for relative_eq!
 extern crate nalgebra as na;
 extern crate ncollide;
 
@@ -19,5 +21,5 @@ fn main() {
                                             &cuboid_pos,        &cuboid);
 
     assert_eq!(dist_intersecting, 0.0);
-    assert!(na::approx_eq(&dist_disjoint, &1.0));
+    assert!(relative_eq!(dist_disjoint, 1.0, epsilon = 1.0e-7));
 }

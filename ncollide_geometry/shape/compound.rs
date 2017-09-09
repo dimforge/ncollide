@@ -3,12 +3,13 @@
 //!
 
 use std::ops::Mul;
-use na::Translate;
+
 use na;
+
 use bounding_volume::{AABB, BoundingVolume};
 use partitioning::BVT;
-use math::{Point, Isometry};
 use shape::{CompositeShape, ShapeHandle, Shape};
+use math::{Point, Isometry};
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -31,10 +32,7 @@ impl<P: Point, M: Clone> Clone for Compound<P, M> {
     }
 }
 
-impl<P, M> Compound<P, M>
-    where P:       Point,
-          P::Vect: Translate<P>,
-          M:       Isometry<P> {
+impl<P: Point, M: Isometry<P>> Compound<P, M> {
     /// Builds a new compound shape.
     pub fn new(shapes: Vec<(M, ShapeHandle<P, M>)>) -> Compound<P, M> {
         let mut bvs    = Vec::new();
@@ -42,7 +40,7 @@ impl<P, M> Compound<P, M>
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             // loosen for better persistancy
-            let bv = shape.as_ref().aabb(delta).loosened(na::cast(0.04f64));
+            let bv = shape.as_ref().aabb(delta).loosened(na::convert(0.04f64));
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
@@ -51,9 +49,9 @@ impl<P, M> Compound<P, M>
         let bvt = BVT::new_balanced(leaves);
 
         Compound {
-            shapes:  shapes,
-            bvt:     bvt,
-            bvs:     bvs
+            shapes: shapes,
+            bvt:    bvt,
+            bvs:    bvs
         }
     }
 }
@@ -86,7 +84,7 @@ impl<P: Point, M> Compound<P, M> {
 
 impl<P, M> CompositeShape<P, M> for Compound<P, M>
     where P: Point,
-          M: Copy + Mul<M, Output = M> {
+          M: Clone + Mul<M, Output = M> {
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];
@@ -98,7 +96,7 @@ impl<P, M> CompositeShape<P, M> for Compound<P, M>
     fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
         let elt = &self.shapes()[i];
 
-        f(&(*m * elt.0), elt.1.as_ref())
+        f(&(m.clone() * elt.0.clone()), elt.1.as_ref())
     }
 
     #[inline]

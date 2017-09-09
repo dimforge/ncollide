@@ -1,7 +1,7 @@
 use utils;
-use na::{Transform, Rotate};
+
 use shape::SupportMap;
-use math::Point;
+use math::{Point, Isometry};
 
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 /// The implicit convex hull of a set of points.
@@ -24,21 +24,18 @@ impl<P> ConvexHull<P> {
 impl<P> ConvexHull<P> {
     /// The list of points of this convex polytope.
     #[inline]
-    pub fn points(&self) -> &[P] { // FIXME: naming: `points` vs. `points`?
+    pub fn points(&self) -> &[P] {
         &self.points[..]
     }
 }
 
 
-impl<P, M> SupportMap<P, M> for ConvexHull<P>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for ConvexHull<P> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inverse_rotate(dir);
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        let local_dir = m.inverse_rotate_vector(dir);
+        let best_pt   = utils::point_cloud_support_point(&local_dir, self.points());
 
-        let best_pt = utils::point_cloud_support_point(&local_dir, self.points());
-
-        m.transform(&best_pt)
+        m.transform_point(&best_pt)
     }
 }

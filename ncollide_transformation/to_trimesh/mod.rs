@@ -9,6 +9,6 @@ mod cone_to_trimesh;
 mod cuboid_to_trimesh;
 mod cylinder_to_trimesh;
 mod mesh_to_trimesh;
-mod minkowski_sum_to_trimesh;
+// mod minkowski_sum_to_trimesh;
 mod reflection_to_trimesh;
 mod triangle_to_trimesh;

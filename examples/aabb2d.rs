@@ -13,7 +13,7 @@ fn main() {
     let cylinder = Cylinder::new(1.0, 0.5);
 
     let cone_pos     = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
-    let cylinder_pos = na::one::<Isometry2<f32>>();              // Identity matrix.
+    let cylinder_pos = na::one::<Isometry2<f32>>();              // Id matrix.
 
     /*
      * Compute their axis-aligned bounding boxes.

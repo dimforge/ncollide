@@ -11,12 +11,12 @@ use math::{Point, Vector};
 // XXX: Implemente this for other dimensions (harder because of the concavities.
 impl<'a, P, M1, G1, G2, A, B> ToTriMesh<P, (A, B)> for MinkowskiSum<'a, M1, G1, G2>
     where P:  Point,
-          P::Vect: Translate<P> + Outer + Mul<<<P as Point>::Vect as Outer>::OuterProductType, Output = <P as Point>::Vect>,
+          P::Vector: Translate<P> + Outer + Mul<<<P as Point>::Vect as Outer>::OuterProductType, Output = <P as Point>::Vect>,
           G1: ToTriMesh<P, A>,
           G2: ToTriMesh<P, B>,
-          <P::Vect as Outer>::OuterProductType: EigenQR<<P::Vect as Vector>::Scalar, P::Vect> +
+          <P::Vector as Outer>::OuterProductType: EigenQR<P::Real, P::Vector> +
                                                 Mul<P, Output = P> +
-                                                Add<<P::Vect as Outer>::OuterProductType, Output = <P::Vect as Outer>::OuterProductType>
+                                                Add<<P::Vector as Outer>::OuterProductType, Output = <P::Vector as Outer>::OuterProductType>
                                                 + Zero + Copy {
     fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<P> {
         assert!(na::dimension::<P>() == 3);

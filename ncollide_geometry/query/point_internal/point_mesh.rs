@@ -1,34 +1,51 @@
-use na::{self, Transform, Identity};
-use query::{PointQuery, PointProjection};
-use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
+use alga::general::Id;
+use na;
+use query::{PointQuery, PointProjection, RichPointQuery};
+use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
 
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     where P: Point,
-          M: Transform<P>,
-          E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
+          M: Isometry<P>,
+          E: BaseMeshElement<I, P> + PointQuery<P, Id> + RichPointQuery<P, Id> {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, _: bool) -> PointProjection<P> {
-        let ls_pt = m.inverse_transform(point);
-        let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
-
-        let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
-        proj.point = m.transform(&proj.point);
-
-        proj
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
+        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
+        projection
     }
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
-        let ls_pt = m.inverse_transform(point);
+        let ls_pt = m.inverse_transform_point(point);
         let mut test = PointContainementTest { mesh: self, point: &ls_pt, found: false };
 
         self.bvt().visit(&mut test);
 
         test.found
+    }
+}
+
+impl<P, M, I, E> RichPointQuery<P, M> for BaseMesh<P, I, E>
+    where P: Point,
+          M: Isometry<P>,
+          E: BaseMeshElement<I, P> + RichPointQuery<P, Id>
+{
+    type ExtraInfo = PointProjectionInfo<E::ExtraInfo>;
+
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, point: &P, _: bool)
+        -> (PointProjection<P>, Self::ExtraInfo)
+    {
+        let ls_pt = m.inverse_transform_point(point);
+        let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
+
+        let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        proj.point = m.transform_point(&proj.point);
+
+        (proj, extra_info)
     }
 }
 
@@ -41,21 +58,28 @@ struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     point: &'a P
 }
 
-impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
+impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
     where P: Point,
-          E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
-    type UserData = PointProjection<P>;
+          E: BaseMeshElement<I, P> + RichPointQuery<P, Id> {
+    type UserData = (PointProjection<P>, PointProjectionInfo<E::ExtraInfo>);
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
-        Some(aabb.distance_to_point(&Identity::new(), self.point, true))
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+        Some(aabb.distance_to_point(&Id::new(), self.point, true))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, PointProjection<P>)> {
-        let proj = self.mesh.element_at(*b).project_point(&Identity::new(), self.point, true);
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, Self::UserData)> {
+        let (proj, extra_info) = self.mesh
+            .element_at(*b)
+            .project_point_with_extra_info(&Id::new(), self.point, true);
 
-        Some((na::distance(self.point, &proj.point), proj))
+        let extra_info = PointProjectionInfo {
+            element_index          : *b,
+            barycentric_coordinates: extra_info,
+        };
+
+        Some((na::distance(self.point, &proj.point), (proj, extra_info)))
     }
 }
 
@@ -71,35 +95,50 @@ struct PointContainementTest<'a, P: 'a + Point, I: 'a, E: 'a> {
 
 impl<'a, P, I, E> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, I, E>
     where P: Point,
-          E: BaseMeshElement<I, P> + PointQuery<P, Identity> {
+          E: BaseMeshElement<I, P> + PointQuery<P, Id> {
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
-        !self.found && bv.contains_point(&Identity::new(), self.point)
+        !self.found && bv.contains_point(&Id::new(), self.point)
     }
 
     #[inline]
     fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
         if !self.found &&
-           bv.contains_point(&Identity::new(), self.point) &&
-           self.mesh.element_at(*b).contains_point(&Identity::new(), self.point) {
+           bv.contains_point(&Id::new(), self.point) &&
+           self.mesh.element_at(*b).contains_point(&Id::new(), self.point) {
             self.found = true;
         }
     }
 }
 
+
+/// Additional point pojection info for base meshes
+pub struct PointProjectionInfo<C> {
+    /// The index of the base mesh element the point was projected on
+    ///
+    /// The terminology is a bit confusing here, as this is not the index of a
+    /// base mesh vertex, but rather of a base mesh element. Meaning, it is
+    /// intended to be passed to `BaseMesh::element_at`.
+    pub element_index: usize,
+
+    /// The barycentry coordinates of the projected point
+    ///
+    /// The type of this field depends on the type of the base mesh element.
+    pub barycentric_coordinates: C,
+}
+
+
 /*
  * fwd impls to exact meshes.
  */
-impl<P, M> PointQuery<P, M> for TriMesh<P>
-    where P: Point,
-          M: Transform<P> {
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         self.base_mesh().project_point(m, point, solid)
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> P::Real {
         self.base_mesh().distance_to_point(m, point, solid)
     }
 
@@ -109,21 +148,32 @@ impl<P, M> PointQuery<P, M> for TriMesh<P>
     }
 }
 
-impl<P, M> PointQuery<P, M> for Polyline<P>
-    where P: Point,
-          M: Transform<P> {
+
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        self.base_mesh().project_point(m, point, solid)
+        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
+        projection
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
+    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> P::Real {
         self.base_mesh().distance_to_point(m, point, solid)
     }
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
         self.base_mesh().contains_point(m, point)
+    }
+}
+
+impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Polyline<P> {
+    type ExtraInfo = PointProjectionInfo<<Segment<P> as RichPointQuery<P, M>>::ExtraInfo>;
+
+    #[inline]
+    fn project_point_with_extra_info(&self, m: &M, point: &P, solid: bool)
+        -> (PointProjection<P>, Self::ExtraInfo)
+    {
+        self.base_mesh().project_point_with_extra_info(m, point, solid)
     }
 }

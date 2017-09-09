@@ -1,9 +1,8 @@
-use na::{Translation, Translate};
 use bounding_volume::{self, AABB, BoundingSphere};
 use query::{PointQuery, RayCast};
 use shape::{Shape, Triangle, Segment, Ball, Plane, Cuboid, Cylinder, Cone, ConvexHull, Compound,
             TriMesh, Polyline, CompositeShape, SupportMap};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 
 macro_rules! impl_as_support_map(
     () => {
@@ -67,61 +66,46 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Segment<P> {
     impl_as_support_map!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<<P::Vect as Vector>::Scalar> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Cuboid<P::Vect> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Cuboid<P::Vector> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P, M> Shape<P, M> for Cylinder<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Cylinder<P::Real> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P, M> Shape<P, M> for Cone<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P, M> Shape<P, M> for ConvexHull<P>
-    where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P, M> Shape<P, M> for Compound<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> + Translation<P::Vect> {
+impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {
     impl_shape_common!();
     impl_as_composite_shape!();
 }
 
-impl<P, M> Shape<P, M> for TriMesh<P>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for TriMesh<P> {
     impl_shape_common!();
     impl_as_composite_shape!();
 }
 
-impl<P, M> Shape<P, M> for Polyline<P>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Polyline<P> {
     impl_shape_common!();
     impl_as_composite_shape!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Plane<P::Vect> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Plane<P::Vector> {
     impl_shape_common!();
 }

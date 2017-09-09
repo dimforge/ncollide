@@ -1,4 +1,4 @@
-use na::Identity;
+use alga::general::Id;
 use partitioning::BVTVisitor;
 use query::PointQuery;
 use math::Point;
@@ -25,15 +25,15 @@ impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
 impl<'a, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
     where P:  Point,
           B:  Clone,
-          BV: PointQuery<P, Identity> {
+          BV: PointQuery<P, Id> {
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
-        bv.contains_point(&Identity::new(), self.point)
+        bv.contains_point(&Id::new(), self.point)
     }
 
     #[inline]
     fn visit_leaf(&mut self, b: &B, bv: &BV) {
-        if bv.contains_point(&Identity::new(), self.point) {
+        if bv.contains_point(&Id::new(), self.point) {
             self.collector.push(b.clone())
         }
     }

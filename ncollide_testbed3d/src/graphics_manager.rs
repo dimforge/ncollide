@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use rand::{SeedableRng, XorShiftRng, Rng};
-use na::{self, Point3, Isometry3, Column, Translate, Translation};
+use na::{self, Point3, Isometry3};
 use kiss3d::window::Window;
 use kiss3d::scene::SceneNode;
 use kiss3d::camera::{Camera, ArcBall, FirstPerson};
@@ -189,8 +189,8 @@ impl GraphicsManager {
                     shape:  &Plane3<f32>,
                     color:  Point3<f32>,
                     out:    &mut Vec<Node>) {
-        let position = na::translation(&object.position).translate(&na::origin());
-        let normal   = na::rotate(&object.position, shape.normal());
+        let position = Point3::from_coordinates(object.position.translation.vector);
+        let normal   = object.position.rotation    * shape.normal();
 
         out.push(Node::Plane(Plane::new(object, &position, &normal, color, window)))
     }
@@ -283,11 +283,13 @@ impl GraphicsManager {
     pub fn draw_positions<T>(&mut self, window: &mut Window, world: &CollisionWorld3<f32, T>) {
         for object in world.collision_objects() {
             let t      = object.position;
-            let center = t.translation().to_point();
+            let center = Point3::from_coordinates(t.translation.vector);
 
-            let x = t.rotation.column(0) * 0.25f32;
-            let y = t.rotation.column(1) * 0.25f32;
-            let z = t.rotation.column(2) * 0.25f32;
+            let rotmat = t.rotation.to_rotation_matrix();
+
+            let x = rotmat.matrix().column(0) * 0.25f32;
+            let y = rotmat.matrix().column(1) * 0.25f32;
+            let z = rotmat.matrix().column(2) * 0.25f32;
 
             window.draw_line(&center, &(center + x), &Point3::new(1.0, 0.0, 0.0));
             window.draw_line(&center, &(center + y), &Point3::new(0.0, 1.0, 0.0));

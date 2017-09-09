@@ -1,8 +1,9 @@
+use alga::general::Real;
 use na;
-use na::{Point3, Vector3, Point2, BaseFloat};
+use na::{Point3, Vector3, Point2};
 use super::{Polyline, TriMesh, IndexBuffer};
 use super::utils;
-use math::{Scalar, Point, Vector};
+use math::Point;
 
 /// Generates a UV sphere.
 pub fn sphere<N>(diameter:      N,
@@ -10,7 +11,7 @@ pub fn sphere<N>(diameter:      N,
                  nphi_subdiv:   u32,
                  generate_uvs:  bool)
                  -> TriMesh<Point3<N>>
-    where N: Scalar {
+    where N: Real {
     let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv, generate_uvs);
 
     sphere.scale_by_scalar(diameter);
@@ -23,7 +24,7 @@ pub fn unit_sphere<N>(ntheta_subdiv: u32,
                       nphi_subdiv:   u32,
                       generate_uvs:  bool)
                       -> TriMesh<Point3<N>>
-    where N: Scalar {
+    where N: Real {
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
     }
@@ -34,12 +35,12 @@ pub fn unit_sphere<N>(ntheta_subdiv: u32,
 
 // FIXME: n{theta,phi}_subdiv are not the right names.
 fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point3<N>>
-    where N: Scalar {
-    let pi: N     = BaseFloat::pi();
-    let two_pi: N = BaseFloat::two_pi();
-    let pi_two: N = BaseFloat::frac_pi_2();
-    let dtheta    = two_pi / na::cast(ntheta_subdiv as f64);
-    let dphi      = pi / na::cast(nphi_subdiv as f64);
+    where N: Real {
+    let pi     = N::pi();
+    let two_pi = N::two_pi();
+    let pi_two = N::frac_pi_2();
+    let dtheta = two_pi / na::convert(ntheta_subdiv as f64);
+    let dphi   = pi / na::convert(nphi_subdiv as f64);
 
     let mut coords   = Vec::new();
     let mut curr_phi = -pi_two + dphi;
@@ -55,7 +56,7 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<P
     coords.push(Point3::new(na::zero(), na::one(), na::zero()));
 
     // the normals are the same as the coords.
-    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.as_vector().clone()).collect();
+    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.coords).collect();
 
     // index buffer
     let mut idx = Vec::new();
@@ -77,22 +78,21 @@ fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<P
 
     let mut res = TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Unified(idx)));
 
-    let _0_5: N = na::cast(0.5);
+    let _0_5: N = na::convert(0.5);
 
     res.scale_by_scalar(_0_5);
 
     res
 }
 
-fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point3<N>>
-    where N: Scalar {
-    let pi: N     = BaseFloat::pi();
-    let two_pi: N = BaseFloat::two_pi();
-    let pi_two: N = BaseFloat::frac_pi_2();
-    let duvtheta  = na::one::<N>() / na::cast(ntheta_subdiv as f64); // step of uv.x coordinates.
-    let duvphi    = na::one::<N>() / na::cast(nphi_subdiv as f64);   // step of uv.y coordinates.
-    let dtheta    =  two_pi * duvtheta;
-    let dphi      =  pi * duvphi;
+fn unit_sphere_with_uvs<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point3<N>> {
+    let pi       = N::pi();
+    let two_pi   = N::two_pi();
+    let pi_two   = N::frac_pi_2();
+    let duvtheta = N::one() / na::convert(ntheta_subdiv as f64); // step of uv.x coordinates.
+    let duvphi   = N::one() / na::convert(nphi_subdiv as f64);   // step of uv.y coordinates.
+    let dtheta   =  two_pi * duvtheta;
+    let dphi     =  pi * duvphi;
 
     let mut coords   = Vec::new();
     let mut curr_phi = -pi_two;
@@ -103,7 +103,7 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Poin
     }
 
     // the normals are the same as the coords
-    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.as_vector().clone()).collect();
+    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.coords).collect();
 
     // index buffer
     let mut idx = Vec::new();
@@ -131,22 +131,21 @@ fn unit_sphere_with_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Poin
 
     let mut res = TriMesh::new(coords, Some(normals), Some(uvs), Some(IndexBuffer::Unified(idx)));
 
-    let _0_5: N = na::cast(0.5);
+    let _0_5: N = na::convert(0.5);
     res.scale_by_scalar(_0_5);
 
     res
 }
 
 /// Creates an hemisphere with a diameter of 1.
-pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point3<N>>
-    where N: Scalar {
-    let two_pi: N = BaseFloat::two_pi();
-    let pi_two: N = BaseFloat::frac_pi_2();
-    let dtheta    =  two_pi / na::cast(ntheta_subdiv as f64);
-    let dphi      =  pi_two / na::cast(nphi_subdiv as f64);
+pub fn unit_hemisphere<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point3<N>> {
+    let two_pi = N::two_pi();
+    let pi_two = N::frac_pi_2();
+    let dtheta =  two_pi / na::convert(ntheta_subdiv as f64);
+    let dphi   =  pi_two / na::convert(nphi_subdiv as f64);
 
-    let mut coords     = Vec::new();
-    let mut curr_phi   = na::zero::<N>();
+    let mut coords   = Vec::new();
+    let mut curr_phi = na::zero::<N>();
 
     for _ in 0 .. nphi_subdiv - 1 {
         utils::push_circle(curr_phi.cos(), ntheta_subdiv, dtheta, curr_phi.sin(), &mut coords);
@@ -167,26 +166,25 @@ pub fn unit_hemisphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<Point
                                             &mut idx);
 
     // Result
-    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.as_vector().clone()).collect();
+    let normals: Vec<Vector3<N>> = coords.iter().map(|p| p.coords).collect();
     // FIXME: uvs
     let mut out = TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Unified(idx)));
 
     // set the radius to 0.5
-    let _0_5: N = na::cast(0.5);
+    let _0_5: N = na::convert(0.5);
     out.scale_by_scalar(_0_5);
 
     out
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn circle<P>(diameter: &<P::Vect as Vector>::Scalar, nsubdivs: u32) -> Polyline<P>
-    where P: Point {
-    let two_pi: <P::Vect as Vector>::Scalar = BaseFloat::two_pi();
-    let dtheta = two_pi / na::cast(nsubdivs as f64);
+pub fn circle<P: Point>(diameter: &P::Real, nsubdivs: u32) -> Polyline<P> {
+    let two_pi = P::Real::two_pi();
+    let dtheta = two_pi / na::convert(nsubdivs as f64);
 
     let mut pts = Vec::with_capacity(nsubdivs as usize);
 
-    utils::push_xy_arc(*diameter / na::cast(2.0), nsubdivs, dtheta, &mut pts);
+    utils::push_xy_arc(*diameter / na::convert(2.0), nsubdivs, dtheta, &mut pts);
 
     // FIXME: normals
 
@@ -194,8 +192,7 @@ pub fn circle<P>(diameter: &<P::Vect as Vector>::Scalar, nsubdivs: u32) -> Polyl
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn unit_circle<P>(nsubdivs: u32) -> Polyline<P>
-    where P: Point {
+pub fn unit_circle<P: Point>(nsubdivs: u32) -> Polyline<P> {
     // FIXME: do this the other way round?
-    circle::<P>(&na::cast(1.0), nsubdivs)
+    circle::<P>(&na::convert(1.0), nsubdivs)
 }

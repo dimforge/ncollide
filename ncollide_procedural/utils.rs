@@ -1,21 +1,21 @@
 //! Utilities useful for various generations tasks.
 
-use std::ops::{Index, IndexMut};
-use std::mem;
 use std::iter;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use num::Float;
+use num::Zero;
+
+use alga::general::Real;
 use na;
-use na::{Point3, Dimension, Cross, Origin};
-use ncollide_utils::{HashablePartialEq, AsBytes};
-use math::{Scalar, Point, Vector};
+use na::{Scalar, Point3};
+use ncollide_utils::{self, HashablePartialEq, AsBytes};
+use math::Point;
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[inline]
-pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Point3<N>>) {
-    let mut curr_theta: N = na::zero();
+pub fn push_circle<N: Real>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Point3<N>>) {
+    let mut curr_theta = N::zero();
 
     for _ in 0 .. nsubdiv {
         out.push(Point3::new(curr_theta.cos() * radius, y.clone(), curr_theta.sin() * radius));
@@ -26,19 +26,17 @@ pub fn push_circle<N: Scalar>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mu
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N, P>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<P>)
-    where N: Scalar,
-          P: Dimension + Origin + Index<usize, Output = N> + IndexMut<usize, Output = N> {
-    assert!(na::dimension::<P>() >= 2);
+pub fn push_xy_arc<P: Point>(radius: P::Real, nsubdiv: u32, dtheta: P::Real, out: &mut Vec<P>) {
+    assert!(na::dimension::<P::Vector>() >= 2);
 
-    let mut curr_theta: N = na::zero();
+    let mut curr_theta = P::Real::zero();
 
     for _ in 0 .. nsubdiv {
-        let mut pt = na::origin::<P>();
+        let mut pt_coords = P::Vector::zero();
 
-        pt[0] = curr_theta.cos() * radius;
-        pt[1] = curr_theta.sin() * radius;
-        out.push(pt);
+        pt_coords[0] = curr_theta.cos() * radius;
+        pt_coords[1] = curr_theta.sin() * radius;
+        out.push(P::from_coordinates(pt_coords));
 
         curr_theta = curr_theta + dtheta;
     }
@@ -115,7 +113,7 @@ pub fn push_filled_circle_indices(base_circle: u32, nsubdiv: u32, out: &mut Vec<
 /// * `dr` - the down-left point.
 /// * `ur` - the up-left point.
 #[inline]
-pub fn push_rectangle_indices<T: Clone>(ul: T, ur: T, dl: T, dr: T, out: &mut Vec<Point3<T>>) {
+pub fn push_rectangle_indices<T: Scalar>(ul: T, ur: T, dl: T, dr: T, out: &mut Vec<Point3<T>>) {
     out.push(Point3::new(ul.clone(), dl, dr.clone()));
     out.push(Point3::new(dr        , ur, ul));
 }
@@ -124,7 +122,7 @@ pub fn push_rectangle_indices<T: Clone>(ul: T, ur: T, dl: T, dr: T, out: &mut Ve
 #[inline]
 pub fn reverse_clockwising(indices: &mut [Point3<u32>]) {
     for i in indices.iter_mut() {
-        mem::swap(&mut i.x, &mut i.y);
+        i.coords.swap((0, 0), (1, 0));
     }
 }
 
@@ -140,8 +138,7 @@ pub fn split_index_buffer(indices: &[Point3<u32>]) -> Vec<Point3<Point3<u32>>> {
             Point3::new(
                 Point3::new(vertex.x, vertex.x, vertex.x),
                 Point3::new(vertex.y, vertex.y, vertex.y),
-                Point3::new(vertex.z, vertex.z, vertex.z)
-                )
+                Point3::new(vertex.z, vertex.z, vertex.z))
             );
     }
 
@@ -201,12 +198,11 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
     (out, new_coords)
 }
 
+// FIXME: check at compile-time that we are in 3D?
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<P>(coordinates: &[P], faces: &[Point3<u32>], normals: &mut Vec<P::Vect>)
-    where P: Point,
-          P::Vect: Vector + Cross<CrossProductType = <P as Point>::Vect> {
-    let mut divisor: Vec<<P::Vect as Vector>::Scalar> = iter::repeat(na::zero()).take(coordinates.len()).collect();
+pub fn compute_normals<P: Point>(coordinates: &[P], faces: &[Point3<u32>], normals: &mut Vec<P::Vector>) {
+    let mut divisor: Vec<P::Real> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
     if normals.len() > coordinates.len() {
@@ -215,16 +211,16 @@ pub fn compute_normals<P>(coordinates: &[P], faces: &[Point3<u32>], normals: &mu
 
     // Reinit all normals to zero.
     normals.clear();
-    normals.extend(iter::repeat(na::zero::<P::Vect>()).take(coordinates.len()));
+    normals.extend(iter::repeat(na::zero::<P::Vector>()).take(coordinates.len()));
 
     // Accumulate normals ...
     for f in faces.iter() {
-        let edge1  = coordinates[f.y as usize] - coordinates[f.x as usize];
-        let edge2  = coordinates[f.z as usize] - coordinates[f.x as usize];
-        let cross  = na::cross(&edge1, &edge2);
+        let edge1 = coordinates[f.y as usize] - coordinates[f.x as usize];
+        let edge2 = coordinates[f.z as usize] - coordinates[f.x as usize];
+        let cross = ncollide_utils::cross3(&edge1, &edge2);
         let normal;
 
-        if !na::is_zero(&cross) {
+        if !cross.is_zero() {
             normal = na::normalize(&cross)
         }
         else {

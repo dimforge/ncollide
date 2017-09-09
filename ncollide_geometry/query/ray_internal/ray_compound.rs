@@ -1,30 +1,28 @@
-use na::Identity;
+use alga::general::Id;
 use bounding_volume::AABB;
 use shape::Compound;
 use partitioning::BVTCostFn;
 use query::{Ray, RayCast, RayIntersection};
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 
 
 // XXX: if solid == false, this might return internal intersection.
-impl<P, M> RayCast<P, M> for Compound<P, M>
-    where P: Point,
-          M: Isometry<P> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<<P::Vect as Vector>::Scalar> {
-        let ls_ray = Ray::new(m.inverse_transform(&ray.origin), m.inverse_rotate(&ray.dir));
+impl<P: Point, M: Isometry<P>> RayCast<P, M> for Compound<P, M> {
+    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<P::Real> {
+        let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = CompoundRayToiCostFn { compound: self, ray: &ls_ray, solid: solid };
 
         self.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
     }
 
-    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vect>> {
-        let ls_ray = Ray::new(m.inverse_transform(&ray.origin), m.inverse_rotate(&ray.dir));
+    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+        let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = CompoundRayToiAndNormalCostFn { compound: self, ray: &ls_ray, solid: solid };
 
         self.bvt().best_first_search(&mut cost_fn).map(|(_, mut res)| {
-            res.normal = m.rotate(&res.normal); res
+            res.normal = m.rotate_vector(&res.normal); res
         })
     }
 
@@ -41,17 +39,17 @@ struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for CompoundRayToiCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<P::Real, usize, AABB<P>> for CompoundRayToiCostFn<'a, P, M>
     where P: Point,
           M: Isometry<P> {
-    type UserData = <P::Vect as Vector>::Scalar;
+    type UserData = P::Real;
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
-        aabb.toi_with_ray(&Identity::new(), self.ray, self.solid)
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+        aabb.toi_with_ray(&Id::new(), self.ray, self.solid)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, <P::Vect as Vector>::Scalar)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, P::Real)> {
         let elt = &self.compound.shapes()[*b];
         elt.1.toi_with_ray(&elt.0, self.ray, self.solid).map(|toi| (toi, toi))
     }
@@ -63,19 +61,17 @@ struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a> {
     solid:    bool
 }
 
-impl<'a, P, M> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>>
-for CompoundRayToiAndNormalCostFn<'a, P, M>
-    where P: Point,
-          M: Isometry<P> {
-    type UserData = RayIntersection<P::Vect>;
+impl<'a, P: Point, M: Isometry<P>> BVTCostFn<P::Real, usize, AABB<P>>
+for CompoundRayToiAndNormalCostFn<'a, P, M> {
+    type UserData = RayIntersection<P::Vector>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
-        aabb.toi_with_ray(&Identity::new(), self.ray, self.solid)
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+        aabb.toi_with_ray(&Id::new(), self.ray, self.solid)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, RayIntersection<P::Vect>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, RayIntersection<P::Vector>)> {
         let elt = &self.compound.shapes()[*b];
         elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid).map(|inter| (inter.toi, inter))
     }

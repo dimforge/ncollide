@@ -1,16 +1,14 @@
-use na::{self, Bounded};
-use math::{Point, Vector};
+use na;
+use math::Point;
 
 /// Computes the support point of a cloud of points.
 #[inline]
-pub fn point_cloud_support_point<P>(dir: &P::Vect, points: &[P]) -> P
-    where P: Point {
-    let _max: <P::Vect as Vector>::Scalar = Bounded::max_value();
-    let mut best_dot = -_max;
+pub fn point_cloud_support_point<P: Point>(dir: &P::Vector, points: &[P]) -> P {
     let mut best_pt  = &points[0];
+    let mut best_dot = na::dot(&best_pt.coordinates(), dir);;
 
-    for p in points.iter() {
-        let dot = na::dot(p.as_vector(), dir);
+    for p in points[1 ..].iter() {
+        let dot = na::dot(&p.coordinates(), dir);
 
         if dot > best_dot {
             best_dot = dot;
@@ -18,5 +16,5 @@ pub fn point_cloud_support_point<P>(dir: &P::Vect, points: &[P]) -> P
         }
     }
 
-    best_pt.clone()
+    *best_pt
 }

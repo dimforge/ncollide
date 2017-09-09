@@ -1,4 +1,6 @@
-use math::{Scalar, Point, Vector};
+use alga::general::Real;
+
+use math::Point;
 use geometry::shape::ShapeHandle;
 use world::CollisionGroups;
 
@@ -11,7 +13,7 @@ use world::CollisionGroups;
 /// * Contacts + Proximity = proximity test only.
 /// * Proximity + Proximity = proximity test only.
 #[derive(Debug, PartialEq, Clone, Copy, RustcEncodable, RustcDecodable)]
-pub enum GeometricQueryType<N: Scalar> {
+pub enum GeometricQueryType<N: Real> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N),
     /// This object can respond to proximity tests only.
@@ -19,7 +21,7 @@ pub enum GeometricQueryType<N: Scalar> {
     // FIXME: not yet implemented: Distance
 }
 
-impl<N: Scalar> GeometricQueryType<N> {
+impl<N: Real> GeometricQueryType<N> {
     /// The numerical limit of relevance for this query.
     ///
     /// If two objects are separated by a distance greater than the sum of their respective
@@ -69,7 +71,7 @@ pub struct CollisionObject<P: Point, M, T> {
     /// The collision groups of the collision object.
     pub collision_groups: CollisionGroups,
     /// The kind of queries this collision object is expected to .
-    pub query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
+    pub query_type: GeometricQueryType<P::Real>,
     /// The user-defined data associated to this object.
     pub data: T,
     #[doc(hidden)]
@@ -82,7 +84,7 @@ impl<P: Point, M, T> CollisionObject<P, M, T> {
                position:   M,
                shape:      ShapeHandle<P, M>,
                groups:     CollisionGroups,
-               query_type: GeometricQueryType<<P::Vect as Vector>::Scalar>,
+               query_type: GeometricQueryType<P::Real>,
                data:       T)
                -> CollisionObject<P, M, T> {
         CollisionObject {

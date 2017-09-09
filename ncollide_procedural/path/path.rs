@@ -4,11 +4,11 @@ use trimesh::TriMesh;
 /// A sample point and its associated tangent.
 pub enum PathSample<P: Point> {
     /// A point that starts a new path.
-    StartPoint(P, P::Vect),
+    StartPoint(P, P::Vector),
     /// A point that is inside of the path currently generated.
-    InnerPoint(P, P::Vect),
+    InnerPoint(P, P::Vector),
     /// A point that ends the path currently generated.
-    EndPoint(P, P::Vect),
+    EndPoint(P, P::Vector),
     /// Used when the sampler does not have any other points to generate.
     EndOfSample
 

@@ -1,4 +1,16 @@
-[![Build Status](https://travis-ci.org/sebcrozet/ncollide.svg?branch=master)](https://travis-ci.org/sebcrozet/ncollide)
+<p align="center">
+    <a href="https://crates.io/crates/ncollide">
+         <img src="http://meritbadge.herokuapp.com/ncollide?style=flat-square" alt="crates.io">
+    </a>
+    <a href="https://travis-ci.org/sebcrozet/ncollide">
+        <img src="https://travis-ci.org/sebcrozet/ncollide.svg?branch=master" alt="Build status">
+    </a>
+</p>
+<p align = "center">
+    <strong>
+        <a href="http://ncollide.org/rustdoc/ncollide">Documentation</a> | <a href="http://ncollide.org">User Guide</a> | <a href="http://users.nphysics.org">Forum</a>
+    </strong>
+</p>
 
 ncollide
 ========
@@ -21,7 +33,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```
 [dependencies]
-ncollide = "0.9.*"
+ncollide = "0.13"
 ```
 
 
@@ -36,3 +48,10 @@ ncollide = "0.9.*"
   yet implemented)
 
 And various traits for collision detectors and broad phase collision detection.
+
+## Contribution
+Pull requests and issues are very welcome. In addition, click this button if you which to donate to support the development of <b>ncollide</b>:
+
+<p align = "center">
+    <a href="https://www.patreon.com/bePatron?u=7111380" ><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" /></a>
+</p>

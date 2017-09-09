@@ -11,7 +11,8 @@
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate rustc_serialize;
-extern crate num;
+extern crate num_traits as num;
+extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils;
@@ -33,13 +34,13 @@ pub mod path;
 mod trimesh;
 mod polyline;
 
-mod bezier;
+mod sphere;
 mod capsule;
 mod cone;
 mod cuboid;
 mod cylinder;
 mod quad;
-mod sphere;
+mod bezier;
 
 /// A 3D triangle mesh.
 pub type TriMesh3<N> = TriMesh<Point3<N>>;

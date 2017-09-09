@@ -1,3 +1,5 @@
+use math::Point;
+
 /// Traits of objects having a bounding volume.
 pub trait HasBoundingVolume<M, BV> {
     /// The bounding volume of `self` transformed by `m`.
@@ -9,7 +11,12 @@ pub trait HasBoundingVolume<M, BV> {
 /// Bounding volumes are coarse approximations of shapes. It usually have constant time
 /// intersection, inclusion test. Two bounding volume must also be mergeable into a bigger bounding
 /// volume.
-pub trait BoundingVolume<N> {
+pub trait BoundingVolume<P: Point> {
+    // FIXME: keep that ? What about non-spacial bounding volumes (e.g. bounding cones, curvature
+    // bounds, etc.) ?
+    /// Returns a point inside of this bounding volume. This is ideally its center.
+    fn center(&self) -> P;
+
     /// Checks if this bounding volume intersect with another one.
     fn intersects(&self, &Self) -> bool;
 
@@ -23,14 +30,14 @@ pub trait BoundingVolume<N> {
     fn merged(&self, &Self) -> Self;
 
     /// Enlarges this bounding volume.
-    fn loosen(&mut self, N);
+    fn loosen(&mut self, P::Real);
 
     /// Creates a new, enlarged version, of this bounding volume.
-    fn loosened(&self, N) -> Self;
+    fn loosened(&self, P::Real) -> Self;
 
     /// Tighten this bounding volume.
-    fn tighten(&mut self, N);
+    fn tighten(&mut self, P::Real);
 
     /// Creates a new, tightened version, of this bounding volume.
-    fn tightened(&self, N) -> Self;
+    fn tightened(&self, P::Real) -> Self;
 }

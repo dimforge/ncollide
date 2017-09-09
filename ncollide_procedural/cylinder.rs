@@ -1,12 +1,11 @@
+use alga::general::Real;
 use na;
-use na::{Point3, Point2, Vector3, BaseFloat};
+use na::{Point3, Point2, Vector3};
 use super::{TriMesh, IndexBuffer};
 use super::utils;
-use math::Scalar;
 
 /// Generates a cylinder with a given height and diameter.
-pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Point3<N>>
-    where N: Scalar {
+pub fn cylinder<N: Real>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Point3<N>> {
     let mut cylinder = unit_cylinder(nsubdiv);
 
     cylinder.scale_by(&Vector3::new(diameter, height, diameter));
@@ -15,20 +14,19 @@ pub fn cylinder<N>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Point3<N>>
 }
 
 /// Generates a cylinder with unit height and diameter.
-pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<Point3<N>>
-    where N: Scalar {
-    let two_pi: N   = BaseFloat::two_pi();
-    let invsubdiv   = na::one::<N>() / na::cast(nsubdiv as f64);
+pub fn unit_cylinder<N: Real>(nsubdiv: u32) -> TriMesh<Point3<N>> {
+    let two_pi      = N::two_pi();
+    let invsubdiv   = na::one::<N>() / na::convert(nsubdiv as f64);
     let dtheta      = two_pi * invsubdiv;
     let mut coords  = Vec::new();
     let mut indices = Vec::new();
     let mut normals: Vec<Vector3<N>>;
 
-    utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(-0.5), &mut coords);
+    utils::push_circle(na::convert(0.5), nsubdiv, dtheta, na::convert(-0.5), &mut coords);
 
-    normals = coords.iter().map(|p| p.as_vector().clone()).collect();
+    normals = coords.iter().map(|p| p.coords).collect();
 
-    utils::push_circle(na::cast(0.5), nsubdiv, dtheta, na::cast(0.5),  &mut coords);
+    utils::push_circle(na::convert(0.5), nsubdiv, dtheta, na::convert(0.5),  &mut coords);
 
     utils::push_ring_indices(0, nsubdiv, nsubdiv, &mut indices);
     utils::push_filled_circle_indices(0, nsubdiv, &mut indices);
@@ -45,9 +43,9 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<Point3<N>>
      */
     // bottom ring uvs
     let mut uvs    = Vec::with_capacity(coords.len());
-    let mut curr_u = na::zero::<N>();
+    let mut curr_u = N::zero();
     for _ in 0 .. nsubdiv {
-        uvs.push(Point2::new(curr_u.clone(), na::zero()));
+        uvs.push(Point2::new(curr_u, na::zero()));
         curr_u = curr_u + invsubdiv;
     }
 
@@ -55,7 +53,7 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<Point3<N>>
     // top ring uvs
     curr_u = na::zero();
     for _ in 0 .. nsubdiv {
-        uvs.push(Point2::new(curr_u.clone(), na::one()));
+        uvs.push(Point2::new(curr_u, na::one()));
         curr_u = curr_u + invsubdiv;
     }
 
@@ -63,9 +61,9 @@ pub fn unit_cylinder<N>(nsubdiv: u32) -> TriMesh<Point3<N>>
      * Adjust normals.
      */
     for n in normals.iter_mut() {
-        n.x = n.x * na::cast(2.0);
+        n.x = n.x * na::convert(2.0);
         n.y = na::zero();
-        n.z = n.z * na::cast(2.0);
+        n.z = n.z * na::convert(2.0);
     }
 
     normals.push(Vector3::y());  // top cap

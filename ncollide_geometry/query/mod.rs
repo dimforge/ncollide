@@ -18,7 +18,7 @@ pub use self::ray_internal::{Ray, Ray2, Ray3,
                              RayCast, RayInterferencesCollector,
                              RayIntersectionCostFn};
 #[doc(inline)]
-pub use self::point_internal::{PointProjection, PointQuery, PointInterferencesCollector};
+pub use self::point_internal::{PointProjection, PointQuery, PointInterferencesCollector, RichPointQuery};
 
 pub mod algorithms;
 pub mod contacts_internal;

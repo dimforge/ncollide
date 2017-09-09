@@ -8,8 +8,8 @@ fn main() {
     let cylinder = Cylinder::new(0.5f32, 0.75);
     let cone     = Cone::new(0.75f32, 0.75);
 
-    let delta_cylinder = na::one::<Isometry3<f32>>(); // Identity matrix.
-    let delta_cone     = na::one::<Isometry3<f32>>(); // Identity matrix.
+    let delta_cylinder = na::one::<Isometry3<f32>>(); // Id matrix.
+    let delta_cone     = na::one::<Isometry3<f32>>(); // Id matrix.
 
     let _ = MinkowskiSum::new(&delta_cylinder, &cylinder, &delta_cone, &cone);
 }

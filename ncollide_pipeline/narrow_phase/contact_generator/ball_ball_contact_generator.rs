@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
-use na::Translate;
-use na;
-use math::{Point, Vector, Isometry};
+
+use alga::linear::Translation;
+use math::{Point, Isometry};
 use geometry::shape::{Shape, Ball};
 use geometry::query::Contact;
 use geometry::query::contacts_internal;
@@ -34,23 +34,21 @@ impl<P: Point, M> BallBallContactGenerator<P, M> {
     }
 }
 
-impl<P, M> ContactGenerator<P, M> for BallBallContactGenerator<P, M>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerator<P, M> {
     fn update(&mut self,
               _:          &ContactDispatcher<P, M>,
               ma:         &M,
               a:          &Shape<P, M>,
               mb:         &M,
               b:          &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
-        if let (Some(a), Some(b)) = (a.as_shape::<Ball<<P::Vect as Vector>::Scalar>>(),
-                                     b.as_shape::<Ball<<P::Vect as Vector>::Scalar>>()) {
+        if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(),
+                                     b.as_shape::<Ball<P::Real>>()) {
             self.contact = contacts_internal::ball_against_ball(
-                &ma.translate(&na::origin()),
+                &P::from_coordinates(ma.translation().to_vector()),
                 a,
-                &mb.translate(&na::origin()),
+                &P::from_coordinates(mb.translation().to_vector()),
                 b,
                 prediction);
 

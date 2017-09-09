@@ -2,9 +2,10 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::path::Path;
 use std::time::{Duration, Instant};
+use num::Bounded;
 use glfw;
 use glfw::{MouseButton, Key, Action, WindowEvent};
-use na::{Point2, Point3, Vector3, Translate, Isometry3, Bounded};
+use na::{Point2, Point3, Vector3, Isometry3};
 use na;
 use kiss3d::window::Window;
 use kiss3d::light::Light;
@@ -245,8 +246,9 @@ impl Testbed {
 
                         if let Some(uid) = self.grabbed_object {
                             for n in self.graphics.borrow_mut().scene_nodes_mut(uid).unwrap().iter_mut() {
-                                let attach = Isometry3::new((ray.origin + ray.dir * mintoi).to_vector(), na::zero());
-                                self.grabbed_object_plane = (attach.translate(&na::origin()), -ray.dir);
+                                let attach = Isometry3::new((ray.origin + ray.dir * mintoi).coords, na::zero());
+                                self.grabbed_object_plane = (Point3::from_coordinates(attach.translation.vector),
+                                                             -ray.dir);
                                 n.select()
                             }
                         }
@@ -276,7 +278,7 @@ impl Testbed {
 
                         match ray_internal::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir)) {
                             Some(inter) => {
-                                let new_pos = Isometry3::new((pos + dir * inter).to_vector(), na::zero());
+                                let new_pos = Isometry3::new((pos + dir * inter).coords, na::zero());
                                 world.deferred_set_position(uid, new_pos);
                             },
                             None => { }

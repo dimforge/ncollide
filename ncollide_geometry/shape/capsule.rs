@@ -1,10 +1,12 @@
 //! Support mapping based Capsule shape.
 
 use num::Signed;
+
+use alga::general::Real;
 use na;
-use na::{Rotate, Transform};
+
 use shape::SupportMap;
-use math::{Scalar, Point, Vector};
+use math::{Point, Isometry};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -13,8 +15,7 @@ pub struct Capsule<N> {
     radius:      N,
 }
 
-impl<N> Capsule<N>
-    where N: Scalar {
+impl<N: Real> Capsule<N> {
     /// Creates a new capsule.
     ///
     /// # Arguments:
@@ -32,32 +33,30 @@ impl<N> Capsule<N>
     /// The capsule half length along the `y` axis.
     #[inline]
     pub fn half_height(&self) -> N {
-        self.half_height.clone()
+        self.half_height
     }
 
     /// The radius of the capsule's rounded part.
     #[inline]
     pub fn radius(&self) -> N {
-        self.radius.clone()
+        self.radius
     }
 }
 
-impl<P, M> SupportMap<P, M> for Capsule<<P::Vect as Vector>::Scalar>
-    where P: Point,
-          M: Transform<P> + Rotate<P::Vect> {
+impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vect) -> P {
-        let local_dir = m.inverse_rotate(dir);
+    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        let local_dir = m.inverse_rotate_vector(dir);
 
-        let mut pres = na::origin::<P>();
+        let mut res: P::Vector = na::zero();
 
         if local_dir[1].is_negative() {
-            pres[1] = -self.half_height()
+            res[1] = -self.half_height()
         }
         else {
-            pres[1] = self.half_height()
+            res[1] = self.half_height()
         }
 
-        m.transform(&(pres + na::normalize(&local_dir) * self.radius()))
+        m.transform_point(&(P::from_coordinates(res + na::normalize(&local_dir) * self.radius())))
     }
 }

@@ -1,20 +1,18 @@
-use na::{self, Transform};
+use na;
 use query::{PointQuery, PointProjection};
 use shape::Plane;
-use math::{Point, Vector};
+use math::{Point, Isometry};
 
-impl<P, M> PointQuery<P, M> for Plane<P::Vect>
-    where P: Point,
-          M: Transform<P> {
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Plane<P::Vector> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
-        let ls_pt = m.inverse_transform(pt);
-        let d     = na::dot(self.normal(), ls_pt.as_vector());
+        let ls_pt = m.inverse_transform_point(pt);
+        let d     = na::dot(self.normal(), &ls_pt.coordinates());
 
         let inside = d <= na::zero();
 
         if inside && solid {
-            PointProjection::new(true, pt.clone())
+            PointProjection::new(true, *pt)
         }
         else {
             PointProjection::new(inside, *pt + (-*self.normal() * d))
@@ -22,9 +20,9 @@ impl<P, M> PointQuery<P, M> for Plane<P::Vect>
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> <P::Vect as Vector>::Scalar {
-        let ls_pt = m.inverse_transform(pt);
-        let dist  = na::dot(self.normal(), ls_pt.as_vector());
+    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {
+        let ls_pt = m.inverse_transform_point(pt);
+        let dist  = na::dot(self.normal(), &ls_pt.coordinates());
 
         if dist < na::zero() && solid {
             na::zero()
@@ -37,8 +35,8 @@ impl<P, M> PointQuery<P, M> for Plane<P::Vect>
 
     #[inline]
     fn contains_point(&self, m: &M, pt: &P) -> bool {
-        let ls_pt = m.inverse_transform(pt);
+        let ls_pt = m.inverse_transform_point(pt);
 
-        na::dot(self.normal(), ls_pt.as_vector()) <= na::zero()
+        na::dot(self.normal(), &ls_pt.coordinates()) <= na::zero()
     }
 }

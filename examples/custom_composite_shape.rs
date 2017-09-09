@@ -1,7 +1,9 @@
+#[macro_use]
+extern crate approx;
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector2, Point2, Isometry2, Translation};
+use na::{Vector2, Point2, Translation2, Isometry2};
 use ncollide::query::{self, Proximity};
 use ncollide::shape::{CompositeShape, CompositeShape2, Shape, Shape2, Cuboid2};
 use ncollide::partitioning::BVT;
@@ -69,7 +71,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
                                m: &Isometry2<f32>,
                                f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
-        let transform = m.prepend_translation(&Vector2::new(1.0, 1.0));
+        let transform = m * Translation2::new(1.0, 1.0);
 
         // Create the cuboid on-the-fly.
         let cuboid = CrossedCuboids::generate_cuboid(i);
@@ -92,8 +94,8 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // This is far from an optimal AABB.
-        AABB2::new(Point2::new(-10.0, -10.0) + m.translation(),
-                   Point2::new(10.0, 10.0)   + m.translation())
+        AABB2::new(m.translation * Point2::new(-10.0, -10.0),
+                   m.translation * Point2::new(10.0, 10.0))
     }
 
     fn as_composite_shape(&self) -> Option<&CompositeShape2<f32>> {
@@ -112,7 +114,7 @@ fn main() {
     let prox = query::proximity(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
     let ctct = query::contact(&cross_pos, &cross, &cuboid_pos, &cuboid, 0.0);
 
-    assert!(na::approx_eq(&dist, &2.0));
+    assert!(relative_eq!(dist, 2.0));
     assert_eq!(prox, Proximity::Disjoint);
     assert!(ctct.is_none());
 }

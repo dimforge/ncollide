@@ -1,6 +1,5 @@
 use na;
-use na::Translate;
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use geometry::bounding_volume::{self, BoundingVolume};
@@ -28,20 +27,17 @@ impl<P: Point, M> CompositeShapeShapeContactGenerator<P, M> {
     }
 }
 
-impl<P, M> CompositeShapeShapeContactGenerator<P, M>
-    where P:  Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
     fn do_update(&mut self,
                  dispatcher: &ContactDispatcher<P, M>,
                  m1:         &M,
                  g1:         &CompositeShape<P, M>,
                  m2:         &M,
                  g2:         &Shape<P, M>,
-                 prediction: <P::Vect as Vector>::Scalar,
+                 prediction: P::Real,
                  swap:       bool) {
         // Find new collisions
-        let ls_m2    = na::inverse(m1).expect("The transformation `m1` must be inversible.") * *m2;
+        let ls_m2    = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction);
 
         {
@@ -93,7 +89,7 @@ impl<P, M> CompositeShapeShapeContactGenerator<P, M>
 
         // Remove outdated sub detectors
         for i in self.to_delete.iter() {
-            self.sub_detectors.remove(i);
+            let _ = self.sub_detectors.remove(i);
         }
 
         self.to_delete.clear();
@@ -114,17 +110,14 @@ impl<P: Point, M> ShapeCompositeShapeContactGenerator<P, M> {
     }
 }
 
-impl<P, M> ContactGenerator<P, M> for CompositeShapeShapeContactGenerator<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for CompositeShapeShapeContactGenerator<P, M> {
     fn update(&mut self,
               d:  &ContactDispatcher<P, M>,
               ma: &M,
               a:  &Shape<P, M>,
               mb: &M,
               b:  &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
         if let Some(cs) = a.as_composite_shape() {
             self.do_update(d, ma, cs, mb, b, prediction, false);
@@ -153,17 +146,14 @@ impl<P, M> ContactGenerator<P, M> for CompositeShapeShapeContactGenerator<P, M>
     }
 }
 
-impl<P, M> ContactGenerator<P, M> for ShapeCompositeShapeContactGenerator<P, M>
-    where P: Point,
-          P::Vect: Translate<P>,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for ShapeCompositeShapeContactGenerator<P, M> {
     fn update(&mut self,
               d:  &ContactDispatcher<P, M>,
               ma: &M,
               a:  &Shape<P, M>,
               mb: &M,
               b:  &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
         if let Some(cs) = b.as_composite_shape() {
             self.sub_detector.do_update(d, mb, cs, ma, a, prediction, true);

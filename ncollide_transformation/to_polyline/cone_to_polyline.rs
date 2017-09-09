@@ -1,11 +1,11 @@
+use alga::general::Real;
 use na::Point2;
 use na;
-use math::Scalar;
 use geometry::shape::Cone2;
 use procedural::{Polyline, Polyline2};
 use super::ToPolyline;
 
-impl<N: Scalar> ToPolyline<Point2<N>, ()> for Cone2<N> {
+impl<N: Real> ToPolyline<Point2<N>, ()> for Cone2<N> {
     fn to_polyline(&self, _: ()) -> Polyline2<N> {
         let hh = self.half_height();
         let r  = self.radius();

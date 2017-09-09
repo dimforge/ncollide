@@ -19,6 +19,6 @@ pub trait SupportMap<P: Point, M> {
      *  * `dir` - the input of the support function. It is not required for it to
      *            be normalized.
      */
-    fn support_point(&self, transform: &M, dir: &P::Vect) -> P;
+    fn support_point(&self, transform: &M, dir: &P::Vector) -> P;
 }
 

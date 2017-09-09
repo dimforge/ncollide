@@ -1,3 +1,4 @@
+use alga::general::Real;
 
 /// A torus.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -17,16 +18,16 @@ impl<N> Torus<N> {
     }
 }
 
-impl<N: Clone> Torus<N> {
+impl<N: Real> Torus<N> {
     /// The torus minor radius.
     #[inline]
     pub fn minor_radius(&self) -> N {
-        self.minor_radius.clone()
+        self.minor_radius
     }
 
     /// The torus major radius.
     #[inline]
     pub fn major_radius(&self) -> N {
-        self.major_radius.clone()
+        self.major_radius
     }
 }

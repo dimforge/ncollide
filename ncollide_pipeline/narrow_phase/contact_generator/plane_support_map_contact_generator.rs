@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use math::{Point, Vector, Isometry};
+use math::{Point, Isometry};
 use geometry::shape::{Shape, Plane};
 use geometry::query::Contact;
 use geometry::query::contacts_internal;
@@ -50,9 +50,7 @@ impl<P: Point, M> SupportMapPlaneContactGenerator<P, M> {
     }
 }
 
-impl<P, M> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M> {
     #[inline]
     fn update(&mut self,
               _:          &ContactDispatcher<P, M>,
@@ -60,9 +58,9 @@ impl<P, M> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M>
               plane:      &Shape<P, M>,
               mb:         &M,
               b:          &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
-        if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vect>>(), b.as_support_map()) {
+        if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vector>>(), b.as_support_map()) {
                 self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction);
 
                 true
@@ -89,9 +87,7 @@ impl<P, M> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M>
     }
 }
 
-impl<P, M> ContactGenerator<P, M> for SupportMapPlaneContactGenerator<P, M>
-    where P: Point,
-          M: Isometry<P> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContactGenerator<P, M> {
     #[inline]
     fn update(&mut self,
               _:          &ContactDispatcher<P, M>,
@@ -99,9 +95,9 @@ impl<P, M> ContactGenerator<P, M> for SupportMapPlaneContactGenerator<P, M>
               a:          &Shape<P, M>,
               mb:         &M,
               plane:      &Shape<P, M>,
-              prediction: <P::Vect as Vector>::Scalar)
+              prediction: P::Real)
               -> bool {
-        if let (Some(sm), Some(p)) = (a.as_support_map(), plane.as_shape::<Plane<P::Vect>>()) {
+        if let (Some(sm), Some(p)) = (a.as_support_map(), plane.as_shape::<Plane<P::Vector>>()) {
                 self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction);
 
                 true
