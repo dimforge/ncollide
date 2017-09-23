@@ -1,3 +1,5 @@
+//! Collision events
+
 use std::slice::Iter;
 use geometry::query::Proximity;
 use world::CollisionObjectHandle;
