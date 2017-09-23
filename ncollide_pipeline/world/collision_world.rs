@@ -1,5 +1,6 @@
 use std::mem;
 use std::vec::IntoIter;
+use std::slice::Iter;
 use math::{Point, Isometry};
 use utils::data::uid_remap::{UidRemap, FastKey};
 use utils::data::vec_map::Values;
@@ -10,7 +11,7 @@ use narrow_phase::{NarrowPhase, DefaultNarrowPhase, DefaultContactDispatcher, De
                    ContactPairs, Contacts, ProximityPairs};
 use broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter, BroadPhasePairFilters};
 use world::{CollisionObject, GeometricQueryType, CollisionGroups, CollisionGroupsPairFilter};
-use events::{ContactEvents, ProximityEvents};
+use events::{ContactEvents, ProximityEvents, ContactEvent, ProximityEvent};
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
@@ -227,6 +228,18 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     #[inline]
     pub fn contacts(&self) -> Contacts<P, M, T> {
         self.narrow_phase.contact_pairs(&self.objects).contacts()
+    }
+
+    /// Iterates through every contact events since the last update.
+    #[inline]
+    pub fn contact_events(&self) -> Iter<ContactEvent> {
+        self.contact_events.iter()
+    }
+
+    /// Iterates through every proximity events since the last update.
+    #[inline]
+    pub fn proximity_events(&self) -> Iter<ProximityEvent> {
+        self.proximity_events.iter()
     }
 
     /// Iterates through all collision objects.

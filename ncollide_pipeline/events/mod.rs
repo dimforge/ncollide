@@ -1,3 +1,4 @@
+use std::slice::Iter;
 use geometry::query::Proximity;
 use world::CollisionObjectHandle;
 
@@ -24,6 +25,10 @@ impl<E> EventPool<E> {
 
     pub fn push(&mut self, event: E) {
         self.events.push(event);
+    }
+
+    pub fn iter(&self) -> Iter<E> {
+        self.events.iter()
     }
 }
 
