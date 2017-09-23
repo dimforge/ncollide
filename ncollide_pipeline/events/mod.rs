@@ -42,10 +42,10 @@ pub enum ContactEvent {
 
 #[derive(Copy, Clone, Debug)]
 pub struct ProximityEvent {
-    co1:         CollisionObjectHandle,
-    co2:         CollisionObjectHandle,
-    prev_status: Proximity,
-    new_status:  Proximity
+    pub co1:         CollisionObjectHandle,
+    pub co2:         CollisionObjectHandle,
+    pub prev_status: Proximity,
+    pub new_status:  Proximity
 }
 
 impl ProximityEvent {
