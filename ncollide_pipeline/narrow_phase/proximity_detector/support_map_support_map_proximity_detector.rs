@@ -38,7 +38,7 @@ impl<P, M, S> SupportMapSupportMapProximityDetector<P, M, S>
     }
 }
 
-impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<P, M, S>
+impl<P, M, S: Sync + Send> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<P, M, S>
     where P: Point,
           M: Isometry<P>,
           S: Simplex<AnnotatedPoint<P>> {

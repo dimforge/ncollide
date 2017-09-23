@@ -2,7 +2,7 @@ use geometry::query::Ray;
 use math::Point;
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<P: Point, BV, T> {
+pub trait BroadPhase<P: Point, BV, T> : Send + Sync {
     /// Tells the broad phase to add an element during the next update.
     fn deferred_add(&mut self, uid: usize, bv: BV, data: T);
 

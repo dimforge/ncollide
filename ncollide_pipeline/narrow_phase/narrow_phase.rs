@@ -12,7 +12,7 @@ use math::Point;
 ///
 /// The narrow phase manager is responsible for creating, updating and generating contact pairs
 /// between objects identified by the broad phase.
-pub trait NarrowPhase<P: Point, M, T> {
+pub trait NarrowPhase<P: Point, M, T> : Sync + Send {
     /// Updates this narrow phase.
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
