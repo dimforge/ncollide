@@ -1,5 +1,6 @@
 //! Spatial partitioning tools.
 
+pub use partitioning::dbvt2::{DBVT2, DBVTLeaf2, DBVTLeafId};
 pub use partitioning::dbvt::{DBVT, DBVTLeaf};
 pub use partitioning::bvt::{BVT, BinaryPartition, BVTNode};
 #[doc(inline)]
@@ -10,6 +11,7 @@ pub use partitioning::bvtt_visitor::BVTTVisitor;
 pub use partitioning::bvt_cost_fn::BVTCostFn;
 
 mod dbvt;
+mod dbvt2;
 mod bvt;
 
 #[doc(hidden)]

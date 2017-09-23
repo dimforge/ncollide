@@ -1,10 +1,12 @@
+use std::any::Any;
 use std::slice::Iter;
 use utils::data::hash_map::Entry;
 use utils::data::pair::Pair;
 use utils::data::uid_remap::{UidRemap, FastKey};
 use geometry::query::Contact;
-use narrow_phase::{ContactAlgorithm, ContactSignal, ContactGenerator,
+use narrow_phase::{ContactAlgorithm, ContactGenerator,
                    ProximityAlgorithm, ProximitySignal, ProximityDetector};
+use events::{ContactEvents, ProximityEvents};
 use world::CollisionObject;
 use math::Point;
 
@@ -12,18 +14,18 @@ use math::Point;
 ///
 /// The narrow phase manager is responsible for creating, updating and generating contact pairs
 /// between objects identified by the broad phase.
-pub trait NarrowPhase<P: Point, M, T> {
+pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     /// Updates this narrow phase.
     fn update(&mut self,
               objects:          &UidRemap<CollisionObject<P, M, T>>,
-              contact_signal:   &mut ContactSignal<P, M, T>,
-              proximity_signal: &mut ProximitySignal<P, M, T>,
+              contact_events:   &mut ContactEvents,
+              proximity_events: &mut ProximityEvents,
               timestamp:        usize);
 
     /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
     fn handle_interaction(&mut self,
-                          contact_signal:   &mut ContactSignal<P, M, T>,
-                          proximity_signal: &mut ProximitySignal<P, M, T>,
+                          contact_signal:   &mut ContactEvents,
+                          proximity_signal: &mut ProximityEvents,
                           objects:          &UidRemap<CollisionObject<P, M, T>>,
                           fk1:              &FastKey,
                           fk2:              &FastKey,
@@ -44,14 +46,14 @@ pub trait NarrowPhase<P: Point, M, T> {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>)
                -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -141,14 +143,14 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 /// Iterator through proximity pairs.
 pub struct ProximityPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
     objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>
+    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ProximityPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M> + 'static>>>)
+               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>)
                -> ProximityPairs<'a, P, M, T> {
         ProximityPairs {
             objects: objects,

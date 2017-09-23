@@ -20,3 +20,4 @@ extern crate ncollide_geometry as geometry;
 pub mod broad_phase;
 pub mod narrow_phase;
 pub mod world;
+pub mod events;
