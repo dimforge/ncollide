@@ -137,6 +137,7 @@ impl<P: Point, B, BV: BoundingVolume<P>> DBVT2<P, B, BV> {
     pub fn insert(&mut self, leaf: DBVTLeaf2<P, B, BV>) -> DBVTLeafId {
         if self.is_empty() {
             let new_id = self.leaves.push(leaf);
+            self.leaves[new_id].parent = DBVTInternalId::Root;
             self.root  = DBVTNodeId::Leaf(new_id);
 
             return DBVTLeafId(new_id);
