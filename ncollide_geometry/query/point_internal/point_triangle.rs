@@ -1,4 +1,4 @@
-use na;
+use na::{self, Vector3};
 use shape::Triangle;
 use query::{PointQuery, PointProjection, RichPointQuery};
 use math::{Point, Isometry};
@@ -30,12 +30,11 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
     // Implementing this trait while providing no projection info might seem
     // nonsensical, but it actually makes it possible to complete the
     // `RichPointQuery` implementation for `BaseMesh`.
-    type ExtraInfo = ();
+    type ExtraInfo = Vector3<P::Real>;
 
     #[inline]
     fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
-        -> (PointProjection<P>, Self::ExtraInfo)
-    {
+        -> (PointProjection<P>, Self::ExtraInfo) {
         /*
          * This comes from the book `Real Time Collision Detection`.
          * This is actually a trivial Voronoï region based approach, except that great care has
@@ -57,7 +56,7 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
 
         if d1 <= na::zero() && d2 <= na::zero() {
             // Voronoï region of `a`.
-            return (compute_result(pt, m.transform_point(&a)), ());
+            return (compute_result(pt, m.transform_point(&a)), Vector3::x());
         }
 
         let bp = p - b;
@@ -66,14 +65,15 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
 
         if d3 >= na::zero() && d4 <= d3 {
             // Voronoï region of `b`.
-            return (compute_result(pt, m.transform_point(&b)), ());
+            return (compute_result(pt, m.transform_point(&b)), Vector3::y());
         }
 
         let vc = d1 * d4 - d3 * d2;
         if vc <= na::zero() && d1 >= na::zero() && d3 <= na::zero() {
             // Voronoï region of `ab`.
             let v = d1 / (d1 - d3);
-            return (compute_result(pt, m.transform_point(&(a + ab * v))), ());
+            let bcoords = Vector3::new(na::one::<P::Real>() - v, v, na::zero());
+            return (compute_result(pt, m.transform_point(&(a + ab * v))), bcoords);
         }
 
         let cp = p - c;
@@ -82,7 +82,7 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
 
         if d6 >= na::zero() && d5 <= d6 {
             // Voronoï region of `c`.
-            return (compute_result(pt, m.transform_point(&c)), ());
+            return (compute_result(pt, m.transform_point(&c)), Vector3::z());
         }
 
         let vb = d5 * d2 - d1 * d6;
@@ -90,68 +90,73 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Triangle<P> {
         if vb <= na::zero() && d2 >= na::zero() && d6 <= na::zero() {
             // Voronoï region of `ac`.
             let w = d2 / (d2 - d6);
-            return (compute_result(pt, m.transform_point(&(a + ac * w))), ());
+            let bcoords = Vector3::new(na::one::<P::Real>() - w, na::zero(), w);
+            return (compute_result(pt, m.transform_point(&(a + ac * w))), bcoords);
         }
 
         let va = d3 * d6 - d5 * d4;
         if va <= na::zero() && d4 - d3 >= na::zero() && d5 - d6 >= na::zero() {
             // Voronoï region of `bc`.
             let w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            return (compute_result(pt, m.transform_point(&(b + (c - b) * w))), ());
+            let bcoords = Vector3::new(na::zero(), na::one::<P::Real>() - w, w);
+            return (compute_result(pt, m.transform_point(&(b + (c - b) * w))), bcoords);
         }
 
         // Voronoï region of the face.
-        if na::dimension::<P::Vector>() != 2 {
+        // If we work in 2d, we really are inside of the object.
+        if na::dimension::<P::Vector>() != 2 || solid {
             let denom = na::one::<P::Real>() / (va + vb + vc);
             let v = vb * denom;
             let w = vc * denom;
+            let bcoords = Vector3::new(na::one::<P::Real>() - v - w, v, w);
+            let proj    = m.transform_point(&(a + ab * v + ac * w));
+            let inside  = na::dimension::<P::Vector>() == 2 || relative_eq!(proj, *pt);
 
-            return (compute_result(pt, m.transform_point(&(a + ab * v + ac * w))), ());
+            (PointProjection::new(inside, proj), bcoords)
         }
         else {
-            // Special treatement if we work in 2d because in this case we really are inside of the
-            // object.
-            if solid {
-                (PointProjection::new(true, *pt), ())
-            }
-            else {
-                // We have to project on the closest edge.
+            // Not-solid 2D projection.
+            // We have to project on the closest edge.
 
-                // FIXME: this might be optimizable.
-                let v = d1 / (d1 - d3);                      // proj on ab = a + ab * v
-                let w = d2 / (d2 - d6);                      // proj on ac = a + ac * w
-                let u = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // proj on bc = b + bc * u
+            // FIXME: this might be optimizable.
+            let v = d1 / (d1 - d3);                      // proj on ab = a + ab * v
+            let w = d2 / (d2 - d6);                      // proj on ac = a + ac * w
+            let u = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // proj on bc = b + bc * u
 
-                let bc = c - b;
-                let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
-                let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
-                let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
+            let bc = c - b;
+            let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
+            let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
+            let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
 
-                let proj;
+            let proj;
+            let bcoords;
 
-                if d_ab < d_ac {
-                    if d_ab < d_bc {
-                        // ab
-                        proj = m.transform_point(&(a + ab * v));
-                    }
-                    else {
-                        // bc
-                        proj = m.transform_point(&(b + bc * u));
-                    }
+            if d_ab < d_ac {
+                if d_ab < d_bc {
+                    // ab
+                    proj    = m.transform_point(&(a + ab * v));
+                    bcoords = Vector3::new(na::one::<P::Real>() - v, v, na::zero());
                 }
                 else {
-                    if d_ac < d_bc {
-                        // ac
-                        proj = m.transform_point(&(a + ac * w));
-                    }
-                    else {
-                        // bc
-                        proj = m.transform_point(&(b + bc * u));
-                    }
+                    // bc
+                    proj    = m.transform_point(&(b + bc * u));
+                    bcoords = Vector3::new(na::zero(), na::one::<P::Real>() - v, v);
                 }
-
-                (PointProjection::new(true, proj), ())
             }
+            else {
+                if d_ac < d_bc {
+                    // ac
+                    proj    = m.transform_point(&(a + ac * w));
+                    bcoords = Vector3::new(na::one::<P::Real>() - w, na::zero(), w);
+                }
+                else {
+                    // bc
+                    proj    = m.transform_point(&(b + bc * u));
+                    bcoords = Vector3::new(na::zero(), na::one::<P::Real>() - u, u);
+                }
+            }
+
+            (PointProjection::new(true, proj), bcoords)
         }
     }
 }
