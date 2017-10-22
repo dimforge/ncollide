@@ -91,6 +91,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/ncol
 * Olivier Saut
 * Sanghyeon Seo
 * Wesley Wiser
+* Zane
 * [Alexander Mistakidis](https://github.com/aamistak)
 * [Ben Foppa](https://github.com/bfops)
 * [Brandon Waskiewicz](https://github.com/brandonw)
