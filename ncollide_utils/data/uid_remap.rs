@@ -367,6 +367,22 @@ impl<O> IndexMut<FastKey> for UidRemap<O> {
     }
 }
 
+impl<O> Index<usize> for UidRemap<O> {
+    type Output = O;
+
+    #[inline]
+    fn index(&self, key: usize) -> &O {
+        self.get(key).expect("key not present")
+    }
+}
+
+impl<O> IndexMut<usize> for UidRemap<O> {
+    #[inline]
+    fn index_mut(&mut self, key: usize) -> &mut O {
+        self.get_mut(key).expect("key not present")
+    }
+}
+
 /// A fast hasher for FastKey objects.
 pub struct FastKeyTWHash;
 

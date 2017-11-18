@@ -65,6 +65,7 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies:       UidRemap<DBVTBroadPhaseProxy<T>>,
+    rem_proxies:   UidRemap<DBVTBroadPhaseProxy<T>>, // Removed proxies
     tree:          DBVT2<P, FastKey, BV>, // DBVT for moving objects.
     stree:         DBVT2<P, FastKey, BV>, // DBVT for static objects.
     pairs:         HashMap<Pair, (), PairTWHash>, // Pairs detected (FIXME: use a Vec instead?)
@@ -86,6 +87,7 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
     pub fn new(margin: P::Real, small_keys: bool) -> DBVTBroadPhase<P, BV, T> {
         DBVTBroadPhase {
             proxies:           UidRemap::new(small_keys),
+            rem_proxies:       UidRemap::new(small_keys),
             tree:              DBVT2::new(),
             stree:             DBVT2::new(),
             pairs:             HashMap::new(PairTWHash::new()),
@@ -130,30 +132,42 @@ impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 
                 let mut remove = true;
 
-                let proxy1 = &self.proxies[ids.first];
-                let proxy2 = &self.proxies[ids.second];
+                let proxy1 = self.proxies.get_fast(&ids.first);
+                let proxy2 = self.proxies.get_fast(&ids.second);
+                if let (Some(proxy1), Some(proxy2)) = (proxy1, proxy2) {
+                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                        let l1 = if proxy1.status == 0 {
+                            &self.stree[proxy1.leaf]
+                        }
+                        else {
+                            &self.tree[proxy1.leaf]
+                        };
 
-                if allow_proximity(&proxy1.data, &proxy2.data) {
-                    let l1 = if proxy1.status == 0 {
-                        &self.stree[proxy1.leaf]
-                    }
-                    else {
-                        &self.tree[proxy1.leaf]
-                    };
+                        let l2 = if proxy2.status == 0 {
+                            &self.stree[proxy2.leaf]
+                        }
+                        else {
+                            &self.tree[proxy2.leaf]
+                        };
 
-                    let l2 = if proxy2.status == 0 {
-                        &self.stree[proxy2.leaf]
-                    }
-                    else {
-                        &self.tree[proxy2.leaf]
-                    };
-
-                    if l1.bounding_volume.intersects(&l2.bounding_volume) {
-                        remove = false
+                        if l1.bounding_volume.intersects(&l2.bounding_volume) {
+                            remove = false
+                        }
                     }
                 }
 
                 if remove {
+                    let proxy1 = if let Some(proxy1) = proxy1 {
+                        proxy1
+                    } else {
+                        &self.rem_proxies[ids.first.uid()]
+                    };
+                    let proxy2 = if let Some(proxy2) = proxy2 {
+                        proxy2
+                    } else {
+                        &self.rem_proxies[ids.second.uid()]
+                    };
+
                     handler(&proxy1.data, &proxy2.data, false);
                     self.pairs_to_remove.push(ids);
                 }
@@ -241,6 +255,8 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
                             }
                             ProxyStatus::Detached => { }
                         }
+                        let replaced = self.rem_proxies.insert(uid, proxy);
+                        assert!(replaced.1.is_none());
                     }
                 }
             }
@@ -286,6 +302,7 @@ impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
         }
 
         self.purge_some_contact_pairs(allow_proximity, handler);
+        self.rem_proxies.clear();
         self.update_activation_states();
     }
 
