@@ -1,38 +1,31 @@
 extern crate ncollide_pipeline;
-extern crate ncollide_entities;
+extern crate ncollide_geometry;
 extern crate nalgebra;
 
-use ncollide_pipeline::world::{CollisionGroups, CollisionWorld, CollisionWorld2};
-use ncollide_geometry::shape::Ball;
-use ncollide_geometry::inspection::Repr2;
-use nalgebra::{Vec1, Vector2, Isometry2};
-use std::sync::Arc;
-
-type ObjectCollisionWorld = CollisionWorld2<f64, ()>;
-type ShapeRepr = Repr2<f64>;
-
+use ncollide_pipeline::world::{CollisionGroups, CollisionWorld, GeometricQueryType};
+use ncollide_geometry::shape::{Ball, ShapeHandle};
+use nalgebra as na;
 
 #[test]
 fn issue_57_object_remove() {
-	let mut world: ObjectCollisionWorld = CollisionWorld::new(0.1, 0.1, false);
-    let shape = Arc::new(Box::new(Ball::new(1.0)) as Box<ShapeRepr>);
-    world.add(0,
-              Isometry2::new(Vector2::new(1.0, 0.0), Vec1::new(0.0)),
-              shape.clone(),
-              CollisionGroups::new(),
-              ());
-   world.add(1,
-              Isometry2::new(Vector2::new(1.0, 1.0), Vec1::new(0.0)),
-              shape.clone(),
-              CollisionGroups::new(),
-              ());
-	world.add(2,
-              Isometry2::new(Vector2::new(1.0, 2.0), Vec1::new(0.0)),
-              shape.clone(),
-              CollisionGroups::new(),
-              ());
-    world.update();
-    world.remove(0);
-    world.update();
-    world.update();
+    let mut world: CollisionWorld<_,_,_> = CollisionWorld::new(0.1, false);
+    let shape = Ball::new(1.0);
+
+    world.deferred_add(
+        0,
+        na::Isometry2::new(na::Vector2::new(1.0, 0.0), 0.0),
+        ShapeHandle::new(shape.clone()),
+        CollisionGroups::new(),
+        GeometricQueryType::Contacts(0.0),
+        ());
+    world.deferred_add(
+        1,
+        na::Isometry2::new(na::Vector2::new(1.0, 0.0), 0.0),
+        ShapeHandle::new(shape.clone()),
+        CollisionGroups::new(),
+        GeometricQueryType::Contacts(0.0),
+        ());
+    world.perform_additions_removals_and_broad_phase();
+    world.deferred_remove(0);
+    world.perform_additions_removals_and_broad_phase();
 }
