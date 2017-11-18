@@ -670,7 +670,7 @@ more than a `Shape` trait-object wrapped into an `Arc`.
 | `.as_ray_cast()`          | Converts `self` to a `RayCast` trait-object.         |
 | `.as_point_query()`       | Converts `self` to a `PointQuery` trait-object.      |
 | `.as_support_map()`       | Converts `self` to a `SupportMap` trait-object.      |
-| `.as_composite_shape()`   | Converts `self` to a `ComposteShape` trait-object.   |
+| `.as_composite_shape()`   | Converts `self` to a `CompositeShape` trait-object.   |
 | `.is_support_map()`       | Returns `true` if this shape has a support-mapping.  |
 | `.is_composite_shape()`   | Returns `true` if this shape is a composite shape.   |
 
