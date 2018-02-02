@@ -1,7 +1,6 @@
-use bounding_volume::{HasBoundingVolume, BoundingSphere};
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use shape::Capsule;
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Capsule<P::Real> {
     #[inline]

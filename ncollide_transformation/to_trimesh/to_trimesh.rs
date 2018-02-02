@@ -1,10 +1,8 @@
 use procedural::TriMesh;
 use math::Point;
 
-
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
-pub trait ToTriMesh<P: Point, I>
-{
+pub trait ToTriMesh<P: Point, I> {
     /// Builds a triangle mesh from this shape.
     ///
     /// # Arguments:

@@ -6,7 +6,7 @@ use na;
 pub fn median<N: Real>(vals: &mut [N]) -> N {
     assert!(vals.len() > 0, "Cannot compute the median of zero values.");
 
-    vals.sort_by(|a, b| a.partial_cmp(b).unwrap() );
+    vals.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
     let n = vals.len();
 

@@ -8,25 +8,48 @@ use query::algorithms::johnson_simplex::JohnsonSimplex;
 use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
 use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use shape::{self, SupportMap};
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 /// Distance between support-mapped shapes.
-pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
-                                                                     m2: &M, g2: &G2)
-                                                                     -> P::Real
-    where P:  Point,
-          M:  Isometry<P>,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
+pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
+    m1: &M,
+    g1: &G1,
+    m2: &M,
+    g2: &G2,
+) -> P::Real
+where
+    P: Point,
+    M: Isometry<P>,
+    G1: SupportMap<P, M>,
+    G2: SupportMap<P, M>,
+{
     if na::dimension::<P::Vector>() == 2 {
-        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex2::new(), None)
-    }
-    else if na::dimension::<P::Vector>() == 3 {
-        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex3::new(), None)
-    }
-    else {
-        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut JohnsonSimplex::new_w_tls(), None)
+        support_map_against_support_map_with_params(
+            m1,
+            g1,
+            m2,
+            g2,
+            &mut VoronoiSimplex2::new(),
+            None,
+        )
+    } else if na::dimension::<P::Vector>() == 3 {
+        support_map_against_support_map_with_params(
+            m1,
+            g1,
+            m2,
+            g2,
+            &mut VoronoiSimplex3::new(),
+            None,
+        )
+    } else {
+        support_map_against_support_map_with_params(
+            m1,
+            g1,
+            m2,
+            g2,
+            &mut JohnsonSimplex::new_w_tls(),
+            None,
+        )
     }
 }
 
@@ -34,24 +57,25 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1:
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
 pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
-                                                   m1:       &M,
-                                                   g1:       &G1,
-                                                   m2:       &M,
-                                                   g2:       &G2,
-                                                   simplex:  &mut S,
-                                                   init_dir: Option<P::Vector>)
-                                                   -> P::Real
-    where P:  Point,
-          M:  Isometry<P>,
-          S:  Simplex<P>,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
-    let mut dir =
-        match init_dir {
-            // FIXME: or m2.translation - m1.translation ?
-            None      => m1.translation().to_vector() - m2.translation().to_vector(),
-            Some(dir) => dir
-        };
+    m1: &M,
+    g1: &G1,
+    m2: &M,
+    g2: &G2,
+    simplex: &mut S,
+    init_dir: Option<P::Vector>,
+) -> P::Real
+where
+    P: Point,
+    M: Isometry<P>,
+    S: Simplex<P>,
+    G1: SupportMap<P, M>,
+    G2: SupportMap<P, M>,
+{
+    let mut dir = match init_dir {
+        // FIXME: or m2.translation - m1.translation ?
+        None => m1.translation().to_vector() - m2.translation().to_vector(),
+        Some(dir) => dir,
+    };
 
     if dir.is_zero() {
         dir[0] = na::one();

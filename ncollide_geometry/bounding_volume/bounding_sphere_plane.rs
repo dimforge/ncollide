@@ -1,9 +1,8 @@
 use num::Bounded;
 
-use bounding_volume::{HasBoundingVolume, BoundingSphere};
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use shape::Plane;
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Plane<P::Vector> {
     #[inline]

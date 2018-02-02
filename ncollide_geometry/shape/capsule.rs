@@ -6,13 +6,13 @@ use alga::general::Real;
 use na::{self, Unit};
 
 use shape::SupportMap;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Capsule<N> {
     half_height: N,
-    radius:      N,
+    radius: N,
 }
 
 impl<N: Real> Capsule<N> {
@@ -26,7 +26,7 @@ impl<N: Real> Capsule<N> {
 
         Capsule {
             half_height: half_height,
-            radius:      radius,
+            radius: radius,
         }
     }
 
@@ -57,8 +57,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
 
         if local_dir[1].is_negative() {
             res[1] = -self.half_height()
-        }
-        else {
+        } else {
             res[1] = self.half_height()
         }
 

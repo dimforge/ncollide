@@ -1,19 +1,21 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector2, Isometry2};
+use na::{Isometry2, Vector2};
 use ncollide::shape::Ball;
 use ncollide::bounding_volume;
-use ncollide::broad_phase::{DBVTBroadPhase, BroadPhase};
+use ncollide::broad_phase::{BroadPhase, DBVTBroadPhase};
 
 fn main() {
     /*
      * Create the objects.
      */
-    let poss = [ Isometry2::new(Vector2::new(0.0, 0.0), na::zero()),
-                 Isometry2::new(Vector2::new(0.0, 0.5), na::zero()),
-                 Isometry2::new(Vector2::new(0.5, 0.0), na::zero()),
-                 Isometry2::new(Vector2::new(0.5, 0.5), na::zero()) ];
+    let poss = [
+        Isometry2::new(Vector2::new(0.0, 0.0), na::zero()),
+        Isometry2::new(Vector2::new(0.0, 0.5), na::zero()),
+        Isometry2::new(Vector2::new(0.5, 0.0), na::zero()),
+        Isometry2::new(Vector2::new(0.5, 0.5), na::zero()),
+    ];
 
     // We will use the same shape for the four objects.
     let ball = Ball::new(0.5);
@@ -35,7 +37,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut |a, b| *a != *b, &mut |_, _, _| { });
+    bf.update(&mut |a, b| *a != *b, &mut |_, _, _| {});
 
     assert!(bf.num_interferences() == 6);
 
@@ -45,7 +47,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut |a ,b| *a != *b, &mut |_, _, _| { });
+    bf.update(&mut |a, b| *a != *b, &mut |_, _, _| {});
 
     assert!(bf.num_interferences() == 1)
 }

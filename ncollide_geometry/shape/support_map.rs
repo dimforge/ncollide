@@ -21,4 +21,3 @@ pub trait SupportMap<P: Point, M> {
         self.support_point(transform, dir.as_ref())
     }
 }
-

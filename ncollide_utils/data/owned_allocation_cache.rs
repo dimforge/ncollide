@@ -6,16 +6,14 @@
 ///
 /// Useful if fast allocation/deallocation of small owned objects is needed.
 pub struct OwnedAllocationCache<T> {
-    cache: Vec<Box<T>>
+    cache: Vec<Box<T>>,
 }
 
 impl<T> OwnedAllocationCache<T> {
     /// Initializes the cache.
     #[inline]
     pub fn new() -> OwnedAllocationCache<T> {
-        OwnedAllocationCache {
-            cache: Vec::new()
-        }
+        OwnedAllocationCache { cache: Vec::new() }
     }
 
     /// Box a value into a potentially already allocated box.
@@ -26,8 +24,7 @@ impl<T> OwnedAllocationCache<T> {
             *res = value;
 
             res
-        }
-        else {
+        } else {
             Box::new(value)
         }
     }

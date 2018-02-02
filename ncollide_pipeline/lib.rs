@@ -10,13 +10,13 @@
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-extern crate rustc_serialize;
-extern crate slab;
 extern crate alga;
 extern crate nalgebra as na;
+extern crate ncollide_geometry as geometry;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
-extern crate ncollide_geometry as geometry;
+extern crate rustc_serialize;
+extern crate slab;
 
 pub mod broad_phase;
 pub mod narrow_phase;

@@ -4,18 +4,18 @@
 ///
 /// The stride is the number of index increments between two elements.
 pub struct VecSlice<'a, T: 'a> {
-    data:   &'a [T],
+    data: &'a [T],
     length: usize,
-    stride: usize
+    stride: usize,
 }
 
 /// A mutable vector slice with a specific length and stride.
 ///
 /// The stride is the number of index increments between two elements.
 pub struct VecSliceMut<'a, T: 'a> {
-    data:   &'a mut [T],
+    data: &'a mut [T],
     length: usize,
-    stride: usize
+    stride: usize,
 }
 
 impl<'a, T> VecSlice<'a, T> {
@@ -23,20 +23,21 @@ impl<'a, T> VecSlice<'a, T> {
     #[inline]
     pub fn new(data: &'a [T], length: usize, stride: usize) -> VecSlice<'a, T> {
         assert!(stride > 0, "The stride must at least be 1.");
-        assert!(length == 0 || data.len() >= 1 + (length - 1) * stride, "The data buffer is too small.");
+        assert!(
+            length == 0 || data.len() >= 1 + (length - 1) * stride,
+            "The data buffer is too small."
+        );
 
-        unsafe {
-            VecSlice::new_unsafe(data, length, stride)
-        }
+        unsafe { VecSlice::new_unsafe(data, length, stride) }
     }
 
     /// Creates a new immutable slice. The size of the data buffer is not checked.
     #[inline]
     pub unsafe fn new_unsafe(data: &'a [T], length: usize, stride: usize) -> VecSlice<'a, T> {
         VecSlice {
-            data:   data,
+            data: data,
             length: length,
-            stride: stride
+            stride: stride,
         }
     }
 
@@ -64,9 +65,7 @@ impl<'a, T> VecSlice<'a, T> {
     pub fn get<'b>(&'b self, i: usize) -> &'b T {
         assert!(i < self.length);
 
-        unsafe {
-            self.get_unchecked(i)
-        }
+        unsafe { self.get_unchecked(i) }
     }
 
     /// Gets the i-th element of the slice without bound-checking.
@@ -83,20 +82,25 @@ impl<'a, T> VecSliceMut<'a, T> {
     #[inline]
     pub fn new(data: &'a mut [T], length: usize, stride: usize) -> VecSliceMut<'a, T> {
         assert!(stride > 0, "The stride must at least be 1.");
-        assert!(length == 0 || data.len() >= 1 + (length - 1) * stride, "The data buffer is too small.");
+        assert!(
+            length == 0 || data.len() >= 1 + (length - 1) * stride,
+            "The data buffer is too small."
+        );
 
-        unsafe {
-            VecSliceMut::new_unsafe(data, length, stride)
-        }
+        unsafe { VecSliceMut::new_unsafe(data, length, stride) }
     }
 
     /// Creates a new mutable slice. The size of the data buffer is not checked.
     #[inline]
-    pub unsafe fn new_unsafe(data: &'a mut [T], length: usize, stride: usize) -> VecSliceMut<'a, T> {
+    pub unsafe fn new_unsafe(
+        data: &'a mut [T],
+        length: usize,
+        stride: usize,
+    ) -> VecSliceMut<'a, T> {
         VecSliceMut {
-            data:   data,
+            data: data,
             length: length,
-            stride: stride
+            stride: stride,
         }
     }
 
@@ -115,9 +119,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     /// Creates an immutable slice from this mutable slice.
     #[inline]
     pub fn as_slice<'b>(&'b self) -> VecSlice<'b, T> {
-        unsafe {
-            VecSlice::new_unsafe(self.data, self.length, self.stride)
-        }
+        unsafe { VecSlice::new_unsafe(self.data, self.length, self.stride) }
     }
 
     #[inline(always)]
@@ -132,9 +134,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     pub fn get<'b>(&'b self, i: usize) -> &'b T {
         assert!(i < self.length);
 
-        unsafe {
-            self.get_unchecked(i)
-        }
+        unsafe { self.get_unchecked(i) }
     }
 
     /// Gets a mutable reference to the i-th element of the slice without bound-checking.
@@ -144,9 +144,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     pub fn get_mut<'b>(&'b mut self, i: usize) -> &'b mut T {
         assert!(i < self.length);
 
-        unsafe {
-            self.get_unchecked_mut(i)
-        }
+        unsafe { self.get_unchecked_mut(i) }
     }
 
     /// Gets the i-th element of the slice without bound-checking.
@@ -174,10 +172,8 @@ impl<'a, T: Clone> VecSliceMut<'a, T> {
     pub fn copy_from(&mut self, data: &VecSlice<T>) {
         assert!(data.len() == self.len());
 
-        for i in 0usize .. data.len() {
-            unsafe {
-                *self.get_unchecked_mut(i) = data.get_unchecked(i).clone()
-            }
+        for i in 0usize..data.len() {
+            unsafe { *self.get_unchecked_mut(i) = data.get_unchecked(i).clone() }
         }
     }
 }

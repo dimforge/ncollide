@@ -3,8 +3,8 @@ use world::CollisionObject;
 use math::Point;
 
 const SELF_COLLISION: u32 = 1 << 31;
-const ALL_GROUPS:     u32 = (1 << 30) - 1;
-const NO_GROUP:       u32 = 0;
+const ALL_GROUPS: u32 = (1 << 30) - 1;
+const NO_GROUP: u32 = 0;
 
 /// Groups of collision used to filter which object interact with which other one.
 ///
@@ -41,8 +41,8 @@ const NO_GROUP:       u32 = 0;
 #[derive(RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct CollisionGroups {
     membership: u32,
-    whitelist:  u32,
-    blacklist:  u32,
+    whitelist: u32,
+    blacklist: u32,
 }
 
 impl CollisionGroups {
@@ -52,8 +52,8 @@ impl CollisionGroups {
     pub fn new() -> CollisionGroups {
         CollisionGroups {
             membership: ALL_GROUPS,
-            whitelist:  ALL_GROUPS,
-            blacklist:  NO_GROUP
+            whitelist: ALL_GROUPS,
+            blacklist: NO_GROUP,
         }
     }
 
@@ -65,12 +65,14 @@ impl CollisionGroups {
 
     #[inline]
     fn modify_mask(mask: &mut u32, group_id: usize, add: bool) {
-        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
+        assert!(
+            group_id < 30,
+            "There are at most 30 groups indexed from 0 to 29 (included)."
+        );
 
         if add {
             *mask = *mask | (1 << group_id)
-        }
-        else {
+        } else {
             *mask = *mask & !(1 << group_id)
         }
     }
@@ -151,7 +153,10 @@ impl CollisionGroups {
 
     #[inline]
     fn is_inside_mask(mask: u32, group_id: usize) -> bool {
-        assert!(group_id < 30, "There are at most 30 groups indexed from 0 to 29 (included).");
+        assert!(
+            group_id < 30,
+            "There are at most 30 groups indexed from 0 to 29 (included)."
+        );
         mask & (1 << group_id) != 0
     }
 
@@ -178,18 +183,17 @@ impl CollisionGroups {
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]
     pub fn can_interact_with(&self, group_id: usize) -> bool {
-        !CollisionGroups::is_inside_mask(self.blacklist, group_id) &&
-        CollisionGroups::is_inside_mask(self.whitelist, group_id)
+        !CollisionGroups::is_inside_mask(self.blacklist, group_id)
+            && CollisionGroups::is_inside_mask(self.whitelist, group_id)
     }
 
     /// Tests whether two collision groups have at least one group in common.
     #[inline]
     pub fn can_interact_with_groups(&self, other: &CollisionGroups) -> bool {
         // FIXME: is there a more bitwise-y way of doing this?
-        self.membership  & other.blacklist == 0 &&
-        other.membership & self.blacklist  == 0 &&
-        self.membership  & other.whitelist != 0 &&
-        other.membership & self.whitelist  != 0
+        self.membership & other.blacklist == 0 && other.membership & self.blacklist == 0
+            && self.membership & other.whitelist != 0
+            && other.membership & self.whitelist != 0
     }
 
     /// Tests whether self-interaction is enabled.
@@ -211,15 +215,19 @@ impl CollisionGroupsPairFilter {
 }
 
 impl<P: Point, M, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
-    fn is_pair_valid(&self, co1: &CollisionObject<P, M, T>, co2: &CollisionObject<P, M, T>) -> bool {
+    fn is_pair_valid(
+        &self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+    ) -> bool {
         let id1 = co1 as *const CollisionObject<P, M, T> as usize;
         let id2 = co2 as *const CollisionObject<P, M, T> as usize;
 
         if id1 == id2 {
             co1.collision_groups().can_interact_with_self()
-        }
-        else {
-            co1.collision_groups().can_interact_with_groups(co2.collision_groups())
+        } else {
+            co1.collision_groups()
+                .can_interact_with_groups(co2.collision_groups())
         }
     }
 }

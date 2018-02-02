@@ -9,14 +9,15 @@ pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
-    fn update(&mut self,
-              dispatcher: &ContactDispatcher<P, M>,
-              ma:         &M,
-              a:          &Shape<P, M>,
-              mb:         &M,
-              b:          &Shape<P, M>,
-              prediction: P::Real)
-              -> bool;
+    fn update(
+        &mut self,
+        dispatcher: &ContactDispatcher<P, M>,
+        ma: &M,
+        a: &Shape<P, M>,
+        mb: &M,
+        b: &Shape<P, M>,
+        prediction: P::Real,
+    ) -> bool;
 
     /// The number of contacts generated the last update.
     fn num_contacts(&self) -> usize;
@@ -29,5 +30,9 @@ pub type ContactAlgorithm<P, M> = Box<ContactGenerator<P, M>>;
 
 pub trait ContactDispatcher<P, M>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_contact_algorithm(&self, a: &Shape<P, M>, b: &Shape<P, M>) -> Option<ContactAlgorithm<P, M>>;
+    fn get_contact_algorithm(
+        &self,
+        a: &Shape<P, M>,
+        b: &Shape<P, M>,
+    ) -> Option<ContactAlgorithm<P, M>>;
 }

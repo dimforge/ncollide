@@ -8,16 +8,16 @@ use data::hash::HashFun;
 #[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct Entry<K, V> {
     /// The key of the entry.
-    pub key:   K,
+    pub key: K,
     /// The value of the entry.
-    pub value: V
+    pub value: V,
 }
 
 impl<K, V> Entry<K, V> {
     fn new(key: K, value: V) -> Entry<K, V> {
         Entry {
-            key:   key,
-            value: value
+            key: key,
+            value: value,
         }
     }
 }
@@ -31,14 +31,14 @@ impl<K, V> Entry<K, V> {
 ///     due to sparse hashing).
 #[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct HashMap<K, V, H> {
-    hash:          H,
-    table:         Vec<Entry<K, V>>,
-    mask:          usize,
-    htable:        Vec<isize>,
-    next:          Vec<isize>,
-    num_elem:      usize, // FIXME: redundent with self.table.len() ?
-    max_elem:      usize,
-    real_max_elem: usize
+    hash: H,
+    table: Vec<Entry<K, V>>,
+    mask: usize,
+    htable: Vec<isize>,
+    next: Vec<isize>,
+    num_elem: usize, // FIXME: redundent with self.table.len() ?
+    max_elem: usize,
+    real_max_elem: usize,
 }
 
 static HASH_CHARGE_FACTOR: f32 = 0.7;
@@ -54,14 +54,14 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
         let pow2 = capacity.next_power_of_two();
 
         HashMap {
-            hash:   h,
-            table:  Vec::with_capacity(pow2),
-            mask:   pow2 - 1,
+            hash: h,
+            table: Vec::with_capacity(pow2),
+            mask: pow2 - 1,
             htable: iter::repeat(-1isize).take(pow2).collect(),
-            next:   iter::repeat(-1isize).take(pow2).collect(),
+            next: iter::repeat(-1isize).take(pow2).collect(),
             num_elem: 0,
             max_elem: pow2,
-            real_max_elem: ((pow2 as f32) * 0.7) as usize
+            real_max_elem: ((pow2 as f32) * 0.7) as usize,
         }
     }
 
@@ -109,7 +109,6 @@ impl<K, V, H: HashFun<K>> HashMap<K, V, H> {
     }
 }
 
-
 impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
     /// Removes the element at the specified position of the element array.
     ///
@@ -117,14 +116,12 @@ impl<K: PartialEq + Clone, V, H: HashFun<K>> HashMap<K, V, H> {
     pub fn remove_elem_at(&mut self, at: usize) -> bool {
         if at > self.table.len() {
             false
-        }
-        else {
+        } else {
             let key = self.table[at].key.clone();
             self.remove(&key)
         }
     }
 }
-
 
 impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     fn find_entry_id(&self, key: &K) -> isize {
@@ -133,8 +130,9 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         let mut pos = self.htable[h];
 
         if pos != -1 && self.table[pos as usize].key != *key {
-            while self.next[pos as usize] != -1 &&
-                  self.table[self.next[pos as usize] as usize].key != *key {
+            while self.next[pos as usize] != -1
+                && self.table[self.next[pos as usize] as usize].key != *key
+            {
                 pos = self.next[pos as usize]
             }
 
@@ -148,14 +146,14 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         if self.num_elem >= self.real_max_elem {
             self.max_elem = self.max_elem * 2;
 
-            self.real_max_elem = ((self.max_elem as f32)* HASH_CHARGE_FACTOR) as usize;
+            self.real_max_elem = ((self.max_elem as f32) * HASH_CHARGE_FACTOR) as usize;
 
             self.mask = self.max_elem - 1;
 
             let mut newhash: Vec<isize> = iter::repeat(-1isize).take(self.max_elem).collect();
             let mut newnext: Vec<isize> = iter::repeat(-1isize).take(self.max_elem).collect();
 
-            for i in 0usize .. self.num_elem {
+            for i in 0usize..self.num_elem {
                 let h = self.hash.hash(&self.table[i].key) & self.mask;
 
                 newnext[i] = newhash[h];
@@ -181,8 +179,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             self.num_elem = self.num_elem + 1;
 
             (true, self.num_elem - 1)
-        }
-        else {
+        } else {
             if replace {
                 self.table[entry as usize].value = value
             }
@@ -201,19 +198,20 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             let obji;
 
             if self.table[o as usize].key != *key {
-                while self.next[o as usize] != -1 && self.table[self.next[o as usize] as usize].key != *key {
+                while self.next[o as usize] != -1
+                    && self.table[self.next[o as usize] as usize].key != *key
+                {
                     o = self.next[o as usize]
                 }
 
                 if self.next[o as usize] == -1 {
-                    return None
+                    return None;
                 }
 
                 obji = self.next[o as usize];
                 self.next[o as usize] = self.next[obji as usize];
                 self.next[obji as usize] = -1;
-            }
-            else {
+            } else {
                 obji = o;
                 self.htable[h] = self.next[o as usize];
                 self.next[o as usize] = -1;
@@ -228,8 +226,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
                 if self.htable[nh] == self.num_elem as isize {
                     self.htable[nh] = obji
-                }
-                else {
+                } else {
                     let mut no = self.htable[nh];
 
                     while self.next[no as usize] != self.num_elem as isize {
@@ -244,8 +241,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
             }
 
             Some(removed)
-        }
-        else {
+        } else {
             None
         }
     }
@@ -254,7 +250,9 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
     /// called iff. the value does not exist yet. If the functions returns `None`, nothing is
     /// inserted.
     pub fn find_or_insert_lazy<'a, F>(&'a mut self, key: K, mut value: F) -> Option<&'a mut V>
-          where F: FnMut() -> Option<V> {
+    where
+        F: FnMut() -> Option<V>,
+    {
         let entry = self.find_entry_id(&key);
 
         if entry == -1 {
@@ -271,11 +269,9 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
                     Some(&mut self.table[self.num_elem - 1].value)
                 }
-                None => None
-
+                None => None,
             }
-        }
-        else {
+        } else {
             Some(&mut self.table[entry as usize].value)
         }
     }
@@ -305,8 +301,9 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
         let mut pos = self.htable[h];
 
         if pos != -1 && self.table[pos as usize].key != *key {
-            while self.next[pos as usize] != -1 &&
-                  self.table[self.next[pos as usize] as usize].key != *key {
+            while self.next[pos as usize] != -1
+                && self.table[self.next[pos as usize] as usize].key != *key
+            {
                 pos = self.next[pos as usize]
             }
 
@@ -315,8 +312,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
         if pos == -1 {
             None
-        }
-        else {
+        } else {
             Some(&self.table[pos as usize].value)
         }
     }
@@ -339,8 +335,7 @@ impl<K: PartialEq, V, H: HashFun<K>> HashMap<K, V, H> {
 
         if entry == -1 {
             None
-        }
-        else {
+        } else {
             Some(&mut self.table[entry as usize].value)
         }
     }
@@ -358,8 +353,8 @@ mod test {
         assert!(m.find(&1).is_none());
         m.insert(1, 2);
         match m.find(&1) {
-            None    => panic!(),
-            Some(v) => assert!(*v == 2)
+            None => panic!(),
+            Some(v) => assert!(*v == 2),
         }
     }
 
@@ -389,7 +384,8 @@ mod test {
         assert!(m.insert(5, 14));
         let new = 100;
         match m.find_mut(&5) {
-            None => panic!(), Some(x) => *x = new
+            None => panic!(),
+            Some(x) => *x = new,
         }
         assert_eq!(m.find(&5), Some(&new));
     }

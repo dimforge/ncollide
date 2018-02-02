@@ -1,13 +1,13 @@
-extern crate rand;
 extern crate nalgebra as na;
 extern crate ncollide;
+extern crate rand;
 
 use na::Point3;
 use ncollide::transformation;
 
 fn main() {
     let mut points = Vec::new();
-    for _ in 0usize .. 100000 {
+    for _ in 0usize..100000 {
         points.push(rand::random::<Point3<f32>>() * 2.0);
     }
 

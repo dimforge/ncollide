@@ -18,13 +18,12 @@ pub fn dsin<N: Real>(n: usize, x: N) -> N {
 /// Computes the binomial coefficient C^k_n ("k among n").
 pub fn binom(k: usize, n: usize) -> usize {
     let mut res = 1;
-    let mut n   = n;
+    let mut n = n;
 
     if k > n {
         0
-    }
-    else {
-        for d in 1 .. k + 1 {
+    } else {
+        for d in 1..k + 1 {
             res = res * n;
             res = res / d;
 

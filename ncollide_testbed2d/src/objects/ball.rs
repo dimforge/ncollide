@@ -4,32 +4,33 @@ use sfml::graphics::{CircleShape, Color, RenderTarget, Shape, Transformable};
 use sfml::system::Vector2f;
 
 use alga::general::Real;
-use na::{Point3, Isometry2};
+use na::{Isometry2, Point3};
 use ncollide::world::CollisionObject2;
 use draw_helper::DRAW_SCALE;
 use objects;
 
 pub struct Ball<'a, N: Real> {
-    color:      Point3<u8>,
+    color: Point3<u8>,
     base_color: Point3<u8>,
-    delta:      Isometry2<N>,
-    gfx:        CircleShape<'a>
+    delta: Isometry2<N>,
+    gfx: CircleShape<'a>,
 }
 
 impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
-    pub fn new(delta: Isometry2<N>, radius: N, color:  Point3<u8>) -> Ball<'a, N> {
+    pub fn new(delta: Isometry2<N>, radius: N, color: Point3<u8>) -> Ball<'a, N> {
         let dradius = radius.to_f32().unwrap() * DRAW_SCALE;
 
         let mut res = Ball {
-            color:      color,
+            color: color,
             base_color: color,
-            delta:      delta,
-            gfx:        CircleShape::new().unwrap(),
+            delta: delta,
+            gfx: CircleShape::new().unwrap(),
         };
 
-        res.gfx.set_fill_color(&Color::new_rgb(color.x, color.y, color.z));
+        res.gfx
+            .set_fill_color(&Color::new_rgb(color.x, color.y, color.z));
         res.gfx.set_radius(dradius);
-        res.gfx.set_origin(&Vector2f::new(dradius, dradius)); 
+        res.gfx.set_origin(&Vector2f::new(dradius, dradius));
 
         res
     }
@@ -45,7 +46,7 @@ impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
     }
 
     pub fn set_color(&mut self, color: Point3<u8>) {
-        self.color      = color;
+        self.color = color;
         self.base_color = color;
     }
 

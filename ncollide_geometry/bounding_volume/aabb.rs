@@ -11,7 +11,9 @@ use bounding_volume::{BoundingVolume, HasBoundingVolume};
 ///
 /// Same as `g.aabb(m)`.
 pub fn aabb<P, M, G: ?Sized>(g: &G, m: &M) -> AABB<P>
-    where G: HasBoundingVolume<M, AABB<P>> {
+where
+    G: HasBoundingVolume<M, AABB<P>>,
+{
     g.bounding_volume(m)
 }
 
@@ -19,7 +21,7 @@ pub fn aabb<P, M, G: ?Sized>(g: &G, m: &M) -> AABB<P>
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
 pub struct AABB<P> {
     mins: P,
-    maxs: P
+    maxs: P,
 }
 
 impl<P: Point> AABB<P> {
@@ -34,7 +36,7 @@ impl<P: Point> AABB<P> {
 
         AABB {
             mins: mins,
-            maxs: maxs
+            maxs: maxs,
         }
     }
 
@@ -80,20 +82,18 @@ impl<P: Point> AABB<P> {
 
 impl<P: Point> BoundingVolume<P> for AABB<P> {
     #[inline]
-    fn center(&self)-> P {
+    fn center(&self) -> P {
         self.center()
     }
 
     #[inline]
     fn intersects(&self, other: &AABB<P>) -> bool {
-        na::partial_le(&self.mins, &other.maxs) &&
-        na::partial_ge(&self.maxs, &other.mins)
+        na::partial_le(&self.mins, &other.maxs) && na::partial_ge(&self.maxs, &other.mins)
     }
 
     #[inline]
     fn contains(&self, other: &AABB<P>) -> bool {
-        na::partial_le(&self.mins, &other.mins) &&
-        na::partial_ge(&self.maxs, &other.maxs)
+        na::partial_le(&self.mins, &other.mins) && na::partial_ge(&self.maxs, &other.maxs)
     }
 
     #[inline]
@@ -106,39 +106,57 @@ impl<P: Point> BoundingVolume<P> for AABB<P> {
     fn merged(&self, other: &AABB<P>) -> AABB<P> {
         AABB {
             mins: na::inf(&self.mins, &other.mins),
-            maxs: na::sup(&self.maxs, &other.maxs)
+            maxs: na::sup(&self.maxs, &other.maxs),
         }
     }
 
     #[inline]
     fn loosen(&mut self, amount: P::Real) {
-        assert!(amount >= na::zero(), "The loosening margin must be positive.");
+        assert!(
+            amount >= na::zero(),
+            "The loosening margin must be positive."
+        );
         self.mins = self.mins + utils::repeat(-amount);
         self.maxs = self.maxs + utils::repeat(amount);
     }
 
     #[inline]
     fn loosened(&self, amount: P::Real) -> AABB<P> {
-        assert!(amount >= na::zero(), "The loosening margin must be positive.");
+        assert!(
+            amount >= na::zero(),
+            "The loosening margin must be positive."
+        );
         AABB {
             mins: self.mins + utils::repeat(-amount),
-            maxs: self.maxs + utils::repeat(amount)
+            maxs: self.maxs + utils::repeat(amount),
         }
     }
 
     #[inline]
     fn tighten(&mut self, amount: P::Real) {
-        assert!(amount >= na::zero(), "The tightening margin must be positive.");
+        assert!(
+            amount >= na::zero(),
+            "The tightening margin must be positive."
+        );
         self.mins = self.mins + utils::repeat(amount);
         self.maxs = self.maxs + utils::repeat(-amount);
-        assert!(na::partial_le(&self.mins, &self.maxs), "The tightening margin is to large.");
+        assert!(
+            na::partial_le(&self.mins, &self.maxs),
+            "The tightening margin is to large."
+        );
     }
 
     #[inline]
     fn tightened(&self, amount: P::Real) -> AABB<P> {
-        assert!(amount >= na::zero(), "The tightening margin must be positive.");
+        assert!(
+            amount >= na::zero(),
+            "The tightening margin must be positive."
+        );
 
-        AABB::new(self.mins + utils::repeat(amount), self.maxs + utils::repeat(-amount))
+        AABB::new(
+            self.mins + utils::repeat(amount),
+            self.maxs + utils::repeat(-amount),
+        )
     }
 }
 
@@ -149,38 +167,38 @@ impl<P: Point> BoundingVolume<P> for AABB<P> {
 //     fn translation(&self) -> P::Vector {
 //         na::center(&self.mins, &self.maxs).to_vector()
 //     }
-// 
+//
 //     #[inline]
 //     fn inverse_translation(&self) -> P::Vector {
 //         -self.translation()
 //     }
-// 
+//
 //     #[inline]
 //     fn append_translation_mut(&mut self, dv: &P::Vector) {
 //         self.mins = self.mins + *dv;
 //         self.maxs = self.maxs + *dv;
 //     }
-// 
+//
 //     #[inline]
 //     fn append_translation(&self, dv: &P::Vector) -> AABB<P> {
 //         AABB::new(self.mins + *dv, self.maxs + *dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn prepend_translation_mut(&mut self, dv: &P::Vector) {
 //         self.append_translation_mut(dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn prepend_translation(&self, dv: &P::Vector) -> AABB<P> {
 //         self.append_translation(dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn set_translation(&mut self, v: P::Vector) {
 //         let center = self.translation();
 //         let total_translation = center + v;
-// 
+//
 //         self.mins = na::inverse_translate(&total_translation, &self.mins);
 //         self.maxs = na::inverse_translate(&total_translation, &self.maxs);
 //     }

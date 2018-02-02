@@ -2,15 +2,14 @@
 
 use std::mem;
 use na::{self, Point2};
-use shape::{SupportMap, BaseMeshElement};
-use math::{Point, Isometry};
-
+use shape::{BaseMeshElement, SupportMap};
+use math::{Isometry, Point};
 
 /// A segment shape.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Segment<P> {
     a: P,
-    b: P
+    b: P,
 }
 
 impl<P: Point> Segment<P> {
@@ -23,21 +22,15 @@ impl<P: Point> Segment<P> {
 
     /// Creates the reference to a segment from the reference to an array of two points.
     pub fn from_array(arr: &[P; 2]) -> &Segment<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 
     pub(crate) fn from_array3(arr: &[P; 3]) -> &Segment<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 
     pub(crate) fn from_array4(arr: &[P; 4]) -> &Segment<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 }
 
@@ -67,10 +60,11 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Segment<P> {
     fn support_point(&self, m: &M, dir: &P::Vector) -> P {
         let local_dir = m.inverse_transform_vector(dir);
 
-        if na::dot(&self.a().coordinates(), &local_dir) > na::dot(&self.b().coordinates(), &local_dir) {
+        if na::dot(&self.a().coordinates(), &local_dir)
+            > na::dot(&self.b().coordinates(), &local_dir)
+        {
             m.transform_point(self.a())
-        }
-        else {
+        } else {
             m.transform_point(self.b())
         }
     }

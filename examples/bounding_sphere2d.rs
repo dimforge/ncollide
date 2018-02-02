@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector2, Isometry2};
+use na::{Isometry2, Vector2};
 use ncollide::bounding_volume::{self, BoundingVolume};
 use ncollide::shape::{Cone, Cylinder};
 
@@ -9,16 +9,16 @@ fn main() {
     /*
      * Initialize the shapes.
      */
-    let cone     = Cone::new(0.5, 0.5);
+    let cone = Cone::new(0.5, 0.5);
     let cylinder = Cylinder::new(1.0, 0.5);
 
-    let cone_pos     = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
-    let cylinder_pos = na::one::<Isometry2<f32>>();           // Id matrix.
+    let cone_pos = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
+    let cylinder_pos = na::one::<Isometry2<f32>>(); // Id matrix.
 
     /*
      * Compute their bounding spheres.
      */
-    let bounding_sphere_cone     = bounding_volume::bounding_sphere(&cone, &cone_pos);
+    let bounding_sphere_cone = bounding_volume::bounding_sphere(&cone, &cone_pos);
     let bounding_sphere_cylinder = bounding_volume::bounding_sphere(&cylinder, &cylinder_pos);
 
     // Merge the two spheres.

@@ -1,8 +1,8 @@
 use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
-use shape::{Cone, Cylinder, Capsule};
-use shape::{Triangle, Segment};
-use math::{Point, Isometry};
+use shape::{Capsule, Cone, Cylinder};
+use shape::{Segment, Triangle};
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Cone<P::Real> {
     #[inline]

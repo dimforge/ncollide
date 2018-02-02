@@ -8,7 +8,9 @@ use math::Point;
 // FIXME: return a bounding sphere?
 #[inline]
 pub fn point_cloud_bounding_sphere_with_center<P>(pts: &[P], center: P) -> (P, P::Real)
-    where P: Point {
+where
+    P: Point,
+{
     let mut sqradius = na::zero();
 
     for pt in pts.iter() {
@@ -22,11 +24,12 @@ pub fn point_cloud_bounding_sphere_with_center<P>(pts: &[P], center: P) -> (P, P
     (center, sqradius.sqrt())
 }
 
-
 /// Computes a bounding sphere of the specified set of point.
 // FIXME: return a bounding sphere?
 #[inline]
 pub fn point_cloud_bounding_sphere<P>(pts: &[P]) -> (P, P::Real)
-    where P: Point {
+where
+    P: Point,
+{
     point_cloud_bounding_sphere_with_center(pts, utils::center(pts))
 }

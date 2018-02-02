@@ -7,8 +7,8 @@ use math::Point;
 
 /// Bounding Volume Tree visitor collecting nodes that may contain a given point.
 pub struct PointInterferencesCollector<'a, P: 'a, B: 'a> {
-    point:     &'a P,
-    collector: &'a mut Vec<B>
+    point: &'a P,
+    collector: &'a mut Vec<B>,
 }
 
 impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
@@ -16,16 +16,18 @@ impl<'a, P, B> PointInterferencesCollector<'a, P, B> {
     #[inline]
     pub fn new(point: &'a P, buffer: &'a mut Vec<B>) -> PointInterferencesCollector<'a, P, B> {
         PointInterferencesCollector {
-            point:     point,
-            collector: buffer
+            point: point,
+            collector: buffer,
         }
     }
 }
 
 impl<'a, P, B, BV> BVTVisitor<B, BV> for PointInterferencesCollector<'a, P, B>
-    where P:  Point,
-          B:  Clone,
-          BV: PointQuery<P, Id> {
+where
+    P: Point,
+    B: Clone,
+    BV: PointQuery<P, Id>,
+{
     #[inline]
     fn visit_internal(&mut self, bv: &BV) -> bool {
         bv.contains_point(&Id::new(), self.point)

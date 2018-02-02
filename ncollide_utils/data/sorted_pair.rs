@@ -11,8 +11,7 @@ impl<T: PartialOrd> SortedPair<T> {
     pub fn new(element1: T, element2: T) -> Self {
         if element1 > element2 {
             SortedPair([element2, element1])
-        }
-        else {
+        } else {
             SortedPair([element1, element2])
         }
     }
@@ -22,8 +21,6 @@ impl<T: PartialOrd> Deref for SortedPair<T> {
     type Target = (T, T);
 
     fn deref(&self) -> &(T, T) {
-        unsafe {
-            mem::transmute(self)
-        }
+        unsafe { mem::transmute(self) }
     }
 }

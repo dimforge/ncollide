@@ -10,22 +10,22 @@
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-extern crate rustc_serialize;
-extern crate num_traits as num;
 extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils;
+extern crate num_traits as num;
+extern crate rustc_serialize;
 
-pub use trimesh::{TriMesh, IndexBuffer};
+pub use trimesh::{IndexBuffer, TriMesh};
 pub use polyline::Polyline;
-pub use bezier::{bezier_surface, bezier_curve, bezier_surface_at, bezier_curve_at};
+pub use bezier::{bezier_curve, bezier_curve_at, bezier_surface, bezier_surface_at};
 pub use capsule::capsule;
-pub use cone::{unit_cone, cone};
-pub use cuboid::{cuboid, unit_cuboid, rectangle, unit_rectangle};
-pub use cylinder::{unit_cylinder, cylinder};
-pub use quad::{quad, unit_quad, quad_with_vertices};
-pub use sphere::{sphere, unit_sphere, circle, unit_circle, unit_hemisphere};
+pub use cone::{cone, unit_cone};
+pub use cuboid::{cuboid, rectangle, unit_cuboid, unit_rectangle};
+pub use cylinder::{cylinder, unit_cylinder};
+pub use quad::{quad, quad_with_vertices, unit_quad};
+pub use sphere::{circle, sphere, unit_circle, unit_hemisphere, unit_sphere};
 
 use na::{Point2, Point3};
 

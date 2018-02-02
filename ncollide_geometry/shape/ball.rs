@@ -2,23 +2,24 @@ use alga::general::Real;
 use na::Unit;
 
 use shape::SupportMap;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// A Ball shape.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Ball<N> {
-    radius: N
+    radius: N,
 }
 
 impl<N: Real> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: N) -> Ball<N> {
-        assert!(radius > N::zero(), "A ball radius must be strictly positive.");
+        assert!(
+            radius > N::zero(),
+            "A ball radius must be strictly positive."
+        );
 
-        Ball {
-            radius: radius
-        }
+        Ball { radius: radius }
     }
 
     /// The ball radius.

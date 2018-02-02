@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na;
 use na::{Point3, Vector3};
-use super::{TriMesh, IndexBuffer};
+use super::{IndexBuffer, TriMesh};
 use super::utils;
 
 /// Generates a cone with a given height and diameter.
@@ -15,13 +15,19 @@ pub fn cone<N: Real>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<Point3<N>>
 
 /// Generates a cone with unit height and diameter.
 pub fn unit_cone<N: Real>(nsubdiv: u32) -> TriMesh<Point3<N>> {
-    let two_pi      = N::two_pi();
-    let dtheta      = two_pi / na::convert(nsubdiv as f64);
-    let mut coords  = Vec::new();
+    let two_pi = N::two_pi();
+    let dtheta = two_pi / na::convert(nsubdiv as f64);
+    let mut coords = Vec::new();
     let mut indices = Vec::new();
     let mut normals: Vec<Vector3<N>>;
 
-    utils::push_circle(na::convert(0.5), nsubdiv, dtheta, na::convert(-0.5), &mut coords);
+    utils::push_circle(
+        na::convert(0.5),
+        nsubdiv,
+        dtheta,
+        na::convert(-0.5),
+        &mut coords,
+    );
 
     normals = coords.iter().map(|p| p.coords).collect();
 
@@ -51,11 +57,14 @@ pub fn unit_cone<N: Real>(nsubdiv: u32) -> TriMesh<Point3<N>> {
 
     let ilen = indices.len();
     let nlen = normals.len() as u32;
-    for (id, i) in indices[.. ilen - (nsubdiv as usize - 2)].iter_mut().enumerate() {
+    for (id, i) in indices[..ilen - (nsubdiv as usize - 2)]
+        .iter_mut()
+        .enumerate()
+    {
         i.y.y = id as u32;
     }
 
-    for i in indices[ilen - (nsubdiv as usize - 2) ..].iter_mut() {
+    for i in indices[ilen - (nsubdiv as usize - 2)..].iter_mut() {
         i.x.y = nlen - 1;
         i.y.y = nlen - 1;
         i.z.y = nlen - 1;
@@ -63,7 +72,12 @@ pub fn unit_cone<N: Real>(nsubdiv: u32) -> TriMesh<Point3<N>> {
 
     // Normal for the body.
 
-    TriMesh::new(coords, Some(normals), None, Some(IndexBuffer::Split(indices)))
+    TriMesh::new(
+        coords,
+        Some(normals),
+        None,
+        Some(IndexBuffer::Split(indices)),
+    )
 
     // XXX: uvs
 }

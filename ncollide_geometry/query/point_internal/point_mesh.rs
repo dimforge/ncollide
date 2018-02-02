@@ -1,16 +1,17 @@
 use alga::general::Id;
 use na;
-use query::{PointQuery, PointProjection, PointQueryWithLocation};
-use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
+use shape::{BaseMesh, BaseMeshElement, Polyline, Segment, TriMesh};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
-    where P: Point,
-          M: Isometry<P>,
-          E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id> {
+where
+    P: Point,
+    M: Isometry<P>,
+    E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id>,
+{
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
@@ -20,7 +21,11 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut test = PointContainementTest { mesh: self, point: &ls_pt, found: false };
+        let mut test = PointContainementTest {
+            mesh: self,
+            point: &ls_pt,
+            found: false,
+        };
 
         self.bvt().visit(&mut test);
 
@@ -29,18 +34,25 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
 }
 
 impl<P, M, I, E> PointQueryWithLocation<P, M> for BaseMesh<P, I, E>
-    where P: Point,
-          M: Isometry<P>,
-          E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>
+where
+    P: Point,
+    M: Isometry<P>,
+    E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>,
 {
     type Location = PointProjectionInfo<E::Location>;
 
     #[inline]
-    fn project_point_with_location(&self, m: &M, point: &P, _: bool)
-        -> (PointProjection<P>, Self::Location)
-    {
+    fn project_point_with_location(
+        &self,
+        m: &M,
+        point: &P,
+        _: bool,
+    ) -> (PointProjection<P>, Self::Location) {
         let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
+        let mut cost_fn = BaseMeshPointProjCostFn {
+            mesh: self,
+            point: &ls_pt,
+        };
 
         let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
         proj.point = m.transform_point(&proj.point);
@@ -49,18 +61,19 @@ impl<P, M, I, E> PointQueryWithLocation<P, M> for BaseMesh<P, I, E>
     }
 }
 
-
 /*
  * Costs function.
  */
 struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
-    mesh:  &'a BaseMesh<P, I, E>,
-    point: &'a P
+    mesh: &'a BaseMesh<P, I, E>,
+    point: &'a P,
 }
 
 impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
-    where P: Point,
-          E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id> {
+where
+    P: Point,
+    E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>,
+{
     type UserData = (PointProjection<P>, PointProjectionInfo<E::Location>);
 
     #[inline]
@@ -70,12 +83,13 @@ impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn
 
     #[inline]
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, Self::UserData)> {
-        let (proj, extra_info) = self.mesh
-            .element_at(*b)
-            .project_point_with_location(&Id::new(), self.point, true);
+        let (proj, extra_info) =
+            self.mesh
+                .element_at(*b)
+                .project_point_with_location(&Id::new(), self.point, true);
 
         let extra_info = PointProjectionInfo {
-            element_index          : *b,
+            element_index: *b,
             barycentric_coordinates: extra_info,
         };
 
@@ -88,14 +102,16 @@ impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn
  */
 /// Bounding Volume Tree visitor collecting nodes that may contain a given point.
 struct PointContainementTest<'a, P: 'a + Point, I: 'a, E: 'a> {
-    mesh:  &'a BaseMesh<P, I, E>,
+    mesh: &'a BaseMesh<P, I, E>,
     point: &'a P,
-    found: bool
+    found: bool,
 }
 
 impl<'a, P, I, E> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, I, E>
-    where P: Point,
-          E: BaseMeshElement<I, P> + PointQuery<P, Id> {
+where
+    P: Point,
+    E: BaseMeshElement<I, P> + PointQuery<P, Id>,
+{
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
         !self.found && bv.contains_point(&Id::new(), self.point)
@@ -103,14 +119,15 @@ impl<'a, P, I, E> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, I,
 
     #[inline]
     fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
-        if !self.found &&
-           bv.contains_point(&Id::new(), self.point) &&
-           self.mesh.element_at(*b).contains_point(&Id::new(), self.point) {
+        if !self.found && bv.contains_point(&Id::new(), self.point)
+            && self.mesh
+                .element_at(*b)
+                .contains_point(&Id::new(), self.point)
+        {
             self.found = true;
         }
     }
 }
-
 
 /// Additional point pojection info for base meshes
 #[derive(Debug)]
@@ -127,7 +144,6 @@ pub struct PointProjectionInfo<C> {
     /// The type of this field depends on the type of the base mesh element.
     pub barycentric_coordinates: C,
 }
-
 
 /*
  * fwd impls to exact meshes.
@@ -148,7 +164,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
         self.base_mesh().contains_point(m, point)
     }
 }
-
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
@@ -172,9 +187,13 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Polyline<P> {
     type Location = PointProjectionInfo<<Segment<P> as PointQueryWithLocation<P, M>>::Location>;
 
     #[inline]
-    fn project_point_with_location(&self, m: &M, point: &P, solid: bool)
-        -> (PointProjection<P>, Self::Location)
-    {
-        self.base_mesh().project_point_with_location(m, point, solid)
+    fn project_point_with_location(
+        &self,
+        m: &M,
+        point: &P,
+        solid: bool,
+    ) -> (PointProjection<P>, Self::Location) {
+        self.base_mesh()
+            .project_point_with_location(m, point, solid)
     }
 }

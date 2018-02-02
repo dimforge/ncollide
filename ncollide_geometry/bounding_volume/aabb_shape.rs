@@ -1,5 +1,5 @@
 use bounding_volume::{HasBoundingVolume, AABB};
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 use shape::Shape;
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Shape<P, M> {

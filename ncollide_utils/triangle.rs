@@ -26,7 +26,7 @@ pub fn triangle_area<P: Point>(pa: &P, pb: &P, pc: &P) -> P::Real {
 /// Computes the center of a triangle.
 #[inline]
 pub fn triangle_center<P: Point>(pa: &P, pb: &P, pc: &P) -> P {
-    ::center(&[ *pa, *pb, *pc ])
+    ::center(&[*pa, *pb, *pc])
 }
 
 /// Computes the perimeter of a triangle.
@@ -57,17 +57,14 @@ pub fn circumcircle<P: Point>(pa: &P, pb: &P, pc: &P) -> (P, P::Real) {
         if nc >= na && nc >= nb {
             // Longest segment: [pa, pb]
             (na::center(pa, pb), nc.sqrt() / na::convert(2.0f64))
-        }
-        else if na >= nb && na >= nc {
+        } else if na >= nb && na >= nc {
             // Longest segment: [pa, pc]
             (na::center(pa, pc), na.sqrt() / na::convert(2.0f64))
-        }
-        else {
+        } else {
             // Longest segment: [pb, pc]
             (na::center(pb, pc), nb.sqrt() / na::convert(2.0f64))
         }
-    }
-    else {
+    } else {
         let k = b * na - a * nb;
 
         let center = *pc + (a * na::dot(&k, &b) - b * na::dot(&k, &a)) / denom;
@@ -83,10 +80,14 @@ pub fn is_affinely_dependent_triangle3<P: Point>(p1: &P, p2: &P, p3: &P) -> bool
     let p1p3 = *p3 - *p1;
 
     // FIXME: use this as nalgebra standard epsilon?
-    let _eps    = P::Real::default_epsilon(); // FIXME: use Float::epsilon instead?
+    let _eps = P::Real::default_epsilon(); // FIXME: use Float::epsilon instead?
     let _eps_tol = _eps * na::convert(100.0f64);
 
-    relative_eq!(na::norm_squared(&::cross3(&p1p2, &p1p3)), na::zero(), epsilon = _eps_tol * _eps_tol)
+    relative_eq!(
+        na::norm_squared(&::cross3(&p1p2, &p1p3)),
+        na::zero(),
+        epsilon = _eps_tol * _eps_tol
+    )
 }
 
 /// Tests if a point is inside of a triangle.
@@ -103,9 +104,8 @@ pub fn is_point_in_triangle<P: Point>(p: &P, p1: &P, p2: &P, p3: &P) -> bool {
     let d12 = na::dot(&p2p, &p2p3);
     let d13 = na::dot(&p3p, &p3p1);
 
-    d11 >= na::zero() && d11 <= na::norm_squared(&p1p2) &&
-    d12 >= na::zero() && d12 <= na::norm_squared(&p2p3) &&
-    d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
+    d11 >= na::zero() && d11 <= na::norm_squared(&p1p2) && d12 >= na::zero()
+        && d12 <= na::norm_squared(&p2p3) && d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
 }
 
 #[cfg(test)]

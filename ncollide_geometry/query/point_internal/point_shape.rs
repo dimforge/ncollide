@@ -1,11 +1,12 @@
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 use shape::Shape;
-use query::{PointQuery, PointProjection};
-
+use query::{PointProjection, PointQuery};
 
 impl<P, M> PointQuery<P, M> for Shape<P, M>
-    where P: Point,
-          M: Isometry<P> {
+where
+    P: Point,
+    M: Isometry<P>,
+{
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         self.as_point_query()

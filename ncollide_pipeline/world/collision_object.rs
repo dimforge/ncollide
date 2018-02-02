@@ -1,5 +1,5 @@
 use std::ops::{Index, IndexMut};
-use slab::{Slab, Iter};
+use slab::{Iter, Slab};
 
 use alga::general::Real;
 
@@ -7,7 +7,6 @@ use math::Point;
 use geometry::shape::ShapeHandle;
 use broad_phase::ProxyHandle;
 use world::CollisionGroups;
-
 
 /// The kind of query a CollisionObject may be involved on.
 ///
@@ -36,8 +35,8 @@ impl<N: Real> GeometricQueryType<N> {
     #[inline]
     pub fn query_limit(&self) -> N {
         match *self {
-            GeometricQueryType::Contacts(ref val)  => *val,
-            GeometricQueryType::Proximity(ref val) => *val
+            GeometricQueryType::Contacts(ref val) => *val,
+            GeometricQueryType::Proximity(ref val) => *val,
         }
     }
 
@@ -46,8 +45,7 @@ impl<N: Real> GeometricQueryType<N> {
     pub fn is_contacts_query(&self) -> bool {
         if let GeometricQueryType::Contacts(_) = *self {
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -57,8 +55,7 @@ impl<N: Real> GeometricQueryType<N> {
     pub fn is_proximity_query(&self) -> bool {
         if let GeometricQueryType::Proximity(_) = *self {
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -66,37 +63,38 @@ impl<N: Real> GeometricQueryType<N> {
 
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<P: Point, M, T> {
-    handle:               CollisionObjectHandle,
-    proxy_handle:         ProxyHandle,
-    position:             M,
-    shape:                ShapeHandle<P, M>,
-    collision_groups:     CollisionGroups,
-    query_type:           GeometricQueryType<P::Real>,
-    data:                 T,
+    handle: CollisionObjectHandle,
+    proxy_handle: ProxyHandle,
+    position: M,
+    shape: ShapeHandle<P, M>,
+    collision_groups: CollisionGroups,
+    query_type: GeometricQueryType<P::Real>,
+    data: T,
     // XXX: could this be replaced by an enum (or bitfield)
     // indicating what has been modified?
-    pub(crate) timestamp: usize
+    pub(crate) timestamp: usize,
 }
 
 impl<P: Point, M, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
-    pub fn new(handle:       CollisionObjectHandle,
-               proxy_handle: ProxyHandle,
-               position:     M,
-               shape:        ShapeHandle<P, M>,
-               groups:       CollisionGroups,
-               query_type:   GeometricQueryType<P::Real>,
-               data:         T)
-               -> CollisionObject<P, M, T> {
+    pub fn new(
+        handle: CollisionObjectHandle,
+        proxy_handle: ProxyHandle,
+        position: M,
+        shape: ShapeHandle<P, M>,
+        groups: CollisionGroups,
+        query_type: GeometricQueryType<P::Real>,
+        data: T,
+    ) -> CollisionObject<P, M, T> {
         CollisionObject {
-            handle:           handle,
-            proxy_handle:     proxy_handle,
-            position:         position,
-            shape:            shape,
+            handle: handle,
+            proxy_handle: proxy_handle,
+            position: position,
+            shape: shape,
             collision_groups: groups,
-            data:             data,
-            query_type:       query_type,
-            timestamp:        0
+            data: data,
+            query_type: query_type,
+            timestamp: 0,
         }
     }
 
@@ -189,12 +187,14 @@ impl CollisionObjectHandle {
 }
 
 pub struct CollisionObjectSlab<P: Point, M, T> {
-    objects: Slab<CollisionObject<P, M, T>>
+    objects: Slab<CollisionObject<P, M, T>>,
 }
 
 impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
     pub fn new() -> CollisionObjectSlab<P, M, T> {
-        CollisionObjectSlab { objects: Slab::new() }
+        CollisionObjectSlab {
+            objects: Slab::new(),
+        }
     }
     #[inline]
     pub fn insert(&mut self, co: CollisionObject<P, M, T>) -> CollisionObjectHandle {
@@ -212,7 +212,10 @@ impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
     }
 
     #[inline]
-    pub fn get_mut(&mut self, handle: CollisionObjectHandle) -> Option<&mut CollisionObject<P, M, T>> {
+    pub fn get_mut(
+        &mut self,
+        handle: CollisionObjectHandle,
+    ) -> Option<&mut CollisionObject<P, M, T>> {
         self.objects.get_mut(handle.0)
     }
 
@@ -223,7 +226,9 @@ impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
 
     #[inline]
     pub fn iter(&self) -> CollisionObjects<P, M, T> {
-        CollisionObjects { iter: self.objects.iter() }
+        CollisionObjects {
+            iter: self.objects.iter(),
+        }
     }
 }
 
@@ -244,7 +249,7 @@ impl<P: Point, M, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, 
 }
 
 pub struct CollisionObjects<'a, P: 'a + Point, M: 'a, T: 'a> {
-    iter: Iter<'a, CollisionObject<P, M, T>>
+    iter: Iter<'a, CollisionObject<P, M, T>>,
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> Iterator for CollisionObjects<'a, P, M, T> {
@@ -252,6 +257,8 @@ impl<'a, P: 'a + Point, M: 'a, T: 'a> Iterator for CollisionObjects<'a, P, M, T>
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|(id, obj)| (CollisionObjectHandle(id), obj))
+        self.iter
+            .next()
+            .map(|(id, obj)| (CollisionObjectHandle(id), obj))
     }
 }

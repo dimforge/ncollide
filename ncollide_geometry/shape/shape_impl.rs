@@ -1,8 +1,8 @@
-use bounding_volume::{self, AABB, BoundingSphere};
+use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Shape, Triangle, Segment, Ball, Plane, Cuboid, Cylinder, Cone, ConvexHull, Compound,
-            TriMesh, Polyline, CompositeShape, SupportMap};
-use math::{Point, Isometry};
+use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, Cuboid, Cylinder, Plane, Polyline,
+            Segment, Shape, SupportMap, TriMesh, Triangle};
+use math::{Isometry, Point};
 
 macro_rules! impl_as_support_map(
     () => {

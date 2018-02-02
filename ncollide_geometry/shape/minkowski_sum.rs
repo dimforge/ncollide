@@ -2,16 +2,15 @@
 
 use std::cmp::Ordering;
 use std::fmt::{self, Display};
-use std::ops::{Add, Sub, Mul, Div, AddAssign, MulAssign, DivAssign, Neg, Index, IndexMut};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 use num::Bounded;
 use approx::ApproxEq;
 
-use alga::general::{Id, MeetSemilattice, JoinSemilattice, Lattice};
+use alga::general::{Id, JoinSemilattice, Lattice, MeetSemilattice};
 use alga::linear::{AffineSpace, EuclideanSpace};
 use na::{self, Unit};
-use shape::{SupportMap, Reflection};
+use shape::{Reflection, SupportMap};
 use math::Point;
-
 
 /// Type of an implicit representation of the Configuration Space Obstacle
 /// formed by two geometric objects.
@@ -36,7 +35,7 @@ pub struct MinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
-    g2: &'a G2
+    g2: &'a G2,
 }
 
 impl<'a, M, G1: ?Sized, G2: ?Sized> MinkowskiSum<'a, M, G1, G2> {
@@ -46,7 +45,12 @@ impl<'a, M, G1: ?Sized, G2: ?Sized> MinkowskiSum<'a, M, G1, G2> {
      */
     #[inline]
     pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> MinkowskiSum<'a, M, G1, G2> {
-        MinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
+        MinkowskiSum {
+            m1: m1,
+            g1: g1,
+            m2: m2,
+            g2: g2,
+        }
     }
 
     /// The transformation matrix of the first shape of this Minkowski Sum.
@@ -86,7 +90,7 @@ pub struct AnnotatedMinkowskiSum<'a, M: 'a, G1: ?Sized + 'a, G2: ?Sized + 'a> {
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
-    g2: &'a G2
+    g2: &'a G2,
 }
 
 impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
@@ -95,8 +99,18 @@ impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
      * implicit, this is done in constant time.
      */
     #[inline]
-    pub fn new(m1: &'a M, g1: &'a G1, m2: &'a M, g2: &'a G2) -> AnnotatedMinkowskiSum<'a, M, G1, G2> {
-        AnnotatedMinkowskiSum { m1: m1, g1: g1, m2: m2, g2: g2 }
+    pub fn new(
+        m1: &'a M,
+        g1: &'a G1,
+        m2: &'a M,
+        g2: &'a G2,
+    ) -> AnnotatedMinkowskiSum<'a, M, G1, G2> {
+        AnnotatedMinkowskiSum {
+            m1: m1,
+            g1: g1,
+            m2: m2,
+            g2: g2,
+        }
     }
 
     /// The transformation matrix of the first shape of this Minkowski Sum.
@@ -131,7 +145,7 @@ impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 pub struct AnnotatedPoint<P> {
     orig1: P,
     orig2: P,
-    point: P
+    point: P,
 }
 
 impl<P: Point> AnnotatedPoint<P> {
@@ -141,7 +155,7 @@ impl<P: Point> AnnotatedPoint<P> {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
-            point: point
+            point: point,
         }
     }
 
@@ -184,7 +198,7 @@ impl<P: Point> AffineSpace for AnnotatedPoint<P> {
 
 impl<P: Point> EuclideanSpace for AnnotatedPoint<P> {
     type Coordinates = P::Vector;
-    type Real        = P::Real;
+    type Real = P::Real;
 
     #[inline]
     fn origin() -> Self {
@@ -196,7 +210,7 @@ impl<P: Point> EuclideanSpace for AnnotatedPoint<P> {
         Self::new(
             self.point.scale_by(s),
             self.orig1.scale_by(s),
-            self.orig2.scale_by(s)
+            self.orig2.scale_by(s),
         )
     }
 
@@ -252,7 +266,7 @@ impl<P: Point> Add<P::Vector> for AnnotatedPoint<P> {
         AnnotatedPoint::new(
             self.orig1 + other * _0_5,
             self.orig2 + other * _0_5,
-            self.point + other
+            self.point + other,
         )
     }
 }
@@ -355,7 +369,6 @@ impl<P: Point> JoinSemilattice for AnnotatedPoint<P> {
     }
 }
 
-
 impl<P: Point> Lattice for AnnotatedPoint<P> {
     #[inline]
     fn meet_join(&self, _: &Self) -> (Self, Self) {
@@ -366,18 +379,27 @@ impl<P: Point> Lattice for AnnotatedPoint<P> {
 impl<P: Point> Bounded for AnnotatedPoint<P> {
     #[inline]
     fn max_value() -> Self {
-        Self::new(P::max_value(), P::max_value() / na::convert(2.0), P::max_value() / na::convert(2.0))
+        Self::new(
+            P::max_value(),
+            P::max_value() / na::convert(2.0),
+            P::max_value() / na::convert(2.0),
+        )
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::new(P::min_value(), P::min_value() / na::convert(2.0), P::min_value() / na::convert(2.0))
+        Self::new(
+            P::min_value(),
+            P::min_value() / na::convert(2.0),
+            P::min_value() / na::convert(2.0),
+        )
     }
 }
 
-
 impl<P> Display for AnnotatedPoint<P>
-    where P: Display {
+where
+    P: Display,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(writeln!(f, "Original point 1: {}", self.orig1));
         try!(writeln!(f, "Original point 2: {}", self.orig2));
@@ -404,7 +426,12 @@ impl<P: Point> ApproxEq for AnnotatedPoint<P> {
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
         self.point.relative_eq(&other.point, epsilon, max_relative)
     }
 
@@ -428,37 +455,40 @@ impl<P: Point> Point for AnnotatedPoint<P> {
     fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<P::Vector>> {
         if na::dimension::<P::Vector>() == 2 {
             P::ccw_face_normal(&[&pts[0].point, &pts[1].point])
-        }
-        else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<P::Vector>() == 3 {
             P::ccw_face_normal(&[&pts[0].point, &pts[1].point, &pts[2].point])
-        }
-        else {
+        } else {
             unimplemented!()
         }
     }
 }
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M, G1, G2>
-    where P:  Point,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
+where
+    P: Point,
+    G1: SupportMap<P, M>,
+    G2: SupportMap<P, M>,
+{
     #[inline]
     fn support_point(&self, _: &Id, dir: &P::Vector) -> P {
-        self.g1().support_point(self.m1(), dir) + self.g2().support_point(self.m2(), dir).coordinates()
+        self.g1().support_point(self.m1(), dir)
+            + self.g2().support_point(self.m2(), dir).coordinates()
     }
 
     #[inline]
     fn support_point_toward(&self, _: &Id, dir: &Unit<P::Vector>) -> P {
-        self.g1().support_point_toward(self.m1(), dir) +
-        self.g2().support_point_toward(self.m2(), dir).coordinates()
+        self.g1().support_point_toward(self.m1(), dir)
+            + self.g2().support_point_toward(self.m2(), dir).coordinates()
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized>
-SupportMap<AnnotatedPoint<P>, Id> for AnnotatedMinkowskiSum<'a, M, G1, G2>
-    where P:  Point,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
+impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<AnnotatedPoint<P>, Id>
+    for AnnotatedMinkowskiSum<'a, M, G1, G2>
+where
+    P: Point,
+    G1: SupportMap<P, M>,
+    G2: SupportMap<P, M>,
+{
     #[inline]
     fn support_point(&self, _: &Id, dir: &P::Vector) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
@@ -481,13 +511,18 @@ SupportMap<AnnotatedPoint<P>, Id> for AnnotatedMinkowskiSum<'a, M, G1, G2>
 /// Computes the support point of the CSO `g1 - g2` on a given direction.
 ///
 /// The result is a support point with informations about how it has been constructed.
-pub fn cso_support_point<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1: &G1,
-                                                       m2: &M, g2: &G2,
-                                                       dir: P::Vector)
-                                                       -> AnnotatedPoint<P>
-    where P:  Point,
-          G1: SupportMap<P, M>,
-          G2: SupportMap<P, M> {
+pub fn cso_support_point<P, M, G1: ?Sized, G2: ?Sized>(
+    m1: &M,
+    g1: &G1,
+    m2: &M,
+    g2: &G2,
+    dir: P::Vector,
+) -> AnnotatedPoint<P>
+where
+    P: Point,
+    G1: SupportMap<P, M>,
+    G2: SupportMap<P, M>,
+{
     let rg2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 

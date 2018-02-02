@@ -1,7 +1,7 @@
-use bounding_volume::{AABB, HasBoundingVolume};
+use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume::aabb_utils;
 use shape::ConvexHull;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for ConvexHull<P> {
     #[inline]

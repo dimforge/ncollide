@@ -21,7 +21,7 @@ pub trait BoundingVolume<P: Point> {
     fn intersects(&self, &Self) -> bool;
 
     /// Checks if this bounding volume contains another one.
-    fn contains(&self, &Self)   -> bool;
+    fn contains(&self, &Self) -> bool;
 
     /// Merges this bounding volume with another one. The merge is done in-place.
     fn merge(&mut self, &Self);

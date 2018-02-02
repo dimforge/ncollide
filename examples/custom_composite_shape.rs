@@ -3,27 +3,27 @@ extern crate approx;
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector2, Point2, Translation2, Isometry2};
+use na::{Isometry2, Point2, Translation2, Vector2};
 use ncollide::query::{self, Proximity};
-use ncollide::shape::{CompositeShape, CompositeShape2, Shape, Shape2, Cuboid2};
+use ncollide::shape::{CompositeShape, CompositeShape2, Cuboid2, Shape, Shape2};
 use ncollide::partitioning::BVT;
 use ncollide::bounding_volume::AABB2;
 
 struct CrossedCuboids {
-    bvt: BVT<usize, AABB2<f32>>
+    bvt: BVT<usize, AABB2<f32>>,
 }
 
 impl CrossedCuboids {
     pub fn new() -> CrossedCuboids {
         // The shape indices paired with their corresponding AABBs.
         // Nedded to initialize the acceleration structure.
-        let aabbs = vec! [
+        let aabbs = vec![
             (0, CrossedCuboids::generate_aabb(0)),
-            (1, CrossedCuboids::generate_aabb(1))
+            (1, CrossedCuboids::generate_aabb(1)),
         ];
 
         CrossedCuboids {
-            bvt: BVT::new_balanced(aabbs)
+            bvt: BVT::new_balanced(aabbs),
         }
     }
 
@@ -32,8 +32,7 @@ impl CrossedCuboids {
         if i == 0 {
             // The AABB for the horizontal cuboid.
             AABB2::new(Point2::new(-1.0, 0.0), Point2::new(3.0, 2.0))
-        }
-        else {
+        } else {
             // The AABB for the vertical cuboid.
             AABB2::new(Point2::new(0.0, -1.0), Point2::new(2.0, 3.0))
         }
@@ -45,8 +44,7 @@ impl CrossedCuboids {
             // Create a 4x2 cuboid. Remember that we must provide the
             // half-lengths.
             Cuboid2::new(Vector2::new(2.0, 1.0))
-        }
-        else {
+        } else {
             // Create a 2x4 cuboid. Remember that we must provide the
             // half-lengths.
             Cuboid2::new(Vector2::new(1.0, 2.0))
@@ -66,10 +64,12 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         f(&transform, &cuboid)
     }
 
-    fn map_transformed_part_at(&self,
-                               i: usize,
-                               m: &Isometry2<f32>,
-                               f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>)) {
+    fn map_transformed_part_at(
+        &self,
+        i: usize,
+        m: &Isometry2<f32>,
+        f: &mut FnMut(&Isometry2<f32>, &Shape2<f32>),
+    ) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m * Translation2::new(1.0, 1.0);
 
@@ -94,8 +94,10 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     fn aabb(&self, m: &Isometry2<f32>) -> AABB2<f32> {
         // This is far from an optimal AABB.
-        AABB2::new(m.translation * Point2::new(-10.0, -10.0),
-                   m.translation * Point2::new(10.0, 10.0))
+        AABB2::new(
+            m.translation * Point2::new(-10.0, -10.0),
+            m.translation * Point2::new(10.0, 10.0),
+        )
     }
 
     fn as_composite_shape(&self) -> Option<&CompositeShape2<f32>> {
@@ -104,10 +106,10 @@ impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
 }
 
 fn main() {
-    let cross  = CrossedCuboids::new();
+    let cross = CrossedCuboids::new();
     let cuboid = Cuboid2::new(Vector2::new(1.0, 1.0));
 
-    let cross_pos  = na::one();
+    let cross_pos = na::one();
     let cuboid_pos = Isometry2::new(Vector2::new(6.0, 0.0), na::zero());
 
     let dist = query::distance(&cross_pos, &cross, &cuboid_pos, &cuboid);

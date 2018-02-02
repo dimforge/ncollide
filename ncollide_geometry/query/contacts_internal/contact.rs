@@ -14,7 +14,7 @@ pub struct Contact<P: Point> {
     pub normal: P::Vector,
 
     /// Penetration depth
-    pub depth:  P::Real
+    pub depth: P::Real,
 }
 
 impl<P: Point> Contact<P> {
@@ -25,7 +25,7 @@ impl<P: Point> Contact<P> {
             world1: world1,
             world2: world2,
             normal: normal,
-            depth:  depth
+            depth: depth,
         }
     }
 }

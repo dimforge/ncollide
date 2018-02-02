@@ -1,12 +1,12 @@
 use alga::linear::{Rotation, Translation};
 use na;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
 pub struct Polyline<P: Point> {
     /// Coordinates of the polyline vertices.
-    coords:  Vec<P>,
+    coords: Vec<P>,
     /// Coordinates of the polyline normals.
     normals: Option<Vec<P::Vector>>,
 }
@@ -15,11 +15,14 @@ impl<P: Point> Polyline<P> {
     /// Creates a new polyline.
     pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vector>>) -> Polyline<P> {
         if let Some(ref ns) = normals {
-            assert!(coords.len() == ns.len(), "There must be exactly one normal per vertex.");
+            assert!(
+                coords.len() == ns.len(),
+                "There must be exactly one normal per vertex."
+            );
         }
 
         Polyline {
-            coords:  coords,
+            coords: coords,
             normals: normals,
         }
     }
@@ -48,7 +51,7 @@ impl<P: Point> Polyline<P> {
     pub fn normals(&self) -> Option<&[P::Vector]> {
         match self.normals {
             Some(ref ns) => Some(&ns[..]),
-            None         => None
+            None => None,
         }
     }
 
@@ -57,7 +60,7 @@ impl<P: Point> Polyline<P> {
     pub fn normals_mut(&mut self) -> Option<&mut [P::Vector]> {
         match self.normals {
             Some(ref mut ns) => Some(&mut ns[..]),
-            None             => None
+            None => None,
         }
     }
 
@@ -104,12 +107,14 @@ impl<P: Point> Polyline<P> {
 }
 
 impl<P> Polyline<P>
-    where P: Point {
+where
+    P: Point,
+{
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vector) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dimension::<P::Vector>() {
+            for i in 0..na::dimension::<P::Vector>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

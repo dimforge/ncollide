@@ -5,9 +5,9 @@ pub use self::ray_plane::plane_toi_with_ray;
 pub use self::ray_triangle::triangle_ray_intersection;
 pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
 pub use self::ray_ball::ball_toi_with_ray;
-pub use self::ray_bvt::{RayIntersectionCostFn, RayInterferencesCollector};
+pub use self::ray_bvt::{RayInterferencesCollector, RayIntersectionCostFn};
 
-use na::{Point2, Vector2, Point3, Vector3};
+use na::{Point2, Point3, Vector2, Vector3};
 
 #[doc(hidden)]
 pub mod ray;

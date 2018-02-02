@@ -1,10 +1,10 @@
 use na;
 use partitioning::BoundingVolumeInterferencesCollector;
 use bounding_volume::BoundingVolume;
-use shape::{Shape, CompositeShape};
+use shape::{CompositeShape, Shape};
 use query::Contact;
 use query::contacts_internal;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /*
 /// Contacts between a composite shape (`Mesh`, `Compound`) and any other shape.
@@ -63,15 +63,20 @@ pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
 */
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
-                                                       m2: &M, g2: &Shape<P, M>,
-                                                       prediction: P::Real)
-                                                       -> Option<Contact<P>>
-    where P:  Point,
-          M:  Isometry<P>,
-          G1: CompositeShape<P, M> {
+pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
+    m1: &M,
+    g1: &G1,
+    m2: &M,
+    g2: &Shape<P, M>,
+    prediction: P::Real,
+) -> Option<Contact<P>>
+where
+    P: Point,
+    M: Isometry<P>,
+    G1: CompositeShape<P, M>,
+{
     // Find new collisions
-    let ls_m2    = na::inverse(m1) * m2.clone();
+    let ls_m2 = na::inverse(m1) * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
 
     let mut interferences = Vec::new();
@@ -84,22 +89,24 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
     let mut res = None::<Contact<P>>;
 
     for i in interferences.into_iter() {
-        g1.map_part_at(i, &mut |_, part| {
-            match contacts_internal::contact_internal(m1, part, m2, g2, prediction) {
-                Some(c) => {
-                    let replace = match res {
-                        Some(ref cbest) => {
-                            c.depth > cbest.depth
-                        },
-                        None => true
-                    };
+        g1.map_part_at(i, &mut |_, part| match contacts_internal::contact_internal(
+            m1,
+            part,
+            m2,
+            g2,
+            prediction,
+        ) {
+            Some(c) => {
+                let replace = match res {
+                    Some(ref cbest) => c.depth > cbest.depth,
+                    None => true,
+                };
 
-                    if replace {
-                        res = Some(c)
-                    }
-                },
-                None => { }
+                if replace {
+                    res = Some(c)
+                }
             }
+            None => {}
         });
     }
 
@@ -107,13 +114,18 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(m1: &M, g1: &G1,
 }
 
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn shape_against_composite_shape<P, M, G2: ?Sized>(m1: &M, g1: &Shape<P, M>,
-                                                       m2: &M, g2: &G2,
-                                                       prediction: P::Real)
-                                                       -> Option<Contact<P>>
-    where P:  Point,
-          M:  Isometry<P>,
-          G2: CompositeShape<P, M> {
+pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
+    m1: &M,
+    g1: &Shape<P, M>,
+    m2: &M,
+    g2: &G2,
+    prediction: P::Real,
+) -> Option<Contact<P>>
+where
+    P: Point,
+    M: Isometry<P>,
+    G2: CompositeShape<P, M>,
+{
     let mut res = composite_shape_against_shape(m2, g2, m1, g1, prediction);
 
     for c in res.iter_mut() {

@@ -4,49 +4,45 @@ use std::path::Path;
 use num::Bounded;
 use time;
 use glfw;
-use glfw::{MouseButton, Key, Action, WindowEvent};
-use na::{Point2, Point3, Vector3, Isometry3};
+use glfw::{Action, Key, MouseButton, WindowEvent};
+use na::{Isometry3, Point2, Point3, Vector3};
 use na;
 use kiss3d::window::Window;
 use kiss3d::light::Light;
 use kiss3d::text::Font;
 use kiss3d::loader::obj;
 use ncollide::query::{ray_internal, Ray};
-use ncollide::world::{CollisionWorld3, CollisionGroups};
+use ncollide::world::{CollisionGroups, CollisionWorld3};
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
 
 #[cfg(feature = "recording")]
 use mpeg_encoder::Encoder;
 
-
 #[derive(PartialEq, Eq, Debug)]
 enum RunMode {
     Run,
     Stop,
-    Step
+    Step,
 }
 
-
 pub struct Testbed {
-    window:               Window,
-    graphics:             GraphicsManagerHandle,
-    running:              RunMode,
-    font:                 Rc<Font>,
-    grabbed_object:       Option<usize>,
+    window: Window,
+    graphics: GraphicsManagerHandle,
+    running: RunMode,
+    font: Rc<Font>,
+    grabbed_object: Option<usize>,
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
-    cursor_pos:           Point2<f32>,
-    draw_colls:           bool,
-    update_time:          f64,
+    cursor_pos: Point2<f32>,
+    draw_colls: bool,
+    update_time: f64,
 
-    #[cfg(feature = "recording")]
-    recorder: Option<Encoder>,
-    #[cfg(not(feature = "recording"))]
-    recorder: Option<()>,
+    #[cfg(feature = "recording")] recorder: Option<Encoder>,
+    #[cfg(not(feature = "recording"))] recorder: Option<()>,
 }
 
 impl Testbed {
     pub fn new() -> Testbed {
-        let graphics   = GraphicsManager::new();
+        let graphics = GraphicsManager::new();
         let mut window = Window::new("nphysics: 3d demo");
 
         let font_mem = include_bytes!("Inconsolata.otf");
@@ -55,16 +51,16 @@ impl Testbed {
         window.set_light(Light::StickToCamera);
 
         Testbed {
-            window:               window,
-            graphics:             Rc::new(RefCell::new(graphics)),
-            running:              RunMode::Run,
-            recorder:             None,
-            font:                 Font::from_memory(font_mem, 60),
-            grabbed_object:       None,
+            window: window,
+            graphics: Rc::new(RefCell::new(graphics)),
+            running: RunMode::Run,
+            recorder: None,
+            font: Font::from_memory(font_mem, 60),
+            grabbed_object: None,
             grabbed_object_plane: (na::origin(), na::zero()),
-            cursor_pos:           na::origin(),
-            draw_colls:           false,
-            update_time:          0.0
+            cursor_pos: na::origin(),
+            draw_colls: false,
+            update_time: 0.0,
         }
     }
 
@@ -81,15 +77,17 @@ impl Testbed {
     }
 
     pub fn load_obj(path: &str) -> Vec<(Vec<Point3<f32>>, Vec<usize>)> {
-        let path    = Path::new(path);
-        let empty   = Path::new("_some_non_existant_folder"); // dont bother loading mtl files correctly
-        let objects = obj::parse_file(&path, &empty, "").ok().expect("Unable to open the obj file.");
+        let path = Path::new(path);
+        let empty = Path::new("_some_non_existant_folder"); // dont bother loading mtl files correctly
+        let objects = obj::parse_file(&path, &empty, "")
+            .ok()
+            .expect("Unable to open the obj file.");
 
         let mut res = Vec::new();
 
         for (_, m, _) in objects.into_iter() {
             let vertices = m.coords().read().unwrap().to_owned().unwrap();
-            let indices  = m.faces().read().unwrap().to_owned().unwrap();
+            let indices = m.faces().read().unwrap().to_owned().unwrap();
 
             let mut flat_indices = Vec::new();
 
@@ -136,11 +134,11 @@ impl Testbed {
                     self.running = RunMode::Stop;
                 }
 
-                return true
+                return true;
             }
         }
 
-        return false
+        return false;
     }
 
     pub fn update<T>(&mut self, world: &mut CollisionWorld3<f32, T>) {
@@ -155,21 +153,24 @@ impl Testbed {
         self.graphics.borrow_mut().draw(world);
 
         if self.draw_colls {
-            self.graphics.borrow_mut().draw_positions(&mut self.window, world);
+            self.graphics
+                .borrow_mut()
+                .draw_positions(&mut self.window, world);
             draw_collisions(&mut self.window, world);
         }
 
         let color = Point3::new(1.0, 1.0, 1.0);
 
         let time_str = format!("Update time: {:.*}sec.", 4, self.update_time);
-        self.window.draw_text(&time_str[..], &na::origin(), &self.font, &color);
-        if self.window.render_with_camera(self.graphics.borrow_mut().camera_mut()) {
-
+        self.window
+            .draw_text(&time_str[..], &na::origin(), &self.font, &color);
+        if self.window
+            .render_with_camera(self.graphics.borrow_mut().camera_mut())
+        {
             self.record_frame_if_enabled();
 
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -189,7 +190,6 @@ impl Testbed {
         // Do nothing.
     }
 
-
     fn process_events<T>(&mut self, world: &mut CollisionWorld3<f32, T>) {
         for mut event in self.window.events().iter() {
             match event.value {
@@ -197,7 +197,10 @@ impl Testbed {
                     if modifier.contains(glfw::Shift) {
                         // XXX: huge and uggly code duplication
                         let size = self.window.size();
-                        let (pos, dir) = self.graphics.borrow().camera().unproject(&self.cursor_pos, &size);
+                        let (pos, dir) = self.graphics
+                            .borrow()
+                            .camera()
+                            .unproject(&self.cursor_pos, &size);
                         let ray = Ray::new(pos, dir);
 
                         // cast the ray
@@ -207,7 +210,7 @@ impl Testbed {
                         let all_groups = &CollisionGroups::new();
 
                         for (object, inter) in world.interferences_with_ray(&ray, all_groups) {
-                            if  inter.toi < mintoi {
+                            if inter.toi < mintoi {
                                 mintoi = inter.toi;
                                 minuid = Some(object.uid);
                             }
@@ -219,17 +222,24 @@ impl Testbed {
                         }
 
                         event.inhibited = true;
-                    }
-                    else if modifier.contains(glfw::Control) {
+                    } else if modifier.contains(glfw::Control) {
                         if let Some(uid) = self.grabbed_object {
-                            for n in self.graphics.borrow_mut().scene_nodes_mut(uid).unwrap().iter_mut() {
+                            for n in self.graphics
+                                .borrow_mut()
+                                .scene_nodes_mut(uid)
+                                .unwrap()
+                                .iter_mut()
+                            {
                                 n.unselect()
                             }
                         }
 
                         // XXX: huge and uggly code duplication
                         let size = self.window.size();
-                        let (pos, dir) = self.graphics.borrow().camera().unproject(&self.cursor_pos, &size);
+                        let (pos, dir) = self.graphics
+                            .borrow()
+                            .camera()
+                            .unproject(&self.cursor_pos, &size);
                         let ray = Ray::new(pos, dir);
 
                         // cast the ray
@@ -237,24 +247,34 @@ impl Testbed {
 
                         let all_groups = CollisionGroups::new();
                         for (object, inter) in world.interferences_with_ray(&ray, &all_groups) {
-                            if  inter.toi < mintoi {
-                                mintoi              = inter.toi;
+                            if inter.toi < mintoi {
+                                mintoi = inter.toi;
                                 self.grabbed_object = Some(object.uid);
                             }
                         }
 
                         if let Some(uid) = self.grabbed_object {
-                            for n in self.graphics.borrow_mut().scene_nodes_mut(uid).unwrap().iter_mut() {
-                                let attach = Isometry3::new((ray.origin + ray.dir * mintoi).coords, na::zero());
-                                self.grabbed_object_plane = (Point3::from_coordinates(attach.translation.vector),
-                                                             -ray.dir);
+                            for n in self.graphics
+                                .borrow_mut()
+                                .scene_nodes_mut(uid)
+                                .unwrap()
+                                .iter_mut()
+                            {
+                                let attach = Isometry3::new(
+                                    (ray.origin + ray.dir * mintoi).coords,
+                                    na::zero(),
+                                );
+                                self.grabbed_object_plane = (
+                                    Point3::from_coordinates(attach.translation.vector),
+                                    -ray.dir,
+                                );
                                 n.select()
                             }
                         }
 
                         event.inhibited = true;
                     }
-                },
+                }
                 WindowEvent::MouseButton(_, Action::Release, _) => {
                     let mut graphics = self.graphics.borrow_mut();
                     if let Some(uid) = self.grabbed_object {
@@ -264,33 +284,39 @@ impl Testbed {
                     }
 
                     self.grabbed_object = None;
-                },
+                }
                 WindowEvent::CursorPos(x, y) => {
                     self.cursor_pos.x = x as f32;
                     self.cursor_pos.y = y as f32;
 
                     if let Some(uid) = self.grabbed_object {
-                        let size       = self.window.size();
-                        let (pos, dir) = self.graphics.borrow().camera().unproject(&self.cursor_pos, &size);
+                        let size = self.window.size();
+                        let (pos, dir) = self.graphics
+                            .borrow()
+                            .camera()
+                            .unproject(&self.cursor_pos, &size);
 
                         let (ref ppos, ref pdir) = self.grabbed_object_plane;
 
                         match ray_internal::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir)) {
                             Some(inter) => {
-                                let new_pos = Isometry3::new((pos + dir * inter).coords, na::zero());
+                                let new_pos =
+                                    Isometry3::new((pos + dir * inter).coords, na::zero());
                                 world.deferred_set_position(uid, new_pos);
-                            },
-                            None => { }
+                            }
+                            None => {}
                         }
                     }
 
-                    event.inhibited =
-                        self.window.glfw_window().get_key(Key::RightShift)   != Action::Release ||
-                        self.window.glfw_window().get_key(Key::LeftShift)    != Action::Release ||
-                        self.window.glfw_window().get_key(Key::RightControl) != Action::Release ||
-                        self.window.glfw_window().get_key(Key::LeftControl)  != Action::Release;
-                },
-                WindowEvent::Key(Key::Tab, _, Action::Release, _) => self.graphics.borrow_mut().switch_cameras(),
+                    event.inhibited = self.window.glfw_window().get_key(Key::RightShift)
+                        != Action::Release
+                        || self.window.glfw_window().get_key(Key::LeftShift) != Action::Release
+                        || self.window.glfw_window().get_key(Key::RightControl) != Action::Release
+                        || self.window.glfw_window().get_key(Key::LeftControl) != Action::Release;
+                }
+                WindowEvent::Key(Key::Tab, _, Action::Release, _) => {
+                    self.graphics.borrow_mut().switch_cameras()
+                }
                 WindowEvent::Key(Key::B, _, Action::Release, _) => {
                     // XXX: there is a bug on kiss3d with the removal of objects.
                     // draw_aabbs = !draw_aabbs;
@@ -300,16 +326,15 @@ impl Testbed {
                     // else {
                     //     graphics.disable_aabb_draw(&mut self.window);
                     // }
-                },
+                }
                 WindowEvent::Key(Key::S, _, Action::Release, _) => self.running = RunMode::Step,
                 WindowEvent::Key(Key::T, _, Action::Release, _) => {
                     if self.running == RunMode::Stop {
                         self.running = RunMode::Run;
-                    }
-                    else {
+                    } else {
                         self.running = RunMode::Stop;
                     }
-                },
+                }
                 WindowEvent::Key(Key::Space, _, Action::Release, _) => {
                     let mut graphics = self.graphics.borrow_mut();
                     self.draw_colls = !self.draw_colls;
@@ -320,16 +345,15 @@ impl Testbed {
                                 if self.draw_colls || object.query_type.is_proximity_query() {
                                     n.scene_node_mut().set_lines_width(1.0);
                                     n.scene_node_mut().set_surface_rendering_activation(false);
-                                }
-                                else {
+                                } else {
                                     n.scene_node_mut().set_lines_width(0.0);
                                     n.scene_node_mut().set_surface_rendering_activation(true);
                                 }
                             }
                         }
                     }
-                },
-                _ => { }
+                }
+                _ => {}
             }
         }
     }
@@ -340,7 +364,7 @@ fn draw_collisions<T>(window: &mut Window, world: &mut CollisionWorld3<f32, T>) 
         window.draw_line(&c.2.world1, &c.2.world2, &Point3::new(1.0, 0.0, 0.0));
 
         let center = na::center(&c.2.world1, &c.2.world2);
-        let end    = center + c.2.normal * 0.4f32;
+        let end = center + c.2.normal * 0.4f32;
         window.draw_line(&center, &end, &Point3::new(0.0, 1.0, 1.0))
     }
 }

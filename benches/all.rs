@@ -1,9 +1,9 @@
 #![feature(test)]
 
-extern crate test;
-extern crate rand;
 extern crate nalgebra as na;
 extern crate ncollide;
+extern crate rand;
+extern crate test;
 
 mod geometry;
 mod utils;

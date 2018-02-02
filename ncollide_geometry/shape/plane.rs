@@ -6,7 +6,7 @@ use na;
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Plane<V> {
     /// The plane normal.
-    normal: V
+    normal: V,
 }
 
 impl<V: Vector> Plane<V> {
@@ -21,9 +21,7 @@ impl<V> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub unsafe fn new_normalized(normal: V) -> Plane<V> {
-        Plane {
-            normal: normal
-        }
+        Plane { normal: normal }
     }
 
     /// The plane normal.

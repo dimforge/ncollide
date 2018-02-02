@@ -1,10 +1,10 @@
 use std::collections::HashMap;
-use alga::linear::{Translation, Rotation};
+use alga::linear::{Rotation, Translation};
 use na::{Point2, Point3};
 use na;
 use super::utils;
 use ncollide_utils::AsBytes;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
@@ -12,7 +12,7 @@ pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Point3<u32>>),
     /// The vertex, normal, and uvs have different indices.
-    Split(Vec<Point3<Point3<u32>>>)
+    Split(Vec<Point3<Point3<u32>>>),
 }
 
 impl IndexBuffer {
@@ -21,7 +21,7 @@ impl IndexBuffer {
     pub fn unwrap_unified(self) -> Vec<Point3<u32>> {
         match self {
             IndexBuffer::Unified(b) => b,
-            _ => panic!("Unable to unwrap to an unified buffer.")
+            _ => panic!("Unable to unwrap to an unified buffer."),
         }
     }
 
@@ -30,7 +30,7 @@ impl IndexBuffer {
     pub fn unwrap_split(self) -> Vec<Point3<Point3<u32>>> {
         match self {
             IndexBuffer::Split(b) => b,
-            _ => panic!("Unable to unwrap to a split buffer.")
+            _ => panic!("Unable to unwrap to a split buffer."),
         }
     }
 }
@@ -40,36 +40,39 @@ impl IndexBuffer {
 pub struct TriMesh<P: Point> {
     // FIXME: those should *not* be public.
     /// Coordinates of the mesh vertices.
-    pub coords:  Vec<P>,
+    pub coords: Vec<P>,
     /// Coordinates of the mesh normals.
     pub normals: Option<Vec<P::Vector>>,
     /// Textures coordinates of the mesh.
-    pub uvs:     Option<Vec<Point2<P::Real>>>,
+    pub uvs: Option<Vec<Point2<P::Real>>>,
     /// Index buffer of the mesh.
-    pub indices: IndexBuffer
+    pub indices: IndexBuffer,
 }
 
 impl<P: Point> TriMesh<P> {
     /// Creates a new `TriMesh`.
     ///
     /// If no `indices` is provided, trivial, sequential indices are generated.
-    pub fn new(coords:  Vec<P>,
-               normals: Option<Vec<P::Vector>>,
-               uvs:     Option<Vec<Point2<P::Real>>>,
-               indices: Option<IndexBuffer>)
-               -> TriMesh<P> {
+    pub fn new(
+        coords: Vec<P>,
+        normals: Option<Vec<P::Vector>>,
+        uvs: Option<Vec<Point2<P::Real>>>,
+        indices: Option<IndexBuffer>,
+    ) -> TriMesh<P> {
         // generate trivial indices
-        let idx = indices.unwrap_or_else(||
-           IndexBuffer::Unified(
-               (0 .. coords.len() / 3).map(|i| Point3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2)).collect()
-           )
-        );
+        let idx = indices.unwrap_or_else(|| {
+            IndexBuffer::Unified(
+                (0..coords.len() / 3)
+                    .map(|i| Point3::new(i as u32 * 3, i as u32 * 3 + 1, i as u32 * 3 + 2))
+                    .collect(),
+            )
+        });
 
         TriMesh {
-            coords:  coords,
+            coords: coords,
             normals: normals,
-            uvs:     uvs,
-            indices: idx
+            uvs: uvs,
+            indices: idx,
         }
     }
 
@@ -112,7 +115,7 @@ impl<P: Point> TriMesh<P> {
     pub fn num_triangles(&self) -> usize {
         match self.indices {
             IndexBuffer::Unified(ref idx) => idx.len(),
-            IndexBuffer::Split(ref idx)   => idx.len()
+            IndexBuffer::Split(ref idx) => idx.len(),
         }
     }
 }
@@ -143,12 +146,14 @@ impl<P: Point> TriMesh<P> {
         match self.indices {
             IndexBuffer::Unified(ref idx) => {
                 utils::compute_normals(&self.coords[..], &idx[..], &mut new_normals);
-            },
+            }
             IndexBuffer::Split(ref idx) => {
                 // XXX: too bad we have to reconstruct the index buffer here.
                 // The utils::recompute_normals function should be generic wrt. the index buffer
                 // type (it could use an iterator instead).
-                let coord_idx: Vec<Point3<u32>> = idx.iter().map(|t| Point3::new(t.x.x, t.y.x, t.z.x)).collect();
+                let coord_idx: Vec<Point3<u32>> = idx.iter()
+                    .map(|t| Point3::new(t.x.x, t.y.x, t.z.x))
+                    .collect();
 
                 utils::compute_normals(&self.coords[..], &coord_idx[..], &mut new_normals);
             }
@@ -163,7 +168,7 @@ impl<P: Point> TriMesh<P> {
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vector) {
         for c in self.coords.iter_mut() {
-            for i in 0 .. na::dimension::<P::Vector>() {
+            for i in 0..na::dimension::<P::Vector>() {
                 c[i] = (*c)[i] * s[i];
             }
         }
@@ -190,23 +195,30 @@ impl<P: Point> TriMesh<P> {
     pub fn unify_index_buffer(&mut self) {
         let new_indices = match self.indices {
             IndexBuffer::Split(ref ids) => {
-                let mut vt2id:HashMap<Point3<u32>, u32> = HashMap::new();
-                let mut resi: Vec<u32>                = Vec::new();
-                let mut resc: Vec<P>                  = Vec::new();
-                let mut resn: Option<Vec<P::Vector>>    = self.normals.as_ref().map(|_| Vec::new());
+                let mut vt2id: HashMap<Point3<u32>, u32> = HashMap::new();
+                let mut resi: Vec<u32> = Vec::new();
+                let mut resc: Vec<P> = Vec::new();
+                let mut resn: Option<Vec<P::Vector>> = self.normals.as_ref().map(|_| Vec::new());
                 let mut resu: Option<Vec<Point2<P::Real>>> = self.uvs.as_ref().map(|_| Vec::new());
 
                 for triangle in ids.iter() {
                     for point in triangle.iter() {
                         let idx = match vt2id.get(point) {
-                            Some(i) => { resi.push(*i); None },
-                            None    => {
+                            Some(i) => {
+                                resi.push(*i);
+                                None
+                            }
+                            None => {
                                 let idx = resc.len() as u32;
 
                                 resc.push(self.coords[point.x as usize].clone());
 
-                                let _ = resn.as_mut().map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
-                                let _ = resu.as_mut().map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
+                                let _ = resn.as_mut().map(|l| {
+                                    l.push(self.normals.as_ref().unwrap()[point.y as usize].clone())
+                                });
+                                let _ = resu.as_mut().map(|l| {
+                                    l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone())
+                                });
 
                                 resi.push(idx);
 
@@ -218,9 +230,9 @@ impl<P: Point> TriMesh<P> {
                     }
                 }
 
-                self.coords  = resc;
+                self.coords = resc;
                 self.normals = resn;
-                self.uvs     = resu;
+                self.uvs = resu;
 
                 let mut batched_indices = Vec::new();
 
@@ -231,7 +243,7 @@ impl<P: Point> TriMesh<P> {
 
                 Some(IndexBuffer::Unified(batched_indices))
             }
-            _ => None
+            _ => None,
         };
 
         let _ = new_indices.map(|nids| self.indices = nids);
@@ -248,19 +260,17 @@ impl<P: Point + AsBytes> TriMesh<P> {
                 let resi;
 
                 if recover_topology {
-                    let (idx, coords) = utils::split_index_buffer_and_recover_topology(
-                                           &ids[..],
-                                           &self.coords[..]);
+                    let (idx, coords) =
+                        utils::split_index_buffer_and_recover_topology(&ids[..], &self.coords[..]);
                     self.coords = coords;
                     resi = idx;
-                }
-                else {
+                } else {
                     resi = utils::split_index_buffer(&ids[..]);
                 }
 
                 Some(IndexBuffer::Split(resi))
-            },
-            _ => None
+            }
+            _ => None,
         };
 
         let _ = new_indices.map(|nids| self.indices = nids);

@@ -9,7 +9,6 @@ use partitioning::BVT;
 use bounding_volume::{self, HasBoundingVolume, AABB};
 use math::Point;
 
-
 /// Trait implemented by elements usable on the Mesh.
 pub trait BaseMeshElement<I, P> {
     /// Creates a new mesh element from a set of vertices and indices.
@@ -18,45 +17,50 @@ pub trait BaseMeshElement<I, P> {
 
 /// A mesh generic wrt. the contained mesh elements characterized by vertices.
 pub struct BaseMesh<P: Point, I, E> {
-    bvt:      BVT<usize, AABB<P>>,
-    bvs:      Vec<AABB<P>>,
+    bvt: BVT<usize, AABB<P>>,
+    bvs: Vec<AABB<P>>,
     vertices: Arc<Vec<P>>,
-    indices:  Arc<Vec<I>>,
-    uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
-    normals:  Option<Arc<Vec<P::Vector>>>,
-    elt:      PhantomData<E>
+    indices: Arc<Vec<I>>,
+    uvs: Option<Arc<Vec<Point2<P::Real>>>>,
+    normals: Option<Arc<Vec<P::Vector>>>,
+    elt: PhantomData<E>,
 }
 
 impl<P, I, E> Clone for BaseMesh<P, I, E>
-    where P: Point {
+where
+    P: Point,
+{
     fn clone(&self) -> BaseMesh<P, I, E> {
         BaseMesh {
-            bvt:      self.bvt.clone(),
-            bvs:      self.bvs.clone(),
+            bvt: self.bvt.clone(),
+            bvs: self.bvs.clone(),
             vertices: self.vertices.clone(),
-            indices:  self.indices.clone(),
-            uvs:      self.uvs.clone(),
-            normals:  self.normals.clone(),
-            elt:      PhantomData
+            indices: self.indices.clone(),
+            uvs: self.uvs.clone(),
+            normals: self.normals.clone(),
+            elt: PhantomData,
         }
     }
 }
 
 impl<P, I, E> BaseMesh<P, I, E>
-    where P: Point,
-          E: BaseMeshElement<I, P> + HasBoundingVolume<Id, AABB<P>> {
+where
+    P: Point,
+    E: BaseMeshElement<I, P> + HasBoundingVolume<Id, AABB<P>>,
+{
     /// Builds a new mesh.
-    pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<I>>,
-               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
-               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
-               -> BaseMesh<P, I, E> {
+    pub fn new(
+        vertices: Arc<Vec<P>>,
+        indices: Arc<Vec<I>>,
+        uvs: Option<Arc<Vec<Point2<P::Real>>>>,
+        normals: Option<Arc<Vec<P::Vector>>>,
+    ) -> BaseMesh<P, I, E> {
         for uvs in uvs.iter() {
             assert!(uvs.len() == vertices.len());
         }
 
         let mut leaves = Vec::new();
-        let mut bvs    = Vec::new();
+        let mut bvs = Vec::new();
 
         {
             let vs = &*vertices;
@@ -75,19 +79,21 @@ impl<P, I, E> BaseMesh<P, I, E>
         let bvt = BVT::new_balanced(leaves);
 
         BaseMesh {
-            bvt:      bvt,
-            bvs:      bvs,
+            bvt: bvt,
+            bvs: bvs,
             vertices: vertices,
-            indices:  indices,
-            uvs:      uvs,
-            normals:  normals,
-            elt:      PhantomData
+            indices: indices,
+            uvs: uvs,
+            normals: normals,
+            elt: PhantomData,
         }
     }
 }
 
 impl<P, I, E> BaseMesh<P, I, E>
-    where P: Point {
+where
+    P: Point,
+{
     /// The vertices of this mesh.
     #[inline]
     pub fn vertices(&self) -> &Arc<Vec<P>> {
@@ -132,8 +138,10 @@ impl<P, I, E> BaseMesh<P, I, E>
 }
 
 impl<P, I, E> BaseMesh<P, I, E>
-    where P: Point,
-          E: BaseMeshElement<I, P> {
+where
+    P: Point,
+    E: BaseMeshElement<I, P>,
+{
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: usize) -> E {

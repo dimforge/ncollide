@@ -7,11 +7,13 @@ use math::Point;
 /// A signal handler for proximity detection.
 pub trait ProximityHandler<P: Point, M, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
-    fn handle_proximity(&mut self,
-                        co1: &CollisionObject<P, M, T>,
-                        co2: &CollisionObject<P, M, T>,
-                        prev_status: Proximity,
-                        new_status:  Proximity);
+    fn handle_proximity(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+        prev_status: Proximity,
+        new_status: Proximity,
+    );
 }
 
 /// Signal for proximity start/stop.
@@ -28,9 +30,11 @@ impl<P: Point, M, T> ProximitySignal<P, M, T> {
     }
 
     /// Registers an event handler.
-    pub fn register_proximity_handler(&mut self,
-                                      name:     &str,
-                                      callback: Box<ProximityHandler<P, M, T>>) {
+    pub fn register_proximity_handler(
+        &mut self,
+        name: &str,
+        callback: Box<ProximityHandler<P, M, T>>,
+    ) {
         for &mut (ref mut n, ref mut f) in self.proximity_handlers.iter_mut() {
             if name == &n[..] {
                 *f = callback;
@@ -58,11 +62,13 @@ impl<P: Point, M, T> ProximitySignal<P, M, T> {
 
     // FIXME: do we really want to use &mut here ?
     /// Activates the proximity signal, executing all the event handlers.
-    pub fn trigger_proximity_signal(&mut self,
-                                    co1: &CollisionObject<P, M, T>,
-                                    co2: &CollisionObject<P, M, T>,
-                                    prev_status: Proximity,
-                                    new_status: Proximity) {
+    pub fn trigger_proximity_signal(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+        prev_status: Proximity,
+        new_status: Proximity,
+    ) {
         for &mut (_, ref mut f) in self.proximity_handlers.iter_mut() {
             f.handle_proximity(co1, co2, prev_status, new_status)
         }

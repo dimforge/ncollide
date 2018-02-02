@@ -1,18 +1,21 @@
 use alga::general::Id;
 use na;
-use query::{PointQuery, PointProjection};
+use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
-use shape::{Compound, CompositeShape};
+use shape::{CompositeShape, Compound};
 use partitioning::{BVTCostFn, BVTVisitor};
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = CompoundPointProjCostFn { compound: self, point: &ls_pt, solid: solid };
+        let mut cost_fn = CompoundPointProjCostFn {
+            compound: self,
+            point: &ls_pt,
+            solid: solid,
+        };
 
         let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
         proj.point = m.transform_point(&proj.point);
@@ -23,7 +26,11 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut test = PointContainementTest { compound: self, point: &ls_pt, found: false };
+        let mut test = PointContainementTest {
+            compound: self,
+            point: &ls_pt,
+            found: false,
+        };
 
         self.bvt().visit(&mut test);
 
@@ -31,19 +38,20 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
     }
 }
 
-
 /*
  * Costs function.
  */
 struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
     compound: &'a Compound<P, M>,
-    point:    &'a P,
-    solid:    bool
+    point: &'a P,
+    solid: bool,
 }
 
 impl<'a, P, M> BVTCostFn<P::Real, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
-    where P: Point,
-          M: Isometry<P> {
+where
+    P: Point,
+    M: Isometry<P>,
+{
     type UserData = PointProjection<P>;
 
     #[inline]
@@ -71,13 +79,15 @@ impl<'a, P, M> BVTCostFn<P::Real, usize, AABB<P>> for CompoundPointProjCostFn<'a
 /// Bounding Volume Tree visitor collecting nodes that may contain a given point.
 struct PointContainementTest<'a, P: 'a + Point, M: 'a> {
     compound: &'a Compound<P, M>,
-    point:    &'a P,
-    found:    bool
+    point: &'a P,
+    found: bool,
 }
 
 impl<'a, P, M> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, M>
-    where P: Point,
-          M: Isometry<P> {
+where
+    P: Point,
+    M: Isometry<P>,
+{
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
         !self.found && bv.contains_point(&Id::new(), self.point)

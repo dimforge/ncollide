@@ -3,16 +3,15 @@
 use std::mem;
 use na::{self, Point3, Unit};
 use shape::{BaseMeshElement, SupportMap};
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 use utils;
-
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Triangle<P> {
     a: P,
     b: P,
-    c: P
+    c: P,
 }
 
 impl<P: Point> Triangle<P> {
@@ -25,15 +24,11 @@ impl<P: Point> Triangle<P> {
 
     /// Creates the reference to a triangle from the reference to an array of three points.
     pub fn from_array(arr: &[P; 3]) -> &Triangle<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 
     pub(crate) fn from_array4(arr: &[P; 4]) -> &Triangle<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 
     /// The fist point of this triangle.
@@ -91,23 +86,19 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
         let d2 = na::dot(&self.b().coordinates(), &local_dir);
         let d3 = na::dot(&self.c().coordinates(), &local_dir);
 
-        let res =
-            if d1 > d2 {
-                if d1 > d3 {
-                    self.a()
-                }
-                else {
-                    self.c()
-                }
+        let res = if d1 > d2 {
+            if d1 > d3 {
+                self.a()
+            } else {
+                self.c()
             }
-            else {
-                if d2 > d3 {
-                    self.b()
-                }
-                else {
-                    self.c()
-                }
-            };
+        } else {
+            if d2 > d3 {
+                self.b()
+            } else {
+                self.c()
+            }
+        };
 
         m.transform_point(res)
     }

@@ -1,9 +1,10 @@
 use rand::Rng;
 use na;
-use na::{Vector2, Vector3, Vec4, Point2, Point3, Point4, Mat2, Mat3, Mat4, Isometry2, Isometry3, Id};
-use ncollide::bounding_volume::{AABB, BoundingSphere};
-use ncollide::shape::{Ball, Cuboid, Capsule, Cone, Cylinder, Segment, Triangle, ConvexHull};
-use ncollide::math::{Scalar, Point, Vector};
+use na::{Id, Isometry2, Isometry3, Mat2, Mat3, Mat4, Point2, Point3, Point4, Vec4, Vector2,
+         Vector3};
+use ncollide::bounding_volume::{BoundingSphere, AABB};
+use ncollide::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
+use ncollide::math::{Point, Scalar, Vector};
 use ncollide::ray::Ray;
 
 pub trait DefaultGen {
@@ -87,31 +88,45 @@ impl<N: Scalar> DefaultGen for Cylinder<N> {
 }
 
 impl<P> DefaultGen for Segment<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> Segment<P> {
         Segment::new(P::origin() + rng.gen(), P::origin() + rng.gen())
     }
 }
 
 impl<P> DefaultGen for Triangle<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> Triangle<P> {
-        Triangle::new(P::origin() + rng.gen(), P::origin() + rng.gen(), P::origin() + rng.gen())
+        Triangle::new(
+            P::origin() + rng.gen(),
+            P::origin() + rng.gen(),
+            P::origin() + rng.gen(),
+        )
     }
 }
 
 impl<P> DefaultGen for ConvexHull<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> ConvexHull<P> {
         // It is recommanded to have at most 100 points.
         // Otherwise, a smarter structure like the DK hierarchy would be needed.
-        let pts = (0 .. 100).map(|_| P::origin() + rng.gen::<P::Vector>()).collect();
+        let pts = (0..100)
+            .map(|_| P::origin() + rng.gen::<P::Vector>())
+            .collect();
         ConvexHull::new(pts)
     }
 }
 
 impl<P> DefaultGen for Ray<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> Ray<P> {
         // The generate ray will always point to the origin.
         let shift = rng.gen::<P::Vector>() * na::convert(10.0f64);
@@ -120,7 +135,9 @@ impl<P> DefaultGen for Ray<P>
 }
 
 impl<P> DefaultGen for AABB<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> AABB<P> {
         // an AABB centered at the origin.
         let half_extents = na::abs(&rng.gen::<P::Vector>());
@@ -129,7 +146,9 @@ impl<P> DefaultGen for AABB<P>
 }
 
 impl<P> DefaultGen for BoundingSphere<P>
-    where P: Point {
+where
+    P: Point,
+{
     fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<P> {
         // a bounding sphere centered at the origin.
         BoundingSphere::new(na::origin(), na::abs(&rng.gen::<P::Real>()))
