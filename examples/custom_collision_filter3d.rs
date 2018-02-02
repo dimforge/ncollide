@@ -14,23 +14,23 @@ impl BroadPhasePairFilter<Point3<f32>, Isometry3<f32>, ()> for ParityFilter {
         b1: &CollisionObject3<f32, ()>,
         b2: &CollisionObject3<f32, ()>,
     ) -> bool {
-        b1.uid % 2 == b2.uid % 2
+        b1.handle().uid() % 2 == b2.handle().uid() % 2
     }
 }
 
 fn main() {
     let shape = ShapeHandle::new(Ball::new(0.5f32));
     let groups = CollisionGroups::new();
-    let query = GeometricQueryType::Contacts(0.0);
+    let query = GeometricQueryType::Contacts(0.0, 0.0);
 
-    let mut world = CollisionWorld::new(0.02, true);
+    let mut world = CollisionWorld::new(0.02);
 
     world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
 
-    world.deferred_add(0, na::one(), shape.clone(), groups, query, ());
-    world.deferred_add(1, na::one(), shape.clone(), groups, query, ());
-    world.deferred_add(2, na::one(), shape.clone(), groups, query, ());
-    world.deferred_add(3, na::one(), shape.clone(), groups, query, ());
+    world.add(na::one(), shape.clone(), groups, query, ());
+    world.add(na::one(), shape.clone(), groups, query, ());
+    world.add(na::one(), shape.clone(), groups, query, ());
+    world.add(na::one(), shape.clone(), groups, query, ());
 
     world.update();
 

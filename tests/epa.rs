@@ -15,7 +15,13 @@ fn cuboid_cuboid_epa3() {
     let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
         .expect("Penetration not found.");
     assert_eq!(res.depth, 0.5);
-    assert_eq!(res.normal, Vector3::x());
+    assert_eq!(res.normal, -Vector3::x_axis());
+
+    let m1 = Isometry3::new(Vector3::new(0.0, 0.2, 0.0), na::zero());
+    let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
+        .expect("Penetration not found.");
+    assert_eq!(res.depth, 1.8);
+    assert_eq!(res.normal, -Vector3::y_axis());
 }
 
 #[test]
@@ -27,11 +33,11 @@ fn cuboid_cuboid_epa2() {
     let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
         .expect("Penetration not found.");
     assert_eq!(res.depth, 0.5);
-    assert_eq!(res.normal, -Vector2::x());
+    assert_eq!(res.normal, -Vector2::x_axis());
 
     let m1 = Isometry2::new(Vector2::new(0.0, 0.2), na::zero());
     let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
         .expect("Penetration not found.");
     assert_eq!(res.depth, 1.8);
-    assert_eq!(res.normal, -Vector2::y());
+    assert_eq!(res.normal, -Vector2::y_axis());
 }
