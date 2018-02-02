@@ -1,6 +1,6 @@
 //! High level API to detect collisions in large, complex scenes.
 
-pub use self::collision_object::{GeometricQueryType, CollisionObject, CollisionObjectHandle};
+pub use self::collision_object::{GeometricQueryType, CollisionObject, CollisionObjectHandle, CollisionObjectSlab, CollisionObjects};
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
 pub use self::collision_world::{
     BroadPhaseObject,

@@ -12,7 +12,7 @@ use utils;
 use geometry::shape::SupportMap;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::partitioning::{BVT, BoundingVolumeInterferencesCollector};
-use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use geometry::query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{TriMesh, IndexBuffer};
 
@@ -760,7 +760,7 @@ impl<'a, N: Real> RayCast<Point3<N>, Id> for ConvexPair<'a, N> {
         ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,
-            &mut JohnsonSimplex::<Point3<N>>::new_w_tls(),
+            &mut VoronoiSimplex3::<Point3<N>>::new(),
             ray,
             solid)
     }

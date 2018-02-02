@@ -10,7 +10,10 @@ pub trait Simplex<P: Point>: Any + Send + Sync {
     fn reset(&mut self, P);
 
     /// Adds a point to the simplex.
-    fn add_point(&mut self, P);
+    fn add_point(&mut self, P) -> bool;
+
+    /// Gets the i-th point of this simplex.
+    fn point(&self, i: usize) -> P;
 
     /// Project the origin on the simplex and remove any sub-simplex which does not contain the
     /// projection.

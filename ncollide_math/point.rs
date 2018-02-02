@@ -5,7 +5,7 @@ use approx::ApproxEq;
 
 use alga::general::{Lattice, Real};
 use alga::linear::EuclideanSpace;
-use na::{self, DefaultAllocator, VectorN};
+use na::{self, DefaultAllocator, VectorN, Unit};
 use na::storage::Owned;
 use na::dimension::DimName;
 use na::allocator::Allocator;
@@ -31,7 +31,8 @@ pub trait Point: Copy + Send + Sync + 'static +
                  Neg<Output = Self::Vector>;
 
     
-    fn axpy(&mut self, a: <Self as EuclideanSpace>::Real, rhs: &Self);
+    fn axpy(&mut self, a: <Self as EuclideanSpace>::Real, rhs: &Self, b: <Self as EuclideanSpace>::Real);
+    fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<Self::Vector>>;
 }
 
 impl<N, D> Point for na::Point<N, D>
@@ -42,7 +43,29 @@ impl<N, D> Point for na::Point<N, D>
           VectorN<N, D>: Vector<Real = N> {
     type Vector = Self::Coordinates;
 
-    fn axpy(&mut self, a: N, rhs: &Self) {
-        self.coords.axpy(a, &rhs.coords, N::one());
+    #[inline]
+    fn axpy(&mut self, a: N, rhs: &Self, b: N) {
+        self.coords.axpy(a, &rhs.coords, b);
+    }
+
+    #[inline]
+    fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<VectorN<N, D>>> {
+        let mut res = VectorN::zeros();
+
+        if D::dim() == 2 {
+            let ab = pts[1] - pts[0];
+            res[0] =  ab[1];
+            res[1] = -ab[0];
+        }
+        else if D::dim() == 3 {
+            let ab = pts[1] - pts[0];
+            let ac = pts[2] - pts[0];
+            res = ab.cross(&ac);
+        }
+        else {
+            unimplemented!()
+        }
+
+        Unit::try_new(res, N::default_epsilon())
     }
 }

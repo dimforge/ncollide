@@ -1,7 +1,10 @@
 use std::marker::PhantomData;
 use math::{Point, Isometry};
+use na;
 use geometry::shape::{Shape, Ball, Plane};
 use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::algorithms::voronoi_simplex2::VoronoiSimplex2;
+use geometry::query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use narrow_phase::proximity_detector::{
     ProximityDispatcher,
     ProximityAlgorithm,
@@ -44,8 +47,18 @@ impl<P: Point, M: Isometry<P>> ProximityDispatcher<P, M> for DefaultProximityDis
             Some(Box::new(SupportMapPlaneProximityDetector::<P, M>::new()))
         }
         else if a.is_support_map() && b.is_support_map() {
-            let simplex = JohnsonSimplex::new_w_tls();
-            Some(Box::new(SupportMapSupportMapProximityDetector::new(simplex)))
+            if na::dimension::<P::Vector>() == 2 {
+                let simplex = VoronoiSimplex2::new();
+                Some(Box::new(SupportMapSupportMapProximityDetector::new(simplex)))
+            }
+            else if na::dimension::<P::Vector>() == 3 {
+                let simplex = VoronoiSimplex3::new();
+                Some(Box::new(SupportMapSupportMapProximityDetector::new(simplex)))
+            }
+            else {
+                let simplex = JohnsonSimplex::new_w_tls();
+                Some(Box::new(SupportMapSupportMapProximityDetector::new(simplex)))
+            }
         }
         else if a.is_composite_shape() {
             Some(Box::new(CompositeShapeShapeProximityDetector::<P, M>::new()))

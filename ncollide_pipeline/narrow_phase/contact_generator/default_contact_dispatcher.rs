@@ -1,7 +1,10 @@
 use std::marker::PhantomData;
+use na;
 use math::{Point, Isometry};
 use geometry::shape::{Shape, Ball, Plane};
 use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
+use geometry::query::algorithms::voronoi_simplex2::VoronoiSimplex2;
+use geometry::query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use narrow_phase::{
     ContactDispatcher,
     ContactAlgorithm,
@@ -61,16 +64,45 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
             }
         }
         else if a.is_support_map() && b.is_support_map() {
-            let simplex     = JohnsonSimplex::new_w_tls();
-            let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
+            match na::dimension::<P::Vector>() {
+                2 => {
+                    let simplex     = VoronoiSimplex2::new();
+                    let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
 
-            if !a_is_ball && !b_is_ball {
-                let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
-                Some(Box::new(manifold))
+                    if !a_is_ball && !b_is_ball {
+                        let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
+                        Some(Box::new(manifold))
+                    }
+                    else {
+                        Some(Box::new(wo_manifold))
+                    }
+                },
+                3 => {
+                    let simplex     = VoronoiSimplex3::new();
+                    let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
+
+                    if !a_is_ball && !b_is_ball {
+                        let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
+                        Some(Box::new(manifold))
+                    }
+                    else {
+                        Some(Box::new(wo_manifold))
+                    }
+                },
+                _ => {
+                    let simplex     = JohnsonSimplex::new_w_tls();
+                    let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
+
+                    if false { // !a_is_ball && !b_is_ball {
+                        let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
+                        Some(Box::new(manifold))
+                    }
+                    else {
+                        Some(Box::new(wo_manifold))
+                    }
+                }
             }
-            else {
-                Some(Box::new(wo_manifold))
-            }
+
         }
         else if a.is_composite_shape() {
             Some(Box::new(CompositeShapeShapeContactGenerator::<P, M>::new()))

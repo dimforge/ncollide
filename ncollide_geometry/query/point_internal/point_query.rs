@@ -2,6 +2,7 @@ use na;
 use math::Point;
 
 /// Description of the projection of a point on a shape.
+#[derive(Copy, Clone, Debug)]
 pub struct PointProjection<P: Point> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
@@ -52,25 +53,25 @@ pub trait PointQuery<P: Point, M> {
 /// object. Unfortunately this precludes us from adding an associated type to it
 /// that might allow us to return shape-specific information in addition to the
 /// general information provided in `PointProjection`. This is where
-/// `RichPointQuery` comes in. It forgoes the ability to be used as a trait
+/// `PointQueryWithLocation` comes in. It forgoes the ability to be used as a trait
 /// object in exchange for being able to provide shape-specific projection
 /// information.
 ///
 /// Any shapes that implement `PointQuery` but are able to provide extra
-/// information, can implement `RichPointQuery` in addition and have their
+/// information, can implement `PointQueryWithLocation` in addition and have their
 /// `PointQuery::project_point` implementation just call out to
-/// `RichPointQuery::project_point_with_extra_info`.
-pub trait RichPointQuery<P: Point, M> {
+/// `PointQueryWithLocation::project_point_with_location`.
+pub trait PointQueryWithLocation<P: Point, M> {
     /// Additional shape-specific projection information
     ///
     /// In addition to the generic projection information returned in
     /// `PointProjection`, implementations might provide shape-specific
     /// projection info. The type of this shape-specific information is defined
     /// by this associated type.
-    type ExtraInfo;
+    type Location;
 
     /// Projects a point on `self` transformed by `m`.
     #[inline]
-    fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
-        -> (PointProjection<P>, Self::ExtraInfo);
+    fn project_point_with_location(&self, m: &M, pt: &P, solid: bool)
+        -> (PointProjection<P>, Self::Location);
 }

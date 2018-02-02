@@ -1,5 +1,5 @@
 use alga::general::Real;
-use na;
+use na::Unit;
 
 use shape::SupportMap;
 use math::{Point, Isometry};
@@ -31,6 +31,11 @@ impl<N: Real> Ball<N> {
 impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Ball<P::Real> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vector) -> P {
-        m.translate_point(&P::origin()) + na::normalize(dir) * self.radius()
+        self.support_point_toward(m, &Unit::new_normalize(*dir))
+    }
+
+    #[inline]
+    fn support_point_toward(&self, m: &M, dir: &Unit<P::Vector>) -> P {
+        m.translate_point(&P::origin()) + **dir * self.radius()
     }
 }

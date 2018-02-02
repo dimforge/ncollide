@@ -1,5 +1,6 @@
 //! Definition of the segment shape.
 
+use std::mem;
 use na::{self, Point2};
 use shape::{SupportMap, BaseMeshElement};
 use math::{Point, Isometry};
@@ -17,10 +18,25 @@ impl<P: Point> Segment<P> {
     #[inline]
     pub fn new(a: P, b: P) -> Segment<P> {
         assert!(na::dimension::<P::Vector>() > 1);
+        Segment { a, b }
+    }
 
-        Segment {
-            a: a,
-            b: b
+    /// Creates the reference to a segment from the reference to an array of two points.
+    pub fn from_array(arr: &[P; 2]) -> &Segment<P> {
+        unsafe {
+            mem::transmute(arr)
+        }
+    }
+
+    pub(crate) fn from_array3(arr: &[P; 3]) -> &Segment<P> {
+        unsafe {
+            mem::transmute(arr)
+        }
+    }
+
+    pub(crate) fn from_array4(arr: &[P; 4]) -> &Segment<P> {
+        unsafe {
+            mem::transmute(arr)
         }
     }
 }

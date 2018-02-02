@@ -1,5 +1,6 @@
 //! Traits for support mapping based shapes.
 
+use na::Unit;
 use math::Point;
 
 /// Traits of convex shapes representable by a support mapping function.
@@ -7,18 +8,17 @@ use math::Point;
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returned point.
 pub trait SupportMap<P: Point, M> {
-    // FIXME: add methods that takes a unit `dir` in argument.
-    // This might be useful to avoid useless normalizations.
     /**
-     * Evaluates the support function of the object. A support function is a
-     * function associating a vector to the shape point which maximizes their
-     * dot product. This does not include the `margin` of the object. Margins are
-     * shape-dependent. Use `support_point` to sample the complete shape.
+     * Evaluates the support function of the object.
      *
-     * # Arguments:
-     *  * `dir` - the input of the support function. It is not required for it to
-     *            be normalized.
+     * A support function is a function associating a vector to the shape point which maximizes
+     * their dot product.
      */
     fn support_point(&self, transform: &M, dir: &P::Vector) -> P;
+
+    /// Same as `self.support_point` except that `dir` is normalized.
+    fn support_point_toward(&self, transform: &M, dir: &Unit<P::Vector>) -> P {
+        self.support_point(transform, dir.as_ref())
+    }
 }
 

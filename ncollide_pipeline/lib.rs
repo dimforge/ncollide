@@ -4,13 +4,14 @@
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-#![warn(missing_docs)]
+// #![warn(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate rustc_serialize;
+extern crate slab;
 extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;

@@ -6,8 +6,12 @@ use shape::{self, SupportMap, AnnotatedPoint};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
+use query::algorithms::epa3::{self, EPA3};
+use query::algorithms::epa2::{self, EPA2};
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
+use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use query::Contact;
 use math::{Point, Isometry};
 
@@ -24,12 +28,32 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
           M:  Isometry<P>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
-    match support_map_against_support_map_with_params(
-        m1, g1, m2, g2, prediction, &mut JohnsonSimplex::new_w_tls(), None) {
-        GJKResult::Projection(c)     => Some(c),
-        GJKResult::NoIntersection(_) => None,
-        GJKResult::Intersection      => unreachable!(),
-        GJKResult::Proximity(_)      => unreachable!()
+    if na::dimension::<P::Vector>() == 2 {
+        match support_map_against_support_map_with_params(
+            m1, g1, m2, g2, prediction, &mut VoronoiSimplex2::new(), None) {
+            GJKResult::Projection(c)     => Some(c),
+            GJKResult::NoIntersection(_) => None,
+            GJKResult::Intersection      => unreachable!(),
+            GJKResult::Proximity(_)      => unreachable!()
+        }
+    }
+    else if na::dimension::<P::Vector>() == 3 {
+        match support_map_against_support_map_with_params(
+            m1, g1, m2, g2, prediction, &mut VoronoiSimplex3::new(), None) {
+            GJKResult::Projection(c)     => Some(c),
+            GJKResult::NoIntersection(_) => None,
+            GJKResult::Intersection      => unreachable!(),
+            GJKResult::Proximity(_)      => unreachable!()
+        }
+    }
+    else {
+        match support_map_against_support_map_with_params(
+            m1, g1, m2, g2, prediction, &mut JohnsonSimplex::new_w_tls(), None) {
+            GJKResult::Projection(c)     => Some(c),
+            GJKResult::NoIntersection(_) => None,
+            GJKResult::Intersection      => unreachable!(),
+            GJKResult::Proximity(_)      => unreachable!()
+        }
     }
 }
 
@@ -81,12 +105,35 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
     }
 
     // The point is inside of the CSO: use the fallback algorithm
-    match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
-        Some((p1, p2, normal)) => {
-            let depth = na::dot(&(p1 - p2), &normal);
+    if na::dimension::<P::Vector>() == 2 {
+        let mut epa = EPA2::new();
+        let (p1, p2) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex);
+        let mut normal = p1 - p2;
 
-            GJKResult::Projection(Contact::new(p1, p2, normal, depth))
+        let depth = normal.normalize_mut();
+        if depth.is_zero() {
+            return GJKResult::NoIntersection(na::zero());
         }
-        None => GJKResult::NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
+        else {
+            return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
+        }
+    }
+    else if na::dimension::<P::Vector>() == 3 {
+        let mut epa = EPA3::new();
+        let (p1, p2) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex);
+        let mut normal = p1 - p2;
+
+        let depth = normal.normalize_mut();
+        return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
+    }
+    else {
+        match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
+            Some((p1, p2, normal)) => {
+                let depth = na::dot(&(p1 - p2), &normal);
+
+                GJKResult::Projection(Contact::new(p1, p2, normal, depth))
+            }
+            None => GJKResult::NoIntersection(na::zero()) // panic!("Both GJK and fallback algorithm failed.")
+        }
     }
 }

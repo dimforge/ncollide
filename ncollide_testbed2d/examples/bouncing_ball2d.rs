@@ -54,11 +54,11 @@ impl ProximityHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for Prox
         // The collision object with a None velocity is the coloured area.
         let area_name;
 
-        if co1.data.velocity.is_none() {
-            area_name = co1.data.name;
+        if co1.data().velocity.is_none() {
+            area_name = co1.data().name;
         }
         else {
-            area_name = co2.data.name;
+            area_name = co2.data().name;
         }
 
         if new_proximity == Proximity::Intersecting {
@@ -87,7 +87,7 @@ impl ContactHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for Veloci
         alg.contacts(&mut collector);
 
         // The ball is the one with a non-None velocity.
-        if let Some(ref vel) = co1.data.velocity {
+        if let Some(ref vel) = co1.data().velocity {
             let normal = collector[0].normal;
             vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
         }

@@ -12,7 +12,7 @@ pub fn center<P: Point>(pts: &[P]) -> P {
     let mut res   = *piter.next().unwrap() * denom;
 
     for pt in piter {
-        res.axpy(denom, pt);
+        res.axpy(denom, pt, na::one());
     }
 
     res
