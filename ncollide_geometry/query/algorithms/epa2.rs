@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
 use std::cmp::Ordering;
+use num::Bounded;
 use approx::ApproxEq;
 
 use alga::general::{Id, Real};
@@ -175,6 +176,7 @@ impl<P: Point> EPA2<P> {
                 );
                 self.heap.push(FaceId::new(2, -dist3));
             }
+
         } else {
             let pts1 = [0, 1];
             let pts2 = [1, 0];
@@ -198,62 +200,70 @@ impl<P: Point> EPA2<P> {
         }
 
         let mut niter = 0;
-        let mut last_face_id = *self.heap.peek().unwrap();
+        let mut max_dist = P::Real::max_value();
+        let mut best_face_id = *self.heap.peek().unwrap();
 
         /*
          * Run the expansion.
          */
         while let Some(face_id) = self.heap.pop() {
             // Create new faces.
-            let f1;
-            let f2;
+            let face = self.faces[face_id.id].clone();
 
-            let supp_pt_dist;
-            {
-                let face = &self.faces[face_id.id];
-                let support_point = shape.support_point(m, &face.normal);
-                let support_point_id = self.vertices.len();
-                self.vertices.push(support_point);
-
-                let pts1 = [face.pts[0], support_point_id];
-                let pts2 = [support_point_id, face.pts[1]];
-
-                f1 = Face::new(&self.vertices, pts1);
-                f2 = Face::new(&self.vertices, pts2);
-
-                supp_pt_dist = na::dot(&support_point.coordinates(), &face.normal);
+            if face.deleted {
+                continue;
             }
 
-            let id1 = self.faces.len() + 0;
-            let id2 = self.faces.len() + 1;
+            let support_point = shape.support_point(m, &face.normal);
+            let support_point_id = self.vertices.len();
+            self.vertices.push(support_point);
 
-            if f1.1 {
-                let dist1 = na::dot(f1.0.normal.as_ref(), &f1.0.proj.coordinates());
-                self.heap.push(FaceId::new(id1, -dist1));
-            }
-            if f2.1 {
-                let dist2 = na::dot(f2.0.normal.as_ref(), &f2.0.proj.coordinates());
-                self.heap.push(FaceId::new(id2, -dist2));
-            }
+            let candidate_max_dist = na::dot(&support_point.coordinates(), &face.normal);
 
-            self.faces.push(f1.0);
-            self.faces.push(f2.0);
+            if candidate_max_dist < max_dist {
+                best_face_id = face_id;
+                max_dist = candidate_max_dist;
+            }
 
             let curr_dist = -face_id.neg_dist;
 
-            if (curr_dist - supp_pt_dist).abs() < _eps_tol {
-                return self.faces[face_id.id].proj;
+            if max_dist - curr_dist < _eps_tol {
+                return self.faces[best_face_id.id].proj;
             }
 
-            last_face_id = face_id;
+            let pts1 = [face.pts[0], support_point_id];
+            let pts2 = [support_point_id, face.pts[1]];
+
+            let new_faces = [
+                Face::new(&self.vertices, pts1),
+                Face::new(&self.vertices, pts2),
+            ];
+
+            for (i, f) in new_faces.into_iter().enumerate() {
+                if f.1 {
+                    let dist = na::dot(f.0.normal.as_ref(), &f.0.proj.coordinates());
+                    if dist < curr_dist {
+                        // FIXME: if we reach this point, there were issues due to
+                        // numerical errors.
+                        return f.0.proj;
+                    }
+
+                    if !f.0.deleted {
+                        self.heap.push(FaceId::new(self.faces.len() - i, -dist));
+                    }
+                }
+
+                self.faces.push(f.0.clone());
+            }
+
             niter += 1;
             if niter > 10000 {
-                println!("Internal error: EPA did not converge.");
+                println!("Internal error: EPA did not converge after 1000 iterations.");
                 break;
             }
         }
 
-        return self.faces[last_face_id.id].proj;
+        return self.faces[best_face_id.id].proj;
     }
 }
 
@@ -301,7 +311,7 @@ fn project_origin<P: Point>(a: &P, b: &P) -> Option<P> {
 
         let mut res = *a;
         let _1 = na::one::<P::Real>();
-        res.axpy(position_on_segment, b, (_1 - position_on_segment));
+        res.axpy(position_on_segment, b, _1 - position_on_segment);
 
         Some(res)
     }

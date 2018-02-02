@@ -1,4 +1,6 @@
 use na::{self, Real};
+
+use utils;
 use shape::Triangle;
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
@@ -30,7 +32,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
 pub enum TrianglePointLocation<N: Real> {
     /// The point lies on a vertex.
     OnVertex(usize),
-    /// The point lies on a vertex.
+    /// The point lies on an edge.
     OnEdge(usize, [N; 2]),
     /// The point lies on the triangle interior.
     OnFace([N; 3]),
@@ -59,13 +61,6 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         pt: &P,
         solid: bool,
     ) -> (PointProjection<P>, Self::Location) {
-        /*
-         * This comes from the book `Real Time Collision Detection`.
-         * This is actually a trivial Voronoï region based approach, except that great care has
-         * been taken to avoid cross products (which is good for the genericity here).
-         *
-         * We keep the original (somehow, obscure like d1 ... d6) notations for future reference.
-         */
         let a = *self.a();
         let b = *self.b();
         let c = *self.c();
@@ -77,10 +72,10 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         let ac = c - a;
         let ap = p - a;
 
-        let d1 = na::dot(&ab, &ap);
-        let d2 = na::dot(&ac, &ap);
+        let ab_ap = na::dot(&ab, &ap);
+        let ac_ap = na::dot(&ac, &ap);
 
-        if d1 <= na::zero() && d2 <= na::zero() {
+        if ab_ap <= na::zero() && ac_ap <= na::zero() {
             // Voronoï region of `a`.
             return (
                 compute_result(pt, m.transform_point(&a)),
@@ -89,10 +84,10 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         }
 
         let bp = p - b;
-        let d3 = na::dot(&ab, &bp);
-        let d4 = na::dot(&ac, &bp);
+        let ab_bp = na::dot(&ab, &bp);
+        let ac_bp = na::dot(&ac, &bp);
 
-        if d3 >= na::zero() && d4 <= d3 {
+        if ab_bp >= na::zero() && ac_bp <= ab_bp {
             // Voronoï region of `b`.
             return (
                 compute_result(pt, m.transform_point(&b)),
@@ -100,26 +95,11 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             );
         }
 
-        let vc = d1 * d4 - d3 * d2;
-        if vc <= na::zero() && d1 >= na::zero() && d3 <= na::zero() {
-            // Voronoï region of `ab`.
-            let v = d1 / (d1 - d3);
-            let bcoords = [_1 - v, v];
-
-            let mut res = a;
-            // NOTE: we use axpy for the GJK AnnotatedPoint trick.
-            res.axpy(bcoords[1], &b, bcoords[0]);
-            return (
-                compute_result(pt, m.transform_point(&res)),
-                TrianglePointLocation::OnEdge(0, bcoords),
-            );
-        }
-
         let cp = p - c;
-        let d5 = na::dot(&ab, &cp);
-        let d6 = na::dot(&ac, &cp);
+        let ab_cp = na::dot(&ab, &cp);
+        let ac_cp = na::dot(&ac, &cp);
 
-        if d6 >= na::zero() && d5 <= d6 {
+        if ac_cp >= na::zero() && ab_cp <= ac_cp {
             // Voronoï region of `c`.
             return (
                 compute_result(pt, m.transform_point(&c)),
@@ -127,110 +107,204 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             );
         }
 
-        let vb = d5 * d2 - d1 * d6;
-
-        if vb <= na::zero() && d2 >= na::zero() && d6 <= na::zero() {
-            // Voronoï region of `ac`.
-            let w = d2 / (d2 - d6);
-            let bcoords = [_1 - w, w];
-
-            let mut res = a;
-            res.axpy(bcoords[1], &c, bcoords[0]);
-            return (
-                compute_result(pt, m.transform_point(&res)),
-                TrianglePointLocation::OnEdge(2, bcoords),
-            );
+        enum ProjectionInfo<N> {
+            OnAB,
+            OnAC,
+            OnBC,
+            OnFace(N, N, N)
         }
 
-        let va = d3 * d6 - d5 * d4;
-        if va <= na::zero() && d4 - d3 >= na::zero() && d5 - d6 >= na::zero() {
-            // Voronoï region of `bc`.
-            let w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            let bcoords = [_1 - w, w];
-
-            let mut res = b;
-            res.axpy(bcoords[1], &c, bcoords[0]);
-            return (
-                compute_result(pt, m.transform_point(&res)),
-                TrianglePointLocation::OnEdge(1, bcoords),
-            );
-        }
-
-        // Voronoï region of the face.
-        if na::dimension::<P::Vector>() != 2 {
-            let denom = _1 / (va + vb + vc);
-            let v = vb * denom;
-            let w = vc * denom;
-            let bcoords = [_1 - v - w, v, w];
-
-            let mut res = a;
-            res.axpy(bcoords[1], &b, bcoords[0]);
-            res.axpy(bcoords[2], &c, _1);
-
-            return (
-                compute_result(pt, m.transform_point(&res)),
-                TrianglePointLocation::OnFace(bcoords),
-            );
-        } else {
-            // Special treatement if we work in 2d because in this case we really are inside of the
-            // object.
-            if solid {
-                (
-                    PointProjection::new(true, *pt),
-                    TrianglePointLocation::OnSolid,
-                )
-            } else {
-                // We have to project on the closest edge.
-
-                // FIXME: this might be optimizable.
-                let v = d1 / (d1 - d3); // proj on ab = a + ab * v
-                let w = d2 / (d2 - d6); // proj on ac = a + ac * w
-                let u = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // proj on bc = b + bc * u
-
-                let bc = c - b;
-                let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
-                let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
-                let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
-
-                let mut proj;
-                let loc;
-
-                if d_ab < d_ac {
-                    if d_ab < d_bc {
-                        // ab
-                        let bcoords = [_1 - v, v];
-                        proj = a;
-                        proj.axpy(bcoords[1], &b, bcoords[0]);
-                        proj = m.transform_point(&proj);
-                        loc = TrianglePointLocation::OnEdge(0, bcoords);
-                    } else {
-                        // bc
-                        let bcoords = [_1 - u, u];
-                        proj = b;
-                        proj.axpy(bcoords[1], &c, bcoords[0]);
-                        proj = m.transform_point(&proj);
-                        loc = TrianglePointLocation::OnEdge(1, bcoords);
+        // Checks on which edge voronoï region the point is.
+        // For 2D and 3D, it uses explicit cross/perp products that are
+        // more numerically stable.
+        fn stable_check_edges_voronoi<P: Point>(ab: &P::Vector, ac: &P::Vector, bc: &P::Vector,
+                                                ap: &P::Vector, bp: &P::Vector, cp: &P::Vector,
+                                                ab_ap: P::Real, ab_bp: P::Real,
+                                                ac_ap: P::Real, ac_cp: P::Real,
+                                                ac_bp: P::Real, ab_cp: P::Real)
+                                               -> ProjectionInfo<P::Real> {
+            match na::dimension::<P::Vector>() {
+                2 => {
+                    let n = utils::perp2(ab, ac);
+                    let vc = n * utils::perp2(ab, ap);
+                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                        return ProjectionInfo::OnAB;
                     }
-                } else {
-                    if d_ac < d_bc {
-                        // ac
-                        let bcoords = [_1 - w, w];
-                        proj = a;
-                        proj.axpy(bcoords[1], &c, bcoords[0]);
-                        proj = m.transform_point(&proj);
-                        loc = TrianglePointLocation::OnEdge(2, bcoords);
-                    } else {
-                        // bc
-                        let bcoords = [_1 - u, u];
-                        proj = b;
-                        proj.axpy(bcoords[1], &c, bcoords[0]);
-                        proj = m.transform_point(&proj);
-                        loc = TrianglePointLocation::OnEdge(1, bcoords);
+
+                    let vb = -n * utils::perp2(ac, cp);
+                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                        return ProjectionInfo::OnAC;
                     }
+
+                    let va = n * utils::perp2(bc, bp);
+                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                        return ProjectionInfo::OnBC;
+                    }
+                    
+                    return ProjectionInfo::OnFace(va, vb, vc);
+                },
+                3 => {
+                    let n = utils::cross3(ab, ac);
+                    let vc = na::dot(&n, &utils::cross3(ab, ap));
+                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                        return ProjectionInfo::OnAB;
+                    }
+
+                    let vb = -na::dot(&n, &utils::cross3(ac, cp));                    
+                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                        return ProjectionInfo::OnAC;
+                    }
+
+                    let va = na::dot(&n, &utils::cross3(bc, bp));
+                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                        return ProjectionInfo::OnBC;
+                    }
+
+                    return ProjectionInfo::OnFace(va, vb, vc);
+                },
+                _ => {
+                    // Generic version for other dimension. May suffer from severe catastrophic cancellation issues.
+                    let vc = ab_ap * ac_bp - ab_bp * ac_ap;
+                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                        return ProjectionInfo::OnAB;
+                    }
+
+                    let vb = ab_cp * ac_ap - ab_ap * ac_cp;
+                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                        return ProjectionInfo::OnAC;
+                    }
+
+                    let va = ab_bp * ac_cp - ab_cp * ac_bp;
+                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                        return ProjectionInfo::OnBC;
+                    }
+
+                    return ProjectionInfo::OnFace(va, vb, vc);
                 }
-
-                (PointProjection::new(true, proj), loc)
             }
+        }
+
+        let bc = c - b;
+        match stable_check_edges_voronoi::<P>(&ab, &ac, &bc,
+                                              &ap, &bp, &cp,
+                                              ab_ap, ab_bp,
+                                              ac_ap, ac_cp,
+                                              ac_bp, ab_cp) {
+            ProjectionInfo::OnAB => {
+                // Voronoï region of `ab`.
+                let v = ab_ap / (ab_ap - ab_bp);
+                let bcoords = [_1 - v, v];
+
+                let mut res = a;
+                // NOTE: we use axpy for the GJK AnnotatedPoint trick.
+                res.axpy(bcoords[1], &b, bcoords[0]);
+                return (
+                    compute_result(pt, m.transform_point(&res)),
+                    TrianglePointLocation::OnEdge(0, bcoords),
+                );
+            },
+            ProjectionInfo::OnAC => {
+                // Voronoï region of `ac`.
+                let w = ac_ap / (ac_ap - ac_cp);
+                let bcoords = [_1 - w, w];
+
+                let mut res = a;
+                res.axpy(bcoords[1], &c, bcoords[0]);
+                return (
+                    compute_result(pt, m.transform_point(&res)),
+                    TrianglePointLocation::OnEdge(2, bcoords),
+                );
+            },
+            ProjectionInfo::OnBC => {
+                // Voronoï region of `bc`.
+                let w = (ac_bp - ab_bp) / (ac_bp - ab_bp +  ab_cp - ac_cp);
+                let bcoords = [_1 - w, w];
+
+                let mut res = b;
+                res.axpy(bcoords[1], &c, bcoords[0]);
+                return (
+                    compute_result(pt, m.transform_point(&res)),
+                    TrianglePointLocation::OnEdge(1, bcoords),
+                );
+            },
+            ProjectionInfo::OnFace(va, vb, vc) => {
+                // Voronoï region of the face.
+                if na::dimension::<P::Vector>() != 2 {
+                    let denom = _1 / (va + vb + vc);
+                    let v = vb * denom;
+                    let w = vc * denom;
+                    let bcoords = [_1 - v - w, v, w];
+
+                    let mut res = a;
+                    res.axpy(bcoords[1], &b, bcoords[0]);
+                    res.axpy(bcoords[2], &c, _1);
+
+                    return (
+                        compute_result(pt, m.transform_point(&res)),
+                        TrianglePointLocation::OnFace(bcoords),
+                    );
+                }
+            }
+        }
+
+        // Special treatement if we work in 2d because in this case we really are inside of the
+        // object.
+        if solid {
+            (
+                PointProjection::new(true, *pt),
+                TrianglePointLocation::OnSolid,
+            )
+        } else {
+            // We have to project on the closest edge.
+
+            // FIXME: this might be optimizable.
+            let v = ab_ap /  (ab_ap - ab_bp); // proj on ab = a + ab * v
+            let w = ac_ap / (ac_ap - ac_cp); // proj on ac = a + ac * w
+            let u = (ac_bp - ab_bp) / (ac_bp - ab_bp +  ab_cp - ac_cp); // proj on bc = b + bc * u
+
+            let bc = c - b;
+            let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
+            let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
+            let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
+
+            let mut proj;
+            let loc;
+
+            if d_ab < d_ac {
+                if d_ab < d_bc {
+                    // ab
+                    let bcoords = [_1 - v, v];
+                    proj = a;
+                    proj.axpy(bcoords[1], &b, bcoords[0]);
+                    proj = m.transform_point(&proj);
+                    loc = TrianglePointLocation::OnEdge(0, bcoords);
+                } else {
+                    // bc
+                    let bcoords = [_1 - u, u];
+                    proj = b;
+                    proj.axpy(bcoords[1], &c, bcoords[0]);
+                    proj = m.transform_point(&proj);
+                    loc = TrianglePointLocation::OnEdge(1, bcoords);
+                }
+            } else {
+                if d_ac < d_bc {
+                    // ac
+                    let bcoords = [_1 - w, w];
+                    proj = a;
+                    proj.axpy(bcoords[1], &c, bcoords[0]);
+                    proj = m.transform_point(&proj);
+                    loc = TrianglePointLocation::OnEdge(2, bcoords);
+                } else {
+                    // bc
+                    let bcoords = [_1 - u, u];
+                    proj = b;
+                    proj.axpy(bcoords[1], &c, bcoords[0]);
+                    proj = m.transform_point(&proj);
+                    loc = TrianglePointLocation::OnEdge(1, bcoords);
+                }
+            }
+
+            (PointProjection::new(true, proj), loc)
         }
     }
 }
