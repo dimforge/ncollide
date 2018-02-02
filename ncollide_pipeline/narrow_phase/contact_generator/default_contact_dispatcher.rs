@@ -2,9 +2,7 @@ use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
 use geometry::shape::{Ball, Plane, Shape};
-use geometry::query::algorithms::johnson_simplex::JohnsonSimplex;
-use geometry::query::algorithms::voronoi_simplex2::VoronoiSimplex2;
-use geometry::query::algorithms::voronoi_simplex3::VoronoiSimplex3;
+use geometry::query::algorithms::{JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
 use narrow_phase::{BallBallContactGenerator, CompositeShapeShapeContactGenerator,
                    ContactAlgorithm, ContactDispatcher, OneShotContactManifoldGenerator,
                    PlaneSupportMapContactGenerator, ShapeCompositeShapeContactGenerator,

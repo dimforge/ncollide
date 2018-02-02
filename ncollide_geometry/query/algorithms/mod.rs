@@ -1,8 +1,16 @@
 //! Algorithms needed for distance and penetration depth computation.
-pub mod simplex;
-pub mod johnson_simplex;
-pub mod voronoi_simplex2;
-pub mod voronoi_simplex3;
+
+pub use self::simplex::Simplex;
+pub use self::voronoi_simplex2::VoronoiSimplex2;
+pub use self::voronoi_simplex3::VoronoiSimplex3;
+pub use self::johnson_simplex::{JohnsonSimplex, JohnsonSimplexTemplate};
+pub use self::epa2::EPA2;
+pub use self::epa3::EPA3;
+
+mod simplex;
+mod johnson_simplex;
+mod voronoi_simplex2;
+mod voronoi_simplex3;
 pub mod gjk;
 pub mod epa3;
 pub mod epa2;

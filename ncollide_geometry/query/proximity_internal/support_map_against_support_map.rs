@@ -3,10 +3,7 @@ use na;
 
 use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk;
-use query::algorithms::simplex::Simplex;
-use query::algorithms::johnson_simplex::JohnsonSimplex;
-use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
-use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
+use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
 use query::Proximity;
 use math::{Isometry, Point};
 

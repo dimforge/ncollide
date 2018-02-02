@@ -3,7 +3,7 @@ use num::Zero;
 use alga::general::{Id, Real};
 use na::{self, Vector3};
 
-use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::JohnsonSimplex;
 use query::{Ray, RayCast, RayIntersection};
 use query::ray_internal;
 use shape::Triangle;

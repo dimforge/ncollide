@@ -55,6 +55,11 @@ where
             _matrix: PhantomData,
         }
     }
+
+    pub fn clear(&mut self) {
+        self.contacts.clear();
+        self.collector.clear();
+    }
 }
 
 impl<P, M, CD> IncrementalContactManifoldGenerator<P, M, CD>

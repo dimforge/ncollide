@@ -1,3 +1,5 @@
+//! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm. 
+
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
 use std::cmp::Ordering;
@@ -136,6 +138,7 @@ impl SilhouetteEdge {
     }
 }
 
+/// The Expanding Polytope Algorithm in 3D.
 pub struct EPA3<P: Point> {
     vertices: Vec<P>,
     faces: Vec<Face<P>>,
@@ -144,7 +147,7 @@ pub struct EPA3<P: Point> {
 }
 
 impl<P: Point> EPA3<P> {
-    /// Creates a new 3D EPA algoritm instance.
+    /// Creates a new instance of the 3D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA3 {
             vertices: Vec::new(),

@@ -7,7 +7,7 @@ use alga::general::Id;
 use math::Point;
 use utils::data::SortedPair;
 use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use geometry::partitioning::{DBVT2, DBVTLeaf2, DBVTLeafId};
+use geometry::partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
 use geometry::query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
                       RayInterferencesCollector};
 use broad_phase::{BroadPhase, ProxyHandle};
@@ -51,8 +51,8 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT2<P, ProxyHandle, BV>,  // DBVT for moving objects.
-    stree: DBVT2<P, ProxyHandle, BV>, // DBVT for static objects.
+    tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
+    stree: DBVT<P, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool>, // Pairs detected.
     margin: P::Real,                  // The margin added to each bounding volume.
     purge_all: bool,
@@ -60,7 +60,7 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     // Just to avoid dynamic allocations.
     collector: Vec<ProxyHandle>,
     pairs_to_remove: Vec<SortedPair<ProxyHandle>>,
-    leaves_to_update: Vec<DBVTLeaf2<P, ProxyHandle, BV>>,
+    leaves_to_update: Vec<DBVTLeaf<P, ProxyHandle, BV>>,
     proxies_to_update: Vec<(ProxyHandle, BV)>,
 }
 
@@ -73,8 +73,8 @@ where
     pub fn new(margin: P::Real) -> DBVTBroadPhase<P, BV, T> {
         DBVTBroadPhase {
             proxies: Slab::new(),
-            tree: DBVT2::new(),
-            stree: DBVT2::new(),
+            tree: DBVT::new(),
+            stree: DBVT::new(),
             pairs: HashMap::new(),
             purge_all: false,
             collector: Vec::new(),
@@ -199,11 +199,11 @@ where
                         self.leaves_to_update.push(leaf);
                     }
                     ProxyStatus::Detached(None) => {
-                        let leaf = DBVTLeaf2::new(bv, handle);
+                        let leaf = DBVTLeaf::new(bv, handle);
                         self.leaves_to_update.push(leaf);
                     }
                     ProxyStatus::Detached(Some(id)) => {
-                        let leaf = DBVTLeaf2::new(bv, handle);
+                        let leaf = DBVTLeaf::new(bv, handle);
                         self.leaves_to_update[id] = leaf;
                         set_status = false;
                     }

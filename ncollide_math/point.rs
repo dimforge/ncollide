@@ -25,6 +25,7 @@ pub trait Point
     + IndexMut<usize, Output = <Self as EuclideanSpace>::Real>
     + ApproxEq<Epsilon = <Self as EuclideanSpace>::Real>
     + EuclideanSpace<Coordinates = <Self as Point>::Vector> {
+    /// The underlying vector type used to express points coordinates.
     type Vector: Vector<Real = Self::Real>
         + Add<Self::Vector, Output = Self::Vector>
         + AddAssign<Self::Vector>
@@ -36,12 +37,18 @@ pub trait Point
         + DivAssign<Self::Real>
         + Neg<Output = Self::Vector>;
 
+    /// Computes `self = a * rhs + b * self`.
     fn axpy(
         &mut self,
         a: <Self as EuclideanSpace>::Real,
         rhs: &Self,
         b: <Self as EuclideanSpace>::Real,
     );
+
+    /// Computes the outward normal of a 2D or 3D face.
+    ///
+    /// In 2D, returns a unit vector orthogonal to the oriented segment formed by `{ pts[0], pts[1] }`. This vector points toward the half-space "on the right" of this segment.
+    /// In 3D, returns the unit normal of the triangle formed by `{ pts[0], pts[1], pts[2] }` and oriented counter-clock-wise.
     fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<Self::Vector>>;
 }
 
