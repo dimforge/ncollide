@@ -4,7 +4,31 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.12.0] - WIP
+## [0.14.0]
+### Added
+    * The EPA algorithm in both 2D and 3D.
+    * Voronoï region based simplex projection algorithms for 2D and 3D (and
+      used for the GJK instead of the n-dimensional Johnson algorithm).
+    * `SupportMap::support_point_toward` that takes a direction that is already
+      normalized.
+### Modified
+    * All the fields of `CollisionObject` are now private and must be accessed
+      through methods.
+    * The trait Point now requires additional methods to compute the normal of
+      a face and to project the origin on it.
+    * Everything is now Send/Sync (useful for, e.g., ECS compatibility). 
+    * Rename `RichPointQuery` -> `PointQueryWithLocation`.
+    * Rename `RichPointQuery::project_point_with_extra_info` -> `PointQueryWithLocation::project_point_with_location`.
+    * Rename `CollisionWorld::deferred_add          -> CollisionWorld::add`. Now, the addition is performed immediately.
+    * Rename `CollisionWorld::deferred_remove       -> CollisionWorld::remove`. Now, the removal is performed immediately.
+    * Rename `CollisionWorld::deferred_set_position -> CollisionWorld::set_position`. Now, the change of position is performed immediately.
+    * The interface of `BroadPhase` has been significantly altered: now the uid
+      allocated to each object added to the broad phase is automatically
+      computed by the broad phase itself.
+    * Rename `BroadPhase::deferred_remove -> BroadPhase::remove`. Now the
+      removal is performed immediately.
+
+## [0.12.0]
 ### Modified
     * The `ShapeHandle` is now a `Arc<Shape<P, M>>` instead of `Arc<Box<Shape<P, M>>>`
     (this removes one allocation indirection).

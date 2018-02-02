@@ -5,6 +5,8 @@ use na;
 use query::algorithms::gjk;
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
+use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use shape::{self, SupportMap};
 use math::{Point, Isometry};
 
@@ -17,7 +19,15 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(m1: &M, g1:
           M:  Isometry<P>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
-    support_map_against_support_map_with_params(m1, g1, m2, g2, &mut JohnsonSimplex::new_w_tls(), None)
+    if na::dimension::<P::Vector>() == 2 {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex2::new(), None)
+    }
+    else if na::dimension::<P::Vector>() == 3 {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex3::new(), None)
+    }
+    else {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, &mut JohnsonSimplex::new_w_tls(), None)
+    }
 }
 
 /// Distance between support-mapped shapes.

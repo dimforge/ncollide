@@ -7,7 +7,8 @@ use math::Point;
 use partitioning::BVTVisitor;
 use bounding_volume::BoundingVolume;
 
-#[derive(Copy, Clone, Debug, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+/// The unique identifier of a DBVT leaf.
 pub struct DBVTLeafId(usize);
 
 impl DBVTLeafId {

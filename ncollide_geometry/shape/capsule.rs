@@ -3,7 +3,7 @@
 use num::Signed;
 
 use alga::general::Real;
-use na;
+use na::{self, Unit};
 
 use shape::SupportMap;
 use math::{Point, Isometry};
@@ -46,6 +46,11 @@ impl<N: Real> Capsule<N> {
 impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+        self.support_point_toward(m, &Unit::new_normalize(*dir))
+    }
+
+    #[inline]
+    fn support_point_toward(&self, m: &M, dir: &Unit<P::Vector>) -> P {
         let local_dir = m.inverse_rotate_vector(dir);
 
         let mut res: P::Vector = na::zero();
@@ -57,6 +62,6 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
             res[1] = self.half_height()
         }
 
-        m.transform_point(&(P::from_coordinates(res + na::normalize(&local_dir) * self.radius())))
+        m.transform_point(&(P::from_coordinates(res + local_dir * self.radius())))
     }
 }

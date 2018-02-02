@@ -5,7 +5,7 @@ all:
 	cargo build
 
 test:
-	cargo test
+	RUST_BACKTRACE=1 cargo test
 
 distcheck:
 	rm -rf $(tmp)

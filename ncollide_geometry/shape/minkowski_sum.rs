@@ -8,7 +8,7 @@ use approx::ApproxEq;
 
 use alga::general::{Id, MeetSemilattice, JoinSemilattice, Lattice};
 use alga::linear::{AffineSpace, EuclideanSpace};
-use na;
+use na::{self, Unit};
 use shape::{SupportMap, Reflection};
 use math::Point;
 
@@ -418,10 +418,23 @@ impl<P: Point> Point for AnnotatedPoint<P> {
     type Vector = P::Vector;
 
     #[inline]
-    fn axpy(&mut self, a: P::Real, x: &Self) {
-        self.orig1.axpy(a, &x.orig1);
-        self.orig2.axpy(a, &x.orig2);
-        self.point.axpy(a, &x.point);
+    fn axpy(&mut self, a: P::Real, x: &Self, b: P::Real) {
+        self.orig1.axpy(a, &x.orig1, b);
+        self.orig2.axpy(a, &x.orig2, b);
+        self.point.axpy(a, &x.point, b);
+    }
+
+    #[inline]
+    fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<P::Vector>> {
+        if na::dimension::<P::Vector>() == 2 {
+            P::ccw_face_normal(&[&pts[0].point, &pts[1].point])
+        }
+        else if na::dimension::<P::Vector>() == 3 {
+            P::ccw_face_normal(&[&pts[0].point, &pts[1].point, &pts[2].point])
+        }
+        else {
+            unimplemented!()
+        }
     }
 }
 
@@ -432,6 +445,12 @@ impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M,
     #[inline]
     fn support_point(&self, _: &Id, dir: &P::Vector) -> P {
         self.g1().support_point(self.m1(), dir) + self.g2().support_point(self.m2(), dir).coordinates()
+    }
+
+    #[inline]
+    fn support_point_toward(&self, _: &Id, dir: &Unit<P::Vector>) -> P {
+        self.g1().support_point_toward(self.m1(), dir) +
+        self.g2().support_point_toward(self.m2(), dir).coordinates()
     }
 }
 
@@ -444,6 +463,15 @@ SupportMap<AnnotatedPoint<P>, Id> for AnnotatedMinkowskiSum<'a, M, G1, G2>
     fn support_point(&self, _: &Id, dir: &P::Vector) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
         let orig2 = self.g2().support_point(self.m2(), dir);
+        let point = orig1 + orig2.coordinates();
+
+        AnnotatedPoint::new(orig1, orig2, point)
+    }
+
+    #[inline]
+    fn support_point_toward(&self, _: &Id, dir: &Unit<P::Vector>) -> AnnotatedPoint<P> {
+        let orig1 = self.g1().support_point_toward(self.m1(), dir);
+        let orig2 = self.g2().support_point_toward(self.m2(), dir);
         let point = orig1 + orig2.coordinates();
 
         AnnotatedPoint::new(orig1, orig2, point)

@@ -61,11 +61,10 @@ impl RecursionTemplate {
     //     res
     // }
 
-    // This is the tricky part of the algorithm. This generates all datas needed
-    // to run the johson subalgorithm fastly. This should _not_ be run every time
-    // the algorithm is executed. Instead, it should be pre-computed, or computed
-    // only once for all. The resulting GC-managed list is intented to be shared
-    // between all other simplicis with the same dimension.
+    // This is the tricky part of the algorithm. This generates all datas needed to run the johson
+    // subalgorithm fastly. This should _not_ be run every time the algorithm is executed. Instead,
+    // it should be pre-computed, or computed only once for all. The resulting list is intented to
+    // be shared between all other simplices with the same dimension.
     fn make_permutation_list(dimension: usize) -> RecursionTemplate {
         // The number of points on the biggest subsimplex
         let max_num_points      = dimension + 1;
@@ -91,7 +90,7 @@ impl RecursionTemplate {
             pts.push(i)
         }
 
-        // initially push the whole simplex (will be removed at the end)
+        // Initially push the whole simplex (will be removed at the end).
         pts.push(0);
 
         offsets.push(max_num_points + 1);
@@ -236,21 +235,16 @@ impl<P: Point> JohnsonSimplex<P> {
             *c = na::one();
         }
 
-        // NOTE: Please read that before thinking all those `unsafe_whatever` should be bannished.
-        // The whole point of having this `recursion_template` stuff is to speed up the
-        // computations having exact precomputed indices.
-        // Using safe accesses to vectors kind of makes this useless sinces each array access will
-        // be much slower.
-        // That is why we use unsafe indexing here. Nothing personal, just a huge need of
-        // performances :p
-        // There might be a whay to to this nicely with iterators. But indexing is verry intricate
+        // NOTE: The whole point of having the `recursion_template` system is to speed up the
+        // computations having exact precomputed indices, hence the unsafe accesses here.
+        // There might be a way to do this nicely with iterators. But indexing is verry intricate
         // here…
 
         /*
-         * first loop: compute all the determinants
+         * First loop: compute all the determinants.
          */
         for &end in recursion.offsets[2 ..].iter() { // FIXME: try to transform this using a `window_iter()`
-            // for each sub-simplex ...
+            // For each sub-simplex ...
             while curr != end { // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
                     let mut determinant: P::Real = na::zero();
@@ -277,24 +271,24 @@ impl<P: Point> JohnsonSimplex<P> {
         }
 
         /*
-         * second loop: find the subsimplex containing the projection
+         * Second loop: find the subsimplex containing the projection.
          */
         let mut offsets_iter = recursion.offsets[..].iter().rev();
         let     _            = offsets_iter.next(); // skip the first offset
         for &end in offsets_iter {
-            // for each sub-simplex ...
+            // For each sub-simplex ...
             while curr != end {
                 let mut foundit = true;
 
                 // ... with curr_num_pts points permutations ...
                 for i in 0usize .. curr_num_pts {
                     unsafe {
-                        // ... see if its determinant is positive
+                        // ... see if its determinant is positive.
                         let det_id = curr - (i + 1) * curr_num_pts;
                         let det    = *self.determinants[..].get_unchecked(*recursion.sub_determinants[..].get_unchecked(det_id));
 
                         if det > na::zero() {
-                            // invalidate the children determinant
+                            // Invalidate the children determinant.
                             if curr_num_pts > 1 {
                                 let subdetid = *recursion.sub_determinants[..].get_unchecked(det_id + 1);
 
@@ -303,22 +297,22 @@ impl<P: Point> JohnsonSimplex<P> {
                                 }
                             }
 
-                            // dont concider this sub-simplex if it has been invalidated by its
-                            // parent(s)
+                            // Don't concider this sub-simplex if it has been invalidated by its
+                            // parent(s).
                             if det == Bounded::max_value() {
                                 foundit = false
                             }
                         }
                         else {
-                            // we found a negative determinant: no projection possible here
+                            // We found a negative determinant: no projection possible here.
                             foundit = false
                         }
                     }
                 }
 
                 if foundit {
-                    // we found a projection!
-                    // re-run the same iteration but, this time, compute the projection
+                    // We found a projection!
+                    // Re-run the same iteration but, this time, compute the projection.
                     let mut total_det: P::Real = na::zero();
                     let mut proj = P::origin();
 
@@ -330,7 +324,7 @@ impl<P: Point> JohnsonSimplex<P> {
                                               .get_unchecked(*recursion.sub_determinants[..].get_unchecked(id));
 
                             total_det = total_det + det;
-                            proj.axpy(det, self.points[..].get_unchecked(*recursion.permutation_list[..].get_unchecked(id)));
+                            proj.axpy(det, self.points[..].get_unchecked(*recursion.permutation_list[..].get_unchecked(id)), na::one());
                         }
 
                         if reduce {
@@ -393,9 +387,15 @@ impl<P: Point> Simplex<P> for JohnsonSimplex<P> {
     }
 
     #[inline]
-    fn add_point(&mut self, pt: P) {
+    fn add_point(&mut self, pt: P) -> bool {
         self.points.push(pt);
         assert!(self.points.len() <= na::dimension::<P::Vector>() + 1);
+        return true;
+    }
+
+    #[inline]
+    fn point(&self, i: usize) -> P {
+        self.points[i]
     }
 
     #[inline]

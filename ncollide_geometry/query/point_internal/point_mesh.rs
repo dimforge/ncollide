@@ -1,6 +1,6 @@
 use alga::general::Id;
 use na;
-use query::{PointQuery, PointProjection, RichPointQuery};
+use query::{PointQuery, PointProjection, PointQueryWithLocation};
 use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
@@ -10,10 +10,10 @@ use math::{Point, Isometry};
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     where P: Point,
           M: Isometry<P>,
-          E: BaseMeshElement<I, P> + PointQuery<P, Id> + RichPointQuery<P, Id> {
+          E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
+        let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
@@ -28,16 +28,16 @@ impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     }
 }
 
-impl<P, M, I, E> RichPointQuery<P, M> for BaseMesh<P, I, E>
+impl<P, M, I, E> PointQueryWithLocation<P, M> for BaseMesh<P, I, E>
     where P: Point,
           M: Isometry<P>,
-          E: BaseMeshElement<I, P> + RichPointQuery<P, Id>
+          E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>
 {
-    type ExtraInfo = PointProjectionInfo<E::ExtraInfo>;
+    type Location = PointProjectionInfo<E::Location>;
 
     #[inline]
-    fn project_point_with_extra_info(&self, m: &M, point: &P, _: bool)
-        -> (PointProjection<P>, Self::ExtraInfo)
+    fn project_point_with_location(&self, m: &M, point: &P, _: bool)
+        -> (PointProjection<P>, Self::Location)
     {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = BaseMeshPointProjCostFn { mesh: self, point: &ls_pt };
@@ -60,8 +60,8 @@ struct BaseMeshPointProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
 
 impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn<'a, P, I, E>
     where P: Point,
-          E: BaseMeshElement<I, P> + RichPointQuery<P, Id> {
-    type UserData = (PointProjection<P>, PointProjectionInfo<E::ExtraInfo>);
+          E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id> {
+    type UserData = (PointProjection<P>, PointProjectionInfo<E::Location>);
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
@@ -72,7 +72,7 @@ impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, Self::UserData)> {
         let (proj, extra_info) = self.mesh
             .element_at(*b)
-            .project_point_with_extra_info(&Id::new(), self.point, true);
+            .project_point_with_location(&Id::new(), self.point, true);
 
         let extra_info = PointProjectionInfo {
             element_index          : *b,
@@ -153,7 +153,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
-        let (projection, _) = self.project_point_with_extra_info(m, point, solid);
+        let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
@@ -168,13 +168,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Polyline<P> {
-    type ExtraInfo = PointProjectionInfo<<Segment<P> as RichPointQuery<P, M>>::ExtraInfo>;
+impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Polyline<P> {
+    type Location = PointProjectionInfo<<Segment<P> as PointQueryWithLocation<P, M>>::Location>;
 
     #[inline]
-    fn project_point_with_extra_info(&self, m: &M, point: &P, solid: bool)
-        -> (PointProjection<P>, Self::ExtraInfo)
+    fn project_point_with_location(&self, m: &M, point: &P, solid: bool)
+        -> (PointProjection<P>, Self::Location)
     {
-        self.base_mesh().project_point_with_extra_info(m, point, solid)
+        self.base_mesh().project_point_with_location(m, point, solid)
     }
 }

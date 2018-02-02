@@ -1,19 +1,38 @@
 use std::any::Any;
+
 use geometry::query::Ray;
 use math::Point;
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ProxyHandle(pub usize);
+
+impl ProxyHandle {
+    #[inline]
+    pub fn invalid() -> Self {
+        ProxyHandle(usize::max_value())
+    }
+
+    #[inline]
+    pub fn is_invalid(&self) -> bool {
+        self.0 == usize::max_value()
+    }
+
+    #[inline]
+    pub fn uid(&self) -> usize {
+        self.0
+    }
+}
+
 /// Trait all broad phase must implement.
 pub trait BroadPhase<P: Point, BV, T>: Any + Sync + Send {
-    /// Tells the broad phase to add an element during the next update.
-    ///
-    /// If the element already exists, it is replaced.
-    fn deferred_add(&mut self, uid: usize, bv: BV, data: T);
+    /// Tells the broad phase to add a bounding-volume at the next update.
+    fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle;
 
-    /// Tells the broad phase to remove an element during the next update if it exists.
-    fn deferred_remove(&mut self, uid: usize);
+    /// Tells the broad phase to remove the given set of handles.
+    fn remove(&mut self, handles: &[ProxyHandle], removal_handler: &mut FnMut(&T, &T));
 
     /// Sets the next bounding volume to be used during the update of this broad phase.
-    fn deferred_set_bounding_volume(&mut self, uid: usize, bv: BV);
+    fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bv: BV);
 
     /// Forces the broad-phase to recompute and re-report all the proximities.
     fn deferred_recompute_all_proximities(&mut self);

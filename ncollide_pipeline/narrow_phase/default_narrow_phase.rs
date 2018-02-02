@@ -1,86 +1,87 @@
-use utils::data::hash_map::HashMap;
-use utils::data::pair::{Pair, PairTWHash};
-use utils::data::uid_remap::{UidRemap, FastKey};
+use std::collections::HashMap;
+use std::collections::hash_map::Entry;
+
+use utils::data::SortedPair;
 use geometry::query::Proximity;
 use narrow_phase::{ContactDispatcher, ContactAlgorithm,
                    ProximityDispatcher, ProximityAlgorithm,
                    NarrowPhase, ContactPairs, ProximityPairs};
-use world::{CollisionObject, GeometricQueryType};
+use world::{GeometricQueryType, CollisionObjectSlab, CollisionObjectHandle};
 use events::{ContactEvents, ContactEvent, ProximityEvents, ProximityEvent};
 use math::Point;
 
 // FIXME: move this to the `narrow_phase` module.
-/// Collision detector dispatcher for collision objects.
+    /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
-    contact_dispatcher: Box<ContactDispatcher<P, M>>,
-    contact_generators: HashMap<Pair, ContactAlgorithm<P, M>, PairTWHash>,
+contact_dispatcher: Box<ContactDispatcher<P, M>>,
+    contact_generators: HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<P, M>>,
 
-    proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
-    proximity_detectors:  HashMap<Pair, ProximityAlgorithm<P, M>, PairTWHash>,
+proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
+    proximity_detectors:  HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<P, M>>,
 }
 
 impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     /// Creates a new `DefaultNarrowPhase`.
-    pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M>>,
-               proximity_dispatcher: Box<ProximityDispatcher<P, M>>)
-               -> DefaultNarrowPhase<P, M> {
+pub fn new(contact_dispatcher:   Box<ContactDispatcher<P, M>>,
+           proximity_dispatcher: Box<ProximityDispatcher<P, M>>)
+          -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {
-            contact_dispatcher: contact_dispatcher,
-            contact_generators:  HashMap::new(PairTWHash::new()),
+        contact_dispatcher: contact_dispatcher,
+            contact_generators: HashMap::new(),
 
-            proximity_dispatcher: proximity_dispatcher,
-            proximity_detectors:  HashMap::new(PairTWHash::new())
+        proximity_dispatcher: proximity_dispatcher,
+            proximity_detectors:  HashMap::new()
         }
     }
 }
 
 impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> {
     fn update(&mut self,
-              objects:          &UidRemap<CollisionObject<P, M, T>>,
+              objects:          &CollisionObjectSlab<P, M, T>,
               contact_events:   &mut ContactEvents,
               proximity_events: &mut ProximityEvents,
               timestamp:        usize) {
-        for e in self.contact_generators.elements_mut().iter_mut() {
-            let co1 = &objects[e.key.first];
-            let co2 = &objects[e.key.second];
+        for (key, value) in self.contact_generators.iter_mut() {
+            let co1 = &objects[key.0];
+            let co2 = &objects[key.1];
 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
-                let had_contacts = e.value.num_contacts() != 0;
+                let had_contacts = value.num_contacts() != 0;
 
-                let _ = e.value.update(&*self.contact_dispatcher,
-                                       &co1.position, co1.shape.as_ref(),
-                                       &co2.position, co2.shape.as_ref(),
-                                       co1.query_type.query_limit() + co2.query_type.query_limit());
+            let _ = value.update(&*self.contact_dispatcher,
+                                     &co1.position(), co1.shape().as_ref(),
+                                     &co2.position(), co2.shape().as_ref(),
+                                     co1.query_type().query_limit() + co2.query_type().query_limit());
 
-                if e.value.num_contacts() == 0 {
+                if value.num_contacts() == 0 {
                     if had_contacts {
-                        contact_events.push(ContactEvent::Stopped(co1.uid, co2.uid));
+                        contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
                     }
                 }
                 else {
                     if !had_contacts {
-                        contact_events.push(ContactEvent::Started(co1.uid, co2.uid));
+                        contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
                     }
                 }
             }
         }
 
-        for e in self.proximity_detectors.elements_mut().iter_mut() {
-            let co1 = &objects[e.key.first];
-            let co2 = &objects[e.key.second];
+        for (key, value) in self.proximity_detectors.iter_mut() {
+            let co1 = &objects[key.0];
+            let co2 = &objects[key.1];
 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
-                let prev_prox = e.value.proximity();
+                let prev_prox = value.proximity();
 
-                let _ = e.value.update(&*self.proximity_dispatcher,
-                               &co1.position, co1.shape.as_ref(),
-                               &co2.position, co2.shape.as_ref(),
-                               co1.query_type.query_limit() + co2.query_type.query_limit());
+            let _ = value.update(&*self.proximity_dispatcher,
+                            &co1.position(), co1.shape().as_ref(),
+                            &co2.position(), co2.shape().as_ref(),
+                            co1.query_type().query_limit() + co2.query_type().query_limit());
 
-                let new_prox = e.value.proximity();
+                let new_prox = value.proximity();
 
                 if new_prox != prev_prox {
-                    proximity_events.push(ProximityEvent::new(co1.uid, co2.uid, prev_prox, new_prox));
+                    proximity_events.push(ProximityEvent::new(co1.handle(), co2.handle(), prev_prox, new_prox));
                 }
             }
         }
@@ -89,33 +90,32 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
     fn handle_interaction(&mut self,
                           contact_events:   &mut ContactEvents,
                           proximity_events: &mut ProximityEvents,
-                          objects:          &UidRemap<CollisionObject<P, M, T>>,
-                          fk1:              &FastKey,
-                          fk2:              &FastKey,
+                          objects:          &CollisionObjectSlab<P, M, T>,
+                          handle1:          CollisionObjectHandle,
+                          handle2:          CollisionObjectHandle,
                           started:          bool) {
-        let key = Pair::new(*fk1, *fk2);
-        let co1 = &objects[*fk1];
-        let co2 = &objects[*fk2];
+        let key = SortedPair::new(handle1, handle2);
+        let co1 = &objects[handle1];
+        let co2 = &objects[handle2];
 
-        match (co1.query_type, co2.query_type) {
+        match (co1.query_type(), co2.query_type()) {
             (GeometricQueryType::Contacts(_), GeometricQueryType::Contacts(_)) => {
                 if started {
                     let dispatcher = &self.contact_dispatcher;
 
-                    let _ = self.contact_generators.find_or_insert_lazy(key, || {
-                        dispatcher.get_contact_algorithm(co1.shape.as_ref(), co2.shape.as_ref())
-                    });
+                    if let Entry::Vacant(entry) = self.contact_generators.entry(key) {
+                        if let Some(detector) = dispatcher.get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref()) {
+                            let _ = entry.insert(detector);
+                        }
+                    }
                 }
                 else {
                     // Proximity stopped.
-                    match self.contact_generators.get_and_remove(&key) {
-                        Some(detector) => {
-                            // Register a collision lost event if there was a contact.
-                            if detector.value.num_contacts() != 0 {
-                                contact_events.push(ContactEvent::Stopped(co1.uid, co2.uid));
-                            }
-                        },
-                        None => { }
+                    if let Some(detector) = self.contact_generators.remove(&key) {
+                        // Register a collision lost event if there was a contact.
+                        if detector.num_contacts() != 0 {
+                            contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                        }
                     }
                 }
             },
@@ -123,36 +123,45 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                 if started {
                     let dispatcher = &self.proximity_dispatcher;
 
-                    let _ = self.proximity_detectors.find_or_insert_lazy(key, || {
-                        dispatcher.get_proximity_algorithm(co1.shape.as_ref(), co2.shape.as_ref())
-                    });
+                    if let Entry::Vacant(entry) = self.proximity_detectors.entry(key) {
+                        if let Some(detector) = dispatcher.get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref()) {
+                            let _ = entry.insert(detector);
+                        }
+                    }
                 }
                 else {
                     // Proximity stopped.
-                    match self.proximity_detectors.get_and_remove(&key) {
-                        Some(detector) => {
-                            // Register a proximity lost signal if they were not disjoint.
-                            let prev_prox = detector.value.proximity();
-                            if prev_prox != Proximity::Disjoint {
-                                let event = ProximityEvent::new(co1.uid, co2.uid, prev_prox, Proximity::Disjoint);
-                                proximity_events.push(event);
-                            }
-                        },
-                        None => { }
+                    if let Some(detector) = self.proximity_detectors.remove(&key) {
+                        // Register a proximity lost signal if they were not disjoint.
+                        let prev_prox = detector.proximity();
+
+
+                        if prev_prox != Proximity::Disjoint {
+                            let event = ProximityEvent::new(co1.handle(), co2.handle(), prev_prox, Proximity::Disjoint);
+                            proximity_events.push(event);
+                        }
                     }
                 }
             }
         }
-
     }
 
-    fn contact_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+    fn handle_removal(&mut self,
+                      _: &CollisionObjectSlab<P, M, T>,
+                      handle1: CollisionObjectHandle,
+                      handle2: CollisionObjectHandle) {
+        let key = SortedPair::new(handle1, handle2);
+        let _ = self.proximity_detectors.remove(&key);
+        let _ = self.contact_generators.remove(&key);
+    }
+
+    fn contact_pairs<'a>(&'a self, objects: &'a CollisionObjectSlab<P, M, T>)
                          -> ContactPairs<'a, P, M, T> {
-        ContactPairs::new(objects, self.contact_generators.elements().iter())
+        ContactPairs::new(objects, self.contact_generators.iter())
     }
 
-    fn proximity_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+    fn proximity_pairs<'a>(&'a self, objects: &'a CollisionObjectSlab<P, M, T>)
                            -> ProximityPairs<'a, P, M, T> {
-        ProximityPairs::new(objects, self.proximity_detectors.elements().iter())
+        ProximityPairs::new(objects, self.proximity_detectors.iter())
     }
 }

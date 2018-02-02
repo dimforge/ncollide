@@ -211,15 +211,15 @@ impl CollisionGroupsPairFilter {
 }
 
 impl<P: Point, M, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
-    fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool {
-        let id1 = b1 as *const CollisionObject<P, M, T> as usize;
-        let id2 = b2 as *const CollisionObject<P, M, T> as usize;
+    fn is_pair_valid(&self, co1: &CollisionObject<P, M, T>, co2: &CollisionObject<P, M, T>) -> bool {
+        let id1 = co1 as *const CollisionObject<P, M, T> as usize;
+        let id2 = co2 as *const CollisionObject<P, M, T> as usize;
 
         if id1 == id2 {
-            b1.collision_groups.can_interact_with_self()
+            co1.collision_groups().can_interact_with_self()
         }
         else {
-            b1.collision_groups.can_interact_with_groups(&b2.collision_groups)
+            co1.collision_groups().can_interact_with_groups(co2.collision_groups())
         }
     }
 }

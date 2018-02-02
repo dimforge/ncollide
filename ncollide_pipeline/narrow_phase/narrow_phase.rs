@@ -1,13 +1,11 @@
 use std::any::Any;
-use std::slice::Iter;
-use utils::data::hash_map::Entry;
-use utils::data::pair::Pair;
-use utils::data::uid_remap::{UidRemap, FastKey};
+use std::collections::hash_map::Iter;
+
+use utils::data::SortedPair;
 use geometry::query::Contact;
-use narrow_phase::{ContactAlgorithm, ContactGenerator,
-                   ProximityAlgorithm, ProximitySignal, ProximityDetector};
+use narrow_phase::{ContactAlgorithm, ContactGenerator, ProximityAlgorithm, ProximityDetector};
 use events::{ContactEvents, ProximityEvents};
-use world::CollisionObject;
+use world::{CollisionObjectHandle, CollisionObjectSlab, CollisionObject};
 use math::Point;
 
 /// Trait implemented by the narrow phase manager.
@@ -17,7 +15,7 @@ use math::Point;
 pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     /// Updates this narrow phase.
     fn update(&mut self,
-              objects:          &UidRemap<CollisionObject<P, M, T>>,
+              objects:          &CollisionObjectSlab<P, M, T>,
               contact_events:   &mut ContactEvents,
               proximity_events: &mut ProximityEvents,
               timestamp:        usize);
@@ -26,34 +24,40 @@ pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     fn handle_interaction(&mut self,
                           contact_signal:   &mut ContactEvents,
                           proximity_signal: &mut ProximityEvents,
-                          objects:          &UidRemap<CollisionObject<P, M, T>>,
-                          fk1:              &FastKey,
-                          fk2:              &FastKey,
+                          objects:          &CollisionObjectSlab<P, M, T>,
+                          handle1:          CollisionObjectHandle,
+                          handle2:          CollisionObjectHandle,
                           started:          bool);
+
+    /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
+    fn handle_removal(&mut self,
+                      objects: &CollisionObjectSlab<P, M, T>,
+                      handle1: CollisionObjectHandle,
+                      handle2: CollisionObjectHandle);
 
     // FIXME: the fact that the return type is imposed is not as generic as it could be.
     /// Returns all the potential contact pairs found during the broad phase, and validated by the
     /// narrow phase.
-    fn contact_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+    fn contact_pairs<'a>(&'a self, objects: &'a CollisionObjectSlab<P, M, T>)
                          -> ContactPairs<'a, P, M, T>;
 
     /// Returns all the potential proximity pairs found during the broad phase, and validated by
     /// the narrow phase.
-    fn proximity_pairs<'a>(&'a self, objects: &'a UidRemap<CollisionObject<P, M, T>>)
+    fn proximity_pairs<'a>(&'a self, objects: &'a CollisionObjectSlab<P, M, T>)
                          -> ProximityPairs<'a, P, M, T>;
 }
 
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
-    objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>
+    objects: &'a CollisionObjectSlab<P, M, T>,
+    pairs:   Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
-    pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>)
+    pub fn new(objects: &'a CollisionObjectSlab<P, M, T>,
+               pairs:   Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>)
                -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -83,11 +87,11 @@ impl<'a, P: Point, M, T> Iterator for ContactPairs<'a, P, M, T> {
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         match self.pairs.next() {
-            Some(p) => {
-                let co1 = &self.objects[p.key.first];
-                let co2 = &self.objects[p.key.second];
+            Some((key, value)) => {
+                let co1 = &self.objects[key.0];
+                let co2 = &self.objects[key.1];
 
-                Some((&co1, &co2, &p.value))
+                Some((&co1, &co2, value))
             }
             None => None
         }
@@ -96,10 +100,10 @@ impl<'a, P: Point, M, T> Iterator for ContactPairs<'a, P, M, T> {
 
 /// An iterator through contacts.
 pub struct Contacts<'a, P: 'a + Point, M: 'a, T: 'a> {
-    objects:      &'a UidRemap<CollisionObject<P, M, T>>,
+    objects:      &'a CollisionObjectSlab<P, M, T>,
     co1:          Option<&'a CollisionObject<P, M, T>>,
     co2:          Option<&'a CollisionObject<P, M, T>>,
-    pairs:        Iter<'a, Entry<Pair, Box<ContactGenerator<P, M>>>>,
+    pairs:        Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
     collector:    Vec<Contact<P>>,
     curr_contact: usize
 }
@@ -120,12 +124,12 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
         else {
             self.collector.clear();
 
-            while let Some(p) = self.pairs.next() {
-                p.value.contacts(&mut self.collector);
+            while let Some((key, value)) = self.pairs.next() {
+                value.contacts(&mut self.collector);
 
                 if !self.collector.is_empty() {
-                    self.co1 = Some(&self.objects[p.key.first]);
-                    self.co2 = Some(&self.objects[p.key.second]);
+                    self.co1 = Some(&self.objects[key.0]);
+                    self.co2 = Some(&self.objects[key.1]);
                     self.curr_contact = 1; // Start at 1 instead of 0 because we will return the first one here.
 
                     // FIXME: would be nice to avoid the `clone` and return a reference
@@ -142,15 +146,15 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 
 /// Iterator through proximity pairs.
 pub struct ProximityPairs<'a, P: Point + 'a, M: 'a, T: 'a> {
-    objects: &'a UidRemap<CollisionObject<P, M, T>>,
-    pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>
+    objects: &'a CollisionObjectSlab<P, M, T>,
+    pairs:   Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<P, M>>>
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> ProximityPairs<'a, P, M, T> {
     #[doc(hidden)]
     #[inline]
-    pub fn new(objects: &'a UidRemap<CollisionObject<P, M, T>>,
-               pairs:   Iter<'a, Entry<Pair, Box<ProximityDetector<P, M>>>>)
+    pub fn new(objects: &'a CollisionObjectSlab<P, M, T>,
+               pairs:   Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<P, M>>>)
                -> ProximityPairs<'a, P, M, T> {
         ProximityPairs {
             objects: objects,
@@ -167,11 +171,11 @@ impl<'a, P: Point, M, T> Iterator for ProximityPairs<'a, P, M, T> {
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         match self.pairs.next() {
-            Some(p) => {
-                let co1 = &self.objects[p.key.first];
-                let co2 = &self.objects[p.key.second];
+            Some((key, value)) => {
+                let co1 = &self.objects[key.0];
+                let co2 = &self.objects[key.1];
 
-                Some((&co1, &co2, &p.value))
+                Some((&co1, &co2, value))
             }
             None => None
         }

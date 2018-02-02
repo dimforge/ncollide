@@ -1,3 +1,5 @@
+use std::slice::Iter;
+use std::iter::IntoIterator;
 use geometry::query::Proximity;
 use world::CollisionObjectHandle;
 
@@ -25,6 +27,24 @@ impl<E> EventPool<E> {
     pub fn push(&mut self, event: E) {
         self.events.push(event);
     }
+
+    pub fn iter(&self) -> Iter<E> {
+        self.events.iter()
+    }
+
+    pub fn retain<F>(&mut self, filter: F)
+        where F: FnMut(&E) -> bool {
+        self.events.retain(filter)
+    }
+}
+
+impl<'a, E> IntoIterator for &'a EventPool<E> {
+    type Item     = &'a E;
+    type IntoIter = Iter<'a, E>;
+
+    fn into_iter(self) -> Iter<'a, E> {
+        (&self.events).into_iter()
+    }
 }
 
 #[derive(Copy, Clone, Hash, Debug)]
@@ -35,20 +55,20 @@ pub enum ContactEvent {
 
 #[derive(Copy, Clone, Debug)]
 pub struct ProximityEvent {
-    co1:         CollisionObjectHandle,
-    co2:         CollisionObjectHandle,
-    prev_status: Proximity,
-    new_status:  Proximity
+    pub collider1:   CollisionObjectHandle,
+    pub collider2:   CollisionObjectHandle,
+    pub prev_status: Proximity,
+    pub new_status:  Proximity
 }
 
 impl ProximityEvent {
-    pub fn new(co1:         CollisionObjectHandle,
-               co2:         CollisionObjectHandle,
+    pub fn new(collider1:   CollisionObjectHandle,
+               collider2:   CollisionObjectHandle,
                prev_status: Proximity,
                new_status:  Proximity)
               -> ProximityEvent {
         ProximityEvent {
-            co1, co2, prev_status, new_status
+            collider1, collider2, prev_status, new_status
         }
     }
 }

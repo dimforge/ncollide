@@ -5,6 +5,8 @@ use shape::{self, SupportMap, AnnotatedPoint};
 use query::algorithms::gjk;
 use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
+use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
+use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
 use query::Proximity;
 use math::{Point, Isometry};
 
@@ -21,7 +23,15 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
           M:  Isometry<P>,
           G1: SupportMap<P, M>,
           G2: SupportMap<P, M> {
-    support_map_against_support_map_with_params(m1, g1, m2, g2, margin, &mut JohnsonSimplex::new_w_tls(), None).0
+    if na::dimension::<P::Vector>() == 2 {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, margin, &mut VoronoiSimplex2::new(), None).0
+    }
+    else if na::dimension::<P::Vector>() == 3 {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, margin, &mut VoronoiSimplex3::new(), None).0
+    }
+    else {
+        support_map_against_support_map_with_params(m1, g1, m2, g2, margin, &mut JohnsonSimplex::new_w_tls(), None).0
+    }
 }
 
 /// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)

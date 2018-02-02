@@ -36,6 +36,7 @@ pub use as_bytes::AsBytes;
 pub use median::median;
 pub use sort::sort3;
 pub use cross3::cross3;
+pub use perp2::perp2;
 pub use point_cloud_support_point::point_cloud_support_point;
 pub use repeat::repeat;
 
@@ -55,5 +56,6 @@ pub mod as_bytes;
 mod median;
 mod sort;
 mod cross3;
+mod perp2;
 mod point_cloud_support_point;
 mod repeat;

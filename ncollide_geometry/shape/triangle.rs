@@ -1,8 +1,10 @@
 //! Definition of the triangle shape.
 
-use na::{self, Point3};
+use std::mem;
+use na::{self, Point3, Unit};
 use shape::{BaseMeshElement, SupportMap};
 use math::{Point, Isometry};
+use utils;
 
 
 /// A triangle shape.
@@ -18,16 +20,22 @@ impl<P: Point> Triangle<P> {
     #[inline]
     pub fn new(a: P, b: P, c: P) -> Triangle<P> {
         assert!(na::dimension::<P::Vector>() > 1);
+        Triangle { a, b, c }
+    }
 
-        Triangle {
-            a: a,
-            b: b,
-            c: c
+    /// Creates the reference to a triangle from the reference to an array of three points.
+    pub fn from_array(arr: &[P; 3]) -> &Triangle<P> {
+        unsafe {
+            mem::transmute(arr)
         }
     }
-}
 
-impl<P> Triangle<P> {
+    pub(crate) fn from_array4(arr: &[P; 4]) -> &Triangle<P> {
+        unsafe {
+            mem::transmute(arr)
+        }
+    }
+
     /// The fist point of this triangle.
     #[inline]
     pub fn a(&self) -> &P {
@@ -44,6 +52,26 @@ impl<P> Triangle<P> {
     #[inline]
     pub fn c(&self) -> &P {
         &self.c
+    }
+
+    /// The normal of this triangle assuming it is oriented ccw.
+    ///
+    /// The normal points such that it is collinear to `AB × AC` (where `×` denotes the cross
+    /// product).
+    #[inline]
+    pub fn normal(&self) -> Unit<P::Vector> {
+        Unit::new_normalize(self.scaled_normal())
+    }
+
+    /// A vector normal of this triangle.
+    ///
+    /// The vector points such that it is collinear to `AB × AC` (where `×` denotes the cross
+    /// product).
+    #[inline]
+    pub fn scaled_normal(&self) -> P::Vector {
+        let ab = self.b - self.a;
+        let ac = self.c - self.a;
+        utils::cross3(&ab, &ac)
     }
 }
 
