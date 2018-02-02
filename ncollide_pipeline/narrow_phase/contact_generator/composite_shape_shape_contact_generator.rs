@@ -5,7 +5,7 @@ use utils::data::hash::UintTWHash;
 use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{CompositeShape, Shape};
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a concave shape and another shape.
@@ -34,12 +34,12 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
         g1: &CompositeShape<P, M>,
         m2: &M,
         g2: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
         swap: bool,
     ) {
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
-        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction);
+        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear);
 
         {
             let mut visitor =
@@ -124,7 +124,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         a: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let Some(cs) = a.as_composite_shape() {
             self.do_update(d, ma, cs, mb, b, prediction, false);
@@ -161,7 +161,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         a: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let Some(cs) = b.as_composite_shape() {
             self.sub_detector

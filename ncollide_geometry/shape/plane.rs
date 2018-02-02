@@ -1,32 +1,24 @@
 //! Support mapping based Plane shape.
 use math::Vector;
-use na;
+use na::{self, Unit};
 
 /// SupportMap description of a plane.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Plane<V> {
     /// The plane normal.
-    normal: V,
+    normal: Unit<V>,
 }
 
 impl<V: Vector> Plane<V> {
     /// Builds a new plane from its center and its normal.
     #[inline]
-    pub fn new(normal: V) -> Plane<V> {
-        unsafe { Plane::new_normalized(na::normalize(&normal)) }
-    }
-}
-
-impl<V> Plane<V> {
-    /// Builds a new plane from its center and its normal.
-    #[inline]
-    pub unsafe fn new_normalized(normal: V) -> Plane<V> {
+    pub fn new(normal: Unit<V>) -> Plane<V> {
         Plane { normal: normal }
     }
 
     /// The plane normal.
     #[inline]
-    pub fn normal(&self) -> &V {
+    pub fn normal(&self) -> &Unit<V> {
         &self.normal
     }
 }

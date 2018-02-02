@@ -4,7 +4,7 @@ use geometry::shape::{AnnotatedPoint, Shape};
 use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Persistent collision detector between two shapes having a support mapping function.
@@ -15,6 +15,9 @@ use narrow_phase::{ContactDispatcher, ContactGenerator};
 pub struct SupportMapSupportMapContactGenerator<P: Point, M, S> {
     simplex: S,
     contact: GJKResult<Contact<P>, P::Vector>,
+    contact_manifold: Vec<Contact<P>>,
+    manifold1: Vec<P>,
+    manifold2: Vec<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
@@ -31,6 +34,9 @@ where
         SupportMapSupportMapContactGenerator {
             simplex: simplex,
             contact: GJKResult::Intersection,
+            contact_manifold: Vec::new(),
+            manifold1: Vec::new(),
+            manifold2: Vec::new(),
             mat_type: PhantomData,
         }
     }
@@ -50,12 +56,12 @@ where
         a: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction = match self.contact {
                 GJKResult::NoIntersection(ref separator) => Some(separator.clone()),
-                GJKResult::Projection(ref contact) => Some(contact.normal.clone()),
+                GJKResult::Projection(ref contact) => Some(contact.normal.unwrap()),
                 GJKResult::Intersection => None,
                 GJKResult::Proximity(_) => unreachable!(),
             };
@@ -65,10 +71,29 @@ where
                 sma,
                 mb,
                 smb,
-                prediction,
+                prediction.linear,
                 &mut self.simplex,
                 initial_direction,
             );
+
+            // // Generate a contact manifold.
+            // self.manifold1.clear();
+            // self.manifold2.clear();
+
+            // match self.contact {
+            //     GJKResult::Projection(ref contact) => {
+            //         sma.support_area_toward(ma, &contact.normal, predicton.angular1, &mut self.manifold1);
+            //         if self.manifold1.len() > 1 {
+            //             smb.support_area_toward(mb, &contact.normal, prediction.angular2, &mut self.manifold2);
+            //             if self.manifold2.len() > 1 {
+            //                 // Generate contacts at the vertices of the polyhedral contact area.
+            //                 utils::overlay_ccw_areas(&self.manifold1[..], &self.manifold2[..], &mut self.overlay)
+            //             }
+            //         }
+
+            //     },
+            //     _ => { }
+            // }
 
             true
         } else {

@@ -2,7 +2,7 @@ use alga::linear::{FiniteDimInnerSpace, Rotation};
 use na;
 use math::{Isometry, Point};
 use geometry::shape::Shape;
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use narrow_phase::{ContactDispatcher, ContactGenerator, IncrementalContactManifoldGenerator};
 
 /// Contact manifold generator producing a full manifold at the first update.
@@ -48,15 +48,15 @@ where
         g1: &Shape<P, M>,
         m2: &M,
         g2: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if self.sub_detector.num_contacts() == 0 {
-            // do the one-shot manifold generation
+            // Do the one-shot manifold generation.
             match self.sub_detector
                 .get_sub_collision(d, m1, g1, m2, g2, prediction)
             {
                 Some(Some(coll)) => {
-                    P::Vector::orthonormal_subspace_basis(&[coll.normal], |b| {
+                    P::Vector::orthonormal_subspace_basis(&[*coll.normal], |b| {
                         let perturbation = M::Rotation::scaled_rotation_between(
                             &coll.normal,
                             &b,
@@ -90,7 +90,7 @@ where
                         true
                     });
 
-                    self.sub_detector.update_contacts(m1, m2, prediction);
+                    self.sub_detector.update_contacts(m1, m2, prediction.linear);
 
                     true
                 }

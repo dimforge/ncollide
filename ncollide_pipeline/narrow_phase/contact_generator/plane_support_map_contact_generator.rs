@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use math::{Isometry, Point};
 use geometry::shape::{Plane, Shape};
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -58,10 +58,10 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
         plane: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vector>>(), b.as_support_map()) {
-            self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction);
+            self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction.linear);
 
             true
         } else {
@@ -95,10 +95,10 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContact
         a: &Shape<P, M>,
         mb: &M,
         plane: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let (Some(sm), Some(p)) = (a.as_support_map(), plane.as_shape::<Plane<P::Vector>>()) {
-            self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction);
+            self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction.linear);
 
             true
         } else {
