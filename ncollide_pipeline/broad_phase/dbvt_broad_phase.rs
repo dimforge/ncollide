@@ -17,13 +17,13 @@ enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
     Detached(Option<usize>), // The usize is the location of the corresponding on proxies_to_update
-    Deleted
+    Deleted,
 }
 
 struct DBVTBroadPhaseProxy<T> {
     data: T,
     status: ProxyStatus,
-    updated: bool
+    updated: bool,
 }
 
 impl<T> DBVTBroadPhaseProxy<T> {
@@ -38,7 +38,7 @@ impl<T> DBVTBroadPhaseProxy<T> {
     fn is_detached(&self) -> bool {
         match self.status {
             ProxyStatus::Detached(_) => true,
-            _ => false
+            _ => false,
         }
     }
 }
@@ -51,10 +51,10 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT2<P, ProxyHandle, BV>,                  // DBVT for moving objects.
-    stree: DBVT2<P, ProxyHandle, BV>,                 // DBVT for static objects.
+    tree: DBVT2<P, ProxyHandle, BV>,  // DBVT for moving objects.
+    stree: DBVT2<P, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool>, // Pairs detected.
-    margin: P::Real,                                  // The margin added to each bounding volume.
+    margin: P::Real,                  // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -104,29 +104,32 @@ where
                     *up_to_date = true;
                     let mut remove = true;
 
-                    let proxy1 = self.proxies.get(pair.0.uid()).expect("DBVT broad phase: internal error.");
-                    let proxy2 = self.proxies.get(pair.1.uid()).expect("DBVT broad phase: internal error.");
+                    let proxy1 = self.proxies
+                        .get(pair.0.uid())
+                        .expect("DBVT broad phase: internal error.");
+                    let proxy2 = self.proxies
+                        .get(pair.1.uid())
+                        .expect("DBVT broad phase: internal error.");
 
                     if self.purge_all || proxy1.updated || proxy2.updated {
                         if allow_proximity(&proxy1.data, &proxy2.data) {
                             let l1 = match proxy1.status {
                                 ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
                                 ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
-                                _ => panic!("DBVT broad phase: internal error.")
+                                _ => panic!("DBVT broad phase: internal error."),
                             };
 
                             let l2 = match proxy2.status {
                                 ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
                                 ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
-                                _ => panic!("DBVT broad phase: internal error.")
+                                _ => panic!("DBVT broad phase: internal error."),
                             };
 
                             if l1.bounding_volume.intersects(&l2.bounding_volume) {
                                 remove = false
                             }
                         }
-                    }
-                    else {
+                    } else {
                         remove = false;
                     }
 
@@ -144,7 +147,7 @@ where
         for pair in self.pairs_to_remove.iter() {
             let _ = self.pairs.remove(pair);
         }
-        
+
         self.pairs_to_remove.clear();
     }
 
@@ -159,8 +162,7 @@ where
                     let old_leaf = self.tree.remove(leaf);
                     let new_leaf = self.stree.insert(old_leaf);
                     proxy.status = ProxyStatus::OnStaticTree(new_leaf);
-                }
-                else {
+                } else {
                     proxy.status = ProxyStatus::OnDynamicTree(leaf, energy - 1)
                 }
             }
@@ -204,8 +206,10 @@ where
                         let leaf = DBVTLeaf2::new(bv, handle);
                         self.leaves_to_update[id] = leaf;
                         set_status = false;
-                    },
-                    ProxyStatus::Deleted => panic!("DBVT broad phase internal error: the proxy was deleted.")
+                    }
+                    ProxyStatus::Deleted => {
+                        panic!("DBVT broad phase internal error: the proxy was deleted.")
+                    }
                 }
 
                 proxy.updated = true;
@@ -213,7 +217,6 @@ where
                 if set_status {
                     proxy.status = ProxyStatus::Detached(Some(self.leaves_to_update.len() - 1));
                 }
-
             }
         }
 
@@ -278,7 +281,7 @@ where
                     ProxyStatus::OnDynamicTree(leaf, _) => {
                         let _ = self.tree.remove(leaf);
                     }
-                    _ => { }
+                    _ => {}
                 }
 
                 proxy.status = ProxyStatus::Deleted;
@@ -288,8 +291,12 @@ where
         }
 
         for (pair, _) in &mut self.pairs {
-            let proxy1 = self.proxies.get(pair.0.uid()).expect("DBVT broad phase: internal error.");
-            let proxy2 = self.proxies.get(pair.1.uid()).expect("DBVT broad phase: internal error.");
+            let proxy1 = self.proxies
+                .get(pair.0.uid())
+                .expect("DBVT broad phase: internal error.");
+            let proxy2 = self.proxies
+                .get(pair.1.uid())
+                .expect("DBVT broad phase: internal error.");
 
             if proxy1.status == ProxyStatus::Deleted || proxy2.status == ProxyStatus::Deleted {
                 handler(&proxy1.data, &proxy2.data);
@@ -310,14 +317,16 @@ where
     fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bounding_volume: BV) {
         if let Some(proxy) = self.proxies.get(handle.uid()) {
             let needs_update = match proxy.status {
-                ProxyStatus::OnStaticTree(leaf) => !self.stree[leaf]
-                    .bounding_volume
-                    .contains(&bounding_volume),
-                ProxyStatus::OnDynamicTree(leaf, _) => !self.tree[leaf]
-                    .bounding_volume
-                    .contains(&bounding_volume),
+                ProxyStatus::OnStaticTree(leaf) => {
+                    !self.stree[leaf].bounding_volume.contains(&bounding_volume)
+                }
+                ProxyStatus::OnDynamicTree(leaf, _) => {
+                    !self.tree[leaf].bounding_volume.contains(&bounding_volume)
+                }
                 ProxyStatus::Detached(_) => true,
-                ProxyStatus::Deleted => panic!("DBVT broad phase: internal error, proxy not found.")
+                ProxyStatus::Deleted => {
+                    panic!("DBVT broad phase: internal error, proxy not found.")
+                }
             };
 
             if needs_update {

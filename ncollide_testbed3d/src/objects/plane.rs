@@ -5,17 +5,19 @@ use na::{Point3, Vector3};
 use ncollide::world::{CollisionObject3, GeometricQueryType};
 
 pub struct Plane {
-    gfx: SceneNode
+    gfx: SceneNode,
 }
 
 impl Plane {
-    pub fn new<T>(object:       &CollisionObject3<f32, T>,
-                  world_pos:    &Point3<f32>,
-                  world_normal: &Vector3<f32>,
-                  color:        Point3<f32>,
-                  window:       &mut window::Window) -> Plane {
+    pub fn new<T>(
+        object: &CollisionObject3<f32, T>,
+        world_pos: &Point3<f32>,
+        world_normal: &Vector3<f32>,
+        color: Point3<f32>,
+        window: &mut window::Window,
+    ) -> Plane {
         let mut res = Plane {
-            gfx:  window.add_quad(100.0, 100.0, 10, 10)
+            gfx: window.add_quad(100.0, 100.0, 10, 10),
         };
 
         if let GeometricQueryType::Proximity(_) = object.query_type {
@@ -29,23 +31,21 @@ impl Plane {
 
         if world_normal.z.is_zero() && world_normal.y.is_zero() {
             up = Vector3::z();
-        }
-        else {
+        } else {
             up = Vector3::x();
         }
 
-        res.gfx.reorient(world_pos, &(*world_pos + *world_normal), &up);
+        res.gfx
+            .reorient(world_pos, &(*world_pos + *world_normal), &up);
 
         res.update();
 
         res
     }
 
-    pub fn select(&mut self) {
-    }
+    pub fn select(&mut self) {}
 
-    pub fn unselect(&mut self) {
-    }
+    pub fn unselect(&mut self) {}
 
     pub fn update(&mut self) {
         // FIXME: atm we assume the plane does not move

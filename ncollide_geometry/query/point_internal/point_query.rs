@@ -15,7 +15,7 @@ impl<P: Point> PointProjection<P> {
     pub fn new(is_inside: bool, point: P) -> PointProjection<P> {
         PointProjection {
             is_inside: is_inside,
-            point:     point
+            point: point,
         }
     }
 }
@@ -34,8 +34,7 @@ pub trait PointQuery<P: Point, M> {
 
         if solid || !proj.is_inside {
             dist
-        }
-        else {
+        } else {
             -dist
         }
     }
@@ -72,6 +71,10 @@ pub trait PointQueryWithLocation<P: Point, M> {
 
     /// Projects a point on `self` transformed by `m`.
     #[inline]
-    fn project_point_with_location(&self, m: &M, pt: &P, solid: bool)
-        -> (PointProjection<P>, Self::Location);
+    fn project_point_with_location(
+        &self,
+        m: &M,
+        pt: &P,
+        solid: bool,
+    ) -> (PointProjection<P>, Self::Location);
 }

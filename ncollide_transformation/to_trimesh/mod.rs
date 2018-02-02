@@ -1,6 +1,5 @@
 pub use self::to_trimesh::ToTriMesh;
 
-
 #[doc(hidden)]
 pub mod to_trimesh;
 mod ball_to_trimesh;

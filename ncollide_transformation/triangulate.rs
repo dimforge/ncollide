@@ -9,11 +9,11 @@ use na;
 use math::Point;
 use utils;
 use geometry::bounding_volume;
-use procedural::{TriMesh, IndexBuffer};
+use procedural::{IndexBuffer, TriMesh};
 
 struct Triangle<P: Point> {
-    idx:                    Point3<usize>,
-    circumcircle_center:    P,
+    idx: Point3<usize>,
+    circumcircle_center: P,
     circumcircle_sq_radius: P::Real,
 }
 
@@ -26,11 +26,10 @@ impl<P: Point> Triangle<P> {
         let (center, radius) = utils::circumcircle(pa, pb, pc);
 
         Triangle {
-            idx:                    idx,
-            circumcircle_center:    center,
-            circumcircle_sq_radius: radius * radius
+            idx: idx,
+            circumcircle_center: center,
+            circumcircle_sq_radius: radius * radius,
         }
-
     }
 
     pub fn circumcircle_contains_point(&self, pt: &P) -> bool {
@@ -40,21 +39,21 @@ impl<P: Point> Triangle<P> {
 
 /// Incremental triangulation utility.
 pub struct Triangulator<P: Point> {
-    vertices:  Vec<P>,
+    vertices: Vec<P>,
     triangles: Vec<Triangle<P>>,
-    edges:     HashMap<(usize, usize), usize>
+    edges: HashMap<(usize, usize), usize>,
 }
 
 impl<P: Point> Triangulator<P> {
     /// Creates a new Triangulator.
     pub fn new(supertriangle_a: P, supertriangle_b: P, supertriangle_c: P) -> Triangulator<P> {
-        let vertices = vec!(supertriangle_a, supertriangle_b, supertriangle_c);
+        let vertices = vec![supertriangle_a, supertriangle_b, supertriangle_c];
 
         Triangulator {
             // FIXME: why do we have to specify the type explicitely here ?
-            triangles: vec!(Triangle::<P>::new(Point3::new(0, 1, 2), &vertices[..])),
-            vertices:  vertices,
-            edges:     HashMap::new()
+            triangles: vec![Triangle::<P>::new(Point3::new(0, 1, 2), &vertices[..])],
+            vertices: vertices,
+            edges: HashMap::new(),
         }
     }
 
@@ -113,28 +112,38 @@ impl<P: Point> Triangulator<P> {
 
         let mut i = 0;
 
-        while i != self.triangles.len() { // the len might change inside of the loop
+        while i != self.triangles.len() {
+            // the len might change inside of the loop
             if self.triangles[i].circumcircle_contains_point(pt) {
                 {
                     let t = &self.triangles[i];
 
                     fn s(a: usize, b: usize) -> (usize, usize) {
-                        if a > b { (b, a) } else { (a, b) }
+                        if a > b {
+                            (b, a)
+                        } else {
+                            (a, b)
+                        }
                     }
 
-                    let edge_keys = [ s(t.idx.x, t.idx.y), s(t.idx.y, t.idx.z), s(t.idx.z, t.idx.x) ];
+                    let edge_keys = [
+                        s(t.idx.x, t.idx.y),
+                        s(t.idx.y, t.idx.z),
+                        s(t.idx.z, t.idx.x),
+                    ];
 
                     for edge_key in edge_keys.iter() {
                         match self.edges.entry(*edge_key) {
                             Entry::Occupied(mut entry) => *entry.get_mut() += 1,
-                            Entry::Vacant(entry)       => { let _ = entry.insert(1); }
+                            Entry::Vacant(entry) => {
+                                let _ = entry.insert(1);
+                            }
                         };
                     }
                 }
 
                 let _ = self.triangles.swap_remove(i);
-            }
-            else {
+            } else {
                 i = i + 1;
             }
         }
@@ -149,12 +158,12 @@ impl<P: Point> Triangulator<P> {
 pub fn triangulate<P: Point>(pts: &[P]) -> TriMesh<P> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
-    let radius           = radius * na::convert(2.0);
+    let radius = radius * na::convert(2.0);
 
     // Compute a triangle with (center, radius) as its inscribed circle.
-    let pi          = P::Real::pi();
+    let pi = P::Real::pi();
     let right_shift = radius / (pi / na::convert(6.0)).tan();
-    let up_shift    = (right_shift * right_shift + radius * radius).sqrt();
+    let up_shift = (right_shift * right_shift + radius * radius).sqrt();
 
     let mut up = na::zero::<P::Vector>();
     up[0] = na::one();
@@ -169,10 +178,10 @@ pub fn triangulate<P: Point>(pts: &[P]) -> TriMesh<P> {
     //
     //         bleft    bright
     //
-    let top    = center + up * up_shift;
+    let top = center + up * up_shift;
     // FIXME: use `-` instead of `+ (-` when the trait refor is done.
     let bright = center + (-up * radius + right * right_shift);
-    let bleft  = center + (-up * radius - right * right_shift);
+    let bleft = center + (-up * radius - right * right_shift);
 
     //// Build the triangulator.
     let mut triangulator = Triangulator::new(top, bright, bleft);

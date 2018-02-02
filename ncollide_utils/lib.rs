@@ -10,23 +10,22 @@
 #![allow(missing_copy_implementations)] // FIXME: deny this.
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-extern crate rand;
-extern crate rustc_serialize;
-extern crate num_traits as num;
+extern crate alga;
 #[macro_use]
 extern crate approx;
-extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
+extern crate num_traits as num;
+extern crate rand;
+extern crate rustc_serialize;
 
 pub use center::center;
 // pub use project_homogeneous::{project_homogeneous, project_homogeneous_to};
-pub use triangle::{circumcircle, is_affinely_dependent_triangle3,
-                   is_point_in_triangle, triangle_area,
-                   triangle_center, triangle_perimeter};
-pub use tetrahedron::{tetrahedron_volume, tetrahedron_signed_volume, tetrahedron_center};
+pub use triangle::{circumcircle, is_point_in_triangle, triangle_area, triangle_center,
+                   triangle_perimeter, is_affinely_dependent_triangle3};
+pub use tetrahedron::{tetrahedron_center, tetrahedron_signed_volume, tetrahedron_volume};
 pub use cleanup::remove_unused_points;
-pub use derivatives::{dcos, dsin, binom};
+pub use derivatives::{binom, dcos, dsin};
 // pub use optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
 //                        LineSearch, BacktrackingLineSearch};
 pub use hashable_partial_eq::HashablePartialEq;
@@ -39,7 +38,6 @@ pub use cross3::cross3;
 pub use perp2::perp2;
 pub use point_cloud_support_point::point_cloud_support_point;
 pub use repeat::repeat;
-
 
 pub mod data;
 mod center;

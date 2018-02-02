@@ -6,7 +6,7 @@ use math::Point;
 /// A reflection is obtained with the central symmetry with regard to the origin.
 #[derive(Debug)]
 pub struct Reflection<'a, G: ?Sized + 'a> {
-    shape: &'a G
+    shape: &'a G,
 }
 
 impl<'a, G: ?Sized> Reflection<'a, G> {
@@ -25,8 +25,10 @@ impl<'a, G: ?Sized> Reflection<'a, G> {
 }
 
 impl<'a, P, M, G: ?Sized> SupportMap<P, M> for Reflection<'a, G>
-    where P: Point,
-          G: SupportMap<P, M> {
+where
+    P: Point,
+    G: SupportMap<P, M>,
+{
     #[inline]
     fn support_point(&self, m: &M, dir: &P::Vector) -> P {
         -self.shape().support_point(m, &-*dir)

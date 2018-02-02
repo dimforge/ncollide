@@ -3,10 +3,10 @@ use na::Point3;
 
 /// Given an index buffer, remove from `points` every point that is not indexed.
 pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Point3<u32>]) {
-    let mut used:  Vec<bool>  = iter::repeat(false).take(points.len()).collect();
-    let mut remap: Vec<usize> = (0 .. points.len()).map(|i| i).collect();
-    let used                  = &mut used[..];
-    let remap                 = &mut remap[..];
+    let mut used: Vec<bool> = iter::repeat(false).take(points.len()).collect();
+    let mut remap: Vec<usize> = (0..points.len()).map(|i| i).collect();
+    let used = &mut used[..];
+    let remap = &mut remap[..];
 
     for i in idx.iter() {
         used[i.x as usize] = true;
@@ -20,8 +20,7 @@ pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Point3<u32>]) {
             let _ = points.swap_remove(i);
             remap[points.len()] = i;
             used[i] = used[points.len()];
-        }
-        else {
+        } else {
             i = i + 1;
         }
     }

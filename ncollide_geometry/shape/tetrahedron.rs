@@ -5,14 +5,13 @@ use na;
 use shape::{Segment, Triangle};
 use math::Point;
 
-
 /// A tetrahedron with 4 vertices.
 #[derive(Copy, Clone, Debug)]
 pub struct Tetrahedron<P> {
     a: P,
     b: P,
     c: P,
-    d: P
+    d: P,
 }
 
 impl<P: Point> Tetrahedron<P> {
@@ -25,9 +24,7 @@ impl<P: Point> Tetrahedron<P> {
 
     /// Creates the reference to a tetrahedron from the reference to an array of four points.
     pub fn from_array(arr: &[P; 4]) -> &Tetrahedron<P> {
-        unsafe {
-            mem::transmute(arr)
-        }
+        unsafe { mem::transmute(arr) }
     }
 
     /// The fist point of this tetrahedron.
@@ -66,7 +63,7 @@ impl<P: Point> Tetrahedron<P> {
             1 => Triangle::new(self.a, self.b, self.d),
             2 => Triangle::new(self.a, self.c, self.d),
             3 => Triangle::new(self.b, self.c, self.d),
-            _ => panic!("Tetrahedron face index out of bounds (must be < 4.")
+            _ => panic!("Tetrahedron face index out of bounds (must be < 4."),
         }
     }
 
@@ -86,7 +83,7 @@ impl<P: Point> Tetrahedron<P> {
             3 => Segment::new(self.b, self.c),
             4 => Segment::new(self.b, self.d),
             5 => Segment::new(self.c, self.d),
-            _ => panic!("Tetrahedron edge index out of bounds (must be < 6).")
+            _ => panic!("Tetrahedron edge index out of bounds (must be < 6)."),
         }
     }
 }

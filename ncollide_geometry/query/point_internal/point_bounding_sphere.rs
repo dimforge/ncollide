@@ -1,9 +1,9 @@
 use alga::general::Id;
 
-use query::{PointQuery, PointProjection};
+use query::{PointProjection, PointQuery};
 use shape::Ball;
 use bounding_volume::BoundingSphere;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for BoundingSphere<P> {
     #[inline]

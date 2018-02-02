@@ -1,15 +1,16 @@
 //! Bounding volumes.
 
 #[doc(inline)]
-pub use bounding_volume::bounding_volume::{HasBoundingVolume, BoundingVolume};
+pub use bounding_volume::bounding_volume::{BoundingVolume, HasBoundingVolume};
 #[doc(inline)]
-pub use bounding_volume::aabb::{AABB, aabb};
+pub use bounding_volume::aabb::{aabb, AABB};
 #[doc(inline)]
-pub use bounding_volume::bounding_sphere::{BoundingSphere, bounding_sphere};
+pub use bounding_volume::bounding_sphere::{bounding_sphere, BoundingSphere};
 
-pub use bounding_volume::aabb_utils::{support_map_aabb, point_cloud_aabb};
+pub use bounding_volume::aabb_utils::{point_cloud_aabb, support_map_aabb};
 pub use bounding_volume::aabb_ball::ball_aabb;
-pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere_with_center, point_cloud_bounding_sphere};
+pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere,
+                                                 point_cloud_bounding_sphere_with_center};
 pub use bounding_volume::bounding_volume_bvt::BoundingVolumeInterferencesCollector;
 
 use na::{Point2, Point3};

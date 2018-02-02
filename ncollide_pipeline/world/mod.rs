@@ -1,22 +1,15 @@
 //! High level API to detect collisions in large, complex scenes.
 
-pub use self::collision_object::{GeometricQueryType, CollisionObject, CollisionObjectHandle, CollisionObjectSlab, CollisionObjects};
+pub use self::collision_object::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab,
+                                 CollisionObjects, GeometricQueryType};
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
-pub use self::collision_world::{
-    BroadPhaseObject,
-    NarrowPhaseObject,
-    CollisionWorld,
-    InterferencesWithRay,
-    InterferencesWithPoint,
-    InterferencesWithAABB
-};
+pub use self::collision_world::{BroadPhaseObject, CollisionWorld, NarrowPhaseObject};
 
-use na::{Point3, Isometry3, Point2, Isometry2};
+use na::{Isometry2, Isometry3, Point2, Point3};
 
 mod collision_object;
 mod collision_groups;
 mod collision_world;
-
 
 /// A 3D collision world associating collision objects to user-defined data of type `T`.
 pub type CollisionWorld3<N, T> = CollisionWorld<Point3<N>, Isometry3<N>, T>;

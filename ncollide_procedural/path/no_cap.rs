@@ -15,23 +15,27 @@ impl NoCap {
 }
 
 impl<N: Real> PolylineCompatibleCap<N> for NoCap {
-    fn gen_start_cap(&self,
-                     _: u32,
-                     _: &Polyline<Point3<N>>,
-                     _: &Point3<N>,
-                     _: &Vector3<N>,
-                     _: bool,
-                     _: &mut Vec<Point3<N>>,
-                     _: &mut Vec<Point3<u32>>) {
+    fn gen_start_cap(
+        &self,
+        _: u32,
+        _: &Polyline<Point3<N>>,
+        _: &Point3<N>,
+        _: &Vector3<N>,
+        _: bool,
+        _: &mut Vec<Point3<N>>,
+        _: &mut Vec<Point3<u32>>,
+    ) {
     }
 
-    fn gen_end_cap(&self,
-                   _: u32,
-                   _: &Polyline<Point3<N>>,
-                   _: &Point3<N>,
-                   _: &Vector3<N>,
-                   _: bool,
-                   _: &mut Vec<Point3<N>>,
-                   _: &mut Vec<Point3<u32>>) {
+    fn gen_end_cap(
+        &self,
+        _: u32,
+        _: &Polyline<Point3<N>>,
+        _: &Point3<N>,
+        _: &Vector3<N>,
+        _: bool,
+        _: &mut Vec<Point3<N>>,
+        _: &mut Vec<Point3<u32>>,
+    ) {
     }
 }

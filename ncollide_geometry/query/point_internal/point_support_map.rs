@@ -7,21 +7,24 @@ use query::algorithms::simplex::Simplex;
 use query::algorithms::johnson_simplex::JohnsonSimplex;
 use query::algorithms::voronoi_simplex2::VoronoiSimplex2;
 use query::algorithms::voronoi_simplex3::VoronoiSimplex3;
-use query::{PointQuery, PointProjection};
-use shape::{SupportMap, Cylinder, Cone, Capsule, ConvexHull};
-use math::{Point, Isometry};
+use query::{PointProjection, PointQuery};
+use shape::{Capsule, Cone, ConvexHull, Cylinder, SupportMap};
+use math::{Isometry, Point};
 
 /// Projects a point on a shape using the GJK algorithm.
-pub fn support_map_point_projection<P, M, S, G>(m:       &M,
-                                                shape:   &G,
-                                                simplex: &mut S,
-                                                point:   &P,
-                                                solid:   bool)
-                                                -> PointProjection<P>
-    where P: Point,
-          M: Isometry<P>,
-          S: Simplex<P>,
-          G: SupportMap<P, M> {
+pub fn support_map_point_projection<P, M, S, G>(
+    m: &M,
+    shape: &G,
+    simplex: &mut S,
+    point: &P,
+    solid: bool,
+) -> PointProjection<P>
+where
+    P: Point,
+    M: Isometry<P>,
+    S: Simplex<P>,
+    G: SupportMap<P, M>,
+{
     let m = m.append_translation(&M::Translation::from_vector(-point.coordinates()).unwrap());
 
     let support_point = shape.support_point(&m, &-point.coordinates());
@@ -29,9 +32,7 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
     simplex.reset(support_point);
 
     match gjk::project_origin(&m, shape, simplex) {
-        Some(p) => {
-            PointProjection::new(false, p + point.coordinates())
-        },
+        Some(p) => PointProjection::new(false, p + point.coordinates()),
         None => {
             let proj;
 
@@ -41,10 +42,9 @@ pub fn support_map_point_projection<P, M, S, G>(m:       &M,
             if !solid {
                 match minkowski_sampling::project_origin(&m, shape, simplex) {
                     Some(p) => proj = p + point.coordinates(),
-                    None    => proj = *point
+                    None => proj = *point,
                 }
-            }
-            else {
+            } else {
                 proj = *point
             }
 
@@ -58,12 +58,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cylinder<P::Real> {
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         if na::dimension::<P::Vector>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
-        }
-        else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<P::Vector>() == 3 {
             support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
-        }
-        else {
-            support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
+        } else {
+            support_map_point_projection(
+                m,
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                point,
+                solid,
+            )
         }
     }
 }
@@ -73,12 +77,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cone<P::Real> {
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         if na::dimension::<P::Vector>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
-        }
-        else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<P::Vector>() == 3 {
             support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
-        }
-        else {
-            support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
+        } else {
+            support_map_point_projection(
+                m,
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                point,
+                solid,
+            )
         }
     }
 }
@@ -88,12 +96,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Capsule<P::Real> {
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         if na::dimension::<P::Vector>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
-        }
-        else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<P::Vector>() == 3 {
             support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
-        }
-        else {
-            support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
+        } else {
+            support_map_point_projection(
+                m,
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                point,
+                solid,
+            )
         }
     }
 }
@@ -103,12 +115,16 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for ConvexHull<P> {
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         if na::dimension::<P::Vector>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
-        }
-        else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<P::Vector>() == 3 {
             support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
-        }
-        else {
-            support_map_point_projection(m, self, &mut JohnsonSimplex::<P>::new_w_tls(), point, solid)
+        } else {
+            support_map_point_projection(
+                m,
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                point,
+                solid,
+            )
         }
     }
 }

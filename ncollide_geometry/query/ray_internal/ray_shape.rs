@@ -1,6 +1,6 @@
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 use shape::Shape;
-use query::{RayCast, Ray, RayIntersection};
+use query::{Ray, RayCast, RayIntersection};
 
 impl<P: Point, M: Isometry<P>> RayCast<P, M> for Shape<P, M> {
     #[inline]
@@ -11,14 +11,24 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Shape<P, M> {
     }
 
     #[inline]
-    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &M,
+        ray: &Ray<P>,
+        solid: bool,
+    ) -> Option<RayIntersection<P::Vector>> {
         self.as_ray_cast()
             .expect("No RayCast implementation for the underlying shape.")
             .toi_and_normal_with_ray(m, ray, solid)
     }
 
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+    fn toi_and_normal_and_uv_with_ray(
+        &self,
+        m: &M,
+        ray: &Ray<P>,
+        solid: bool,
+    ) -> Option<RayIntersection<P::Vector>> {
         self.as_ray_cast()
             .expect("No RayCast implementation for the underlying shape.")
             .toi_and_normal_and_uv_with_ray(m, ray, solid)

@@ -1,7 +1,7 @@
 //! Point inclusion and projection.
 
 #[doc(inline)]
-pub use self::point_query::{PointQuery, PointProjection, PointQueryWithLocation};
+pub use self::point_query::{PointProjection, PointQuery, PointQueryWithLocation};
 pub use self::point_bvt::PointInterferencesCollector;
 pub use self::point_segment::SegmentPointLocation;
 pub use self::point_triangle::TrianglePointLocation;

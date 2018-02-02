@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide;
 
-use na::{Vector3, Isometry3};
+use na::{Isometry3, Vector3};
 use ncollide::bounding_volume::{self, BoundingVolume};
 use ncollide::shape::{Cone, Cylinder};
 
@@ -9,16 +9,16 @@ fn main() {
     /*
      * Initialize the shapes.
      */
-    let cone     = Cone::new(0.5, 0.5);
+    let cone = Cone::new(0.5, 0.5);
     let cylinder = Cylinder::new(1.0, 0.5);
 
-    let cone_pos     = Isometry3::new(Vector3::z(), na::zero()); // 1.0 along the `z` axis.
-    let cylinder_pos = na::one::<Isometry3<f32>>();              // Id matrix.
+    let cone_pos = Isometry3::new(Vector3::z(), na::zero()); // 1.0 along the `z` axis.
+    let cylinder_pos = na::one::<Isometry3<f32>>(); // Id matrix.
 
     /*
      * Compute their axis-aligned bounding boxes.
      */
-    let aabb_cone     = bounding_volume::aabb(&cone, &cone_pos);
+    let aabb_cone = bounding_volume::aabb(&cone, &cone_pos);
     let aabb_cylinder = bounding_volume::aabb(&cylinder, &cylinder_pos);
 
     // Merge the two boxes.

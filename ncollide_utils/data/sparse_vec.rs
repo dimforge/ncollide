@@ -4,7 +4,7 @@ use std::mem;
 /// A sparse vector data structure.
 pub struct SparseVec<T> {
     data: Vec<Option<T>>,
-    free: Vec<usize>
+    free: Vec<usize>,
 }
 
 impl<T> Index<usize> for SparseVec<T> {
@@ -28,7 +28,7 @@ impl<T> SparseVec<T> {
     pub fn new() -> SparseVec<T> {
         SparseVec {
             data: Vec::new(),
-            free: Vec::new()
+            free: Vec::new(),
         }
     }
 
@@ -38,8 +38,7 @@ impl<T> SparseVec<T> {
         if let Some(i) = self.free.pop() {
             self.data[i] = Some(data);
             i
-        }
-        else {
+        } else {
             self.data.push(Some(data));
             self.data.len() - 1
         }
@@ -50,8 +49,7 @@ impl<T> SparseVec<T> {
     pub fn remove(&mut self, id: usize) -> Option<T> {
         if id < self.data.len() {
             mem::replace(&mut self.data[id], None)
-        }
-        else {
+        } else {
             None
         }
     }

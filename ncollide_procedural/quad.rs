@@ -1,6 +1,6 @@
 use na;
-use na::{Point3, Point2};
-use super::{TriMesh, IndexBuffer};
+use na::{Point2, Point3};
+use super::{IndexBuffer, TriMesh};
 use math::Point;
 
 /// Adds a double-sided quad to the scene.
@@ -16,19 +16,17 @@ use math::Point;
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<P>(width:    P::Real,
-               height:   P::Real,
-               usubdivs: usize,
-               vsubdivs: usize)
-               -> TriMesh<P>
-    where P: Point {
+pub fn quad<P>(width: P::Real, height: P::Real, usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
+where
+    P: Point,
+{
     let mut quad = unit_quad::<P>(usubdivs, vsubdivs);
 
     let mut s = na::zero::<P::Vector>();
     s[0] = width;
     s[1] = height;
 
-    for i in 2 .. na::dimension::<P::Vector>() {
+    for i in 2..na::dimension::<P::Vector>() {
         s[i] = na::one();
     }
 
@@ -45,8 +43,13 @@ pub fn quad<P>(width:    P::Real,
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
 pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -> TriMesh<P>
-    where P: Point {
-    assert!(nhpoints > 1 && nvpoints > 1, "The number of points must be at least 2 in each dimension.");
+where
+    P: Point,
+{
+    assert!(
+        nhpoints > 1 && nvpoints > 1,
+        "The number of points must be at least 2 in each dimension."
+    );
 
     let mut res = unit_quad::<P>(nhpoints - 1, nvpoints - 1);
 
@@ -69,23 +72,28 @@ pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
 pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
-    where P: Point {
-    assert!(usubdivs > 0 && vsubdivs > 0, "The number of subdivisions cannot be zero");
+where
+    P: Point,
+{
+    assert!(
+        usubdivs > 0 && vsubdivs > 0,
+        "The number of subdivisions cannot be zero"
+    );
     assert!(na::dimension::<P::Vector>() >= 2);
 
-    let wstep    = na::one::<P::Real>() / na::convert(usubdivs as f64);
-    let hstep    = na::one::<P::Real>() / na::convert(vsubdivs as f64);
-    let cw       = na::convert(0.5);
-    let ch       = na::convert(0.5);
+    let wstep = na::one::<P::Real>() / na::convert(usubdivs as f64);
+    let hstep = na::one::<P::Real>() / na::convert(vsubdivs as f64);
+    let cw = na::convert(0.5);
+    let ch = na::convert(0.5);
 
-    let mut vertices   = Vec::new();
-    let mut normals    = Vec::new();
-    let mut triangles  = Vec::new();
+    let mut vertices = Vec::new();
+    let mut normals = Vec::new();
+    let mut triangles = Vec::new();
     let mut tex_coords = Vec::new();
 
     // create the vertices
-    for i in 0usize .. vsubdivs + 1 {
-        for j in 0usize .. usubdivs + 1 {
+    for i in 0usize..vsubdivs + 1 {
+        for j in 0usize..usubdivs + 1 {
             let ni: P::Real = na::convert(i as f64);
             let nj: P::Real = na::convert(j as f64);
 
@@ -99,7 +107,7 @@ pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
     }
 
     // create the normals
-    for _ in 0 .. (vsubdivs + 1) * (usubdivs + 1) {
+    for _ in 0..(vsubdivs + 1) * (usubdivs + 1) {
         let mut n = na::zero::<P::Vector>();
         n[0] = na::one();
         normals.push(n)
@@ -114,13 +122,18 @@ pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
         Point3::new(i * ws + j, i * ws + (j + 1), (i + 1) * ws + j + 1)
     }
 
-    for i in 0usize .. vsubdivs {
-        for j in 0usize .. usubdivs {
+    for i in 0usize..vsubdivs {
+        for j in 0usize..usubdivs {
             // build two triangles...
             triangles.push(dl_triangle(i as u32, j as u32, (usubdivs + 1) as u32));
             triangles.push(ur_triangle(i as u32, j as u32, (usubdivs + 1) as u32));
         }
     }
 
-    TriMesh::new(vertices, Some(normals), Some(tex_coords), Some(IndexBuffer::Unified(triangles)))
+    TriMesh::new(
+        vertices,
+        Some(normals),
+        Some(tex_coords),
+        Some(IndexBuffer::Unified(triangles)),
+    )
 }

@@ -25,7 +25,11 @@ impl<P: Point, M, T> BroadPhasePairFilters<P, M, T> {
     }
 
     /// Registers a collision filter.
-    pub fn register_collision_filter(&mut self, name: &str, callback: Box<BroadPhasePairFilter<P, M, T>>) {
+    pub fn register_collision_filter(
+        &mut self,
+        name: &str,
+        callback: Box<BroadPhasePairFilter<P, M, T>>,
+    ) {
         for &mut (ref mut n, ref mut f) in self.filters.iter_mut() {
             if name == &n[..] {
                 *f = callback;
@@ -51,14 +55,19 @@ impl<P: Point, M, T> BroadPhasePairFilters<P, M, T> {
         if to_remove != self.filters.len() {
             let _ = self.filters.remove(to_remove);
             true
-        }
-        else {
+        } else {
             false
         }
     }
 
     /// Tells if the collision between `b1` and `b2` is to be handled by the narrow-phase.
-    pub fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool {
-        self.filters.iter().all(|&(_, ref f)| f.is_pair_valid(b1, b2))
+    pub fn is_pair_valid(
+        &self,
+        b1: &CollisionObject<P, M, T>,
+        b2: &CollisionObject<P, M, T>,
+    ) -> bool {
+        self.filters
+            .iter()
+            .all(|&(_, ref f)| f.is_pair_valid(b1, b2))
     }
 }

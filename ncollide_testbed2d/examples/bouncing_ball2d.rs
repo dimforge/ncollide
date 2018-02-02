@@ -3,10 +3,10 @@ extern crate ncollide;
 extern crate ncollide_testbed2d;
 
 use std::cell::Cell;
-use na::{Vector2, Point2, Isometry2, Point3, Translation2};
-use ncollide::world::{CollisionWorld, CollisionGroups, GeometricQueryType, CollisionObject2};
-use ncollide::narrow_phase::{ProximityHandler, ContactHandler, ContactAlgorithm2};
-use ncollide::shape::{Plane, Ball, Cuboid, ShapeHandle2};
+use na::{Isometry2, Point2, Point3, Translation2, Vector2};
+use ncollide::world::{CollisionGroups, CollisionObject2, CollisionWorld, GeometricQueryType};
+use ncollide::narrow_phase::{ContactAlgorithm2, ContactHandler, ProximityHandler};
+use ncollide::shape::{Ball, Cuboid, Plane, ShapeHandle2};
 use ncollide::query::Proximity;
 use ncollide_testbed2d::Testbed;
 
@@ -17,8 +17,8 @@ use ncollide_testbed2d::Testbed;
  */
 #[derive(Clone)]
 struct CollisionObjectData {
-    pub name:     &'static str,
-    pub velocity: Option<Cell<Vector2<f32>>>
+    pub name: &'static str,
+    pub velocity: Option<Cell<Vector2<f32>>>,
 }
 
 impl CollisionObjectData {
@@ -26,14 +26,13 @@ impl CollisionObjectData {
         let init_velocity;
         if let Some(velocity) = velocity {
             init_velocity = Some(Cell::new(velocity))
-        }
-        else {
+        } else {
             init_velocity = None
         }
 
         CollisionObjectData {
-            name:     name,
-            velocity: init_velocity
+            name: name,
+            velocity: init_velocity,
         }
     }
 }
@@ -46,25 +45,25 @@ impl CollisionObjectData {
 struct ProximityMessage;
 
 impl ProximityHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for ProximityMessage {
-    fn handle_proximity(&mut self,
-                        co1: &CollisionObject2<f32, CollisionObjectData>,
-                        co2: &CollisionObject2<f32, CollisionObjectData>,
-                        _:             Proximity,
-                        new_proximity: Proximity) {
+    fn handle_proximity(
+        &mut self,
+        co1: &CollisionObject2<f32, CollisionObjectData>,
+        co2: &CollisionObject2<f32, CollisionObjectData>,
+        _: Proximity,
+        new_proximity: Proximity,
+    ) {
         // The collision object with a None velocity is the coloured area.
         let area_name;
 
         if co1.data().velocity.is_none() {
             area_name = co1.data().name;
-        }
-        else {
+        } else {
             area_name = co2.data().name;
         }
 
         if new_proximity == Proximity::Intersecting {
             println!("The ball enters the {} area.", area_name);
-        }
-        else if new_proximity == Proximity::Disjoint {
+        } else if new_proximity == Proximity::Disjoint {
             println!("The ball leaves the {} area.", area_name);
         }
     }
@@ -78,10 +77,12 @@ impl ProximityHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for Prox
 struct VelocityBouncer;
 
 impl ContactHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for VelocityBouncer {
-    fn handle_contact_started(&mut self,
-                              co1: &CollisionObject2<f32, CollisionObjectData>,
-                              co2: &CollisionObject2<f32, CollisionObjectData>,
-                              alg: &ContactAlgorithm2<f32>) {
+    fn handle_contact_started(
+        &mut self,
+        co1: &CollisionObject2<f32, CollisionObjectData>,
+        co2: &CollisionObject2<f32, CollisionObjectData>,
+        alg: &ContactAlgorithm2<f32>,
+    ) {
         // NOTE: real-life applications would avoid this systematic allocation.
         let mut collector = Vec::new();
         alg.contacts(&mut collector);
@@ -97,23 +98,24 @@ impl ContactHandler<Point2<f32>, Isometry2<f32>, CollisionObjectData> for Veloci
         }
     }
 
-    fn handle_contact_stopped(&mut self,
-                              _: &CollisionObject2<f32, CollisionObjectData>,
-                              _: &CollisionObject2<f32, CollisionObjectData>) {
+    fn handle_contact_stopped(
+        &mut self,
+        _: &CollisionObject2<f32, CollisionObjectData>,
+        _: &CollisionObject2<f32, CollisionObjectData>,
+    ) {
         // We don't care.
     }
 }
-
 
 fn main() {
     /*
      * Setup initial object properties.
      */
     // Plane shapes.
-    let plane_left   = ShapeHandle2::new(Plane::new(Vector2::x()));
+    let plane_left = ShapeHandle2::new(Plane::new(Vector2::x()));
     let plane_bottom = ShapeHandle2::new(Plane::new(Vector2::y()));
-    let plane_right  = ShapeHandle2::new(Plane::new(-Vector2::x()));
-    let plane_top    = ShapeHandle2::new(Plane::new(-Vector2::y()));
+    let plane_right = ShapeHandle2::new(Plane::new(-Vector2::x()));
+    let plane_top = ShapeHandle2::new(Plane::new(-Vector2::y()));
 
     // Shared cuboid for the rectangular areas.
     let rect = ShapeHandle2::new(Cuboid::new(Vector2::new(4.8f32, 4.8)));
@@ -125,16 +127,16 @@ fn main() {
     let planes_pos = [
         Isometry2::new(Vector2::new(-10.0, 0.0), na::zero()),
         Isometry2::new(Vector2::new(0.0, -10.0), na::zero()),
-        Isometry2::new(Vector2::new(10.0, 0.0),  na::zero()),
-        Isometry2::new(Vector2::new(0.0,  10.0), na::zero())
+        Isometry2::new(Vector2::new(10.0, 0.0), na::zero()),
+        Isometry2::new(Vector2::new(0.0, 10.0), na::zero()),
     ];
 
     // Position of the rectangles.
     let rects_pos = [
-        Isometry2::new(Vector2::new(-5.0, 5.0),  na::zero()),
-        Isometry2::new(Vector2::new(5.0, -5.0),  na::zero()),
-        Isometry2::new(Vector2::new(5.0, 5.0),   na::zero()),
-        Isometry2::new(Vector2::new(-5.0, -5.0), na::zero())
+        Isometry2::new(Vector2::new(-5.0, 5.0), na::zero()),
+        Isometry2::new(Vector2::new(5.0, -5.0), na::zero()),
+        Isometry2::new(Vector2::new(5.0, 5.0), na::zero()),
+        Isometry2::new(Vector2::new(-5.0, -5.0), na::zero()),
     ];
 
     // Position of the ball.
@@ -150,12 +152,12 @@ fn main() {
     others_groups.set_membership(&[2]);
     others_groups.set_whitelist(&[1]);
 
-    let plane_data       = CollisionObjectData::new("ground", None);
+    let plane_data = CollisionObjectData::new("ground", None);
     let rect_data_purple = CollisionObjectData::new("purple", None);
-    let rect_data_blue   = CollisionObjectData::new("blue", None);
-    let rect_data_green  = CollisionObjectData::new("green", None);
+    let rect_data_blue = CollisionObjectData::new("blue", None);
+    let rect_data_green = CollisionObjectData::new("green", None);
     let rect_data_yellow = CollisionObjectData::new("yellow", None);
-    let ball_data        = CollisionObjectData::new("ball", Some(Vector2::new(10.0, 5.0)));
+    let ball_data = CollisionObjectData::new("ball", Some(Vector2::new(10.0, 5.0)));
 
     /*
      * Setup the world.
@@ -164,22 +166,85 @@ fn main() {
     let mut world = CollisionWorld::new(0.02, true);
 
     // Add the planes to the world.
-    let contacts_query  = GeometricQueryType::Contacts(0.0);
+    let contacts_query = GeometricQueryType::Contacts(0.0);
     let proximity_query = GeometricQueryType::Proximity(0.0);
 
-    world.deferred_add(0, planes_pos[0], plane_left,   others_groups, contacts_query, plane_data.clone());
-    world.deferred_add(1, planes_pos[1], plane_bottom, others_groups, contacts_query, plane_data.clone());
-    world.deferred_add(2, planes_pos[2], plane_right,  others_groups, contacts_query, plane_data.clone());
-    world.deferred_add(3, planes_pos[3], plane_top,    others_groups, contacts_query, plane_data.clone());
+    world.deferred_add(
+        0,
+        planes_pos[0],
+        plane_left,
+        others_groups,
+        contacts_query,
+        plane_data.clone(),
+    );
+    world.deferred_add(
+        1,
+        planes_pos[1],
+        plane_bottom,
+        others_groups,
+        contacts_query,
+        plane_data.clone(),
+    );
+    world.deferred_add(
+        2,
+        planes_pos[2],
+        plane_right,
+        others_groups,
+        contacts_query,
+        plane_data.clone(),
+    );
+    world.deferred_add(
+        3,
+        planes_pos[3],
+        plane_top,
+        others_groups,
+        contacts_query,
+        plane_data.clone(),
+    );
 
     // Add the colored rectangles to the world.
-    world.deferred_add(4, rects_pos[0], rect.clone(), others_groups, proximity_query, rect_data_purple);
-    world.deferred_add(5, rects_pos[1], rect.clone(), others_groups, proximity_query, rect_data_blue);
-    world.deferred_add(6, rects_pos[2], rect.clone(), others_groups, proximity_query, rect_data_green);
-    world.deferred_add(7, rects_pos[3], rect.clone(), others_groups, proximity_query, rect_data_yellow);
+    world.deferred_add(
+        4,
+        rects_pos[0],
+        rect.clone(),
+        others_groups,
+        proximity_query,
+        rect_data_purple,
+    );
+    world.deferred_add(
+        5,
+        rects_pos[1],
+        rect.clone(),
+        others_groups,
+        proximity_query,
+        rect_data_blue,
+    );
+    world.deferred_add(
+        6,
+        rects_pos[2],
+        rect.clone(),
+        others_groups,
+        proximity_query,
+        rect_data_green,
+    );
+    world.deferred_add(
+        7,
+        rects_pos[3],
+        rect.clone(),
+        others_groups,
+        proximity_query,
+        rect_data_yellow,
+    );
 
     // Add the ball to the world.
-    world.deferred_add(8, ball_pos, ball, ball_groups, GeometricQueryType::Contacts(0.0), ball_data);
+    world.deferred_add(
+        8,
+        ball_pos,
+        ball,
+        ball_groups,
+        GeometricQueryType::Contacts(0.0),
+        ball_data,
+    );
 
     // Register our handlers.
     world.register_proximity_handler("ProximityMessage", ProximityMessage);
@@ -206,7 +271,7 @@ fn main() {
 
         {
             // Integrate the velocities.
-            let ball_object   = world.collision_object(8).unwrap();
+            let ball_object = world.collision_object(8).unwrap();
             let ball_velocity = ball_object.data.velocity.as_ref().unwrap();
 
             // Integrate the positions.

@@ -3,34 +3,36 @@ use std::cell::RefCell;
 use kiss3d::window::Window;
 use kiss3d::scene::SceneNode;
 use kiss3d::resource;
-use na::{Vector3, Point3, Isometry3};
+use na::{Isometry3, Point3, Vector3};
 use ncollide::world::{CollisionObject3, GeometricQueryType};
 use objects::node;
 
 pub struct Mesh {
-    color:      Point3<f32>,
+    color: Point3<f32>,
     base_color: Point3<f32>,
-    delta:      Isometry3<f32>,
-    gfx:        SceneNode
+    delta: Isometry3<f32>,
+    gfx: SceneNode,
 }
 
 impl Mesh {
-    pub fn new<T>(object:   &CollisionObject3<f32, T>,
-                  delta:    Isometry3<f32>,
-                  vertices: Vec<Point3<f32>>,
-                  indices:  Vec<Point3<u32>>,
-                  color:    Point3<f32>,
-                  window:   &mut Window) -> Mesh {
+    pub fn new<T>(
+        object: &CollisionObject3<f32, T>,
+        delta: Isometry3<f32>,
+        vertices: Vec<Point3<f32>>,
+        indices: Vec<Point3<u32>>,
+        color: Point3<f32>,
+        window: &mut Window,
+    ) -> Mesh {
         let vs = vertices;
         let is = indices;
 
         let mesh = resource::Mesh::new(vs, is, None, None, false);
 
         let mut res = Mesh {
-            color:      color,
+            color: color,
             base_color: color,
-            delta:      delta,
-            gfx:        window.add_mesh(Rc::new(RefCell::new(mesh)), Vector3::from_element(1.0)),
+            delta: delta,
+            gfx: window.add_mesh(Rc::new(RefCell::new(mesh)), Vector3::from_element(1.0)),
         };
 
         if let GeometricQueryType::Proximity(_) = object.query_type {
@@ -40,7 +42,8 @@ impl Mesh {
 
         res.gfx.enable_backface_culling(false);
         res.gfx.set_color(color.x, color.y, color.z);
-        res.gfx.set_local_transformation(object.position * res.delta);
+        res.gfx
+            .set_local_transformation(object.position * res.delta);
         res.update(object);
 
         res

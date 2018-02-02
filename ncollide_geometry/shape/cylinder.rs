@@ -8,13 +8,13 @@ use alga::general::Real;
 use alga::linear::NormedSpace;
 use na;
 use shape::SupportMap;
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Cylinder<N> {
     half_height: N,
-    radius:      N,
+    radius: N,
 }
 
 impl<N: Real> Cylinder<N> {
@@ -28,7 +28,7 @@ impl<N: Real> Cylinder<N> {
 
         Cylinder {
             half_height: half_height,
-            radius:      radius
+            radius: radius,
         }
     }
 
@@ -45,7 +45,6 @@ impl<N: Real> Cylinder<N> {
     }
 }
 
-
 impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cylinder<P::Real> {
     fn support_point(&self, m: &M, dir: &P::Vector) -> P {
         let local_dir = m.inverse_rotate_vector(dir);
@@ -57,15 +56,13 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cylinder<P::Real> {
 
         if vres.normalize_mut().is_zero() {
             vres = na::zero()
-        }
-        else {
+        } else {
             vres = vres * self.radius();
         }
 
         if negative {
             vres[1] = -self.half_height()
-        }
-        else {
+        } else {
             vres[1] = self.half_height()
         }
 

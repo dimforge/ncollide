@@ -10,8 +10,7 @@ pub enum PathSample<P: Point> {
     /// A point that ends the path currently generated.
     EndPoint(P, P::Vector),
     /// Used when the sampler does not have any other points to generate.
-    EndOfSample
-
+    EndOfSample,
 }
 
 /// A curve sampler.

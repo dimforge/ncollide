@@ -1,13 +1,14 @@
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
-use shape::{BaseMesh, BaseMeshElement, TriMesh, Polyline};
-use math::{Point, Isometry};
-
+use shape::{BaseMesh, BaseMeshElement, Polyline, TriMesh};
+use math::{Isometry, Point};
 
 impl<P, M, I, E> HasBoundingVolume<M, BoundingSphere<P>> for BaseMesh<P, I, E>
-    where P: Point,
-          M: Isometry<P>,
-          E: BaseMeshElement<I, P> {
+where
+    P: Point,
+    M: Isometry<P>,
+    E: BaseMeshElement<I, P>,
+{
     #[inline]
     fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(&self.vertices()[..]);

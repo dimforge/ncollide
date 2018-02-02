@@ -4,7 +4,7 @@ use num::Zero;
 
 use na;
 use shape::SupportMap;
-use math::{Point, Vector, Isometry};
+use math::{Isometry, Point, Vector};
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
@@ -17,12 +17,12 @@ impl<V: Vector> Cuboid<V> {
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]
     pub fn new(half_extents: V) -> Cuboid<V> {
-        for i in 0 .. na::dimension::<V>() {
+        for i in 0..na::dimension::<V>() {
             assert!(half_extents[i] >= V::Real::zero());
         }
 
         Cuboid {
-            half_extents: half_extents
+            half_extents: half_extents,
         }
     }
 }
@@ -42,7 +42,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
 
         let mut res = *self.half_extents();
 
-        for i in 0usize .. na::dimension::<P::Vector>() {
+        for i in 0usize..na::dimension::<P::Vector>() {
             if local_dir[i] < P::Real::zero() {
                 res[i] = -res[i];
             }

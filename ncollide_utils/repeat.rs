@@ -7,7 +7,7 @@ use alga::linear::FiniteDimVectorSpace;
 pub fn repeat<V: FiniteDimVectorSpace>(e: V::Field) -> V {
     let mut res: V = na::zero();
 
-    for i in 0 .. V::dimension() {
+    for i in 0..V::dimension() {
         res[i] = e.clone()
     }
 

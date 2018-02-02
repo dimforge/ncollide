@@ -8,14 +8,14 @@ use na;
 // Repr.
 use shape::{CompositeShape, SupportMap};
 // Queries.
-use bounding_volume::{AABB, BoundingSphere};
-use query::{RayCast, PointQuery};
+use bounding_volume::{BoundingSphere, AABB};
+use query::{PointQuery, RayCast};
 use math::Point;
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<P: Point, M> : Send + Sync + Any + GetTypeId {
+pub trait Shape<P: Point, M>: Send + Sync + Any + GetTypeId {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P>;
@@ -39,7 +39,6 @@ pub trait Shape<P: Point, M> : Send + Sync + Any + GetTypeId {
     fn as_point_query(&self) -> Option<&PointQuery<P, M>> {
         None
     }
-
 
     /// The support mapping of `self` if applicable.
     #[inline]
@@ -72,9 +71,9 @@ pub trait Shape<P: Point, M> : Send + Sync + Any + GetTypeId {
 #[derive(Clone, Copy)]
 struct TraitObject {
     /// Raw pointer to the trait object data.
-    pub data:   *mut (),
+    pub data: *mut (),
     /// Raw pointer to the trait object virtual table.
-    pub vtable: *mut ()
+    pub vtable: *mut (),
 }
 
 /// Trait for casting shapes to its exact represetation.
@@ -93,8 +92,7 @@ impl<P: Point, M: 'static> Shape<P, M> {
                 let to: TraitObject = mem::transmute(self);
                 mem::transmute(to.data)
             }
-        }
-        else {
+        } else {
             None
         }
     }
@@ -103,7 +101,7 @@ impl<P: Point, M: 'static> Shape<P, M> {
 /// A shared immutable handle to an abstract shape.
 #[derive(Clone)]
 pub struct ShapeHandle<P: Point, M> {
-    handle: Arc<Shape<P, M>>
+    handle: Arc<Shape<P, M>>,
 }
 
 impl<P: Point, M> ShapeHandle<P, M> {
@@ -111,7 +109,7 @@ impl<P: Point, M> ShapeHandle<P, M> {
     #[inline]
     pub fn new<S: Shape<P, M>>(shape: S) -> ShapeHandle<P, M> {
         ShapeHandle {
-            handle: Arc::new(shape)
+            handle: Arc::new(shape),
         }
     }
 }

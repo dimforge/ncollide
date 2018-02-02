@@ -6,31 +6,32 @@ use std::sync::Arc;
 use na::{self, Point2};
 use partitioning::BVT;
 use bounding_volume::AABB;
-use shape::{Segment, BaseMesh, CompositeShape, Shape};
-use math::{Point, Isometry};
+use shape::{BaseMesh, CompositeShape, Segment, Shape};
+use math::{Isometry, Point};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {
-    mesh: BaseMesh<P, Point2<usize>, Segment<P>>
+    mesh: BaseMesh<P, Point2<usize>, Segment<P>>,
 }
 
 impl<P: Point> Clone for Polyline<P> {
     fn clone(&self) -> Polyline<P> {
         Polyline {
-            mesh: self.mesh.clone()
+            mesh: self.mesh.clone(),
         }
     }
 }
 
 impl<P: Point> Polyline<P> {
     /// Builds a new mesh.
-    pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Point2<usize>>>,
-               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
-               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
-               -> Polyline<P> {
+    pub fn new(
+        vertices: Arc<Vec<P>>,
+        indices: Arc<Vec<Point2<usize>>>,
+        uvs: Option<Arc<Vec<Point2<P::Real>>>>,
+        normals: Option<Arc<Vec<P::Vector>>>,
+    ) -> Polyline<P> {
         Polyline {
-            mesh: BaseMesh::new(vertices, indices, uvs, normals)
+            mesh: BaseMesh::new(vertices, indices, uvs, normals),
         }
     }
 }

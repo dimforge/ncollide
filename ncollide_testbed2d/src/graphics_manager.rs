@@ -2,33 +2,33 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::collections::HashMap;
-use rand::{SeedableRng, XorShiftRng, Rng};
+use rand::{Rng, SeedableRng, XorShiftRng};
 use num::ToPrimitive;
 use sfml::graphics::RenderWindow;
 
 use alga::general::Real;
-use na::{Point2, Point3, Isometry2};
+use na::{Isometry2, Point2, Point3};
 use na;
-use ncollide::world::{CollisionWorld2, CollisionObject2};
+use ncollide::world::{CollisionObject2, CollisionWorld2};
 use ncollide::transformation;
-use ncollide::shape::{Shape2, Plane2, Ball2, Cuboid2, Compound2, Polyline2, ConvexHull2, Segment2};
+use ncollide::shape::{Ball2, Compound2, ConvexHull2, Cuboid2, Plane2, Polyline2, Segment2, Shape2};
 use camera::Camera;
-use objects::{SceneNode, Ball, Box, Lines, Segment};
+use objects::{Ball, Box, Lines, SceneNode, Segment};
 
 pub type GraphicsManagerHandle<N> = Rc<RefCell<GraphicsManager<'static, N>>>;
 
 pub struct GraphicsManager<'a, N: Real> {
-    rand:      XorShiftRng,
-    uid2sn:    HashMap<usize, Vec<SceneNode<'a, N>>>,
-    uid2color: HashMap<usize, Point3<u8>>
+    rand: XorShiftRng,
+    uid2sn: HashMap<usize, Vec<SceneNode<'a, N>>>,
+    uid2color: HashMap<usize, Point3<u8>>,
 }
 
 impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
     pub fn new() -> GraphicsManager<'a, N> {
         GraphicsManager {
-            rand:      SeedableRng::from_seed([0, 1, 2, 3]),
-            uid2sn:    HashMap::new(),
-            uid2color: HashMap::new()
+            rand: SeedableRng::from_seed([0, 1, 2, 3]),
+            uid2sn: HashMap::new(),
+            uid2color: HashMap::new(),
         }
     }
 
@@ -52,78 +52,87 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         self.uid2sn.insert(object.uid, nodes);
     }
 
-    fn add_shape<T>(&mut self,
-                    object: &CollisionObject2<N, T>,
-                    delta:  &Isometry2<N>,
-                    shape:  &Shape2<N>,
-                    out:    &mut Vec<SceneNode<'a, N>>) {
+    fn add_shape<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &Shape2<N>,
+        out: &mut Vec<SceneNode<'a, N>>,
+    ) {
         if let Some(s) = shape.as_shape::<Plane2<N>>() {
             self.add_plane(object, s, out)
-        }
-        else if let Some(s) = shape.as_shape::<Ball2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Ball2<N>>() {
             self.add_ball(object, delta, s, out)
-        }
-        else if let Some(s) = shape.as_shape::<Cuboid2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Cuboid2<N>>() {
             self.add_box(object, delta, s, out)
-        }
-        else if let Some(s) = shape.as_shape::<ConvexHull2<N>>() {
+        } else if let Some(s) = shape.as_shape::<ConvexHull2<N>>() {
             self.add_convex(object, delta, s, out)
-        }
-        else if let Some(s) = shape.as_shape::<Segment2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Segment2<N>>() {
             self.add_segment(object, delta, s, out)
-        }
-        else if let Some(s) = shape.as_shape::<Compound2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Compound2<N>>() {
             for &(t, ref s) in s.shapes().iter() {
                 let new_delta = *delta * t;
                 self.add_shape(object.clone(), &new_delta, s.as_ref(), out)
             }
-        }
-        else if let Some(s) = shape.as_shape::<Polyline2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Polyline2<N>>() {
             self.add_lines(object, delta, s, out)
-        }
-        else {
+        } else {
             panic!("Not yet implemented.")
         }
-
     }
 
-    fn add_plane<T>(&mut self,
-                    _: &CollisionObject2<N, T>,
-                    _: &Plane2<N>,
-                    _: &mut Vec<SceneNode<N>>) {
+    fn add_plane<T>(
+        &mut self,
+        _: &CollisionObject2<N, T>,
+        _: &Plane2<N>,
+        _: &mut Vec<SceneNode<N>>,
+    ) {
     }
 
-    fn add_ball<T>(&mut self,
-                   object: &CollisionObject2<N, T>,
-                   delta:  &Isometry2<N>,
-                   shape:  &Ball2<N>,
-                   out:    &mut Vec<SceneNode<N>>) {
+    fn add_ball<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &Ball2<N>,
+        out: &mut Vec<SceneNode<N>>,
+    ) {
         let color = self.color_for_object(object.uid);
-        out.push(SceneNode::BallNode(Ball::new(*delta, shape.radius(), color)))
+        out.push(SceneNode::BallNode(Ball::new(
+            *delta,
+            shape.radius(),
+            color,
+        )))
     }
 
-    fn add_convex<T>(&mut self,
-                     object: &CollisionObject2<N, T>,
-                     delta:  &Isometry2<N>,
-                     shape:  &ConvexHull2<N>,
-                     out:    &mut Vec<SceneNode<N>>) {
+    fn add_convex<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &ConvexHull2<N>,
+        out: &mut Vec<SceneNode<N>>,
+    ) {
         let color = self.color_for_object(object.uid);
         let vs = Arc::new(transformation::convex_hull2(shape.points()).unwrap().0);
 
         let is = {
             let limit = vs.len();
-            Arc::new((0 .. limit as usize).map(|x| Point2::new(x, (x + (1 as usize)) % limit)).collect())
+            Arc::new(
+                (0..limit as usize)
+                    .map(|x| Point2::new(x, (x + (1 as usize)) % limit))
+                    .collect(),
+            )
         };
 
         out.push(SceneNode::LinesNode(Lines::new(*delta, vs, is, color)))
     }
 
-    fn add_lines<T>(&mut self,
-                    object: &CollisionObject2<N, T>,
-                    delta:  &Isometry2<N>,
-                    shape:  &Polyline2<N>,
-                    out:    &mut Vec<SceneNode<N>>) {
-
+    fn add_lines<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &Polyline2<N>,
+        out: &mut Vec<SceneNode<N>>,
+    ) {
         let color = self.color_for_object(object.uid);
 
         let vs = shape.vertices().clone();
@@ -132,12 +141,13 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         out.push(SceneNode::LinesNode(Lines::new(*delta, vs, is, color)))
     }
 
-
-    fn add_box<T>(&mut self,
-                  object: &CollisionObject2<N, T>,
-                  delta:  &Isometry2<N>,
-                  shape:  &Cuboid2<N>,
-                  out:    &mut Vec<SceneNode<N>>) {
+    fn add_box<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &Cuboid2<N>,
+        out: &mut Vec<SceneNode<N>>,
+    ) {
         let rx = shape.half_extents().x;
         let ry = shape.half_extents().y;
 
@@ -146,11 +156,13 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         out.push(SceneNode::BoxNode(Box::new(*delta, rx, ry, color)))
     }
 
-    fn add_segment<T>(&mut self,
-                      object: &CollisionObject2<N, T>,
-                      delta:  &Isometry2<N>,
-                      shape:  &Segment2<N>,
-                      out:    &mut Vec<SceneNode<N>>) {
+    fn add_segment<T>(
+        &mut self,
+        object: &CollisionObject2<N, T>,
+        delta: &Isometry2<N>,
+        shape: &Segment2<N>,
+        out: &mut Vec<SceneNode<N>>,
+    ) {
         let a = shape.a();
         let b = shape.b();
 
@@ -158,7 +170,6 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
 
         out.push(SceneNode::SegmentNode(Segment::new(*delta, *a, *b, color)))
     }
-
 
     pub fn clear(&mut self) {
         self.uid2sn.clear();
@@ -171,9 +182,9 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
             if let Some(object) = world.collision_object(*uid) {
                 for n in ns.iter_mut() {
                     match *n {
-                        SceneNode::BoxNode(ref mut n)     => n.update(object),
-                        SceneNode::BallNode(ref mut n)    => n.update(object),
-                        SceneNode::LinesNode(ref mut n)   => n.update(),
+                        SceneNode::BoxNode(ref mut n) => n.update(object),
+                        SceneNode::BallNode(ref mut n) => n.update(object),
+                        SceneNode::LinesNode(ref mut n) => n.update(),
                         SceneNode::SegmentNode(ref mut n) => n.update(),
                     }
                 }
@@ -188,9 +199,9 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
                 if object.query_type.is_proximity_query() {
                     for n in ns.iter_mut() {
                         match *n {
-                            SceneNode::BoxNode(ref n)     => n.draw(rw),
-                            SceneNode::BallNode(ref n)    => n.draw(rw),
-                            SceneNode::LinesNode(ref n)   => n.draw(rw, object),
+                            SceneNode::BoxNode(ref n) => n.draw(rw),
+                            SceneNode::BallNode(ref n) => n.draw(rw),
+                            SceneNode::LinesNode(ref n) => n.draw(rw, object),
                             SceneNode::SegmentNode(ref n) => n.draw(rw, object),
                         }
                     }
@@ -204,9 +215,9 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
                 if object.query_type.is_contacts_query() {
                     for n in ns.iter_mut() {
                         match *n {
-                            SceneNode::BoxNode(ref n)     => n.draw(rw),
-                            SceneNode::BallNode(ref n)    => n.draw(rw),
-                            SceneNode::LinesNode(ref n)   => n.draw(rw, object),
+                            SceneNode::BoxNode(ref n) => n.draw(rw),
+                            SceneNode::BallNode(ref n) => n.draw(rw),
+                            SceneNode::LinesNode(ref n) => n.draw(rw, object),
                             SceneNode::SegmentNode(ref n) => n.draw(rw, object),
                         }
                     }
@@ -221,7 +232,7 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         let color = Point3::new(
             (color.x * 255.0) as u8,
             (color.y * 255.0) as u8,
-            (color.z * 255.0) as u8
+            (color.z * 255.0) as u8,
         );
 
         self.uid2color.insert(uid, color);
@@ -236,13 +247,14 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
     pub fn color_for_object(&mut self, uid: usize) -> Point3<u8> {
         match self.uid2color.get(&uid) {
             Some(color) => return *color,
-            None        => { }
+            None => {}
         }
 
         let color = Point3::new(
             self.rand.gen_range(0usize, 256) as u8,
             self.rand.gen_range(0usize, 256) as u8,
-            self.rand.gen_range(0usize, 256) as u8);
+            self.rand.gen_range(0usize, 256) as u8,
+        );
 
         self.uid2color.insert(uid, color);
 

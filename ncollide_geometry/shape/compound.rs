@@ -6,10 +6,10 @@ use std::ops::Mul;
 
 use na;
 
-use bounding_volume::{AABB, BoundingVolume};
+use bounding_volume::{BoundingVolume, AABB};
 use partitioning::BVT;
-use shape::{CompositeShape, ShapeHandle, Shape};
-use math::{Point, Isometry};
+use shape::{CompositeShape, Shape, ShapeHandle};
+use math::{Isometry, Point};
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -17,17 +17,17 @@ use math::{Point, Isometry};
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 pub struct Compound<P: Point, M> {
-    shapes:  Vec<(M, ShapeHandle<P, M>)>,
-    bvt:     BVT<usize, AABB<P>>,
-    bvs:     Vec<AABB<P>>
+    shapes: Vec<(M, ShapeHandle<P, M>)>,
+    bvt: BVT<usize, AABB<P>>,
+    bvs: Vec<AABB<P>>,
 }
 
 impl<P: Point, M: Clone> Clone for Compound<P, M> {
     fn clone(&self) -> Compound<P, M> {
         Compound {
             shapes: self.shapes.clone(),
-            bvt:    self.bvt.clone(),
-            bvs:    self.bvs.clone()
+            bvt: self.bvt.clone(),
+            bvs: self.bvs.clone(),
         }
     }
 }
@@ -35,7 +35,7 @@ impl<P: Point, M: Clone> Clone for Compound<P, M> {
 impl<P: Point, M: Isometry<P>> Compound<P, M> {
     /// Builds a new compound shape.
     pub fn new(shapes: Vec<(M, ShapeHandle<P, M>)>) -> Compound<P, M> {
-        let mut bvs    = Vec::new();
+        let mut bvs = Vec::new();
         let mut leaves = Vec::new();
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
@@ -50,8 +50,8 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
 
         Compound {
             shapes: shapes,
-            bvt:    bvt,
-            bvs:    bvs
+            bvt: bvt,
+            bvs: bvs,
         }
     }
 }
@@ -83,8 +83,10 @@ impl<P: Point, M> Compound<P, M> {
 }
 
 impl<P, M> CompositeShape<P, M> for Compound<P, M>
-    where P: Point,
-          M: Clone + Mul<M, Output = M> {
+where
+    P: Point,
+    M: Clone + Mul<M, Output = M>,
+{
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];

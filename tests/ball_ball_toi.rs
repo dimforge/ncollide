@@ -9,7 +9,7 @@ use ncollide::query;
 
 #[test]
 fn test_ball_ball_toi() {
-    let b  = Ball::new(0.5f64);
+    let b = Ball::new(0.5f64);
     let m1 = Isometry3::new(na::zero(), na::zero());
     let m2 = Isometry3::new(Vector3::new(0.0, 10.0, 0.0), na::zero());
 

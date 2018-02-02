@@ -1,10 +1,9 @@
 use std::marker::PhantomData;
-use math::{Point, Isometry};
-use geometry::shape::{Shape, Plane};
+use math::{Isometry, Point};
+use geometry::shape::{Plane, Shape};
 use geometry::query::Contact;
 use geometry::query::contacts_internal;
-use narrow_phase::{ContactGenerator, ContactDispatcher};
-
+use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a plane and a shape implementing the `SupportMap` trait.
 ///
@@ -12,8 +11,8 @@ use narrow_phase::{ContactGenerator, ContactDispatcher};
 /// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct PlaneSupportMapContactGenerator<P: Point, M> {
-    contact:  Option<Contact<P>>,
-    mat_type: PhantomData<M> // FIXME: can we avoid this?
+    contact: Option<Contact<P>>,
+    mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
 impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
@@ -22,8 +21,8 @@ impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
     #[inline]
     pub fn new() -> PlaneSupportMapContactGenerator<P, M> {
         PlaneSupportMapContactGenerator {
-            contact:  None,
-            mat_type: PhantomData
+            contact: None,
+            mat_type: PhantomData,
         }
     }
 }
@@ -34,8 +33,8 @@ impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
 /// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct SupportMapPlaneContactGenerator<P: Point, M> {
-    contact:  Option<Contact<P>>,
-    mat_type: PhantomData<M> // FIXME: can we avoid this.
+    contact: Option<Contact<P>>,
+    mat_type: PhantomData<M>, // FIXME: can we avoid this.
 }
 
 impl<P: Point, M> SupportMapPlaneContactGenerator<P, M> {
@@ -44,28 +43,28 @@ impl<P: Point, M> SupportMapPlaneContactGenerator<P, M> {
     #[inline]
     pub fn new() -> SupportMapPlaneContactGenerator<P, M> {
         SupportMapPlaneContactGenerator {
-            contact:  None,
-            mat_type: PhantomData
+            contact: None,
+            mat_type: PhantomData,
         }
     }
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContactGenerator<P, M> {
     #[inline]
-    fn update(&mut self,
-              _:          &ContactDispatcher<P, M>,
-              ma:         &M,
-              plane:      &Shape<P, M>,
-              mb:         &M,
-              b:          &Shape<P, M>,
-              prediction: P::Real)
-              -> bool {
+    fn update(
+        &mut self,
+        _: &ContactDispatcher<P, M>,
+        ma: &M,
+        plane: &Shape<P, M>,
+        mb: &M,
+        b: &Shape<P, M>,
+        prediction: P::Real,
+    ) -> bool {
         if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vector>>(), b.as_support_map()) {
-                self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction);
+            self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction);
 
-                true
-        }
-        else {
+            true
+        } else {
             false
         }
     }
@@ -73,8 +72,8 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
     #[inline]
     fn num_contacts(&self) -> usize {
         match self.contact {
-            None    => 0,
-            Some(_) => 1
+            None => 0,
+            Some(_) => 1,
         }
     }
 
@@ -82,27 +81,27 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
     fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
             Some(ref c) => out_contacts.push(c.clone()),
-            None        => ()
+            None => (),
         }
     }
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContactGenerator<P, M> {
     #[inline]
-    fn update(&mut self,
-              _:          &ContactDispatcher<P, M>,
-              ma:         &M,
-              a:          &Shape<P, M>,
-              mb:         &M,
-              plane:      &Shape<P, M>,
-              prediction: P::Real)
-              -> bool {
+    fn update(
+        &mut self,
+        _: &ContactDispatcher<P, M>,
+        ma: &M,
+        a: &Shape<P, M>,
+        mb: &M,
+        plane: &Shape<P, M>,
+        prediction: P::Real,
+    ) -> bool {
         if let (Some(sm), Some(p)) = (a.as_support_map(), plane.as_shape::<Plane<P::Vector>>()) {
-                self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction);
+            self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction);
 
-                true
-        }
-        else {
+            true
+        } else {
             false
         }
     }
@@ -110,8 +109,8 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContact
     #[inline]
     fn num_contacts(&self) -> usize {
         match self.contact {
-            None    => 0,
-            Some(_) => 1
+            None => 0,
+            Some(_) => 1,
         }
     }
 
@@ -119,7 +118,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContact
     fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
         match self.contact {
             Some(ref c) => out_contacts.push(c.clone()),
-            None        => ()
+            None => (),
         }
     }
 }

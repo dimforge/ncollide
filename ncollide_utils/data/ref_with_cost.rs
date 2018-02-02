@@ -7,7 +7,7 @@ pub struct RefWithCost<'a, N, T: 'a> {
     /// The reference to an object.
     pub object: &'a T,
     /// The cost of the object.
-    pub cost:   N
+    pub cost: N,
 }
 
 impl<'a, N, T> RefWithCost<'a, N, T> {
@@ -16,7 +16,7 @@ impl<'a, N, T> RefWithCost<'a, N, T> {
     pub fn new(object: &'a T, cost: N) -> RefWithCost<'a, N, T> {
         RefWithCost {
             object: object,
-            cost:   cost
+            cost: cost,
         }
     }
 }
@@ -28,8 +28,7 @@ impl<'a, N: PartialEq, T> PartialEq for RefWithCost<'a, N, T> {
     }
 }
 
-impl<'a, N: PartialEq, T> Eq for RefWithCost<'a, N, T> {
-}
+impl<'a, N: PartialEq, T> Eq for RefWithCost<'a, N, T> {}
 
 impl<'a, N: PartialOrd, T> PartialOrd for RefWithCost<'a, N, T> {
     #[inline]
@@ -43,11 +42,9 @@ impl<'a, N: PartialOrd, T> Ord for RefWithCost<'a, N, T> {
     fn cmp(&self, other: &RefWithCost<'a, N, T>) -> Ordering {
         if self.cost < other.cost {
             Ordering::Less
-        }
-        else if self.cost > other.cost {
+        } else if self.cost > other.cost {
             Ordering::Greater
-        }
-        else {
+        } else {
             Ordering::Equal
         }
     }

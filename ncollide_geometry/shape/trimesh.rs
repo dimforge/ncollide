@@ -5,31 +5,32 @@ use std::sync::Arc;
 use na::{self, Point2, Point3};
 use partitioning::BVT;
 use bounding_volume::AABB;
-use shape::{Triangle, BaseMesh, CompositeShape, Shape};
-use math::{Point, Isometry};
+use shape::{BaseMesh, CompositeShape, Shape, Triangle};
+use math::{Isometry, Point};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<P: Point> {
-    mesh: BaseMesh<P, Point3<usize>, Triangle<P>>
+    mesh: BaseMesh<P, Point3<usize>, Triangle<P>>,
 }
 
 impl<P: Point> Clone for TriMesh<P> {
     fn clone(&self) -> TriMesh<P> {
         TriMesh {
-            mesh: self.mesh.clone()
+            mesh: self.mesh.clone(),
         }
     }
 }
 
 impl<P: Point> TriMesh<P> {
     /// Builds a new mesh.
-    pub fn new(vertices: Arc<Vec<P>>,
-               indices:  Arc<Vec<Point3<usize>>>,
-               uvs:      Option<Arc<Vec<Point2<P::Real>>>>,
-               normals:  Option<Arc<Vec<P::Vector>>>) // a loosening margin for the BVT.
-               -> TriMesh<P> {
+    pub fn new(
+        vertices: Arc<Vec<P>>,
+        indices: Arc<Vec<Point3<usize>>>,
+        uvs: Option<Arc<Vec<Point2<P::Real>>>>,
+        normals: Option<Arc<Vec<P::Vector>>>,
+    ) -> TriMesh<P> {
         TriMesh {
-            mesh: BaseMesh::new(vertices, indices, uvs, normals)
+            mesh: BaseMesh::new(vertices, indices, uvs, normals),
         }
     }
 

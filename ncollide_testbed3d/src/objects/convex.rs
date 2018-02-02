@@ -1,29 +1,30 @@
 use kiss3d::window::Window;
 use kiss3d::scene::SceneNode;
-use na::{Vector3, Point3, Isometry3};
+use na::{Isometry3, Point3, Vector3};
 use ncollide::procedural::TriMesh3;
 use ncollide::world::{CollisionObject3, GeometricQueryType};
 use objects::node;
 
 pub struct Convex {
-    color:      Point3<f32>,
+    color: Point3<f32>,
     base_color: Point3<f32>,
-    delta:      Isometry3<f32>,
-    gfx:        SceneNode,
+    delta: Isometry3<f32>,
+    gfx: SceneNode,
 }
 
 impl Convex {
-    pub fn new<T>(object: &CollisionObject3<f32, T>,
-                  delta:  Isometry3<f32>,
-                  convex: &TriMesh3<f32>,
-                  color:  Point3<f32>,
-                  window: &mut Window)
-                  -> Convex {
+    pub fn new<T>(
+        object: &CollisionObject3<f32, T>,
+        delta: Isometry3<f32>,
+        convex: &TriMesh3<f32>,
+        color: Point3<f32>,
+        window: &mut Window,
+    ) -> Convex {
         let mut res = Convex {
-            color:      color,
+            color: color,
             base_color: color,
-            delta:      delta,
-            gfx:        window.add_trimesh(convex.clone(), Vector3::from_element(1.0))
+            delta: delta,
+            gfx: window.add_trimesh(convex.clone(), Vector3::from_element(1.0)),
         };
 
         if let GeometricQueryType::Proximity(_) = object.query_type {
@@ -32,7 +33,8 @@ impl Convex {
         }
 
         res.gfx.set_color(color.x, color.y, color.z);
-        res.gfx.set_local_transformation(object.position * res.delta);
+        res.gfx
+            .set_local_transformation(object.position * res.delta);
         res.update(object);
 
         res

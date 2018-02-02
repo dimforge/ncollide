@@ -12,39 +12,43 @@ pub fn sort3<'a, N: PartialOrd>(a: &'a N, b: &'a N, c: &'a N) -> (&'a N, &'a N, 
 
     // Sort the three values.
     // FIXME: move this to the utilities?
-    if a_b { // a > b
-        if a_c { // a > c
+    if a_b {
+        // a > b
+        if a_c {
+            // a > c
             sc = a;
 
-            if b_c { // b > c
+            if b_c {
+                // b > c
                 sa = c;
                 sb = b;
-            }
-            else { // b <= c
+            } else {
+                // b <= c
                 sa = b;
                 sb = c;
             }
-        }
-        else { // a <= c
+        } else {
+            // a <= c
             sa = b;
             sb = a;
             sc = c;
         }
-    }
-    else { // a < b
-        if !a_c { // a <= c
+    } else {
+        // a < b
+        if !a_c {
+            // a <= c
             sa = a;
 
-            if b_c { // b > c
+            if b_c {
+                // b > c
                 sb = c;
                 sc = b;
-            }
-            else {
+            } else {
                 sb = b;
                 sc = c;
             }
-        }
-        else { // a > c
+        } else {
+            // a > c
             sa = c;
             sb = a;
             sc = b;

@@ -6,6 +6,6 @@ use super::ToPolyline;
 
 impl<N: Real> ToPolyline<Point2<N>, ()> for Segment2<N> {
     fn to_polyline(&self, _: ()) -> Polyline2<N> {
-        Polyline::new(vec!(*self.a(), *self.b()), None)
+        Polyline::new(vec![*self.a(), *self.b()], None)
     }
 }

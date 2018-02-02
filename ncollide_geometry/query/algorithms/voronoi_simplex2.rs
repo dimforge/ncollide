@@ -1,21 +1,21 @@
 use math::Point;
 use na::{self, Id};
-use query::{PointQuery, PointQueryWithLocation, TrianglePointLocation, SegmentPointLocation};
+use query::{PointQuery, PointQueryWithLocation, SegmentPointLocation, TrianglePointLocation};
 use query::algorithms::simplex::Simplex;
 use shape::{Segment, Triangle};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 pub struct VoronoiSimplex2<P: Point> {
     vertices: [P; 3],
-    dim:      usize
+    dim: usize,
 }
 
-impl<P: Point>VoronoiSimplex2<P> {
+impl<P: Point> VoronoiSimplex2<P> {
     /// Crates a new empty simplex.
     pub fn new() -> VoronoiSimplex2<P> {
         VoronoiSimplex2 {
-            vertices: [ P::origin(); 3 ],
-            dim:      0
+            vertices: [P::origin(); 3],
+            dim: 0,
         }
     }
 }
@@ -28,7 +28,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
     }
 
     fn add_point(&mut self, pt: P) -> bool {
-        for i in 0 .. self.dim + 1 {
+        for i in 0..self.dim + 1 {
             if self.vertices[i].coordinates() == pt.coordinates() {
                 return false;
             }
@@ -47,8 +47,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
     fn project_origin_and_reduce(&mut self) -> P {
         if self.dim == 0 {
             self.vertices[0]
-        }
-        else if self.dim == 1 {
+        } else if self.dim == 1 {
             // FIXME: NLL
             let (proj, location) = {
                 let seg = Segment::from_array3(&self.vertices);
@@ -61,15 +60,13 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
                 }
                 SegmentPointLocation::OnVertex(1) => {
                     self.vertices[0] = self.vertices[1];
-                    self.dim         = 0;
-                },
-                _ => {
+                    self.dim = 0;
                 }
+                _ => {}
             }
 
             proj.point
-        }
-        else {
+        } else {
             assert!(self.dim == 2);
             // FIXME: NLL
             let (proj, location) = {
@@ -80,20 +77,20 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
             match location {
                 TrianglePointLocation::OnVertex(i) => {
                     self.vertices[0] = self.vertices[i];
-                    self.dim         = 0;
-                },
+                    self.dim = 0;
+                }
                 TrianglePointLocation::OnEdge(0, _) => {
                     self.dim = 1;
-                },
+                }
                 TrianglePointLocation::OnEdge(1, _) => {
                     self.vertices[0] = self.vertices[2];
                     self.dim = 1;
-                },
+                }
                 TrianglePointLocation::OnEdge(2, _) => {
                     self.vertices[1] = self.vertices[2];
                     self.dim = 1;
-                },
-                _ => { },
+                }
+                _ => {}
             }
 
             proj.point
@@ -103,20 +100,18 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
     fn project_origin(&mut self) -> P {
         if self.dim == 0 {
             self.vertices[0]
-        }
-        else if self.dim == 1 {
+        } else if self.dim == 1 {
             let seg = Segment::from_array3(&self.vertices);
             seg.project_point(&Id::new(), &P::origin(), true).point
-        }
-        else {
+        } else {
             assert!(self.dim == 2);
-            let tri  = Triangle::from_array(&self.vertices);
+            let tri = Triangle::from_array(&self.vertices);
             tri.project_point(&Id::new(), &P::origin(), true).point
         }
     }
 
     fn contains_point(&self, pt: &P) -> bool {
-        for i in 0 .. self.dim + 1 {
+        for i in 0..self.dim + 1 {
             if self.vertices[i] == *pt {
                 return true;
             }
@@ -132,7 +127,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
     fn max_sq_len(&self) -> P::Real {
         let mut max_sq_len = na::zero();
 
-        for i in 0 .. self.dim + 1 {
+        for i in 0..self.dim + 1 {
             let norm = na::norm_squared(&self.vertices[i].coordinates());
 
             if norm > max_sq_len {
@@ -144,7 +139,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex2<P> {
     }
 
     fn modify_pnts(&mut self, f: &Fn(&mut P)) {
-        for i in 0 .. self.dim + 1 {
+        for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
         }
     }

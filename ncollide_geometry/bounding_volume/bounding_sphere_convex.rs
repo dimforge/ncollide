@@ -1,8 +1,7 @@
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
 use shape::ConvexHull;
-use math::{Point, Isometry};
-
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for ConvexHull<P> {
     #[inline]

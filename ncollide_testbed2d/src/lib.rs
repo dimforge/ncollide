@@ -1,16 +1,15 @@
 #![warn(non_camel_case_types)]
 
-extern crate num;
-extern crate rand;
-extern crate time;
-extern crate sfml;
 extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide;
+extern crate num;
+extern crate rand;
+extern crate sfml;
+extern crate time;
 
 #[cfg(feature = "recording")]
 extern crate mpeg_encoder;
-
 
 pub use testbed::Testbed;
 pub use graphics_manager::{GraphicsManager, GraphicsManagerHandle};

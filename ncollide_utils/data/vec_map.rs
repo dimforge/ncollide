@@ -18,11 +18,11 @@ use self::Entry::*;
 use std::cmp::max;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::iter::{Enumerate, FilterMap, Map, FromIterator};
+use std::iter::{Enumerate, FilterMap, FromIterator, Map};
 use std::mem::{replace, swap};
 use std::ops::{Index, IndexMut};
 
-use std::{vec, slice};
+use std::{slice, vec};
 use std::vec::Vec;
 
 /// A map optimized for small integer keys.
@@ -64,7 +64,7 @@ pub struct VecMap<V> {
 
 /// A view into a single entry in a map, which may either be vacant or occupied.
 
-pub enum Entry<'a, V:'a> {
+pub enum Entry<'a, V: 'a> {
     /// A vacant Entry
     Vacant(VacantEntry<'a, V>),
 
@@ -73,23 +73,25 @@ pub enum Entry<'a, V:'a> {
 }
 
 /// A vacant Entry.
-pub struct VacantEntry<'a, V:'a> {
+pub struct VacantEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 /// An occupied Entry.
-pub struct OccupiedEntry<'a, V:'a> {
+pub struct OccupiedEntry<'a, V: 'a> {
     map: &'a mut VecMap<V>,
     index: usize,
 }
 
 impl<V> Default for VecMap<V> {
     #[inline]
-    fn default() -> VecMap<V> { VecMap::new() }
+    fn default() -> VecMap<V> {
+        VecMap::new()
+    }
 }
 
-impl<V:Clone> Clone for VecMap<V> {
+impl<V: Clone> Clone for VecMap<V> {
     #[inline]
     fn clone(&self) -> VecMap<V> {
         VecMap { v: self.v.clone() }
@@ -124,7 +126,9 @@ impl<V> VecMap<V> {
     /// use std::collections::VecMap;
     /// let mut map: VecMap<&str> = VecMap::new();
     /// ```
-    pub fn new() -> VecMap<V> { VecMap { v: vec![] } }
+    pub fn new() -> VecMap<V> {
+        VecMap { v: vec![] }
+    }
 
     /// Creates an empty `VecMap` with space for at least `capacity`
     /// elements before resizing.
@@ -137,7 +141,9 @@ impl<V> VecMap<V> {
     /// let mut map: VecMap<&str> = VecMap::with_capacity(10);
     /// ```
     pub fn with_capacity(capacity: usize) -> VecMap<V> {
-        VecMap { v: Vec::with_capacity(capacity) }
+        VecMap {
+            v: Vec::with_capacity(capacity),
+        }
     }
 
     /// Returns the number of elements the `VecMap` can hold without
@@ -205,19 +211,27 @@ impl<V> VecMap<V> {
     /// Returns an iterator visiting all keys in ascending order of the keys.
     /// The iterator's element type is `usize`.
     pub fn keys<'r>(&'r self) -> Keys<'r, V> {
-        fn first<A, B>((a, _): (A, B)) -> A { a }
+        fn first<A, B>((a, _): (A, B)) -> A {
+            a
+        }
         let first: fn((usize, &'r V)) -> usize = first; // coerce to fn pointer
 
-        Keys { iter: self.iter().map(first) }
+        Keys {
+            iter: self.iter().map(first),
+        }
     }
 
     /// Returns an iterator visiting all values in ascending order of the keys.
     /// The iterator's element type is `&'r V`.
     pub fn values<'r>(&'r self) -> Values<'r, V> {
-        fn second<A, B>((_, b): (A, B)) -> B { b }
+        fn second<A, B>((_, b): (A, B)) -> B {
+            b
+        }
         let second: fn((usize, &'r V)) -> &'r V = second; // coerce to fn pointer
 
-        Values { iter: self.iter().map(second) }
+        Values {
+            iter: self.iter().map(second),
+        }
     }
 
     /// Returns an iterator visiting all key-value pairs in ascending order of the keys.
@@ -243,7 +257,7 @@ impl<V> VecMap<V> {
         Iter {
             front: 0,
             back: self.v.len(),
-            iter: self.v.iter()
+            iter: self.v.iter(),
         }
     }
 
@@ -274,7 +288,7 @@ impl<V> VecMap<V> {
         IterMut {
             front: 0,
             back: self.v.len(),
-            iter: self.v.iter_mut()
+            iter: self.v.iter_mut(),
         }
     }
 
@@ -311,7 +325,7 @@ impl<V> VecMap<V> {
         if at == 0 {
             // Move all elements to other
             swap(self, &mut other);
-            return other
+            return other;
         } else if at >= self.v.len() {
             // No elements to copy
             return other;
@@ -331,7 +345,9 @@ impl<V> VecMap<V> {
         other.v.extend((0..start_index).map(|_| None));
 
         // Move elements beginning with `start_index` from `self` into `other`
-        other.v.extend(self.v[start_index..].iter_mut().map(|el| el.take()));
+        other
+            .v
+            .extend(self.v[start_index..].iter_mut().map(|el| el.take()));
 
         other
     }
@@ -383,7 +399,9 @@ impl<V> VecMap<V> {
     /// a.clear();
     /// assert!(a.is_empty());
     /// ```
-    pub fn clear(&mut self) { self.v.clear() }
+    pub fn clear(&mut self) {
+        self.v.clear()
+    }
 
     /// Returns a reference to the value corresponding to the key.
     ///
@@ -401,8 +419,8 @@ impl<V> VecMap<V> {
     pub fn get(&self, key: &usize) -> Option<&V> {
         if *key < self.v.len() {
             match self.v[*key] {
-              Some(ref value) => Some(value),
-              None => None
+                Some(ref value) => Some(value),
+                None => None,
             }
         } else {
             None
@@ -445,8 +463,8 @@ impl<V> VecMap<V> {
     pub fn get_mut(&mut self, key: &usize) -> Option<&mut V> {
         if *key < self.v.len() {
             match *(&mut self.v[*key]) {
-              Some(ref mut value) => Some(value),
-              None => None
+                Some(ref mut value) => Some(value),
+                None => None,
             }
         } else {
             None
@@ -536,7 +554,6 @@ impl<V> VecMap<V> {
     }
 }
 
-
 impl<'a, V> Entry<'a, V> {
     /// Returns a mutable reference to the entry if occupied, or the VacantEntry if vacant
     pub fn get(self) -> Result<&'a mut V, VacantEntry<'a, V>> {
@@ -613,7 +630,9 @@ impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
         try!(write!(f, "{{"));
 
         for (i, (k, v)) in self.iter().enumerate() {
-            if i != 0 { try!(write!(f, ", ")); }
+            if i != 0 {
+                try!(write!(f, ", "));
+            }
             try!(write!(f, "{}: {:?}", k, *v));
         }
 
@@ -622,7 +641,7 @@ impl<V: fmt::Debug> fmt::Debug for VecMap<V> {
 }
 
 impl<V> FromIterator<(usize, V)> for VecMap<V> {
-    fn from_iter<I: IntoIterator<Item=(usize, V)>>(iter: I) -> VecMap<V> {
+    fn from_iter<I: IntoIterator<Item = (usize, V)>>(iter: I) -> VecMap<V> {
         let mut map = VecMap::new();
         map.extend(iter);
         map
@@ -658,7 +677,9 @@ impl<T> IntoIterator for VecMap<T> {
         }
         let filter: fn((usize, Option<T>)) -> Option<(usize, T)> = filter; // coerce to fn ptr
 
-        IntoIter { iter: self.v.into_iter().enumerate().filter_map(filter) }
+        IntoIter {
+            iter: self.v.into_iter().enumerate().filter_map(filter),
+        }
     }
 }
 
@@ -681,7 +702,7 @@ impl<'a, T> IntoIterator for &'a mut VecMap<T> {
 }
 
 impl<V> Extend<(usize, V)> for VecMap<V> {
-    fn extend<I: IntoIterator<Item=(usize, V)>>(&mut self, iter: I) {
+    fn extend<I: IntoIterator<Item = (usize, V)>>(&mut self, iter: I) {
         for (k, v) in iter {
             let _ = self.insert(k, v);
         }
@@ -697,7 +718,7 @@ impl<V> Index<usize> for VecMap<V> {
     }
 }
 
-impl<'a,V> Index<&'a usize> for VecMap<V> {
+impl<'a, V> Index<&'a usize> for VecMap<V> {
     type Output = V;
 
     #[inline]
@@ -781,10 +802,10 @@ macro_rules! double_ended_iterator {
 }
 
 /// An iterator over the key-value pairs of a map.
-pub struct Iter<'a, V:'a> {
+pub struct Iter<'a, V: 'a> {
     front: usize,
     back: usize,
-    iter: slice::Iter<'a, Option<V>>
+    iter: slice::Iter<'a, Option<V>>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
@@ -793,7 +814,7 @@ impl<'a, V> Clone for Iter<'a, V> {
         Iter {
             front: self.front,
             back: self.back,
-            iter: self.iter.clone()
+            iter: self.iter.clone(),
         }
     }
 }
@@ -803,10 +824,10 @@ double_ended_iterator! { impl Iter -> (usize, &'a V), as_ref }
 
 /// An iterator over the key-value pairs of a map, with the
 /// values being mutable.
-pub struct IterMut<'a, V:'a> {
+pub struct IterMut<'a, V: 'a> {
     front: usize,
     back: usize,
-    iter: slice::IterMut<'a, Option<V>>
+    iter: slice::IterMut<'a, Option<V>>,
 }
 
 iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
@@ -814,28 +835,28 @@ double_ended_iterator! { impl IterMut -> (usize, &'a mut V), as_mut }
 
 /// An iterator over the keys of a map.
 pub struct Keys<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> usize>
+    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> usize>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
 impl<'a, V> Clone for Keys<'a, V> {
     fn clone(&self) -> Keys<'a, V> {
         Keys {
-            iter: self.iter.clone()
+            iter: self.iter.clone(),
         }
     }
 }
 
 /// An iterator over the values of a map.
 pub struct Values<'a, V: 'a> {
-    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> &'a V>
+    iter: Map<Iter<'a, V>, fn((usize, &'a V)) -> &'a V>,
 }
 
 // FIXME(#19839) Remove in favor of `#[derive(Clone)]`
 impl<'a, V> Clone for Values<'a, V> {
     fn clone(&self) -> Values<'a, V> {
         Values {
-            iter: self.iter.clone()
+            iter: self.iter.clone(),
         }
     }
 }
@@ -843,36 +864,55 @@ impl<'a, V> Clone for Values<'a, V> {
 /// A consuming iterator over the key-value pairs of a map.
 pub struct IntoIter<V> {
     iter: FilterMap<
-    Enumerate<vec::IntoIter<Option<V>>>,
-    fn((usize, Option<V>)) -> Option<(usize, V)>>
+        Enumerate<vec::IntoIter<Option<V>>>,
+        fn((usize, Option<V>)) -> Option<(usize, V)>,
+    >,
 }
 
 impl<'a, V> Iterator for Keys<'a, V> {
     type Item = usize;
 
-    fn next(&mut self) -> Option<usize> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<usize> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 impl<'a, V> DoubleEndedIterator for Keys<'a, V> {
-    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<usize> {
+        self.iter.next_back()
+    }
 }
 
 impl<'a, V> Iterator for Values<'a, V> {
     type Item = &'a V;
 
-    fn next(&mut self) -> Option<(&'a V)> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<(&'a V)> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 impl<'a, V> DoubleEndedIterator for Values<'a, V> {
-    fn next_back(&mut self) -> Option<(&'a V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(&'a V)> {
+        self.iter.next_back()
+    }
 }
 
 impl<V> Iterator for IntoIter<V> {
     type Item = (usize, V);
 
-    fn next(&mut self) -> Option<(usize, V)> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<(usize, V)> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 impl<V> DoubleEndedIterator for IntoIter<V> {
-    fn next_back(&mut self) -> Option<(usize, V)> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<(usize, V)> {
+        self.iter.next_back()
+    }
 }

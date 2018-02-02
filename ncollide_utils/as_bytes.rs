@@ -2,7 +2,7 @@ use std::mem;
 use std::slice;
 
 use alga::general::Real;
-use na::{Vector2, Vector3, Point2, Point3};
+use na::{Point2, Point3, Vector2, Vector3};
 
 /// Trait that transforms thing to a slice of u8.
 pub trait AsBytes {

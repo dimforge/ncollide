@@ -4,7 +4,7 @@ use alga::general::Real;
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Torus<N> {
     major_radius: N,
-    minor_radius: N
+    minor_radius: N,
 }
 
 impl<N> Torus<N> {
@@ -13,7 +13,7 @@ impl<N> Torus<N> {
     pub fn new(major_radius: N, minor_radius: N) -> Torus<N> {
         Torus {
             major_radius: major_radius,
-            minor_radius: minor_radius
+            minor_radius: minor_radius,
         }
     }
 }

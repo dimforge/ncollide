@@ -2,7 +2,7 @@
 
 use na::Point2;
 
-use math::{Point, Vector, Isometry};
+use math::{Isometry, Point, Vector};
 
 /// A Ray.
 #[derive(Debug, RustcEncodable, RustcDecodable, Clone, Copy)]
@@ -10,7 +10,7 @@ pub struct Ray<P: Point> {
     /// Starting point of the ray.
     pub origin: P,
     /// Direction of the ray.
-    pub dir:  P::Vector
+    pub dir: P::Vector,
 }
 
 impl<P: Point> Ray<P> {
@@ -19,20 +19,26 @@ impl<P: Point> Ray<P> {
     pub fn new(origin: P, dir: P::Vector) -> Ray<P> {
         Ray {
             origin: origin,
-            dir:  dir
+            dir: dir,
         }
     }
 
     /// Transforms this ray by the given isometry.
     #[inline]
     pub fn transform_by<M: Isometry<P>>(&self, m: &M) -> Self {
-        Self::new(m.transform_point(&self.origin), m.transform_vector(&self.dir)) 
+        Self::new(
+            m.transform_point(&self.origin),
+            m.transform_vector(&self.dir),
+        )
     }
 
     /// Transforms this ray by the inverse of the given isometry.
     #[inline]
     pub fn inverse_transform_by<M: Isometry<P>>(&self, m: &M) -> Self {
-        Self::new(m.inverse_transform_point(&self.origin), m.inverse_transform_vector(&self.dir)) 
+        Self::new(
+            m.inverse_transform_point(&self.origin),
+            m.inverse_transform_vector(&self.dir),
+        )
     }
 
     /// Translates this ray by the given vector. Its direction is left unchanged.
@@ -47,7 +53,7 @@ pub struct RayIntersection<V: Vector> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
     /// with: `origin + dir * toi` where `origin` is the origin of the ray; `dir` is its direction and
     /// `toi` is the value of this field.
-    pub toi:    V::Real,
+    pub toi: V::Real,
 
     /// The normal at the intersection point.
     ///
@@ -56,17 +62,21 @@ pub struct RayIntersection<V: Vector> {
 
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
-    pub uvs:    Option<Point2<V::Real>>
+    pub uvs: Option<Point2<V::Real>>,
 }
 
 impl<V: Vector> RayIntersection<V> {
     #[inline]
     /// Creates a new `RayIntersection`.
-    pub fn new_with_uvs(toi: V::Real, normal: V, uvs: Option<Point2<V::Real>>) -> RayIntersection<V> {
+    pub fn new_with_uvs(
+        toi: V::Real,
+        normal: V,
+        uvs: Option<Point2<V::Real>>,
+    ) -> RayIntersection<V> {
         RayIntersection {
-            toi:    toi,
+            toi: toi,
             normal: normal,
-            uvs:    uvs
+            uvs: uvs,
         }
     }
 
@@ -74,9 +84,9 @@ impl<V: Vector> RayIntersection<V> {
     /// Creates a new `RayIntersection`.
     pub fn new(toi: V::Real, normal: V) -> RayIntersection<V> {
         RayIntersection {
-            toi:    toi,
+            toi: toi,
             normal: normal,
-            uvs:    None
+            uvs: None,
         }
     }
 }
@@ -85,17 +95,28 @@ impl<V: Vector> RayIntersection<V> {
 pub trait RayCast<P: Point, M> {
     /// Computes the time of impact between this transform shape and a ray.
     fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<P::Real> {
-        self.toi_and_normal_with_ray(m, ray, solid).map(|inter| inter.toi)
+        self.toi_and_normal_with_ray(m, ray, solid)
+            .map(|inter| inter.toi)
     }
 
     /// Computes the time of impact, and normal between this transformed shape and a ray.
     #[inline]
-    fn toi_and_normal_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>>;
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &M,
+        ray: &Ray<P>,
+        solid: bool,
+    ) -> Option<RayIntersection<P::Vector>>;
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// shape and a ray.
     #[inline]
-    fn toi_and_normal_and_uv_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<RayIntersection<P::Vector>> {
+    fn toi_and_normal_and_uv_with_ray(
+        &self,
+        m: &M,
+        ray: &Ray<P>,
+        solid: bool,
+    ) -> Option<RayIntersection<P::Vector>> {
         self.toi_and_normal_with_ray(m, ray, solid)
     }
 

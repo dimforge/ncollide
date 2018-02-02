@@ -53,13 +53,15 @@ impl HashFun<usize> for UintTWHash {
 }
 
 /// Combines two `usize` on a single one.
-#[cfg(target_pointer_width = "32")] #[inline]
+#[cfg(target_pointer_width = "32")]
+#[inline]
 pub fn key_from_pair(a: usize, b: usize) -> usize {
     (a & 0xffff) | (b << 16)
 }
 
 /// Combines two `usize` on a single one.
-#[cfg(target_pointer_width = "64")] #[inline]
+#[cfg(target_pointer_width = "64")]
+#[inline]
 pub fn key_from_pair(a: usize, b: usize) -> usize {
     (a & 0xffffffff) | (b << 32)
 }
@@ -67,7 +69,8 @@ pub fn key_from_pair(a: usize, b: usize) -> usize {
 // http://www.concentric.net/~Ttwang/tech/inthash.htm -- dead link!
 // (this one works: http://naml.us/blog/tag/thomas-wang)
 /// Tomas Wang integer hash function.
-#[cfg(target_pointer_width = "64")] #[inline]
+#[cfg(target_pointer_width = "64")]
+#[inline]
 pub fn tomas_wang_hash(k: usize) -> usize {
     let mut res = Wrapping(k);
 
@@ -85,7 +88,8 @@ pub fn tomas_wang_hash(k: usize) -> usize {
 }
 
 /// Tomas Wang integer hash function.
-#[cfg(target_pointer_width = "32")] #[inline]
+#[cfg(target_pointer_width = "32")]
+#[inline]
 pub fn tomas_wang_hash(k: usize) -> usize {
     let mut res = Wrapping(k);
 

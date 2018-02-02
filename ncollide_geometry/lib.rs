@@ -9,14 +9,14 @@
 #![warn(unused_imports)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-extern crate rustc_serialize;
-extern crate num_traits as num;
+extern crate alga;
 #[macro_use]
 extern crate approx;
-extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
+extern crate num_traits as num;
+extern crate rustc_serialize;
 
 pub mod shape;
 pub mod bounding_volume;

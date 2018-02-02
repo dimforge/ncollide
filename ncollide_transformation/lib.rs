@@ -9,17 +9,16 @@
 #![warn(unused_imports)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-extern crate rustc_serialize;
-extern crate num_traits as num;
+extern crate alga;
 #[macro_use]
 extern crate approx;
-extern crate alga;
 extern crate nalgebra as na;
-extern crate ncollide_math as math;
-extern crate ncollide_utils as utils;
 extern crate ncollide_geometry as geometry;
+extern crate ncollide_math as math;
 extern crate ncollide_procedural as procedural;
-
+extern crate ncollide_utils as utils;
+extern crate num_traits as num;
+extern crate rustc_serialize;
 
 pub use to_trimesh::ToTriMesh;
 pub use to_polyline::ToPolyline;

@@ -4,17 +4,16 @@ use std::collections::BinaryHeap;
 
 use alga::general::Real;
 use na;
-use partitioning::{BVTVisitor, BVTTVisitor, BVTCostFn};
+use partitioning::{BVTCostFn, BVTTVisitor, BVTVisitor};
 use bounding_volume::BoundingVolume;
 use utils::data::ref_with_cost::RefWithCost;
 use utils;
 use math::Point;
 
-
 /// A Bounding Volume Tree.
 #[derive(Clone, RustcEncodable, RustcDecodable)]
 pub struct BVT<B, BV> {
-    tree: Option<BVTNode<B, BV>>
+    tree: Option<BVTNode<B, BV>>,
 }
 
 /// A node of the bounding volume tree.
@@ -24,7 +23,7 @@ pub enum BVTNode<B, BV> {
     /// An internal node.
     Internal(BV, Box<BVTNode<B, BV>>, Box<BVTNode<B, BV>>),
     /// A leaf.
-    Leaf(BV, B)
+    Leaf(BV, B),
 }
 
 /// Result of a binary partition.
@@ -32,24 +31,21 @@ pub enum BinaryPartition<B, BV> {
     /// Result of the partitioning of one element.
     Part(B),
     /// Result of the partitioning of several elements.
-    Parts(Vec<(B, BV)>, Vec<(B, BV)>)
+    Parts(Vec<(B, BV)>, Vec<(B, BV)>),
 }
 
 impl<B, BV> BVT<B, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
-    pub fn new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-      (leaves:      Vec<(B, BV)>,
-       partitioner: &mut F)
-          -> BVT<B, BV> {
+    pub fn new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>(
+        leaves: Vec<(B, BV)>,
+        partitioner: &mut F,
+    ) -> BVT<B, BV> {
         if leaves.len() == 0 {
+            BVT { tree: None }
+        } else {
             BVT {
-                tree: None
-            }
-        }
-        else {
-            BVT {
-                tree: Some(Self::_new_with_partitioner(0, leaves, partitioner))
+                tree: Some(Self::_new_with_partitioner(0, leaves, partitioner)),
             }
         }
     }
@@ -61,7 +57,7 @@ impl<B, BV> BVT<B, BV> {
     pub fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
         match self.tree {
             Some(ref t) => t.visit(visitor),
-            None        => { }
+            None => {}
         }
     }
 
@@ -69,7 +65,7 @@ impl<B, BV> BVT<B, BV> {
     pub fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVT<B, BV>, visitor: &mut Vis) {
         match (&self.tree, &other.tree) {
             (&Some(ref ta), &Some(ref tb)) => ta.visit_bvtt(tb, visitor),
-            _ => { }
+            _ => {}
         }
     }
 
@@ -78,25 +74,28 @@ impl<B, BV> BVT<B, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
-        where N:   Real,
-              BFS: BVTCostFn<N, B, BV> {
+    pub fn best_first_search<'a, N, BFS>(
+        &'a self,
+        algorithm: &mut BFS,
+    ) -> Option<(&'a B, BFS::UserData)>
+    where
+        N: Real,
+        BFS: BVTCostFn<N, B, BV>,
+    {
         match self.tree {
             Some(ref t) => t.best_first_search(algorithm),
-            None        => None
+            None => None,
         }
     }
 
     /// Reference to the bounding volume of the tree root.
     pub fn root_bounding_volume<'r>(&'r self) -> Option<&'r BV> {
         match self.tree {
-            Some(ref n) => {
-                match *n {
-                    BVTNode::Internal(ref bv, _, _) => Some(bv),
-                    BVTNode::Leaf(ref bv, _) => Some(bv)
-                }
+            Some(ref n) => match *n {
+                BVTNode::Internal(ref bv, _, _) => Some(bv),
+                BVTNode::Leaf(ref bv, _) => Some(bv),
             },
-            None => None
+            None => None,
         }
     }
 
@@ -104,7 +103,7 @@ impl<B, BV> BVT<B, BV> {
     pub fn depth(&self) -> usize {
         match self.tree {
             Some(ref n) => n.depth(),
-            None        => 0
+            None => 0,
         }
     }
 }
@@ -112,24 +111,29 @@ impl<B, BV> BVT<B, BV> {
 impl<B, BV> BVT<B, BV> {
     /// Creates a balanced `BVT`.
     pub fn new_balanced<P>(leaves: Vec<(B, BV)>) -> BVT<B, BV>
-        where P:  Point,
-              BV: BoundingVolume<P> + Clone {
+    where
+        P: Point,
+        BV: BoundingVolume<P> + Clone,
+    {
         BVT::new_with_partitioner(leaves, &mut Self::median_partitioner)
     }
 
     /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-    pub fn median_partitioner_with_centers<P, F: FnMut(&B, &BV) -> P>
-            (depth: usize, leaves: Vec<(B, BV)>, center: &mut F) -> (BV, BinaryPartition<B, BV>)
-        where P:  Point,
-              BV: BoundingVolume<P> + Clone {
+    pub fn median_partitioner_with_centers<P, F: FnMut(&B, &BV) -> P>(
+        depth: usize,
+        leaves: Vec<(B, BV)>,
+        center: &mut F,
+    ) -> (BV, BinaryPartition<B, BV>)
+    where
+        P: Point,
+        BV: BoundingVolume<P> + Clone,
+    {
         if leaves.len() == 0 {
             panic!("Cannot build a tree without leaves.");
-        }
-        else if leaves.len() == 1 {
+        } else if leaves.len() == 1 {
             let (b, bv) = leaves.into_iter().next().unwrap();
             (bv, BinaryPartition::Part(b))
-        }
-        else {
+        } else {
             let sep_axis = depth % na::dimension::<P::Vector>();
 
             // compute the median along sep_axis
@@ -144,7 +148,7 @@ impl<B, BV> BVT<B, BV> {
 
             // build the partitions
             let mut right = Vec::new();
-            let mut left  = Vec::new();
+            let mut left = Vec::new();
             let mut bounding_bounding_volume = leaves[0].1.clone();
 
             let mut insert_left = false;
@@ -157,8 +161,7 @@ impl<B, BV> BVT<B, BV> {
                 if pos < median || (pos == median && insert_left) {
                     left.push((b, bv));
                     insert_left = false;
-                }
-                else {
+                } else {
                     right.push((b, bv));
                     insert_left = true;
                 }
@@ -167,30 +170,37 @@ impl<B, BV> BVT<B, BV> {
             // XXX: hack to avoid degeneracies.
             if left.len() == 0 {
                 left.push(right.pop().unwrap());
-            }
-            else if right.len() == 0 {
+            } else if right.len() == 0 {
                 right.push(left.pop().unwrap());
             }
 
-            (bounding_bounding_volume, BinaryPartition::Parts(left, right))
+            (
+                bounding_bounding_volume,
+                BinaryPartition::Parts(left, right),
+            )
         }
     }
 
     /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
     pub fn median_partitioner<P>(depth: usize, leaves: Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)
-        where P:  Point,
-              BV: BoundingVolume<P> + Clone {
+    where
+        P: Point,
+        BV: BoundingVolume<P> + Clone,
+    {
         Self::median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.center())
     }
 
-    fn _new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>
-                             (depth: usize, leaves: Vec<(B, BV)>, partitioner: &mut F) -> BVTNode<B, BV> {
+    fn _new_with_partitioner<F: FnMut(usize, Vec<(B, BV)>) -> (BV, BinaryPartition<B, BV>)>(
+        depth: usize,
+        leaves: Vec<(B, BV)>,
+        partitioner: &mut F,
+    ) -> BVTNode<B, BV> {
         let (bv, partitions) = partitioner(depth, leaves);
 
         match partitions {
-            BinaryPartition::Part(b)            => BVTNode::Leaf(bv, b),
+            BinaryPartition::Part(b) => BVTNode::Leaf(bv, b),
             BinaryPartition::Parts(left, right) => {
-                let left  = Self::_new_with_partitioner(depth + 1, left, partitioner);
+                let left = Self::_new_with_partitioner(depth + 1, left, partitioner);
                 let right = Self::_new_with_partitioner(depth + 1, right, partitioner);
                 BVTNode::Internal(bv, Box::new(left), Box::new(right))
             }
@@ -204,7 +214,7 @@ impl<B, BV> BVTNode<B, BV> {
     pub fn bounding_volume<'a>(&'a self) -> &'a BV {
         match *self {
             BVTNode::Internal(ref bv, _, _) => bv,
-            BVTNode::Leaf(ref bv, _)        => bv
+            BVTNode::Leaf(ref bv, _) => bv,
         }
     }
 
@@ -215,7 +225,7 @@ impl<B, BV> BVTNode<B, BV> {
                     left.visit(visitor);
                     right.visit(visitor);
                 }
-            },
+            }
             BVTNode::Leaf(ref bv, ref b) => {
                 visitor.visit_leaf(b, bv);
             }
@@ -224,42 +234,50 @@ impl<B, BV> BVTNode<B, BV> {
 
     fn visit_bvtt<Vis: BVTTVisitor<B, BV>>(&self, other: &BVTNode<B, BV>, visitor: &mut Vis) {
         match (self, other) {
-            (&BVTNode::Internal(ref bva, ref la, ref ra), &BVTNode::Internal(ref bvb, ref lb, ref rb)) => {
+            (
+                &BVTNode::Internal(ref bva, ref la, ref ra),
+                &BVTNode::Internal(ref bvb, ref lb, ref rb),
+            ) => {
                 if visitor.visit_internal_internal(bva, bvb) {
                     la.visit_bvtt(&**lb, visitor);
                     la.visit_bvtt(&**rb, visitor);
                     ra.visit_bvtt(&**lb, visitor);
                     ra.visit_bvtt(&**rb, visitor);
                 }
-            },
+            }
             (&BVTNode::Internal(ref bva, ref la, ref ra), &BVTNode::Leaf(ref bvb, ref bb)) => {
                 if visitor.visit_internal_leaf(bva, bb, bvb) {
                     la.visit_bvtt(other, visitor);
                     ra.visit_bvtt(other, visitor);
                 }
-            },
+            }
             (&BVTNode::Leaf(ref bva, ref ba), &BVTNode::Internal(ref bvb, ref lb, ref rb)) => {
                 if visitor.visit_leaf_internal(ba, bva, bvb) {
                     self.visit_bvtt(&**lb, visitor);
                     self.visit_bvtt(&**rb, visitor);
                 }
-            },
+            }
             (&BVTNode::Leaf(ref bva, ref ba), &BVTNode::Leaf(ref bvb, ref bb)) => {
                 visitor.visit_leaf_leaf(ba, bva, bb, bvb)
             }
         }
     }
 
-    fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<(&'a B, BFS::UserData)>
-        where N:   Real,
-              BFS: BVTCostFn<N, B, BV> {
+    fn best_first_search<'a, N, BFS>(
+        &'a self,
+        algorithm: &mut BFS,
+    ) -> Option<(&'a B, BFS::UserData)>
+    where
+        N: Real,
+        BFS: BVTCostFn<N, B, BV>,
+    {
         let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<B, BV>>> = BinaryHeap::new();
         let mut best_cost = N::max_value();
-        let mut result    = None;
+        let mut result = None;
 
         match algorithm.compute_bv_cost(self.bounding_volume()) {
             Some(cost) => queue.push(RefWithCost::new(self, cost)),
-            None       => return None
+            None => return None,
         }
 
         loop {
@@ -276,8 +294,8 @@ impl<B, BV> BVTNode<B, BV> {
                                     if lcost < best_cost {
                                         queue.push(RefWithCost::new(&**left, -lcost))
                                     }
-                                },
-                                None => { }
+                                }
+                                None => {}
                             }
 
                             match algorithm.compute_bv_cost(right.bounding_volume()) {
@@ -285,21 +303,19 @@ impl<B, BV> BVTNode<B, BV> {
                                     if rcost < best_cost {
                                         queue.push(RefWithCost::new(&**right, -rcost))
                                     }
-                                },
-                                None => { }
-                            }
-                        },
-                        BVTNode::Leaf(_, ref b) => {
-                            match algorithm.compute_b_cost(b) {
-                                Some((candidate_cost, candidate_result)) => {
-                                    if candidate_cost < best_cost {
-                                        best_cost = candidate_cost;
-                                        result    = Some((b, candidate_result));
-                                    }
                                 }
-                                None => { }
+                                None => {}
                             }
                         }
+                        BVTNode::Leaf(_, ref b) => match algorithm.compute_b_cost(b) {
+                            Some((candidate_cost, candidate_result)) => {
+                                if candidate_cost < best_cost {
+                                    best_cost = candidate_cost;
+                                    result = Some((b, candidate_result));
+                                }
+                            }
+                            None => {}
+                        },
                     }
                 }
                 None => break,
@@ -312,7 +328,7 @@ impl<B, BV> BVTNode<B, BV> {
     fn depth(&self) -> usize {
         match *self {
             BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
-            BVTNode::Leaf(_, _) => 1
+            BVTNode::Leaf(_, _) => 1,
         }
     }
 }

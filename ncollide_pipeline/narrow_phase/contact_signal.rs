@@ -7,13 +7,19 @@ use math::Point;
 /// A signal handler for contact detection.
 pub trait ContactHandler<P: Point, M, T>: Any + Send + Sync {
     /// Activate an action for when two objects start being in contact.
-    fn handle_contact_started(&mut self,
-                              co1:      &CollisionObject<P, M, T>,
-                              co2:      &CollisionObject<P, M, T>,
-                              contacts: &ContactAlgorithm<P, M>);
+    fn handle_contact_started(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+        contacts: &ContactAlgorithm<P, M>,
+    );
 
     /// Activate an action for when two objects stop being in contact.
-    fn handle_contact_stopped(&mut self, co1: &CollisionObject<P, M, T>, co2: &CollisionObject<P, M, T>);
+    fn handle_contact_stopped(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+    );
 }
 
 /// Signal for contact start/stop.
@@ -30,9 +36,7 @@ impl<P: Point, M, T> ContactSignal<P, M, T> {
     }
 
     /// Registers an event handler.
-    pub fn register_contact_handler(&mut self,
-                                    name:     &str,
-                                    callback: Box<ContactHandler<P, M, T>>) {
+    pub fn register_contact_handler(&mut self, name: &str, callback: Box<ContactHandler<P, M, T>>) {
         for &mut (ref mut n, ref mut f) in self.contact_handlers.iter_mut() {
             if name == &n[..] {
                 *f = callback;
@@ -60,19 +64,23 @@ impl<P: Point, M, T> ContactSignal<P, M, T> {
 
     // FIXME: do we really want to use &mut here ?
     /// Activates the contact started signal, executing all the event handlers.
-    pub fn trigger_contact_started_signal(&mut self,
-                                          co1:      &CollisionObject<P, M, T>,
-                                          co2:      &CollisionObject<P, M, T>,
-                                          contacts: &ContactAlgorithm<P, M>) {
+    pub fn trigger_contact_started_signal(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+        contacts: &ContactAlgorithm<P, M>,
+    ) {
         for &mut (_, ref mut f) in self.contact_handlers.iter_mut() {
             f.handle_contact_started(co1, co2, contacts)
         }
     }
 
     /// Activates the contact stopped signal, executing all the event handlers.
-    pub fn trigger_contact_stopped_signal(&mut self,
-                                          co1: &CollisionObject<P, M, T>,
-                                          co2: &CollisionObject<P, M, T>) {
+    pub fn trigger_contact_stopped_signal(
+        &mut self,
+        co1: &CollisionObject<P, M, T>,
+        co2: &CollisionObject<P, M, T>,
+    ) {
         for &mut (_, ref mut f) in self.contact_handlers.iter_mut() {
             f.handle_contact_stopped(co1, co2)
         }

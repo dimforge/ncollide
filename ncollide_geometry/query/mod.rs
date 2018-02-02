@@ -13,14 +13,12 @@ pub use self::distance_internal::distance;
 #[doc(inline)]
 pub use self::time_of_impact_internal::time_of_impact;
 #[doc(inline)]
-pub use self::ray_internal::{Ray, Ray2, Ray3,
-                             RayIntersection, RayIntersection2, RayIntersection3,
-                             RayCast, RayInterferencesCollector,
-                             RayIntersectionCostFn};
+pub use self::ray_internal::{Ray, Ray2, Ray3, RayCast, RayInterferencesCollector, RayIntersection,
+                             RayIntersection2, RayIntersection3, RayIntersectionCostFn};
 #[doc(inline)]
-pub use self::point_internal::{PointProjection, PointQuery, PointInterferencesCollector,
-                               PointQueryWithLocation, SegmentPointLocation, TrianglePointLocation,
-                               TetrahedronPointLocation};
+pub use self::point_internal::{PointInterferencesCollector, PointProjection, PointQuery,
+                               PointQueryWithLocation, SegmentPointLocation,
+                               TetrahedronPointLocation, TrianglePointLocation};
 
 pub mod algorithms;
 pub mod contacts_internal;

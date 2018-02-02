@@ -2,8 +2,7 @@ use procedural::Polyline;
 use math::Point;
 
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
-pub trait ToPolyline<P: Point, I>
-{
+pub trait ToPolyline<P: Point, I> {
     /// Builds a triangle mesh from this shape.
     ///
     /// # Arguments:

@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use shape::Cuboid;
-use query::{PointQuery, PointProjection};
-use math::{Point, Isometry};
+use query::{PointProjection, PointQuery};
+use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cuboid<P::Vector> {
     #[inline]

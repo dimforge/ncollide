@@ -1,40 +1,32 @@
 //! Persistent collision detection algorithms to compute contact points.
 
-use na::{Point2, Point3, Isometry2, Isometry3};
-pub use self::narrow_phase::{NarrowPhase, ContactPairs, Contacts, ProximityPairs};
+use na::{Isometry2, Isometry3, Point2, Point3};
+pub use self::narrow_phase::{ContactPairs, Contacts, NarrowPhase, ProximityPairs};
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
-pub use self::contact_generator::{
-    ContactGenerator,
-    ContactDispatcher,
-    ContactAlgorithm,
-    DefaultContactDispatcher,
-    BallBallContactGenerator,
-    PlaneSupportMapContactGenerator, SupportMapPlaneContactGenerator,
-    SupportMapSupportMapContactGenerator,
-    CompositeShapeShapeContactGenerator, ShapeCompositeShapeContactGenerator,
-    IncrementalContactManifoldGenerator,
-    OneShotContactManifoldGenerator
-};
+pub use self::contact_generator::{BallBallContactGenerator, CompositeShapeShapeContactGenerator,
+                                  ContactAlgorithm, ContactDispatcher, ContactGenerator,
+                                  DefaultContactDispatcher, IncrementalContactManifoldGenerator,
+                                  OneShotContactManifoldGenerator,
+                                  PlaneSupportMapContactGenerator,
+                                  ShapeCompositeShapeContactGenerator,
+                                  SupportMapPlaneContactGenerator,
+                                  SupportMapSupportMapContactGenerator};
 
 #[doc(inline)]
-pub use self::proximity_detector::{
-    ProximityDetector,
-    ProximityDispatcher,
-    ProximityAlgorithm,
-    DefaultProximityDispatcher,
-    BallBallProximityDetector,
-    PlaneSupportMapProximityDetector, SupportMapPlaneProximityDetector,
-    SupportMapSupportMapProximityDetector,
-    CompositeShapeShapeProximityDetector,
-    ShapeCompositeShapeProximityDetector
-};
+pub use self::proximity_detector::{BallBallProximityDetector,
+                                   CompositeShapeShapeProximityDetector,
+                                   DefaultProximityDispatcher, PlaneSupportMapProximityDetector,
+                                   ProximityAlgorithm, ProximityDetector, ProximityDispatcher,
+                                   ShapeCompositeShapeProximityDetector,
+                                   SupportMapPlaneProximityDetector,
+                                   SupportMapSupportMapProximityDetector};
 
 #[doc(inline)]
-pub use self::contact_signal::{ContactSignal, ContactHandler};
+pub use self::contact_signal::{ContactHandler, ContactSignal};
 #[doc(inline)]
-pub use self::proximity_signal::{ProximitySignal, ProximityHandler};
+pub use self::proximity_signal::{ProximityHandler, ProximitySignal};
 
 #[doc(hidden)]
 pub mod contact_generator;

@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 extern crate ncollide;
 
 use na::Point3;
-use ncollide::procedural::path::{PolylinePath, PolylinePattern, StrokePattern, ArrowheadCap};
+use ncollide::procedural::path::{ArrowheadCap, PolylinePath, PolylinePattern, StrokePattern};
 use ncollide::procedural;
 
 fn main() {
@@ -22,13 +22,13 @@ fn main() {
     ];
 
     // Setup the path.
-    let bezier   = procedural::bezier_curve(&control_points, 100);
+    let bezier = procedural::bezier_curve(&control_points, 100);
     let mut path = PolylinePath::new(&bezier);
 
     // Setup the pattern.
-    let start_cap   = ArrowheadCap::new(1.5, 2.0, 0.0);
-    let end_cap     = ArrowheadCap::new(2.0, 2.0, 0.5);
-    let pattern     = procedural::unit_circle(100);
+    let start_cap = ArrowheadCap::new(1.5, 2.0, 0.0);
+    let end_cap = ArrowheadCap::new(2.0, 2.0, 0.5);
+    let pattern = procedural::unit_circle(100);
     let mut pattern = PolylinePattern::new(&pattern, true, start_cap, end_cap);
 
     // Stroke!

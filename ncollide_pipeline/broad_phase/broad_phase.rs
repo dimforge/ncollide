@@ -38,9 +38,11 @@ pub trait BroadPhase<P: Point, BV, T>: Any + Sync + Send {
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self,
-              allow_proximity:   &mut FnMut(&T, &T) -> bool,
-              proximity_handler: &mut FnMut(&T, &T, bool));
+    fn update(
+        &mut self,
+        allow_proximity: &mut FnMut(&T, &T) -> bool,
+        proximity_handler: &mut FnMut(&T, &T, bool),
+    );
 
     /*
      * FIXME: the following are not flexible enough.

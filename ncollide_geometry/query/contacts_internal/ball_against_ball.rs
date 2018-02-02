@@ -9,15 +9,20 @@ use shape::Ball;
 
 /// Contact between balls.
 #[inline]
-pub fn ball_against_ball<P>(center1: &P, b1: &Ball<P::Real>,
-                            center2: &P, b2: &Ball<P::Real>,
-                            prediction: P::Real)
-                            -> Option<Contact<P>>
-    where P: Point {
-    let r1         = b1.radius();
-    let r2         = b2.radius();
-    let delta_pos  = *center2 - *center1;
-    let distance_squared     = na::norm_squared(&delta_pos);
+pub fn ball_against_ball<P>(
+    center1: &P,
+    b1: &Ball<P::Real>,
+    center2: &P,
+    b2: &Ball<P::Real>,
+    prediction: P::Real,
+) -> Option<Contact<P>>
+where
+    P: Point,
+{
+    let r1 = b1.radius();
+    let r2 = b2.radius();
+    let delta_pos = *center2 - *center1;
+    let distance_squared = na::norm_squared(&delta_pos);
     let sum_radius = r1 + r2;
     let sum_radius_with_error = sum_radius + prediction;
 
@@ -29,12 +34,12 @@ pub fn ball_against_ball<P>(center1: &P, b1: &Ball<P::Real>,
         }
 
         Some(Contact::new(
-                *center1 + normal * r1,
-                *center2 + (-normal * r2),
-                normal,
-                (sum_radius - distance_squared.sqrt())))
-    }
-    else {
+            *center1 + normal * r1,
+            *center2 + (-normal * r2),
+            normal,
+            (sum_radius - distance_squared.sqrt()),
+        ))
+    } else {
         None
     }
 }

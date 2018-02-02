@@ -1,18 +1,17 @@
 use na::{self, Real};
 use shape::Triangle;
-use query::{PointQuery, PointProjection, PointQueryWithLocation};
-use math::{Point, Isometry};
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
+use math::{Isometry, Point};
 
 #[inline]
 fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
-   if na::dimension::<P::Vector>() == 2 {
-       PointProjection::new(*pt == proj, proj)
-   }
-   else {
-       // FIXME: is this acceptable to assume the point is inside of the triangle if it is close
-       // enough?
-       PointProjection::new(relative_eq!(proj, *pt), proj)
-   }
+    if na::dimension::<P::Vector>() == 2 {
+        PointProjection::new(*pt == proj, proj)
+    } else {
+        // FIXME: is this acceptable to assume the point is inside of the triangle if it is close
+        // enough?
+        PointProjection::new(relative_eq!(proj, *pt), proj)
+    }
 }
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
@@ -36,7 +35,7 @@ pub enum TrianglePointLocation<N: Real> {
     /// The point lies on the triangle interior.
     OnFace([N; 3]),
     /// The point lies on the triangle interior (for "solid" point queries).
-    OnSolid
+    OnSolid,
 }
 
 impl<N: Real> TrianglePointLocation<N> {
@@ -44,8 +43,7 @@ impl<N: Real> TrianglePointLocation<N> {
     pub fn is_on_face(&self) -> bool {
         if let TrianglePointLocation::OnFace(_) = *self {
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -55,9 +53,12 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
     type Location = TrianglePointLocation<P::Real>;
 
     #[inline]
-    fn project_point_with_location(&self, m: &M, pt: &P, solid: bool)
-        -> (PointProjection<P>, Self::Location)
-    {
+    fn project_point_with_location(
+        &self,
+        m: &M,
+        pt: &P,
+        solid: bool,
+    ) -> (PointProjection<P>, Self::Location) {
         /*
          * This comes from the book `Real Time Collision Detection`.
          * This is actually a trivial Voronoï region based approach, except that great care has
@@ -81,7 +82,10 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
 
         if d1 <= na::zero() && d2 <= na::zero() {
             // Voronoï region of `a`.
-            return (compute_result(pt, m.transform_point(&a)), TrianglePointLocation::OnVertex(0));
+            return (
+                compute_result(pt, m.transform_point(&a)),
+                TrianglePointLocation::OnVertex(0),
+            );
         }
 
         let bp = p - b;
@@ -90,19 +94,25 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
 
         if d3 >= na::zero() && d4 <= d3 {
             // Voronoï region of `b`.
-            return (compute_result(pt, m.transform_point(&b)), TrianglePointLocation::OnVertex(1));
+            return (
+                compute_result(pt, m.transform_point(&b)),
+                TrianglePointLocation::OnVertex(1),
+            );
         }
 
         let vc = d1 * d4 - d3 * d2;
         if vc <= na::zero() && d1 >= na::zero() && d3 <= na::zero() {
             // Voronoï region of `ab`.
-            let v       = d1 / (d1 - d3);
-            let bcoords = [ _1 - v, v ];
+            let v = d1 / (d1 - d3);
+            let bcoords = [_1 - v, v];
 
             let mut res = a;
             // NOTE: we use axpy for the GJK AnnotatedPoint trick.
             res.axpy(bcoords[1], &b, bcoords[0]);
-            return (compute_result(pt, m.transform_point(&res)), TrianglePointLocation::OnEdge(0, bcoords));
+            return (
+                compute_result(pt, m.transform_point(&res)),
+                TrianglePointLocation::OnEdge(0, bcoords),
+            );
         }
 
         let cp = p - c;
@@ -111,30 +121,39 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
 
         if d6 >= na::zero() && d5 <= d6 {
             // Voronoï region of `c`.
-            return (compute_result(pt, m.transform_point(&c)), TrianglePointLocation::OnVertex(2));
+            return (
+                compute_result(pt, m.transform_point(&c)),
+                TrianglePointLocation::OnVertex(2),
+            );
         }
 
         let vb = d5 * d2 - d1 * d6;
 
         if vb <= na::zero() && d2 >= na::zero() && d6 <= na::zero() {
             // Voronoï region of `ac`.
-            let w       = d2 / (d2 - d6);
-            let bcoords = [ _1 - w, w ];
+            let w = d2 / (d2 - d6);
+            let bcoords = [_1 - w, w];
 
             let mut res = a;
             res.axpy(bcoords[1], &c, bcoords[0]);
-            return (compute_result(pt, m.transform_point(&res)), TrianglePointLocation::OnEdge(2, bcoords));
+            return (
+                compute_result(pt, m.transform_point(&res)),
+                TrianglePointLocation::OnEdge(2, bcoords),
+            );
         }
 
         let va = d3 * d6 - d5 * d4;
         if va <= na::zero() && d4 - d3 >= na::zero() && d5 - d6 >= na::zero() {
             // Voronoï region of `bc`.
             let w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            let bcoords = [ _1 - w, w ];
+            let bcoords = [_1 - w, w];
 
             let mut res = b;
             res.axpy(bcoords[1], &c, bcoords[0]);
-            return (compute_result(pt, m.transform_point(&res)), TrianglePointLocation::OnEdge(1, bcoords));
+            return (
+                compute_result(pt, m.transform_point(&res)),
+                TrianglePointLocation::OnEdge(1, bcoords),
+            );
         }
 
         // Voronoï region of the face.
@@ -142,26 +161,30 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             let denom = _1 / (va + vb + vc);
             let v = vb * denom;
             let w = vc * denom;
-            let bcoords = [ _1 - v - w, v, w ];
+            let bcoords = [_1 - v - w, v, w];
 
             let mut res = a;
             res.axpy(bcoords[1], &b, bcoords[0]);
             res.axpy(bcoords[2], &c, _1);
 
-            return (compute_result(pt, m.transform_point(&res)), TrianglePointLocation::OnFace(bcoords));
-        }
-        else {
+            return (
+                compute_result(pt, m.transform_point(&res)),
+                TrianglePointLocation::OnFace(bcoords),
+            );
+        } else {
             // Special treatement if we work in 2d because in this case we really are inside of the
             // object.
             if solid {
-                (PointProjection::new(true, *pt), TrianglePointLocation::OnSolid)
-            }
-            else {
+                (
+                    PointProjection::new(true, *pt),
+                    TrianglePointLocation::OnSolid,
+                )
+            } else {
                 // We have to project on the closest edge.
 
                 // FIXME: this might be optimizable.
-                let v = d1 / (d1 - d3);                      // proj on ab = a + ab * v
-                let w = d2 / (d2 - d6);                      // proj on ac = a + ac * w
+                let v = d1 / (d1 - d3); // proj on ab = a + ab * v
+                let w = d2 / (d2 - d6); // proj on ac = a + ac * w
                 let u = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // proj on bc = b + bc * u
 
                 let bc = c - b;
@@ -175,37 +198,34 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                 if d_ab < d_ac {
                     if d_ab < d_bc {
                         // ab
-                        let bcoords = [ _1 - v, v ];
+                        let bcoords = [_1 - v, v];
                         proj = a;
                         proj.axpy(bcoords[1], &b, bcoords[0]);
                         proj = m.transform_point(&proj);
-                        loc  = TrianglePointLocation::OnEdge(0, bcoords);
-                    }
-                    else {
+                        loc = TrianglePointLocation::OnEdge(0, bcoords);
+                    } else {
                         // bc
-                        let bcoords = [ _1 - u, u ];
+                        let bcoords = [_1 - u, u];
                         proj = b;
                         proj.axpy(bcoords[1], &c, bcoords[0]);
                         proj = m.transform_point(&proj);
-                        loc  = TrianglePointLocation::OnEdge(1, bcoords);
+                        loc = TrianglePointLocation::OnEdge(1, bcoords);
                     }
-                }
-                else {
+                } else {
                     if d_ac < d_bc {
                         // ac
-                        let bcoords = [ _1 - w, w ];
+                        let bcoords = [_1 - w, w];
                         proj = a;
                         proj.axpy(bcoords[1], &c, bcoords[0]);
                         proj = m.transform_point(&proj);
-                        loc  = TrianglePointLocation::OnEdge(2, bcoords);
-                    }
-                    else {
+                        loc = TrianglePointLocation::OnEdge(2, bcoords);
+                    } else {
                         // bc
-                        let bcoords = [ _1 - u, u ];
+                        let bcoords = [_1 - u, u];
                         proj = b;
                         proj.axpy(bcoords[1], &c, bcoords[0]);
                         proj = m.transform_point(&proj);
-                        loc  = TrianglePointLocation::OnEdge(1, bcoords);
+                        loc = TrianglePointLocation::OnEdge(1, bcoords);
                     }
                 }
 

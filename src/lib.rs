@@ -47,16 +47,16 @@ And various traits for collision detectors and broad phase collision detection.
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
-pub extern crate ncollide_math;
-pub extern crate ncollide_utils;
 pub extern crate ncollide_geometry;
+pub extern crate ncollide_math;
 pub extern crate ncollide_pipeline;
 pub extern crate ncollide_procedural;
 pub extern crate ncollide_transformation;
+pub extern crate ncollide_utils;
 
 pub use ncollide_math as math;
 pub use ncollide_utils as utils;
-pub use ncollide_geometry::{shape, bounding_volume, partitioning, query};
-pub use ncollide_pipeline::{narrow_phase, broad_phase, world, events};
+pub use ncollide_geometry::{bounding_volume, partitioning, query, shape};
+pub use ncollide_pipeline::{broad_phase, events, narrow_phase, world};
 pub use ncollide_procedural as procedural;
 pub use ncollide_transformation as transformation;
