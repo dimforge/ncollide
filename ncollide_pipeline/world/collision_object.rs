@@ -98,13 +98,12 @@ impl<P: Point, M, T> CollisionObject<P, M, T> {
         }
     }
 
-    /// The collision object unique identifier.
+    /// The collision object unique handle.
     #[inline]
     pub fn handle(&self) -> CollisionObjectHandle {
         self.handle
     }
 
-    /// Sets the collision object unique identifier.
     #[inline]
     pub(crate) fn set_handle(&mut self, handle: CollisionObjectHandle) {
         self.handle = handle
@@ -171,46 +170,56 @@ pub struct CollisionObjectHandle(pub usize);
 
 impl CollisionObjectHandle {
     #[inline]
-    pub fn invalid() -> Self {
+    pub(crate) fn invalid() -> Self {
         CollisionObjectHandle(usize::max_value())
     }
 
     #[inline]
-    pub fn is_invalid(&self) -> bool {
+    pub(crate) fn is_invalid(&self) -> bool {
         self.0 == usize::max_value()
     }
 
+    /// The unique identifier corresponding to this handle.
     #[inline]
     pub fn uid(&self) -> usize {
         self.0
     }
 }
 
+/// A set of collision objects that can be indexed by collision object handles.
 pub struct CollisionObjectSlab<P: Point, M, T> {
     objects: Slab<CollisionObject<P, M, T>>,
 }
 
 impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
+    /// Creates a new empty collecton of collision objects.
     pub fn new() -> CollisionObjectSlab<P, M, T> {
         CollisionObjectSlab {
             objects: Slab::new(),
         }
     }
+
+    /// Inserts a new collision object into this collection and returns the corresponding handle.
     #[inline]
     pub fn insert(&mut self, co: CollisionObject<P, M, T>) -> CollisionObjectHandle {
         CollisionObjectHandle(self.objects.insert(co))
     }
 
+    /// Removes from this collection the collision object identified by the given handle.
+    /// 
+    /// The removed collision object structure is returned.
     #[inline]
     pub fn remove(&mut self, handle: CollisionObjectHandle) -> CollisionObject<P, M, T> {
         self.objects.remove(handle.0)
     }
 
+    /// If it exists, retrieves a reference to the collision object identified by the given handle.
     #[inline]
     pub fn get(&self, handle: CollisionObjectHandle) -> Option<&CollisionObject<P, M, T>> {
         self.objects.get(handle.0)
     }
 
+    /// If it exists, retrieves a mutable reference to the collision object identified by the given handle.
     #[inline]
     pub fn get_mut(
         &mut self,
@@ -219,11 +228,13 @@ impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
         self.objects.get_mut(handle.0)
     }
 
+    /// Returns `true` if the specified handle identifies a collision object stored in this collection.
     #[inline]
     pub fn contains(&self, handle: CollisionObjectHandle) -> bool {
         self.objects.contains(handle.0)
     }
 
+    /// Retrieves an iterator yielding references to each collision object.
     #[inline]
     pub fn iter(&self) -> CollisionObjects<P, M, T> {
         CollisionObjects {
@@ -248,17 +259,18 @@ impl<P: Point, M, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, 
     }
 }
 
+/// An iterator yielding references to collision objects.
 pub struct CollisionObjects<'a, P: 'a + Point, M: 'a, T: 'a> {
     iter: Iter<'a, CollisionObject<P, M, T>>,
 }
 
 impl<'a, P: 'a + Point, M: 'a, T: 'a> Iterator for CollisionObjects<'a, P, M, T> {
-    type Item = (CollisionObjectHandle, &'a CollisionObject<P, M, T>);
+    type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.iter
             .next()
-            .map(|(id, obj)| (CollisionObjectHandle(id), obj))
+            .map(|obj| obj.1)
     }
 }

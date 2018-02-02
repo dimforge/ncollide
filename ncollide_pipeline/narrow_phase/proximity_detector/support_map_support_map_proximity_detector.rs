@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
 use geometry::shape::{AnnotatedPoint, Shape};
-use geometry::query::algorithms::simplex::Simplex;
+use geometry::query::algorithms::Simplex;
 use geometry::query::proximity_internal;
 use geometry::query::Proximity;
 use narrow_phase::{ProximityDetector, ProximityDispatcher};

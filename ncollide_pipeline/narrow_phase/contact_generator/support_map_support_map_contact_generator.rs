@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use math::{Isometry, Point};
 use geometry::shape::{AnnotatedPoint, Shape};
-use geometry::query::algorithms::simplex::Simplex;
+use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
 use geometry::query::Contact;

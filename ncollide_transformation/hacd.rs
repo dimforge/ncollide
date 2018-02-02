@@ -12,7 +12,7 @@ use utils;
 use geometry::shape::SupportMap;
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::partitioning::{BoundingVolumeInterferencesCollector, BVT};
-use geometry::query::algorithms::voronoi_simplex3::VoronoiSimplex3;
+use geometry::query::algorithms::VoronoiSimplex3;
 use geometry::query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{IndexBuffer, TriMesh};
 

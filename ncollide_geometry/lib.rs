@@ -4,7 +4,7 @@
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-// #![warn(missing_docs)]
+#![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]

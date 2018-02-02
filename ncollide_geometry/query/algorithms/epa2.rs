@@ -1,3 +1,5 @@
+//! Two-dimensional penetration depth queries using the Expanding Polytope Algorithm. 
+
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
 use std::cmp::Ordering;
@@ -90,6 +92,7 @@ impl<P: Point> Face<P> {
     }
 }
 
+/// The Expanding Polytope Algorithm in 2D.
 pub struct EPA2<P: Point> {
     vertices: Vec<P>,
     faces: Vec<Face<P>>,
@@ -97,6 +100,7 @@ pub struct EPA2<P: Point> {
 }
 
 impl<P: Point> EPA2<P> {
+    /// Creates a new instance of the 2D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA2 {
             vertices: Vec::new(),
@@ -267,6 +271,7 @@ impl<P: Point> EPA2<P> {
     }
 }
 
+/// Computes the pair of closest points at the extremities of the minimal translational vector between `g1` and `g2`.
 pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
     epa: &mut EPA2<AnnotatedPoint<P>>,
     m1: &M,

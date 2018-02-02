@@ -1,4 +1,4 @@
-use geometry::algorithm::{JohnsonSimplex, RecursionTemplate};
+use geometry::algorithm::{JohnsonSimplex, JohnsonSimplexTemplate};
 use geometry::algorithms::simplex::Simplex;
 use na::{Point3, Vector3};
 use test::Bencher;
@@ -10,7 +10,7 @@ fn bench_johnson_simplex(bh: &mut Bencher) {
     let b = Point3::new(0.0, 0.5, 0.0);
     let c = Point3::new(0.5, -0.5, -0.5);
     let d = Point3::new(0.0, -0.5, -0.5);
-    let recursion = RecursionTemplate::new(3);
+    let recursion = JohnsonSimplexTemplate::new(3);
 
     bh.iter(|| {
         let mut spl = JohnsonSimplex::new(recursion.clone());

@@ -11,12 +11,12 @@ use na;
 use query::algorithms::simplex::Simplex;
 use math::Point;
 
-thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<RecursionTemplate>>> = RefCell::new(Arc::new(Vec::new())));
+thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<JohnsonSimplexTemplate>>> = RefCell::new(Arc::new(Vec::new())));
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[derive(Clone)]
 pub struct JohnsonSimplex<P: Point> {
-    recursion_template: Arc<Vec<RecursionTemplate>>,
+    recursion_template: Arc<Vec<JohnsonSimplexTemplate>>,
     points: Vec<P>,
     exchange_points: Vec<P>,
     determinants: Vec<P::Real>,
@@ -26,7 +26,7 @@ pub struct JohnsonSimplex<P: Point> {
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
 #[derive(PartialEq, Clone, RustcEncodable, RustcDecodable)]
-pub struct RecursionTemplate {
+pub struct JohnsonSimplexTemplate {
     #[doc(hidden)] permutation_list: Vec<usize>,
     #[doc(hidden)] offsets: Vec<usize>,
     #[doc(hidden)] sub_determinants: Vec<usize>,
@@ -34,14 +34,14 @@ pub struct RecursionTemplate {
     #[doc(hidden)] num_leaves: usize, // useful only for printing…
 }
 
-impl RecursionTemplate {
+impl JohnsonSimplexTemplate {
     /// Creates a new set of Recursion simplex sharable between any Johnson simplex having a
     /// dimension inferior or equal to `dimension`.
-    pub fn new(dimension: usize) -> Arc<Vec<RecursionTemplate>> {
+    pub fn new(dimension: usize) -> Arc<Vec<JohnsonSimplexTemplate>> {
         let mut template = Vec::with_capacity(dimension + 1);
 
         for dimension in 0usize..dimension + 1 {
-            template.push(RecursionTemplate::make_permutation_list(dimension))
+            template.push(JohnsonSimplexTemplate::make_permutation_list(dimension))
         }
 
         Arc::new(template)
@@ -59,7 +59,7 @@ impl RecursionTemplate {
     // subalgorithm fastly. This should _not_ be run every time the algorithm is executed. Instead,
     // it should be pre-computed, or computed only once for all. The resulting list is intented to
     // be shared between all other simplices with the same dimension.
-    fn make_permutation_list(dimension: usize) -> RecursionTemplate {
+    fn make_permutation_list(dimension: usize) -> JohnsonSimplexTemplate {
         // The number of points on the biggest subsimplex
         let max_num_points = dimension + 1;
 
@@ -174,7 +174,7 @@ impl RecursionTemplate {
         pts.truncate(num_pts - max_num_points - 1);
         sub_determinants.truncate(num_pts - max_num_points - 1);
 
-        RecursionTemplate {
+        JohnsonSimplexTemplate {
             offsets: rev_offsets,
             permutation_list: pts,
             num_determinants: sub_determinants[0] + 1,
@@ -186,7 +186,7 @@ impl RecursionTemplate {
 
 impl<P: Point> JohnsonSimplex<P> {
     /// Creates a new, empty, Johnson simplex.
-    pub fn new(recursion: Arc<Vec<RecursionTemplate>>) -> JohnsonSimplex<P> {
+    pub fn new(recursion: Arc<Vec<JohnsonSimplexTemplate>>) -> JohnsonSimplex<P> {
         let _dimension = na::dimension::<P::Vector>();
 
         JohnsonSimplex {
@@ -203,7 +203,7 @@ impl<P: Point> JohnsonSimplex<P> {
     pub fn new_w_tls() -> JohnsonSimplex<P> {
         KEY_RECURSION_TEMPLATE.with(|rec| {
             if rec.borrow().len() <= na::dimension::<P::Vector>() {
-                *rec.borrow_mut() = RecursionTemplate::new(na::dimension::<P::Vector>());
+                *rec.borrow_mut() = JohnsonSimplexTemplate::new(na::dimension::<P::Vector>());
             }
             JohnsonSimplex::new(rec.borrow().clone())
         })

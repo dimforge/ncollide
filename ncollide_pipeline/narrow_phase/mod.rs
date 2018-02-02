@@ -23,11 +23,6 @@ pub use self::proximity_detector::{BallBallProximityDetector,
                                    SupportMapPlaneProximityDetector,
                                    SupportMapSupportMapProximityDetector};
 
-#[doc(inline)]
-pub use self::contact_signal::{ContactHandler, ContactSignal};
-#[doc(inline)]
-pub use self::proximity_signal::{ProximityHandler, ProximitySignal};
-
 #[doc(hidden)]
 pub mod contact_generator;
 #[doc(hidden)]
@@ -35,10 +30,6 @@ pub mod proximity_detector;
 #[doc(hidden)]
 pub mod narrow_phase;
 mod default_narrow_phase;
-#[doc(hidden)]
-pub mod contact_signal;
-#[doc(hidden)]
-pub mod proximity_signal;
 
 /// Trait-object for 2-dimensional contact generation.
 pub type ContactAlgorithm2<N> = ContactAlgorithm<Point2<N>, Isometry2<N>>;
