@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use alga::linear::Translation;
 use math::{Isometry, Point};
 use geometry::shape::{Ball, Shape};
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -41,7 +41,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
         a: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
             self.contact = contacts_internal::ball_against_ball(
@@ -49,7 +49,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
                 a,
                 &P::from_coordinates(mb.translation().to_vector()),
                 b,
-                prediction,
+                prediction.linear,
             );
 
             true

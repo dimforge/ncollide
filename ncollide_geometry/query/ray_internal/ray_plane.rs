@@ -33,14 +33,14 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Plane<P::Vector> {
 
         let dpos = -ls_ray.origin;
 
-        let dot_normal_dpos = na::dot(self.normal(), &dpos.coordinates());
+        let dot_normal_dpos = na::dot(self.normal().as_ref(), &dpos.coordinates());
 
         if solid && dot_normal_dpos > na::zero() {
             // The ray is inside of the solid half-space.
             return Some(RayIntersection::new(na::zero(), na::zero()));
         }
 
-        let t = dot_normal_dpos / na::dot(self.normal(), &ls_ray.dir);
+        let t = dot_normal_dpos / na::dot(self.normal().as_ref(), &ls_ray.dir);
 
         if t >= na::zero() {
             let n = if dot_normal_dpos > na::zero() {

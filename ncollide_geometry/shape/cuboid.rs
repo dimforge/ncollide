@@ -2,7 +2,7 @@
 
 use num::Zero;
 
-use na;
+use na::{self, Real, Unit};
 use shape::SupportMap;
 use math::{Isometry, Point, Vector};
 
@@ -50,4 +50,47 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
 
         m.transform_point(&P::from_coordinates(res))
     }
+
+    #[inline]
+    fn support_area_toward(&self, m: &M, dir: &Unit<P::Vector>, angle: P::Real, out: &mut Vec<P>) {
+        let local_dir = m.inverse_rotate_vector(dir);
+        let cang = angle.cos();
+        let dim = na::dimension::<P::Vector>();
+        let mut half_extents = *self.half_extents();
+        let mut support_point = half_extents;
+
+        match dim {
+            2 => {
+                for i1 in 0 .. 2 {
+                    let sign = local_dir[i1].signum();
+                    if sign * local_dir[i1] >= cang {
+                        let i2 = (i1 + 1) % 2;
+
+                        half_extents[i1] *= sign;
+                        half_extents[i2] *= -sign;
+                        let p1 = P::from_coordinates(half_extents);
+
+                        half_extents[i2] = -half_extents[i2];
+                        let p2 = P::from_coordinates(half_extents);
+
+                        out.push(m.transform_point(&p1));
+                        out.push(m.transform_point(&p2));
+                        return;
+                    }
+                    else {
+                        support_point[i1] *= sign;
+                    }
+                }
+
+                // We are not on a face, return the support vertex.
+                out.push(m.transform_point(&P::from_coordinates(support_point)));
+            },
+            3 => {
+                unimplemented!()
+            },
+            _ => out.push(self.support_point_toward(m, dir))
+        }
+         
+    }
+
 }

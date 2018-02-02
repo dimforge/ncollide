@@ -1,7 +1,7 @@
 use num::Zero;
 
 use alga::linear::{NormedSpace, Translation};
-use na;
+use na::{self, Unit};
 use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
@@ -111,9 +111,7 @@ where
             let sqn = na::norm_squared(&p1p2);
 
             if !sqn.is_zero() {
-                let mut normal = p1p2;
-                let depth = normal.normalize_mut();
-
+                let (normal, depth) = Unit::new_and_get(p1p2);
                 return GJKResult::Projection(Contact::new(p1, p2, normal, -depth));
             }
         }
@@ -126,9 +124,8 @@ where
     if na::dimension::<P::Vector>() == 2 {
         let mut epa = EPA2::new();
         let (p1, p2) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-        let mut normal = p1 - p2;
+        let (normal, depth) = Unit::new_and_get(p1 - p2);
 
-        let depth = normal.normalize_mut();
         if depth.is_zero() {
             return GJKResult::NoIntersection(na::zero());
         } else {
@@ -137,15 +134,13 @@ where
     } else if na::dimension::<P::Vector>() == 3 {
         let mut epa = EPA3::new();
         let (p1, p2) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-        let mut normal = p1 - p2;
+        let (normal, depth) = Unit::new_and_get(p1 - p2);
 
-        let depth = normal.normalize_mut();
         return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
     } else {
         match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
             Some((p1, p2, normal)) => {
                 let depth = na::dot(&(p1 - p2), &normal);
-
                 GJKResult::Projection(Contact::new(p1, p2, normal, depth))
             }
             None => GJKResult::NoIntersection(na::zero()), // panic!("Both GJK and fallback algorithm failed.")

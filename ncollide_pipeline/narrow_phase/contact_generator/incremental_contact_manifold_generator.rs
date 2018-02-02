@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use geometry::shape::Shape;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -77,7 +77,7 @@ where
         g1: &Shape<P, M>,
         m2: &M,
         g2: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> Option<Option<Contact<P>>> {
         if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
             None
@@ -104,7 +104,7 @@ where
         g1: &Shape<P, M>,
         m2: &M,
         g2: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
         // add the new ones
         if !self.sub_detector.update(d, m1, g1, m2, g2, prediction) {
@@ -144,7 +144,7 @@ where
                 let depth = na::dot(&dw, &c.contact.normal);
 
                 if depth >= -prediction
-                    && na::norm_squared(&(dw - c.contact.normal * depth)) <= na::convert(0.01f64)
+                    && na::norm_squared(&(dw - c.contact.normal.unwrap() * depth)) <= na::convert(0.01f64)
                 {
                     c.contact.depth = depth;
                     c.contact.world1 = world1;
@@ -179,9 +179,9 @@ where
         g1: &Shape<P, M>,
         m2: &M,
         g2: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool {
-        self.update_contacts(m1, m2, prediction);
+        self.update_contacts(m1, m2, prediction.linear);
         self.add_new_contacts(d, m1, g1, m2, g2, prediction)
     }
 

@@ -2,7 +2,7 @@ use num::Zero;
 
 use alga::general::Real;
 use alga::linear::FiniteDimVectorSpace;
-use na;
+use na::{self, Unit};
 use math::Point;
 use query::Contact;
 use shape::Ball;
@@ -27,15 +27,15 @@ where
     let sum_radius_with_error = sum_radius + prediction;
 
     if distance_squared < sum_radius_with_error * sum_radius_with_error {
-        let mut normal = na::normalize(&delta_pos);
+        let mut normal = Unit::new_normalize(delta_pos);
 
         if distance_squared.is_zero() {
-            normal = P::Vector::canonical_basis_element(0);
+            normal = Unit::new_unchecked(P::Vector::canonical_basis_element(0));
         }
 
         Some(Contact::new(
-            *center1 + normal * r1,
-            *center2 + (-normal * r2),
+            *center1 + *normal * r1,
+            *center2 + (-*normal * r2),
             normal,
             sum_radius - distance_squared.sqrt(),
         ))

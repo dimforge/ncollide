@@ -1,7 +1,7 @@
 use std::intrinsics::TypeId;
 use std::any::Any;
 use na::{Translate, Cross, Rotation};
-use geometry::Contact;
+use geometry::{Contact, ContactPrediction};
 use shape::Ball;
 use narrow_phase::{CollisionDetector, OneShotContactManifoldGenerator};
 use math::{Scalar, Point, Vector, Isometry};
@@ -9,7 +9,7 @@ use math::{Scalar, Point, Vector, Isometry};
 /// Generates a contact manifold from an existing single-contact generator.
 pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &M, g1: &G1,
                                                          m2: &M, g2: &G2,
-                                                         prediction: N,
+                                                         prediction: ContactPrediction<N>,
                                                          generator: fn(&M, &G1, &M, &G2, N) -> Option<Contact<N, P, V>>,
                                                          out: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,

@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     * `SupportMap::support_point_toward` that takes a direction that is already
       normalized.
 ### Modified
+    * The `Contact<...>` structure now represents the contact normal as a `Unit<P::Vector>` instead of just a `P::Vector`.
     * All the fields of `CollisionObject` are now private and must be accessed
       through methods.
     * The trait Point now requires additional methods to compute the normal of

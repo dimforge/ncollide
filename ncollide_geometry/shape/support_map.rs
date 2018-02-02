@@ -20,4 +20,9 @@ pub trait SupportMap<P: Point, M> {
     fn support_point_toward(&self, transform: &M, dir: &Unit<P::Vector>) -> P {
         self.support_point(transform, dir.as_ref())
     }
+
+    // XXX: output into a dedicated structure instead of Vec.
+    fn support_area_toward(&self, transform: &M, dir: &Unit<P::Vector>, _angle: P::Real, out: &mut Vec<P>) {
+        out.push(self.support_point_toward(transform, dir))
+    }
 }

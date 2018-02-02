@@ -1,5 +1,5 @@
 use alga::linear::Translation;
-use na;
+use na::{self, Unit};
 use query::Contact;
 use shape::{Plane, SupportMap};
 use math::{Isometry, Point};
@@ -17,7 +17,7 @@ where
     M: Isometry<P>,
     G: SupportMap<P, M>,
 {
-    let plane_normal = mplane.rotate_vector(plane.normal());
+    let plane_normal = mplane.rotate_vector(&*plane.normal());
     let plane_center = P::from_coordinates(mplane.translation().to_vector());
     let deepest = other.support_point(mother, &-plane_normal);
 
@@ -26,7 +26,7 @@ where
     if distance > -prediction {
         let c1 = deepest + plane_normal * distance;
 
-        Some(Contact::new(c1, deepest, plane_normal, distance))
+        Some(Contact::new(c1, deepest, Unit::new_unchecked(plane_normal), distance))
     } else {
         None
     }

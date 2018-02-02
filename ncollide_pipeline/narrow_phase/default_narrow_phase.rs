@@ -50,14 +50,18 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let had_contacts = value.num_contacts() != 0;
 
-                let _ = value.update(
-                    &*self.contact_dispatcher,
-                    &co1.position(),
-                    co1.shape().as_ref(),
-                    &co2.position(),
-                    co2.shape().as_ref(),
-                    co1.query_type().query_limit() + co2.query_type().query_limit(),
-                );
+                if let Some(prediction) = co1.query_type().contact_queries_to_prediction(co2.query_type()) {
+                    let _ = value.update(
+                        &*self.contact_dispatcher,
+                        &co1.position(),
+                        co1.shape().as_ref(),
+                        &co2.position(),
+                        co2.shape().as_ref(),
+                        &prediction,
+                    );
+                } else {
+                    panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
+                } 
 
                 if value.num_contacts() == 0 {
                     if had_contacts {
@@ -115,7 +119,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         let co2 = &objects[handle2];
 
         match (co1.query_type(), co2.query_type()) {
-            (GeometricQueryType::Contacts(_), GeometricQueryType::Contacts(_)) => {
+            (GeometricQueryType::Contacts(..), GeometricQueryType::Contacts(..)) => {
                 if started {
                     let dispatcher = &self.contact_dispatcher;
 

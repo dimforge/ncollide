@@ -1,7 +1,7 @@
 use std::any::Any;
 
 use geometry::shape::Shape;
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactPrediction};
 use math::Point;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
@@ -16,7 +16,7 @@ pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
         a: &Shape<P, M>,
         mb: &M,
         b: &Shape<P, M>,
-        prediction: P::Real,
+        prediction: &ContactPrediction<P::Real>,
     ) -> bool;
 
     /// The number of contacts generated the last update.

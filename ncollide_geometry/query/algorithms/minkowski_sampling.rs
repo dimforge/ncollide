@@ -4,7 +4,7 @@ use num::{Bounded, Zero};
 
 use alga::general::Id;
 use alga::linear::{NormedSpace, Translation};
-use na;
+use na::{self, Unit};
 
 use shape::{AnnotatedPoint, MinkowskiSum, Reflection};
 use shape::SupportMap;
@@ -20,7 +20,7 @@ pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
     m2: &M,
     g2: &G2,
     simplex: &mut S,
-) -> Option<(P, P, P::Vector)>
+) -> Option<(P, P, Unit<P::Vector>)>
 where
     P: Point,
     M: Isometry<P>,
@@ -90,15 +90,14 @@ where
             //                       |    obj1     |
             //                       |             |
             //                       +-------------+
-            let mut normal = p2 - p1;
-            let dist_err = normal.normalize_mut();
-
+            let (normal, dist_err) = Unit::new_and_get(p2 - p1);
+            
             if !dist_err.is_zero() {
                 let p2 = p2 + (-shift);
                 let center = na::center(&p1, &p2);
-                let nmin_dist = na::dot(&normal, &best_dir) * (min_dist + extra_shift);
+                let nmin_dist = na::dot(&*normal, &best_dir) * (min_dist + extra_shift);
 
-                let p2 = center + (-normal) * (nmin_dist - dist_err);
+                let p2 = center + (-*normal) * (nmin_dist - dist_err);
 
                 Some((center, p2, normal))
             } else {
