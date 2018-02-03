@@ -13,8 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       normalized.
 ### Modified
     * The `Contact<...>` structure now represents the contact normal as a `Unit<P::Vector>` instead of just a `P::Vector`.
-    * All the fields of `CollisionObject` are now private and must be accessed
-      through methods.
+    * All the fields of `CollisionObject` are now private and must be accessed using methods.
     * The trait Point now requires additional methods to compute the normal of
       a face and to project the origin on it.
     * Everything is now Send/Sync (useful for, e.g., ECS compatibility). 
