@@ -15,7 +15,6 @@ extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils;
 extern crate num_traits as num;
-extern crate rustc_serialize;
 
 pub use trimesh::{IndexBuffer, TriMesh};
 pub use polyline::Polyline;

@@ -6,7 +6,7 @@ use shape::{BaseMeshElement, SupportMap};
 use math::{Isometry, Point};
 
 /// A segment shape.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Segment<P> {
     a: P,
     b: P,

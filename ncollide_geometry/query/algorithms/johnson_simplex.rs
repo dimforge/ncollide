@@ -25,7 +25,7 @@ pub struct JohnsonSimplex<P: Point> {
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
 /// Building this is very time consuming, and thus should be shared between all instances of the
 /// Johnson simplex.
-#[derive(PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Clone)]
 pub struct JohnsonSimplexTemplate {
     #[doc(hidden)] permutation_list: Vec<usize>,
     #[doc(hidden)] offsets: Vec<usize>,

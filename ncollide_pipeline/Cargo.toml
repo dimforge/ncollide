@@ -15,10 +15,9 @@ name = "ncollide_pipeline"
 path = "lib.rs"
 
 [dependencies]
-rustc-serialize = "0.3"
 slab            = "0.4"
 alga            = "0.5"
-nalgebra        = "0.13"
+nalgebra        = "0.14"
 
 ncollide_math     = { path = "../ncollide_math",     version = "0.8" }
 ncollide_utils    = { path = "../ncollide_utils",    version = "0.8" }

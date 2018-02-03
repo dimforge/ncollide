@@ -15,9 +15,8 @@ name = "ncollide_math"
 path = "lib.rs"
 
 [dependencies]
-rustc-serialize = "0.3"
-rand       = "0.3"
+rand       = "0.4"
 num-traits = "0.1"
 approx     = "0.1"
 alga       = "0.5"
-nalgebra   = "0.13"
+nalgebra   = "0.14"

@@ -3,7 +3,7 @@ use utils;
 use shape::SupportMap;
 use math::{Isometry, Point};
 
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 /// The implicit convex hull of a set of points.
 pub struct ConvexHull<P> {
     points: Vec<P>,

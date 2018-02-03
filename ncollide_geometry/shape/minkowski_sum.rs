@@ -141,7 +141,7 @@ impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 // FIXME: AnnotatedPoint is not a good name.
 // XXX: do not hide the documentation!
 #[doc(hidden)]
-#[derive(Clone, Copy, Debug, RustcEncodable, RustcDecodable)]
+#[derive(Clone, Copy, Debug)]
 pub struct AnnotatedPoint<P> {
     orig1: P,
     orig2: P,

@@ -5,7 +5,7 @@ use na::Point2;
 use math::{Isometry, Point, Vector};
 
 /// A Ray.
-#[derive(Debug, RustcEncodable, RustcDecodable, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ray<P: Point> {
     /// Starting point of the ray.
     pub origin: P,

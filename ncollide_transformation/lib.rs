@@ -18,7 +18,6 @@ extern crate ncollide_math as math;
 extern crate ncollide_procedural as procedural;
 extern crate ncollide_utils as utils;
 extern crate num_traits as num;
-extern crate rustc_serialize;
 
 pub use to_trimesh::ToTriMesh;
 pub use to_polyline::ToPolyline;

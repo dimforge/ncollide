@@ -15,7 +15,6 @@ extern crate nalgebra as na;
 extern crate ncollide_geometry as geometry;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
-extern crate rustc_serialize;
 extern crate slab;
 
 pub mod broad_phase;
