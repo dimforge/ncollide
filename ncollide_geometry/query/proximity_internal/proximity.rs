@@ -1,5 +1,5 @@
 /// Proximity information.
-#[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Proximity {
     /// The two objects are intersecting.
     Intersecting,

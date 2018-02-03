@@ -26,7 +26,7 @@ impl DBVTLeafId {
     }
 }
 
-#[derive(Copy, Clone, Debug, RustcEncodable, RustcDecodable)]
+#[derive(Copy, Clone, Debug)]
 enum UpdateStatus {
     NeedsShrink,
     UpToDate,

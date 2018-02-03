@@ -1,7 +1,7 @@
 use alga::general::Real;
 
 /// A torus.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Torus<N> {
     major_radius: N,
     minor_radius: N,

@@ -7,7 +7,7 @@ use math::{Isometry, Point};
 use utils;
 
 /// A triangle shape.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Triangle<P> {
     a: P,
     b: P,

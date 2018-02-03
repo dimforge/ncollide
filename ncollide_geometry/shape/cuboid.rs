@@ -7,7 +7,7 @@ use shape::SupportMap;
 use math::{Isometry, Point, Vector};
 
 /// Shape of a box.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Cuboid<V> {
     half_extents: V,
 }

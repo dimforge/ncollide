@@ -11,7 +11,7 @@ use data::vec_map::{Iter, IterMut, Keys, Values, VecMap};
 
 /// A special type of key used by `UidRemap` to perform faster lookups than with the user-defined
 /// id of type `usize`.
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FastKey {
     uid: usize,
 }
@@ -32,7 +32,7 @@ impl FastKey {
     }
 }
 
-#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone)]
 struct LookupData {
     uid2key: HashMap<usize, FastKey>,
     free_keys: Vec<FastKey>,

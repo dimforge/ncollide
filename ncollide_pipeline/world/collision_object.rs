@@ -17,7 +17,7 @@ use world::CollisionGroups;
 /// * Contacts + Contacts = exact contact point coputation.
 /// * Contacts + Proximity = proximity test only.
 /// * Proximity + Proximity = proximity test only.
-#[derive(Debug, PartialEq, Clone, Copy, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum GeometricQueryType<N: Real> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N, N),

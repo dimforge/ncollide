@@ -17,7 +17,6 @@ extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate num_traits as num;
 extern crate rand;
-extern crate rustc_serialize;
 
 pub use center::center;
 // pub use project_homogeneous::{project_homogeneous, project_homogeneous_to};

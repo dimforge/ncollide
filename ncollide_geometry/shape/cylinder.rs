@@ -11,7 +11,7 @@ use shape::SupportMap;
 use math::{Isometry, Point};
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Cylinder<N> {
     half_height: N,
     radius: N,

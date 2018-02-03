@@ -5,7 +5,7 @@ use shape::SupportMap;
 use math::{Isometry, Point};
 
 /// A Ball shape.
-#[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Ball<N> {
     radius: N,
 }

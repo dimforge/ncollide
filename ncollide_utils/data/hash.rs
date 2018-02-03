@@ -10,7 +10,7 @@ pub trait HashFun<K> {
 }
 
 /// Hash function for pairs of `usize`, using the Tomas Wang hash.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct UintPairTWHash;
 
 impl UintPairTWHash {
@@ -35,7 +35,7 @@ impl HashFun<(usize, usize)> for UintPairTWHash {
 }
 
 /// Hash function for `usize`.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct UintTWHash;
 
 impl UintTWHash {

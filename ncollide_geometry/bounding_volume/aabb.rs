@@ -18,7 +18,7 @@ where
 }
 
 /// An Axis Aligned Bounding Box.
-#[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct AABB<P> {
     mins: P,
     maxs: P,

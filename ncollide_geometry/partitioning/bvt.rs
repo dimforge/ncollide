@@ -11,13 +11,13 @@ use utils;
 use math::Point;
 
 /// A Bounding Volume Tree.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>,
 }
 
 /// A node of the bounding volume tree.
-#[derive(Clone, RustcEncodable, RustcDecodable)]
+#[derive(Clone)]
 pub enum BVTNode<B, BV> {
     // XXX: give a faster access to the BV
     /// An internal node.

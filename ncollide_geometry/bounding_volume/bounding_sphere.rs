@@ -20,7 +20,7 @@ where
 }
 
 /// A Bounding Sphere.
-#[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BoundingSphere<P: Point> {
     center: P,
     radius: P::Real,
