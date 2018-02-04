@@ -418,7 +418,7 @@ where
             // Return ldir: the last projection plane is tangeant to the intersected surface.
             return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
-            // use dir instead of proj since this situations means that the new projection is less
+            // Use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
             return Some((ltoi, dir));
         }

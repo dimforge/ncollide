@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_pipeline"
-version = "0.12.1"
+version = "0.13.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the collision detection pipeline (broad phase/narrow phase) of ncollide."
@@ -19,6 +19,6 @@ slab            = "0.4"
 alga            = "0.5"
 nalgebra        = "0.14"
 
-ncollide_math     = { path = "../ncollide_math",     version = "0.8" }
-ncollide_utils    = { path = "../ncollide_utils",    version = "0.8" }
-ncollide_geometry = { path = "../ncollide_geometry", version = "0.5" }
+ncollide_math     = { path = "../ncollide_math",     version = "0.9" }
+ncollide_utils    = { path = "../ncollide_utils",    version = "0.9" }
+ncollide_geometry = { path = "../ncollide_geometry", version = "0.6" }

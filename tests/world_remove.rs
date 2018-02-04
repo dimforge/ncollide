@@ -1,7 +1,7 @@
 extern crate nalgebra;
 extern crate ncollide;
 
-use ncollide::world::{CollisionGroups, CollisionWorld, CollisionWorld2};
+use ncollide::world::{CollisionGroups, CollisionWorld2};
 use ncollide::shape::{Ball, ShapeHandle};
 use ncollide::world::GeometricQueryType;
 use nalgebra::{Isometry2, Vector2};
@@ -18,14 +18,14 @@ fn issue_57_object_remove() {
         contact_query,
         (),
     );
-    let object2 = world.add(
+    let _ = world.add(
         Isometry2::new(Vector2::new(1.0, 1.0), 0.0),
         shape.clone(),
         CollisionGroups::new(),
         contact_query,
         (),
     );
-    let object3 = world.add(
+    let _ = world.add(
         Isometry2::new(Vector2::new(1.0, 2.0), 0.0),
         shape.clone(),
         CollisionGroups::new(),

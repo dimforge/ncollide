@@ -315,7 +315,6 @@ where
         ray: &Ray<P>,
         solid: bool,
     ) -> Option<RayIntersection<P::Vector>> {
-        // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<P::Vector>() == 2 {

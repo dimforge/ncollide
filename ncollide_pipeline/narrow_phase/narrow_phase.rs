@@ -33,7 +33,9 @@ pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
         started: bool,
     );
 
-    /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
+    /// Called when the interactions between two objects have to be removed because at least one of the objects is being removed.
+    /// 
+    /// While either `objects[handle1]` or `objects[handle2]` is being removed, the `handle_removal` is assumed to be called before the removal from the list `objects` is done.
     fn handle_removal(
         &mut self,
         objects: &CollisionObjectSlab<P, M, T>,
