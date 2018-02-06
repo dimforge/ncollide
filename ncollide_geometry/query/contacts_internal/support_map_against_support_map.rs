@@ -124,26 +124,30 @@ where
     if na::dimension::<P::Vector>() == 2 {
         let mut epa = EPA2::new();
         let (p1, p2) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-        let (normal, depth) = Unit::new_and_get(p1 - p2);
 
-        if depth.is_zero() {
-            return GJKResult::NoIntersection(na::zero());
-        } else {
+        if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
             return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
         }
+        // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
+        // inverse Gauss maps at p1 and p2.
     } else if na::dimension::<P::Vector>() == 3 {
         let mut epa = EPA3::new();
         let (p1, p2) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-        let (normal, depth) = Unit::new_and_get(p1 - p2);
 
-        return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
-    } else {
-        match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
-            Some((p1, p2, normal)) => {
-                let depth = na::dot(&(p1 - p2), &normal);
-                GJKResult::Projection(Contact::new(p1, p2, normal, depth))
-            }
-            None => GJKResult::NoIntersection(na::zero()), // panic!("Both GJK and fallback algorithm failed.")
+        if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
+            return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
         }
+        // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
+        // inverse Gauss maps at p1 and p2.
+    }
+
+    // When all else fail (e.g. because of roundup errors or for penetration in dimension
+    // higher than 3), default to minkowski sampling.
+    match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
+        Some((p1, p2, normal)) => {
+            let depth = na::dot(&(p1 - p2), &normal);
+            GJKResult::Projection(Contact::new(p1, p2, normal, depth))
+        }
+        None => GJKResult::NoIntersection(na::zero()), // panic!("Both GJK and fallback algorithm failed.")
     }
 }
