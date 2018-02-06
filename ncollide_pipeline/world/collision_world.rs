@@ -260,11 +260,11 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline]
-    pub fn interferences_with_ray<'a>(
+    pub fn interferences_with_ray<'a, 'b>(
         &'a self,
-        ray: &'a Ray<P>,
-        groups: &'a CollisionGroups,
-    ) -> InterferencesWithRay<'a, P, M, T> {
+        ray: &'b Ray<P>,
+        groups: &'b CollisionGroups,
+    ) -> InterferencesWithRay<'a, 'b, P, M, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase.interferences_with_ray(ray, &mut handles);
@@ -279,11 +279,11 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
     #[inline]
-    pub fn interferences_with_point<'a>(
+    pub fn interferences_with_point<'a, 'b>(
         &'a self,
-        point: &'a P,
-        groups: &'a CollisionGroups,
-    ) -> InterferencesWithPoint<'a, P, M, T> {
+        point: &'b P,
+        groups: &'b CollisionGroups,
+    ) -> InterferencesWithPoint<'a, 'b, P, M, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -299,11 +299,11 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline]
-    pub fn interferences_with_aabb<'a>(
+    pub fn interferences_with_aabb<'a, 'b>(
         &'a self,
-        aabb: &'a AABB<P>,
-        groups: &'a CollisionGroups,
-    ) -> InterferencesWithAABB<'a, P, M, T> {
+        aabb: &'b AABB<P>,
+        groups: &'b CollisionGroups,
+    ) -> InterferencesWithAABB<'a, 'b, P, M, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -343,14 +343,14 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 }
 
 /// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, P: 'a + Point, M: 'a, T: 'a> {
-    ray: &'a Ray<P>,
+pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
+    ray: &'b Ray<P>,
     objects: &'a CollisionObjectSlab<P, M, T>,
-    groups: &'a CollisionGroups,
+    groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, P, M, T> {
+impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
     type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vector>);
 
     #[inline]
@@ -373,14 +373,14 @@ impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, P, M
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, P: 'a + Point, M: 'a, T: 'a> {
-    point: &'a P,
+pub struct InterferencesWithPoint<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
+    point: &'b P,
     objects: &'a CollisionObjectSlab<P, M, T>,
-    groups: &'a CollisionGroups,
+    groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a, P, M, T> {
+impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a, 'b, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
@@ -400,13 +400,13 @@ impl<'a, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a, P,
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, P: 'a + Point, M: 'a, T: 'a> {
+pub struct InterferencesWithAABB<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
     objects: &'a CollisionObjectSlab<P, M, T>,
-    groups: &'a CollisionGroups,
+    groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, P: Point, M, T> Iterator for InterferencesWithAABB<'a, P, M, T> {
+impl<'a, 'b, P: Point, M, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
