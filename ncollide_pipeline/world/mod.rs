@@ -3,7 +3,9 @@
 pub use self::collision_object::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab,
                                  CollisionObjects, GeometricQueryType};
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
-pub use self::collision_world::{BroadPhaseObject, CollisionWorld, NarrowPhaseObject};
+pub use self::collision_world::{BroadPhaseObject, CollisionWorld, NarrowPhaseObject,
+                                InterferencesWithAABB, InterferencesWithPoint,
+                                InterferencesWithRay};
 
 use na::{Isometry2, Isometry3, Point2, Point3};
 
