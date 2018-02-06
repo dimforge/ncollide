@@ -9,7 +9,7 @@ use ncollide::shape::*;
 
 
 #[test]
-fn gjk2d_nan() {
+fn just_touching_nan3d() {
     let mut world: CollisionWorld<Point3<f32>, Isometry3<f32>, ()> = CollisionWorld::new(0.02f32);
     let groups = CollisionGroups::new();
     let contacts_query = GeometricQueryType::Contacts(0.0, 0.0);
