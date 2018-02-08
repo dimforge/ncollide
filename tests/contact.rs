@@ -7,7 +7,6 @@ use ncollide::bounding_volume::*;
 use ncollide::shape::*;
 
 
-
 #[test]
 fn just_touching_nan3d() {
     let mut world: CollisionWorld<Point3<f32>, Isometry3<f32>, ()> = CollisionWorld::new(0.02f32);
