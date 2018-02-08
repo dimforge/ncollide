@@ -13,6 +13,7 @@ use narrow_phase::{ContactDispatcher, ContactGenerator, IncrementalContactManifo
 #[derive(Clone)]
 pub struct OneShotContactManifoldGenerator<P: Point, M, CD> {
     sub_detector: IncrementalContactManifoldGenerator<P, M, CD>,
+    always_one_shot: bool,
 }
 
 impl<P, M, CD> OneShotContactManifoldGenerator<P, M, CD>
@@ -24,7 +25,13 @@ where
     pub fn new(cd: CD) -> OneShotContactManifoldGenerator<P, M, CD> {
         OneShotContactManifoldGenerator {
             sub_detector: IncrementalContactManifoldGenerator::new(cd),
+            always_one_shot: false,
         }
+    }
+
+    // XXX: this should be an argument for the constructor.
+    pub fn set_always_one_shot(&mut self, always_one_shot: bool) {
+        self.always_one_shot = always_one_shot
     }
 }
 
@@ -50,6 +57,10 @@ where
         g2: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
     ) -> bool {
+        if self.always_one_shot {
+            self.sub_detector.clear();
+        }
+
         if self.sub_detector.num_contacts() == 0 {
             // Do the one-shot manifold generation.
             match self.sub_detector
