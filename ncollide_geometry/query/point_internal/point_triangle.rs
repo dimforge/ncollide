@@ -192,7 +192,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                                               ac_bp, ab_cp) {
             ProjectionInfo::OnAB => {
                 // Voronoï region of `ab`.
-                let v = ab_ap / (ab_ap - ab_bp);
+                let v = ab_ap / na::norm_squared(&ab);
                 let bcoords = [_1 - v, v];
 
                 let mut res = a;
@@ -205,7 +205,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             },
             ProjectionInfo::OnAC => {
                 // Voronoï region of `ac`.
-                let w = ac_ap / (ac_ap - ac_cp);
+                let w = ac_ap / na::norm_squared(&ac);
                 let bcoords = [_1 - w, w];
 
                 let mut res = a;
@@ -217,7 +217,8 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             },
             ProjectionInfo::OnBC => {
                 // Voronoï region of `bc`.
-                let w = (ac_bp - ab_bp) / (ac_bp - ab_bp +  ab_cp - ac_cp);
+                let bc = c - b;
+                let w = na::dot(&bc, &ap) / na::norm_squared(&bc);
                 let bcoords = [_1 - w, w];
 
                 let mut res = b;
