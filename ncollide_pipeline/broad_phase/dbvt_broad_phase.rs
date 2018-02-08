@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::mem;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use slab::Slab;
@@ -7,7 +8,7 @@ use alga::general::Id;
 use math::Point;
 use utils::data::SortedPair;
 use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use geometry::partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
+use geometry::partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
 use geometry::query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
                       RayInterferencesCollector};
 use broad_phase::{BroadPhase, ProxyHandle};
@@ -54,7 +55,7 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
     stree: DBVT<P, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool>, // Pairs detected.
-    margin: P::Real,                  // The margin added to each bounding volume.
+    margin: P::Real,                 // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -339,25 +340,28 @@ where
     }
 
     fn deferred_recompute_all_proximities(&mut self) {
-        unimplemented!()
-        /*
-        for (proxy_key, proxy) in self.proxies.iter() {
+        let mut user_updates = mem::replace(&mut self.proxies_to_update, Vec::new());
+
+        for (handle, proxy) in self.proxies.iter() {
             let bv;
-            match proxy.status() {
-                ProxyStatus::OnStaticTree  => { bv = &self.stree[proxy.leaf].bounding_volume; }
-                ProxyStatus::OnDynamicTree => { bv = &self.tree[proxy.leaf].bounding_volume; }
-                ProxyStatus::Detached      => continue
+            match proxy.status {
+                ProxyStatus::OnStaticTree(leaf) => {
+                    bv = self.stree[leaf].bounding_volume.clone();
+                }
+                ProxyStatus::OnDynamicTree(leaf, _) => {
+                    bv = self.tree[leaf].bounding_volume.clone();
+                }
+                ProxyStatus::Detached(_) => continue,
+                ProxyStatus::Deleted => {
+                    panic!("DBVT broad phase: internal error, proxy not found.")
+                }
             }
 
-            match self.actions.entry(proxy_key) {
-                Entry::Vacant(entry) => {
-                    // FIXME: too bad we have to clone the bounding volume…
-                    let _  = entry.insert(Action::Modify(bv.clone(), None));
-                },
-                Entry::Occupied(_) => { }
-            }
+            self.proxies_to_update.push((ProxyHandle(handle), bv));
         }
-        */
+
+        self.proxies_to_update.append(&mut user_updates);
+        self.purge_all = true;
     }
 
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>) {
