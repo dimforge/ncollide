@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0]
+### Modified
+    * TODO: Change the constructor of the `OneShotContactManifoldGenerator` to add a boolean that controls whether the generation is always recomputed from scratch.
+
 ## [0.14.0]
 ### Added
     * The EPA algorithm in both 2D and 3D.
