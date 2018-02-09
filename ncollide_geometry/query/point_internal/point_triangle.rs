@@ -111,18 +111,26 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             OnAB,
             OnAC,
             OnBC,
-            OnFace(N, N, N)
+            OnFace(N, N, N),
         }
 
         // Checks on which edge voronoï region the point is.
         // For 2D and 3D, it uses explicit cross/perp products that are
         // more numerically stable.
-        fn stable_check_edges_voronoi<P: Point>(ab: &P::Vector, ac: &P::Vector, bc: &P::Vector,
-                                                ap: &P::Vector, bp: &P::Vector, cp: &P::Vector,
-                                                ab_ap: P::Real, ab_bp: P::Real,
-                                                ac_ap: P::Real, ac_cp: P::Real,
-                                                ac_bp: P::Real, ab_cp: P::Real)
-                                               -> ProjectionInfo<P::Real> {
+        fn stable_check_edges_voronoi<P: Point>(
+            ab: &P::Vector,
+            ac: &P::Vector,
+            bc: &P::Vector,
+            ap: &P::Vector,
+            bp: &P::Vector,
+            cp: &P::Vector,
+            ab_ap: P::Real,
+            ab_bp: P::Real,
+            ac_ap: P::Real,
+            ac_cp: P::Real,
+            ac_bp: P::Real,
+            ab_cp: P::Real,
+        ) -> ProjectionInfo<P::Real> {
             match na::dimension::<P::Vector>() {
                 2 => {
                     let n = utils::perp2(ab, ac);
@@ -137,12 +145,13 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                     }
 
                     let va = n * utils::perp2(bc, bp);
-                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero()
+                    {
                         return ProjectionInfo::OnBC;
                     }
-                    
+
                     return ProjectionInfo::OnFace(va, vb, vc);
-                },
+                }
                 3 => {
                     let n = utils::cross3(ab, ac);
                     let vc = na::dot(&n, &utils::cross3(ab, ap));
@@ -150,18 +159,19 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                         return ProjectionInfo::OnAB;
                     }
 
-                    let vb = -na::dot(&n, &utils::cross3(ac, cp));                    
+                    let vb = -na::dot(&n, &utils::cross3(ac, cp));
                     if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
                         return ProjectionInfo::OnAC;
                     }
 
                     let va = na::dot(&n, &utils::cross3(bc, bp));
-                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero()
+                    {
                         return ProjectionInfo::OnBC;
                     }
 
                     return ProjectionInfo::OnFace(va, vb, vc);
-                },
+                }
                 _ => {
                     // Generic version for other dimension. May suffer from severe catastrophic cancellation issues.
                     let vc = ab_ap * ac_bp - ab_bp * ac_ap;
@@ -175,7 +185,8 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                     }
 
                     let va = ab_bp * ac_cp - ab_cp * ac_bp;
-                    if  va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero()
+                    {
                         return ProjectionInfo::OnBC;
                     }
 
@@ -185,11 +196,20 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         }
 
         let bc = c - b;
-        match stable_check_edges_voronoi::<P>(&ab, &ac, &bc,
-                                              &ap, &bp, &cp,
-                                              ab_ap, ab_bp,
-                                              ac_ap, ac_cp,
-                                              ac_bp, ab_cp) {
+        match stable_check_edges_voronoi::<P>(
+            &ab,
+            &ac,
+            &bc,
+            &ap,
+            &bp,
+            &cp,
+            ab_ap,
+            ab_bp,
+            ac_ap,
+            ac_cp,
+            ac_bp,
+            ab_cp,
+        ) {
             ProjectionInfo::OnAB => {
                 // Voronoï region of `ab`.
                 let v = ab_ap / na::norm_squared(&ab);
@@ -202,7 +222,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                     compute_result(pt, m.transform_point(&res)),
                     TrianglePointLocation::OnEdge(0, bcoords),
                 );
-            },
+            }
             ProjectionInfo::OnAC => {
                 // Voronoï region of `ac`.
                 let w = ac_ap / na::norm_squared(&ac);
@@ -214,11 +234,10 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                     compute_result(pt, m.transform_point(&res)),
                     TrianglePointLocation::OnEdge(2, bcoords),
                 );
-            },
+            }
             ProjectionInfo::OnBC => {
                 // Voronoï region of `bc`.
-                let bc = c - b;
-                let w = na::dot(&bc, &ap) / na::norm_squared(&bc);
+                let w = na::dot(&bc, &bp) / na::norm_squared(&bc);
                 let bcoords = [_1 - w, w];
 
                 let mut res = b;
@@ -227,7 +246,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
                     compute_result(pt, m.transform_point(&res)),
                     TrianglePointLocation::OnEdge(1, bcoords),
                 );
-            },
+            }
             ProjectionInfo::OnFace(va, vb, vc) => {
                 // Voronoï region of the face.
                 if na::dimension::<P::Vector>() != 2 {
@@ -259,9 +278,9 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             // We have to project on the closest edge.
 
             // FIXME: this might be optimizable.
-            let v = ab_ap /  (ab_ap - ab_bp); // proj on ab = a + ab * v
+            let v = ab_ap / (ab_ap - ab_bp); // proj on ab = a + ab * v
             let w = ac_ap / (ac_ap - ac_cp); // proj on ac = a + ac * w
-            let u = (ac_bp - ab_bp) / (ac_bp - ab_bp +  ab_cp - ac_cp); // proj on bc = b + bc * u
+            let u = (ac_bp - ab_bp) / (ac_bp - ab_bp + ab_cp - ac_cp); // proj on bc = b + bc * u
 
             let bc = c - b;
             let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
