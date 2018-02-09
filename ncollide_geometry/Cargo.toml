@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide_geometry"
-version = "0.6.1"
+version = "0.6.2"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust: module describing the geometric entities and their mathematical definitions."
