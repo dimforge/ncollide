@@ -12,7 +12,7 @@ pub use self::contact_generator::{BallBallContactGenerator, CompositeShapeShapeC
                                   PlaneSupportMapContactGenerator,
                                   ShapeCompositeShapeContactGenerator,
                                   SupportMapPlaneContactGenerator,
-                                  SupportMapSupportMapContactGenerator};
+                                  SupportMapSupportMapContactGenerator, NAVOID};
 
 #[doc(inline)]
 pub use self::proximity_detector::{BallBallProximityDetector,

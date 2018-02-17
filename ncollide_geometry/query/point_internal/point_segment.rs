@@ -1,5 +1,5 @@
-use na::{self, Real};
-use shape::Segment;
+use na;
+use shape::{Segment, SegmentPointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 
@@ -12,16 +12,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
 
     // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
-}
-
-/// Logical description of the location of a point on a triangle.
-pub enum SegmentPointLocation<N: Real> {
-    /// The point lies on a vertex.
-    OnVertex(usize),
-    /// The point lies on the segment interior.
-    OnEdge(usize, [N; 2]),
-    /// The point lies on the segment interior (for "solid" point queries).
-    OnSolid,
 }
 
 impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
@@ -58,7 +48,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
             // Voronoï region of the segment interior.
             let u = ab_ap / sqnab;
             let bcoords = [_1 - u, u];
-            location = SegmentPointLocation::OnEdge(0, bcoords);
+            location = SegmentPointLocation::OnEdge(bcoords);
             proj = *self.a();
             proj.axpy(bcoords[1], self.b(), bcoords[0]);
             proj = m.transform_point(&proj);

@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::ops::Mul;
 use alga::general::{Id, Real};
 use alga::linear::Isometry as AlgaIsometry;

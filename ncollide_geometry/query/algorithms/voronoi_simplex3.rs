@@ -1,11 +1,11 @@
 use math::Point;
 use alga::general::Real;
 use na::{self, Id};
-use query::{PointQuery, PointQueryWithLocation, SegmentPointLocation, TetrahedronPointLocation,
-            TrianglePointLocation};
+use query::{PointQuery, PointQueryWithLocation};
 use query::algorithms::simplex::Simplex;
 use query::algorithms::gjk;
-use shape::{Segment, Tetrahedron, Triangle};
+use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
+            TrianglePointLocation};
 use utils;
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.

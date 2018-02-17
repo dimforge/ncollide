@@ -1,4 +1,4 @@
-//! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm. 
+//! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
@@ -24,12 +24,17 @@ struct FaceId<N: Real> {
 }
 
 impl<N: Real> FaceId<N> {
-    fn new(id: usize, neg_dist: N) -> Self {
+    fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
-            println!("neg_dist: {}", neg_dist);
+            println!(
+                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
+                neg_dist,
+                gjk::eps_tol::<N>()
+            );
+            None
+        } else {
+            Some(FaceId { id, neg_dist })
         }
-        assert!(neg_dist <= gjk::eps_tol());
-        FaceId { id, neg_dist }
     }
 }
 
@@ -167,7 +172,13 @@ impl<P: Point> EPA3<P> {
     /// Projects the origin on a shape unsing the EPA algorithm.
     ///
     /// The origin is assumed to be located inside of the shape.
-    pub fn project_origin<M, S, G: ?Sized>(&mut self, m: &M, shape: &G, simplex: &S) -> P
+    /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
+    pub fn project_origin<M, S, G: ?Sized>(
+        &mut self,
+        m: &M,
+        shape: &G,
+        simplex: &S,
+    ) -> Option<(P, Unit<P::Vector>)>
     where
         S: Simplex<P>,
         G: SupportMap<P, M>,
@@ -185,7 +196,9 @@ impl<P: Point> EPA3<P> {
         }
 
         if simplex.dimension() == 0 {
-            return P::origin();
+            let mut n: P::Vector = na::zero();
+            n[1] = na::one();
+            return Some((P::origin(), Unit::new_unchecked(n)));
         } else if simplex.dimension() == 3 {
             let dp1 = self.vertices[1] - self.vertices[0];
             let dp2 = self.vertices[2] - self.vertices[0];
@@ -220,7 +233,7 @@ impl<P: Point> EPA3<P> {
                     self.faces[0].normal.as_ref(),
                     &self.vertices[0].coordinates(),
                 );
-                self.heap.push(FaceId::new(0, -dist1));
+                self.heap.push(FaceId::new(0, -dist1)?);
             }
 
             if proj_inside2 {
@@ -228,7 +241,7 @@ impl<P: Point> EPA3<P> {
                     self.faces[1].normal.as_ref(),
                     &self.vertices[1].coordinates(),
                 );
-                self.heap.push(FaceId::new(1, -dist2));
+                self.heap.push(FaceId::new(1, -dist2)?);
             }
 
             if proj_inside3 {
@@ -236,7 +249,7 @@ impl<P: Point> EPA3<P> {
                     self.faces[2].normal.as_ref(),
                     &self.vertices[2].coordinates(),
                 );
-                self.heap.push(FaceId::new(2, -dist3));
+                self.heap.push(FaceId::new(2, -dist3)?);
             }
 
             if proj_inside4 {
@@ -244,7 +257,7 @@ impl<P: Point> EPA3<P> {
                     self.faces[3].normal.as_ref(),
                     &self.vertices[3].coordinates(),
                 );
-                self.heap.push(FaceId::new(3, -dist4));
+                self.heap.push(FaceId::new(3, -dist4)?);
             }
         } else {
             if simplex.dimension() == 1 {
@@ -267,8 +280,8 @@ impl<P: Point> EPA3<P> {
             self.faces.push(face1);
             self.faces.push(face2);
 
-            self.heap.push(FaceId::new(0, na::zero()));
-            self.heap.push(FaceId::new(1, na::zero()));
+            self.heap.push(FaceId::new(0, na::zero())?);
+            self.heap.push(FaceId::new(1, na::zero())?);
         }
 
         let mut niter = 0;
@@ -300,7 +313,8 @@ impl<P: Point> EPA3<P> {
             let curr_dist = -face_id.neg_dist;
 
             if max_dist - curr_dist < _eps_tol {
-                return self.faces[best_face_id.id].proj;
+                let best_face = &self.faces[best_face_id.id];
+                return Some((best_face.proj, best_face.normal));
             }
 
             self.faces[face_id.id].deleted = true;
@@ -340,10 +354,10 @@ impl<P: Point> EPA3<P> {
                         if dist < curr_dist {
                             // FIXME: if we reach this point, there were issues due to
                             // numerical errors.
-                            return face.proj;
+                            return Some((face.proj, face.normal));
                         }
 
-                        self.heap.push(FaceId::new(new_face_id, -dist));
+                        self.heap.push(FaceId::new(new_face_id, -dist)?);
                     }
                 }
             }
@@ -355,12 +369,13 @@ impl<P: Point> EPA3<P> {
 
             niter += 1;
             if niter > 10000 {
-                println!("Internal error: EPA did not converge after 1000 iterations.");
-                break;
+                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
+                return None;
             }
         }
 
-        return self.faces[best_face_id.id].proj;
+        let best_face = &self.faces[best_face_id.id];
+        return Some((best_face.proj, best_face.normal));
     }
 
     fn compute_silhouette(&mut self, point: usize, id: usize, opp_pt_id: usize) {
@@ -458,7 +473,7 @@ pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
     m2: &M,
     g2: &G2,
     simplex: &S,
-) -> (P, P)
+) -> Option<(P, P, Unit<P::Vector>)>
 where
     P: Point,
     S: Simplex<AnnotatedPoint<P>>,
@@ -468,6 +483,6 @@ where
     let reflect2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-    let p = epa.project_origin(&Id::new(), &cso, simplex);
-    (*p.orig1(), -*p.orig2())
+    let (p, n) = epa.project_origin(&Id::new(), &cso, simplex)?;
+    Some((*p.orig1(), -*p.orig2(), n))
 }

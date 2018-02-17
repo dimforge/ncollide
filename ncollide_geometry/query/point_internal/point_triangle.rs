@@ -1,7 +1,7 @@
-use na::{self, Real};
+use na;
 
 use utils;
-use shape::Triangle;
+use shape::{Triangle, TrianglePointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 
@@ -25,30 +25,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
 
     // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
-}
-
-/// Logical description of the location of a point on a triangle.
-#[derive(Copy, Clone, Debug)]
-pub enum TrianglePointLocation<N: Real> {
-    /// The point lies on a vertex.
-    OnVertex(usize),
-    /// The point lies on an edge.
-    OnEdge(usize, [N; 2]),
-    /// The point lies on the triangle interior.
-    OnFace([N; 3]),
-    /// The point lies on the triangle interior (for "solid" point queries).
-    OnSolid,
-}
-
-impl<N: Real> TrianglePointLocation<N> {
-    /// Returns `true` if the point is located on the relative interior of the triangle.
-    pub fn is_on_face(&self) -> bool {
-        if let TrianglePointLocation::OnFace(_) = *self {
-            true
-        } else {
-            false
-        }
-    }
 }
 
 impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {

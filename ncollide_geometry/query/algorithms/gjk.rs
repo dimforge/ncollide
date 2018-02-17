@@ -19,7 +19,7 @@ pub enum GJKResult<P, V> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-    Projection(P),
+    Projection(P, Unit<V>),
     /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
     Proximity(V),
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
@@ -80,7 +80,7 @@ where
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
     match project_origin_with_max_dist(&Id::new(), &cso, max_dist, true, simplex) {
-        GJKResult::Projection(p) => GJKResult::Projection((*p.orig1(), -*p.orig2())),
+        GJKResult::Projection(p, n) => GJKResult::Projection((*p.orig1(), -*p.orig2()), n),
         GJKResult::Intersection => GJKResult::Intersection,
         GJKResult::NoIntersection(dir) => GJKResult::NoIntersection(dir),
         GJKResult::Proximity(_) => unreachable!(),
@@ -147,7 +147,7 @@ where
         GJKResult::NoIntersection(data) => (Proximity::Disjoint, data),
         GJKResult::Proximity(data) => (Proximity::WithinMargin, data),
         GJKResult::Intersection => (Proximity::Intersecting, na::zero()),
-        GJKResult::Projection(_) => unreachable!(),
+        GJKResult::Projection(..) => unreachable!(),
     }
 }
 
@@ -176,9 +176,7 @@ where
     let _dimension = na::dimension::<P::Vector>();
 
     loop {
-        if simplex.dimension() == _dimension || max_bound <= _eps_tol
-        /* * simplex.max_sq_len()*/
-        {
+        if simplex.dimension() == _dimension || max_bound <= _eps_tol {
             return None; // point inside of the cso
         }
 
@@ -250,6 +248,7 @@ where
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
     let mut old_proj = proj;
+    let mut old_dir = Unit::new_normalize(proj.coordinates());
     let mut max_bound = P::Real::max_value();
     let mut dir;
     let mut niter = 0;
@@ -270,7 +269,7 @@ where
             //// println!("Exit 1: {} >= {}", max_bound, old_max_bound);
             //// println!("old proj: {}", old_proj);
             if exact_dist {
-                return GJKResult::Projection(old_proj); // upper bounds inconsistencies
+                return GJKResult::Projection(old_proj, old_dir); // upper bounds inconsistencies
             } else {
                 return GJKResult::Proximity(old_proj.coordinates());
             }
@@ -291,7 +290,7 @@ where
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             //// println!("Exit 4");
             if exact_dist {
-                return GJKResult::Projection(proj); // the distance found has a good enough precision
+                return GJKResult::Projection(proj, dir); // the distance found has a good enough precision
             } else {
                 return GJKResult::Proximity(proj.coordinates());
             }
@@ -300,13 +299,14 @@ where
         if !simplex.add_point(support_point) {
             //// println!("Exit 5");
             if exact_dist {
-                return GJKResult::Projection(proj);
+                return GJKResult::Projection(proj, dir);
             } else {
                 return GJKResult::Proximity(proj.coordinates());
             }
         }
 
         old_proj = proj;
+        old_dir = dir;
         proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == _dimension {
@@ -314,7 +314,7 @@ where
                 //// println!("Exit 6 with min_bound: {}", min_bound);
                 // The projection failed likely because of innacuracies.
                 if exact_dist {
-                    return GJKResult::Projection(old_proj);
+                    return GJKResult::Projection(old_proj, old_dir);
                 } else {
                     return GJKResult::Proximity(old_proj.coordinates());
                 }

@@ -57,9 +57,12 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
             match na::dimension::<P::Vector>() {
                 2 => {
                     let simplex = VoronoiSimplex2::new();
+                    // let simplex = JohnsonSimplex::new_w_tls();
+
                     let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
 
-                    if !a_is_ball && !b_is_ball {
+                    if false {
+                        // !a_is_ball && !b_is_ball {
                         let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                         Some(Box::new(manifold))
                     } else {
@@ -70,7 +73,8 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
                     let simplex = VoronoiSimplex3::new();
                     let wo_manifold = SupportMapSupportMapContactGenerator::new(simplex);
 
-                    if !a_is_ball && !b_is_ball {
+                    if false {
+                        // !a_is_ball && !b_is_ball {
                         let manifold = OneShotContactManifoldGenerator::new(wo_manifold);
                         Some(Box::new(manifold))
                     } else {

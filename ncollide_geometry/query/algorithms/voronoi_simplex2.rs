@@ -1,8 +1,8 @@
 use math::Point;
 use na::{self, Id};
-use query::{PointQuery, PointQueryWithLocation, SegmentPointLocation, TrianglePointLocation};
+use query::{PointQuery, PointQueryWithLocation};
 use query::algorithms::simplex::Simplex;
-use shape::{Segment, Triangle};
+use shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 pub struct VoronoiSimplex2<P: Point> {

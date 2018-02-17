@@ -14,10 +14,11 @@ pub use self::compound::Compound;
 pub use self::base_mesh::{BaseMesh, BaseMeshElement};
 pub use self::trimesh::TriMesh;
 pub use self::polyline::Polyline;
-pub use self::segment::Segment;
-pub use self::triangle::Triangle;
-pub use self::tetrahedron::Tetrahedron;
+pub use self::segment::{Segment, SegmentPointLocation};
+pub use self::triangle::{Triangle, TrianglePointLocation};
+pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 pub use self::torus::Torus;
+pub use self::convex_polyface::{ConvexPolyface, FeatureId};
 #[doc(inline)]
 pub use self::composite_shape::CompositeShape;
 #[doc(inline)]
@@ -50,6 +51,7 @@ mod reflection;
 mod torus;
 mod compound;
 mod convex;
+mod convex_polyface;
 mod shape_impl;
 
 /*

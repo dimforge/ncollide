@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use utils::data::SortedPair;
+use utils::data::{DeterministicState, SortedPair};
 use geometry::query::Proximity;
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
                    ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
@@ -13,10 +13,12 @@ use math::Point;
 /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
     contact_dispatcher: Box<ContactDispatcher<P, M>>,
-    contact_generators: HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<P, M>>,
+    contact_generators:
+        HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<P, M>, DeterministicState>,
 
     proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
-    proximity_detectors: HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<P, M>>,
+    proximity_detectors:
+        HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<P, M>, DeterministicState>,
 }
 
 impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
@@ -27,10 +29,10 @@ impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     ) -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {
             contact_dispatcher: contact_dispatcher,
-            contact_generators: HashMap::new(),
+            contact_generators: HashMap::with_hasher(DeterministicState::new()),
 
             proximity_dispatcher: proximity_dispatcher,
-            proximity_detectors: HashMap::new(),
+            proximity_detectors: HashMap::with_hasher(DeterministicState::new()),
         }
     }
 }
@@ -50,7 +52,9 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let had_contacts = value.num_contacts() != 0;
 
-                if let Some(prediction) = co1.query_type().contact_queries_to_prediction(co2.query_type()) {
+                if let Some(prediction) = co1.query_type()
+                    .contact_queries_to_prediction(co2.query_type())
+                {
                     let _ = value.update(
                         &*self.contact_dispatcher,
                         &co1.position(),
@@ -61,7 +65,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                     );
                 } else {
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
-                } 
+                }
 
                 if value.num_contacts() == 0 {
                     if had_contacts {

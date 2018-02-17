@@ -2,6 +2,7 @@
 
 use std::mem;
 use na::{self, Point3, Unit};
+use na::Real;
 use shape::{BaseMeshElement, SupportMap};
 use math::{Isometry, Point};
 use utils;
@@ -12,6 +13,30 @@ pub struct Triangle<P> {
     a: P,
     b: P,
     c: P,
+}
+
+/// Description of the location of a point on a triangle.
+#[derive(Copy, Clone, Debug)]
+pub enum TrianglePointLocation<N: Real> {
+    /// The point lies on a vertex.
+    OnVertex(usize),
+    /// The point lies on an edge.
+    OnEdge(usize, [N; 2]),
+    /// The point lies on the triangle interior.
+    OnFace([N; 3]),
+    /// The point lies on the triangle interior (for "solid" point queries).
+    OnSolid,
+}
+
+impl<N: Real> TrianglePointLocation<N> {
+    /// Returns `true` if the point is located on the relative interior of the triangle.
+    pub fn is_on_face(&self) -> bool {
+        if let TrianglePointLocation::OnFace(_) = *self {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 impl<P: Point> Triangle<P> {

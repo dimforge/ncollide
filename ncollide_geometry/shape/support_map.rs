@@ -2,6 +2,7 @@
 
 use na::Unit;
 use math::Point;
+use shape::{ConvexPolyface, FeatureId};
 
 /// Traits of convex shapes representable by a support mapping function.
 ///
@@ -21,8 +22,27 @@ pub trait SupportMap<P: Point, M> {
         self.support_point(transform, dir.as_ref())
     }
 
-    // XXX: output into a dedicated structure instead of Vec.
-    fn support_area_toward(&self, transform: &M, dir: &Unit<P::Vector>, _angle: P::Real, out: &mut Vec<P>) {
-        out.push(self.support_point_toward(transform, dir))
+    fn support_area_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        _angle: P::Real,
+        out: &mut ConvexPolyface<P>,
+    ) {
+        out.clear();
+        out.push(
+            self.support_point_toward(transform, dir),
+            FeatureId::Vertex(0),
+        );
+    }
+
+    fn is_direction_in_normal_cone(
+        &self,
+        transform: &M,
+        feature: FeatureId,
+        point: &P,
+        dir: &Unit<P::Vector>,
+    ) -> bool {
+        false
     }
 }

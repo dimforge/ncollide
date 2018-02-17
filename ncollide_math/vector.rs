@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use num::Bounded;
 use approx::ApproxEq;
 
@@ -15,6 +15,7 @@ pub trait Vector
     + Send
     + Sync
     + 'static
+    + Debug
     + Display
     + Lattice
     + Bounded

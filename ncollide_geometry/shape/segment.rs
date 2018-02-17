@@ -1,7 +1,8 @@
 //! Definition of the segment shape.
 
 use std::mem;
-use na::{self, Point2};
+use approx::ApproxEq;
+use na::{self, Point2, Real, Unit};
 use shape::{BaseMeshElement, SupportMap};
 use math::{Isometry, Point};
 
@@ -10,6 +11,14 @@ use math::{Isometry, Point};
 pub struct Segment<P> {
     a: P,
     b: P,
+}
+
+/// Logical description of the location of a point on a triangle.
+pub enum SegmentPointLocation<N: Real> {
+    /// The point lies on a vertex.
+    OnVertex(usize),
+    /// The point lies on the segment interior.
+    OnEdge([N; 2]),
 }
 
 impl<P: Point> Segment<P> {
@@ -45,6 +54,42 @@ impl<P> Segment<P> {
     #[inline]
     pub fn b(&self) -> &P {
         &self.b
+    }
+}
+
+impl<P: Point> Segment<P> {
+    /// The direction of this segment scaled by its length.
+    ///
+    /// Points from `self.a()` toward `self.b()`.
+    pub fn scaled_direction(&self) -> P::Vector {
+        self.b - self.a
+    }
+
+    /// The unit direction of this segment.
+    ///
+    /// Points from `self.a()` toward `self.b()`.
+    /// Returns `None` is both points are equal.
+    pub fn direction(&self) -> Option<Unit<P::Vector>> {
+        Unit::try_new(self.scaled_direction(), P::Real::default_epsilon())
+    }
+
+    /// Applies the isometry `m` to the vertices of this segment and returns the resulting segment.
+    pub fn transformed<M: Isometry<P>>(&self, m: &M) -> Self {
+        Segment::new(m.transform_point(&self.a), m.transform_point(&self.b))
+    }
+
+    /// Computes the point at the given location.
+    pub fn point_at(&self, location: &SegmentPointLocation<P::Real>) -> P {
+        match *location {
+            SegmentPointLocation::OnVertex(0) => self.a,
+            SegmentPointLocation::OnVertex(1) => self.b,
+            SegmentPointLocation::OnEdge(bcoords) => {
+                let mut res = self.a;
+                res.axpy(bcoords[1], &self.b, bcoords[0]);
+                res
+            }
+            _ => unreachable!(),
+        }
     }
 }
 

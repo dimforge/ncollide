@@ -3,9 +3,6 @@
 #[doc(inline)]
 pub use self::point_query::{PointProjection, PointQuery, PointQueryWithLocation};
 pub use self::point_bvt::PointInterferencesCollector;
-pub use self::point_segment::SegmentPointLocation;
-pub use self::point_triangle::TrianglePointLocation;
-pub use self::point_tetrahedron::TetrahedronPointLocation;
 
 #[doc(hidden)]
 pub mod point_query;

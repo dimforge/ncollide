@@ -6,7 +6,7 @@ use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
 use geometry::query::{PointQuery, Ray, RayCast, RayIntersection};
 use narrow_phase::{ContactPairs, Contacts, DefaultContactDispatcher, DefaultNarrowPhase,
-                   DefaultProximityDispatcher, NarrowPhase, ProximityPairs};
+                   DefaultProximityDispatcher, NarrowPhase, ProximityPairs, NAVOID};
 use broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase,
                   ProxyHandle};
 use world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
@@ -192,6 +192,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Executes the narrow phase of the collision detection pipeline.
     pub fn perform_narrow_phase(&mut self) {
+        NAVOID.with(|e| *e.borrow_mut() = 0);
         self.narrow_phase.update(
             &self.objects,
             &mut self.contact_events,
@@ -199,6 +200,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
             self.timestamp,
         );
         self.timestamp = self.timestamp + 1;
+        NAVOID.with(|e| println!("Avoidable GJK/EPA: {}", *e.borrow()));
     }
 
     /// Sets a new narrow phase and returns the previous one.

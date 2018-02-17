@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
                SubAssign};
 use num::Bounded;
@@ -18,6 +18,7 @@ pub trait Point
     + Send
     + Sync
     + 'static
+    + Debug
     + Display
     + Lattice
     + Bounded

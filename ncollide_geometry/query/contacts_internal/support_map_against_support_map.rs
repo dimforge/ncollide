@@ -1,6 +1,6 @@
 use num::Zero;
 
-use alga::linear::{NormedSpace, Translation};
+use alga::linear::Translation;
 use na::{self, Unit};
 use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk::GJKResult;
@@ -8,7 +8,7 @@ use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
 use query::algorithms::epa3;
 use query::algorithms::epa2;
-use query::algorithms::{EPA2, EPA3, Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{EPA2, EPA3, JohnsonSimplex, Simplex, VoronoiSimplex2, VoronoiSimplex3};
 use query::Contact;
 use math::{Isometry, Point};
 
@@ -36,7 +36,7 @@ where
             &mut VoronoiSimplex2::new(),
             None,
         ) {
-            GJKResult::Projection(c) => Some(c),
+            GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
@@ -51,7 +51,7 @@ where
             &mut VoronoiSimplex3::new(),
             None,
         ) {
-            GJKResult::Projection(c) => Some(c),
+            GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
@@ -66,7 +66,7 @@ where
             &mut JohnsonSimplex::new_w_tls(),
             None,
         ) {
-            GJKResult::Projection(c) => Some(c),
+            GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
@@ -106,13 +106,13 @@ where
     simplex.reset(shape::cso_support_point(m1, g1, m2, g2, dir));
 
     match gjk::closest_points_with_max_dist(m1, g1, m2, g2, prediction, simplex) {
-        GJKResult::Projection((p1, p2)) => {
+        GJKResult::Projection((p1, p2), n) => {
             let p1p2 = p2 - p1;
             let sqn = na::norm_squared(&p1p2);
 
             if !sqn.is_zero() {
                 let (normal, depth) = Unit::new_and_get(p1p2);
-                return GJKResult::Projection(Contact::new(p1, p2, normal, -depth));
+                return GJKResult::Projection(Contact::new(p1, p2, normal, -depth), normal);
             }
         }
         GJKResult::NoIntersection(dir) => return GJKResult::NoIntersection(dir),
@@ -123,22 +123,22 @@ where
     // The point is inside of the CSO: use the fallback algorithm
     if na::dimension::<P::Vector>() == 2 {
         let mut epa = EPA2::new();
-        let (p1, p2) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-
-        if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
-            return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
+        if let Some((p1, p2, n)) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
+            // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
+            // inverse Gauss maps at p1 and p2.
+            if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
+                return GJKResult::Projection(Contact::new(p1, p2, normal, depth), normal);
+            }
         }
-        // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
-        // inverse Gauss maps at p1 and p2.
     } else if na::dimension::<P::Vector>() == 3 {
         let mut epa = EPA3::new();
-        let (p1, p2) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex);
-
-        if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
-            return GJKResult::Projection(Contact::new(p1, p2, normal, depth));
+        if let Some((p1, p2, n)) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
+            // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
+            // inverse Gauss maps at p1 and p2.
+            if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
+                return GJKResult::Projection(Contact::new(p1, p2, normal, depth), normal);
+            }
         }
-        // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
-        // inverse Gauss maps at p1 and p2.
     }
 
     // When all else fail (e.g. because of roundup errors or for penetration in dimension
@@ -146,7 +146,7 @@ where
     match minkowski_sampling::closest_points(m1, g1, m2, g2, simplex) {
         Some((p1, p2, normal)) => {
             let depth = na::dot(&(p1 - p2), &normal);
-            GJKResult::Projection(Contact::new(p1, p2, normal, depth))
+            GJKResult::Projection(Contact::new(p1, p2, normal, depth), normal)
         }
         None => GJKResult::NoIntersection(na::zero()), // panic!("Both GJK and fallback algorithm failed.")
     }

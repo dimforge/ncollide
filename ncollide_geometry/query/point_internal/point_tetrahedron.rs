@@ -1,7 +1,7 @@
 use num::Bounded;
-use na::{self, Real};
-use shape::Tetrahedron;
-use query::{PointProjection, PointQuery, PointQueryWithLocation, TrianglePointLocation};
+use na;
+use shape::{Tetrahedron, TetrahedronPointLocation, TrianglePointLocation};
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 use utils;
 
@@ -10,43 +10,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Tetrahedron<P> {
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
-    }
-}
-
-/// Logical description of the location of a point on a triangle.
-#[derive(Copy, Clone, Debug)]
-pub enum TetrahedronPointLocation<N: Real> {
-    /// The point lies on a vertex.
-    OnVertex(usize),
-    /// The point lies on a vertex.
-    OnEdge(usize, [N; 2]),
-    /// The point lies on a triangular face interior.
-    ///
-    /// The first face is the triangle ABC.
-    /// The second face is the triangle ABD.
-    /// The third face is the triangle ACD.
-    /// The fourth face is the triangle BDC.
-    OnFace(usize, [N; 3]),
-    /// The point lies inside of the tetrahedron.
-    OnSolid,
-}
-
-impl<N: Real> TetrahedronPointLocation<N> {
-    /// Returns `true` if both `self` and `other` correspond to points on the same feature of a tetrahedron.
-    pub fn same_feature_as(&self, other: &TetrahedronPointLocation<N>) -> bool {
-        match (*self, *other) {
-            (TetrahedronPointLocation::OnVertex(i), TetrahedronPointLocation::OnVertex(j)) => {
-                i == j
-            }
-            (TetrahedronPointLocation::OnEdge(i, _), TetrahedronPointLocation::OnEdge(j, _)) => {
-                i == j
-            }
-            (TetrahedronPointLocation::OnFace(i, _), TetrahedronPointLocation::OnFace(j, _)) => {
-                i == j
-            }
-            (TetrahedronPointLocation::OnSolid, TetrahedronPointLocation::OnSolid) => true,
-            _ => false,
-        }
     }
 }
 

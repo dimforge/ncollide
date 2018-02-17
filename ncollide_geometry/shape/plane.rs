@@ -1,6 +1,6 @@
 //! Support mapping based Plane shape.
 use math::Vector;
-use na::{self, Unit};
+use na::Unit;
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone)]

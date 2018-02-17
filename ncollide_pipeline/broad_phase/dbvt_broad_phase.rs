@@ -6,7 +6,7 @@ use slab::Slab;
 
 use alga::general::Id;
 use math::Point;
-use utils::data::SortedPair;
+use utils::data::{DeterministicState, SortedPair};
 use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use geometry::partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
 use geometry::query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
@@ -54,7 +54,7 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
     stree: DBVT<P, ProxyHandle, BV>, // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool>, // Pairs detected.
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
     margin: P::Real,                 // The margin added to each bounding volume.
     purge_all: bool,
 
@@ -76,7 +76,7 @@ where
             proxies: Slab::new(),
             tree: DBVT::new(),
             stree: DBVT::new(),
-            pairs: HashMap::new(),
+            pairs: HashMap::with_hasher(DeterministicState::new()),
             purge_all: false,
             collector: Vec::new(),
             leaves_to_update: Vec::new(),
@@ -97,59 +97,55 @@ where
         allow_proximity: &mut FnMut(&T, &T) -> bool,
         handler: &mut FnMut(&T, &T, bool),
     ) {
-        // NOTE: the exact same code is used on `brute_force_bounding_volume_broad_phase.rs`.
-        // Refactor that?
-        if self.purge_all || (self.leaves_to_update.len() != 0 && self.pairs.len() != 0) {
-            for (pair, up_to_date) in &mut self.pairs {
-                if self.purge_all || !*up_to_date {
-                    *up_to_date = true;
-                    let mut remove = true;
+        for (pair, up_to_date) in &mut self.pairs {
+            if self.purge_all || !*up_to_date {
+                *up_to_date = true;
+                let mut remove = true;
 
-                    let proxy1 = self.proxies
-                        .get(pair.0.uid())
-                        .expect("DBVT broad phase: internal error.");
-                    let proxy2 = self.proxies
-                        .get(pair.1.uid())
-                        .expect("DBVT broad phase: internal error.");
+                let proxy1 = self.proxies
+                    .get(pair.0.uid())
+                    .expect("DBVT broad phase: internal error.");
+                let proxy2 = self.proxies
+                    .get(pair.1.uid())
+                    .expect("DBVT broad phase: internal error.");
 
-                    if self.purge_all || proxy1.updated || proxy2.updated {
-                        if allow_proximity(&proxy1.data, &proxy2.data) {
-                            let l1 = match proxy1.status {
-                                ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
-                                ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
-                                _ => panic!("DBVT broad phase: internal error."),
-                            };
+                if self.purge_all || proxy1.updated || proxy2.updated {
+                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                        let l1 = match proxy1.status {
+                            ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
+                            ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
+                            _ => panic!("DBVT broad phase: internal error."),
+                        };
 
-                            let l2 = match proxy2.status {
-                                ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
-                                ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
-                                _ => panic!("DBVT broad phase: internal error."),
-                            };
+                        let l2 = match proxy2.status {
+                            ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
+                            ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
+                            _ => panic!("DBVT broad phase: internal error."),
+                        };
 
-                            if l1.bounding_volume.intersects(&l2.bounding_volume) {
-                                remove = false
-                            }
+                        if l1.bounding_volume.intersects(&l2.bounding_volume) {
+                            remove = false
                         }
-                    } else {
-                        remove = false;
                     }
+                } else {
+                    remove = false;
+                }
 
-                    if remove {
-                        handler(&proxy1.data, &proxy2.data, false);
-                        self.pairs_to_remove.push(*pair);
-                    }
+                if remove {
+                    handler(&proxy1.data, &proxy2.data, false);
+                    self.pairs_to_remove.push(*pair);
                 }
             }
+
+            *up_to_date = false;
         }
 
         /*
          * Actually remove the pairs.
          */
-        for pair in self.pairs_to_remove.iter() {
-            let _ = self.pairs.remove(pair);
+        for pair in self.pairs_to_remove.drain(..) {
+            let _ = self.pairs.remove(&pair);
         }
-
-        self.pairs_to_remove.clear();
     }
 
     fn update_activation_states(&mut self) {
@@ -224,6 +220,7 @@ where
         /*
          * Re-insert outdated nodes one by one and collect interferences at the same time.
          */
+        let some_leaves_updated = self.leaves_to_update.len() != 0;
         for leaf in self.leaves_to_update.drain(..) {
             {
                 let proxy1 = &self.proxies[leaf.data.uid()];
@@ -261,7 +258,9 @@ where
             proxy1.status = ProxyStatus::OnDynamicTree(leaf, DEACTIVATION_THRESHOLD);
         }
 
-        self.purge_some_contact_pairs(allow_proximity, handler);
+        if some_leaves_updated {
+            self.purge_some_contact_pairs(allow_proximity, handler);
+        }
         self.update_activation_states();
     }
 
