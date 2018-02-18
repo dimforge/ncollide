@@ -1,7 +1,7 @@
 //! Non-persistant pairwise geometric queries.
 
 #[doc(inline)]
-pub use self::contacts_internal::{Contact, ContactPrediction};
+pub use self::contacts_internal::{Contact, ContactManifold, ContactPrediction, TrackedContact};
 #[doc(inline)]
 pub use self::contacts_internal::contact_internal as contact;
 #[doc(inline)]

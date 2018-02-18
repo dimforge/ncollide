@@ -1,5 +1,7 @@
 use std::mem;
 use math::Point;
+use utils::{GenerationalId, IdAllocator};
+use shape::FeatureId;
 
 use na::{Real, Unit};
 
@@ -41,6 +43,30 @@ impl<P: Point> Contact<P> {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct TrackedContact<P: Point> {
+    contact: Contact<P>,
+    feature1: FeatureId,
+    feature2: FeatureId,
+    id: GenerationalId,
+}
+
+impl<P: Point> TrackedContact<P> {
+    pub fn new(
+        contact: Contact<P>,
+        feature1: FeatureId,
+        feature2: FeatureId,
+        id: GenerationalId,
+    ) -> Self {
+        TrackedContact {
+            contact,
+            feature1,
+            feature2,
+            id,
+        }
+    }
+}
+
 /// The prediction parameters for contact determination.n
 pub struct ContactPrediction<N: Real> {
     /// The linear prediction.
@@ -55,7 +81,54 @@ impl<N: Real> ContactPrediction<N> {
     /// Initialize prediction parameters.
     pub fn new(linear: N, angular1: N, angular2: N) -> Self {
         ContactPrediction {
-            linear, angular1, angular2
+            linear,
+            angular1,
+            angular2,
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ContactManifold<P: Point> {
+    contacts: Vec<TrackedContact<P>>,
+    cache: Vec<TrackedContact<P>>,
+}
+
+impl<P: Point> ContactManifold<P> {
+    pub fn new() -> Self {
+        ContactManifold {
+            contacts: Vec::new(),
+            cache: Vec::new(),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.contacts.len()
+    }
+
+    pub fn save_cache_and_clear(&mut self) {
+        mem::swap(&mut self.contacts, &mut self.cache);
+        self.contacts.clear();
+    }
+
+    pub fn keep_cache_and_clear(&mut self) {
+        self.contacts.clear()
+    }
+
+    pub fn push_without_feature_id(&mut self, contact: Contact<P>, gen: &mut IdAllocator) {
+        unimplemented!()
+        // let tracked = TrackedContact::new(contact, feature1, feature2, gen.alloc());
+        // self.contacts.push(tracked)
+    }
+
+    pub fn push(
+        &mut self,
+        contact: Contact<P>,
+        feature1: FeatureId,
+        feature2: FeatureId,
+        gen: &mut IdAllocator,
+    ) {
+        let tracked = TrackedContact::new(contact, feature1, feature2, gen.alloc());
+        self.contacts.push(tracked)
     }
 }

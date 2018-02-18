@@ -7,8 +7,8 @@ pub use self::plane_support_map_contact_generator::{PlaneSupportMapContactGenera
                                                     SupportMapPlaneContactGenerator};
 pub use self::support_map_support_map_contact_generator::{SupportMapSupportMapContactGenerator,
                                                           NAVOID};
-pub use self::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
-pub use self::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
+// pub use self::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
+// pub use self::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
 pub use self::composite_shape_shape_contact_generator::{CompositeShapeShapeContactGenerator,
                                                         ShapeCompositeShapeContactGenerator};
 
@@ -19,6 +19,6 @@ mod default_contact_dispatcher;
 mod ball_ball_contact_generator;
 mod plane_support_map_contact_generator;
 mod support_map_support_map_contact_generator;
-mod incremental_contact_manifold_generator;
-mod one_shot_contact_manifold_generator;
+// mod incremental_contact_manifold_generator;
+// mod one_shot_contact_manifold_generator;
 mod composite_shape_shape_contact_generator;

@@ -1,18 +1,23 @@
 //! Persistent collision detection algorithms to compute contact points.
 
 use na::{Isometry2, Isometry3, Point2, Point3};
-pub use self::narrow_phase::{ContactPairs, Contacts, NarrowPhase, ProximityPairs};
+pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, ProximityPairs};
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
-pub use self::contact_generator::{BallBallContactGenerator, CompositeShapeShapeContactGenerator,
-                                  ContactAlgorithm, ContactDispatcher, ContactGenerator,
-                                  DefaultContactDispatcher, IncrementalContactManifoldGenerator,
-                                  OneShotContactManifoldGenerator,
+pub use self::contact_generator::{BallBallContactGenerator,
+                                  CompositeShapeShapeContactGenerator,
+                                  ContactAlgorithm,
+                                  ContactDispatcher,
+                                  ContactGenerator,
+                                  DefaultContactDispatcher,
+                                  // IncrementalContactManifoldGenerator,
+                                  // OneShotContactManifoldGenerator,
                                   PlaneSupportMapContactGenerator,
                                   ShapeCompositeShapeContactGenerator,
                                   SupportMapPlaneContactGenerator,
-                                  SupportMapSupportMapContactGenerator, NAVOID};
+                                  SupportMapSupportMapContactGenerator,
+                                  NAVOID};
 
 #[doc(inline)]
 pub use self::proximity_detector::{BallBallProximityDetector,

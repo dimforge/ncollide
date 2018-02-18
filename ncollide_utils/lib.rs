@@ -17,6 +17,7 @@ extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate num_traits as num;
 extern crate rand;
+extern crate slab;
 
 pub use center::center;
 // pub use project_homogeneous::{project_homogeneous, project_homogeneous_to};
@@ -37,6 +38,7 @@ pub use cross3::cross3;
 pub use perp2::perp2;
 pub use point_cloud_support_point::point_cloud_support_point;
 pub use repeat::repeat;
+pub use id_allocator::{GenerationalId, IdAllocator};
 
 pub mod data;
 mod center;
@@ -56,3 +58,4 @@ mod cross3;
 mod perp2;
 mod point_cloud_support_point;
 mod repeat;
+mod id_allocator;

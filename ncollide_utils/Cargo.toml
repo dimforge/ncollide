@@ -19,6 +19,7 @@ path = "lib.rs"
 rand       = "0.4"
 num-traits = "0.1"
 approx     = "0.1"
+slab       = "0.4"
 alga       = "0.5"
 nalgebra   = "0.14"
 ncollide_math = { path = "../ncollide_math", version = "0.9" }

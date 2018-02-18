@@ -2,9 +2,9 @@ use approx::ApproxEq;
 use na::{self, Id, Real, Unit};
 
 use math::{Isometry, Point};
-use utils;
+use utils::{self, IdAllocator};
 use shape::{Segment, SegmentPointLocation, SupportMap};
-use query::{Contact, ContactPrediction, PointQueryWithLocation};
+use query::{Contact, ContactManifold, ContactPrediction, PointQueryWithLocation};
 use query::closest_points_internal;
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
@@ -140,7 +140,8 @@ impl<P: Point> ConvexPolyface<P> {
         m2: &M,
         g2: &G2,
         prediction: &ContactPrediction<P::Real>,
-        contacts: &mut Vec<Contact<P>>,
+        contacts: &mut ContactManifold<P>,
+        id_alloc: &mut IdAllocator,
     ) -> bool
     where
         M: Isometry<P>,
@@ -152,14 +153,32 @@ impl<P: Point> ConvexPolyface<P> {
             g2.support_area_toward(m2, &-dir, prediction.angular2, other);
             let f1 = self.feature_id;
             let f2 = other.feature_id;
-            self.quasi_conformal_contact_area(m1, g1, other, m2, g2, prediction, contacts);
+            self.quasi_conformal_contact_area(
+                m1,
+                g1,
+                other,
+                m2,
+                g2,
+                prediction,
+                contacts,
+                id_alloc,
+            );
             if let Some(dir) = self.last_optimal_dir {
                 g1.support_area_toward(m1, &dir, prediction.angular1, self);
                 g2.support_area_toward(m2, &-dir, prediction.angular2, other);
 
                 if self.feature_id != f1 && other.feature_id != f2 {
-                    contacts.clear();
-                    self.quasi_conformal_contact_area(m1, g1, other, m2, g2, prediction, contacts);
+                    contacts.keep_cache_and_clear();
+                    self.quasi_conformal_contact_area(
+                        m1,
+                        g1,
+                        other,
+                        m2,
+                        g2,
+                        prediction,
+                        contacts,
+                        id_alloc,
+                    );
                 }
                 true
             } else {
@@ -180,7 +199,8 @@ impl<P: Point> ConvexPolyface<P> {
         fid2: FeatureId,
         prediction: &ContactPrediction<P::Real>,
         contact: Contact<P>,
-        contacts: &mut Vec<Contact<P>>,
+        contacts: &mut ContactManifold<P>,
+        id_alloc: &mut IdAllocator,
     ) -> bool
     where
         M: Isometry<P>,
@@ -197,7 +217,7 @@ impl<P: Point> ConvexPolyface<P> {
         }
 
         if keep {
-            contacts.push(contact)
+            contacts.push(contact, fid1, fid2, id_alloc)
         }
 
         false
@@ -215,7 +235,8 @@ impl<P: Point> ConvexPolyface<P> {
         m2: &M,
         g2: &G2,
         pred: &ContactPrediction<P::Real>,
-        contacts: &mut Vec<Contact<P>>,
+        contacts: &mut ContactManifold<P>,
+        id_alloc: &mut IdAllocator,
     ) where
         M: Isometry<P>,
         G1: SupportMap<P, M>,
@@ -253,7 +274,18 @@ impl<P: Point> ConvexPolyface<P> {
                 let n = Unit::new_unchecked(n);
                 contact = Contact::new(self.vertices[0], other.vertices[0], n, na::zero());
             }
-            let _ = self.register_contact(m1, g1, fid1, m2, g2, fid2, pred, contact, contacts);
+            let _ = self.register_contact(
+                m1,
+                g1,
+                fid1,
+                m2,
+                g2,
+                fid2,
+                pred,
+                contact,
+                contacts,
+                id_alloc,
+            );
             return;
         }
 
@@ -277,6 +309,7 @@ impl<P: Point> ConvexPolyface<P> {
                             pred,
                             contact,
                             contacts,
+                            id_alloc,
                         );
                     }
                 } else if other.vertices.len() == 1 {
@@ -297,6 +330,7 @@ impl<P: Point> ConvexPolyface<P> {
                             pred,
                             contact,
                             contacts,
+                            id_alloc,
                         );
                     }
                 } else {
@@ -308,32 +342,72 @@ impl<P: Point> ConvexPolyface<P> {
                     if let Some(contact) = point_on_segment_contact_2d(&s1, s2.a(), &n1, false) {
                         let id1 = self.feature_id;
                         let id2 = other.vertices_id[0];
-                        if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, contacts)
-                        {
+                        if self.register_contact(
+                            m1,
+                            g1,
+                            id1,
+                            m2,
+                            g2,
+                            id2,
+                            pred,
+                            contact,
+                            contacts,
+                            id_alloc,
+                        ) {
                             return;
                         }
                     }
                     if let Some(contact) = point_on_segment_contact_2d(&s1, s2.b(), &n1, false) {
                         let id1 = self.feature_id;
                         let id2 = other.vertices_id[1];
-                        if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, contacts)
-                        {
+                        if self.register_contact(
+                            m1,
+                            g1,
+                            id1,
+                            m2,
+                            g2,
+                            id2,
+                            pred,
+                            contact,
+                            contacts,
+                            id_alloc,
+                        ) {
                             return;
                         }
                     }
                     if let Some(contact) = point_on_segment_contact_2d(&s2, s1.a(), &n2, true) {
                         let id1 = self.vertices_id[0];
                         let id2 = other.feature_id;
-                        if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, contacts)
-                        {
+                        if self.register_contact(
+                            m1,
+                            g1,
+                            id1,
+                            m2,
+                            g2,
+                            id2,
+                            pred,
+                            contact,
+                            contacts,
+                            id_alloc,
+                        ) {
                             return;
                         }
                     }
                     if let Some(contact) = point_on_segment_contact_2d(&s2, s1.b(), &n2, true) {
                         let id1 = self.vertices_id[1];
                         let id2 = other.feature_id;
-                        if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, contacts)
-                        {
+                        if self.register_contact(
+                            m1,
+                            g1,
+                            id1,
+                            m2,
+                            g2,
+                            id2,
+                            pred,
+                            contact,
+                            contacts,
+                            id_alloc,
+                        ) {
                             return;
                         }
                     }
@@ -388,7 +462,7 @@ impl<P: Point> ConvexPolyface<P> {
                                     }
                                 }
 
-                                contacts.push(contact)
+                                // FIXME: contacts.push(contact)
                             }
                         }
                     }
@@ -401,7 +475,7 @@ impl<P: Point> ConvexPolyface<P> {
                         for v in &other.vertices {
                             // Project on face.
                             if let Some(contact) = point_face_contact_3d(self, v, false) {
-                                contacts.push(contact)
+                                // FIXME: contacts.push(contact)
                             }
                         }
                     }
@@ -412,7 +486,7 @@ impl<P: Point> ConvexPolyface<P> {
                         for v in &self.vertices {
                             // Project on face.
                             if let Some(contact) = point_face_contact_3d(other, v, true) {
-                                contacts.push(contact)
+                                // FIXME: contacts.push(contact)
                             }
                         }
                     }

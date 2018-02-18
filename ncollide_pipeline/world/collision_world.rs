@@ -5,7 +5,7 @@ use math::{Isometry, Point};
 use geometry::bounding_volume::{self, BoundingVolume, AABB};
 use geometry::shape::ShapeHandle;
 use geometry::query::{PointQuery, Ray, RayCast, RayIntersection};
-use narrow_phase::{ContactPairs, Contacts, DefaultContactDispatcher, DefaultNarrowPhase,
+use narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
                    DefaultProximityDispatcher, NarrowPhase, ProximityPairs, NAVOID};
 use broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase,
                   ProxyHandle};
@@ -232,8 +232,10 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Iterates through every contact detected since the last update.
     #[inline]
-    pub fn contacts(&self) -> Contacts<P, M, T> {
-        self.narrow_phase.contact_pairs(&self.objects).contacts()
+    pub fn contact_manifolds(&self) -> ContactManifolds<P, M, T> {
+        self.narrow_phase
+            .contact_pairs(&self.objects)
+            .contact_manifolds()
     }
 
     /// Iterates through all collision objects.

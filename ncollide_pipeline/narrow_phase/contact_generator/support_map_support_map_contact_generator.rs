@@ -1,11 +1,12 @@
 use std::marker::PhantomData;
 use std::cell::RefCell;
 use math::{Isometry, Point};
+use utils::IdAllocator;
 use geometry::shape::{AnnotatedPoint, Shape};
 use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
-use geometry::query::{Contact, ContactPrediction};
+use geometry::query::{Contact, ContactManifold, ContactPrediction};
 use geometry::shape::ConvexPolyface;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -17,7 +18,7 @@ use narrow_phase::{ContactDispatcher, ContactGenerator};
 pub struct SupportMapSupportMapContactGenerator<P: Point, M, S> {
     simplex: S,
     contact: GJKResult<Contact<P>, P::Vector>,
-    contact_manifold: Vec<Contact<P>>,
+    contact_manifold: ContactManifold<P>,
     manifold1: ConvexPolyface<P>,
     manifold2: ConvexPolyface<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
@@ -36,7 +37,7 @@ where
         SupportMapSupportMapContactGenerator {
             simplex: simplex,
             contact: GJKResult::Intersection,
-            contact_manifold: Vec::new(),
+            contact_manifold: ContactManifold::new(),
             manifold1: ConvexPolyface::new(),
             manifold2: ConvexPolyface::new(),
             mat_type: PhantomData,
@@ -63,9 +64,10 @@ where
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            self.contact_manifold.clear();
+            self.contact_manifold.save_cache_and_clear();
             if self.manifold1.contains_optimal(
                 ma,
                 sma,
@@ -74,6 +76,7 @@ where
                 smb,
                 prediction,
                 &mut self.contact_manifold,
+                id_alloc,
             ) {
                 NAVOID.with(|e| *e.borrow_mut() += 1);
                 return true;
@@ -99,7 +102,7 @@ where
             // Generate a contact manifold.
             self.manifold1.clear();
             self.manifold2.clear();
-            self.contact_manifold.clear();
+            self.contact_manifold.save_cache_and_clear();
 
             match self.contact {
                 GJKResult::Projection(ref contact, _) => {
@@ -134,10 +137,12 @@ where
                         smb,
                         prediction,
                         &mut self.contact_manifold,
+                        id_alloc,
                     );
 
                     if self.contact_manifold.len() == 0 {
-                        self.contact_manifold.push(contact.clone());
+                        self.contact_manifold
+                            .push_without_feature_id(contact.clone(), id_alloc);
                     }
                 }
                 _ => {}
@@ -155,9 +160,7 @@ where
     }
 
     #[inline]
-    fn contacts(&self, out: &mut Vec<Contact<P>>) {
-        for c in &self.contact_manifold {
-            out.push(c.clone())
-        }
+    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+        out.push(&self.contact_manifold)
     }
 }

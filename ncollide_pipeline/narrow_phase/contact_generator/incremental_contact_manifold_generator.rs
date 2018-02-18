@@ -1,7 +1,8 @@
 use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
-use geometry::query::{Contact, ContactPrediction};
+use utils::IdAllocator;
+use geometry::query::{Contact, ContactManifold, ContactPrediction};
 use geometry::shape::Shape;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -144,7 +145,8 @@ where
                 let depth = na::dot(&dw, &c.contact.normal);
 
                 if depth >= -prediction
-                    && na::norm_squared(&(dw - c.contact.normal.unwrap() * depth)) <= na::convert(0.01f64)
+                    && na::norm_squared(&(dw - c.contact.normal.unwrap() * depth))
+                        <= na::convert(0.01f64)
                 {
                     c.contact.depth = depth;
                     c.contact.world1 = world1;

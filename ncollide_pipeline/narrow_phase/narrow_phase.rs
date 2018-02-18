@@ -2,7 +2,7 @@ use std::any::Any;
 use std::collections::hash_map::Iter;
 
 use utils::data::SortedPair;
-use geometry::query::Contact;
+use geometry::query::{Contact, ContactManifold};
 use narrow_phase::{ContactAlgorithm, ContactGenerator, ProximityAlgorithm, ProximityDetector};
 use events::{ContactEvents, ProximityEvents};
 use world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
@@ -34,7 +34,7 @@ pub trait NarrowPhase<P: Point, M, T>: Any + Send + Sync {
     );
 
     /// Called when the interactions between two objects have to be removed because at least one of the objects is being removed.
-    /// 
+    ///
     /// While either `objects[handle1]` or `objects[handle2]` is being removed, the `handle_removal` is assumed to be called before the removal from the list `objects` is done.
     fn handle_removal(
         &mut self,
@@ -80,8 +80,8 @@ impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
 
     /// Transforms contact-pairs iterator to an iterator through each individual contact.
     #[inline]
-    pub fn contacts(self) -> Contacts<'a, P, M, T> {
-        Contacts {
+    pub fn contact_manifolds(self) -> ContactManifolds<'a, P, M, T> {
+        ContactManifolds {
             objects: self.objects,
             co1: None,
             co2: None,
@@ -113,21 +113,21 @@ impl<'a, P: Point, M, T> Iterator for ContactPairs<'a, P, M, T> {
     }
 }
 
-/// An iterator through contacts.
-pub struct Contacts<'a, P: 'a + Point, M: 'a, T: 'a> {
+/// An iterator through contact manifolds.
+pub struct ContactManifolds<'a, P: 'a + Point, M: 'a, T: 'a> {
     objects: &'a CollisionObjectSlab<P, M, T>,
     co1: Option<&'a CollisionObject<P, M, T>>,
     co2: Option<&'a CollisionObject<P, M, T>>,
     pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
-    collector: Vec<Contact<P>>,
+    collector: Vec<&'b ContactManifold<P>>,
     curr_contact: usize,
 }
 
-impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
+impl<'a, P: Point, M, T> Iterator for ContactManifolds<'a, P, M, T> {
     type Item = (
         &'a CollisionObject<P, M, T>,
         &'a CollisionObject<P, M, T>,
-        Contact<P>,
+        &'a ContactManifold<P>,
     );
 
     #[inline]
@@ -141,7 +141,7 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
             Some((
                 self.co1.unwrap(),
                 self.co2.unwrap(),
-                self.collector[self.curr_contact - 1].clone(),
+                self.collector[self.curr_contact - 1],
             ))
         } else {
             self.collector.clear();
@@ -156,11 +156,7 @@ impl<'a, P: Point, M, T> Iterator for Contacts<'a, P, M, T> {
 
                     // FIXME: would be nice to avoid the `clone` and return a reference
                     // instead (but what would be its lifetime?).
-                    return Some((
-                        self.co1.unwrap(),
-                        self.co2.unwrap(),
-                        self.collector[0].clone(),
-                    ));
+                    return Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[0]));
                 }
             }
 

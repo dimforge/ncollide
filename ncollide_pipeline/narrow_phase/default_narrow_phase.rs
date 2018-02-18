@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
+use utils::IdAllocator;
 use utils::data::{DeterministicState, SortedPair};
 use geometry::query::Proximity;
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
@@ -12,6 +13,7 @@ use math::Point;
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
 pub struct DefaultNarrowPhase<P, M> {
+    id_alloc: IdAllocator,
     contact_dispatcher: Box<ContactDispatcher<P, M>>,
     contact_generators:
         HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<P, M>, DeterministicState>,
@@ -28,6 +30,7 @@ impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
         proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
     ) -> DefaultNarrowPhase<P, M> {
         DefaultNarrowPhase {
+            id_alloc: IdAllocator::new(),
             contact_dispatcher: contact_dispatcher,
             contact_generators: HashMap::with_hasher(DeterministicState::new()),
 
@@ -62,6 +65,7 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                         &co2.position(),
                         co2.shape().as_ref(),
                         &prediction,
+                        &mut self.id_alloc,
                     );
                 } else {
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")

@@ -2,10 +2,11 @@ use na;
 use math::{Isometry, Point};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
+use utils::IdAllocator;
 use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{CompositeShape, Shape};
-use geometry::query::{Contact, ContactPrediction};
+use geometry::query::{Contact, ContactManifold, ContactPrediction};
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a concave shape and another shape.
@@ -35,6 +36,7 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
         m2: &M,
         g2: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
         swap: bool,
     ) {
         // Find new collisions
@@ -74,14 +76,14 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
                         assert!(
                             detector
                                 .value
-                                .update(dispatcher, m2, g2, m1, g1, prediction),
+                                .update(dispatcher, m2, g2, m1, g1, prediction, id_alloc),
                             "Internal error: the shape was no longer valid."
                         );
                     } else {
                         assert!(
                             detector
                                 .value
-                                .update(dispatcher, m1, g1, m2, g2, prediction),
+                                .update(dispatcher, m1, g1, m2, g2, prediction, id_alloc),
                             "Internal error: the shape was no longer valid."
                         );
                     }
@@ -116,7 +118,8 @@ impl<P: Point, M> ShapeCompositeShapeContactGenerator<P, M> {
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
-    for CompositeShapeShapeContactGenerator<P, M> {
+    for CompositeShapeShapeContactGenerator<P, M>
+{
     fn update(
         &mut self,
         d: &ContactDispatcher<P, M>,
@@ -125,9 +128,10 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
     ) -> bool {
         if let Some(cs) = a.as_composite_shape() {
-            self.do_update(d, ma, cs, mb, b, prediction, false);
+            self.do_update(d, ma, cs, mb, b, prediction, id_alloc, false);
 
             true
         } else {
@@ -145,7 +149,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         res
     }
 
-    fn contacts(&self, out: &mut Vec<Contact<P>>) {
+    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.contacts(out);
         }
@@ -153,7 +157,8 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
-    for ShapeCompositeShapeContactGenerator<P, M> {
+    for ShapeCompositeShapeContactGenerator<P, M>
+{
     fn update(
         &mut self,
         d: &ContactDispatcher<P, M>,
@@ -162,10 +167,11 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
     ) -> bool {
         if let Some(cs) = b.as_composite_shape() {
             self.sub_detector
-                .do_update(d, mb, cs, ma, a, prediction, true);
+                .do_update(d, mb, cs, ma, a, prediction, id_alloc, true);
 
             true
         } else {
@@ -177,7 +183,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         self.sub_detector.num_contacts()
     }
 
-    fn contacts(&self, out: &mut Vec<Contact<P>>) {
+    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
         self.sub_detector.contacts(out)
     }
 }

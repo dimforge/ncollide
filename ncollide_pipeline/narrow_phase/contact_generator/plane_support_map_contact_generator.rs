@@ -1,17 +1,15 @@
 use std::marker::PhantomData;
 use math::{Isometry, Point};
+use utils::IdAllocator;
 use geometry::shape::{Plane, Shape};
-use geometry::query::{Contact, ContactPrediction};
+use geometry::query::{Contact, ContactManifold, ContactPrediction};
 use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a plane and a shape implementing the `SupportMap` trait.
-///
-/// This detector generates only one contact point. For a full manifold generation, see
-/// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct PlaneSupportMapContactGenerator<P: Point, M> {
-    contact: Option<Contact<P>>,
+    manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
@@ -21,7 +19,7 @@ impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
     #[inline]
     pub fn new() -> PlaneSupportMapContactGenerator<P, M> {
         PlaneSupportMapContactGenerator {
-            contact: None,
+            manifold: ContactManifold::new(),
             mat_type: PhantomData,
         }
     }
@@ -33,7 +31,7 @@ impl<P: Point, M> PlaneSupportMapContactGenerator<P, M> {
 /// `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
 pub struct SupportMapPlaneContactGenerator<P: Point, M> {
-    contact: Option<Contact<P>>,
+    manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this.
 }
 
@@ -43,7 +41,7 @@ impl<P: Point, M> SupportMapPlaneContactGenerator<P, M> {
     #[inline]
     pub fn new() -> SupportMapPlaneContactGenerator<P, M> {
         SupportMapPlaneContactGenerator {
-            contact: None,
+            manifold: ContactManifold::new(),
             mat_type: PhantomData,
         }
     }
@@ -59,9 +57,14 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vector>>(), b.as_support_map()) {
-            self.contact = contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction.linear);
+            self.manifold.save_cache_and_clear();
+            let contact =
+                contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction.linear);
+            unimplemented!();
+            // self.manifold.push(contact)
 
             true
         } else {
@@ -71,18 +74,12 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
 
     #[inline]
     fn num_contacts(&self) -> usize {
-        match self.contact {
-            None => 0,
-            Some(_) => 1,
-        }
+        self.manifold.len()
     }
 
     #[inline]
-    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
-        match self.contact {
-            Some(ref c) => out_contacts.push(c.clone()),
-            None => (),
-        }
+    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+        out.push(&self.manifold)
     }
 }
 
@@ -96,9 +93,12 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContact
         mb: &M,
         plane: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(sm), Some(p)) = (a.as_support_map(), plane.as_shape::<Plane<P::Vector>>()) {
-            self.contact = contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction.linear);
+            let contact =
+                contacts_internal::support_map_against_plane(ma, sm, mb, p, prediction.linear);
+            unimplemented!();
 
             true
         } else {
@@ -108,17 +108,13 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for SupportMapPlaneContact
 
     #[inline]
     fn num_contacts(&self) -> usize {
-        match self.contact {
-            None => 0,
-            Some(_) => 1,
-        }
+        self.manifold.len()
     }
 
     #[inline]
-    fn contacts(&self, out_contacts: &mut Vec<Contact<P>>) {
-        match self.contact {
-            Some(ref c) => out_contacts.push(c.clone()),
-            None => (),
+    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+        if self.manifold.len() != 0 {
+            out.push(&self.manifold)
         }
     }
 }
