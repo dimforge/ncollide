@@ -12,6 +12,7 @@ pub enum FeatureId {
     Vertex(usize),
     Edge(usize),
     Face(usize),
+    Unknown,
 }
 
 /// Represents a convex polygonal approximation of a face of a solid.
@@ -40,7 +41,7 @@ impl<P: Point> ConvexPolyface<P> {
             vertices: Vec::new(),
             edge_normals: Vec::new(),
             normal: Unit::new_unchecked(y),
-            feature_id: FeatureId::Vertex(0),
+            feature_id: FeatureId::Unknown,
             vertices_id: Vec::new(),
             edges_id: Vec::new(),
             last_optimal_dir: None,

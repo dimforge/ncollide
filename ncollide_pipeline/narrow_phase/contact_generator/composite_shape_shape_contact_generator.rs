@@ -149,7 +149,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         res
     }
 
-    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.contacts(out);
         }
@@ -183,7 +183,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         self.sub_detector.num_contacts()
     }
 
-    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
         self.sub_detector.contacts(out)
     }
 }

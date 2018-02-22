@@ -239,6 +239,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 FeatureId::Face(id) => false,
                 FeatureId::Edge(id) => false,
                 FeatureId::Vertex(id) => false,
+                FeatureId::Unknown => panic!("Unknown feature id."),
             },
             _ => false,
         }

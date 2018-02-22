@@ -61,6 +61,7 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
                     let gen = SupportMapSupportMapContactGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
+                _ => unimplemented!(),
             }
         } else if a.is_composite_shape() {
             Some(Box::new(CompositeShapeShapeContactGenerator::<P, M>::new()))

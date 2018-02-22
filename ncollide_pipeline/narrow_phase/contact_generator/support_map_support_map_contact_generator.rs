@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use std::cell::RefCell;
 use math::{Isometry, Point};
 use utils::IdAllocator;
-use geometry::shape::{AnnotatedPoint, Shape};
+use geometry::shape::{AnnotatedPoint, FeatureId, Shape};
 use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
@@ -141,8 +141,12 @@ where
                     );
 
                     if self.contact_manifold.len() == 0 {
-                        self.contact_manifold
-                            .push_without_feature_id(contact.clone(), id_alloc);
+                        self.contact_manifold.push(
+                            contact.clone(),
+                            FeatureId::Unknown,
+                            FeatureId::Unknown,
+                            id_alloc,
+                        );
                     }
                 }
                 _ => {}
@@ -160,7 +164,7 @@ where
     }
 
     #[inline]
-    fn contacts<'a, 'b: 'a>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
         out.push(&self.contact_manifold)
     }
 }

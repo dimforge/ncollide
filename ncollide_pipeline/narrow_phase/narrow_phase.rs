@@ -78,7 +78,7 @@ impl<'a, P: 'a + Point, M: 'a, T: 'a> ContactPairs<'a, P, M, T> {
         }
     }
 
-    /// Transforms contact-pairs iterator to an iterator through each individual contact.
+    /// Transforms contact-pairs iterator to an iterator through each individual contact manifold.
     #[inline]
     pub fn contact_manifolds(self) -> ContactManifolds<'a, P, M, T> {
         ContactManifolds {
@@ -119,7 +119,7 @@ pub struct ContactManifolds<'a, P: 'a + Point, M: 'a, T: 'a> {
     co1: Option<&'a CollisionObject<P, M, T>>,
     co2: Option<&'a CollisionObject<P, M, T>>,
     pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
-    collector: Vec<&'b ContactManifold<P>>,
+    collector: Vec<&'a ContactManifold<P>>,
     curr_contact: usize,
 }
 

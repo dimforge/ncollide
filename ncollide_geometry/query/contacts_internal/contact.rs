@@ -45,10 +45,10 @@ impl<P: Point> Contact<P> {
 
 #[derive(Clone, Debug)]
 pub struct TrackedContact<P: Point> {
-    contact: Contact<P>,
-    feature1: FeatureId,
-    feature2: FeatureId,
-    id: GenerationalId,
+    pub contact: Contact<P>,
+    pub feature1: FeatureId,
+    pub feature2: FeatureId,
+    pub id: GenerationalId,
 }
 
 impl<P: Point> TrackedContact<P> {
@@ -106,6 +106,10 @@ impl<P: Point> ContactManifold<P> {
         self.contacts.len()
     }
 
+    pub fn contacts(&self) -> &[TrackedContact<P>] {
+        &self.contacts[..]
+    }
+
     pub fn save_cache_and_clear(&mut self) {
         mem::swap(&mut self.contacts, &mut self.cache);
         self.contacts.clear();
@@ -113,12 +117,6 @@ impl<P: Point> ContactManifold<P> {
 
     pub fn keep_cache_and_clear(&mut self) {
         self.contacts.clear()
-    }
-
-    pub fn push_without_feature_id(&mut self, contact: Contact<P>, gen: &mut IdAllocator) {
-        unimplemented!()
-        // let tracked = TrackedContact::new(contact, feature1, feature2, gen.alloc());
-        // self.contacts.push(tracked)
     }
 
     pub fn push(
