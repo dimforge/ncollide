@@ -46,7 +46,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
-            self.manifold.save_cache_and_clear();
+            self.manifold.save_cache_and_clear(id_alloc);
             if let Some(contact) = contacts_internal::ball_against_ball(
                 &P::from_coordinates(ma.translation().to_vector()),
                 a,

@@ -8,6 +8,21 @@ pub struct GenerationalId {
     tag: usize,
 }
 
+impl GenerationalId {
+    /// An identifier that cannot be constructed by `IdAlloc` and that is not equal to any other identifier.
+    pub fn invalid() -> Self {
+        GenerationalId {
+            id: usize::max_value(),
+            tag: 0,
+        }
+    }
+
+    /// Checks if this identifier is invalid.
+    pub fn is_invalid(&self) -> bool {
+        self.id == usize::max_value() && self.tag == 0
+    }
+}
+
 /// An identifiers allocator.
 pub struct IdAllocator {
     generator: Slab<()>,
@@ -20,7 +35,7 @@ impl IdAllocator {
     pub fn new() -> Self {
         IdAllocator {
             generator: Slab::new(),
-            generation: 0,
+            generation: 1,
             generation_used: false,
         }
     }

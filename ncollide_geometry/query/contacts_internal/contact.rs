@@ -92,6 +92,7 @@ impl<N: Real> ContactPrediction<N> {
 pub struct ContactManifold<P: Point> {
     contacts: Vec<TrackedContact<P>>,
     cache: Vec<TrackedContact<P>>,
+    cache_validity: Vec<bool>,
 }
 
 impl<P: Point> ContactManifold<P> {
@@ -99,6 +100,7 @@ impl<P: Point> ContactManifold<P> {
         ContactManifold {
             contacts: Vec::new(),
             cache: Vec::new(),
+            cache_validity: Vec::new(),
         }
     }
 
@@ -110,8 +112,20 @@ impl<P: Point> ContactManifold<P> {
         &self.contacts[..]
     }
 
-    pub fn save_cache_and_clear(&mut self) {
+    pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {
+        for (valid, c) in self.cache_validity.iter().zip(self.cache.iter()) {
+            if !*valid {
+                gen.free(c.id)
+            }
+        }
+
         mem::swap(&mut self.contacts, &mut self.cache);
+
+        for val in &mut self.cache_validity {
+            *val = false;
+        }
+
+        self.cache_validity.resize(self.cache.len(), false);
         self.contacts.clear();
     }
 
@@ -126,7 +140,19 @@ impl<P: Point> ContactManifold<P> {
         feature2: FeatureId,
         gen: &mut IdAllocator,
     ) {
-        let tracked = TrackedContact::new(contact, feature1, feature2, gen.alloc());
+        let mut id = GenerationalId::invalid();
+        for i in 0..self.cache.len() {
+            if self.cache[i].feature1 == feature1 && self.cache[i].feature2 == feature2 {
+                self.cache_validity[i] = true;
+                id = self.cache[i].id;
+            }
+        }
+
+        if id.is_invalid() {
+            id = gen.alloc();
+        }
+
+        let tracked = TrackedContact::new(contact, feature1, feature2, id);
         self.contacts.push(tracked)
     }
 }

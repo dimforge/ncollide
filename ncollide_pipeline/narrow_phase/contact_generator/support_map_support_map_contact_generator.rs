@@ -67,7 +67,7 @@ where
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            self.contact_manifold.save_cache_and_clear();
+            self.contact_manifold.save_cache_and_clear(id_alloc);
             if self.manifold1.contains_optimal(
                 ma,
                 sma,
@@ -102,7 +102,7 @@ where
             // Generate a contact manifold.
             self.manifold1.clear();
             self.manifold2.clear();
-            self.contact_manifold.save_cache_and_clear();
+            self.contact_manifold.save_cache_and_clear(id_alloc);
 
             match self.contact {
                 GJKResult::Projection(ref contact, _) => {

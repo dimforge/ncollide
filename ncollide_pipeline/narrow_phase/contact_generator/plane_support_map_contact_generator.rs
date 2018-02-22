@@ -60,7 +60,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapContact
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<P::Vector>>(), b.as_support_map()) {
-            self.manifold.save_cache_and_clear();
+            self.manifold.save_cache_and_clear(id_alloc);
             let contact =
                 contacts_internal::plane_against_support_map(ma, p, mb, sm, prediction.linear);
             unimplemented!();
