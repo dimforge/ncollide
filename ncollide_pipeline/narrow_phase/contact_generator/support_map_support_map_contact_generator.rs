@@ -67,7 +67,8 @@ where
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            self.contact_manifold.save_cache_and_clear(id_alloc);
+            // self.contact_manifold.save_cache_and_clear(id_alloc);
+            /*
             if self.manifold1.contains_optimal(
                 ma,
                 sma,
@@ -80,7 +81,7 @@ where
             ) {
                 NAVOID.with(|e| *e.borrow_mut() += 1);
                 return true;
-            }
+            }*/
 
             let initial_direction = match self.contact {
                 GJKResult::NoIntersection(ref separator) => Some(separator.clone()),

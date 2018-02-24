@@ -32,7 +32,7 @@ pub trait SupportMap<P: Point, M> {
         out.clear();
         out.push(
             self.support_point_toward(transform, dir),
-            FeatureId::Vertex(0),
+            FeatureId::Unknown,
         );
     }
 

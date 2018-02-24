@@ -257,17 +257,7 @@ impl<P: Point> ConvexPolyface<P> {
                 if g1.is_direction_in_normal_cone(m1, self.feature_id, &self.vertices[0], &normal) {
                     contact = Contact::new(self.vertices[0], other.vertices[0], normal, -depth);
                 } else {
-                    return; // Impossible configuration, the input normal is probably wrong.
-                            // contact = Contact::new(self.vertices[0], other.vertices[0], -normal, depth);
-                            // println!("Found penetration: {:?}", contact);
-                            // println!(
-                            //     "Local points: {}, {}, Normals: {}, {}",
-                            //     m1.inverse_transform_point(&contact.world1),
-                            //     m2.inverse_transform_point(&contact.world2),
-                            //     m1.inverse_transform_vector(&contact.normal),
-                            //     m2.inverse_transform_vector(&-contact.normal)
-                            // );
-                            // panic!("");
+                    return;
                 }
             } else {
                 let mut n = na::zero::<P::Vector>();
@@ -463,7 +453,31 @@ impl<P: Point> ConvexPolyface<P> {
                                     }
                                 }
 
-                                // FIXME: contacts.push(contact)
+                                let id1 = if self.vertices.len() == 2 {
+                                    self.feature_id
+                                } else {
+                                    self.edges_id[i1]
+                                };
+                                let id2 = if other.vertices.len() == 2 {
+                                    other.feature_id
+                                } else {
+                                    other.edges_id[j1]
+                                };
+
+                                if self.register_contact(
+                                    m1,
+                                    g1,
+                                    id1,
+                                    m2,
+                                    g2,
+                                    id2,
+                                    pred,
+                                    contact,
+                                    contacts,
+                                    id_alloc,
+                                ) {
+                                    return;
+                                }
                             }
                         }
                     }
@@ -473,10 +487,28 @@ impl<P: Point> ConvexPolyface<P> {
                         assert!(self.edge_normals.len() == self.vertices().len(),
                         "Convex polyhedral face: the number of edge normals should match the number of vertices.");
 
-                        for v in &other.vertices {
+                        for j in 0..other.vertices.len() {
                             // Project on face.
-                            if let Some(contact) = point_face_contact_3d(self, v, false) {
-                                // FIXME: contacts.push(contact)
+                            if let Some(contact) =
+                                point_face_contact_3d(self, &other.vertices[j], false)
+                            {
+                                let id1 = self.feature_id;
+                                let id2 = other.vertices_id[j];
+
+                                if self.register_contact(
+                                    m1,
+                                    g1,
+                                    id1,
+                                    m2,
+                                    g2,
+                                    id2,
+                                    pred,
+                                    contact,
+                                    contacts,
+                                    id_alloc,
+                                ) {
+                                    return;
+                                }
                             }
                         }
                     }
@@ -484,10 +516,28 @@ impl<P: Point> ConvexPolyface<P> {
                         assert!(other.edge_normals.len() == other.vertices().len(),
                         "Convex polyhedral face: the number of edge normals should match the number of vertices.");
 
-                        for v in &self.vertices {
+                        for i in 0..self.vertices.len() {
                             // Project on face.
-                            if let Some(contact) = point_face_contact_3d(other, v, true) {
-                                // FIXME: contacts.push(contact)
+                            if let Some(contact) =
+                                point_face_contact_3d(other, &self.vertices[i], true)
+                            {
+                                let id1 = self.vertices_id[i];
+                                let id2 = other.feature_id;
+
+                                if self.register_contact(
+                                    m1,
+                                    g1,
+                                    id1,
+                                    m2,
+                                    g2,
+                                    id2,
+                                    pred,
+                                    contact,
+                                    contacts,
+                                    id_alloc,
+                                ) {
+                                    return;
+                                }
                             }
                         }
                     }
