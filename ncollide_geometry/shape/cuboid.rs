@@ -1,5 +1,6 @@
 //! Support mapping based Cuboid shape.
 
+use std::f64;
 use num::Zero;
 use approx::ApproxEq;
 
@@ -234,7 +235,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         point: &P,
         dir: &Unit<P::Vector>,
     ) -> bool {
-        let tolerence: P::Real = na::convert(1.0 / 180.0);
+        let tolerence: P::Real = na::convert(f64::consts::PI / 180.0 * 1.0);
         let (stol, ctol) = tolerence.sin_cos();
         let mut local_dir = m.inverse_rotate_vector(dir);
 
@@ -269,29 +270,31 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 }
                 FeatureId::Edge(id) => {
                     let edge = id & 0b011;
-                    let face1 = (id + 1) % 3;
-                    let face2 = (id + 2) % 3;
+                    let face1 = (edge + 1) % 3;
+                    let face2 = (edge + 2) % 3;
+                    let signs = id >> 2;
 
-                    local_dir[face1].abs() < ctol && local_dir[face2].abs() < ctol
+                    if signs & (1 << face1) != 0 {
+                        local_dir[face1] = -local_dir[face1]
+                    }
+                    if signs & (1 << face2) != 0 {
+                        local_dir[face2] = -local_dir[face2]
+                    }
+
+                    local_dir[face1] > -stol && local_dir[face2] > -stol
                         && local_dir[edge].abs() <= stol
                 }
                 FeatureId::Vertex(id) => {
-                    let mut abs = local_dir;
-
                     for i in 0..3 {
                         if id & (1 << i) != 0 {
-                            if local_dir[i] >= na::zero() {
+                            if local_dir[i] > stol {
                                 return false;
-                            } else {
-                                abs[i] = -local_dir[i];
                             }
-                        } else if local_dir[i] < na::zero() {
+                        } else if local_dir[i] < -stol {
                             return false;
                         }
                     }
-
-                    abs[0] < ctol && abs[0] > stol && abs[1] < ctol && abs[1] > stol
-                        && abs[2] < ctol && abs[2] > stol
+                    true
                 }
                 _ => false,
             },

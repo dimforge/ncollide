@@ -4,7 +4,7 @@ use alga::linear::Translation;
 use math::{Isometry, Point};
 use utils::IdAllocator;
 use geometry::shape::{Ball, FeatureId, Shape};
-use geometry::query::{Contact, ContactManifold, ContactPrediction};
+use geometry::query::{ContactManifold, ContactPrediction};
 use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 

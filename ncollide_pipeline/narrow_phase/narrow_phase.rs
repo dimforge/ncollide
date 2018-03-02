@@ -2,7 +2,7 @@ use std::any::Any;
 use std::collections::hash_map::Iter;
 
 use utils::data::SortedPair;
-use geometry::query::{Contact, ContactManifold};
+use geometry::query::ContactManifold;
 use narrow_phase::{ContactAlgorithm, ContactGenerator, ProximityAlgorithm, ProximityDetector};
 use events::{ContactEvents, ProximityEvents};
 use world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};

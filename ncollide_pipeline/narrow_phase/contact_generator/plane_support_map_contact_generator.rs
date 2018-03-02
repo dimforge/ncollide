@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use math::{Isometry, Point};
 use utils::IdAllocator;
 use geometry::shape::{Plane, Shape};
-use geometry::query::{Contact, ContactManifold, ContactPrediction};
+use geometry::query::{ContactManifold, ContactPrediction};
 use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 

@@ -44,8 +44,10 @@ pub struct Testbed<N: Real> {
     grabbed_object: Option<usize>,
     grab_anchor: Point2<N>,
 
-    #[cfg(feature = "recording")] recorder: Option<Encoder>,
-    #[cfg(not(feature = "recording"))] recorder: Option<()>,
+    #[cfg(feature = "recording")]
+    recorder: Option<Encoder>,
+    #[cfg(not(feature = "recording"))]
+    recorder: Option<()>,
 }
 
 impl<N: Real + ToPrimitive> Testbed<N> {
@@ -54,11 +56,11 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         let ctxt = ContextSettings::default();
         // ctxt.antialiasing(3);
 
-        let mut window =
-            match RenderWindow::new(mode, "ncollide 2d testbed", window_style::CLOSE, &ctxt) {
-                Some(rwindow) => rwindow,
-                None => panic!("Error on creating the sfml window."),
-            };
+        let window_style = window_style::CLOSE | window_style::RESIZE | window_style::CLOSE;
+        let mut window = match RenderWindow::new(mode, "ncollide 2d testbed", window_style, &ctxt) {
+            Some(rwindow) => rwindow,
+            None => panic!("Error on creating the sfml window."),
+        };
 
         window.set_framerate_limit(60);
 

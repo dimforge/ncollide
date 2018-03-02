@@ -129,10 +129,6 @@ impl<P: Point> ContactManifold<P> {
         self.contacts.clear();
     }
 
-    pub fn keep_cache_and_clear(&mut self) {
-        self.contacts.clear()
-    }
-
     pub fn push(
         &mut self,
         contact: Contact<P>,

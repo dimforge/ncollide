@@ -11,6 +11,7 @@
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate alga;
+extern crate approx;
 extern crate nalgebra as na;
 extern crate ncollide_geometry as geometry;
 extern crate ncollide_math as math;

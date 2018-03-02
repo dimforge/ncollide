@@ -201,6 +201,13 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
         );
         self.timestamp = self.timestamp + 1;
         NAVOID.with(|e| println!("Avoidable GJK/EPA: {}", *e.borrow()));
+        let mut npairs_with_contacts = 0;
+        for cp in self.narrow_phase.contact_pairs(&self.objects) {
+            if cp.2.num_contacts() != 0 {
+                npairs_with_contacts += 1;
+            }
+        }
+        println!("Pairs with contacts: {}", npairs_with_contacts);
     }
 
     /// Sets a new narrow phase and returns the previous one.

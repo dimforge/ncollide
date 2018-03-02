@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
 use geometry::shape::{Ball, Plane, Shape};
-use geometry::query::algorithms::{JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use geometry::query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
 use narrow_phase::{BallBallContactGenerator,
                    CompositeShapeShapeContactGenerator,
                    ContactAlgorithm,
@@ -10,7 +10,7 @@ use narrow_phase::{BallBallContactGenerator,
                    PlaneSupportMapContactGenerator,
                    ShapeCompositeShapeContactGenerator,
                    SupportMapPlaneContactGenerator,
-                   SupportMapSupportMapContactGenerator};
+                   SupportMapSupportMapManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher<P: Point, M> {
@@ -51,14 +51,14 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
                     let simplex = VoronoiSimplex2::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
-                    let gen = SupportMapSupportMapContactGenerator::new(simplex);
+                    let gen = SupportMapSupportMapManifoldGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
                 3 => {
                     let simplex = VoronoiSimplex3::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
-                    let gen = SupportMapSupportMapContactGenerator::new(simplex);
+                    let gen = SupportMapSupportMapManifoldGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
                 _ => unimplemented!(),

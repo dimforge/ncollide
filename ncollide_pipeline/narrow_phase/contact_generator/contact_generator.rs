@@ -2,7 +2,7 @@ use std::any::Any;
 
 use utils::IdAllocator;
 use geometry::shape::Shape;
-use geometry::query::{Contact, ContactManifold, ContactPrediction};
+use geometry::query::{ContactManifold, ContactPrediction};
 use math::Point;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.

@@ -6,7 +6,7 @@ use utils::IdAllocator;
 use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{CompositeShape, Shape};
-use geometry::query::{Contact, ContactManifold, ContactPrediction};
+use geometry::query::{ContactManifold, ContactPrediction};
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a concave shape and another shape.

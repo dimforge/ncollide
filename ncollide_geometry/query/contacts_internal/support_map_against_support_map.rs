@@ -27,45 +27,27 @@ where
     G2: SupportMap<P, M>,
 {
     if na::dimension::<P::Vector>() == 2 {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut VoronoiSimplex2::new(),
-            None,
-        ) {
+        let simplex = &mut VoronoiSimplex2::new();
+        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
+        {
             GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
         }
     } else if na::dimension::<P::Vector>() == 3 {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut VoronoiSimplex3::new(),
-            None,
-        ) {
+        let simplex = &mut VoronoiSimplex3::new();
+        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
+        {
             GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
         }
     } else {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut JohnsonSimplex::new_w_tls(),
-            None,
-        ) {
+        let simplex = &mut JohnsonSimplex::new_w_tls();
+        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
+        {
             GJKResult::Projection(c, _) => Some(c),
             GJKResult::NoIntersection(_) => None,
             GJKResult::Intersection => unreachable!(),
