@@ -192,7 +192,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 
     /// Executes the narrow phase of the collision detection pipeline.
     pub fn perform_narrow_phase(&mut self) {
-        NAVOID.with(|e| *e.borrow_mut() = 0);
+        NAVOID.with(|e| *e.borrow_mut() = (0, 0));
         self.narrow_phase.update(
             &self.objects,
             &mut self.contact_events,
@@ -200,7 +200,8 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
             self.timestamp,
         );
         self.timestamp = self.timestamp + 1;
-        NAVOID.with(|e| println!("Avoidable GJK/EPA: {}", *e.borrow()));
+        NAVOID.with(|e| println!("Avoidable GJK/EPA: {}", e.borrow().0));
+        NAVOID.with(|e| println!("Matched contacts: {}", e.borrow().1));
         let mut npairs_with_contacts = 0;
         for cp in self.narrow_phase.contact_pairs(&self.objects) {
             if cp.2.num_contacts() != 0 {

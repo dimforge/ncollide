@@ -1,6 +1,6 @@
 use slab::Slab;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// A unique idetifier given by a usize id and a generation number.
 pub struct GenerationalId {
     /// The identifier.

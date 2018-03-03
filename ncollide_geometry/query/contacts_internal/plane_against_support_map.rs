@@ -26,7 +26,12 @@ where
     if distance > -prediction {
         let c1 = deepest + plane_normal * distance;
 
-        Some(Contact::new(c1, deepest, Unit::new_unchecked(plane_normal), distance))
+        Some(Contact::new(
+            c1,
+            deepest,
+            Unit::new_unchecked(plane_normal),
+            distance,
+        ))
     } else {
         None
     }

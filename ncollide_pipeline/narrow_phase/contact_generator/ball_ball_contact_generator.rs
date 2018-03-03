@@ -54,8 +54,17 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
                 b,
                 prediction.linear,
             ) {
-                self.manifold
-                    .push(contact, FeatureId::Face(0), FeatureId::Face(0), id_alloc);
+                // FIXME: we could provide the local-space contact information too
+                // so that the manifold does not have to compute them from the
+                // transforms.
+                let _ = self.manifold.push(
+                    ma,
+                    mb,
+                    contact,
+                    FeatureId::Face(0),
+                    FeatureId::Face(0),
+                    id_alloc,
+                );
             }
 
             true

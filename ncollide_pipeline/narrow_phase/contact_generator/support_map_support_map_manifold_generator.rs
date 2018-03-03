@@ -23,6 +23,7 @@ pub struct SupportMapSupportMapManifoldGenerator<P: Point, M, S> {
     last_gjk_dir: Option<P::Vector>,
     last_optimal_dir: Option<Unit<P::Vector>>,
     contact_manifold: ContactManifold<P>,
+    new_contacts: Vec<(Contact<P>, FeatureId, FeatureId)>,
     manifold1: ConvexPolyface<P>,
     manifold2: ConvexPolyface<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
@@ -44,6 +45,7 @@ where
             last_gjk_dir: None,
             last_optimal_dir: None,
             contact_manifold: ContactManifold::new(),
+            new_contacts: Vec::new(),
             manifold1: ConvexPolyface::new(),
             manifold2: ConvexPolyface::new(),
             mat_type: PhantomData,
@@ -77,7 +79,6 @@ where
 
                 if self.manifold1.feature_id != f1 && self.manifold2.feature_id != f2 {
                     // println!("Transitioning to new features: {:?}, {:?}", f1, f2);
-                    self.contact_manifold.save_cache_and_clear(ids);
                     self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids);
                 }
 
@@ -127,7 +128,7 @@ where
         }
 
         if keep {
-            self.contact_manifold.push(contact, fid1, fid2, ids)
+            self.new_contacts.push((contact, fid1, fid2));
         }
 
         false
@@ -149,6 +150,7 @@ where
         G1: SupportMap<P, M>,
         G2: SupportMap<P, M>,
     {
+        self.new_contacts.clear();
         self.last_optimal_dir = None;
 
         if self.manifold1.vertices.len() == 0 || self.manifold2.vertices.len() == 0 {
@@ -400,10 +402,19 @@ where
 
         return false;
     }
+
+    fn save_new_contacts_as_contact_manifold(&mut self, m1: &M, m2: &M, ids: &mut IdAllocator) {
+        self.contact_manifold.save_cache_and_clear(ids);
+        for (contact, f1, f2) in self.new_contacts.drain(..) {
+            if self.contact_manifold.push(m1, m2, contact, f1, f2, ids) {
+                NAVOID.with(|e| e.borrow_mut().1 += 1);
+            }
+        }
+    }
 }
 
 thread_local! {
-    pub static NAVOID: RefCell<u32> = RefCell::new(0);
+    pub static NAVOID: RefCell<(u32, u32)> = RefCell::new((0, 0));
 }
 
 impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapManifoldGenerator<P, M, S>
@@ -424,12 +435,12 @@ where
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            self.contact_manifold.save_cache_and_clear(ids);
-
+            /*
             if self.contain_optimal(ma, sma, mb, smb, prediction, ids) {
-                NAVOID.with(|e| *e.borrow_mut() += 1);
+                self.save_new_contacts_as_contact_manifold(ma, mb, ids);
+                NAVOID.with(|e| e.borrow_mut().0 += 1);
                 return true;
-            }
+            }*/
 
             let contact = contacts_internal::support_map_against_support_map_with_params(
                 ma,
@@ -442,9 +453,9 @@ where
             );
 
             // Generate a contact manifold.
+            self.new_contacts.clear();
             self.manifold1.clear();
             self.manifold2.clear();
-            self.contact_manifold.save_cache_and_clear(ids);
 
             match contact {
                 GJKResult::Projection(ref contact, dir) => {
@@ -468,29 +479,20 @@ where
                     //     self.manifold1.feature_id, self.manifold2.feature_id
                     // );
                     self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids);
-                    // if self.last_optimal_dir.is_none() {
-                    //     println!(
-                    //         "No optimum was found: {}, {:?}, {:?}, ncontacts: {}",
-                    //         self.last_optimal_dir.is_some(),
-                    //         self.manifold1.feature_id,
-                    //         self.manifold2.feature_id,
-                    //         self.contact_manifold.len()
-                    //     );
-                    // }
-                    // println!("Contacts found: {}", self.contact_manifold.len());
 
-                    if self.contact_manifold.len() == 0 {
-                        self.contact_manifold.push(
+                    if self.new_contacts.len() == 0 {
+                        self.new_contacts.push((
                             contact.clone(),
                             FeatureId::Unknown,
                             FeatureId::Unknown,
-                            ids,
-                        );
+                        ));
                     }
                 }
                 GJKResult::NoIntersection(dir) => self.last_gjk_dir = Some(dir),
                 _ => {}
             }
+
+            self.save_new_contacts_as_contact_manifold(ma, mb, ids);
 
             true
         } else {
@@ -505,7 +507,9 @@ where
 
     #[inline]
     fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
-        out.push(&self.contact_manifold)
+        if self.contact_manifold.len() != 0 {
+            out.push(&self.contact_manifold)
+        }
     }
 }
 
