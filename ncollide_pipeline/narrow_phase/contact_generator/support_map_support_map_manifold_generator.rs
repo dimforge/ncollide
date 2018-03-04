@@ -9,7 +9,8 @@ use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::contacts_internal;
 use geometry::query::closest_points_internal;
-use geometry::query::{Contact, ContactManifold, ContactPrediction, PointQueryWithLocation};
+use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
+                      PointQueryWithLocation};
 use geometry::shape::ConvexPolyface;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
@@ -66,20 +67,20 @@ where
         G2: SupportMap<P, M>,
     {
         if let Some(dir) = self.last_optimal_dir {
-            g1.support_area_toward(m1, &dir, prediction.angular1, &mut self.manifold1);
-            g2.support_area_toward(m2, &-dir, prediction.angular2, &mut self.manifold2);
-            self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids);
+            g1.support_feature_toward(m1, &dir, prediction.angular1, &mut self.manifold1);
+            g2.support_feature_toward(m2, &-dir, prediction.angular2, &mut self.manifold2);
+            self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids, false);
 
             if let Some(dir) = self.last_optimal_dir {
                 let f1 = self.manifold1.feature_id;
                 let f2 = self.manifold2.feature_id;
 
-                g1.support_area_toward(m1, &dir, prediction.angular1, &mut self.manifold1);
-                g2.support_area_toward(m2, &-dir, prediction.angular2, &mut self.manifold2);
+                g1.support_feature_toward(m1, &dir, prediction.angular1, &mut self.manifold1);
+                g2.support_feature_toward(m2, &-dir, prediction.angular2, &mut self.manifold2);
 
                 if self.manifold1.feature_id != f1 && self.manifold2.feature_id != f2 {
                     // println!("Transitioning to new features: {:?}, {:?}", f1, f2);
-                    self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids);
+                    self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids, false);
                 }
 
                 // println!(
@@ -146,6 +147,7 @@ where
         g2: &G2,
         pred: &ContactPrediction<P::Real>,
         ids: &mut IdAllocator,
+        debug: bool,
     ) where
         G1: SupportMap<P, M>,
         G2: SupportMap<P, M>,
@@ -203,7 +205,7 @@ where
 
                     if let Some(contact) = point_on_segment_contact_2d(&s1, &p2, &n1, false) {
                         let id1 = self.manifold1.feature_id;
-                        let id2 = self.manifold2.vertices_id[0];
+                        let id2 = self.manifold2.vertices_id[j];
 
                         if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, ids) {
                             return;
@@ -220,7 +222,7 @@ where
 
                     if let Some(contact) = point_on_segment_contact_2d(&s2, &p1, &n2, true) {
                         let id1 = self.manifold2.feature_id;
-                        let id2 = self.manifold1.vertices_id[0];
+                        let id2 = self.manifold1.vertices_id[i];
 
                         if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, ids) {
                             return;
@@ -406,9 +408,25 @@ where
     fn save_new_contacts_as_contact_manifold(&mut self, m1: &M, m2: &M, ids: &mut IdAllocator) {
         self.contact_manifold.save_cache_and_clear(ids);
         for (contact, f1, f2) in self.new_contacts.drain(..) {
-            if self.contact_manifold.push(m1, m2, contact, f1, f2, ids) {
+            let kinematic = Self::contact_kinematic(f1, f2);
+            if self.contact_manifold
+                .push(m1, m2, contact, f1, f2, kinematic, ids)
+            {
                 NAVOID.with(|e| e.borrow_mut().1 += 1);
             }
+        }
+    }
+
+    fn contact_kinematic(f1: FeatureId, f2: FeatureId) -> ContactKinematic<P::Vector> {
+        if na::dimension::<P::Vector>() == 2 {
+            match (f1, f2) {
+                (FeatureId::Vertex(..), FeatureId::Vertex(..)) => ContactKinematic::PointPoint,
+                (FeatureId::Vertex(..), FeatureId::Edge(..)) => ContactKinematic::PointPlane,
+                (FeatureId::Edge(..), FeatureId::Vertex(..)) => ContactKinematic::PlanePoint,
+                _ => ContactKinematic::PointPoint,
+            }
+        } else {
+            ContactKinematic::Unknown
         }
     }
 }
@@ -461,24 +479,25 @@ where
                 GJKResult::Projection(ref contact, dir) => {
                     self.last_gjk_dir = Some(dir.unwrap());
 
-                    sma.support_area_toward(
-                        ma,
-                        &contact.normal,
-                        prediction.angular1,
-                        &mut self.manifold1,
-                    );
-                    smb.support_area_toward(
-                        mb,
-                        &-contact.normal,
-                        prediction.angular2,
-                        &mut self.manifold2,
-                    );
+                    if contact.depth > na::zero() {
+                        sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
+                        smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+                    } else {
+                        sma.support_feature_toward(
+                            ma,
+                            &contact.normal,
+                            prediction.angular1,
+                            &mut self.manifold1,
+                        );
+                        smb.support_feature_toward(
+                            mb,
+                            &-contact.normal,
+                            prediction.angular2,
+                            &mut self.manifold2,
+                        );
+                    }
 
-                    // println!(
-                    //     "Handling features: {:?}, {:?}",
-                    //     self.manifold1.feature_id, self.manifold2.feature_id
-                    // );
-                    self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids);
+                    self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids, false);
 
                     if self.new_contacts.len() == 0 {
                         self.new_contacts.push((

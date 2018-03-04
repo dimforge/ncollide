@@ -22,7 +22,20 @@ pub trait SupportMap<P: Point, M> {
         self.support_point(transform, dir.as_ref())
     }
 
-    fn support_area_toward(
+    fn support_face_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        out: &mut ConvexPolyface<P>,
+    ) {
+        out.clear();
+        out.push(
+            self.support_point_toward(transform, dir),
+            FeatureId::Unknown,
+        );
+    }
+
+    fn support_feature_toward(
         &self,
         transform: &M,
         dir: &Unit<P::Vector>,

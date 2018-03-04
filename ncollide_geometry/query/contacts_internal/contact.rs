@@ -43,7 +43,7 @@ impl<P: Point> Contact<P> {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ContactKinematic<V> {
     PlanePoint,
     PointPlane,
@@ -139,6 +139,28 @@ pub struct ContactPrediction<N: Real> {
     pub angular2: N,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum CacheEntryStatus {
+    Used(usize),
+    Unused(usize),
+}
+
+impl CacheEntryStatus {
+    fn is_used(&self) -> bool {
+        match *self {
+            CacheEntryStatus::Used(..) => true,
+            _ => false,
+        }
+    }
+
+    fn is_obsolete(&self) -> bool {
+        match *self {
+            CacheEntryStatus::Unused(0) => true,
+            _ => false,
+        }
+    }
+}
+
 impl<N: Real> ContactPrediction<N> {
     /// Initialize prediction parameters.
     pub fn new(linear: N, angular1: N, angular2: N) -> Self {
@@ -155,7 +177,9 @@ pub struct ContactManifold<P: Point> {
     deepest: usize,
     contacts: Vec<TrackedContact<P>>,
     cache: Vec<TrackedContact<P>>,
-    cached_contact_used: Vec<Option<usize>>,
+    cached_contact_used: Vec<CacheEntryStatus>,
+    new_cached_contact_used: Vec<CacheEntryStatus>,
+    max_life: usize,
 }
 
 impl<P: Point> ContactManifold<P> {
@@ -165,6 +189,8 @@ impl<P: Point> ContactManifold<P> {
             contacts: Vec::new(),
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
+            new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
+            max_life: 1,                         // FIXME: don't hard-code this.
         }
     }
 
@@ -181,20 +207,37 @@ impl<P: Point> ContactManifold<P> {
     }
 
     pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {
-        for (valid, c) in self.cached_contact_used.iter().zip(self.cache.iter()) {
-            if !valid.is_some() {
+        for (valid, c) in self.cached_contact_used.iter_mut().zip(self.cache.iter()) {
+            if valid.is_obsolete() {
                 gen.free(c.id)
             }
         }
 
         mem::swap(&mut self.contacts, &mut self.cache);
 
-        for val in &mut self.cached_contact_used {
-            *val = None;
+        self.new_cached_contact_used.clear();
+        self.new_cached_contact_used
+            .resize(self.cache.len(), CacheEntryStatus::Unused(self.max_life));
+
+        for (valid, c) in self.cached_contact_used
+            .drain(..)
+            .zip(self.contacts.drain(..))
+        {
+            match valid {
+                CacheEntryStatus::Unused(life) if life > 0 => {
+                    self.cache.push(c);
+                    self.new_cached_contact_used
+                        .push(CacheEntryStatus::Unused(life - 1));
+                }
+                _ => {}
+            }
         }
 
-        self.cached_contact_used.resize(self.cache.len(), None);
-        self.contacts.clear();
+        mem::swap(
+            &mut self.new_cached_contact_used,
+            &mut self.cached_contact_used,
+        );
+
         self.deepest = 0;
     }
 
@@ -205,6 +248,7 @@ impl<P: Point> ContactManifold<P> {
         contact: Contact<P>,
         feature1: FeatureId,
         feature2: FeatureId,
+        kinematic: ContactKinematic<P::Vector>,
         gen: &mut IdAllocator,
     ) -> bool {
         let local1 = m1.inverse_transform_point(&contact.world1);
@@ -241,7 +285,6 @@ impl<P: Point> ContactManifold<P> {
         let is_deepest =
             self.contacts.len() == 0 || contact.depth > self.contacts[self.deepest].contact.depth;
 
-        let kinematic = ContactKinematic::Unknown;
         let mut matched = false;
         if closest.is_invalid() {
             closest = gen.alloc();
@@ -261,7 +304,7 @@ impl<P: Point> ContactManifold<P> {
                 }
                 return false;
             }
-            if let Some(used_i) = self.cached_contact_used[closest_i] {
+            if let CacheEntryStatus::Used(used_i) = self.cached_contact_used[closest_i] {
                 self.contacts[used_i] = TrackedContact::new_with_transforms(
                     m1,
                     m2,
@@ -277,7 +320,7 @@ impl<P: Point> ContactManifold<P> {
                 }
                 return false;
             } else {
-                self.cached_contact_used[closest_i] = Some(self.contacts.len());
+                self.cached_contact_used[closest_i] = CacheEntryStatus::Used(self.contacts.len());
                 matched = true;
             }
         }
@@ -305,9 +348,11 @@ impl<P: Point> ContactManifold<P> {
         contact: Contact<P>,
         feature1: FeatureId,
         feature2: FeatureId,
+        kinematic: ContactKinematic<P::Vector>,
         gen: &mut IdAllocator,
-    ) {
+    ) -> bool {
         let mut id = GenerationalId::invalid();
+        let mut matched = false;
 
         for i in 0..self.cache.len() {
             if self.cached_contact_used[i].is_none() && self.cache[i].feature1 == feature1
@@ -315,6 +360,7 @@ impl<P: Point> ContactManifold<P> {
             {
                 self.cached_contact_used[i] = Some(self.contacts.len());
                 id = self.cache[i].id;
+                matched = true;
             }
         }
 
@@ -322,7 +368,9 @@ impl<P: Point> ContactManifold<P> {
             id = gen.alloc();
         }
 
-        let tracked = TrackedContact::new_with_transforms(m1, m2, contact, feature1, feature2, id);
-        self.contacts.push(tracked)
+        let tracked =
+            TrackedContact::new_with_transforms(m1, m2, contact, feature1, feature2, kinematic, id);
+        self.contacts.push(tracked);
+        matched
     }*/
 }
