@@ -2,9 +2,9 @@
 
 use std::f64;
 use num::{One, Zero};
-use approx::ApproxEq;
 
 use na::{self, Real, Unit};
+use bounding_volume::PolyhedralCone;
 use shape::{ConvexPolyface, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
 
@@ -282,6 +282,75 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 out.set_feature_id(FeatureId::Unknown);
             }
         }
+    }
+
+    fn normal_cone(&self, local_pt: &P, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        // let mut result = PolyhedralCone::new();
+        // let mut dir = na::zero();
+
+        unimplemented!()
+        // match na::dimension::<P::Vector>() {
+        //     2 => match feature {
+        //         FeatureId::Edge(id) => {
+        //             if id < 2 {
+        //                 dir[id] = na::one();
+        //             } else {
+        //                 dir[id] = -na::one();
+        //             }
+        //             result.push(Unit::new_unchecked(dir));
+        //         }
+        //         FeatureId::Vertex(id) => {
+        //             if id & 0b01 != 0 {
+        //                 local_dir[0] = -local_dir[0]
+        //             }
+        //             if id & 0b10 != 0 {
+        //                 local_dir[1] = -local_dir[1]
+        //             }
+
+        //             local_dir[0] >= -stol && local_dir[1] >= -stol
+        //         }
+        //         _ => false,
+        //     },
+        //     3 => match feature {
+        //         FeatureId::Face(id) => {
+        //             if id < 3 {
+        //                 local_dir[id] >= ctol
+        //             } else {
+        //                 -local_dir[id - 3] >= ctol
+        //             }
+        //         }
+        //         FeatureId::Edge(id) => {
+        //             let edge = id & 0b011;
+        //             let face1 = (edge + 1) % 3;
+        //             let face2 = (edge + 2) % 3;
+        //             let signs = id >> 2;
+
+        //             if signs & (1 << face1) != 0 {
+        //                 local_dir[face1] = -local_dir[face1]
+        //             }
+        //             if signs & (1 << face2) != 0 {
+        //                 local_dir[face2] = -local_dir[face2]
+        //             }
+
+        //             local_dir[face1] > -stol && local_dir[face2] > -stol
+        //                 && local_dir[edge].abs() <= stol
+        //         }
+        //         FeatureId::Vertex(id) => {
+        //             for i in 0..3 {
+        //                 if id & (1 << i) != 0 {
+        //                     if local_dir[i] > stol {
+        //                         return false;
+        //                     }
+        //                 } else if local_dir[i] < -stol {
+        //                     return false;
+        //                 }
+        //             }
+        //             true
+        //         }
+        //         _ => false,
+        //     },
+        //     _ => false,
+        // }
     }
 
     fn is_direction_in_normal_cone(

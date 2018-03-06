@@ -1,6 +1,7 @@
 use std::mem;
 use utils::{GenerationalId, IdAllocator};
 use shape::FeatureId;
+use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point};
 
 use na::{self, Real, Unit};
@@ -64,11 +65,11 @@ pub struct TrackedContact<P: Point> {
     /// The contact location in the local space of the second object.
     pub local2: P,
 
-    /// The contact normal in the local space of the first object.
-    pub normal1: Unit<P::Vector>,
+    /// The normal cone at the first contact point, in the local space of the first solid.
+    pub normals1: PolyhedralCone<P::Vector>,
 
-    /// The contact normal in the local space of the second object.
-    pub normal2: Unit<P::Vector>,
+    /// The normal cone at the second contact point, in the local space of the second solid.
+    pub normals2: PolyhedralCone<P::Vector>,
 
     pub feature1: FeatureId,
     pub feature2: FeatureId,
@@ -81,8 +82,8 @@ impl<P: Point> TrackedContact<P> {
         contact: Contact<P>,
         local1: P,
         local2: P,
-        normal1: Unit<P::Vector>,
-        normal2: Unit<P::Vector>,
+        normals1: PolyhedralCone<P::Vector>,
+        normals2: PolyhedralCone<P::Vector>,
         feature1: FeatureId,
         feature2: FeatureId,
         kinematic: ContactKinematic<P::Vector>,
@@ -92,40 +93,13 @@ impl<P: Point> TrackedContact<P> {
             contact,
             local1,
             local2,
-            normal1,
-            normal2,
+            normals1,
+            normals2,
             feature1,
             feature2,
             kinematic,
             id,
         }
-    }
-
-    pub fn new_with_transforms<M: Isometry<P>>(
-        m1: &M,
-        m2: &M,
-        contact: Contact<P>,
-        feature1: FeatureId,
-        feature2: FeatureId,
-        kinematic: ContactKinematic<P::Vector>,
-        id: GenerationalId,
-    ) -> Self {
-        let local1 = m1.inverse_transform_point(&contact.world1);
-        let local2 = m2.inverse_transform_point(&contact.world2);
-        let normal1 = Unit::new_unchecked(m1.inverse_transform_vector(&*contact.normal));
-        let normal2 = Unit::new_unchecked(m2.inverse_transform_vector(&-*contact.normal));
-
-        Self::new(
-            contact,
-            local1,
-            local2,
-            normal1,
-            normal2,
-            feature1,
-            feature2,
-            kinematic,
-            id,
-        )
     }
 }
 
@@ -241,17 +215,20 @@ impl<P: Point> ContactManifold<P> {
         self.deepest = 0;
     }
 
-    pub fn push<M: Isometry<P>>(
+    pub fn push(
         &mut self,
-        m1: &M,
-        m2: &M,
         contact: Contact<P>,
+        local1: P,
+        local2: P,
+        normals1: PolyhedralCone<P::Vector>,
+        normals2: PolyhedralCone<P::Vector>,
         feature1: FeatureId,
         feature2: FeatureId,
         kinematic: ContactKinematic<P::Vector>,
         gen: &mut IdAllocator,
     ) -> bool {
-        let local1 = m1.inverse_transform_point(&contact.world1);
+        // FIXME: all this is poorly designed and quite inefficient (but OK for a first
+        // non-optimized implementation).
         let mut closest = GenerationalId::invalid();
         let mut closest_i = 0;
         let mut closest_is_contact = false;
@@ -290,10 +267,12 @@ impl<P: Point> ContactManifold<P> {
             closest = gen.alloc();
         } else {
             if closest_is_contact {
-                self.contacts[closest_i] = TrackedContact::new_with_transforms(
-                    m1,
-                    m2,
+                self.contacts[closest_i] = TrackedContact::new(
                     contact,
+                    local1,
+                    local2,
+                    normals1,
+                    normals2,
                     feature1,
                     feature2,
                     kinematic,
@@ -305,10 +284,12 @@ impl<P: Point> ContactManifold<P> {
                 return false;
             }
             if let CacheEntryStatus::Used(used_i) = self.cached_contact_used[closest_i] {
-                self.contacts[used_i] = TrackedContact::new_with_transforms(
-                    m1,
-                    m2,
+                self.contacts[used_i] = TrackedContact::new(
                     contact,
+                    local1,
+                    local2,
+                    normals1,
+                    normals2,
                     feature1,
                     feature2,
                     kinematic,
@@ -328,10 +309,12 @@ impl<P: Point> ContactManifold<P> {
         if is_deepest {
             self.deepest = self.contacts.len();
         }
-        let tracked = TrackedContact::new_with_transforms(
-            m1,
-            m2,
+        let tracked = TrackedContact::new(
             contact,
+            local1,
+            local2,
+            normals1,
+            normals2,
             feature1,
             feature2,
             kinematic,

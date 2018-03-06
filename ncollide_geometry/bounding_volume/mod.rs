@@ -13,6 +13,8 @@ pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere,
                                                  point_cloud_bounding_sphere_with_center};
 pub use bounding_volume::bounding_volume_bvt::BoundingVolumeInterferencesCollector;
 
+pub use self::polyhedral_cone::PolyhedralCone;
+
 use na::{Point2, Point3};
 
 #[doc(hidden)]
@@ -46,6 +48,8 @@ mod bounding_sphere_segment;
 mod bounding_sphere_mesh;
 mod bounding_sphere_utils;
 mod bounding_sphere_shape;
+
+mod polyhedral_cone;
 
 /*
  *

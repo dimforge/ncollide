@@ -16,6 +16,7 @@ extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
 extern crate num_traits as num;
+extern crate smallvec;
 
 pub mod shape;
 pub mod bounding_volume;

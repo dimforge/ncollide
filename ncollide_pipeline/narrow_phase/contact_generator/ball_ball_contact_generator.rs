@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 use alga::linear::Translation;
 use math::{Isometry, Point};
 use utils::IdAllocator;
+use geometry::bounding_volume::PolyhedralCone;
 use geometry::shape::{Ball, FeatureId, Shape};
 use geometry::query::{ContactKinematic, ContactManifold, ContactPrediction};
 use geometry::query::contacts_internal;
@@ -47,20 +48,19 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
     ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
             self.manifold.save_cache_and_clear(id_alloc);
-            if let Some(contact) = contacts_internal::ball_against_ball(
-                &P::from_coordinates(ma.translation().to_vector()),
-                a,
-                &P::from_coordinates(mb.translation().to_vector()),
-                b,
-                prediction.linear,
-            ) {
-                // FIXME: we could provide the local-space contact information too
-                // so that the manifold does not have to compute them from the
-                // transforms.
+            let center_a = P::from_coordinates(ma.translation().to_vector());
+            let center_b = P::from_coordinates(mb.translation().to_vector());
+            if let Some(contact) =
+                contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
+            {
+                let normals1 = PolyhedralCone::from_slice(&[contact.normal]);
+                let normals2 = PolyhedralCone::from_slice(&[-contact.normal]);
                 let _ = self.manifold.push(
-                    ma,
-                    mb,
                     contact,
+                    P::origin(),
+                    P::origin(),
+                    normals1,
+                    normals2,
                     FeatureId::Face(0),
                     FeatureId::Face(0),
                     ContactKinematic::Unknown,

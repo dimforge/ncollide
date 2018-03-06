@@ -405,12 +405,27 @@ where
         return false;
     }
 
-    fn save_new_contacts_as_contact_manifold(&mut self, m1: &M, m2: &M, ids: &mut IdAllocator) {
+    fn save_new_contacts_as_contact_manifold<G1: ?Sized, G2: ?Sized>(
+        &mut self,
+        m1: &M,
+        g1: &G1,
+        m2: &M,
+        g2: &G2,
+        ids: &mut IdAllocator,
+    ) where
+        G1: SupportMap<P, M>,
+        G2: SupportMap<P, M>,
+    {
         self.contact_manifold.save_cache_and_clear(ids);
-        for (contact, f1, f2) in self.new_contacts.drain(..) {
+        for (c, f1, f2) in self.new_contacts.drain(..) {
             let kinematic = Self::contact_kinematic(f1, f2);
+            let local1 = m1.inverse_transform_point(&c.world1);
+            let local2 = m2.inverse_transform_point(&c.world2);
+            let n1 = g1.normal_cone(&local1, f1);
+            let n2 = g2.normal_cone(&local2, f2);
+
             if self.contact_manifold
-                .push(m1, m2, contact, f1, f2, kinematic, ids)
+                .push(c, local1, local2, n1, n2, f1, f2, kinematic, ids)
             {
                 NAVOID.with(|e| e.borrow_mut().1 += 1);
             }
@@ -511,7 +526,7 @@ where
                 _ => {}
             }
 
-            self.save_new_contacts_as_contact_manifold(ma, mb, ids);
+            self.save_new_contacts_as_contact_manifold(ma, sma, mb, smb, ids);
 
             true
         } else {

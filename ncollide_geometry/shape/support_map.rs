@@ -2,6 +2,7 @@
 
 use na::Unit;
 use math::Point;
+use bounding_volume::PolyhedralCone;
 use shape::{ConvexPolyface, FeatureId};
 
 /// Traits of convex shapes representable by a support mapping function.
@@ -47,6 +48,14 @@ pub trait SupportMap<P: Point, M> {
             self.support_point_toward(transform, dir),
             FeatureId::Unknown,
         );
+    }
+
+    // XXX: those two methods should not be here.
+    // They should be implemented by every solid, not only support mappings.
+
+    fn normal_cone(&self, local_pt: &P, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        // XXX: remove this default implementation.
+        PolyhedralCone::new()
     }
 
     fn is_direction_in_normal_cone(
