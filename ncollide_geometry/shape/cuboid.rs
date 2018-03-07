@@ -284,33 +284,52 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         }
     }
 
-    fn normal_cone(&self, local_pt: &P, feature: FeatureId) -> PolyhedralCone<P::Vector> {
-        // let mut result = PolyhedralCone::new();
-        // let mut dir = na::zero();
+    fn normal_cone(&self, _: &P, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        let mut result = PolyhedralCone::new();
 
-        unimplemented!()
-        // match na::dimension::<P::Vector>() {
-        //     2 => match feature {
-        //         FeatureId::Edge(id) => {
-        //             if id < 2 {
-        //                 dir[id] = na::one();
-        //             } else {
-        //                 dir[id] = -na::one();
-        //             }
-        //             result.push(Unit::new_unchecked(dir));
-        //         }
-        //         FeatureId::Vertex(id) => {
-        //             if id & 0b01 != 0 {
-        //                 local_dir[0] = -local_dir[0]
-        //             }
-        //             if id & 0b10 != 0 {
-        //                 local_dir[1] = -local_dir[1]
-        //             }
+        match na::dimension::<P::Vector>() {
+            2 => match feature {
+                FeatureId::Edge(id) => {
+                    let mut dir: P::Vector = na::zero();
 
-        //             local_dir[0] >= -stol && local_dir[1] >= -stol
-        //         }
-        //         _ => false,
-        //     },
+                    if id < 2 {
+                        dir[id] = P::Real::one();
+                    } else {
+                        dir[id - 2] = -P::Real::one();
+                    }
+                    result.add_generator(Unit::new_unchecked(dir));
+                }
+                FeatureId::Vertex(id) => {
+                    let mut dir1: P::Vector = na::zero();
+                    let mut dir2: P::Vector = na::zero();
+
+                    match id {
+                        0b00 => {
+                            dir1[0] = P::Real::one();
+                            dir2[1] = P::Real::one();
+                        }
+                        0b01 => {
+                            dir1[1] = P::Real::one();
+                            dir2[0] = -P::Real::one();
+                        }
+                        0b10 => {
+                            dir1[0] = -P::Real::one();
+                            dir2[1] = -P::Real::one();
+                        }
+                        0b11 => {
+                            dir1[1] = -P::Real::one();
+                            dir2[0] = P::Real::one();
+                        }
+                        _ => unreachable!(),
+                    }
+
+                    result.add_generator(Unit::new_unchecked(dir1));
+                    result.add_generator(Unit::new_unchecked(dir2));
+                }
+                _ => {}
+            },
+            _ => unimplemented!(),
+        }
         //     3 => match feature {
         //         FeatureId::Face(id) => {
         //             if id < 3 {
@@ -351,6 +370,8 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         //     },
         //     _ => false,
         // }
+
+        result
     }
 
     fn is_direction_in_normal_cone(
