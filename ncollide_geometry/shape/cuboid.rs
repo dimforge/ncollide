@@ -74,18 +74,14 @@ where
         } else {
             vertex_id2 |= 1 << i2;
         }
+
         out.push(m.transform_point(&p1), FeatureId::Vertex(vertex_id1));
         out.push(m.transform_point(&p2), FeatureId::Vertex(vertex_id2));
 
         let mut normal: P::Vector = na::zero();
         normal[i1] = sign;
         out.set_normal(Unit::new_unchecked(m.transform_vector(&normal)));
-
-        if sign > na::zero() {
-            out.set_feature_id(FeatureId::Edge(i1));
-        } else {
-            out.set_feature_id(FeatureId::Edge(i1 + 2));
-        }
+        out.set_feature_id(FeatureId::Edge(i));
     } else {
         let i2 = (i1 + 1) % 3;
         let i3 = (i1 + 2) % 3;
@@ -312,11 +308,11 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                             dir1[1] = P::Real::one();
                             dir2[0] = -P::Real::one();
                         }
-                        0b10 => {
+                        0b11 => {
                             dir1[0] = -P::Real::one();
                             dir2[1] = -P::Real::one();
                         }
-                        0b11 => {
+                        0b10 => {
                             dir1[1] = -P::Real::one();
                             dir2[0] = P::Real::one();
                         }

@@ -221,8 +221,8 @@ where
                     let p1 = self.manifold1.vertices[i];
 
                     if let Some(contact) = point_on_segment_contact_2d(&s2, &p1, &n2, true) {
-                        let id1 = self.manifold2.feature_id;
-                        let id2 = self.manifold1.vertices_id[i];
+                        let id1 = self.manifold1.vertices_id[i];
+                        let id2 = self.manifold2.feature_id;
 
                         if self.register_contact(m1, g1, id1, m2, g2, id2, pred, contact, ids) {
                             return;

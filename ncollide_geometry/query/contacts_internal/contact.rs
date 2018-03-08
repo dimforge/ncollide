@@ -176,6 +176,10 @@ impl<P: Point> ContactManifold<P> {
         &self.contacts[..]
     }
 
+    pub fn deepest_contact_id(&self) -> usize {
+        self.deepest
+    }
+
     pub fn deepest_contact(&self) -> &TrackedContact<P> {
         &self.contacts[self.deepest]
     }
