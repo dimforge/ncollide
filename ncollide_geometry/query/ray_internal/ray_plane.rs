@@ -4,6 +4,18 @@ use query::{Ray, RayCast, RayIntersection};
 use shape::Plane;
 use math::{Isometry, Point};
 
+/// Computes the toi of an unbounded line with a plane described by its center and normal.
+#[inline]
+pub fn plane_toi_with_line<P: Point>(
+    plane_center: &P,
+    plane_normal: &P::Vector,
+    line_origin: &P,
+    line_dir: &P::Vector,
+) -> P::Real {
+    let dpos = *plane_center - *line_origin;
+    na::dot(plane_normal, &dpos) / na::dot(plane_normal, line_dir)
+}
+
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
 pub fn plane_toi_with_ray<P: Point>(
@@ -11,9 +23,7 @@ pub fn plane_toi_with_ray<P: Point>(
     normal: &P::Vector,
     ray: &Ray<P>,
 ) -> Option<P::Real> {
-    let dpos = *center - ray.origin;
-    let t = na::dot(normal, &dpos) / na::dot(normal, &ray.dir);
-
+    let t = plane_toi_with_line(center, normal, &ray.origin, &ray.dir);
     if t >= na::zero() {
         Some(t)
     } else {

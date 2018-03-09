@@ -65,6 +65,16 @@ impl<P: Point> Segment<P> {
         self.b - self.a
     }
 
+    /// The length of this segment.
+    pub fn length(&self) -> P::Real {
+        na::norm(&self.scaled_direction())
+    }
+
+    /// Swaps the two vertices of this segment.
+    pub fn swap(&mut self) {
+        mem::swap(&mut self.a, &mut self.b)
+    }
+
     /// The unit direction of this segment.
     ///
     /// Points from `self.a()` toward `self.b()`.

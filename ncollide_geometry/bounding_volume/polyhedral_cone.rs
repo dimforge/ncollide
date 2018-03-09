@@ -1,7 +1,8 @@
+use std::f64;
 use num::Zero;
 use smallvec::SmallVec;
 
-use na::{self, Unit};
+use na::{self, Real, Unit};
 use utils;
 use math::Vector;
 
@@ -66,6 +67,62 @@ impl<V: Vector> PolyhedralCone<V> {
                     }
                 }
             } else {
+                unimplemented!()
+            }
+        }
+    }
+
+    pub fn contains(&self, dir: &V) -> bool {
+        if self.generators.len() == 0 {
+            true
+        } else if na::dimension::<V>() == 2 {
+            // NOTE: the following assumes the polycone
+            // generator are ordered in CCW order.
+            assert!(self.generators.len() == 2);
+            let perp1 = utils::perp2(&*dir, &*self.generators[0]);
+            let perp2 = utils::perp2(&*dir, &*self.generators[1]);
+            let _0 = V::Real::zero();
+
+            (perp1 <= _0 && perp2 >= _0)
+        } else {
+            // NOTE: the following does not makes any assumptions on the
+            // polycone orientation.
+            let mut sign = V::Real::zero();
+
+            if self.generators.len() == 2 {
+                let normal = utils::cross3(&*self.generators[1], &*self.generators[0]);
+                let eps = na::convert(f64::consts::PI / 180.0 * 0.1);
+
+                if na::dot(&normal, dir).abs() > eps {
+                    return false;
+                }
+
+                let middle = (*self.generators[0] + *self.generators[1]) * na::convert(0.5);
+                if na::dot(&middle, dir) < na::zero() {
+                    return false;
+                }
+
+                let cross1 = utils::cross3(&*self.generators[0], dir);
+                let cross2 = utils::cross3(&*self.generators[1], dir);
+
+                na::dot(&cross1, dir) * na::dot(&cross2, dir) <= na::zero()
+            } else {
+                for i1 in 0..self.generators.len() {
+                    let i2 = (i1 + 1) % self.generators.len();
+                    let cross =
+                        utils::cross3(self.generators[i1].as_ref(), self.generators[i2].as_ref());
+                    let dot = na::dot(dir, &cross);
+
+                    if sign.is_zero() {
+                        sign = dot
+                    } else if sign * dot < na::zero() {
+                        return false;
+                    }
+                }
+
+                // true
+                // FIXME: how to differenciate the case where the vector is
+                // on the cone or on its opposite?
                 unimplemented!()
             }
         }

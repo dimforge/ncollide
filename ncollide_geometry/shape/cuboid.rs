@@ -192,6 +192,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         let mut support_point = self.half_extents;
 
         out.clear();
+
         match dim {
             2 => {
                 let mut support_point_id = 0;
@@ -324,48 +325,58 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 }
                 _ => {}
             },
+            3 => match feature {
+                FeatureId::Face(id) => {
+                    let mut dir: P::Vector = na::zero();
+
+                    if id < 3 {
+                        dir[id] = P::Real::one();
+                    } else {
+                        dir[id - 3] = -P::Real::one();
+                    }
+                    result.add_generator(Unit::new_unchecked(dir));
+                }
+                FeatureId::Edge(id) => {
+                    let edge = id & 0b011;
+                    let face1 = (edge + 1) % 3;
+                    let face2 = (edge + 2) % 3;
+                    let signs = id >> 2;
+
+                    let mut dir1: P::Vector = na::zero();
+                    let mut dir2: P::Vector = na::zero();
+                    let _1: P::Real = na::one();
+
+                    if signs & (1 << face1) != 0 {
+                        dir1[face1] = -_1
+                    } else {
+                        dir1[face1] = _1
+                    }
+
+                    if signs & (1 << face2) != 0 {
+                        dir2[face2] = -_1
+                    } else {
+                        dir2[face2] = _1;
+                    }
+
+                    result.add_generator(Unit::new_unchecked(dir1));
+                    result.add_generator(Unit::new_unchecked(dir2));
+                }
+                FeatureId::Vertex(id) => for i in 0..3 {
+                    let mut dir: P::Vector = na::zero();
+                    let _1: P::Real = na::one();
+
+                    if id & (1 << i) != 0 {
+                        dir[i] = -_1;
+                    } else {
+                        dir[i] = _1
+                    }
+
+                    result.add_generator(Unit::new_unchecked(dir));
+                },
+                _ => {}
+            },
             _ => unimplemented!(),
         }
-        //     3 => match feature {
-        //         FeatureId::Face(id) => {
-        //             if id < 3 {
-        //                 local_dir[id] >= ctol
-        //             } else {
-        //                 -local_dir[id - 3] >= ctol
-        //             }
-        //         }
-        //         FeatureId::Edge(id) => {
-        //             let edge = id & 0b011;
-        //             let face1 = (edge + 1) % 3;
-        //             let face2 = (edge + 2) % 3;
-        //             let signs = id >> 2;
-
-        //             if signs & (1 << face1) != 0 {
-        //                 local_dir[face1] = -local_dir[face1]
-        //             }
-        //             if signs & (1 << face2) != 0 {
-        //                 local_dir[face2] = -local_dir[face2]
-        //             }
-
-        //             local_dir[face1] > -stol && local_dir[face2] > -stol
-        //                 && local_dir[edge].abs() <= stol
-        //         }
-        //         FeatureId::Vertex(id) => {
-        //             for i in 0..3 {
-        //                 if id & (1 << i) != 0 {
-        //                     if local_dir[i] > stol {
-        //                         return false;
-        //                     }
-        //                 } else if local_dir[i] < -stol {
-        //                     return false;
-        //                 }
-        //             }
-        //             true
-        //         }
-        //         _ => false,
-        //     },
-        //     _ => false,
-        // }
 
         result
     }

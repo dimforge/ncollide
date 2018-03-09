@@ -1,12 +1,15 @@
 use std::marker::PhantomData;
 use std::cell::RefCell;
 use approx::ApproxEq;
-use na::{self, Id, Real, Unit};
+use alga::linear::FiniteDimInnerSpace;
+
+use na::{self, Id, Point2, Real, Unit};
 use math::{Isometry, Point};
 use utils::{self, IdAllocator};
 use geometry::shape::{AnnotatedPoint, FeatureId, Segment, SegmentPointLocation, Shape, SupportMap};
 use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
+use geometry::query::ray_internal;
 use geometry::query::contacts_internal;
 use geometry::query::closest_points_internal;
 use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
@@ -418,7 +421,8 @@ where
     {
         self.contact_manifold.save_cache_and_clear(ids);
         for (c, f1, f2) in self.new_contacts.drain(..) {
-            let kinematic = Self::contact_kinematic(f1, f2);
+            let kinematic =
+                Self::contact_kinematic(m1, &self.manifold1, f1, m2, &self.manifold2, f2);
             let local1 = m1.inverse_transform_point(&c.world1);
             let local2 = m2.inverse_transform_point(&c.world2);
             let n1 = g1.normal_cone(&local1, f1);
@@ -432,7 +436,14 @@ where
         }
     }
 
-    fn contact_kinematic(f1: FeatureId, f2: FeatureId) -> ContactKinematic<P::Vector> {
+    fn contact_kinematic(
+        m1: &M,
+        manifold1: &ConvexPolyface<P>,
+        f1: FeatureId,
+        m2: &M,
+        manifold2: &ConvexPolyface<P>,
+        f2: FeatureId,
+    ) -> ContactKinematic<P::Vector> {
         if na::dimension::<P::Vector>() == 2 {
             match (f1, f2) {
                 (FeatureId::Vertex(..), FeatureId::Vertex(..)) => ContactKinematic::PointPoint,
@@ -441,7 +452,186 @@ where
                 _ => ContactKinematic::PointPoint,
             }
         } else {
-            ContactKinematic::Unknown
+            match (f1, f2) {
+                (FeatureId::Vertex(..), FeatureId::Vertex(..)) => ContactKinematic::PointPoint,
+                (FeatureId::Vertex(..), FeatureId::Face(..)) => ContactKinematic::PointPlane,
+                (FeatureId::Face(..), FeatureId::Vertex(..)) => ContactKinematic::PlanePoint,
+                (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
+                    let e1 = manifold1.edge(f1).expect("Invalid edge id.");
+                    let dir1 = m1.inverse_transform_vector(&e1.direction().unwrap().unwrap());
+                    ContactKinematic::LinePoint(Unit::new_unchecked(dir1))
+                }
+                (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
+                    let e2 = manifold2.edge(f2).expect("Invalid edge id.");
+                    let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
+                    ContactKinematic::PointLine(e2.direction().unwrap())
+                }
+                (FeatureId::Edge(..), FeatureId::Edge(..)) => {
+                    let e1 = manifold1.edge(f1).expect("Invalid edge id.");
+                    let e2 = manifold2.edge(f2).expect("Invalid edge id.");
+                    let dir1 = m1.inverse_transform_vector(&e1.direction().unwrap().unwrap());
+                    let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
+                    ContactKinematic::LineLine(e1.direction().unwrap(), e2.direction().unwrap())
+                }
+                _ => ContactKinematic::PointPoint,
+            }
+        }
+    }
+
+    fn clip_polyfaces(&mut self, normal: Unit<P::Vector>) {
+        if na::dimension::<P::Vector>() == 2 {
+            // In 2D we always end up with two points.
+            let mut ortho: P::Vector = na::zero();
+            ortho[0] = -normal.as_ref()[1];
+            ortho[1] = normal.as_ref()[0];
+
+            let mut seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
+            let mut seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
+
+            let ref_pt = *seg1.a();
+            let mut range1 = [
+                na::dot(&(*seg1.a() - ref_pt), &ortho),
+                na::dot(&(*seg1.b() - ref_pt), &ortho),
+            ];
+            let mut range2 = [
+                na::dot(&(*seg2.a() - ref_pt), &ortho),
+                na::dot(&(*seg2.b() - ref_pt), &ortho),
+            ];
+            let mut features1 = [self.manifold1.vertices_id[0], self.manifold1.vertices_id[1]];
+            let mut features2 = [self.manifold2.vertices_id[0], self.manifold2.vertices_id[1]];
+
+            if range1[1] < range1[0] {
+                range1.swap(0, 1);
+                features1.swap(0, 1);
+                seg1.swap();
+            }
+
+            if range2[1] < range2[0] {
+                range2.swap(0, 1);
+                features2.swap(0, 1);
+                seg2.swap();
+            }
+
+            if range2[0] > range1[1] || range1[0] > range2[1] {
+                return;
+            }
+
+            let _1: P::Real = na::one();
+            let length1 = range1[1] - range1[0];
+            let length2 = range2[1] - range2[0];
+
+            if range2[0] > range1[0] {
+                let bcoord = (range2[0] - range1[0]) / length1;
+                let p1 = seg1.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
+                let p2 = *seg2.a();
+                let contact = Contact::new_wo_depth(p1, p2, normal);
+
+                self.new_contacts
+                    .push((contact, self.manifold1.feature_id, features2[0]));
+            } else {
+                let bcoord = (range1[0] - range2[0]) / length2;
+                let p1 = *seg1.a();
+                let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
+                let contact = Contact::new_wo_depth(p1, p2, normal);
+
+                self.new_contacts
+                    .push((contact, features1[0], self.manifold2.feature_id));
+            }
+
+            if range2[1] < range1[1] {
+                let bcoord = (range2[1] - range1[0]) / length1;
+                let p1 = seg1.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
+                let p2 = *seg2.b();
+                let contact = Contact::new_wo_depth(p1, p2, normal);
+
+                self.new_contacts
+                    .push((contact, self.manifold1.feature_id, features2[1]));
+            } else {
+                let bcoord = (range1[1] - range2[0]) / length2;
+                let p1 = *seg1.b();
+                let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
+                let contact = Contact::new_wo_depth(p1, p2, normal);
+
+                self.new_contacts
+                    .push((contact, features1[1], self.manifold2.feature_id));
+            }
+        } else {
+            // In 3D we may end up with more than two points.
+            // XXX: avoid allocations.
+            let mut poly1 = Vec::new();
+            let mut poly2 = Vec::new();
+            let mut solutions = Vec::new();
+            let mut basis = [na::zero(), na::zero()];
+            let mut basis_i = 0;
+
+            P::Vector::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
+                basis[basis_i] = *dir;
+                basis_i += 1;
+                true
+            });
+
+            let ref_pt = self.manifold1.vertices[0];
+
+            for pt in &self.manifold1.vertices {
+                let dpt = *pt - ref_pt;
+                let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
+                poly1.push(coords);
+            }
+
+            for pt in &self.manifold2.vertices {
+                let dpt = *pt - ref_pt;
+                let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
+                poly2.push(coords);
+            }
+
+            for (pt, id) in poly1.iter().zip(self.manifold1.vertices_id.iter()) {
+                if utils::point_in_poly2d(pt, &poly2) {
+                    solutions.push((*pt, *id, self.manifold2.feature_id))
+                }
+            }
+
+            for (pt, id) in poly2.iter().zip(self.manifold2.vertices_id.iter()) {
+                if utils::point_in_poly2d(pt, &poly1) {
+                    solutions.push((*pt, self.manifold1.feature_id, *id));
+                }
+            }
+
+            for i1 in 0..poly1.len() {
+                let j1 = (i1 + 1) % poly1.len();
+                let seg1 = Segment::new(poly1[i1], poly1[j1]);
+
+                for i2 in 0..poly2.len() {
+                    let j2 = (i2 + 1) % poly2.len();
+                    let seg2 = Segment::new(poly2[i2], poly2[j2]);
+
+                    if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
+                        closest_points_internal::segment_against_segment_with_locations(
+                            &Id::new(),
+                            &seg1,
+                            &Id::new(),
+                            &seg2,
+                        ) {
+                        let pt = seg1.point_at(&SegmentPointLocation::OnEdge(e1));
+                        let f1 = self.manifold1.edges_id[i1];
+                        let f2 = self.manifold2.edges_id[i2];
+                        solutions.push((pt, f1, f2))
+                    }
+                }
+            }
+
+            for (pt, f1, f2) in solutions {
+                let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+                let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
+                let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
+                let p1 = &self.manifold1.vertices[0];
+                let p2 = &self.manifold2.vertices[0];
+                let toi1 = ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
+                let toi2 = ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
+                let world1 = origin + normal.unwrap() * toi1;
+                let world2 = origin + normal.unwrap() * toi2;
+                let contact = Contact::new_wo_depth(world1, world2, normal);
+                self.new_contacts.push((contact, f1, f2));
+            }
         }
     }
 }
@@ -494,9 +684,11 @@ where
                 GJKResult::Projection(ref contact, dir) => {
                     self.last_gjk_dir = Some(dir.unwrap());
 
-                    if contact.depth > na::zero() {
+                    if true {
+                        // contact.depth > na::zero() {
                         sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
                         smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+                        self.clip_polyfaces(contact.normal);
                     } else {
                         sma.support_feature_toward(
                             ma,
@@ -510,9 +702,8 @@ where
                             prediction.angular2,
                             &mut self.manifold2,
                         );
+                        self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids, false);
                     }
-
-                    self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids, false);
 
                     if self.new_contacts.len() == 0 {
                         self.new_contacts.push((

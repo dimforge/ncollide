@@ -39,6 +39,7 @@ pub use perp2::perp2;
 pub use point_cloud_support_point::point_cloud_support_point;
 pub use repeat::repeat;
 pub use id_allocator::{GenerationalId, IdAllocator};
+pub use point_in_poly2d::point_in_poly2d;
 
 pub mod data;
 mod center;
@@ -59,3 +60,4 @@ mod perp2;
 mod point_cloud_support_point;
 mod repeat;
 mod id_allocator;
+mod point_in_poly2d;

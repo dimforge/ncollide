@@ -25,13 +25,20 @@ pub struct Contact<P: Point> {
 impl<P: Point> Contact<P> {
     /// Creates a new contact.
     #[inline]
-    pub fn new(world1: P, world2: P, normal: Unit<P::Vector>, depth: P::Real) -> Contact<P> {
+    pub fn new(world1: P, world2: P, normal: Unit<P::Vector>, depth: P::Real) -> Self {
         Contact {
-            world1: world1,
-            world2: world2,
-            normal: normal,
-            depth: depth,
+            world1,
+            world2,
+            normal,
+            depth,
         }
+    }
+
+    /// Creates a new contact, computing automatically the penetration depth.
+    #[inline]
+    pub fn new_wo_depth(world1: P, world2: P, normal: Unit<P::Vector>) -> Contact<P> {
+        let depth = -na::dot(normal.as_ref(), &(world2 - world1));
+        Self::new(world1, world2, normal, depth)
     }
 }
 

@@ -80,6 +80,18 @@ impl<P: Point> ConvexPolyface<P> {
         }
     }
 
+    /// Retrieves the edge with the given feature id.
+    pub fn edge(&self, edge_id: FeatureId) -> Option<Segment<P>> {
+        for i1 in 0..self.vertices.len() {
+            if self.edges_id[i1] == edge_id {
+                let i2 = (i1 + 1) % self.vertices.len();
+                return Some(Segment::new(self.vertices[i1], self.vertices[i2]));
+            }
+        }
+
+        None
+    }
+
     /// Adds a scaled edge normal to this face.
     pub fn push_scaled_edge_normal(&mut self, normal: P::Vector) {
         if let Some(normal) = na::try_normalize(&normal, P::Real::default_epsilon()) {
