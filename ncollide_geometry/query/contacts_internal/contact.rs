@@ -226,6 +226,7 @@ impl<P: Point> ContactManifold<P> {
         self.deepest = 0;
     }
 
+
     pub fn push(
         &mut self,
         contact: Contact<P>,
@@ -334,12 +335,14 @@ impl<P: Point> ContactManifold<P> {
         self.contacts.push(tracked);
         return matched;
     }
-    /*
-    pub fn push<M: Isometry<P>>(
+/*
+    pub fn push(
         &mut self,
-        m1: &M,
-        m2: &M,
         contact: Contact<P>,
+        local1: P,
+        local2: P,
+        normals1: PolyhedralCone<P::Vector>,
+        normals2: PolyhedralCone<P::Vector>,
         feature1: FeatureId,
         feature2: FeatureId,
         kinematic: ContactKinematic<P::Vector>,
@@ -349,10 +352,10 @@ impl<P: Point> ContactManifold<P> {
         let mut matched = false;
 
         for i in 0..self.cache.len() {
-            if self.cached_contact_used[i].is_none() && self.cache[i].feature1 == feature1
+            if self.cached_contact_used[i].is_obsolete() && self.cache[i].feature1 == feature1
                 && self.cache[i].feature2 == feature2
             {
-                self.cached_contact_used[i] = Some(self.contacts.len());
+                self.cached_contact_used[i] = CacheEntryStatus::Used(self.contacts.len());
                 id = self.cache[i].id;
                 matched = true;
             }
@@ -362,8 +365,17 @@ impl<P: Point> ContactManifold<P> {
             id = gen.alloc();
         }
 
-        let tracked =
-            TrackedContact::new_with_transforms(m1, m2, contact, feature1, feature2, kinematic, id);
+        let tracked = TrackedContact::new(
+            contact,
+            local1,
+            local2,
+            normals1,
+            normals2,
+            feature1,
+            feature2,
+            kinematic,
+            id,
+        );
         self.contacts.push(tracked);
         matched
     }*/
