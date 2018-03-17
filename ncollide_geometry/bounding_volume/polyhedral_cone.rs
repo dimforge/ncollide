@@ -124,11 +124,15 @@ impl<V: Vector> PolyhedralCone<V> {
                     dot <= eps.cos()
                 }
             } else {
+                let mut sign = V::Real::zero();
+                let mut center = V::zero();
+
                 for i1 in 0..self.generators.len() {
                     let i2 = (i1 + 1) % self.generators.len();
                     let cross =
                         utils::cross3(self.generators[i1].as_ref(), self.generators[i2].as_ref());
                     let dot = na::dot(dir.as_ref(), &cross);
+                    center += self.generators[i1].unwrap();
 
                     if sign.is_zero() {
                         sign = dot
@@ -137,10 +141,9 @@ impl<V: Vector> PolyhedralCone<V> {
                     }
                 }
 
-                // true
-                // FIXME: how to differenciate the case where the vector is
-                // on the cone or on its opposite?
-                unimplemented!()
+                // FIXME: is this a sufficient condition to determine if the
+                // dir is not of the opposite cone?
+                na::dot(&center, dir.as_ref()) >= na::zero()
             }
         }
     }
