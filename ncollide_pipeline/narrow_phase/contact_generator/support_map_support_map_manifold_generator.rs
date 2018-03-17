@@ -21,22 +21,20 @@ use narrow_phase::{ContactDispatcher, ContactGenerator};
 struct ClippingCache<N: Real> {
     poly1: Vec<Point2<N>>,
     poly2: Vec<Point2<N>>,
-    solutions: Vec<(Point2<N>, FeatureId, FeatureId)>,
 }
+
 
 impl<N: Real> ClippingCache<N> {
     pub fn new() -> Self {
         ClippingCache {
             poly1: Vec::with_capacity(4),
             poly2: Vec::with_capacity(4),
-            solutions: Vec::with_capacity(4),
         }
     }
 
     pub fn clear(&mut self) {
         self.poly1.clear();
         self.poly2.clear();
-        self.solutions.clear();
     }
 }
 
@@ -580,6 +578,11 @@ where
                     .push((contact, features1[1], self.manifold2.feature_id));
             }
         } else {
+            // FIXME: don't compute contacts further than the prediction.
+            
+            if self.manifold1.vertices.len() <= 2 && self.manifold2.vertices.len() <= 2 {
+                return;
+            }
             self.clip_cache.clear();
 
             // In 3D we may end up with more than two points.
@@ -607,29 +610,41 @@ where
             }
 
             if self.clip_cache.poly2.len() > 2 {
-                for (pt, id) in self.clip_cache
-                    .poly1
-                    .iter()
-                    .zip(self.manifold1.vertices_id.iter())
-                {
+                for i in 0 .. self.clip_cache.poly1.len() {
+                    let pt = &self.clip_cache.poly1[i];
+
                     if utils::point_in_poly2d(pt, &self.clip_cache.poly2) {
-                        self.clip_cache
-                            .solutions
-                            .push((*pt, *id, self.manifold2.feature_id))
+                        let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+
+                        let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
+                        let p2 = &self.manifold2.vertices[0];
+                        let toi2 = ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
+                        let world2 = origin + normal.unwrap() * toi2;
+                        let world1 = self.manifold1.vertices[i];
+                        let f2 = self.manifold2.feature_id;
+                        let f1 = self.manifold1.vertices_id[i];
+                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        self.new_contacts.push((contact, f1, f2));
                     }
                 }
             }
 
             if self.clip_cache.poly1.len() > 2 {
-                for (pt, id) in self.clip_cache
-                    .poly2
-                    .iter()
-                    .zip(self.manifold2.vertices_id.iter())
-                {
+                for i in 0 .. self.clip_cache.poly2.len() {
+                    let pt = &self.clip_cache.poly2[i];
+
                     if utils::point_in_poly2d(pt, &self.clip_cache.poly1) {
-                        self.clip_cache
-                            .solutions
-                            .push((*pt, self.manifold1.feature_id, *id));
+                        let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+
+                        let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
+                        let p1 = &self.manifold1.vertices[0];
+                        let toi1 = ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
+                        let world1 = origin + normal.unwrap() * toi1;
+                        let world2 = self.manifold2.vertices[i];
+                        let f1 = self.manifold1.feature_id;
+                        let f2 = self.manifold2.vertices_id[i];
+                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        self.new_contacts.push((contact, f1, f2));
                     }
                 }
             }
@@ -651,26 +666,16 @@ where
                             &Id::new(),
                             &seg2,
                         ) {
-                        let pt = seg1.point_at(&SegmentPointLocation::OnEdge(e1));
+                        let original1 = Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
+                        let original2 = Segment::new(self.manifold2.vertices[i2], self.manifold2.vertices[j2]);
+                        let world1 = original1.point_at(&SegmentPointLocation::OnEdge(e1));
+                        let world2 = original2.point_at(&SegmentPointLocation::OnEdge(e2));
                         let f1 = self.manifold1.edges_id[i1];
                         let f2 = self.manifold2.edges_id[i2];
-                        self.clip_cache.solutions.push((pt, f1, f2))
+                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        self.new_contacts.push((contact, f1, f2));
                     }
                 }
-            }
-
-            for &(pt, f1, f2) in &self.clip_cache.solutions {
-                let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
-                let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
-                let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
-                let p1 = &self.manifold1.vertices[0];
-                let p2 = &self.manifold2.vertices[0];
-                let toi1 = ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
-                let toi2 = ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
-                let world1 = origin + normal.unwrap() * toi1;
-                let world2 = origin + normal.unwrap() * toi2;
-                let contact = Contact::new_wo_depth(world1, world2, normal);
-                self.new_contacts.push((contact, f1, f2));
             }
         }
     }
@@ -747,8 +752,8 @@ where
                     if self.new_contacts.len() == 0 {
                         self.new_contacts.push((
                             contact.clone(),
-                            FeatureId::Unknown,
-                            FeatureId::Unknown,
+                            self.manifold1.feature_id,
+                            self.manifold2.feature_id,
                         ));
                     }
                 }
