@@ -17,6 +17,29 @@ use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPredict
 use geometry::shape::ConvexPolyface;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
+#[derive(Clone)]
+struct ClippingCache<N: Real> {
+    poly1: Vec<Point2<N>>,
+    poly2: Vec<Point2<N>>,
+    solutions: Vec<(Point2<N>, FeatureId, FeatureId)>,
+}
+
+impl<N: Real> ClippingCache<N> {
+    pub fn new() -> Self {
+        ClippingCache {
+            poly1: Vec::with_capacity(4),
+            poly2: Vec::with_capacity(4),
+            solutions: Vec::with_capacity(4),
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.poly1.clear();
+        self.poly2.clear();
+        self.solutions.clear();
+    }
+}
+
 /// Persistent contact manifold computation between two shapes having a support mapping function.
 ///
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
@@ -27,6 +50,7 @@ pub struct SupportMapSupportMapManifoldGenerator<P: Point, M, S> {
     last_gjk_dir: Option<P::Vector>,
     last_optimal_dir: Option<Unit<P::Vector>>,
     contact_manifold: ContactManifold<P>,
+    clip_cache: ClippingCache<P::Real>,
     new_contacts: Vec<(Contact<P>, FeatureId, FeatureId)>,
     manifold1: ConvexPolyface<P>,
     manifold2: ConvexPolyface<P>,
@@ -49,6 +73,7 @@ where
             last_gjk_dir: None,
             last_optimal_dir: None,
             contact_manifold: ContactManifold::new(),
+            clip_cache: ClippingCache::new(),
             new_contacts: Vec::new(),
             manifold1: ConvexPolyface::new(),
             manifold2: ConvexPolyface::new(),
@@ -72,7 +97,7 @@ where
         if let Some(dir) = self.last_optimal_dir {
             g1.support_feature_toward(m1, &dir, prediction.angular1, &mut self.manifold1);
             g2.support_feature_toward(m2, &-dir, prediction.angular2, &mut self.manifold2);
-            self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids, false);
+            self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids);
 
             if let Some(dir) = self.last_optimal_dir {
                 let f1 = self.manifold1.feature_id;
@@ -83,7 +108,7 @@ where
 
                 if self.manifold1.feature_id != f1 && self.manifold2.feature_id != f2 {
                     // println!("Transitioning to new features: {:?}, {:?}", f1, f2);
-                    self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids, false);
+                    self.quasi_conformal_contact_area(m1, g1, m2, g2, prediction, ids);
                 }
 
                 // println!(
@@ -150,7 +175,6 @@ where
         g2: &G2,
         pred: &ContactPrediction<P::Real>,
         ids: &mut IdAllocator,
-        debug: bool,
     ) where
         G1: SupportMap<P, M>,
         G2: SupportMap<P, M>,
@@ -464,14 +488,14 @@ where
                 (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
                     let e2 = manifold2.edge(f2).expect("Invalid edge id.");
                     let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
-                    ContactKinematic::PointLine(e2.direction().unwrap())
+                    ContactKinematic::PointLine(Unit::new_unchecked(dir2))
                 }
                 (FeatureId::Edge(..), FeatureId::Edge(..)) => {
                     let e1 = manifold1.edge(f1).expect("Invalid edge id.");
                     let e2 = manifold2.edge(f2).expect("Invalid edge id.");
                     let dir1 = m1.inverse_transform_vector(&e1.direction().unwrap().unwrap());
                     let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
-                    ContactKinematic::LineLine(e1.direction().unwrap(), e2.direction().unwrap())
+                    ContactKinematic::LineLine(Unit::new_unchecked(dir1), Unit::new_unchecked(dir2))
                 }
                 _ => ContactKinematic::PointPoint,
             }
@@ -556,11 +580,9 @@ where
                     .push((contact, features1[1], self.manifold2.feature_id));
             }
         } else {
+            self.clip_cache.clear();
+
             // In 3D we may end up with more than two points.
-            // XXX: avoid allocations.
-            let mut poly1 = Vec::new();
-            let mut poly2 = Vec::new();
-            let mut solutions = Vec::new();
             let mut basis = [na::zero(), na::zero()];
             let mut basis_i = 0;
 
@@ -575,34 +597,52 @@ where
             for pt in &self.manifold1.vertices {
                 let dpt = *pt - ref_pt;
                 let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
-                poly1.push(coords);
+                self.clip_cache.poly1.push(coords);
             }
 
             for pt in &self.manifold2.vertices {
                 let dpt = *pt - ref_pt;
                 let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
-                poly2.push(coords);
+                self.clip_cache.poly2.push(coords);
             }
 
-            for (pt, id) in poly1.iter().zip(self.manifold1.vertices_id.iter()) {
-                if utils::point_in_poly2d(pt, &poly2) {
-                    solutions.push((*pt, *id, self.manifold2.feature_id))
+            if self.clip_cache.poly2.len() > 2 {
+                for (pt, id) in self.clip_cache
+                    .poly1
+                    .iter()
+                    .zip(self.manifold1.vertices_id.iter())
+                {
+                    if utils::point_in_poly2d(pt, &self.clip_cache.poly2) {
+                        self.clip_cache
+                            .solutions
+                            .push((*pt, *id, self.manifold2.feature_id))
+                    }
                 }
             }
 
-            for (pt, id) in poly2.iter().zip(self.manifold2.vertices_id.iter()) {
-                if utils::point_in_poly2d(pt, &poly1) {
-                    solutions.push((*pt, self.manifold1.feature_id, *id));
+            if self.clip_cache.poly1.len() > 2 {
+                for (pt, id) in self.clip_cache
+                    .poly2
+                    .iter()
+                    .zip(self.manifold2.vertices_id.iter())
+                {
+                    if utils::point_in_poly2d(pt, &self.clip_cache.poly1) {
+                        self.clip_cache
+                            .solutions
+                            .push((*pt, self.manifold1.feature_id, *id));
+                    }
                 }
             }
 
-            for i1 in 0..poly1.len() {
-                let j1 = (i1 + 1) % poly1.len();
-                let seg1 = Segment::new(poly1[i1], poly1[j1]);
+            let nedges1 = self.manifold1.nedges();
+            let nedges2 = self.manifold2.nedges();
+            for i1 in 0..nedges1 {
+                let j1 = (i1 + 1) % self.clip_cache.poly1.len();
+                let seg1 = Segment::new(self.clip_cache.poly1[i1], self.clip_cache.poly1[j1]);
 
-                for i2 in 0..poly2.len() {
-                    let j2 = (i2 + 1) % poly2.len();
-                    let seg2 = Segment::new(poly2[i2], poly2[j2]);
+                for i2 in 0..nedges2 {
+                    let j2 = (i2 + 1) % self.clip_cache.poly2.len();
+                    let seg2 = Segment::new(self.clip_cache.poly2[i2], self.clip_cache.poly2[j2]);
 
                     if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
                         closest_points_internal::segment_against_segment_with_locations(
@@ -614,12 +654,12 @@ where
                         let pt = seg1.point_at(&SegmentPointLocation::OnEdge(e1));
                         let f1 = self.manifold1.edges_id[i1];
                         let f2 = self.manifold2.edges_id[i2];
-                        solutions.push((pt, f1, f2))
+                        self.clip_cache.solutions.push((pt, f1, f2))
                     }
                 }
             }
 
-            for (pt, f1, f2) in solutions {
+            for &(pt, f1, f2) in &self.clip_cache.solutions {
                 let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
                 let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
                 let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
@@ -684,8 +724,7 @@ where
                 GJKResult::Projection(ref contact, dir) => {
                     self.last_gjk_dir = Some(dir.unwrap());
 
-                    if true {
-                        // contact.depth > na::zero() {
+                    if true { // contact.depth > na::zero() {
                         sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
                         smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
                         self.clip_polyfaces(contact.normal);
@@ -702,7 +741,7 @@ where
                             prediction.angular2,
                             &mut self.manifold2,
                         );
-                        self.quasi_conformal_contact_area(ma, sma, mb, smb, prediction, ids, false);
+                        self.clip_polyfaces(contact.normal);
                     }
 
                     if self.new_contacts.len() == 0 {
