@@ -187,8 +187,12 @@ impl<P: Point> ContactManifold<P> {
         self.deepest
     }
 
-    pub fn deepest_contact(&self) -> &TrackedContact<P> {
-        &self.contacts[self.deepest]
+    pub fn deepest_contact(&self) -> Option<&TrackedContact<P>> {
+        if self.len() != 0 {
+            Some(&self.contacts[self.deepest])
+        } else {
+            None
+        }
     }
 
     pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {

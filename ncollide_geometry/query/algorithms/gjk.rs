@@ -14,7 +14,7 @@ use query::{ray_internal, Ray};
 use math::{Isometry, Point};
 
 /// Results of the GJK algorithm.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum GJKResult<P, V> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,

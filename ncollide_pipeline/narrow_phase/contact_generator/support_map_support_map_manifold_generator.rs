@@ -23,7 +23,6 @@ struct ClippingCache<N: Real> {
     poly2: Vec<Point2<N>>,
 }
 
-
 impl<N: Real> ClippingCache<N> {
     pub fn new() -> Self {
         ClippingCache {
@@ -96,14 +95,26 @@ where
                 Self::contact_kinematic(m1, &self.manifold1, f1, m2, &self.manifold2, f2);
             let local1 = m1.inverse_transform_point(&c.world1);
             let local2 = m2.inverse_transform_point(&c.world2);
-            let n1 = g1.normal_cone(&local1, f1);
-            let n2 = g2.normal_cone(&local2, f2);
+            let n1 = g1.normal_cone(f1);
+            let n2 = g2.normal_cone(f2);
 
             if self.contact_manifold
                 .push(c, local1, local2, n1, n2, f1, f2, kinematic, ids)
             {
                 NAVOID.with(|e| e.borrow_mut().1 += 1);
             }
+        }
+    }
+
+    fn reduce_manifolds_to_deepest_contact(&mut self, m1: &M, m2: &M) {
+        if let Some(deepest) = self.contact_manifold.deepest_contact() {
+            self.manifold1.reduce_to_feature(deepest.feature1);
+            self.manifold2.reduce_to_feature(deepest.feature2);
+            self.manifold1.transform_by(&m1.inverse());
+            self.manifold2.transform_by(&m2.inverse());
+        } else {
+            self.manifold1.clear();
+            self.manifold2.clear();
         }
     }
 
@@ -231,7 +242,7 @@ where
             }
         } else {
             // FIXME: don't compute contacts further than the prediction.
-            
+
             if self.manifold1.vertices.len() <= 2 && self.manifold2.vertices.len() <= 2 {
                 return;
             }
@@ -262,7 +273,7 @@ where
             }
 
             if self.clip_cache.poly2.len() > 2 {
-                for i in 0 .. self.clip_cache.poly1.len() {
+                for i in 0..self.clip_cache.poly1.len() {
                     let pt = &self.clip_cache.poly1[i];
 
                     if utils::point_in_poly2d(pt, &self.clip_cache.poly2) {
@@ -270,19 +281,20 @@ where
 
                         let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
                         let p2 = &self.manifold2.vertices[0];
-                        let toi2 = ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
+                        let toi2 =
+                            ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
                         let world2 = origin + normal.unwrap() * toi2;
                         let world1 = self.manifold1.vertices[i];
                         let f2 = self.manifold2.feature_id;
                         let f1 = self.manifold1.vertices_id[i];
-                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        let contact = Contact::new_wo_depth(world1, world2, normal);
                         self.new_contacts.push((contact, f1, f2));
                     }
                 }
             }
 
             if self.clip_cache.poly1.len() > 2 {
-                for i in 0 .. self.clip_cache.poly2.len() {
+                for i in 0..self.clip_cache.poly2.len() {
                     let pt = &self.clip_cache.poly2[i];
 
                     if utils::point_in_poly2d(pt, &self.clip_cache.poly1) {
@@ -290,12 +302,13 @@ where
 
                         let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
                         let p1 = &self.manifold1.vertices[0];
-                        let toi1 = ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
+                        let toi1 =
+                            ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
                         let world1 = origin + normal.unwrap() * toi1;
                         let world2 = self.manifold2.vertices[i];
                         let f1 = self.manifold1.feature_id;
                         let f2 = self.manifold2.vertices_id[i];
-                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        let contact = Contact::new_wo_depth(world1, world2, normal);
                         self.new_contacts.push((contact, f1, f2));
                     }
                 }
@@ -318,18 +331,152 @@ where
                             &Id::new(),
                             &seg2,
                         ) {
-                        let original1 = Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
-                        let original2 = Segment::new(self.manifold2.vertices[i2], self.manifold2.vertices[j2]);
+                        let original1 =
+                            Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
+                        let original2 =
+                            Segment::new(self.manifold2.vertices[i2], self.manifold2.vertices[j2]);
                         let world1 = original1.point_at(&SegmentPointLocation::OnEdge(e1));
                         let world2 = original2.point_at(&SegmentPointLocation::OnEdge(e2));
                         let f1 = self.manifold1.edges_id[i1];
                         let f2 = self.manifold2.edges_id[i2];
-                        let contact = Contact::new_wo_depth(world1, world2, normal);                        
+                        let contact = Contact::new_wo_depth(world1, world2, normal);
                         self.new_contacts.push((contact, f1, f2));
                     }
                 }
             }
         }
+    }
+
+    fn try_optimal_contact<G1: ?Sized, G2: ?Sized>(
+        &mut self,
+        m1: &M,
+        g1: &G1,
+        m2: &M,
+        g2: &G2,
+    ) -> Option<Contact<P>>
+    where
+        G1: SupportMap<P, M>,
+        G2: SupportMap<P, M>,
+    {
+        if self.manifold1.vertices.len() == 0 || self.manifold2.vertices.len() == 0 {
+            return None;
+        }
+
+        self.manifold1.transform_by(m1);
+        self.manifold2.transform_by(m2);
+
+        let world1;
+        let world2;
+        let mut can_penetrate = true;
+        let mut f1 = self.manifold1.feature_id;
+        let mut f2 = self.manifold2.feature_id;
+
+        match (self.manifold1.feature_id, self.manifold2.feature_id) {
+            (FeatureId::Vertex(..), FeatureId::Vertex(..)) => {
+                world1 = self.manifold1.vertices[0];
+                world2 = self.manifold2.vertices[0];
+                can_penetrate = false;
+            }
+            (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
+                let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
+                let pt1 = &self.manifold1.vertices[0];
+                let proj = seg2.project_point_with_location(&Id::new(), pt1, false);
+
+                if let SegmentPointLocation::OnEdge(_) = proj.1 {
+                    can_penetrate = na::dimension::<P::Vector>() == 2;
+                    world1 = *pt1;
+                    world2 = proj.0.point;
+                } else {
+                    return None;
+                }
+            }
+            (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
+                let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
+                let pt2 = &self.manifold2.vertices[0];
+                let proj = seg1.project_point_with_location(&Id::new(), pt2, false);
+
+                if let SegmentPointLocation::OnEdge(_) = proj.1 {
+                    can_penetrate = na::dimension::<P::Vector>() == 2;
+                    world1 = proj.0.point;
+                    world2 = *pt2;
+                } else {
+                    return None;
+                }
+            }
+            (FeatureId::Vertex(..), FeatureId::Face(..)) => {
+                let pt1 = &self.manifold1.vertices[0];
+                if let Some(mut c) = self.manifold2.project_point(pt1) {
+                    world1 = c.world2;
+                    world2 = c.world1;
+                } else {
+                    return None;
+                }
+            }
+            (FeatureId::Face(..), FeatureId::Vertex(..)) => {
+                let pt2 = &self.manifold2.vertices[0];
+                if let Some(c) = self.manifold1.project_point(pt2) {
+                    world1 = c.world1;
+                    world2 = c.world2;
+                } else {
+                    return None;
+                }
+            }
+            (FeatureId::Edge(..), FeatureId::Edge(..)) => {
+                let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
+                let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
+                let locs = closest_points_internal::segment_against_segment_with_locations(
+                    &Id::new(),
+                    &seg1,
+                    &Id::new(),
+                    &seg2,
+                );
+                world1 = seg1.point_at(&locs.0);
+                world2 = seg2.point_at(&locs.1);
+
+                if let SegmentPointLocation::OnVertex(i) = locs.0 {
+                    f1 = self.manifold1.vertices_id[i];
+                    can_penetrate = false;
+                }
+
+                if let SegmentPointLocation::OnVertex(i) = locs.1 {
+                    f2 = self.manifold2.vertices_id[i];
+                    can_penetrate = false;
+                }
+            }
+            _ => {
+                return None;
+            }
+        }
+
+        let dir = world2 - world1;
+        let normals1 = g1.normal_cone(f1);
+        let normals2 = g2.normal_cone(f2);
+
+        if let Some(n1) = self.manifold1.normal {
+            let local_dir2 = Unit::new_unchecked(m2.inverse_transform_vector(&-*n1));
+            if normals2.contains_dir(&local_dir2) {
+                let depth = na::dot(&dir, n1.as_ref());
+                return Some(Contact::new(world1, world2, n1, -depth));
+            }
+        } else if let Some(n2) = self.manifold2.normal {
+            let depth = na::dot(&dir, n2.as_ref());
+            return Some(Contact::new(world1, world2, -n2, depth));
+        } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, P::Real::default_epsilon()) {
+            // FIXME: don't always recompute the normal cones.
+            let local_dir1 = Unit::new_unchecked(m1.inverse_transform_vector(dir.as_ref()));
+            let local_dir2 = Unit::new_unchecked(m2.inverse_transform_vector(&-*dir));
+            // let deepest = self.contact_manifold.deepest_contact().unwrap();
+
+            if normals1.contains_dir(&local_dir1) && normals2.contains_dir(&local_dir2) {
+                return Some(Contact::new(world1, world2, dir, -dist));
+            } else if can_penetrate && normals1.contains_dir(&-local_dir1)
+                && normals2.contains_dir(&-local_dir2)
+            {
+                return Some(Contact::new(world1, world2, -dir, dist));
+            }
+        }
+
+        return None;
     }
 }
 
@@ -355,12 +502,31 @@ where
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            /*
-            if self.contain_optimal(ma, sma, mb, smb, prediction, ids) {
-                self.save_new_contacts_as_contact_manifold(ma, mb, ids);
-                NAVOID.with(|e| e.borrow_mut().0 += 1);
-                return true;
-            }*/
+            // NOTE: the following are premices of an attempt to avoid the executen of GJK/EPA
+            // in some situations where the optimal contact direction can be determined directly
+            // from the previous manifolds and normal cones.
+            // I did not manage to obtain satisfying result so it is disabled for now.
+            //
+            // let contact = if let Some(optimal) = self.try_optimal_contact(ma, sma, mb, smb) {
+            //     NAVOID.with(|e| e.borrow_mut().0 += 1);
+            //     let n = optimal.normal;
+            //     if optimal.depth > prediction.linear {
+            //         self.manifold1.clear();
+            //         self.manifold2.clear();
+            //         return false;
+            //     }
+            //     GJKResult::Projection(optimal, -n)
+            // } else {
+            //     contacts_internal::support_map_against_support_map_with_params(
+            //         ma,
+            //         sma,
+            //         mb,
+            //         smb,
+            //         prediction.linear,
+            //         &mut self.simplex,
+            //         self.last_gjk_dir,
+            //     )
+            // };
 
             let contact = contacts_internal::support_map_against_support_map_with_params(
                 ma,
@@ -382,6 +548,9 @@ where
                     self.last_gjk_dir = Some(dir.unwrap());
 
                     if contact.depth > na::zero() {
+                        sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
+                        smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+
                         sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
                         smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
                         self.clip_polyfaces(contact.normal);
@@ -414,6 +583,7 @@ where
             }
 
             self.save_new_contacts_as_contact_manifold(ma, sma, mb, smb, ids);
+            // self.reduce_manifolds_to_deepest_contact(ma, mb);
 
             true
         } else {

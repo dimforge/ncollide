@@ -92,15 +92,18 @@ impl<V: Vector> PolyhedralCone<V> {
             let perp2 = utils::perp2(dir.as_ref(), &*self.generators[1]);
             let _0 = V::Real::zero();
 
-            (perp1 <= _0 && perp2 >= _0)
+            perp1 <= _0 && perp2 >= _0
         } else {
             // NOTE: the following does not makes any assumptions on the
             // polycone orientation.
             let mut sign = V::Real::zero();
             if self.generators.len() == 1 {
-                unimplemented!()
-            }
-            else if self.generators.len() == 2 {
+                // The polycone is degenerate and actually has only one generactor.
+                let eps: V::Real = na::convert(f64::consts::PI / 180.0 * 0.1);
+                let c_eps = eps.cos();
+                let dot = na::dot(&*self.generators[0], dir.as_ref());
+                dot >= c_eps
+            } else if self.generators.len() == 2 {
                 let eps = na::convert(f64::consts::PI / 180.0 * 0.1);
                 let normal = utils::cross3(&*self.generators[1], &*self.generators[0]);
 
@@ -119,9 +122,11 @@ impl<V: Vector> PolyhedralCone<V> {
 
                     na::dot(&cross1, &*normal) * na::dot(&cross2, &*normal) <= na::zero()
                 } else {
+                    // FIXME: duplicate code with the case where we only have one generator.
                     // The polycone is degenerate and actually has only one generactor.
+                    let c_eps = eps.cos();
                     let dot = na::dot(&*self.generators[0], dir.as_ref());
-                    dot <= eps.cos()
+                    dot >= c_eps
                 }
             } else {
                 let mut sign = V::Real::zero();

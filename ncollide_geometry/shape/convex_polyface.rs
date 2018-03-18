@@ -53,6 +53,62 @@ impl<P: Point> ConvexPolyface<P> {
         self.normal = None;
     }
 
+    pub fn reduce_to_feature(&mut self, id: FeatureId) {
+        if id == self.feature_id {
+            return;
+        }
+
+        self.feature_id = id;
+        self.normal = None;
+        self.edge_normals.clear();
+
+        for i in 0..self.vertices.len() {
+            if self.vertices_id[i] == id {
+                self.vertices[0] = self.vertices[i];
+                self.vertices_id[0] = self.vertices_id[i];
+                self.vertices.resize(1, P::origin());
+                self.vertices_id.resize(1, FeatureId::Unknown);
+                return;
+            }
+
+            if self.edges_id[i] == id {
+                self.edges_id[0] = id;
+
+                if i == self.vertices.len() - 1 {
+                    self.vertices[1] = self.vertices[i];
+                    self.vertices_id[1] = self.vertices_id[i];
+                } else {
+                    self.vertices[0] = self.vertices[i + 0];
+                    self.vertices[1] = self.vertices[i + 1];
+                    self.vertices_id[0] = self.vertices_id[i + 0];
+                    self.vertices_id[1] = self.vertices_id[i + 1];
+                }
+                self.vertices.resize(2, P::origin());
+                self.vertices_id.resize(2, FeatureId::Unknown);
+                return;
+            }
+        }
+
+        // Unknown feature: reduce to nothing.
+        self.clear();
+    }
+
+    pub fn transform_by<M: Isometry<P>>(&mut self, m: &M) {
+        for p in &mut self.vertices {
+            *p = m.transform_point(p);
+        }
+
+        for n in &mut self.edge_normals {
+            let new_n = m.transform_vector(n);
+            *n = new_n;
+        }
+
+        if let Some(ref mut n) = self.normal {
+            let new_n = m.transform_vector(n.as_ref());
+            *n = Unit::new_unchecked(new_n);
+        }
+    }
+
     /// Adds a vertex to this face.
     ///
     /// It is not checked whether `pt` breaks the convexity of the polyhedral face.
@@ -122,6 +178,26 @@ impl<P: Point> ConvexPolyface<P> {
                     .expect("The face normal must be set before computing edge normals."),
             );
             self.push_scaled_edge_normal(scaled_normal)
+        }
+    }
+
+    pub fn project_point(&self, pt: &P) -> Option<Contact<P>> {
+        if let Some(n) = self.normal {
+            let dpt = *pt - self.vertices[0];
+            let dist = na::dot(n.as_ref(), &dpt);
+            let proj = *pt + (-n.unwrap() * dist);
+
+            for i in 0..self.edge_normals.len() {
+                let dpt = proj - self.vertices[i];
+
+                if na::dot(&dpt, &self.edge_normals[i]) > na::zero() {
+                    return None;
+                }
+            }
+
+            Some(Contact::new(proj, *pt, n, -dist))
+        } else {
+            None
         }
     }
 

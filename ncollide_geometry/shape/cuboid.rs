@@ -281,7 +281,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         }
     }
 
-    fn normal_cone(&self, _: &P, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
         let mut result = PolyhedralCone::new();
 
         match na::dimension::<P::Vector>() {
