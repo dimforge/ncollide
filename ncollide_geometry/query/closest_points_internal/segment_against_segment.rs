@@ -75,7 +75,7 @@ where
             let b = na::dot(&d1, &d2);
             let denom = a * e - b * b;
 
-            if denom != _0 {
+            if denom > _eps {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {
                 s = _0;
