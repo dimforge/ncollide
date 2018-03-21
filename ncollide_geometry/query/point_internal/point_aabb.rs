@@ -1,5 +1,6 @@
 use num::{Bounded, Zero};
 use na;
+use shape::FeatureId;
 use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
 use math::{Isometry, Point};
@@ -47,6 +48,9 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
             PointProjection::new(inside, *pt + m.rotate_vector(&shift))
         }
     }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {}
 
     #[inline]
     fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {

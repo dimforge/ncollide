@@ -8,7 +8,7 @@ use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation
             TrianglePointLocation};
 use utils;
 
-/// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
+/// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
 pub struct VoronoiSimplex3<P: Point> {
     vertices: [P; 4],
     dim: usize,

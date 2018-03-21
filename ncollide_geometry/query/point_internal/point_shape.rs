@@ -1,5 +1,5 @@
 use math::{Isometry, Point};
-use shape::Shape;
+use shape::{FeatureId, Shape};
 use query::{PointProjection, PointQuery};
 
 impl<P, M> PointQuery<P, M> for Shape<P, M>
@@ -12,6 +12,13 @@ where
         self.as_point_query()
             .expect("No PointQuery implementation for the underlying shape.")
             .project_point(m, pt, solid)
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        self.as_point_query()
+            .expect("No PointQuery implementation for the underlying shape.")
+            .project_point_with_feature(m, pt)
     }
 
     #[inline]

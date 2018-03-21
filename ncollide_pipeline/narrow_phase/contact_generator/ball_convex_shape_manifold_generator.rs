@@ -10,32 +10,57 @@ use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between two balls.
-pub struct BallBallContactGenerator<P: Point, M> {
+pub struct BallConvexShapeManifoldGenerator<P: Point, M> {
+    flip: bool,
     manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallBallContactGenerator<P, M> {
-    fn clone(&self) -> BallBallContactGenerator<P, M> {
-        BallBallContactGenerator {
+impl<P: Point, M> Clone for BallConvexShapeManifoldGenerator<P, M> {
+    fn clone(&self) -> BallConvexShapeManifoldGenerator<P, M> {
+        BallConvexShapeManifoldGenerator {
+            flip: self.flip,
             manifold: self.manifold.clone(),
             mat_type: PhantomData,
         }
     }
 }
 
-impl<P: Point, M> BallBallContactGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBallContactGenerator<P, M> {
-        BallBallContactGenerator {
+    pub fn new(flip: bool) -> BallConvexShapeManifoldGenerator<P, M> {
+        BallConvexShapeManifoldGenerator {
+            flip,
             manifold: ContactManifold::new(),
             mat_type: PhantomData,
         }
     }
+
+    fn do_update(
+        &mut self,
+        ma: &M,
+        a: &Shape<P, M>,
+        mb: &M,
+        b: &Shape<P, M>,
+        prediction: &ContactPrediction<P::Real>,
+        id_alloc: &mut IdAllocator,
+        flip: bool,
+    ) -> bool {
+        if let (Some(a), Some(pq)) = (a.as_shape::<Ball<P::Real>>(), b.as_point_query()) {
+            self.manifold.save_cache_and_clear(id_alloc);
+
+            let center_a = P::from_coordinates(ma.translation().to_vector());
+            let proj = pq.project_point(mb, &center_a, false);
+
+            true
+        } else {
+            false
+        }
+    }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallConvexShapeManifoldGenerator<P, M> {
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
@@ -46,31 +71,10 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
-        if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
-            self.manifold.save_cache_and_clear(id_alloc);
-            let center_a = P::from_coordinates(ma.translation().to_vector());
-            let center_b = P::from_coordinates(mb.translation().to_vector());
-            if let Some(contact) =
-                contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
-            {
-                let normals1 = PolyhedralCone::from_slice(&[contact.normal]);
-                let normals2 = PolyhedralCone::from_slice(&[-contact.normal]);
-                let _ = self.manifold.push(
-                    contact,
-                    P::origin(),
-                    P::origin(),
-                    normals1,
-                    normals2,
-                    FeatureId::Face { subshape: 0, id: 0 },
-                    FeatureId::Face { subshape: 0, id: 0 },
-                    ContactKinematic::Unknown,
-                    id_alloc,
-                );
-            }
-
-            true
+        if !self.flip {
+            self.do_update(ma, a, mb, b, prediction, id_alloc, false)
         } else {
-            false
+            self.do_update(mb, b, ma, a, prediction, id_alloc, true)
         }
     }
 

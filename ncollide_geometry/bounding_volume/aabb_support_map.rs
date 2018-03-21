@@ -28,7 +28,7 @@ impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Capsule<P::Real
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Triangle<P> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
-        // FIXME: optimize that
+        // FIXME: optimize that
         bounding_volume::support_map_aabb(m, self)
     }
 }
@@ -36,7 +36,7 @@ impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Triangle<P> {
 impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Segment<P> {
     #[inline]
     fn bounding_volume(&self, m: &M) -> AABB<P> {
-        // FIXME: optimize that
+        // FIXME: optimize that
         bounding_volume::support_map_aabb(m, self)
     }
 }

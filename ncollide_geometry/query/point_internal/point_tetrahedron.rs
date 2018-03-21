@@ -1,6 +1,6 @@
 use num::Bounded;
 use na;
-use shape::{Tetrahedron, TetrahedronPointLocation, TrianglePointLocation};
+use shape::{FeatureId, Tetrahedron, TetrahedronPointLocation, TrianglePointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 use utils;
@@ -11,102 +11,18 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Tetrahedron<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
-}
 
-impl<P: Point> Tetrahedron<P> {
-    // NOTE: the following is the brute-force version of point-projection on tetrahedron.
     #[inline]
-    #[allow(dead_code)]
-    fn project_point_with_location2<M: Isometry<P>>(
-        &self,
-        m: &M,
-        pt: &P,
-        solid: bool,
-    ) -> (PointProjection<P>, TetrahedronPointLocation<P::Real>) {
-        let _0: P::Real = na::zero();
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let (proj, loc) = self.project_point_with_location(m, pt, false);
+        let feature = match loc {
+            TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
+            TetrahedronPointLocation::OnEdge(i, _) => FeatureId::Edge { subshape: 0, id: i },
+            TetrahedronPointLocation::OnFace(i, _) => FeatureId::Face { subshape: 0, id: i },
+            TetrahedronPointLocation::OnSolid => unreachable!(),
+        };
 
-        let mut projs = [None; 4];
-
-        let ap = *pt - *self.a();
-        let ab = *self.b() - *self.a();
-        let ac = *self.c() - *self.a();
-        let ad = *self.d() - *self.a();
-        let n1 = utils::cross3(&ab, &ac);
-        if na::dot(&n1, &ad) * na::dot(&n1, &ap) <= _0 {
-            let abc = self.face(0);
-            projs[0] = Some(abc.project_point_with_location(m, pt, solid));
-        }
-
-        let bp = *pt - *self.b();
-        let n2 = utils::cross3(&ab, &ad);
-        if na::dot(&n2, &ac) * na::dot(&n2, &ap) <= _0 {
-            let abd = self.face(1);
-            projs[1] = Some(abd.project_point_with_location(m, pt, solid));
-        }
-
-        let n3 = utils::cross3(&ac, &ad);
-        if na::dot(&n3, &ab) * na::dot(&n3, &ap) <= _0 {
-            let acd = self.face(2);
-            projs[2] = Some(acd.project_point_with_location(m, pt, solid));
-        }
-
-        let bc = *self.c() - *self.b();
-        let bd = *self.d() - *self.b();
-        let n4 = utils::cross3(&bc, &bd);
-        if -na::dot(&n4, &ab) * na::dot(&n4, &bp) <= _0 {
-            let bcd = self.face(3);
-            projs[3] = Some(bcd.project_point_with_location(m, pt, solid));
-        }
-
-        let mut smallest_id = 42;
-        let mut smallest_dist = P::Real::max_value();
-        for i in 0..4 {
-            if let Some((ref proj, _)) = projs[i] {
-                let dist = na::norm_squared(&(proj.point - *pt));
-                if dist < smallest_dist {
-                    smallest_id = i;
-                    smallest_dist = dist;
-                }
-            }
-        }
-
-        if smallest_id == 42 {
-            return (
-                PointProjection::new(true, *pt),
-                TetrahedronPointLocation::OnSolid,
-            );
-        }
-
-        /*
-         * 0 AB
-         * 1 AC
-         * 2 AD
-         * 3 BC
-         * 4 BD
-         * 5 CD
-         */
-        let edges = [[0, 3, 1], [0, 4, 2], [1, 5, 2], [3, 5, 4]];
-
-        let vertices = [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]];
-
-        if let Some((ref proj, ref loc)) = projs[smallest_id] {
-            let new_loc = match *loc {
-                TrianglePointLocation::OnVertex(i) => {
-                    TetrahedronPointLocation::OnVertex(vertices[smallest_id][i])
-                }
-                TrianglePointLocation::OnEdge(i, uv) => {
-                    TetrahedronPointLocation::OnEdge(edges[smallest_id][i], uv)
-                }
-                TrianglePointLocation::OnFace(uv) => {
-                    TetrahedronPointLocation::OnFace(smallest_id, uv)
-                }
-                TrianglePointLocation::OnSolid => TetrahedronPointLocation::OnSolid,
-            };
-
-            (*proj, new_loc)
-        } else {
-            unreachable!()
-        }
+        (proj, feature)
     }
 }
 
@@ -523,12 +439,13 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
             dcdb,
             dbdc,
             /*bp_bc, cp_bc, dp_bc,
-                                          bp_bd, cp_bd, dp_bd*/
+              bp_bd, cp_bd, dp_bd*/
         ) {
             return res;
         }
 
         if !solid {
+            // XXX: implement the non-solid projection.
             unimplemented!("Non-solid ray-cast on a tetrahedron is not yet implemented.")
         }
 

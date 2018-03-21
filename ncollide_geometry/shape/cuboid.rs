@@ -75,13 +75,25 @@ where
             vertex_id2 |= 1 << i2;
         }
 
-        out.push(m.transform_point(&p1), FeatureId::Vertex(vertex_id1));
-        out.push(m.transform_point(&p2), FeatureId::Vertex(vertex_id2));
+        out.push(
+            m.transform_point(&p1),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id1,
+            },
+        );
+        out.push(
+            m.transform_point(&p2),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id2,
+            },
+        );
 
         let mut normal: P::Vector = na::zero();
         normal[i1] = sign;
         out.set_normal(Unit::new_unchecked(m.transform_vector(&normal)));
-        out.set_feature_id(FeatureId::Edge(i));
+        out.set_feature_id(FeatureId::Edge { subshape: 0, id: i });
     } else {
         let i2 = (i1 + 1) % 3;
         let i3 = (i1 + 2) % 3;
@@ -97,44 +109,74 @@ where
         let mut vertex_id = sbit << i1;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex(vertex_id),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id,
+            },
         );
-        out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+        out.push_edge_feature_id(FeatureId::Edge {
+            subshape: 0,
+            id: edge_i2 | (vertex_id << 2),
+        });
 
         vertex[i2] = -sign * half_extents[i2];
         vertex[i3] = sign * half_extents[i3];
         vertex_id |= msbit << i2 | sbit << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex(vertex_id),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id,
+            },
         );
-        out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+        out.push_edge_feature_id(FeatureId::Edge {
+            subshape: 0,
+            id: edge_i3 | (vertex_id << 2),
+        });
 
         vertex[i2] = -half_extents[i2];
         vertex[i3] = -half_extents[i3];
         vertex_id |= 1 << i2 | 1 << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex(vertex_id),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id,
+            },
         );
-        out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+        out.push_edge_feature_id(FeatureId::Edge {
+            subshape: 0,
+            id: edge_i2 | (vertex_id << 2),
+        });
 
         vertex[i2] = sign * half_extents[i2];
         vertex[i3] = -sign * half_extents[i3];
         vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex(vertex_id),
+            FeatureId::Vertex {
+                subshape: 0,
+                id: vertex_id,
+            },
         );
-        out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+        out.push_edge_feature_id(FeatureId::Edge {
+            subshape: 0,
+            id: edge_i3 | (vertex_id << 2),
+        });
 
         let mut normal: P::Vector = na::zero();
         normal[i1] = sign;
         out.set_normal(Unit::new_unchecked(m.transform_vector(&normal)));
         if sign > na::zero() {
-            out.set_feature_id(FeatureId::Face(i1));
+            out.set_feature_id(FeatureId::Face {
+                subshape: 0,
+                id: i1,
+            });
         } else {
-            out.set_feature_id(FeatureId::Face(i1 + 3));
+            out.set_feature_id(FeatureId::Face {
+                subshape: 0,
+                id: i1 + 3,
+            });
         }
         out.recompute_edge_normals_3d();
     }
@@ -157,6 +199,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
     }
 
     fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, out: &mut ConvexPolyface<P>) {
+        out.clear();
         let local_dir = m.inverse_rotate_vector(dir);
 
         let mut iamax = 0;
@@ -216,9 +259,15 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 // We are not on a face, return the support vertex.
                 out.push(
                     m.transform_point(&P::from_coordinates(support_point)),
-                    FeatureId::Vertex(support_point_id),
+                    FeatureId::Vertex {
+                        subshape: 0,
+                        id: support_point_id,
+                    },
                 );
-                out.set_feature_id(FeatureId::Vertex(support_point_id));
+                out.set_feature_id(FeatureId::Vertex {
+                    subshape: 0,
+                    id: support_point_id,
+                });
             }
             3 => {
                 let mut support_point_id = 0;
@@ -253,14 +302,23 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                         let p2 = P::from_coordinates(support_point);
                         out.push(
                             m.transform_point(&p1),
-                            FeatureId::Vertex(support_point_id | (1 << i)),
+                            FeatureId::Vertex {
+                                subshape: 0,
+                                id: support_point_id | (1 << i),
+                            },
                         );
                         out.push(
                             m.transform_point(&p2),
-                            FeatureId::Vertex(support_point_id & !(1 << i)),
+                            FeatureId::Vertex {
+                                subshape: 0,
+                                id: support_point_id & !(1 << i),
+                            },
                         );
 
-                        let edge_id = FeatureId::Edge(i | (support_point_id << 2));
+                        let edge_id = FeatureId::Edge {
+                            subshape: 0,
+                            id: i | (support_point_id << 2),
+                        };
                         out.push_edge_feature_id(edge_id);
                         out.set_feature_id(edge_id);
                         return;
@@ -270,9 +328,15 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 // We are not on a face or edge, return the support vertex.
                 out.push(
                     m.transform_point(&P::from_coordinates(support_point)),
-                    FeatureId::Vertex(support_point_id),
+                    FeatureId::Vertex {
+                        subshape: 0,
+                        id: support_point_id,
+                    },
                 );
-                out.set_feature_id(FeatureId::Vertex(support_point_id));
+                out.set_feature_id(FeatureId::Vertex {
+                    subshape: 0,
+                    id: support_point_id,
+                });
             }
             _ => {
                 out.push(self.support_point_toward(m, dir), FeatureId::Unknown);
@@ -286,7 +350,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
 
         match na::dimension::<P::Vector>() {
             2 => match feature {
-                FeatureId::Edge(id) => {
+                FeatureId::Edge { id, .. } => {
                     let mut dir: P::Vector = na::zero();
 
                     if id < 2 {
@@ -296,7 +360,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                     }
                     result.add_generator(Unit::new_unchecked(dir));
                 }
-                FeatureId::Vertex(id) => {
+                FeatureId::Vertex { id, .. } => {
                     let mut dir1: P::Vector = na::zero();
                     let mut dir2: P::Vector = na::zero();
 
@@ -326,7 +390,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 _ => {}
             },
             3 => match feature {
-                FeatureId::Face(id) => {
+                FeatureId::Face { id, .. } => {
                     let mut dir: P::Vector = na::zero();
 
                     if id < 3 {
@@ -336,7 +400,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                     }
                     result.add_generator(Unit::new_unchecked(dir));
                 }
-                FeatureId::Edge(id) => {
+                FeatureId::Edge { id, .. } => {
                     let edge = id & 0b011;
                     let face1 = (edge + 1) % 3;
                     let face2 = (edge + 2) % 3;
@@ -361,7 +425,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                     result.add_generator(Unit::new_unchecked(dir1));
                     result.add_generator(Unit::new_unchecked(dir2));
                 }
-                FeatureId::Vertex(id) => for i in 0..3 {
+                FeatureId::Vertex { id, .. } => for i in 0..3 {
                     let mut dir: P::Vector = na::zero();
                     let _1: P::Real = na::one();
 
@@ -394,14 +458,14 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
 
         match na::dimension::<P::Vector>() {
             2 => match feature {
-                FeatureId::Edge(id) => {
+                FeatureId::Edge { id, .. } => {
                     if id < 2 {
                         local_dir[id] >= ctol
                     } else {
                         -local_dir[id - 2] >= ctol
                     }
                 }
-                FeatureId::Vertex(id) => {
+                FeatureId::Vertex { id, .. } => {
                     if id & 0b01 != 0 {
                         local_dir[0] = -local_dir[0]
                     }
@@ -414,14 +478,14 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 _ => false,
             },
             3 => match feature {
-                FeatureId::Face(id) => {
+                FeatureId::Face { id, .. } => {
                     if id < 3 {
                         local_dir[id] >= ctol
                     } else {
                         -local_dir[id - 3] >= ctol
                     }
                 }
-                FeatureId::Edge(id) => {
+                FeatureId::Edge { id, .. } => {
                     let edge = id & 0b011;
                     let face1 = (edge + 1) % 3;
                     let face2 = (edge + 2) % 3;
@@ -437,7 +501,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                     local_dir[face1] > -stol && local_dir[face2] > -stol
                         && local_dir[edge].abs() <= stol
                 }
-                FeatureId::Vertex(id) => {
+                FeatureId::Vertex { id, .. } => {
                     for i in 0..3 {
                         if id & (1 << i) != 0 {
                             if local_dir[i] > stol {

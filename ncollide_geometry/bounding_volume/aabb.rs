@@ -65,7 +65,7 @@ impl<P: Point> AABB<P> {
     }
 }
 
-// XXX: we should not keep this
+// XXX: we should not keep this
 // impl<P: Point> AABB<P> {
 //     /// Creates an invalid AABB with:
 //     /// * `mins = Bounded::max_value()`

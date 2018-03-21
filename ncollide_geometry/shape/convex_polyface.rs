@@ -9,9 +9,9 @@ use query::closest_points_internal;
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FeatureId {
-    Vertex(usize),
-    Edge(usize),
-    Face(usize),
+    Vertex { subshape: usize, id: usize },
+    Edge { subshape: usize, id: usize },
+    Face { subshape: usize, id: usize },
     Unknown,
 }
 

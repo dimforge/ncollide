@@ -2,7 +2,7 @@ use alga::general::Real;
 use na;
 
 use query::{PointProjection, PointQuery};
-use shape::Ball;
+use shape::{Ball, FeatureId};
 use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Ball<P::Real> {
@@ -20,6 +20,14 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Ball<P::Real> {
 
             PointProjection::new(inside, m.translate_point(&ls_proj))
         }
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        (
+            self.project_point(m, pt, false),
+            FeatureId::Face { subshape: 0, id: 0 },
+        )
     }
 
     #[inline]

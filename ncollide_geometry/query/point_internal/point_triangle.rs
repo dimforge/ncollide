@@ -1,7 +1,7 @@
 use na;
 
 use utils;
-use shape::{Triangle, TrianglePointLocation};
+use shape::{FeatureId, Triangle, TrianglePointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 
@@ -10,8 +10,8 @@ fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
     if na::dimension::<P::Vector>() == 2 {
         PointProjection::new(*pt == proj, proj)
     } else {
-        // FIXME: is this acceptable to assume the point is inside of the triangle if it is close
-        // enough?
+        // FIXME: is this acceptable to assume the point is inside of the
+        // triangle if it is close enough?
         PointProjection::new(relative_eq!(proj, *pt), proj)
     }
 }
@@ -21,6 +21,24 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let (proj, loc) = if na::dimension::<P::Vector>() == 2 {
+            self.project_point_with_location(m, pt, false)
+        } else {
+            self.project_point_with_location(m, pt, true)
+        };
+
+        let feature = match loc {
+            TrianglePointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
+            TrianglePointLocation::OnEdge(i, _) => FeatureId::Edge { subshape: 0, id: i },
+            TrianglePointLocation::OnFace(_) => FeatureId::Face { subshape: 0, id: 0 },
+            TrianglePointLocation::OnSolid => FeatureId::Face { subshape: 0, id: 0 },
+        };
+
+        (proj, feature)
     }
 
     // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
@@ -254,6 +272,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             // We have to project on the closest edge.
 
             // FIXME: this might be optimizable.
+            // FIXME: be careful with numerical errors.
             let v = ab_ap / (ab_ap - ab_bp); // proj on ab = a + ab * v
             let w = ac_ap / (ac_ap - ac_cp); // proj on ac = a + ac * w
             let u = (ac_bp - ab_bp) / (ac_bp - ab_bp + ab_cp - ac_cp); // proj on bc = b + bc * u

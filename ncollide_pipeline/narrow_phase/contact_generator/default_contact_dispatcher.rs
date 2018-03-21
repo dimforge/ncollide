@@ -7,9 +7,8 @@ use narrow_phase::{BallBallContactGenerator,
                    CompositeShapeShapeContactGenerator,
                    ContactAlgorithm,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
-                   PlaneSupportMapContactGenerator,
+                   PlaneSupportMapManifoldGenerator,
                    ShapeCompositeShapeContactGenerator,
-                   SupportMapPlaneContactGenerator,
                    SupportMapSupportMapManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
@@ -40,10 +39,10 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallContactGenerator::<P, M>::new()))
         } else if a.is_shape::<Plane<P::Vector>>() && b.is_support_map() {
-            let gen = PlaneSupportMapContactGenerator::<P, M>::new();
+            let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(false);
             Some(Box::new(gen))
         } else if b.is_shape::<Plane<P::Vector>>() && a.is_support_map() {
-            let gen = SupportMapPlaneContactGenerator::<P, M>::new();
+            let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(true);
             Some(Box::new(gen))
         } else if a.is_support_map() && b.is_support_map() {
             match na::dimension::<P::Vector>() {

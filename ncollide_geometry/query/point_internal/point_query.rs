@@ -1,5 +1,6 @@
 use na;
 use math::Point;
+use shape::FeatureId;
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
@@ -38,6 +39,11 @@ pub trait PointQuery<P: Point, M> {
             -dist
         }
     }
+
+    /// Projects a point on the boundary of `self` transformed by `m` and retuns the id of the
+    /// feature the point was projected on.
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId);
 
     /// Tests if the given point is inside of `self` transformed by `m`.
     #[inline]

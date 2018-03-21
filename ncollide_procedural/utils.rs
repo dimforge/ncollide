@@ -144,7 +144,7 @@ pub fn reverse_clockwising(indices: &mut [Point3<u32>]) {
 
 /// Duplicates the indices of each triangle on the given index buffer.
 ///
-/// For example: [ (0.0, 1.0, 2.0) ] becomes: [ (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), (2.0, 2.0, 2.0)].
+/// For example: [ (0.0, 1.0, 2.0) ] becomes: [ (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), (2.0, 2.0, 2.0)].
 #[inline]
 pub fn split_index_buffer(indices: &[Point3<u32>]) -> Vec<Point3<Point3<u32>>> {
     let mut resi = Vec::new();

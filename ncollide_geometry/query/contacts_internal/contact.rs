@@ -227,9 +227,9 @@ impl<P: Point> ContactManifold<P> {
             &mut self.cached_contact_used,
         );
 
+        self.contacts.clear();
         self.deepest = 0;
     }
-
 
     pub fn push(
         &mut self,
@@ -339,7 +339,7 @@ impl<P: Point> ContactManifold<P> {
         self.contacts.push(tracked);
         return matched;
     }
-/*
+    /*
     pub fn push(
         &mut self,
         contact: Contact<P>,

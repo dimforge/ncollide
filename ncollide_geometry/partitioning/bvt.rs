@@ -10,7 +10,7 @@ use utils::data::ref_with_cost::RefWithCost;
 use utils;
 use math::Point;
 
-/// A Bounding Volume Tree.
+/// A Bounding Volume Tree.
 #[derive(Clone)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>,

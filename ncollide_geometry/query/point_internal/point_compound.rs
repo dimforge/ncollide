@@ -2,7 +2,7 @@ use alga::general::Id;
 use na;
 use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
-use shape::{CompositeShape, Compound};
+use shape::{CompositeShape, Compound, FeatureId};
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
 
@@ -21,6 +21,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
         proj.point = m.transform_point(&proj.point);
 
         proj
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+        // XXX Properly propagate the feature id.
+        unimplemented!()
+        // (self.project_point(m, point), FeatureId::Unknown)
     }
 
     #[inline]

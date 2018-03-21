@@ -55,7 +55,7 @@ where
     match gjk::closest_points(m1, g1, &tm2, g2, simplex) {
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some((p1, p2)) => {
-            // NOTE: at this point, p1 must *not* be concidered as a good contact point for the
+            // NOTE: at this point, p1 must *not* be concidered as a good contact point for the
             // first object. For example:
             //
             //
@@ -91,7 +91,7 @@ where
             //                       |             |
             //                       +-------------+
             let (normal, dist_err) = Unit::new_and_get(p2 - p1);
-            
+
             if !dist_err.is_zero() {
                 let p2 = p2 + (-shift);
                 let center = na::center(&p1, &p2);

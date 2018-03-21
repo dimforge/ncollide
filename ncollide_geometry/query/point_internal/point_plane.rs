@@ -1,6 +1,6 @@
 use na;
 use query::{PointProjection, PointQuery};
-use shape::Plane;
+use shape::{FeatureId, Plane};
 use math::{Isometry, Point};
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Plane<P::Vector> {
@@ -16,6 +16,14 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Plane<P::Vector> {
         } else {
             PointProjection::new(inside, *pt + (-*self.normal().as_ref() * d))
         }
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        (
+            self.project_point(m, pt, false),
+            FeatureId::Face { subshape: 0, id: 0 },
+        )
     }
 
     #[inline]

@@ -1,7 +1,7 @@
 use alga::general::Id;
 
 use query::{PointProjection, PointQuery};
-use shape::Ball;
+use shape::{Ball, FeatureId};
 use bounding_volume::BoundingSphere;
 use math::{Isometry, Point};
 
@@ -14,6 +14,14 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for BoundingSphere<P> {
         proj.point = m.transform_point(&proj.point) + self.center().coordinates();
 
         proj
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        (
+            self.project_point(m, pt, false),
+            FeatureId::Face { subshape: 0, id: 0 },
+        )
     }
 
     #[inline]

@@ -390,7 +390,7 @@ where
                     ltoi = ltoi + t;
                     curr_ray.origin = ray.origin + ray.dir * ltoi;
                     dir = curr_ray.origin - support_point;
-                    // FIXME: could we simply translate the simpex by old_origin - new_origin ?
+                    // FIXME: could we simply translate the simpex by old_origin - new_origin ?
                     simplex.reset(P::origin() + (-dir));
                     let _max: P::Real = Bounded::max_value();
                     old_max_bound = _max;

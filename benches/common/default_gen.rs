@@ -115,7 +115,7 @@ where
 {
     fn generate<R: Rng>(rng: &mut R) -> ConvexHull<P> {
         // It is recommanded to have at most 100 points.
-        // Otherwise, a smarter structure like the DK hierarchy would be needed.
+        // Otherwise, a smarter structure like the DK hierarchy would be needed.
         let pts = (0..100)
             .map(|_| P::origin() + rng.gen::<P::Vector>())
             .collect();

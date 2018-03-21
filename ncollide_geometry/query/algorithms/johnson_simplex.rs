@@ -27,11 +27,16 @@ pub struct JohnsonSimplex<P: Point> {
 /// Johnson simplex.
 #[derive(PartialEq, Clone)]
 pub struct JohnsonSimplexTemplate {
-    #[doc(hidden)] permutation_list: Vec<usize>,
-    #[doc(hidden)] offsets: Vec<usize>,
-    #[doc(hidden)] sub_determinants: Vec<usize>,
-    #[doc(hidden)] num_determinants: usize,
-    #[doc(hidden)] num_leaves: usize, // useful only for printing…
+    #[doc(hidden)]
+    permutation_list: Vec<usize>,
+    #[doc(hidden)]
+    offsets: Vec<usize>,
+    #[doc(hidden)]
+    sub_determinants: Vec<usize>,
+    #[doc(hidden)]
+    num_determinants: usize,
+    #[doc(hidden)]
+    num_leaves: usize, // useful only for printing…
 }
 
 impl JohnsonSimplexTemplate {
@@ -239,14 +244,14 @@ impl<P: Point> JohnsonSimplex<P> {
          * First loop: compute all the determinants.
          */
         for &end in recursion.offsets[2..].iter() {
-            // FIXME: try to transform this using a `window_iter()`
+            // FIXME: try to transform this using a `window_iter()`
             // For each sub-simplex ...
             while curr != end {
                 // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
                     let mut determinant: P::Real = na::zero();
-                    let kpt = *self.points[..].get_unchecked(*recursion.permutation_list[..]
-                        .get_unchecked(curr + 1usize));
+                    let kpt = *self.points[..]
+                        .get_unchecked(*recursion.permutation_list[..].get_unchecked(curr + 1usize));
                     let jpt = *self.points[..]
                         .get_unchecked(*recursion.permutation_list[..].get_unchecked(curr));
 
@@ -336,8 +341,8 @@ impl<P: Point> JohnsonSimplex<P> {
                             total_det = total_det + det;
                             proj.axpy(
                                 det,
-                                self.points[..].get_unchecked(*recursion.permutation_list[..]
-                                    .get_unchecked(id)),
+                                self.points[..]
+                                    .get_unchecked(*recursion.permutation_list[..].get_unchecked(id)),
                                 na::one(),
                             );
                         }
@@ -347,8 +352,7 @@ impl<P: Point> JohnsonSimplex<P> {
                             for i in 0usize..curr_num_pts {
                                 let id = curr - (i + 1) * curr_num_pts;
                                 self.exchange_points.push(*self.points[..]
-                                    .get_unchecked(*recursion.permutation_list[..]
-                                        .get_unchecked(id)));
+                                    .get_unchecked(*recursion.permutation_list[..].get_unchecked(id)));
                             }
 
                             mem::swap(&mut self.exchange_points, &mut self.points);

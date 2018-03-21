@@ -1,5 +1,5 @@
 use na;
-use shape::{Segment, SegmentPointLocation};
+use shape::{FeatureId, Segment, SegmentPointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 
@@ -8,6 +8,17 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let (proj, loc) = self.project_point_with_location(m, pt, false);
+        let feature = match loc {
+            SegmentPointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
+            SegmentPointLocation::OnEdge(..) => FeatureId::Edge { subshape: 0, id: 0 },
+        };
+
+        (proj, feature)
     }
 
     // NOTE: the default implementation of `.distance_to_point(...)` will return the error that was
@@ -33,6 +44,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
 
         let mut proj;
         let location;
+        let feature;
 
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.

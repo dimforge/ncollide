@@ -1,7 +1,7 @@
 use alga::general::Id;
 use na;
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{BaseMesh, BaseMeshElement, Polyline, Segment, TriMesh};
+use shape::{BaseMesh, BaseMeshElement, FeatureId, Polyline, Segment, TriMesh, Triangle};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
@@ -16,6 +16,20 @@ where
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+        let ls_pt = m.inverse_transform_point(point);
+        let mut cost_fn = BaseMeshPointProjCostFn {
+            mesh: self,
+            point: &ls_pt,
+        };
+
+        let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        proj.point = m.transform_point(&proj.point);
+
+        (proj, extra_info)
     }
 
     #[inline]
@@ -139,10 +153,10 @@ pub struct PointProjectionInfo<C> {
     /// intended to be passed to `BaseMesh::element_at`.
     pub element_index: usize,
 
-    /// The barycentry coordinates of the projected point
+    /// Locatino of the point on the `element_index`-th element.
     ///
     /// The type of this field depends on the type of the base mesh element.
-    pub barycentric_coordinates: C,
+    pub location: C,
 }
 
 /*
@@ -152,6 +166,11 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         self.base_mesh().project_point(m, point, solid)
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+        self.base_mesh().project_point_with_feature(m, point)
     }
 
     #[inline]
@@ -173,6 +192,11 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
     }
 
     #[inline]
+    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+        self.base_mesh().project_point_with_feature(m, point)
+    }
+
+    #[inline]
     fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> P::Real {
         self.base_mesh().distance_to_point(m, point, solid)
     }
@@ -185,6 +209,21 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
 
 impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Polyline<P> {
     type Location = PointProjectionInfo<<Segment<P> as PointQueryWithLocation<P, M>>::Location>;
+
+    #[inline]
+    fn project_point_with_location(
+        &self,
+        m: &M,
+        point: &P,
+        solid: bool,
+    ) -> (PointProjection<P>, Self::Location) {
+        self.base_mesh()
+            .project_point_with_location(m, point, solid)
+    }
+}
+
+impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for TriMesh<P> {
+    type Location = PointProjectionInfo<<Triangle<P> as PointQueryWithLocation<P, M>>::Location>;
 
     #[inline]
     fn project_point_with_location(

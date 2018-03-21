@@ -52,7 +52,7 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<P: Point, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
+    tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
     stree: DBVT<P, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
     margin: P::Real,                 // The margin added to each bounding volume.

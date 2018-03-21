@@ -123,8 +123,8 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
         started: bool,
     ) {
         let key = SortedPair::new(handle1, handle2);
-        let co1 = &objects[handle1];
-        let co2 = &objects[handle2];
+        let co1 = &objects[key.0];
+        let co2 = &objects[key.1];
 
         match (co1.query_type(), co2.query_type()) {
             (GeometricQueryType::Contacts(..), GeometricQueryType::Contacts(..)) => {

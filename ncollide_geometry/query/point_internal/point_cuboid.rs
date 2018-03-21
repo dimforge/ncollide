@@ -1,5 +1,5 @@
 use bounding_volume::AABB;
-use shape::Cuboid;
+use shape::{Cuboid, FeatureId};
 use query::{PointProjection, PointQuery};
 use math::{Isometry, Point};
 
@@ -9,6 +9,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cuboid<P::Vector> {
         let dl = P::origin() + (-*self.half_extents());
         let ur = P::origin() + *self.half_extents();
         AABB::new(dl, ur).project_point(m, pt, solid)
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let dl = P::origin() + (-*self.half_extents());
+        let ur = P::origin() + *self.half_extents();
+        AABB::new(dl, ur).project_point_with_feature(m, pt)
     }
 
     #[inline]

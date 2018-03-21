@@ -81,6 +81,16 @@ impl<V: Vector> PolyhedralCone<V> {
         }
     }
 
+    pub fn polar_contains_dir(&self, dir: &Unit<V>) -> bool {
+        for g in &self.generators {
+            if na::dot(g.as_ref(), dir.as_ref()) > na::zero() {
+                return false;
+            }
+        }
+
+        true
+    }
+
     pub fn contains_dir(&self, dir: &Unit<V>) -> bool {
         if self.generators.len() == 0 {
             true
@@ -94,7 +104,7 @@ impl<V: Vector> PolyhedralCone<V> {
 
             perp1 <= _0 && perp2 >= _0
         } else {
-            // NOTE: the following does not makes any assumptions on the
+            // NOTE: the following does not makes any assumptions on the
             // polycone orientation.
             let mut sign = V::Real::zero();
             if self.generators.len() == 1 {

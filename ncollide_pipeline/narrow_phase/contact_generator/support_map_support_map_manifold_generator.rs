@@ -241,7 +241,7 @@ where
                     .push((contact, features1[1], self.manifold2.feature_id));
             }
         } else {
-            // FIXME: don't compute contacts further than the prediction.
+            // FIXME: don't compute contacts further than the prediction.
 
             if self.manifold1.vertices.len() <= 2 && self.manifold2.vertices.len() <= 2 {
                 return;

@@ -130,7 +130,7 @@ impl<P: Point, B, BV: BoundingVolume<P>> DBVT<P, B, BV> {
         }
     }
 
-    /// Indicates whether this DBVT empty.
+    /// Indicates whether this DBVT empty.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.leaves.is_empty()

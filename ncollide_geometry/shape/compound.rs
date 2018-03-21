@@ -13,7 +13,7 @@ use math::{Isometry, Point};
 
 /// A compound shape with an aabb bounding volume.
 ///
-/// A compound shape is a shape composed of the union of several simpler shape. This is
+/// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 pub struct Compound<P: Point, M> {
