@@ -15,6 +15,23 @@ pub enum FeatureId {
     Unknown,
 }
 
+impl FeatureId {
+    #[inline]
+    pub fn vertex(subshape: usize, id: usize) -> FeatureId {
+        FeatureId::Vertex { subshape, id }
+    }
+
+    #[inline]
+    pub fn edge(subshape: usize, id: usize) -> FeatureId {
+        FeatureId::Edge { subshape, id }
+    }
+
+    #[inline]
+    pub fn face(subshape: usize, id: usize) -> FeatureId {
+        FeatureId::Face { subshape, id }
+    }
+}
+
 /// Represents a convex polygonal approximation of a face of a solid.
 ///
 /// It is never checked if the vertices actually form a convex polygon.

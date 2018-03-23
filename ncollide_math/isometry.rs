@@ -2,8 +2,8 @@ use std::fmt::{Debug, Display};
 use std::ops::Mul;
 use alga::general::{Id, Real};
 use alga::linear::Isometry as AlgaIsometry;
-use na::{self, DefaultAllocator, Matrix2, Matrix3, MatrixN, Rotation, Translation, UnitComplex,
-         UnitQuaternion};
+use na::{self, DefaultAllocator, Matrix2, Matrix3, MatrixN, Rotation, Translation, Unit,
+         UnitComplex, UnitQuaternion};
 use na::dimension::DimName;
 use na::storage::Owned;
 use na::allocator::Allocator;
@@ -14,6 +14,16 @@ pub trait Isometry<P: Point>: Send + Sync + 'static + Display + AlgaIsometry<P> 
     /// Computes the product `abs(rot) * v` where `abs(self)` is the absolute value of the matrix
     /// representation of `self.rotation()`.
     fn absolute_rotate_vector(&self, v: &P::Vector) -> P::Vector;
+
+    /// Applies the isometry to a unit vector.
+    fn transform_unit_vector(&self, v: &Unit<P::Vector>) -> Unit<P::Vector> {
+        Unit::new_unchecked(self.transform_vector(v.as_ref()))
+    }
+    
+    /// Applies the inverse isometry to a unit vector.
+    fn inverse_transform_unit_vector(&self, v: &Unit<P::Vector>) -> Unit<P::Vector> {
+        Unit::new_unchecked(self.inverse_transform_vector(v.as_ref()))
+    }
 }
 
 impl<P: Point> Isometry<P> for Id {

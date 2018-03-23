@@ -12,7 +12,7 @@ use narrow_phase::{ContactDispatcher, ContactGenerator};
 /// Collision detector between two balls.
 pub struct BallConvexShapeManifoldGenerator<P: Point, M> {
     flip: bool,
-    manifold: ContactManifold<P>,
+    contact_manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
@@ -20,7 +20,7 @@ impl<P: Point, M> Clone for BallConvexShapeManifoldGenerator<P, M> {
     fn clone(&self) -> BallConvexShapeManifoldGenerator<P, M> {
         BallConvexShapeManifoldGenerator {
             flip: self.flip,
-            manifold: self.manifold.clone(),
+            contact_manifold: self.contact_manifold.clone(),
             mat_type: PhantomData,
         }
     }
@@ -32,7 +32,7 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
     pub fn new(flip: bool) -> BallConvexShapeManifoldGenerator<P, M> {
         BallConvexShapeManifoldGenerator {
             flip,
-            manifold: ContactManifold::new(),
+            contact_manifold: ContactManifold::new(),
             mat_type: PhantomData,
         }
     }
@@ -48,10 +48,22 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
         flip: bool,
     ) -> bool {
         if let (Some(a), Some(pq)) = (a.as_shape::<Ball<P::Real>>(), b.as_point_query()) {
-            self.manifold.save_cache_and_clear(id_alloc);
+            self.contact_manifold.save_cache_and_clear(id_alloc);
 
             let center_a = P::from_coordinates(ma.translation().to_vector());
-            let proj = pq.project_point(mb, &center_a, false);
+            let (proj, feature) = pq.project_point_with_feature(mb, &center_a);
+
+            {
+                let kinematic =
+                    Self::contact_kinematic(m1, &self.manifold1, f1, m2, &self.manifold2, f2);
+                let local1 = m1.inverse_transform_point(&c.world1);
+                let local2 = m2.inverse_transform_point(&c.world2);
+                let n1 = g1.normal_cone(f1);
+                let n2 = g2.normal_cone(f2);
+
+                self.contact_manifold
+                    .push(c, local1, local2, n1, n2, f1, f2, kinematic, ids);
+            }
 
             true
         } else {
@@ -80,13 +92,13 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallConvexShapeManifol
 
     #[inline]
     fn num_contacts(&self) -> usize {
-        self.manifold.len()
+        self.contact_manifold.len()
     }
 
     #[inline]
     fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
-        if self.manifold.len() != 0 {
-            out.push(&self.manifold)
+        if self.contact_manifold.len() != 0 {
+            out.push(&self.contact_manifold)
         }
     }
 }

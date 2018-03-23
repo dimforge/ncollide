@@ -44,7 +44,7 @@ impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
     ) -> bool {
         if let (Some(plane), Some(sm)) = (g1.as_shape::<Plane<P::Vector>>(), g2.as_support_map()) {
             self.manifold.save_cache_and_clear(id_alloc);
-            let plane_normal = Unit::new_unchecked(m1.transform_vector(plane.normal().as_ref()));
+            let plane_normal = m1.transform_unit_vector(plane.normal());
             let plane_center = P::from_coordinates(m1.translation().to_vector());
 
             sm.support_face_toward(m2, &-plane_normal, &mut self.feature);
@@ -57,40 +57,22 @@ impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
                     let world1 = *world2 + (-*plane_normal * dist);
                     let local1 = m1.inverse_transform_point(&world1);
                     let local2 = m2.inverse_transform_point(&world2);
-                    let f1 = FeatureId::Face { subshape: 0, id: 0 };
+                    let f1 = FeatureId::face(0, 0);
                     let f2 = self.feature.vertices_id[i];
-                    let n1 = PolyhedralCone::from_slice(&[*plane.normal()]);
                     let n2 = sm.normal_cone(f2);
+                    let mut kinematic = ContactKinematic::new();
+                    let contact;
 
                     if !flip {
-                        let kinematic = ContactKinematic::PlanePoint;
-                        let contact = Contact::new(world1, *world2, plane_normal, -dist);
-                        let _ = self.manifold.push(
-                            contact,
-                            local1,
-                            local2,
-                            n1,
-                            n2,
-                            f1,
-                            f2,
-                            kinematic,
-                            id_alloc,
-                        );
+                        contact = Contact::new(world1, *world2, plane_normal, -dist);
+                        kinematic.set_plane1(f1, local1, *plane.normal());
+                        kinematic.set_point2(f2, local2, n2);
                     } else {
-                        let kinematic = ContactKinematic::PointPlane;
-                        let contact = Contact::new(*world2, world1, -plane_normal, -dist);
-                        let _ = self.manifold.push(
-                            contact,
-                            local2,
-                            local1,
-                            n2,
-                            n1,
-                            f2,
-                            f1,
-                            kinematic,
-                            id_alloc,
-                        );
+                        contact = Contact::new(*world2, world1, -plane_normal, -dist);
+                        kinematic.set_point1(f2, local2, n2);
+                        kinematic.set_plane2(f1, local1, *plane.normal());
                     }
+                    let _ = self.manifold.push(contact, kinematic, id_alloc);
                 }
             }
 

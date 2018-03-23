@@ -1,7 +1,8 @@
 //! Implementation details of the `contact` and `contacts` functions.
 
-pub use self::contact::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
-                        TrackedContact};
+pub use self::contact::{Contact, ContactPrediction, TrackedContact};
+pub use self::contact_kinematic::ContactKinematic;
+pub use self::contact_manifold::ContactManifold;
 pub use self::ball_against_ball::ball_against_ball;
 pub use self::support_map_against_support_map::support_map_against_support_map;
 pub use self::support_map_against_support_map::support_map_against_support_map_with_params;
@@ -12,6 +13,8 @@ pub use self::composite_shape_against_shape::{composite_shape_against_shape,
 // pub use self::generate_contact_manifold::generate_contact_manifold;
 
 mod contact;
+mod contact_kinematic;
+mod contact_manifold;
 mod ball_against_ball;
 mod support_map_against_support_map;
 mod plane_against_support_map;

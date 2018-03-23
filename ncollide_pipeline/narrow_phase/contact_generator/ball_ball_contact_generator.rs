@@ -53,19 +53,15 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
             if let Some(contact) =
                 contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
             {
-                let normals1 = PolyhedralCone::from_slice(&[contact.normal]);
-                let normals2 = PolyhedralCone::from_slice(&[-contact.normal]);
-                let _ = self.manifold.push(
-                    contact,
-                    P::origin(),
-                    P::origin(),
-                    normals1,
-                    normals2,
-                    FeatureId::Face { subshape: 0, id: 0 },
-                    FeatureId::Face { subshape: 0, id: 0 },
-                    ContactKinematic::Unknown,
-                    id_alloc,
-                );
+                let normals1 = PolyhedralCone::<P>::from_slice(&[contact.normal]);
+                let normals2 = PolyhedralCone::<P>::from_slice(&[-contact.normal]);
+                let mut kinematic = ContactKinematic::new();
+                kinematic.set_point1(FeatureId::face(0, 0), P::origin(), PolyhedralCone::new());
+                kinematic.set_point2(FeatureId::face(0, 0), P::origin(), PolyhedralCone::new());
+                kinematic.set_dilation1(a.radius());
+                kinematic.set_dilation2(b.radius());
+
+                let _ = self.manifold.push(contact, kinematic, id_alloc);
             }
 
             true

@@ -14,6 +14,13 @@ pub struct Cuboid<V> {
     half_extents: V,
 }
 
+// NOTE: format of the cuboid feature id:
+//
+// FeatureId::Vertex(id): the i-th bit of `id` is set to 1 iff. the i-th component of the vertex is negative.
+// FeatureId::Edge(id): the part `id & 0b11` contains a number in [0,1] (or [0,2] in 3D) to indicate the axis (x, y, z).
+//                      the part `id >> 2` follow the same rule as the vertex id.
+// FeatureId::Face(id): if `id` lies in [0,1] (or [0 2] in 3D) indicates the axis (x, y, z) corresponding to the face normal.
+//                      If `id` is greater than 1 (or 2 in 3D), then the negative axis (-x, -y, -z) is given by `id - 2` (or `id - 3` in 3D).
 impl<V: Vector> Cuboid<V> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
@@ -75,25 +82,13 @@ where
             vertex_id2 |= 1 << i2;
         }
 
-        out.push(
-            m.transform_point(&p1),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id1,
-            },
-        );
-        out.push(
-            m.transform_point(&p2),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id2,
-            },
-        );
+        out.push(m.transform_point(&p1), FeatureId::vertex(0, vertex_id1));
+        out.push(m.transform_point(&p2), FeatureId::vertex(0, vertex_id2));
 
         let mut normal: P::Vector = na::zero();
         normal[i1] = sign;
         out.set_normal(Unit::new_unchecked(m.transform_vector(&normal)));
-        out.set_feature_id(FeatureId::Edge { subshape: 0, id: i });
+        out.set_feature_id(FeatureId::edge(0, i));
     } else {
         let i2 = (i1 + 1) % 3;
         let i3 = (i1 + 2) % 3;
@@ -109,74 +104,44 @@ where
         let mut vertex_id = sbit << i1;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id,
-            },
+            FeatureId::vertex(0, vertex_id),
         );
-        out.push_edge_feature_id(FeatureId::Edge {
-            subshape: 0,
-            id: edge_i2 | (vertex_id << 2),
-        });
+        out.push_edge_feature_id(FeatureId::edge(0, edge_i2 | (vertex_id << 2)));
 
         vertex[i2] = -sign * half_extents[i2];
         vertex[i3] = sign * half_extents[i3];
         vertex_id |= msbit << i2 | sbit << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id,
-            },
+            FeatureId::vertex(0, vertex_id),
         );
-        out.push_edge_feature_id(FeatureId::Edge {
-            subshape: 0,
-            id: edge_i3 | (vertex_id << 2),
-        });
+        out.push_edge_feature_id(FeatureId::edge(0, edge_i3 | (vertex_id << 2)));
 
         vertex[i2] = -half_extents[i2];
         vertex[i3] = -half_extents[i3];
         vertex_id |= 1 << i2 | 1 << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id,
-            },
+            FeatureId::vertex(0, vertex_id),
         );
-        out.push_edge_feature_id(FeatureId::Edge {
-            subshape: 0,
-            id: edge_i2 | (vertex_id << 2),
-        });
+        out.push_edge_feature_id(FeatureId::edge(0, edge_i2 | (vertex_id << 2)));
 
         vertex[i2] = sign * half_extents[i2];
         vertex[i3] = -sign * half_extents[i3];
         vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
         out.push(
             m.transform_point(&P::from_coordinates(vertex)),
-            FeatureId::Vertex {
-                subshape: 0,
-                id: vertex_id,
-            },
+            FeatureId::vertex(0, vertex_id),
         );
-        out.push_edge_feature_id(FeatureId::Edge {
-            subshape: 0,
-            id: edge_i3 | (vertex_id << 2),
-        });
+        out.push_edge_feature_id(FeatureId::edge(0, edge_i3 | (vertex_id << 2)));
 
         let mut normal: P::Vector = na::zero();
         normal[i1] = sign;
         out.set_normal(Unit::new_unchecked(m.transform_vector(&normal)));
         if sign > na::zero() {
-            out.set_feature_id(FeatureId::Face {
-                subshape: 0,
-                id: i1,
-            });
+            out.set_feature_id(FeatureId::face(0, i1));
         } else {
-            out.set_feature_id(FeatureId::Face {
-                subshape: 0,
-                id: i1 + 3,
-            });
+            out.set_feature_id(FeatureId::face(0, i1 + 3));
         }
         out.recompute_edge_normals_3d();
     }
@@ -259,15 +224,9 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 // We are not on a face, return the support vertex.
                 out.push(
                     m.transform_point(&P::from_coordinates(support_point)),
-                    FeatureId::Vertex {
-                        subshape: 0,
-                        id: support_point_id,
-                    },
+                    FeatureId::vertex(0, support_point_id),
                 );
-                out.set_feature_id(FeatureId::Vertex {
-                    subshape: 0,
-                    id: support_point_id,
-                });
+                out.set_feature_id(FeatureId::vertex(0, support_point_id));
             }
             3 => {
                 let mut support_point_id = 0;
@@ -302,23 +261,14 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                         let p2 = P::from_coordinates(support_point);
                         out.push(
                             m.transform_point(&p1),
-                            FeatureId::Vertex {
-                                subshape: 0,
-                                id: support_point_id | (1 << i),
-                            },
+                            FeatureId::vertex(0, support_point_id | (1 << i)),
                         );
                         out.push(
                             m.transform_point(&p2),
-                            FeatureId::Vertex {
-                                subshape: 0,
-                                id: support_point_id & !(1 << i),
-                            },
+                            FeatureId::vertex(0, support_point_id & !(1 << i)),
                         );
 
-                        let edge_id = FeatureId::Edge {
-                            subshape: 0,
-                            id: i | (support_point_id << 2),
-                        };
+                        let edge_id = FeatureId::edge(0, i | (support_point_id << 2));
                         out.push_edge_feature_id(edge_id);
                         out.set_feature_id(edge_id);
                         return;
@@ -328,15 +278,9 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
                 // We are not on a face or edge, return the support vertex.
                 out.push(
                     m.transform_point(&P::from_coordinates(support_point)),
-                    FeatureId::Vertex {
-                        subshape: 0,
-                        id: support_point_id,
-                    },
+                    FeatureId::vertex(0, support_point_id),
                 );
-                out.set_feature_id(FeatureId::Vertex {
-                    subshape: 0,
-                    id: support_point_id,
-                });
+                out.set_feature_id(FeatureId::vertex(0, support_point_id));
             }
             _ => {
                 out.push(self.support_point_toward(m, dir), FeatureId::Unknown);
@@ -345,7 +289,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
         }
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
         let mut result = PolyhedralCone::new();
 
         match na::dimension::<P::Vector>() {

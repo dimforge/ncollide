@@ -91,16 +91,35 @@ where
     {
         self.contact_manifold.save_cache_and_clear(ids);
         for (c, f1, f2) in self.new_contacts.drain(..) {
-            let kinematic =
-                Self::contact_kinematic(m1, &self.manifold1, f1, m2, &self.manifold2, f2);
+            let mut kinematic = ContactKinematic::new();
             let local1 = m1.inverse_transform_point(&c.world1);
             let local2 = m2.inverse_transform_point(&c.world2);
             let n1 = g1.normal_cone(f1);
             let n2 = g2.normal_cone(f2);
 
-            if self.contact_manifold
-                .push(c, local1, local2, n1, n2, f1, f2, kinematic, ids)
-            {
+            match f1 {
+                FeatureId::Face { .. } => kinematic.set_plane1(f1, local1, n1.generators()[0]),
+                FeatureId::Edge { .. } => {
+                    let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
+                    let dir1 = m1.inverse_transform_unit_vector(&e1.direction().unwrap());
+                    kinematic.set_line1(f1, local1, dir1, n1)
+                }
+                FeatureId::Vertex { .. } => kinematic.set_point1(f1, local1, n1),
+                FeatureId::Unknown => unreachable!()
+            }
+
+            match f2 {
+                FeatureId::Face { .. } => kinematic.set_plane2(f2, local2, n2.generators()[0]),
+                FeatureId::Edge { .. } => {
+                    let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
+                    let dir2 = m2.inverse_transform_unit_vector(&e2.direction().unwrap());
+                    kinematic.set_line2(f2, local2, dir2, n2)
+                }
+                FeatureId::Vertex { .. } => kinematic.set_point2(f2, local2, n2),
+                FeatureId::Unknown => unreachable!()
+            }
+
+            if self.contact_manifold.push(c, kinematic, ids) {
                 NAVOID.with(|e| e.borrow_mut().1 += 1);
             }
         }
@@ -108,55 +127,13 @@ where
 
     fn reduce_manifolds_to_deepest_contact(&mut self, m1: &M, m2: &M) {
         if let Some(deepest) = self.contact_manifold.deepest_contact() {
-            self.manifold1.reduce_to_feature(deepest.feature1);
-            self.manifold2.reduce_to_feature(deepest.feature2);
+            self.manifold1.reduce_to_feature(deepest.kinematic.feature1());
+            self.manifold2.reduce_to_feature(deepest.kinematic.feature2());
             self.manifold1.transform_by(&m1.inverse());
             self.manifold2.transform_by(&m2.inverse());
         } else {
             self.manifold1.clear();
             self.manifold2.clear();
-        }
-    }
-
-    fn contact_kinematic(
-        m1: &M,
-        manifold1: &ConvexPolyface<P>,
-        f1: FeatureId,
-        m2: &M,
-        manifold2: &ConvexPolyface<P>,
-        f2: FeatureId,
-    ) -> ContactKinematic<P::Vector> {
-        if na::dimension::<P::Vector>() == 2 {
-            match (f1, f2) {
-                (FeatureId::Vertex(..), FeatureId::Vertex(..)) => ContactKinematic::PointPoint,
-                (FeatureId::Vertex(..), FeatureId::Edge(..)) => ContactKinematic::PointPlane,
-                (FeatureId::Edge(..), FeatureId::Vertex(..)) => ContactKinematic::PlanePoint,
-                _ => ContactKinematic::PointPoint,
-            }
-        } else {
-            match (f1, f2) {
-                (FeatureId::Vertex(..), FeatureId::Vertex(..)) => ContactKinematic::PointPoint,
-                (FeatureId::Vertex(..), FeatureId::Face(..)) => ContactKinematic::PointPlane,
-                (FeatureId::Face(..), FeatureId::Vertex(..)) => ContactKinematic::PlanePoint,
-                (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
-                    let e1 = manifold1.edge(f1).expect("Invalid edge id.");
-                    let dir1 = m1.inverse_transform_vector(&e1.direction().unwrap().unwrap());
-                    ContactKinematic::LinePoint(Unit::new_unchecked(dir1))
-                }
-                (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
-                    let e2 = manifold2.edge(f2).expect("Invalid edge id.");
-                    let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
-                    ContactKinematic::PointLine(Unit::new_unchecked(dir2))
-                }
-                (FeatureId::Edge(..), FeatureId::Edge(..)) => {
-                    let e1 = manifold1.edge(f1).expect("Invalid edge id.");
-                    let e2 = manifold2.edge(f2).expect("Invalid edge id.");
-                    let dir1 = m1.inverse_transform_vector(&e1.direction().unwrap().unwrap());
-                    let dir2 = m2.inverse_transform_vector(&e2.direction().unwrap().unwrap());
-                    ContactKinematic::LineLine(Unit::new_unchecked(dir1), Unit::new_unchecked(dir2))
-                }
-                _ => ContactKinematic::PointPoint,
-            }
         }
     }
 
@@ -372,12 +349,12 @@ where
         let mut f2 = self.manifold2.feature_id;
 
         match (self.manifold1.feature_id, self.manifold2.feature_id) {
-            (FeatureId::Vertex(..), FeatureId::Vertex(..)) => {
+            (FeatureId::Vertex { .. }, FeatureId::Vertex { .. }) => {
                 world1 = self.manifold1.vertices[0];
                 world2 = self.manifold2.vertices[0];
                 can_penetrate = false;
             }
-            (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
+            (FeatureId::Vertex { .. }, FeatureId::Edge { .. }) => {
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let pt1 = &self.manifold1.vertices[0];
                 let proj = seg2.project_point_with_location(&Id::new(), pt1, false);
@@ -390,7 +367,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
+            (FeatureId::Edge { .. }, FeatureId::Vertex { .. }) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let pt2 = &self.manifold2.vertices[0];
                 let proj = seg1.project_point_with_location(&Id::new(), pt2, false);
@@ -403,7 +380,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Vertex(..), FeatureId::Face(..)) => {
+            (FeatureId::Vertex { .. }, FeatureId::Face { .. }) => {
                 let pt1 = &self.manifold1.vertices[0];
                 if let Some(mut c) = self.manifold2.project_point(pt1) {
                     world1 = c.world2;
@@ -412,7 +389,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Face(..), FeatureId::Vertex(..)) => {
+            (FeatureId::Face { .. }, FeatureId::Vertex { .. }) => {
                 let pt2 = &self.manifold2.vertices[0];
                 if let Some(c) = self.manifold1.project_point(pt2) {
                     world1 = c.world1;
@@ -421,7 +398,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Edge(..), FeatureId::Edge(..)) => {
+            (FeatureId::Edge { .. }, FeatureId::Edge { .. }) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let locs = closest_points_internal::segment_against_segment_with_locations(
@@ -453,7 +430,7 @@ where
         let normals2 = g2.normal_cone(f2);
 
         if let Some(n1) = self.manifold1.normal {
-            let local_dir2 = Unit::new_unchecked(m2.inverse_transform_vector(&-*n1));
+            let local_dir2 = m2.inverse_transform_unit_vector(&-n1);
             if normals2.contains_dir(&local_dir2) {
                 let depth = na::dot(&dir, n1.as_ref());
                 return Some(Contact::new(world1, world2, n1, -depth));
@@ -463,8 +440,8 @@ where
             return Some(Contact::new(world1, world2, -n2, depth));
         } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, P::Real::default_epsilon()) {
             // FIXME: don't always recompute the normal cones.
-            let local_dir1 = Unit::new_unchecked(m1.inverse_transform_vector(dir.as_ref()));
-            let local_dir2 = Unit::new_unchecked(m2.inverse_transform_vector(&-*dir));
+            let local_dir1 = m1.inverse_transform_unit_vector(&dir);
+            let local_dir2 = m2.inverse_transform_unit_vector(&-dir);
             // let deepest = self.contact_manifold.deepest_contact().unwrap();
 
             if normals1.contains_dir(&local_dir1) && normals2.contains_dir(&local_dir2) {

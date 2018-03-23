@@ -53,7 +53,7 @@ pub trait SupportMap<P: Point, M> {
     // XXX: those two methods should not be here.
     // They should be implemented by every solid, not only support mappings.
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
         // XXX: remove this default implementation.
         PolyhedralCone::new()
     }

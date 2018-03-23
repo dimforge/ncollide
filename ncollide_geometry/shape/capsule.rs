@@ -5,7 +5,7 @@ use num::Signed;
 use alga::general::Real;
 use na::{self, Unit};
 
-use shape::SupportMap;
+use shape::{Segment, SupportMap};
 use math::{Isometry, Point};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
