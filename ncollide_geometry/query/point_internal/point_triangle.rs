@@ -32,10 +32,10 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
         };
 
         let feature = match loc {
-            TrianglePointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
-            TrianglePointLocation::OnEdge(i, _) => FeatureId::Edge { subshape: 0, id: i },
-            TrianglePointLocation::OnFace(_) => FeatureId::Face { subshape: 0, id: 0 },
-            TrianglePointLocation::OnSolid => FeatureId::Face { subshape: 0, id: 0 },
+            TrianglePointLocation::OnVertex(i) => FeatureId::vertex(0, i),
+            TrianglePointLocation::OnEdge(i, _) => FeatureId::edge(0, i),
+            TrianglePointLocation::OnFace(_) => FeatureId::face(0, 0),
+            TrianglePointLocation::OnSolid => FeatureId::face(0, 0),
         };
 
         (proj, feature)

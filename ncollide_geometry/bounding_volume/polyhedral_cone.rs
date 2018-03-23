@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::f64;
 use num::Zero;
 use approx::ApproxEq;
@@ -5,22 +6,26 @@ use smallvec::SmallVec;
 
 use na::{self, Real, Unit};
 use utils;
-use math::Vector;
+use math::{Isometry, Point, Vector};
 
+// XXX: we use P as the type parameter because without it
+// we can't implement `transform_by` cleanly…
 #[derive(Clone, Debug)]
-pub struct PolyhedralCone<V: Vector> {
+pub struct PolyhedralCone<P: Point> {
     // FIXME: specialization, 2D polycones cannot contain more than 2 generators.
-    generators: SmallVec<[Unit<V>; 4]>,
+    generators: SmallVec<[Unit<P::Vector>; 4]>,
+    phantom: PhantomData<P>,
 }
 
-impl<V: Vector> PolyhedralCone<V> {
+impl<P: Point> PolyhedralCone<P> {
     pub fn new() -> Self {
         Self::from_slice(&[])
     }
 
-    pub fn from_slice(normals: &[Unit<V>]) -> Self {
+    pub fn from_slice(normals: &[Unit<P::Vector>]) -> Self {
         PolyhedralCone {
             generators: SmallVec::from_slice(normals),
+            phantom: PhantomData,
         }
     }
 
@@ -35,25 +40,36 @@ impl<V: Vector> PolyhedralCone<V> {
     }
 
     #[inline]
-    pub fn add_generator(&mut self, gen: Unit<V>) {
-        if na::dimension::<V>() == 2 && self.generators.len() == 2 {
+    pub fn generators(&self) -> &[Unit<P::Vector>] {
+        &self.generators[..]
+    }
+
+    #[inline]
+    pub fn add_generator(&mut self, gen: Unit<P::Vector>) {
+        if na::dimension::<P::Vector>() == 2 && self.generators.len() == 2 {
             // FIXME: too restrictive?
             panic!("Polyhedral cone: 2D polyhedral cones cannot contain more than 2 generators.")
         }
         self.generators.push(gen);
     }
 
-    pub fn project(&self, dir: &Unit<V>) -> Unit<V> {
+    pub fn transform_by<M: Isometry<P>>(&mut self, m: &M) {
+        for gen in &mut self.generators {
+            *gen = Unit::new_unchecked(m.transform_vector(gen.as_ref()));
+        }
+    }
+
+    pub fn project(&self, dir: &Unit<P::Vector>) -> Unit<P::Vector> {
         if self.generators.len() == 0 {
             *dir
         } else if self.generators.len() == 1 {
             self.generators[0]
         } else {
-            if na::dimension::<V>() == 2 {
+            if na::dimension::<P::Vector>() == 2 {
                 assert!(self.generators.len() == 2);
                 let perp1 = utils::perp2(&**dir, &*self.generators[0]);
                 let perp2 = utils::perp2(&**dir, &*self.generators[1]);
-                let _0 = V::Real::zero();
+                let _0 = P::Real::zero();
 
                 match (perp1 > _0, perp2 > _0) {
                     (true, true) => self.generators[0],
@@ -73,15 +89,21 @@ impl<V: Vector> PolyhedralCone<V> {
         }
     }
 
-    pub fn contains(&self, v: &V) -> bool {
-        if let Some(dir) = Unit::try_new(*v, V::Real::default_epsilon()) {
+    pub fn contains(&self, v: &P::Vector) -> bool {
+        if let Some(dir) = Unit::try_new(*v, P::Real::default_epsilon()) {
             self.contains_dir(&dir)
         } else {
             true
         }
     }
 
-    pub fn polar_contains_dir(&self, dir: &Unit<V>) -> bool {
+    pub fn polar_contains_dir(&self, dir: &Unit<P::Vector>) -> bool {
+        if self.generators.len() == 0 {
+            // Empty polyhedral cone === the whole space.
+            // Thuse its polar contains only 0.
+            return false;
+        }
+
         for g in &self.generators {
             if na::dot(g.as_ref(), dir.as_ref()) > na::zero() {
                 return false;
@@ -91,25 +113,25 @@ impl<V: Vector> PolyhedralCone<V> {
         true
     }
 
-    pub fn contains_dir(&self, dir: &Unit<V>) -> bool {
+    pub fn contains_dir(&self, dir: &Unit<P::Vector>) -> bool {
         if self.generators.len() == 0 {
             true
-        } else if na::dimension::<V>() == 2 {
+        } else if na::dimension::<P::Vector>() == 2 {
             // NOTE: the following assumes the polycone
             // generator are ordered in CCW order.
             assert!(self.generators.len() == 2);
             let perp1 = utils::perp2(dir.as_ref(), &*self.generators[0]);
             let perp2 = utils::perp2(dir.as_ref(), &*self.generators[1]);
-            let _0 = V::Real::zero();
+            let _0 = P::Real::zero();
 
             perp1 <= _0 && perp2 >= _0
         } else {
             // NOTE: the following does not makes any assumptions on the
             // polycone orientation.
-            let mut sign = V::Real::zero();
+            let mut sign = P::Real::zero();
             if self.generators.len() == 1 {
                 // The polycone is degenerate and actually has only one generactor.
-                let eps: V::Real = na::convert(f64::consts::PI / 180.0 * 0.1);
+                let eps: P::Real = na::convert(f64::consts::PI / 180.0 * 0.1);
                 let c_eps = eps.cos();
                 let dot = na::dot(&*self.generators[0], dir.as_ref());
                 dot >= c_eps
@@ -139,8 +161,8 @@ impl<V: Vector> PolyhedralCone<V> {
                     dot >= c_eps
                 }
             } else {
-                let mut sign = V::Real::zero();
-                let mut center = V::zero();
+                let mut sign = P::Real::zero();
+                let mut center = P::Vector::zero();
 
                 for i1 in 0..self.generators.len() {
                     let i2 = (i1 + 1) % self.generators.len();

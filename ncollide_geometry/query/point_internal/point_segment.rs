@@ -14,8 +14,8 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
-            SegmentPointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
-            SegmentPointLocation::OnEdge(..) => FeatureId::Edge { subshape: 0, id: 0 },
+            SegmentPointLocation::OnVertex(i) => FeatureId::vertex(0, i),
+            SegmentPointLocation::OnEdge(..) => FeatureId::edge(0, 0),
         };
 
         (proj, feature)
@@ -44,7 +44,6 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
 
         let mut proj;
         let location;
-        let feature;
 
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.

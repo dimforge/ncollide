@@ -6,34 +6,19 @@ use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
 
-impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
+impl<P, I, E> BaseMesh<P, I, E>
 where
     P: Point,
-    M: Isometry<P>,
     E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id>,
 {
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point<M: Isometry<P>>(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
-        let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = BaseMeshPointProjCostFn {
-            mesh: self,
-            point: &ls_pt,
-        };
-
-        let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
-        proj.point = m.transform_point(&proj.point);
-
-        (proj, extra_info)
-    }
-
-    #[inline]
-    fn contains_point(&self, m: &M, point: &P) -> bool {
+    fn contains_point<M: Isometry<P>>(&self, m: &M, point: &P) -> bool {
         let ls_pt = m.inverse_transform_point(point);
         let mut test = PointContainementTest {
             mesh: self,
@@ -45,23 +30,14 @@ where
 
         test.found
     }
-}
-
-impl<P, M, I, E> PointQueryWithLocation<P, M> for BaseMesh<P, I, E>
-where
-    P: Point,
-    M: Isometry<P>,
-    E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>,
-{
-    type Location = PointProjectionInfo<E::Location>;
 
     #[inline]
-    fn project_point_with_location(
+    fn project_point_with_location<M: Isometry<P>>(
         &self,
         m: &M,
         point: &P,
         _: bool,
-    ) -> (PointProjection<P>, Self::Location) {
+    ) -> (PointProjection<P>, PointProjectionInfo<E::Location>) {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = BaseMeshPointProjCostFn {
             mesh: self,
@@ -104,7 +80,7 @@ where
 
         let extra_info = PointProjectionInfo {
             element_index: *b,
-            barycentric_coordinates: extra_info,
+            location: extra_info,
         };
 
         Some((na::distance(self.point, &proj.point), (proj, extra_info)))
@@ -170,13 +146,10 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for TriMesh<P> {
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
-        self.base_mesh().project_point_with_feature(m, point)
+        unimplemented!()
     }
 
-    #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> P::Real {
-        self.base_mesh().distance_to_point(m, point, solid)
-    }
+    // FIXME: implement distance_to_point too?
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {
@@ -193,13 +166,10 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Polyline<P> {
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
-        self.base_mesh().project_point_with_feature(m, point)
+        unimplemented!()
     }
 
-    #[inline]
-    fn distance_to_point(&self, m: &M, point: &P, solid: bool) -> P::Real {
-        self.base_mesh().distance_to_point(m, point, solid)
-    }
+    // FIXME: implement distance_to_point too?
 
     #[inline]
     fn contains_point(&self, m: &M, point: &P) -> bool {

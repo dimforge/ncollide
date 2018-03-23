@@ -16,9 +16,9 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Tetrahedron<P> {
     fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
-            TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex { subshape: 0, id: i },
-            TetrahedronPointLocation::OnEdge(i, _) => FeatureId::Edge { subshape: 0, id: i },
-            TetrahedronPointLocation::OnFace(i, _) => FeatureId::Face { subshape: 0, id: i },
+            TetrahedronPointLocation::OnVertex(i) => FeatureId::vertex(0, i),
+            TetrahedronPointLocation::OnEdge(i, _) => FeatureId::edge(0, i),
+            TetrahedronPointLocation::OnFace(i, _) => FeatureId::face(0, i),
             TetrahedronPointLocation::OnSolid => unreachable!(),
         };
 
