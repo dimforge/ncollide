@@ -68,6 +68,7 @@ impl<P: Point> ConvexPolyface<P> {
         self.vertices_id.clear();
         self.edges_id.clear();
         self.normal = None;
+        self.feature_id = FeatureId::Unknown;
     }
 
     pub fn reduce_to_feature(&mut self, id: FeatureId) {

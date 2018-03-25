@@ -71,15 +71,15 @@ impl<P: Point, M: 'static, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> 
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
                 }
 
-                if value.num_contacts() == 0 {
-                    if had_contacts {
-                        contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
-                    }
-                } else {
-                    if !had_contacts {
-                        contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
-                    }
-                }
+                // if value.num_contacts() == 0 {
+                //     if had_contacts {
+                //         contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                //     }
+                // } else {
+                //     if !had_contacts {
+                //         contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
+                //     }
+                // }
             }
         }
 

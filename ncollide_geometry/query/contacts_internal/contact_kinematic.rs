@@ -1,6 +1,5 @@
-use std::mem;
 use approx::ApproxEq;
-use na::{self, Real, Unit};
+use na::{self, Unit};
 use shape::FeatureId;
 use bounding_volume::PolyhedralCone;
 use query::Contact;
@@ -296,10 +295,19 @@ impl<P: Point> ContactKinematic<P> {
                 if let Some((n, d)) =
                     Unit::try_new_and_get(world2 - world1, P::Real::default_epsilon())
                 {
-                    depth = -d;
-                    normal = n;
+                    let local_n1 = m1.inverse_transform_unit_vector(&n);
+                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
+                    if self.normals1.polar_contains_dir(&local_n1)
+                        || self.normals2.polar_contains_dir(&local_n2)
+                    {
+                        depth = d;
+                        normal = -n;
+                    } else {
+                        depth = -d;
+                        normal = n;
+                    }
                 } else {
-                    depth = -self.margin1 - self.margin2;
+                    depth = na::zero();
                     normal = m1.transform_unit_vector(default_normal1);
                 }
             }

@@ -100,17 +100,16 @@ impl<P: Point> PolyhedralCone<P> {
     pub fn polar_contains_dir(&self, dir: &Unit<P::Vector>) -> bool {
         if self.generators.len() == 0 {
             // Empty polyhedral cone === the whole space.
-            // Thuse its polar contains only 0.
-            return false;
-        }
-
-        for g in &self.generators {
-            if na::dot(g.as_ref(), dir.as_ref()) > na::zero() {
-                return false;
+            // Thus its polar contains only 0.
+            false
+        } else {
+            for g in &self.generators {
+                if na::dot(g.as_ref(), dir.as_ref()) > na::zero() {
+                    return false;
+                }
             }
+            true
         }
-
-        true
     }
 
     pub fn contains_dir(&self, dir: &Unit<P::Vector>) -> bool {

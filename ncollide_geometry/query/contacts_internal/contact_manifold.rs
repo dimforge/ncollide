@@ -49,7 +49,7 @@ impl<P: Point> ContactManifold<P> {
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
             new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
-            max_life: 1,                         // FIXME: don't hard-code this.
+            max_life: 2,                         // FIXME: don't hard-code this.
         }
     }
 
@@ -123,9 +123,6 @@ impl<P: Point> ContactManifold<P> {
         let mut closest_dist: P::Real = na::convert(0.02 * 0.02); // FIXME: don't hard-code this.
 
         for i in 0..self.cache.len() {
-            /*if !self.cached_contact_used[i] && self.cache[i].feature1 == feature1
-                && self.cache[i].feature2 == feature2*/
-
             let dist = na::distance_squared(&kinematic.local1(), &self.cache[i].kinematic.local1());
             if dist < closest_dist {
                 closest_dist = dist;
@@ -135,9 +132,6 @@ impl<P: Point> ContactManifold<P> {
         }
 
         for i in 0..self.contacts.len() {
-            /*if !self.cached_contact_used[i] && self.cache[i].feature1 == feature1
-                && self.cache[i].feature2 == feature2*/
-
             let dist =
                 na::distance_squared(&kinematic.local1(), &self.contacts[i].kinematic.local1());
             if dist < closest_dist {
@@ -194,8 +188,9 @@ impl<P: Point> ContactManifold<P> {
         let mut matched = false;
 
         for i in 0..self.cache.len() {
-            if self.cached_contact_used[i].is_obsolete() && self.cache[i].kinematic.feature1() == kinematic.feature1()
-                && self.cache[i].kimenatic.feature2() == kinematic.feature2()
+            if self.cached_contact_used[i].is_obsolete()
+                && self.cache[i].kinematic.feature1() == kinematic.feature1()
+                && self.cache[i].kinematic.feature2() == kinematic.feature2()
             {
                 self.cached_contact_used[i] = CacheEntryStatus::Used(self.contacts.len());
                 id = self.cache[i].id;
@@ -207,12 +202,9 @@ impl<P: Point> ContactManifold<P> {
             id = gen.alloc();
         }
 
-        let tracked = TrackedContact::new(
-            contact,
-            kinematic,
-            id,
-        );
+        let tracked = TrackedContact::new(contact, kinematic, id);
         self.contacts.push(tracked);
         matched
-    }*/
+    }
+    */
 }
