@@ -73,9 +73,11 @@ where
             s = na::clamp(-c / a, _0, _1);
         } else {
             let b = na::dot(&d1, &d2);
-            let denom = a * e - b * b;
+            let ae = a * e;
+            let denom = ae - b * b;
 
-            if denom > _eps {
+            // Use relative error to test collinearity.
+            if denom > _eps * ae {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {
                 s = _0;

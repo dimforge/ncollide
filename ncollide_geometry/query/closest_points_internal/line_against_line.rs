@@ -39,9 +39,11 @@ pub fn line_against_line<P: Point>(
             s = -c / a;
         } else {
             let b = na::dot(dir1, dir2);
-            let denom = a * e - b * b;
+            let ae = a * e;
+            let denom = ae - b * b;
 
-            if denom != _0 {
+            // Use relative error to test collinearity.
+            if denom > _eps * ae {
                 s = (b * f - c * e) / denom;
             } else {
                 s = _0;
