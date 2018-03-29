@@ -7,6 +7,7 @@ use narrow_phase::{BallBallContactGenerator,
                    CompositeShapeShapeContactGenerator,
                    ContactAlgorithm,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
+                   PlaneBallManifoldGenerator,
                    PlaneSupportMapManifoldGenerator,
                    ShapeCompositeShapeContactGenerator,
                    SupportMapSupportMapManifoldGenerator};
@@ -35,13 +36,19 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
     ) -> Option<ContactAlgorithm<P, M>> {
         let a_is_ball = a.is_shape::<Ball<P::Real>>();
         let b_is_ball = b.is_shape::<Ball<P::Real>>();
+        let a_is_plane = a.is_shape::<Plane<P::Vector>>();
+        let b_is_plane = b.is_shape::<Plane<P::Vector>>();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallContactGenerator::<P, M>::new()))
-        } else if a.is_shape::<Plane<P::Vector>>() && b.is_support_map() {
+        } else if a_is_plane && b_is_ball {
+            Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(false)))
+        } else if a_is_ball && b_is_plane {
+            Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(true)))
+        } else if a_is_plane && b.is_support_map() {
             let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(false);
             Some(Box::new(gen))
-        } else if b.is_shape::<Plane<P::Vector>>() && a.is_support_map() {
+        } else if b_is_plane && a.is_support_map() {
             let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(true);
             Some(Box::new(gen))
         } else if a.is_support_map() && b.is_support_map() {
