@@ -49,7 +49,7 @@ impl<P: Point> ContactManifold<P> {
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
             new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
-            max_life: 2,                         // FIXME: don't hard-code this.
+            max_life: 0,                         // FIXME: don't hard-code this.
         }
     }
 

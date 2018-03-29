@@ -147,7 +147,7 @@ where
         }
     }
 
-    fn clip_polyfaces(&mut self, normal: Unit<P::Vector>) {
+    fn clip_polyfaces(&mut self, prediction: &ContactPrediction<P::Real>, normal: Unit<P::Vector>) {
         if na::dimension::<P::Vector>() == 2 {
             if self.manifold1.vertices.len() <= 1 || self.manifold2.vertices.len() <= 1 {
                 return;
@@ -198,16 +198,20 @@ where
                 let p2 = *seg2.a();
                 let contact = Contact::new_wo_depth(p1, p2, normal);
 
-                self.new_contacts
-                    .push((contact, self.manifold1.feature_id, features2[0]));
+                if -contact.depth <= prediction.linear {
+                    self.new_contacts
+                        .push((contact, self.manifold1.feature_id, features2[0]));
+                }
             } else {
                 let bcoord = (range1[0] - range2[0]) / length2;
                 let p1 = *seg1.a();
                 let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
                 let contact = Contact::new_wo_depth(p1, p2, normal);
 
-                self.new_contacts
-                    .push((contact, features1[0], self.manifold2.feature_id));
+                if -contact.depth <= prediction.linear {
+                    self.new_contacts
+                        .push((contact, features1[0], self.manifold2.feature_id));
+                }
             }
 
             if range2[1] < range1[1] {
@@ -216,16 +220,20 @@ where
                 let p2 = *seg2.b();
                 let contact = Contact::new_wo_depth(p1, p2, normal);
 
-                self.new_contacts
-                    .push((contact, self.manifold1.feature_id, features2[1]));
+                if -contact.depth <= prediction.linear {
+                    self.new_contacts
+                        .push((contact, self.manifold1.feature_id, features2[1]));
+                }
             } else {
                 let bcoord = (range1[1] - range2[0]) / length2;
                 let p1 = *seg1.b();
                 let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
                 let contact = Contact::new_wo_depth(p1, p2, normal);
 
-                self.new_contacts
-                    .push((contact, features1[1], self.manifold2.feature_id));
+                if -contact.depth <= prediction.linear {
+                    self.new_contacts
+                        .push((contact, features1[1], self.manifold2.feature_id));
+                }
             }
         } else {
             // FIXME: don't compute contacts further than the prediction.
@@ -275,7 +283,10 @@ where
                         let f2 = self.manifold2.feature_id;
                         let f1 = self.manifold1.vertices_id[i];
                         let contact = Contact::new_wo_depth(world1, world2, normal);
-                        self.new_contacts.push((contact, f1, f2));
+
+                        if -contact.depth <= prediction.linear {
+                            self.new_contacts.push((contact, f1, f2));
+                        }
                     }
                 }
             }
@@ -296,7 +307,10 @@ where
                         let f1 = self.manifold1.feature_id;
                         let f2 = self.manifold2.vertices_id[i];
                         let contact = Contact::new_wo_depth(world1, world2, normal);
-                        self.new_contacts.push((contact, f1, f2));
+
+                        if -contact.depth <= prediction.linear {
+                            self.new_contacts.push((contact, f1, f2));
+                        }
                     }
                 }
             }
@@ -327,7 +341,10 @@ where
                         let f1 = self.manifold1.edges_id[i1];
                         let f2 = self.manifold2.edges_id[i2];
                         let contact = Contact::new_wo_depth(world1, world2, normal);
-                        self.new_contacts.push((contact, f1, f2));
+
+                        if -contact.depth <= prediction.linear {
+                            self.new_contacts.push((contact, f1, f2));
+                        }
                     }
                 }
             }
@@ -436,28 +453,27 @@ where
         }
 
         let dir = world2 - world1;
-        let normals1 = g1.normal_cone(f1);
-        let normals2 = g2.normal_cone(f2);
 
         if let Some(n1) = self.manifold1.normal {
-            let local_dir2 = m2.inverse_transform_unit_vector(&-n1);
-            if normals2.contains_dir(&local_dir2) {
-                let depth = na::dot(&dir, n1.as_ref());
-                return Some(Contact::new(world1, world2, n1, -depth));
-            }
+            let depth = na::dot(&dir, n1.as_ref());
+            return Some(Contact::new(world1, world2, n1, -depth));
         } else if let Some(n2) = self.manifold2.normal {
             let depth = na::dot(&dir, n2.as_ref());
             return Some(Contact::new(world1, world2, -n2, depth));
         } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, P::Real::default_epsilon()) {
             // FIXME: don't always recompute the normal cones.
+            let normals1 = g1.normal_cone(f1);
+            let normals2 = g2.normal_cone(f2);
+
             let local_dir1 = m1.inverse_transform_unit_vector(&dir);
             let local_dir2 = m2.inverse_transform_unit_vector(&-dir);
             // let deepest = self.contact_manifold.deepest_contact().unwrap();
 
             if normals1.contains_dir(&local_dir1) && normals2.contains_dir(&local_dir2) {
                 return Some(Contact::new(world1, world2, dir, -dist));
-            } else if can_penetrate && normals1.contains_dir(&-local_dir1)
-                && normals2.contains_dir(&-local_dir2)
+            } else if can_penetrate
+                && (normals1.polar_contains_dir(&local_dir1)
+                    || normals2.polar_contains_dir(&local_dir2))
             {
                 return Some(Contact::new(world1, world2, -dir, dist));
             }
@@ -493,13 +509,13 @@ where
             // in some situations where the optimal contact direction can be determined directly
             // from the previous manifolds and normal cones.
             // I did not manage to obtain satisfying result so it is disabled for now.
-            //
             // let contact = if let Some(optimal) = self.try_optimal_contact(ma, sma, mb, smb) {
             //     NAVOID.with(|e| e.borrow_mut().0 += 1);
             //     let n = optimal.normal;
             //     if optimal.depth > prediction.linear {
-            //         self.manifold1.clear();
-            //         self.manifold2.clear();
+            //         self.last_gjk_dir = Some(-n.unwrap());
+            //         self.reduce_manifolds_to_deepest_contact(ma, mb);
+
             //         return false;
             //     }
             //     GJKResult::Projection(optimal, -n)
@@ -537,7 +553,7 @@ where
                     if contact.depth > na::zero() {
                         sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
                         smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
-                        self.clip_polyfaces(contact.normal);
+                        self.clip_polyfaces(prediction, contact.normal);
                     } else {
                         sma.support_feature_toward(
                             ma,
@@ -551,7 +567,7 @@ where
                             prediction.angular2,
                             &mut self.manifold2,
                         );
-                        self.clip_polyfaces(contact.normal);
+                        self.clip_polyfaces(prediction, contact.normal);
                     }
 
                     if self.new_contacts.len() == 0 {
