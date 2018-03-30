@@ -1,10 +1,10 @@
 use std::any::Any;
 
 use world::CollisionObject;
-use math::Point;
+use math::{Point, Isometry};
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<P: Point, M, T>: Any + Send + Sync {
+pub trait BroadPhasePairFilter<P: Point, M: Isometry<P>, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool;
 }
@@ -16,7 +16,7 @@ pub struct BroadPhasePairFilters<P: Point, M, T> {
     filters: Vec<(String, Box<BroadPhasePairFilter<P, M, T>>)>,
 }
 
-impl<P: Point, M, T> BroadPhasePairFilters<P, M, T> {
+impl<P: Point, M: Isometry<P>, T> BroadPhasePairFilters<P, M, T> {
     /// Creates a new set of collision filters.
     pub fn new() -> BroadPhasePairFilters<P, M, T> {
         BroadPhasePairFilters {

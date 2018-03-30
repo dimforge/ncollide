@@ -1,7 +1,7 @@
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
 use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolyhedron, Cuboid, Cylinder,
-            Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle};
+            Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle, FeatureId};
 use math::{Isometry, Point};
 
 macro_rules! impl_as_convex_polyhedron(
@@ -112,6 +112,23 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
 impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {
     impl_shape_common!();
     impl_as_composite_shape!();
+
+    #[inline]
+    fn subshape_transform(&self, mut feature: FeatureId) -> M {
+        let idx = self.start_idx();
+        let subshape_id = feature.subshape_id();
+
+        let mut shape_id = 0;
+
+        while shape_id < idx.len() && idx[shape_id] <= subshape_id {
+            shape_id += 1;
+        }
+
+        let shape = &self.shapes()[shape_id - 1];
+        feature.set_subshape_id(subshape_id - idx[shape_id - 1]);
+
+        shape.0.clone() * shape.1.subshape_transform(feature)
+    }
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for TriMesh<P> {

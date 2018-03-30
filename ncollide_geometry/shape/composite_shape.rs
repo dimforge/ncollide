@@ -8,6 +8,8 @@ use shape::Shape;
 /// A composite shape is composed of several shapes. Typically, it is a convex decomposition of
 /// a concave shape.
 pub trait CompositeShape<P: Point, M> {
+    /// The number of sub-shape in this composide sahpe.
+    fn nparts(&self) -> usize;
     /// Applies a function to each sub-shape of this concave shape.
     fn map_part_at(&self, usize, &mut FnMut(&M, &Shape<P, M>));
     /// Applies a transformation matrix and a function to each sub-shape of this concave

@@ -50,7 +50,7 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Compound<P, M> {
 /*
  * Costs functions.
  */
-struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a> {
+struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<P, M>,
     ray: &'a Ray<P>,
     solid: bool,
@@ -76,7 +76,7 @@ where
     }
 }
 
-struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a> {
+struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<P, M>,
     ray: &'a Ray<P>,
     solid: bool,

@@ -11,8 +11,8 @@ pub use self::convex_polyhedron_convex_polyhedron_manifold_generator::{ConvexPol
                                                                        NAVOID};
 // pub use self::incremental_contact_manifold_generator::IncrementalContactManifoldGenerator;
 // pub use self::one_shot_contact_manifold_generator::OneShotContactManifoldGenerator;
-pub use self::composite_shape_shape_contact_generator::{CompositeShapeShapeContactGenerator,
-                                                        ShapeCompositeShapeContactGenerator};
+pub use self::composite_shape_shape_manifold_generator::{CompositeShapeShapeManifoldGenerator,
+                                                         ShapeCompositeShapeManifoldGenerator};
 
 // FIXME: un-hide this and move everything to a folder.
 #[doc(hidden)]
@@ -26,4 +26,4 @@ mod support_map_support_map_contact_generator;
 mod convex_polyhedron_convex_polyhedron_manifold_generator;
 // mod incremental_contact_manifold_generator;
 // mod one_shot_contact_manifold_generator;
-mod composite_shape_shape_contact_generator;
+mod composite_shape_shape_manifold_generator;

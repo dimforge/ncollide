@@ -1,6 +1,6 @@
 use broad_phase::BroadPhasePairFilter;
 use world::CollisionObject;
-use math::Point;
+use math::{Point, Isometry};
 
 const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS: u32 = (1 << 30) - 1;
@@ -214,7 +214,7 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<P: Point, M, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
+impl<P: Point, M: Isometry<P>, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
     fn is_pair_valid(
         &self,
         co1: &CollisionObject<P, M, T>,

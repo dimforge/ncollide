@@ -5,13 +5,13 @@ use geometry::shape::{Ball, Plane, Shape};
 use geometry::query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
 use narrow_phase::{BallBallContactGenerator,
                    BallConvexPolyhedronManifoldGenerator,
-                   CompositeShapeShapeContactGenerator,
+                   CompositeShapeShapeManifoldGenerator,
                    ContactAlgorithm,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
                    ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                    PlaneBallManifoldGenerator,
                    PlaneConvexPolyhedronManifoldGenerator,
-                   ShapeCompositeShapeContactGenerator};
+                   ShapeCompositeShapeManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher<P: Point, M> {
@@ -77,9 +77,9 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
                 _ => unimplemented!(),
             }
         } else if a.is_composite_shape() {
-            Some(Box::new(CompositeShapeShapeContactGenerator::<P, M>::new()))
+            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new()))
         } else if b.is_composite_shape() {
-            Some(Box::new(ShapeCompositeShapeContactGenerator::<P, M>::new()))
+            Some(Box::new(ShapeCompositeShapeManifoldGenerator::<P, M>::new()))
         } else {
             None
         }

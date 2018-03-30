@@ -16,18 +16,20 @@ use math::{Isometry, Point};
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
-pub struct Compound<P: Point, M> {
+pub struct Compound<P: Point, M: Isometry<P>> {
     shapes: Vec<(M, ShapeHandle<P, M>)>,
     bvt: BVT<usize, AABB<P>>,
     bvs: Vec<AABB<P>>,
+    start_idx: Vec<usize>
 }
 
-impl<P: Point, M: Clone> Clone for Compound<P, M> {
+impl<P: Point, M: Isometry<P>> Clone for Compound<P, M> {
     fn clone(&self) -> Compound<P, M> {
         Compound {
             shapes: self.shapes.clone(),
             bvt: self.bvt.clone(),
             bvs: self.bvs.clone(),
+            start_idx: self.start_idx.clone()
         }
     }
 }
@@ -37,6 +39,8 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
     pub fn new(shapes: Vec<(M, ShapeHandle<P, M>)>) -> Compound<P, M> {
         let mut bvs = Vec::new();
         let mut leaves = Vec::new();
+        let mut start_idx = Vec::new();
+        let mut start_id = 0;
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             // loosen for better persistancy
@@ -44,6 +48,13 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
+            start_idx.push(start_id);
+
+            if let Some(comp) = shape.as_composite_shape() {
+                start_id += comp.nparts();
+            } else {
+                start_id += 1;
+            }
         }
 
         let bvt = BVT::new_balanced(leaves);
@@ -52,11 +63,12 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
             shapes: shapes,
             bvt: bvt,
             bvs: bvs,
+            start_idx
         }
     }
 }
 
-impl<P: Point, M> Compound<P, M> {
+impl<P: Point, M: Isometry<P>> Compound<P, M> {
     /// The shapes of this compound shape.
     #[inline]
     pub fn shapes(&self) -> &[(M, ShapeHandle<P, M>)] {
@@ -80,13 +92,19 @@ impl<P: Point, M> Compound<P, M> {
     pub fn aabb_at(&self, i: usize) -> &AABB<P> {
         &self.bvs[i]
     }
+
+    pub(crate) fn start_idx(&self) -> &[usize] {
+        &self.start_idx[..]
+    }
 }
 
-impl<P, M> CompositeShape<P, M> for Compound<P, M>
-where
-    P: Point,
-    M: Clone + Mul<M, Output = M>,
+impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M>
 {
+    #[inline]
+    fn nparts(&self) -> usize {
+        self.shapes.len()
+    }
+
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let &(ref m, ref g) = &self.shapes()[i];

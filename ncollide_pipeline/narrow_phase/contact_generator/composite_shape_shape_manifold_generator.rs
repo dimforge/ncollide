@@ -10,16 +10,16 @@ use geometry::query::{ContactManifold, ContactPrediction};
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactGenerator};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeContactGenerator<P: Point, M> {
+pub struct CompositeShapeShapeManifoldGenerator<P: Point, M> {
     sub_detectors: HashMap<usize, ContactAlgorithm<P, M>, UintTWHash>,
     to_delete: Vec<usize>,
     interferences: Vec<usize>,
 }
 
-impl<P: Point, M> CompositeShapeShapeContactGenerator<P, M> {
+impl<P: Point, M> CompositeShapeShapeManifoldGenerator<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new() -> CompositeShapeShapeContactGenerator<P, M> {
-        CompositeShapeShapeContactGenerator {
+    pub fn new() -> CompositeShapeShapeManifoldGenerator<P, M> {
+        CompositeShapeShapeManifoldGenerator {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete: Vec::new(),
             interferences: Vec::new(),
@@ -27,7 +27,7 @@ impl<P: Point, M> CompositeShapeShapeContactGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<P, M>,
@@ -104,21 +104,21 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeContactGenerator<P, M> {
 }
 
 /// Collision detector between a shape and a concave shape.
-pub struct ShapeCompositeShapeContactGenerator<P: Point, M> {
-    sub_detector: CompositeShapeShapeContactGenerator<P, M>,
+pub struct ShapeCompositeShapeManifoldGenerator<P: Point, M> {
+    sub_detector: CompositeShapeShapeManifoldGenerator<P, M>,
 }
 
-impl<P: Point, M> ShapeCompositeShapeContactGenerator<P, M> {
+impl<P: Point, M> ShapeCompositeShapeManifoldGenerator<P, M> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new() -> ShapeCompositeShapeContactGenerator<P, M> {
-        ShapeCompositeShapeContactGenerator {
-            sub_detector: CompositeShapeShapeContactGenerator::new(),
+    pub fn new() -> ShapeCompositeShapeManifoldGenerator<P, M> {
+        ShapeCompositeShapeManifoldGenerator {
+            sub_detector: CompositeShapeShapeManifoldGenerator::new(),
         }
     }
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
-    for CompositeShapeShapeContactGenerator<P, M>
+    for CompositeShapeShapeManifoldGenerator<P, M>
 {
     fn update(
         &mut self,
@@ -157,7 +157,7 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
 }
 
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
-    for ShapeCompositeShapeContactGenerator<P, M>
+    for ShapeCompositeShapeManifoldGenerator<P, M>
 {
     fn update(
         &mut self,

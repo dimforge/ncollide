@@ -40,6 +40,16 @@ impl FeatureId {
             FeatureId::Unknown => 0,
         }
     }
+    
+    #[inline]
+    pub fn set_subshape_id(&mut self, id: usize) {
+        match *self {
+            FeatureId::Vertex { ref mut subshape, .. } => *subshape = id,
+            FeatureId::Edge { ref mut subshape, .. } => *subshape = id,
+            FeatureId::Face { ref mut subshape, .. } => *subshape = id,
+            FeatureId::Unknown => { }
+        }
+    }
 
     #[inline]
     pub fn vertex_id(&self) -> Option<usize> {

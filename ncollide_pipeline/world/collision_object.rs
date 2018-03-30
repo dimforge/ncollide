@@ -3,11 +3,11 @@ use slab::{Iter, Slab};
 
 use alga::general::Real;
 
-use math::Point;
 use geometry::shape::ShapeHandle;
 use geometry::query::ContactPrediction;
 use broad_phase::ProxyHandle;
 use world::CollisionGroups;
+use math::{Point, Isometry};
 
 /// The kind of query a CollisionObject may be involved on.
 ///
@@ -74,7 +74,7 @@ impl<N: Real> GeometricQueryType<N> {
 }
 
 /// A stand-alone object that has a position and a shape.
-pub struct CollisionObject<P: Point, M, T> {
+pub struct CollisionObject<P: Point, M: Isometry<P>, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
     position: M,
@@ -87,7 +87,7 @@ pub struct CollisionObject<P: Point, M, T> {
     pub(crate) timestamp: usize,
 }
 
-impl<P: Point, M, T> CollisionObject<P, M, T> {
+impl<P: Point, M: Isometry<P>, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
     pub fn new(
         handle: CollisionObjectHandle,
@@ -199,11 +199,11 @@ impl CollisionObjectHandle {
 }
 
 /// A set of collision objects that can be indexed by collision object handles.
-pub struct CollisionObjectSlab<P: Point, M, T> {
+pub struct CollisionObjectSlab<P: Point, M: Isometry<P>, T> {
     objects: Slab<CollisionObject<P, M, T>>,
 }
 
-impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
+impl<P: Point, M: Isometry<P>, T> CollisionObjectSlab<P, M, T> {
     /// Creates a new empty collecton of collision objects.
     pub fn new() -> CollisionObjectSlab<P, M, T> {
         CollisionObjectSlab {
@@ -255,7 +255,7 @@ impl<P: Point, M, T> CollisionObjectSlab<P, M, T> {
     }
 }
 
-impl<P: Point, M, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
+impl<P: Point, M: Isometry<P>, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
     type Output = CollisionObject<P, M, T>;
 
     #[inline]
@@ -264,7 +264,7 @@ impl<P: Point, M, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, 
     }
 }
 
-impl<P: Point, M, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
+impl<P: Point, M: Isometry<P>, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
     #[inline]
     fn index_mut(&mut self, handle: CollisionObjectHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]
@@ -272,11 +272,11 @@ impl<P: Point, M, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, 
 }
 
 /// An iterator yielding references to collision objects.
-pub struct CollisionObjects<'a, P: 'a + Point, M: 'a, T: 'a> {
+pub struct CollisionObjects<'a, P: 'a + Point, M: 'a+ Isometry<P>, T: 'a> {
     iter: Iter<'a, CollisionObject<P, M, T>>,
 }
 
-impl<'a, P: 'a + Point, M: 'a, T: 'a> Iterator for CollisionObjects<'a, P, M, T> {
+impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> Iterator for CollisionObjects<'a, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]

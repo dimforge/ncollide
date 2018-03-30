@@ -19,7 +19,7 @@ pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
 pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, CollisionObjectHandle>>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<P: Point, M, T> {
+pub struct CollisionWorld<P: Point, M: Isometry<P>, T> {
     objects: CollisionObjectSlab<P, M, T>,
     broad_phase: BroadPhaseObject<P>,
     narrow_phase: Box<NarrowPhase<P, M, T>>,
@@ -355,7 +355,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
 }
 
 /// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
+pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     ray: &'b Ray<P>,
     objects: &'a CollisionObjectSlab<P, M, T>,
     groups: &'b CollisionGroups,
@@ -385,7 +385,7 @@ impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, 
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
+pub struct InterferencesWithPoint<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     point: &'b P,
     objects: &'a CollisionObjectSlab<P, M, T>,
     groups: &'b CollisionGroups,
@@ -412,13 +412,13 @@ impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, P: 'a + Point, M: 'a, T: 'a> {
+pub struct InterferencesWithAABB<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     objects: &'a CollisionObjectSlab<P, M, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, P: Point, M, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
+impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]

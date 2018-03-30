@@ -6,16 +6,16 @@ use std::sync::Arc;
 use na;
 
 // Repr.
-use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
+use shape::{CompositeShape, ConvexPolyhedron, SupportMap, FeatureId};
 // Queries.
 use bounding_volume::{BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use math::Point;
+use math::{Point, Isometry};
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<P: Point, M>: Send + Sync + Any + GetTypeId {
+pub trait Shape<P: Point, M: Isometry<P>>: Send + Sync + Any + GetTypeId {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &M) -> AABB<P>;
@@ -26,6 +26,12 @@ pub trait Shape<P: Point, M>: Send + Sync + Any + GetTypeId {
         let aabb = self.aabb(m);
 
         BoundingSphere::new(aabb.center(), na::norm_squared(&aabb.half_extents()))
+    }
+
+    /// The transform of the subshape containing the specified feature.
+    #[inline]
+    fn subshape_transform(&self, feature: FeatureId) -> M {
+        M::identity()
     }
 
     /// The `RayCast` implementation of `self`.
@@ -89,7 +95,7 @@ struct TraitObject {
 }
 
 /// Trait for casting shapes to its exact represetation.
-impl<P: Point, M: 'static> Shape<P, M> {
+impl<P: Point, M: 'static + Isometry<P>> Shape<P, M> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<P, M>>(&self) -> bool {
@@ -112,11 +118,11 @@ impl<P: Point, M: 'static> Shape<P, M> {
 
 /// A shared immutable handle to an abstract shape.
 #[derive(Clone)]
-pub struct ShapeHandle<P: Point, M> {
+pub struct ShapeHandle<P: Point, M: Isometry<P>> {
     handle: Arc<Shape<P, M>>,
 }
 
-impl<P: Point, M> ShapeHandle<P, M> {
+impl<P: Point, M: Isometry<P>> ShapeHandle<P, M> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
     pub fn new<S: Shape<P, M>>(shape: S) -> ShapeHandle<P, M> {
@@ -126,14 +132,14 @@ impl<P: Point, M> ShapeHandle<P, M> {
     }
 }
 
-impl<P: Point, M> AsRef<Shape<P, M>> for ShapeHandle<P, M> {
+impl<P: Point, M: Isometry<P>> AsRef<Shape<P, M>> for ShapeHandle<P, M> {
     #[inline]
     fn as_ref(&self) -> &Shape<P, M> {
         self.deref()
     }
 }
 
-impl<P: Point, M> Deref for ShapeHandle<P, M> {
+impl<P: Point, M: Isometry<P>> Deref for ShapeHandle<P, M> {
     type Target = Shape<P, M>;
 
     #[inline]

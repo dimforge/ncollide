@@ -48,7 +48,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
 /*
  * Costs function.
  */
-struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a> {
+struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<P, M>,
     point: &'a P,
     solid: bool,
@@ -84,7 +84,7 @@ where
  * Visitor.
  */
 /// Bounding Volume Tree visitor collecting nodes that may contain a given point.
-struct PointContainementTest<'a, P: 'a + Point, M: 'a> {
+struct PointContainementTest<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<P, M>,
     point: &'a P,
     found: bool,

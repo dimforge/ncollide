@@ -89,6 +89,11 @@ impl<P: Point> Polyline<P> {
 }
 
 impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Polyline<P> {
+    #[inline]
+    fn nparts(&self) -> usize {
+        self.mesh.indices().len()    
+    }
+
     #[inline(always)]
     fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
         let one: M = na::one();

@@ -136,9 +136,9 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
             let dabc = na::dot(&ap_x_ab, nabc);
             let dabd = na::dot(&ap_x_ab, nabd);
 
-            if dabc >= _0 && dabd >= _0 && ap_ab >= _0 && ap_ab <= ab_ab {
+            // FIXME: the case where ab_ab == _0 is not well defined.
+            if ab_ab != _0 && dabc >= _0 && dabd >= _0 && ap_ab >= _0 && ap_ab <= ab_ab {
                 // Voronoi region of `ab`.
-                assert!(ab_ab != _0);
                 let u = ap_ab / ab_ab;
                 let bcoords = [_1 - u, u];
                 let mut res = *a;
