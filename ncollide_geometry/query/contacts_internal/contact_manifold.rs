@@ -10,7 +10,7 @@ use na::{self, Real, Unit};
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum CacheEntryStatus {
     Used(usize),
-    Unused(usize),
+    Unused,
 }
 
 impl CacheEntryStatus {
@@ -23,7 +23,7 @@ impl CacheEntryStatus {
 
     fn is_obsolete(&self) -> bool {
         match *self {
-            CacheEntryStatus::Unused(0) => true,
+            CacheEntryStatus::Unused => true,
             _ => false,
         }
     }
@@ -38,7 +38,6 @@ pub struct ContactManifold<P: Point> {
     cache: Vec<TrackedContact<P>>,
     cached_contact_used: Vec<CacheEntryStatus>,
     new_cached_contact_used: Vec<CacheEntryStatus>,
-    max_life: usize,
 }
 
 impl<P: Point> ContactManifold<P> {
@@ -49,7 +48,6 @@ impl<P: Point> ContactManifold<P> {
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
             new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
-            max_life: 0,                         // FIXME: don't hard-code this.
         }
     }
 
@@ -84,21 +82,7 @@ impl<P: Point> ContactManifold<P> {
 
         self.new_cached_contact_used.clear();
         self.new_cached_contact_used
-            .resize(self.cache.len(), CacheEntryStatus::Unused(self.max_life));
-
-        for (valid, c) in self.cached_contact_used
-            .drain(..)
-            .zip(self.contacts.drain(..))
-        {
-            match valid {
-                CacheEntryStatus::Unused(life) if life > 0 => {
-                    self.cache.push(c);
-                    self.new_cached_contact_used
-                        .push(CacheEntryStatus::Unused(life - 1));
-                }
-                _ => {}
-            }
-        }
+            .resize(self.cache.len(), CacheEntryStatus::Unused);
 
         mem::swap(
             &mut self.new_cached_contact_used,
@@ -115,8 +99,8 @@ impl<P: Point> ContactManifold<P> {
         kinematic: ContactKinematic<P>,
         gen: &mut IdAllocator,
     ) -> bool {
-        // FIXME: all this is poorly designed and quite inefficient (but OK for a first
-        // non-optimized implementation).
+        // FIXME: all this is poorly designed and quite inefficient
+        // (but OK for a first non-optimized implementation).
         let mut closest = GenerationalId::invalid();
         let mut closest_i = 0;
         let mut closest_is_contact = false;
