@@ -80,26 +80,45 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
         let dim = na::dimension::<P::Vector>();
         let sub_id = id.subshape_id();
-        let eid = id.edge_id()
+        let mut eid = id.edge_id()
             .expect("The feature id does not identify an edge.");
 
         let mut res = self.half_extents;
-        let edge_i = eid & 0b11;
-        let vertex_i = eid >> 2;
 
-        for i in 0..dim {
-            if i != edge_i && (vertex_i & (1 << i) != 0) {
-                res[i] = -res[i]
+        if dim == 2 {
+            let mut vertex_id = 0;
+            if eid > 2 {
+                eid -= 2;
+                res[eid] = -res[eid];
+                vertex_id |= 1 << eid;
             }
+
+            let p1 = P::from_coordinates(res);
+            let other_id = (eid + 1) % 2;
+            res[other_id] = -res[other_id];
+            let p2 = P::from_coordinates(res);
+            let vid1 = FeatureId::vertex(sub_id, vertex_id);
+            let vid2 = FeatureId::vertex(sub_id, vertex_id | (1 << other_id));
+
+            (p1, p2, vid1, vid2)
+        } else {
+            let edge_i = eid & 0b11;
+            let vertex_i = eid >> 2;
+
+            for i in 0..dim {
+                if i != edge_i && (vertex_i & (1 << i) != 0) {
+                    res[i] = -res[i]
+                }
+            }
+
+            let p1 = P::from_coordinates(res);
+            res[edge_i] = -res[edge_i];
+            let p2 = P::from_coordinates(res);
+            let vid1 = FeatureId::vertex(sub_id, vertex_i & !(1 << edge_i));
+            let vid2 = FeatureId::vertex(sub_id, vertex_i | (1 << edge_i));
+
+            (p1, p2, vid1, vid2)
         }
-
-        let p1 = P::from_coordinates(res);
-        res[edge_i] = -res[edge_i];
-        let p2 = P::from_coordinates(res);
-        let vid1 = FeatureId::vertex(sub_id, vertex_i & !(1 << edge_i));
-        let vid2 = FeatureId::vertex(sub_id, vertex_i | (1 << edge_i));
-
-        (p1, p2, vid1, vid2)
     }
 
     fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {

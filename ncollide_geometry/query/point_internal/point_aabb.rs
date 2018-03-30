@@ -79,7 +79,21 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
             }
         }
 
-        if nzero_shifts < 2 {
+        if nzero_shifts > 2 {
+            // On a face.
+            if ls_pt[last_not_zero_shift] < na::zero() {
+                (proj, FeatureId::face(0, last_not_zero_shift + dim))
+            } else {
+                (proj, FeatureId::face(0, last_not_zero_shift))
+            }
+        } else if dim == 2 && nzero_shifts == 1 {
+            // On a 2D edge.
+            if ls_pt[last_not_zero_shift] < na::zero() {
+                (proj, FeatureId::edge(0, last_not_zero_shift + dim))
+            } else {
+                (proj, FeatureId::edge(0, last_not_zero_shift))
+            }
+        } else {
             // On a vertex or edge.
             let mut id = 0;
             for i in 0..dim {
@@ -91,13 +105,6 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
                 (proj, FeatureId::vertex(0, id))
             } else {
                 (proj, FeatureId::edge(0, (id << 2) | last_zero_shift))
-            }
-        } else {
-            // On a face.
-            if ls_pt[last_not_zero_shift] < na::zero() {
-                (proj, FeatureId::face(0, last_not_zero_shift + 3))
-            } else {
-                (proj, FeatureId::face(0, last_not_zero_shift))
             }
         }
     }
