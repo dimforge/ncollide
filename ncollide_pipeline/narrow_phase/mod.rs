@@ -6,14 +6,15 @@ pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
 pub use self::contact_generator::{BallBallContactGenerator,
+                                  // IncrementalContactManifoldGenerator,
+                                  // OneShotContactManifoldGenerator,
+                                  BallConvexPolyhedronManifoldGenerator,
                                   CompositeShapeShapeContactGenerator,
                                   ContactAlgorithm,
                                   ContactDispatcher,
                                   ContactGenerator,
                                   ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                                   DefaultContactDispatcher,
-                                  // IncrementalContactManifoldGenerator,
-                                  // OneShotContactManifoldGenerator,
                                   PlaneBallManifoldGenerator,
                                   PlaneConvexPolyhedronManifoldGenerator,
                                   ShapeCompositeShapeContactGenerator,

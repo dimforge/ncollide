@@ -11,15 +11,15 @@ use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPredict
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between two balls.
-pub struct BallConvexShapeManifoldGenerator<P: Point, M> {
+pub struct BallConvexPolyhedronManifoldGenerator<P: Point, M> {
     flip: bool,
     contact_manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallConvexShapeManifoldGenerator<P, M> {
-    fn clone(&self) -> BallConvexShapeManifoldGenerator<P, M> {
-        BallConvexShapeManifoldGenerator {
+impl<P: Point, M> Clone for BallConvexPolyhedronManifoldGenerator<P, M> {
+    fn clone(&self) -> BallConvexPolyhedronManifoldGenerator<P, M> {
+        BallConvexPolyhedronManifoldGenerator {
             flip: self.flip,
             contact_manifold: self.contact_manifold.clone(),
             mat_type: PhantomData,
@@ -27,11 +27,11 @@ impl<P: Point, M> Clone for BallConvexShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new(flip: bool) -> BallConvexShapeManifoldGenerator<P, M> {
-        BallConvexShapeManifoldGenerator {
+    pub fn new(flip: bool) -> BallConvexPolyhedronManifoldGenerator<P, M> {
+        BallConvexPolyhedronManifoldGenerator {
             flip,
             contact_manifold: ContactManifold::new(),
             mat_type: PhantomData,
@@ -77,9 +77,6 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
                     let f1 = FeatureId::face(0, 0);
                     let world1 = ball_center + normal.unwrap() * ball.radius();
 
-                    let local1 = m1.inverse_transform_point(&world1);
-                    let local2 = m2.inverse_transform_point(&world2);
-                    let n2 = cp2.normal_cone(f2);
                     let contact;
 
                     if !flip {
@@ -88,22 +85,45 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_point2(f2, P::origin(), PolyhedralCone::new());
+                        kinematic.set_point2(f1, P::origin(), PolyhedralCone::new());
                         kinematic.set_dilation2(ball.radius());
                     }
 
-                    // match f2 {
-                    //     FeatureId::Face { id, .. } => {
-                    //         kinematic.set_plane2(f2, local2, n2.generators()[0])
-                    //     }
-                    //     FeatureId::Edge { id, .. } => kinematic.set_line2(f2, local2, dir, n2),
-                    //     FeatureId::Vertex { id, .. } => kinematic.set_point2(f2, local2, n2),
-                    // }
+                    let local2 = m2.inverse_transform_point(&world2);
+                    let n2 = cp2.normal_cone(f2);
+
+                    match f2 {
+                        FeatureId::Face { .. } => {
+                            if !flip {
+                                kinematic.set_plane2(f2, local2, n2.generators()[0])
+                            } else {
+                                kinematic.set_plane1(f2, local2, n2.generators()[0])
+                            }
+                        }
+                        FeatureId::Edge { .. } => {
+                            let edge = cp2.edge(f2);
+                            let dir = Unit::new_normalize(edge.1 - edge.0);
+
+                            if !flip {
+                                kinematic.set_line2(f2, local2, dir, n2)
+                            } else {
+                                kinematic.set_line1(f2, local2, dir, n2)
+                            }
+                        }
+                        FeatureId::Vertex { .. } => {
+                            if !flip {
+                                kinematic.set_point2(f2, local2, n2)
+                            } else {
+                                kinematic.set_point1(f2, local2, n2)
+                            }
+                        }
+                        FeatureId::Unknown => panic!("Feature id cannot be unknown."),
+                    }
 
                     let _ = self.contact_manifold.push(contact, kinematic, id_alloc);
                 }
             } else {
-
+                // FIXME: unhandled case where the ball center is exactly on the polyhedra surface.
             }
 
             true
@@ -113,7 +133,9 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallConvexShapeManifoldGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
+    for BallConvexPolyhedronManifoldGenerator<P, M>
+{
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,

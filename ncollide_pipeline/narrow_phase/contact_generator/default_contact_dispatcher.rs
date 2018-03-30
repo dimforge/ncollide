@@ -4,6 +4,7 @@ use math::{Isometry, Point};
 use geometry::shape::{Ball, Plane, Shape};
 use geometry::query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
 use narrow_phase::{BallBallContactGenerator,
+                   BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeContactGenerator,
                    ContactAlgorithm,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
@@ -50,6 +51,12 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
             Some(Box::new(gen))
         } else if b_is_plane && a.is_support_map() {
             let gen = PlaneConvexPolyhedronManifoldGenerator::<P, M>::new(true);
+            Some(Box::new(gen))
+        } else if a_is_ball && b.is_convex_polyhedron() {
+            let gen = BallConvexPolyhedronManifoldGenerator::<P, M>::new(false);
+            Some(Box::new(gen))
+        } else if b_is_ball && a.is_convex_polyhedron() {
+            let gen = BallConvexPolyhedronManifoldGenerator::<P, M>::new(true);
             Some(Box::new(gen))
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             match na::dimension::<P::Vector>() {

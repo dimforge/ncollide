@@ -6,7 +6,7 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 
 impl<P: Point> AABB<P> {
-    fn point_projection_local_shift<M>(&self, m: &M, pt: &P, solid: bool) -> (bool, P::Vector)
+    fn local_point_projection<M>(&self, m: &M, pt: &P, solid: bool) -> (bool, P, P::Vector)
     where
         M: Isometry<P>,
     {
@@ -17,8 +17,10 @@ impl<P: Point> AABB<P> {
 
         let inside = shift == na::zero();
 
-        if !inside || solid {
-            (inside, shift)
+        if !inside {
+            (false, ls_pt + shift, shift)
+        } else if solid {
+            (true, ls_pt, shift)
         } else {
             let _max: P::Real = Bounded::max_value();
             let mut best = -_max;
@@ -47,7 +49,7 @@ impl<P: Point> AABB<P> {
                 shift[best_id as usize] = -best;
             }
 
-            (inside, shift)
+            (inside, ls_pt + shift, shift)
         }
     }
 }
@@ -55,46 +57,47 @@ impl<P: Point> AABB<P> {
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
     #[inline]
     fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
-        let (inside, shift) = self.point_projection_local_shift(m, pt, solid);
-        PointProjection::new(inside, *pt + m.rotate_vector(&shift))
+        let (inside, ls_pt, _) = self.local_point_projection(m, pt, solid);
+        PointProjection::new(inside, m.transform_point(&ls_pt))
     }
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
-        let (inside, shift) = self.point_projection_local_shift(m, pt, false);
-        let proj = PointProjection::new(inside, *pt + m.rotate_vector(&shift));
+        let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
+        let proj = PointProjection::new(inside, m.transform_point(&ls_pt));
         let dim = na::dimension::<P::Vector>();
-        let mut nzeros = 0;
-        let mut last_zero = 0;
-        let mut last_nonzero = 0;
+        let mut nzero_shifts = 0;
+        let mut last_zero_shift = 0;
+        let mut last_not_zero_shift = 0;
+
         for i in 0..dim {
-            if shift[i] == na::zero() {
-                nzeros += 1;
-                last_zero = i;
+            if shift[i].is_zero() {
+                nzero_shifts += 1;
+                last_zero_shift = i;
             } else {
-                last_nonzero = i;
+                last_not_zero_shift = i;
             }
         }
 
-        if nzeros < 2 {
+        if nzero_shifts < 2 {
             // On a vertex or edge.
             let mut id = 0;
             for i in 0..dim {
-                if shift[i] < na::zero() {
+                if ls_pt[i] < na::zero() {
                     id |= 1 << i;
                 }
             }
-            if nzeros == 0 {
+            if nzero_shifts == 0 {
                 (proj, FeatureId::vertex(0, id))
             } else {
-                (proj, FeatureId::edge(0, (id << dim) | last_zero))
+                (proj, FeatureId::edge(0, (id << 2) | last_zero_shift))
             }
         } else {
             // On a face.
-            if shift[last_nonzero] < na::zero() {
-                (proj, FeatureId::face(0, last_nonzero + 3))
+            if ls_pt[last_not_zero_shift] < na::zero() {
+                (proj, FeatureId::face(0, last_not_zero_shift + 3))
             } else {
-                (proj, FeatureId::face(0, last_nonzero))
+                (proj, FeatureId::face(0, last_not_zero_shift))
             }
         }
     }
