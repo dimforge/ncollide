@@ -22,49 +22,4 @@ pub trait SupportMap<P: Point, M> {
     fn support_point_toward(&self, transform: &M, dir: &Unit<P::Vector>) -> P {
         self.support_point(transform, dir.as_ref())
     }
-
-    fn support_face_toward(
-        &self,
-        transform: &M,
-        dir: &Unit<P::Vector>,
-        out: &mut ConvexPolyface<P>,
-    ) {
-        out.clear();
-        out.push(
-            self.support_point_toward(transform, dir),
-            FeatureId::Unknown,
-        );
-    }
-
-    fn support_feature_toward(
-        &self,
-        transform: &M,
-        dir: &Unit<P::Vector>,
-        _angle: P::Real,
-        out: &mut ConvexPolyface<P>,
-    ) {
-        out.clear();
-        out.push(
-            self.support_point_toward(transform, dir),
-            FeatureId::Unknown,
-        );
-    }
-
-    // XXX: those two methods should not be here.
-    // They should be implemented by every solid, not only support mappings.
-
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
-        // XXX: remove this default implementation.
-        PolyhedralCone::new()
-    }
-
-    fn is_direction_in_normal_cone(
-        &self,
-        transform: &M,
-        feature: FeatureId,
-        point: &P,
-        dir: &Unit<P::Vector>,
-    ) -> bool {
-        false
-    }
 }

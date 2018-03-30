@@ -6,7 +6,8 @@ use alga::linear::FiniteDimInnerSpace;
 use na::{self, Id, Point2, Real, Unit};
 use math::{Isometry, Point};
 use utils::{self, IdAllocator};
-use geometry::shape::{AnnotatedPoint, FeatureId, Segment, SegmentPointLocation, Shape, SupportMap};
+use geometry::shape::{AnnotatedPoint, ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation,
+                      Shape, SupportMap};
 use geometry::query::algorithms::Simplex;
 use geometry::query::algorithms::gjk::GJKResult;
 use geometry::query::ray_internal;
@@ -42,7 +43,7 @@ impl<N: Real> ClippingCache<N> {
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct SupportMapSupportMapManifoldGenerator<P: Point, M, S> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<P: Point, M, S> {
     simplex: S,
     last_gjk_dir: Option<P::Vector>,
     last_optimal_dir: Option<Unit<P::Vector>>,
@@ -54,7 +55,7 @@ pub struct SupportMapSupportMapManifoldGenerator<P: Point, M, S> {
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P, M, S> SupportMapSupportMapManifoldGenerator<P, M, S>
+impl<P, M, S> ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
 where
     P: Point,
     M: Isometry<P>,
@@ -64,8 +65,8 @@ where
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: S) -> SupportMapSupportMapManifoldGenerator<P, M, S> {
-        SupportMapSupportMapManifoldGenerator {
+    pub fn new(simplex: S) -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S> {
+        ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: simplex,
             last_gjk_dir: None,
             last_optimal_dir: None,
@@ -86,8 +87,8 @@ where
         g2: &G2,
         ids: &mut IdAllocator,
     ) where
-        G1: SupportMap<P, M>,
-        G2: SupportMap<P, M>,
+        G1: ConvexPolyhedron<P, M>,
+        G2: ConvexPolyhedron<P, M>,
     {
         self.contact_manifold.save_cache_and_clear(ids);
         for (c, f1, f2) in self.new_contacts.drain(..) {
@@ -359,8 +360,8 @@ where
         g2: &G2,
     ) -> Option<Contact<P>>
     where
-        G1: SupportMap<P, M>,
-        G2: SupportMap<P, M>,
+        G1: ConvexPolyhedron<P, M>,
+        G2: ConvexPolyhedron<P, M>,
     {
         if self.manifold1.vertices.len() == 0 || self.manifold2.vertices.len() == 0 {
             return None;
@@ -487,7 +488,7 @@ thread_local! {
     pub static NAVOID: RefCell<(u32, u32)> = RefCell::new((0, 0));
 }
 
-impl<P, M, S> ContactGenerator<P, M> for SupportMapSupportMapManifoldGenerator<P, M, S>
+impl<P, M, S> ContactGenerator<P, M> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
 where
     P: Point,
     M: Isometry<P>,
@@ -504,12 +505,13 @@ where
         prediction: &ContactPrediction<P::Real>,
         ids: &mut IdAllocator,
     ) -> bool {
-        if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
+        if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             // NOTE: the following are premices of an attempt to avoid the executen of GJK/EPA
             // in some situations where the optimal contact direction can be determined directly
             // from the previous manifolds and normal cones.
             // I did not manage to obtain satisfying result so it is disabled for now.
-            // let contact = if let Some(optimal) = self.try_optimal_contact(ma, sma, mb, smb) {
+            //
+            // let contact = if let Some(optimal) = self.try_optimal_contact(ma, cpa, mb, cpb) {
             //     NAVOID.with(|e| e.borrow_mut().0 += 1);
             //     let n = optimal.normal;
             //     if optimal.depth > prediction.linear {
@@ -522,9 +524,9 @@ where
             // } else {
             //     contacts_internal::support_map_against_support_map_with_params(
             //         ma,
-            //         sma,
+            //         cpa,
             //         mb,
-            //         smb,
+            //         cpb,
             //         prediction.linear,
             //         &mut self.simplex,
             //         self.last_gjk_dir,
@@ -533,9 +535,9 @@ where
 
             let contact = contacts_internal::support_map_against_support_map_with_params(
                 ma,
-                sma,
+                cpa,
                 mb,
-                smb,
+                cpb,
                 prediction.linear,
                 &mut self.simplex,
                 self.last_gjk_dir,
@@ -551,17 +553,17 @@ where
                     self.last_gjk_dir = Some(dir.unwrap());
 
                     if contact.depth > na::zero() {
-                        sma.support_face_toward(ma, &contact.normal, &mut self.manifold1);
-                        smb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+                        cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);
+                        cpb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
                         self.clip_polyfaces(prediction, contact.normal);
                     } else {
-                        sma.support_feature_toward(
+                        cpa.support_feature_toward(
                             ma,
                             &contact.normal,
                             prediction.angular1,
                             &mut self.manifold1,
                         );
-                        smb.support_feature_toward(
+                        cpb.support_feature_toward(
                             mb,
                             &-contact.normal,
                             prediction.angular2,
@@ -582,7 +584,7 @@ where
                 _ => {}
             }
 
-            self.save_new_contacts_as_contact_manifold(ma, sma, mb, smb, ids);
+            self.save_new_contacts_as_contact_manifold(ma, cpa, mb, cpb, ids);
             // self.reduce_manifolds_to_deepest_contact(ma, mb);
 
             true

@@ -11,19 +11,19 @@ use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneSupportMapManifoldGenerator<P: Point, M> {
+pub struct PlaneConvexPolyhedronManifoldGenerator<P: Point, M> {
     flip: bool,
     feature: ConvexPolyface<P>,
     manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> PlaneConvexPolyhedronManifoldGenerator<P, M> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
-    pub fn new(flip: bool) -> PlaneSupportMapManifoldGenerator<P, M> {
-        PlaneSupportMapManifoldGenerator {
+    pub fn new(flip: bool) -> PlaneConvexPolyhedronManifoldGenerator<P, M> {
+        PlaneConvexPolyhedronManifoldGenerator {
             flip,
             feature: ConvexPolyface::new(),
             manifold: ContactManifold::new(),
@@ -42,12 +42,14 @@ impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
         id_alloc: &mut IdAllocator,
         flip: bool,
     ) -> bool {
-        if let (Some(plane), Some(sm)) = (g1.as_shape::<Plane<P::Vector>>(), g2.as_support_map()) {
+        if let (Some(plane), Some(cp)) =
+            (g1.as_shape::<Plane<P::Vector>>(), g2.as_convex_polyhedron())
+        {
             self.manifold.save_cache_and_clear(id_alloc);
             let plane_normal = m1.transform_unit_vector(plane.normal());
             let plane_center = P::from_coordinates(m1.translation().to_vector());
 
-            sm.support_face_toward(m2, &-plane_normal, &mut self.feature);
+            cp.support_face_toward(m2, &-plane_normal, &mut self.feature);
 
             for (i, world2) in self.feature.vertices.iter().enumerate() {
                 let dpt = *world2 - plane_center;
@@ -59,7 +61,7 @@ impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
                     let local2 = m2.inverse_transform_point(&world2);
                     let f1 = FeatureId::face(0, 0);
                     let f2 = self.feature.vertices_id[i];
-                    let n2 = sm.normal_cone(f2);
+                    let n2 = cp.normal_cone(f2);
                     let mut kinematic = ContactKinematic::new();
                     let contact;
 
@@ -83,7 +85,9 @@ impl<P: Point, M: Isometry<P>> PlaneSupportMapManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneSupportMapManifoldGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
+    for PlaneConvexPolyhedronManifoldGenerator<P, M>
+{
     #[inline]
     fn update(
         &mut self,

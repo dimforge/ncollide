@@ -1,12 +1,13 @@
 use std::marker::PhantomData;
+use approx::ApproxEq;
 
+use na::Unit;
 use alga::linear::Translation;
 use math::{Isometry, Point};
 use utils::IdAllocator;
 use geometry::bounding_volume::PolyhedralCone;
 use geometry::shape::{Ball, FeatureId, Shape};
-use geometry::query::{ContactKinematic, ContactManifold, ContactPrediction};
-use geometry::query::contacts_internal;
+use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
 use narrow_phase::{ContactDispatcher, ContactGenerator};
 
 /// Collision detector between two balls.
@@ -39,30 +40,70 @@ impl<P: Point, M: Isometry<P>> BallConvexShapeManifoldGenerator<P, M> {
 
     fn do_update(
         &mut self,
-        ma: &M,
+        m1: &M,
         a: &Shape<P, M>,
-        mb: &M,
+        m2: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
         flip: bool,
     ) -> bool {
-        if let (Some(a), Some(pq)) = (a.as_shape::<Ball<P::Real>>(), b.as_point_query()) {
+        if let (Some(ball), Some(pq2), Some(cp2)) = (
+            a.as_shape::<Ball<P::Real>>(),
+            b.as_point_query(),
+            b.as_convex_polyhedron(),
+        ) {
             self.contact_manifold.save_cache_and_clear(id_alloc);
 
-            let center_a = P::from_coordinates(ma.translation().to_vector());
-            let (proj, feature) = pq.project_point_with_feature(mb, &center_a);
+            let ball_center = P::from_coordinates(m1.translation().to_vector());
+            let (proj, f2) = pq2.project_point_with_feature(m2, &ball_center);
+            let world2 = proj.point;
+            let dpt = world2 - ball_center;
 
-            {
-                let kinematic =
-                    Self::contact_kinematic(m1, &self.manifold1, f1, m2, &self.manifold2, f2);
-                let local1 = m1.inverse_transform_point(&c.world1);
-                let local2 = m2.inverse_transform_point(&c.world2);
-                let n1 = g1.normal_cone(f1);
-                let n2 = g2.normal_cone(f2);
+            if let Some((dir, dist)) = Unit::try_new_and_get(dpt, P::Real::default_epsilon()) {
+                let depth;
+                let normal;
 
-                self.contact_manifold
-                    .push(c, local1, local2, n1, n2, f1, f2, kinematic, ids);
+                if proj.is_inside {
+                    depth = dist + ball.radius();
+                    normal = -dir;
+                } else {
+                    depth = -dist + ball.radius();
+                    normal = dir;
+                }
+
+                if depth >= -prediction.linear {
+                    let mut kinematic = ContactKinematic::new();
+                    let f1 = FeatureId::face(0, 0);
+                    let world1 = ball_center + normal.unwrap() * ball.radius();
+
+                    let local1 = m1.inverse_transform_point(&world1);
+                    let local2 = m2.inverse_transform_point(&world2);
+                    let n2 = cp2.normal_cone(f2);
+                    let contact;
+
+                    if !flip {
+                        contact = Contact::new(world1, world2, normal, depth);
+                        kinematic.set_point1(f1, P::origin(), PolyhedralCone::new());
+                        kinematic.set_dilation1(ball.radius());
+                    } else {
+                        contact = Contact::new(world2, world1, -normal, depth);
+                        kinematic.set_point2(f2, P::origin(), PolyhedralCone::new());
+                        kinematic.set_dilation2(ball.radius());
+                    }
+
+                    // match f2 {
+                    //     FeatureId::Face { id, .. } => {
+                    //         kinematic.set_plane2(f2, local2, n2.generators()[0])
+                    //     }
+                    //     FeatureId::Edge { id, .. } => kinematic.set_line2(f2, local2, dir, n2),
+                    //     FeatureId::Vertex { id, .. } => kinematic.set_point2(f2, local2, n2),
+                    // }
+
+                    let _ = self.contact_manifold.push(contact, kinematic, id_alloc);
+                }
+            } else {
+
             }
 
             true
@@ -76,17 +117,17 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallConvexShapeManifol
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
-        ma: &M,
+        m1: &M,
         a: &Shape<P, M>,
-        mb: &M,
+        m2: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if !self.flip {
-            self.do_update(ma, a, mb, b, prediction, id_alloc, false)
+            self.do_update(m1, a, m2, b, prediction, id_alloc, false)
         } else {
-            self.do_update(mb, b, ma, a, prediction, id_alloc, true)
+            self.do_update(m2, b, m1, a, prediction, id_alloc, true)
         }
     }
 

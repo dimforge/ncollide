@@ -7,10 +7,10 @@ use narrow_phase::{BallBallContactGenerator,
                    CompositeShapeShapeContactGenerator,
                    ContactAlgorithm,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
+                   ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                    PlaneBallManifoldGenerator,
-                   PlaneSupportMapManifoldGenerator,
-                   ShapeCompositeShapeContactGenerator,
-                   SupportMapSupportMapManifoldGenerator};
+                   PlaneConvexPolyhedronManifoldGenerator,
+                   ShapeCompositeShapeContactGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher<P: Point, M> {
@@ -46,25 +46,25 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
         } else if a_is_ball && b_is_plane {
             Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(true)))
         } else if a_is_plane && b.is_support_map() {
-            let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(false);
+            let gen = PlaneConvexPolyhedronManifoldGenerator::<P, M>::new(false);
             Some(Box::new(gen))
         } else if b_is_plane && a.is_support_map() {
-            let gen = PlaneSupportMapManifoldGenerator::<P, M>::new(true);
+            let gen = PlaneConvexPolyhedronManifoldGenerator::<P, M>::new(true);
             Some(Box::new(gen))
-        } else if a.is_support_map() && b.is_support_map() {
+        } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             match na::dimension::<P::Vector>() {
                 2 => {
                     let simplex = VoronoiSimplex2::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
-                    let gen = SupportMapSupportMapManifoldGenerator::new(simplex);
+                    let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
                 3 => {
                     let simplex = VoronoiSimplex3::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
-                    let gen = SupportMapSupportMapManifoldGenerator::new(simplex);
+                    let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
                 _ => unimplemented!(),

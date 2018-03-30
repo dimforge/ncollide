@@ -23,6 +23,7 @@ pub use self::convex_polyface::{ConvexPolyface, FeatureId};
 pub use self::composite_shape::CompositeShape;
 #[doc(inline)]
 pub use self::support_map::SupportMap;
+pub use self::convex_polyhedron::ConvexPolyhedron;
 #[doc(inline)]
 pub use self::shape::{Shape, ShapeHandle};
 
@@ -32,6 +33,7 @@ use na::{Isometry2, Isometry3, Point2, Point3, Vector2, Vector3};
 pub mod composite_shape;
 #[doc(hidden)]
 pub mod support_map;
+mod convex_polyhedron;
 #[doc(hidden)]
 pub mod shape;
 mod plane;

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use na;
 
 // Repr.
-use shape::{CompositeShape, SupportMap};
+use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
 // Queries.
 use bounding_volume::{BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
@@ -40,6 +40,12 @@ pub trait Shape<P: Point, M>: Send + Sync + Any + GetTypeId {
         None
     }
 
+    /// The convex polyhedron representation of `self` if applicable.
+    #[inline]
+    fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<P, M>> {
+        None
+    }
+
     /// The support mapping of `self` if applicable.
     #[inline]
     fn as_support_map(&self) -> Option<&SupportMap<P, M>> {
@@ -50,6 +56,12 @@ pub trait Shape<P: Point, M>: Send + Sync + Any + GetTypeId {
     #[inline]
     fn as_composite_shape(&self) -> Option<&CompositeShape<P, M>> {
         None
+    }
+
+    /// Whether `self` uses a conve polyhedron representation.
+    #[inline]
+    fn is_convex_polyhedron(&self) -> bool {
+        self.as_convex_polyhedron().is_some()
     }
 
     /// Whether `self` uses a supportmapping-based representation.

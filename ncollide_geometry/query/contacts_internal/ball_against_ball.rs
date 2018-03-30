@@ -35,7 +35,7 @@ where
 
         Some(Contact::new(
             *center1 + *normal * r1,
-            *center2 + (-*normal * r2),
+            *center2 + *normal * (-r2),
             normal,
             sum_radius - distance_squared.sqrt(),
         ))

@@ -10,14 +10,14 @@ pub use self::contact_generator::{BallBallContactGenerator,
                                   ContactAlgorithm,
                                   ContactDispatcher,
                                   ContactGenerator,
+                                  ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                                   DefaultContactDispatcher,
                                   // IncrementalContactManifoldGenerator,
                                   // OneShotContactManifoldGenerator,
                                   PlaneBallManifoldGenerator,
-                                  PlaneSupportMapManifoldGenerator,
+                                  PlaneConvexPolyhedronManifoldGenerator,
                                   ShapeCompositeShapeContactGenerator,
                                   SupportMapSupportMapContactGenerator,
-                                  SupportMapSupportMapManifoldGenerator,
                                   NAVOID};
 
 #[doc(inline)]

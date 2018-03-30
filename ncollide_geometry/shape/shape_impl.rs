@@ -1,8 +1,22 @@
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, Cuboid, Cylinder, Plane, Polyline,
-            Segment, Shape, SupportMap, TriMesh, Triangle};
+use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolyhedron, Cuboid, Cylinder,
+            Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle};
 use math::{Isometry, Point};
+
+macro_rules! impl_as_convex_polyhedron(
+    () => {
+        #[inline]
+        fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<P, M>> {
+            Some(self)
+        }
+
+        #[inline]
+        fn is_convex_polyhedron(&self) -> bool {
+            true
+        }
+    }
+);
 
 macro_rules! impl_as_support_map(
     () => {
@@ -59,11 +73,13 @@ macro_rules! impl_shape_common(
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Triangle<P> {
     impl_shape_common!();
     impl_as_support_map!();
+    // impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Segment<P> {
     impl_shape_common!();
     impl_as_support_map!();
+    // impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
@@ -74,6 +90,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Cuboid<P::Vector> {
     impl_shape_common!();
     impl_as_support_map!();
+    impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Cylinder<P::Real> {
@@ -89,6 +106,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
 impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
     impl_shape_common!();
     impl_as_support_map!();
+    // impl_as_conve_polyhedron!();
 }
 
 impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {
