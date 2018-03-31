@@ -342,6 +342,7 @@ where
                         let f1 = self.manifold1.edges_id[i1];
                         let f2 = self.manifold2.edges_id[i2];
                         let contact = Contact::new_wo_depth(world1, world2, normal);
+                        println!("Features: {:?}, {:?}", f1, f2);
 
                         if -contact.depth <= prediction.linear {
                             self.new_contacts.push((contact, f1, f2));
@@ -505,6 +506,8 @@ where
         prediction: &ContactPrediction<P::Real>,
         ids: &mut IdAllocator,
     ) -> bool {
+        println!("");
+        println!("Start.");
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             // NOTE: the following are premices of an attempt to avoid the executen of GJK/EPA
             // in some situations where the optimal contact direction can be determined directly

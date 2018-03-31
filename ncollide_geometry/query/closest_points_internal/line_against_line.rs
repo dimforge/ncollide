@@ -1,5 +1,5 @@
 use approx::ApproxEq;
-use na;
+use na::{self, Real};
 
 use math::Point;
 
@@ -42,8 +42,8 @@ pub fn line_against_line<P: Point>(
             let ae = a * e;
             let denom = ae - b * b;
 
-            // Use relative error to test collinearity.
-            if denom > _eps * ae {
+            // Use relative and absolute error to test collinearity.
+            if denom > _eps && denom > _eps * ae {
                 s = (b * f - c * e) / denom;
             } else {
                 s = _0;

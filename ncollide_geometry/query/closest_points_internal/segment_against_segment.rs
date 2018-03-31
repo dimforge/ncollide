@@ -1,6 +1,6 @@
 use approx::ApproxEq;
 
-use na;
+use na::{self, Real};
 use math::{Isometry, Point};
 use shape::{Segment, SegmentPointLocation};
 use query::ClosestPoints;
@@ -76,8 +76,14 @@ where
             let ae = a * e;
             let denom = ae - b * b;
 
-            // Use relative error to test collinearity.
-            if denom > _eps * ae {
+            // Use relative and absolute error to test collinearity.
+
+            // println!("");
+            // println!("Denom line: {}", denom);
+            // println!("eps: {}, bf: {}, ce: {}", _eps, b * f, c * e);
+            // println!("b: {}, f: {}, c: {}, e: {}", b, f, c, e);
+            // println!("seg1: {:?}, seg2: {:?}", seg1, seg2);
+            if denom > _eps && denom > _eps * ae {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {
                 s = _0;
