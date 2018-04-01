@@ -27,12 +27,6 @@ impl<P: Point> Contact<P> {
     /// Creates a new contact.
     #[inline]
     pub fn new(world1: P, world2: P, normal: Unit<P::Vector>, depth: P::Real) -> Self {
-        if depth > na::convert(2.0) {
-            let mut blabla: P::Real = na::convert(42.0);
-            blabla += depth;
-            println!("blabla: {}", blabla);
-            panic!();
-        }
         Contact {
             world1,
             world2,

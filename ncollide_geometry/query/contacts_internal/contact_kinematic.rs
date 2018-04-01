@@ -403,8 +403,6 @@ impl<P: Point> ContactKinematic<P> {
         world1 += normal.unwrap() * self.margin1;
         world2 += normal.unwrap() * (-self.margin2);
         depth += self.margin1 + self.margin2;
-        println!("Depth: {}, world1: {}, word2: {}", depth, world1, world2);
-        println!("Feature1: {:?}, feature2: {:?}", self.feature1, self.feature2);
 
         Some(Contact::new(world1, world2, normal, depth))
     }
