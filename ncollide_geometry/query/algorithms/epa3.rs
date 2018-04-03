@@ -1,4 +1,4 @@
-//! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm. 
+//! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
@@ -25,10 +25,6 @@ struct FaceId<N: Real> {
 
 impl<N: Real> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Self {
-        if neg_dist > gjk::eps_tol() {
-            println!("neg_dist: {}", neg_dist);
-        }
-        assert!(neg_dist <= gjk::eps_tol());
         FaceId { id, neg_dist }
     }
 }

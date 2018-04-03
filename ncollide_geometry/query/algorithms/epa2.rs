@@ -1,4 +1,4 @@
-//! Two-dimensional penetration depth queries using the Expanding Polytope Algorithm. 
+//! Two-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
 use std::marker::PhantomData;
 use std::collections::BinaryHeap;
@@ -23,7 +23,6 @@ struct FaceId<N: Real> {
 
 impl<N: Real> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Self {
-        assert!(neg_dist <= gjk::eps_tol());
         FaceId { id, neg_dist }
     }
 }
@@ -180,7 +179,6 @@ impl<P: Point> EPA2<P> {
                 );
                 self.heap.push(FaceId::new(2, -dist3));
             }
-
         } else {
             let pts1 = [0, 1];
             let pts2 = [1, 0];
