@@ -3,7 +3,7 @@ use std::collections::hash_map::Iter;
 
 use utils::data::SortedPair;
 use geometry::query::ContactManifold;
-use narrow_phase::{ContactAlgorithm, ContactGenerator, ProximityAlgorithm, ProximityDetector};
+use narrow_phase::{ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector};
 use events::{ContactEvents, ProximityEvents};
 use world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
 use math::{Point, Isometry};
@@ -62,7 +62,7 @@ pub trait NarrowPhase<P: Point, M: Isometry<P>, T>: Any + Send + Sync {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, P: Point + 'a, M: 'a + Isometry<P>, T: 'a> {
     objects: &'a CollisionObjectSlab<P, M, T>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
+    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
 }
 
 impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ContactPairs<'a, P, M, T> {
@@ -70,7 +70,7 @@ impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ContactPairs<'a, P, M, T> {
     #[inline]
     pub fn new(
         objects: &'a CollisionObjectSlab<P, M, T>,
-        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
+        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
     ) -> ContactPairs<'a, P, M, T> {
         ContactPairs {
             objects: objects,
@@ -118,7 +118,7 @@ pub struct ContactManifolds<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     objects: &'a CollisionObjectSlab<P, M, T>,
     co1: Option<&'a CollisionObject<P, M, T>>,
     co2: Option<&'a CollisionObject<P, M, T>>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactGenerator<P, M>>>,
+    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
     collector: Vec<&'a ContactManifold<P>>,
     curr_contact: usize,
 }

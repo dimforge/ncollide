@@ -8,7 +8,7 @@ use utils::IdAllocator;
 use geometry::bounding_volume::PolyhedralCone;
 use geometry::shape::{Ball, FeatureId, Shape};
 use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use narrow_phase::{ContactDispatcher, ContactGenerator};
+use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
 pub struct BallConvexPolyhedronManifoldGenerator<P: Point, M> {
@@ -133,7 +133,7 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
+impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
     for BallConvexPolyhedronManifoldGenerator<P, M>
 {
     fn update(

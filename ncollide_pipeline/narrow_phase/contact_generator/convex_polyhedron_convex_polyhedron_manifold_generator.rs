@@ -16,7 +16,7 @@ use geometry::query::closest_points_internal;
 use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
                       PointQueryWithLocation};
 use geometry::shape::ConvexPolyface;
-use narrow_phase::{ContactDispatcher, ContactGenerator};
+use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 #[derive(Clone)]
 struct ClippingCache<N: Real> {
@@ -488,7 +488,8 @@ thread_local! {
     pub static NAVOID: RefCell<(u32, u32)> = RefCell::new((0, 0));
 }
 
-impl<P, M, S> ContactGenerator<P, M> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
+impl<P, M, S> ContactManifoldGenerator<P, M>
+    for ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
 where
     P: Point,
     M: Isometry<P>,

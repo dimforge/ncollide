@@ -6,7 +6,7 @@ use geometry::query::{ContactManifold, ContactPrediction};
 use math::Point;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
-pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
+pub trait ContactManifoldGenerator<P: Point, M>: Any + Send + Sync {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of object.
@@ -30,7 +30,7 @@ pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
     fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>);
 }
 
-pub type ContactAlgorithm<P, M> = Box<ContactGenerator<P, M>>;
+pub type ContactAlgorithm<P, M> = Box<ContactManifoldGenerator<P, M>>;
 
 pub trait ContactDispatcher<P, M>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.

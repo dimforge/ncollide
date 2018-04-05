@@ -3,7 +3,7 @@ use na;
 use math::{Isometry, Point};
 use geometry::shape::{Ball, Plane, Shape};
 use geometry::query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
-use narrow_phase::{BallBallContactGenerator,
+use narrow_phase::{BallBallManifoldGenerator,
                    BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeManifoldGenerator,
                    ContactAlgorithm,
@@ -40,7 +40,7 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
         let b_is_plane = b.is_shape::<Plane<P::Vector>>();
 
         if a_is_ball && b_is_ball {
-            Some(Box::new(BallBallContactGenerator::<P, M>::new()))
+            Some(Box::new(BallBallManifoldGenerator::<P, M>::new()))
         } else if a_is_plane && b_is_ball {
             Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(false)))
         } else if a_is_ball && b_is_plane {

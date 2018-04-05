@@ -7,35 +7,35 @@ use geometry::bounding_volume::PolyhedralCone;
 use geometry::shape::{Ball, FeatureId, Shape};
 use geometry::query::{ContactKinematic, ContactManifold, ContactPrediction};
 use geometry::query::contacts_internal;
-use narrow_phase::{ContactDispatcher, ContactGenerator};
+use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
-pub struct BallBallContactGenerator<P: Point, M> {
+pub struct BallBallManifoldGenerator<P: Point, M> {
     manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallBallContactGenerator<P, M> {
-    fn clone(&self) -> BallBallContactGenerator<P, M> {
-        BallBallContactGenerator {
+impl<P: Point, M> Clone for BallBallManifoldGenerator<P, M> {
+    fn clone(&self) -> BallBallManifoldGenerator<P, M> {
+        BallBallManifoldGenerator {
             manifold: self.manifold.clone(),
             mat_type: PhantomData,
         }
     }
 }
 
-impl<P: Point, M> BallBallContactGenerator<P, M> {
+impl<P: Point, M> BallBallManifoldGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBallContactGenerator<P, M> {
-        BallBallContactGenerator {
+    pub fn new() -> BallBallManifoldGenerator<P, M> {
+        BallBallManifoldGenerator {
             manifold: ContactManifold::new(),
             mat_type: PhantomData,
         }
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M> {
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,

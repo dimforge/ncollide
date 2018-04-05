@@ -7,7 +7,7 @@ use geometry::bounding_volume::{self, BoundingVolume};
 use geometry::partitioning::BoundingVolumeInterferencesCollector;
 use geometry::shape::{CompositeShape, Shape};
 use geometry::query::{ContactManifold, ContactPrediction};
-use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactGenerator};
+use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<P: Point, M> {
@@ -123,7 +123,7 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
+impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
     for CompositeShapeShapeManifoldGenerator<P, M>
 {
     fn update(

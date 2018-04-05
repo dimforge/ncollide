@@ -5,14 +5,14 @@ pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, Proxim
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 
 #[doc(inline)]
-pub use self::contact_generator::{BallBallContactGenerator,
+pub use self::contact_generator::{BallBallManifoldGenerator,
                                   // IncrementalContactManifoldGenerator,
                                   // OneShotContactManifoldGenerator,
                                   BallConvexPolyhedronManifoldGenerator,
                                   CompositeShapeShapeManifoldGenerator,
                                   ContactAlgorithm,
                                   ContactDispatcher,
-                                  ContactGenerator,
+                                  ContactManifoldGenerator,
                                   ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                                   DefaultContactDispatcher,
                                   PlaneBallManifoldGenerator,

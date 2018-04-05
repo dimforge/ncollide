@@ -7,7 +7,7 @@ use utils::IdAllocator;
 use geometry::shape::{Ball, ConvexPolyface, FeatureId, Plane, Shape};
 use geometry::bounding_volume::PolyhedralCone;
 use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use narrow_phase::{ContactDispatcher, ContactGenerator};
+use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -87,7 +87,7 @@ impl<P: Point, M: Isometry<P>> PlaneBallManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for PlaneBallManifoldGenerator<P, M> {
+impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M> for PlaneBallManifoldGenerator<P, M> {
     #[inline]
     fn update(
         &mut self,
