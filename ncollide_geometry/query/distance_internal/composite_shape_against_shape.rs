@@ -108,11 +108,12 @@ where
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, P::Real)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {
-            let distance = distance_internal::distance(m1, g1, self.m2, self.g2);
+        self.g1
+            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+                let distance = distance_internal::distance(m1, g1, self.m2, self.g2);
 
-            res = Some((distance, distance))
-        });
+                res = Some((distance, distance))
+            });
 
         res
     }

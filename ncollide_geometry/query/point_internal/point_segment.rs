@@ -14,8 +14,8 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
-            SegmentPointLocation::OnVertex(i) => FeatureId::vertex(0, i),
-            SegmentPointLocation::OnEdge(..) => FeatureId::edge(0, 0),
+            SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
+            SegmentPointLocation::OnEdge(..) => FeatureId::Edge(0),
         };
 
         (proj, feature)

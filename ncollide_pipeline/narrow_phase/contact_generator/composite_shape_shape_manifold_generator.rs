@@ -14,15 +14,17 @@ pub struct CompositeShapeShapeManifoldGenerator<P: Point, M> {
     sub_detectors: HashMap<usize, ContactAlgorithm<P, M>, UintTWHash>,
     to_delete: Vec<usize>,
     interferences: Vec<usize>,
+    flip: bool,
 }
 
 impl<P: Point, M> CompositeShapeShapeManifoldGenerator<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new() -> CompositeShapeShapeManifoldGenerator<P, M> {
+    pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<P, M> {
         CompositeShapeShapeManifoldGenerator {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete: Vec::new(),
             interferences: Vec::new(),
+            flip,
         }
     }
 }
@@ -31,13 +33,15 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<P, M>,
+        id1: usize,
         m1: &M,
         g1: &CompositeShape<P, M>,
+        id2: usize,
         m2: &M,
         g2: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
-        swap: bool,
+        flip: bool,
     ) {
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
@@ -53,8 +57,8 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
             let _ = self.sub_detectors.find_or_insert_lazy(*i, || {
                 let mut new_detector = None;
 
-                g1.map_part_at(*i, &mut |_, g1| {
-                    if swap {
+                g1.map_part_at(*i, &mut |_, _, g1| {
+                    if flip {
                         new_detector = dispatcher.get_contact_algorithm(g2, g1)
                     } else {
                         new_detector = dispatcher.get_contact_algorithm(g1, g2)
@@ -71,19 +75,35 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
         for detector in self.sub_detectors.elements_mut().iter_mut() {
             let key = detector.key;
             if ls_aabb2.intersects(&g1.aabb_at(key)) {
-                g1.map_transformed_part_at(key, m1, &mut |m1, g1| {
-                    if swap {
+                g1.map_transformed_part_at(key, m1, &mut |sub_id1, m1, g1| {
+                    if flip {
                         assert!(
-                            detector
-                                .value
-                                .update(dispatcher, m2, g2, m1, g1, prediction, id_alloc),
+                            detector.value.update(
+                                dispatcher,
+                                id2,
+                                m2,
+                                g2,
+                                id1 + sub_id1,
+                                m1,
+                                g1,
+                                prediction,
+                                id_alloc
+                            ),
                             "Internal error: the shape was no longer valid."
                         );
                     } else {
                         assert!(
-                            detector
-                                .value
-                                .update(dispatcher, m1, g1, m2, g2, prediction, id_alloc),
+                            detector.value.update(
+                                dispatcher,
+                                id1 + sub_id1,
+                                m1,
+                                g1,
+                                id2,
+                                m2,
+                                g2,
+                                prediction,
+                                id_alloc
+                            ),
                             "Internal error: the shape was no longer valid."
                         );
                     }
@@ -103,40 +123,34 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-/// Collision detector between a shape and a concave shape.
-pub struct ShapeCompositeShapeManifoldGenerator<P: Point, M> {
-    sub_detector: CompositeShapeShapeManifoldGenerator<P, M>,
-}
-
-impl<P: Point, M> ShapeCompositeShapeManifoldGenerator<P, M> {
-    /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new() -> ShapeCompositeShapeManifoldGenerator<P, M> {
-        ShapeCompositeShapeManifoldGenerator {
-            sub_detector: CompositeShapeShapeManifoldGenerator::new(),
-        }
-    }
-}
-
 impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
     for CompositeShapeShapeManifoldGenerator<P, M>
 {
     fn update(
         &mut self,
         d: &ContactDispatcher<P, M>,
+        ida: usize,
         ma: &M,
         a: &Shape<P, M>,
+        idb: usize,
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
-        if let Some(cs) = a.as_composite_shape() {
-            self.do_update(d, ma, cs, mb, b, prediction, id_alloc, false);
-
-            true
+        if !self.flip {
+            if let Some(cs) = a.as_composite_shape() {
+                self.do_update(d, ida, ma, cs, idb, mb, b, prediction, id_alloc, false);
+                return true;
+            }
         } else {
-            false
+            if let Some(cs) = b.as_composite_shape() {
+                self.do_update(d, idb, mb, cs, ida, ma, a, prediction, id_alloc, true);
+                return true;
+            }
         }
+
+        return false;
     }
 
     fn num_contacts(&self) -> usize {
@@ -153,37 +167,5 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
         for detector in self.sub_detectors.elements().iter() {
             detector.value.contacts(out);
         }
-    }
-}
-
-impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
-    for ShapeCompositeShapeManifoldGenerator<P, M>
-{
-    fn update(
-        &mut self,
-        d: &ContactDispatcher<P, M>,
-        ma: &M,
-        a: &Shape<P, M>,
-        mb: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
-        id_alloc: &mut IdAllocator,
-    ) -> bool {
-        if let Some(cs) = b.as_composite_shape() {
-            self.sub_detector
-                .do_update(d, mb, cs, ma, a, prediction, id_alloc, true);
-
-            true
-        } else {
-            false
-        }
-    }
-
-    fn num_contacts(&self) -> usize {
-        self.sub_detector.num_contacts()
-    }
-
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
-        self.sub_detector.contacts(out)
     }
 }

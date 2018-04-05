@@ -24,7 +24,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Ball<P::Real> {
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
-        (self.project_point(m, pt, false), FeatureId::face(0, 0))
+        (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 
     #[inline]

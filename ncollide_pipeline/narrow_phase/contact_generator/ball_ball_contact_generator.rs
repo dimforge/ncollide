@@ -39,15 +39,20 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
+        ida: usize,
         ma: &M,
         a: &Shape<P, M>,
+        idb: usize,
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
+            self.manifold.set_subshape_id1(ida);
+            self.manifold.set_subshape_id2(idb);
             self.manifold.save_cache_and_clear(id_alloc);
+
             let center_a = P::from_coordinates(ma.translation().to_vector());
             let center_b = P::from_coordinates(mb.translation().to_vector());
             if let Some(contact) =
@@ -56,8 +61,8 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M> for BallBallContactGenerat
                 let normals1 = PolyhedralCone::<P>::from_slice(&[contact.normal]);
                 let normals2 = PolyhedralCone::<P>::from_slice(&[-contact.normal]);
                 let mut kinematic = ContactKinematic::new();
-                kinematic.set_point1(FeatureId::face(0, 0), P::origin(), PolyhedralCone::new());
-                kinematic.set_point2(FeatureId::face(0, 0), P::origin(), PolyhedralCone::new());
+                kinematic.set_point1(FeatureId::Face(0), P::origin(), PolyhedralCone::new());
+                kinematic.set_point2(FeatureId::Face(0), P::origin(), PolyhedralCone::new());
                 kinematic.set_dilation1(a.radius());
                 kinematic.set_dilation2(b.radius());
 

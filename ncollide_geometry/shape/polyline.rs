@@ -91,21 +91,21 @@ impl<P: Point> Polyline<P> {
 impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Polyline<P> {
     #[inline]
     fn nparts(&self) -> usize {
-        self.mesh.indices().len()    
+        self.mesh.indices().len()
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
         let one: M = na::one();
 
         self.map_transformed_part_at(i, &one, f)
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
         let element = self.segment_at(i);
 
-        f(m, &element)
+        f(i, m, &element)
     }
 
     #[inline]

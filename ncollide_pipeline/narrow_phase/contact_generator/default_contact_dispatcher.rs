@@ -10,8 +10,7 @@ use narrow_phase::{BallBallContactGenerator,
                    ContactDispatcher, // OneShotContactManifoldGenerator,
                    ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                    PlaneBallManifoldGenerator,
-                   PlaneConvexPolyhedronManifoldGenerator,
-                   ShapeCompositeShapeManifoldGenerator};
+                   PlaneConvexPolyhedronManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher<P: Point, M> {
@@ -77,9 +76,13 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
                 _ => unimplemented!(),
             }
         } else if a.is_composite_shape() {
-            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new()))
+            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new(
+                false,
+            )))
         } else if b.is_composite_shape() {
-            Some(Box::new(ShapeCompositeShapeManifoldGenerator::<P, M>::new()))
+            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new(
+                true,
+            )))
         } else {
             None
         }

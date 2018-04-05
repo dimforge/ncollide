@@ -6,11 +6,11 @@ use std::sync::Arc;
 use na;
 
 // Repr.
-use shape::{CompositeShape, ConvexPolyhedron, SupportMap, FeatureId};
+use shape::{CompositeShape, ConvexPolyhedron, FeatureId, SupportMap};
 // Queries.
 use bounding_volume::{BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
@@ -28,10 +28,12 @@ pub trait Shape<P: Point, M: Isometry<P>>: Send + Sync + Any + GetTypeId {
         BoundingSphere::new(aabb.center(), na::norm_squared(&aabb.half_extents()))
     }
 
-    /// The transform of the subshape containing the specified feature.
+    /// The transform of a specific subshape.
+    ///
+    /// Return `None` if the transform is known to be the identity.
     #[inline]
-    fn subshape_transform(&self, feature: FeatureId) -> M {
-        M::identity()
+    fn subshape_transform(&self, subshape_id: usize) -> Option<M> {
+        None
     }
 
     /// The `RayCast` implementation of `self`.

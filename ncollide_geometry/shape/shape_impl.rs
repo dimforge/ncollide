@@ -1,7 +1,7 @@
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
 use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolyhedron, Cuboid, Cylinder,
-            Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle, FeatureId};
+            FeatureId, Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle};
 use math::{Isometry, Point};
 
 macro_rules! impl_as_convex_polyhedron(
@@ -106,7 +106,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
 impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
     impl_shape_common!();
     impl_as_support_map!();
-    // impl_as_conve_polyhedron!();
+    // impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {
@@ -114,10 +114,8 @@ impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<
     impl_as_composite_shape!();
 
     #[inline]
-    fn subshape_transform(&self, mut feature: FeatureId) -> M {
+    fn subshape_transform(&self, subshape_id: usize) -> Option<M> {
         let idx = self.start_idx();
-        let subshape_id = feature.subshape_id();
-
         let mut shape_id = 0;
 
         while shape_id < idx.len() && idx[shape_id] <= subshape_id {
@@ -125,9 +123,12 @@ impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<
         }
 
         let shape = &self.shapes()[shape_id - 1];
-        feature.set_subshape_id(subshape_id - idx[shape_id - 1]);
 
-        shape.0.clone() * shape.1.subshape_transform(feature)
+        if let Some(subtransform) = shape.1.subshape_transform(subshape_id - idx[shape_id - 1]) {
+            Some(shape.0.clone() * subtransform)
+        } else {
+            Some(shape.0.clone())
+        }
     }
 }
 

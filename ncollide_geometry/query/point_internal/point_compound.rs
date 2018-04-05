@@ -70,7 +70,7 @@ where
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, PointProjection<P>)> {
         let mut res = None;
 
-        self.compound.map_part_at(*b, &mut |objm, obj| {
+        self.compound.map_part_at(*b, &mut |_, objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
             res = Some((na::distance(self.point, &proj.point), proj));
@@ -103,7 +103,7 @@ where
     #[inline]
     fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
         if !self.found && bv.contains_point(&Id::new(), self.point) {
-            self.compound.map_part_at(*b, &mut |objm, obj| {
+            self.compound.map_part_at(*b, &mut |_, objm, obj| {
                 self.found = obj.contains_point(objm, self.point)
             })
         }

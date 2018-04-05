@@ -119,19 +119,20 @@ where
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, ClosestPoints<P>)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {
-            let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
-            let dist = match pts {
-                ClosestPoints::WithinMargin(ref p1, ref p2) => na::distance(p1, p2),
-                ClosestPoints::Intersecting => {
-                    self.stop = true;
-                    na::zero()
-                }
-                ClosestPoints::Disjoint => self.margin,
-            };
+        self.g1
+            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+                let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
+                let dist = match pts {
+                    ClosestPoints::WithinMargin(ref p1, ref p2) => na::distance(p1, p2),
+                    ClosestPoints::Intersecting => {
+                        self.stop = true;
+                        na::zero()
+                    }
+                    ClosestPoints::Disjoint => self.margin,
+                };
 
-            res = Some((dist, pts))
-        });
+                res = Some((dist, pts))
+            });
 
         res
     }

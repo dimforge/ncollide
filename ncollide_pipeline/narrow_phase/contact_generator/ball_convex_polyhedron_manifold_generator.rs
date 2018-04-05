@@ -74,7 +74,7 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
 
                 if depth >= -prediction.linear {
                     let mut kinematic = ContactKinematic::new();
-                    let f1 = FeatureId::face(0, 0);
+                    let f1 = FeatureId::Face(0);
                     let world1 = ball_center + normal.unwrap() * ball.radius();
 
                     let contact;
@@ -139,13 +139,18 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
+        id1: usize,
         m1: &M,
         a: &Shape<P, M>,
+        id2: usize,
         m2: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
+        self.contact_manifold.set_subshape_id1(id1);
+        self.contact_manifold.set_subshape_id2(id2);
+
         if !self.flip {
             self.do_update(m1, a, m2, b, prediction, id_alloc, false)
         } else {

@@ -13,8 +13,10 @@ pub trait ContactGenerator<P: Point, M>: Any + Send + Sync {
     fn update(
         &mut self,
         dispatcher: &ContactDispatcher<P, M>,
+        ida: usize,
         ma: &M,
         a: &Shape<P, M>,
+        idb: usize,
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,

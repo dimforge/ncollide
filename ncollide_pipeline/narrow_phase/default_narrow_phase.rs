@@ -8,7 +8,7 @@ use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhas
                    ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
 use world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
 use events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
-use math::{Point, Isometry};
+use math::{Isometry, Point};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
@@ -60,8 +60,10 @@ impl<P: Point, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarr
                 {
                     let _ = value.update(
                         &*self.contact_dispatcher,
+                        0,
                         &co1.position(),
                         co1.shape().as_ref(),
+                        0,
                         &co2.position(),
                         co2.shape().as_ref(),
                         &prediction,

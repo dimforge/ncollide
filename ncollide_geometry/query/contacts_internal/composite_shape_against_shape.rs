@@ -89,25 +89,28 @@ where
     let mut res = None::<Contact<P>>;
 
     for i in interferences.into_iter() {
-        g1.map_part_at(i, &mut |_, part| match contacts_internal::contact_internal(
-            m1,
-            part,
-            m2,
-            g2,
-            prediction,
-        ) {
-            Some(c) => {
-                let replace = match res {
-                    Some(ref cbest) => c.depth > cbest.depth,
-                    None => true,
-                };
+        g1.map_part_at(
+            i,
+            &mut |_, _, part| match contacts_internal::contact_internal(
+                m1,
+                part,
+                m2,
+                g2,
+                prediction,
+            ) {
+                Some(c) => {
+                    let replace = match res {
+                        Some(ref cbest) => c.depth > cbest.depth,
+                        None => true,
+                    };
 
-                if replace {
-                    res = Some(c)
+                    if replace {
+                        res = Some(c)
+                    }
                 }
-            }
-            None => {}
-        });
+                None => {}
+            },
+        );
     }
 
     res

@@ -111,16 +111,17 @@ where
     fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, P::Real)> {
         let mut res = None;
 
-        self.g1.map_transformed_part_at(*b, self.m1, &mut |m1, g1| {
-            res = time_of_impact_internal::time_of_impact(
-                m1,
-                self.vel1,
-                g1,
-                self.m2,
-                self.vel2,
-                self.g2,
-            ).map(|toi| (toi, toi))
-        });
+        self.g1
+            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+                res = time_of_impact_internal::time_of_impact(
+                    m1,
+                    self.vel1,
+                    g1,
+                    self.m2,
+                    self.vel2,
+                    self.g2,
+                ).map(|toi| (toi, toi))
+            });
 
         res
     }

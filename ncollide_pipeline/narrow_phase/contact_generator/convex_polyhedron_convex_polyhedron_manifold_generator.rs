@@ -498,14 +498,19 @@ where
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
+        ida: usize,
         ma: &M,
         a: &Shape<P, M>,
+        idb: usize,
         mb: &M,
         b: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
+            self.contact_manifold.set_subshape_id1(ida);
+            self.contact_manifold.set_subshape_id2(idb);
+
             // NOTE: the following are premices of an attempt to avoid the executen of GJK/EPA
             // in some situations where the optimal contact direction can be determined directly
             // from the previous manifolds and normal cones.

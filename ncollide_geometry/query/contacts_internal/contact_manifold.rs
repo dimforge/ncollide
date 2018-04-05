@@ -31,6 +31,10 @@ impl CacheEntryStatus {
 
 #[derive(Clone, Debug)]
 pub struct ContactManifold<P: Point> {
+    // FIXME: move those to the contact kinematic
+    // even if all contacts share the same shubshape ?
+    subshape_id1: usize,
+    subshape_id2: usize,
     deepest: usize,
     contacts: Vec<TrackedContact<P>>,
     // FIXME: the cache should only contain points
@@ -43,12 +47,30 @@ pub struct ContactManifold<P: Point> {
 impl<P: Point> ContactManifold<P> {
     pub fn new() -> Self {
         ContactManifold {
+            subshape_id1: 0,
+            subshape_id2: 0,
             deepest: 0,
             contacts: Vec::new(),
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
             new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
         }
+    }
+
+    pub fn subshape_id1(&self) -> usize {
+        self.subshape_id1
+    }
+
+    pub fn set_subshape_id1(&mut self, id: usize) {
+        self.subshape_id1 = id
+    }
+
+    pub fn subshape_id2(&self) -> usize {
+        self.subshape_id2
+    }
+
+    pub fn set_subshape_id2(&mut self, id: usize) {
+        self.subshape_id2 = id
     }
 
     pub fn len(&self) -> usize {
@@ -92,7 +114,7 @@ impl<P: Point> ContactManifold<P> {
         self.contacts.clear();
         self.deepest = 0;
     }
-    
+
     pub fn push(
         &mut self,
         contact: Contact<P>,

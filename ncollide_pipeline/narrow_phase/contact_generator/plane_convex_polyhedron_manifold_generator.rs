@@ -59,7 +59,7 @@ impl<P: Point, M: Isometry<P>> PlaneConvexPolyhedronManifoldGenerator<P, M> {
                     let world1 = *world2 + (-*plane_normal * dist);
                     let local1 = m1.inverse_transform_point(&world1);
                     let local2 = m2.inverse_transform_point(&world2);
-                    let f1 = FeatureId::face(0, 0);
+                    let f1 = FeatureId::Face(0);
                     let f2 = self.feature.vertices_id[i];
                     let n2 = cp.normal_cone(f2);
                     let mut kinematic = ContactKinematic::new();
@@ -92,13 +92,18 @@ impl<P: Point, M: Isometry<P>> ContactGenerator<P, M>
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
+        id1: usize,
         m1: &M,
         g1: &Shape<P, M>,
+        id2: usize,
         m2: &M,
         g2: &Shape<P, M>,
         prediction: &ContactPrediction<P::Real>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
+        self.manifold.set_subshape_id1(id1);
+        self.manifold.set_subshape_id2(id2);
+
         if !self.flip {
             self.do_update(m1, g1, m2, g2, prediction, id_alloc, false)
         } else {

@@ -17,8 +17,6 @@ pub use self::contact_generator::{BallBallContactGenerator,
                                   DefaultContactDispatcher,
                                   PlaneBallManifoldGenerator,
                                   PlaneConvexPolyhedronManifoldGenerator,
-                                  ShapeCompositeShapeManifoldGenerator,
-                                  SupportMapSupportMapContactGenerator,
                                   NAVOID};
 
 #[doc(inline)]

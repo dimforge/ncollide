@@ -9,71 +9,10 @@ use query::closest_points_internal;
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FeatureId {
-    Vertex { subshape: usize, id: usize },
-    Edge { subshape: usize, id: usize },
-    Face { subshape: usize, id: usize },
+    Vertex(usize),
+    Edge(usize),
+    Face(usize),
     Unknown,
-}
-
-impl FeatureId {
-    #[inline]
-    pub fn vertex(subshape: usize, id: usize) -> FeatureId {
-        FeatureId::Vertex { subshape, id }
-    }
-
-    #[inline]
-    pub fn edge(subshape: usize, id: usize) -> FeatureId {
-        FeatureId::Edge { subshape, id }
-    }
-
-    #[inline]
-    pub fn face(subshape: usize, id: usize) -> FeatureId {
-        FeatureId::Face { subshape, id }
-    }
-
-    #[inline]
-    pub fn subshape_id(&self) -> usize {
-        match *self {
-            FeatureId::Vertex { subshape, .. } => subshape,
-            FeatureId::Edge { subshape, .. } => subshape,
-            FeatureId::Face { subshape, .. } => subshape,
-            FeatureId::Unknown => 0,
-        }
-    }
-    
-    #[inline]
-    pub fn set_subshape_id(&mut self, id: usize) {
-        match *self {
-            FeatureId::Vertex { ref mut subshape, .. } => *subshape = id,
-            FeatureId::Edge { ref mut subshape, .. } => *subshape = id,
-            FeatureId::Face { ref mut subshape, .. } => *subshape = id,
-            FeatureId::Unknown => { }
-        }
-    }
-
-    #[inline]
-    pub fn vertex_id(&self) -> Option<usize> {
-        match *self {
-            FeatureId::Vertex { id, .. } => Some(id),
-            _ => None,
-        }
-    }
-
-    #[inline]
-    pub fn edge_id(&self) -> Option<usize> {
-        match *self {
-            FeatureId::Edge { id, .. } => Some(id),
-            _ => None,
-        }
-    }
-
-    #[inline]
-    pub fn face_id(&self) -> Option<usize> {
-        match *self {
-            FeatureId::Face { id, .. } => Some(id),
-            _ => None,
-        }
-    }
 }
 
 /// Represents a convex polygonal approximation of a face of a solid.

@@ -20,7 +20,7 @@ pub struct Compound<P: Point, M: Isometry<P>> {
     shapes: Vec<(M, ShapeHandle<P, M>)>,
     bvt: BVT<usize, AABB<P>>,
     bvs: Vec<AABB<P>>,
-    start_idx: Vec<usize>
+    start_idx: Vec<usize>,
 }
 
 impl<P: Point, M: Isometry<P>> Clone for Compound<P, M> {
@@ -29,7 +29,7 @@ impl<P: Point, M: Isometry<P>> Clone for Compound<P, M> {
             shapes: self.shapes.clone(),
             bvt: self.bvt.clone(),
             bvs: self.bvs.clone(),
-            start_idx: self.start_idx.clone()
+            start_idx: self.start_idx.clone(),
         }
     }
 }
@@ -63,7 +63,7 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
             shapes: shapes,
             bvt: bvt,
             bvs: bvs,
-            start_idx
+            start_idx,
         }
     }
 }
@@ -98,25 +98,26 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M>
-{
+impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M> {
     #[inline]
     fn nparts(&self) -> usize {
         self.shapes.len()
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&M, &Shape<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
+        let id = self.start_idx[i];
         let &(ref m, ref g) = &self.shapes()[i];
 
-        f(m, g.as_ref())
+        f(id, m, g.as_ref())
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(&M, &Shape<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
+        let id = self.start_idx[i];
         let elt = &self.shapes()[i];
 
-        f(&(m.clone() * elt.0.clone()), elt.1.as_ref())
+        f(id, &(m.clone() * elt.0.clone()), elt.1.as_ref())
     }
 
     #[inline]
