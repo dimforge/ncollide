@@ -106,7 +106,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
 impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
     impl_shape_common!();
     impl_as_support_map!();
-    // impl_as_convex_polyhedron!();
+    impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {

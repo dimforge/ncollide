@@ -118,6 +118,27 @@ impl<P: Point> TriMesh<P> {
             IndexBuffer::Split(ref idx) => idx.len(),
         }
     }
+
+    /// Returns only the vertex ids from the index buffer.
+    #[inline]
+    pub fn flat_indices(&self) -> Vec<u32> {
+        let mut res = Vec::with_capacity(self.num_triangles() * 3);
+
+        match self.indices {
+            IndexBuffer::Unified(ref idx) => for i in idx {
+                res.push(i[0]);
+                res.push(i[1]);
+                res.push(i[2]);
+            },
+            IndexBuffer::Split(ref idx) => for i in idx {
+                res.push(i[0][0]);
+                res.push(i[0][1]);
+                res.push(i[0][2]);
+            },
+        }
+
+        res
+    }
 }
 
 impl<P: Point> TriMesh<P> {
@@ -161,9 +182,7 @@ impl<P: Point> TriMesh<P> {
 
         self.normals = Some(new_normals);
     }
-}
 
-impl<P: Point> TriMesh<P> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &P::Vector) {
@@ -247,6 +266,66 @@ impl<P: Point> TriMesh<P> {
         };
 
         let _ = new_indices.map(|nids| self.indices = nids);
+    }
+
+    /// Unifies the index buffer and ensure duplicate each vertex
+    /// are duplicated such that no two vertex entry of the index buffer
+    /// are equal.
+    pub fn replicate_vertices(&mut self) {
+        let mut resi: Vec<u32> = Vec::new();
+        let mut resc: Vec<P> = Vec::new();
+        let mut resn: Option<Vec<P::Vector>> = self.normals.as_ref().map(|_| Vec::new());
+        let mut resu: Option<Vec<Point2<P::Real>>> = self.uvs.as_ref().map(|_| Vec::new());
+
+        match self.indices {
+            IndexBuffer::Split(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[point.x as usize].clone());
+
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[point.y as usize].clone())
+                        });
+                        let _ = resu.as_mut().map(|l| {
+                            l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone())
+                        });
+
+                        resi.push(idx);
+                    }
+                }
+            }
+            IndexBuffer::Unified(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[*point as usize].clone());
+
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[*point as usize].clone())
+                        });
+                        let _ = resu.as_mut().map(|l| {
+                            l.push(self.uvs.as_ref().unwrap()[*point as usize].clone())
+                        });
+
+                        resi.push(idx);
+                    }
+                }
+            }
+        };
+
+        self.coords = resc;
+        self.normals = resn;
+        self.uvs = resu;
+
+        let mut batched_indices = Vec::new();
+
+        assert!(resi.len() % 3 == 0);
+        for f in resi[..].chunks(3) {
+            batched_indices.push(Point3::new(f[0], f[1], f[2]));
+        }
+
+        self.indices = IndexBuffer::Unified(batched_indices)
     }
 }
 

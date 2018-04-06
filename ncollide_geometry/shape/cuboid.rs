@@ -64,153 +64,146 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Cuboid<P::Vector> {
 impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
     fn vertex(&self, id: FeatureId) -> P {
         let dim = na::dimension::<P::Vector>();
-        if let FeatureId::Vertex(vid) = id {
-            let mut res = self.half_extents;
+        let vid = id.unwrap_vertex();
+        let mut res = self.half_extents;
 
-            for i in 0..dim {
-                if vid & (1 << i) != 0 {
-                    res[i] = -res[i]
-                }
+        for i in 0..dim {
+            if vid & (1 << i) != 0 {
+                res[i] = -res[i]
             }
-
-            P::from_coordinates(res)
-        } else {
-            panic!("The feature id does not identify a vertex.");            
         }
+
+        P::from_coordinates(res)
     }
 
     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
         let dim = na::dimension::<P::Vector>();
-        if let FeatureId::Edge(mut eid) = id {
-            let mut res = self.half_extents;
+        let mut eid = id.unwrap_edge();
+        let mut res = self.half_extents;
 
-            if dim == 2 {
-                let mut vertex_id = 0;
-                if eid > 2 {
-                    eid -= 2;
-                    res[eid] = -res[eid];
-                    vertex_id |= 1 << eid;
-                }
-
-                let p1 = P::from_coordinates(res);
-                let other_id = (eid + 1) % 2;
-                res[other_id] = -res[other_id];
-                let p2 = P::from_coordinates(res);
-                let vid1 = FeatureId::Vertex(vertex_id);
-                let vid2 = FeatureId::Vertex(vertex_id | (1 << other_id));
-
-                (p1, p2, vid1, vid2)
-            } else {
-                let edge_i = eid & 0b11;
-                let vertex_i = eid >> 2;
-
-                for i in 0..dim {
-                    if i != edge_i && (vertex_i & (1 << i) != 0) {
-                        res[i] = -res[i]
-                    }
-                }
-
-                let p1 = P::from_coordinates(res);
-                res[edge_i] = -res[edge_i];
-                let p2 = P::from_coordinates(res);
-                let vid1 = FeatureId::Vertex(vertex_i & !(1 << edge_i));
-                let vid2 = FeatureId::Vertex(vertex_i | (1 << edge_i));
-
-                (p1, p2, vid1, vid2)
+        if dim == 2 {
+            let mut vertex_id = 0;
+            if eid > 2 {
+                eid -= 2;
+                res[eid] = -res[eid];
+                vertex_id |= 1 << eid;
             }
+
+            let p1 = P::from_coordinates(res);
+            let other_id = (eid + 1) % 2;
+            res[other_id] = -res[other_id];
+            let p2 = P::from_coordinates(res);
+            let vid1 = FeatureId::Vertex(vertex_id);
+            let vid2 = FeatureId::Vertex(vertex_id | (1 << other_id));
+
+            (p1, p2, vid1, vid2)
         } else {
-            panic!("The feature id does not identify an edge.");            
+            let edge_i = eid & 0b11;
+            let vertex_i = eid >> 2;
+
+            for i in 0..dim {
+                if i != edge_i && (vertex_i & (1 << i) != 0) {
+                    res[i] = -res[i]
+                }
+            }
+
+            let p1 = P::from_coordinates(res);
+            res[edge_i] = -res[edge_i];
+            let p2 = P::from_coordinates(res);
+            let vid1 = FeatureId::Vertex(vertex_i & !(1 << edge_i));
+            let vid2 = FeatureId::Vertex(vertex_i | (1 << edge_i));
+
+            (p1, p2, vid1, vid2)
         }
     }
 
     fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {
-        if let FeatureId::Face(mut i) = id {
-            let dim = na::dimension::<P::Vector>();
-            let i1;
-            let sign;
+        out.clear();
+        
+        let mut i = id.unwrap_face();
+        let dim = na::dimension::<P::Vector>();
+        let i1;
+        let sign;
 
-            if i < dim {
-                i1 = i;
-                sign = P::Real::one();
-            } else {
-                i1 = i - dim;
-                sign = -P::Real::one();
-            }
-
-            if dim == 2 {
-                let i2 = (i1 + 1) % 2;
-
-                let mut vertex = self.half_extents;
-                vertex[i1] *= sign;
-                vertex[i2] *= if i1 == 0 { -sign } else { sign };
-
-                let p1 = P::from_coordinates(vertex);
-                vertex[i2] = -vertex[i2];
-                let p2 = P::from_coordinates(vertex);
-
-                let mut vertex_id1 = if sign < na::zero() { 1 << i1 } else { 0 };
-                let mut vertex_id2 = vertex_id1;
-                if p1[i2] < na::zero() {
-                    vertex_id1 |= 1 << i2;
-                } else {
-                    vertex_id2 |= 1 << i2;
-                }
-
-                out.push(p1, FeatureId::Vertex(vertex_id1));
-                out.push(p2, FeatureId::Vertex(vertex_id2));
-
-                let mut normal: P::Vector = na::zero();
-                normal[i1] = sign;
-                out.set_normal(Unit::new_unchecked(normal));
-                out.set_feature_id(FeatureId::Edge(i));
-            } else {
-                let i2 = (i1 + 1) % 3;
-                let i3 = (i1 + 2) % 3;
-                let (edge_i2, edge_i3) = if sign > na::zero() {
-                    (i2, i3)
-                } else {
-                    (i3, i2)
-                };
-                let mut vertex = self.half_extents;
-                vertex[i1] *= sign;
-
-                let (sbit, msbit) = if sign < na::zero() { (1, 0) } else { (0, 1) };
-                let mut vertex_id = sbit << i1;
-                out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
-                out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
-
-                vertex[i2] = -sign * self.half_extents[i2];
-                vertex[i3] = sign * self.half_extents[i3];
-                vertex_id |= msbit << i2 | sbit << i3;
-                out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
-                out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
-
-                vertex[i2] = -self.half_extents[i2];
-                vertex[i3] = -self.half_extents[i3];
-                vertex_id |= 1 << i2 | 1 << i3;
-                out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
-                out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
-
-                vertex[i2] = sign * self.half_extents[i2];
-                vertex[i3] = -sign * self.half_extents[i3];
-                vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
-                out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
-                out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
-
-                let mut normal: P::Vector = na::zero();
-                normal[i1] = sign;
-                out.set_normal(Unit::new_unchecked(normal));
-
-                if sign > na::zero() {
-                    out.set_feature_id(FeatureId::Face(i1));
-                } else {
-                    out.set_feature_id(FeatureId::Face(i1 + 3));
-                }
-
-                out.recompute_edge_normals_3d();
-            }
+        if i < dim {
+            i1 = i;
+            sign = P::Real::one();
         } else {
-            panic!("The feature id does not identify an edge.");            
+            i1 = i - dim;
+            sign = -P::Real::one();
+        }
+
+        if dim == 2 {
+            let i2 = (i1 + 1) % 2;
+
+            let mut vertex = self.half_extents;
+            vertex[i1] *= sign;
+            vertex[i2] *= if i1 == 0 { -sign } else { sign };
+
+            let p1 = P::from_coordinates(vertex);
+            vertex[i2] = -vertex[i2];
+            let p2 = P::from_coordinates(vertex);
+
+            let mut vertex_id1 = if sign < na::zero() { 1 << i1 } else { 0 };
+            let mut vertex_id2 = vertex_id1;
+            if p1[i2] < na::zero() {
+                vertex_id1 |= 1 << i2;
+            } else {
+                vertex_id2 |= 1 << i2;
+            }
+
+            out.push(p1, FeatureId::Vertex(vertex_id1));
+            out.push(p2, FeatureId::Vertex(vertex_id2));
+
+            let mut normal: P::Vector = na::zero();
+            normal[i1] = sign;
+            out.set_normal(Unit::new_unchecked(normal));
+            out.set_feature_id(FeatureId::Edge(i));
+        } else {
+            let i2 = (i1 + 1) % 3;
+            let i3 = (i1 + 2) % 3;
+            let (edge_i2, edge_i3) = if sign > na::zero() {
+                (i2, i3)
+            } else {
+                (i3, i2)
+            };
+            let mut vertex = self.half_extents;
+            vertex[i1] *= sign;
+
+            let (sbit, msbit) = if sign < na::zero() { (1, 0) } else { (0, 1) };
+            let mut vertex_id = sbit << i1;
+            out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+
+            vertex[i2] = -sign * self.half_extents[i2];
+            vertex[i3] = sign * self.half_extents[i3];
+            vertex_id |= msbit << i2 | sbit << i3;
+            out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+
+            vertex[i2] = -self.half_extents[i2];
+            vertex[i3] = -self.half_extents[i3];
+            vertex_id |= 1 << i2 | 1 << i3;
+            out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+
+            vertex[i2] = sign * self.half_extents[i2];
+            vertex[i3] = -sign * self.half_extents[i3];
+            vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
+            out.push(P::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+
+            let mut normal: P::Vector = na::zero();
+            normal[i1] = sign;
+            out.set_normal(Unit::new_unchecked(normal));
+
+            if sign > na::zero() {
+                out.set_feature_id(FeatureId::Face(i1));
+            } else {
+                out.set_feature_id(FeatureId::Face(i1 + 3));
+            }
+
+            out.recompute_edge_normals_3d();
         }
     }
 

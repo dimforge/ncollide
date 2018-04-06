@@ -15,6 +15,29 @@ pub enum FeatureId {
     Unknown,
 }
 
+impl FeatureId {
+    pub fn unwrap_vertex(self) -> usize {
+        match self {
+            FeatureId::Vertex(id) => id,
+            _ => panic!("The feature id does not identify a vertex."),
+        }
+    }
+
+    pub fn unwrap_edge(self) -> usize {
+        match self {
+            FeatureId::Edge(id) => id,
+            _ => panic!("The feature id does not identify an edge."),
+        }
+    }
+
+    pub fn unwrap_face(self) -> usize {
+        match self {
+            FeatureId::Face(id) => id,
+            _ => panic!("The feature id does not identify a face."),
+        }
+    }
+}
+
 /// Represents a convex polygonal approximation of a face of a solid.
 ///
 /// It is never checked if the vertices actually form a convex polygon.
