@@ -124,3 +124,37 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Segment<P> {
         }
     }
 }
+
+impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
+    fn vertex(&self, id: FeatureId) -> P {
+        let vid = id.unwrap_vertex();
+        if id == 0 {
+            self.a
+        } else {
+            self.b
+        }
+    }
+    fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
+        (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1))
+    }
+    fn face(&self, id: FeatureId, face: &mut ConvexPolyface<P>) {
+        panic!("A segment does not have any vertex.")
+    }
+
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P>;
+
+    fn support_face_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        out: &mut ConvexPolyface<P>,
+    );
+
+    fn support_feature_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        _angle: P::Real,
+        out: &mut ConvexPolyface<P>,
+    );
+}

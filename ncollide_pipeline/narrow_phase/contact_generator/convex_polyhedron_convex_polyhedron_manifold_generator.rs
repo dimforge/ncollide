@@ -99,8 +99,8 @@ where
             let n2 = g2.normal_cone(f2);
 
             match f1 {
-                FeatureId::Face { .. } => kinematic.set_plane1(f1, local1, n1.generators()[0]),
-                FeatureId::Edge { .. } => {
+                FeatureId::Face(..) => kinematic.set_plane1(f1, local1, n1.generators()[0]),
+                FeatureId::Edge(..) => {
                     if na::dimension::<P::Vector>() == 2 {
                         kinematic.set_plane1(f1, local1, n1.generators()[0])
                     } else {
@@ -109,13 +109,13 @@ where
                         kinematic.set_line1(f1, local1, dir1, n1)
                     }
                 }
-                FeatureId::Vertex { .. } => kinematic.set_point1(f1, local1, n1),
+                FeatureId::Vertex(..) => kinematic.set_point1(f1, local1, n1),
                 FeatureId::Unknown => unreachable!(),
             }
 
             match f2 {
-                FeatureId::Face { .. } => kinematic.set_plane2(f2, local2, n2.generators()[0]),
-                FeatureId::Edge { .. } => {
+                FeatureId::Face(..) => kinematic.set_plane2(f2, local2, n2.generators()[0]),
+                FeatureId::Edge(..) => {
                     if na::dimension::<P::Vector>() == 2 {
                         kinematic.set_plane2(f2, local2, n2.generators()[0])
                     } else {
@@ -124,7 +124,7 @@ where
                         kinematic.set_line2(f2, local2, dir2, n2)
                     }
                 }
-                FeatureId::Vertex { .. } => kinematic.set_point2(f2, local2, n2),
+                FeatureId::Vertex(..) => kinematic.set_point2(f2, local2, n2),
                 FeatureId::Unknown => unreachable!(),
             }
 
@@ -377,12 +377,12 @@ where
         let mut f2 = self.manifold2.feature_id;
 
         match (self.manifold1.feature_id, self.manifold2.feature_id) {
-            (FeatureId::Vertex { .. }, FeatureId::Vertex { .. }) => {
+            (FeatureId::Vertex(..), FeatureId::Vertex(..)) => {
                 world1 = self.manifold1.vertices[0];
                 world2 = self.manifold2.vertices[0];
                 can_penetrate = false;
             }
-            (FeatureId::Vertex { .. }, FeatureId::Edge { .. }) => {
+            (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let pt1 = &self.manifold1.vertices[0];
                 let proj = seg2.project_point_with_location(&Id::new(), pt1, false);
@@ -395,7 +395,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Edge { .. }, FeatureId::Vertex { .. }) => {
+            (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let pt2 = &self.manifold2.vertices[0];
                 let proj = seg1.project_point_with_location(&Id::new(), pt2, false);
@@ -408,7 +408,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Vertex { .. }, FeatureId::Face { .. }) => {
+            (FeatureId::Vertex(..), FeatureId::Face(..)) => {
                 let pt1 = &self.manifold1.vertices[0];
                 if let Some(mut c) = self.manifold2.project_point(pt1) {
                     world1 = c.world2;
@@ -417,7 +417,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Face { .. }, FeatureId::Vertex { .. }) => {
+            (FeatureId::Face(..), FeatureId::Vertex(..)) => {
                 let pt2 = &self.manifold2.vertices[0];
                 if let Some(c) = self.manifold1.project_point(pt2) {
                     world1 = c.world1;
@@ -426,7 +426,7 @@ where
                     return None;
                 }
             }
-            (FeatureId::Edge { .. }, FeatureId::Edge { .. }) => {
+            (FeatureId::Edge(..), FeatureId::Edge(..)) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let locs = closest_points_internal::segment_against_segment_with_locations(
