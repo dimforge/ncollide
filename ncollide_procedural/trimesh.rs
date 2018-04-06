@@ -132,8 +132,8 @@ impl<P: Point> TriMesh<P> {
             },
             IndexBuffer::Split(ref idx) => for i in idx {
                 res.push(i[0][0]);
-                res.push(i[0][1]);
-                res.push(i[0][2]);
+                res.push(i[1][0]);
+                res.push(i[2][0]);
             },
         }
 
