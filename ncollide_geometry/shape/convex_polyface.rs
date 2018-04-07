@@ -12,6 +12,7 @@ pub enum FeatureId {
     Vertex(usize),
     Edge(usize),
     Face(usize),
+    // XXX: remove this variant.
     Unknown,
 }
 

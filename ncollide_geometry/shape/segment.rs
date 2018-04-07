@@ -141,7 +141,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Segment<P> {
 //         panic!("A segment does not have any vertex.")
 //     }
 
-//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P>;
+//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector>;
 
 //     fn support_face_toward(
 //         &self,

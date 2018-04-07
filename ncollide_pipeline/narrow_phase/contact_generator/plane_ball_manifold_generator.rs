@@ -68,11 +68,11 @@ impl<P: Point, M: Isometry<P>> PlaneBallManifoldGenerator<P, M> {
                 if !flip {
                     contact = Contact::new(world1, world2, plane_normal, depth);
                     kinematic.set_plane1(f1, local1, *plane.normal());
-                    kinematic.set_point2(f2, local2, PolyhedralCone::new());
+                    kinematic.set_point2(f2, local2, PolyhedralCone::Full);
                     kinematic.set_dilation2(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
-                    kinematic.set_point1(f2, local2, PolyhedralCone::new());
+                    kinematic.set_point1(f2, local2, PolyhedralCone::Full);
                     kinematic.set_dilation1(ball.radius());
                     kinematic.set_plane2(f1, local1, *plane.normal());
                 }

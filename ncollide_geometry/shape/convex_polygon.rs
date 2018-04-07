@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use smallvec::SmallVec;
 use num::One;
 use approx::ApproxEq;
 
@@ -83,15 +84,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
     }
 
     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
-        let ia = id.unwrap_edge();
-        let ib = (ia + 1) % self.points.len();
-
-        (
-            self.points[ia],
-            self.points[ib],
-            FeatureId::Vertex(ia),
-            FeatureId::Vertex(ib),
-        )
+        unimplemented!()
     }
 
     fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {
@@ -103,34 +96,33 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
             let ib = (ia + 1) % self.points.len();
             out.push(self.points[ia], FeatureId::Vertex(ia));
             out.push(self.points[ib], FeatureId::Vertex(ib));
-            out.push_edge_feature_id(FeatureId::Edge(ia));
 
             out.set_normal(self.normals[ia]);
-            out.set_feature_id(FeatureId::Edge(ia));
+            out.set_feature_id(FeatureId::Face(ia));
         } else {
             unimplemented!()
         }
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
         let dim = na::dimension::<P::Vector>();
-        let mut polycone = PolyhedralCone::new();
 
         if dim == 2 {
             match feature {
-                FeatureId::Edge(id) => polycone.add_generator(self.normals[id]),
+                FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
                 FeatureId::Vertex(id1) => {
                     let id2 = (id1 + 1) % self.normals.len();
-                    polycone.add_generator(self.normals[id1]);
-                    polycone.add_generator(self.normals[id2]);
+                    let generators = SmallVec::from_slice(&[
+                        self.normals[id1],
+                        self.normals[id2]
+                    ]);
+                    PolyhedralCone::Span(generators)
                 }
                 _ => unreachable!(),
             }
         } else {
             unimplemented!()
         }
-
-        polycone
     }
 
     fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, out: &mut ConvexPolyface<P>) {

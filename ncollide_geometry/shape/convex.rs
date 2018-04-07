@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use smallvec::SmallVec;
 use num::One;
 use approx::ApproxEq;
 
@@ -343,15 +344,15 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
         out.recompute_edge_normals_3d();
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
-        let mut polycone = PolyhedralCone::new();
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        let mut generators = SmallVec::new();
 
         match feature {
-            FeatureId::Face(id) => polycone.add_generator(self.faces[id].normal),
+            FeatureId::Face(id) => return PolyhedralCone::HalfLine(self.faces[id].normal),
             FeatureId::Edge(id) => {
                 let edge = &self.edges[id];
-                polycone.add_generator(self.faces[edge.faces[0]].normal);
-                polycone.add_generator(self.faces[edge.faces[1]].normal);
+                generators.push(self.faces[edge.faces[0]].normal);
+                generators.push(self.faces[edge.faces[1]].normal);
             }
             FeatureId::Vertex(id) => {
                 let vertex = &self.vertices[id];
@@ -359,13 +360,13 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
                 let last = vertex.first_adj_face + vertex.num_adj_faces;
 
                 for face in &self.adj_faces[first..last] {
-                    polycone.add_generator(self.faces[*face].normal)
+                    generators.push(self.faces[*face].normal)
                 }
             }
             FeatureId::Unknown => {}
         }
 
-        polycone
+        PolyhedralCone::Span(generators)
     }
 
     fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, out: &mut ConvexPolyface<P>) {

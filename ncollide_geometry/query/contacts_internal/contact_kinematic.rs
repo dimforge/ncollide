@@ -1,7 +1,7 @@
 use approx::ApproxEq;
 use na::{self, Unit};
 use shape::FeatureId;
-use bounding_volume::PolyhedralCone;
+use bounding_volume::{polyhedral_cone, PolyhedralCone};
 use query::Contact;
 use query::closest_points_internal;
 use math::{Isometry, Point};
@@ -26,8 +26,8 @@ pub struct ContactKinematic<P: Point> {
     local1: P,
     local2: P,
 
-    normals1: PolyhedralCone<P>,
-    normals2: PolyhedralCone<P>,
+    normals1: PolyhedralCone<P::Vector>,
+    normals2: PolyhedralCone<P::Vector>,
 
     margin1: P::Real,
     margin2: P::Real,
@@ -45,8 +45,8 @@ impl<P: Point> ContactKinematic<P> {
             local2: P::origin(),
             margin1: na::zero(),
             margin2: na::zero(),
-            normals1: PolyhedralCone::new(),
-            normals2: PolyhedralCone::new(),
+            normals1: PolyhedralCone::Full,
+            normals2: PolyhedralCone::Full,
             feature1: FeatureId::Unknown,
             feature2: FeatureId::Unknown,
             variant: KinematicVariant::PointPoint,
@@ -55,7 +55,7 @@ impl<P: Point> ContactKinematic<P> {
 
     pub fn transform1<M: Isometry<P>>(&mut self, m: &M) {
         self.local1 = m.transform_point(&self.local1);
-        self.normals1.transform_by(m);
+        polyhedral_cone::transform_by(&mut self.normals1, m);
 
         match self.variant {
             KinematicVariant::LinePoint(ref mut dir)
@@ -76,7 +76,7 @@ impl<P: Point> ContactKinematic<P> {
 
     pub fn transform2<M: Isometry<P>>(&mut self, m: &M) {
         self.local2 = m.transform_point(&self.local2);
-        self.normals2.transform_by(m);
+        polyhedral_cone::transform_by(&mut self.normals2, m);
 
         match self.variant {
             KinematicVariant::PointLine(ref mut dir)
@@ -140,8 +140,7 @@ impl<P: Point> ContactKinematic<P> {
     pub fn set_plane1(&mut self, fid: FeatureId, pt: P, normal: Unit<P::Vector>) {
         self.feature1 = fid;
         self.local1 = pt;
-        self.normals1.clear();
-        self.normals1.add_generator(normal);
+        self.normals1 = PolyhedralCone::HalfLine(normal);
 
         self.variant = match self.variant {
             KinematicVariant::PointPlane => KinematicVariant::PlanePlane,
@@ -160,8 +159,7 @@ impl<P: Point> ContactKinematic<P> {
     pub fn set_plane2(&mut self, fid: FeatureId, pt: P, normal: Unit<P::Vector>) {
         self.feature2 = fid;
         self.local2 = pt;
-        self.normals2.clear();
-        self.normals2.add_generator(normal);
+        self.normals2 = PolyhedralCone::HalfLine(normal);
 
         self.variant = match self.variant {
             KinematicVariant::PlanePoint => KinematicVariant::PlanePlane,
@@ -182,7 +180,7 @@ impl<P: Point> ContactKinematic<P> {
         fid: FeatureId,
         pt: P,
         dir: Unit<P::Vector>,
-        normals: PolyhedralCone<P>,
+        normals: PolyhedralCone<P::Vector>,
     ) {
         self.feature1 = fid;
         self.local1 = pt;
@@ -206,7 +204,7 @@ impl<P: Point> ContactKinematic<P> {
         fid: FeatureId,
         pt: P,
         dir: Unit<P::Vector>,
-        normals: PolyhedralCone<P>,
+        normals: PolyhedralCone<P::Vector>,
     ) {
         self.feature2 = fid;
         self.local2 = pt;
@@ -225,7 +223,7 @@ impl<P: Point> ContactKinematic<P> {
         };
     }
 
-    pub fn set_point1(&mut self, fid: FeatureId, pt: P, normals: PolyhedralCone<P>) {
+    pub fn set_point1(&mut self, fid: FeatureId, pt: P, normals: PolyhedralCone<P::Vector>) {
         self.feature1 = fid;
         self.local1 = pt;
         self.normals1 = normals;
@@ -244,7 +242,7 @@ impl<P: Point> ContactKinematic<P> {
         };
     }
 
-    pub fn set_point2(&mut self, fid: FeatureId, pt: P, normals: PolyhedralCone<P>) {
+    pub fn set_point2(&mut self, fid: FeatureId, pt: P, normals: PolyhedralCone<P::Vector>) {
         self.feature2 = fid;
         self.local2 = pt;
         self.normals2 = normals;
@@ -281,12 +279,12 @@ impl<P: Point> ContactKinematic<P> {
 
         match self.variant {
             KinematicVariant::PlanePoint => {
-                normal = m1.transform_unit_vector(&self.normals1.generators()[0]);
+                normal = m1.transform_unit_vector(&self.normals1.unwrap_half_line());
                 depth = -na::dot(normal.as_ref(), &(world2 - world1));
                 world1 = world2 + *normal * depth;
             }
             KinematicVariant::PointPlane => {
-                let world_normal2 = m2.transform_unit_vector(&self.normals2.generators()[0]);
+                let world_normal2 = m2.transform_unit_vector(&self.normals2.unwrap_half_line());
                 depth = -na::dot(&*world_normal2, &(world1 - world2));
                 world2 = world1 + *world_normal2 * depth;
                 normal = -world_normal2;

@@ -51,7 +51,7 @@ mod bounding_sphere_mesh;
 mod bounding_sphere_utils;
 mod bounding_sphere_shape;
 
-mod polyhedral_cone;
+pub mod polyhedral_cone;
 
 /*
  *

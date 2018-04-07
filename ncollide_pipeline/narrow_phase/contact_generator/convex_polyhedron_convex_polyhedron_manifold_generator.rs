@@ -99,30 +99,22 @@ where
             let n2 = g2.normal_cone(f2);
 
             match f1 {
-                FeatureId::Face(..) => kinematic.set_plane1(f1, local1, n1.generators()[0]),
+                FeatureId::Face(..) => kinematic.set_plane1(f1, local1, n1.unwrap_half_line()),
                 FeatureId::Edge(..) => {
-                    if na::dimension::<P::Vector>() == 2 {
-                        kinematic.set_plane1(f1, local1, n1.generators()[0])
-                    } else {
-                        let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
-                        let dir1 = m1.inverse_transform_unit_vector(&e1.direction().unwrap());
-                        kinematic.set_line1(f1, local1, dir1, n1)
-                    }
+                    let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
+                    let dir1 = m1.inverse_transform_unit_vector(&e1.direction().unwrap());
+                    kinematic.set_line1(f1, local1, dir1, n1)
                 }
                 FeatureId::Vertex(..) => kinematic.set_point1(f1, local1, n1),
                 FeatureId::Unknown => unreachable!(),
             }
 
             match f2 {
-                FeatureId::Face(..) => kinematic.set_plane2(f2, local2, n2.generators()[0]),
+                FeatureId::Face(..) => kinematic.set_plane2(f2, local2, n2.unwrap_half_line()),
                 FeatureId::Edge(..) => {
-                    if na::dimension::<P::Vector>() == 2 {
-                        kinematic.set_plane2(f2, local2, n2.generators()[0])
-                    } else {
-                        let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
-                        let dir2 = m2.inverse_transform_unit_vector(&e2.direction().unwrap());
-                        kinematic.set_line2(f2, local2, dir2, n2)
-                    }
+                    let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
+                    let dir2 = m2.inverse_transform_unit_vector(&e2.direction().unwrap());
+                    kinematic.set_line2(f2, local2, dir2, n2)
                 }
                 FeatureId::Vertex(..) => kinematic.set_point2(f2, local2, n2),
                 FeatureId::Unknown => unreachable!(),
@@ -388,7 +380,7 @@ where
                 let proj = seg2.project_point_with_location(&Id::new(), pt1, false);
 
                 if let SegmentPointLocation::OnEdge(_) = proj.1 {
-                    can_penetrate = na::dimension::<P::Vector>() == 2;
+                    can_penetrate = false;
                     world1 = *pt1;
                     world2 = proj.0.point;
                 } else {
@@ -401,7 +393,7 @@ where
                 let proj = seg1.project_point_with_location(&Id::new(), pt2, false);
 
                 if let SegmentPointLocation::OnEdge(_) = proj.1 {
-                    can_penetrate = na::dimension::<P::Vector>() == 2;
+                    can_penetrate = false;
                     world1 = proj.0.point;
                     world2 = *pt2;
                 } else {

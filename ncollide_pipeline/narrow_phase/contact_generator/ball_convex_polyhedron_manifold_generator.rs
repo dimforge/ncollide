@@ -81,11 +81,11 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
 
                     if !flip {
                         contact = Contact::new(world1, world2, normal, depth);
-                        kinematic.set_point1(f1, P::origin(), PolyhedralCone::new());
+                        kinematic.set_point1(f1, P::origin(), PolyhedralCone::Full);
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_point2(f1, P::origin(), PolyhedralCone::new());
+                        kinematic.set_point2(f1, P::origin(), PolyhedralCone::Full);
                         kinematic.set_dilation2(ball.radius());
                     }
 
@@ -95,9 +95,9 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
                     match f2 {
                         FeatureId::Face { .. } => {
                             if !flip {
-                                kinematic.set_plane2(f2, local2, n2.generators()[0])
+                                kinematic.set_plane2(f2, local2, n2.unwrap_half_line())
                             } else {
-                                kinematic.set_plane1(f2, local2, n2.generators()[0])
+                                kinematic.set_plane1(f2, local2, n2.unwrap_half_line())
                             }
                         }
                         FeatureId::Edge { .. } => {

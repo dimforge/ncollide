@@ -8,7 +8,7 @@ pub trait ConvexPolyhedron<P: Point, M>: SupportMap<P, M> {
     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId);
     fn face(&self, id: FeatureId, face: &mut ConvexPolyface<P>);
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P>;
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector>;
 
     fn support_face_toward(
         &self,

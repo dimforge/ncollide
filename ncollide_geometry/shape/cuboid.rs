@@ -1,6 +1,7 @@
 //! Support mapping based Cuboid shape.
 
 use std::f64;
+use smallvec::SmallVec;
 use num::{One, Zero};
 
 use na::{self, Real, Unit};
@@ -82,21 +83,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
         let mut res = self.half_extents;
 
         if dim == 2 {
-            let mut vertex_id = 0;
-            if eid > 2 {
-                eid -= 2;
-                res[eid] = -res[eid];
-                vertex_id |= 1 << eid;
-            }
-
-            let p1 = P::from_coordinates(res);
-            let other_id = (eid + 1) % 2;
-            res[other_id] = -res[other_id];
-            let p2 = P::from_coordinates(res);
-            let vid1 = FeatureId::Vertex(vertex_id);
-            let vid2 = FeatureId::Vertex(vertex_id | (1 << other_id));
-
-            (p1, p2, vid1, vid2)
+            unimplemented!()
         } else {
             let edge_i = eid & 0b11;
             let vertex_i = eid >> 2;
@@ -119,7 +106,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
 
     fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {
         out.clear();
-        
+
         let mut i = id.unwrap_face();
         let dim = na::dimension::<P::Vector>();
         let i1;
@@ -158,7 +145,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
             let mut normal: P::Vector = na::zero();
             normal[i1] = sign;
             out.set_normal(Unit::new_unchecked(normal));
-            out.set_feature_id(FeatureId::Edge(i));
+            out.set_feature_id(FeatureId::Face(i));
         } else {
             let i2 = (i1 + 1) % 3;
             let i3 = (i1 + 2) % 3;
@@ -339,12 +326,12 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
         }
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P> {
-        let mut result = PolyhedralCone::new();
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        let mut generators = SmallVec::new();
 
         match na::dimension::<P::Vector>() {
             2 => match feature {
-                FeatureId::Edge(id) => {
+                FeatureId::Face(id) => {
                     let mut dir: P::Vector = na::zero();
 
                     if id < 2 {
@@ -352,7 +339,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
                     } else {
                         dir[id - 2] = -P::Real::one();
                     }
-                    result.add_generator(Unit::new_unchecked(dir));
+                    return PolyhedralCone::HalfLine(Unit::new_unchecked(dir));
                 }
                 FeatureId::Vertex(id) => {
                     let mut dir1: P::Vector = na::zero();
@@ -378,8 +365,8 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
                         _ => unreachable!(),
                     }
 
-                    result.add_generator(Unit::new_unchecked(dir1));
-                    result.add_generator(Unit::new_unchecked(dir2));
+                    generators.push(Unit::new_unchecked(dir1));
+                    generators.push(Unit::new_unchecked(dir2));
                 }
                 _ => {}
             },
@@ -392,7 +379,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
                     } else {
                         dir[id - 3] = -P::Real::one();
                     }
-                    result.add_generator(Unit::new_unchecked(dir));
+                    return PolyhedralCone::HalfLine(Unit::new_unchecked(dir));
                 }
                 FeatureId::Edge(id) => {
                     let edge = id & 0b011;
@@ -416,8 +403,8 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
                         dir2[face2] = _1;
                     }
 
-                    result.add_generator(Unit::new_unchecked(dir1));
-                    result.add_generator(Unit::new_unchecked(dir2));
+                    generators.push(Unit::new_unchecked(dir1));
+                    generators.push(Unit::new_unchecked(dir2));
                 }
                 FeatureId::Vertex(id) => for i in 0..3 {
                     let mut dir: P::Vector = na::zero();
@@ -429,13 +416,13 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
                         dir[i] = _1
                     }
 
-                    result.add_generator(Unit::new_unchecked(dir));
+                    generators.push(Unit::new_unchecked(dir));
                 },
                 _ => {}
             },
             _ => unimplemented!(),
         }
 
-        result
+        PolyhedralCone::Span(generators)
     }
 }
