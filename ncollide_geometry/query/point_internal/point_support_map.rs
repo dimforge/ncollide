@@ -5,7 +5,7 @@ use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
 use query::algorithms::{JohnsonSimplex, Simplex, VoronoiSimplex2, VoronoiSimplex3};
 use query::{PointProjection, PointQuery};
-use shape::{Capsule, Cone, ConvexHull, Cylinder, FeatureId, SupportMap};
+use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, Cylinder, FeatureId, SupportMap};
 use math::{Isometry, Point};
 
 /// Projects a point on a shape using the GJK algorithm.
@@ -99,6 +99,30 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cone<P::Real> {
 }
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for ConvexHull<P> {
+    #[inline]
+    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
+        if na::dimension::<P::Vector>() == 2 {
+            support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
+        } else if na::dimension::<P::Vector>() == 3 {
+            support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
+        } else {
+            support_map_point_projection(
+                m,
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                point,
+                solid,
+            )
+        }
+    }
+
+    #[inline]
+    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+        unimplemented!()
+    }
+}
+
+impl<P: Point, M: Isometry<P>> PointQuery<P, M> for ConvexPolygon<P> {
     #[inline]
     fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
         if na::dimension::<P::Vector>() == 2 {

@@ -45,7 +45,7 @@ struct Face<V: Vector> {
 struct Triangle<V: Vector> {
     vertices: Point3<usize>,
     edges: Point3<usize>,
-    normal: Option<Unit<V>>,
+    normal: Unit<V>,
     parent_face: Option<usize>,
 }
 
@@ -62,7 +62,7 @@ impl<V: Vector> Triangle<V> {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-/// The implicit convex hull of a set of points.
+/// A convex polyhedron without degenerate faces.
 pub struct ConvexHull<P: Point> {
     points: Vec<P>,
     vertices: Vec<Vertex>,
@@ -130,7 +130,7 @@ impl<P: Point> ConvexHull<P> {
 
             let vertices = Point3::new(vtx[0], vtx[1], vtx[2]);
             let normal =
-                P::ccw_face_normal(&[&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]]);
+                P::ccw_face_normal(&[&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
             let triangle = Triangle {
                 vertices,
                 edges: edges_id,
@@ -147,7 +147,7 @@ impl<P: Point> ConvexHull<P> {
         for e in &mut edges {
             let n1 = triangles[e.faces[0]].normal;
             let n2 = triangles[e.faces[1]].normal;
-            if n1.is_none() || n2.is_none() || na::dot(&*n1.unwrap(), &*n2.unwrap()) > P::Real::one() - eps {
+            if na::dot(&*n1, &*n2) > P::Real::one() - eps {
                 e.deleted = true;
             } else {
                 num_valid_edges += 1;
@@ -166,7 +166,7 @@ impl<P: Point> ConvexHull<P> {
                         let mut new_face = Face {
                             first_vertex_or_edge: adj_edges.len(),
                             num_vertices_or_edges: 1,
-                            normal: triangles[i].normal.unwrap(),
+                            normal: triangles[i].normal,
                         };
 
                         adj_edges.push(triangles[i].edges[j1]);

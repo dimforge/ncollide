@@ -7,6 +7,7 @@ pub use self::capsule::Capsule;
 pub use self::cone::Cone;
 pub use self::cylinder::Cylinder;
 pub use self::convex::ConvexHull;
+pub use self::convex_polygon::ConvexPolygon;
 pub use self::minkowski_sum::{cso_support_point, AnnotatedCSO, AnnotatedMinkowskiSum,
                               AnnotatedPoint, MinkowskiSum, CSO};
 pub use self::reflection::Reflection;
@@ -53,6 +54,7 @@ mod reflection;
 mod torus;
 mod compound;
 mod convex;
+mod convex_polygon;
 mod convex_polyface;
 mod shape_impl;
 
@@ -75,6 +77,8 @@ pub type Cone2<N> = Cone<N>;
 pub type Cylinder2<N> = Cylinder<N>;
 #[doc = "A 2D convex polytope."]
 pub type ConvexHull2<N> = ConvexHull<Point2<N>>;
+#[doc = "A 2D convex polygon."]
+pub type ConvexPolygon2<N> = ConvexPolygon<Point2<N>>;
 #[doc = "A 2D segment."]
 pub type Segment2<N> = Segment<Point2<N>>;
 #[doc = "A 2D triangle."]
@@ -106,6 +110,8 @@ pub type Cone3<N> = Cone<N>;
 pub type Cylinder3<N> = Cylinder<N>;
 #[doc = "A 3D convex polytope."]
 pub type ConvexHull3<N> = ConvexHull<Point3<N>>;
+#[doc = "A 3D convex polygon."]
+pub type ConvexPolygon3<N> = ConvexPolygon<Point3<N>>;
 #[doc = "A 3D segment."]
 pub type Segment3<N> = Segment<Point3<N>>;
 #[doc = "A 3D triangle."]

@@ -6,7 +6,7 @@ use na;
 use query::algorithms::gjk;
 use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
 use query::{Ray, RayCast, RayIntersection};
-use shape::{Capsule, Cone, ConvexHull, Cylinder, MinkowskiSum, Segment, SupportMap};
+use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, Cylinder, MinkowskiSum, Segment, SupportMap};
 use math::{Isometry, Point};
 
 /// Cast a ray on a shape using the GJK algorithm.
@@ -202,6 +202,56 @@ where
 }
 
 impl<P, M> RayCast<P, M> for ConvexHull<P>
+where
+    P: Point,
+    M: Isometry<P>,
+{
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &M,
+        ray: &Ray<P>,
+        solid: bool,
+    ) -> Option<RayIntersection<P::Vector>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        if na::dimension::<P::Vector>() == 2 {
+            implicit_toi_and_normal_with_ray(
+                &Id::new(),
+                self,
+                &mut VoronoiSimplex2::<P>::new(),
+                &ls_ray,
+                solid,
+            ).map(|mut res| {
+                res.normal = m.rotate_vector(&res.normal);
+                res
+            })
+        } else if na::dimension::<P::Vector>() == 3 {
+            implicit_toi_and_normal_with_ray(
+                &Id::new(),
+                self,
+                &mut VoronoiSimplex3::<P>::new(),
+                &ls_ray,
+                solid,
+            ).map(|mut res| {
+                res.normal = m.rotate_vector(&res.normal);
+                res
+            })
+        } else {
+            implicit_toi_and_normal_with_ray(
+                &Id::new(),
+                self,
+                &mut JohnsonSimplex::<P>::new_w_tls(),
+                &ls_ray,
+                solid,
+            ).map(|mut res| {
+                res.normal = m.rotate_vector(&res.normal);
+                res
+            })
+        }
+    }
+}
+
+impl<P, M> RayCast<P, M> for ConvexPolygon<P>
 where
     P: Point,
     M: Isometry<P>,

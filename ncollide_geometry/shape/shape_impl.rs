@@ -1,6 +1,6 @@
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolyhedron, Cuboid, Cylinder,
+use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cuboid, Cylinder,
             FeatureId, Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle};
 use math::{Isometry, Point};
 
@@ -104,6 +104,12 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
+    impl_shape_common!();
+    impl_as_support_map!();
+    impl_as_convex_polyhedron!();
+}
+
+impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexPolygon<P> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
