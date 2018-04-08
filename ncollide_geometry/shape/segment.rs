@@ -1,9 +1,12 @@
 //! Definition of the segment shape.
 
 use std::mem;
+use num::Zero;
 use approx::ApproxEq;
 use na::{self, Point2, Real, Unit};
-use shape::{BaseMeshElement, SupportMap};
+use utils;
+use bounding_volume::PolyhedralCone;
+use shape::{BaseMeshElement, ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point};
 
 /// A segment shape.
@@ -125,36 +128,108 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Segment<P> {
     }
 }
 
-// impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
-//     fn vertex(&self, id: FeatureId) -> P {
-//         let vid = id.unwrap_vertex();
-//         if id == 0 {
-//             self.a
-//         } else {
-//             self.b
-//         }
-//     }
-//     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
-//         (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1))
-//     }
-//     fn face(&self, id: FeatureId, face: &mut ConvexPolyface<P>) {
-//         panic!("A segment does not have any vertex.")
-//     }
+impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
+    fn vertex(&self, id: FeatureId) -> P {
+        if id.unwrap_vertex() == 0 {
+            self.a
+        } else {
+            self.b
+        }
+    }
+    fn edge(&self, _: FeatureId) -> (P, P, FeatureId, FeatureId) {
+        (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1))
+    }
+    fn face(&self, id: FeatureId, face: &mut ConvexPolyface<P>) {
+        if na::dimension::<P::Vector>() != 2 {
+            panic!("A segment does not have any face indimensions higher than 2.")
+        }
 
-//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector>;
+        face.clear();
 
-//     fn support_face_toward(
-//         &self,
-//         transform: &M,
-//         dir: &Unit<P::Vector>,
-//         out: &mut ConvexPolyface<P>,
-//     );
+        if let Some(normal) = P::ccw_face_normal(&[&self.a, &self.b]) {
+            face.set_feature_id(id);
 
-//     fn support_feature_toward(
-//         &self,
-//         transform: &M,
-//         dir: &Unit<P::Vector>,
-//         _angle: P::Real,
-//         out: &mut ConvexPolyface<P>,
-//     );
-// }
+            match id.unwrap_face() {
+                0 => {
+                    face.push(self.a, FeatureId::Vertex(0));
+                    face.push(self.b, FeatureId::Vertex(1));
+                    face.set_normal(normal);
+                }
+                1 => {
+                    face.push(self.b, FeatureId::Vertex(1));
+                    face.push(self.a, FeatureId::Vertex(0));
+                    face.set_normal(-normal);
+                }
+                _ => unreachable!(),
+            }
+        } else {
+            face.push(self.a, FeatureId::Vertex(0));
+            face.set_feature_id(FeatureId::Vertex(0));
+        }
+    }
+
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+        if let Some(direction) = self.direction() {
+            match feature {
+                FeatureId::Vertex(id) => {
+                    if id == 0 {
+                        PolyhedralCone::HalfSpace(direction)
+                    } else {
+                        PolyhedralCone::HalfSpace(-direction)
+                    }
+                }
+                FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
+                FeatureId::Face(id) => {
+                    assert!(na::dimension::<P::Vector>() == 2);
+
+                    let mut dir = P::Vector::zero();
+                    if id == 0 {
+                        dir[0] = direction[1];
+                        dir[1] = -direction[0];
+                    } else {
+                        dir[0] = -direction[1];
+                        dir[1] = direction[0];
+                    }
+                    PolyhedralCone::HalfLine(Unit::new_unchecked(dir))
+                }
+                _ => PolyhedralCone::Empty,
+            }
+        } else {
+            PolyhedralCone::Full
+        }
+    }
+
+    fn support_face_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        face: &mut ConvexPolyface<P>,
+    ) {
+        if na::dimension::<P::Vector>() == 2 {
+            let seg_dir = self.scaled_direction();
+
+            if utils::perp2(dir.as_ref(), &seg_dir) >= na::zero() {
+                ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(0), face);
+            } else {
+                ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(1), face);
+            }
+        } else {
+            face.push(self.a, FeatureId::Vertex(0));
+            face.push(self.b, FeatureId::Vertex(1));
+            face.push_edge_feature_id(FeatureId::Edge(0));
+            face.set_feature_id(FeatureId::Edge(0));
+        }
+    }
+
+    fn support_feature_toward(
+        &self,
+        transform: &M,
+        dir: &Unit<P::Vector>,
+        _angle: P::Real,
+        out: &mut ConvexPolyface<P>,
+    ) {
+        out.clear();
+        // FIXME: actualy find the support feature.
+        self.support_face_toward(transform, dir, out)
+    }
+}

@@ -1,7 +1,8 @@
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cuboid, Cylinder,
-            FeatureId, Plane, Polyline, Segment, Shape, SupportMap, TriMesh, Triangle};
+use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron,
+            Cuboid, Cylinder, FeatureId, Plane, Polyline, Segment, Shape, SupportMap, TriMesh,
+            Triangle};
 use math::{Isometry, Point};
 
 macro_rules! impl_as_convex_polyhedron(
@@ -79,7 +80,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Triangle<P> {
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Segment<P> {
     impl_shape_common!();
     impl_as_support_map!();
-    // impl_as_convex_polyhedron!();
+    impl_as_convex_polyhedron!();
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
