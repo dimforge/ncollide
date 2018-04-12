@@ -1,7 +1,8 @@
-use na;
-use shape::{FeatureId, Segment, SegmentPointLocation};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
+use na;
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
+use shape::{FeatureId, Segment, SegmentPointLocation};
+use utils;
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     #[inline]
@@ -15,7 +16,19 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
-            SegmentPointLocation::OnEdge(..) => FeatureId::Edge(0),
+            SegmentPointLocation::OnEdge(..) => {
+                if na::dimension::<P::Vector>() == 2 {
+                    let dir = self.scaled_direction();
+                    let dpt = *pt - proj.point;
+                    if utils::perp2(&dpt, &dir) >= na::zero() {
+                        FeatureId::Face(0)
+                    } else {
+                        FeatureId::Face(1)
+                    }
+                } else {
+                    FeatureId::Edge(0)
+                }
+            }
         };
 
         (proj, feature)
