@@ -1,5 +1,6 @@
 //! Definition of the segment shape.
 
+use std::f64;
 use std::mem;
 use num::Zero;
 use approx::ApproxEq;
@@ -199,12 +200,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
         }
     }
 
-    fn support_face_toward(
-        &self,
-        transform: &M,
-        dir: &Unit<P::Vector>,
-        face: &mut ConvexPolyface<P>,
-    ) {
+    fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, face: &mut ConvexPolyface<P>) {
         if na::dimension::<P::Vector>() == 2 {
             let seg_dir = self.scaled_direction();
 
@@ -219,6 +215,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
             face.push_edge_feature_id(FeatureId::Edge(0));
             face.set_feature_id(FeatureId::Edge(0));
         }
+        face.transform_by(m)
     }
 
     fn support_feature_toward(
@@ -231,5 +228,31 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Segment<P> {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
+    }
+
+    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
+        if let Some(seg_dir) = self.direction() {
+            let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+            let seps = eps.sin();
+            let dot = na::dot(seg_dir.as_ref(), local_dir.as_ref());
+
+            if dot <= seps {
+                if na::dimension::<P::Vector>() == 2 {
+                    if utils::perp2(local_dir.as_ref(), seg_dir.as_ref()) >= na::zero() {
+                        FeatureId::Face(0)
+                    } else {
+                        FeatureId::Face(1)
+                    }
+                } else {
+                    FeatureId::Edge(0)
+                }
+            } else if dot >= na::zero() {
+                FeatureId::Vertex(1)
+            } else {
+                FeatureId::Vertex(0)
+            }
+        } else {
+            FeatureId::Vertex(0)
+        }
     }
 }

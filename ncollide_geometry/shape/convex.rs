@@ -1,10 +1,11 @@
+use std::f64;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use smallvec::SmallVec;
 use num::One;
 use approx::ApproxEq;
 
-use na::{self, Point2, Point3, Unit, Real};
+use na::{self, Point2, Point3, Real, Unit};
 
 use utils::{self, data::SortedPair};
 use bounding_volume::PolyhedralCone;
@@ -13,18 +14,19 @@ use math::{Isometry, Point, Vector};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Vertex {
-    first_adj_face: usize,
-    num_adj_faces: usize,
+    first_adj_face_or_edge: usize,
+    num_adj_faces_or_edge: usize,
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Edge {
+struct Edge<V: Vector> {
     vertices: Point2<usize>,
     faces: Point2<usize>,
-    deleted: bool
+    dir: Unit<V>,
+    deleted: bool,
 }
 
-impl Edge {
+impl<V: Vector> Edge<V> {
     fn other_triangle(&self, id: usize) -> usize {
         if id == self.faces[0] {
             self.faces[1]
@@ -41,7 +43,6 @@ struct Face<V: Vector> {
     normal: Unit<V>,
 }
 
-
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Triangle<V: Vector> {
     vertices: Point3<usize>,
@@ -52,7 +53,7 @@ struct Triangle<V: Vector> {
 
 impl<V: Vector> Triangle<V> {
     fn next_edge_id(&self, id: usize) -> usize {
-        for i in 0 .. 3 {
+        for i in 0..3 {
             if self.edges[i] == id {
                 return (i + 1) % 3;
             }
@@ -68,13 +69,15 @@ pub struct ConvexHull<P: Point> {
     points: Vec<P>,
     vertices: Vec<Vertex>,
     faces: Vec<Face<P::Vector>>,
-    edges: Vec<Edge>,
+    edges: Vec<Edge<P::Vector>>,
     // Faces adjascent to a vertex.
-    adj_faces: Vec<usize>,
+    faces_adj_to_vertex: Vec<usize>,
+    // Edges adjascent to a vertex.
+    edges_adj_to_vertex: Vec<usize>,
     // Edges adjascent to a face.
-    adj_edges: Vec<usize>,
+    edges_adj_to_face: Vec<usize>,
     // Vertices adjascent to a face.
-    adj_vertices: Vec<usize>,
+    vertices_adj_to_face: Vec<usize>,
 }
 
 impl<P: Point> ConvexHull<P> {
@@ -82,20 +85,21 @@ impl<P: Point> ConvexHull<P> {
     pub fn try_new(points: Vec<P>, indices: &[usize]) -> Option<ConvexHull<P>> {
         let eps = P::Real::default_epsilon().sqrt();
         let dim = na::dimension::<P::Vector>();
-        
+
         if dim != 3 {
             return None;
         }
 
         let mut vertices = Vec::new();
-        let mut edges = Vec::<Edge>::new();
+        let mut edges = Vec::<Edge<P::Vector>>::new();
         let mut faces = Vec::<Face<P::Vector>>::new();
         let mut triangles = Vec::new();
         let mut edge_map = HashMap::<SortedPair<usize>, usize>::new();
 
-        let mut adj_faces = Vec::new();
-        let mut adj_edges = Vec::new();
-        let mut adj_vertices = Vec::new();
+        let mut faces_adj_to_vertex = Vec::new();
+        let mut edges_adj_to_vertex = Vec::new();
+        let mut edges_adj_to_face = Vec::new();
+        let mut vertices_adj_to_face = Vec::new();
 
         //// Euler characteristic.
         let nedges = points.len() + (indices.len() / dim) - 2;
@@ -120,23 +124,31 @@ impl<P: Point> ConvexHull<P> {
                     }
                     Entry::Vacant(e) => {
                         edges_id[i1] = *e.insert(edges.len());
-                        edges.push(Edge {
-                            vertices: Point2::new(vtx[i1], vtx[i2]),
-                            faces: Point2::new(face_id, 0),
-                            deleted: false,
-                        })
+
+                        if let Some(dir) = Unit::try_new(
+                            points[vtx[i2]] - points[vtx[i1]],
+                            P::Real::default_epsilon(),
+                        ) {
+                            edges.push(Edge {
+                                vertices: Point2::new(vtx[i1], vtx[i2]),
+                                faces: Point2::new(face_id, 0),
+                                dir,
+                                deleted: false,
+                            })
+                        } else {
+                            return None;
+                        }
                     }
                 }
             }
 
             let vertices = Point3::new(vtx[0], vtx[1], vtx[2]);
-            let normal =
-                P::ccw_face_normal(&[&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
+            let normal = P::ccw_face_normal(&[&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
             let triangle = Triangle {
                 vertices,
                 edges: edges_id,
                 normal,
-                parent_face: None
+                parent_face: None,
             };
 
             triangles.push(triangle);
@@ -158,21 +170,20 @@ impl<P: Point> ConvexHull<P> {
         /*
          * Extract faces by following  contours.
          */
-        for i in 0 .. triangles.len() {
+        for i in 0..triangles.len() {
             if triangles[i].parent_face.is_none() {
                 for j1 in 0..3 {
                     if !edges[triangles[i].edges[j1]].deleted {
                         // Create a new face, setup its first edge/vertex and construct it.
                         let new_face_id = faces.len();
                         let mut new_face = Face {
-                            first_vertex_or_edge: adj_edges.len(),
+                            first_vertex_or_edge: edges_adj_to_face.len(),
                             num_vertices_or_edges: 1,
                             normal: triangles[i].normal,
                         };
 
-                        adj_edges.push(triangles[i].edges[j1]);
-                        adj_vertices.push(triangles[i].vertices[j1]);
-
+                        edges_adj_to_face.push(triangles[i].edges[j1]);
+                        vertices_adj_to_face.push(triangles[i].vertices[j1]);
 
                         let j2 = (j1 + 1) % 3;
                         let start_vertex = triangles[i].vertices[j1];
@@ -189,8 +200,8 @@ impl<P: Point> ConvexHull<P> {
                             triangles[curr_triangle].parent_face = Some(new_face_id);
 
                             if !edges[curr_edge].deleted {
-                                adj_edges.push(curr_edge);
-                                adj_vertices.push(curr_vertex);
+                                edges_adj_to_face.push(curr_edge);
+                                vertices_adj_to_face.push(curr_vertex);
                                 new_face.num_vertices_or_edges += 1;
 
                                 curr_edge_id = (curr_edge_id + 1) % 3;
@@ -198,7 +209,9 @@ impl<P: Point> ConvexHull<P> {
                                 // Find adjascent edge on the next triange.
                                 curr_triangle = edges[curr_edge].other_triangle(curr_triangle);
                                 curr_edge_id = triangles[curr_triangle].next_edge_id(curr_edge);
-                                assert!(triangles[curr_triangle].vertices[curr_edge_id] == curr_vertex);
+                                assert!(
+                                    triangles[curr_triangle].vertices[curr_edge_id] == curr_vertex
+                                );
                             }
                         }
 
@@ -224,8 +237,8 @@ impl<P: Point> ConvexHull<P> {
          * Initialize vertices
          */
         let empty_vertex = Vertex {
-            first_adj_face: 0,
-            num_adj_faces: 0,
+            first_adj_face_or_edge: 0,
+            num_adj_faces_or_edge: 0,
         };
 
         vertices.resize(points.len(), empty_vertex);
@@ -235,24 +248,25 @@ impl<P: Point> ConvexHull<P> {
             let first_vid = face.first_vertex_or_edge;
             let last_vid = face.first_vertex_or_edge + face.num_vertices_or_edges;
 
-            for i in &adj_vertices[first_vid..last_vid] {
-                vertices[*i].num_adj_faces += 1;
+            for i in &vertices_adj_to_face[first_vid..last_vid] {
+                vertices[*i].num_adj_faces_or_edge += 1;
             }
         }
 
         // Now, find their starting id.
         let mut total_num_adj_faces = 0;
         for v in &mut vertices {
-            v.first_adj_face = total_num_adj_faces;
-            total_num_adj_faces += v.num_adj_faces;
+            v.first_adj_face_or_edge = total_num_adj_faces;
+            total_num_adj_faces += v.num_adj_faces_or_edge;
         }
-        adj_faces.resize(total_num_adj_faces, 0);
+        faces_adj_to_vertex.resize(total_num_adj_faces, 0);
+        edges_adj_to_vertex.resize(total_num_adj_faces, 0);
 
         // Reset the number of adjascent faces.
         // It will be set againt to the right value as
         // the adjascent face list is filled.
         for v in &mut vertices {
-            v.num_adj_faces = 0;
+            v.num_adj_faces_or_edge = 0;
         }
 
         for face_id in 0..faces.len() {
@@ -260,17 +274,19 @@ impl<P: Point> ConvexHull<P> {
             let first_vid = face.first_vertex_or_edge;
             let last_vid = face.first_vertex_or_edge + face.num_vertices_or_edges;
 
-            for i in &adj_vertices[first_vid..last_vid] {
-                let v = &mut vertices[*i];
-                adj_faces[v.first_adj_face + v.num_adj_faces] = face_id;
-                v.num_adj_faces += 1;
+            for vid in first_vid..last_vid {
+                let v = &mut vertices[vertices_adj_to_face[vid]];
+                faces_adj_to_vertex[v.first_adj_face_or_edge + v.num_adj_faces_or_edge] = face_id;
+                edges_adj_to_vertex[v.first_adj_face_or_edge + v.num_adj_faces_or_edge] =
+                    edges_adj_to_face[vid];
+                v.num_adj_faces_or_edge += 1;
             }
         }
 
         let mut num_valid_vertices = 0;
 
         for v in &vertices {
-            if v.num_adj_faces != 0 {
+            if v.num_adj_faces_or_edge != 0 {
                 num_valid_vertices += 1;
             }
         }
@@ -284,9 +300,10 @@ impl<P: Point> ConvexHull<P> {
                 vertices,
                 faces,
                 edges,
-                adj_faces,
-                adj_edges,
-                adj_vertices
+                faces_adj_to_vertex,
+                edges_adj_to_vertex,
+                edges_adj_to_face,
+                vertices_adj_to_face,
             })
         }
     }
@@ -333,8 +350,8 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
         let last_vertex = face.first_vertex_or_edge + face.num_vertices_or_edges;
 
         for i in first_vertex..last_vertex {
-            let vid = self.adj_vertices[i];
-            let eid = self.adj_edges[i];
+            let vid = self.vertices_adj_to_face[i];
+            let eid = self.edges_adj_to_face[i];
             out.push(self.points[vid], FeatureId::Vertex(vid));
             out.push_edge_feature_id(FeatureId::Edge(eid));
         }
@@ -356,10 +373,10 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
             }
             FeatureId::Vertex(id) => {
                 let vertex = &self.vertices[id];
-                let first = vertex.first_adj_face;
-                let last = vertex.first_adj_face + vertex.num_adj_faces;
+                let first = vertex.first_adj_face_or_edge;
+                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
 
-                for face in &self.adj_faces[first..last] {
+                for face in &self.faces_adj_to_vertex[first..last] {
                     generators.push(self.faces[*face].normal)
                 }
             }
@@ -398,5 +415,35 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
+    }
+
+    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
+        let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+        let (seps, ceps) = eps.sin_cos();
+        let support_pt_id = utils::point_cloud_support_point_id(local_dir.as_ref(), &self.points);
+        let vertex = &self.vertices[support_pt_id];
+
+        // Check faces.
+        for i in 0..vertex.num_adj_faces_or_edge {
+            let face_id = self.faces_adj_to_vertex[vertex.first_adj_face_or_edge + i];
+            let face = &self.faces[face_id];
+
+            if na::dot(face.normal.as_ref(), local_dir.as_ref()) >= ceps {
+                return FeatureId::Face(face_id);
+            }
+        }
+
+        // Check edges.
+        for i in 0..vertex.num_adj_faces_or_edge {
+            let edge_id = self.edges_adj_to_vertex[vertex.first_adj_face_or_edge + i];
+            let edge = &self.edges[edge_id];
+
+            if na::dot(edge.dir.as_ref(), local_dir.as_ref()).abs() <= seps {
+                return FeatureId::Edge(edge_id);
+            }
+        }
+
+        // The vertex is the support feature.
+        FeatureId::Vertex(support_pt_id)
     }
 }

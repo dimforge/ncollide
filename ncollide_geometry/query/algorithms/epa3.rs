@@ -60,7 +60,7 @@ impl<N: Real> Ord for FaceId<N> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Face<P: Point> {
     pts: [usize; 3],
     adj: [usize; 3],
@@ -361,6 +361,7 @@ impl<P: Point> EPA3<P> {
                     }
                 }
             }
+
             self.faces[first_new_face_id].adj[2] = self.faces.len() - 1;
             self.faces.last_mut().unwrap().adj[1] = first_new_face_id;
 

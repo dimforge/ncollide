@@ -166,42 +166,61 @@ where
     S: Simplex<P>,
     G: SupportMap<P, M>,
 {
-    // FIXME: reset the simplex if it is empty?
-    let mut proj = simplex.project_origin_and_reduce();
-    let mut max_bound = na::norm_squared(&proj.coordinates());
-
     let _eps = P::Real::default_epsilon();
-    let _eps_tol = eps_tol();
-    let _eps_rel = _eps.sqrt();
+    let _eps_tol: P::Real = eps_tol();
+    let _eps_rel: P::Real = _eps_tol.sqrt();
     let _dimension = na::dimension::<P::Vector>();
 
+    // FIXME: reset the simplex if it is empty?
+    let mut proj = simplex.project_origin_and_reduce();
+    let mut old_proj = proj;
+    let mut old_dir = Unit::new_normalize(proj.coordinates());
+    let mut max_bound = P::Real::max_value();
+    let mut dir;
+    let mut niter = 0;
+
     loop {
-        if simplex.dimension() == _dimension || max_bound <= _eps_tol {
-            return None; // point inside of the cso
+        let old_max_bound = max_bound;
+
+        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coordinates(), _eps_tol) {
+            dir = new_dir;
+            max_bound = dist;
+        } else {
+            // The origin is on the simplex.
+            return None;
         }
 
-        let support_point = shape.support_point(m, &-proj.coordinates());
+        if max_bound >= old_max_bound {
+            return Some(old_proj);
+        }
 
-        if max_bound - na::dot(&proj.coordinates(), &support_point.coordinates())
-            <= _eps_rel * max_bound
-        {
-            return Some(proj); // the distance found has a good enough precision
+        let support_point = shape.support_point(m, &-dir);
+        let min_bound = na::dot(dir.as_ref(), &support_point.coordinates());
+
+        assert!(min_bound == min_bound);
+
+        if max_bound - min_bound <= _eps_rel * max_bound {
+            return Some(proj);
         }
 
         if !simplex.add_point(support_point) {
             return Some(proj);
         }
 
-        let old_proj = proj;
-
+        old_proj = proj;
+        old_dir = dir;
         proj = simplex.project_origin_and_reduce();
 
-        let old_max_bound = max_bound;
-
-        max_bound = na::norm_squared(&proj.coordinates());
-
-        if max_bound >= old_max_bound {
-            return Some(old_proj); // upper bounds inconsistencies
+        if simplex.dimension() == _dimension {
+            if min_bound >= _eps_tol {
+                return Some(old_proj);
+            } else {
+                return None; // Point inside of the cso.
+            }
+        }
+        niter += 1;
+        if niter == 1000 {
+            panic!("GJK did not converge.");
         }
     }
 }
@@ -261,13 +280,10 @@ where
             max_bound = dist;
         } else {
             // The origin is on the simplex.
-            //// println!("Exiting GJK with dimesion: {} and dist bound: {}", simplex.dimension(), max_bound);
             return GJKResult::Intersection;
         }
 
         if max_bound >= old_max_bound {
-            //// println!("Exit 1: {} >= {}", max_bound, old_max_bound);
-            //// println!("old proj: {}", old_proj);
             if exact_dist {
                 return GJKResult::Projection(old_proj, old_dir); // upper bounds inconsistencies
             } else {
@@ -278,17 +294,13 @@ where
         let support_point = shape.support_point(m, &-dir);
         let min_bound = na::dot(dir.as_ref(), &support_point.coordinates());
 
-        //// println!("bounds: ({}, {})", min_bound, max_bound);
         assert!(min_bound == min_bound);
 
         if min_bound > max_dist {
-            //// println!("Exit 2");
             return GJKResult::NoIntersection(proj.coordinates());
         } else if !exact_dist && min_bound > na::zero() {
-            //// println!("Exit 3");
             return GJKResult::Proximity(old_proj.coordinates());
         } else if max_bound - min_bound <= _eps_rel * max_bound {
-            //// println!("Exit 4");
             if exact_dist {
                 return GJKResult::Projection(proj, dir); // the distance found has a good enough precision
             } else {
@@ -297,7 +309,6 @@ where
         }
 
         if !simplex.add_point(support_point) {
-            //// println!("Exit 5");
             if exact_dist {
                 return GJKResult::Projection(proj, dir);
             } else {
@@ -311,19 +322,12 @@ where
 
         if simplex.dimension() == _dimension {
             if min_bound >= _eps_tol {
-                //// println!("Exit 6 with min_bound: {}", min_bound);
-                // The projection failed likely because of innacuracies.
                 if exact_dist {
                     return GJKResult::Projection(old_proj, old_dir);
                 } else {
                     return GJKResult::Proximity(old_proj.coordinates());
                 }
             } else {
-                //// println!(">> Exiting GJK with dimesion: {} and dist bound: {}", simplex.dimension(), max_bound);
-                //// println!(">> Proj: {}", proj);
-                //// println!(">> bound_diff: {}", max_bound - min_bound);
-                //// println!(">> bounds: min = {}, max = {}", min_bound, max_bound);
-                //// println!(">> threshold{}", _eps_rel * max_bound);
                 return GJKResult::Intersection; // Point inside of the cso.
             }
         }

@@ -326,6 +326,66 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Cuboid<P::Vector> {
         }
     }
 
+    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
+        let one_degree: P::Real = na::convert(f64::consts::PI / 180.0);
+        let (sang, cang) = one_degree.sin_cos();
+
+        match na::dimension::<P::Vector>() {
+            2 => {
+                let mut support_point_id = 0;
+                for i1 in 0..2 {
+                    let sign = local_dir[i1].signum();
+                    if sign * local_dir[i1] >= cang {
+                        if sign > na::zero() {
+                            return FeatureId::Face(i1);
+                        } else {
+                            return FeatureId::Face(i1 + 2);
+                        }
+                    } else {
+                        if sign < na::zero() {
+                            support_point_id |= 1 << i1;
+                        }
+                    }
+                }
+
+                // We are not on a face, return the support vertex.
+                FeatureId::Vertex(support_point_id)
+            }
+            3 => {
+                let mut support_point_id = 0;
+
+                // Check faces.
+                for i1 in 0..3 {
+                    let sign = local_dir[i1].signum();
+                    if sign * local_dir[i1] >= cang {
+                        if sign > na::zero() {
+                            return FeatureId::Face(i1);
+                        } else {
+                            return FeatureId::Face(i1 + 3);
+                        }
+                    } else {
+                        if sign < na::zero() {
+                            support_point_id |= 1 << i1;
+                        }
+                    }
+                }
+
+                // Check edges.
+                for i in 0..3 {
+                    let sign = local_dir[i].signum();
+
+                    // sign * local_dir[i] <= cos(pi / 2 - angle)
+                    if sign * local_dir[i] <= sang {
+                        return FeatureId::Edge(i | (support_point_id << 2));
+                    }
+                }
+
+                FeatureId::Vertex(support_point_id)
+            }
+            _ => FeatureId::Unknown,
+        }
+    }
+
     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
         let mut generators = SmallVec::new();
 

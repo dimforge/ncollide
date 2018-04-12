@@ -80,18 +80,18 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
         }
 
         if nzero_shifts > 2 {
-            // On a face.
+            // On a 3D face.
             if ls_pt[last_not_zero_shift] < na::zero() {
                 (proj, FeatureId::Face(last_not_zero_shift + dim))
             } else {
                 (proj, FeatureId::Face(last_not_zero_shift))
             }
         } else if dim == 2 && nzero_shifts == 1 {
-            // On a 2D edge.
+            // On a 2D face.
             if ls_pt[last_not_zero_shift] < na::zero() {
-                (proj, FeatureId::Edge(last_not_zero_shift + dim))
+                (proj, FeatureId::Face(last_not_zero_shift + dim))
             } else {
-                (proj, FeatureId::Edge(last_not_zero_shift))
+                (proj, FeatureId::Face(last_not_zero_shift))
             }
         } else {
             // On a vertex or edge.

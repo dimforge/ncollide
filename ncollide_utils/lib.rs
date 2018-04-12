@@ -36,7 +36,7 @@ pub use median::median;
 pub use sort::sort3;
 pub use cross3::cross3;
 pub use perp2::perp2;
-pub use point_cloud_support_point::point_cloud_support_point;
+pub use point_cloud_support_point::{point_cloud_support_point, point_cloud_support_point_id};
 pub use repeat::repeat;
 pub use id_allocator::{GenerationalId, IdAllocator};
 pub use point_in_poly2d::point_in_poly2d;

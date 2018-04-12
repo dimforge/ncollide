@@ -1,11 +1,12 @@
+use approx::ApproxEq;
 use alga::linear::Translation;
-use na;
+use na::{self, Unit};
 
-use query::algorithms::gjk;
-use query::algorithms::minkowski_sampling;
-use query::algorithms::{JohnsonSimplex, Simplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{gjk, minkowski_sampling, EPA2, EPA3, JohnsonSimplex, Simplex,
+                        VoronoiSimplex2, VoronoiSimplex3};
 use query::{PointProjection, PointQuery};
-use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, Cylinder, FeatureId, SupportMap};
+use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cylinder, FeatureId,
+            SupportMap};
 use math::{Isometry, Point};
 
 /// Projects a point on a shape using the GJK algorithm.
@@ -31,21 +32,27 @@ where
     match gjk::project_origin(&m, shape, simplex) {
         Some(p) => PointProjection::new(false, p + point.coordinates()),
         None => {
-            let proj;
-
-            // Fallback algorithm.
-            // FIXME: we use the Minkowski Sampling for now, but this should be changed for the EPA
-            // in the future.
             if !solid {
-                match minkowski_sampling::project_origin(&m, shape, simplex) {
-                    Some(p) => proj = p + point.coordinates(),
-                    None => proj = *point,
+                let dim = na::dimension::<P::Vector>();
+                if dim == 2 {
+                    let mut epa2 = EPA2::new();
+                    if let Some((pt, _)) = epa2.project_origin(&m, shape, simplex) {
+                        return PointProjection::new(true, pt + point.coordinates());
+                    }
+                } else if dim == 3 {
+                    let mut epa3 = EPA3::new();
+                    if let Some((pt, _)) = epa3.project_origin(&m, shape, simplex) {
+                        return PointProjection::new(true, pt + point.coordinates());
+                    }
                 }
-            } else {
-                proj = *point
-            }
 
-            PointProjection::new(true, proj)
+                return match minkowski_sampling::project_origin(&m, shape, simplex) {
+                    Some(p) => PointProjection::new(true, p + point.coordinates()),
+                    None => PointProjection::new(true, *point),
+                };
+            } else {
+                PointProjection::new(true, *point)
+            }
         }
     }
 }
@@ -118,7 +125,20 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for ConvexHull<P> {
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
-        unimplemented!()
+        let proj = self.project_point(m, point, false);
+        let dpt = *point - proj.point;
+        let local_dir = if proj.is_inside {
+            m.inverse_transform_vector(&-dpt)
+        } else {
+            m.inverse_transform_vector(&dpt)
+        };
+
+        if let Some(local_dir) = Unit::try_new(local_dir, P::Real::default_epsilon()) {
+            let feature = ConvexPolyhedron::<P, M>::support_feature_id_toward(self, &local_dir);
+            (proj, feature)
+        } else {
+            (proj, FeatureId::Unknown)
+        }
     }
 }
 
@@ -142,6 +162,19 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for ConvexPolygon<P> {
 
     #[inline]
     fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
-        unimplemented!()
+        let proj = self.project_point(m, point, false);
+        let dpt = *point - proj.point;
+        let local_dir = if proj.is_inside {
+            m.inverse_transform_vector(&-dpt)
+        } else {
+            m.inverse_transform_vector(&dpt)
+        };
+
+        if let Some(local_dir) = Unit::try_new(local_dir, P::Real::default_epsilon()) {
+            let feature = ConvexPolyhedron::<P, M>::support_feature_id_toward(self, &local_dir);
+            (proj, feature)
+        } else {
+            (proj, FeatureId::Unknown)
+        }
     }
 }

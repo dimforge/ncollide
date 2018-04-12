@@ -24,4 +24,6 @@ pub trait ConvexPolyhedron<P: Point, M>: SupportMap<P, M> {
         _angle: P::Real,
         out: &mut ConvexPolyface<P>,
     );
+
+    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId;
 }

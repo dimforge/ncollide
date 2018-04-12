@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
+use std::f64;
 use smallvec::SmallVec;
 use num::One;
 use approx::ApproxEq;
@@ -28,7 +27,7 @@ impl<P: Point> ConvexPolygon<P> {
         }
 
         let mut nremoved = 0;
-        // See if th efirst vexrtex must be removed.
+        // See if the first vexrtex must be removed.
         if na::dot(&*normals[0], &*normals[normals.len() - 1]) > P::Real::one() - eps {
             nremoved = 1;
         }
@@ -110,12 +109,13 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
         if dim == 2 {
             match feature {
                 FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
-                FeatureId::Vertex(id1) => {
-                    let id2 = (id1 + 1) % self.normals.len();
-                    let generators = SmallVec::from_slice(&[
-                        self.normals[id1],
-                        self.normals[id2]
-                    ]);
+                FeatureId::Vertex(id2) => {
+                    let id1 = if id2 == 0 {
+                        self.normals.len() - 1
+                    } else {
+                        id2 - 1
+                    };
+                    let generators = SmallVec::from_slice(&[self.normals[id1], self.normals[id2]]);
                     PolyhedralCone::Span(generators)
                 }
                 _ => unreachable!(),
@@ -153,5 +153,25 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
+    }
+
+    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
+        let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+        let ceps = eps.cos();
+
+        // Check faces.
+        for i in 0..self.normals.len() {
+            let normal = &self.normals[i];
+
+            if na::dot(normal.as_ref(), local_dir.as_ref()) >= ceps {
+                return FeatureId::Face(i);
+            }
+        }
+
+        // Support vertex.
+        FeatureId::Vertex(utils::point_cloud_support_point_id(
+            local_dir.as_ref(),
+            &self.points,
+        ))
     }
 }
