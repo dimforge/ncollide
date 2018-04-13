@@ -1,0 +1,29 @@
+[package]
+name    = "ncollide2d"
+version = "0.14.1"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+description = "2 and 3-dimensional collision detection library in Rust."
+documentation = "http://ncollide.org/rustdoc/ncollide"
+homepage = "http://ncollide.org"
+repository = "https://github.com/sebcrozet/ncollide"
+readme = "README.md"
+keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
+license = "BSD-3-Clause"
+
+[features]
+default = [ "dim2" ]
+dim2    = [ ]
+
+[lib]
+name = "ncollide2d"
+path = "../../src/lib.rs"
+
+[dependencies]
+num-traits      = "0.1"
+smallvec        = "0.6"
+slab            = "0.4"
+alga            = "0.5"
+nalgebra        = "0.14"
+approx          = "0.1"
+rand            = "0.4"

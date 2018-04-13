@@ -19,25 +19,33 @@ include = [
     "README.md"
 ]
 
+[features]
+default = [ "dim2" ]
+dim2    = [ ]
+
+
 [lib]
 name = "ncollide"
 path = "src/lib.rs"
 
 [dependencies]
-ncollide_math           = { path = "./ncollide_math",           version = "0.9" }
-ncollide_utils          = { path = "./ncollide_utils",          version = "0.9" }
-ncollide_geometry       = { path = "./ncollide_geometry",       version = "0.6" }
-ncollide_pipeline       = { path = "./ncollide_pipeline",       version = "0.13" }
-ncollide_procedural     = { path = "./ncollide_procedural",     version = "0.9" }
-ncollide_transformation = { path = "./ncollide_transformation", version = "0.9" }
+# ncollide_math           = { path = "./ncollide_math",           version = "0.9" }
+# ncollide_utils          = { path = "./ncollide_utils",          version = "0.9" }
+# ncollide_geometry       = { path = "./ncollide_geometry",       version = "0.6" }
+# ncollide_pipeline       = { path = "./ncollide_pipeline",       version = "0.13" }
+# ncollide_procedural     = { path = "./ncollide_procedural",     version = "0.9" }
+# ncollide_transformation = { path = "./ncollide_transformation", version = "0.9" }
+num-traits      = "0.1"
+smallvec        = "0.6"
+slab            = "0.4"
+alga            = "0.5"
+nalgebra        = "0.14"
+approx          = "0.1"
+rand            = "0.4"
 
-[dev-dependencies]
-approx   = "0.1"
-alga     = "0.5"
-nalgebra = "0.14"
-rand     = "0.4"
+ncollide2d = { path = "./build/ncollide2d", version = "0.14"}
+ncollide3d = { path = "./build/ncollide3d", version = "0.14"}
+
 
 [workspace]
-members = [ "ncollide_math", "ncollide_utils", "ncollide_geometry", "ncollide_pipeline",
-            "ncollide_procedural", "ncollide_transformation", "ncollide_testbed2d",
-            "ncollide_testbed3d" ]
+members = [ "build/ncollide2d", "build/ncollide3d" ]
