@@ -6,16 +6,15 @@ use std::cmp::Ordering;
 use num::Bounded;
 use approx::ApproxEq;
 
-use alga::general::{Id, Real};
 use alga::linear::FiniteDimInnerSpace;
-use na::{self, Unit};
+use na::{self, Unit, Real};
 
 use utils;
-use shape::{AnnotatedMinkowskiSum, AnnotatedPoint, Reflection, SupportMap, Triangle};
+use shape::{SupportMap, Triangle};
 use query::PointQueryWithLocation;
 use query::algorithms::gjk;
 use query::algorithms::simplex::Simplex;
-use math::Point;
+use math::{Point, Isometry, Vector};
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {
@@ -67,16 +66,15 @@ struct Face<N: Real> {
     normal: Unit<Vector<N>>,
     proj: Point<N>,
     deleted: bool,
-    _marker: PhantomData<P>,
 }
 
-impl<N: Real> Face<P> {
+impl<N: Real> Face<N> {
     pub fn new_with_proj(vertices: &[Point<N>], proj: Point<N>, pts: [usize; 3], adj: [usize; 3]) -> Self {
         let normal;
         let deleted;
 
         if let Some(n) =
-            Point::ccw_face_normal(&[&vertices[pts[0]], &vertices[pts[1]], &vertices[pts[2]]])
+            utils::ccw_face_normal([&vertices[pts[0]], &vertices[pts[1]], &vertices[pts[2]]])
         {
             normal = n;
             deleted = false;
@@ -85,21 +83,18 @@ impl<N: Real> Face<P> {
             deleted = true;
         }
 
-        let _marker = PhantomData;
-
         Face {
             pts,
             proj,
             adj,
             normal,
             deleted,
-            _marker,
         }
     }
 
     pub fn new(vertices: &[Point<N>], pts: [usize; 3], adj: [usize; 3]) -> (Self, bool) {
         let tri = Triangle::new(vertices[pts[0]], vertices[pts[1]], vertices[pts[2]]);
-        let (proj, loc) = tri.project_point_with_location(&Id::new(), &Point::origin(), true);
+        let (proj, loc) = tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true);
 
         (
             Self::new_with_proj(vertices, proj.point, pts, adj),
@@ -128,7 +123,7 @@ impl<N: Real> Face<P> {
         let p2 = &vertices[self.pts[(opp_pt_id + 2) % 3]];
         let pt = &vertices[point];
         na::dot(&(*pt - *p0), &self.normal) >= -gjk::eps_tol::<N>()
-            || utils::is_affinely_dependent_triangle3(p1, p2, pt)
+            || utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
 }
 
@@ -146,12 +141,12 @@ impl SilhouetteEdge {
 /// The Expanding Polytope Algorithm in 3D.
 pub struct EPA3<N: Real> {
     vertices: Vec<Point<N>>,
-    faces: Vec<Face<P>>,
+    faces: Vec<Face<N>>,
     silhouette: Vec<SilhouetteEdge>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA3<P> {
+impl<N: Real> EPA3<N> {
     /// Creates a new instance of the 3D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA3 {
@@ -173,15 +168,18 @@ impl<N: Real> EPA3<P> {
     ///
     /// The origin is assumed to be located inside of the shape.
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-    pub fn project_origin<M, S, G: ?Sized>(
+    pub fn closest_points<M, S, G1: ?Sized, G2: ?Sized>(
         &mut self,
-        m: &Isometry<N>,
-        shape: &G,
+        m1: &Isometry<N>,
+        g1: &G1,
+        m2: &Isometry<N>,
+        g2: &G2,
         simplex: &S,
-    ) -> Option<(P, Unit<Vector<N>>)>
+    ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
     where
-        S: Simplex<N>,
-        G: SupportMap<N>,
+        S: Simplex<N, (Point<N>, Point<N>)>,
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
     {
         let _eps = N::default_epsilon();
         let _eps_tol = _eps * na::convert(100.0f64);
@@ -192,19 +190,19 @@ impl<N: Real> EPA3<P> {
          * Initialization.
          */
         for i in 0..simplex.dimension() + 1 {
-            self.vertices.push(simplex.point(i));
+            self.vertices.push(*simplex.point(i));
         }
 
         if simplex.dimension() == 0 {
             let mut n: Vector<N> = na::zero();
             n[1] = na::one();
-            return Some((Point::origin(), Unit::new_unchecked(n)));
+            return Some((Point::origin(), Point::origin(), Unit::new_unchecked(n)));
         } else if simplex.dimension() == 3 {
             let dp1 = self.vertices[1] - self.vertices[0];
             let dp2 = self.vertices[2] - self.vertices[0];
             let dp3 = self.vertices[3] - self.vertices[0];
 
-            if na::dot(&utils::cross3(&dp1, &dp2), &dp3) > na::zero() {
+            if na::dot(&dp1.cross(&dp2), &dp3) > na::zero() {
                 self.vertices.swap(1, 2)
             }
 
@@ -263,7 +261,7 @@ impl<N: Real> EPA3<P> {
             if simplex.dimension() == 1 {
                 let dpt = self.vertices[1] - self.vertices[0];
 
-                Vector<N>::orthonormal_subspace_basis(&[dpt], |dir| {
+                Vector::orthonormal_subspace_basis(&[dpt], |dir| {
                     self.vertices.push(shape.support_point(m, dir));
                     false
                 });
@@ -299,11 +297,13 @@ impl<N: Real> EPA3<P> {
                 continue;
             }
 
-            let support_point = shape.support_point(m, &face.normal);
+            let support_point1 = g1.support_point(m1, &face.normal);
+            let support_point2 = g2.support_point(m1, &-face.normal);
+            let support_point_msum = support_point1 - support_point2;
             let support_point_id = self.vertices.len();
-            self.vertices.push(support_point);
+            self.vertices.push(Point::from_coordinates(support_point_msum));
 
-            let candidate_max_dist = na::dot(&support_point.coords, &face.normal);
+            let candidate_max_dist = na::dot(&support_point_msum, &face.normal);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -464,26 +464,4 @@ impl<N: Real> EPA3<P> {
             assert!(adj3.adj[(opp_pt_id3 + 1) % 3] == i);
         }
     }
-}
-
-/// Computes the pair of closest points at the extremities of the minimal translational vector between `g1` and `g2`.
-pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
-    epa: &mut EPA3<AnnotatedPoint<P>>,
-    m1: &Isometry<N>,
-    g1: &G1,
-    m2: &Isometry<N>,
-    g2: &G2,
-    simplex: &S,
-) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
-where
-    N: Real,
-    S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<N>,
-    G2: SupportMap<N>,
-{
-    let reflect2 = Reflection::new(g2);
-    let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
-
-    let (p, n) = epa.project_origin(&Id::new(), &cso, simplex)?;
-    Some((*p.orig1(), -*p.orig2(), n))
 }

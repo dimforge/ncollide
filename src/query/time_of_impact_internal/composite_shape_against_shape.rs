@@ -104,7 +104,7 @@ where
         );
 
         // Compute the TOI.
-        msum.toi_with_ray(&Id::new(), &self.ray, true)
+        msum.toi_with_ray(&Isometry::identity(), &self.ray, true)
     }
 
     #[inline]

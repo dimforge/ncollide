@@ -11,12 +11,12 @@ fn main() {
     let ray_miss = Ray::new(Point3::new(2.0, 2.0, 2.0), Vector3::new(1.0, 1.0, 1.0));
 
     // Solid cast.
-    assert!(cuboid.toi_with_ray(&Id::new(), &ray_inside, true).unwrap() == 0.0);
+    assert!(cuboid.toi_with_ray(&Isometry::identity(), &ray_inside, true).unwrap() == 0.0);
 
     // Non-solid cast.
-    assert!(cuboid.toi_with_ray(&Id::new(), &ray_inside, false).unwrap() == 2.0);
+    assert!(cuboid.toi_with_ray(&Isometry::identity(), &ray_inside, false).unwrap() == 2.0);
 
     // The other ray does not intersect this shape.
-    assert!(cuboid.toi_with_ray(&Id::new(), &ray_miss, false).is_none());
-    assert!(cuboid.toi_with_ray(&Id::new(), &ray_miss, true).is_none());
+    assert!(cuboid.toi_with_ray(&Isometry::identity(), &ray_miss, false).is_none());
+    assert!(cuboid.toi_with_ray(&Isometry::identity(), &ray_miss, true).is_none());
 }

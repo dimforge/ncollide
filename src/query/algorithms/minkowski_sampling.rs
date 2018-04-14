@@ -36,7 +36,7 @@ where
     let mut min_dist = Bounded::max_value();
 
     Vector<N>::sample_sphere(|sample: Vector<N>| {
-        let support = cso.support_point(&Id::new(), &sample);
+        let support = cso.support_point(&Isometry::identity(), &sample);
         let distance = na::dot(&sample, &support.coords);
 
         if distance < min_dist {

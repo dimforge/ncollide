@@ -1,5 +1,5 @@
-use alga::general::Id;
-
+use na::Real;
+use utils::IsometryOps;
 use query::{PointProjection, PointQuery};
 use shape::{Ball, FeatureId};
 use bounding_volume::BoundingSphere;
@@ -9,9 +9,9 @@ impl<N: Real> PointQuery<N> for BoundingSphere<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt) + (-self.center().coords);
-        let mut proj = Ball::new(self.radius()).project_point(&Id::new(), &ls_pt, solid);
+        let mut proj = Ball::new(self.radius()).project_point(&Isometry::identity(), &ls_pt, solid);
 
-        proj.point = m.transform_point(&proj.point) + self.center().coords;
+        proj.point = m * proj.point + self.center().coords;
 
         proj
     }
@@ -25,13 +25,13 @@ impl<N: Real> PointQuery<N> for BoundingSphere<N> {
     fn distance_to_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt) + (-self.center().coords);
 
-        Ball::new(self.radius()).distance_to_point(&Id::new(), &ls_pt, solid)
+        Ball::new(self.radius()).distance_to_point(&Isometry::identity(), &ls_pt, solid)
     }
 
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(pt) + (-self.center().coords);
 
-        Ball::new(self.radius()).contains_point(&Id::new(), &ls_pt)
+        Ball::new(self.radius()).contains_point(&Isometry::identity(), &ls_pt)
     }
 }

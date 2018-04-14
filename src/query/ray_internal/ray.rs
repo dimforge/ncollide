@@ -60,12 +60,14 @@ pub struct RayIntersection<N: Real> {
 
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
+    #[cfg(feature = "dim3")]
     pub uvs: Option<Point2<N>>,
 }
 
 impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
+    #[cfg(feature = "dim3")]
     pub fn new_with_uvs(
         toi: N,
         normal: Vector<N>,
@@ -80,11 +82,22 @@ impl<N: Real> RayIntersection<N> {
 
     #[inline]
     /// Creates a new `RayIntersection`.
+    #[cfg(feature = "dim3")]
     pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
         RayIntersection {
             toi: toi,
             normal: normal,
             uvs: None,
+        }
+    }
+
+    #[inline]
+    /// Creates a new `RayIntersection`.
+    #[cfg(feature = "dim2")]
+    pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
+        RayIntersection {
+            toi: toi,
+            normal: normal,
         }
     }
 }
@@ -108,6 +121,7 @@ pub trait RayCast<N: Real> {
 
     /// Computes time of impact, normal, and texture coordinates (uv) between this transformed
     /// shape and a ray.
+    #[cfg(feature = "dim3")]
     #[inline]
     fn toi_and_normal_and_uv_with_ray(
         &self,

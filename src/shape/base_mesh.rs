@@ -70,7 +70,7 @@ where
                 let vs: &[Point<N>] = &vs[..];
                 let element: E = BaseMeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
-                let bv = bounding_volume::aabb(&element, &Id::new());
+                let bv = bounding_volume::aabb(&element, &Isometry::identity());
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
             }

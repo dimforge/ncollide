@@ -111,7 +111,7 @@ where
             None // No need to look further.
         } else {
             // Compute the distance to the origin.
-            Some(msum.distance_to_point(&Id::new(), &Point::origin(), true))
+            Some(msum.distance_to_point(&Isometry::identity(), &Point::origin(), true))
         }
     }
 

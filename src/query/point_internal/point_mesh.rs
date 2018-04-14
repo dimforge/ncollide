@@ -68,7 +68,7 @@ where
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        Some(aabb.distance_to_point(&Id::new(), self.point, true))
+        Some(aabb.distance_to_point(&Isometry::identity(), self.point, true))
     }
 
     #[inline]
@@ -76,7 +76,7 @@ where
         let (proj, extra_info) =
             self.mesh
                 .element_at(*b)
-                .project_point_with_location(&Id::new(), self.point, true);
+                .project_point_with_location(&Isometry::identity(), self.point, true);
 
         let extra_info = PointProjectionInfo {
             element_index: *b,
@@ -104,15 +104,15 @@ where
 {
     #[inline]
     fn visit_internal(&mut self, bv: &AABB<N>) -> bool {
-        !self.found && bv.contains_point(&Id::new(), self.point)
+        !self.found && bv.contains_point(&Isometry::identity(), self.point)
     }
 
     #[inline]
     fn visit_leaf(&mut self, b: &usize, bv: &AABB<N>) {
-        if !self.found && bv.contains_point(&Id::new(), self.point)
+        if !self.found && bv.contains_point(&Isometry::identity(), self.point)
             && self.mesh
                 .element_at(*b)
-                .contains_point(&Id::new(), self.point)
+                .contains_point(&Isometry::identity(), self.point)
         {
             self.found = true;
         }

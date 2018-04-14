@@ -163,7 +163,7 @@ pub fn hacd<N: Real>(
 }
 
 fn normalize<N: Real>(mesh: &mut TriMesh<Point3<N>>) -> (Point3<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Id::new(), &mesh.coords[..]);
+    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
     let diag = na::distance(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 
@@ -217,7 +217,7 @@ impl<N: Real> DualGraphVertex<N> {
         ];
 
         let area = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Id::new(), &triangle[..]);
+        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &triangle[..]);
         let aabb = AABB::new(vmin, vmax);
 
         let chull = TriMesh::new(triangle, None, None, None);
@@ -476,14 +476,14 @@ impl<N: Real> DualGraphEdge<N> {
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
         ) {
-            let sv = chull.support_point(&Id::new(), &ray.dir);
+            let sv = chull.support_point(&Isometry::identity(), &ray.dir);
             let distance = na::dot(&sv.coords, &ray.dir);
 
             if !relative_eq!(distance, na::zero()) {
                 let shift: N = na::convert(0.1f64);
                 let outside_point = ray.origin + ray.dir * (distance + shift);
 
-                match chull.toi_with_ray(&Id::new(), &Ray::new(outside_point, -ray.dir), true) {
+                match chull.toi_with_ray(&Isometry::identity(), &Ray::new(outside_point, -ray.dir), true) {
                     None => ancestors.push(VertexWithConcavity::new(id, na::zero())),
                     Some(toi) => {
                         let new_concavity = distance + shift - toi;
@@ -550,7 +550,7 @@ impl<N: Real> DualGraphEdge<N> {
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(&Id::new(), ray, true) {
+                    match chull.toi_with_ray(&Isometry::identity(), ray, true) {
                         None => continue,
                         Some(inter) => {
                             if inter.is_zero() {

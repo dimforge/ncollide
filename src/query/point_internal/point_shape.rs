@@ -1,12 +1,9 @@
+use na::Real;
 use math::{Isometry, Point};
 use shape::{FeatureId, Shape};
 use query::{PointProjection, PointQuery};
 
-impl<P, M> PointQuery<N> for Shape<N>
-where
-    N: Real,
-    M: Isometry<P>,
-{
+impl<N: Real> PointQuery<N> for Shape<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         self.as_point_query()

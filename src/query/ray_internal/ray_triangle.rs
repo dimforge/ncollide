@@ -11,21 +11,24 @@ use math::{Isometry, Point};
 
 use utils;
 
-impl<N: Real> RayCast<P, M> for Triangle<N> {
+impl<N: Real> RayCast<N> for Triangle<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        let res = if na::dimension::<Vector<N>>() == 3 {
+        #[cfg(feature = "dim3")]
+        {
             triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray).map(|(r, _)| r)
-        } else {
+        }
+        #[cfg(feature = "dim2")]
+        {
             ray_internal::implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -44,17 +47,18 @@ impl<N: Real> RayCast<P, M> for Triangle<N> {
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
+#[cfg(feature = "dim3")]
 pub fn triangle_ray_intersection<N: Real>(
-    a: &P,
-    b: &P,
-    c: &P,
+    a: &Point<N>,
+    b: &Point<N>,
+    c: &Point<N>,
     ray: &Ray<N>,
-) -> Option<(RayIntersection<Vector<N>>, Vector3<N>)> {
+) -> Option<(RayIntersection<N>, Vector3<N>)> {
     let ab = *b - *a;
     let ac = *c - *a;
 
     // normal
-    let n = utils::cross3(&ab, &ac);
+    let n = ab.cross(&ac);
     let d = na::dot(&n, &ray.dir);
 
     // the normal and the ray direction are parallel
@@ -75,7 +79,7 @@ pub fn triangle_ray_intersection<N: Real>(
     //
     // intersection: compute barycentric coordinates
     //
-    let e = -utils::cross3(&ray.dir, &ap);
+    let e = -ray.dir.cross(&ap);
 
     let mut v;
     let mut w;

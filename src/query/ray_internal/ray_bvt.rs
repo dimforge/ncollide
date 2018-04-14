@@ -8,16 +8,28 @@ use query::{Ray, RayCast, RayIntersection};
 pub struct RayIntersectionCostFn<'a, N: 'a + Real> {
     ray: &'a Ray<N>,
     solid: bool,
+
+    #[cfg(feature = "dim3")]
     uvs: bool,
 }
 
 impl<'a, N: Real> RayIntersectionCostFn<'a, N> {
     /// Creates a new `BestRayInterferenceSearch`.
+    #[cfg(feature = "dim3")]
     pub fn new(ray: &'a Ray<N>, solid: bool, uvs: bool) -> RayIntersectionCostFn<'a, N> {
         RayIntersectionCostFn {
-            ray: ray,
-            solid: solid,
-            uvs: uvs,
+            ray,
+            solid,
+            uvs,
+        }
+    }
+
+        /// Creates a new `BestRayInterferenceSearch`.
+    #[cfg(feature = "dim2")]
+    pub fn new(ray: &'a Ray<N>, solid: bool) -> RayIntersectionCostFn<'a, N> {
+        RayIntersectionCostFn {
+            ray,
+            solid,
         }
     }
 }
@@ -35,6 +47,7 @@ where
         bv.toi_with_ray(&Isometry::identity(), self.ray, true)
     }
 
+    #[cfg(feature = "dim3")]
     #[inline]
     fn compute_b_cost(&mut self, b: &B) -> Option<(N, RayIntersection<N>)> {
         if self.uvs {
@@ -44,6 +57,13 @@ where
             b.toi_and_normal_with_ray(&Isometry::identity(), self.ray, self.solid)
                 .map(|i| (i.toi, i))
         }
+    }
+    
+    #[cfg(feature = "dim2")]
+    #[inline]
+    fn compute_b_cost(&mut self, b: &B) -> Option<(N, RayIntersection<N>)> {
+        b.toi_and_normal_with_ray(&Isometry::identity(), self.ray, self.solid)
+            .map(|i| (i.toi, i))
     }
 }
 

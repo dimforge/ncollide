@@ -288,30 +288,6 @@ impl<N: Real> EPA2<P> {
     }
 }
 
-/// Computes the pair of closest points at the extremities of the minimal translational vector between `g1` and `g2`.
-///
-/// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
-    epa: &mut EPA2<AnnotatedPoint<P>>,
-    m1: &Isometry<N>,
-    g1: &G1,
-    m2: &Isometry<N>,
-    g2: &G2,
-    simplex: &S,
-) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
-where
-    N: Real,
-    S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<N>,
-    G2: SupportMap<N>,
-{
-    let reflect2 = Reflection::new(g2);
-    let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
-
-    let (p, n) = epa.project_origin(&Id::new(), &cso, simplex)?;
-    Some((*p.orig1(), -*p.orig2(), n))
-}
-
 fn project_origin<N: Real>(a: &P, b: &P) -> Option<P> {
     let ab = *b - *a;
     let ap = -a.coords;

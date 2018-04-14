@@ -16,7 +16,7 @@ pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(
     simplex: &mut S,
     ray: &Ray<N>,
     solid: bool,
-) -> Option<RayIntersection<Vector<N>>>
+) -> Option<RayIntersection<N>>
 where
     N: Real,
     M: Isometry<P>,
@@ -51,7 +51,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Cylinder<N>
+impl<P, M> RayCast<N> for Cylinder<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -61,12 +61,12 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -77,7 +77,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -88,7 +88,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -101,7 +101,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Cone<N>
+impl<P, M> RayCast<N> for Cone<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -111,12 +111,12 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -127,7 +127,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -138,7 +138,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -151,7 +151,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Capsule<N>
+impl<P, M> RayCast<N> for Capsule<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -161,12 +161,12 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -177,7 +177,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -188,7 +188,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -201,7 +201,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for ConvexHull<N>
+impl<P, M> RayCast<N> for ConvexHull<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -211,12 +211,12 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -227,7 +227,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -238,7 +238,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -251,7 +251,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for ConvexPolygon<P>
+impl<P, M> RayCast<N> for ConvexPolygon<P>
 where
     N: Real,
     M: Isometry<P>,
@@ -261,12 +261,12 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -277,7 +277,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -288,7 +288,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -301,7 +301,7 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Segment<N>
+impl<P, M> RayCast<N> for Segment<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -311,13 +311,13 @@ where
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -328,7 +328,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -339,7 +339,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,
@@ -364,12 +364,12 @@ where
         m: &M2,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex2::<P>::new(),
                 &ls_ray,
@@ -380,7 +380,7 @@ where
             })
         } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut VoronoiSimplex3::<P>::new(),
                 &ls_ray,
@@ -391,7 +391,7 @@ where
             })
         } else {
             implicit_toi_and_normal_with_ray(
-                &Id::new(),
+                &Isometry::identity(),
                 self,
                 &mut JohnsonSimplex::<P>::new_w_tls(),
                 &ls_ray,

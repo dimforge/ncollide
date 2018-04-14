@@ -19,104 +19,12 @@ pub enum GJKResult<N: Real> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-    ClosestPoints((Point<N>, Point<N>), Unit<Vector<N>>),
+    ClosestPoints(Point<N>, Point<N>, Unit<Vector<N>>),
     /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
     Proximity(Vector<N>),
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
     NoIntersection(Vector<N>),
 }
-
-// /// Computes the closest points between two convex shapes unsing the GJK
-// /// algorithm.
-// ///
-// /// # Arguments:
-// /// * `g1`      - first shape.
-// /// * `g2`      - second shape.
-// /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-// ///               with at least one point on the shapes CSO. See
-// ///               `minkowski_sum::cso_support_point` to compute such point.
-// pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
-//     m1: &Isometry<N>,
-//     g1: &G1,
-//     m2: &Isometry<N>,
-//     g2: &G2,
-//     simplex: &mut S,
-// ) -> Option<(Point<N>, Point<N>)>
-// where
-//     N: Real,
-//     S: Simplex<AnnotatedPoint<N>>,
-//     G1: SupportMap<N>,
-//     G2: SupportMap<N>,
-// {
-//     let reflect2 = Reflection::new(g2);
-//     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
-
-//     project_origin(&Id::new(), &cso, simplex).map(|p| (*p.orig1(), -*p.orig2()))
-// }
-
-// /// Computes the closest points between two convex shapes unsing the GJK algorithm.
-// ///
-// /// # Arguments:
-// /// * `g1`      - first shape.
-// /// * `g2`      - second shape.
-// /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-// ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
-// ///               to compute such point.
-// pub fn closest_points_with_max_dist<N, S, G1: ?Sized, G2: ?Sized>(
-//     m1: &Isometry<N>,
-//     g1: &G1,
-//     m2: &Isometry<N>,
-//     g2: &G2,
-//     max_dist: N,
-//     simplex: &mut S,
-// ) -> GJKResult<(Point<N>, Point<N>), Vector<N>>
-// where
-//     N: Real,
-//     S: Simplex<AnnotatedPoint<N>>,
-//     G1: SupportMap<N>,
-//     G2: SupportMap<N>,
-// {
-//     let reflect2 = Reflection::new(g2);
-//     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
-
-//     match project_origin_with_max_dist(&Id::new(), &cso, max_dist, true, simplex) {
-//         GJKResult::Projection(p, n) => GJKResult::Projection((*p.orig1(), -*p.orig2()), n),
-//         GJKResult::Intersection => GJKResult::Intersection,
-//         GJKResult::NoIntersection(dir) => GJKResult::NoIntersection(dir),
-//         GJKResult::Proximity(_) => unreachable!(),
-//     }
-// }
-
-// /// Computes the exact distance separating two convex shapes unsing the GJK.
-// /// algorithm.
-// ///
-// /// # Arguments:
-// /// * `g1`      - first shape.
-// /// * `g2`      - second shape.
-// /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-// ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
-// ///               to compute such point.
-// pub fn distance<N, S, G1: ?Sized, G2: ?Sized>(
-//     m1: &Isometry<N>,
-//     g1: &G1,
-//     m2: &Isometry<N>,
-//     g2: &G2,
-//     simplex: &mut S,
-// ) -> N
-// where
-//     N: Real,
-//     S: Simplex<N>,
-//     G1: SupportMap<N>,
-//     G2: SupportMap<N>,
-// {
-//     let reflect2 = Reflection::new(g2);
-//     let cso = MinkowskiSum::new(m1, g1, m2, &reflect2);
-
-//     match project_origin(&Id::new(), &cso, simplex) {
-//         Some(c) => na::norm(&c.coords),
-//         None => na::zero(),
-//     }
-// }
 
 // /// Computes the closest points between two convex shapes unsing the GJK algorithm.
 // ///
@@ -143,7 +51,7 @@ pub enum GJKResult<N: Real> {
 //     let reflect2 = Reflection::new(g2);
 //     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
 
-//     match project_origin_with_max_dist(&Id::new(), &cso, max_dist, false, simplex) {
+//     match project_origin_with_max_dist(&Isometry::identity(), &cso, max_dist, false, simplex) {
 //         GJKResult::NoIntersection(data) => (Proximity::Disjoint, data),
 //         GJKResult::Proximity(data) => (Proximity::WithinMargin, data),
 //         GJKResult::Intersection => (Proximity::Intersecting, na::zero()),
@@ -172,7 +80,7 @@ pub fn eps_tol<N: Real>() -> N {
 /// `GJKResult::Proximity(sep_axis)` where `sep_axis` is a separating axis. If `false` the gjk will
 /// compute the exact distance and return `GJKResult::Projection(point)` if the origin is closer
 /// than `max_dist` but not inside `shape`.
-pub fn closet_points_with_max_dist<N, S, G1: ?Sized, G2: ?Sized>(
+pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -236,7 +144,8 @@ where
 
         if max_bound >= old_max_bound {
             if exact_dist {
-                return GJKResult::ClosestPoints(result(simplex, true), old_dir); // upper bounds inconsistencies
+                let (p1, p2) = result(simplex, true);
+                return GJKResult::ClosestPoints(p1, p2, old_dir); // upper bounds inconsistencies
             } else {
                 // NOTE: previous implementation used old_proj here.
                 return GJKResult::Proximity(old_dir.unwrap());
@@ -257,7 +166,8 @@ where
             return GJKResult::Proximity(old_dir.unwrap());
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
-                return GJKResult::ClosestPoints(result(simplex, false), dir); // the distance found has a good enough precision
+                let (p1, p2) = result(simplex, false);
+                return GJKResult::ClosestPoints(p1, p2, dir); // the distance found has a good enough precision
             } else {
                 return GJKResult::Proximity(proj.coords);
             }
@@ -265,7 +175,8 @@ where
 
         if !simplex.add_point(support_point_msum, (support_point1, support_point2)) {
             if exact_dist {
-                return GJKResult::ClosestPoints(result(simplex, false), dir);
+                let (p1, p2) = result(simplex, false);
+                return GJKResult::ClosestPoints(p1, p2, dir);
             } else {
                 return GJKResult::Proximity(proj.coords);
             }
@@ -277,7 +188,8 @@ where
         if simplex.dimension() == _dimension {
             if min_bound >= _eps_tol {
                 if exact_dist {
-                    return GJKResult::ClosestPoints(result(simplex, true), old_dir);
+                    let (p1, p2) = result(simplex, false);                    
+                    return GJKResult::ClosestPoints(p1, p2, old_dir);
                 } else {
                     // NOTE: previous implementation used old_proj here.                    
                     return GJKResult::Proximity(old_dir.unwrap());

@@ -1,14 +1,13 @@
 use std::mem;
 use num::{Bounded, Zero};
 
-use alga::general::Real;
-use na::{self, Point2};
+use na::{self, Point2, Real};
 
 use query::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
-impl<N: Real> RayCast<P, M> for AABB<N> {
+impl<N: Real> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
@@ -52,32 +51,30 @@ impl<N: Real> RayCast<P, M> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        ray_aabb(self, &ls_ray, solid).map(|(t, n, _)| RayIntersection::new(t, m.rotate_vector(&n)))
+        ray_aabb(self, &ls_ray, solid).map(|(t, n, _)| RayIntersection::new(t, m * n))
     }
 
+    #[cfg(feature = "dim3")]
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
     }
 }
 
-fn do_toi_and_normal_and_uv_with_ray<M, P>(
+#[cfg(feature = "dim3")]
+fn do_toi_and_normal_and_uv_with_ray<N: Real>(
     m: &Isometry<N>,
     aabb: &AABB<N>,
     ray: &Ray<N>,
     solid: bool,
-) -> Option<RayIntersection<Vector<N>>>
-where
-    N: Real,
-    M: Isometry<P>,
-{
+) -> Option<RayIntersection<N>> {
     if na::dimension::<Vector<N>>() != 3 {
         aabb.toi_and_normal_with_ray(m, ray, solid)
     } else {
@@ -88,7 +85,7 @@ where
             let dpt = pt - *aabb.mins();
             let scale = *aabb.maxs() - *aabb.mins();
             let id = na::abs(&s);
-            let gs_n = m.rotate_vector(&n);
+            let gs_n = m * n;
 
             if id == 1 {
                 RayIntersection::new_with_uvs(
@@ -113,10 +110,7 @@ where
     }
 }
 
-fn ray_aabb<P>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)>
-where
-    N: Real,
-{
+fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
     let mut tmax: N = Bounded::max_value();
     let mut tmin: N = -tmax;
     let mut near_side = 0;
@@ -181,12 +175,12 @@ where
             if far_diag {
                 Some((tmax, -na::normalize(&ray.dir), far_side))
             } else {
-                let mut normal = na::zero::<Vector<N>>();
+                let mut normal = Vector::zeros();
 
                 if far_side < 0 {
-                    normal[(-far_side - 1) as usize] = -na::one::<N>();
+                    normal[(-far_side - 1) as usize] = -N::one();
                 } else {
-                    normal[(far_side - 1) as usize] = na::one::<N>();
+                    normal[(far_side - 1) as usize] = N::one();
                 }
 
                 Some((tmax, normal, far_side))
@@ -196,12 +190,12 @@ where
         if near_diag {
             Some((tmin, -na::normalize(&ray.dir), near_side))
         } else {
-            let mut normal = na::zero::<Vector<N>>();
+            let mut normal = Vector::zeros();
 
             if near_side < 0 {
-                normal[(-near_side - 1) as usize] = na::one::<N>();
+                normal[(-near_side - 1) as usize] = N::one();
             } else {
-                normal[(near_side - 1) as usize] = -na::one::<N>();
+                normal[(near_side - 1) as usize] = -N::one();
             }
             Some((tmin, normal, near_side))
         }

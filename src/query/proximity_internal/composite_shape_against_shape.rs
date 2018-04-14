@@ -120,7 +120,7 @@ where
         );
 
         // Compute the distance to the origin.
-        let distance = msum.distance_to_point(&Id::new(), &Point::origin(), true);
+        let distance = msum.distance_to_point(&Isometry::identity(), &Point::origin(), true);
         if distance <= self.margin {
             Some(distance)
         } else {

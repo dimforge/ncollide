@@ -526,5 +526,5 @@ where
     let rg2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.support_point(&Id::new(), &dir)
+    cso.support_point(&Isometry::identity(), &dir)
 }

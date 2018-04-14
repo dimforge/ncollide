@@ -1,4 +1,5 @@
-use na;
+use na::{self, Real};
+use utils::IsometryOps;
 use query::{PointProjection, PointQuery};
 use shape::{FeatureId, Plane};
 use math::{Isometry, Point};

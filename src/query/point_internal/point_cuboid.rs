@@ -1,9 +1,10 @@
+use na::Real;
 use bounding_volume::AABB;
 use shape::{Cuboid, FeatureId};
 use query::{PointProjection, PointQuery};
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
-impl<N: Real> PointQuery<N> for Cuboid<Vector<N>> {
+impl<N: Real> PointQuery<N> for Cuboid<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let dl = Point::origin() + (-*self.half_extents());

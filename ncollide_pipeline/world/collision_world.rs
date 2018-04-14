@@ -363,7 +363,7 @@ pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: '
 }
 
 impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
-    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<Vector<N>>);
+    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<N>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {

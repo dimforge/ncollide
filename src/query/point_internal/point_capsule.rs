@@ -1,8 +1,8 @@
 use approx::ApproxEq;
-use na::{self, Unit};
+use na::{self, Unit, Real};
 use shape::{Capsule, FeatureId, Segment};
 use query::{PointProjection, PointQuery};
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 impl<N: Real> PointQuery<N> for Capsule<N> {
     #[inline]
@@ -26,7 +26,7 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
             } else {
                 let mut dir: Vector<N> = na::zero();
                 dir[1] = na::one();
-                dir = m.transform_vector(&dir);
+                dir = m * dir;
                 PointProjection::new(true, proj.point + dir * self.radius())
             }
         }

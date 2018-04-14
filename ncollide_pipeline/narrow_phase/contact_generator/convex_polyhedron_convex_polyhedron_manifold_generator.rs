@@ -320,9 +320,9 @@ where
 
                     if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
                         closest_points_internal::segment_against_segment_with_locations(
-                            &Id::new(),
+                            &Isometry::identity(),
                             &seg1,
-                            &Id::new(),
+                            &Isometry::identity(),
                             &seg2,
                         ) {
                         let original1 =
@@ -377,7 +377,7 @@ where
             (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let pt1 = &self.manifold1.vertices[0];
-                let proj = seg2.project_point_with_location(&Id::new(), pt1, false);
+                let proj = seg2.project_point_with_location(&Isometry::identity(), pt1, false);
 
                 if let SegmentPointLocation::OnEdge(_) = proj.1 {
                     can_penetrate = false;
@@ -390,7 +390,7 @@ where
             (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let pt2 = &self.manifold2.vertices[0];
-                let proj = seg1.project_point_with_location(&Id::new(), pt2, false);
+                let proj = seg1.project_point_with_location(&Isometry::identity(), pt2, false);
 
                 if let SegmentPointLocation::OnEdge(_) = proj.1 {
                     can_penetrate = false;
@@ -422,9 +422,9 @@ where
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let locs = closest_points_internal::segment_against_segment_with_locations(
-                    &Id::new(),
+                    &Isometry::identity(),
                     &seg1,
-                    &Id::new(),
+                    &Isometry::identity(),
                     &seg2,
                 );
                 world1 = seg1.point_at(&locs.0);

@@ -53,7 +53,7 @@ impl_rand_default_gen!(bool);
 
 impl DefaultGen for Id {
     fn generate<R: Rng>(_: &mut R) -> Id {
-        Id::new()
+        Isometry::identity()
     }
 }
 

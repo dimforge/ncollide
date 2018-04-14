@@ -47,7 +47,7 @@ pub fn indexed_support_point_id<N: Real>(
 
 /// Scale and center the given set of point depending on their AABB.
 pub fn normalize<N: Real>(coords: &mut [P]) -> (P, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Id::new(), &coords[..]);
+    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
     let diag = na::distance(&mins, &maxs);
     let center = na::center(&mins, &maxs);
 

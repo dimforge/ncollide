@@ -1,15 +1,13 @@
 use num::{Bounded, Zero};
-use na;
+use na::{self, Real};
+use utils::IsometryOps;
 use shape::FeatureId;
 use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector, DIM};
 
 impl<N: Real> AABB<N> {
-    fn local_point_projection<M>(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> (bool, P, Vector<N>)
-    where
-        M: Isometry<P>,
-    {
+    fn local_point_projection(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> (bool, Point<N>, Vector<N>) {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -26,7 +24,7 @@ impl<N: Real> AABB<N> {
             let mut best = -_max;
             let mut best_id = 0isize;
 
-            for i in 0..na::dimension::<Vector<N>>() {
+            for i in 0..DIM {
                 let mins_pt_i = mins_pt[i];
                 let pt_maxs_i = pt_maxs[i];
 
@@ -58,19 +56,18 @@ impl<N: Real> PointQuery<N> for AABB<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (inside, ls_pt, _) = self.local_point_projection(m, pt, solid);
-        PointProjection::new(inside, m.transform_point(&ls_pt))
+        PointProjection::new(inside, m * ls_pt)
     }
 
     #[inline]
     fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
-        let proj = PointProjection::new(inside, m.transform_point(&ls_pt));
-        let dim = na::dimension::<Vector<N>>();
+        let proj = PointProjection::new(inside, m * ls_pt);
         let mut nzero_shifts = 0;
         let mut last_zero_shift = 0;
         let mut last_not_zero_shift = 0;
 
-        for i in 0..dim {
+        for i in 0..DIM {
             if shift[i].is_zero() {
                 nzero_shifts += 1;
                 last_zero_shift = i;
@@ -82,21 +79,21 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         if nzero_shifts > 2 {
             // On a 3D face.
             if ls_pt[last_not_zero_shift] < na::zero() {
-                (proj, FeatureId::Face(last_not_zero_shift + dim))
+                (proj, FeatureId::Face(last_not_zero_shift + DIM))
             } else {
                 (proj, FeatureId::Face(last_not_zero_shift))
             }
-        } else if dim == 2 && nzero_shifts == 1 {
+        } else if DIM == 2 && nzero_shifts == 1 {
             // On a 2D face.
             if ls_pt[last_not_zero_shift] < na::zero() {
-                (proj, FeatureId::Face(last_not_zero_shift + dim))
+                (proj, FeatureId::Face(last_not_zero_shift + DIM))
             } else {
                 (proj, FeatureId::Face(last_not_zero_shift))
             }
         } else {
             // On a vertex or edge.
             let mut id = 0;
-            for i in 0..dim {
+            for i in 0..DIM {
                 if ls_pt[i] < na::zero() {
                     id |= 1 << i;
                 }
@@ -128,7 +125,7 @@ impl<N: Real> PointQuery<N> for AABB<N> {
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(pt).coords;
 
-        for i in 0..na::dimension::<Vector<N>>() {
+        for i in 0..DIM {
             if ls_pt[i] < self.mins()[i] || ls_pt[i] > self.maxs()[i] {
                 return false;
             }

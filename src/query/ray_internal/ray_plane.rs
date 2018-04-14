@@ -1,15 +1,15 @@
-use na;
+use na::{self, Real};
 
 use query::{Ray, RayCast, RayIntersection};
 use shape::Plane;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]
 pub fn plane_toi_with_line<N: Real>(
-    plane_center: &P,
+    plane_center: &Point<N>,
     plane_normal: &Vector<N>,
-    line_origin: &P,
+    line_origin: &Point<N>,
     line_dir: &Vector<N>,
 ) -> N {
     let dpos = *plane_center - *line_origin;
@@ -19,7 +19,7 @@ pub fn plane_toi_with_line<N: Real>(
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
 pub fn plane_toi_with_ray<N: Real>(
-    center: &P,
+    center: &Point<N>,
     normal: &Vector<N>,
     ray: &Ray<N>,
 ) -> Option<N> {
@@ -31,14 +31,14 @@ pub fn plane_toi_with_ray<N: Real>(
     }
 }
 
-impl<N: Real> RayCast<P, M> for Plane<N> {
+impl<N: Real> RayCast<N> for Plane<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector<N>>> {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let dpos = -ls_ray.origin;
@@ -59,7 +59,7 @@ impl<N: Real> RayCast<P, M> for Plane<N> {
                 *self.normal()
             };
 
-            Some(RayIntersection::new(t, m.rotate_vector(&n)))
+            Some(RayIntersection::new(t, m * *n))
         } else {
             None
         }

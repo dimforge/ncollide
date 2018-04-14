@@ -22,5 +22,5 @@ where
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_with_ray(&Id::new(), &Ray::new(Point::origin(), -vel), true)
+    cso.toi_with_ray(&Isometry::identity(), &Ray::new(Point::origin(), -vel), true)
 }
