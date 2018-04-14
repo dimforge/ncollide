@@ -23,7 +23,7 @@ pub use self::ray_internal::{Ray, RayCast, RayInterferencesCollector, RayInterse
 pub use self::point_internal::{PointInterferencesCollector, PointProjection, PointQuery,
                                PointQueryWithLocation};
 
-// pub mod algorithms;
+pub mod algorithms;
 pub mod contacts_internal;
 pub mod closest_points_internal;
 // pub mod distance_internal;

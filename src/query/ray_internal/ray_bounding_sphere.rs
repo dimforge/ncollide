@@ -7,7 +7,7 @@ use math::{Isometry, Point};
 
 impl<N: Real> RayCast<P, M> for BoundingSphere<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let centered_ray = ray.translate_by(-m.transform_point(self.center()).coords);
 
         Ball::new(self.radius()).toi_with_ray(m, &centered_ray, solid)
@@ -17,7 +17,7 @@ impl<N: Real> RayCast<P, M> for BoundingSphere<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let centered_ray = ray.translate_by(-m.transform_point(self.center()).coords);
@@ -29,7 +29,7 @@ impl<N: Real> RayCast<P, M> for BoundingSphere<N> {
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let centered_ray = ray.translate_by(-m.transform_point(self.center()).coords);
@@ -38,7 +38,7 @@ impl<N: Real> RayCast<P, M> for BoundingSphere<N> {
     }
 
     #[inline]
-    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<P>) -> bool {
+    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<N>) -> bool {
         let centered_ray = ray.translate_by(-m.transform_point(self.center()).coords);
 
         Ball::new(self.radius()).intersects_ray(&Id::new(), &centered_ray)

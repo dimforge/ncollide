@@ -20,7 +20,6 @@ pub use self::compound::Compound;
 // pub use self::trimesh::TriMesh;
 // pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
-#[cfg(feature = "dim3")]
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
 pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
@@ -47,7 +46,6 @@ mod plane;
 mod cuboid;
 // mod minkowski_sum;
 mod segment;
-#[cfg(feature = "dim3")]
 mod triangle;
 #[cfg(feature = "dim3")]
 mod tetrahedron;

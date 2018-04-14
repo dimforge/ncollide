@@ -1,37 +1,60 @@
-use math::Point;
-use alga::general::Real;
-use na::{self, Id};
+use std::mem;
+use na::{self, Real};
+use math::{Point, Isometry};
 use query::{PointQuery, PointQueryWithLocation};
 use query::algorithms::simplex::Simplex;
 use query::algorithms::gjk;
 use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
             TrianglePointLocation};
-use utils;
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
-pub struct VoronoiSimplex3<N: Real> {
-    vertices: [P; 4],
+pub struct VoronoiSimplex3<N: Real, T: 'static + Copy + Send + Sync> {
+    prev_vertices: [usize; 4],
+    prev_proj: [N; 3],
+    prev_dim: usize,
+
+    vertices: [Point<N>; 4],
+    data: [T; 4],
+    proj: [N; 3],
     dim: usize,
 }
 
-impl<N: Real> VoronoiSimplex3<P> {
+impl<N: Real, T: 'static + Copy + Send + Sync> VoronoiSimplex3<N, T> {
     /// Creates a new empty simplex.
-    pub fn new() -> VoronoiSimplex3<P> {
+    pub fn new() -> VoronoiSimplex3<N, T> {
         VoronoiSimplex3 {
+            prev_vertices: [0, 1, 2, 3],
+            prev_proj: [N::zero(); 3],
+            prev_dim: 0,
             vertices: [Point::origin(); 4],
+            data: [unsafe { mem::uninitialized() }; 4],
+            proj: [N::zero(); 3],
             dim: 0,
         }
+    }
+
+    fn swap(&mut self, i1: usize, i2: usize) {
+        self.vertices.swap(i1, i2);
+        self.data.swap(i1, i2);
+        self.prev_vertices.swap(i1, i2);
+        self.prev_proj.swap(i1, i2);
     }
 }
 
 /// Trait of a simplex usable by the GJK algorithm.
-impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
-    fn reset(&mut self, pt: Point<N>) {
+impl<N: Real, T: 'static + Copy + Send + Sync> Simplex<N, T> for VoronoiSimplex3<N, T> {
+    fn reset(&mut self, pt: Point<N>, data: T) {
         self.dim = 0;
+        self.prev_dim = 0;
         self.vertices[0] = pt;
+        self.data[0] = data;
     }
 
-    fn add_point(&mut self, pt: Point<N>) -> bool {
+    fn add_point(&mut self, pt: Point<N>, data: T) -> bool {
+        self.prev_dim = self.dim;
+        self.prev_proj = self.proj;
+        self.prev_vertices = [0, 1, 2, 3];
+
         match self.dim {
             0 => {
                 if na::norm_squared(&(self.vertices[0] - pt)) < gjk::eps_tol() {
@@ -42,7 +65,7 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
                 let ab = self.vertices[1] - self.vertices[0];
                 let ac = pt - self.vertices[0];
 
-                if na::norm_squared(&utils::cross3(&ab, &ac)) < gjk::eps_tol() {
+                if na::norm_squared(&ab.cross(&ac)) < gjk::eps_tol() {
                     return false;
                 }
             }
@@ -50,7 +73,7 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
                 let ab = self.vertices[1] - self.vertices[0];
                 let ac = self.vertices[2] - self.vertices[0];
                 let ap = pt - self.vertices[0];
-                let n = na::normalize(&utils::cross3(&ab, &ac));
+                let n = na::normalize(&ab.cross(&ac));
 
                 if na::dot(&n, &ap).abs() < gjk::eps_tol() {
                     return false;
@@ -61,30 +84,59 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
 
         self.dim += 1;
         self.vertices[self.dim] = pt;
+        self.data[self.dim] = data;
         return true;
     }
 
-    fn point(&self, i: usize) -> Point<N> {
+    fn proj_coord(&self, i: usize) -> N {
         assert!(i <= self.dim, "Index out of bounds.");
-        self.vertices[i]
+        self.proj[i]
+    }
+
+    fn point(&self, i: usize) -> &Point<N> {
+        assert!(i <= self.dim, "Index out of bounds.");
+        &self.vertices[i]
+    }
+
+    fn data(&self, i: usize) -> &T {
+        assert!(i <= self.dim, "Index out of bounds.");
+        &self.data[i]
+    }
+    
+    fn prev_proj_coord(&self, i: usize) -> N {
+        assert!(i <= self.dim, "Index out of bounds.");
+        self.prev_proj[i]
+    }
+    
+    fn prev_point(&self, i: usize) -> &Point<N> {
+        assert!(i <= self.prev_dim, "Index out of bounds.");
+        &self.vertices[self.prev_vertices[i]]
+    }
+
+    fn prev_data(&self, i: usize) -> &T {
+        assert!(i <= self.prev_dim, "Index out of bounds.");
+        &self.data[self.prev_vertices[i]]
     }
 
     fn project_origin_and_reduce(&mut self) -> Point<N> {
         if self.dim == 0 {
+            self.proj[0] = N::one();
             self.vertices[0]
         } else if self.dim == 1 {
             // FIXME: NLL
             let (proj, location) = {
                 let seg = Segment::from_array4(&self.vertices);
-                seg.project_point_with_location(&Id::new(), &Point::origin(), true)
+                seg.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
             match location {
                 SegmentPointLocation::OnVertex(0) => {
+                    self.proj[0] = N::one();
                     self.dim = 0;
                 }
                 SegmentPointLocation::OnVertex(1) => {
-                    self.vertices[0] = self.vertices[1];
+                    self.swap(0, 1);
+                    self.proj[0] = N::one();
                     self.dim = 0;
                 }
                 _ => {}
@@ -95,24 +147,34 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
             // FIXME: NLL
             let (proj, location) = {
                 let tri = Triangle::from_array4(&self.vertices);
-                tri.project_point_with_location(&Id::new(), &Point::origin(), true)
+                tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
             match location {
                 TrianglePointLocation::OnVertex(i) => {
-                    self.vertices[0] = self.vertices[i];
+                    self.swap(0, i);
+                    self.proj[0] = N::one();
                     self.dim = 0;
                 }
-                TrianglePointLocation::OnEdge(0, _) => {
+                TrianglePointLocation::OnEdge(0, coords) => {
+                    self.proj[0] = coords[0];
+                    self.proj[1] = coords[1];
                     self.dim = 1;
                 }
-                TrianglePointLocation::OnEdge(1, _) => {
-                    self.vertices[0] = self.vertices[2];
+                TrianglePointLocation::OnEdge(1, coords) => {
+                    self.swap(0, 2);
+                    self.proj[0] = coords[1];
+                    self.proj[1] = coords[0];
                     self.dim = 1;
                 }
-                TrianglePointLocation::OnEdge(2, _) => {
-                    self.vertices[1] = self.vertices[2];
+                TrianglePointLocation::OnEdge(2, coords) => {
+                    self.swap(1, 2);
+                    self.proj[0] = coords[0];
+                    self.proj[1] = coords[1];
                     self.dim = 1;
+                }
+                TrianglePointLocation::OnFace(coords) => {
+                    self.proj = coords;
                 }
                 _ => {}
             }
@@ -123,60 +185,81 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
             // FIXME: NLL
             let (proj, location) = {
                 let tetr = Tetrahedron::from_array(&self.vertices);
-                tetr.project_point_with_location(&Id::new(), &Point::origin(), true)
+                tetr.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
             match location {
                 TetrahedronPointLocation::OnVertex(i) => {
-                    self.vertices[0] = self.vertices[i];
+                    self.swap(0, i);
+                    self.proj[0] = N::one();
                     self.dim = 0;
                 }
-                TetrahedronPointLocation::OnEdge(i, _) => {
+                TetrahedronPointLocation::OnEdge(i, coords) => {
                     match i {
                         0 => {
                             // ab
                         }
                         1 => {
                             // ac
-                            self.vertices[1] = self.vertices[2];
+                            self.swap(1, 2)
                         }
                         2 => {
                             // ad
-                            self.vertices[1] = self.vertices[3];
+                            self.swap(1, 3)
                         }
                         3 => {
                             // bc
-                            self.vertices[0] = self.vertices[2];
+                            self.swap(0, 2)
                         }
                         4 => {
                             // bd
-                            self.vertices[0] = self.vertices[3];
+                            self.swap(0, 3)
                         }
                         5 => {
                             // cd
-                            self.vertices[0] = self.vertices[2];
-                            self.vertices[1] = self.vertices[3];
+                            self.swap(0, 2);
+                            self.swap(1, 3);
+                        }
+                        _ => unreachable!(),
+                    }
+
+                     match i {
+                        0 | 1 | 2 | 5 => {
+                            self.proj[0] = coords[0];
+                            self.proj[1] = coords[1];
+                        }
+                        3 | 4 => {
+                            self.proj[0] = coords[1];
+                            self.proj[1] = coords[0];
                         }
                         _ => unreachable!(),
                     }
                     self.dim = 1;
                 }
-                TetrahedronPointLocation::OnFace(i, _) => {
+                TetrahedronPointLocation::OnFace(i, coords) => {
                     match i {
                         0 => {
                             // abc
+                            self.proj = coords;
                         }
                         1 => {
                             // abd
                             self.vertices[2] = self.vertices[3];
+                            self.proj = coords;
                         }
                         2 => {
                             // acd
                             self.vertices[1] = self.vertices[3];
+                            self.proj[0] = coords[0];
+                            self.proj[1] = coords[2];
+                            self.proj[2] = coords[1];
                         }
                         3 => {
                             // bcd
                             self.vertices[0] = self.vertices[3];
+                            self.proj[0] = coords[2];
+                            self.proj[1] = coords[0];
+                            self.proj[2] = coords[1];
                         }
                         _ => unreachable!(),
                     }
@@ -194,17 +277,17 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
             self.vertices[0]
         } else if self.dim == 1 {
             let seg = Segment::from_array4(&self.vertices);
-            seg.project_point(&Id::new(), &Point::origin(), true).point
+            seg.project_point(&Isometry::identity(), &Point::origin(), true).point
         } else if self.dim == 2 {
             let tri = Triangle::from_array4(&self.vertices);
-            tri.project_point(&Id::new(), &Point::origin(), true).point
+            tri.project_point(&Isometry::identity(), &Point::origin(), true).point
         } else {
             let tetr = Tetrahedron::from_array(&self.vertices);
-            tetr.project_point(&Id::new(), &Point::origin(), true).point
+            tetr.project_point(&Isometry::identity(), &Point::origin(), true).point
         }
     }
 
-    fn contains_point(&self, pt: &P) -> bool {
+    fn contains_point(&self, pt: &Point<N>) -> bool {
         for i in 0..self.dim + 1 {
             if self.vertices[i] == *pt {
                 return true;
@@ -216,6 +299,10 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
 
     fn dimension(&self) -> usize {
         self.dim
+    }
+    
+    fn prev_dimension(&self) -> usize {
+        self.prev_dim
     }
 
     fn max_sq_len(&self) -> N {
@@ -232,7 +319,7 @@ impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
         max_sq_len
     }
 
-    fn modify_pnts(&mut self, f: &Fn(&mut P)) {
+    fn modify_pnts(&mut self, f: &Fn(&mut Point<N>)) {
         for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
         }

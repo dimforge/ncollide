@@ -22,7 +22,7 @@ fn ball_uv<N: Real>(normal: &V) -> Option<Point2<V::Real>> {
 
 impl<N: Real> RayCast<P, M> for Ball<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         ball_toi_with_ray(&m.translate_point(&Point::origin()), self.radius(), ray, solid).1
     }
 
@@ -30,7 +30,7 @@ impl<N: Real> RayCast<P, M> for Ball<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let center = m.translate_point(&Point::origin());
@@ -48,7 +48,7 @@ impl<N: Real> RayCast<P, M> for Ball<N> {
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let center = m.translate_point(&Point::origin());
@@ -69,7 +69,7 @@ impl<N: Real> RayCast<P, M> for Ball<N> {
 pub fn ball_toi_with_ray<P>(
     center: &P,
     radius: N,
-    ray: &Ray<P>,
+    ray: &Ray<N>,
     solid: bool,
 ) -> (bool, Option<N>)
 where

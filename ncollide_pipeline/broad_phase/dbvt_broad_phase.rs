@@ -378,7 +378,7 @@ where
         }
     }
 
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P>, out: &mut Vec<&'a T>) {
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>) {
         let mut collector = Vec::new();
 
         {

@@ -9,7 +9,7 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 
 impl<N: Real> RayCast<P, M> for AABB<N> {
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut tmin: N = na::zero();
@@ -50,7 +50,7 @@ impl<N: Real> RayCast<P, M> for AABB<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -61,7 +61,7 @@ impl<N: Real> RayCast<P, M> for AABB<N> {
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
@@ -71,7 +71,7 @@ impl<N: Real> RayCast<P, M> for AABB<N> {
 fn do_toi_and_normal_and_uv_with_ray<M, P>(
     m: &Isometry<N>,
     aabb: &AABB<N>,
-    ray: &Ray<P>,
+    ray: &Ray<N>,
     solid: bool,
 ) -> Option<RayIntersection<Vector<N>>>
 where
@@ -113,7 +113,7 @@ where
     }
 }
 
-fn ray_aabb<P>(aabb: &AABB<N>, ray: &Ray<P>, solid: bool) -> Option<(N, Vector<N>, isize)>
+fn ray_aabb<P>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)>
 where
     N: Real,
 {

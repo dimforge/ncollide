@@ -180,7 +180,7 @@ impl<N: Real> EPA3<P> {
         simplex: &S,
     ) -> Option<(P, Unit<Vector<N>>)>
     where
-        S: Simplex<P>,
+        S: Simplex<N>,
         G: SupportMap<N>,
     {
         let _eps = N::default_epsilon();

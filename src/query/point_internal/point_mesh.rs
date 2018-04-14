@@ -12,7 +12,7 @@ where
     E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id>,
 {
     #[inline]
-    fn project_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
@@ -37,7 +37,7 @@ where
         m: &Isometry<N>,
         point: &P,
         _: bool,
-    ) -> (PointProjection<P>, PointProjectionInfo<E::Location>) {
+    ) -> (PointProjection<N>, PointProjectionInfo<E::Location>) {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = BaseMeshPointProjCostFn {
             mesh: self,
@@ -64,7 +64,7 @@ where
     N: Real,
     E: BaseMeshElement<I, P> + PointQueryWithLocation<P, Id>,
 {
-    type UserData = (PointProjection<P>, PointProjectionInfo<E::Location>);
+    type UserData = (PointProjection<N>, PointProjectionInfo<E::Location>);
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
@@ -138,14 +138,14 @@ pub struct PointProjectionInfo<C> {
 /*
  * fwd impls to exact meshes.
  */
-impl<N: Real> PointQuery<P, M> for TriMesh<P> {
+impl<N: Real> PointQuery<N> for TriMesh<P> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         self.base_mesh().project_point(m, point, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
@@ -157,15 +157,15 @@ impl<N: Real> PointQuery<P, M> for TriMesh<P> {
     }
 }
 
-impl<N: Real> PointQuery<P, M> for Polyline<P> {
+impl<N: Real> PointQuery<N> for Polyline<P> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
@@ -177,8 +177,8 @@ impl<N: Real> PointQuery<P, M> for Polyline<P> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<P, M> for Polyline<P> {
-    type Location = PointProjectionInfo<<Segment<N> as PointQueryWithLocation<P, M>>::Location>;
+impl<N: Real> PointQueryWithLocation<N> for Polyline<P> {
+    type Location = PointProjectionInfo<<Segment<N> as PointQueryWithLocation<N>>::Location>;
 
     #[inline]
     fn project_point_with_location(
@@ -186,14 +186,14 @@ impl<N: Real> PointQueryWithLocation<P, M> for Polyline<P> {
         m: &Isometry<N>,
         point: &P,
         solid: bool,
-    ) -> (PointProjection<P>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location) {
         self.base_mesh()
             .project_point_with_location(m, point, solid)
     }
 }
 
-impl<N: Real> PointQueryWithLocation<P, M> for TriMesh<P> {
-    type Location = PointProjectionInfo<<Triangle<N> as PointQueryWithLocation<P, M>>::Location>;
+impl<N: Real> PointQueryWithLocation<N> for TriMesh<P> {
+    type Location = PointProjectionInfo<<Triangle<N> as PointQueryWithLocation<N>>::Location>;
 
     #[inline]
     fn project_point_with_location(
@@ -201,7 +201,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for TriMesh<P> {
         m: &Isometry<N>,
         point: &P,
         solid: bool,
-    ) -> (PointProjection<P>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location) {
         self.base_mesh()
             .project_point_with_location(m, point, solid)
     }

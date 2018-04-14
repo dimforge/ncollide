@@ -16,11 +16,11 @@ pub fn support_map_point_projection<P, M, S, G>(
     simplex: &mut S,
     point: &P,
     solid: bool,
-) -> PointProjection<P>
+) -> PointProjection<N>
 where
     N: Real,
     M: Isometry<P>,
-    S: Simplex<P>,
+    S: Simplex<N>,
     G: SupportMap<N>,
 {
     let m = m.append_translation(&Isometry<N>::Translation::from_vector(-point.coords).unwrap());
@@ -57,9 +57,9 @@ where
     }
 }
 
-impl<N: Real> PointQuery<P, M> for Cylinder<N> {
+impl<N: Real> PointQuery<N> for Cylinder<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
@@ -76,14 +76,14 @@ impl<N: Real> PointQuery<P, M> for Cylinder<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
 
-impl<N: Real> PointQuery<P, M> for Cone<N> {
+impl<N: Real> PointQuery<N> for Cone<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
@@ -100,14 +100,14 @@ impl<N: Real> PointQuery<P, M> for Cone<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
 
-impl<N: Real> PointQuery<P, M> for ConvexHull<N> {
+impl<N: Real> PointQuery<N> for ConvexHull<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
@@ -124,7 +124,7 @@ impl<N: Real> PointQuery<P, M> for ConvexHull<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {
@@ -142,9 +142,9 @@ impl<N: Real> PointQuery<P, M> for ConvexHull<N> {
     }
 }
 
-impl<N: Real> PointQuery<P, M> for ConvexPolygon<P> {
+impl<N: Real> PointQuery<N> for ConvexPolygon<P> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
             support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
@@ -161,7 +161,7 @@ impl<N: Real> PointQuery<P, M> for ConvexPolygon<P> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {

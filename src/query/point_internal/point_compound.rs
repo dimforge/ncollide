@@ -6,10 +6,10 @@ use shape::{CompositeShape, Compound, FeatureId};
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
 
-impl<N: Real> PointQuery<P, M> for Compound<N> {
+impl<N: Real> PointQuery<N> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = CompoundPointProjCostFn {
             compound: self,
@@ -24,7 +24,7 @@ impl<N: Real> PointQuery<P, M> for Compound<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
         // XXX Properly propagate the feature id.
         unimplemented!()
         // (self.project_point(m, point), FeatureId::Unknown)
@@ -59,7 +59,7 @@ where
     N: Real,
     M: Isometry<P>,
 {
-    type UserData = PointProjection<P>;
+    type UserData = PointProjection<N>;
 
     #[inline]
     fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
@@ -67,7 +67,7 @@ where
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, PointProjection<P>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, PointProjection<N>)> {
         let mut res = None;
 
         self.compound.map_part_at(*b, &mut |_, objm, obj| {

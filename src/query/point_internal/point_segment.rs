@@ -1,31 +1,35 @@
+use na::{self, Real};
 use math::{Isometry, Point};
-use na;
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use shape::{FeatureId, Segment, SegmentPointLocation};
-use utils;
+use utils::IsometryOps;
 
-impl<N: Real> PointQuery<P, M> for Segment<N> {
+impl<N: Real> PointQuery<N> for Segment<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
             SegmentPointLocation::OnEdge(..) => {
-                if na::dimension::<Vector<N>>() == 2 {
+                #[cfg(feature = "dim2")]
+                {
                     let dir = self.scaled_direction();
                     let dpt = *pt - proj.point;
-                    if utils::perp2(&dpt, &dir) >= na::zero() {
+                    if dpt.perp(&dir) >= na::zero() {
                         FeatureId::Face(0)
                     } else {
                         FeatureId::Face(1)
                     }
-                } else {
+                }
+                
+                #[cfg(feature = "dim3")]
+                {
                     FeatureId::Edge(0)
                 }
             }
@@ -38,16 +42,16 @@ impl<N: Real> PointQuery<P, M> for Segment<N> {
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
 
-impl<N: Real> PointQueryWithLocation<P, M> for Segment<N> {
+impl<N: Real> PointQueryWithLocation<N> for Segment<N> {
     type Location = SegmentPointLocation<N>;
 
     #[inline]
     fn project_point_with_location(
         &self,
         m: &Isometry<N>,
-        pt: &P,
+        pt: &Point<N>,
         _: bool,
-    ) -> (PointProjection<P>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(pt);
         let ab = *self.b() - *self.a();
         let ap = ls_pt - *self.a();
@@ -61,11 +65,11 @@ impl<N: Real> PointQueryWithLocation<P, M> for Segment<N> {
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
             location = SegmentPointLocation::OnVertex(0);
-            proj = m.transform_point(self.a());
+            proj = m * self.a();
         } else if ab_ap >= sqnab {
             // Voronoï region of vertex 'b'.
             location = SegmentPointLocation::OnVertex(1);
-            proj = m.transform_point(self.b());
+            proj = m * self.b();
         } else {
             assert!(sqnab != na::zero());
 
@@ -73,9 +77,8 @@ impl<N: Real> PointQueryWithLocation<P, M> for Segment<N> {
             let u = ab_ap / sqnab;
             let bcoords = [_1 - u, u];
             location = SegmentPointLocation::OnEdge(bcoords);
-            proj = *self.a();
-            proj.axpy(bcoords[1], self.b(), bcoords[0]);
-            proj = m.transform_point(&proj);
+            proj = *self.a() + ab * u;
+            proj = m * proj;
         }
 
         // FIXME: is this acceptable?

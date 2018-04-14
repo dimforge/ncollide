@@ -7,7 +7,7 @@ use math::{Isometry, Point};
 
 // XXX: if solid == false, this might return internal intersection.
 impl<N: Real> RayCast<P, M> for Compound<N> {
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = CompoundRayToiCostFn {
@@ -24,7 +24,7 @@ impl<N: Real> RayCast<P, M> for Compound<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -52,7 +52,7 @@ impl<N: Real> RayCast<P, M> for Compound<N> {
  */
 struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<N>,
-    ray: &'a Ray<P>,
+    ray: &'a Ray<N>,
     solid: bool,
 }
 
@@ -78,7 +78,7 @@ where
 
 struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
     compound: &'a Compound<N>,
-    ray: &'a Ray<P>,
+    ray: &'a Ray<N>,
     solid: bool,
 }
 

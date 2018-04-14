@@ -32,7 +32,7 @@ impl<N: Real> Triangle<N> {
         }
     }
 
-    pub fn circumcircle_contains_point(&self, pt: &P) -> bool {
+    pub fn circumcircle_contains_point(&self, pt: &Point<N>) -> bool {
         na::distance_squared(pt, &self.circumcircle_center) <= self.circumcircle_sq_radius
     }
 }
@@ -107,7 +107,7 @@ impl<N: Real> Triangulator<P> {
         TriMesh::new(self.vertices, None, None, Some(IndexBuffer::Unified(idx)))
     }
 
-    fn remove_containing_triangles_and_register_edges(&mut self, pt: &P) {
+    fn remove_containing_triangles_and_register_edges(&mut self, pt: &Point<N>) {
         self.edges.clear();
 
         let mut i = 0;

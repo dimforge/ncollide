@@ -64,7 +64,7 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
 where
     N: Real,
     M: Isometry<P>,
-    S: Simplex<P>,
+    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

@@ -274,7 +274,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     #[inline]
     pub fn interferences_with_ray<'a, 'b>(
         &'a self,
-        ray: &'b Ray<P>,
+        ray: &'b Ray<N>,
         groups: &'b CollisionGroups,
     ) -> InterferencesWithRay<'a, 'b, P, M, T> {
         // FIXME: avoid allocation.
@@ -356,7 +356,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
 
 /// Iterator through all the objects on the world that intersect a specific ray.
 pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
-    ray: &'b Ray<P>,
+    ray: &'b Ray<N>,
     objects: &'a CollisionObjectSlab<P, M, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,

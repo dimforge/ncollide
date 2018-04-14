@@ -115,7 +115,7 @@ pub fn project_origin<P, M, S, G>(m: &Isometry<N>, g: &G, simplex: &mut S) -> Op
 where
     N: Real,
     M: Isometry<P>,
-    S: Simplex<P>,
+    S: Simplex<N>,
     G: SupportMap<N>,
 {
     // find an approximation of the smallest penetration direction

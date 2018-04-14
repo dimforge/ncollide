@@ -52,7 +52,7 @@ pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>);
 
     /// Collects every object which might intersect a given ray.
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<P>, out: &mut Vec<&'a T>);
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>);
 
     /// Collects every object which might contain a given point.
     fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a T>);

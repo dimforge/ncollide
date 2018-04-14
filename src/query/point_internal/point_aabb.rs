@@ -6,7 +6,7 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 
 impl<N: Real> AABB<N> {
-    fn local_point_projection<M>(&self, m: &Isometry<N>, pt: &P, solid: bool) -> (bool, P, Vector<N>)
+    fn local_point_projection<M>(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> (bool, P, Vector<N>)
     where
         M: Isometry<P>,
     {
@@ -54,15 +54,15 @@ impl<N: Real> AABB<N> {
     }
 }
 
-impl<N: Real> PointQuery<P, M> for AABB<N> {
+impl<N: Real> PointQuery<N> for AABB<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (inside, ls_pt, _) = self.local_point_projection(m, pt, solid);
         PointProjection::new(inside, m.transform_point(&ls_pt))
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
         let proj = PointProjection::new(inside, m.transform_point(&ls_pt));
         let dim = na::dimension::<Vector<N>>();
@@ -110,7 +110,7 @@ impl<N: Real> PointQuery<P, M> for AABB<N> {
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> N {
+    fn distance_to_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -125,7 +125,7 @@ impl<N: Real> PointQuery<P, M> for AABB<N> {
     }
 
     #[inline]
-    fn contains_point(&self, m: &Isometry<N>, pt: &P) -> bool {
+    fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(pt).coords;
 
         for i in 0..na::dimension::<Vector<N>>() {

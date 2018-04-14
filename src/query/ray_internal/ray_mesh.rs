@@ -19,7 +19,7 @@ where
     E: BaseMeshElement<I, P> + RayCast<P, Id>,
 {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, _: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = BaseMeshRayToiCostFn {
@@ -36,7 +36,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         _: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -57,7 +57,7 @@ where
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         if self.uvs().is_none() || na::dimension::<Vector<N>>() != 3 {
@@ -136,7 +136,7 @@ where
  */
 struct BaseMeshRayToiCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     mesh: &'a BaseMesh<P, I, E>,
-    ray: &'a Ray<P>,
+    ray: &'a Ray<N>,
 }
 
 impl<'a, P, I, E> BVTCostFn<N, usize, AABB<N>> for BaseMeshRayToiCostFn<'a, P, I, E>
@@ -162,7 +162,7 @@ where
 
 struct BaseMeshRayToiAndNormalCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     mesh: &'a BaseMesh<P, I, E>,
-    ray: &'a Ray<P>,
+    ray: &'a Ray<N>,
 }
 
 impl<'a, P, I, E> BVTCostFn<N, usize, AABB<N>> for BaseMeshRayToiAndNormalCostFn<'a, P, I, E>
@@ -188,7 +188,7 @@ where
 
 struct BaseMeshRayToiAndNormalAndUVsCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
     mesh: &'a BaseMesh<P, I, E>,
-    ray: &'a Ray<P>,
+    ray: &'a Ray<N>,
 }
 
 impl<'a, P, I, E> BVTCostFn<N, usize, AABB<N>>
@@ -226,7 +226,7 @@ where
  */
 impl<N: Real> RayCast<P, M> for TriMesh<P> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         self.base_mesh().toi_with_ray(m, ray, solid)
     }
 
@@ -234,7 +234,7 @@ impl<N: Real> RayCast<P, M> for TriMesh<P> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         self.base_mesh().toi_and_normal_with_ray(m, ray, solid)
@@ -244,7 +244,7 @@ impl<N: Real> RayCast<P, M> for TriMesh<P> {
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         self.base_mesh()
@@ -254,7 +254,7 @@ impl<N: Real> RayCast<P, M> for TriMesh<P> {
 
 impl<N: Real> RayCast<P, M> for Polyline<P> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         self.base_mesh().toi_with_ray(m, ray, solid)
     }
 
@@ -262,7 +262,7 @@ impl<N: Real> RayCast<P, M> for Polyline<P> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         self.base_mesh().toi_and_normal_with_ray(m, ray, solid)
@@ -272,7 +272,7 @@ impl<N: Real> RayCast<P, M> for Polyline<P> {
     fn toi_and_normal_and_uv_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         self.base_mesh()

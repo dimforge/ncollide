@@ -1,19 +1,18 @@
-use num::Bounded;
-use na;
-use shape::{FeatureId, Tetrahedron, TetrahedronPointLocation, TrianglePointLocation};
+use na::{self, Real};
+use shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use math::{Isometry, Point};
-use utils;
+use math::{Isometry, Point, Vector};
+use utils::IsometryOps;
 
-impl<N: Real> PointQuery<P, M> for Tetrahedron<N> {
+impl<N: Real> PointQuery<N> for Tetrahedron<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -26,16 +25,16 @@ impl<N: Real> PointQuery<P, M> for Tetrahedron<N> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
+impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
     type Location = TetrahedronPointLocation<N>;
 
     #[inline]
     fn project_point_with_location(
         &self,
         m: &Isometry<N>,
-        pt: &P,
+        pt: &Point<N>,
         solid: bool,
-    ) -> (PointProjection<P>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location) {
         let p = m.inverse_transform_point(pt);
 
         let ab = *self.b() - *self.a();
@@ -54,7 +53,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
 
         if ap_ab <= _0 && ap_ac <= _0 && ap_ad <= _0 {
             // Voronoï region of `a`.
-            let proj = PointProjection::new(false, m.transform_point(self.a()));
+            let proj = PointProjection::new(false, m * self.a());
             return (proj, TetrahedronPointLocation::OnVertex(0));
         }
 
@@ -68,7 +67,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
 
         if bp_bc <= _0 && bp_bd <= _0 && bp_ab >= _0 {
             // Voronoï region of `b`.
-            let proj = PointProjection::new(false, m.transform_point(self.b()));
+            let proj = PointProjection::new(false, m * self.b());
             return (proj, TetrahedronPointLocation::OnVertex(1));
         }
 
@@ -81,7 +80,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
 
         if cp_cd <= _0 && cp_bc >= _0 && cp_ac >= _0 {
             // Voronoï region of `c`.
-            let proj = PointProjection::new(false, m.transform_point(self.c()));
+            let proj = PointProjection::new(false, m * self.c());
             return (proj, TetrahedronPointLocation::OnVertex(2));
         }
 
@@ -93,7 +92,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
 
         if dp_ad >= _0 && dp_bd >= _0 && dp_cd >= _0 {
             // Voronoï region of `d`.
-            let proj = PointProjection::new(false, m.transform_point(self.d()));
+            let proj = PointProjection::new(false, m * self.d());
             return (proj, TetrahedronPointLocation::OnVertex(3));
         }
 
@@ -101,11 +100,11 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
          * Voronoï regions of edges.
          */
         #[inline(always)]
-        fn check_edge<P, M>(
+        fn check_edge<N: Real>(
             i: usize,
             m: &Isometry<N>,
-            a: &P,
-            b: &P,
+            a: &Point<N>,
+            _: &Point<N>,
             nabc: &Vector<N>,
             nabd: &Vector<N>,
             ap: &Vector<N>,
@@ -115,12 +114,8 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
         ) -> (
             N,
             N,
-            Option<(PointProjection<P>, TetrahedronPointLocation<N>)>,
-        )
-        where
-            N: Real,
-            M: Isometry<P>,
-        {
+            Option<(PointProjection<N>, TetrahedronPointLocation<N>)>,
+        ) {
             let _0: N = na::zero();
             let _1: N = na::one();
 
@@ -132,7 +127,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
             // let dabc  = ap_ab * (ap_ac - bp_ac) - ap_ac * ab_ab;
             // let dabd  = ap_ab * (ap_ad - bp_ad) - ap_ad * ab_ab;
 
-            let ap_x_ab = utils::cross3(ap, ab);
+            let ap_x_ab = ap.cross(ab);
             let dabc = na::dot(&ap_x_ab, nabc);
             let dabd = na::dot(&ap_x_ab, nabd);
 
@@ -141,9 +136,8 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
                 // Voronoi region of `ab`.
                 let u = ap_ab / ab_ab;
                 let bcoords = [_1 - u, u];
-                let mut res = *a;
-                res.axpy(bcoords[1], b, bcoords[0]);
-                let proj = PointProjection::new(false, m.transform_point(&res));
+                let res = a + ab * u;
+                let proj = PointProjection::new(false, m * res);
                 (
                     dabc,
                     dabd,
@@ -157,8 +151,8 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
         // Voronoï region of ab.
         //            let bp_ad = bp_bd + bp_ab;
         //            let bp_ac = bp_bc + bp_ab;
-        let nabc = utils::cross3(&ab, &ac);
-        let nabd = utils::cross3(&ab, &ad);
+        let nabc = ab.cross(&ac);
+        let nabd = ab.cross(&ad);
         let (dabc, dabd, res) = check_edge(
             0,
             m,
@@ -182,7 +176,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
         //   d -> b
         //            let cp_ab = cp_ac - cp_bc;
         //            let cp_ad = cp_cd + cp_ac;
-        let nacd = utils::cross3(&ac, &ad);
+        let nacd = ac.cross(&ad);
         let (dacd, dacb, res) = check_edge(
             1,
             m,
@@ -228,7 +222,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
         //   b -> c
         //   c -> a
         //            let cp_bd = cp_cd + cp_bc;
-        let nbcd = utils::cross3(&bc, &bd);
+        let nbcd = bc.cross(&bd);
         // NOTE: nabc = nbcd
         let (dbca, dbcd, res) = check_edge(
             3,
@@ -299,11 +293,11 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
          * Voronoï regions of faces.
          */
         #[inline(always)]
-        fn check_face<P, M>(
+        fn check_face<N: Real>(
             i: usize,
-            a: &P,
-            b: &P,
-            c: &P,
+            a: &Point<N>,
+            b: &Point<N>,
+            c: &Point<N>,
             m: &Isometry<N>,
             ap: &Vector<N>,
             bp: &Vector<N>,
@@ -316,16 +310,12 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
             dacb: N,
             /* ap_ab: N, bp_ab: N, cp_ab: N,
                                    ap_ac: N, bp_ac: N, cp_ac: N, */
-        ) -> Option<(PointProjection<P>, TetrahedronPointLocation<N>)>
-        where
-            N: Real,
-            M: Isometry<P>,
-        {
+        ) -> Option<(PointProjection<N>, TetrahedronPointLocation<N>)> {
             let _0: N = na::zero();
             let _1: N = na::one();
 
             if dabc < _0 && dbca < _0 && dacb < _0 {
-                let n = utils::cross3(ab, ac); // FIXME: is is possible to avoid this cross product?
+                let n = ab.cross(ac); // FIXME: is is possible to avoid this cross product?
                 if na::dot(&n, ad) * na::dot(&n, ap) < _0 {
                     // Voronoï region of the face.
 
@@ -338,19 +328,17 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
                     // let vc = ap_ab * bp_ac - bp_ab * ap_ac;
 
                     let normal = na::normalize(&n);
-                    let vc = na::dot(&normal, &utils::cross3(&ap, &bp));
-                    let va = na::dot(&normal, &utils::cross3(&bp, &cp));
-                    let vb = na::dot(&normal, &utils::cross3(&cp, &ap));
+                    let vc = na::dot(&normal, &ap.cross(bp));
+                    let va = na::dot(&normal, &bp.cross(cp));
+                    let vb = na::dot(&normal, &cp.cross(ap));
 
                     let denom = va + vb + vc;
                     assert!(denom != _0);
                     let inv_denom = _1 / denom;
 
                     let bcoords = [va * inv_denom, vb * inv_denom, vc * inv_denom];
-                    let mut res = *a;
-                    res.axpy(bcoords[1], b, bcoords[0]);
-                    res.axpy(bcoords[2], c, _1);
-                    let proj = PointProjection::new(false, m.transform_point(&res));
+                    let res = a * bcoords[0] + b.coords * bcoords[1] + c.coords * bcoords[2];
+                    let proj = PointProjection::new(false, m * res);
 
                     return Some((proj, TetrahedronPointLocation::OnFace(i, bcoords)));
                 }
@@ -449,7 +437,7 @@ impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
             unimplemented!("Non-solid ray-cast on a tetrahedron is not yet implemented.")
         }
 
-        let proj = PointProjection::new(true, m.transform_point(&p));
+        let proj = PointProjection::new(true, m * p);
         return (proj, TetrahedronPointLocation::OnSolid);
     }
 }

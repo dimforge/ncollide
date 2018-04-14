@@ -123,11 +123,11 @@ where
     }
 }
 
-impl<P> DefaultGen for Ray<P>
+impl<P> DefaultGen for Ray<N>
 where
     N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> Ray<P> {
+    fn generate<R: Rng>(rng: &mut R) -> Ray<N> {
         // The generate ray will always point to the origin.
         let shift = rng.gen::<Vector<N>>() * na::convert(10.0f64);
         Ray::new(Point::origin() + shift, -shift)

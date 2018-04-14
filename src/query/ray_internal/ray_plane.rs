@@ -21,7 +21,7 @@ pub fn plane_toi_with_line<N: Real>(
 pub fn plane_toi_with_ray<N: Real>(
     center: &P,
     normal: &Vector<N>,
-    ray: &Ray<P>,
+    ray: &Ray<N>,
 ) -> Option<N> {
     let t = plane_toi_with_line(center, normal, &ray.origin, &ray.dir);
     if t >= na::zero() {
@@ -36,7 +36,7 @@ impl<N: Real> RayCast<P, M> for Plane<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);

@@ -4,9 +4,9 @@ use shape::{Capsule, FeatureId, Segment};
 use query::{PointProjection, PointQuery};
 use math::{Isometry, Point};
 
-impl<N: Real> PointQuery<P, M> for Capsule<N> {
+impl<N: Real> PointQuery<N> for Capsule<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let mut y = Point::origin();
         y[1] = self.half_height();
         let seg = Segment::new(-y, y);
@@ -33,7 +33,7 @@ impl<N: Real> PointQuery<P, M> for Capsule<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

@@ -16,7 +16,7 @@ impl<N: Real> RayCast<P, M> for Triangle<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -48,7 +48,7 @@ pub fn triangle_ray_intersection<N: Real>(
     a: &P,
     b: &P,
     c: &P,
-    ray: &Ray<P>,
+    ray: &Ray<N>,
 ) -> Option<(RayIntersection<Vector<N>>, Vector3<N>)> {
     let ab = *b - *a;
     let ac = *c - *a;

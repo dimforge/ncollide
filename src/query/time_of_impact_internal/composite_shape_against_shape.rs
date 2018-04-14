@@ -45,7 +45,7 @@ where
 struct CompositeShapeAgainstAnyTOICostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
-    ray: Ray<P>,
+    ray: Ray<N>,
 
     m1: &'a M,
     vel1: &'a Vector<N>,

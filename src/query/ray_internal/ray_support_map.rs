@@ -14,13 +14,13 @@ pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(
     m: &Isometry<N>,
     shape: &G,
     simplex: &mut S,
-    ray: &Ray<P>,
+    ray: &Ray<N>,
     solid: bool,
 ) -> Option<RayIntersection<Vector<N>>>
 where
     N: Real,
     M: Isometry<P>,
-    S: Simplex<P>,
+    S: Simplex<N>,
     G: SupportMap<N>,
 {
     let inter = gjk::cast_ray(m, shape, simplex, ray);
@@ -59,7 +59,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -109,7 +109,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -159,7 +159,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -209,7 +209,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -259,7 +259,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -309,7 +309,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         // XXX: optimize if na::dimension::<P>() == 2
@@ -362,7 +362,7 @@ where
     fn toi_and_normal_with_ray(
         &self,
         m: &M2,
-        ray: &Ray<P>,
+        ray: &Ray<N>,
         solid: bool,
     ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);

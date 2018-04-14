@@ -373,7 +373,7 @@ impl<N: Real> JohnsonSimplex<P> {
     }
 }
 
-impl<N: Real> Simplex<P> for JohnsonSimplex<P> {
+impl<N: Real> Simplex<N> for JohnsonSimplex<P> {
     #[inline]
     fn reset(&mut self, pt: Point<N>) {
         self.points.clear();
@@ -401,7 +401,7 @@ impl<N: Real> Simplex<P> for JohnsonSimplex<P> {
     }
 
     #[inline]
-    fn contains_point(&self, pt: &P) -> bool {
+    fn contains_point(&self, pt: &Point<N>) -> bool {
         self.points.iter().any(|v| pt == v)
     }
 
