@@ -2,7 +2,7 @@ use std::ops::{Mul, Add};
 use num::Zero;
 use na::{Outer, EigenQR, Translate };
 use na;
-use geometry::shape::MinkowskiSum;
+use shape::MinkowskiSum;
 use procedural::TriMesh;
 use super::ToTriMesh;
 use math::{Point, Vector};

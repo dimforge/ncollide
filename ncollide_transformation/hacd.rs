@@ -9,11 +9,11 @@ use na::{Point3, Translation3, Vector2, Vector3};
 use na;
 
 use utils;
-use geometry::shape::SupportMap;
-use geometry::bounding_volume::{self, BoundingVolume, AABB};
-use geometry::partitioning::{BoundingVolumeInterferencesCollector, BVT};
-use geometry::query::algorithms::VoronoiSimplex3;
-use geometry::query::{ray_internal, Ray, RayCast, RayIntersection};
+use shape::SupportMap;
+use bounding_volume::{self, BoundingVolume, AABB};
+use partitioning::{BoundingVolumeInterferencesCollector, BVT};
+use query::algorithms::VoronoiSimplex3;
+use query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{IndexBuffer, TriMesh};
 
 /// Approximate convex decomposition of a triangle mesh.

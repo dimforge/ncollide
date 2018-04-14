@@ -2,37 +2,37 @@ use std::mem;
 use std::vec::IntoIter;
 
 use math::{Isometry, Point};
-use geometry::bounding_volume::{self, BoundingVolume, AABB};
-use geometry::shape::ShapeHandle;
-use geometry::query::{PointQuery, Ray, RayCast, RayIntersection};
-use narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
+use bounding_volume::{self, BoundingVolume, AABB};
+use shape::ShapeHandle;
+use query::{PointQuery, Ray, RayCast, RayIntersection};
+use pipeline::narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
                    DefaultProximityDispatcher, NarrowPhase, ProximityPairs, NAVOID};
 use broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase,
                   ProxyHandle};
-use world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
+use pipeline::world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
             CollisionObjectSlab, CollisionObjects, GeometricQueryType};
 use events::{ContactEvent, ContactEvents, ProximityEvents};
 
 /// Type of the narrow phase trait-object used by the collision world.
-pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
+pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
 /// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<N>, CollisionObjectHandle>>;
 
 /// A world that handles collision objects.
 pub struct CollisionWorld<N: Real, T> {
-    objects: CollisionObjectSlab<P, M, T>,
+    objects: CollisionObjectSlab<N, T>,
     broad_phase: BroadPhaseObject<P>,
-    narrow_phase: Box<NarrowPhase<P, M, T>>,
+    narrow_phase: Box<NarrowPhase<N, T>>,
     contact_events: ContactEvents,
     proximity_events: ProximityEvents,
-    pair_filters: BroadPhasePairFilters<P, M, T>,
+    pair_filters: BroadPhasePairFilters<N, T>,
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
-impl<N: Real, T> CollisionWorld<P, M, T> {
+impl<N: Real, T> CollisionWorld<N, T> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
-    pub fn new(margin: N) -> CollisionWorld<P, M, T> {
+    pub fn new(margin: N) -> CollisionWorld<N, T> {
         let objects = CollisionObjectSlab::new();
         let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
@@ -159,7 +159,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
     where
-        F: BroadPhasePairFilter<P, M, T>,
+        F: BroadPhasePairFilter<N, T>,
     {
         self.pair_filters
             .register_collision_filter(name, Box::new(filter));
@@ -218,8 +218,8 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     /// contacts.
     pub fn set_narrow_phase(
         &mut self,
-        narrow_phase: Box<NarrowPhase<P, M, T>>,
-    ) -> Box<NarrowPhase<P, M, T>> {
+        narrow_phase: Box<NarrowPhase<N, T>>,
+    ) -> Box<NarrowPhase<N, T>> {
         let old = mem::replace(&mut self.narrow_phase, narrow_phase);
         self.broad_phase.deferred_recompute_all_proximities();
 
@@ -228,19 +228,19 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
 
     /// Iterates through all the contact pairs detected since the last update.
     #[inline]
-    pub fn contact_pairs(&self) -> ContactPairs<P, M, T> {
+    pub fn contact_pairs(&self) -> ContactPairs<N, T> {
         self.narrow_phase.contact_pairs(&self.objects)
     }
 
     /// Iterates through all the proximity pairs detected since the last update.
     #[inline]
-    pub fn proximity_pairs(&self) -> ProximityPairs<P, M, T> {
+    pub fn proximity_pairs(&self) -> ProximityPairs<N, T> {
         self.narrow_phase.proximity_pairs(&self.objects)
     }
 
     /// Iterates through every contact detected since the last update.
     #[inline]
-    pub fn contact_manifolds(&self) -> ContactManifolds<P, M, T> {
+    pub fn contact_manifolds(&self) -> ContactManifolds<N, T> {
         self.narrow_phase
             .contact_pairs(&self.objects)
             .contact_manifolds()
@@ -248,7 +248,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
 
     /// Iterates through all collision objects.
     #[inline]
-    pub fn collision_objects(&self) -> CollisionObjects<P, M, T> {
+    pub fn collision_objects(&self) -> CollisionObjects<N, T> {
         self.objects.iter()
     }
 
@@ -257,7 +257,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     pub fn collision_object(
         &self,
         handle: CollisionObjectHandle,
-    ) -> Option<&CollisionObject<P, M, T>> {
+    ) -> Option<&CollisionObject<N, T>> {
         self.objects.get(handle)
     }
 
@@ -266,7 +266,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     pub fn collision_object_mut(
         &mut self,
         handle: CollisionObjectHandle,
-    ) -> Option<&mut CollisionObject<P, M, T>> {
+    ) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle)
     }
 
@@ -276,7 +276,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
         &'a self,
         ray: &'b Ray<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithRay<'a, 'b, P, M, T> {
+    ) -> InterferencesWithRay<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase.interferences_with_ray(ray, &mut handles);
@@ -295,7 +295,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
         &'a self,
         point: &'b P,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithPoint<'a, 'b, P, M, T> {
+    ) -> InterferencesWithPoint<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -315,7 +315,7 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
         &'a self,
         aabb: &'b AABB<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithAABB<'a, 'b, P, M, T> {
+    ) -> InterferencesWithAABB<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -341,8 +341,8 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
     // Filters by group and by the user-provided callback.
     #[inline]
     fn filter_collision(
-        filters: &BroadPhasePairFilters<P, M, T>,
-        objects: &CollisionObjectSlab<P, M, T>,
+        filters: &BroadPhasePairFilters<N, T>,
+        objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
     ) -> bool {
@@ -357,13 +357,13 @@ impl<N: Real, T> CollisionWorld<P, M, T> {
 /// Iterator through all the objects on the world that intersect a specific ray.
 pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     ray: &'b Ray<N>,
-    objects: &'a CollisionObjectSlab<P, M, T>,
+    objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
-    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<N>);
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
+    type Item = (&'a CollisionObject<N, T>, RayIntersection<N>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -387,13 +387,13 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
 /// Iterator through all the objects on the world that intersect a specific point.
 pub struct InterferencesWithPoint<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
     point: &'b P,
-    objects: &'a CollisionObjectSlab<P, M, T>,
+    objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, P, M, T> {
-    type Item = &'a CollisionObject<P, M, T>;
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
+    type Item = &'a CollisionObject<N, T>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -413,13 +413,13 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, P, M, T> {
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
 pub struct InterferencesWithAABB<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
-    objects: &'a CollisionObjectSlab<P, M, T>,
+    objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
-    type Item = &'a CollisionObject<P, M, T>;
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
+    type Item = &'a CollisionObject<N, T>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {

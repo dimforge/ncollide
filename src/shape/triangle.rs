@@ -206,9 +206,9 @@ impl<N: Real> SupportMap<N> for Triangle<N> {
 //         let normal = self.scaled_normal();
 
 //         if na::dot(&normal, &*dir) >= na::zero() {
-//             ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(0), face);
+//             ConvexPolyhedron::<N>::face(self, FeatureId::Face(0), face);
 //         } else {
-//             ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(1), face);
+//             ConvexPolyhedron::<N>::face(self, FeatureId::Face(1), face);
 //         }
 //         face.transform_by(m)
 //     }

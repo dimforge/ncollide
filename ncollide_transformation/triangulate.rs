@@ -8,7 +8,7 @@ use na::Point3;
 use na;
 use math::Point;
 use utils;
-use geometry::bounding_volume;
+use bounding_volume;
 use procedural::{IndexBuffer, TriMesh};
 
 struct Triangle<N: Real> {

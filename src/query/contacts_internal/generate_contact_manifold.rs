@@ -1,9 +1,9 @@
 use std::intrinsics::TypeId;
 use std::any::Any;
 use na::{Translate, Cross, Rotation};
-use geometry::{Contact, ContactPrediction};
+use {Contact, ContactPrediction};
 use shape::Ball;
-use narrow_phase::{CollisionDetector, OneShotContactManifoldGenerator};
+use pipeline::narrow_phase::{CollisionDetector, OneShotContactManifoldGenerator};
 use math::{Scalar, Point, Vector, Isometry};
 
 /// Generates a contact manifold from an existing single-contact generator.

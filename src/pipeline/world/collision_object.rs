@@ -3,10 +3,10 @@ use slab::{Iter, Slab};
 
 use alga::general::Real;
 
-use geometry::shape::ShapeHandle;
-use geometry::query::ContactPrediction;
-use broad_phase::ProxyHandle;
-use world::CollisionGroups;
+use shape::ShapeHandle;
+use query::ContactPrediction;
+use pipeline::broad_phase::ProxyHandle;
+use pipeline::world::CollisionGroups;
 use math::{Point, Isometry};
 
 /// The kind of query a CollisionObject may be involved on.
@@ -77,7 +77,7 @@ impl<N: Real> GeometricQueryType<N> {
 pub struct CollisionObject<N: Real, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
-    position: M,
+    position: Isometry<N>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
     query_type: GeometricQueryType<N>,
@@ -87,17 +87,17 @@ pub struct CollisionObject<N: Real, T> {
     pub(crate) timestamp: usize,
 }
 
-impl<N: Real, T> CollisionObject<P, M, T> {
+impl<N: Real, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
         handle: CollisionObjectHandle,
         proxy_handle: ProxyHandle,
-        position: M,
+        position: Isometry<N>,
         shape: ShapeHandle<N>,
         groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObject<P, M, T> {
+    ) -> CollisionObject<N, T> {
         CollisionObject {
             handle: handle,
             proxy_handle: proxy_handle,
@@ -141,7 +141,7 @@ impl<N: Real, T> CollisionObject<P, M, T> {
 
     /// Sets the position of the collision object.
     #[inline]
-    pub fn set_position(&mut self, pos: M) {
+    pub fn set_position(&mut self, pos: Isometry<N>) {
         self.position = pos
     }
 
@@ -200,12 +200,12 @@ impl CollisionObjectHandle {
 
 /// A set of collision objects that can be indexed by collision object handles.
 pub struct CollisionObjectSlab<N: Real, T> {
-    objects: Slab<CollisionObject<P, M, T>>,
+    objects: Slab<CollisionObject<N, T>>,
 }
 
-impl<N: Real, T> CollisionObjectSlab<P, M, T> {
+impl<N: Real, T> CollisionObjectSlab<N, T> {
     /// Creates a new empty collecton of collision objects.
-    pub fn new() -> CollisionObjectSlab<P, M, T> {
+    pub fn new() -> CollisionObjectSlab<N, T> {
         CollisionObjectSlab {
             objects: Slab::new(),
         }
@@ -213,7 +213,7 @@ impl<N: Real, T> CollisionObjectSlab<P, M, T> {
 
     /// Inserts a new collision object into this collection and returns the corresponding handle.
     #[inline]
-    pub fn insert(&mut self, co: CollisionObject<P, M, T>) -> CollisionObjectHandle {
+    pub fn insert(&mut self, co: CollisionObject<N, T>) -> CollisionObjectHandle {
         CollisionObjectHandle(self.objects.insert(co))
     }
 
@@ -221,13 +221,13 @@ impl<N: Real, T> CollisionObjectSlab<P, M, T> {
     /// 
     /// The removed collision object structure is returned.
     #[inline]
-    pub fn remove(&mut self, handle: CollisionObjectHandle) -> CollisionObject<P, M, T> {
+    pub fn remove(&mut self, handle: CollisionObjectHandle) -> CollisionObject<N, T> {
         self.objects.remove(handle.0)
     }
 
     /// If it exists, retrieves a reference to the collision object identified by the given handle.
     #[inline]
-    pub fn get(&self, handle: CollisionObjectHandle) -> Option<&CollisionObject<P, M, T>> {
+    pub fn get(&self, handle: CollisionObjectHandle) -> Option<&CollisionObject<N, T>> {
         self.objects.get(handle.0)
     }
 
@@ -236,7 +236,7 @@ impl<N: Real, T> CollisionObjectSlab<P, M, T> {
     pub fn get_mut(
         &mut self,
         handle: CollisionObjectHandle,
-    ) -> Option<&mut CollisionObject<P, M, T>> {
+    ) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle.0)
     }
 
@@ -248,15 +248,15 @@ impl<N: Real, T> CollisionObjectSlab<P, M, T> {
 
     /// Retrieves an iterator yielding references to each collision object.
     #[inline]
-    pub fn iter(&self) -> CollisionObjects<P, M, T> {
+    pub fn iter(&self) -> CollisionObjects<N, T> {
         CollisionObjects {
             iter: self.objects.iter(),
         }
     }
 }
 
-impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
-    type Output = CollisionObject<P, M, T>;
+impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
+    type Output = CollisionObject<N, T>;
 
     #[inline]
     fn index(&self, handle: CollisionObjectHandle) -> &Self::Output {
@@ -264,7 +264,7 @@ impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
     }
 }
 
-impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
+impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
     #[inline]
     fn index_mut(&mut self, handle: CollisionObjectHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]
@@ -272,12 +272,12 @@ impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T
 }
 
 /// An iterator yielding references to collision objects.
-pub struct CollisionObjects<'a, P: 'a + Point, M: 'a+ Isometry<P>, T: 'a> {
-    iter: Iter<'a, CollisionObject<P, M, T>>,
+pub struct CollisionObjects<'a, N: 'a + Real, T: 'a> {
+    iter: Iter<'a, CollisionObject<N, T>>,
 }
 
-impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> Iterator for CollisionObjects<'a, P, M, T> {
-    type Item = &'a CollisionObject<P, M, T>;
+impl<'a, N: 'a + Real, T: 'a> Iterator for CollisionObjects<'a, N, T> {
+    type Item = &'a CollisionObject<N, T>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {

@@ -1,6 +1,6 @@
 use alga::general::Real;
 use na::Point2;
-use geometry::shape::Triangle2;
+use shape::Triangle2;
 use procedural::{Polyline, Polyline2};
 use super::ToPolyline;
 

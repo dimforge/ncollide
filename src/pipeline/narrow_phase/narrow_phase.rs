@@ -1,11 +1,11 @@
 use std::any::Any;
 use std::collections::hash_map::Iter;
-
-use utils::data::SortedPair;
-use geometry::query::ContactManifold;
-use narrow_phase::{ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector};
-use events::{ContactEvents, ProximityEvents};
-use world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
+use na::Real;
+use utils::SortedPair;
+use query::ContactManifold;
+use pipeline::narrow_phase::{ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector};
+use pipeline::events::{ContactEvents, ProximityEvents};
+use pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
 use math::{Point, Isometry};
 
 /// Trait implemented by the narrow phase manager.
@@ -16,7 +16,7 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
     /// Updates this narrow phase.
     fn update(
         &mut self,
-        objects: &CollisionObjectSlab<P, M, T>,
+        objects: &CollisionObjectSlab<N, T>,
         contact_events: &mut ContactEvents,
         proximity_events: &mut ProximityEvents,
         timestamp: usize,
@@ -27,7 +27,7 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
         &mut self,
         contact_signal: &mut ContactEvents,
         proximity_signal: &mut ProximityEvents,
-        objects: &CollisionObjectSlab<P, M, T>,
+        objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
         started: bool,
@@ -38,7 +38,7 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
     /// While either `objects[handle1]` or `objects[handle2]` is being removed, the `handle_removal` is assumed to be called before the removal from the list `objects` is done.
     fn handle_removal(
         &mut self,
-        objects: &CollisionObjectSlab<P, M, T>,
+        objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
     );
@@ -48,30 +48,30 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
     /// narrow phase.
     fn contact_pairs<'a>(
         &'a self,
-        objects: &'a CollisionObjectSlab<P, M, T>,
-    ) -> ContactPairs<'a, P, M, T>;
+        objects: &'a CollisionObjectSlab<N, T>,
+    ) -> ContactPairs<'a, N, T>;
 
     /// Returns all the potential proximity pairs found during the broad phase, and validated by
     /// the narrow phase.
     fn proximity_pairs<'a>(
         &'a self,
-        objects: &'a CollisionObjectSlab<P, M, T>,
-    ) -> ProximityPairs<'a, P, M, T>;
+        objects: &'a CollisionObjectSlab<N, T>,
+    ) -> ProximityPairs<'a, N, T>;
 }
 
 /// Iterator through contact pairs.
-pub struct ContactPairs<'a, N: Real + 'a, M: 'a + Isometry<P>, T: 'a> {
-    objects: &'a CollisionObjectSlab<P, M, T>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
+pub struct ContactPairs<'a, N: Real + 'a, T: 'a> {
+    objects: &'a CollisionObjectSlab<N, T>,
+    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
 }
 
-impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ContactPairs<'a, P, M, T> {
+impl<'a, N: 'a + Real, T: 'a> ContactPairs<'a, N, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(
-        objects: &'a CollisionObjectSlab<P, M, T>,
-        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
-    ) -> ContactPairs<'a, P, M, T> {
+        objects: &'a CollisionObjectSlab<N, T>,
+        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
+    ) -> ContactPairs<'a, N, T> {
         ContactPairs {
             objects: objects,
             pairs: pairs,
@@ -80,7 +80,7 @@ impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ContactPairs<'a, P, M, T> {
 
     /// Transforms contact-pairs iterator to an iterator through each individual contact manifold.
     #[inline]
-    pub fn contact_manifolds(self) -> ContactManifolds<'a, P, M, T> {
+    pub fn contact_manifolds(self) -> ContactManifolds<'a, N, T> {
         ContactManifolds {
             objects: self.objects,
             co1: None,
@@ -92,11 +92,11 @@ impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ContactPairs<'a, P, M, T> {
     }
 }
 
-impl<'a, N: Real, T> Iterator for ContactPairs<'a, P, M, T> {
+impl<'a, N: Real, T> Iterator for ContactPairs<'a, N, T> {
     type Item = (
-        &'a CollisionObject<P, M, T>,
-        &'a CollisionObject<P, M, T>,
-        &'a ContactAlgorithm<P, M>,
+        &'a CollisionObject<N, T>,
+        &'a CollisionObject<N, T>,
+        &'a ContactAlgorithm<N>,
     );
 
     #[inline]
@@ -114,20 +114,20 @@ impl<'a, N: Real, T> Iterator for ContactPairs<'a, P, M, T> {
 }
 
 /// An iterator through contact manifolds.
-pub struct ContactManifolds<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> {
-    objects: &'a CollisionObjectSlab<P, M, T>,
-    co1: Option<&'a CollisionObject<P, M, T>>,
-    co2: Option<&'a CollisionObject<P, M, T>>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<P, M>>>,
-    collector: Vec<&'a ContactManifold<P>>,
+pub struct ContactManifolds<'a, N: 'a + Real, T: 'a> {
+    objects: &'a CollisionObjectSlab<N, T>,
+    co1: Option<&'a CollisionObject<N, T>>,
+    co2: Option<&'a CollisionObject<N, T>>,
+    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
+    collector: Vec<&'a ContactManifold<N>>,
     curr_contact: usize,
 }
 
-impl<'a, N: Real, T> Iterator for ContactManifolds<'a, P, M, T> {
+impl<'a, N: Real, T> Iterator for ContactManifolds<'a, N, T> {
     type Item = (
-        &'a CollisionObject<P, M, T>,
-        &'a CollisionObject<P, M, T>,
-        &'a ContactManifold<P>,
+        &'a CollisionObject<N, T>,
+        &'a CollisionObject<N, T>,
+        &'a ContactManifold<N>,
     );
 
     #[inline]
@@ -166,18 +166,18 @@ impl<'a, N: Real, T> Iterator for ContactManifolds<'a, P, M, T> {
 }
 
 /// Iterator through proximity pairs.
-pub struct ProximityPairs<'a, N: Real + 'a, M: 'a + Isometry<P>, T: 'a> {
-    objects: &'a CollisionObjectSlab<P, M, T>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<P, M>>>,
+pub struct ProximityPairs<'a, N: Real + 'a, T: 'a> {
+    objects: &'a CollisionObjectSlab<N, T>,
+    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<N>>>,
 }
 
-impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ProximityPairs<'a, P, M, T> {
+impl<'a, N: 'a + Real, T: 'a> ProximityPairs<'a, N, T> {
     #[doc(hidden)]
     #[inline]
     pub fn new(
-        objects: &'a CollisionObjectSlab<P, M, T>,
-        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<P, M>>>,
-    ) -> ProximityPairs<'a, P, M, T> {
+        objects: &'a CollisionObjectSlab<N, T>,
+        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<N>>>,
+    ) -> ProximityPairs<'a, N, T> {
         ProximityPairs {
             objects: objects,
             pairs: pairs,
@@ -185,11 +185,11 @@ impl<'a, P: 'a + Point, M: 'a + Isometry<P>, T: 'a> ProximityPairs<'a, P, M, T> 
     }
 }
 
-impl<'a, N: Real, T> Iterator for ProximityPairs<'a, P, M, T> {
+impl<'a, N: Real, T> Iterator for ProximityPairs<'a, N, T> {
     type Item = (
-        &'a CollisionObject<P, M, T>,
-        &'a CollisionObject<P, M, T>,
-        &'a ProximityAlgorithm<P, M>,
+        &'a CollisionObject<N, T>,
+        &'a CollisionObject<N, T>,
+        &'a ProximityAlgorithm<N>,
     );
 
     #[inline]

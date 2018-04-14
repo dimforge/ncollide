@@ -3,23 +3,23 @@ use math::{Isometry, Point};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
 use utils::IdAllocator;
-use geometry::bounding_volume::{self, BoundingVolume};
-use geometry::partitioning::BoundingVolumeInterferencesCollector;
-use geometry::shape::{CompositeShape, Shape};
-use geometry::query::{ContactManifold, ContactPrediction};
-use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use bounding_volume::{self, BoundingVolume};
+use partitioning::BoundingVolumeInterferencesCollector;
+use shape::{CompositeShape, Shape};
+use query::{ContactManifold, ContactPrediction};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeManifoldGenerator<N: Real, M> {
-    sub_detectors: HashMap<usize, ContactAlgorithm<P, M>, UintTWHash>,
+pub struct CompositeShapeShapeManifoldGenerator<N> {
+    sub_detectors: HashMap<usize, ContactAlgorithm<N>, UintTWHash>,
     to_delete: Vec<usize>,
     interferences: Vec<usize>,
     flip: bool,
 }
 
-impl<N: Real, M> CompositeShapeShapeManifoldGenerator<P, M> {
+impl<N> CompositeShapeShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
-    pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<P, M> {
+    pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
             to_delete: Vec::new(),
@@ -29,13 +29,13 @@ impl<N: Real, M> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real> CompositeShapeShapeManifoldGenerator<P, M> {
+impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<P, M>,
+        dispatcher: &ContactDispatcher<N>,
         id1: usize,
         m1: &Isometry<N>,
-        g1: &CompositeShape<P, M>,
+        g1: &CompositeShape<N>,
         id2: usize,
         m2: &Isometry<N>,
         g2: &Shape<N>,
@@ -123,12 +123,12 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<P, M>
-    for CompositeShapeShapeManifoldGenerator<P, M>
+impl<N: Real> ContactManifoldGenerator<N>
+    for CompositeShapeShapeManifoldGenerator<N>
 {
     fn update(
         &mut self,
-        d: &ContactDispatcher<P, M>,
+        d: &ContactDispatcher<N>,
         ida: usize,
         ma: &Isometry<N>,
         a: &Shape<N>,
@@ -163,7 +163,7 @@ impl<N: Real> ContactManifoldGenerator<P, M>
         res
     }
 
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
         for detector in self.sub_detectors.elements().iter() {
             detector.value.contacts(out);
         }

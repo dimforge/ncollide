@@ -10,7 +10,7 @@ use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, Cylinder, MinkowskiSum, Se
 use math::{Isometry, Point};
 
 /// Cast a ray on a shape using the GJK algorithm.
-pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(
+pub fn implicit_toi_and_normal_with_ray<N, S, G: ?Sized>(
     m: &Isometry<N>,
     shape: &G,
     simplex: &mut S,
@@ -51,7 +51,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for Cylinder<N>
+impl<N> RayCast<N> for Cylinder<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -101,7 +101,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for Cone<N>
+impl<N> RayCast<N> for Cone<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -151,7 +151,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for Capsule<N>
+impl<N> RayCast<N> for Capsule<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -201,7 +201,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for ConvexHull<N>
+impl<N> RayCast<N> for ConvexHull<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -251,7 +251,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for ConvexPolygon<P>
+impl<N> RayCast<N> for ConvexPolygon<P>
 where
     N: Real,
     M: Isometry<P>,
@@ -301,7 +301,7 @@ where
     }
 }
 
-impl<P, M> RayCast<N> for Segment<N>
+impl<N> RayCast<N> for Segment<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -352,7 +352,7 @@ where
     }
 }
 
-impl<'a, P, M, M2, G1: ?Sized, G2: ?Sized> RayCast<P, M2> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, M2, G1: ?Sized, G2: ?Sized> RayCast<P, M2> for MinkowskiSum<'a, M, G1, G2>
 where
     N: Real,
     M2: Isometry<P>,

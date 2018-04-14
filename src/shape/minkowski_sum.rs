@@ -463,7 +463,7 @@ impl<N: Real> Point for AnnotatedPoint<P> {
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M, G1, G2>
 where
     N: Real,
     G1: SupportMap<N>,
@@ -482,7 +482,7 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<AnnotatedPoint<P>, Id>
+impl<'a, N, G1: ?Sized, G2: ?Sized> SupportMap<AnnotatedPoint<P>, Id>
     for AnnotatedMinkowskiSum<'a, M, G1, G2>
 where
     N: Real,
@@ -511,7 +511,7 @@ where
 /// Computes the support point of the CSO `g1 - g2` on a given direction.
 ///
 /// The result is a support point with informations about how it has been constructed.
-pub fn cso_support_point<P, M, G1: ?Sized, G2: ?Sized>(
+pub fn cso_support_point<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,

@@ -4,24 +4,24 @@ use na::{self, Unit};
 
 use math::{Isometry, Point};
 use utils::IdAllocator;
-use geometry::shape::{Ball, ConvexPolyface, FeatureId, Plane, Shape};
-use geometry::bounding_volume::PolyhedralCone;
-use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use shape::{Ball, ConvexPolyface, FeatureId, Plane, Shape};
+use bounding_volume::PolyhedralCone;
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneBallManifoldGenerator<N: Real, M> {
+pub struct PlaneBallManifoldGenerator<N> {
     flip: bool,
-    manifold: ContactManifold<P>,
+    manifold: ContactManifold<N>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N: Real> PlaneBallManifoldGenerator<P, M> {
+impl<N: Real> PlaneBallManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
-    pub fn new(flip: bool) -> PlaneBallManifoldGenerator<P, M> {
+    pub fn new(flip: bool) -> PlaneBallManifoldGenerator<N> {
         PlaneBallManifoldGenerator {
             flip,
             manifold: ContactManifold::new(),
@@ -47,9 +47,9 @@ impl<N: Real> PlaneBallManifoldGenerator<P, M> {
             self.manifold.save_cache_and_clear(id_alloc);
 
             let plane_normal = m1.transform_unit_vector(plane.normal());
-            let plane_center = Point::from_coordinates(m1.translation().to_vector());
+            let plane_center = Point::from_coordinates(m1.translation.vector);
 
-            let ball_center = Point::from_coordinates(m2.translation().to_vector());
+            let ball_center = Point::from_coordinates(m2.translation.vector);
             let dist = na::dot(&(ball_center - plane_center), plane_normal.as_ref());
             let depth = -dist + ball.radius();
 
@@ -87,11 +87,11 @@ impl<N: Real> PlaneBallManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<P, M> for PlaneBallManifoldGenerator<P, M> {
+impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
     #[inline]
     fn update(
         &mut self,
-        _: &ContactDispatcher<P, M>,
+        _: &ContactDispatcher<N>,
         id1: usize,
         m1: &Isometry<N>,
         g1: &Shape<N>,
@@ -117,7 +117,7 @@ impl<N: Real> ContactManifoldGenerator<P, M> for PlaneBallManifoldGenerator<P, M
     }
 
     #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
         out.push(&self.manifold)
     }
 }

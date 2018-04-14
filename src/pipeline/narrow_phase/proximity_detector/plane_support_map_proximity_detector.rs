@@ -1,53 +1,50 @@
 use std::marker::PhantomData;
-use math::{Isometry, Point};
-use geometry::shape::{Plane, Shape};
-use geometry::query::Proximity;
-use geometry::query::proximity_internal;
-use narrow_phase::{ProximityDetector, ProximityDispatcher};
+use na::Real;
+use math::Isometry;
+use shape::{Plane, Shape};
+use query::Proximity;
+use query::proximity_internal;
+use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneSupportMapProximityDetector<N: Real, M> {
+pub struct PlaneSupportMapProximityDetector {
     proximity: Proximity,
-    pt_type: PhantomData<P>,  // FIXME: can we avoid this?
-    mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N: Real, M> PlaneSupportMapProximityDetector<P, M> {
+impl PlaneSupportMapProximityDetector {
     /// Creates a new persistent proximity detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new() -> PlaneSupportMapProximityDetector<P, M> {
+    pub fn new() -> PlaneSupportMapProximityDetector {
         PlaneSupportMapProximityDetector {
             proximity: Proximity::Disjoint,
-            pt_type: PhantomData,
-            mat_type: PhantomData,
         }
     }
 }
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct SupportMapPlaneProximityDetector<N: Real, M> {
-    subdetector: PlaneSupportMapProximityDetector<P, M>,
+pub struct SupportMapPlaneProximityDetector {
+    subdetector: PlaneSupportMapProximityDetector,
 }
 
-impl<N: Real, M> SupportMapPlaneProximityDetector<P, M> {
+impl SupportMapPlaneProximityDetector {
     /// Creates a new persistent proximity detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
-    pub fn new() -> SupportMapPlaneProximityDetector<P, M> {
+    pub fn new() -> SupportMapPlaneProximityDetector {
         SupportMapPlaneProximityDetector {
             subdetector: PlaneSupportMapProximityDetector::new(),
         }
     }
 }
 
-impl<N: Real> ProximityDetector<P, M> for PlaneSupportMapProximityDetector<P, M> {
+impl<N: Real> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        _: &ProximityDispatcher<P, M>,
+        _: &ProximityDispatcher<N>,
         ma: &Isometry<N>,
         plane: &Shape<N>,
         mb: &Isometry<N>,
@@ -69,11 +66,11 @@ impl<N: Real> ProximityDetector<P, M> for PlaneSupportMapProximityDetector<P, M>
     }
 }
 
-impl<N: Real> ProximityDetector<P, M> for SupportMapPlaneProximityDetector<P, M> {
+impl<N: Real> ProximityDetector<N> for SupportMapPlaneProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        disp: &ProximityDispatcher<P, M>,
+        disp: &ProximityDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
         mb: &Isometry<N>,
@@ -85,6 +82,6 @@ impl<N: Real> ProximityDetector<P, M> for SupportMapPlaneProximityDetector<P, M>
 
     #[inline]
     fn proximity(&self) -> Proximity {
-        self.subdetector.proximity()
+        ProximityDetector::<N>::proximity(&self.subdetector)
     }
 }

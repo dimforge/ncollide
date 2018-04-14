@@ -14,7 +14,7 @@ use math::{Isometry, Point, Vector};
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
-pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
+pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -111,7 +111,7 @@ where
 /// Projects the origin on a support-mapped shape.
 ///
 /// The origin is assumed to be inside of the shape.
-pub fn project_origin<P, M, S, G>(m: &Isometry<N>, g: &G, simplex: &mut S) -> Option<P>
+pub fn project_origin<N, S, G>(m: &Isometry<N>, g: &G, simplex: &mut S) -> Option<P>
 where
     N: Real,
     M: Isometry<P>,

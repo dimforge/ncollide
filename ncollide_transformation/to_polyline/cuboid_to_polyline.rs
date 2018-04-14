@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na::Point2;
 use na;
-use geometry::shape::Cuboid2;
+use shape::Cuboid2;
 use procedural::Polyline2;
 use super::ToPolyline;
 use procedural;

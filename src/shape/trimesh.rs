@@ -85,7 +85,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> CompositeShape<P, M> for TriMesh<N> {
+impl<N: Real> CompositeShape<N> for TriMesh<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.mesh.indices().len()

@@ -1,17 +1,17 @@
 use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
-use geometry::shape::{AnnotatedPoint, Shape};
-use geometry::query::algorithms::Simplex;
-use geometry::query::proximity_internal;
-use geometry::query::Proximity;
-use narrow_phase::{ProximityDetector, ProximityDispatcher};
+use shape::{AnnotatedPoint, Shape};
+use query::algorithms::Simplex;
+use query::proximity_internal;
+use query::Proximity;
+use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 /// Persistent proximity detector between two shapes having a support mapping function.
 ///
 /// It is based on the GJK algorithm.
 #[derive(Clone)]
-pub struct SupportMapSupportMapProximityDetector<N: Real, M, S> {
+pub struct SupportMapSupportMapProximityDetector<N, S> {
     simplex: S,
     proximity: Proximity,
     sep_axis: Vector<N>,
@@ -19,7 +19,7 @@ pub struct SupportMapSupportMapProximityDetector<N: Real, M, S> {
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P, M, S> SupportMapSupportMapProximityDetector<P, M, S>
+impl<N, S> SupportMapSupportMapProximityDetector<N, S>
 where
     N: Real,
     S: Simplex<AnnotatedPoint<P>>,
@@ -28,7 +28,7 @@ where
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: S) -> SupportMapSupportMapProximityDetector<P, M, S> {
+    pub fn new(simplex: S) -> SupportMapSupportMapProximityDetector<N, S> {
         SupportMapSupportMapProximityDetector {
             simplex: simplex,
             proximity: Proximity::Disjoint,
@@ -39,7 +39,7 @@ where
     }
 }
 
-impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<P, M, S>
+impl<N, S> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N, S>
 where
     N: Real,
     M: Isometry<P>,
@@ -48,7 +48,7 @@ where
     #[inline]
     fn update(
         &mut self,
-        _: &ProximityDispatcher<P, M>,
+        _: &ProximityDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
         mb: &Isometry<N>,

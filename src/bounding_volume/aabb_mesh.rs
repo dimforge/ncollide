@@ -3,7 +3,7 @@ use bounding_volume::{self, HasBoundingVolume, AABB};
 use shape::{BaseMesh, BaseMeshElement, Polyline, TriMesh};
 use math::{Isometry, Point};
 
-impl<P, M, I, E> HasBoundingVolume<N, AABB<N>> for BaseMesh<P, I, E>
+impl<N, I, E> HasBoundingVolume<N, AABB<N>> for BaseMesh<P, I, E>
 where
     N: Real,
     M: Isometry<P>,

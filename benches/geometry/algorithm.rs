@@ -1,5 +1,5 @@
-use geometry::algorithm::{JohnsonSimplex, JohnsonSimplexTemplate};
-use geometry::algorithms::simplex::Simplex;
+use algorithm::{JohnsonSimplex, JohnsonSimplexTemplate};
+use algorithms::simplex::Simplex;
 use na::{Point3, Vector3};
 use test::Bencher;
 use test;

@@ -8,7 +8,7 @@ use shape::{self, SupportMap};
 use math::{Isometry, Point};
 
 /// Distance between support-mapped shapes.
-pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -53,7 +53,7 @@ where
 /// Distance between support-mapped shapes.
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map_with_params<N, S, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -70,7 +70,7 @@ where
 {
     let mut dir = match init_dir {
         // FIXME: or m2.translation - m1.translation ?
-        None => m1.translation().to_vector() - m2.translation().to_vector(),
+        None => m1.translation.vector - m2.translation.vector,
         Some(dir) => dir,
     };
 

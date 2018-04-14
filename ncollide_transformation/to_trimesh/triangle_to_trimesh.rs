@@ -1,6 +1,6 @@
 use alga::general::Real;
 use na::Point3;
-use geometry::shape::Triangle3;
+use shape::Triangle3;
 use procedural::{TriMesh, TriMesh3};
 use super::ToTriMesh;
 

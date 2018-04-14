@@ -4,7 +4,7 @@ use query::{Ray, RayCast};
 use math::{Isometry, Point};
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
-pub fn plane_against_support_map<P, M, G: ?Sized>(
+pub fn plane_against_support_map<N, G: ?Sized>(
     mplane: &Isometry<N>,
     vel_plane: &Vector<N>,
     plane: &Plane<N>,
@@ -25,7 +25,7 @@ where
 }
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
-pub fn support_map_against_plane<P, M, G: ?Sized>(
+pub fn support_map_against_plane<N, G: ?Sized>(
     mother: &Isometry<N>,
     vel_other: &Vector<N>,
     other: &G,

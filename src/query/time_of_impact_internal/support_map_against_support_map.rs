@@ -4,7 +4,7 @@ use query::{Ray, RayCast};
 use math::{Isometry, Point};
 
 /// Time of impacts between two support-mapped shapes under translational movement.
-pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &G1,

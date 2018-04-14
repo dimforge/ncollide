@@ -10,7 +10,7 @@ use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cylinder
 use math::{Isometry, Point};
 
 /// Projects a point on a shape using the GJK algorithm.
-pub fn support_map_point_projection<P, M, S, G>(
+pub fn support_map_point_projection<N, S, G>(
     m: &Isometry<N>,
     shape: &G,
     simplex: &mut S,
@@ -134,7 +134,7 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
         };
 
         if let Some(local_dir) = Unit::try_new(local_dir, N::default_epsilon()) {
-            let feature = ConvexPolyhedron::<P, M>::support_feature_id_toward(self, &local_dir);
+            let feature = ConvexPolyhedron::<N>::support_feature_id_toward(self, &local_dir);
             (proj, feature)
         } else {
             (proj, FeatureId::Unknown)
@@ -171,7 +171,7 @@ impl<N: Real> PointQuery<N> for ConvexPolygon<P> {
         };
 
         if let Some(local_dir) = Unit::try_new(local_dir, N::default_epsilon()) {
-            let feature = ConvexPolyhedron::<P, M>::support_feature_id_toward(self, &local_dir);
+            let feature = ConvexPolyhedron::<N>::support_feature_id_toward(self, &local_dir);
             (proj, feature)
         } else {
             (proj, FeatureId::Unknown)

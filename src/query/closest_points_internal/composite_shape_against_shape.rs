@@ -10,7 +10,7 @@ use query::{self, ClosestPoints, PointQuery};
 use math::{Isometry, Point};
 
 /// Closest points between a composite shape and any other shape.
-pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
+pub fn composite_shape_against_shape<N, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -20,7 +20,7 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     let mut cost_fn = CompositeShapeAgainstClosestPointsCostFn::new(m1, g1, m2, g2, margin);
 
@@ -31,7 +31,7 @@ where
 }
 
 /// Closest points between a shape and a composite shape.
-pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
+pub fn shape_against_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
@@ -41,7 +41,7 @@ pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G2: CompositeShape<P, M>,
+    G2: CompositeShape<N>,
 {
     let mut res = composite_shape_against_shape(m2, g2, m1, g1, margin);
     res.flip();
@@ -61,11 +61,11 @@ struct CompositeShapeAgainstClosestPointsCostFn<'a, P: 'a + Point, M: 'a, G1: ?S
     point_type: PhantomData<P>,
 }
 
-impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstClosestPointsCostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> CompositeShapeAgainstClosestPointsCostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a M,
@@ -73,7 +73,7 @@ where
         m2: &'a M,
         g2: &'a Shape<N>,
         margin: N,
-    ) -> CompositeShapeAgainstClosestPointsCostFn<'a, P, M, G1> {
+    ) -> CompositeShapeAgainstClosestPointsCostFn<'a, N, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
@@ -91,12 +91,12 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
-    for CompositeShapeAgainstClosestPointsCostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
+    for CompositeShapeAgainstClosestPointsCostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     type UserData = ClosestPoints<N>;
     #[inline]

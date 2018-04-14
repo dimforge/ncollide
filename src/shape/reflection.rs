@@ -24,7 +24,7 @@ impl<'a, G: ?Sized> Reflection<'a, G> {
     }
 }
 
-impl<'a, P, M, G: ?Sized> SupportMap<N> for Reflection<'a, G>
+impl<'a, N, G: ?Sized> SupportMap<N> for Reflection<'a, G>
 where
     N: Real,
     G: SupportMap<N>,

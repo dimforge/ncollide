@@ -1,4 +1,4 @@
-use geometry::shape::Reflection;
+use shape::Reflection;
 use procedural::TriMesh;
 use super::ToTriMesh;
 use math::Point;

@@ -7,7 +7,7 @@ use query::closest_points_internal::ClosestPoints;
 /// Computes the pair of closest points between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `max_dist`.
-pub fn shape_against_shape<P, M>(
+pub fn shape_against_shape<N>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
@@ -22,8 +22,8 @@ where
         g1.as_shape::<Ball<N>>(),
         g2.as_shape::<Ball<N>>(),
     ) {
-        let p1 = Point::from_coordinates(m1.translation().to_vector());
-        let p2 = Point::from_coordinates(m2.translation().to_vector());
+        let p1 = Point::from_coordinates(m1.translation.vector);
+        let p2 = Point::from_coordinates(m2.translation.vector);
 
         closest_points_internal::ball_against_ball(&p1, b1, &p2, b2, max_dist)
     } else if let (Some(s1), Some(s2)) = (g1.as_shape::<Segment<N>>(), g2.as_shape::<Segment<N>>())

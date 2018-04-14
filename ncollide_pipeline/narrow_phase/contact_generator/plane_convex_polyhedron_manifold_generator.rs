@@ -4,25 +4,25 @@ use na::{self, Unit};
 
 use math::{Isometry, Point};
 use utils::IdAllocator;
-use geometry::shape::{ConvexPolyface, FeatureId, Plane, Shape};
-use geometry::bounding_volume::PolyhedralCone;
-use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use shape::{ConvexPolyface, FeatureId, Plane, Shape};
+use bounding_volume::PolyhedralCone;
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneConvexPolyhedronManifoldGenerator<N: Real, M> {
+pub struct PlaneConvexPolyhedronManifoldGenerator<N> {
     flip: bool,
     feature: ConvexPolyface<N>,
-    manifold: ContactManifold<P>,
+    manifold: ContactManifold<N>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<P, M> {
+impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
-    pub fn new(flip: bool) -> PlaneConvexPolyhedronManifoldGenerator<P, M> {
+    pub fn new(flip: bool) -> PlaneConvexPolyhedronManifoldGenerator<N> {
         PlaneConvexPolyhedronManifoldGenerator {
             flip,
             feature: ConvexPolyface::new(),
@@ -47,7 +47,7 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<P, M> {
         {
             self.manifold.save_cache_and_clear(id_alloc);
             let plane_normal = m1.transform_unit_vector(plane.normal());
-            let plane_center = Point::from_coordinates(m1.translation().to_vector());
+            let plane_center = Point::from_coordinates(m1.translation.vector);
 
             cp.support_face_toward(m2, &-plane_normal, &mut self.feature);
 
@@ -85,13 +85,13 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<P, M>
-    for PlaneConvexPolyhedronManifoldGenerator<P, M>
+impl<N: Real> ContactManifoldGenerator<N>
+    for PlaneConvexPolyhedronManifoldGenerator<N>
 {
     #[inline]
     fn update(
         &mut self,
-        _: &ContactDispatcher<P, M>,
+        _: &ContactDispatcher<N>,
         id1: usize,
         m1: &Isometry<N>,
         g1: &Shape<N>,
@@ -117,7 +117,7 @@ impl<N: Real> ContactManifoldGenerator<P, M>
     }
 
     #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
         out.push(&self.manifold)
     }
 }

@@ -92,7 +92,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Modified
     * The last type parameter of the `BVTCostFn` trait (the user-defined data
       return by leaves) is now an associated type.
-    * The shape handles `Arc<Box<Repr<P, M>>>` are now wrapped into a structure
+    * The shape handles `Arc<Box<Repr<N>>>` are now wrapped into a structure
       with a more explicit name: `ShapeHandle<N>`.
     * Renamed `Convex` to `ConvexHull`
     * Swapped the first two arguments of `CompositeShape::map_transformed_part_at`.

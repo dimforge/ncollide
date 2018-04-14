@@ -74,6 +74,7 @@ pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;
 pub mod query;
+pub mod pipeline;
 
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim3")]

@@ -1,24 +1,25 @@
 use std::any::Any;
+use na::Real;
 
-use world::CollisionObject;
+use pipeline::world::CollisionObject;
 use math::{Point, Isometry};
 
 /// A signal handler for contact detection.
 pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
-    fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool;
+    fn is_pair_valid(&self, b1: &CollisionObject<N, T>, b2: &CollisionObject<N, T>) -> bool;
 }
 
 /// Filters deciding whether a proximity is to be further investigated by the narrow phase or not.
 ///
 /// All filters have have to return `true` in order to allow a proximity to be further handled.
-pub struct BroadPhasePairFilters<N: Real, M, T> {
-    filters: Vec<(String, Box<BroadPhasePairFilter<P, M, T>>)>,
+pub struct BroadPhasePairFilters<N: Real, T> {
+    filters: Vec<(String, Box<BroadPhasePairFilter<N, T>>)>,
 }
 
-impl<N: Real, T> BroadPhasePairFilters<P, M, T> {
+impl<N: Real, T> BroadPhasePairFilters<N, T> {
     /// Creates a new set of collision filters.
-    pub fn new() -> BroadPhasePairFilters<P, M, T> {
+    pub fn new() -> BroadPhasePairFilters<N, T> {
         BroadPhasePairFilters {
             filters: Vec::new(),
         }
@@ -28,7 +29,7 @@ impl<N: Real, T> BroadPhasePairFilters<P, M, T> {
     pub fn register_collision_filter(
         &mut self,
         name: &str,
-        callback: Box<BroadPhasePairFilter<P, M, T>>,
+        callback: Box<BroadPhasePairFilter<N, T>>,
     ) {
         for &mut (ref mut n, ref mut f) in self.filters.iter_mut() {
             if name == &n[..] {
@@ -63,8 +64,8 @@ impl<N: Real, T> BroadPhasePairFilters<P, M, T> {
     /// Tells if the collision between `b1` and `b2` is to be handled by the narrow-phase.
     pub fn is_pair_valid(
         &self,
-        b1: &CollisionObject<P, M, T>,
-        b2: &CollisionObject<P, M, T>,
+        b1: &CollisionObject<N, T>,
+        b2: &CollisionObject<N, T>,
     ) -> bool {
         self.filters
             .iter()

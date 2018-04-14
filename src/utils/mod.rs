@@ -23,6 +23,7 @@ pub use self::ref_with_cost::RefWithCost;
 pub use self::isometry_ops::IsometryOps;
 pub use self::ccw_face_normal::ccw_face_normal;
 pub use self::sorted_pair::SortedPair;
+pub use self::deterministic_state::DeterministicState;
 
 // pub mod data;
 mod center;
@@ -48,3 +49,4 @@ mod ref_with_cost;
 mod isometry_ops;
 mod ccw_face_normal;
 mod sorted_pair;
+mod deterministic_state;

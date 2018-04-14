@@ -1,12 +1,12 @@
 use na;
 use math::Point;
-use geometry::shape::MinkowskiSum;
+use shape::MinkowskiSum;
 use procedural::Polyline;
 use super::ToPolyline;
 
 
 // XXX: Implemented this for other dimensions (harder because of the concavities.
-impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G2>
+impl<'a, N, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G2>
     where P:  Point,
           G1: ToPolyline<P, A>,
           G2: ToPolyline<P, B> {

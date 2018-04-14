@@ -69,4 +69,4 @@ mod convex_polygon;
 mod convex_polyface2;
 #[cfg(feature = "dim3")]
 mod convex_polyface3;
-// mod shape_impl;
+mod shape_impl;

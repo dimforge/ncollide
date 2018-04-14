@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use geometry::query::Ray;
+use query::Ray;
 use math::Point;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

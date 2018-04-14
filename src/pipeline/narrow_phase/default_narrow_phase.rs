@@ -1,34 +1,35 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
+use na::Real;
 use utils::IdAllocator;
-use utils::data::{DeterministicState, SortedPair};
-use geometry::query::Proximity;
-use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
+use utils::{DeterministicState, SortedPair};
+use query::Proximity;
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
                    ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
-use world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
-use events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
+use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
+use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 use math::{Isometry, Point};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
-pub struct DefaultNarrowPhase<P, M> {
+pub struct DefaultNarrowPhase<N> {
     id_alloc: IdAllocator,
-    contact_dispatcher: Box<ContactDispatcher<P, M>>,
+    contact_dispatcher: Box<ContactDispatcher<N>>,
     contact_generators:
-        HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<P, M>, DeterministicState>,
+        HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<N>, DeterministicState>,
 
-    proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
+    proximity_dispatcher: Box<ProximityDispatcher<N>>,
     proximity_detectors:
-        HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<P, M>, DeterministicState>,
+        HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<N>, DeterministicState>,
 }
 
-impl<N: Real, M: 'static> DefaultNarrowPhase<P, M> {
+impl<N: 'static> DefaultNarrowPhase<N> {
     /// Creates a new `DefaultNarrowPhase`.
     pub fn new(
-        contact_dispatcher: Box<ContactDispatcher<P, M>>,
-        proximity_dispatcher: Box<ProximityDispatcher<P, M>>,
-    ) -> DefaultNarrowPhase<P, M> {
+        contact_dispatcher: Box<ContactDispatcher<N>>,
+        proximity_dispatcher: Box<ProximityDispatcher<N>>,
+    ) -> DefaultNarrowPhase<N> {
         DefaultNarrowPhase {
             id_alloc: IdAllocator::new(),
             contact_dispatcher: contact_dispatcher,
@@ -40,10 +41,10 @@ impl<N: Real, M: 'static> DefaultNarrowPhase<P, M> {
     }
 }
 
-impl<N: Real, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> {
+impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
     fn update(
         &mut self,
-        objects: &CollisionObjectSlab<P, M, T>,
+        objects: &CollisionObjectSlab<N, T>,
         contact_events: &mut ContactEvents,
         proximity_events: &mut ProximityEvents,
         timestamp: usize,
@@ -119,7 +120,7 @@ impl<N: Real, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarro
         &mut self,
         contact_events: &mut ContactEvents,
         proximity_events: &mut ProximityEvents,
-        objects: &CollisionObjectSlab<P, M, T>,
+        objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
         started: bool,
@@ -184,7 +185,7 @@ impl<N: Real, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarro
 
     fn handle_removal(
         &mut self,
-        _: &CollisionObjectSlab<P, M, T>,
+        _: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
     ) {
@@ -195,15 +196,15 @@ impl<N: Real, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarro
 
     fn contact_pairs<'a>(
         &'a self,
-        objects: &'a CollisionObjectSlab<P, M, T>,
-    ) -> ContactPairs<'a, P, M, T> {
+        objects: &'a CollisionObjectSlab<N, T>,
+    ) -> ContactPairs<'a, N, T> {
         ContactPairs::new(objects, self.contact_generators.iter())
     }
 
     fn proximity_pairs<'a>(
         &'a self,
-        objects: &'a CollisionObjectSlab<P, M, T>,
-    ) -> ProximityPairs<'a, P, M, T> {
+        objects: &'a CollisionObjectSlab<N, T>,
+    ) -> ProximityPairs<'a, N, T> {
         ProximityPairs::new(objects, self.proximity_detectors.iter())
     }
 }

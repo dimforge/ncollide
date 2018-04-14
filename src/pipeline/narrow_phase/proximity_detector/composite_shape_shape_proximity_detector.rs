@@ -2,24 +2,24 @@ use na;
 use math::{Isometry, Point};
 use utils::data::hash_map::HashMap;
 use utils::data::hash::UintTWHash;
-use geometry::bounding_volume::{self, BoundingVolume};
-use geometry::partitioning::BoundingVolumeInterferencesCollector;
-use geometry::shape::{CompositeShape, Shape};
-use geometry::query::Proximity;
-use narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
+use bounding_volume::{self, BoundingVolume};
+use partitioning::BoundingVolumeInterferencesCollector;
+use shape::{CompositeShape, Shape};
+use query::Proximity;
+use pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
 
 /// Proximity detector between a concave shape and another shape.
-pub struct CompositeShapeShapeProximityDetector<N: Real, M> {
+pub struct CompositeShapeShapeProximityDetector<N> {
     proximity: Proximity,
-    sub_detectors: HashMap<usize, ProximityAlgorithm<P, M>, UintTWHash>,
+    sub_detectors: HashMap<usize, ProximityAlgorithm<N>, UintTWHash>,
     to_delete: Vec<usize>,
     interferences: Vec<usize>,
     intersecting_key: usize,
 }
 
-impl<N: Real, M> CompositeShapeShapeProximityDetector<P, M> {
+impl<N> CompositeShapeShapeProximityDetector<N> {
     /// Creates a new proximity detector between a concave shape and another shape.
-    pub fn new() -> CompositeShapeShapeProximityDetector<P, M> {
+    pub fn new() -> CompositeShapeShapeProximityDetector<N> {
         CompositeShapeShapeProximityDetector {
             proximity: Proximity::Disjoint,
             sub_detectors: HashMap::new_with_capacity(5, UintTWHash::new()),
@@ -30,12 +30,12 @@ impl<N: Real, M> CompositeShapeShapeProximityDetector<P, M> {
     }
 }
 
-impl<N: Real> CompositeShapeShapeProximityDetector<P, M> {
+impl<N: Real> CompositeShapeShapeProximityDetector<N> {
     fn do_update(
         &mut self,
-        disp: &ProximityDispatcher<P, M>,
+        disp: &ProximityDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &CompositeShape<P, M>,
+        g1: &CompositeShape<N>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
         margin: N,
@@ -143,25 +143,25 @@ impl<N: Real> CompositeShapeShapeProximityDetector<P, M> {
 }
 
 /// Proximity detector between a shape and a concave shape.
-pub struct ShapeCompositeShapeProximityDetector<N: Real, M> {
-    sub_detector: CompositeShapeShapeProximityDetector<P, M>,
+pub struct ShapeCompositeShapeProximityDetector<N> {
+    sub_detector: CompositeShapeShapeProximityDetector<N>,
 }
 
-impl<N: Real, M> ShapeCompositeShapeProximityDetector<P, M> {
+impl<N> ShapeCompositeShapeProximityDetector<N> {
     /// Creates a new collision detector between a shape and a concave shape.
-    pub fn new() -> ShapeCompositeShapeProximityDetector<P, M> {
+    pub fn new() -> ShapeCompositeShapeProximityDetector<N> {
         ShapeCompositeShapeProximityDetector {
             sub_detector: CompositeShapeShapeProximityDetector::new(),
         }
     }
 }
 
-impl<N: Real> ProximityDetector<P, M>
-    for CompositeShapeShapeProximityDetector<P, M>
+impl<N: Real> ProximityDetector<N>
+    for CompositeShapeShapeProximityDetector<N>
 {
     fn update(
         &mut self,
-        disp: &ProximityDispatcher<P, M>,
+        disp: &ProximityDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
         m2: &Isometry<N>,
@@ -182,12 +182,12 @@ impl<N: Real> ProximityDetector<P, M>
     }
 }
 
-impl<N: Real> ProximityDetector<P, M>
-    for ShapeCompositeShapeProximityDetector<P, M>
+impl<N: Real> ProximityDetector<N>
+    for ShapeCompositeShapeProximityDetector<N>
 {
     fn update(
         &mut self,
-        disp: &ProximityDispatcher<P, M>,
+        disp: &ProximityDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
         m2: &Isometry<N>,

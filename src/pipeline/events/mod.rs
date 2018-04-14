@@ -2,8 +2,8 @@
 
 use std::slice::Iter;
 use std::iter::IntoIterator;
-use geometry::query::Proximity;
-use world::CollisionObjectHandle;
+use query::Proximity;
+use pipeline::world::CollisionObjectHandle;
 
 // FIXME: we want a structure where we can add elements, iterate on them, but not remove them
 // without clearing the whole structure.

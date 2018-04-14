@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
-use geometry::shape::{Ball, Plane, Shape};
-use geometry::query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
-use narrow_phase::{BallBallManifoldGenerator,
+use shape::{Ball, Plane, Shape};
+use query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
+use pipeline::narrow_phase::{BallBallManifoldGenerator,
                    BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeManifoldGenerator,
                    ContactAlgorithm,
@@ -13,14 +13,14 @@ use narrow_phase::{BallBallManifoldGenerator,
                    PlaneConvexPolyhedronManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultContactDispatcher<N: Real, M> {
+pub struct DefaultContactDispatcher<N> {
     _point_type: PhantomData<P>,
     _matrix_type: PhantomData<M>,
 }
 
-impl<N: Real, M> DefaultContactDispatcher<P, M> {
+impl<N> DefaultContactDispatcher<N> {
     /// Creates a new basic collision dispatcher.
-    pub fn new() -> DefaultContactDispatcher<P, M> {
+    pub fn new() -> DefaultContactDispatcher<N> {
         DefaultContactDispatcher {
             _point_type: PhantomData,
             _matrix_type: PhantomData,
@@ -28,34 +28,34 @@ impl<N: Real, M> DefaultContactDispatcher<P, M> {
     }
 }
 
-impl<N: Real> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M> {
+impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher<N> {
     fn get_contact_algorithm(
         &self,
         a: &Shape<N>,
         b: &Shape<N>,
-    ) -> Option<ContactAlgorithm<P, M>> {
+    ) -> Option<ContactAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();
         let a_is_plane = a.is_shape::<Plane<N>>();
         let b_is_plane = b.is_shape::<Plane<N>>();
 
         if a_is_ball && b_is_ball {
-            Some(Box::new(BallBallManifoldGenerator::<P, M>::new()))
+            Some(Box::new(BallBallManifoldGenerator::<N>::new()))
         } else if a_is_plane && b_is_ball {
-            Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(false)))
+            Some(Box::new(PlaneBallManifoldGenerator::<N>::new(false)))
         } else if a_is_ball && b_is_plane {
-            Some(Box::new(PlaneBallManifoldGenerator::<P, M>::new(true)))
+            Some(Box::new(PlaneBallManifoldGenerator::<N>::new(true)))
         } else if a_is_plane && b.is_support_map() {
-            let gen = PlaneConvexPolyhedronManifoldGenerator::<P, M>::new(false);
+            let gen = PlaneConvexPolyhedronManifoldGenerator::<N>::new(false);
             Some(Box::new(gen))
         } else if b_is_plane && a.is_support_map() {
-            let gen = PlaneConvexPolyhedronManifoldGenerator::<P, M>::new(true);
+            let gen = PlaneConvexPolyhedronManifoldGenerator::<N>::new(true);
             Some(Box::new(gen))
         } else if a_is_ball && b.is_convex_polyhedron() {
-            let gen = BallConvexPolyhedronManifoldGenerator::<P, M>::new(false);
+            let gen = BallConvexPolyhedronManifoldGenerator::<N>::new(false);
             Some(Box::new(gen))
         } else if b_is_ball && a.is_convex_polyhedron() {
-            let gen = BallConvexPolyhedronManifoldGenerator::<P, M>::new(true);
+            let gen = BallConvexPolyhedronManifoldGenerator::<N>::new(true);
             Some(Box::new(gen))
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             match na::dimension::<Vector<N>>() {
@@ -76,11 +76,11 @@ impl<N: Real> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M> {
                 _ => unimplemented!(),
             }
         } else if a.is_composite_shape() {
-            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new(
+            Some(Box::new(CompositeShapeShapeManifoldGenerator::<N>::new(
                 false,
             )))
         } else if b.is_composite_shape() {
-            Some(Box::new(CompositeShapeShapeManifoldGenerator::<P, M>::new(
+            Some(Box::new(CompositeShapeShapeManifoldGenerator::<N>::new(
                 true,
             )))
         } else {

@@ -88,7 +88,7 @@ impl<N: Real> Polyline<N> {
     }
 }
 
-impl<N: Real> CompositeShape<P, M> for Polyline<N> {
+impl<N: Real> CompositeShape<N> for Polyline<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.mesh.indices().len()

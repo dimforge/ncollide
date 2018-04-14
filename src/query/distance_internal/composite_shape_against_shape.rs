@@ -11,7 +11,7 @@ use query::PointQuery;
 use math::{Isometry, Point};
 
 /// Smallest distance between a composite shape and any other shape.
-pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
+pub fn composite_shape_against_shape<N, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -20,7 +20,7 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
 
@@ -31,7 +31,7 @@ where
 }
 
 /// Smallest distance between a shape and a composite shape.
-pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
+pub fn shape_against_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
@@ -40,7 +40,7 @@ pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G2: CompositeShape<P, M>,
+    G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1)
 }
@@ -57,18 +57,18 @@ struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized +
     point_type: PhantomData<P>,
 }
 
-impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a M,
         g1: &'a G1,
         m2: &'a M,
         g2: &'a Shape<N>,
-    ) -> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1> {
+    ) -> CompositeShapeAgainstAnyDistCostFn<'a, N, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
@@ -84,12 +84,12 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
-    for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
+    for CompositeShapeAgainstAnyDistCostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     type UserData = N;
     #[inline]

@@ -5,8 +5,8 @@ use na::Translate;
 use na;
 use shape::{Ball, Plane, Cuboid, Capsule, Cone, Cylinder, ConvexHull, Compound, Mesh, Segment,
                       Triangle};
-use geometry::traits::Shape;
-use geometry::time_of_impact_internal;
+use traits::Shape;
+use time_of_impact_internal;
 use math::{Scalar, Point, Vector, Isometry};
 
 /// Trait implemented by object that can have their Time Of Impact under translational movement

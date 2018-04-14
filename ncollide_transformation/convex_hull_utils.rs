@@ -3,7 +3,7 @@ use num::Bounded;
 use alga::general::Id;
 use na;
 use math::Point;
-use geometry::bounding_volume;
+use bounding_volume;
 
 /// Returns the index of the support point of a list of points.
 pub fn support_point_id<N: Real>(direction: &Vector<N>, points: &[Point<N>]) -> Option<usize> {

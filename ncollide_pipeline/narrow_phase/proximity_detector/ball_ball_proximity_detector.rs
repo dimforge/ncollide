@@ -2,20 +2,20 @@ use std::marker::PhantomData;
 
 use alga::linear::Translation;
 use math::{Isometry, Point};
-use geometry::shape::{Ball, Shape};
-use geometry::query::Proximity;
-use geometry::query::proximity_internal;
-use narrow_phase::{ProximityDetector, ProximityDispatcher};
+use shape::{Ball, Shape};
+use query::Proximity;
+use query::proximity_internal;
+use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 
 /// Proximity detector between two balls.
-pub struct BallBallProximityDetector<N: Real, M> {
+pub struct BallBallProximityDetector<N> {
     proximity: Proximity,
     pt_type: PhantomData<P>,  // FIXME: can we avoid this?
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N: Real, M> Clone for BallBallProximityDetector<P, M> {
-    fn clone(&self) -> BallBallProximityDetector<P, M> {
+impl<N> Clone for BallBallProximityDetector<N> {
+    fn clone(&self) -> BallBallProximityDetector<N> {
         BallBallProximityDetector {
             proximity: self.proximity,
             pt_type: PhantomData,
@@ -24,10 +24,10 @@ impl<N: Real, M> Clone for BallBallProximityDetector<P, M> {
     }
 }
 
-impl<N: Real, M> BallBallProximityDetector<P, M> {
+impl<N> BallBallProximityDetector<N> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBallProximityDetector<P, M> {
+    pub fn new() -> BallBallProximityDetector<N> {
         BallBallProximityDetector {
             proximity: Proximity::Disjoint,
             pt_type: PhantomData,
@@ -36,10 +36,10 @@ impl<N: Real, M> BallBallProximityDetector<P, M> {
     }
 }
 
-impl<N: Real> ProximityDetector<P, M> for BallBallProximityDetector<P, M> {
+impl<N: Real> ProximityDetector<N> for BallBallProximityDetector<N> {
     fn update(
         &mut self,
-        _: &ProximityDispatcher<P, M>,
+        _: &ProximityDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
         mb: &Isometry<N>,
@@ -48,9 +48,9 @@ impl<N: Real> ProximityDetector<P, M> for BallBallProximityDetector<P, M> {
     ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             self.proximity = proximity_internal::ball_against_ball(
-                &Point::from_coordinates(ma.translation().to_vector()),
+                &Point::from_coordinates(ma.translation.vector),
                 a,
-                &Point::from_coordinates(mb.translation().to_vector()),
+                &Point::from_coordinates(mb.translation.vector),
                 b,
                 margin,
             );

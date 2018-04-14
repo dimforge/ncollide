@@ -3,20 +3,20 @@ use std::marker::PhantomData;
 use alga::linear::Translation;
 use math::{Isometry, Point};
 use utils::IdAllocator;
-use geometry::bounding_volume::PolyhedralCone;
-use geometry::shape::{Ball, FeatureId, Shape};
-use geometry::query::{ContactKinematic, ContactManifold, ContactPrediction};
-use geometry::query::contacts_internal;
-use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use bounding_volume::PolyhedralCone;
+use shape::{Ball, FeatureId, Shape};
+use query::{ContactKinematic, ContactManifold, ContactPrediction};
+use query::contacts_internal;
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
-pub struct BallBallManifoldGenerator<N: Real, M> {
-    manifold: ContactManifold<P>,
+pub struct BallBallManifoldGenerator<N> {
+    manifold: ContactManifold<N>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N: Real, M> Clone for BallBallManifoldGenerator<P, M> {
-    fn clone(&self) -> BallBallManifoldGenerator<P, M> {
+impl<N> Clone for BallBallManifoldGenerator<N> {
+    fn clone(&self) -> BallBallManifoldGenerator<N> {
         BallBallManifoldGenerator {
             manifold: self.manifold.clone(),
             mat_type: PhantomData,
@@ -24,10 +24,10 @@ impl<N: Real, M> Clone for BallBallManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real, M> BallBallManifoldGenerator<P, M> {
+impl<N> BallBallManifoldGenerator<N> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
-    pub fn new() -> BallBallManifoldGenerator<P, M> {
+    pub fn new() -> BallBallManifoldGenerator<N> {
         BallBallManifoldGenerator {
             manifold: ContactManifold::new(),
             mat_type: PhantomData,
@@ -35,10 +35,10 @@ impl<N: Real, M> BallBallManifoldGenerator<P, M> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M> {
+impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
     fn update(
         &mut self,
-        _: &ContactDispatcher<P, M>,
+        _: &ContactDispatcher<N>,
         ida: usize,
         ma: &Isometry<N>,
         a: &Shape<N>,
@@ -53,8 +53,8 @@ impl<N: Real> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M>
             self.manifold.set_subshape_id2(idb);
             self.manifold.save_cache_and_clear(id_alloc);
 
-            let center_a = Point::from_coordinates(ma.translation().to_vector());
-            let center_b = Point::from_coordinates(mb.translation().to_vector());
+            let center_a = Point::from_coordinates(ma.translation.vector);
+            let center_b = Point::from_coordinates(mb.translation.vector);
             if let Some(contact) =
                 contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
             {
@@ -79,7 +79,7 @@ impl<N: Real> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M>
     }
 
     #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<P>>) {
+    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
         if self.manifold.len() != 0 {
             out.push(&self.manifold)
         }

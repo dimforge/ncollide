@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na::{Point2, Vector2};
 use na;
-use geometry::shape::Capsule2;
+use shape::Capsule2;
 use procedural::{Polyline, Polyline2};
 use procedural::utils;
 use super::ToPolyline;

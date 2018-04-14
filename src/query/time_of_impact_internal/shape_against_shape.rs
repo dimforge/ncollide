@@ -6,7 +6,7 @@ use query::time_of_impact_internal;
 /// Computes the smallest time of impact of two shapes under translational movement.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<P, M>(
+pub fn shape_against_shape<N>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &Shape<N>,
@@ -22,8 +22,8 @@ where
         g1.as_shape::<Ball<N>>(),
         g2.as_shape::<Ball<N>>(),
     ) {
-        let p1 = Point::from_coordinates(m1.translation().to_vector());
-        let p2 = Point::from_coordinates(m2.translation().to_vector());
+        let p1 = Point::from_coordinates(m1.translation.vector);
+        let p2 = Point::from_coordinates(m2.translation.vector);
 
         time_of_impact_internal::ball_against_ball(&p1, vel1, b1, &p2, vel2, b2)
     } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {

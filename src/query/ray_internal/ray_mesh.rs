@@ -11,7 +11,7 @@ use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use math::{Isometry, Point};
 
-impl<P, M, I, E> RayCast<N> for BaseMesh<P, I, E>
+impl<N, I, E> RayCast<N> for BaseMesh<P, I, E>
 where
     N: Real,
     M: Isometry<P>,

@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na::Point3;
 use na;
-use geometry::shape::Cone3;
+use shape::Cone3;
 use procedural::TriMesh3;
 use procedural;
 use super::ToTriMesh;

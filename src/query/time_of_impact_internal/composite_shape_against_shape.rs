@@ -7,7 +7,7 @@ use shape::{CompositeShape, Shape};
 use query::{time_of_impact_internal, Ray, RayCast};
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
-pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
+pub fn composite_shape_against_shape<N, G1: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &G1,
@@ -18,7 +18,7 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     let mut cost_fn = CompositeShapeAgainstAnyTOICostFn::new(m1, vel1, g1, m2, vel2, g2);
 
@@ -26,7 +26,7 @@ where
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
-pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
+pub fn shape_against_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &Shape<N>,
@@ -37,7 +37,7 @@ pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
 where
     N: Real,
     M: Isometry<P>,
-    G2: CompositeShape<P, M>,
+    G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
 }
@@ -55,11 +55,11 @@ struct CompositeShapeAgainstAnyTOICostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 
     g2: &'a Shape<N>,
 }
 
-impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a M,
@@ -68,7 +68,7 @@ where
         m2: &'a M,
         vel2: &'a Vector<N>,
         g2: &'a Shape<N>,
-    ) -> CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1> {
+    ) -> CompositeShapeAgainstAnyTOICostFn<'a, N, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
@@ -86,12 +86,12 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
-    for CompositeShapeAgainstAnyTOICostFn<'a, P, M, G1>
+impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
+    for CompositeShapeAgainstAnyTOICostFn<'a, N, G1>
 where
     N: Real,
     M: Isometry<P>,
-    G1: CompositeShape<P, M>,
+    G1: CompositeShape<N>,
 {
     type UserData = N;
 

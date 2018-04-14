@@ -1,5 +1,6 @@
-use broad_phase::BroadPhasePairFilter;
-use world::CollisionObject;
+use na::Real;
+use pipeline::broad_phase::BroadPhasePairFilter;
+use pipeline::world::CollisionObject;
 use math::{Point, Isometry};
 
 const SELF_COLLISION: u32 = 1 << 31;
@@ -214,14 +215,14 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<N: Real, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
+impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
     fn is_pair_valid(
         &self,
-        co1: &CollisionObject<P, M, T>,
-        co2: &CollisionObject<P, M, T>,
+        co1: &CollisionObject<N, T>,
+        co2: &CollisionObject<N, T>,
     ) -> bool {
-        let id1 = co1 as *const CollisionObject<P, M, T> as usize;
-        let id2 = co2 as *const CollisionObject<P, M, T> as usize;
+        let id1 = co1 as *const CollisionObject<N, T> as usize;
+        let id2 = co2 as *const CollisionObject<N, T> as usize;
 
         if id1 == id2 {
             co1.collision_groups().can_interact_with_self()

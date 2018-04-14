@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na::Point3;
 use na;
-use geometry::shape::Capsule3;
+use shape::Capsule3;
 use procedural::TriMesh3;
 use procedural;
 use super::ToTriMesh;

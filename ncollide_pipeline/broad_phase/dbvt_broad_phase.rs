@@ -7,9 +7,9 @@ use slab::Slab;
 use alga::general::Id;
 use math::Point;
 use utils::data::{DeterministicState, SortedPair};
-use geometry::bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use geometry::partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
-use geometry::query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
+use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
+use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
+use query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
                       RayInterferencesCollector};
 use broad_phase::{BroadPhase, ProxyHandle};
 
@@ -68,7 +68,7 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 where
     N: Real,
-    BV: 'static + BoundingVolume<P> + Clone,
+    BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<P, BV, T> {
@@ -170,7 +170,7 @@ where
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
 where
     N: Real,
-    BV: BoundingVolume<P> + RayCast<P, Id> + PointQuery<P, Id> + Any + Send + Sync + Clone,
+    BV: BoundingVolume<N> + RayCast<P, Id> + PointQuery<P, Id> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {
     fn update(
