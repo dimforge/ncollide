@@ -17,14 +17,14 @@ where
     }
 }
 
-impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for TriMesh<P> {
+impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for TriMesh<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         self.base_mesh().bounding_volume(m)
     }
 }
 
-impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Polyline<P> {
+impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Polyline<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         self.base_mesh().bounding_volume(m)

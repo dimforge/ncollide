@@ -1,24 +1,20 @@
 use num::Zero;
 
-use alga::general::Real;
 use alga::linear::FiniteDimVectorSpace;
-use na::{self, Unit};
-use math::Point;
+use na::{self, Unit, Real};
+use math::{Point, Vector};
 use query::Contact;
 use shape::Ball;
 
 /// Contact between balls.
 #[inline]
-pub fn ball_against_ball<P>(
-    center1: &P,
+pub fn ball_against_ball<N: Real>(
+    center1: &Point<N>,
     b1: &Ball<N>,
-    center2: &P,
+    center2: &Point<N>,
     b2: &Ball<N>,
     prediction: N,
-) -> Option<Contact<P>>
-where
-    N: Real,
-{
+) -> Option<Contact<N>> {
     let r1 = b1.radius();
     let r2 = b2.radius();
     let delta_pos = *center2 - *center1;
@@ -30,7 +26,7 @@ where
         let mut normal = Unit::new_normalize(delta_pos);
 
         if distance_squared.is_zero() {
-            normal = Unit::new_unchecked(Vector<N>::canonical_basis_element(0));
+            normal = Vector::x_axis();
         }
 
         Some(Contact::new(

@@ -224,7 +224,7 @@ where
 /*
  * fwd impls. to the exact shapes.
  */
-impl<N: Real> RayCast<N> for TriMesh<P> {
+impl<N: Real> RayCast<N> for TriMesh<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         self.base_mesh().toi_with_ray(m, ray, solid)
@@ -252,7 +252,7 @@ impl<N: Real> RayCast<N> for TriMesh<P> {
     }
 }
 
-impl<N: Real> RayCast<N> for Polyline<P> {
+impl<N: Real> RayCast<N> for Polyline<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         self.base_mesh().toi_with_ray(m, ray, solid)

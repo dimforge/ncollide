@@ -1,4 +1,3 @@
-use approx::ApproxEq;
 use na::{self, Unit, Real};
 use shape::{Capsule, FeatureId, Segment};
 use query::{PointProjection, PointQuery};

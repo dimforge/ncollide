@@ -1,20 +1,17 @@
-use na;
+use na::{self, Real};
 use math::Point;
 use query::Proximity;
 use shape::Ball;
 
 /// Proximity between balls.
 #[inline]
-pub fn ball_against_ball<P>(
-    center1: &P,
+pub fn ball_against_ball<N: Real>(
+    center1: &Point<N>,
     b1: &Ball<N>,
-    center2: &P,
+    center2: &Point<N>,
     b2: &Ball<N>,
     margin: N,
-) -> Proximity
-where
-    N: Real,
-{
+) -> Proximity {
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."

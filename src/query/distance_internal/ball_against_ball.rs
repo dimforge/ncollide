@@ -1,19 +1,15 @@
-use alga::general::Real;
-use na;
+use na::{self, Real};
 use math::Point;
 use shape::Ball;
 
 /// Distance between balls.
 #[inline]
-pub fn ball_against_ball<P>(
-    center1: &P,
+pub fn ball_against_ball<N: Real>(
+    center1: &Point<N>,
     b1: &Ball<N>,
-    center2: &P,
+    center2: &Point<N>,
     b2: &Ball<N>,
-) -> N
-where
-    N: Real,
-{
+) -> N {
     let r1 = b1.radius();
     let r2 = b2.radius();
     let delta_pos = *center2 - *center1;

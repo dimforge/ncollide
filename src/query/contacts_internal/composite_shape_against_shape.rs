@@ -69,7 +69,7 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
     prediction: N,
-) -> Option<Contact<P>>
+) -> Option<Contact<N>>
 where
     N: Real,
     M: Isometry<P>,
@@ -86,7 +86,7 @@ where
         g1.bvt().visit(&mut visitor);
     }
 
-    let mut res = None::<Contact<P>>;
+    let mut res = None::<Contact<N>>;
 
     for i in interferences.into_iter() {
         g1.map_part_at(
@@ -123,7 +123,7 @@ pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
     prediction: N,
-) -> Option<Contact<P>>
+) -> Option<Contact<N>>
 where
     N: Real,
     M: Isometry<P>,

@@ -16,7 +16,7 @@ pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
     margin: N,
-) -> ClosestPoints<P>
+) -> ClosestPoints<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -37,7 +37,7 @@ pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
     margin: N,
-) -> ClosestPoints<P>
+) -> ClosestPoints<N>
 where
     N: Real,
     M: Isometry<P>,
@@ -98,7 +98,7 @@ where
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
-    type UserData = ClosestPoints<P>;
+    type UserData = ClosestPoints<N>;
     #[inline]
     fn compute_bv_cost(&mut self, bv: &AABB<N>) -> Option<N> {
         // Compute the minkowski sum of the two AABBs.
@@ -116,7 +116,7 @@ where
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, ClosestPoints<P>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, ClosestPoints<N>)> {
         let mut res = None;
 
         self.g1

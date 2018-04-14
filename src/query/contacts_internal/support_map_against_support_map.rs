@@ -19,7 +19,7 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
     prediction: N,
-) -> Option<Contact<P>>
+) -> Option<Contact<N>>
 where
     N: Real,
     M: Isometry<P>,
@@ -67,7 +67,7 @@ pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Siz
     prediction: N,
     simplex: &mut S,
     init_dir: Option<Vector<N>>,
-) -> GJKResult<Contact<P>, Vector<N>>
+) -> GJKResult<Contact<N>, Vector<N>>
 where
     N: Real,
     M: Isometry<P>,

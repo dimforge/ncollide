@@ -143,12 +143,12 @@ impl<N: Real> Shape<N> for Compound<N> {
     }
 }
 
-// impl<N: Real> Shape<N> for TriMesh<P> {
+// impl<N: Real> Shape<N> for TriMesh<N> {
 //     impl_shape_common!();
 //     impl_as_composite_shape!();
 // }
 
-// impl<N: Real> Shape<N> for Polyline<P> {
+// impl<N: Real> Shape<N> for Polyline<N> {
 //     impl_shape_common!();
 //     impl_as_composite_shape!();
 // }

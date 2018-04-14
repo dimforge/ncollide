@@ -13,22 +13,22 @@ pub struct TriMesh<N: Real> {
     mesh: BaseMesh<P, Point3<usize>, Triangle<N>>,
 }
 
-impl<N: Real> Clone for TriMesh<P> {
-    fn clone(&self) -> TriMesh<P> {
+impl<N: Real> Clone for TriMesh<N> {
+    fn clone(&self) -> TriMesh<N> {
         TriMesh {
             mesh: self.mesh.clone(),
         }
     }
 }
 
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     /// Builds a new mesh.
     pub fn new(
         vertices: Arc<Vec<Point<N>>>,
         indices: Arc<Vec<Point3<usize>>>,
         uvs: Option<Arc<Vec<Point2<N>>>>,
         normals: Option<Arc<Vec<Vector<N>>>>,
-    ) -> TriMesh<P> {
+    ) -> TriMesh<N> {
         TriMesh {
             mesh: BaseMesh::new(vertices, indices, uvs, normals),
         }
@@ -77,7 +77,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     /// Gets the i-th mesh element.
     #[inline]
     pub fn triangle_at(&self, i: usize) -> Triangle<N> {
@@ -85,7 +85,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real> CompositeShape<P, M> for TriMesh<P> {
+impl<N: Real> CompositeShape<P, M> for TriMesh<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.mesh.indices().len()

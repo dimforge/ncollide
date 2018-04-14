@@ -2,7 +2,7 @@ use na::Real;
 use bounding_volume::AABB;
 use shape::{Cuboid, FeatureId};
 use query::{PointProjection, PointQuery};
-use math::{Isometry, Point, Vector};
+use math::{Isometry, Point};
 
 impl<N: Real> PointQuery<N> for Cuboid<N> {
     #[inline]

@@ -16,7 +16,7 @@ pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
     prediction: N,
-) -> ClosestPoints<P>
+) -> ClosestPoints<N>
 where
     N: Real,
     M: Isometry<P>,

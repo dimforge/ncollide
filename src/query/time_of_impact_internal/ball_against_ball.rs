@@ -5,10 +5,10 @@ use query::{ray_internal, Ray};
 /// Time Of Impact of two balls under translational movement.
 #[inline]
 pub fn ball_against_ball<P>(
-    center1: &P,
+    center1: &Point<N>,
     vel1: &Vector<N>,
     b1: &Ball<N>,
-    center2: &P,
+    center2: &Point<N>,
     vel2: &Vector<N>,
     b2: &Ball<N>,
 ) -> Option<N>

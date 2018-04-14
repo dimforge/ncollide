@@ -12,13 +12,13 @@ where
     E: BaseMeshElement<I, P> + PointQuery<P, Id> + PointQueryWithLocation<P, Id>,
 {
     #[inline]
-    fn project_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
+    fn project_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
     #[inline]
-    fn contains_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &P) -> bool {
+    fn contains_point<M: Isometry<P>>(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
         let mut test = PointContainementTest {
             mesh: self,
@@ -35,7 +35,7 @@ where
     fn project_point_with_location<M: Isometry<P>>(
         &self,
         m: &Isometry<N>,
-        point: &P,
+        point: &Point<N>,
         _: bool,
     ) -> (PointProjection<N>, PointProjectionInfo<E::Location>) {
         let ls_pt = m.inverse_transform_point(point);
@@ -138,53 +138,53 @@ pub struct PointProjectionInfo<C> {
 /*
  * fwd impls to exact meshes.
  */
-impl<N: Real> PointQuery<N> for TriMesh<P> {
+impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
+    fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         self.base_mesh().project_point(m, point, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
     // FIXME: implement distance_to_point too?
 
     #[inline]
-    fn contains_point(&self, m: &Isometry<N>, point: &P) -> bool {
+    fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         self.base_mesh().contains_point(m, point)
     }
 }
 
-impl<N: Real> PointQuery<N> for Polyline<P> {
+impl<N: Real> PointQuery<N> for Polyline<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<N> {
+    fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
     // FIXME: implement distance_to_point too?
 
     #[inline]
-    fn contains_point(&self, m: &Isometry<N>, point: &P) -> bool {
+    fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         self.base_mesh().contains_point(m, point)
     }
 }
 
-impl<N: Real> PointQueryWithLocation<N> for Polyline<P> {
+impl<N: Real> PointQueryWithLocation<N> for Polyline<N> {
     type Location = PointProjectionInfo<<Segment<N> as PointQueryWithLocation<N>>::Location>;
 
     #[inline]
     fn project_point_with_location(
         &self,
         m: &Isometry<N>,
-        point: &P,
+        point: &Point<N>,
         solid: bool,
     ) -> (PointProjection<N>, Self::Location) {
         self.base_mesh()
@@ -192,14 +192,14 @@ impl<N: Real> PointQueryWithLocation<N> for Polyline<P> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<N> for TriMesh<P> {
+impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
     type Location = PointProjectionInfo<<Triangle<N> as PointQueryWithLocation<N>>::Location>;
 
     #[inline]
     fn project_point_with_location(
         &self,
         m: &Isometry<N>,
-        point: &P,
+        point: &Point<N>,
         solid: bool,
     ) -> (PointProjection<N>, Self::Location) {
         self.base_mesh()

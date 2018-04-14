@@ -393,7 +393,7 @@ where
         }
     }
 
-    fn interferences_with_point<'a>(&'a self, point: &P, out: &mut Vec<&'a T>) {
+    fn interferences_with_point<'a>(&'a self, point: &Point<N>, out: &mut Vec<&'a T>) {
         let mut collector = Vec::new();
 
         {

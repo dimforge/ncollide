@@ -21,14 +21,14 @@ where
     }
 }
 
-impl<N: Real> HasBoundingVolume<N, AABB<N>> for TriMesh<P> {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for TriMesh<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::aabb(self.base_mesh(), m)
     }
 }
 
-impl<N: Real> HasBoundingVolume<N, AABB<N>> for Polyline<P> {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Polyline<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::aabb(self.base_mesh(), m)

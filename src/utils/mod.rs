@@ -7,9 +7,9 @@ pub use self::center::center;
 // pub use derivatives::{binom, dcos, dsin};
 // // pub use optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
 // //                        LineSearch, BacktrackingLineSearch};
-// pub use hashable_partial_eq::HashablePartialEq;
-// #[doc(inline)]
-// pub use as_bytes::AsBytes;
+pub use self::hashable_partial_eq::HashablePartialEq;
+#[doc(inline)]
+pub use self::as_bytes::AsBytes;
 // // pub use cov::{cov, cov_and_center, center_reduce};
 pub use self::median::median;
 // pub use sort::sort3;
@@ -32,9 +32,9 @@ mod center;
 // mod cleanup;
 // mod derivatives;
 // // mod optimization;
-// mod hashable_partial_eq;
-// #[doc(hidden)]
-// pub mod as_bytes;
+mod hashable_partial_eq;
+#[doc(hidden)]
+pub mod as_bytes;
 // // mod cov;
 mod median;
 // mod sort;

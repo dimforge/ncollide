@@ -1,23 +1,17 @@
-use approx::ApproxEq;
-
 use na::{self, Real};
-use math::{Isometry, Point};
+use math::Isometry;
 use shape::{Segment, SegmentPointLocation};
 use query::ClosestPoints;
 
 /// Closest points between segments.
 #[inline]
-pub fn segment_against_segment<P, M>(
+pub fn segment_against_segment<N: Real>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
     seg2: &Segment<N>,
     margin: N,
-) -> ClosestPoints<P>
-where
-    N: Real,
-    M: Isometry<P>,
-{
+) -> ClosestPoints<N> {
     let (loc1, loc2) = segment_against_segment_with_locations(m1, seg1, m2, seg2);
     let p1 = seg1.point_at(&loc1);
     let p2 = seg2.point_at(&loc2);
@@ -32,16 +26,12 @@ where
 // FIXME: use this specialized procedure for distance/interference/contact determination as well.
 /// Closest points between two segments.
 #[inline]
-pub fn segment_against_segment_with_locations<P, M>(
+pub fn segment_against_segment_with_locations<N: Real>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
     seg2: &Segment<N>,
-) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
-where
-    N: Real,
-    M: Isometry<P>,
-{
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>) {
     // Inspired by Real-time collision detection by Christer Ericson.
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);

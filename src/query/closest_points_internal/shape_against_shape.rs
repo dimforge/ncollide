@@ -13,7 +13,7 @@ pub fn shape_against_shape<P, M>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
     max_dist: N,
-) -> ClosestPoints<P>
+) -> ClosestPoints<N>
 where
     N: Real,
     M: Isometry<P>,

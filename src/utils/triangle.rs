@@ -7,7 +7,7 @@ use math::Point;
 
 /// Computes the area of a triangle.
 #[inline]
-pub fn triangle_area<N: Real>(pa: &P, pb: &P, pc: &P) -> N {
+pub fn triangle_area<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
     // Kahan's formula.
     let mut a = na::distance(pa, pb);
     let mut b = na::distance(pb, pc);
@@ -25,18 +25,18 @@ pub fn triangle_area<N: Real>(pa: &P, pb: &P, pc: &P) -> N {
 
 /// Computes the center of a triangle.
 #[inline]
-pub fn triangle_center<N: Real>(pa: &P, pb: &P, pc: &P) -> Point<N> {
+pub fn triangle_center<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> Point<N> {
     ::center(&[*pa, *pb, *pc])
 }
 
 /// Computes the perimeter of a triangle.
 #[inline]
-pub fn triangle_perimeter<N: Real>(pa: &P, pb: &P, pc: &P) -> N {
+pub fn triangle_perimeter<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
     na::distance(pa, pb) + na::distance(pb, pc) + na::distance(pc, pa)
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<N: Real>(pa: &P, pb: &P, pc: &P) -> (P, N) {
+pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (P, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
@@ -75,7 +75,7 @@ pub fn circumcircle<N: Real>(pa: &P, pb: &P, pc: &P) -> (P, N) {
 }
 
 /// Tests if three 3D points are approximately aligned.
-pub fn is_affinely_dependent_triangle3<N: Real>(p1: &P, p2: &P, p3: &P) -> bool {
+pub fn is_affinely_dependent_triangle3<N: Real>(p1: &Point<N>, p2: &Point<N>, p3: &Point<N>) -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -91,7 +91,7 @@ pub fn is_affinely_dependent_triangle3<N: Real>(p1: &P, p2: &P, p3: &P) -> bool 
 }
 
 /// Tests if a point is inside of a triangle.
-pub fn is_point_in_triangle<N: Real>(p: &P, p1: &P, p2: &P, p3: &P) -> bool {
+pub fn is_point_in_triangle<N: Real>(p: &Point<N>, p1: &Point<N>, p2: &Point<N>, p3: &Point<N>) -> bool {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;

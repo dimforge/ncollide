@@ -49,7 +49,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real, M, S> {
     last_optimal_dir: Option<Unit<Vector<N>>>,
     contact_manifold: ContactManifold<P>,
     clip_cache: ClippingCache<N>,
-    new_contacts: Vec<(Contact<P>, FeatureId, FeatureId)>,
+    new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     manifold1: ConvexPolyface<N>,
     manifold2: ConvexPolyface<N>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
@@ -350,7 +350,7 @@ where
         g1: &G1,
         m2: &Isometry<N>,
         g2: &G2,
-    ) -> Option<Contact<P>>
+    ) -> Option<Contact<N>>
     where
         G1: ConvexPolyhedron<N>,
         G2: ConvexPolyhedron<N>,

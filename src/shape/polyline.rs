@@ -14,29 +14,29 @@ pub struct Polyline<N: Real> {
     mesh: BaseMesh<P, Point2<usize>, Segment<N>>,
 }
 
-impl<N: Real> Clone for Polyline<P> {
-    fn clone(&self) -> Polyline<P> {
+impl<N: Real> Clone for Polyline<N> {
+    fn clone(&self) -> Polyline<N> {
         Polyline {
             mesh: self.mesh.clone(),
         }
     }
 }
 
-impl<N: Real> Polyline<P> {
+impl<N: Real> Polyline<N> {
     /// Builds a new mesh.
     pub fn new(
         vertices: Arc<Vec<Point<N>>>,
         indices: Arc<Vec<Point2<usize>>>,
         uvs: Option<Arc<Vec<Point2<N>>>>,
         normals: Option<Arc<Vec<Vector<N>>>>,
-    ) -> Polyline<P> {
+    ) -> Polyline<N> {
         Polyline {
             mesh: BaseMesh::new(vertices, indices, uvs, normals),
         }
     }
 }
 
-impl<N: Real> Polyline<P> {
+impl<N: Real> Polyline<N> {
     /// The base representation of this mesh.
     #[inline]
     pub fn base_mesh(&self) -> &BaseMesh<P, Point2<usize>, Segment<N>> {
@@ -80,7 +80,7 @@ impl<N: Real> Polyline<P> {
     }
 }
 
-impl<N: Real> Polyline<P> {
+impl<N: Real> Polyline<N> {
     /// Gets the i-th mesh element.
     #[inline]
     pub fn segment_at(&self, i: usize) -> Segment<N> {
@@ -88,7 +88,7 @@ impl<N: Real> Polyline<P> {
     }
 }
 
-impl<N: Real> CompositeShape<P, M> for Polyline<P> {
+impl<N: Real> CompositeShape<P, M> for Polyline<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.mesh.indices().len()

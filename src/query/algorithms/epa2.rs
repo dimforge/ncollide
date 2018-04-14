@@ -288,7 +288,7 @@ impl<N: Real> EPA2<P> {
     }
 }
 
-fn project_origin<N: Real>(a: &P, b: &P) -> Option<P> {
+fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<P> {
     let ab = *b - *a;
     let ap = -a.coords;
     let ab_ap = na::dot(&ab, &ap);
