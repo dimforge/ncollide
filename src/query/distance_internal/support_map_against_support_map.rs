@@ -9,18 +9,18 @@ use math::{Isometry, Point};
 
 /// Distance between support-mapped shapes.
 pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-) -> P::Real
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
-    if na::dimension::<P::Vector>() == 2 {
+    if na::dimension::<Vector<N>>() == 2 {
         support_map_against_support_map_with_params(
             m1,
             g1,
@@ -29,7 +29,7 @@ where
             &mut VoronoiSimplex2::new(),
             None,
         )
-    } else if na::dimension::<P::Vector>() == 3 {
+    } else if na::dimension::<Vector<N>>() == 3 {
         support_map_against_support_map_with_params(
             m1,
             g1,
@@ -54,19 +54,19 @@ where
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
 pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
     simplex: &mut S,
-    init_dir: Option<P::Vector>,
-) -> P::Real
+    init_dir: Option<Vector<N>>,
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let mut dir = match init_dir {
         // FIXME: or m2.translation - m1.translation ?

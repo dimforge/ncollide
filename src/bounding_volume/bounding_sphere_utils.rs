@@ -1,16 +1,11 @@
-use alga::general::Real;
-
-use na;
+use na::{self, Real};
 use utils;
 use math::Point;
 
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn point_cloud_bounding_sphere_with_center<P>(pts: &[P], center: P) -> (P, P::Real)
-where
-    P: Point,
-{
+pub fn point_cloud_bounding_sphere_with_center<N: Real>(pts: &[Point<N>], center: Point<N>) -> (Point<N>, N) {
     let mut sqradius = na::zero();
 
     for pt in pts.iter() {
@@ -27,9 +22,6 @@ where
 /// Computes a bounding sphere of the specified set of point.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn point_cloud_bounding_sphere<P>(pts: &[P]) -> (P, P::Real)
-where
-    P: Point,
-{
+pub fn point_cloud_bounding_sphere<N: Real>(pts: &[Point<N>]) -> (Point<N>, N) {
     point_cloud_bounding_sphere_with_center(pts, utils::center(pts))
 }

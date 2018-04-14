@@ -30,17 +30,17 @@ pub fn push_circle<N: Real>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut 
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<P: Point>(radius: P::Real, nsubdiv: u32, dtheta: P::Real, out: &mut Vec<P>) {
-    assert!(na::dimension::<P::Vector>() >= 2);
+pub fn push_xy_arc<N: Real>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
+    assert!(na::dimension::<Vector<N>>() >= 2);
 
-    let mut curr_theta = P::Real::zero();
+    let mut curr_theta = N::zero();
 
     for _ in 0..nsubdiv {
-        let mut pt_coords = P::Vector::zero();
+        let mut pt_coords = Vector<N>::zero();
 
         pt_coords[0] = curr_theta.cos() * radius;
         pt_coords[1] = curr_theta.sin() * radius;
-        out.push(P::from_coordinates(pt_coords));
+        out.push(Point::from_coordinates(pt_coords));
 
         curr_theta = curr_theta + dtheta;
     }
@@ -165,8 +165,8 @@ pub fn split_index_buffer(indices: &[Point3<u32>]) -> Vec<Point3<Point3<u32>>> {
 #[inline]
 pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
     indices: &[Point3<u32>],
-    coords: &[P],
-) -> (Vec<Point3<Point3<u32>>>, Vec<P>) {
+    coords: &[Point<N>],
+) -> (Vec<Point3<Point3<u32>>>, Vec<Point<N>>) {
     let mut vtx_to_id = HashMap::new();
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
@@ -174,7 +174,7 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
     fn resolve_coord_id<P: PartialEq + AsBytes + Clone>(
         coord: &P,
         vtx_to_id: &mut HashMap<HashablePartialEq<P>, u32>,
-        new_coords: &mut Vec<P>,
+        new_coords: &mut Vec<Point<N>>,
     ) -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
         let id = match vtx_to_id.entry(key) {
@@ -214,12 +214,12 @@ pub fn split_index_buffer_and_recover_topology<P: PartialEq + AsBytes + Clone>(
 // FIXME: check at compile-time that we are in 3D?
 /// Computes the normals of a set of vertices.
 #[inline]
-pub fn compute_normals<P: Point>(
-    coordinates: &[P],
+pub fn compute_normals<N: Real>(
+    coordinates: &[Point<N>],
     faces: &[Point3<u32>],
-    normals: &mut Vec<P::Vector>,
+    normals: &mut Vec<Vector<N>>,
 ) {
-    let mut divisor: Vec<P::Real> = iter::repeat(na::zero()).take(coordinates.len()).collect();
+    let mut divisor: Vec<N> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
     if normals.len() > coordinates.len() {
@@ -228,7 +228,7 @@ pub fn compute_normals<P: Point>(
 
     // Reinit all normals to zero.
     normals.clear();
-    normals.extend(iter::repeat(na::zero::<P::Vector>()).take(coordinates.len()));
+    normals.extend(iter::repeat(na::zero::<Vector<N>>()).take(coordinates.len()));
 
     // Accumulate normals ...
     for f in faces.iter() {

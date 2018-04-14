@@ -2,7 +2,7 @@ use std::iter;
 use na::Point3;
 
 /// Given an index buffer, remove from `points` every point that is not indexed.
-pub fn remove_unused_points<V>(points: &mut Vec<V>, idx: &mut [Point3<u32>]) {
+pub fn remove_unused_points<V>(points: &mut Vec<Vector<N>>, idx: &mut [Point3<u32>]) {
     let mut used: Vec<bool> = iter::repeat(false).take(points.len()).collect();
     let mut remap: Vec<usize> = (0..points.len()).map(|i| i).collect();
     let used = &mut used[..];

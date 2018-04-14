@@ -12,14 +12,14 @@ use math::{Isometry, Point};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
-    g2: &Shape<P, M>,
-    margin: P::Real,
+    m2: &Isometry<N>,
+    g2: &Shape<N>,
+    margin: N,
 ) -> Proximity
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
@@ -38,14 +38,14 @@ where
 
 /// Proximity between a shape and a composite (`Mesh`, `Compound`) shape.
 pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
-    m1: &M,
-    g1: &Shape<P, M>,
-    m2: &M,
+    m1: &Isometry<N>,
+    g1: &Shape<N>,
+    m2: &Isometry<N>,
     g2: &G2,
-    margin: P::Real,
+    margin: N,
 ) -> Proximity
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G2: CompositeShape<P, M>,
 {
@@ -53,14 +53,14 @@ where
 }
 
 struct CompositeShapeAgainstAnyInterfCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {
-    msum_shift: P::Vector,
-    msum_margin: P::Vector,
+    msum_shift: Vector<N>,
+    msum_margin: Vector<N>,
 
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
-    g2: &'a Shape<P, M>,
-    margin: P::Real,
+    g2: &'a Shape<N>,
+    margin: N,
 
     found_intersection: bool,
 
@@ -69,7 +69,7 @@ struct CompositeShapeAgainstAnyInterfCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized
 
 impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
@@ -77,14 +77,14 @@ where
         m1: &'a M,
         g1: &'a G1,
         m2: &'a M,
-        g2: &'a Shape<P, M>,
-        margin: P::Real,
+        g2: &'a Shape<N>,
+        margin: N,
     ) -> CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
         CompositeShapeAgainstAnyInterfCostFn {
-            msum_shift: -ls_aabb2.center().coordinates(),
+            msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
             m1: m1,
             g1: g1,
@@ -97,17 +97,17 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized> BVTCostFn<P::Real, usize, AABB<P>>
+impl<'a, P, M, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyInterfCostFn<'a, P, M, G1>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
     type UserData = Proximity;
 
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<P::Real> {
+    fn compute_bv_cost(&mut self, bv: &AABB<N>) -> Option<N> {
         // No need to continue if some parts intersect.
         if self.found_intersection {
             return None;
@@ -120,7 +120,7 @@ where
         );
 
         // Compute the distance to the origin.
-        let distance = msum.distance_to_point(&Id::new(), &P::origin(), true);
+        let distance = msum.distance_to_point(&Id::new(), &Point::origin(), true);
         if distance <= self.margin {
             Some(distance)
         } else {
@@ -129,7 +129,7 @@ where
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, Proximity)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, Proximity)> {
         let mut res = None;
 
         self.g1

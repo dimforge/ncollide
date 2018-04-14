@@ -11,14 +11,14 @@ use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneConvexPolyhedronManifoldGenerator<P: Point, M> {
+pub struct PlaneConvexPolyhedronManifoldGenerator<N: Real, M> {
     flip: bool,
-    feature: ConvexPolyface<P>,
+    feature: ConvexPolyface<N>,
     manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M: Isometry<P>> PlaneConvexPolyhedronManifoldGenerator<P, M> {
+impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<P, M> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
@@ -34,20 +34,20 @@ impl<P: Point, M: Isometry<P>> PlaneConvexPolyhedronManifoldGenerator<P, M> {
     #[inline]
     fn do_update(
         &mut self,
-        m1: &M,
-        g1: &Shape<P, M>,
-        m2: &M,
-        g2: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        m1: &Isometry<N>,
+        g1: &Shape<N>,
+        m2: &Isometry<N>,
+        g2: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         flip: bool,
     ) -> bool {
         if let (Some(plane), Some(cp)) =
-            (g1.as_shape::<Plane<P::Vector>>(), g2.as_convex_polyhedron())
+            (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron())
         {
             self.manifold.save_cache_and_clear(id_alloc);
             let plane_normal = m1.transform_unit_vector(plane.normal());
-            let plane_center = P::from_coordinates(m1.translation().to_vector());
+            let plane_center = Point::from_coordinates(m1.translation().to_vector());
 
             cp.support_face_toward(m2, &-plane_normal, &mut self.feature);
 
@@ -85,7 +85,7 @@ impl<P: Point, M: Isometry<P>> PlaneConvexPolyhedronManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
+impl<N: Real> ContactManifoldGenerator<P, M>
     for PlaneConvexPolyhedronManifoldGenerator<P, M>
 {
     #[inline]
@@ -93,12 +93,12 @@ impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
         &mut self,
         _: &ContactDispatcher<P, M>,
         id1: usize,
-        m1: &M,
-        g1: &Shape<P, M>,
+        m1: &Isometry<N>,
+        g1: &Shape<N>,
         id2: usize,
-        m2: &M,
-        g2: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        m2: &Isometry<N>,
+        g2: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
         self.manifold.set_subshape_id1(id1);

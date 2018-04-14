@@ -6,10 +6,10 @@ use shape::{CompositeShape, Compound, FeatureId};
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
+impl<N: Real> PointQuery<P, M> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
-    fn project_point(&self, m: &M, point: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, point: &P, solid: bool) -> PointProjection<P> {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = CompoundPointProjCostFn {
             compound: self,
@@ -24,14 +24,14 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, point: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, point: &P) -> (PointProjection<P>, FeatureId) {
         // XXX Properly propagate the feature id.
         unimplemented!()
         // (self.project_point(m, point), FeatureId::Unknown)
     }
 
     #[inline]
-    fn contains_point(&self, m: &M, point: &P) -> bool {
+    fn contains_point(&self, m: &Isometry<N>, point: &P) -> bool {
         let ls_pt = m.inverse_transform_point(point);
         let mut test = PointContainementTest {
             compound: self,
@@ -49,25 +49,25 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Compound<P, M> {
  * Costs function.
  */
 struct CompoundPointProjCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
-    compound: &'a Compound<P, M>,
+    compound: &'a Compound<N>,
     point: &'a P,
     solid: bool,
 }
 
-impl<'a, P, M> BVTCostFn<P::Real, usize, AABB<P>> for CompoundPointProjCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<N, usize, AABB<N>> for CompoundPointProjCostFn<'a, P, M>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     type UserData = PointProjection<P>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
         Some(aabb.distance_to_point(&Id::new(), self.point, true))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, PointProjection<P>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, PointProjection<P>)> {
         let mut res = None;
 
         self.compound.map_part_at(*b, &mut |_, objm, obj| {
@@ -85,23 +85,23 @@ where
  */
 /// Bounding Volume Tree visitor collecting nodes that may contain a given point.
 struct PointContainementTest<'a, P: 'a + Point, M: 'a + Isometry<P>> {
-    compound: &'a Compound<P, M>,
+    compound: &'a Compound<N>,
     point: &'a P,
     found: bool,
 }
 
-impl<'a, P, M> BVTVisitor<usize, AABB<P>> for PointContainementTest<'a, P, M>
+impl<'a, P, M> BVTVisitor<usize, AABB<N>> for PointContainementTest<'a, P, M>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     #[inline]
-    fn visit_internal(&mut self, bv: &AABB<P>) -> bool {
+    fn visit_internal(&mut self, bv: &AABB<N>) -> bool {
         !self.found && bv.contains_point(&Id::new(), self.point)
     }
 
     #[inline]
-    fn visit_leaf(&mut self, b: &usize, bv: &AABB<P>) {
+    fn visit_leaf(&mut self, b: &usize, bv: &AABB<N>) {
         if !self.found && bv.contains_point(&Id::new(), self.point) {
             self.compound.map_part_at(*b, &mut |_, objm, obj| {
                 self.found = obj.contains_point(objm, self.point)

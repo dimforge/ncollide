@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       normalized.
 ### Modified
     * The `Plane` geometry is now initialized with a `Unit` vector. Its `.normal()` method also returns a `Unit` vector.
-    * The `Contact<...>` structure now represents the contact normal as a `Unit<P::Vector>` instead of just a `P::Vector`.
+    * The `Contact<...>` structure now represents the contact normal as a `Unit<Vector<N>>` instead of just a `Vector<N>`.
     * All the fields of `CollisionObject` are now private and must be accessed using methods.
     * The trait Point now requires additional methods to compute the normal of
       a face and to project the origin on it.
@@ -35,7 +35,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.12.0]
 ### Modified
-    * The `ShapeHandle` is now a `Arc<Shape<P, M>>` instead of `Arc<Box<Shape<P, M>>>`
+    * The `ShapeHandle` is now a `Arc<Shape<N>>` instead of `Arc<Box<Shape<N>>>`
     (this removes one allocation indirection).
     * Update to nalgebra 0.12.
 
@@ -93,7 +93,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     * The last type parameter of the `BVTCostFn` trait (the user-defined data
       return by leaves) is now an associated type.
     * The shape handles `Arc<Box<Repr<P, M>>>` are now wrapped into a structure
-      with a more explicit name: `ShapeHandle<P, M>`.
+      with a more explicit name: `ShapeHandle<N>`.
     * Renamed `Convex` to `ConvexHull`
     * Swapped the first two arguments of `CompositeShape::map_transformed_part_at`.
     * All fields of `Polyline` are now private. Added corresponding accessors.

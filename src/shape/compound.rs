@@ -2,29 +2,27 @@
 //! Shape composed from the union of primitives.
 //!
 
-use std::ops::Mul;
-
-use na;
+use na::{self, Real};
 
 use bounding_volume::{BoundingVolume, AABB};
 use partitioning::BVT;
 use shape::{CompositeShape, Shape, ShapeHandle};
-use math::{Isometry, Point};
+use math::Isometry;
 
 /// A compound shape with an aabb bounding volume.
 ///
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
-pub struct Compound<P: Point, M: Isometry<P>> {
-    shapes: Vec<(M, ShapeHandle<P, M>)>,
-    bvt: BVT<usize, AABB<P>>,
-    bvs: Vec<AABB<P>>,
+pub struct Compound<N: Real> {
+    shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
+    bvt: BVT<usize, AABB<N>>,
+    bvs: Vec<AABB<N>>,
     start_idx: Vec<usize>,
 }
 
-impl<P: Point, M: Isometry<P>> Clone for Compound<P, M> {
-    fn clone(&self) -> Compound<P, M> {
+impl<N: Real> Clone for Compound<N> {
+    fn clone(&self) -> Compound<N> {
         Compound {
             shapes: self.shapes.clone(),
             bvt: self.bvt.clone(),
@@ -34,9 +32,9 @@ impl<P: Point, M: Isometry<P>> Clone for Compound<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> Compound<P, M> {
+impl<N: Real> Compound<N> {
     /// Builds a new compound shape.
-    pub fn new(shapes: Vec<(M, ShapeHandle<P, M>)>) -> Compound<P, M> {
+    pub fn new(shapes: Vec<(Isometry<N>, ShapeHandle<N>)>) -> Compound<N> {
         let mut bvs = Vec::new();
         let mut leaves = Vec::new();
         let mut start_idx = Vec::new();
@@ -68,28 +66,28 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> Compound<P, M> {
+impl<N: Real> Compound<N> {
     /// The shapes of this compound shape.
     #[inline]
-    pub fn shapes(&self) -> &[(M, ShapeHandle<P, M>)] {
+    pub fn shapes(&self) -> &[(Isometry<N>, ShapeHandle<N>)] {
         &self.shapes[..]
     }
 
     /// The optimization structure used by this compound shape.
     #[inline]
-    pub fn bvt(&self) -> &BVT<usize, AABB<P>> {
+    pub fn bvt(&self) -> &BVT<usize, AABB<N>> {
         &self.bvt
     }
 
     /// The shapes bounding volumes.
     #[inline]
-    pub fn bounding_volumes(&self) -> &[AABB<P>] {
+    pub fn bounding_volumes(&self) -> &[AABB<N>] {
         &self.bvs[..]
     }
 
     /// The AABB of the i-th shape compositing this compound.
     #[inline]
-    pub fn aabb_at(&self, i: usize) -> &AABB<P> {
+    pub fn aabb_at(&self, i: usize) -> &AABB<N> {
         &self.bvs[i]
     }
 
@@ -98,14 +96,14 @@ impl<P: Point, M: Isometry<P>> Compound<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M> {
+impl<N: Real> CompositeShape<N> for Compound<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.shapes.len()
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
+    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
         let id = self.start_idx[i];
         let &(ref m, ref g) = &self.shapes()[i];
 
@@ -113,7 +111,7 @@ impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M> {
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &M, f: &mut FnMut(usize, &M, &Shape<P, M>)) {
+    fn map_transformed_part_at(&self, i: usize, m: &Isometry<N>, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
         let id = self.start_idx[i];
         let elt = &self.shapes()[i];
 
@@ -121,12 +119,12 @@ impl<P: Point, M: Isometry<P>> CompositeShape<P, M> for Compound<P, M> {
     }
 
     #[inline]
-    fn aabb_at(&self, i: usize) -> AABB<P> {
+    fn aabb_at(&self, i: usize) -> AABB<N> {
         self.bounding_volumes()[i].clone()
     }
 
     #[inline]
-    fn bvt(&self) -> &BVT<usize, AABB<P>> {
+    fn bvt(&self) -> &BVT<usize, AABB<N>> {
         self.bvt()
     }
 }

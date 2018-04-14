@@ -7,6 +7,7 @@ use na::Isometry2;
 use na::Isometry3;
 
 pub trait IsometryOps<N: Real> {
+    fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N>;
     fn inverse_transform_vector(&self, v: &Vector<N>) -> Vector<N>;
     fn inverse_transform_point(&self, p: &Point<N>) -> Point<N>;
     fn inverse_transform_unit_vector(&self, v: &Unit<Vector<N>>) -> Unit<Vector<N>> {
@@ -17,6 +18,9 @@ pub trait IsometryOps<N: Real> {
 
 #[cfg(feature = "dim2")]
 impl<N: Real> IsometryOps<N> for Isometry2<N> {
+    fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
+        self.rotation.to_rotation_matrix().unwrap().abs() * *v
+    }
     fn inverse_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         ProjectiveTransformation::inverse_transform_vector(self, v)
     }
@@ -27,6 +31,9 @@ impl<N: Real> IsometryOps<N> for Isometry2<N> {
 
 #[cfg(feature = "dim3")]
 impl<N: Real> IsometryOps<N> for Isometry3<N> {
+    fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
+        self.rotation.to_rotation_matrix().unwrap().abs() * *v
+    }
     fn inverse_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         ProjectiveTransformation::inverse_transform_vector(self, v)
     }

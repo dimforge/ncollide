@@ -24,13 +24,13 @@ impl<'a, G: ?Sized> Reflection<'a, G> {
     }
 }
 
-impl<'a, P, M, G: ?Sized> SupportMap<P, M> for Reflection<'a, G>
+impl<'a, P, M, G: ?Sized> SupportMap<N> for Reflection<'a, G>
 where
-    P: Point,
-    G: SupportMap<P, M>,
+    N: Real,
+    G: SupportMap<N>,
 {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         -self.shape().support_point(m, &-*dir)
     }
 }

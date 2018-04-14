@@ -7,18 +7,18 @@ use math::Point;
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<P>(control_points: &[P], t: P::Real, cache: &mut Vec<P>) -> P
+pub fn bezier_curve_at<P>(control_points: &[Point<N>], t: N, cache: &mut Vec<Point<N>>) -> Point<N>
 where
-    P: Point,
+    N: Real,
 {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
-        cache.extend(iter::repeat(P::origin()).take(diff))
+        cache.extend(iter::repeat(Point::origin()).take(diff))
     }
 
     let cache = &mut cache[..];
 
-    let _1: P::Real = na::convert(1.0);
+    let _1: N = na::convert(1.0);
     let t_1 = _1 - t;
 
     // XXX: not good if the objects are not POD.
@@ -32,7 +32,7 @@ where
 
     for i in 1usize..control_points.len() {
         for j in 0usize..control_points.len() - i {
-            cache[j] = cache[j] * t_1 + cache[j + 1].coordinates() * t;
+            cache[j] = cache[j] * t_1 + cache[j + 1].coords * t;
         }
     }
 
@@ -42,20 +42,20 @@ where
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
 pub fn bezier_surface_at<P>(
-    control_points: &[P],
+    control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
-    u: P::Real,
-    v: P::Real,
-    ucache: &mut Vec<P>,
-    vcache: &mut Vec<P>,
-) -> P
+    u: N,
+    v: N,
+    ucache: &mut Vec<Point<N>>,
+    vcache: &mut Vec<Point<N>>,
+) -> Point<N>
 where
-    P: Point,
+    N: Real,
 {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
-        vcache.extend(iter::repeat(P::origin()).take(diff));
+        vcache.extend(iter::repeat(Point::origin()).take(diff));
     }
 
     // FIXME: start with u or v, depending on which dimension has more control points.
@@ -72,14 +72,14 @@ where
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<P>(control_points: &[P], nsubdivs: usize) -> Polyline<P>
+pub fn bezier_curve<P>(control_points: &[Point<N>], nsubdivs: usize) -> Polyline<P>
 where
-    P: Point,
+    N: Real,
 {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache = Vec::new();
     let tstep = na::convert(1.0 / (nsubdivs as f64));
-    let mut t = na::zero::<P::Real>();
+    let mut t = na::zero::<N>();
 
     while t <= na::one() {
         coords.push(bezier_curve_at(control_points, t, &mut cache));
@@ -93,14 +93,14 @@ where
 
 /// Given a set of control points, generates a (non-rational) Bezier surface.
 pub fn bezier_surface<P>(
-    control_points: &[P],
+    control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
     usubdivs: usize,
     vsubdivs: usize,
 ) -> TriMesh<P>
 where
-    P: Point,
+    N: Real,
 {
     assert!(nupoints * nvpoints == control_points.len());
 

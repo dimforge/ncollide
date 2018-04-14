@@ -16,10 +16,10 @@ use events::{ContactEvent, ContactEvents, ProximityEvents};
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<P, M, T> = Box<NarrowPhase<P, M, T>>;
 /// Type of the broad phase trait-object used by the collision world.
-pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<P>, CollisionObjectHandle>>;
+pub type BroadPhaseObject<P> = Box<BroadPhase<P, AABB<N>, CollisionObjectHandle>>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<P: Point, M: Isometry<P>, T> {
+pub struct CollisionWorld<N: Real, T> {
     objects: CollisionObjectSlab<P, M, T>,
     broad_phase: BroadPhaseObject<P>,
     narrow_phase: Box<NarrowPhase<P, M, T>>,
@@ -29,14 +29,14 @@ pub struct CollisionWorld<P: Point, M: Isometry<P>, T> {
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
-impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
+impl<N: Real, T> CollisionWorld<P, M, T> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
-    pub fn new(margin: P::Real) -> CollisionWorld<P, M, T> {
+    pub fn new(margin: N) -> CollisionWorld<P, M, T> {
         let objects = CollisionObjectSlab::new();
         let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
-        let broad_phase = Box::new(DBVTBroadPhase::<P, AABB<P>, CollisionObjectHandle>::new(
+        let broad_phase = Box::new(DBVTBroadPhase::<P, AABB<N>, CollisionObjectHandle>::new(
             margin,
         ));
         let narrow_phase = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
@@ -56,9 +56,9 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     pub fn add(
         &mut self,
         position: M,
-        shape: ShapeHandle<P, M>,
+        shape: ShapeHandle<N>,
         collision_groups: CollisionGroups,
-        query_type: GeometricQueryType<P::Real>,
+        query_type: GeometricQueryType<N>,
         data: T,
     ) -> CollisionObjectHandle {
         let mut co = CollisionObject::new(
@@ -313,7 +313,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionWorld<P, M, T> {
     #[inline]
     pub fn interferences_with_aabb<'a, 'b>(
         &'a self,
-        aabb: &'b AABB<P>,
+        aabb: &'b AABB<N>,
         groups: &'b CollisionGroups,
     ) -> InterferencesWithAABB<'a, 'b, P, M, T> {
         // FIXME: avoid allocation.
@@ -362,8 +362,8 @@ pub struct InterferencesWithRay<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: '
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
-    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<P::Vector>);
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, P, M, T> {
+    type Item = (&'a CollisionObject<P, M, T>, RayIntersection<Vector<N>>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -392,7 +392,7 @@ pub struct InterferencesWithPoint<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T:
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithPoint<'a, 'b, P, M, T> {
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]
@@ -418,7 +418,7 @@ pub struct InterferencesWithAABB<'a, 'b, P: 'a + Point, M: 'a + Isometry<P>, T: 
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, P: Point, M: Isometry<P>, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
+impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, P, M, T> {
     type Item = &'a CollisionObject<P, M, T>;
 
     #[inline]

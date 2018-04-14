@@ -9,8 +9,8 @@ use math::{Isometry, Point};
 /*
 /// Contacts between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn manifold_composite_shape_against_shape<N, P, V, AV, M, G1, G2>(
-                                            m1: &M, g1: &G1,
-                                            m2: &M, g2: &G2,
+                                            m1: &Isometry<N>, g1: &G1,
+                                            m2: &Isometry<N>, g2: &G2,
                                             prediction: N,
                                             contacts: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
@@ -41,8 +41,8 @@ pub fn manifold_composite_shape_against_shape<N, P, V, AV, M, G1, G2>(
 
 /// Contacts between a shape and a composite (`Mesh`, `Compound`) shape.
 pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
-                                            m1: &M, g1: &G1,
-                                            m2: &M, g2: &G2,
+                                            m1: &Isometry<N>, g1: &G1,
+                                            m2: &Isometry<N>, g2: &G2,
                                             prediction: N,
                                             contacts: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
@@ -64,14 +64,14 @@ pub fn manifold_shape_against_composite_shape<N, P, V, AV, M, G1, G2>(
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
-    g2: &Shape<P, M>,
-    prediction: P::Real,
+    m2: &Isometry<N>,
+    g2: &Shape<N>,
+    prediction: N,
 ) -> Option<Contact<P>>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
@@ -118,14 +118,14 @@ where
 
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
 pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
-    m1: &M,
-    g1: &Shape<P, M>,
-    m2: &M,
+    m1: &Isometry<N>,
+    g1: &Shape<N>,
+    m2: &Isometry<N>,
     g2: &G2,
-    prediction: P::Real,
+    prediction: N,
 ) -> Option<Contact<P>>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G2: CompositeShape<P, M>,
 {

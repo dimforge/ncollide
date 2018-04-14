@@ -1,16 +1,17 @@
-use na;
+use na::{self, Real};
+use utils::IsometryOps;
 use bounding_volume::{HasBoundingVolume, AABB};
 use shape::Compound;
-use math::{Isometry, Point};
+use math::Isometry;
 
-impl<P: Point, M: Isometry<P>, M2: Isometry<P>> HasBoundingVolume<M2, AABB<P>> for Compound<P, M> {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Compound<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M2) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         let bv = self.bvt().root_bounding_volume().unwrap();
         let ls_center = bv.center();
-        let center = m.transform_point(&ls_center);
-        let half_extents = (*bv.maxs() - *bv.mins()) / na::convert::<f64, P::Real>(2.0);
-        let ws_half_extents = m.absolute_rotate_vector(&half_extents);
+        let center = m * ls_center;
+        let half_extents = (*bv.maxs() - *bv.mins()) / na::convert::<f64, N>(2.0);
+        let ws_half_extents = m.absolute_transform_vector(&half_extents);
 
         AABB::new(center + (-ws_half_extents), center + ws_half_extents)
     }

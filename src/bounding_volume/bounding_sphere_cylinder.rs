@@ -4,10 +4,10 @@ use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use shape::Cylinder;
 use math::{Isometry, Point};
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Cylinder<P::Real> {
+impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Cylinder<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
-        let center = m.translate_point(&P::origin());
+    fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
+        let center = Point::from_coordinates(m.translation.vector);
         let radius =
             (self.radius() * self.radius() + self.half_height() * self.half_height()).sqrt();
 

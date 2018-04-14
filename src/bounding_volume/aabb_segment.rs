@@ -4,9 +4,9 @@ use shape::Segment;
 use math::Matrix;
 use math::{Point, Scalar, Vector};
 
-impl HasBoundingVolume for Segment {
+impl<N: Real> HasBoundingVolume for Segment<N> {
     #[inline]
-    fn bounding_volume(&self, m: &Matrix) -> AABB {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // FIXME: optimize that
         bounding_volume::implicit_shape_aabb(m, self)
     }

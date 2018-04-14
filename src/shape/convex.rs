@@ -2,12 +2,10 @@ use std::f64;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use smallvec::SmallVec;
-use num::One;
-use approx::ApproxEq;
 
 use na::{self, Point2, Point3, Real, Unit};
 
-use utils::{self, data::SortedPair};
+use utils::{self, IsometryOps, SortedPair};
 use bounding_volume::PolyhedralCone;
 use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
@@ -19,14 +17,14 @@ struct Vertex {
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Edge<V: Vector> {
+struct Edge<N: Real> {
     vertices: Point2<usize>,
     faces: Point2<usize>,
-    dir: Unit<V>,
+    dir: Unit<Vector<N>>,
     deleted: bool,
 }
 
-impl<V: Vector> Edge<V> {
+impl<N: Real> Edge<N> {
     fn other_triangle(&self, id: usize) -> usize {
         if id == self.faces[0] {
             self.faces[1]
@@ -37,21 +35,21 @@ impl<V: Vector> Edge<V> {
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Face<V: Vector> {
+struct Face<N: Real> {
     first_vertex_or_edge: usize,
     num_vertices_or_edges: usize,
-    normal: Unit<V>,
+    normal: Unit<Vector<N>>,
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Triangle<V: Vector> {
+struct Triangle<N: Real> {
     vertices: Point3<usize>,
     edges: Point3<usize>,
-    normal: Unit<V>,
+    normal: Unit<Vector<N>>,
     parent_face: Option<usize>,
 }
 
-impl<V: Vector> Triangle<V> {
+impl<N: Real> Triangle<N> {
     fn next_edge_id(&self, id: usize) -> usize {
         for i in 0..3 {
             if self.edges[i] == id {
@@ -65,11 +63,11 @@ impl<V: Vector> Triangle<V> {
 
 #[derive(PartialEq, Debug, Clone)]
 /// A convex polyhedron without degenerate faces.
-pub struct ConvexHull<P: Point> {
-    points: Vec<P>,
+pub struct ConvexHull<N: Real> {
+    points: Vec<Point<N>>,
     vertices: Vec<Vertex>,
-    faces: Vec<Face<P::Vector>>,
-    edges: Vec<Edge<P::Vector>>,
+    faces: Vec<Face<N>>,
+    edges: Vec<Edge<N>>,
     // Faces adjascent to a vertex.
     faces_adj_to_vertex: Vec<usize>,
     // Edges adjascent to a vertex.
@@ -80,19 +78,14 @@ pub struct ConvexHull<P: Point> {
     vertices_adj_to_face: Vec<usize>,
 }
 
-impl<P: Point> ConvexHull<P> {
+impl<N: Real> ConvexHull<N> {
     #[inline]
-    pub fn try_new(points: Vec<P>, indices: &[usize]) -> Option<ConvexHull<P>> {
-        let eps = P::Real::default_epsilon().sqrt();
-        let dim = na::dimension::<P::Vector>();
-
-        if dim != 3 {
-            return None;
-        }
+    pub fn try_new(points: Vec<Point<N>>, indices: &[usize]) -> Option<ConvexHull<N>> {
+        let eps = N::default_epsilon().sqrt();
 
         let mut vertices = Vec::new();
-        let mut edges = Vec::<Edge<P::Vector>>::new();
-        let mut faces = Vec::<Face<P::Vector>>::new();
+        let mut edges = Vec::<Edge<N>>::new();
+        let mut faces = Vec::<Face<N>>::new();
         let mut triangles = Vec::new();
         let mut edge_map = HashMap::<SortedPair<usize>, usize>::new();
 
@@ -102,7 +95,7 @@ impl<P: Point> ConvexHull<P> {
         let mut vertices_adj_to_face = Vec::new();
 
         //// Euler characteristic.
-        let nedges = points.len() + (indices.len() / dim) - 2;
+        let nedges = points.len() + (indices.len() / 3) - 2;
         edges.reserve(nedges);
 
         /*
@@ -127,7 +120,7 @@ impl<P: Point> ConvexHull<P> {
 
                         if let Some(dir) = Unit::try_new(
                             points[vtx[i2]] - points[vtx[i1]],
-                            P::Real::default_epsilon(),
+                            N::default_epsilon(),
                         ) {
                             edges.push(Edge {
                                 vertices: Point2::new(vtx[i1], vtx[i2]),
@@ -143,7 +136,7 @@ impl<P: Point> ConvexHull<P> {
             }
 
             let vertices = Point3::new(vtx[0], vtx[1], vtx[2]);
-            let normal = P::ccw_face_normal(&[&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
+            let normal = utils::ccw_face_normal([&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
             let triangle = Triangle {
                 vertices,
                 edges: edges_id,
@@ -160,7 +153,7 @@ impl<P: Point> ConvexHull<P> {
         for e in &mut edges {
             let n1 = triangles[e.faces[0]].normal;
             let n2 = triangles[e.faces[1]].normal;
-            if na::dot(&*n1, &*n2) > P::Real::one() - eps {
+            if na::dot(&*n1, &*n2) > N::one() - eps {
                 e.deleted = true;
             } else {
                 num_valid_edges += 1;
@@ -309,27 +302,27 @@ impl<P: Point> ConvexHull<P> {
     }
 
     #[inline]
-    pub fn points(&self) -> &[P] {
+    pub fn points(&self) -> &[Point<N>] {
         &self.points[..]
     }
 }
 
-impl<P: Point, M: Isometry<P>> SupportMap<P, M> for ConvexHull<P> {
+impl<N: Real> SupportMap<N> for ConvexHull<N> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
-        let local_dir = m.inverse_rotate_vector(dir);
+    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
+        let local_dir = m.inverse_transform_vector(dir);
         let best_pt = utils::point_cloud_support_point(&local_dir, self.points());
 
-        m.transform_point(&best_pt)
+        m * best_pt
     }
 }
 
-impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
-    fn vertex(&self, id: FeatureId) -> P {
+impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
+    fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }
 
-    fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
+    fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId) {
         let edge = &self.edges[id.unwrap_edge()];
         let v1 = edge.vertices[0];
         let v2 = edge.vertices[1];
@@ -342,7 +335,7 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
         )
     }
 
-    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {
+    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<N>) {
         out.clear();
 
         let face = &self.faces[id.unwrap_face()];
@@ -358,10 +351,10 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
 
         out.set_normal(face.normal);
         out.set_feature_id(id);
-        out.recompute_edge_normals_3d();
+        out.recompute_edge_normals();
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
         let mut generators = SmallVec::new();
 
         match feature {
@@ -386,8 +379,8 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
         PolyhedralCone::Span(generators)
     }
 
-    fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, out: &mut ConvexPolyface<P>) {
-        let ls_dir = m.inverse_rotate_vector(dir);
+    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolyface<N>) {
+        let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.faces[0].normal, &ls_dir);
 
@@ -401,24 +394,24 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexHull<P> {
             }
         }
 
-        ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(best_face), out);
+        self.face(FeatureId::Face(best_face), out);
         out.transform_by(m);
     }
 
     fn support_feature_toward(
         &self,
-        transform: &M,
-        dir: &Unit<P::Vector>,
-        _angle: P::Real,
-        out: &mut ConvexPolyface<P>,
+        transform: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        _angle: N,
+        out: &mut ConvexPolyface<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
     }
 
-    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
-        let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+    fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
+        let eps: N = na::convert(f64::consts::PI / 180.0);
         let (seps, ceps) = eps.sin_cos();
         let support_pt_id = utils::point_cloud_support_point_id(local_dir.as_ref(), &self.points);
         let vertex = &self.vertices[support_pt_id];

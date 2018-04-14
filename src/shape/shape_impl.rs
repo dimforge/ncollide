@@ -1,14 +1,18 @@
+use na::Real;
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron,
-            Cuboid, Cylinder, FeatureId, Plane, Polyline, Segment, Shape, SupportMap, TriMesh,
-            Triangle};
+use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Segment,
+            Shape, SupportMap};
+#[cfg(feature = "dim2")]
+use shape::ConvexPolygon;
+#[cfg(fature = "dim3")]
+use shape::{Cone, ConvexHull, Cylinder, Triangle};
 use math::{Isometry, Point};
 
 macro_rules! impl_as_convex_polyhedron(
     () => {
         #[inline]
-        fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<P, M>> {
+        fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<N>> {
             Some(self)
         }
 
@@ -22,7 +26,7 @@ macro_rules! impl_as_convex_polyhedron(
 macro_rules! impl_as_support_map(
     () => {
         #[inline]
-        fn as_support_map(&self) -> Option<&SupportMap<P, M>> {
+        fn as_support_map(&self) -> Option<&SupportMap<N>> {
             Some(self)
         }
 
@@ -36,7 +40,7 @@ macro_rules! impl_as_support_map(
 macro_rules! impl_as_composite_shape(
     () => {
         #[inline]
-        fn as_composite_shape(&self) -> Option<&CompositeShape<P, M>> {
+        fn as_composite_shape(&self) -> Option<&CompositeShape<N>> {
             Some(self)
         }
 
@@ -50,78 +54,78 @@ macro_rules! impl_as_composite_shape(
 macro_rules! impl_shape_common(
     () => {
         #[inline]
-        fn aabb(&self, m: &M) -> AABB<P> {
+        fn aabb(&self, m: &Isometry<N>) -> AABB<N> {
             bounding_volume::aabb(self, m)
         }
 
         #[inline]
-        fn bounding_sphere(&self, m: &M) -> BoundingSphere<P> {
+        fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
             bounding_volume::bounding_sphere(self, m)
         }
 
         #[inline]
-        fn as_ray_cast(&self) -> Option<&RayCast<P, M>> {
+        fn as_ray_cast(&self) -> Option<&RayCast<N>> {
             Some(self)
         }
 
         #[inline]
-        fn as_point_query(&self) -> Option<&PointQuery<P, M>> {
+        fn as_point_query(&self) -> Option<&PointQuery<N>> {
             Some(self)
         }
     }
 );
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Triangle<P> {
+impl<N: Real> Shape<N> for Triangle<N> {
     impl_shape_common!();
     impl_as_support_map!();
     // impl_as_convex_polyhedron!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Segment<P> {
+impl<N: Real> Shape<N> for Segment<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
+impl<N: Real> Shape<N> for Ball<N> {
     impl_shape_common!();
     impl_as_support_map!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Cuboid<P::Vector> {
-    impl_shape_common!();
-    impl_as_support_map!();
-    impl_as_convex_polyhedron!();
-}
-
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Cylinder<P::Real> {
-    impl_shape_common!();
-    impl_as_support_map!();
-}
-
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Cone<P::Real> {
-    impl_shape_common!();
-    impl_as_support_map!();
-}
-
-impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexHull<P> {
+impl<N: Real> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for ConvexPolygon<P> {
+impl<N: Real> Shape<N> for Cylinder<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+}
+
+impl<N: Real> Shape<N> for Cone<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+}
+
+impl<N: Real> Shape<N> for ConvexHull<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<P, M> {
+impl<N: Real> Shape<N> for ConvexPolygon<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+    impl_as_convex_polyhedron!();
+}
+
+impl<N: Real> Shape<N> for Compound<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
 
     #[inline]
-    fn subshape_transform(&self, subshape_id: usize) -> Option<M> {
+    fn subshape_transform(&self, subshape_id: usize) -> Option<Isometry<N>> {
         let idx = self.start_idx();
         let mut shape_id = 0;
 
@@ -139,16 +143,16 @@ impl<P: Point, M: 'static + Send + Sync + Isometry<P>> Shape<P, M> for Compound<
     }
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for TriMesh<P> {
-    impl_shape_common!();
-    impl_as_composite_shape!();
-}
+// impl<N: Real> Shape<N> for TriMesh<P> {
+//     impl_shape_common!();
+//     impl_as_composite_shape!();
+// }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Polyline<P> {
-    impl_shape_common!();
-    impl_as_composite_shape!();
-}
+// impl<N: Real> Shape<N> for Polyline<P> {
+//     impl_shape_common!();
+//     impl_as_composite_shape!();
+// }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Plane<P::Vector> {
+impl<N: Real> Shape<N> for Plane<N> {
     impl_shape_common!();
 }

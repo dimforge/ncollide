@@ -15,11 +15,11 @@ thread_local!(static KEY_RECURSION_TEMPLATE: RefCell<Arc<Vec<JohnsonSimplexTempl
 
 ///  Simplex using the Johnson subalgorithm to compute the projection of the origin on the simplex.
 #[derive(Clone)]
-pub struct JohnsonSimplex<P: Point> {
+pub struct JohnsonSimplex<N: Real> {
     recursion_template: Arc<Vec<JohnsonSimplexTemplate>>,
-    points: Vec<P>,
-    exchange_points: Vec<P>,
-    determinants: Vec<P::Real>,
+    points: Vec<Point<N>>,
+    exchange_points: Vec<Point<N>>,
+    determinants: Vec<N>,
 }
 
 /// Set of indices to explain to the JohnsonSimplex how to do its work.
@@ -189,10 +189,10 @@ impl JohnsonSimplexTemplate {
     }
 }
 
-impl<P: Point> JohnsonSimplex<P> {
+impl<N: Real> JohnsonSimplex<P> {
     /// Creates a new, empty, Johnson simplex.
     pub fn new(recursion: Arc<Vec<JohnsonSimplexTemplate>>) -> JohnsonSimplex<P> {
-        let _dimension = na::dimension::<P::Vector>();
+        let _dimension = na::dimension::<Vector<N>>();
 
         JohnsonSimplex {
             points: Vec::with_capacity(_dimension + 1),
@@ -207,16 +207,16 @@ impl<P: Point> JohnsonSimplex<P> {
     /// Creates a new, empty Johnson simplex. The recursion template uses the thread-local one.
     pub fn new_w_tls() -> JohnsonSimplex<P> {
         KEY_RECURSION_TEMPLATE.with(|rec| {
-            if rec.borrow().len() <= na::dimension::<P::Vector>() {
-                *rec.borrow_mut() = JohnsonSimplexTemplate::new(na::dimension::<P::Vector>());
+            if rec.borrow().len() <= na::dimension::<Vector<N>>() {
+                *rec.borrow_mut() = JohnsonSimplexTemplate::new(na::dimension::<Vector<N>>());
             }
             JohnsonSimplex::new(rec.borrow().clone())
         })
     }
 }
 
-impl<P: Point> JohnsonSimplex<P> {
-    fn do_project_origin(&mut self, reduce: bool) -> P {
+impl<N: Real> JohnsonSimplex<P> {
+    fn do_project_origin(&mut self, reduce: bool) -> Point<N> {
         if self.points.is_empty() {
             panic!("Cannot project the origin on an empty simplex.")
         }
@@ -249,7 +249,7 @@ impl<P: Point> JohnsonSimplex<P> {
             while curr != end {
                 // FIXME: replace this `while` by a `for` when a range with custom increment exist
                 unsafe {
-                    let mut determinant: P::Real = na::zero();
+                    let mut determinant: N = na::zero();
                     let kpt = *self.points[..]
                         .get_unchecked(*recursion.permutation_list[..].get_unchecked(curr + 1usize));
                     let jpt = *self.points[..]
@@ -264,7 +264,7 @@ impl<P: Point> JohnsonSimplex<P> {
                         let delta = sub_determinant
                             * na::dot(
                                 &(kpt - jpt),
-                                &self.points[..].get_unchecked(i_pid).coordinates(),
+                                &self.points[..].get_unchecked(i_pid).coords,
                             );
 
                         determinant = determinant + delta;
@@ -327,8 +327,8 @@ impl<P: Point> JohnsonSimplex<P> {
                 if foundit {
                     // We found a projection!
                     // Re-run the same iteration but, this time, compute the projection.
-                    let mut total_det: P::Real = na::zero();
-                    let mut proj = P::origin();
+                    let mut total_det: N = na::zero();
+                    let mut proj = Point::origin();
 
                     unsafe {
                         for i in 0usize..curr_num_pts {
@@ -369,13 +369,13 @@ impl<P: Point> JohnsonSimplex<P> {
             curr_num_pts = curr_num_pts - 1;
         }
 
-        P::origin()
+        Point::origin()
     }
 }
 
-impl<P: Point> Simplex<P> for JohnsonSimplex<P> {
+impl<N: Real> Simplex<P> for JohnsonSimplex<P> {
     #[inline]
-    fn reset(&mut self, pt: P) {
+    fn reset(&mut self, pt: Point<N>) {
         self.points.clear();
         self.points.push(pt);
     }
@@ -386,11 +386,11 @@ impl<P: Point> Simplex<P> for JohnsonSimplex<P> {
     }
 
     #[inline]
-    fn max_sq_len(&self) -> P::Real {
+    fn max_sq_len(&self) -> N {
         let mut max_sq_len = na::zero();
 
         for p in self.points.iter() {
-            let norm = na::norm_squared(&p.coordinates());
+            let norm = na::norm_squared(&p.coords);
 
             if norm > max_sq_len {
                 max_sq_len = norm
@@ -406,24 +406,24 @@ impl<P: Point> Simplex<P> for JohnsonSimplex<P> {
     }
 
     #[inline]
-    fn add_point(&mut self, pt: P) -> bool {
+    fn add_point(&mut self, pt: Point<N>) -> bool {
         self.points.push(pt);
-        assert!(self.points.len() <= na::dimension::<P::Vector>() + 1);
+        assert!(self.points.len() <= na::dimension::<Vector<N>>() + 1);
         return true;
     }
 
     #[inline]
-    fn point(&self, i: usize) -> P {
+    fn point(&self, i: usize) -> Point<N> {
         self.points[i]
     }
 
     #[inline]
-    fn project_origin_and_reduce(&mut self) -> P {
+    fn project_origin_and_reduce(&mut self) -> Point<N> {
         self.do_project_origin(true)
     }
 
     #[inline]
-    fn project_origin(&mut self) -> P {
+    fn project_origin(&mut self) -> Point<N> {
         self.do_project_origin(false)
     }
 

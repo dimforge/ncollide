@@ -4,7 +4,7 @@ use world::CollisionObject;
 use math::{Point, Isometry};
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<P: Point, M: Isometry<P>, T>: Any + Send + Sync {
+pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(&self, b1: &CollisionObject<P, M, T>, b2: &CollisionObject<P, M, T>) -> bool;
 }
@@ -12,11 +12,11 @@ pub trait BroadPhasePairFilter<P: Point, M: Isometry<P>, T>: Any + Send + Sync {
 /// Filters deciding whether a proximity is to be further investigated by the narrow phase or not.
 ///
 /// All filters have have to return `true` in order to allow a proximity to be further handled.
-pub struct BroadPhasePairFilters<P: Point, M, T> {
+pub struct BroadPhasePairFilters<N: Real, M, T> {
     filters: Vec<(String, Box<BroadPhasePairFilter<P, M, T>>)>,
 }
 
-impl<P: Point, M: Isometry<P>, T> BroadPhasePairFilters<P, M, T> {
+impl<N: Real, T> BroadPhasePairFilters<P, M, T> {
     /// Creates a new set of collision filters.
     pub fn new() -> BroadPhasePairFilters<P, M, T> {
         BroadPhasePairFilters {

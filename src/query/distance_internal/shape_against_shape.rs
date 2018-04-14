@@ -6,22 +6,22 @@ use query::distance_internal;
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<P, M>(m1: &M, g1: &Shape<P, M>, m2: &M, g2: &Shape<P, M>) -> P::Real
+pub fn shape_against_shape<P, M>(m1: &Isometry<N>, g1: &Shape<N>, m2: &Isometry<N>, g2: &Shape<N>) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<P::Real>>(),
-        g2.as_shape::<Ball<P::Real>>(),
+        g1.as_shape::<Ball<N>>(),
+        g2.as_shape::<Ball<N>>(),
     ) {
-        let p1 = P::from_coordinates(m1.translation().to_vector());
-        let p2 = P::from_coordinates(m2.translation().to_vector());
+        let p1 = Point::from_coordinates(m1.translation().to_vector());
+        let p2 = Point::from_coordinates(m2.translation().to_vector());
 
         distance_internal::ball_against_ball(&p1, b1, &p2, b2)
-    } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<P::Vector>>(), g2.as_support_map()) {
+    } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
         distance_internal::plane_against_support_map(m1, p1, m2, s2)
-    } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<P::Vector>>()) {
+    } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
         distance_internal::support_map_against_plane(m1, s1, m2, p2)
     } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
         distance_internal::support_map_against_support_map::<P, _, _, _>(m1, s1, m2, s2)

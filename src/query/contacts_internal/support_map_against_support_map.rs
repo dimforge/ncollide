@@ -14,19 +14,19 @@ use math::{Isometry, Point};
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-    prediction: P::Real,
+    prediction: N,
 ) -> Option<Contact<P>>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
-    if na::dimension::<P::Vector>() == 2 {
+    if na::dimension::<Vector<N>>() == 2 {
         let simplex = &mut VoronoiSimplex2::new();
         match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
         {
@@ -35,7 +35,7 @@ where
             GJKResult::Intersection => unreachable!(),
             GJKResult::Proximity(_) => unreachable!(),
         }
-    } else if na::dimension::<P::Vector>() == 3 {
+    } else if na::dimension::<Vector<N>>() == 3 {
         let simplex = &mut VoronoiSimplex3::new();
         match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
         {
@@ -60,20 +60,20 @@ where
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
 pub fn support_map_against_support_map_with_params<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-    prediction: P::Real,
+    prediction: N,
     simplex: &mut S,
-    init_dir: Option<P::Vector>,
-) -> GJKResult<Contact<P>, P::Vector>
+    init_dir: Option<Vector<N>>,
+) -> GJKResult<Contact<P>, Vector<N>>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let mut dir = match init_dir {
         // FIXME: or m2.translation - m1.translation ?
@@ -103,7 +103,7 @@ where
     }
 
     // The point is inside of the CSO: use the fallback algorithm
-    if na::dimension::<P::Vector>() == 2 {
+    if na::dimension::<Vector<N>>() == 2 {
         let mut epa = EPA2::new();
         if let Some((p1, p2, n)) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
             // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
@@ -112,7 +112,7 @@ where
                 return GJKResult::Projection(Contact::new(p1, p2, normal, depth), normal);
             }
         }
-    } else if na::dimension::<P::Vector>() == 3 {
+    } else if na::dimension::<Vector<N>>() == 3 {
         let mut epa = EPA3::new();
         if let Some((p1, p2, n)) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
             // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the

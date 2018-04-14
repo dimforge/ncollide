@@ -63,7 +63,7 @@ impl<N: Scalar> DefaultGen for Ball<N> {
     }
 }
 
-impl<V: Vector> DefaultGen for Cuboid<V> {
+impl<N: Real> DefaultGen for Cuboid<V> {
     fn generate<R: Rng>(rng: &mut R) -> Cuboid<V> {
         Cuboid::new(na::abs(&rng.gen::<V>()))
     }
@@ -87,37 +87,37 @@ impl<N: Scalar> DefaultGen for Cylinder<N> {
     }
 }
 
-impl<P> DefaultGen for Segment<P>
+impl<P> DefaultGen for Segment<N>
 where
-    P: Point,
+    N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> Segment<P> {
-        Segment::new(P::origin() + rng.gen(), P::origin() + rng.gen())
+    fn generate<R: Rng>(rng: &mut R) -> Segment<N> {
+        Segment::new(Point::origin() + rng.gen(), Point::origin() + rng.gen())
     }
 }
 
-impl<P> DefaultGen for Triangle<P>
+impl<P> DefaultGen for Triangle<N>
 where
-    P: Point,
+    N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> Triangle<P> {
+    fn generate<R: Rng>(rng: &mut R) -> Triangle<N> {
         Triangle::new(
-            P::origin() + rng.gen(),
-            P::origin() + rng.gen(),
-            P::origin() + rng.gen(),
+            Point::origin() + rng.gen(),
+            Point::origin() + rng.gen(),
+            Point::origin() + rng.gen(),
         )
     }
 }
 
-impl<P> DefaultGen for ConvexHull<P>
+impl<P> DefaultGen for ConvexHull<N>
 where
-    P: Point,
+    N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> ConvexHull<P> {
+    fn generate<R: Rng>(rng: &mut R) -> ConvexHull<N> {
         // It is recommanded to have at most 100 points.
         // Otherwise, a smarter structure like the DK hierarchy would be needed.
         let pts = (0..100)
-            .map(|_| P::origin() + rng.gen::<P::Vector>())
+            .map(|_| Point::origin() + rng.gen::<Vector<N>>())
             .collect();
         ConvexHull::new(pts)
     }
@@ -125,32 +125,32 @@ where
 
 impl<P> DefaultGen for Ray<P>
 where
-    P: Point,
+    N: Real,
 {
     fn generate<R: Rng>(rng: &mut R) -> Ray<P> {
         // The generate ray will always point to the origin.
-        let shift = rng.gen::<P::Vector>() * na::convert(10.0f64);
-        Ray::new(P::origin() + shift, -shift)
+        let shift = rng.gen::<Vector<N>>() * na::convert(10.0f64);
+        Ray::new(Point::origin() + shift, -shift)
     }
 }
 
-impl<P> DefaultGen for AABB<P>
+impl<P> DefaultGen for AABB<N>
 where
-    P: Point,
+    N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> AABB<P> {
+    fn generate<R: Rng>(rng: &mut R) -> AABB<N> {
         // an AABB centered at the origin.
-        let half_extents = na::abs(&rng.gen::<P::Vector>());
-        AABB::new(P::origin() + (-half_extents), P::origin() + half_extents)
+        let half_extents = na::abs(&rng.gen::<Vector<N>>());
+        AABB::new(Point::origin() + (-half_extents), Point::origin() + half_extents)
     }
 }
 
-impl<P> DefaultGen for BoundingSphere<P>
+impl<P> DefaultGen for BoundingSphere<N>
 where
-    P: Point,
+    N: Real,
 {
-    fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<P> {
+    fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<N> {
         // a bounding sphere centered at the origin.
-        BoundingSphere::new(na::origin(), na::abs(&rng.gen::<P::Real>()))
+        BoundingSphere::new(na::origin(), na::abs(&rng.gen::<N>()))
     }
 }

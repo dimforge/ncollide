@@ -11,17 +11,17 @@ use math::{Isometry, Point};
 
 use utils;
 
-impl<P: Point, M: Isometry<P>> RayCast<P, M> for Triangle<P> {
+impl<N: Real> RayCast<P, M> for Triangle<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        let res = if na::dimension::<P::Vector>() == 3 {
+        let res = if na::dimension::<Vector<N>>() == 3 {
             triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray).map(|(r, _)| r)
         } else {
             ray_internal::implicit_toi_and_normal_with_ray(
@@ -44,12 +44,12 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Triangle<P> {
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
-pub fn triangle_ray_intersection<P: Point>(
+pub fn triangle_ray_intersection<N: Real>(
     a: &P,
     b: &P,
     c: &P,
     ray: &Ray<P>,
-) -> Option<(RayIntersection<P::Vector>, Vector3<P::Real>)> {
+) -> Option<(RayIntersection<Vector<N>>, Vector3<N>)> {
     let ab = *b - *a;
     let ac = *c - *a;
 
@@ -95,7 +95,7 @@ pub fn triangle_ray_intersection<P: Point>(
             return None;
         }
 
-        let invd = na::one::<P::Real>() / d;
+        let invd = na::one::<N>() / d;
         toi = -t * invd;
         normal = -na::normalize(&n);
         v = v * invd;
@@ -113,7 +113,7 @@ pub fn triangle_ray_intersection<P: Point>(
             return None;
         }
 
-        let invd = na::one::<P::Real>() / d;
+        let invd = na::one::<N>() / d;
         toi = t * invd;
         normal = na::normalize(&n);
         v = v * invd;

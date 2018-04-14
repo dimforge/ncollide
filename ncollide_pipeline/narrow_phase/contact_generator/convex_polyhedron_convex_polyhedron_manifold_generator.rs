@@ -43,21 +43,21 @@ impl<N: Real> ClippingCache<N> {
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<P: Point, M, S> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real, M, S> {
     simplex: S,
-    last_gjk_dir: Option<P::Vector>,
-    last_optimal_dir: Option<Unit<P::Vector>>,
+    last_gjk_dir: Option<Vector<N>>,
+    last_optimal_dir: Option<Unit<Vector<N>>>,
     contact_manifold: ContactManifold<P>,
-    clip_cache: ClippingCache<P::Real>,
+    clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<P>, FeatureId, FeatureId)>,
-    manifold1: ConvexPolyface<P>,
-    manifold2: ConvexPolyface<P>,
+    manifold1: ConvexPolyface<N>,
+    manifold2: ConvexPolyface<N>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
 impl<P, M, S> ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
 {
@@ -81,14 +81,14 @@ where
 
     fn save_new_contacts_as_contact_manifold<G1: ?Sized, G2: ?Sized>(
         &mut self,
-        m1: &M,
+        m1: &Isometry<N>,
         g1: &G1,
-        m2: &M,
+        m2: &Isometry<N>,
         g2: &G2,
         ids: &mut IdAllocator,
     ) where
-        G1: ConvexPolyhedron<P, M>,
-        G2: ConvexPolyhedron<P, M>,
+        G1: ConvexPolyhedron<N>,
+        G2: ConvexPolyhedron<N>,
     {
         self.contact_manifold.save_cache_and_clear(ids);
         for (c, f1, f2) in self.new_contacts.drain(..) {
@@ -126,7 +126,7 @@ where
         }
     }
 
-    fn reduce_manifolds_to_deepest_contact(&mut self, m1: &M, m2: &M) {
+    fn reduce_manifolds_to_deepest_contact(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
         if let Some(deepest) = self.contact_manifold.deepest_contact() {
             self.manifold1
                 .reduce_to_feature(deepest.kinematic.feature1());
@@ -140,13 +140,13 @@ where
         }
     }
 
-    fn clip_polyfaces(&mut self, prediction: &ContactPrediction<P::Real>, normal: Unit<P::Vector>) {
-        if na::dimension::<P::Vector>() == 2 {
+    fn clip_polyfaces(&mut self, prediction: &ContactPrediction<N>, normal: Unit<Vector<N>>) {
+        if na::dimension::<Vector<N>>() == 2 {
             if self.manifold1.vertices.len() <= 1 || self.manifold2.vertices.len() <= 1 {
                 return;
             }
             // In 2D we always end up with two points.
-            let mut ortho: P::Vector = na::zero();
+            let mut ortho: Vector<N> = na::zero();
             ortho[0] = -normal.as_ref()[1];
             ortho[1] = normal.as_ref()[0];
 
@@ -181,7 +181,7 @@ where
                 return;
             }
 
-            let _1: P::Real = na::one();
+            let _1: N = na::one();
             let length1 = range1[1] - range1[0];
             let length2 = range2[1] - range2[0];
 
@@ -240,7 +240,7 @@ where
             let mut basis = [na::zero(), na::zero()];
             let mut basis_i = 0;
 
-            P::Vector::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
+            Vector<N>::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
                 basis[basis_i] = *dir;
                 basis_i += 1;
                 true
@@ -346,14 +346,14 @@ where
 
     fn try_optimal_contact<G1: ?Sized, G2: ?Sized>(
         &mut self,
-        m1: &M,
+        m1: &Isometry<N>,
         g1: &G1,
-        m2: &M,
+        m2: &Isometry<N>,
         g2: &G2,
     ) -> Option<Contact<P>>
     where
-        G1: ConvexPolyhedron<P, M>,
-        G2: ConvexPolyhedron<P, M>,
+        G1: ConvexPolyhedron<N>,
+        G2: ConvexPolyhedron<N>,
     {
         if self.manifold1.vertices.len() == 0 || self.manifold2.vertices.len() == 0 {
             return None;
@@ -453,7 +453,7 @@ where
         } else if let Some(n2) = self.manifold2.normal {
             let depth = na::dot(&dir, n2.as_ref());
             return Some(Contact::new(world1, world2, -n2, depth));
-        } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, P::Real::default_epsilon()) {
+        } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, N::default_epsilon()) {
             // FIXME: don't always recompute the normal cones.
             let normals1 = g1.normal_cone(f1);
             let normals2 = g2.normal_cone(f2);
@@ -483,7 +483,7 @@ thread_local! {
 impl<P, M, S> ContactManifoldGenerator<P, M>
     for ConvexPolyhedronConvexPolyhedronManifoldGenerator<P, M, S>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
 {
@@ -492,12 +492,12 @@ where
         &mut self,
         _: &ContactDispatcher<P, M>,
         ida: usize,
-        ma: &M,
-        a: &Shape<P, M>,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
         idb: usize,
-        mb: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {

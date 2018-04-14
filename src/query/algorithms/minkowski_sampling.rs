@@ -15,29 +15,29 @@ use math::{Isometry, Point, Vector};
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.
 pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
     simplex: &mut S,
-) -> Option<(P, P, Unit<P::Vector>)>
+) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let reflect2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     // find an approximation of the smallest penetration direction
-    let mut best_dir: P::Vector = na::zero();
+    let mut best_dir: Vector<N> = na::zero();
     let mut min_dist = Bounded::max_value();
 
-    P::Vector::sample_sphere(|sample: P::Vector| {
+    Vector<N>::sample_sphere(|sample: Vector<N>| {
         let support = cso.support_point(&Id::new(), &sample);
-        let distance = na::dot(&sample, &support.coordinates());
+        let distance = na::dot(&sample, &support.coords);
 
         if distance < min_dist {
             best_dir = sample;
@@ -48,7 +48,7 @@ where
     let extra_shift = na::convert(0.01f64); // FIXME: do not hard-code the extra shift?
     let shift = best_dir * (min_dist + extra_shift);
 
-    let tm2 = m2.append_translation(&M::Translation::from_vector(shift).unwrap());
+    let tm2 = m2.append_translation(&Isometry<N>::Translation::from_vector(shift).unwrap());
 
     simplex.modify_pnts(&|pt| pt.translate_2(&(-shift)));
 
@@ -111,20 +111,20 @@ where
 /// Projects the origin on a support-mapped shape.
 ///
 /// The origin is assumed to be inside of the shape.
-pub fn project_origin<P, M, S, G>(m: &M, g: &G, simplex: &mut S) -> Option<P>
+pub fn project_origin<P, M, S, G>(m: &Isometry<N>, g: &G, simplex: &mut S) -> Option<P>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     // find an approximation of the smallest penetration direction
-    let mut best_dir: P::Vector = na::zero();
+    let mut best_dir: Vector<N> = na::zero();
     let mut min_dist = Bounded::max_value();
 
-    P::Vector::sample_sphere(|sample: P::Vector| {
+    Vector<N>::sample_sphere(|sample: Vector<N>| {
         let support = g.support_point(m, &sample);
-        let distance = na::dot(&sample, &support.coordinates());
+        let distance = na::dot(&sample, &support.coords);
 
         if distance < min_dist {
             best_dir = sample;
@@ -135,20 +135,20 @@ where
     let extra_shift = na::convert(0.01f64); // FIXME: do not hard-code the extra shift?
     let shift = best_dir * (min_dist + extra_shift);
 
-    let tm = m.append_translation(&M::Translation::from_vector(-shift).unwrap());
+    let tm = m.append_translation(&Isometry<N>::Translation::from_vector(-shift).unwrap());
 
     simplex.modify_pnts(&|pt| *pt = *pt + (-shift));
 
     match gjk::project_origin(&tm, g, simplex) {
         None => None, // panic!("Internal error: the origin was inside of the Simplex during phase 1."),
         Some(p) => {
-            let mut normal = -p.coordinates();
+            let mut normal = -p.coords;
             let dist_err = normal.normalize_mut();
 
             if !dist_err.is_zero() {
                 let nmin_dist = na::dot(&normal, &best_dir) * (min_dist + extra_shift);
 
-                Some(P::origin() + normal * (nmin_dist - dist_err))
+                Some(Point::origin() + normal * (nmin_dist - dist_err))
             } else {
                 // FIXME: something went wrong here.
                 None

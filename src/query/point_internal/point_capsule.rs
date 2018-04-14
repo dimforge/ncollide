@@ -4,16 +4,16 @@ use shape::{Capsule, FeatureId, Segment};
 use query::{PointProjection, PointQuery};
 use math::{Isometry, Point};
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Capsule<P::Real> {
+impl<N: Real> PointQuery<P, M> for Capsule<N> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
-        let mut y = P::origin();
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+        let mut y = Point::origin();
         y[1] = self.half_height();
         let seg = Segment::new(-y, y);
         let proj = seg.project_point(m, pt, solid);
         let dproj = *pt - proj.point;
 
-        if let Some((dir, dist)) = Unit::try_new_and_get(dproj, P::Real::default_epsilon()) {
+        if let Some((dir, dist)) = Unit::try_new_and_get(dproj, N::default_epsilon()) {
             let inside = dist <= self.radius();
             if solid && inside {
                 PointProjection::new(true, *pt)
@@ -24,7 +24,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Capsule<P::Real> {
             if solid {
                 PointProjection::new(true, *pt)
             } else {
-                let mut dir: P::Vector = na::zero();
+                let mut dir: Vector<N> = na::zero();
                 dir[1] = na::one();
                 dir = m.transform_vector(&dir);
                 PointProjection::new(true, proj.point + dir * self.radius())
@@ -33,7 +33,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Capsule<P::Real> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

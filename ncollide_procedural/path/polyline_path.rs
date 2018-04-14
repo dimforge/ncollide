@@ -7,14 +7,14 @@ use math::Point;
 ///
 /// This will return sequencially each vertex of the polyline.
 pub struct PolylinePath<'a, P: 'a + Point> {
-    curr_len: P::Real,
-    curr_dir: P::Vector,
+    curr_len: N,
+    curr_dir: Vector<N>,
     curr_pt_id: usize,
-    curr_pt: P,
+    curr_pt: Point<N>,
     polyline: &'a Polyline<P>,
 }
 
-impl<'a, P: Point> PolylinePath<'a, P> {
+impl<'a, N: Real> PolylinePath<'a, P> {
     /// Creates a new polyline-based path.
     pub fn new(polyline: &'a Polyline<P>) -> PolylinePath<'a, P> {
         assert!(
@@ -22,8 +22,8 @@ impl<'a, P: Point> PolylinePath<'a, P> {
             "The polyline must have at least two points."
         );
 
-        let mut dir: P::Vector = polyline.coords()[1] - polyline.coords()[0];
-        let len: P::Real = dir.normalize_mut();
+        let mut dir: Vector<N> = polyline.coords()[1] - polyline.coords()[0];
+        let len: N = dir.normalize_mut();
 
         PolylinePath {
             curr_len: len,
@@ -35,7 +35,7 @@ impl<'a, P: Point> PolylinePath<'a, P> {
     }
 }
 
-impl<'a, P: Point> CurveSampler<P> for PolylinePath<'a, P> {
+impl<'a, N: Real> CurveSampler<P> for PolylinePath<'a, P> {
     fn next(&mut self) -> PathSample<P> {
         let poly_coords = self.polyline.coords();
 

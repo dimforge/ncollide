@@ -11,17 +11,17 @@ use math::{Isometry, Point};
 
 /// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<P, M, S, G: ?Sized>(
-    m: &M,
+    m: &Isometry<N>,
     shape: &G,
     simplex: &mut S,
     ray: &Ray<P>,
     solid: bool,
-) -> Option<RayIntersection<P::Vector>>
+) -> Option<RayIntersection<Vector<N>>>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     let inter = gjk::cast_ray(m, shape, simplex, ray);
 
@@ -37,7 +37,7 @@ where
                     let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
 
                     // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
-                    simplex.reset(supp + (-new_ray.origin.coordinates()));
+                    simplex.reset(supp + (-new_ray.origin.coords));
 
                     gjk::cast_ray(m, shape, simplex, &new_ray)
                         .map(|(toi, normal)| RayIntersection::new(shift - toi, normal))
@@ -51,20 +51,20 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Cylinder<P::Real>
+impl<P, M> RayCast<P, M> for Cylinder<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -75,7 +75,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -101,20 +101,20 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Cone<P::Real>
+impl<P, M> RayCast<P, M> for Cone<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -125,7 +125,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -151,20 +151,20 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Capsule<P::Real>
+impl<P, M> RayCast<P, M> for Capsule<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -175,7 +175,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -201,20 +201,20 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for ConvexHull<P>
+impl<P, M> RayCast<P, M> for ConvexHull<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -225,7 +225,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -253,18 +253,18 @@ where
 
 impl<P, M> RayCast<P, M> for ConvexPolygon<P>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -275,7 +275,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -301,21 +301,21 @@ where
     }
 }
 
-impl<P, M> RayCast<P, M> for Segment<P>
+impl<P, M> RayCast<P, M> for Segment<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -326,7 +326,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -354,20 +354,20 @@ where
 
 impl<'a, P, M, M2, G1: ?Sized, G2: ?Sized> RayCast<P, M2> for MinkowskiSum<'a, M, G1, G2>
 where
-    P: Point,
+    N: Real,
     M2: Isometry<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     fn toi_and_normal_with_ray(
         &self,
         m: &M2,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        if na::dimension::<P::Vector>() == 2 {
+        if na::dimension::<Vector<N>>() == 2 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,
@@ -378,7 +378,7 @@ where
                 res.normal = m.rotate_vector(&res.normal);
                 res
             })
-        } else if na::dimension::<P::Vector>() == 3 {
+        } else if na::dimension::<Vector<N>>() == 3 {
             implicit_toi_and_normal_with_ray(
                 &Id::new(),
                 self,

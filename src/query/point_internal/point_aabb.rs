@@ -5,8 +5,8 @@ use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 
-impl<P: Point> AABB<P> {
-    fn local_point_projection<M>(&self, m: &M, pt: &P, solid: bool) -> (bool, P, P::Vector)
+impl<N: Real> AABB<N> {
+    fn local_point_projection<M>(&self, m: &Isometry<N>, pt: &P, solid: bool) -> (bool, P, Vector<N>)
     where
         M: Isometry<P>,
     {
@@ -22,11 +22,11 @@ impl<P: Point> AABB<P> {
         } else if solid {
             (true, ls_pt, shift)
         } else {
-            let _max: P::Real = Bounded::max_value();
+            let _max: N = Bounded::max_value();
             let mut best = -_max;
             let mut best_id = 0isize;
 
-            for i in 0..na::dimension::<P::Vector>() {
+            for i in 0..na::dimension::<Vector<N>>() {
                 let mins_pt_i = mins_pt[i];
                 let pt_maxs_i = pt_maxs[i];
 
@@ -41,7 +41,7 @@ impl<P: Point> AABB<P> {
                 }
             }
 
-            let mut shift: P::Vector = na::zero();
+            let mut shift: Vector<N> = na::zero();
 
             if best_id < 0 {
                 shift[(-best_id) as usize] = best;
@@ -54,18 +54,18 @@ impl<P: Point> AABB<P> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
+impl<N: Real> PointQuery<P, M> for AABB<N> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
         let (inside, ls_pt, _) = self.local_point_projection(m, pt, solid);
         PointProjection::new(inside, m.transform_point(&ls_pt))
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
         let proj = PointProjection::new(inside, m.transform_point(&ls_pt));
-        let dim = na::dimension::<P::Vector>();
+        let dim = na::dimension::<Vector<N>>();
         let mut nzero_shifts = 0;
         let mut last_zero_shift = 0;
         let mut last_not_zero_shift = 0;
@@ -110,7 +110,7 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {
+    fn distance_to_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -125,10 +125,10 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for AABB<P> {
     }
 
     #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        let ls_pt = m.inverse_transform_point(pt).coordinates();
+    fn contains_point(&self, m: &Isometry<N>, pt: &P) -> bool {
+        let ls_pt = m.inverse_transform_point(pt).coords;
 
-        for i in 0..na::dimension::<P::Vector>() {
+        for i in 0..na::dimension::<Vector<N>>() {
             if ls_pt[i] < self.mins()[i] || ls_pt[i] > self.maxs()[i] {
                 return false;
             }

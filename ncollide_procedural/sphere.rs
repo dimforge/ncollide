@@ -216,8 +216,8 @@ pub fn unit_hemisphere<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn circle<P: Point>(diameter: &P::Real, nsubdivs: u32) -> Polyline<P> {
-    let two_pi = P::Real::two_pi();
+pub fn circle<N: Real>(diameter: &N, nsubdivs: u32) -> Polyline<P> {
+    let two_pi = N::two_pi();
     let dtheta = two_pi / na::convert(nsubdivs as f64);
 
     let mut pts = Vec::with_capacity(nsubdivs as usize);
@@ -230,7 +230,7 @@ pub fn circle<P: Point>(diameter: &P::Real, nsubdivs: u32) -> Polyline<P> {
 }
 
 /// Creates a circle lying on the `(x,y)` plane.
-pub fn unit_circle<P: Point>(nsubdivs: u32) -> Polyline<P> {
+pub fn unit_circle<N: Real>(nsubdivs: u32) -> Polyline<P> {
     // FIXME: do this the other way round?
     circle::<P>(&na::convert(1.0), nsubdivs)
 }

@@ -143,15 +143,15 @@ impl<'a, M, G1: ?Sized, G2: ?Sized> AnnotatedMinkowskiSum<'a, M, G1, G2> {
 #[doc(hidden)]
 #[derive(Clone, Copy, Debug)]
 pub struct AnnotatedPoint<P> {
-    orig1: P,
-    orig2: P,
-    point: P,
+    orig1: Point<N>,
+    orig2: Point<N>,
+    point: Point<N>,
 }
 
-impl<P: Point> AnnotatedPoint<P> {
+impl<N: Real> AnnotatedPoint<P> {
     #[doc(hidden)]
     #[inline]
-    pub fn new(orig1: P, orig2: P, point: P) -> AnnotatedPoint<P> {
+    pub fn new(orig1: Point<N>, orig2: Point<N>, point: Point<N>) -> AnnotatedPoint<P> {
         AnnotatedPoint {
             orig1: orig1,
             orig2: orig2,
@@ -167,42 +167,42 @@ impl<P: Point> AnnotatedPoint<P> {
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig1(&self) -> &P {
+    pub fn orig1(&self) -> &Point<N> {
         &self.orig1
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn orig2(&self) -> &P {
+    pub fn orig2(&self) -> &Point<N> {
         &self.orig2
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn translate_1(&mut self, t: &P::Vector) {
+    pub fn translate_1(&mut self, t: &Vector<N>) {
         self.orig1 += *t;
         self.point += *t;
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn translate_2(&mut self, t: &P::Vector) {
+    pub fn translate_2(&mut self, t: &Vector<N>) {
         self.orig2 += *t;
         self.point += *t;
     }
 }
 
-impl<P: Point> AffineSpace for AnnotatedPoint<P> {
-    type Translation = P::Vector;
+impl<N: Real> AffineSpace for AnnotatedPoint<P> {
+    type Translation = Vector<N>;
 }
 
-impl<P: Point> EuclideanSpace for AnnotatedPoint<P> {
-    type Coordinates = P::Vector;
-    type Real = P::Real;
+impl<N: Real> EuclideanSpace for AnnotatedPoint<P> {
+    type Coordinates = Vector<N>;
+    type Real = N;
 
     #[inline]
     fn origin() -> Self {
-        Self::new(P::origin(), P::origin(), P::origin())
+        Self::new(Point::origin(), Point::origin(), Point::origin())
     }
 
     #[inline]
@@ -217,13 +217,13 @@ impl<P: Point> EuclideanSpace for AnnotatedPoint<P> {
     /// The coordinates of this point, i.e., the translation from the origin.
     #[inline]
     fn coordinates(&self) -> Self::Coordinates {
-        self.point.coordinates()
+        self.point.coords
     }
 
     /// Builds a point from its coordinates relative to the origin.
     #[inline]
     fn from_coordinates(coords: Self::Coordinates) -> Self {
-        let p = P::from_coordinates(coords);
+        let p = Point::from_coordinates(coords);
         Self::new(p, p, p)
     }
 
@@ -240,7 +240,7 @@ impl<P: Point> EuclideanSpace for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Index<usize> for AnnotatedPoint<P> {
+impl<N: Real> Index<usize> for AnnotatedPoint<P> {
     type Output = <P as Index<usize>>::Output;
 
     #[inline]
@@ -249,19 +249,19 @@ impl<P: Point> Index<usize> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> IndexMut<usize> for AnnotatedPoint<P> {
+impl<N: Real> IndexMut<usize> for AnnotatedPoint<P> {
     #[inline]
     fn index_mut(&mut self, _: usize) -> &mut <P as Index<usize>>::Output {
         unimplemented!()
     }
 }
 
-impl<P: Point> Add<P::Vector> for AnnotatedPoint<P> {
+impl<N: Real> Add<Vector<N>> for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
-    fn add(self, other: P::Vector) -> AnnotatedPoint<P> {
-        let _0_5: P::Real = na::convert(0.5f64);
+    fn add(self, other: Vector<N>) -> AnnotatedPoint<P> {
+        let _0_5: N = na::convert(0.5f64);
 
         AnnotatedPoint::new(
             self.orig1 + other * _0_5,
@@ -271,10 +271,10 @@ impl<P: Point> Add<P::Vector> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> AddAssign<P::Vector> for AnnotatedPoint<P> {
+impl<N: Real> AddAssign<Vector<N>> for AnnotatedPoint<P> {
     #[inline]
-    fn add_assign(&mut self, other: P::Vector) {
-        let _0_5: P::Real = na::convert(0.5f64);
+    fn add_assign(&mut self, other: Vector<N>) {
+        let _0_5: N = na::convert(0.5f64);
 
         self.orig1 += other * _0_5;
         self.orig2 += other * _0_5;
@@ -282,16 +282,16 @@ impl<P: Point> AddAssign<P::Vector> for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
-    type Output = P::Vector;
+impl<N: Real> Sub<AnnotatedPoint<P>> for AnnotatedPoint<P> {
+    type Output = Vector<N>;
 
     #[inline]
-    fn sub(self, other: AnnotatedPoint<P>) -> P::Vector {
+    fn sub(self, other: AnnotatedPoint<P>) -> Vector<N> {
         self.point - other.point
     }
 }
 
-impl<P: Point> Neg for AnnotatedPoint<P> {
+impl<N: Real> Neg for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
@@ -300,50 +300,50 @@ impl<P: Point> Neg for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Div<P::Real> for AnnotatedPoint<P> {
+impl<N: Real> Div<N> for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
-    fn div(self, n: P::Real) -> AnnotatedPoint<P> {
+    fn div(self, n: N) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(self.orig1 / n, self.orig2 / n, self.point / n)
     }
 }
 
-impl<P: Point> DivAssign<P::Real> for AnnotatedPoint<P> {
+impl<N: Real> DivAssign<N> for AnnotatedPoint<P> {
     #[inline]
-    fn div_assign(&mut self, n: P::Real) {
+    fn div_assign(&mut self, n: N) {
         self.orig1 /= n;
         self.orig2 /= n;
         self.point /= n;
     }
 }
 
-impl<P: Point> Mul<P::Real> for AnnotatedPoint<P> {
+impl<N: Real> Mul<N> for AnnotatedPoint<P> {
     type Output = AnnotatedPoint<P>;
 
     #[inline]
-    fn mul(self, n: P::Real) -> AnnotatedPoint<P> {
+    fn mul(self, n: N) -> AnnotatedPoint<P> {
         AnnotatedPoint::new(self.orig1 * n, self.orig2 * n, self.point * n)
     }
 }
 
-impl<P: Point> MulAssign<P::Real> for AnnotatedPoint<P> {
+impl<N: Real> MulAssign<N> for AnnotatedPoint<P> {
     #[inline]
-    fn mul_assign(&mut self, n: P::Real) {
+    fn mul_assign(&mut self, n: N) {
         self.orig1 *= n;
         self.orig2 *= n;
         self.point *= n;
     }
 }
 
-impl<P: Point> PartialOrd for AnnotatedPoint<P> {
+impl<N: Real> PartialOrd for AnnotatedPoint<P> {
     #[inline]
     fn partial_cmp(&self, _: &Self) -> Option<Ordering> {
         unimplemented!()
     }
 }
 
-impl<P: Point> PartialEq for AnnotatedPoint<P> {
+impl<N: Real> PartialEq for AnnotatedPoint<P> {
     #[inline]
     fn eq(&self, other: &AnnotatedPoint<P>) -> bool {
         self.point == other.point
@@ -355,43 +355,43 @@ impl<P: Point> PartialEq for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> MeetSemilattice for AnnotatedPoint<P> {
+impl<N: Real> MeetSemilattice for AnnotatedPoint<P> {
     #[inline]
     fn meet(&self, _: &Self) -> Self {
         unimplemented!()
     }
 }
 
-impl<P: Point> JoinSemilattice for AnnotatedPoint<P> {
+impl<N: Real> JoinSemilattice for AnnotatedPoint<P> {
     #[inline]
     fn join(&self, _: &Self) -> Self {
         unimplemented!()
     }
 }
 
-impl<P: Point> Lattice for AnnotatedPoint<P> {
+impl<N: Real> Lattice for AnnotatedPoint<P> {
     #[inline]
     fn meet_join(&self, _: &Self) -> (Self, Self) {
         unimplemented!()
     }
 }
 
-impl<P: Point> Bounded for AnnotatedPoint<P> {
+impl<N: Real> Bounded for AnnotatedPoint<P> {
     #[inline]
     fn max_value() -> Self {
         Self::new(
-            P::max_value(),
-            P::max_value() / na::convert(2.0),
-            P::max_value() / na::convert(2.0),
+            Point::max_value(),
+            Point::max_value() / na::convert(2.0),
+            Point::max_value() / na::convert(2.0),
         )
     }
 
     #[inline]
     fn min_value() -> Self {
         Self::new(
-            P::min_value(),
-            P::min_value() / na::convert(2.0),
-            P::min_value() / na::convert(2.0),
+            Point::min_value(),
+            Point::min_value() / na::convert(2.0),
+            Point::min_value() / na::convert(2.0),
         )
     }
 }
@@ -407,22 +407,22 @@ where
     }
 }
 
-impl<P: Point> ApproxEq for AnnotatedPoint<P> {
-    type Epsilon = P::Epsilon;
+impl<N: Real> ApproxEq for AnnotatedPoint<P> {
+    type Epsilon = Point::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        P::default_epsilon()
+        Point::default_epsilon()
     }
 
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        P::default_max_relative()
+        Point::default_max_relative()
     }
 
     #[inline]
     fn default_max_ulps() -> u32 {
-        P::default_max_ulps()
+        Point::default_max_ulps()
     }
 
     #[inline]
@@ -441,22 +441,22 @@ impl<P: Point> ApproxEq for AnnotatedPoint<P> {
     }
 }
 
-impl<P: Point> Point for AnnotatedPoint<P> {
-    type Vector = P::Vector;
+impl<N: Real> Point for AnnotatedPoint<P> {
+    type Vector = Vector<N>;
 
     #[inline]
-    fn axpy(&mut self, a: P::Real, x: &Self, b: P::Real) {
+    fn axpy(&mut self, a: N, x: &Self, b: N) {
         self.orig1.axpy(a, &x.orig1, b);
         self.orig2.axpy(a, &x.orig2, b);
         self.point.axpy(a, &x.point, b);
     }
 
     #[inline]
-    fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<P::Vector>> {
-        if na::dimension::<P::Vector>() == 2 {
-            P::ccw_face_normal(&[&pts[0].point, &pts[1].point])
-        } else if na::dimension::<P::Vector>() == 3 {
-            P::ccw_face_normal(&[&pts[0].point, &pts[1].point, &pts[2].point])
+    fn ccw_face_normal(pts: &[&Self]) -> Option<Unit<Vector<N>>> {
+        if na::dimension::<Vector<N>>() == 2 {
+            Point::ccw_face_normal(&[&pts[0].point, &pts[1].point])
+        } else if na::dimension::<Vector<N>>() == 3 {
+            Point::ccw_face_normal(&[&pts[0].point, &pts[1].point, &pts[2].point])
         } else {
             unimplemented!()
         }
@@ -465,44 +465,44 @@ impl<P: Point> Point for AnnotatedPoint<P> {
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<P, Id> for MinkowskiSum<'a, M, G1, G2>
 where
-    P: Point,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    N: Real,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     #[inline]
-    fn support_point(&self, _: &Id, dir: &P::Vector) -> P {
+    fn support_point(&self, _: &Id, dir: &Vector<N>) -> Point<N> {
         self.g1().support_point(self.m1(), dir)
-            + self.g2().support_point(self.m2(), dir).coordinates()
+            + self.g2().support_point(self.m2(), dir).coords
     }
 
     #[inline]
-    fn support_point_toward(&self, _: &Id, dir: &Unit<P::Vector>) -> P {
+    fn support_point_toward(&self, _: &Id, dir: &Unit<Vector<N>>) -> Point<N> {
         self.g1().support_point_toward(self.m1(), dir)
-            + self.g2().support_point_toward(self.m2(), dir).coordinates()
+            + self.g2().support_point_toward(self.m2(), dir).coords
     }
 }
 
 impl<'a, P, M, G1: ?Sized, G2: ?Sized> SupportMap<AnnotatedPoint<P>, Id>
     for AnnotatedMinkowskiSum<'a, M, G1, G2>
 where
-    P: Point,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    N: Real,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     #[inline]
-    fn support_point(&self, _: &Id, dir: &P::Vector) -> AnnotatedPoint<P> {
+    fn support_point(&self, _: &Id, dir: &Vector<N>) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point(self.m1(), dir);
         let orig2 = self.g2().support_point(self.m2(), dir);
-        let point = orig1 + orig2.coordinates();
+        let point = orig1 + orig2.coords;
 
         AnnotatedPoint::new(orig1, orig2, point)
     }
 
     #[inline]
-    fn support_point_toward(&self, _: &Id, dir: &Unit<P::Vector>) -> AnnotatedPoint<P> {
+    fn support_point_toward(&self, _: &Id, dir: &Unit<Vector<N>>) -> AnnotatedPoint<P> {
         let orig1 = self.g1().support_point_toward(self.m1(), dir);
         let orig2 = self.g2().support_point_toward(self.m2(), dir);
-        let point = orig1 + orig2.coordinates();
+        let point = orig1 + orig2.coords;
 
         AnnotatedPoint::new(orig1, orig2, point)
     }
@@ -512,16 +512,16 @@ where
 ///
 /// The result is a support point with informations about how it has been constructed.
 pub fn cso_support_point<P, M, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-    dir: P::Vector,
+    dir: Vector<N>,
 ) -> AnnotatedPoint<P>
 where
-    P: Point,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    N: Real,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let rg2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &rg2);

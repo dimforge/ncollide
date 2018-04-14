@@ -1,12 +1,10 @@
 //! Support mapping based Capsule shape.
 
-use num::Signed;
+use na::{self, Unit, Real};
 
-use alga::general::Real;
-use na::{self, Unit};
-
-use shape::{Segment, SupportMap};
-use math::{Isometry, Point};
+use utils::IsometryOps;
+use shape::SupportMap;
+use math::{Isometry, Point, Vector};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]
@@ -43,17 +41,17 @@ impl<N: Real> Capsule<N> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
+impl<N: Real> SupportMap<N> for Capsule<N> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
+    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         self.support_point_toward(m, &Unit::new_normalize(*dir))
     }
 
     #[inline]
-    fn support_point_toward(&self, m: &M, dir: &Unit<P::Vector>) -> P {
-        let local_dir = m.inverse_rotate_vector(dir);
+    fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
+        let local_dir = m.inverse_transform_vector(dir);
 
-        let mut res: P::Vector = na::zero();
+        let mut res: Vector<N> = na::zero();
 
         if local_dir[1].is_negative() {
             res[1] = -self.half_height()
@@ -61,6 +59,6 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Capsule<P::Real> {
             res[1] = self.half_height()
         }
 
-        m.transform_point(&(P::from_coordinates(res + local_dir * self.radius())))
+        m * Point::from_coordinates(res + local_dir * self.radius())
     }
 }

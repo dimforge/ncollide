@@ -16,17 +16,17 @@ use math::Point;
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<P>(width: P::Real, height: P::Real, usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
+pub fn quad<P>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
 where
-    P: Point,
+    N: Real,
 {
     let mut quad = unit_quad::<P>(usubdivs, vsubdivs);
 
-    let mut s = na::zero::<P::Vector>();
+    let mut s = na::zero::<Vector<N>>();
     s[0] = width;
     s[1] = height;
 
-    for i in 2..na::dimension::<P::Vector>() {
+    for i in 2..na::dimension::<Vector<N>>() {
         s[i] = na::one();
     }
 
@@ -42,9 +42,9 @@ where
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<P>(vertices: &[P], nhpoints: usize, nvpoints: usize) -> TriMesh<P>
+pub fn quad_with_vertices<P>(vertices: &[Point<N>], nhpoints: usize, nvpoints: usize) -> TriMesh<P>
 where
-    P: Point,
+    N: Real,
 {
     assert!(
         nhpoints > 1 && nvpoints > 1,
@@ -73,16 +73,16 @@ where
 /// which will be placed vertically on each line. Must not be `0`.
 pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
 where
-    P: Point,
+    N: Real,
 {
     assert!(
         usubdivs > 0 && vsubdivs > 0,
         "The number of subdivisions cannot be zero"
     );
-    assert!(na::dimension::<P::Vector>() >= 2);
+    assert!(na::dimension::<Vector<N>>() >= 2);
 
-    let wstep = na::one::<P::Real>() / na::convert(usubdivs as f64);
-    let hstep = na::one::<P::Real>() / na::convert(vsubdivs as f64);
+    let wstep = na::one::<N>() / na::convert(usubdivs as f64);
+    let hstep = na::one::<N>() / na::convert(vsubdivs as f64);
     let cw = na::convert(0.5);
     let ch = na::convert(0.5);
 
@@ -94,21 +94,21 @@ where
     // create the vertices
     for i in 0usize..vsubdivs + 1 {
         for j in 0usize..usubdivs + 1 {
-            let ni: P::Real = na::convert(i as f64);
-            let nj: P::Real = na::convert(j as f64);
+            let ni: N = na::convert(i as f64);
+            let nj: N = na::convert(j as f64);
 
-            let mut v = P::origin();
+            let mut v = Point::origin();
             v[0] = nj * wstep - cw;
             v[1] = ni * hstep - ch;
             vertices.push(v);
-            let _1 = na::one::<P::Real>();
+            let _1 = na::one::<N>();
             tex_coords.push(Point2::new(_1 - nj * wstep, _1 - ni * hstep))
         }
     }
 
     // create the normals
     for _ in 0..(vsubdivs + 1) * (usubdivs + 1) {
-        let mut n = na::zero::<P::Vector>();
+        let mut n = na::zero::<Vector<N>>();
         n[0] = na::one();
         normals.push(n)
     }

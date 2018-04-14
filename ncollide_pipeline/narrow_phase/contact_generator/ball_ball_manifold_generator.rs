@@ -10,12 +10,12 @@ use geometry::query::contacts_internal;
 use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
-pub struct BallBallManifoldGenerator<P: Point, M> {
+pub struct BallBallManifoldGenerator<N: Real, M> {
     manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallBallManifoldGenerator<P, M> {
+impl<N: Real, M> Clone for BallBallManifoldGenerator<P, M> {
     fn clone(&self) -> BallBallManifoldGenerator<P, M> {
         BallBallManifoldGenerator {
             manifold: self.manifold.clone(),
@@ -24,7 +24,7 @@ impl<P: Point, M> Clone for BallBallManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M> BallBallManifoldGenerator<P, M> {
+impl<N: Real, M> BallBallManifoldGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
     pub fn new() -> BallBallManifoldGenerator<P, M> {
@@ -35,32 +35,32 @@ impl<P: Point, M> BallBallManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M> {
+impl<N: Real> ContactManifoldGenerator<P, M> for BallBallManifoldGenerator<P, M> {
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
         ida: usize,
-        ma: &M,
-        a: &Shape<P, M>,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
         idb: usize,
-        mb: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
-        if let (Some(a), Some(b)) = (a.as_shape::<Ball<P::Real>>(), b.as_shape::<Ball<P::Real>>()) {
+        if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             self.manifold.set_subshape_id1(ida);
             self.manifold.set_subshape_id2(idb);
             self.manifold.save_cache_and_clear(id_alloc);
 
-            let center_a = P::from_coordinates(ma.translation().to_vector());
-            let center_b = P::from_coordinates(mb.translation().to_vector());
+            let center_a = Point::from_coordinates(ma.translation().to_vector());
+            let center_b = Point::from_coordinates(mb.translation().to_vector());
             if let Some(contact) =
                 contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
             {
                 let mut kinematic = ContactKinematic::new();
-                kinematic.set_point1(FeatureId::Face(0), P::origin(), PolyhedralCone::Full);
-                kinematic.set_point2(FeatureId::Face(0), P::origin(), PolyhedralCone::Full);
+                kinematic.set_point1(FeatureId::Face(0), Point::origin(), PolyhedralCone::Full);
+                kinematic.set_point2(FeatureId::Face(0), Point::origin(), PolyhedralCone::Full);
                 kinematic.set_dilation1(a.radius());
                 kinematic.set_dilation2(b.radius());
 

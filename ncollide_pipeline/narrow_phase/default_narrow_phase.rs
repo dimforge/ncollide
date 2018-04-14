@@ -23,7 +23,7 @@ pub struct DefaultNarrowPhase<P, M> {
         HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<P, M>, DeterministicState>,
 }
 
-impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
+impl<N: Real, M: 'static> DefaultNarrowPhase<P, M> {
     /// Creates a new `DefaultNarrowPhase`.
     pub fn new(
         contact_dispatcher: Box<ContactDispatcher<P, M>>,
@@ -40,7 +40,7 @@ impl<P: Point, M: 'static> DefaultNarrowPhase<P, M> {
     }
 }
 
-impl<P: Point, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> {
+impl<N: Real, M: 'static + Isometry<P>, T> NarrowPhase<P, M, T> for DefaultNarrowPhase<P, M> {
     fn update(
         &mut self,
         objects: &CollisionObjectSlab<P, M, T>,

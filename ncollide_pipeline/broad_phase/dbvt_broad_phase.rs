@@ -50,12 +50,12 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<P: Point, BV, T> {
+pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     tree: DBVT<P, ProxyHandle, BV>,  // DBVT for moving objects.
     stree: DBVT<P, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
-    margin: P::Real,                 // The margin added to each bounding volume.
+    margin: N,                 // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -67,11 +67,11 @@ pub struct DBVTBroadPhase<P: Point, BV, T> {
 
 impl<P, BV, T> DBVTBroadPhase<P, BV, T>
 where
-    P: Point,
+    N: Real,
     BV: 'static + BoundingVolume<P> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
-    pub fn new(margin: P::Real) -> DBVTBroadPhase<P, BV, T> {
+    pub fn new(margin: N) -> DBVTBroadPhase<P, BV, T> {
         DBVTBroadPhase {
             proxies: Slab::new(),
             tree: DBVT::new(),
@@ -169,7 +169,7 @@ where
 
 impl<P, BV, T> BroadPhase<P, BV, T> for DBVTBroadPhase<P, BV, T>
 where
-    P: Point,
+    N: Real,
     BV: BoundingVolume<P> + RayCast<P, Id> + PointQuery<P, Id> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {

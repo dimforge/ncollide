@@ -7,12 +7,12 @@ use shape::Ball;
 #[inline]
 pub fn ball_against_ball<P>(
     center1: &P,
-    b1: &Ball<P::Real>,
+    b1: &Ball<N>,
     center2: &P,
-    b2: &Ball<P::Real>,
-) -> P::Real
+    b2: &Ball<N>,
+) -> N
 where
-    P: Point,
+    N: Real,
 {
     let r1 = b1.radius();
     let r2 = b2.radius();

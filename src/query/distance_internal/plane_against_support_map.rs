@@ -6,18 +6,18 @@ use math::{Isometry, Point};
 
 /// Distance between a plane and a support-mapped shape.
 pub fn plane_against_support_map<P, M, G: ?Sized>(
-    mplane: &M,
-    plane: &Plane<P::Vector>,
-    mother: &M,
+    mplane: &Isometry<N>,
+    plane: &Plane<N>,
+    mother: &Isometry<N>,
     other: &G,
-) -> P::Real
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     let plane_normal = mplane.rotate_vector(plane.normal());
-    let plane_center = P::from_coordinates(mplane.translation().to_vector());
+    let plane_center = Point::from_coordinates(mplane.translation().to_vector());
     let deepest = other.support_point(mother, &-plane_normal);
 
     let distance = na::dot(&plane_normal, &(plane_center - deepest));
@@ -31,15 +31,15 @@ where
 
 /// Distance between a support-mapped shape and a plane.
 pub fn support_map_against_plane<P, M, G: ?Sized>(
-    mother: &M,
+    mother: &Isometry<N>,
     other: &G,
-    mplane: &M,
-    plane: &Plane<P::Vector>,
-) -> P::Real
+    mplane: &Isometry<N>,
+    plane: &Plane<N>,
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     plane_against_support_map(mplane, plane, mother, other)
 }

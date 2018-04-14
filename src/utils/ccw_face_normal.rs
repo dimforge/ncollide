@@ -13,7 +13,7 @@ pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> 
 
 #[inline]
 #[cfg(feature = "dim3")]
-pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> {
+pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 3]) -> Option<Unit<Vector<N>>> {
     let ab = pts[1] - pts[0];
     let ac = pts[2] - pts[0];
     let res = ab.cross(&ac);

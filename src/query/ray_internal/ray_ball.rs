@@ -6,7 +6,7 @@ use shape::Ball;
 use math::{Isometry, Point, Vector};
 
 #[inline]
-fn ball_uv<V: Vector>(normal: &V) -> Option<Point2<V::Real>> {
+fn ball_uv<N: Real>(normal: &V) -> Option<Point2<V::Real>> {
     if na::dimension::<V>() == 3 {
         let two_pi: V::Real = Real::two_pi();
         let pi: V::Real = Real::pi();
@@ -20,20 +20,20 @@ fn ball_uv<V: Vector>(normal: &V) -> Option<Point2<V::Real>> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> RayCast<P, M> for Ball<P::Real> {
+impl<N: Real> RayCast<P, M> for Ball<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<P::Real> {
-        ball_toi_with_ray(&m.translate_point(&P::origin()), self.radius(), ray, solid).1
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
+        ball_toi_with_ray(&m.translate_point(&Point::origin()), self.radius(), ray, solid).1
     }
 
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
-        let center = m.translate_point(&P::origin());
+    ) -> Option<RayIntersection<Vector<N>>> {
+        let center = m.translate_point(&Point::origin());
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
@@ -47,11 +47,11 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Ball<P::Real> {
     #[inline]
     fn toi_and_normal_and_uv_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
-        let center = m.translate_point(&P::origin());
+    ) -> Option<RayIntersection<Vector<N>>> {
+        let center = m.translate_point(&Point::origin());
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
@@ -68,12 +68,12 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Ball<P::Real> {
 #[inline]
 pub fn ball_toi_with_ray<P>(
     center: &P,
-    radius: P::Real,
+    radius: N,
     ray: &Ray<P>,
     solid: bool,
-) -> (bool, Option<P::Real>)
+) -> (bool, Option<N>)
 where
-    P: Point,
+    N: Real,
 {
     let dcenter = ray.origin - *center;
 

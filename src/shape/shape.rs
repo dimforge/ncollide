@@ -6,11 +6,11 @@ use std::sync::Arc;
 use na::{self, Real};
 
 // Repr.
-use shape::{CompositeShape, ConvexPolyhedron, FeatureId, SupportMap};
+use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
 // Queries.
 use bounding_volume::{BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use math::{Isometry, Point};
+use math::Isometry;
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
@@ -31,7 +31,7 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
     ///
     /// Return `None` if the transform is known to be the identity.
     #[inline]
-    fn subshape_transform(&self, subshape_id: usize) -> Option<Isometry<N>> {
+    fn subshape_transform(&self, _: usize) -> Option<Isometry<N>> {
         None
     }
 

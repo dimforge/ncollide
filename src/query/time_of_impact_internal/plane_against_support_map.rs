@@ -5,17 +5,17 @@ use math::{Isometry, Point};
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn plane_against_support_map<P, M, G: ?Sized>(
-    mplane: &M,
-    vel_plane: &P::Vector,
-    plane: &Plane<P::Vector>,
-    mother: &M,
-    vel_other: &P::Vector,
+    mplane: &Isometry<N>,
+    vel_plane: &Vector<N>,
+    plane: &Plane<N>,
+    mother: &Isometry<N>,
+    vel_other: &Vector<N>,
     other: &G,
-) -> Option<P::Real>
+) -> Option<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
     let plane_normal = mplane.rotate_vector(plane.normal());
@@ -26,17 +26,17 @@ where
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn support_map_against_plane<P, M, G: ?Sized>(
-    mother: &M,
-    vel_other: &P::Vector,
+    mother: &Isometry<N>,
+    vel_other: &Vector<N>,
     other: &G,
-    mplane: &M,
-    vel_plane: &P::Vector,
-    plane: &Plane<P::Vector>,
-) -> Option<P::Real>
+    mplane: &Isometry<N>,
+    vel_plane: &Vector<N>,
+    plane: &Plane<N>,
+) -> Option<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
     plane_against_support_map(mplane, vel_plane, plane, mother, vel_other, other)
 }

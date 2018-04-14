@@ -5,22 +5,22 @@ use math::{Isometry, Point};
 
 /// Time of impacts between two support-mapped shapes under translational movement.
 pub fn support_map_against_support_map<P, M, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
-    vel1: &P::Vector,
+    m1: &Isometry<N>,
+    vel1: &Vector<N>,
     g1: &G1,
-    m2: &M,
-    vel2: &P::Vector,
+    m2: &Isometry<N>,
+    vel2: &Vector<N>,
     g2: &G2,
-) -> Option<P::Real>
+) -> Option<N>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let vel = *vel1 - *vel2;
     let rg2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
 
-    cso.toi_with_ray(&Id::new(), &Ray::new(P::origin(), -vel), true)
+    cso.toi_with_ray(&Id::new(), &Ray::new(Point::origin(), -vel), true)
 }

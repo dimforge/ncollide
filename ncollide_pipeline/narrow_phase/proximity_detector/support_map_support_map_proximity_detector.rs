@@ -11,17 +11,17 @@ use narrow_phase::{ProximityDetector, ProximityDispatcher};
 ///
 /// It is based on the GJK algorithm.
 #[derive(Clone)]
-pub struct SupportMapSupportMapProximityDetector<P: Point, M, S> {
+pub struct SupportMapSupportMapProximityDetector<N: Real, M, S> {
     simplex: S,
     proximity: Proximity,
-    sep_axis: P::Vector,
+    sep_axis: Vector<N>,
     pt_type: PhantomData<P>,  // FIXME: can we avoid this?
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
 impl<P, M, S> SupportMapSupportMapProximityDetector<P, M, S>
 where
-    P: Point,
+    N: Real,
     S: Simplex<AnnotatedPoint<P>>,
 {
     /// Creates a new persistant proximity detector between two shapes with support mapping
@@ -41,7 +41,7 @@ where
 
 impl<P, M, S> ProximityDetector<P, M> for SupportMapSupportMapProximityDetector<P, M, S>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
 {
@@ -49,11 +49,11 @@ where
     fn update(
         &mut self,
         _: &ProximityDispatcher<P, M>,
-        ma: &M,
-        a: &Shape<P, M>,
-        mb: &M,
-        b: &Shape<P, M>,
-        margin: P::Real,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        margin: N,
     ) -> bool {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction;

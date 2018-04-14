@@ -3,32 +3,32 @@ use shape::{Cuboid, FeatureId};
 use query::{PointProjection, PointQuery};
 use math::{Isometry, Point};
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Cuboid<P::Vector> {
+impl<N: Real> PointQuery<P, M> for Cuboid<Vector<N>> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
-        let dl = P::origin() + (-*self.half_extents());
-        let ur = P::origin() + *self.half_extents();
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
+        let dl = Point::origin() + (-*self.half_extents());
+        let ur = Point::origin() + *self.half_extents();
         AABB::new(dl, ur).project_point(m, pt, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
-        let dl = P::origin() + (-*self.half_extents());
-        let ur = P::origin() + *self.half_extents();
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let dl = Point::origin() + (-*self.half_extents());
+        let ur = Point::origin() + *self.half_extents();
         AABB::new(dl, ur).project_point_with_feature(m, pt)
     }
 
     #[inline]
-    fn distance_to_point(&self, m: &M, pt: &P, solid: bool) -> P::Real {
-        let dl = P::origin() + (-*self.half_extents());
-        let ur = P::origin() + *self.half_extents();
+    fn distance_to_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> N {
+        let dl = Point::origin() + (-*self.half_extents());
+        let ur = Point::origin() + *self.half_extents();
         AABB::new(dl, ur).distance_to_point(m, pt, solid)
     }
 
     #[inline]
-    fn contains_point(&self, m: &M, pt: &P) -> bool {
-        let dl = P::origin() + (-*self.half_extents());
-        let ur = P::origin() + *self.half_extents();
+    fn contains_point(&self, m: &Isometry<N>, pt: &P) -> bool {
+        let dl = Point::origin() + (-*self.half_extents());
+        let ur = Point::origin() + *self.half_extents();
         AABB::new(dl, ur).contains_point(m, pt)
     }
 }

@@ -1,41 +1,47 @@
+use na::Real;
 use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
-use shape::{Capsule, Cone, Cylinder};
-use shape::{Segment, Triangle};
-use math::{Isometry, Point};
+#[cfg(feature = "dim3")]
+use shape::{Capsule, Cone, Cylinder, Triangle};
+use shape::Segment;
+use math::Isometry;
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Cone<P::Real> {
+#[cfg(feature = "dim3")]
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cone<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
     }
 }
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Cylinder<P::Real> {
+#[cfg(feature = "dim3")]
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
     }
 }
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Capsule<P::Real> {
+#[cfg(feature = "dim3")]
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
     }
 }
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Triangle<P> {
+#[cfg(feature = "dim3")]
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // FIXME: optimize that
         bounding_volume::support_map_aabb(m, self)
     }
 }
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Segment<P> {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Segment<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // FIXME: optimize that
         bounding_volume::support_map_aabb(m, self)
     }

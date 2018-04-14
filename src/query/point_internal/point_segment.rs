@@ -4,20 +4,20 @@ use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use shape::{FeatureId, Segment, SegmentPointLocation};
 use utils;
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
+impl<N: Real> PointQuery<P, M> for Segment<N> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
             SegmentPointLocation::OnEdge(..) => {
-                if na::dimension::<P::Vector>() == 2 {
+                if na::dimension::<Vector<N>>() == 2 {
                     let dir = self.scaled_direction();
                     let dpt = *pt - proj.point;
                     if utils::perp2(&dpt, &dir) >= na::zero() {
@@ -38,13 +38,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
 
-impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
-    type Location = SegmentPointLocation<P::Real>;
+impl<N: Real> PointQueryWithLocation<P, M> for Segment<N> {
+    type Location = SegmentPointLocation<N>;
 
     #[inline]
     fn project_point_with_location(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         pt: &P,
         _: bool,
     ) -> (PointProjection<P>, Self::Location) {
@@ -53,7 +53,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Segment<P> {
         let ap = ls_pt - *self.a();
         let ab_ap = na::dot(&ab, &ap);
         let sqnab = na::norm_squared(&ab);
-        let _1 = na::one::<P::Real>();
+        let _1 = na::one::<N>();
 
         let mut proj;
         let location;

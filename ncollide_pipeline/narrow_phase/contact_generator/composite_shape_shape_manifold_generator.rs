@@ -10,14 +10,14 @@ use geometry::query::{ContactManifold, ContactPrediction};
 use narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeManifoldGenerator<P: Point, M> {
+pub struct CompositeShapeShapeManifoldGenerator<N: Real, M> {
     sub_detectors: HashMap<usize, ContactAlgorithm<P, M>, UintTWHash>,
     to_delete: Vec<usize>,
     interferences: Vec<usize>,
     flip: bool,
 }
 
-impl<P: Point, M> CompositeShapeShapeManifoldGenerator<P, M> {
+impl<N: Real, M> CompositeShapeShapeManifoldGenerator<P, M> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<P, M> {
         CompositeShapeShapeManifoldGenerator {
@@ -29,17 +29,17 @@ impl<P: Point, M> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
+impl<N: Real> CompositeShapeShapeManifoldGenerator<P, M> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<P, M>,
         id1: usize,
-        m1: &M,
+        m1: &Isometry<N>,
         g1: &CompositeShape<P, M>,
         id2: usize,
-        m2: &M,
-        g2: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        m2: &Isometry<N>,
+        g2: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         flip: bool,
     ) {
@@ -123,19 +123,19 @@ impl<P: Point, M: Isometry<P>> CompositeShapeShapeManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
+impl<N: Real> ContactManifoldGenerator<P, M>
     for CompositeShapeShapeManifoldGenerator<P, M>
 {
     fn update(
         &mut self,
         d: &ContactDispatcher<P, M>,
         ida: usize,
-        ma: &M,
-        a: &Shape<P, M>,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
         idb: usize,
-        mb: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
         if !self.flip {

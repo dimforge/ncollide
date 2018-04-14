@@ -12,23 +12,23 @@ use math::Point;
 /// Trait implemented by elements usable on the Mesh.
 pub trait BaseMeshElement<I, P> {
     /// Creates a new mesh element from a set of vertices and indices.
-    fn new_with_vertices_and_indices(&[P], &I) -> Self;
+    fn new_with_vertices_and_indices(&[Point<N>], &I) -> Self;
 }
 
 /// A mesh generic wrt. the contained mesh elements characterized by vertices.
-pub struct BaseMesh<P: Point, I, E> {
-    bvt: BVT<usize, AABB<P>>,
-    bvs: Vec<AABB<P>>,
-    vertices: Arc<Vec<P>>,
+pub struct BaseMesh<N: Real, I, E> {
+    bvt: BVT<usize, AABB<N>>,
+    bvs: Vec<AABB<N>>,
+    vertices: Arc<Vec<Point<N>>>,
     indices: Arc<Vec<I>>,
-    uvs: Option<Arc<Vec<Point2<P::Real>>>>,
-    normals: Option<Arc<Vec<P::Vector>>>,
+    uvs: Option<Arc<Vec<Point2<N>>>>,
+    normals: Option<Arc<Vec<Vector<N>>>>,
     elt: PhantomData<E>,
 }
 
 impl<P, I, E> Clone for BaseMesh<P, I, E>
 where
-    P: Point,
+    N: Real,
 {
     fn clone(&self) -> BaseMesh<P, I, E> {
         BaseMesh {
@@ -45,15 +45,15 @@ where
 
 impl<P, I, E> BaseMesh<P, I, E>
 where
-    P: Point,
-    E: BaseMeshElement<I, P> + HasBoundingVolume<Id, AABB<P>>,
+    N: Real,
+    E: BaseMeshElement<I, P> + HasBoundingVolume<Id, AABB<N>>,
 {
     /// Builds a new mesh.
     pub fn new(
-        vertices: Arc<Vec<P>>,
+        vertices: Arc<Vec<Point<N>>>,
         indices: Arc<Vec<I>>,
-        uvs: Option<Arc<Vec<Point2<P::Real>>>>,
-        normals: Option<Arc<Vec<P::Vector>>>,
+        uvs: Option<Arc<Vec<Point2<N>>>>,
+        normals: Option<Arc<Vec<Vector<N>>>>,
     ) -> BaseMesh<P, I, E> {
         for uvs in uvs.iter() {
             assert!(uvs.len() == vertices.len());
@@ -67,7 +67,7 @@ where
             let is = &*indices;
 
             for (i, is) in is[..].iter().enumerate() {
-                let vs: &[P] = &vs[..];
+                let vs: &[Point<N>] = &vs[..];
                 let element: E = BaseMeshElement::new_with_vertices_and_indices(vs, is);
                 // loosen for better persistancy
                 let bv = bounding_volume::aabb(&element, &Id::new());
@@ -92,11 +92,11 @@ where
 
 impl<P, I, E> BaseMesh<P, I, E>
 where
-    P: Point,
+    N: Real,
 {
     /// The vertices of this mesh.
     #[inline]
-    pub fn vertices(&self) -> &Arc<Vec<P>> {
+    pub fn vertices(&self) -> &Arc<Vec<Point<N>>> {
         &self.vertices
     }
 
@@ -108,7 +108,7 @@ where
 
     /// Bounding volumes of the subsimplices.
     #[inline]
-    pub fn bounding_volumes(&self) -> &[AABB<P>] {
+    pub fn bounding_volumes(&self) -> &[AABB<N>] {
         &self.bvs[..]
     }
 
@@ -120,32 +120,32 @@ where
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<P::Real>>>> {
+    pub fn uvs(&self) -> &Option<Arc<Vec<Point2<N>>>> {
         &self.uvs
     }
 
     /// The normals of this mesh.
     #[inline]
-    pub fn normals(&self) -> &Option<Arc<Vec<P::Vector>>> {
+    pub fn normals(&self) -> &Option<Arc<Vec<Vector<N>>>> {
         &self.normals
     }
 
     /// The acceleration structure used for efficient collision detection and ray casting.
     #[inline]
-    pub fn bvt(&self) -> &BVT<usize, AABB<P>> {
+    pub fn bvt(&self) -> &BVT<usize, AABB<N>> {
         &self.bvt
     }
 }
 
 impl<P, I, E> BaseMesh<P, I, E>
 where
-    P: Point,
+    N: Real,
     E: BaseMeshElement<I, P>,
 {
     /// Gets the i-th mesh element.
     #[inline(always)]
     pub fn element_at(&self, i: usize) -> E {
-        let vs: &[P] = &self.vertices[..];
+        let vs: &[Point<N>] = &self.vertices[..];
 
         BaseMeshElement::new_with_vertices_and_indices(vs, &self.indices[i])
     }

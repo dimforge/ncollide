@@ -6,8 +6,8 @@ use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 
 #[inline]
-fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
-    if na::dimension::<P::Vector>() == 2 {
+fn compute_result<N: Real>(pt: &P, proj: Point<N>) -> PointProjection<P> {
+    if na::dimension::<Vector<N>>() == 2 {
         PointProjection::new(*pt == proj, proj)
     } else {
         // FIXME: is this acceptable to assume the point is inside of the
@@ -16,16 +16,16 @@ fn compute_result<P: Point>(pt: &P, proj: P) -> PointProjection<P> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
+impl<N: Real> PointQuery<P, M> for Triangle<N> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
-        let (proj, loc) = if na::dimension::<P::Vector>() == 2 {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
+        let (proj, loc) = if na::dimension::<Vector<N>>() == 2 {
             self.project_point_with_location(m, pt, false)
         } else {
             self.project_point_with_location(m, pt, true)
@@ -45,13 +45,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Triangle<P> {
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
 
-impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
-    type Location = TrianglePointLocation<P::Real>;
+impl<N: Real> PointQueryWithLocation<P, M> for Triangle<N> {
+    type Location = TrianglePointLocation<N>;
 
     #[inline]
     fn project_point_with_location(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         pt: &P,
         solid: bool,
     ) -> (PointProjection<P>, Self::Location) {
@@ -60,7 +60,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         let c = *self.c();
         let p = m.inverse_transform_point(pt);
 
-        let _1 = na::one::<P::Real>();
+        let _1 = na::one::<N>();
 
         let ab = b - a;
         let ac = c - a;
@@ -111,21 +111,21 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
         // Checks on which edge voronoï region the point is.
         // For 2D and 3D, it uses explicit cross/perp products that are
         // more numerically stable.
-        fn stable_check_edges_voronoi<P: Point>(
-            ab: &P::Vector,
-            ac: &P::Vector,
-            bc: &P::Vector,
-            ap: &P::Vector,
-            bp: &P::Vector,
-            cp: &P::Vector,
-            ab_ap: P::Real,
-            ab_bp: P::Real,
-            ac_ap: P::Real,
-            ac_cp: P::Real,
-            ac_bp: P::Real,
-            ab_cp: P::Real,
-        ) -> ProjectionInfo<P::Real> {
-            match na::dimension::<P::Vector>() {
+        fn stable_check_edges_voronoi<N: Real>(
+            ab: &Vector<N>,
+            ac: &Vector<N>,
+            bc: &Vector<N>,
+            ap: &Vector<N>,
+            bp: &Vector<N>,
+            cp: &Vector<N>,
+            ab_ap: N,
+            ab_bp: N,
+            ac_ap: N,
+            ac_cp: N,
+            ac_bp: N,
+            ab_cp: N,
+        ) -> ProjectionInfo<N> {
+            match na::dimension::<Vector<N>>() {
                 2 => {
                     let n = utils::perp2(ab, ac);
                     let vc = n * utils::perp2(ab, ap);
@@ -243,7 +243,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Triangle<P> {
             }
             ProjectionInfo::OnFace(va, vb, vc) => {
                 // Voronoï region of the face.
-                if na::dimension::<P::Vector>() != 2 {
+                if na::dimension::<Vector<N>>() != 2 {
                     let denom = _1 / (va + vb + vc);
                     let v = vb * denom;
                     let w = vc * denom;

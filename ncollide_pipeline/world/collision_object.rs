@@ -74,28 +74,28 @@ impl<N: Real> GeometricQueryType<N> {
 }
 
 /// A stand-alone object that has a position and a shape.
-pub struct CollisionObject<P: Point, M: Isometry<P>, T> {
+pub struct CollisionObject<N: Real, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
     position: M,
-    shape: ShapeHandle<P, M>,
+    shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
-    query_type: GeometricQueryType<P::Real>,
+    query_type: GeometricQueryType<N>,
     data: T,
     // XXX: could this be replaced by an enum (or bitfield)
     // indicating what has been modified?
     pub(crate) timestamp: usize,
 }
 
-impl<P: Point, M: Isometry<P>, T> CollisionObject<P, M, T> {
+impl<N: Real, T> CollisionObject<P, M, T> {
     /// Creates a new collision object.
     pub fn new(
         handle: CollisionObjectHandle,
         proxy_handle: ProxyHandle,
         position: M,
-        shape: ShapeHandle<P, M>,
+        shape: ShapeHandle<N>,
         groups: CollisionGroups,
-        query_type: GeometricQueryType<P::Real>,
+        query_type: GeometricQueryType<N>,
         data: T,
     ) -> CollisionObject<P, M, T> {
         CollisionObject {
@@ -135,7 +135,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionObject<P, M, T> {
 
     /// The collision object position.
     #[inline]
-    pub fn position(&self) -> &M {
+    pub fn position(&self) -> &Isometry<N> {
         &self.position
     }
 
@@ -147,7 +147,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionObject<P, M, T> {
 
     /// The collision object shape.
     #[inline]
-    pub fn shape(&self) -> &ShapeHandle<P, M> {
+    pub fn shape(&self) -> &ShapeHandle<N> {
         &self.shape
     }
 
@@ -159,7 +159,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionObject<P, M, T> {
 
     /// The kind of queries this collision object is expected to .
     #[inline]
-    pub fn query_type(&self) -> GeometricQueryType<P::Real> {
+    pub fn query_type(&self) -> GeometricQueryType<N> {
         self.query_type
     }
 
@@ -199,11 +199,11 @@ impl CollisionObjectHandle {
 }
 
 /// A set of collision objects that can be indexed by collision object handles.
-pub struct CollisionObjectSlab<P: Point, M: Isometry<P>, T> {
+pub struct CollisionObjectSlab<N: Real, T> {
     objects: Slab<CollisionObject<P, M, T>>,
 }
 
-impl<P: Point, M: Isometry<P>, T> CollisionObjectSlab<P, M, T> {
+impl<N: Real, T> CollisionObjectSlab<P, M, T> {
     /// Creates a new empty collecton of collision objects.
     pub fn new() -> CollisionObjectSlab<P, M, T> {
         CollisionObjectSlab {
@@ -255,7 +255,7 @@ impl<P: Point, M: Isometry<P>, T> CollisionObjectSlab<P, M, T> {
     }
 }
 
-impl<P: Point, M: Isometry<P>, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
+impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
     type Output = CollisionObject<P, M, T>;
 
     #[inline]
@@ -264,7 +264,7 @@ impl<P: Point, M: Isometry<P>, T> Index<CollisionObjectHandle> for CollisionObje
     }
 }
 
-impl<P: Point, M: Isometry<P>, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
+impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<P, M, T> {
     #[inline]
     fn index_mut(&mut self, handle: CollisionObjectHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]

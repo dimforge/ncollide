@@ -4,16 +4,16 @@ use math::{Isometry, Point};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
-pub struct Polyline<P: Point> {
+pub struct Polyline<N: Real> {
     /// Coordinates of the polyline vertices.
-    coords: Vec<P>,
+    coords: Vec<Point<N>>,
     /// Coordinates of the polyline normals.
-    normals: Option<Vec<P::Vector>>,
+    normals: Option<Vec<Vector<N>>>,
 }
 
-impl<P: Point> Polyline<P> {
+impl<N: Real> Polyline<P> {
     /// Creates a new polyline.
-    pub fn new(coords: Vec<P>, normals: Option<Vec<P::Vector>>) -> Polyline<P> {
+    pub fn new(coords: Vec<Point<N>>, normals: Option<Vec<Vector<N>>>) -> Polyline<P> {
         if let Some(ref ns) = normals {
             assert!(
                 coords.len() == ns.len(),
@@ -28,15 +28,15 @@ impl<P: Point> Polyline<P> {
     }
 }
 
-impl<P: Point> Polyline<P> {
+impl<N: Real> Polyline<P> {
     /// Moves the polyline data out of it.
-    pub fn unwrap(self) -> (Vec<P>, Option<Vec<P::Vector>>) {
+    pub fn unwrap(self) -> (Vec<Point<N>>, Option<Vec<Vector<N>>>) {
         (self.coords, self.normals)
     }
 
     /// The coordinates of this polyline vertices.
     #[inline]
-    pub fn coords(&self) -> &[P] {
+    pub fn coords(&self) -> &[Point<N>] {
         &self.coords[..]
     }
 
@@ -48,7 +48,7 @@ impl<P: Point> Polyline<P> {
 
     /// The normals of this polyline vertices.
     #[inline]
-    pub fn normals(&self) -> Option<&[P::Vector]> {
+    pub fn normals(&self) -> Option<&[Vector<N>]> {
         match self.normals {
             Some(ref ns) => Some(&ns[..]),
             None => None,
@@ -57,7 +57,7 @@ impl<P: Point> Polyline<P> {
 
     /// The mutable normals of this polyline vertices.
     #[inline]
-    pub fn normals_mut(&mut self) -> Option<&mut [P::Vector]> {
+    pub fn normals_mut(&mut self) -> Option<&mut [Vector<N>]> {
         match self.normals {
             Some(ref mut ns) => Some(&mut ns[..]),
             None => None,
@@ -98,7 +98,7 @@ impl<P: Point> Polyline<P> {
     }
 
     /// Scales each vertex of this polyline.
-    pub fn scale_by_scalar(&mut self, s: &P::Real) {
+    pub fn scale_by_scalar(&mut self, s: &N) {
         for c in self.coords.iter_mut() {
             *c = *c * *s
         }
@@ -108,13 +108,13 @@ impl<P: Point> Polyline<P> {
 
 impl<P> Polyline<P>
 where
-    P: Point,
+    N: Real,
 {
     /// Scales each vertex of this mesh.
     #[inline]
-    pub fn scale_by(&mut self, s: &P::Vector) {
+    pub fn scale_by(&mut self, s: &Vector<N>) {
         for c in self.coords.iter_mut() {
-            for i in 0..na::dimension::<P::Vector>() {
+            for i in 0..na::dimension::<Vector<N>>() {
                 c[i] = (*c)[i] * s[i];
             }
         }

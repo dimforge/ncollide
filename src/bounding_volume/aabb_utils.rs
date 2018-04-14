@@ -1,43 +1,42 @@
-use na;
+use na::{self, Real};
 use shape::SupportMap;
 use bounding_volume::AABB;
-use math::{Isometry, Point};
+use math::{Isometry, Point, DIM, Vector};
 
 /// Computes the AABB of an support mapped shape.
-pub fn support_map_aabb<P, M, G>(m: &M, i: &G) -> AABB<P>
+pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
 where
-    P: Point,
-    M: Isometry<P>,
-    G: SupportMap<P, M>,
+    N: Real,
+    G: SupportMap<N>,
 {
-    let mut min = na::zero::<P::Vector>();
-    let mut max = na::zero::<P::Vector>();
-    let mut basis = na::zero::<P::Vector>();
+    let mut min = na::zero::<Vector<N>>();
+    let mut max = na::zero::<Vector<N>>();
+    let mut basis = na::zero::<Vector<N>>();
 
-    for d in 0..na::dimension::<P::Vector>() {
+    for d in 0..DIM {
         // FIXME: this could be further improved iterating on `m`'s columns, and passing
         // Id as the transformation matrix.
         basis[d] = na::one();
         max[d] = i.support_point(m, &basis)[d];
 
-        basis[d] = -na::one::<P::Real>();
+        basis[d] = -na::one::<N>();
         min[d] = i.support_point(m, &basis)[d];
 
         basis[d] = na::zero();
     }
 
-    AABB::new(P::from_coordinates(min), P::from_coordinates(max))
+    AABB::new(Point::from_coordinates(min), Point::from_coordinates(max))
 }
 
 // FIXME: return an AABB?
 /// Computes the AABB of a set of point.
-pub fn point_cloud_aabb<P: Point, M: Isometry<P>>(m: &M, pts: &[P]) -> (P, P) {
-    let wp0 = m.transform_point(&pts[0]);
-    let mut min: P = wp0;
-    let mut max: P = wp0;
+pub fn point_cloud_aabb<N: Real>(m: &Isometry<N>, pts: &[Point<N>]) -> (Point<N>, Point<N>) {
+    let wp0 = m * pts[0];
+    let mut min: Point<N> = wp0;
+    let mut max: Point<N> = wp0;
 
     for pt in pts[1..].iter() {
-        let wpt = m.transform_point(pt);
+        let wpt = m * pt;
         min = na::inf(&min, &wpt);
         max = na::sup(&max, &wpt);
     }

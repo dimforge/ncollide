@@ -2,9 +2,9 @@ use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use math::{Isometry, Point};
 use shape::Shape;
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, BoundingSphere<P>> for Shape<P, M> {
+impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Shape<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> BoundingSphere<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         self.bounding_sphere(m)
     }
 }

@@ -12,13 +12,13 @@ use math::{Isometry, Point};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn composite_shape_against_shape<P, M, G1: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
-    g2: &Shape<P, M>,
-) -> P::Real
+    m2: &Isometry<N>,
+    g2: &Shape<N>,
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
@@ -32,13 +32,13 @@ where
 
 /// Smallest distance between a shape and a composite shape.
 pub fn shape_against_composite_shape<P, M, G2: ?Sized>(
-    m1: &M,
-    g1: &Shape<P, M>,
-    m2: &M,
+    m1: &Isometry<N>,
+    g1: &Shape<N>,
+    m2: &Isometry<N>,
     g2: &G2,
-) -> P::Real
+) -> N
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G2: CompositeShape<P, M>,
 {
@@ -46,20 +46,20 @@ where
 }
 
 struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {
-    msum_shift: P::Vector,
-    msum_margin: P::Vector,
+    msum_shift: Vector<N>,
+    msum_margin: Vector<N>,
 
     m1: &'a M,
     g1: &'a G1,
     m2: &'a M,
-    g2: &'a Shape<P, M>,
+    g2: &'a Shape<N>,
 
     point_type: PhantomData<P>,
 }
 
 impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
@@ -67,13 +67,13 @@ where
         m1: &'a M,
         g1: &'a G1,
         m2: &'a M,
-        g2: &'a Shape<P, M>,
+        g2: &'a Shape<N>,
     ) -> CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
         CompositeShapeAgainstAnyDistCostFn {
-            msum_shift: -ls_aabb2.center().coordinates(),
+            msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
             m1: m1,
             g1: g1,
@@ -84,16 +84,16 @@ where
     }
 }
 
-impl<'a, P, M, G1: ?Sized> BVTCostFn<P::Real, usize, AABB<P>>
+impl<'a, P, M, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyDistCostFn<'a, P, M, G1>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     G1: CompositeShape<P, M>,
 {
-    type UserData = P::Real;
+    type UserData = N;
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<P>) -> Option<P::Real> {
+    fn compute_bv_cost(&mut self, bv: &AABB<N>) -> Option<N> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
@@ -101,11 +101,11 @@ where
         );
 
         // Compute the distance to the origin.
-        Some(msum.distance_to_point(&Id::new(), &P::origin(), true))
+        Some(msum.distance_to_point(&Id::new(), &Point::origin(), true))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, P::Real)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
         let mut res = None;
 
         self.g1

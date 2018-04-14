@@ -130,9 +130,9 @@ pub fn unit_cuboid<N: Real>() -> TriMesh<Point3<N>> {
 }
 
 /// The contour of a cuboid lying on the x-y plane.
-pub fn rectangle<P>(extents: &P::Vector) -> Polyline<P>
+pub fn rectangle<P>(extents: &Vector<N>) -> Polyline<P>
 where
-    P: Point,
+    N: Real,
 {
     let mut rectangle = unit_rectangle::<P>();
 
@@ -144,15 +144,15 @@ where
 /// The contour of a unit cuboid lying on the x-y plane.
 pub fn unit_rectangle<P>() -> Polyline<P>
 where
-    P: Point,
+    N: Real,
 {
-    let _0_5: P::Real = na::convert(0.5);
-    let m0_5: P::Real = -_0_5;
+    let _0_5: N = na::convert(0.5);
+    let m0_5: N = -_0_5;
 
-    let mut p_ul = P::origin();
-    let mut p_ur = P::origin();
-    let mut p_dl = P::origin();
-    let mut p_dr = P::origin();
+    let mut p_ul = Point::origin();
+    let mut p_ur = Point::origin();
+    let mut p_dl = Point::origin();
+    let mut p_dr = Point::origin();
 
     p_dl[0] = m0_5;
     p_dl[1] = m0_5;

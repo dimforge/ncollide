@@ -11,13 +11,13 @@ use shape::Ball;
 #[inline]
 pub fn ball_against_ball<P>(
     center1: &P,
-    b1: &Ball<P::Real>,
+    b1: &Ball<N>,
     center2: &P,
-    b2: &Ball<P::Real>,
-    prediction: P::Real,
+    b2: &Ball<N>,
+    prediction: N,
 ) -> Option<Contact<P>>
 where
-    P: Point,
+    N: Real,
 {
     let r1 = b1.radius();
     let r2 = b2.radius();
@@ -30,7 +30,7 @@ where
         let mut normal = Unit::new_normalize(delta_pos);
 
         if distance_squared.is_zero() {
-            normal = Unit::new_unchecked(P::Vector::canonical_basis_element(0));
+            normal = Unit::new_unchecked(Vector<N>::canonical_basis_element(0));
         }
 
         Some(Contact::new(

@@ -7,13 +7,13 @@ use shape::Ball;
 #[inline]
 pub fn ball_against_ball<P>(
     center1: &P,
-    b1: &Ball<P::Real>,
+    b1: &Ball<N>,
     center2: &P,
-    b2: &Ball<P::Real>,
-    margin: P::Real,
+    b2: &Ball<N>,
+    margin: N,
 ) -> Proximity
 where
-    P: Point,
+    N: Real,
 {
     assert!(
         margin >= na::zero(),

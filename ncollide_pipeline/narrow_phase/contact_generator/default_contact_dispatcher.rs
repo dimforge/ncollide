@@ -13,12 +13,12 @@ use narrow_phase::{BallBallManifoldGenerator,
                    PlaneConvexPolyhedronManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultContactDispatcher<P: Point, M> {
+pub struct DefaultContactDispatcher<N: Real, M> {
     _point_type: PhantomData<P>,
     _matrix_type: PhantomData<M>,
 }
 
-impl<P: Point, M> DefaultContactDispatcher<P, M> {
+impl<N: Real, M> DefaultContactDispatcher<P, M> {
     /// Creates a new basic collision dispatcher.
     pub fn new() -> DefaultContactDispatcher<P, M> {
         DefaultContactDispatcher {
@@ -28,16 +28,16 @@ impl<P: Point, M> DefaultContactDispatcher<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M> {
+impl<N: Real> ContactDispatcher<P, M> for DefaultContactDispatcher<P, M> {
     fn get_contact_algorithm(
         &self,
-        a: &Shape<P, M>,
-        b: &Shape<P, M>,
+        a: &Shape<N>,
+        b: &Shape<N>,
     ) -> Option<ContactAlgorithm<P, M>> {
-        let a_is_ball = a.is_shape::<Ball<P::Real>>();
-        let b_is_ball = b.is_shape::<Ball<P::Real>>();
-        let a_is_plane = a.is_shape::<Plane<P::Vector>>();
-        let b_is_plane = b.is_shape::<Plane<P::Vector>>();
+        let a_is_ball = a.is_shape::<Ball<N>>();
+        let b_is_ball = b.is_shape::<Ball<N>>();
+        let a_is_plane = a.is_shape::<Plane<N>>();
+        let b_is_plane = b.is_shape::<Plane<N>>();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallManifoldGenerator::<P, M>::new()))
@@ -58,7 +58,7 @@ impl<P: Point, M: Isometry<P>> ContactDispatcher<P, M> for DefaultContactDispatc
             let gen = BallConvexPolyhedronManifoldGenerator::<P, M>::new(true);
             Some(Box::new(gen))
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
-            match na::dimension::<P::Vector>() {
+            match na::dimension::<Vector<N>>() {
                 2 => {
                     let simplex = VoronoiSimplex2::new();
                     // let simplex = JohnsonSimplex::new_w_tls();

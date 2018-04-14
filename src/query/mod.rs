@@ -17,9 +17,8 @@ pub use self::closest_points_internal::ClosestPoints;
 // pub use self::distance_internal::distance;
 // #[doc(inline)]
 // pub use self::time_of_impact_internal::time_of_impact;
-// #[doc(inline)]
-// pub use self::ray_internal::{Ray, Ray2, Ray3, RayCast, RayInterferencesCollector, RayIntersection,
-//                              RayIntersection2, RayIntersection3, RayIntersectionCostFn};
+#[doc(inline)]
+pub use self::ray_internal::{Ray, RayCast, RayInterferencesCollector, RayIntersection, RayIntersectionCostFn};
 #[doc(inline)]
 pub use self::point_internal::{PointInterferencesCollector, PointProjection, PointQuery,
                                PointQueryWithLocation};
@@ -30,5 +29,5 @@ pub mod closest_points_internal;
 // pub mod distance_internal;
 // pub mod proximity_internal;
 // pub mod time_of_impact_internal;
-// pub mod ray_internal;
+pub mod ray_internal;
 pub mod point_internal;

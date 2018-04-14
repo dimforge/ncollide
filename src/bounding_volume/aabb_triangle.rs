@@ -4,9 +4,9 @@ use shape::Triangle;
 use math::Matrix;
 use math::{Point, Scalar, Vector};
 
-impl HasBoundingVolume for Triangle {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
     #[inline]
-    fn bounding_volume(&self, m: &Matrix) -> AABB {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // FIXME: optimize that
         bounding_volume::implicit_shape_aabb(m, self)
     }

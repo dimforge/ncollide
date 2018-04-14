@@ -214,7 +214,7 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<P: Point, M: Isometry<P>, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
+impl<N: Real, T> BroadPhasePairFilter<P, M, T> for CollisionGroupsPairFilter {
     fn is_pair_valid(
         &self,
         co1: &CollisionObject<P, M, T>,

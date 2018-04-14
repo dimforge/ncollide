@@ -7,10 +7,10 @@ use narrow_phase::{CollisionDetector, OneShotContactManifoldGenerator};
 use math::{Scalar, Point, Vector, Isometry};
 
 /// Generates a contact manifold from an existing single-contact generator.
-pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &M, g1: &G1,
-                                                         m2: &M, g2: &G2,
+pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &Isometry<N>, g1: &G1,
+                                                         m2: &Isometry<N>, g2: &G2,
                                                          prediction: ContactPrediction<N>,
-                                                         generator: fn(&M, &G1, &M, &G2, N) -> Option<Contact<N, P, V>>,
+                                                         generator: fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> Option<Contact<N, P, V>>,
                                                          out: &mut Vec<Contact<N, P, V>>)
     where N:  Scalar,
           P:  Point<N, V>,
@@ -36,13 +36,13 @@ pub fn generate_contact_manifold<N, P, V, AV, M, G1, G2>(m1: &M, g1: &G1,
 }
 
 struct AdHocContactGenerator<N, P, V, M, G1, G2> {
-    generator:  fn(&M, &G1, &M, &G2, N) -> Option<Contact<N, P, V>>,
+    generator:  fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> Option<Contact<N, P, V>>,
     prediction: N,
     contact:    Option<Contact<N, P, V>>
 }
 
 impl<N, P, V, M, G1, G2> AdHocContactGenerator<N, P, V, M, G1, G2> {
-    pub fn new(generator: fn(&M, &G1, &M, &G2, N) -> Option<Contact<N, P, V>>, prediction: N)
+    pub fn new(generator: fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> Option<Contact<N, P, V>>, prediction: N)
                -> AdHocContactGenerator<N, P, V, M, G1, G2> {
         AdHocContactGenerator {
             generator:  generator,
@@ -56,7 +56,7 @@ impl<N, P, V, M, G1, G2> CollisionDetector<N, P, V, M, G1, G2> for AdHocContactG
     where N: Clone,
           P: Clone,
           V: Clone {
-    fn update(&mut self, m1: &M, g1: &G1, m2: &M, g2: &G2) {
+    fn update(&mut self, m1: &Isometry<N>, g1: &G1, m2: &Isometry<N>, g2: &G2) {
         self.contact = (self.generator)(m1, g1, m2, g2, self.prediction);
     }
 

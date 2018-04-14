@@ -1,19 +1,18 @@
 //! Definition of the triangle shape.
 
 use std::mem;
-use approx::ApproxEq;
-use na::{self, Point3, Unit};
+use na::{self, Unit};
 use na::Real;
-use shape::{BaseMeshElement, SupportMap};
-use math::{Isometry, Point};
-use utils;
+use shape::SupportMap;
+use math::{Isometry, Point, Vector};
+use utils::IsometryOps;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
-pub struct Triangle<P> {
-    a: P,
-    b: P,
-    c: P,
+pub struct Triangle<N: Real> {
+    a: Point<N>,
+    b: Point<N>,
+    c: Point<N>,
 }
 
 /// Description of the location of a point on a triangle.
@@ -40,38 +39,37 @@ impl<N: Real> TrianglePointLocation<N> {
     }
 }
 
-impl<P: Point> Triangle<P> {
+impl<N: Real> Triangle<N> {
     /// Creates a triangle from three points.
     #[inline]
-    pub fn new(a: P, b: P, c: P) -> Triangle<P> {
-        assert!(na::dimension::<P::Vector>() > 1);
+    pub fn new(a: Point<N>, b: Point<N>, c: Point<N>) -> Triangle<N> {
         Triangle { a, b, c }
     }
 
     /// Creates the reference to a triangle from the reference to an array of three points.
-    pub fn from_array(arr: &[P; 3]) -> &Triangle<P> {
+    pub fn from_array(arr: &[Point<N>; 3]) -> &Triangle<N> {
         unsafe { mem::transmute(arr) }
     }
 
-    pub(crate) fn from_array4(arr: &[P; 4]) -> &Triangle<P> {
+    pub(crate) fn from_array4(arr: &[Point<N>; 4]) -> &Triangle<N> {
         unsafe { mem::transmute(arr) }
     }
 
     /// The fist point of this triangle.
     #[inline]
-    pub fn a(&self) -> &P {
+    pub fn a(&self) -> &Point<N> {
         &self.a
     }
 
     /// The second point of this triangle.
     #[inline]
-    pub fn b(&self) -> &P {
+    pub fn b(&self) -> &Point<N> {
         &self.b
     }
 
     /// The third point of this triangle.
     #[inline]
-    pub fn c(&self) -> &P {
+    pub fn c(&self) -> &Point<N> {
         &self.c
     }
 
@@ -80,8 +78,8 @@ impl<P: Point> Triangle<P> {
     /// The normal points such that it is collinear to `AB × AC` (where `×` denotes the cross
     /// product).
     #[inline]
-    pub fn normal(&self) -> Option<Unit<P::Vector>> {
-        Unit::try_new(self.scaled_normal(), P::Real::default_epsilon())
+    pub fn normal(&self) -> Option<Unit<Vector<N>>> {
+        Unit::try_new(self.scaled_normal(), N::default_epsilon())
     }
 
     /// A vector normal of this triangle.
@@ -89,28 +87,21 @@ impl<P: Point> Triangle<P> {
     /// The vector points such that it is collinear to `AB × AC` (where `×` denotes the cross
     /// product).
     #[inline]
-    pub fn scaled_normal(&self) -> P::Vector {
+    pub fn scaled_normal(&self) -> Vector<N> {
         let ab = self.b - self.a;
         let ac = self.c - self.a;
-        utils::cross3(&ab, &ac)
+        ab.cross(&ac)
     }
 }
 
-impl<P: Point> BaseMeshElement<Point3<usize>, P> for Triangle<P> {
+impl<N: Real> SupportMap<N> for Triangle<N> {
     #[inline]
-    fn new_with_vertices_and_indices(vs: &[P], is: &Point3<usize>) -> Triangle<P> {
-        Triangle::new(vs[is.x], vs[is.y], vs[is.z])
-    }
-}
+    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
+        let local_dir = m.inverse_transform_vector(dir);
 
-impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
-    #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
-        let local_dir = m.inverse_rotate_vector(dir);
-
-        let d1 = na::dot(&self.a().coordinates(), &local_dir);
-        let d2 = na::dot(&self.b().coordinates(), &local_dir);
-        let d3 = na::dot(&self.c().coordinates(), &local_dir);
+        let d1 = na::dot(&self.a().coords, &local_dir);
+        let d2 = na::dot(&self.b().coords, &local_dir);
+        let d3 = na::dot(&self.c().coords, &local_dir);
 
         let res = if d1 > d2 {
             if d1 > d3 {
@@ -126,12 +117,12 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
             }
         };
 
-        m.transform_point(res)
+        m * res
     }
 }
 
-// impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for Triangle<P> {
-//     fn vertex(&self, id: FeatureId) -> P {
+// impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
+//     fn vertex(&self, id: FeatureId) -> Point<N> {
 //         match id.unwrap_vertex() {
 //             0 => self.a,
 //             1 => self.b,
@@ -139,7 +130,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 //             _ => panic!("Triangle vertex index out of bounds."),
 //         }
 //     }
-//     fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
+//     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId) {
 //         match id.unwrap_edge() {
 //             0 => (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1)),
 //             2 => (self.b, self.c, FeatureId::Vertex(1), FeatureId::Vertex(2)),
@@ -148,8 +139,8 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 //         }
 //     }
 
-//     fn face(&self, id: FeatureId, face: &mut ConvexPolyface<P>) {
-//         if na::dimension::<P::Vector>() != 2 {
+//     fn face(&self, id: FeatureId, face: &mut ConvexPolyface<N>) {
+//         if na::dimension::<Vector<N>>() != 2 {
 //             panic!("A segment does not have any face indimensions higher than 2.")
 //         }
 
@@ -179,7 +170,7 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 //         }
 //     }
 
-//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
+//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<Vector<N>> {
 //         if let Some(direction) = self.direction() {
 //             match feature {
 //                 FeatureId::Vertex(id) => {
@@ -191,9 +182,9 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 //                 }
 //                 FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
 //                 FeatureId::Face(id) => {
-//                     assert!(na::dimension::<P::Vector>() == 2);
+//                     assert!(na::dimension::<Vector<N>>() == 2);
 
-//                     let mut dir = P::Vector::zero();
+//                     let mut dir = Vector<N>::zero();
 //                     if id == 0 {
 //                         dir[0] = direction[1];
 //                         dir[1] = -direction[0];
@@ -210,8 +201,8 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 //         }
 //     }
 
-//     fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, face: &mut ConvexPolyface<P>) {
-//         assert!(na::dimension::<P::Vector>() == 3);
+//     fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
+//         assert!(na::dimension::<Vector<N>>() == 3);
 //         let normal = self.scaled_normal();
 
 //         if na::dot(&normal, &*dir) >= na::zero() {
@@ -224,19 +215,19 @@ impl<P: Point, M: Isometry<P>> SupportMap<P, M> for Triangle<P> {
 
 //     fn support_feature_toward(
 //         &self,
-//         transform: &M,
-//         dir: &Unit<P::Vector>,
-//         _angle: P::Real,
-//         out: &mut ConvexPolyface<P>,
+//         transform: &Isometry<N>,
+//         dir: &Unit<Vector<N>>,
+//         _angle: N,
+//         out: &mut ConvexPolyface<N>,
 //     ) {
 //         out.clear();
 //         // FIXME: actualy find the support feature.
 //         self.support_face_toward(transform, dir, out)
 //     }
 
-//     fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
+//     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
 //         if let Some(normal) = self.normal() {
-//             let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+//             let eps: N = na::convert(f64::consts::PI / 180.0);
 //             let (seps, ceps) = eps.sin_cos();
 
 //             let normal_dot = na::dot(&*local_dir, &*normal);

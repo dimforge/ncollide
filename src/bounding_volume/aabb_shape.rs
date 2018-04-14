@@ -2,9 +2,9 @@ use bounding_volume::{HasBoundingVolume, AABB};
 use math::{Isometry, Point};
 use shape::Shape;
 
-impl<P: Point, M: Isometry<P>> HasBoundingVolume<M, AABB<P>> for Shape<P, M> {
+impl<N: Real> HasBoundingVolume<N, AABB<N>> for Shape<N> {
     #[inline]
-    fn bounding_volume(&self, m: &M) -> AABB<P> {
+    fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         self.aabb(m)
     }
 }

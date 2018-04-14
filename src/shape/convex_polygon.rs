@@ -1,34 +1,31 @@
 use std::f64;
-use smallvec::SmallVec;
-use num::One;
-use approx::ApproxEq;
 
 use na::{self, Real, Unit};
 
-use utils::{self, data::SortedPair};
+use utils::{self, IsometryOps};
 use bounding_volume::PolyhedralCone;
 use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
 
-pub struct ConvexPolygon<P: Point> {
-    points: Vec<P>,
-    normals: Vec<Unit<P::Vector>>,
+pub struct ConvexPolygon<N: Real> {
+    points: Vec<Point<N>>,
+    normals: Vec<Unit<Vector<N>>>,
 }
 
-impl<P: Point> ConvexPolygon<P> {
-    pub fn try_new(mut points: Vec<P>) -> Option<Self> {
-        let eps = P::Real::default_epsilon().sqrt();
+impl<N: Real> ConvexPolygon<N> {
+    pub fn try_new(mut points: Vec<Point<N>>) -> Option<Self> {
+        let eps = N::default_epsilon().sqrt();
         let mut normals = Vec::with_capacity(points.len());
 
         // First, compute all normals.
         for i1 in 0..points.len() {
             let i2 = (i1 + 1) % points.len();
-            normals.push(P::ccw_face_normal(&[&points[i1], &points[i2]])?);
+            normals.push(utils::ccw_face_normal([&points[i1], &points[i2]])?);
         }
 
         let mut nremoved = 0;
         // See if the first vexrtex must be removed.
-        if na::dot(&*normals[0], &*normals[normals.len() - 1]) > P::Real::one() - eps {
+        if na::dot(&*normals[0], &*normals[normals.len() - 1]) > N::one() - eps {
             nremoved = 1;
         }
 
@@ -36,7 +33,7 @@ impl<P: Point> ConvexPolygon<P> {
         // of collinearity of adjascent faces.
         for i2 in 1..points.len() {
             let i1 = i2 - 1;
-            if na::dot(&*normals[i1], &*normals[i2]) > P::Real::one() - eps {
+            if na::dot(&*normals[i1], &*normals[i2]) > N::one() - eps {
                 // Remove
                 nremoved += 1;
             } else {
@@ -57,76 +54,60 @@ impl<P: Point> ConvexPolygon<P> {
     }
 
     #[inline]
-    pub fn points(&self) -> &[P] {
+    pub fn points(&self) -> &[Point<N>] {
         &self.points
     }
 
     #[inline]
-    pub fn normals(&self) -> &[Unit<P::Vector>] {
+    pub fn normals(&self) -> &[Unit<Vector<N>>] {
         &self.normals
     }
 }
 
-impl<P: Point, M: Isometry<P>> SupportMap<P, M> for ConvexPolygon<P> {
+impl<N: Real> SupportMap<N> for ConvexPolygon<N> {
     #[inline]
-    fn support_point(&self, m: &M, dir: &P::Vector) -> P {
-        let local_dir = m.inverse_rotate_vector(dir);
+    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
+        let local_dir = m.inverse_transform_vector(dir);
         let best_pt = utils::point_cloud_support_point(&local_dir, self.points());
 
-        m.transform_point(&best_pt)
+        m * best_pt
     }
 }
 
-impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
-    fn vertex(&self, id: FeatureId) -> P {
+impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
+    fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }
 
-    fn edge(&self, id: FeatureId) -> (P, P, FeatureId, FeatureId) {
-        unimplemented!()
-    }
-
-    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<P>) {
-        let dim = na::dimension::<P::Vector>();
+    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<N>) {
         out.clear();
 
-        if dim == 2 {
-            let ia = id.unwrap_face();
-            let ib = (ia + 1) % self.points.len();
-            out.push(self.points[ia], FeatureId::Vertex(ia));
-            out.push(self.points[ib], FeatureId::Vertex(ib));
+        let ia = id.unwrap_face();
+        let ib = (ia + 1) % self.points.len();
+        out.push(self.points[ia], FeatureId::Vertex(ia));
+        out.push(self.points[ib], FeatureId::Vertex(ib));
 
-            out.set_normal(self.normals[ia]);
-            out.set_feature_id(FeatureId::Face(ia));
-        } else {
-            unimplemented!()
-        }
+        out.set_normal(self.normals[ia]);
+        out.set_feature_id(FeatureId::Face(ia));
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<P::Vector> {
-        let dim = na::dimension::<P::Vector>();
-
-        if dim == 2 {
-            match feature {
-                FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
-                FeatureId::Vertex(id2) => {
-                    let id1 = if id2 == 0 {
-                        self.normals.len() - 1
-                    } else {
-                        id2 - 1
-                    };
-                    let generators = SmallVec::from_slice(&[self.normals[id1], self.normals[id2]]);
-                    PolyhedralCone::Span(generators)
-                }
-                _ => unreachable!(),
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
+        match feature {
+            FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+                PolyhedralCone::Span([self.normals[id1], self.normals[id2]])
             }
-        } else {
-            unimplemented!()
+            _ => unreachable!(),
         }
     }
 
-    fn support_face_toward(&self, m: &M, dir: &Unit<P::Vector>, out: &mut ConvexPolyface<P>) {
-        let ls_dir = m.inverse_rotate_vector(dir);
+    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolyface<N>) {
+        let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
 
@@ -139,24 +120,24 @@ impl<P: Point, M: Isometry<P>> ConvexPolyhedron<P, M> for ConvexPolygon<P> {
             }
         }
 
-        ConvexPolyhedron::<P, M>::face(self, FeatureId::Face(best_face), out);
+        self.face(FeatureId::Face(best_face), out);
         out.transform_by(m);
     }
 
     fn support_feature_toward(
         &self,
-        transform: &M,
-        dir: &Unit<P::Vector>,
-        _angle: P::Real,
-        out: &mut ConvexPolyface<P>,
+        transform: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        _angle: N,
+        out: &mut ConvexPolyface<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
     }
 
-    fn support_feature_id_toward(&self, local_dir: &Unit<P::Vector>) -> FeatureId {
-        let eps: P::Real = na::convert(f64::consts::PI / 180.0);
+    fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
+        let eps: N = na::convert(f64::consts::PI / 180.0);
         let ceps = eps.cos();
 
         // Check faces.

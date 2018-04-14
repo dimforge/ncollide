@@ -11,12 +11,12 @@ use narrow_phase::proximity_detector::{BallBallProximityDetector,
                                        SupportMapSupportMapProximityDetector};
 
 /// Proximity dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultProximityDispatcher<P: Point, M> {
+pub struct DefaultProximityDispatcher<N: Real, M> {
     _point_type: PhantomData<P>,
     _matrix_type: PhantomData<M>,
 }
 
-impl<P: Point, M> DefaultProximityDispatcher<P, M> {
+impl<N: Real, M> DefaultProximityDispatcher<P, M> {
     /// Creates a new basic proximity dispatcher.
     pub fn new() -> DefaultProximityDispatcher<P, M> {
         DefaultProximityDispatcher {
@@ -26,28 +26,28 @@ impl<P: Point, M> DefaultProximityDispatcher<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ProximityDispatcher<P, M> for DefaultProximityDispatcher<P, M> {
+impl<N: Real> ProximityDispatcher<P, M> for DefaultProximityDispatcher<P, M> {
     fn get_proximity_algorithm(
         &self,
-        a: &Shape<P, M>,
-        b: &Shape<P, M>,
+        a: &Shape<N>,
+        b: &Shape<N>,
     ) -> Option<ProximityAlgorithm<P, M>> {
-        let a_is_ball = a.is_shape::<Ball<P::Real>>();
-        let b_is_ball = b.is_shape::<Ball<P::Real>>();
+        let a_is_ball = a.is_shape::<Ball<N>>();
+        let b_is_ball = b.is_shape::<Ball<N>>();
 
         if a_is_ball && b_is_ball {
             Some(Box::new(BallBallProximityDetector::<P, M>::new()))
-        } else if a.is_shape::<Plane<P::Vector>>() && b.is_support_map() {
+        } else if a.is_shape::<Plane<N>>() && b.is_support_map() {
             Some(Box::new(PlaneSupportMapProximityDetector::<P, M>::new()))
-        } else if b.is_shape::<Plane<P::Vector>>() && a.is_support_map() {
+        } else if b.is_shape::<Plane<N>>() && a.is_support_map() {
             Some(Box::new(SupportMapPlaneProximityDetector::<P, M>::new()))
         } else if a.is_support_map() && b.is_support_map() {
-            if na::dimension::<P::Vector>() == 2 {
+            if na::dimension::<Vector<N>>() == 2 {
                 let simplex = VoronoiSimplex2::new();
                 Some(Box::new(SupportMapSupportMapProximityDetector::new(
                     simplex,
                 )))
-            } else if na::dimension::<P::Vector>() == 3 {
+            } else if na::dimension::<Vector<N>>() == 3 {
                 let simplex = VoronoiSimplex3::new();
                 Some(Box::new(SupportMapSupportMapProximityDetector::new(
                     simplex,

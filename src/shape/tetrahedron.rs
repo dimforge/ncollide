@@ -1,17 +1,17 @@
 //! Definition of the tetrahedron shape.
 
 use std::mem;
-use na::{self, Real};
+use na::Real;
 use shape::{Segment, Triangle};
 use math::Point;
 
 /// A tetrahedron with 4 vertices.
 #[derive(Copy, Clone, Debug)]
-pub struct Tetrahedron<P> {
-    a: P,
-    b: P,
-    c: P,
-    d: P,
+pub struct Tetrahedron<N: Real> {
+    a: Point<N>,
+    b: Point<N>,
+    c: Point<N>,
+    d: Point<N>,
 }
 
 /// Logical description of the location of a point on a triangle.
@@ -51,40 +51,39 @@ impl<N: Real> TetrahedronPointLocation<N> {
     }
 }
 
-impl<P: Point> Tetrahedron<P> {
+impl<N: Real> Tetrahedron<N> {
     /// Creates a tetrahedron from three points.
     #[inline]
-    pub fn new(a: P, b: P, c: P, d: P) -> Tetrahedron<P> {
-        assert!(na::dimension::<P::Vector>() > 1);
+    pub fn new(a: Point<N>, b: Point<N>, c: Point<N>, d: Point<N>) -> Tetrahedron<N> {
         Tetrahedron { a, b, c, d }
     }
 
     /// Creates the reference to a tetrahedron from the reference to an array of four points.
-    pub fn from_array(arr: &[P; 4]) -> &Tetrahedron<P> {
+    pub fn from_array(arr: &[Point<N>; 4]) -> &Tetrahedron<N> {
         unsafe { mem::transmute(arr) }
     }
 
     /// The fist point of this tetrahedron.
     #[inline]
-    pub fn a(&self) -> &P {
+    pub fn a(&self) -> &Point<N> {
         &self.a
     }
 
     /// The second point of this tetrahedron.
     #[inline]
-    pub fn b(&self) -> &P {
+    pub fn b(&self) -> &Point<N> {
         &self.b
     }
 
     /// The third point of this tetrahedron.
     #[inline]
-    pub fn c(&self) -> &P {
+    pub fn c(&self) -> &Point<N> {
         &self.c
     }
 
     /// The fourth point of this tetrahedron.
     #[inline]
-    pub fn d(&self) -> &P {
+    pub fn d(&self) -> &Point<N> {
         &self.d
     }
 
@@ -94,7 +93,7 @@ impl<P: Point> Tetrahedron<P> {
     /// The 1-st face is the triangle ABD.
     /// The 2-nd face is the triangle ACD.
     /// The 3-rd face is the triangle BCD.
-    pub fn face(&self, i: usize) -> Triangle<P> {
+    pub fn face(&self, i: usize) -> Triangle<N> {
         match i {
             0 => Triangle::new(self.a, self.b, self.c),
             1 => Triangle::new(self.a, self.b, self.d),
@@ -112,7 +111,7 @@ impl<P: Point> Tetrahedron<P> {
     /// The 3-rd edge is the segment BC.
     /// The 4-th edge is the segment BD.
     /// The 5-th edge is the segment CD.
-    pub fn edge(&self, i: usize) -> Segment<P> {
+    pub fn edge(&self, i: usize) -> Segment<N> {
         match i {
             0 => Segment::new(self.a, self.b),
             1 => Segment::new(self.a, self.c),

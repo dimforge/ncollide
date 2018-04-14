@@ -6,8 +6,8 @@ use query::{Ray, RayCast, RayIntersection};
 use math::{Isometry, Point};
 
 // XXX: if solid == false, this might return internal intersection.
-impl<P: Point, M: Isometry<P>> RayCast<P, M> for Compound<P, M> {
-    fn toi_with_ray(&self, m: &M, ray: &Ray<P>, solid: bool) -> Option<P::Real> {
+impl<N: Real> RayCast<P, M> for Compound<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<P>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = CompoundRayToiCostFn {
@@ -23,10 +23,10 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Compound<P, M> {
 
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut cost_fn = CompoundRayToiAndNormalCostFn {
@@ -51,24 +51,24 @@ impl<P: Point, M: Isometry<P>> RayCast<P, M> for Compound<P, M> {
  * Costs functions.
  */
 struct CompoundRayToiCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
-    compound: &'a Compound<P, M>,
+    compound: &'a Compound<N>,
     ray: &'a Ray<P>,
     solid: bool,
 }
 
-impl<'a, P, M> BVTCostFn<P::Real, usize, AABB<P>> for CompoundRayToiCostFn<'a, P, M>
+impl<'a, P, M> BVTCostFn<N, usize, AABB<N>> for CompoundRayToiCostFn<'a, P, M>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
-    type UserData = P::Real;
+    type UserData = N;
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
         aabb.toi_with_ray(&Id::new(), self.ray, self.solid)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, P::Real)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
         let elt = &self.compound.shapes()[*b];
         elt.1
             .toi_with_ray(&elt.0, self.ray, self.solid)
@@ -77,22 +77,22 @@ where
 }
 
 struct CompoundRayToiAndNormalCostFn<'a, P: 'a + Point, M: 'a + Isometry<P>> {
-    compound: &'a Compound<P, M>,
+    compound: &'a Compound<N>,
     ray: &'a Ray<P>,
     solid: bool,
 }
 
-impl<'a, P: Point, M: Isometry<P>> BVTCostFn<P::Real, usize, AABB<P>>
+impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>>
     for CompoundRayToiAndNormalCostFn<'a, P, M> {
-    type UserData = RayIntersection<P::Vector>;
+    type UserData = RayIntersection<Vector<N>>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<P::Real> {
+    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
         aabb.toi_with_ray(&Id::new(), self.ray, self.solid)
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(P::Real, RayIntersection<P::Vector>)> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, RayIntersection<Vector<N>>)> {
         let elt = &self.compound.shapes()[*b];
         elt.1
             .toi_and_normal_with_ray(&elt.0, self.ray, self.solid)

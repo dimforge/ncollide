@@ -1,5 +1,5 @@
 use na::Real;
-use math::{Point, Isometry};
+use math::Isometry;
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::Shape;

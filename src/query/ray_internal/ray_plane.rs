@@ -6,23 +6,23 @@ use math::{Isometry, Point};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_line<P: Point>(
+pub fn plane_toi_with_line<N: Real>(
     plane_center: &P,
-    plane_normal: &P::Vector,
+    plane_normal: &Vector<N>,
     line_origin: &P,
-    line_dir: &P::Vector,
-) -> P::Real {
+    line_dir: &Vector<N>,
+) -> N {
     let dpos = *plane_center - *line_origin;
     na::dot(plane_normal, &dpos) / na::dot(plane_normal, line_dir)
 }
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_ray<P: Point>(
+pub fn plane_toi_with_ray<N: Real>(
     center: &P,
-    normal: &P::Vector,
+    normal: &Vector<N>,
     ray: &Ray<P>,
-) -> Option<P::Real> {
+) -> Option<N> {
     let t = plane_toi_with_line(center, normal, &ray.origin, &ray.dir);
     if t >= na::zero() {
         Some(t)
@@ -31,19 +31,19 @@ pub fn plane_toi_with_ray<P: Point>(
     }
 }
 
-impl<P: Point, M: Isometry<P>> RayCast<P, M> for Plane<P::Vector> {
+impl<N: Real> RayCast<P, M> for Plane<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         ray: &Ray<P>,
         solid: bool,
-    ) -> Option<RayIntersection<P::Vector>> {
+    ) -> Option<RayIntersection<Vector<N>>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let dpos = -ls_ray.origin;
 
-        let dot_normal_dpos = na::dot(self.normal().as_ref(), &dpos.coordinates());
+        let dot_normal_dpos = na::dot(self.normal().as_ref(), &dpos.coords);
 
         if solid && dot_normal_dpos > na::zero() {
             // The ray is inside of the solid half-space.

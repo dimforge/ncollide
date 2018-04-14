@@ -11,13 +11,13 @@ use geometry::query::{Contact, ContactKinematic, ContactManifold, ContactPredict
 use narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
-pub struct BallConvexPolyhedronManifoldGenerator<P: Point, M> {
+pub struct BallConvexPolyhedronManifoldGenerator<N: Real, M> {
     flip: bool,
     contact_manifold: ContactManifold<P>,
     mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<P: Point, M> Clone for BallConvexPolyhedronManifoldGenerator<P, M> {
+impl<N: Real, M> Clone for BallConvexPolyhedronManifoldGenerator<P, M> {
     fn clone(&self) -> BallConvexPolyhedronManifoldGenerator<P, M> {
         BallConvexPolyhedronManifoldGenerator {
             flip: self.flip,
@@ -27,7 +27,7 @@ impl<P: Point, M> Clone for BallConvexPolyhedronManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
+impl<N: Real> BallConvexPolyhedronManifoldGenerator<P, M> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
     pub fn new(flip: bool) -> BallConvexPolyhedronManifoldGenerator<P, M> {
@@ -40,27 +40,27 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
 
     fn do_update(
         &mut self,
-        m1: &M,
-        a: &Shape<P, M>,
-        m2: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        m1: &Isometry<N>,
+        a: &Shape<N>,
+        m2: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         flip: bool,
     ) -> bool {
         if let (Some(ball), Some(pq2), Some(cp2)) = (
-            a.as_shape::<Ball<P::Real>>(),
+            a.as_shape::<Ball<N>>(),
             b.as_point_query(),
             b.as_convex_polyhedron(),
         ) {
             self.contact_manifold.save_cache_and_clear(id_alloc);
 
-            let ball_center = P::from_coordinates(m1.translation().to_vector());
+            let ball_center = Point::from_coordinates(m1.translation().to_vector());
             let (proj, f2) = pq2.project_point_with_feature(m2, &ball_center);
             let world2 = proj.point;
             let dpt = world2 - ball_center;
 
-            if let Some((dir, dist)) = Unit::try_new_and_get(dpt, P::Real::default_epsilon()) {
+            if let Some((dir, dist)) = Unit::try_new_and_get(dpt, N::default_epsilon()) {
                 let depth;
                 let normal;
 
@@ -81,11 +81,11 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
 
                     if !flip {
                         contact = Contact::new(world1, world2, normal, depth);
-                        kinematic.set_point1(f1, P::origin(), PolyhedralCone::Full);
+                        kinematic.set_point1(f1, Point::origin(), PolyhedralCone::Full);
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_point2(f1, P::origin(), PolyhedralCone::Full);
+                        kinematic.set_point2(f1, Point::origin(), PolyhedralCone::Full);
                         kinematic.set_dilation2(ball.radius());
                     }
 
@@ -133,19 +133,19 @@ impl<P: Point, M: Isometry<P>> BallConvexPolyhedronManifoldGenerator<P, M> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> ContactManifoldGenerator<P, M>
+impl<N: Real> ContactManifoldGenerator<P, M>
     for BallConvexPolyhedronManifoldGenerator<P, M>
 {
     fn update(
         &mut self,
         _: &ContactDispatcher<P, M>,
         id1: usize,
-        m1: &M,
-        a: &Shape<P, M>,
+        m1: &Isometry<N>,
+        a: &Shape<N>,
         id2: usize,
-        m2: &M,
-        b: &Shape<P, M>,
-        prediction: &ContactPrediction<P::Real>,
+        m2: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
         self.contact_manifold.set_subshape_id1(id1);

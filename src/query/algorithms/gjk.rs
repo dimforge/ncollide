@@ -19,7 +19,7 @@ pub enum GJKResult<P, V> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
-    Projection(P, Unit<V>),
+    Projection(P, Unit<Vector<N>>),
     /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
     Proximity(V),
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
@@ -36,17 +36,17 @@ pub enum GJKResult<P, V> {
 ///               with at least one point on the shapes CSO. See
 ///               `minkowski_sum::cso_support_point` to compute such point.
 pub fn closest_points<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
     simplex: &mut S,
-) -> Option<(P, P)>
+) -> Option<(Point<N>, Point<N>)>
 where
-    P: Point,
+    N: Real,
     S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let reflect2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
@@ -63,18 +63,18 @@ where
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
 pub fn closest_points_with_max_dist<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-    max_dist: P::Real,
+    max_dist: N,
     simplex: &mut S,
-) -> GJKResult<(P, P), P::Vector>
+) -> GJKResult<(Point<N>, Point<N>), Vector<N>>
 where
-    P: Point,
+    N: Real,
     S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let reflect2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
@@ -97,23 +97,23 @@ where
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
 pub fn distance<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
     simplex: &mut S,
-) -> P::Real
+) -> N
 where
-    P: Point,
+    N: Real,
     S: Simplex<P>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let reflect2 = Reflection::new(g2);
     let cso = MinkowskiSum::new(m1, g1, m2, &reflect2);
 
     match project_origin(&Id::new(), &cso, simplex) {
-        Some(c) => na::norm(&c.coordinates()),
+        Some(c) => na::norm(&c.coords),
         None => na::zero(),
     }
 }
@@ -127,18 +127,18 @@ where
 ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
 ///               to compute such point.
 pub fn proximity<P, M, S, G1: ?Sized, G2: ?Sized>(
-    m1: &M,
+    m1: &Isometry<N>,
     g1: &G1,
-    m2: &M,
+    m2: &Isometry<N>,
     g2: &G2,
-    max_dist: P::Real,
+    max_dist: N,
     simplex: &mut S,
-) -> (Proximity, P::Vector)
+) -> (Proximity, Vector<N>)
 where
-    P: Point,
+    N: Real,
     S: Simplex<AnnotatedPoint<P>>,
-    G1: SupportMap<P, M>,
-    G2: SupportMap<P, M>,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
 {
     let reflect2 = Reflection::new(g2);
     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
@@ -160,29 +160,29 @@ where
 /// * shape - the shape to project the origin on
 /// * simplex - the simplex to be used by the GJK algorithm. It must be already initialized
 ///             with at least one point on the shape boundary.
-pub fn project_origin<P, M, S, G: ?Sized>(m: &M, shape: &G, simplex: &mut S) -> Option<P>
+pub fn project_origin<P, M, S, G: ?Sized>(m: &Isometry<N>, shape: &G, simplex: &mut S) -> Option<P>
 where
-    P: Point,
+    N: Real,
     S: Simplex<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
-    let _eps = P::Real::default_epsilon();
-    let _eps_tol: P::Real = eps_tol();
-    let _eps_rel: P::Real = _eps_tol.sqrt();
-    let _dimension = na::dimension::<P::Vector>();
+    let _eps = N::default_epsilon();
+    let _eps_tol: N = eps_tol();
+    let _eps_rel: N = _eps_tol.sqrt();
+    let _dimension = na::dimension::<Vector<N>>();
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
     let mut old_proj = proj;
-    let mut old_dir = Unit::new_normalize(proj.coordinates());
-    let mut max_bound = P::Real::max_value();
+    let mut old_dir = Unit::new_normalize(proj.coords);
+    let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
 
     loop {
         let old_max_bound = max_bound;
 
-        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coordinates(), _eps_tol) {
+        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coords, _eps_tol) {
             dir = new_dir;
             max_bound = dist;
         } else {
@@ -195,7 +195,7 @@ where
         }
 
         let support_point = shape.support_point(m, &-dir);
-        let min_bound = na::dot(dir.as_ref(), &support_point.coordinates());
+        let min_bound = na::dot(dir.as_ref(), &support_point.coords);
 
         assert!(min_bound == min_bound);
 
@@ -248,34 +248,34 @@ pub fn eps_tol<N: Real>() -> N {
 /// compute the exact distance and return `GJKResult::Projection(point)` if the origin is closer
 /// than `max_dist` but not inside `shape`.
 pub fn project_origin_with_max_dist<P, M, S, G: ?Sized>(
-    m: &M,
+    m: &Isometry<N>,
     shape: &G,
-    max_dist: P::Real,
+    max_dist: N,
     exact_dist: bool,
     simplex: &mut S,
-) -> GJKResult<P, P::Vector>
+) -> GJKResult<P, Vector<N>>
 where
-    P: Point,
+    N: Real,
     S: Simplex<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
-    let _eps = P::Real::default_epsilon();
-    let _eps_tol: P::Real = eps_tol();
-    let _eps_rel: P::Real = _eps_tol.sqrt();
-    let _dimension = na::dimension::<P::Vector>();
+    let _eps = N::default_epsilon();
+    let _eps_tol: N = eps_tol();
+    let _eps_rel: N = _eps_tol.sqrt();
+    let _dimension = na::dimension::<Vector<N>>();
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
     let mut old_proj = proj;
-    let mut old_dir = Unit::new_normalize(proj.coordinates());
-    let mut max_bound = P::Real::max_value();
+    let mut old_dir = Unit::new_normalize(proj.coords);
+    let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
 
     loop {
         let old_max_bound = max_bound;
 
-        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coordinates(), _eps_tol) {
+        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coords, _eps_tol) {
             dir = new_dir;
             max_bound = dist;
         } else {
@@ -287,24 +287,24 @@ where
             if exact_dist {
                 return GJKResult::Projection(old_proj, old_dir); // upper bounds inconsistencies
             } else {
-                return GJKResult::Proximity(old_proj.coordinates());
+                return GJKResult::Proximity(old_proj.coords);
             }
         }
 
         let support_point = shape.support_point(m, &-dir);
-        let min_bound = na::dot(dir.as_ref(), &support_point.coordinates());
+        let min_bound = na::dot(dir.as_ref(), &support_point.coords);
 
         assert!(min_bound == min_bound);
 
         if min_bound > max_dist {
-            return GJKResult::NoIntersection(proj.coordinates());
+            return GJKResult::NoIntersection(proj.coords);
         } else if !exact_dist && min_bound > na::zero() {
-            return GJKResult::Proximity(old_proj.coordinates());
+            return GJKResult::Proximity(old_proj.coords);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
                 return GJKResult::Projection(proj, dir); // the distance found has a good enough precision
             } else {
-                return GJKResult::Proximity(proj.coordinates());
+                return GJKResult::Proximity(proj.coords);
             }
         }
 
@@ -312,7 +312,7 @@ where
             if exact_dist {
                 return GJKResult::Projection(proj, dir);
             } else {
-                return GJKResult::Proximity(proj.coordinates());
+                return GJKResult::Proximity(proj.coords);
             }
         }
 
@@ -325,7 +325,7 @@ where
                 if exact_dist {
                     return GJKResult::Projection(old_proj, old_dir);
                 } else {
-                    return GJKResult::Proximity(old_proj.coordinates());
+                    return GJKResult::Proximity(old_proj.coords);
                 }
             } else {
                 return GJKResult::Intersection; // Point inside of the cso.
@@ -340,31 +340,31 @@ where
 
 /// Casts a ray on a support map using the GJK algorithm.
 pub fn cast_ray<P, M, S, G: ?Sized>(
-    m: &M,
+    m: &Isometry<N>,
     shape: &G,
     simplex: &mut S,
     ray: &Ray<P>,
-) -> Option<(P::Real, P::Vector)>
+) -> Option<(N, Vector<N>)>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
     S: Simplex<P>,
-    G: SupportMap<P, M>,
+    G: SupportMap<N>,
 {
-    let mut ltoi: P::Real = na::zero();
+    let mut ltoi: N = na::zero();
 
     let _eps_tol = eps_tol();
-    let _dimension = na::dimension::<P::Vector>();
+    let _dimension = na::dimension::<Vector<N>>();
 
     // initialization
     let mut curr_ray = *ray;
-    let mut dir = m.inverse_translate_point(&curr_ray.origin).coordinates();
+    let mut dir = m.inverse_translate_point(&curr_ray.origin).coords;
 
     if dir == na::zero() {
         dir[0] = na::one();
     }
 
-    let mut old_max_bound: P::Real = Bounded::max_value();
+    let mut old_max_bound: N = Bounded::max_value();
 
     let mut ldir = dir;
     // FIXME: this converges in more than 100 iterations… something is wrong here…
@@ -395,8 +395,8 @@ where
                     curr_ray.origin = ray.origin + ray.dir * ltoi;
                     dir = curr_ray.origin - support_point;
                     // FIXME: could we simply translate the simpex by old_origin - new_origin ?
-                    simplex.reset(P::origin() + (-dir));
-                    let _max: P::Real = Bounded::max_value();
+                    simplex.reset(Point::origin() + (-dir));
+                    let _max: N = Bounded::max_value();
                     old_max_bound = _max;
                     continue;
                 }
@@ -409,11 +409,11 @@ where
             }
         }
 
-        if !simplex.add_point(P::origin() + (support_point - curr_ray.origin)) {
+        if !simplex.add_point(Point::origin() + (support_point - curr_ray.origin)) {
             return Some((ltoi, dir));
         }
 
-        let proj = simplex.project_origin_and_reduce().coordinates();
+        let proj = simplex.project_origin_and_reduce().coords;
         let max_bound = na::norm_squared(&proj);
 
         if simplex.dimension() == _dimension {

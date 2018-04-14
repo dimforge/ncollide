@@ -8,7 +8,7 @@ use math::Point;
 
 /// Computes the volume of a tetrahedron.
 #[inline]
-pub fn tetrahedron_volume<P: Point>(p1: &P, p2: &P, p3: &P, p4: &P) -> P::Real {
+pub fn tetrahedron_volume<N: Real>(p1: &P, p2: &P, p3: &P, p4: &P) -> N {
     num::abs(tetrahedron_signed_volume(p1, p2, p3, p4))
 }
 
@@ -17,8 +17,8 @@ pub fn tetrahedron_volume<P: Point>(p1: &P, p2: &P, p3: &P, p4: &P) -> P::Real {
 /// If it is positive, `p4` is on the half-space pointed by the normal of the oriented triangle
 /// `(p1, p2, p3)`.
 #[inline]
-pub fn tetrahedron_signed_volume<P: Point>(p1: &P, p2: &P, p3: &P, p4: &P) -> P::Real {
-    assert!(P::Vector::dimension() == 3);
+pub fn tetrahedron_signed_volume<N: Real>(p1: &P, p2: &P, p3: &P, p4: &P) -> N {
+    assert!(Vector<N>::dimension() == 3);
 
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
@@ -41,6 +41,6 @@ pub fn tetrahedron_signed_volume<P: Point>(p1: &P, p2: &P, p3: &P, p4: &P) -> P:
 
 /// Computes the center of a tetrahedron.
 #[inline]
-pub fn tetrahedron_center<P: Point>(p1: &P, p2: &P, p3: &P, p4: &P) -> P {
+pub fn tetrahedron_center<N: Real>(p1: &P, p2: &P, p3: &P, p4: &P) -> Point<N> {
     ::center(&[*p1, *p2, *p3, *p4])
 }

@@ -5,15 +5,15 @@ use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point};
 use utils;
 
-impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Tetrahedron<P> {
+impl<N: Real> PointQuery<P, M> for Tetrahedron<N> {
     #[inline]
-    fn project_point(&self, m: &M, pt: &P, solid: bool) -> PointProjection<P> {
+    fn project_point(&self, m: &Isometry<N>, pt: &P, solid: bool) -> PointProjection<P> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
         projection
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &M, pt: &P) -> (PointProjection<P>, FeatureId) {
+    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &P) -> (PointProjection<P>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -26,13 +26,13 @@ impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Tetrahedron<P> {
     }
 }
 
-impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
-    type Location = TetrahedronPointLocation<P::Real>;
+impl<N: Real> PointQueryWithLocation<P, M> for Tetrahedron<N> {
+    type Location = TetrahedronPointLocation<N>;
 
     #[inline]
     fn project_point_with_location(
         &self,
-        m: &M,
+        m: &Isometry<N>,
         pt: &P,
         solid: bool,
     ) -> (PointProjection<P>, Self::Location) {
@@ -50,7 +50,7 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
         let ap_ac = na::dot(&ap, &ac);
         let ap_ad = na::dot(&ap, &ad);
 
-        let _0: P::Real = na::zero();
+        let _0: N = na::zero();
 
         if ap_ab <= _0 && ap_ac <= _0 && ap_ad <= _0 {
             // Voronoï region of `a`.
@@ -103,26 +103,26 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
         #[inline(always)]
         fn check_edge<P, M>(
             i: usize,
-            m: &M,
+            m: &Isometry<N>,
             a: &P,
             b: &P,
-            nabc: &P::Vector,
-            nabd: &P::Vector,
-            ap: &P::Vector,
-            ab: &P::Vector,
-            ap_ab: P::Real, /*ap_ac: P::Real, ap_ad: P::Real,*/
-            bp_ab: P::Real, /*bp_ac: P::Real, bp_ad: P::Real*/
+            nabc: &Vector<N>,
+            nabd: &Vector<N>,
+            ap: &Vector<N>,
+            ab: &Vector<N>,
+            ap_ab: N, /*ap_ac: N, ap_ad: N,*/
+            bp_ab: N, /*bp_ac: N, bp_ad: N*/
         ) -> (
-            P::Real,
-            P::Real,
-            Option<(PointProjection<P>, TetrahedronPointLocation<P::Real>)>,
+            N,
+            N,
+            Option<(PointProjection<P>, TetrahedronPointLocation<N>)>,
         )
         where
-            P: Point,
+            N: Real,
             M: Isometry<P>,
         {
-            let _0: P::Real = na::zero();
-            let _1: P::Real = na::one();
+            let _0: N = na::zero();
+            let _1: N = na::one();
 
             let ab_ab = ap_ab - bp_ab;
 
@@ -304,25 +304,25 @@ impl<P: Point, M: Isometry<P>> PointQueryWithLocation<P, M> for Tetrahedron<P> {
             a: &P,
             b: &P,
             c: &P,
-            m: &M,
-            ap: &P::Vector,
-            bp: &P::Vector,
-            cp: &P::Vector,
-            ab: &P::Vector,
-            ac: &P::Vector,
-            ad: &P::Vector,
-            dabc: P::Real,
-            dbca: P::Real,
-            dacb: P::Real,
-            /* ap_ab: P::Real, bp_ab: P::Real, cp_ab: P::Real,
-                                   ap_ac: P::Real, bp_ac: P::Real, cp_ac: P::Real, */
-        ) -> Option<(PointProjection<P>, TetrahedronPointLocation<P::Real>)>
+            m: &Isometry<N>,
+            ap: &Vector<N>,
+            bp: &Vector<N>,
+            cp: &Vector<N>,
+            ab: &Vector<N>,
+            ac: &Vector<N>,
+            ad: &Vector<N>,
+            dabc: N,
+            dbca: N,
+            dacb: N,
+            /* ap_ab: N, bp_ab: N, cp_ab: N,
+                                   ap_ac: N, bp_ac: N, cp_ac: N, */
+        ) -> Option<(PointProjection<P>, TetrahedronPointLocation<N>)>
         where
-            P: Point,
+            N: Real,
             M: Isometry<P>,
         {
-            let _0: P::Real = na::zero();
-            let _1: P::Real = na::one();
+            let _0: N = na::zero();
+            let _1: N = na::one();
 
             if dabc < _0 && dbca < _0 && dacb < _0 {
                 let n = utils::cross3(ab, ac); // FIXME: is is possible to avoid this cross product?

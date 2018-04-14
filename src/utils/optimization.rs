@@ -68,7 +68,7 @@ pub fn minimize_with_bfgs<V, F, D>(niter:       usize,
                                    f:           &mut F,
                                    df:          &mut D)
                                    -> (V, V::Scalar)
-    where V: Vector + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+    where N: Real + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
           F: Fn(&V) -> V::Scalar,
           D: Fn(&V) -> V,
           V::OuterProductType: SquareMatrix<<V as Vector>::Scalar, V> +
@@ -158,7 +158,7 @@ pub fn bfgs<V, SS, F, D>(niter:   usize,
                          f:       &mut F,
                          df:      &mut D)
                          -> V
-    where V: Vector + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
+    where N: Real + Outer + Mul<<V as Outer>::OuterProductType, Output = V>,
           F: Fn(&V) -> V::Scalar,
           D: Fn(&V) -> V,
           V::OuterProductType: SquareMatrix<<V as Vector>::Scalar, V> +

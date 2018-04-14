@@ -9,29 +9,29 @@ use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation
 use utils;
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
-pub struct VoronoiSimplex3<P: Point> {
+pub struct VoronoiSimplex3<N: Real> {
     vertices: [P; 4],
     dim: usize,
 }
 
-impl<P: Point> VoronoiSimplex3<P> {
+impl<N: Real> VoronoiSimplex3<P> {
     /// Creates a new empty simplex.
     pub fn new() -> VoronoiSimplex3<P> {
         VoronoiSimplex3 {
-            vertices: [P::origin(); 4],
+            vertices: [Point::origin(); 4],
             dim: 0,
         }
     }
 }
 
 /// Trait of a simplex usable by the GJK algorithm.
-impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
-    fn reset(&mut self, pt: P) {
+impl<N: Real> Simplex<P> for VoronoiSimplex3<P> {
+    fn reset(&mut self, pt: Point<N>) {
         self.dim = 0;
         self.vertices[0] = pt;
     }
 
-    fn add_point(&mut self, pt: P) -> bool {
+    fn add_point(&mut self, pt: Point<N>) -> bool {
         match self.dim {
             0 => {
                 if na::norm_squared(&(self.vertices[0] - pt)) < gjk::eps_tol() {
@@ -64,19 +64,19 @@ impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
         return true;
     }
 
-    fn point(&self, i: usize) -> P {
+    fn point(&self, i: usize) -> Point<N> {
         assert!(i <= self.dim, "Index out of bounds.");
         self.vertices[i]
     }
 
-    fn project_origin_and_reduce(&mut self) -> P {
+    fn project_origin_and_reduce(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.vertices[0]
         } else if self.dim == 1 {
             // FIXME: NLL
             let (proj, location) = {
                 let seg = Segment::from_array4(&self.vertices);
-                seg.project_point_with_location(&Id::new(), &P::origin(), true)
+                seg.project_point_with_location(&Id::new(), &Point::origin(), true)
             };
 
             match location {
@@ -95,7 +95,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
             // FIXME: NLL
             let (proj, location) = {
                 let tri = Triangle::from_array4(&self.vertices);
-                tri.project_point_with_location(&Id::new(), &P::origin(), true)
+                tri.project_point_with_location(&Id::new(), &Point::origin(), true)
             };
 
             match location {
@@ -123,7 +123,7 @@ impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
             // FIXME: NLL
             let (proj, location) = {
                 let tetr = Tetrahedron::from_array(&self.vertices);
-                tetr.project_point_with_location(&Id::new(), &P::origin(), true)
+                tetr.project_point_with_location(&Id::new(), &Point::origin(), true)
             };
 
             match location {
@@ -189,18 +189,18 @@ impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
         }
     }
 
-    fn project_origin(&mut self) -> P {
+    fn project_origin(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.vertices[0]
         } else if self.dim == 1 {
             let seg = Segment::from_array4(&self.vertices);
-            seg.project_point(&Id::new(), &P::origin(), true).point
+            seg.project_point(&Id::new(), &Point::origin(), true).point
         } else if self.dim == 2 {
             let tri = Triangle::from_array4(&self.vertices);
-            tri.project_point(&Id::new(), &P::origin(), true).point
+            tri.project_point(&Id::new(), &Point::origin(), true).point
         } else {
             let tetr = Tetrahedron::from_array(&self.vertices);
-            tetr.project_point(&Id::new(), &P::origin(), true).point
+            tetr.project_point(&Id::new(), &Point::origin(), true).point
         }
     }
 
@@ -218,11 +218,11 @@ impl<P: Point> Simplex<P> for VoronoiSimplex3<P> {
         self.dim
     }
 
-    fn max_sq_len(&self) -> P::Real {
+    fn max_sq_len(&self) -> N {
         let mut max_sq_len = na::zero();
 
         for i in 0..self.dim + 1 {
-            let norm = na::norm_squared(&self.vertices[i].coordinates());
+            let norm = na::norm_squared(&self.vertices[i].coords);
 
             if norm > max_sq_len {
                 max_sq_len = norm

@@ -34,7 +34,7 @@ impl<'a, P, M, G1, G2, A, B> ToPolyline<P, (A, B)> for MinkowskiSum<'a, M, G1, G
         for pt in p2.coords().iter() {
             let mut cpy = p1.clone();
 
-            cpy += pt.coordinates();
+            cpy += pt.coords;
 
             all_points.extend(cpy.coords().into_iter());
         }

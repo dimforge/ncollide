@@ -8,14 +8,14 @@ use query::ClosestPoints;
 /// Closest points between segments.
 #[inline]
 pub fn segment_against_segment<P, M>(
-    m1: &M,
-    seg1: &Segment<P>,
-    m2: &M,
-    seg2: &Segment<P>,
-    margin: P::Real,
+    m1: &Isometry<N>,
+    seg1: &Segment<N>,
+    m2: &Isometry<N>,
+    seg2: &Segment<N>,
+    margin: N,
 ) -> ClosestPoints<P>
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     let (loc1, loc2) = segment_against_segment_with_locations(m1, seg1, m2, seg2);
@@ -33,13 +33,13 @@ where
 /// Closest points between two segments.
 #[inline]
 pub fn segment_against_segment_with_locations<P, M>(
-    m1: &M,
-    seg1: &Segment<P>,
-    m2: &M,
-    seg2: &Segment<P>,
-) -> (SegmentPointLocation<P::Real>, SegmentPointLocation<P::Real>)
+    m1: &Isometry<N>,
+    seg1: &Segment<N>,
+    m2: &Isometry<N>,
+    seg2: &Segment<N>,
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
 where
-    P: Point,
+    N: Real,
     M: Isometry<P>,
 {
     // Inspired by Real-time collision detection by Christer Ericson.
@@ -53,13 +53,13 @@ where
     let e = na::norm_squared(&d2);
     let f = na::dot(&d2, &r);
 
-    let _0: P::Real = na::zero();
-    let _1: P::Real = na::one();
+    let _0: N = na::zero();
+    let _1: N = na::one();
 
     let mut s;
     let mut t;
 
-    let _eps = P::Real::default_epsilon();
+    let _eps = N::default_epsilon();
     if a <= _eps && e <= _eps {
         s = _0;
         t = _0;
