@@ -96,16 +96,16 @@ impl<N: Real> Face<N> {
 }
 
 /// The Expanding Polytope Algorithm in 2D.
-pub struct EPA2<N: Real> {
+pub struct EPA<N: Real> {
     vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA2<N> {
+impl<N: Real> EPA<N> {
     /// Creates a new instance of the 2D Expanding Polytope Algorithm.
     pub fn new() -> Self {
-        EPA2 {
+        EPA {
             vertices: Vec::new(),
             faces: Vec::new(),
             heap: BinaryHeap::new(),

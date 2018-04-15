@@ -5,7 +5,7 @@ use na;
 use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
-use query::algorithms::{JohnsonSimplex, Simplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{JohnsonSimplex, Simplex, VoronoiSimplex, VoronoiSimplex};
 use query::ClosestPoints;
 use math::{Isometry, Point};
 
@@ -30,7 +30,7 @@ where
             m2,
             g2,
             prediction,
-            &mut VoronoiSimplex2::new(),
+            &mut VoronoiSimplex::new(),
             None,
         ) {
             GJKResult::Projection(pts, _) => ClosestPoints::WithinMargin(pts.0, pts.1),
@@ -45,7 +45,7 @@ where
             m2,
             g2,
             prediction,
-            &mut VoronoiSimplex3::new(),
+            &mut VoronoiSimplex::new(),
             None,
         ) {
             GJKResult::Projection(pts, _) => ClosestPoints::WithinMargin(pts.0, pts.1),

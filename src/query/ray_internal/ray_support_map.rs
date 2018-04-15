@@ -4,7 +4,7 @@ use alga::general::Id;
 use na;
 
 use query::algorithms::gjk;
-use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex, VoronoiSimplex};
 use query::{Ray, RayCast, RayIntersection};
 use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, Cylinder, MinkowskiSum, Segment, SupportMap};
 use math::{Isometry, Point};
@@ -68,7 +68,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -79,7 +79,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -118,7 +118,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -129,7 +129,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -168,7 +168,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -179,7 +179,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -218,7 +218,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -229,7 +229,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -268,7 +268,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -279,7 +279,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -319,7 +319,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -330,7 +330,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -371,7 +371,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex2::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {
@@ -382,7 +382,7 @@ where
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
-                &mut VoronoiSimplex3::<P>::new(),
+                &mut VoronoiSimplex::<P>::new(),
                 &ls_ray,
                 solid,
             ).map(|mut res| {

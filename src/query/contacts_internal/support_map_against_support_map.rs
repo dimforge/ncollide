@@ -6,9 +6,9 @@ use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
-use query::algorithms::epa3;
-use query::algorithms::epa2;
-use query::algorithms::{EPA2, EPA3, JohnsonSimplex, Simplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::EPA;
+use query::algorithms::EPA;
+use query::algorithms::{EPA, EPA, JohnsonSimplex, Simplex, VoronoiSimplex, VoronoiSimplex};
 use query::Contact;
 use math::{Isometry, Point};
 
@@ -27,7 +27,7 @@ where
     G2: SupportMap<N>,
 {
     if na::dimension::<Vector<N>>() == 2 {
-        let simplex = &mut VoronoiSimplex2::new();
+        let simplex = &mut VoronoiSimplex::new();
         match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
         {
             GJKResult::Projection(c, _) => Some(c),
@@ -36,7 +36,7 @@ where
             GJKResult::Proximity(_) => unreachable!(),
         }
     } else if na::dimension::<Vector<N>>() == 3 {
-        let simplex = &mut VoronoiSimplex3::new();
+        let simplex = &mut VoronoiSimplex::new();
         match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
         {
             GJKResult::Projection(c, _) => Some(c),
@@ -104,8 +104,8 @@ where
 
     // The point is inside of the CSO: use the fallback algorithm
     if na::dimension::<Vector<N>>() == 2 {
-        let mut epa = EPA2::new();
-        if let Some((p1, p2, n)) = epa2::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
+        let mut epa = EPA::new();
+        if let Some((p1, p2, n)) = EPA::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
             // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
             // inverse Gauss maps at p1 and p2.
             if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {
@@ -113,8 +113,8 @@ where
             }
         }
     } else if na::dimension::<Vector<N>>() == 3 {
-        let mut epa = EPA3::new();
-        if let Some((p1, p2, n)) = epa3::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
+        let mut epa = EPA::new();
+        if let Some((p1, p2, n)) = EPA::closest_points(&mut epa, m1, g1, m2, g2, simplex) {
             // XXX: if the depth is exactly zero, we should retrieve the normal by intersectiong the
             // inverse Gauss maps at p1 and p2.
             if let Some((normal, depth)) = Unit::try_new_and_get(p1 - p2, gjk::eps_tol()) {

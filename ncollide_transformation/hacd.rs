@@ -12,7 +12,7 @@ use utils;
 use shape::SupportMap;
 use bounding_volume::{self, BoundingVolume, AABB};
 use partitioning::{BoundingVolumeInterferencesCollector, BVT};
-use query::algorithms::VoronoiSimplex3;
+use query::algorithms::VoronoiSimplex;
 use query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{IndexBuffer, TriMesh};
 
@@ -795,7 +795,7 @@ impl<'a, N: Real> RayCast<Point3<N>, Id> for ConvexPair<'a, N> {
         ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,
-            &mut VoronoiSimplex3::<Point3<N>>::new(),
+            &mut VoronoiSimplex::<Point3<N>>::new(),
             ray,
             solid,
         )

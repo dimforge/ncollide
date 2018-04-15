@@ -2,14 +2,14 @@
 
 pub use self::cso_point::CSOPoint;
 #[cfg(feature = "dim2")]
-pub use self::epa2::EPA2;
+pub use self::epa2::EPA;
 #[cfg(feature = "dim3")]
-pub use self::epa3::EPA3;
+pub use self::epa3::EPA;
 pub use self::simplex::Simplex;
 #[cfg(feature = "dim2")]
-pub use self::voronoi_simplex2::VoronoiSimplex2;
+pub use self::voronoi_simplex2::VoronoiSimplex;
 #[cfg(feature = "dim3")]
-pub use self::voronoi_simplex3::VoronoiSimplex3;
+pub use self::voronoi_simplex3::VoronoiSimplex;
 
 mod cso_point;
 #[cfg(feature = "dim2")]

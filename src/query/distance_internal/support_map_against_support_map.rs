@@ -3,7 +3,7 @@ use num::Zero;
 use alga::linear::Translation;
 use na;
 use query::algorithms::gjk;
-use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex, VoronoiSimplex};
 use shape::{self, SupportMap};
 use math::{Isometry, Point};
 
@@ -26,7 +26,7 @@ where
             g1,
             m2,
             g2,
-            &mut VoronoiSimplex2::new(),
+            &mut VoronoiSimplex::new(),
             None,
         )
     } else if na::dimension::<Vector<N>>() == 3 {
@@ -35,7 +35,7 @@ where
             g1,
             m2,
             g2,
-            &mut VoronoiSimplex3::new(),
+            &mut VoronoiSimplex::new(),
             None,
         )
     } else {

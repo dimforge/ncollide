@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use math::{Isometry, Point};
 use na;
 use shape::{Ball, Plane, Shape};
-use query::algorithms::{JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{JohnsonSimplex, VoronoiSimplex, VoronoiSimplex};
 use pipeline::narrow_phase::proximity_detector::{BallBallProximityDetector,
                                                 CompositeShapeShapeProximityDetector,
                                                 PlaneSupportMapProximityDetector, ProximityAlgorithm,
@@ -43,12 +43,12 @@ impl<N: Real> ProximityDispatcher<N> for DefaultProximityDispatcher<N> {
             Some(Box::new(SupportMapPlaneProximityDetector::<N>::new()))
         } else if a.is_support_map() && b.is_support_map() {
             if na::dimension::<Vector<N>>() == 2 {
-                let simplex = VoronoiSimplex2::new();
+                let simplex = VoronoiSimplex::new();
                 Some(Box::new(SupportMapSupportMapProximityDetector::new(
                     simplex,
                 )))
             } else if na::dimension::<Vector<N>>() == 3 {
-                let simplex = VoronoiSimplex3::new();
+                let simplex = VoronoiSimplex::new();
                 Some(Box::new(SupportMapSupportMapProximityDetector::new(
                     simplex,
                 )))

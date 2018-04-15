@@ -153,17 +153,17 @@ impl SilhouetteEdge {
 }
 
 /// The Expanding Polytope Algorithm in 3D.
-pub struct EPA3<N: Real> {
+pub struct EPA<N: Real> {
     vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     silhouette: Vec<SilhouetteEdge>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA3<N> {
+impl<N: Real> EPA<N> {
     /// Creates a new instance of the 3D Expanding Polytope Algorithm.
     pub fn new() -> Self {
-        EPA3 {
+        EPA {
             vertices: Vec::new(),
             faces: Vec::new(),
             silhouette: Vec::new(),

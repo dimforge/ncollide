@@ -9,7 +9,7 @@ use ncollide::query::ContactPrediction;
 use ncollide::narrow_phase::{ContactDispatcher, DefaultContactDispatcher};
 
 #[test]
-fn cuboid_cuboid_epa3() {
+fn cuboid_cuboid_EPA() {
     let c = Cuboid::new(Vector3::new(2.0, 1.0, 1.0));
     let m1 = Isometry3::new(Vector3::new(3.5, 0.0, 0.0), na::zero());
     let m2 = Isometry3::identity();
@@ -27,7 +27,7 @@ fn cuboid_cuboid_epa3() {
 }
 
 #[test]
-fn cuboid_cuboid_epa2() {
+fn cuboid_cuboid_EPA() {
     let c = Cuboid::new(Vector2::new(2.0, 1.0));
     let m1 = Isometry2::new(Vector2::new(3.5, 0.0), na::zero());
     let m2 = Isometry2::identity();
@@ -60,7 +60,7 @@ fn cuboids_large_size_ratio_issue_181() {
     let mut angle = 0.0; 
     
     // Used to panic at some point:
-    // thread 'main' panicked at 'assertion failed: neg_dist <= gjk::eps_tol()', ncollide_geometry/query/algorithms/epa2.rs:26:9
+    // thread 'main' panicked at 'assertion failed: neg_dist <= gjk::eps_tol()', ncollide_geometry/query/algorithms/EPA.rs:26:9
     for _ in 1..200000 {
         p.x += 0.0001;   
         angle += 0.005;  

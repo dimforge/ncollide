@@ -6,7 +6,7 @@ use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation
             TrianglePointLocation};
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
-pub struct VoronoiSimplex3<N: Real> {
+pub struct VoronoiSimplex<N: Real> {
     prev_vertices: [usize; 4],
     prev_proj: [N; 3],
     prev_dim: usize,
@@ -16,10 +16,10 @@ pub struct VoronoiSimplex3<N: Real> {
     dim: usize,
 }
 
-impl<N: Real> VoronoiSimplex3<N> {
+impl<N: Real> VoronoiSimplex<N> {
     /// Creates a new empty simplex.
-    pub fn new() -> VoronoiSimplex3<N> {
-        VoronoiSimplex3 {
+    pub fn new() -> VoronoiSimplex<N> {
+        VoronoiSimplex {
             prev_vertices: [0, 1, 2, 3],
             prev_proj: [N::zero(); 3],
             prev_dim: 0,
@@ -37,7 +37,7 @@ impl<N: Real> VoronoiSimplex3<N> {
 }
 
 /// Trait of a simplex usable by the GJK algorithm.
-impl<N: Real> Simplex<N> for VoronoiSimplex3<N> {
+impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
     fn reset(&mut self, pt: CSOPoint<N>) {
         self.dim = 0;
         self.prev_dim = 0;

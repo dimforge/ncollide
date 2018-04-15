@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use na;
 use math::{Isometry, Point};
 use shape::{Ball, Plane, Shape};
-use query::algorithms::{VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{VoronoiSimplex, VoronoiSimplex};
 use pipeline::narrow_phase::{BallBallManifoldGenerator,
                    BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeManifoldGenerator,
@@ -60,14 +60,14 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher<N> {
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             match na::dimension::<Vector<N>>() {
                 2 => {
-                    let simplex = VoronoiSimplex2::new();
+                    let simplex = VoronoiSimplex::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
                     let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);
                     Some(Box::new(gen))
                 }
                 3 => {
-                    let simplex = VoronoiSimplex3::new();
+                    let simplex = VoronoiSimplex::new();
                     // let simplex = JohnsonSimplex::new_w_tls();
 
                     let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);

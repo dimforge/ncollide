@@ -2,8 +2,8 @@ use approx::ApproxEq;
 use alga::linear::Translation;
 use na::{self, Unit};
 
-use query::algorithms::{gjk, minkowski_sampling, EPA2, EPA3, JohnsonSimplex, Simplex,
-                        VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{gjk, minkowski_sampling, EPA, EPA, JohnsonSimplex, Simplex,
+                        VoronoiSimplex, VoronoiSimplex};
 use query::{PointProjection, PointQuery};
 use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cylinder, FeatureId,
             SupportMap};
@@ -35,13 +35,13 @@ where
             if !solid {
                 let dim = na::dimension::<Vector<N>>();
                 if dim == 2 {
-                    let mut epa2 = EPA2::new();
-                    if let Some((pt, _)) = epa2.project_origin(&m, shape, simplex) {
+                    let mut EPA = EPA::new();
+                    if let Some((pt, _)) = EPA.project_origin(&m, shape, simplex) {
                         return PointProjection::new(true, pt + point.coords);
                     }
                 } else if dim == 3 {
-                    let mut epa3 = EPA3::new();
-                    if let Some((pt, _)) = epa3.project_origin(&m, shape, simplex) {
+                    let mut EPA = EPA::new();
+                    if let Some((pt, _)) = EPA.project_origin(&m, shape, simplex) {
                         return PointProjection::new(true, pt + point.coords);
                     }
                 }
@@ -61,9 +61,9 @@ impl<N: Real> PointQuery<N> for Cylinder<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else {
             support_map_point_projection(
                 m,
@@ -85,9 +85,9 @@ impl<N: Real> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else {
             support_map_point_projection(
                 m,
@@ -109,9 +109,9 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else {
             support_map_point_projection(
                 m,
@@ -146,9 +146,9 @@ impl<N: Real> PointQuery<N> for ConvexPolygon<P> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex2::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex3::<P>::new(), point, solid)
+            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
         } else {
             support_map_point_projection(
                 m,

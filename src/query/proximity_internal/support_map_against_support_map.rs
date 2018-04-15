@@ -3,7 +3,7 @@ use na;
 
 use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk;
-use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex2, VoronoiSimplex3};
+use query::algorithms::{Simplex, JohnsonSimplex, VoronoiSimplex, VoronoiSimplex};
 use query::Proximity;
 use math::{Isometry, Point};
 
@@ -28,7 +28,7 @@ where
             m2,
             g2,
             margin,
-            &mut VoronoiSimplex2::new(),
+            &mut VoronoiSimplex::new(),
             None,
         ).0
     } else if na::dimension::<Vector<N>>() == 3 {
@@ -38,7 +38,7 @@ where
             m2,
             g2,
             margin,
-            &mut VoronoiSimplex3::new(),
+            &mut VoronoiSimplex::new(),
             None,
         ).0
     } else {
