@@ -1,11 +1,11 @@
 use std::mem;
-use num::{Bounded, Zero};
+use num::Bounded;
 
 use na::{self, Point2, Real};
 
 use query::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
-use math::{Isometry, Point, Vector};
+use math::{Isometry, Vector};
 
 impl<N: Real> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {

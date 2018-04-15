@@ -1,4 +1,3 @@
-use alga::linear::Translation;
 use na::{self, Real};
 
 use query::ClosestPoints;

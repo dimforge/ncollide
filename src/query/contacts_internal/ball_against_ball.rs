@@ -1,6 +1,3 @@
-use num::Zero;
-
-use alga::linear::FiniteDimVectorSpace;
 use na::{self, Unit, Real};
 use math::{Point, Vector};
 use query::Contact;

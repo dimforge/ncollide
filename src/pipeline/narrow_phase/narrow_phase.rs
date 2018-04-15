@@ -6,7 +6,6 @@ use query::ContactManifold;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector};
 use pipeline::events::{ContactEvents, ProximityEvents};
 use pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
-use math::{Point, Isometry};
 
 /// Trait implemented by the narrow phase manager.
 ///

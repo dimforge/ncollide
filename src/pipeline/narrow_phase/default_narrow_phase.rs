@@ -9,7 +9,6 @@ use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, 
                    ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
 use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
-use math::{Isometry, Point};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.

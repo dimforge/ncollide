@@ -1,5 +1,4 @@
 use na::Real;
-use alga::linear::Translation;
 use math::{Isometry, Point};
 use utils::IdAllocator;
 use bounding_volume::PolyhedralCone;

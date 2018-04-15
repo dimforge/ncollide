@@ -2,10 +2,8 @@
 
 use std::collections::BinaryHeap;
 use std::cmp::Ordering;
-use num::Bounded;
-use approx::ApproxEq;
 
-use alga::general::{Id, Real};
+use alga::general::Real;
 use na::{self, Unit};
 
 use utils;
@@ -310,7 +308,7 @@ fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<(Point<N>, [N; 
         // Voronoï region of the segment interior.
         position_on_segment = ab_ap / sqnab;
 
-        let mut res = *a + ab * position_on_segment;
+        let res = *a + ab * position_on_segment;
 
         Some((res, [N::one() - position_on_segment, position_on_segment]))
     }

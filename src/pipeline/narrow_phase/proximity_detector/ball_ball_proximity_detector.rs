@@ -1,4 +1,3 @@
-use std::marker::PhantomData;
 use na::Real;
 use math::{Isometry, Point};
 use shape::{Ball, Shape};

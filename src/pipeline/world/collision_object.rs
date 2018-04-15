@@ -7,7 +7,7 @@ use shape::ShapeHandle;
 use query::ContactPrediction;
 use pipeline::broad_phase::ProxyHandle;
 use pipeline::world::CollisionGroups;
-use math::{Point, Isometry};
+use math::Isometry;
 
 /// The kind of query a CollisionObject may be involved on.
 ///

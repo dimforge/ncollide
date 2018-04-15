@@ -1,7 +1,6 @@
 use na::Real;
 use pipeline::broad_phase::BroadPhasePairFilter;
 use pipeline::world::CollisionObject;
-use math::{Point, Isometry};
 
 const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS: u32 = (1 << 30) - 1;
