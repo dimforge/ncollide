@@ -8,7 +8,7 @@ use alga::linear::NormedSpace;
 use na::{self, Unit};
 
 use shape::SupportMap;
-use query::algorithms::simplex::Simplex;
+use query::algorithms::{CSOPoint, simplex::Simplex};
 // use query::Proximity;
 use query::{ray_internal, Ray};
 use math::{Isometry, Point, Vector};
@@ -91,7 +91,7 @@ pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
 ) -> GJKResult<N>
 where
     N: Real,
-    S: Simplex<N, (Point<N>, Point<N>)>,
+    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -103,21 +103,23 @@ where
     
     fn result<N, S>(simplex: &S, prev: bool) -> (Point<N>, Point<N>)
         where N: Real,
-                S: Simplex<N, (Point<N>, Point<N>)> {
+                S: Simplex<N> {
         let mut res = (Point::origin(), Point::origin());
         if prev {
             for i in 0 .. simplex.prev_dimension() {
                 let coord = simplex.prev_proj_coord(i);
-                res.0 += simplex.prev_data(i).0.coords * coord;
-                res.1 += simplex.prev_data(i).1.coords * coord;
+                let point = simplex.prev_point(i);
+                res.0 += point.orig1.coords * coord;
+                res.1 += point.orig2.coords * coord;
             }
 
             res
         } else {
             for i in 0 .. simplex.dimension() {
                 let coord = simplex.proj_coord(i);
-                res.0 += simplex.data(i).0.coords * coord;
-                res.1 += simplex.data(i).1.coords * coord;
+                let point = simplex.point(i);
+                res.0 += point.orig1.coords * coord;
+                res.1 += point.orig2.coords * coord;
             }
 
             res
@@ -152,10 +154,8 @@ where
             }
         }
 
-        let support_point1 = g1.support_point(m1, &-dir);
-        let support_point2 = g2.support_point(m2, &dir);
-        let support_point_msum = Point::from_coordinates(support_point1 - support_point2);
-        let min_bound = na::dot(dir.as_ref(), &support_point_msum.coords);
+        let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &-dir);
+        let min_bound = na::dot(dir.as_ref(), &cso_point.point.coords);
 
         assert!(min_bound == min_bound);
 
@@ -173,7 +173,7 @@ where
             }
         }
 
-        if !simplex.add_point(support_point_msum, (support_point1, support_point2)) {
+        if !simplex.add_point(cso_point) {
             if exact_dist {
                 let (p1, p2) = result(simplex, false);
                 return GJKResult::ClosestPoints(p1, p2, dir);

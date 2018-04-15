@@ -191,7 +191,7 @@ impl<N: Real> EPA3<N> {
         simplex: &S,
     ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
     where
-        S: Simplex<N, (Point<N>, Point<N>)>,
+        S: Simplex<N>,
         G1: SupportMap<N>,
         G2: SupportMap<N>,
     {
@@ -204,8 +204,7 @@ impl<N: Real> EPA3<N> {
          * Initialization.
          */
         for i in 0..simplex.dimension() + 1 {
-            let pts = simplex.data(i);
-            self.vertices.push(CSOPoint::new(pts.0, pts.1));
+            self.vertices.push(*simplex.point(i));
         }
 
         if simplex.dimension() == 0 {
