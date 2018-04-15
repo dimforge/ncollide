@@ -1,6 +1,5 @@
 //! Two-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
-use std::marker::PhantomData;
 use std::collections::BinaryHeap;
 use std::cmp::Ordering;
 use num::Bounded;
@@ -10,10 +9,10 @@ use alga::general::{Id, Real};
 use na::{self, Unit};
 
 use utils;
-use shape::{AnnotatedMinkowskiSum, AnnotatedPoint, Reflection, SupportMap};
-use query::algorithms::gjk;
+use shape::SupportMap;
+use query::algorithms::{gjk, CSOPoint};
 use query::algorithms::simplex::Simplex;
-use math::Point;
+use math::{Point, Vector, Isometry};
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {
@@ -63,24 +62,24 @@ struct Face<N: Real> {
     pts: [usize; 2],
     normal: Unit<Vector<N>>,
     proj: Point<N>,
+    coords: [N; 2],
     deleted: bool,
-    _marker: PhantomData<P>,
 }
 
-impl<N: Real> Face<P> {
-    pub fn new(vertices: &[Point<N>], pts: [usize; 2]) -> (Self, bool) {
-        if let Some(proj) = project_origin(&vertices[pts[0]], &vertices[pts[1]]) {
-            (Self::new_with_proj(vertices, proj, pts), true)
+impl<N: Real> Face<N> {
+    pub fn new(vertices: &[CSOPoint<N>], pts: [usize; 2]) -> (Self, bool) {
+        if let Some((proj, coords)) = project_origin(&vertices[pts[0]].point, &vertices[pts[1]].point) {
+            (Self::new_with_proj(vertices, proj, coords, pts), true)
         } else {
-            (Self::new_with_proj(vertices, Point::origin(), pts), false)
+            (Self::new_with_proj(vertices, Point::origin(), [N::zero(); 2], pts), false)
         }
     }
 
-    pub fn new_with_proj(vertices: &[Point<N>], proj: Point<N>, pts: [usize; 2]) -> Self {
+    pub fn new_with_proj(vertices: &[CSOPoint<N>], proj: Point<N>, coords: [N; 2], pts: [usize; 2]) -> Self {
         let normal;
         let deleted;
 
-        if let Some(n) = Point::ccw_face_normal(&[&vertices[pts[0]], &vertices[pts[1]]]) {
+        if let Some(n) = utils::ccw_face_normal([&vertices[pts[0]].point, &vertices[pts[1]].point]) {
             normal = n;
             deleted = false;
         } else {
@@ -88,26 +87,24 @@ impl<N: Real> Face<P> {
             deleted = true;
         }
 
-        let _marker = PhantomData;
-
         Face {
             pts,
             normal,
             proj,
+            coords,
             deleted,
-            _marker,
         }
     }
 }
 
 /// The Expanding Polytope Algorithm in 2D.
 pub struct EPA2<N: Real> {
-    vertices: Vec<Point<N>>,
-    faces: Vec<Face<P>>,
+    vertices: Vec<CSOPoint<N>>,
+    faces: Vec<Face<N>>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA2<P> {
+impl<N: Real> EPA2<N> {
     /// Creates a new instance of the 2D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA2 {
@@ -127,15 +124,18 @@ impl<N: Real> EPA2<P> {
     ///
     /// The origin is assumed to be located inside of the shape.
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-    pub fn project_origin<M, S, G: ?Sized>(
+    pub fn project_origin<M, S, G1: ?Sized, G2: ?Sized>(
         &mut self,
-        m: &Isometry<N>,
-        shape: &G,
+        m1: &Isometry<N>,
+        g1: &G1,
+        m2: &Isometry<N>,
+        g2: &G2,
         simplex: &S,
-    ) -> Option<(P, Unit<Vector<N>>)>
+    ) -> Option<(Point<N>, Unit<Vector<N>>)>
     where
-        S: Simplex<N>,
-        G: SupportMap<N>,
+        S: Simplex<N, (Point<N>, Point<N>)>,
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
     {
         let _eps = N::default_epsilon();
         let _eps_tol = _eps * na::convert(100.0f64);
@@ -146,7 +146,8 @@ impl<N: Real> EPA2<P> {
          * Initialization.
          */
         for i in 0..simplex.dimension() + 1 {
-            self.vertices.push(simplex.point(i));
+            let data = simplex.data(i);
+            self.vertices.push(CSOPoint::new(data.0, data.1));
         }
 
         if simplex.dimension() == 0 {
@@ -157,7 +158,7 @@ impl<N: Real> EPA2<P> {
             let dp1 = self.vertices[1] - self.vertices[0];
             let dp2 = self.vertices[2] - self.vertices[0];
 
-            if utils::perp2(&dp1, &dp2) < na::zero() {
+            if dp1.perp(&dp2) < na::zero() {
                 self.vertices.swap(1, 2)
             }
 
@@ -176,7 +177,7 @@ impl<N: Real> EPA2<P> {
             if proj_is_inside1 {
                 let dist1 = na::dot(
                     self.faces[0].normal.as_ref(),
-                    &self.vertices[0].coords,
+                    &self.vertices[0].point.coords,
                 );
                 self.heap.push(FaceId::new(0, -dist1)?);
             }
@@ -184,7 +185,7 @@ impl<N: Real> EPA2<P> {
             if proj_is_inside2 {
                 let dist2 = na::dot(
                     self.faces[1].normal.as_ref(),
-                    &self.vertices[1].coords,
+                    &self.vertices[1].point.coords,
                 );
                 self.heap.push(FaceId::new(1, -dist2)?);
             }
@@ -192,7 +193,7 @@ impl<N: Real> EPA2<P> {
             if proj_is_inside3 {
                 let dist3 = na::dot(
                     self.faces[2].normal.as_ref(),
-                    &self.vertices[2].coords,
+                    &self.vertices[2].point.coords,
                 );
                 self.heap.push(FaceId::new(2, -dist3)?);
             }
@@ -201,17 +202,17 @@ impl<N: Real> EPA2<P> {
             let pts2 = [1, 0];
 
             self.faces
-                .push(Face::new_with_proj(&self.vertices, Point::origin(), pts1));
+                .push(Face::new_with_proj(&self.vertices, Point::origin(), [N::one(), N::zero()], pts1));
             self.faces
-                .push(Face::new_with_proj(&self.vertices, Point::origin(), pts2));
+                .push(Face::new_with_proj(&self.vertices, Point::origin(), [N::one(), N::zero()], pts2));
 
             let dist1 = na::dot(
                 self.faces[0].normal.as_ref(),
-                &self.vertices[0].coords,
+                &self.vertices[0].point.coords,
             );
             let dist2 = na::dot(
                 self.faces[1].normal.as_ref(),
-                &self.vertices[1].coords,
+                &self.vertices[1].point.coords,
             );
 
             self.heap.push(FaceId::new(0, dist1)?);
@@ -233,11 +234,11 @@ impl<N: Real> EPA2<P> {
                 continue;
             }
 
-            let support_point = shape.support_point(m, &face.normal);
+            let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &face.normal);
             let support_point_id = self.vertices.len();
-            self.vertices.push(support_point);
+            self.vertices.push(cso_point);
 
-            let candidate_max_dist = na::dot(&support_point.coords, &face.normal);
+            let candidate_max_dist = na::dot(&cso_point.point.coords, &face.normal);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -288,7 +289,7 @@ impl<N: Real> EPA2<P> {
     }
 }
 
-fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<P> {
+fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<(Point<N>, [N; 2])> {
     let ab = *b - *a;
     let ap = -a.coords;
     let ab_ap = na::dot(&ab, &ap);
@@ -309,10 +310,8 @@ fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<P> {
         // Voronoï region of the segment interior.
         position_on_segment = ab_ap / sqnab;
 
-        let mut res = *a;
-        let _1 = na::one::<N>();
-        res.axpy(position_on_segment, b, _1 - position_on_segment);
+        let mut res = *a + ab * position_on_segment;
 
-        Some(res)
+        Some((res, [N::one() - position_on_segment, position_on_segment]))
     }
 }
