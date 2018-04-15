@@ -1,13 +1,12 @@
 use num::Zero;
 
 use alga::linear::Translation;
-use na;
-use shape::{self, AnnotatedPoint, SupportMap};
-use query::algorithms::gjk::GJKResult;
-use query::algorithms::gjk;
-use query::algorithms::{JohnsonSimplex, Simplex, VoronoiSimplex, VoronoiSimplex};
+use na::{self, Real, Unit};
+use shape::{self, SupportMap};
+use query::algorithms::{CSOPoint, gjk, gjk::GJKResult};
+use query::algorithms::{Simplex, VoronoiSimplex};
 use query::ClosestPoints;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -19,55 +18,22 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
 ) -> ClosestPoints<N>
 where
     N: Real,
-    M: Isometry<P>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    if na::dimension::<Vector<N>>() == 2 {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut VoronoiSimplex::new(),
-            None,
-        ) {
-            GJKResult::Projection(pts, _) => ClosestPoints::WithinMargin(pts.0, pts.1),
-            GJKResult::NoIntersection(_) => ClosestPoints::Disjoint,
-            GJKResult::Intersection => ClosestPoints::Intersecting,
-            GJKResult::Proximity(_) => unreachable!(),
-        }
-    } else if na::dimension::<Vector<N>>() == 3 {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut VoronoiSimplex::new(),
-            None,
-        ) {
-            GJKResult::Projection(pts, _) => ClosestPoints::WithinMargin(pts.0, pts.1),
-            GJKResult::NoIntersection(_) => ClosestPoints::Disjoint,
-            GJKResult::Intersection => ClosestPoints::Intersecting,
-            GJKResult::Proximity(_) => unreachable!(),
-        }
-    } else {
-        match support_map_against_support_map_with_params(
-            m1,
-            g1,
-            m2,
-            g2,
-            prediction,
-            &mut JohnsonSimplex::new_w_tls(),
-            None,
-        ) {
-            GJKResult::Projection(pts, _) => ClosestPoints::WithinMargin(pts.0, pts.1),
-            GJKResult::NoIntersection(_) => ClosestPoints::Disjoint,
-            GJKResult::Intersection => ClosestPoints::Intersecting,
-            GJKResult::Proximity(_) => unreachable!(),
-        }
+    match support_map_against_support_map_with_params(
+        m1,
+        g1,
+        m2,
+        g2,
+        prediction,
+        &mut VoronoiSimplex::new(),
+        None,
+    ) {
+        GJKResult::ClosestPoints(pt1, pt2, _) => ClosestPoints::WithinMargin(pt1, pt2),
+        GJKResult::NoIntersection(_) => ClosestPoints::Disjoint,
+        GJKResult::Intersection => ClosestPoints::Intersecting,
+        GJKResult::Proximity(_) => unreachable!(),
     }
 }
 
@@ -82,24 +48,24 @@ pub fn support_map_against_support_map_with_params<N, S, G1: ?Sized, G2: ?Sized>
     prediction: N,
     simplex: &mut S,
     init_dir: Option<Vector<N>>,
-) -> GJKResult<(Point<N>, Point<N>), Vector<N>>
+) -> GJKResult<N>
 where
     N: Real,
-    M: Isometry<P>,
-    S: Simplex<AnnotatedPoint<P>>,
+    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let mut dir = match init_dir {
+    let dir = match init_dir {
         // FIXME: or m2.translation - m1.translation ?
         None => m1.translation.vector - m2.translation.vector,
         Some(dir) => dir,
     };
 
-    if dir.is_zero() {
-        dir[0] = na::one();
+    if let Some(dir) = Unit::try_new(dir, N::default_epsilon()) {
+        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
+    } else {
+        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &Vector::x_axis()));
     }
 
-    simplex.reset(shape::cso_support_point(m1, g1, m2, g2, dir));
-    gjk::closest_points_with_max_dist(m1, g1, m2, g2, prediction, simplex)
+    gjk::closest_points(m1, g1, m2, g2, prediction, true, simplex)
 }

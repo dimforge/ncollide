@@ -6,9 +6,7 @@ use shape::{self, AnnotatedPoint, SupportMap};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::gjk;
 use query::algorithms::minkowski_sampling;
-use query::algorithms::EPA;
-use query::algorithms::EPA;
-use query::algorithms::{EPA, EPA, JohnsonSimplex, Simplex, VoronoiSimplex, VoronoiSimplex};
+use query::algorithms::{EPA, Simplex, VoronoiSimplex};
 use query::Contact;
 use math::{Isometry, Point};
 
@@ -22,37 +20,16 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
 ) -> Option<Contact<N>>
 where
     N: Real,
-    M: Isometry<P>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    if na::dimension::<Vector<N>>() == 2 {
-        let simplex = &mut VoronoiSimplex::new();
-        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
-        {
-            GJKResult::Projection(c, _) => Some(c),
-            GJKResult::NoIntersection(_) => None,
-            GJKResult::Intersection => unreachable!(),
-            GJKResult::Proximity(_) => unreachable!(),
-        }
-    } else if na::dimension::<Vector<N>>() == 3 {
-        let simplex = &mut VoronoiSimplex::new();
-        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
-        {
-            GJKResult::Projection(c, _) => Some(c),
-            GJKResult::NoIntersection(_) => None,
-            GJKResult::Intersection => unreachable!(),
-            GJKResult::Proximity(_) => unreachable!(),
-        }
-    } else {
-        let simplex = &mut JohnsonSimplex::new_w_tls();
-        match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
-        {
-            GJKResult::Projection(c, _) => Some(c),
-            GJKResult::NoIntersection(_) => None,
-            GJKResult::Intersection => unreachable!(),
-            GJKResult::Proximity(_) => unreachable!(),
-        }
+    let simplex = &mut VoronoiSimplex::new();
+    match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None)
+    {
+        GJKResult::Projection(c, _) => Some(c),
+        GJKResult::NoIntersection(_) => None,
+        GJKResult::Intersection => unreachable!(),
+        GJKResult::Proximity(_) => unreachable!(),
     }
 }
 
@@ -70,8 +47,7 @@ pub fn support_map_against_support_map_with_params<N, S, G1: ?Sized, G2: ?Sized>
 ) -> GJKResult<Contact<N>, Vector<N>>
 where
     N: Real,
-    M: Isometry<P>,
-    S: Simplex<AnnotatedPoint<P>>,
+    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
