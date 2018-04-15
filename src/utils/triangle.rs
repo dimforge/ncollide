@@ -3,6 +3,7 @@ use approx::ApproxEq;
 
 use alga::general::Real;
 use na;
+use utils;
 use math::Point;
 
 /// Computes the area of a triangle.
@@ -13,7 +14,7 @@ pub fn triangle_area<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N 
     let mut b = na::distance(pb, pc);
     let mut c = na::distance(pc, pa);
 
-    let (c, b, a) = ::sort3(&mut a, &mut b, &mut c);
+    let (c, b, a) = utils::sort3(&mut a, &mut b, &mut c);
     let a = *a;
     let b = *b;
     let c = *c;
@@ -26,7 +27,7 @@ pub fn triangle_area<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N 
 /// Computes the center of a triangle.
 #[inline]
 pub fn triangle_center<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> Point<N> {
-    ::center(&[*pa, *pb, *pc])
+    utils::center(&[*pa, *pb, *pc])
 }
 
 /// Computes the perimeter of a triangle.
@@ -36,7 +37,7 @@ pub fn triangle_perimeter<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) 
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (P, N) {
+pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Point<N>, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
@@ -75,7 +76,8 @@ pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (P,
 }
 
 /// Tests if three 3D points are approximately aligned.
-pub fn is_affinely_dependent_triangle3<N: Real>(p1: &Point<N>, p2: &Point<N>, p3: &Point<N>) -> bool {
+#[cfg(feature = "dim3")]
+pub fn is_affinely_dependent_triangle<N: Real>(p1: &Point<N>, p2: &Point<N>, p3: &Point<N>) -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -84,7 +86,7 @@ pub fn is_affinely_dependent_triangle3<N: Real>(p1: &Point<N>, p2: &Point<N>, p3
     let _eps_tol = _eps * na::convert(100.0f64);
 
     relative_eq!(
-        na::norm_squared(&::cross3(&p1p2, &p1p3)),
+        na::norm_squared(&p1p2.cross(&p1p3)),
         na::zero(),
         epsilon = _eps_tol * _eps_tol
     )

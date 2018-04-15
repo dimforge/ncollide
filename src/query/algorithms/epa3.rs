@@ -10,9 +10,9 @@ use alga::linear::FiniteDimInnerSpace;
 use na::{self, Unit, Real};
 
 use utils;
-use shape::{SupportMap, Triangle};
+use shape::{SupportMap, Triangle, TrianglePointLocation};
 use query::PointQueryWithLocation;
-use query::algorithms::gjk;
+use query::algorithms::{gjk, CSOPoint};
 use query::algorithms::simplex::Simplex;
 use math::{Point, Isometry, Vector};
 
@@ -65,16 +65,17 @@ struct Face<N: Real> {
     adj: [usize; 3],
     normal: Unit<Vector<N>>,
     proj: Point<N>,
+    bcoords: [N; 3],
     deleted: bool,
 }
 
 impl<N: Real> Face<N> {
-    pub fn new_with_proj(vertices: &[Point<N>], proj: Point<N>, pts: [usize; 3], adj: [usize; 3]) -> Self {
+    pub fn new_with_proj(vertices: &[CSOPoint<N>], proj: Point<N>, bcoords: [N; 3], pts: [usize; 3], adj: [usize; 3]) -> Self {
         let normal;
         let deleted;
 
         if let Some(n) =
-            utils::ccw_face_normal([&vertices[pts[0]], &vertices[pts[1]], &vertices[pts[2]]])
+            utils::ccw_face_normal([&vertices[pts[0]].point, &vertices[pts[1]].point, &vertices[pts[2]].point])
         {
             normal = n;
             deleted = false;
@@ -86,19 +87,32 @@ impl<N: Real> Face<N> {
         Face {
             pts,
             proj,
+            bcoords,
             adj,
             normal,
             deleted,
         }
     }
 
-    pub fn new(vertices: &[Point<N>], pts: [usize; 3], adj: [usize; 3]) -> (Self, bool) {
-        let tri = Triangle::new(vertices[pts[0]], vertices[pts[1]], vertices[pts[2]]);
+    pub fn new(vertices: &[CSOPoint<N>], pts: [usize; 3], adj: [usize; 3]) -> (Self, bool) {
+        let tri = Triangle::new(vertices[pts[0]].point, vertices[pts[1]].point, vertices[pts[2]].point);
         let (proj, loc) = tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true);
 
+        match loc {
+            TrianglePointLocation::OnFace(bcoords) => 
+                (Self::new_with_proj(vertices, proj.point, bcoords, pts, adj), true),
+            _ => (Self::new_with_proj(vertices, proj.point, [N::zero(); 3], pts, adj), false)
+        }
+    }
+
+    pub fn closest_points(&self, vertices: &[CSOPoint<N>]) -> (Point<N>, Point<N>) {
         (
-            Self::new_with_proj(vertices, proj.point, pts, adj),
-            loc.is_on_face(),
+            vertices[self.pts[0]].orig1 * self.bcoords[0] +
+            vertices[self.pts[1]].orig1.coords * self.bcoords[1] +
+            vertices[self.pts[2]].orig1.coords * self.bcoords[2],
+            vertices[self.pts[0]].orig2 * self.bcoords[0] +
+            vertices[self.pts[1]].orig2.coords * self.bcoords[1] +
+            vertices[self.pts[2]].orig2.coords * self.bcoords[2],
         )
     }
 
@@ -117,11 +131,11 @@ impl<N: Real> Face<N> {
         }
     }
 
-    pub fn can_be_seen_by(&self, vertices: &[Point<N>], point: usize, opp_pt_id: usize) -> bool {
-        let p0 = &vertices[self.pts[opp_pt_id]];
-        let p1 = &vertices[self.pts[(opp_pt_id + 1) % 3]];
-        let p2 = &vertices[self.pts[(opp_pt_id + 2) % 3]];
-        let pt = &vertices[point];
+    pub fn can_be_seen_by(&self, vertices: &[CSOPoint<N>], point: usize, opp_pt_id: usize) -> bool {
+        let p0 = &vertices[self.pts[opp_pt_id]].point;
+        let p1 = &vertices[self.pts[(opp_pt_id + 1) % 3]].point;
+        let p2 = &vertices[self.pts[(opp_pt_id + 2) % 3]].point;
+        let pt = &vertices[point].point;
         na::dot(&(*pt - *p0), &self.normal) >= -gjk::eps_tol::<N>()
             || utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
@@ -140,7 +154,7 @@ impl SilhouetteEdge {
 
 /// The Expanding Polytope Algorithm in 3D.
 pub struct EPA3<N: Real> {
-    vertices: Vec<Point<N>>,
+    vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     silhouette: Vec<SilhouetteEdge>,
     heap: BinaryHeap<FaceId<N>>,
@@ -190,7 +204,8 @@ impl<N: Real> EPA3<N> {
          * Initialization.
          */
         for i in 0..simplex.dimension() + 1 {
-            self.vertices.push(*simplex.point(i));
+            let pts = simplex.data(i);
+            self.vertices.push(CSOPoint::new(pts.0, pts.1));
         }
 
         if simplex.dimension() == 0 {
@@ -229,7 +244,7 @@ impl<N: Real> EPA3<N> {
             if proj_inside1 {
                 let dist1 = na::dot(
                     self.faces[0].normal.as_ref(),
-                    &self.vertices[0].coords,
+                    &self.vertices[0].point.coords,
                 );
                 self.heap.push(FaceId::new(0, -dist1)?);
             }
@@ -237,7 +252,7 @@ impl<N: Real> EPA3<N> {
             if proj_inside2 {
                 let dist2 = na::dot(
                     self.faces[1].normal.as_ref(),
-                    &self.vertices[1].coords,
+                    &self.vertices[1].point.coords,
                 );
                 self.heap.push(FaceId::new(1, -dist2)?);
             }
@@ -245,7 +260,7 @@ impl<N: Real> EPA3<N> {
             if proj_inside3 {
                 let dist3 = na::dot(
                     self.faces[2].normal.as_ref(),
-                    &self.vertices[2].coords,
+                    &self.vertices[2].point.coords,
                 );
                 self.heap.push(FaceId::new(2, -dist3)?);
             }
@@ -253,7 +268,7 @@ impl<N: Real> EPA3<N> {
             if proj_inside4 {
                 let dist4 = na::dot(
                     self.faces[3].normal.as_ref(),
-                    &self.vertices[3].coords,
+                    &self.vertices[3].point.coords,
                 );
                 self.heap.push(FaceId::new(3, -dist4)?);
             }
@@ -262,7 +277,9 @@ impl<N: Real> EPA3<N> {
                 let dpt = self.vertices[1] - self.vertices[0];
 
                 Vector::orthonormal_subspace_basis(&[dpt], |dir| {
-                    self.vertices.push(shape.support_point(m, dir));
+                    // XXX: dir should already be unit on nalgebra!
+                    let dir = Unit::new_unchecked(*dir);
+                    self.vertices.push(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
                     false
                 });
             }
@@ -297,13 +314,11 @@ impl<N: Real> EPA3<N> {
                 continue;
             }
 
-            let support_point1 = g1.support_point(m1, &face.normal);
-            let support_point2 = g2.support_point(m1, &-face.normal);
-            let support_point_msum = support_point1 - support_point2;
+            let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &face.normal);
             let support_point_id = self.vertices.len();
-            self.vertices.push(Point::from_coordinates(support_point_msum));
+            self.vertices.push(cso_point);
 
-            let candidate_max_dist = na::dot(&support_point_msum, &face.normal);
+            let candidate_max_dist = na::dot(&cso_point.point.coords, &face.normal);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -314,7 +329,8 @@ impl<N: Real> EPA3<N> {
 
             if max_dist - curr_dist < _eps_tol {
                 let best_face = &self.faces[best_face_id.id];
-                return Some((best_face.proj, best_face.normal));
+                let points = best_face.closest_points(&self.vertices);
+                return Some((points.0, points.1, best_face.normal));
             }
 
             self.faces[face_id.id].deleted = true;
@@ -349,12 +365,13 @@ impl<N: Real> EPA3<N> {
                     self.faces.push(new_face.0);
 
                     if new_face.1 {
-                        let pt = self.vertices[self.faces[new_face_id].pts[0]].coords;
+                        let pt = self.vertices[self.faces[new_face_id].pts[0]].point.coords;
                         let dist = na::dot(self.faces[new_face_id].normal.as_ref(), &pt);
                         if dist < curr_dist {
                             // FIXME: if we reach this point, there were issues due to
                             // numerical errors.
-                            return Some((face.proj, face.normal));
+                            let points = face.closest_points(&self.vertices);                            
+                            return Some((points.0, points.1, face.normal));
                         }
 
                         self.heap.push(FaceId::new(new_face_id, -dist)?);
@@ -376,7 +393,8 @@ impl<N: Real> EPA3<N> {
         }
 
         let best_face = &self.faces[best_face_id.id];
-        return Some((best_face.proj, best_face.normal));
+        let points = best_face.closest_points(&self.vertices);
+        return Some((points.0, points.1, best_face.normal));
     }
 
     fn compute_silhouette(&mut self, point: usize, id: usize, opp_pt_id: usize) {
