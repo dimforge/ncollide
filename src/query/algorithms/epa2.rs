@@ -1,16 +1,16 @@
 //! Two-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
-use std::collections::BinaryHeap;
 use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
 use alga::general::Real;
 use na::{self, Unit};
 
-use utils;
-use shape::SupportMap;
-use query::algorithms::{gjk, CSOPoint};
+use math::{Isometry, Point, Vector};
 use query::algorithms::simplex::Simplex;
-use math::{Point, Vector, Isometry};
+use query::algorithms::{gjk, CSOPoint};
+use shape::SupportMap;
+use utils;
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {
@@ -60,24 +60,35 @@ struct Face<N: Real> {
     pts: [usize; 2],
     normal: Unit<Vector<N>>,
     proj: Point<N>,
-    coords: [N; 2],
+    bcoords: [N; 2],
     deleted: bool,
 }
 
 impl<N: Real> Face<N> {
     pub fn new(vertices: &[CSOPoint<N>], pts: [usize; 2]) -> (Self, bool) {
-        if let Some((proj, coords)) = project_origin(&vertices[pts[0]].point, &vertices[pts[1]].point) {
-            (Self::new_with_proj(vertices, proj, coords, pts), true)
+        if let Some((proj, bcoords)) =
+            project_origin(&vertices[pts[0]].point, &vertices[pts[1]].point)
+        {
+            (Self::new_with_proj(vertices, proj, bcoords, pts), true)
         } else {
-            (Self::new_with_proj(vertices, Point::origin(), [N::zero(); 2], pts), false)
+            (
+                Self::new_with_proj(vertices, Point::origin(), [N::zero(); 2], pts),
+                false,
+            )
         }
     }
 
-    pub fn new_with_proj(vertices: &[CSOPoint<N>], proj: Point<N>, coords: [N; 2], pts: [usize; 2]) -> Self {
+    pub fn new_with_proj(
+        vertices: &[CSOPoint<N>],
+        proj: Point<N>,
+        bcoords: [N; 2],
+        pts: [usize; 2],
+    ) -> Self {
         let normal;
         let deleted;
 
-        if let Some(n) = utils::ccw_face_normal([&vertices[pts[0]].point, &vertices[pts[1]].point]) {
+        if let Some(n) = utils::ccw_face_normal([&vertices[pts[0]].point, &vertices[pts[1]].point])
+        {
             normal = n;
             deleted = false;
         } else {
@@ -89,9 +100,18 @@ impl<N: Real> Face<N> {
             pts,
             normal,
             proj,
-            coords,
+            bcoords,
             deleted,
         }
+    }
+
+    pub fn closest_points(&self, vertices: &[CSOPoint<N>]) -> (Point<N>, Point<N>) {
+        (
+            vertices[self.pts[0]].orig1 * self.bcoords[0]
+                + vertices[self.pts[1]].orig1.coords * self.bcoords[1],
+            vertices[self.pts[0]].orig2 * self.bcoords[0]
+                + vertices[self.pts[1]].orig2.coords * self.bcoords[1],
+        )
     }
 }
 
@@ -122,14 +142,14 @@ impl<N: Real> EPA<N> {
     ///
     /// The origin is assumed to be located inside of the shape.
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-    pub fn project_origin<M, S, G1: ?Sized, G2: ?Sized>(
+    pub fn closest_points<S, G1: ?Sized, G2: ?Sized>(
         &mut self,
         m1: &Isometry<N>,
         g1: &G1,
         m2: &Isometry<N>,
         g2: &G2,
         simplex: &S,
-    ) -> Option<(Point<N>, Unit<Vector<N>>)>
+    ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
     where
         S: Simplex<N>,
         G1: SupportMap<N>,
@@ -150,7 +170,7 @@ impl<N: Real> EPA<N> {
         if simplex.dimension() == 0 {
             let mut n: Vector<N> = na::zero();
             n[1] = na::one();
-            return Some((Point::origin(), Unit::new_unchecked(n)));
+            return Some((Point::origin(), Point::origin(), Unit::new_unchecked(n)));
         } else if simplex.dimension() == 2 {
             let dp1 = self.vertices[1] - self.vertices[0];
             let dp2 = self.vertices[2] - self.vertices[0];
@@ -198,10 +218,18 @@ impl<N: Real> EPA<N> {
             let pts1 = [0, 1];
             let pts2 = [1, 0];
 
-            self.faces
-                .push(Face::new_with_proj(&self.vertices, Point::origin(), [N::one(), N::zero()], pts1));
-            self.faces
-                .push(Face::new_with_proj(&self.vertices, Point::origin(), [N::one(), N::zero()], pts2));
+            self.faces.push(Face::new_with_proj(
+                &self.vertices,
+                Point::origin(),
+                [N::one(), N::zero()],
+                pts1,
+            ));
+            self.faces.push(Face::new_with_proj(
+                &self.vertices,
+                Point::origin(),
+                [N::one(), N::zero()],
+                pts2,
+            ));
 
             let dist1 = na::dot(
                 self.faces[0].normal.as_ref(),
@@ -246,7 +274,8 @@ impl<N: Real> EPA<N> {
 
             if max_dist - curr_dist < _eps_tol {
                 let best_face = &self.faces[best_face_id.id];
-                return Some((best_face.proj, best_face.normal));
+                let cpts = best_face.closest_points(&self.vertices);
+                return Some((cpts.0, cpts.1, best_face.normal));
             }
 
             let pts1 = [face.pts[0], support_point_id];
@@ -263,7 +292,8 @@ impl<N: Real> EPA<N> {
                     if dist < curr_dist {
                         // FIXME: if we reach this point, there were issues due to
                         // numerical errors.
-                        return Some((f.0.proj, f.0.normal));
+                        let cpts = f.0.closest_points(&self.vertices);
+                        return Some((cpts.0, cpts.1, f.0.normal));
                     }
 
                     if !f.0.deleted {
@@ -282,7 +312,8 @@ impl<N: Real> EPA<N> {
         }
 
         let best_face = &self.faces[best_face_id.id];
-        return Some((best_face.proj, best_face.normal));
+        let cpts = best_face.closest_points(&self.vertices);
+        return Some((cpts.0, cpts.1, best_face.normal));
     }
 }
 

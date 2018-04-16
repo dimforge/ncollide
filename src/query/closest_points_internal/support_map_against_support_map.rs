@@ -1,12 +1,9 @@
-use num::Zero;
-
-use alga::linear::Translation;
-use na::{self, Real, Unit};
-use shape::{self, SupportMap};
-use query::algorithms::{CSOPoint, gjk, gjk::GJKResult};
-use query::algorithms::{Simplex, VoronoiSimplex};
-use query::ClosestPoints;
 use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use query::ClosestPoints;
+use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
+use query::algorithms::{Simplex, VoronoiSimplex};
+use shape::{self, SupportMap};
 
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(

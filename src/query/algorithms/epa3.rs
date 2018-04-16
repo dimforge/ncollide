@@ -1,20 +1,20 @@
 //! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
-use std::marker::PhantomData;
-use std::collections::BinaryHeap;
-use std::cmp::Ordering;
-use num::Bounded;
 use approx::ApproxEq;
+use num::Bounded;
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
+use std::marker::PhantomData;
 
 use alga::linear::FiniteDimInnerSpace;
-use na::{self, Unit, Real};
+use na::{self, Real, Unit};
 
-use utils;
-use shape::{SupportMap, Triangle, TrianglePointLocation};
+use math::{Isometry, Point, Vector};
 use query::PointQueryWithLocation;
-use query::algorithms::{gjk, CSOPoint};
 use query::algorithms::simplex::Simplex;
-use math::{Point, Isometry, Vector};
+use query::algorithms::{gjk, CSOPoint};
+use shape::{SupportMap, Triangle, TrianglePointLocation};
+use utils;
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {
@@ -70,13 +70,21 @@ struct Face<N: Real> {
 }
 
 impl<N: Real> Face<N> {
-    pub fn new_with_proj(vertices: &[CSOPoint<N>], proj: Point<N>, bcoords: [N; 3], pts: [usize; 3], adj: [usize; 3]) -> Self {
+    pub fn new_with_proj(
+        vertices: &[CSOPoint<N>],
+        proj: Point<N>,
+        bcoords: [N; 3],
+        pts: [usize; 3],
+        adj: [usize; 3],
+    ) -> Self {
         let normal;
         let deleted;
 
-        if let Some(n) =
-            utils::ccw_face_normal([&vertices[pts[0]].point, &vertices[pts[1]].point, &vertices[pts[2]].point])
-        {
+        if let Some(n) = utils::ccw_face_normal([
+            &vertices[pts[0]].point,
+            &vertices[pts[1]].point,
+            &vertices[pts[2]].point,
+        ]) {
             normal = n;
             deleted = false;
         } else {
@@ -95,24 +103,34 @@ impl<N: Real> Face<N> {
     }
 
     pub fn new(vertices: &[CSOPoint<N>], pts: [usize; 3], adj: [usize; 3]) -> (Self, bool) {
-        let tri = Triangle::new(vertices[pts[0]].point, vertices[pts[1]].point, vertices[pts[2]].point);
-        let (proj, loc) = tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true);
+        let tri = Triangle::new(
+            vertices[pts[0]].point,
+            vertices[pts[1]].point,
+            vertices[pts[2]].point,
+        );
+        let (proj, loc) =
+            tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true);
 
         match loc {
-            TrianglePointLocation::OnFace(bcoords) => 
-                (Self::new_with_proj(vertices, proj.point, bcoords, pts, adj), true),
-            _ => (Self::new_with_proj(vertices, proj.point, [N::zero(); 3], pts, adj), false)
+            TrianglePointLocation::OnFace(bcoords) => (
+                Self::new_with_proj(vertices, proj.point, bcoords, pts, adj),
+                true,
+            ),
+            _ => (
+                Self::new_with_proj(vertices, proj.point, [N::zero(); 3], pts, adj),
+                false,
+            ),
         }
     }
 
     pub fn closest_points(&self, vertices: &[CSOPoint<N>]) -> (Point<N>, Point<N>) {
         (
-            vertices[self.pts[0]].orig1 * self.bcoords[0] +
-            vertices[self.pts[1]].orig1.coords * self.bcoords[1] +
-            vertices[self.pts[2]].orig1.coords * self.bcoords[2],
-            vertices[self.pts[0]].orig2 * self.bcoords[0] +
-            vertices[self.pts[1]].orig2.coords * self.bcoords[1] +
-            vertices[self.pts[2]].orig2.coords * self.bcoords[2],
+            vertices[self.pts[0]].orig1 * self.bcoords[0]
+                + vertices[self.pts[1]].orig1.coords * self.bcoords[1]
+                + vertices[self.pts[2]].orig1.coords * self.bcoords[2],
+            vertices[self.pts[0]].orig2 * self.bcoords[0]
+                + vertices[self.pts[1]].orig2.coords * self.bcoords[1]
+                + vertices[self.pts[2]].orig2.coords * self.bcoords[2],
         )
     }
 
@@ -182,7 +200,7 @@ impl<N: Real> EPA<N> {
     ///
     /// The origin is assumed to be located inside of the shape.
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-    pub fn closest_points<M, S, G1: ?Sized, G2: ?Sized>(
+    pub fn closest_points<S, G1: ?Sized, G2: ?Sized>(
         &mut self,
         m1: &Isometry<N>,
         g1: &G1,
@@ -278,7 +296,8 @@ impl<N: Real> EPA<N> {
                 Vector::orthonormal_subspace_basis(&[dpt], |dir| {
                     // XXX: dir should already be unit on nalgebra!
                     let dir = Unit::new_unchecked(*dir);
-                    self.vertices.push(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
+                    self.vertices
+                        .push(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
                     false
                 });
             }
@@ -369,7 +388,7 @@ impl<N: Real> EPA<N> {
                         if dist < curr_dist {
                             // FIXME: if we reach this point, there were issues due to
                             // numerical errors.
-                            let points = face.closest_points(&self.vertices);                            
+                            let points = face.closest_points(&self.vertices);
                             return Some((points.0, points.1, face.normal));
                         }
 

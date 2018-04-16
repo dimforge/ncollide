@@ -3,12 +3,12 @@
 #[doc(inline)]
 pub use self::contacts_internal::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
                                   TrackedContact};
-// #[doc(inline)]
-// pub use self::contacts_internal::contact_internal as contact;
+#[doc(inline)]
+pub use self::contacts_internal::contact_internal as contact;
 #[doc(inline)]
 pub use self::closest_points_internal::ClosestPoints;
-// #[doc(inline)]
-// pub use self::closest_points_internal::closest_points_internal as closest_points;
+#[doc(inline)]
+pub use self::closest_points_internal::closest_points_internal as closest_points;
 #[doc(inline)]
 pub use self::proximity_internal::Proximity;
 // #[doc(inline)]

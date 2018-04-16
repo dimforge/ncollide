@@ -81,11 +81,11 @@ macro_rules! impl_shape_common(
 //     // impl_as_convex_polyhedron!();
 // }
 
-// impl<N: Real> Shape<N> for Segment<N> {
-//     impl_shape_common!();
-//     impl_as_support_map!();
-//     impl_as_convex_polyhedron!();
-// }
+impl<N: Real> Shape<N> for Segment<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+    impl_as_convex_polyhedron!();
+}
 
 impl<N: Real> Shape<N> for Ball<N> {
     impl_shape_common!();

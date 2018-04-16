@@ -1,27 +1,21 @@
-use alga::linear::Translation;
+use na::Real;
+
 use math::{Isometry, Point};
-use shape::{Ball, Plane, Shape};
 use query::contacts_internal;
 use query::contacts_internal::Contact;
+use shape::{Ball, Plane, Shape};
 
 /// Computes one contact point between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `prediction`.
-pub fn shape_against_shape<N>(
+pub fn shape_against_shape<N: Real>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
     g2: &Shape<N>,
     prediction: N,
-) -> Option<Contact<N>>
-where
-    N: Real,
-    M: Isometry<P>,
-{
-    if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<N>>(),
-        g2.as_shape::<Ball<N>>(),
-    ) {
+) -> Option<Contact<N>> {
+    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
         let p1 = Point::from_coordinates(m1.translation.vector);
         let p2 = Point::from_coordinates(m2.translation.vector);
 

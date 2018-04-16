@@ -206,96 +206,95 @@ where
     }
 }
 
-// /// Casts a ray on a support map using the GJK algorithm.
-// pub fn cast_ray<N, S, G: ?Sized>(
-//     m: &Isometry<N>,
-//     shape: &G,
-//     simplex: &mut S,
-//     ray: &Ray<N>,
-// ) -> Option<(N, Vector<N>)>
-// where
-//     N: Real,
-//     M: Isometry<P>,
-//     S: Simplex<N>,
-//     G: SupportMap<N>,
-// {
-//     let mut ltoi: N = na::zero();
+/// Casts a ray on a support map using the GJK algorithm.
+pub fn cast_ray<N, S, G: ?Sized>(
+    m: &Isometry<N>,
+    shape: &G,
+    simplex: &mut S,
+    ray: &Ray<N>,
+) -> Option<(N, Vector<N>)>
+where
+    N: Real,
+    S: Simplex<N>,
+    G: SupportMap<N>,
+{
+    let mut ltoi: N = na::zero();
 
-//     let _eps_tol = eps_tol();
-//     let _dimension = na::dimension::<Vector<N>>();
+    let _eps_tol = eps_tol();
+    let _dimension = na::dimension::<Vector<N>>();
 
-//     // initialization
-//     let mut curr_ray = *ray;
-//     let mut dir = m.inverse_translate_point(&curr_ray.origin).coords;
+    // initialization
+    let mut curr_ray = *ray;
+    let mut dir = curr_ray.origin.coords - m.translation.vector;
 
-//     if dir == na::zero() {
-//         dir[0] = na::one();
-//     }
+    if dir == na::zero() {
+        dir[0] = na::one();
+    }
 
-//     let mut old_max_bound: N = Bounded::max_value();
+    let mut old_max_bound: N = Bounded::max_value();
 
-//     let mut ldir = dir;
-//     // FIXME: this converges in more than 100 iterations… something is wrong here…
-//     let mut niter = 0usize;
-//     loop {
-//         niter = niter + 1;
+    let mut ldir = dir;
+    // FIXME: this converges in more than 100 iterations… something is wrong here…
+    let mut niter = 0usize;
+    loop {
+        niter = niter + 1;
 
-//         if dir.normalize_mut().is_zero() {
-//             return Some((ltoi, ldir));
-//         }
+        if dir.normalize_mut().is_zero() {
+            return Some((ltoi, ldir));
+        }
 
-//         let support_point = shape.support_point(m, &dir);
+        let support_point = shape.support_point(m, &dir);
 
-//         // Clip the ray on the support plane (None <=> t < 0)
-//         // The configurations are:
-//         //   dir.dot(ray.dir)  |   t   |               Action
-//         // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
-//         //          < 0        |  < 0  | Continue.
-//         //          < 0        |  > 0  | New lower bound, move the origin.
-//         //          > 0        |  < 0  | Miss. No intersection.
-//         //          > 0        |  > 0  | New higher bound.
-//         match ray_internal::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
-//             Some(t) => {
-//                 if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
-//                     // new lower bound
-//                     ldir = dir;
-//                     ltoi = ltoi + t;
-//                     curr_ray.origin = ray.origin + ray.dir * ltoi;
-//                     dir = curr_ray.origin - support_point;
-//                     // FIXME: could we simply translate the simpex by old_origin - new_origin ?
-//                     simplex.reset(Point::origin() + (-dir));
-//                     let _max: N = Bounded::max_value();
-//                     old_max_bound = _max;
-//                     continue;
-//                 }
-//             }
-//             None => {
-//                 if na::dot(&dir, &ray.dir) > na::zero() {
-//                     // miss
-//                     return None;
-//                 }
-//             }
-//         }
+        // Clip the ray on the support plane (None <=> t < 0)
+        // The configurations are:
+        //   dir.dot(ray.dir)  |   t   |               Action
+        // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
+        //          < 0        |  < 0  | Continue.
+        //          < 0        |  > 0  | New lower bound, move the origin.
+        //          > 0        |  < 0  | Miss. No intersection.
+        //          > 0        |  > 0  | New higher bound.
+        match ray_internal::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
+            Some(t) => {
+                if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
+                    // new lower bound
+                    ldir = dir;
+                    ltoi = ltoi + t;
+                    curr_ray.origin = ray.origin + ray.dir * ltoi;
+                    dir = curr_ray.origin - support_point;
+                    // FIXME: could we simply translate the simpex by old_origin - new_origin ?
+                    simplex.reset(CSOPoint::single_point(Point::from_coordinates(-dir)));
+                    let _max: N = Bounded::max_value();
+                    old_max_bound = _max;
+                    continue;
+                }
+            }
+            None => {
+                if na::dot(&dir, &ray.dir) > na::zero() {
+                    // miss
+                    return None;
+                }
+            }
+        }
 
-//         if !simplex.add_point(Point::origin() + (support_point - curr_ray.origin)) {
-//             return Some((ltoi, dir));
-//         }
+        if !simplex.add_point(CSOPoint::single_point(Point::from_coordinates(support_point - curr_ray.origin))) {
+            return Some((ltoi, dir));
+        }
 
-//         let proj = simplex.project_origin_and_reduce().coords;
-//         let max_bound = na::norm_squared(&proj);
+        let proj = simplex.project_origin_and_reduce().coords;
+        let max_bound = na::norm_squared(&proj);
 
-//         if simplex.dimension() == _dimension {
-//             return Some((ltoi, ldir));
-//         } else if max_bound <= _eps_tol * simplex.max_sq_len() {
-//             // Return ldir: the last projection plane is tangeant to the intersected surface.
-//             return Some((ltoi, ldir));
-//         } else if max_bound >= old_max_bound {
-//             // Use dir instead of proj since this situations means that the new projection is less
-//             // accurate than the last one (which is stored on dir).
-//             return Some((ltoi, dir));
-//         }
+        if simplex.dimension() == _dimension {
+            return Some((ltoi, ldir));
+        } else if max_bound <= _eps_tol * simplex.max_sq_len() {
+            // Return ldir: the last projection plane is tangeant to the intersected surface.
+            return Some((ltoi, ldir));
+        } else if max_bound >= old_max_bound {
+            // Use dir instead of proj since this situations means that the new projection is less
+            // accurate than the last one (which is stored on dir).
+            return Some((ltoi, dir));
+        }
 
-//         old_max_bound = max_bound;
-//         dir = -proj;
-//     }
-// }
+        old_max_bound = max_bound;
+        dir = -proj;
+    }
+}

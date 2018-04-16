@@ -1,4 +1,5 @@
-use alga::linear::Translation;
+use na::Real;
+
 use math::{Isometry, Point};
 use shape::{Ball, Plane, Segment, Shape};
 use query::closest_points_internal;
@@ -7,17 +8,13 @@ use query::closest_points_internal::ClosestPoints;
 /// Computes the pair of closest points between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `max_dist`.
-pub fn shape_against_shape<N>(
+pub fn shape_against_shape<N: Real>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
     g2: &Shape<N>,
     max_dist: N,
-) -> ClosestPoints<N>
-where
-    N: Real,
-    M: Isometry<P>,
-{
+) -> ClosestPoints<N> {
     if let (Some(b1), Some(b2)) = (
         g1.as_shape::<Ball<N>>(),
         g2.as_shape::<Ball<N>>(),

@@ -14,9 +14,17 @@ pub struct CSOPoint<N: Real> {
 impl<N: Real> CSOPoint<N> {
     pub fn new(orig1: Point<N>, orig2: Point<N>) -> Self {
         let point = Point::from_coordinates(orig1 - orig2);
+        Self::new_with_point(point, orig1, orig2)
+    }
+
+    pub fn new_with_point(point: Point<N>, orig1: Point<N>, orig2: Point<N>) -> Self {
         CSOPoint {
             point, orig1, orig2
         }
+    }
+
+    pub fn single_point(point: Point<N>) -> Self {
+        Self::new_with_point(point, point, Point::origin())
     }
 
     pub fn origin() -> Self {
