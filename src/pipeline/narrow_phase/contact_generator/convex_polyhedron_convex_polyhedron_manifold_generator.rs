@@ -1,22 +1,20 @@
-use std::marker::PhantomData;
-use std::cell::RefCell;
 use approx::ApproxEq;
-use alga::linear::FiniteDimInnerSpace;
+use std::cell::RefCell;
 
-use na::{self, Id, Point2, Real, Unit};
-use math::{Isometry, Point};
-use utils::{self, IdAllocator};
-use shape::{AnnotatedPoint, ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation,
-                      Shape, SupportMap};
-use query::algorithms::Simplex;
-use query::algorithms::gjk::GJKResult;
-use query::ray_internal;
-use query::contacts_internal;
-use query::closest_points_internal;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
-                      PointQueryWithLocation};
-use shape::ConvexPolyface;
+use alga::linear::FiniteDimInnerSpace;
+use na::{self, Point2, Real, Unit};
+
+use math::{Isometry, Point, Vector};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::algorithms::VoronoiSimplex;
+use query::algorithms::gjk::GJKResult;
+use query::closest_points_internal;
+use query::contacts_internal;
+use query::ray_internal;
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, PointQueryWithLocation};
+use shape::ConvexPolyface;
+use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape, SupportMap};
+use utils::{self, IdAllocator, IsometryOps};
 
 #[derive(Clone)]
 struct ClippingCache<N: Real> {
@@ -43,8 +41,8 @@ impl<N: Real> ClippingCache<N> {
 /// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
 /// manifold generation, see `IncrementalContactManifoldGenerator`.
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N, S> {
-    simplex: S,
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
+    simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Vector<N>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
     contact_manifold: ContactManifold<N>,
@@ -52,20 +50,14 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N, S> {
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     manifold1: ConvexPolyface<N>,
     manifold2: ConvexPolyface<N>,
-    mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N, S> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N, S>
-where
-    N: Real,
-    M: Isometry<P>,
-    S: Simplex<AnnotatedPoint<P>>,
-{
+impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     /// Creates a new persistant collision detector between two shapes with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: S) -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N, S> {
+    pub fn new(simplex: VoronoiSimplex<N>) -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: simplex,
             last_gjk_dir: None,
@@ -75,7 +67,6 @@ where
             new_contacts: Vec::new(),
             manifold1: ConvexPolyface::new(),
             manifold2: ConvexPolyface::new(),
-            mat_type: PhantomData,
         }
     }
 
@@ -91,6 +82,7 @@ where
         G2: ConvexPolyhedron<N>,
     {
         self.contact_manifold.save_cache_and_clear(ids);
+
         for (c, f1, f2) in self.new_contacts.drain(..) {
             let mut kinematic = ContactKinematic::new();
             let local1 = m1.inverse_transform_point(&c.world1);
@@ -100,6 +92,7 @@ where
 
             match f1 {
                 FeatureId::Face(..) => kinematic.set_plane1(f1, local1, n1.unwrap_half_line()),
+                #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
                     let dir1 = m1.inverse_transform_unit_vector(&e1.direction().unwrap());
@@ -111,6 +104,7 @@ where
 
             match f2 {
                 FeatureId::Face(..) => kinematic.set_plane2(f2, local2, n2.unwrap_half_line()),
+                #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
                     let dir2 = m2.inverse_transform_unit_vector(&e2.direction().unwrap());
@@ -126,22 +120,9 @@ where
         }
     }
 
-    fn reduce_manifolds_to_deepest_contact(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
-        if let Some(deepest) = self.contact_manifold.deepest_contact() {
-            self.manifold1
-                .reduce_to_feature(deepest.kinematic.feature1());
-            self.manifold2
-                .reduce_to_feature(deepest.kinematic.feature2());
-            self.manifold1.transform_by(&m1.inverse());
-            self.manifold2.transform_by(&m2.inverse());
-        } else {
-            self.manifold1.clear();
-            self.manifold2.clear();
-        }
-    }
-
     fn clip_polyfaces(&mut self, prediction: &ContactPrediction<N>, normal: Unit<Vector<N>>) {
-        if na::dimension::<Vector<N>>() == 2 {
+        #[cfg(feature = "dim2")]
+        {
             if self.manifold1.vertices.len() <= 1 || self.manifold2.vertices.len() <= 1 {
                 return;
             }
@@ -228,7 +209,9 @@ where
                         .push((contact, features1[1], self.manifold2.feature_id));
                 }
             }
-        } else {
+        }
+        #[cfg(feature = "dim3")]
+        {
             // FIXME: don't compute contacts further than the prediction.
 
             if self.manifold1.vertices.len() <= 2 && self.manifold2.vertices.len() <= 2 {
@@ -240,7 +223,7 @@ where
             let mut basis = [na::zero(), na::zero()];
             let mut basis_i = 0;
 
-            Vector<N>::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
+            Vector::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
                 basis[basis_i] = *dir;
                 basis_i += 1;
                 true
@@ -310,6 +293,7 @@ where
 
             let nedges1 = self.manifold1.nedges();
             let nedges2 = self.manifold2.nedges();
+
             for i1 in 0..nedges1 {
                 let j1 = (i1 + 1) % self.clip_cache.poly1.len();
                 let seg1 = Segment::new(self.clip_cache.poly1[i1], self.clip_cache.poly1[j1]);
@@ -374,6 +358,7 @@ where
                 world2 = self.manifold2.vertices[0];
                 can_penetrate = false;
             }
+            #[cfg(feature = "dim3")]
             (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
                 let pt1 = &self.manifold1.vertices[0];
@@ -387,6 +372,7 @@ where
                     return None;
                 }
             }
+            #[cfg(feature = "dim3")]
             (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let pt2 = &self.manifold2.vertices[0];
@@ -418,6 +404,7 @@ where
                     return None;
                 }
             }
+            #[cfg(feature = "dim3")]
             (FeatureId::Edge(..), FeatureId::Edge(..)) => {
                 let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
                 let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
@@ -480,13 +467,7 @@ thread_local! {
     pub static NAVOID: RefCell<(u32, u32)> = RefCell::new((0, 0));
 }
 
-impl<N, S> ContactManifoldGenerator<N>
-    for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N, S>
-where
-    N: Real,
-    M: Isometry<P>,
-    S: Simplex<AnnotatedPoint<P>>,
-{
+impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     #[inline]
     fn update(
         &mut self,
@@ -547,8 +528,9 @@ where
             self.manifold2.clear();
 
             match contact {
-                GJKResult::Projection(ref contact, dir) => {
-                    self.last_gjk_dir = Some(dir.unwrap());
+                GJKResult::ClosestPoints(world1, world2, normal) => {
+                    let contact = Contact::new_wo_depth(world1, world2, normal);
+                    self.last_gjk_dir = Some(normal.unwrap());
 
                     if contact.depth > na::zero() {
                         cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);

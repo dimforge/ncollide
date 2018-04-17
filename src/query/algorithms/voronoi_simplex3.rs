@@ -1,11 +1,12 @@
+use math::{Isometry, Point};
 use na::{self, Real};
-use math::{Point, Isometry};
+use query::algorithms::{gjk, CSOPoint, simplex::Simplex};
 use query::{PointQuery, PointQueryWithLocation};
-use query::algorithms::{CSOPoint, gjk, simplex::Simplex};
 use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
             TrianglePointLocation};
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
+#[derive(Clone, Debug)]
 pub struct VoronoiSimplex<N: Real> {
     prev_vertices: [usize; 4],
     prev_proj: [N; 3],
@@ -95,7 +96,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         assert!(i <= self.dim, "Index out of bounds.");
         self.prev_proj[i]
     }
-    
+
     fn prev_point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.prev_dim, "Index out of bounds.");
         &self.vertices[self.prev_vertices[i]]
@@ -129,7 +130,11 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         } else if self.dim == 2 {
             // FIXME: NLL
             let (proj, location) = {
-                let tri = Triangle::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point);
+                let tri = Triangle::new(
+                    self.vertices[0].point,
+                    self.vertices[1].point,
+                    self.vertices[2].point,
+                );
                 tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
@@ -167,7 +172,12 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
             assert!(self.dim == 3);
             // FIXME: NLL
             let (proj, location) = {
-                let tetr = Tetrahedron::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point, self.vertices[3].point);
+                let tetr = Tetrahedron::new(
+                    self.vertices[0].point,
+                    self.vertices[1].point,
+                    self.vertices[2].point,
+                    self.vertices[3].point,
+                );
                 tetr.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
@@ -206,7 +216,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
                         _ => unreachable!(),
                     }
 
-                     match i {
+                    match i {
                         0 | 1 | 2 | 5 => {
                             self.proj[0] = coords[0];
                             self.proj[1] = coords[1];
@@ -260,13 +270,25 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
             self.vertices[0].point
         } else if self.dim == 1 {
             let seg = Segment::new(self.vertices[0].point, self.vertices[1].point);
-            seg.project_point(&Isometry::identity(), &Point::origin(), true).point
+            seg.project_point(&Isometry::identity(), &Point::origin(), true)
+                .point
         } else if self.dim == 2 {
-            let tri = Triangle::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point);
-            tri.project_point(&Isometry::identity(), &Point::origin(), true).point
+            let tri = Triangle::new(
+                self.vertices[0].point,
+                self.vertices[1].point,
+                self.vertices[2].point,
+            );
+            tri.project_point(&Isometry::identity(), &Point::origin(), true)
+                .point
         } else {
-            let tetr = Tetrahedron::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point, self.vertices[3].point);
-            tetr.project_point(&Isometry::identity(), &Point::origin(), true).point
+            let tetr = Tetrahedron::new(
+                self.vertices[0].point,
+                self.vertices[1].point,
+                self.vertices[2].point,
+                self.vertices[3].point,
+            );
+            tetr.project_point(&Isometry::identity(), &Point::origin(), true)
+                .point
         }
     }
 
@@ -283,7 +305,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
     fn dimension(&self) -> usize {
         self.dim
     }
-    
+
     fn prev_dimension(&self) -> usize {
         self.prev_dim
     }

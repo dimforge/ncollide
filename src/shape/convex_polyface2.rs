@@ -1,7 +1,8 @@
 use na::{Real, Unit};
 
-use shape::FeatureId;
 use math::{Isometry, Point, Vector};
+use query::Contact;
+use shape::FeatureId;
 
 #[derive(Clone, Debug)]
 pub struct ConvexPolyface<N: Real> {
@@ -12,7 +13,6 @@ pub struct ConvexPolyface<N: Real> {
     pub feature_id: FeatureId,
     pub vertices_id: [FeatureId; 2],
 }
-
 
 impl<N: Real> ConvexPolyface<N> {
     /// Creates a new empty convex polygonal faces.
@@ -69,5 +69,24 @@ impl<N: Real> ConvexPolyface<N> {
 
     pub fn set_feature_id(&mut self, id: FeatureId) {
         self.feature_id = id
+    }
+
+    pub fn project_point(&self, pt: &Point<N>) -> Option<Contact<N>> {
+        if let Some(n) = self.normal {
+            let dir = self.vertices[1] - self.vertices[0];
+            let dpt = *pt - self.vertices[0];
+            let dot = dir.dot(&dpt);
+
+            if dot < N::zero() || dot * dot > dir.norm_squared() * dpt.norm_squared() {
+                None
+            } else {
+                let dist = n.dot(&dpt);
+                let proj = *pt + (-n.unwrap() * dist);
+
+                Some(Contact::new(proj, *pt, n, -dist))
+            }
+        } else {
+            None
+        }
     }
 }

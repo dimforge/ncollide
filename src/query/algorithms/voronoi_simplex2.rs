@@ -1,10 +1,11 @@
+use math::{Isometry, Point};
 use na::{self, Real};
-use math::{Point, Isometry};
-use query::{PointQuery, PointQueryWithLocation};
 use query::algorithms::{CSOPoint, simplex::Simplex};
+use query::{PointQuery, PointQueryWithLocation};
 use shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
+#[derive(Clone, Debug)]
 pub struct VoronoiSimplex<N: Real> {
     prev_vertices: [usize; 3],
     prev_dim: usize,
@@ -72,7 +73,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         assert!(i <= self.dim, "Index out of bounds.");
         self.prev_proj[i]
     }
-    
+
     fn prev_point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.prev_dim, "Index out of bounds.");
         &self.vertices[self.prev_vertices[i]]
@@ -101,8 +102,8 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
                 }
                 SegmentPointLocation::OnEdge(coords) => {
                     self.proj = coords;
-                },
-                _ => unreachable!()
+                }
+                _ => unreachable!(),
             }
 
             proj.point
@@ -110,7 +111,11 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
             assert!(self.dim == 2);
             // FIXME: NLL
             let (proj, location) = {
-                let tri = Triangle::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point);
+                let tri = Triangle::new(
+                    self.vertices[0].point,
+                    self.vertices[1].point,
+                    self.vertices[2].point,
+                );
                 tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true)
             };
 
@@ -147,11 +152,17 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
             self.vertices[0].point
         } else if self.dim == 1 {
             let seg = Segment::new(self.vertices[0].point, self.vertices[1].point);
-            seg.project_point(&Isometry::identity(), &Point::origin(), true).point
+            seg.project_point(&Isometry::identity(), &Point::origin(), true)
+                .point
         } else {
             assert!(self.dim == 2);
-            let tri = Triangle::new(self.vertices[0].point, self.vertices[1].point, self.vertices[2].point);
-            tri.project_point(&Isometry::identity(), &Point::origin(), true).point
+            let tri = Triangle::new(
+                self.vertices[0].point,
+                self.vertices[1].point,
+                self.vertices[2].point,
+            );
+            tri.project_point(&Isometry::identity(), &Point::origin(), true)
+                .point
         }
     }
 

@@ -1,9 +1,9 @@
 use na::{self, Real};
 
-use utils::IsometryOps;
-use shape::{FeatureId, Triangle, TrianglePointLocation};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point, Vector};
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
+use shape::{FeatureId, Triangle, TrianglePointLocation};
+use utils::IsometryOps;
 
 #[inline]
 fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {
@@ -11,7 +11,7 @@ fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> 
     {
         PointProjection::new(*pt == proj, proj)
     }
-    
+
     #[cfg(feature = "dim3")]
     {
         // FIXME: is this acceptable to assume the point is inside of the
@@ -28,7 +28,11 @@ impl<N: Real> PointQuery<N> for Triangle<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = if na::dimension::<Vector<N>>() == 2 {
             self.project_point_with_location(m, pt, false)
         } else {
@@ -37,7 +41,10 @@ impl<N: Real> PointQuery<N> for Triangle<N> {
 
         let feature = match loc {
             TrianglePointLocation::OnVertex(i) => FeatureId::Vertex(i),
+            #[cfg(feature = "dim3")]
             TrianglePointLocation::OnEdge(i, _) => FeatureId::Edge(i),
+            #[cfg(feature = "dim2")]
+            TrianglePointLocation::OnEdge(i, _) => FeatureId::Face(i),
             TrianglePointLocation::OnFace(_) => FeatureId::Face(0),
             TrianglePointLocation::OnSolid => FeatureId::Face(0),
         };
@@ -143,8 +150,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
                 }
 
                 let va = n * bc.perp(&bp);
-                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero()
-                {
+                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
                     return ProjectionInfo::OnBC;
                 }
 
@@ -164,8 +170,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
                 }
 
                 let va = na::dot(&n, &bc.cross(&bp));
-                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero()
-                {
+                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
                     return ProjectionInfo::OnBC;
                 }
 

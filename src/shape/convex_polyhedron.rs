@@ -1,18 +1,17 @@
-use na::{Unit, Real};
 use bounding_volume::PolyhedralCone;
+use math::{Isometry, Point, Vector};
+use na::{Real, Unit};
 use shape::{ConvexPolyface, SupportMap};
-use math::{Point, Isometry, Vector};
-
 
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FeatureId {
     Vertex(usize),
+    #[cfg(feature = "dim3")]
     Edge(usize),
     Face(usize),
     // XXX: remove this variant.
     Unknown,
 }
-
 
 impl FeatureId {
     pub fn unwrap_vertex(self) -> usize {
@@ -22,6 +21,7 @@ impl FeatureId {
         }
     }
 
+    #[cfg(feature = "dim3")]
     pub fn unwrap_edge(self) -> usize {
         match self {
             FeatureId::Edge(id) => id,

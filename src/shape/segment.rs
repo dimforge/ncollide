@@ -1,14 +1,14 @@
 //! Definition of the segment shape.
 
+use bounding_volume::PolyhedralCone;
+use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use std::mem;
-use utils::IsometryOps;
-use na::{self, Real, Unit};
-use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
-use math::{Isometry, Point, Vector};
 #[cfg(feature = "dim2")]
 use utils;
+use utils::IsometryOps;
 
 /// A segment shape.
 #[derive(PartialEq, Debug, Clone)]
@@ -109,9 +109,7 @@ impl<N: Real> SupportMap<N> for Segment<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        if na::dot(&self.a.coords, &local_dir)
-            > na::dot(&self.b.coords, &local_dir)
-        {
+        if na::dot(&self.a.coords, &local_dir) > na::dot(&self.b.coords, &local_dir) {
             m * self.a
         } else {
             m * self.b
@@ -174,6 +172,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
                         PolyhedralCone::HalfSpace(-direction)
                     }
                 }
+                #[cfg(feature = "dim3")]
                 FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
                 FeatureId::Face(id) => {
                     let mut dir = Vector::zeros();
@@ -194,7 +193,12 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
     }
 
     #[cfg(feature = "dim2")]
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
+    fn support_face_toward(
+        &self,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        face: &mut ConvexPolyface<N>,
+    ) {
         let seg_dir = self.scaled_direction();
 
         if dir.perp(&seg_dir) >= na::zero() {
@@ -206,7 +210,12 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
     }
 
     #[cfg(feature = "dim3")]
-    fn support_face_toward(&self, m: &Isometry<N>, _: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
+    fn support_face_toward(
+        &self,
+        m: &Isometry<N>,
+        _: &Unit<Vector<N>>,
+        face: &mut ConvexPolyface<N>,
+    ) {
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
         face.push_edge_feature_id(FeatureId::Edge(0));
