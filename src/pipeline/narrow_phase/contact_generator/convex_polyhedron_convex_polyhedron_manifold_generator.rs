@@ -296,19 +296,14 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
             for i1 in 0..nedges1 {
                 let j1 = (i1 + 1) % self.clip_cache.poly1.len();
-                let seg1 = Segment::new(self.clip_cache.poly1[i1], self.clip_cache.poly1[j1]);
+                let seg1 = (&self.clip_cache.poly1[i1], &self.clip_cache.poly1[j1]);
 
                 for i2 in 0..nedges2 {
                     let j2 = (i2 + 1) % self.clip_cache.poly2.len();
-                    let seg2 = Segment::new(self.clip_cache.poly2[i2], self.clip_cache.poly2[j2]);
+                    let seg2 = (&self.clip_cache.poly2[i2], &self.clip_cache.poly2[j2]);
 
                     if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
-                        closest_points_internal::segment_against_segment_with_locations(
-                            &Isometry::identity(),
-                            &seg1,
-                            &Isometry::identity(),
-                            &seg2,
-                        ) {
+                        closest_points_internal::segment_against_segment_with_locations_nD(seg1, seg2) {
                         let original1 =
                             Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
                         let original2 =

@@ -1,3 +1,6 @@
+use approx::ApproxEq;
+
+use alga::linear::EuclideanSpace;
 use na::{self, Real};
 use math::Isometry;
 use shape::{Segment, SegmentPointLocation};
@@ -32,24 +35,35 @@ pub fn segment_against_segment_with_locations<N: Real>(
     m2: &Isometry<N>,
     seg2: &Segment<N>,
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>) {
-    // Inspired by Real-time collision detection by Christer Ericson.
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);
-    let d1 = seg1.scaled_direction();
-    let d2 = seg2.scaled_direction();
-    let r = *seg1.a() - *seg2.a();
+
+    segment_against_segment_with_locations_nD((seg1.a(), seg1.b()), (seg2.a(), seg2.b()))
+}
+
+#[inline]
+pub fn segment_against_segment_with_locations_nD<P>(
+    seg1: (&P, &P),
+    seg2: (&P, &P)
+) -> (SegmentPointLocation<P::Real>, SegmentPointLocation<P::Real>)
+    where P: EuclideanSpace + Copy,
+          P::Real: ApproxEq {
+    // Inspired by Real-time collision detection by Christer Ericson.
+    let d1 = *seg1.1 - *seg1.0;
+    let d2 = *seg2.1 - *seg2.0;
+    let r = *seg1.0 - *seg2.0;
 
     let a = na::norm_squared(&d1);
     let e = na::norm_squared(&d2);
     let f = na::dot(&d2, &r);
 
-    let _0: N = na::zero();
-    let _1: N = na::one();
+    let _0: P::Real = na::zero();
+    let _1: P::Real = na::one();
 
     let mut s;
     let mut t;
 
-    let _eps = N::default_epsilon();
+    let _eps = P::Real::default_epsilon();
     if a <= _eps && e <= _eps {
         s = _0;
         t = _0;
@@ -67,12 +81,6 @@ pub fn segment_against_segment_with_locations<N: Real>(
             let denom = ae - b * b;
 
             // Use relative and absolute error to test collinearity.
-
-            // println!("");
-            // println!("Denom line: {}", denom);
-            // println!("eps: {}, bf: {}, ce: {}", _eps, b * f, c * e);
-            // println!("b: {}, f: {}, c: {}, e: {}", b, f, c, e);
-            // println!("seg1: {:?}, seg2: {:?}", seg1, seg2);
             if denom > _eps && denom > _eps * ae {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {

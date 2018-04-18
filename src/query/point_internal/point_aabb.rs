@@ -76,16 +76,20 @@ impl<N: Real> PointQuery<N> for AABB<N> {
             }
         }
 
-        if nzero_shifts > 2 {
-            // On a 3D face.
-            if ls_pt[last_not_zero_shift] < na::zero() {
-                (proj, FeatureId::Face(last_not_zero_shift + DIM))
-            } else {
-                (proj, FeatureId::Face(last_not_zero_shift))
+        if nzero_shifts == DIM {
+            for i in 0..DIM {
+                if ls_pt[i] > self.maxs()[i] - N::default_epsilon() {
+                    return (proj, FeatureId::Face(i));
+                }
+                if ls_pt[i] <= self.mins()[i] + N::default_epsilon() {
+                    return (proj, FeatureId::Face(i + DIM));
+                }
             }
-        } else if DIM == 2 && nzero_shifts == 1 {
-            // On a 2D face.
-            if ls_pt[last_not_zero_shift] < na::zero() {
+
+            unreachable!()
+        } else if nzero_shifts == DIM - 1 {
+            // On a 3D face.
+            if ls_pt[last_not_zero_shift] < self.center()[last_not_zero_shift] {
                 (proj, FeatureId::Face(last_not_zero_shift + DIM))
             } else {
                 (proj, FeatureId::Face(last_not_zero_shift))
@@ -93,15 +97,27 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         } else {
             // On a vertex or edge.
             let mut id = 0;
+            let center = self.center();
+
             for i in 0..DIM {
-                if ls_pt[i] < na::zero() {
+                if ls_pt[i] < center[i] {
                     id |= 1 << i;
                 }
             }
-            if nzero_shifts == 0 {
-                (proj, FeatureId::Vertex(id))
-            } else {
-                (proj, FeatureId::Edge((id << 2) | last_zero_shift))
+
+
+            #[cfg(feature = "dim3")]
+            {
+                if nzero_shifts == 0 {
+                    (proj, FeatureId::Vertex(id))
+                } else {
+                    (proj, FeatureId::Edge((id << 2) | last_zero_shift))
+                }
+            }
+
+            #[cfg(feature = "dim2")]
+            {
+                (proj, FeatureId::Vertex(id))                
             }
         }
     }
