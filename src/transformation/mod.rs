@@ -4,7 +4,7 @@
 pub use self::to_trimesh::ToTriMesh;
 #[cfg(feature = "dim2")]
 pub use self::to_polyline::ToPolyline;
-// pub use self::hacd::hacd;
+pub use self::hacd::hacd;
 #[cfg(feature = "dim3")]
 pub use self::convex_hull3::convex_hull3 as convex_hull;
 #[cfg(feature = "dim3")]
@@ -17,7 +17,8 @@ pub use self::convex_hull2::{convex_hull2 as conve_hull, convex_hull2_idx as con
 mod to_trimesh;
 #[cfg(feature = "dim2")]
 mod to_polyline;
-// mod hacd;
+#[cfg(feature = "dim3")]
+mod hacd;
 #[doc(hidden)]
 pub mod convex_hull_utils; // Internal implementation details.
 mod convex_hull2;

@@ -4,9 +4,7 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::collections::hash_map::Entry;
 use num::{Bounded, Zero};
 
-use alga::general::{Id, Real};
-use na::{Point3, Translation3, Vector2, Vector3};
-use na;
+use na::{self, Real, Point3, Translation3, Vector2, Vector3};
 
 use utils;
 use shape::SupportMap;
@@ -15,6 +13,8 @@ use partitioning::{BoundingVolumeInterferencesCollector, BVT};
 use query::algorithms::VoronoiSimplex;
 use query::{ray_internal, Ray, RayCast, RayIntersection};
 use procedural::{IndexBuffer, TriMesh};
+use transformation;
+use math::Isometry;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: Real>(
@@ -190,7 +190,7 @@ struct DualGraphVertex<N: Real> {
     timestamp: usize,
     concavity: N,
     area: N,
-    aabb: AABB<Point3<N>>,
+    aabb: AABB<N>,
 }
 
 impl<N: Real> DualGraphVertex<N> {
@@ -327,7 +327,7 @@ impl<N: Real> DualGraphVertex<N> {
         vtx1.extend(vtx2.into_iter());
 
         // FIXME: use a method to merge convex hulls instead of reconstructing it from scratch.
-        let chull = super::convex_hull3(&vtx1[..]);
+        let chull = transformation::convex_hull(&vtx1[..]);
 
         /*
          * Merge borders.
@@ -446,8 +446,8 @@ impl<N: Real> DualGraphEdge<N> {
     pub fn compute_decimation_cost(
         &mut self,
         dual_graph: &[DualGraphVertex<N>],
-        rays: &[Ray<Point3<N>>],
-        bvt: &BVT<usize, AABB<Point3<N>>>,
+        rays: &[Ray<N>],
+        bvt: &BVT<usize, AABB<N>>,
         max_cost: N,
         max_concavity: N,
     ) {
@@ -471,7 +471,7 @@ impl<N: Real> DualGraphEdge<N> {
 
         fn cast_ray<'a, N: Real>(
             chull: &ConvexPair<'a, N>,
-            ray: &Ray<Point3<N>>,
+            ray: &Ray<N>,
             id: usize,
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
@@ -662,7 +662,7 @@ fn edge(a: u32, b: u32) -> Vector2<usize> {
     }
 }
 
-fn compute_ray_bvt<N: Real>(rays: &[Ray<Point3<N>>]) -> BVT<usize, AABB<Point3<N>>> {
+fn compute_ray_bvt<N: Real>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     let aabbs = rays.iter()
         .enumerate()
         .map(|(i, r)| (i, AABB::new(r.origin, r.origin)))
@@ -673,7 +673,7 @@ fn compute_ray_bvt<N: Real>(rays: &[Ray<Point3<N>>]) -> BVT<usize, AABB<Point3<N
 
 fn compute_rays<N: Real>(
     mesh: &TriMesh<N>,
-) -> (Vec<Ray<Point3<N>>>, HashMap<(u32, u32), usize>) {
+) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -770,9 +770,9 @@ impl<'a, N: Real> ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Real> SupportMap<Point3<N>, Id> for ConvexPair<'a, N> {
+impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
     #[inline]
-    fn support_point(&self, _: &Id, dir: &Vector3<N>) -> Point3<N> {
+    fn support_point(&self, _: &Isometry<N>, dir: &Vector3<N>) -> Point3<N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 
@@ -784,18 +784,18 @@ impl<'a, N: Real> SupportMap<Point3<N>, Id> for ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Real> RayCast<Point3<N>, Id> for ConvexPair<'a, N> {
+impl<'a, N: Real> RayCast<N> for ConvexPair<'a, N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
-        id: &Id,
-        ray: &Ray<Point3<N>>,
+        id: &Isometry<N>,
+        ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<Vector3<N>>> {
+    ) -> Option<RayIntersection<N>> {
         ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,
-            &mut VoronoiSimplex::<Point3<N>>::new(),
+            &mut VoronoiSimplex::new(),
             ray,
             solid,
         )
