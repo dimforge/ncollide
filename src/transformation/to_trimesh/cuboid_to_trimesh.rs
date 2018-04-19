@@ -1,13 +1,15 @@
 use alga::general::Real;
 use na::Point3;
 use na;
-use shape::Cuboid3;
-use procedural::TriMesh3;
+use shape::Cuboid;
+use procedural::TriMesh;
 use procedural;
 use super::ToTriMesh;
 
-impl<N: Real> ToTriMesh<Point3<N>, ()> for Cuboid3<N> {
-    fn to_trimesh(&self, _: ()) -> TriMesh3<N> {
+impl<N: Real> ToTriMesh<N> for Cuboid<N> {
+    type DiscretizationParameter = ();
+
+    fn to_trimesh(&self, _: ()) -> TriMesh<N> {
         let _2: N = na::convert(2.0f64);
 
         procedural::cuboid(&(*self.half_extents() * _2))

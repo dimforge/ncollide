@@ -1,13 +1,15 @@
 use alga::general::Real;
 use na::Point2;
 use na;
-use shape::Cuboid2;
-use procedural::Polyline2;
+use shape::Cuboid;
+use procedural::Polyline;
 use super::ToPolyline;
 use procedural;
 
-impl<N: Real> ToPolyline<Point2<N>, ()> for Cuboid2<N> {
-    fn to_polyline(&self, _: ()) -> Polyline2<N> {
+impl<N: Real> ToPolyline<N> for Cuboid<N> {
+    type DiscretizationParameter = ();
+
+    fn to_polyline(&self, _: ()) -> Polyline<N> {
         let _2: N = na::convert(2.0f64);
 
         procedural::rectangle(&(*self.half_extents() * _2))

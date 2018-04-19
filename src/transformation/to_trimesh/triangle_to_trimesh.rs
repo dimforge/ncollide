@@ -1,11 +1,13 @@
 use alga::general::Real;
-use na::Point3;
-use shape::Triangle3;
-use procedural::{TriMesh, TriMesh3};
+use na::Point;
+use shape::Triangle;
+use procedural::TriMesh;
 use super::ToTriMesh;
 
-impl<N: Real> ToTriMesh<Point3<N>, ()> for Triangle3<N> {
-    fn to_trimesh(&self, _: ()) -> TriMesh3<N> {
+impl<N: Real> ToTriMesh<N> for Triangle<N> {
+    type DiscretizationParameter = ();
+
+    fn to_trimesh(&self, _: ()) -> TriMesh<N> {
         TriMesh::new(
             vec![self.a().clone(), self.b().clone(), self.c().clone()],
             None,

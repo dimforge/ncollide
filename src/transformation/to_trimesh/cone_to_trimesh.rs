@@ -1,13 +1,15 @@
 use alga::general::Real;
 use na::Point3;
 use na;
-use shape::Cone3;
-use procedural::TriMesh3;
+use shape::Cone;
+use procedural::TriMesh;
 use procedural;
 use super::ToTriMesh;
 
-impl<N: Real> ToTriMesh<Point3<N>, u32> for Cone3<N> {
-    fn to_trimesh(&self, nsubdiv: u32) -> TriMesh3<N> {
+impl<N: Real> ToTriMesh<N> for Cone<N> {
+    type DiscretizationParameter = u32;
+
+    fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<N> {
         // FIXME, inconsistancy we should be able to work directly with the radius.
         // FIXME, inconsistancy we should be able to work directly with the half height.
         let diameter = self.radius() * na::convert(2.0f64);

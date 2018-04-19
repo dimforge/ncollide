@@ -1,11 +1,13 @@
 use alga::general::Real;
 use na::Point2;
-use shape::Triangle2;
-use procedural::{Polyline, Polyline2};
+use shape::Triangle;
+use procedural::Polyline;
 use super::ToPolyline;
 
-impl<N: Real> ToPolyline<Point2<N>, ()> for Triangle2<N> {
-    fn to_polyline(&self, _: ()) -> Polyline2<N> {
+impl<N: Real> ToPolyline<N> for Triangle<N> {
+    type DiscretizationParameter = ();
+
+    fn to_polyline(&self, _: ()) -> Polyline<N> {
         Polyline::new(vec![*self.a(), *self.b(), *self.c()], None)
     }
 }

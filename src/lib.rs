@@ -77,7 +77,7 @@ pub mod bounding_volume;
 pub mod partitioning;
 pub mod query;
 pub mod procedural;
-// pub mod transformation;
+pub mod transformation;
 mod pipeline;
 
 /// Compilation flags dependent aliases for mathematical types.

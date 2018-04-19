@@ -1,13 +1,15 @@
 use alga::general::Real;
 use na::{Point2, Vector2};
 use na;
-use shape::Capsule2;
-use procedural::{Polyline, Polyline2};
+use shape::Capsule;
+use procedural::Polyline;
 use procedural::utils;
 use super::ToPolyline;
 
-impl<N: Real> ToPolyline<Point2<N>, u32> for Capsule2<N> {
-    fn to_polyline(&self, nsubdiv: u32) -> Polyline2<N> {
+impl<N: Real> ToPolyline<N> for Capsule<N> {
+    type DiscretizationParameter = u32;
+
+    fn to_polyline(&self, nsubdiv: u32) -> Polyline<N> {
         let pi = N::pi();
         let dtheta = pi / na::convert(nsubdiv as f64);
 

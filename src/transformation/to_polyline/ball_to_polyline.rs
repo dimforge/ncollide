@@ -1,13 +1,13 @@
 use alga::general::Real;
-use na::Point2;
-use na;
-use shape::Ball2;
-use procedural::Polyline2;
-use procedural;
+use na::{self, Point2};
+use shape::Ball;
+use procedural::{self, Polyline};
 use super::ToPolyline;
 
-impl<N: Real> ToPolyline<Point2<N>, u32> for Ball2<N> {
-    fn to_polyline(&self, nsubdiv: u32) -> Polyline2<N> {
+impl<N: Real> ToPolyline<N> for Ball<N> {
+    type DiscretizationParameter = u32;
+
+    fn to_polyline(&self, nsubdiv: u32) -> Polyline<N> {
         let diameter = self.radius() * na::convert(2.0f64);
 
         procedural::circle(&diameter, nsubdiv)
