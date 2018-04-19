@@ -261,40 +261,32 @@ impl<N: Real> TriMesh<N> {
         let mut resu: Option<Vec<Point2<N>>> = self.uvs.as_ref().map(|_| Vec::new());
 
         match self.indices {
-            IndexBuffer::Split(ref ids) => {
-                for triangle in ids.iter() {
-                    for point in triangle.iter() {
-                        let idx = resc.len() as u32;
-                        resc.push(self.coords[point.x as usize].clone());
+            IndexBuffer::Split(ref ids) => for triangle in ids.iter() {
+                for point in triangle.iter() {
+                    let idx = resc.len() as u32;
+                    resc.push(self.coords[point.x as usize].clone());
 
-                        let _ = resn.as_mut().map(|l| {
-                            l.push(self.normals.as_ref().unwrap()[point.y as usize].clone())
-                        });
-                        let _ = resu.as_mut().map(|l| {
-                            l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone())
-                        });
+                    let _ = resn.as_mut()
+                        .map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
+                    let _ = resu.as_mut()
+                        .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
 
-                        resi.push(idx);
-                    }
+                    resi.push(idx);
                 }
-            }
-            IndexBuffer::Unified(ref ids) => {
-                for triangle in ids.iter() {
-                    for point in triangle.iter() {
-                        let idx = resc.len() as u32;
-                        resc.push(self.coords[*point as usize].clone());
+            },
+            IndexBuffer::Unified(ref ids) => for triangle in ids.iter() {
+                for point in triangle.iter() {
+                    let idx = resc.len() as u32;
+                    resc.push(self.coords[*point as usize].clone());
 
-                        let _ = resn.as_mut().map(|l| {
-                            l.push(self.normals.as_ref().unwrap()[*point as usize].clone())
-                        });
-                        let _ = resu.as_mut().map(|l| {
-                            l.push(self.uvs.as_ref().unwrap()[*point as usize].clone())
-                        });
+                    let _ = resn.as_mut()
+                        .map(|l| l.push(self.normals.as_ref().unwrap()[*point as usize].clone()));
+                    let _ = resu.as_mut()
+                        .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
 
-                        resi.push(idx);
-                    }
+                    resi.push(idx);
                 }
-            }
+            },
         };
 
         self.coords = resc;
@@ -312,7 +304,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real + AsBytes> TriMesh<N> {
+impl<N: Real> TriMesh<N> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.
