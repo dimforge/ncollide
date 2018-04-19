@@ -1,12 +1,10 @@
 use std::cmp::Ordering;
 use num::Bounded;
 
-use alga::general::Real;
-use na::{Matrix3, Point2, Point3, Vector3};
-use na;
+use na::{self, Real, Matrix3, Point2, Point3, Vector3};
 use utils;
 use procedural::{IndexBuffer, TriMesh};
-use convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id};
+use transformation::{self, convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id}};
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -254,7 +252,7 @@ fn get_initial_mesh<N: Real>(
             }
 
             // … and compute the 2d convex hull.
-            let idx = ::convex_hull2_idx(&subspace_points[..]);
+            let idx = transformation::convex_hull2_idx(&subspace_points[..]);
 
             // Finalize the result, triangulating the polyline.
             let npoints = idx.len();
@@ -548,7 +546,7 @@ impl<N: Real> TriangleFacet<N> {
         let p1p2 = points[p2] - points[p1];
         let p1p3 = points[p3] - points[p1];
 
-        let mut normal = utils::cross3(&p1p2, &p1p3);
+        let mut normal = p1p2.cross(&p1p3);
         if normal.normalize_mut().is_zero() {
             panic!("ConvexHull hull failure: a facet must not be affinely dependent.");
         }
@@ -615,9 +613,9 @@ impl<N: Real> TriangleFacet<N> {
         let _eps = N::default_epsilon();
 
         na::dot(&(*pt - *p0), &self.normal) > _eps * na::convert(100.0f64)
-            && !utils::is_affinely_dependent_triangle3(p0, p1, pt)
-            && !utils::is_affinely_dependent_triangle3(p0, p2, pt)
-            && !utils::is_affinely_dependent_triangle3(p1, p2, pt)
+            && !utils::is_affinely_dependent_triangle(p0, p1, pt)
+            && !utils::is_affinely_dependent_triangle(p0, p2, pt)
+            && !utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
 
     pub fn can_be_seen_by_or_is_affinely_dependent_with_contour(
@@ -630,12 +628,12 @@ impl<N: Real> TriangleFacet<N> {
         let p1 = &points[self.second_point_from_edge(edge)];
         let pt = &points[point];
 
-        let aff_dep = utils::is_affinely_dependent_triangle3(p0, p1, pt)
-            || utils::is_affinely_dependent_triangle3(p0, pt, p1)
-            || utils::is_affinely_dependent_triangle3(p1, p0, pt)
-            || utils::is_affinely_dependent_triangle3(p1, pt, p0)
-            || utils::is_affinely_dependent_triangle3(pt, p0, p1)
-            || utils::is_affinely_dependent_triangle3(pt, p1, p0);
+        let aff_dep = utils::is_affinely_dependent_triangle(p0, p1, pt)
+            || utils::is_affinely_dependent_triangle(p0, pt, p1)
+            || utils::is_affinely_dependent_triangle(p1, p0, pt)
+            || utils::is_affinely_dependent_triangle(p1, pt, p0)
+            || utils::is_affinely_dependent_triangle(pt, p0, p1)
+            || utils::is_affinely_dependent_triangle(pt, p1, p0);
 
         na::dot(&(*pt - *p0), &self.normal) >= na::zero() || aff_dep
     }

@@ -1,17 +1,18 @@
 use num::Bounded;
+use alga::linear::EuclideanSpace;
 
 use na::{self, Real};
 use math::{Point, Vector, Isometry};
 use bounding_volume;
 
 /// Returns the index of the support point of a list of points.
-pub fn support_point_id<N: Real>(direction: &Vector<N>, points: &[Point<N>]) -> Option<usize> {
+pub fn support_point_id<P: EuclideanSpace>(direction: &P::Coordinates, points: &[P]) -> Option<usize> {
     let mut argmax = None;
-    let _max: N = Bounded::max_value();
+    let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for (id, pt) in points.iter().enumerate() {
-        let dot = na::dot(direction, &pt.coords);
+        let dot = na::dot(direction, &pt.coordinates());
 
         if dot > max {
             argmax = Some(id);
@@ -23,17 +24,17 @@ pub fn support_point_id<N: Real>(direction: &Vector<N>, points: &[Point<N>]) -> 
 }
 
 /// Returns the index of the support point of an indexed list of points.
-pub fn indexed_support_point_id<N: Real>(
-    direction: &Vector<N>,
-    points: &[Point<N>],
+pub fn indexed_support_point_id<P: EuclideanSpace>(
+    direction: &P::Coordinates,
+    points: &[P],
     idx: &[usize],
 ) -> Option<usize> {
     let mut argmax = None;
-    let _max: N = Bounded::max_value();
+    let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for i in idx.iter() {
-        let dot = na::dot(direction, &points[*i].coords);
+        let dot = na::dot(direction, &points[*i].coordinates());
 
         if dot > max {
             argmax = Some(*i);

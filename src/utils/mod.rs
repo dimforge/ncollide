@@ -5,7 +5,8 @@ pub use self::triangle::{circumcircle, is_point_in_triangle, triangle_area, tria
 #[cfg(feature = "dim3")]
 pub use self::triangle::is_affinely_dependent_triangle;
 // pub use tetrahedron::{tetrahedron_center, tetrahedron_signed_volume, tetrahedron_volume};
-// pub use cleanup::remove_unused_points;
+#[cfg(feature = "dim3")]
+pub use self::cleanup::remove_unused_points;
 // pub use derivatives::{binom, dcos, dsin};
 // // pub use optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
 // //                        LineSearch, BacktrackingLineSearch};
@@ -30,7 +31,8 @@ mod center;
 // // mod project_homogeneous;
 // mod tetrahedron;
 mod triangle;
-// mod cleanup;
+#[cfg(feature = "dim3")]
+mod cleanup;
 // mod derivatives;
 // // mod optimization;
 mod hashable_partial_eq;
