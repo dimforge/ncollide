@@ -186,11 +186,6 @@ impl CollisionObjectHandle {
         CollisionObjectHandle(usize::max_value())
     }
 
-    #[inline]
-    pub(crate) fn is_invalid(&self) -> bool {
-        self.0 == usize::max_value()
-    }
-
     /// The unique identifier corresponding to this handle.
     #[inline]
     pub fn uid(&self) -> usize {

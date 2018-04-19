@@ -2,7 +2,7 @@ use std::collections::{HashMap, hash_map::Entry};
 
 use utils::DeterministicState;
 use na::{self, Real};
-use math::{Isometry, Point};
+use math::Isometry;
 use bounding_volume::{self, BoundingVolume};
 use partitioning::BoundingVolumeInterferencesCollector;
 use shape::{CompositeShape, Shape};

@@ -1,5 +1,5 @@
 use na::Real;
-use math::{Isometry, Vector};
+use math::Isometry;
 use shape::Shape;
 use query::{Ray, RayCast, RayIntersection};
 

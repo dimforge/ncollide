@@ -1,11 +1,9 @@
-use num::Zero;
-
 use math::{Isometry, Vector};
 use na::{self, Real, Unit};
 use query::Contact;
 use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
 use query::algorithms::{Simplex, VoronoiSimplex, EPA};
-use shape::{self, SupportMap};
+use shape::SupportMap;
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -49,7 +47,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let mut dir = match init_dir {
+    let dir = match init_dir {
         // FIXME: or m2.translation - m1.translation ?
         None => m1.translation.vector - m2.translation.vector,
         Some(dir) => dir,

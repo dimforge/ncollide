@@ -69,7 +69,7 @@ extern crate nalgebra as na;
 extern crate num_traits as num;
 extern crate smallvec;
 
-mod utils;
+pub mod utils;
 pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;

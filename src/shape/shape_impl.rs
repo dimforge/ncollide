@@ -1,7 +1,7 @@
 use na::Real;
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Segment,
+use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Segment,
             Shape, SupportMap, Triangle};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;

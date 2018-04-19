@@ -9,7 +9,7 @@ pub use self::triangle::is_affinely_dependent_triangle;
 // pub use derivatives::{binom, dcos, dsin};
 // // pub use optimization::{maximize_with_newton, newton, minimize_with_bfgs, bfgs,
 // //                        LineSearch, BacktrackingLineSearch};
-pub use self::hashable_partial_eq::HashablePartialEq;
+// pub use self::hashable_partial_eq::HashablePartialEq;
 #[doc(inline)]
 pub use self::as_bytes::AsBytes;
 // // pub use cov::{cov, cov_and_center, center_reduce};
@@ -33,7 +33,7 @@ mod triangle;
 // mod cleanup;
 // mod derivatives;
 // // mod optimization;
-mod hashable_partial_eq;
+// mod hashable_partial_eq;
 #[doc(hidden)]
 pub mod as_bytes;
 // // mod cov;

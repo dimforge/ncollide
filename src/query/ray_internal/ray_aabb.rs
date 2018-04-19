@@ -1,7 +1,9 @@
 use std::mem;
 use num::Bounded;
 
-use na::{self, Point2, Real};
+#[cfg(feature = "dim3")]
+use na::Point2;
+use na::{self, Real};
 
 use query::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;

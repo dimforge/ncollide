@@ -36,14 +36,6 @@ impl<N: Real> Segment<N> {
     pub fn from_array(arr: &[Point<N>; 2]) -> &Segment<N> {
         unsafe { mem::transmute(arr) }
     }
-
-    pub(crate) fn from_array3(arr: &[Point<N>; 3]) -> &Segment<N> {
-        unsafe { mem::transmute(arr) }
-    }
-
-    pub(crate) fn from_array4(arr: &[Point<N>; 4]) -> &Segment<N> {
-        unsafe { mem::transmute(arr) }
-    }
 }
 
 impl<N: Real> Segment<N> {

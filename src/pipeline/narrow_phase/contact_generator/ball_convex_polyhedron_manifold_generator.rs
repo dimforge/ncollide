@@ -1,6 +1,3 @@
-use std::marker::PhantomData;
-use approx::ApproxEq;
-
 use na::{Unit, Real};
 use math::{Isometry, Point};
 use utils::{IdAllocator, IsometryOps};

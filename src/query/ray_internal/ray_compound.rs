@@ -3,7 +3,7 @@ use bounding_volume::AABB;
 use shape::Compound;
 use partitioning::BVTCostFn;
 use query::{Ray, RayCast, RayIntersection};
-use math::{Isometry, Point};
+use math::Isometry;
 
 // XXX: if solid == false, this might return internal intersection.
 impl<N: Real> RayCast<N> for Compound<N> {

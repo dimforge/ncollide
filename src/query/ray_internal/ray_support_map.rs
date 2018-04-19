@@ -1,6 +1,3 @@
-use num::Zero;
-
-use alga::general::Id;
 use na::{self, Real};
 
 use query::algorithms::{gjk, CSOPoint, Simplex, VoronoiSimplex};
@@ -10,7 +7,7 @@ use shape::{Capsule, Segment, SupportMap};
 use shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
 use shape::{Cone, ConvexHull, Cylinder};
-use math::{Isometry, Point};
+use math::Isometry;
 
 /// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<N, S, G: ?Sized>(

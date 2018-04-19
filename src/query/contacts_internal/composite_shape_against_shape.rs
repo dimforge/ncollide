@@ -1,7 +1,7 @@
 use na::{self, Real};
 
 use bounding_volume::BoundingVolume;
-use math::{Isometry, Point};
+use math::Isometry;
 use partitioning::BoundingVolumeInterferencesCollector;
 use query::Contact;
 use query::contacts_internal;

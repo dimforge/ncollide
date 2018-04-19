@@ -1,10 +1,7 @@
 //! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
-use approx::ApproxEq;
-use num::Bounded;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
-use std::marker::PhantomData;
 
 use alga::linear::FiniteDimInnerSpace;
 use na::{self, Real, Unit};

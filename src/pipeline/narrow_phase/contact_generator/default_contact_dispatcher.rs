@@ -1,8 +1,5 @@
-use std::marker::PhantomData;
 use na::Real;
-use math::{Isometry, Point};
 use shape::{Ball, Plane, Shape};
-use query::algorithms::VoronoiSimplex;
 use pipeline::narrow_phase::{BallBallManifoldGenerator,
                    BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeManifoldGenerator,

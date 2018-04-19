@@ -1,9 +1,13 @@
 use alga::general::Real;
-use na::{self, Point2};
+use na;
+#[cfg(feature = "dim3")]
+use na::Point2;
 
 use query::{Ray, RayCast, RayIntersection};
 use shape::Ball;
-use math::{Isometry, Point, Vector};
+use math::{Isometry, Point};
+#[cfg(feature = "dim3")]
+use math::Vector;
 
 #[cfg(feature = "dim3")]
 #[inline]

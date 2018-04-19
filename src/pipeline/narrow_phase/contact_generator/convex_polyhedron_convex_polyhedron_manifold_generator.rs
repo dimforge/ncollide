@@ -1,19 +1,21 @@
-use approx::ApproxEq;
 use std::cell::RefCell;
 
-use alga::linear::FiniteDimInnerSpace;
 use na::{self, Point2, Real, Unit};
 
-use math::{Isometry, Point, Vector};
+#[cfg(feature = "dim3")]
+use alga::linear::FiniteDimInnerSpace;
+use math::{Isometry, Vector};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use query::algorithms::VoronoiSimplex;
 use query::algorithms::gjk::GJKResult;
+#[cfg(feature = "dim3")]
 use query::closest_points_internal;
 use query::contacts_internal;
+#[cfg(feature = "dim3")]
 use query::ray_internal;
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, PointQueryWithLocation};
 use shape::ConvexPolyface;
-use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape, SupportMap};
+use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 use utils::{self, IdAllocator, IsometryOps};
 
 #[derive(Clone)]
@@ -477,33 +479,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             self.contact_manifold.set_subshape_id1(ida);
             self.contact_manifold.set_subshape_id2(idb);
-
-            // NOTE: the following are premices of an attempt to avoid the executen of GJK/EPA
-            // in some situations where the optimal contact direction can be determined directly
-            // from the previous manifolds and normal cones.
-            // I did not manage to obtain satisfying result so it is disabled for now.
-            //
-            // let contact = if let Some(optimal) = self.try_optimal_contact(ma, cpa, mb, cpb) {
-            //     NAVOID.with(|e| e.borrow_mut().0 += 1);
-            //     let n = optimal.normal;
-            //     if optimal.depth > prediction.linear {
-            //         self.last_gjk_dir = Some(-n.unwrap());
-            //         self.reduce_manifolds_to_deepest_contact(ma, mb);
-
-            //         return false;
-            //     }
-            //     GJKResult::Projection(optimal, -n)
-            // } else {
-            //     contacts_internal::support_map_against_support_map_with_params(
-            //         ma,
-            //         cpa,
-            //         mb,
-            //         cpb,
-            //         prediction.linear,
-            //         &mut self.simplex,
-            //         self.last_gjk_dir,
-            //     )
-            // };
 
             let contact = contacts_internal::support_map_against_support_map_with_params(
                 ma,

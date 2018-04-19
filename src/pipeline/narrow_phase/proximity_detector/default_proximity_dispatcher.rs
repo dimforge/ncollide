@@ -1,6 +1,4 @@
-use std::marker::PhantomData;
-use math::{Isometry, Point};
-use na::{self, Real};
+use na::Real;
 use shape::{Ball, Plane, Shape};
 use pipeline::narrow_phase::proximity_detector::{BallBallProximityDetector,
                                                 CompositeShapeShapeProximityDetector,

@@ -1,6 +1,8 @@
 //! Traits and structure needed to cast rays.
 
-use na::{Point2, Real};
+#[cfg(feature = "dim3")]
+use na::Point2;
+use na::Real;
 use utils::IsometryOps;
 use math::{Isometry, Point, Vector};
 

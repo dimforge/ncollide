@@ -1,10 +1,8 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use num::{Bounded, Zero};
-use approx::ApproxEq;
+use num::Bounded;
 
 use alga::general::Real;
-use alga::linear::NormedSpace;
 use na::{self, Unit};
 
 use shape::SupportMap;
