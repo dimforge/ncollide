@@ -1,32 +1,27 @@
 use std::marker::PhantomData;
 use math::{Isometry, Point};
-use na;
+use na::{self, Real};
 use shape::{Ball, Plane, Shape};
-use query::algorithms::{JohnsonSimplex, VoronoiSimplex, VoronoiSimplex};
 use pipeline::narrow_phase::proximity_detector::{BallBallProximityDetector,
                                                 CompositeShapeShapeProximityDetector,
                                                 PlaneSupportMapProximityDetector, ProximityAlgorithm,
-                                                ProximityDispatcher, ShapeCompositeShapeProximityDetector,
+                                                ProximityDispatcher,
                                                 SupportMapPlaneProximityDetector,
                                                 SupportMapSupportMapProximityDetector};
 
 /// Proximity dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultProximityDispatcher<N> {
-    _point_type: PhantomData<P>,
-    _matrix_type: PhantomData<M>,
+pub struct DefaultProximityDispatcher {
 }
 
-impl<N> DefaultProximityDispatcher<N> {
+impl DefaultProximityDispatcher {
     /// Creates a new basic proximity dispatcher.
-    pub fn new() -> DefaultProximityDispatcher<N> {
+    pub fn new() -> DefaultProximityDispatcher {
         DefaultProximityDispatcher {
-            _point_type: PhantomData,
-            _matrix_type: PhantomData,
         }
     }
 }
 
-impl<N: Real> ProximityDispatcher<N> for DefaultProximityDispatcher<N> {
+impl<N: Real> ProximityDispatcher<N> for DefaultProximityDispatcher {
     fn get_proximity_algorithm(
         &self,
         a: &Shape<N>,
@@ -36,35 +31,20 @@ impl<N: Real> ProximityDispatcher<N> for DefaultProximityDispatcher<N> {
         let b_is_ball = b.is_shape::<Ball<N>>();
 
         if a_is_ball && b_is_ball {
-            Some(Box::new(BallBallProximityDetector::<N>::new()))
+            Some(Box::new(BallBallProximityDetector::new()))
         } else if a.is_shape::<Plane<N>>() && b.is_support_map() {
-            Some(Box::new(PlaneSupportMapProximityDetector::<N>::new()))
+            Some(Box::new(PlaneSupportMapProximityDetector::new()))
         } else if b.is_shape::<Plane<N>>() && a.is_support_map() {
-            Some(Box::new(SupportMapPlaneProximityDetector::<N>::new()))
+            Some(Box::new(SupportMapPlaneProximityDetector::new()))
         } else if a.is_support_map() && b.is_support_map() {
-            if na::dimension::<Vector<N>>() == 2 {
-                let simplex = VoronoiSimplex::new();
-                Some(Box::new(SupportMapSupportMapProximityDetector::new(
-                    simplex,
-                )))
-            } else if na::dimension::<Vector<N>>() == 3 {
-                let simplex = VoronoiSimplex::new();
-                Some(Box::new(SupportMapSupportMapProximityDetector::new(
-                    simplex,
-                )))
-            } else {
-                let simplex = JohnsonSimplex::new_w_tls();
-                Some(Box::new(SupportMapSupportMapProximityDetector::new(
-                    simplex,
-                )))
-            }
+            Some(Box::new(SupportMapSupportMapProximityDetector::new()))
         } else if a.is_composite_shape() {
             Some(Box::new(
-                CompositeShapeShapeProximityDetector::<N>::new(),
+                CompositeShapeShapeProximityDetector::<N>::new(false),
             ))
         } else if b.is_composite_shape() {
             Some(Box::new(
-                ShapeCompositeShapeProximityDetector::<N>::new(),
+                CompositeShapeShapeProximityDetector::<N>::new(true),
             ))
         } else {
             None

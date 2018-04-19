@@ -14,7 +14,7 @@ use query::{ray_internal, Ray};
 use math::{Isometry, Point, Vector};
 
 /// Results of the GJK algorithm.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GJKResult<N: Real> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
@@ -25,39 +25,6 @@ pub enum GJKResult<N: Real> {
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
     NoIntersection(Vector<N>),
 }
-
-// /// Computes the closest points between two convex shapes unsing the GJK algorithm.
-// ///
-// /// # Arguments:
-// /// * `g1`      - first shape.
-// /// * `g2`      - second shape.
-// /// * `simplex` - the simplex to be used by the GJK algorithm. It must be already initialized
-// ///               with at least one point on the shapes CSO. See `minkowski_sum::cso_support_point`
-// ///               to compute such point.
-// pub fn proximity<N, S, G1: ?Sized, G2: ?Sized>(
-//     m1: &Isometry<N>,
-//     g1: &G1,
-//     m2: &Isometry<N>,
-//     g2: &G2,
-//     max_dist: N,
-//     simplex: &mut S,
-// ) -> (Proximity, Vector<N>)
-// where
-//     N: Real,
-//     S: Simplex<AnnotatedPoint<P>>,
-//     G1: SupportMap<N>,
-//     G2: SupportMap<N>,
-// {
-//     let reflect2 = Reflection::new(g2);
-//     let cso = AnnotatedMinkowskiSum::new(m1, g1, m2, &reflect2);
-
-//     match project_origin_with_max_dist(&Isometry::identity(), &cso, max_dist, false, simplex) {
-//         GJKResult::NoIntersection(data) => (Proximity::Disjoint, data),
-//         GJKResult::Proximity(data) => (Proximity::WithinMargin, data),
-//         GJKResult::Intersection => (Proximity::Intersecting, na::zero()),
-//         GJKResult::Projection(..) => unreachable!(),
-//     }
-// }
 
 /// The absolute tolerence used by the GJK algorithm.
 pub fn eps_tol<N: Real>() -> N {

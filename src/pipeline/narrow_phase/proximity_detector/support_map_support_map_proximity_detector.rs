@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
-use na;
-use math::{Isometry, Point};
-use shape::{AnnotatedPoint, Shape};
-use query::algorithms::Simplex;
+use na::{self, Real};
+use math::{Isometry, Vector};
+use shape::Shape;
+use query::algorithms::VoronoiSimplex;
 use query::proximity_internal;
 use query::Proximity;
 use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
@@ -11,40 +11,27 @@ use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 ///
 /// It is based on the GJK algorithm.
 #[derive(Clone)]
-pub struct SupportMapSupportMapProximityDetector<N, S> {
-    simplex: S,
+pub struct SupportMapSupportMapProximityDetector<N: Real> {
+    simplex: VoronoiSimplex<N>,
     proximity: Proximity,
     sep_axis: Vector<N>,
-    pt_type: PhantomData<P>,  // FIXME: can we avoid this?
-    mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N, S> SupportMapSupportMapProximityDetector<N, S>
-where
-    N: Real,
-    S: Simplex<AnnotatedPoint<P>>,
-{
+impl<N: Real> SupportMapSupportMapProximityDetector<N> {
     /// Creates a new persistant proximity detector between two shapes with support mapping
     /// functions.
     ///
     /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: S) -> SupportMapSupportMapProximityDetector<N, S> {
+    pub fn new() -> SupportMapSupportMapProximityDetector<N> {
         SupportMapSupportMapProximityDetector {
-            simplex: simplex,
+            simplex: VoronoiSimplex::new(),
             proximity: Proximity::Disjoint,
             sep_axis: na::zero(),
-            pt_type: PhantomData,
-            mat_type: PhantomData,
         }
     }
 }
 
-impl<N, S> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N, S>
-where
-    N: Real,
-    M: Isometry<P>,
-    S: Simplex<AnnotatedPoint<P>>,
-{
+impl<N: Real> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> {
     #[inline]
     fn update(
         &mut self,

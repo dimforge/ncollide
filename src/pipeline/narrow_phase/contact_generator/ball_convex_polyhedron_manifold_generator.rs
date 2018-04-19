@@ -1,28 +1,25 @@
 use std::marker::PhantomData;
 use approx::ApproxEq;
 
-use na::Unit;
-use alga::linear::Translation;
+use na::{Unit, Real};
 use math::{Isometry, Point};
-use utils::IdAllocator;
+use utils::{IdAllocator, IsometryOps};
 use bounding_volume::PolyhedralCone;
 use shape::{Ball, FeatureId, Shape};
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between two balls.
-pub struct BallConvexPolyhedronManifoldGenerator<N> {
+pub struct BallConvexPolyhedronManifoldGenerator<N: Real> {
     flip: bool,
     contact_manifold: ContactManifold<N>,
-    mat_type: PhantomData<M>, // FIXME: can we avoid this?
 }
 
-impl<N> Clone for BallConvexPolyhedronManifoldGenerator<N> {
+impl<N: Real> Clone for BallConvexPolyhedronManifoldGenerator<N> {
     fn clone(&self) -> BallConvexPolyhedronManifoldGenerator<N> {
         BallConvexPolyhedronManifoldGenerator {
             flip: self.flip,
             contact_manifold: self.contact_manifold.clone(),
-            mat_type: PhantomData,
         }
     }
 }
@@ -34,7 +31,6 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
         BallConvexPolyhedronManifoldGenerator {
             flip,
             contact_manifold: ContactManifold::new(),
-            mat_type: PhantomData,
         }
     }
 
@@ -100,6 +96,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                                 kinematic.set_plane1(f2, local2, n2.unwrap_half_line())
                             }
                         }
+                        #[cfg(feature = "dim3")]
                         FeatureId::Edge { .. } => {
                             let edge = cp2.edge(f2);
                             let dir = Unit::new_normalize(edge.1 - edge.0);

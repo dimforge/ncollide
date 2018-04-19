@@ -5,25 +5,25 @@ pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, Proxim
 
 #[doc(inline)]
 pub use self::contact_generator::{BallBallManifoldGenerator,
-                                  //   BallConvexPolyhedronManifoldGenerator,
-                                  //   CompositeShapeShapeManifoldGenerator,
+                                  BallConvexPolyhedronManifoldGenerator,
+                                  CompositeShapeShapeManifoldGenerator,
                                   ContactAlgorithm,
                                   ContactDispatcher,
                                   ContactManifoldGenerator,
                                   ConvexPolyhedronConvexPolyhedronManifoldGenerator,
-                                  //   DefaultContactDispatcher,
+                                  DefaultContactDispatcher,
                                   PlaneBallManifoldGenerator,
                                   PlaneConvexPolyhedronManifoldGenerator};
 
 #[doc(inline)]
 pub use self::proximity_detector::{BallBallProximityDetector,
-                                   // CompositeShapeShapeProximityDetector,
-                                   // DefaultProximityDispatcher, PlaneSupportMapProximityDetector,
+                                   CompositeShapeShapeProximityDetector,
+                                   DefaultProximityDispatcher, PlaneSupportMapProximityDetector,
                                    ProximityAlgorithm,
                                    ProximityDetector,
                                    ProximityDispatcher,
-                                   // ShapeCompositeShapeProximityDetector,
-                                   SupportMapPlaneProximityDetector}; // SupportMapSupportMapProximityDetector
+                                   SupportMapPlaneProximityDetector,
+                                   SupportMapSupportMapProximityDetector};
 
 #[doc(hidden)]
 pub mod contact_generator;

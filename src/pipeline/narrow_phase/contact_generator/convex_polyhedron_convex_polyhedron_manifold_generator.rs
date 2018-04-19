@@ -55,11 +55,9 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
 impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     /// Creates a new persistant collision detector between two shapes with support mapping
     /// functions.
-    ///
-    /// It is initialized with a pre-created simplex.
-    pub fn new(simplex: VoronoiSimplex<N>) -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+    pub fn new() -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
-            simplex: simplex,
+            simplex: VoronoiSimplex::new(),
             last_gjk_dir: None,
             last_optimal_dir: None,
             contact_manifold: ContactManifold::new(),

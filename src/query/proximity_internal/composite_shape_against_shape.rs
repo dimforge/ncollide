@@ -1,17 +1,14 @@
-use std::marker::PhantomData;
-
-use alga::general::Id;
-use na;
+use na::{self, Real};
 
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use shape::{CompositeShape, Shape};
 use query::{PointQuery, Proximity};
 use query::proximity_internal;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_shape<N, G1: ?Sized>(
+pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -19,8 +16,6 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     margin: N,
 ) -> Proximity
 where
-    N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     assert!(
@@ -37,7 +32,7 @@ where
 }
 
 /// Proximity between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn shape_against_composite_shape<N, G2: ?Sized>(
+pub fn shape_against_composite_shape<N: Real, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
@@ -45,38 +40,32 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     margin: N,
 ) -> Proximity
 where
-    N: Real,
-    M: Isometry<P>,
     G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1, margin)
 }
 
-struct CompositeShapeAgainstAnyInterfCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyInterfCostFn<'a, N: 'a + Real, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
 
-    m1: &'a M,
+    m1: &'a Isometry<N>,
     g1: &'a G1,
-    m2: &'a M,
+    m2: &'a Isometry<N>,
     g2: &'a Shape<N>,
     margin: N,
 
     found_intersection: bool,
-
-    point_type: PhantomData<P>,
 }
 
-impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, N, G1>
+impl<'a, N: Real, G1: ?Sized> CompositeShapeAgainstAnyInterfCostFn<'a, N, G1>
 where
-    N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     pub fn new(
-        m1: &'a M,
+        m1: &'a Isometry<N>,
         g1: &'a G1,
-        m2: &'a M,
+        m2: &'a Isometry<N>,
         g2: &'a Shape<N>,
         margin: N,
     ) -> CompositeShapeAgainstAnyInterfCostFn<'a, N, G1> {
@@ -92,16 +81,13 @@ where
             g2: g2,
             margin: margin,
             found_intersection: false,
-            point_type: PhantomData,
         }
     }
 }
 
-impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
+impl<'a, N: Real, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyInterfCostFn<'a, N, G1>
 where
-    N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     type UserData = Proximity;

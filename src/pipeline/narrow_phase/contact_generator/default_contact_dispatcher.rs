@@ -1,34 +1,30 @@
 use std::marker::PhantomData;
-use na;
+use na::Real;
 use math::{Isometry, Point};
 use shape::{Ball, Plane, Shape};
-use query::algorithms::{VoronoiSimplex, VoronoiSimplex};
+use query::algorithms::VoronoiSimplex;
 use pipeline::narrow_phase::{BallBallManifoldGenerator,
                    BallConvexPolyhedronManifoldGenerator,
                    CompositeShapeShapeManifoldGenerator,
                    ContactAlgorithm,
-                   ContactDispatcher, // OneShotContactManifoldGenerator,
+                   ContactDispatcher,
                    ConvexPolyhedronConvexPolyhedronManifoldGenerator,
                    PlaneBallManifoldGenerator,
                    PlaneConvexPolyhedronManifoldGenerator};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultContactDispatcher<N> {
-    _point_type: PhantomData<P>,
-    _matrix_type: PhantomData<M>,
+pub struct DefaultContactDispatcher {
 }
 
-impl<N> DefaultContactDispatcher<N> {
+impl DefaultContactDispatcher {
     /// Creates a new basic collision dispatcher.
-    pub fn new() -> DefaultContactDispatcher<N> {
+    pub fn new() -> DefaultContactDispatcher {
         DefaultContactDispatcher {
-            _point_type: PhantomData,
-            _matrix_type: PhantomData,
         }
     }
 }
 
-impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher<N> {
+impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
     fn get_contact_algorithm(
         &self,
         a: &Shape<N>,
@@ -58,23 +54,8 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher<N> {
             let gen = BallConvexPolyhedronManifoldGenerator::<N>::new(true);
             Some(Box::new(gen))
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
-            match na::dimension::<Vector<N>>() {
-                2 => {
-                    let simplex = VoronoiSimplex::new();
-                    // let simplex = JohnsonSimplex::new_w_tls();
-
-                    let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);
-                    Some(Box::new(gen))
-                }
-                3 => {
-                    let simplex = VoronoiSimplex::new();
-                    // let simplex = JohnsonSimplex::new_w_tls();
-
-                    let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new(simplex);
-                    Some(Box::new(gen))
-                }
-                _ => unimplemented!(),
-            }
+            let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new();
+            Some(Box::new(gen))
         } else if a.is_composite_shape() {
             Some(Box::new(CompositeShapeShapeManifoldGenerator::<N>::new(
                 false,

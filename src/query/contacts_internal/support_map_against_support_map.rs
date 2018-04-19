@@ -62,7 +62,7 @@ where
     }
 
     let cpts = gjk::closest_points(m1, g1, m2, g2, prediction, true, simplex);
-    if let GJKResult::Intersection = cpts {
+    if cpts != GJKResult::Intersection {
         return cpts;
     }
 

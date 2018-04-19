@@ -56,7 +56,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// Adds a collision object to the world.
     pub fn add(
         &mut self,
-        position: M,
+        position: Isometry<N>,
         shape: ShapeHandle<N>,
         collision_groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
