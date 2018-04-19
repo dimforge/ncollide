@@ -18,10 +18,10 @@ use procedural::{IndexBuffer, TriMesh};
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: Real>(
-    mesh: TriMesh<Point3<N>>,
+    mesh: TriMesh<N>,
     error: N,
     min_components: usize,
-) -> (Vec<TriMesh<Point3<N>>>, Vec<Vec<usize>>) {
+) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>) {
     assert!(
         mesh.normals.is_some(),
         "Vertex normals are required to compute the convex decomposition."
@@ -162,7 +162,7 @@ pub fn hacd<N: Real>(
     (result, parts)
 }
 
-fn normalize<N: Real>(mesh: &mut TriMesh<Point3<N>>) -> (Point3<N>, N) {
+fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
     let diag = na::distance(&mins, &maxs);
     let center = na::center(&mins, &maxs);
@@ -174,7 +174,7 @@ fn normalize<N: Real>(mesh: &mut TriMesh<Point3<N>>) -> (Point3<N>, N) {
     (center, diag)
 }
 
-fn denormalize<N: Real>(mesh: &mut TriMesh<Point3<N>>, center: &Point3<N>, diag: N) {
+fn denormalize<N: Real>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
     mesh.translate_by(&Translation3::from_vector(center.coords));
 }
@@ -185,7 +185,7 @@ struct DualGraphVertex<N: Real> {
     ancestors: Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
     uancestors: Option<HashSet<usize>>,
     border: Option<HashSet<Vector2<usize>>>,
-    chull: Option<TriMesh<Point3<N>>>,
+    chull: Option<TriMesh<N>>,
     parts: Option<Vec<usize>>,
     timestamp: usize,
     concavity: N,
@@ -196,7 +196,7 @@ struct DualGraphVertex<N: Real> {
 impl<N: Real> DualGraphVertex<N> {
     pub fn new(
         ancestor: usize,
-        mesh: &TriMesh<Point3<N>>,
+        mesh: &TriMesh<N>,
         raymap: &HashMap<(u32, u32), usize>,
     ) -> DualGraphVertex<N> {
         let (idx, ns) = match mesh.indices {
@@ -672,7 +672,7 @@ fn compute_ray_bvt<N: Real>(rays: &[Ray<Point3<N>>]) -> BVT<usize, AABB<Point3<N
 }
 
 fn compute_rays<N: Real>(
-    mesh: &TriMesh<Point3<N>>,
+    mesh: &TriMesh<N>,
 ) -> (Vec<Ray<Point3<N>>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
@@ -718,7 +718,7 @@ fn compute_rays<N: Real>(
 }
 
 fn compute_dual_graph<N: Real>(
-    mesh: &TriMesh<Point3<N>>,
+    mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
 ) -> Vec<DualGraphVertex<N>> {
     // XXX Loss of determinism because of the randomized HashMap.

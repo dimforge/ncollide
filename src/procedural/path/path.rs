@@ -1,14 +1,16 @@
-use math::Point;
-use trimesh::TriMesh;
+use na::Real;
+
+use procedural::TriMesh;
+use math::{Point, Vector};
 
 /// A sample point and its associated tangent.
 pub enum PathSample<N: Real> {
     /// A point that starts a new path.
-    StartPoint(P, Vector<N>),
+    StartPoint(Point<N>, Vector<N>),
     /// A point that is inside of the path currently generated.
-    InnerPoint(P, Vector<N>),
+    InnerPoint(Point<N>, Vector<N>),
     /// A point that ends the path currently generated.
-    EndPoint(P, Vector<N>),
+    EndPoint(Point<N>, Vector<N>),
     /// Used when the sampler does not have any other points to generate.
     EndOfSample,
 }
@@ -16,7 +18,7 @@ pub enum PathSample<N: Real> {
 /// A curve sampler.
 pub trait CurveSampler<N: Real> {
     /// Returns the next sample point.
-    fn next(&mut self) -> PathSample<P>;
+    fn next(&mut self) -> PathSample<N>;
 }
 
 /// A pattern that is replicated along a path.
@@ -24,5 +26,5 @@ pub trait CurveSampler<N: Real> {
 /// It is responsible of the generation of the whole mesh.
 pub trait StrokePattern<N: Real> {
     /// Generates the mesh using this pattern and the curve sampled by `sampler`.
-    fn stroke<C: CurveSampler<P>>(&mut self, sampler: &mut C) -> TriMesh<P>;
+    fn stroke<C: CurveSampler<N>>(&mut self, sampler: &mut C) -> TriMesh<N>;
 }

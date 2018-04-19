@@ -23,7 +23,7 @@ fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
 }
 
 /// Computes the convex hull of a set of 3d points.
-pub fn convex_hull3<N: Real>(points: &[Point3<N>]) -> TriMesh<Point3<N>> {
+pub fn convex_hull3<N: Real>(points: &[Point3<N>]) -> TriMesh<N> {
     assert!(
         points.len() != 0,
         "Cannot compute the convex hull of an empty set of point."
@@ -151,10 +151,10 @@ pub fn convex_hull3<N: Real>(points: &[Point3<N>]) -> TriMesh<Point3<N>> {
 
 enum InitialMesh<N: Real> {
     Facets(Vec<TriangleFacet<N>>, Matrix3<N>),
-    ResultMesh(TriMesh<Point3<N>>),
+    ResultMesh(TriMesh<N>),
 }
 
-fn build_degenerate_mesh_point<N: Real>(point: Point3<N>) -> TriMesh<Point3<N>> {
+fn build_degenerate_mesh_point<N: Real>(point: Point3<N>) -> TriMesh<N> {
     let ta = Point3::new(0u32, 0, 0);
     let tb = Point3::new(0u32, 0, 0);
 
@@ -169,7 +169,7 @@ fn build_degenerate_mesh_point<N: Real>(point: Point3<N>) -> TriMesh<Point3<N>> 
 fn build_degenerate_mesh_segment<N: Real>(
     dir: &Vector3<N>,
     points: &[Point3<N>],
-) -> TriMesh<Point3<N>> {
+) -> TriMesh<N> {
     let a = utils::point_cloud_support_point(dir, points);
     let b = utils::point_cloud_support_point(&-*dir, points);
 

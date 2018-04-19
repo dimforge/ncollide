@@ -1,7 +1,6 @@
 use alga::general::Real;
 use na::{Point3, Vector3};
-use polyline::Polyline;
-use path::PolylineCompatibleCap;
+use procedural::path::PolylineCompatibleCap;
 
 /// A cap that renders nothing.
 pub struct NoCap;
@@ -18,7 +17,7 @@ impl<N: Real> PolylineCompatibleCap<N> for NoCap {
     fn gen_start_cap(
         &self,
         _: u32,
-        _: &Polyline<Point3<N>>,
+        _: &[Point3<N>],
         _: &Point3<N>,
         _: &Vector3<N>,
         _: bool,
@@ -30,7 +29,7 @@ impl<N: Real> PolylineCompatibleCap<N> for NoCap {
     fn gen_end_cap(
         &self,
         _: u32,
-        _: &Polyline<Point3<N>>,
+        _: &[Point3<N>],
         _: &Point3<N>,
         _: &Vector3<N>,
         _: bool,

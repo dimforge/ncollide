@@ -75,7 +75,7 @@ impl<N: Real> Triangulator<P> {
     }
 
     /// Returns the result of the triangulation.
-    pub fn to_trimesh(mut self) -> TriMesh<P> {
+    pub fn to_trimesh(mut self) -> TriMesh<N> {
         let mut idx = Vec::with_capacity(self.triangles.len());
 
         let _ = self.vertices.swap_remove(2);
@@ -155,7 +155,7 @@ impl<N: Real> Triangulator<P> {
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<N: Real>(pts: &[Point<N>]) -> TriMesh<P> {
+pub fn triangulate<N: Real>(pts: &[Point<N>]) -> TriMesh<N> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius = radius * na::convert(2.0);

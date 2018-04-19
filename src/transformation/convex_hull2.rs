@@ -1,13 +1,11 @@
 use std::marker::PhantomData;
 
 use alga::general::Real;
-use na::{Point2, Vector2};
-use na;
-use procedural::Polyline;
-use convex_hull_utils::{indexed_support_point_id, support_point_id};
+use na::{self, Point2, Vector2};
+use transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
 
 /// Computes the convex hull of a set of 2d points.
-pub fn convex_hull2<N: Real>(points: &[Point2<N>]) -> Polyline<Point2<N>> {
+pub fn convex_hull2<N: Real>(points: &[Point2<N>]) -> Vec<Point2<N>> {
     let idx = convex_hull2_idx(points);
     let mut pts = Vec::new();
 
@@ -15,7 +13,7 @@ pub fn convex_hull2<N: Real>(points: &[Point2<N>]) -> Polyline<Point2<N>> {
         pts.push(points[id].clone());
     }
 
-    Polyline::new(pts, None)
+    pts
 }
 
 /// Computes the convex hull of a set of 2d points and returns only the indices of the hull

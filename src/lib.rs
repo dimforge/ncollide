@@ -61,20 +61,24 @@ And various traits for collision detectors and broad phase collision detection.
 // pub use ncollide_procedural as procedural;
 // pub use ncollide_transformation as transformation;
 
-extern crate slab;
 extern crate alga;
+extern crate slab;
 #[macro_use]
 extern crate approx;
 extern crate nalgebra as na;
 extern crate num_traits as num;
 extern crate smallvec;
 
+pub use pipeline::{broad_phase, events, narrow_phase, world};
+
 pub mod utils;
 pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;
 pub mod query;
-pub mod pipeline;
+pub mod procedural;
+// pub mod transformation;
+mod pipeline;
 
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim3")]

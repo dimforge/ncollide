@@ -1,6 +1,6 @@
 use alga::linear::{Rotation, Translation};
-use na;
-use math::{Isometry, Point};
+use na::{self, Real};
+use math::{Isometry, Point, Vector};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
@@ -11,9 +11,9 @@ pub struct Polyline<N: Real> {
     normals: Option<Vec<Vector<N>>>,
 }
 
-impl<N: Real> Polyline<P> {
+impl<N: Real> Polyline<N> {
     /// Creates a new polyline.
-    pub fn new(coords: Vec<Point<N>>, normals: Option<Vec<Vector<N>>>) -> Polyline<P> {
+    pub fn new(coords: Vec<Point<N>>, normals: Option<Vec<Vector<N>>>) -> Polyline<N> {
         if let Some(ref ns) = normals {
             assert!(
                 coords.len() == ns.len(),
@@ -28,7 +28,7 @@ impl<N: Real> Polyline<P> {
     }
 }
 
-impl<N: Real> Polyline<P> {
+impl<N: Real> Polyline<N> {
     /// Moves the polyline data out of it.
     pub fn unwrap(self) -> (Vec<Point<N>>, Option<Vec<Vector<N>>>) {
         (self.coords, self.normals)
@@ -42,7 +42,7 @@ impl<N: Real> Polyline<P> {
 
     /// The mutable coordinates of this polyline vertices.
     #[inline]
-    pub fn coords_mut(&mut self) -> &mut [P] {
+    pub fn coords_mut(&mut self) -> &mut [Point<N>] {
         &mut self.coords[..]
     }
 
@@ -65,14 +65,14 @@ impl<N: Real> Polyline<P> {
     }
 
     /// Translates each vertex of this polyline.
-    pub fn translate_by<T: Translation<P>>(&mut self, t: &T) {
+    pub fn translate_by<T: Translation<Point<N>>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
             *c = t.transform_point(c);
         }
     }
 
     /// Rotates each vertex and normal of this polyline.
-    pub fn rotate_by<R: Rotation<P>>(&mut self, r: &R) {
+    pub fn rotate_by<R: Rotation<Point<N>>>(&mut self, r: &R) {
         for c in self.coords.iter_mut() {
             *c = r.transform_point(c);
         }
@@ -85,14 +85,14 @@ impl<N: Real> Polyline<P> {
     }
 
     /// Transforms each vertex and rotates each normal of this polyline.
-    pub fn transform_by<T: Isometry<P>>(&mut self, t: &T) {
+    pub fn transform_by(&mut self, t: &Isometry<N>) {
         for c in self.coords.iter_mut() {
-            *c = t.transform_point(c);
+            *c = t * *c;
         }
 
         for n in self.normals.iter_mut() {
             for n in n.iter_mut() {
-                *n = t.rotate_vector(n);
+                *n = t * &*n;
             }
         }
     }
@@ -106,10 +106,7 @@ impl<N: Real> Polyline<P> {
     }
 }
 
-impl<P> Polyline<P>
-where
-    N: Real,
-{
+impl<N: Real> Polyline<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {

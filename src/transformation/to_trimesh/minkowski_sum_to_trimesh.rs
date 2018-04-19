@@ -18,7 +18,7 @@ impl<'a, P, M1, G1, G2, A, B> ToTriMesh<P, (A, B)> for MinkowskiSum<'a, M1, G1, 
                                                 Mul<P, Output = P> +
                                                 Add<<Vector<N> as Outer>::OuterProductType, Output = <Vector<N> as Outer>::OuterProductType>
                                                 + Zero + Copy {
-    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<P> {
+    fn to_trimesh(&self, (a, b): (A, B)) -> TriMesh<N> {
         assert!(na::dimension::<P>() == 3);
 
         let poly1 = self.g1().to_trimesh(a);

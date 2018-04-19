@@ -1,9 +1,7 @@
 use alga::general::Real;
-use na::{Isometry3, Point3, Vector3};
-use na;
-use path::PolylineCompatibleCap;
-use polyline::Polyline;
-use utils;
+use na::{self, Isometry3, Point3, Vector3};
+use procedural::path::PolylineCompatibleCap;
+use procedural::utils;
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {
@@ -30,7 +28,7 @@ impl<N: Real> ArrowheadCap<N> {
     fn do_gen_cap(
         &self,
         attach_id: u32,
-        pattern: &Polyline<Point3<N>>,
+        pattern: &[Point3<N>],
         pt: &Point3<N>,
         dir: &Vector3<N>,
         closed: bool,
@@ -50,12 +48,11 @@ impl<N: Real> ArrowheadCap<N> {
         };
         let pointy_thing = *pt + *dir * front_dist_to_head;
         let start_id = coords.len() as u32;
-        let npts = pattern.coords().len() as u32;
+        let npts = pattern.len() as u32;
         let mut attach_id = attach_id;
 
         if !(self.radius_scale == na::convert(1.0)) || !back_dist_to_head.is_zero() {
-            let mut new_pattern = pattern.clone();
-            new_pattern.scale_by_scalar(&self.radius_scale);
+            let mut new_pattern: Vec<Point3<N>> = pattern.iter().map(|p| p * self.radius_scale).collect();
 
             // NOTE: this is done exactly the same on the PolylinePattern::stroke method.
             // Refactor?
@@ -77,9 +74,11 @@ impl<N: Real> ArrowheadCap<N> {
                 );
             }
 
-            new_pattern.transform_by(&transform);
+            for p in &mut new_pattern {
+                *p = transform * &*p
+            }
 
-            coords.extend(new_pattern.coords().into_iter());
+            coords.extend(new_pattern.into_iter());
 
             if closed {
                 utils::push_ring_indices(attach_id, start_id, npts, indices)
@@ -109,7 +108,7 @@ impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_end_cap(
         &self,
         attach_id: u32,
-        pattern: &Polyline<Point3<N>>,
+        pattern: &[Point3<N>],
         pt: &Point3<N>,
         dir: &Vector3<N>,
         closed: bool,
@@ -125,7 +124,7 @@ impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_start_cap(
         &self,
         attach_id: u32,
-        pattern: &Polyline<Point3<N>>,
+        pattern: &[Point3<N>],
         pt: &Point3<N>,
         dir: &Vector3<N>,
         closed: bool,

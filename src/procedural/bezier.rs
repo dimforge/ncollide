@@ -1,16 +1,14 @@
 use std::iter;
 use std::ptr;
-use na;
-use super::{Polyline, TriMesh};
+use na::{self, Real};
+#[cfg(feature = "dim3")]
+use super::TriMesh;
 use math::Point;
 
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<P>(control_points: &[Point<N>], t: N, cache: &mut Vec<Point<N>>) -> Point<N>
-where
-    N: Real,
-{
+pub fn bezier_curve_at<N: Real>(control_points: &[Point<N>], t: N, cache: &mut Vec<Point<N>>) -> Point<N> {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
         cache.extend(iter::repeat(Point::origin()).take(diff))
@@ -41,7 +39,7 @@ where
 
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_surface_at<P>(
+pub fn bezier_surface_at<N: Real>(
     control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
@@ -72,10 +70,7 @@ where
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<P>(control_points: &[Point<N>], nsubdivs: usize) -> Polyline<P>
-where
-    N: Real,
-{
+pub fn bezier_curve<N: Real>(control_points: &[Point<N>], nsubdivs: usize) -> Vec<Point<N>> {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache = Vec::new();
     let tstep = na::convert(1.0 / (nsubdivs as f64));
@@ -86,25 +81,24 @@ where
         t = t + tstep;
     }
 
-    // FIXME: normals
-
-    Polyline::new(coords, None)
+    coords
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier surface.
-pub fn bezier_surface<P>(
+#[cfg(feature = "dim3")]
+pub fn bezier_surface<N: Real>(
     control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
     usubdivs: usize,
     vsubdivs: usize,
-) -> TriMesh<P>
+) -> TriMesh<N>
 where
     N: Real,
 {
     assert!(nupoints * nvpoints == control_points.len());
 
-    let mut surface = super::unit_quad::<P>(usubdivs, vsubdivs);
+    let mut surface = super::unit_quad(usubdivs, vsubdivs);
 
     {
         let uvs = &surface.uvs.as_ref().unwrap()[..];

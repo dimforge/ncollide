@@ -7,5 +7,5 @@ pub trait ToTriMesh<N: Real, I> {
     ///
     /// # Arguments:
     /// * `i` - the discretization parameters.
-    fn to_trimesh(&self, i: I) -> TriMesh<P>;
+    fn to_trimesh(&self, i: I) -> TriMesh<N>;
 }

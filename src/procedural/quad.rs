@@ -1,7 +1,6 @@
-use na;
-use na::{Point2, Point3};
+use na::{self, Real, Point2, Point3};
 use super::{IndexBuffer, TriMesh};
-use math::Point;
+use math::{Point, Vector};
 
 /// Adds a double-sided quad to the scene.
 ///
@@ -16,17 +15,14 @@ use math::Point;
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<P>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
-where
-    N: Real,
-{
-    let mut quad = unit_quad::<P>(usubdivs, vsubdivs);
+pub fn quad<N: Real>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
+    let mut quad = unit_quad(usubdivs, vsubdivs);
 
-    let mut s = na::zero::<Vector<N>>();
+    let mut s = Vector::zeros();
     s[0] = width;
     s[1] = height;
 
-    for i in 2..na::dimension::<Vector<N>>() {
+    for i in 2..3 {
         s[i] = na::one();
     }
 
@@ -42,16 +38,13 @@ where
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<P>(vertices: &[Point<N>], nhpoints: usize, nvpoints: usize) -> TriMesh<P>
-where
-    N: Real,
-{
+pub fn quad_with_vertices<N: Real>(vertices: &[Point<N>], nhpoints: usize, nvpoints: usize) -> TriMesh<N> {
     assert!(
         nhpoints > 1 && nvpoints > 1,
         "The number of points must be at least 2 in each dimension."
     );
 
-    let mut res = unit_quad::<P>(nhpoints - 1, nvpoints - 1);
+    let mut res = unit_quad(nhpoints - 1, nvpoints - 1);
 
     for (dest, src) in res.coords.iter_mut().zip(vertices.iter()) {
         *dest = src.clone();
@@ -71,15 +64,12 @@ where
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn unit_quad<P>(usubdivs: usize, vsubdivs: usize) -> TriMesh<P>
-where
-    N: Real,
-{
+pub fn unit_quad<N: Real>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
     assert!(
         usubdivs > 0 && vsubdivs > 0,
         "The number of subdivisions cannot be zero"
     );
-    assert!(na::dimension::<Vector<N>>() >= 2);
+    assert!(3 >= 2);
 
     let wstep = na::one::<N>() / na::convert(usubdivs as f64);
     let hstep = na::one::<N>() / na::convert(vsubdivs as f64);
@@ -108,7 +98,7 @@ where
 
     // create the normals
     for _ in 0..(vsubdivs + 1) * (usubdivs + 1) {
-        let mut n = na::zero::<Vector<N>>();
+        let mut n = Vector::zeros();
         n[0] = na::one();
         normals.push(n)
     }

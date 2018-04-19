@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use alga::linear::{Rotation, Translation};
-use na::{Point2, Point3};
-use na;
+use na::{self, Point2, Point3, Real};
+use utils::AsBytes;
 use super::utils;
-use ncollide_utils::AsBytes;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
@@ -49,7 +48,7 @@ pub struct TriMesh<N: Real> {
     pub indices: IndexBuffer,
 }
 
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     /// Creates a new `TriMesh`.
     ///
     /// If no `indices` is provided, trivial, sequential indices are generated.
@@ -58,7 +57,7 @@ impl<N: Real> TriMesh<P> {
         normals: Option<Vec<Vector<N>>>,
         uvs: Option<Vec<Point2<N>>>,
         indices: Option<IndexBuffer>,
-    ) -> TriMesh<P> {
+    ) -> TriMesh<N> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(|| {
             IndexBuffer::Unified(
@@ -90,7 +89,7 @@ impl<N: Real> TriMesh<P> {
 
     /// Translates each vertex of this mesh.
     #[inline]
-    pub fn translate_by<T: Translation<P>>(&mut self, t: &T) {
+    pub fn translate_by<T: Translation<Point<N>>>(&mut self, t: &T) {
         for c in self.coords.iter_mut() {
             *c = t.transform_point(c);
         }
@@ -98,14 +97,14 @@ impl<N: Real> TriMesh<P> {
 
     /// Transforms each vertex and rotates each normal of this mesh.
     #[inline]
-    pub fn transform_by<T: Isometry<P>>(&mut self, t: &T) {
+    pub fn transform_by(&mut self, t: &Isometry<N>) {
         for c in self.coords.iter_mut() {
-            *c = t.transform_point(c);
+            *c = t * &*c;
         }
 
         for n in self.normals.iter_mut() {
             for n in n.iter_mut() {
-                *n = t.rotate_vector(n);
+                *n = t * &*n;
             }
         }
     }
@@ -141,23 +140,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real> TriMesh<P> {
-    /// Rotates each vertex and normal of this mesh.
-    #[inline]
-    pub fn rotate_by<T: Rotation<P>>(&mut self, t: &T) {
-        for c in self.coords.iter_mut() {
-            *c = t.transform_point(c);
-        }
-
-        for n in self.normals.iter_mut() {
-            for n in n.iter_mut() {
-                *n = t.transform_vector(n);
-            }
-        }
-    }
-}
-
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
     /// infered from the index buffer.
     #[inline]
@@ -195,7 +178,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by_scalar(&mut self, s: N) {
@@ -205,7 +188,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real> TriMesh<P> {
+impl<N: Real> TriMesh<N> {
     // FIXME: looks very similar to the `reformat` on obj.rs
     /// Force the mesh to use the same index for vertices, normals and uvs.
     ///
@@ -329,7 +312,7 @@ impl<N: Real> TriMesh<P> {
     }
 }
 
-impl<N: Real + AsBytes> TriMesh<P> {
+impl<N: Real + AsBytes> TriMesh<N> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.

@@ -10,7 +10,7 @@ pub fn capsule<N>(
     cylinder_height: &N,
     ntheta_subdiv: u32,
     nphi_subdiv: u32,
-) -> TriMesh<Point3<N>>
+) -> TriMesh<N>
 where
     N: Real,
 {

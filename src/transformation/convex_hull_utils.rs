@@ -1,8 +1,7 @@
 use num::Bounded;
 
-use alga::general::Id;
-use na;
-use math::Point;
+use na::{self, Real};
+use math::{Point, Vector, Isometry};
 use bounding_volume;
 
 /// Returns the index of the support point of a list of points.
@@ -46,7 +45,7 @@ pub fn indexed_support_point_id<N: Real>(
 }
 
 /// Scale and center the given set of point depending on their AABB.
-pub fn normalize<N: Real>(coords: &mut [P]) -> (P, N) {
+pub fn normalize<N: Real>(coords: &mut [Point<N>]) -> (Point<N>, N) {
     let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
     let diag = na::distance(&mins, &maxs);
     let center = na::center(&mins, &maxs);
@@ -59,7 +58,7 @@ pub fn normalize<N: Real>(coords: &mut [P]) -> (P, N) {
 }
 
 /// Scale and translates the given set of point.
-pub fn denormalize<N: Real>(coords: &mut [P], center: &P, diag: N) {
+pub fn denormalize<N: Real>(coords: &mut [Point<N>], center: &Point<N>, diag: N) {
     for c in coords.iter_mut() {
         *c = *c * diag + center.coords;
     }
