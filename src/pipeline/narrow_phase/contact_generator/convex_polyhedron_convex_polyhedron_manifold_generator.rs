@@ -303,7 +303,10 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                     let seg2 = (&self.clip_cache.poly2[i2], &self.clip_cache.poly2[j2]);
 
                     if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
-                        closest_points_internal::segment_against_segment_with_locations_nD(seg1, seg2) {
+                        closest_points_internal::segment_against_segment_with_locations_nD(
+                            seg1,
+                            seg2,
+                        ) {
                         let original1 =
                             Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
                         let original2 =
@@ -321,140 +324,6 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 }
             }
         }
-    }
-
-    fn try_optimal_contact<G1: ?Sized, G2: ?Sized>(
-        &mut self,
-        m1: &Isometry<N>,
-        g1: &G1,
-        m2: &Isometry<N>,
-        g2: &G2,
-    ) -> Option<Contact<N>>
-    where
-        G1: ConvexPolyhedron<N>,
-        G2: ConvexPolyhedron<N>,
-    {
-        if self.manifold1.vertices.len() == 0 || self.manifold2.vertices.len() == 0 {
-            return None;
-        }
-
-        self.manifold1.transform_by(m1);
-        self.manifold2.transform_by(m2);
-
-        let world1;
-        let world2;
-        let mut can_penetrate = true;
-        let mut f1 = self.manifold1.feature_id;
-        let mut f2 = self.manifold2.feature_id;
-
-        match (self.manifold1.feature_id, self.manifold2.feature_id) {
-            (FeatureId::Vertex(..), FeatureId::Vertex(..)) => {
-                world1 = self.manifold1.vertices[0];
-                world2 = self.manifold2.vertices[0];
-                can_penetrate = false;
-            }
-            #[cfg(feature = "dim3")]
-            (FeatureId::Vertex(..), FeatureId::Edge(..)) => {
-                let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
-                let pt1 = &self.manifold1.vertices[0];
-                let proj = seg2.project_point_with_location(&Isometry::identity(), pt1, false);
-
-                if let SegmentPointLocation::OnEdge(_) = proj.1 {
-                    can_penetrate = false;
-                    world1 = *pt1;
-                    world2 = proj.0.point;
-                } else {
-                    return None;
-                }
-            }
-            #[cfg(feature = "dim3")]
-            (FeatureId::Edge(..), FeatureId::Vertex(..)) => {
-                let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
-                let pt2 = &self.manifold2.vertices[0];
-                let proj = seg1.project_point_with_location(&Isometry::identity(), pt2, false);
-
-                if let SegmentPointLocation::OnEdge(_) = proj.1 {
-                    can_penetrate = false;
-                    world1 = proj.0.point;
-                    world2 = *pt2;
-                } else {
-                    return None;
-                }
-            }
-            (FeatureId::Vertex(..), FeatureId::Face(..)) => {
-                let pt1 = &self.manifold1.vertices[0];
-                if let Some(mut c) = self.manifold2.project_point(pt1) {
-                    world1 = c.world2;
-                    world2 = c.world1;
-                } else {
-                    return None;
-                }
-            }
-            (FeatureId::Face(..), FeatureId::Vertex(..)) => {
-                let pt2 = &self.manifold2.vertices[0];
-                if let Some(c) = self.manifold1.project_point(pt2) {
-                    world1 = c.world1;
-                    world2 = c.world2;
-                } else {
-                    return None;
-                }
-            }
-            #[cfg(feature = "dim3")]
-            (FeatureId::Edge(..), FeatureId::Edge(..)) => {
-                let seg1 = Segment::new(self.manifold1.vertices[0], self.manifold1.vertices[1]);
-                let seg2 = Segment::new(self.manifold2.vertices[0], self.manifold2.vertices[1]);
-                let locs = closest_points_internal::segment_against_segment_with_locations(
-                    &Isometry::identity(),
-                    &seg1,
-                    &Isometry::identity(),
-                    &seg2,
-                );
-                world1 = seg1.point_at(&locs.0);
-                world2 = seg2.point_at(&locs.1);
-
-                if let SegmentPointLocation::OnVertex(i) = locs.0 {
-                    f1 = self.manifold1.vertices_id[i];
-                    can_penetrate = false;
-                }
-
-                if let SegmentPointLocation::OnVertex(i) = locs.1 {
-                    f2 = self.manifold2.vertices_id[i];
-                    can_penetrate = false;
-                }
-            }
-            _ => {
-                return None;
-            }
-        }
-
-        let dir = world2 - world1;
-
-        if let Some(n1) = self.manifold1.normal {
-            let depth = na::dot(&dir, n1.as_ref());
-            return Some(Contact::new(world1, world2, n1, -depth));
-        } else if let Some(n2) = self.manifold2.normal {
-            let depth = na::dot(&dir, n2.as_ref());
-            return Some(Contact::new(world1, world2, -n2, depth));
-        } else if let Some((dir, dist)) = Unit::try_new_and_get(dir, N::default_epsilon()) {
-            // FIXME: don't always recompute the normal cones.
-            let normals1 = g1.normal_cone(f1);
-            let normals2 = g2.normal_cone(f2);
-
-            let local_dir1 = m1.inverse_transform_unit_vector(&dir);
-            let local_dir2 = m2.inverse_transform_unit_vector(&-dir);
-            // let deepest = self.contact_manifold.deepest_contact().unwrap();
-
-            if normals1.contains_dir(&local_dir1) && normals2.contains_dir(&local_dir2) {
-                return Some(Contact::new(world1, world2, dir, -dist));
-            } else if can_penetrate
-                && (normals1.polar_contains_dir(&local_dir1)
-                    || normals2.polar_contains_dir(&local_dir2))
-            {
-                return Some(Contact::new(world1, world2, -dir, dist));
-            }
-        }
-
-        return None;
     }
 }
 
@@ -490,15 +359,17 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                 self.last_gjk_dir,
             );
 
+            println!("Contact: {:?}", contact);
+
             // Generate a contact manifold.
             self.new_contacts.clear();
             self.manifold1.clear();
             self.manifold2.clear();
 
             match contact {
-                GJKResult::ClosestPoints(world1, world2, normal) => {
-                    let contact = Contact::new_wo_depth(world1, world2, normal);
-                    self.last_gjk_dir = Some(normal.unwrap());
+                GJKResult::ClosestPoints(world1, world2, dir) => {
+                    self.last_gjk_dir = Some(dir.unwrap());
+                    let contact = Contact::new_wo_depth(world1, world2, -dir);
 
                     if contact.depth > na::zero() {
                         cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);

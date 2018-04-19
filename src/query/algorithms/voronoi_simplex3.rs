@@ -33,7 +33,6 @@ impl<N: Real> VoronoiSimplex<N> {
     fn swap(&mut self, i1: usize, i2: usize) {
         self.vertices.swap(i1, i2);
         self.prev_vertices.swap(i1, i2);
-        self.prev_proj.swap(i1, i2);
     }
 }
 

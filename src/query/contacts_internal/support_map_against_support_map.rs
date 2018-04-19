@@ -20,8 +20,8 @@ where
 {
     let simplex = &mut VoronoiSimplex::new();
     match support_map_against_support_map_with_params(m1, g1, m2, g2, prediction, simplex, None) {
-        GJKResult::ClosestPoints(world1, world2, normal) => {
-            Some(Contact::new_wo_depth(world1, world2, normal))
+        GJKResult::ClosestPoints(world1, world2, dir21) => {
+            Some(Contact::new_wo_depth(world1, world2, -dir21))
         }
         GJKResult::NoIntersection(_) => None,
         GJKResult::Intersection => unreachable!(),
@@ -61,13 +61,15 @@ where
 
     let cpts = gjk::closest_points(m1, g1, m2, g2, prediction, true, simplex);
     if cpts != GJKResult::Intersection {
+        println!("GJK found closest.");
         return cpts;
     }
 
     // The point is inside of the CSO: use the fallback algorithm
     let mut epa = EPA::new();
     if let Some((p1, p2, n)) = epa.closest_points(m1, g1, m2, g2, simplex) {
-        return GJKResult::ClosestPoints(p1, p2, n);
+        println!("EPA found closest.");
+        return GJKResult::ClosestPoints(p1, p2, -n);
     }
 
     // Everything failed
