@@ -59,7 +59,7 @@ impl<N: Real> ConvexPolyface<N> {
 
     /// The vertices of this convex polygonal face.
     pub fn vertices(&self) -> &[Point<N>] {
-        &self.vertices[..]
+        &self.vertices[..self.nvertices]
     }
 
     /// Sets the outward normal of this convex polygonal face.
@@ -77,7 +77,7 @@ impl<N: Real> ConvexPolyface<N> {
             let dpt = *pt - self.vertices[0];
             let dot = dir.dot(&dpt);
 
-            if dot < N::zero() || dot * dot > dir.norm_squared() * dpt.norm_squared() {
+            if dot < N::zero() || dot * dot > dir.norm_squared() {
                 None
             } else {
                 let dist = n.dot(&dpt);

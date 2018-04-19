@@ -89,7 +89,7 @@ impl<N: Real> Segment<N> {
             SegmentPointLocation::OnVertex(0) => self.a,
             SegmentPointLocation::OnVertex(1) => self.b,
             SegmentPointLocation::OnEdge(bcoords) => {
-                self.a * bcoords[1] + self.b.coords * bcoords[0]
+                self.a * bcoords[0] + self.b.coords * bcoords[1]
             }
             _ => unreachable!(),
         }

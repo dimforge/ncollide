@@ -123,7 +123,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     fn clip_polyfaces(&mut self, prediction: &ContactPrediction<N>, normal: Unit<Vector<N>>) {
         #[cfg(feature = "dim2")]
         {
-            if self.manifold1.vertices.len() <= 1 || self.manifold2.vertices.len() <= 1 {
+            if self.manifold1.nvertices <= 1 || self.manifold2.nvertices <= 1 {
                 return;
             }
             // In 2D we always end up with two points.
@@ -359,8 +359,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                 self.last_gjk_dir,
             );
 
-            println!("Contact: {:?}", contact);
-
             // Generate a contact manifold.
             self.new_contacts.clear();
             self.manifold1.clear();
@@ -388,6 +386,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                             prediction.angular2,
                             &mut self.manifold2,
                         );
+                        
                         self.clip_polyfaces(prediction, contact.normal);
                     }
 
@@ -404,7 +403,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
             }
 
             self.save_new_contacts_as_contact_manifold(ma, cpa, mb, cpb, ids);
-            // self.reduce_manifolds_to_deepest_contact(ma, mb);
 
             true
         } else {

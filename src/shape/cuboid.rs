@@ -420,7 +420,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
                 PolyhedralCone::Span([Unit::new_unchecked(dir1), Unit::new_unchecked(dir2)])            
             }
-            _ => panic!("Invalid feature ID.")
+            _ => panic!("Invalid feature ID {:?}.", feature)
         }
     }
     

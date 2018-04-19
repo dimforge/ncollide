@@ -218,7 +218,7 @@ impl<N: Real> EPA<N> {
         /*
          * Initialization.
          */
-        for i in 0..simplex.dimension() + 1 {
+        for i in 0..=simplex.dimension() {
             self.vertices.push(*simplex.point(i));
         }
 

@@ -61,15 +61,14 @@ where
 
     let cpts = gjk::closest_points(m1, g1, m2, g2, prediction, true, simplex);
     if cpts != GJKResult::Intersection {
-        println!("GJK found closest.");
         return cpts;
     }
 
     // The point is inside of the CSO: use the fallback algorithm
     let mut epa = EPA::new();
     if let Some((p1, p2, n)) = epa.closest_points(m1, g1, m2, g2, simplex) {
-        println!("EPA found closest.");
-        return GJKResult::ClosestPoints(p1, p2, -n);
+        // FIXME: the n here, 
+        return GJKResult::ClosestPoints(p1, p2, -n <- fixme);
     }
 
     // Everything failed
