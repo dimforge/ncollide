@@ -5,8 +5,8 @@ use num::Bounded;
 use alga::general::Real;
 use na::{self, Unit};
 
-use shape::SupportMap;
-use query::algorithms::{CSOPoint, simplex::Simplex};
+use shape::{ConstantOrigin, SupportMap};
+use query::algorithms::{CSOPoint, VoronoiSimplex};
 // use query::Proximity;
 use query::{ray_internal, Ray};
 use math::{Isometry, Point, Vector};
@@ -18,7 +18,7 @@ pub enum GJKResult<N: Real> {
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
     ClosestPoints(Point<N>, Point<N>, Unit<Vector<N>>),
-    /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
+    /// Result of the GJK algorithm when the origin is too close to the polytope but not inside of it.
     Proximity(Unit<Vector<N>>),
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
     NoIntersection(Unit<Vector<N>>),
@@ -28,6 +28,26 @@ pub enum GJKResult<N: Real> {
 pub fn eps_tol<N: Real>() -> N {
     let _eps = N::default_epsilon();
     _eps * na::convert(100.0f64)
+}
+
+pub fn project_origin<N, G: ?Sized>(m: &Isometry<N>, g: &G, simplex: &mut VoronoiSimplex<N>) -> Option<Point<N>>
+where
+    N: Real,
+    G: SupportMap<N>,
+{
+    match closest_points(
+        m,
+        g,
+        &Isometry::identity(),
+        &ConstantOrigin,
+        N::max_value(),
+        true,
+        simplex,
+    ) {
+        GJKResult::Intersection => None,
+        GJKResult::ClosestPoints(p, _, _) => Some(p),
+        _ => unreachable!(),
+    }
 }
 
 /*
@@ -45,18 +65,17 @@ pub fn eps_tol<N: Real>() -> N {
 /// `GJKResult::Proximity(sep_axis)` where `sep_axis` is a separating axis. If `false` the gjk will
 /// compute the exact distance and return `GJKResult::Projection(point)` if the origin is closer
 /// than `max_dist` but not inside `shape`.
-pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
+pub fn closest_points<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
     g2: &G2,
     max_dist: N,
     exact_dist: bool,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
 ) -> GJKResult<N>
 where
     N: Real,
-    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -65,11 +84,7 @@ where
     let _eps_rel: N = _eps_tol.sqrt();
     let _dimension = na::dimension::<Vector<N>>();
 
-    fn result<N, S>(simplex: &S, prev: bool) -> (Point<N>, Point<N>)
-    where
-        N: Real,
-        S: Simplex<N>,
-    {
+    fn result<N: Real>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
         let mut res = (Point::origin(), Point::origin());
         if prev {
             for i in 0..=simplex.prev_dimension() {
@@ -115,7 +130,6 @@ where
                 let (p1, p2) = result(simplex, true);
                 return GJKResult::ClosestPoints(p1, p2, old_dir); // upper bounds inconsistencies
             } else {
-                // NOTE: previous implementation used old_proj here.
                 return GJKResult::Proximity(old_dir);
             }
         }
@@ -128,7 +142,6 @@ where
         if min_bound > max_dist {
             return GJKResult::NoIntersection(dir);
         } else if !exact_dist && min_bound > na::zero() {
-            // NOTE: previous implementation used old_proj here.
             return GJKResult::Proximity(old_dir);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
@@ -154,7 +167,7 @@ where
         if simplex.dimension() == _dimension {
             if min_bound >= _eps_tol {
                 if exact_dist {
-                    let (p1, p2) = result(simplex, false);
+                    let (p1, p2) = result(simplex, true);
                     return GJKResult::ClosestPoints(p1, p2, old_dir);
                 } else {
                     // NOTE: previous implementation used old_proj here.
@@ -173,15 +186,14 @@ where
 }
 
 /// Casts a ray on a support map using the GJK algorithm.
-pub fn cast_ray<N, S, G: ?Sized>(
+pub fn cast_ray<N, G: ?Sized>(
     m: &Isometry<N>,
     shape: &G,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
     ray: &Ray<N>,
 ) -> Option<(N, Vector<N>)>
 where
     N: Real,
-    S: Simplex<N>,
     G: SupportMap<N>,
 {
     let mut ltoi: N = na::zero();

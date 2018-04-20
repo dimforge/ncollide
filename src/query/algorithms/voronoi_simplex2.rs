@@ -1,6 +1,6 @@
 use math::{Isometry, Point};
 use na::{self, Real};
-use query::algorithms::{CSOPoint, simplex::Simplex};
+use query::algorithms::CSOPoint;
 use query::{PointQuery, PointQueryWithLocation};
 use shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
@@ -29,21 +29,18 @@ impl<N: Real> VoronoiSimplex<N> {
         }
     }
 
-    fn swap(&mut self, i1: usize, i2: usize) {
+    pub fn swap(&mut self, i1: usize, i2: usize) {
         self.vertices.swap(i1, i2);
         self.prev_vertices.swap(i1, i2);
     }
-}
 
-/// Trait of a simplex usable by the GJK algorithm.
-impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
-    fn reset(&mut self, pt: CSOPoint<N>) {
+    pub fn reset(&mut self, pt: CSOPoint<N>) {
         self.prev_dim = 0;
         self.dim = 0;
         self.vertices[0] = pt;
     }
 
-    fn add_point(&mut self, pt: CSOPoint<N>) -> bool {
+    pub fn add_point(&mut self, pt: CSOPoint<N>) -> bool {
         self.prev_dim = self.dim;
         self.prev_proj = self.proj;
         self.prev_vertices = [0, 1, 2];
@@ -59,27 +56,27 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         return true;
     }
 
-    fn proj_coord(&self, i: usize) -> N {
+    pub fn proj_coord(&self, i: usize) -> N {
         assert!(i <= self.dim, "Index out of bounds.");
         self.proj[i]
     }
 
-    fn point(&self, i: usize) -> &CSOPoint<N> {
+    pub fn point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.dim, "Index out of bounds.");
         &self.vertices[i]
     }
 
-    fn prev_proj_coord(&self, i: usize) -> N {
-        assert!(i <= self.dim, "Index out of bounds.");
+    pub fn prev_proj_coord(&self, i: usize) -> N {
+        assert!(i <= self.prev_dim, "Index out of bounds.");
         self.prev_proj[i]
     }
 
-    fn prev_point(&self, i: usize) -> &CSOPoint<N> {
+    pub fn prev_point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.prev_dim, "Index out of bounds.");
         &self.vertices[self.prev_vertices[i]]
     }
 
-    fn project_origin_and_reduce(&mut self) -> Point<N> {
+    pub fn project_origin_and_reduce(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.proj[0] = N::one();
             self.vertices[0].point
@@ -147,7 +144,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         }
     }
 
-    fn project_origin(&mut self) -> Point<N> {
+    pub fn project_origin(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.vertices[0].point
         } else if self.dim == 1 {
@@ -166,7 +163,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         }
     }
 
-    fn contains_point(&self, pt: &Point<N>) -> bool {
+    pub fn contains_point(&self, pt: &Point<N>) -> bool {
         for i in 0..self.dim + 1 {
             if self.vertices[i].point == *pt {
                 return true;
@@ -176,15 +173,15 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         false
     }
 
-    fn dimension(&self) -> usize {
+    pub fn dimension(&self) -> usize {
         self.dim
     }
 
-    fn prev_dimension(&self) -> usize {
+    pub fn prev_dimension(&self) -> usize {
         self.prev_dim
     }
 
-    fn max_sq_len(&self) -> N {
+    pub fn max_sq_len(&self) -> N {
         let mut max_sq_len = na::zero();
 
         for i in 0..self.dim + 1 {
@@ -198,7 +195,7 @@ impl<N: Real> Simplex<N> for VoronoiSimplex<N> {
         max_sq_len
     }
 
-    fn modify_pnts(&mut self, f: &Fn(&mut CSOPoint<N>)) {
+    pub fn modify_pnts(&mut self, f: &Fn(&mut CSOPoint<N>)) {
         for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
         }

@@ -1,6 +1,6 @@
 use na::{self, Real};
 
-use query::algorithms::{gjk, CSOPoint, Simplex, VoronoiSimplex};
+use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use query::{Ray, RayCast, RayIntersection};
 use shape::{Capsule, Segment, SupportMap};
 #[cfg(feature = "dim2")]
@@ -10,16 +10,15 @@ use shape::{Cone, ConvexHull, Cylinder};
 use math::Isometry;
 
 /// Cast a ray on a shape using the GJK algorithm.
-pub fn implicit_toi_and_normal_with_ray<N, S, G: ?Sized>(
+pub fn implicit_toi_and_normal_with_ray<N, G: ?Sized>(
     m: &Isometry<N>,
     shape: &G,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
     ray: &Ray<N>,
     solid: bool,
 ) -> Option<RayIntersection<N>>
 where
     N: Real,
-    S: Simplex<N>,
     G: SupportMap<N>,
 {
     let inter = gjk::cast_ray(m, shape, simplex, ray);

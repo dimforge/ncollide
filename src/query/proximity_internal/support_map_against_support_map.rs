@@ -2,7 +2,7 @@ use na::{self, Real, Unit};
 
 use shape::SupportMap;
 use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::{Simplex, VoronoiSimplex};
+use query::algorithms::VoronoiSimplex;
 use query::Proximity;
 use math::{Isometry, Vector};
 

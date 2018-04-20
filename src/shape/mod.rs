@@ -1,5 +1,6 @@
 //! Collision shapes supported by ncollide.
 
+pub(crate) use self::constant_origin::ConstantOrigin;
 pub use self::ball::Ball;
 pub use self::plane::Plane;
 pub use self::cuboid::Cuboid;
@@ -35,6 +36,7 @@ pub use self::convex_polyhedron::{ConvexPolyhedron, FeatureId};
 #[doc(inline)]
 pub use self::shape::{Shape, ShapeHandle};
 
+mod constant_origin;
 #[doc(hidden)]
 pub mod composite_shape;
 #[doc(hidden)]

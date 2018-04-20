@@ -4,7 +4,8 @@ pub use self::triangle::{circumcircle, is_point_in_triangle, triangle_area, tria
                         triangle_perimeter};
 #[cfg(feature = "dim3")]
 pub use self::triangle::is_affinely_dependent_triangle;
-// pub use tetrahedron::{tetrahedron_center, tetrahedron_signed_volume, tetrahedron_volume};
+#[cfg(feature = "dim3")]
+pub use self::tetrahedron::{tetrahedron_center, tetrahedron_signed_volume, tetrahedron_volume};
 #[cfg(feature = "dim3")]
 pub use self::cleanup::remove_unused_points;
 // pub use derivatives::{binom, dcos, dsin};
@@ -29,7 +30,8 @@ pub use self::deterministic_state::DeterministicState;
 // pub mod data;
 mod center;
 // // mod project_homogeneous;
-// mod tetrahedron;
+#[cfg(feature = "dim3")]
+mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod cleanup;

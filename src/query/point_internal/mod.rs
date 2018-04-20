@@ -12,7 +12,7 @@ mod point_cuboid;
 mod point_capsule;
 mod point_aabb;
 mod point_bounding_sphere;
-// mod point_support_map;
+mod point_support_map;
 mod point_segment;
 mod point_triangle;
 #[cfg(feature = "dim3")]

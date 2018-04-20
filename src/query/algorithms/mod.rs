@@ -5,7 +5,6 @@ pub use self::cso_point::CSOPoint;
 pub use self::epa2::EPA;
 #[cfg(feature = "dim3")]
 pub use self::epa3::EPA;
-pub use self::simplex::Simplex;
 #[cfg(feature = "dim2")]
 pub use self::voronoi_simplex2::VoronoiSimplex;
 #[cfg(feature = "dim3")]
@@ -17,7 +16,6 @@ pub mod epa2;
 #[cfg(feature = "dim3")]
 pub mod epa3;
 pub mod gjk;
-mod simplex;
 #[cfg(feature = "dim2")]
 mod voronoi_simplex2;
 #[cfg(feature = "dim3")]

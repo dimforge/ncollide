@@ -288,7 +288,7 @@ impl<N: Real> ConvexHull<N> {
         if num_valid_vertices + faces.len() - num_valid_edges != 2 {
             None
         } else {
-            Some(ConvexHull {
+            let res = ConvexHull {
                 points,
                 vertices,
                 faces,
@@ -297,7 +297,24 @@ impl<N: Real> ConvexHull<N> {
                 edges_adj_to_vertex,
                 edges_adj_to_face,
                 vertices_adj_to_face,
-            })
+            };
+
+            // FIXME: for debug.
+            res.check_geometry();
+
+            Some(res)
+        }
+    }
+
+    #[inline]
+    pub fn check_geometry(&self) {
+        for face in &self.faces {
+            let p0 = self.points[self.vertices_adj_to_face[face.first_vertex_or_edge]];
+
+            for v in &self.points {
+                assert!((v - p0).dot(face.normal.as_ref()) <= N::default_epsilon());
+
+            }
         }
     }
 

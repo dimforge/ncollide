@@ -1,130 +1,105 @@
 use approx::ApproxEq;
-use alga::linear::Translation;
-use na::{self, Unit};
+use na::{self, Real, Unit};
 
-use query::algorithms::{gjk, minkowski_sampling, EPA, EPA, JohnsonSimplex, Simplex,
-                        VoronoiSimplex, VoronoiSimplex};
+use query::algorithms::{gjk, VoronoiSimplex, EPA, CSOPoint};
 use query::{PointProjection, PointQuery};
-use shape::{Capsule, Cone, ConvexHull, ConvexPolygon, ConvexPolyhedron, Cylinder, FeatureId,
-            SupportMap};
-use math::{Isometry, Point};
+use utils::IsometryOps;
+use shape::{ConvexPolyhedron, FeatureId, SupportMap, ConstantOrigin};
+#[cfg(feature = "dim3")]
+use shape::{Capsule, Cone, ConvexHull, Cylinder};
+#[cfg(feature = "dim2")]
+use shape::ConvexPolygon;
+use math::{Isometry, Point, Translation, Vector};
 
 /// Projects a point on a shape using the GJK algorithm.
-pub fn support_map_point_projection<N, S, G>(
+pub fn support_map_point_projection<N, G>(
     m: &Isometry<N>,
     shape: &G,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
     point: &Point<N>,
     solid: bool,
 ) -> PointProjection<N>
 where
     N: Real,
-    M: Isometry<P>,
-    S: Simplex<N>,
     G: SupportMap<N>,
 {
-    let m = m.append_translation(&Isometry<N>::Translation::from_vector(-point.coords).unwrap());
+    let id = Isometry::identity();
+    let m = Translation::from_vector(-point.coords) * m;
 
-    let support_point = shape.support_point(&m, &-point.coords);
+    let dir =
+        Unit::try_new(-m.translation.vector, N::default_epsilon()).unwrap_or(Vector::x_axis());
+    let support_point = CSOPoint::from_shapes(&m, shape, &id, &ConstantOrigin, &dir);
 
     simplex.reset(support_point);
 
-    match gjk::project_origin(&m, shape, simplex) {
-        Some(p) => PointProjection::new(false, p + point.coords),
-        None => {
-            if !solid {
-                let dim = na::dimension::<Vector<N>>();
-                if dim == 2 {
-                    let mut EPA = EPA::new();
-                    if let Some((pt, _)) = EPA.project_origin(&m, shape, simplex) {
-                        return PointProjection::new(true, pt + point.coords);
-                    }
-                } else if dim == 3 {
-                    let mut EPA = EPA::new();
-                    if let Some((pt, _)) = EPA.project_origin(&m, shape, simplex) {
-                        return PointProjection::new(true, pt + point.coords);
-                    }
-                }
+    if let Some(proj) = gjk::project_origin(&m, shape, simplex) {
+        PointProjection::new(false, proj + point.coords)
+    } else if solid {
+        PointProjection::new(true, *point)
+    } else {
+        let mut epa = EPA::new();
+        if let Some(pt) = epa.project_origin(&m, shape, simplex) {
+            return PointProjection::new(true, pt + point.coords);
+        } else {
+            // return match minkowski_sampling::project_origin(&m, shape, simplex) {
+            //     Some(p) => PointProjection::new(true, p + point.coords),
+            //     None => PointProjection::new(true, *point),
+            // };
 
-                return match minkowski_sampling::project_origin(&m, shape, simplex) {
-                    Some(p) => PointProjection::new(true, p + point.coords),
-                    None => PointProjection::new(true, *point),
-                };
-            } else {
-                PointProjection::new(true, *point)
-            }
+            //// All failed.
+            PointProjection::new(true, *point)
         }
     }
 }
 
+#[cfg(feature = "dim3")]
 impl<N: Real> PointQuery<N> for Cylinder<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
-        if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else {
-            support_map_point_projection(
-                m,
-                self,
-                &mut JohnsonSimplex::<P>::new_w_tls(),
-                point,
-                solid,
-            )
-        }
+        support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        point: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
 
+#[cfg(feature = "dim3")]
 impl<N: Real> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
-        if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else {
-            support_map_point_projection(
-                m,
-                self,
-                &mut JohnsonSimplex::<P>::new_w_tls(),
-                point,
-                solid,
-            )
-        }
+        support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
+
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        point: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
 
+#[cfg(feature = "dim3")]
 impl<N: Real> PointQuery<N> for ConvexHull<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
-        if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else {
-            support_map_point_projection(
-                m,
-                self,
-                &mut JohnsonSimplex::<P>::new_w_tls(),
-                point,
-                solid,
-            )
-        }
+        support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        point: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {
@@ -142,26 +117,19 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
     }
 }
 
-impl<N: Real> PointQuery<N> for ConvexPolygon<P> {
+#[cfg(feature = "dim2")]
+impl<N: Real> PointQuery<N> for ConvexPolygon<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
-        if na::dimension::<Vector<N>>() == 2 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else if na::dimension::<Vector<N>>() == 3 {
-            support_map_point_projection(m, self, &mut VoronoiSimplex::<P>::new(), point, solid)
-        } else {
-            support_map_point_projection(
-                m,
-                self,
-                &mut JohnsonSimplex::<P>::new_w_tls(),
-                point,
-                solid,
-            )
-        }
+        support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        point: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {
@@ -171,7 +139,7 @@ impl<N: Real> PointQuery<N> for ConvexPolygon<P> {
         };
 
         if let Some(local_dir) = Unit::try_new(local_dir, N::default_epsilon()) {
-            let feature = ConvexPolyhedron::<N>::support_feature_id_toward(self, &local_dir);
+            let feature = self.support_feature_id_toward(&local_dir);
             (proj, feature)
         } else {
             (proj, FeatureId::Unknown)

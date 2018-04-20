@@ -8,9 +8,8 @@ use na::{self, Real, Unit};
 
 use math::{Isometry, Point, Vector};
 use query::PointQueryWithLocation;
-use query::algorithms::simplex::Simplex;
-use query::algorithms::{gjk, CSOPoint};
-use shape::{SupportMap, Triangle, TrianglePointLocation};
+use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use shape::{SupportMap, Triangle, TrianglePointLocation, ConstantOrigin};
 use utils;
 
 #[derive(Copy, Clone, PartialEq)]
@@ -193,20 +192,37 @@ impl<N: Real> EPA<N> {
         self.silhouette.clear();
     }
 
+    pub fn project_origin<G: ?Sized>(
+        &mut self,
+        m: &Isometry<N>,
+        g: &G,
+        simplex: &VoronoiSimplex<N>,
+    ) -> Option<Point<N>>
+    where
+        G: SupportMap<N>,
+    {
+        self.closest_points(
+            m,
+            g,
+            &Isometry::identity(),
+            &ConstantOrigin,
+            simplex,
+        ).map(|(p, _, _)| p)
+    }
+
     /// Projects the origin on a shape unsing the EPA algorithm.
     ///
     /// The origin is assumed to be located inside of the shape.
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
-    pub fn closest_points<S, G1: ?Sized, G2: ?Sized>(
+    pub fn closest_points<G1: ?Sized, G2: ?Sized>(
         &mut self,
         m1: &Isometry<N>,
         g1: &G1,
         m2: &Isometry<N>,
         g2: &G2,
-        simplex: &S,
+        simplex: &VoronoiSimplex<N>,
     ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
     where
-        S: Simplex<N>,
         G1: SupportMap<N>,
         G2: SupportMap<N>,
     {

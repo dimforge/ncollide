@@ -2,7 +2,7 @@ use math::{Isometry, Vector};
 use na::{self, Real, Unit};
 use query::Contact;
 use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::{Simplex, VoronoiSimplex, EPA};
+use query::algorithms::{VoronoiSimplex, EPA};
 use shape::SupportMap;
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
@@ -35,18 +35,17 @@ where
 /// The vector-typed result is the vector that should be passed as `init` for
 /// subsequent executions of the algorithm. It is also the contact
 /// normal (that points toward the outside of the first solid).
-pub fn support_map_against_support_map_with_params<N, S, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
     g2: &G2,
     prediction: N,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
     init_dir: Option<Unit<Vector<N>>>,
 ) -> GJKResult<N>
 where
     N: Real,
-    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

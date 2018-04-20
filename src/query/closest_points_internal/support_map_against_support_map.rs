@@ -2,7 +2,7 @@ use math::{Isometry, Vector};
 use na::{Real, Unit};
 use query::ClosestPoints;
 use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::{Simplex, VoronoiSimplex};
+use query::algorithms::VoronoiSimplex;
 use shape::SupportMap;
 
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
@@ -37,18 +37,17 @@ where
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 ///
 /// This allows a more fine grained control other the underlying GJK algorigtm.
-pub fn support_map_against_support_map_with_params<N, S, G1: ?Sized, G2: ?Sized>(
+pub fn support_map_against_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
     g2: &G2,
     prediction: N,
-    simplex: &mut S,
+    simplex: &mut VoronoiSimplex<N>,
     init_dir: Option<Vector<N>>,
 ) -> GJKResult<N>
 where
     N: Real,
-    S: Simplex<N>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
