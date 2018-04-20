@@ -19,5 +19,6 @@ mod ray_support_map;
 // mod ray_triangle;
 mod ray_compound;
 // mod ray_mesh;
+mod ray_polyline;
 mod ray_shape;
 mod ray_bvt;

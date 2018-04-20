@@ -2,7 +2,7 @@ use na::Real;
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
 use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Segment, Shape,
-            SupportMap, Triangle};
+            SupportMap, Triangle, Polyline};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
@@ -152,10 +152,10 @@ impl<N: Real> Shape<N> for Compound<N> {
 //     impl_as_composite_shape!();
 // }
 
-// impl<N: Real> Shape<N> for Polyline<N> {
-//     impl_shape_common!();
-//     impl_as_composite_shape!();
-// }
+impl<N: Real> Shape<N> for Polyline<N> {
+    impl_shape_common!();
+    impl_as_composite_shape!();
+}
 
 impl<N: Real> Shape<N> for Plane<N> {
     impl_shape_common!();

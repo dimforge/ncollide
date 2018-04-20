@@ -54,13 +54,13 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
             g1.bvt().visit(&mut visitor);
         }
 
-        for i in &self.interferences {
-            match self.sub_detectors.entry(*i) {
+        for i in self.interferences.drain(..) {
+            match self.sub_detectors.entry(i) {
                 Entry::Occupied(_) => {}
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
-                    g1.map_part_at(*i, &mut |_, _, g1| {
+                    g1.map_part_at(i, &mut |_, _, g1| {
                         if flip {
                             new_detector = dispatcher.get_contact_algorithm(g2, g1)
                         } else {
@@ -74,8 +74,6 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                 }
             }
         }
-
-        self.interferences.clear();
 
         // Update all collisions
         for detector in self.sub_detectors.iter_mut() {
@@ -121,11 +119,9 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         }
 
         // Remove outdated sub detectors
-        for i in &self.to_delete {
-            let _ = self.sub_detectors.remove(i);
+        for i in self.to_delete.drain(..) {
+            let _ = self.sub_detectors.remove(&i);
         }
-
-        self.to_delete.clear();
     }
 }
 

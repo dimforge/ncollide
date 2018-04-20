@@ -19,7 +19,7 @@ pub use self::convex_polygon::ConvexPolygon;
 pub use self::compound::Compound;
 // pub use self::base_mesh::{BaseMesh, BaseMeshElement};
 // pub use self::trimesh::TriMesh;
-// pub use self::polyline::Polyline;
+pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
@@ -53,7 +53,7 @@ mod triangle;
 mod tetrahedron;
 // mod base_mesh;
 // mod trimesh;
-// mod polyline;
+mod polyline;
 mod ball;
 mod capsule;
 #[cfg(feature = "dim3")]

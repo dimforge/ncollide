@@ -19,5 +19,6 @@ mod point_triangle;
 mod point_tetrahedron;
 mod point_compound;
 // mod point_mesh;
+mod point_polyline;
 mod point_shape;
 mod point_bvt;
