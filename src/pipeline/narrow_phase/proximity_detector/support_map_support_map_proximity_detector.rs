@@ -1,4 +1,4 @@
-use na::{self, Real};
+use na::{self, Real, Unit};
 use math::{Isometry, Vector};
 use shape::Shape;
 use query::algorithms::VoronoiSimplex;
@@ -13,7 +13,7 @@ use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 pub struct SupportMapSupportMapProximityDetector<N: Real> {
     simplex: VoronoiSimplex<N>,
     proximity: Proximity,
-    sep_axis: Vector<N>,
+    sep_axis: Unit<Vector<N>>,
 }
 
 impl<N: Real> SupportMapSupportMapProximityDetector<N> {
@@ -25,7 +25,7 @@ impl<N: Real> SupportMapSupportMapProximityDetector<N> {
         SupportMapSupportMapProximityDetector {
             simplex: VoronoiSimplex::new(),
             proximity: Proximity::Disjoint,
-            sep_axis: na::zero(),
+            sep_axis: Vector::x_axis(),
         }
     }
 }

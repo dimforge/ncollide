@@ -19,9 +19,9 @@ pub enum GJKResult<N: Real> {
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
     ClosestPoints(Point<N>, Point<N>, Unit<Vector<N>>),
     /// Result of the GJK algorithm when the origin is to close to the polytope but not inside of it.
-    Proximity(Vector<N>),
+    Proximity(Unit<Vector<N>>),
     /// Result of the GJK algorithm when the origin is too far away from the polytope.
-    NoIntersection(Vector<N>),
+    NoIntersection(Unit<Vector<N>>),
 }
 
 /// The absolute tolerence used by the GJK algorithm.
@@ -65,13 +65,14 @@ where
     let _eps_rel: N = _eps_tol.sqrt();
     let _dimension = na::dimension::<Vector<N>>();
 
-    
     fn result<N, S>(simplex: &S, prev: bool) -> (Point<N>, Point<N>)
-        where N: Real,
-              S: Simplex<N> {
+    where
+        N: Real,
+        S: Simplex<N>,
+    {
         let mut res = (Point::origin(), Point::origin());
         if prev {
-            for i in 0 ..= simplex.prev_dimension() {
+            for i in 0..=simplex.prev_dimension() {
                 let coord = simplex.prev_proj_coord(i);
                 let point = simplex.prev_point(i);
                 res.0 += point.orig1.coords * coord;
@@ -80,7 +81,7 @@ where
 
             res
         } else {
-            for i in 0 ..= simplex.dimension() {
+            for i in 0..=simplex.dimension() {
                 let coord = simplex.proj_coord(i);
                 let point = simplex.point(i);
                 res.0 += point.orig1.coords * coord;
@@ -93,7 +94,7 @@ where
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
-    let mut old_dir = Unit::new_normalize(proj.coords);
+    let mut old_dir = -Unit::new_normalize(proj.coords);
     let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
@@ -101,7 +102,7 @@ where
     loop {
         let old_max_bound = max_bound;
 
-        if let Some((new_dir, dist)) = Unit::try_new_and_get(proj.coords, _eps_tol) {
+        if let Some((new_dir, dist)) = Unit::try_new_and_get(-proj.coords, _eps_tol) {
             dir = new_dir;
             max_bound = dist;
         } else {
@@ -115,26 +116,26 @@ where
                 return GJKResult::ClosestPoints(p1, p2, old_dir); // upper bounds inconsistencies
             } else {
                 // NOTE: previous implementation used old_proj here.
-                return GJKResult::Proximity(old_dir.unwrap());
+                return GJKResult::Proximity(old_dir);
             }
         }
 
-        let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &-dir);
-        let min_bound = na::dot(dir.as_ref(), &cso_point.point.coords);
+        let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
+        let min_bound = -na::dot(dir.as_ref(), &cso_point.point.coords);
 
         assert!(min_bound == min_bound);
 
         if min_bound > max_dist {
-            return GJKResult::NoIntersection(proj.coords);
+            return GJKResult::NoIntersection(dir);
         } else if !exact_dist && min_bound > na::zero() {
             // NOTE: previous implementation used old_proj here.
-            return GJKResult::Proximity(old_dir.unwrap());
+            return GJKResult::Proximity(old_dir);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
                 let (p1, p2) = result(simplex, false);
                 return GJKResult::ClosestPoints(p1, p2, dir); // the distance found has a good enough precision
             } else {
-                return GJKResult::Proximity(proj.coords);
+                return GJKResult::Proximity(dir);
             }
         }
 
@@ -143,7 +144,7 @@ where
                 let (p1, p2) = result(simplex, false);
                 return GJKResult::ClosestPoints(p1, p2, dir);
             } else {
-                return GJKResult::Proximity(proj.coords);
+                return GJKResult::Proximity(dir);
             }
         }
 
@@ -153,11 +154,11 @@ where
         if simplex.dimension() == _dimension {
             if min_bound >= _eps_tol {
                 if exact_dist {
-                    let (p1, p2) = result(simplex, false);                    
+                    let (p1, p2) = result(simplex, false);
                     return GJKResult::ClosestPoints(p1, p2, old_dir);
                 } else {
-                    // NOTE: previous implementation used old_proj here.                    
-                    return GJKResult::Proximity(old_dir.unwrap());
+                    // NOTE: previous implementation used old_proj here.
+                    return GJKResult::Proximity(old_dir);
                 }
             } else {
                 return GJKResult::Intersection; // Point inside of the cso.
@@ -166,7 +167,7 @@ where
         niter += 1;
         if niter == 1000 {
             println!("Error: GJK did not converge.");
-            return GJKResult::NoIntersection(Vector::zeros())
+            return GJKResult::NoIntersection(Vector::x_axis());
         }
     }
 }
@@ -241,7 +242,9 @@ where
             }
         }
 
-        if !simplex.add_point(CSOPoint::single_point(Point::from_coordinates(support_point - curr_ray.origin))) {
+        if !simplex.add_point(CSOPoint::single_point(Point::from_coordinates(
+            support_point - curr_ray.origin,
+        ))) {
             return Some((ltoi, dir));
         }
 

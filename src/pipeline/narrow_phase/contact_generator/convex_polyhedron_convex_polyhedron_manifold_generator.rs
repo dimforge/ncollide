@@ -45,7 +45,7 @@ impl<N: Real> ClippingCache<N> {
 #[derive(Clone)]
 pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     simplex: VoronoiSimplex<N>,
-    last_gjk_dir: Option<Vector<N>>,
+    last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
     contact_manifold: ContactManifold<N>,
     clip_cache: ClippingCache<N>,
@@ -55,8 +55,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
 }
 
 impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
-    /// Creates a new persistant collision detector between two shapes with support mapping
-    /// functions.
+    /// Creates a new persistant collision detector between two convex polyhedra.
     pub fn new() -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: VoronoiSimplex::new(),
@@ -366,8 +365,8 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
 
             match contact {
                 GJKResult::ClosestPoints(world1, world2, dir) => {
-                    self.last_gjk_dir = Some(dir.unwrap());
-                    let contact = Contact::new_wo_depth(world1, world2, -dir);
+                    self.last_gjk_dir = Some(dir);
+                    let contact = Contact::new_wo_depth(world1, world2, dir);
 
                     if contact.depth > na::zero() {
                         cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);
@@ -386,7 +385,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                             prediction.angular2,
                             &mut self.manifold2,
                         );
-                        
+
                         self.clip_polyfaces(prediction, contact.normal);
                     }
 

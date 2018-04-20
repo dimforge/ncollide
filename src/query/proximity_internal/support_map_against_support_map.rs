@@ -40,8 +40,8 @@ pub fn support_map_against_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     g2: &G2,
     margin: N,
     simplex: &mut VoronoiSimplex<N>,
-    init_dir: Option<Vector<N>>,
-) -> (Proximity, Vector<N>)
+    init_dir: Option<Unit<Vector<N>>>,
+) -> (Proximity, Unit<Vector<N>>)
 where
     N: Real,
     G1: SupportMap<N>,
@@ -49,33 +49,26 @@ where
 {
     assert!(
         margin >= na::zero(),
-        "The proximity margin must be positive or null."
+        "The proximity margin must be positive or zero."
     );
 
-    let dir = match init_dir {
-        // FIXME: or m2.translation - m1.translation ?
-        None => m1.translation.vector - m2.translation.vector,
-        Some(dir) => dir,
+    let dir = if let Some(init_dir) = init_dir {
+        init_dir
+    } else if let Some(init_dir) = Unit::try_new(
+        m2.translation.vector - m1.translation.vector,
+        N::default_epsilon(),
+    ) {
+        init_dir
+    } else {
+        Vector::x_axis()
     };
 
-    if let Some(dir) = Unit::try_new(dir, N::default_epsilon()) {
-        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
-    } else {
-        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &Vector::x_axis()));
-    }
+    simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
 
-    match gjk::closest_points(
-        m1,
-        g1,
-        m2,
-        g2,
-        margin,
-        false,
-        simplex,
-    ) {
+    match gjk::closest_points(m1, g1, m2, g2, margin, false, simplex) {
         GJKResult::Intersection => (Proximity::Intersecting, dir),
         GJKResult::Proximity(dir) => (Proximity::WithinMargin, dir),
         GJKResult::NoIntersection(dir) => (Proximity::Disjoint, dir),
-        GJKResult::ClosestPoints(..) => unreachable!()
+        GJKResult::ClosestPoints(..) => unreachable!(),
     }
 }
