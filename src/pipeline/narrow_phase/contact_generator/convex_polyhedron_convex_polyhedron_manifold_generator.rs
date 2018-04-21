@@ -113,9 +113,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 FeatureId::Unknown => unreachable!(),
             }
 
-            if self.contact_manifold.push(c, kinematic, ids) {
-                NAVOID.with(|e| e.borrow_mut().1 += 1);
-            }
+            let _ = self.contact_manifold.push(c, kinematic, ids);
         }
     }
 
@@ -324,10 +322,6 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             }
         }
     }
-}
-
-thread_local! {
-    pub static NAVOID: RefCell<(u32, u32)> = RefCell::new((0, 0));
 }
 
 impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {

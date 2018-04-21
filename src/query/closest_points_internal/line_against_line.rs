@@ -39,10 +39,11 @@ pub fn line_against_line<N: Real>(
         } else {
             let b = na::dot(dir1, dir2);
             let ae = a * e;
-            let denom = ae - b * b;
+            let bb = b * b;
+            let denom = ae - bb;
 
-            // Use relative and absolute error to test collinearity.
-            if denom > _eps && denom > _eps * ae {
+            // Use absolute and ulps error to test collinearity.
+            if denom > _eps && !ulps_eq!(ae, bb) {
                 s = (b * f - c * e) / denom;
             } else {
                 s = _0;

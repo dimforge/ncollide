@@ -78,10 +78,11 @@ pub fn segment_against_segment_with_locations_nD<P>(
         } else {
             let b = na::dot(&d1, &d2);
             let ae = a * e;
-            let denom = ae - b * b;
+            let bb = b * b;
+            let denom = ae - bb;
 
-            // Use relative and absolute error to test collinearity.
-            if denom > _eps && denom > _eps * ae {
+            // Use absolute and ulps error to test collinearity.
+            if denom > _eps && !ulps_eq!(ae, bb) {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {
                 s = _0;
