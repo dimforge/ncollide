@@ -220,10 +220,7 @@ impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
         co1: &CollisionObject<N, T>,
         co2: &CollisionObject<N, T>,
     ) -> bool {
-        let id1 = co1 as *const CollisionObject<N, T> as usize;
-        let id2 = co2 as *const CollisionObject<N, T> as usize;
-
-        if id1 == id2 {
+        if co1.handle() == co2.handle() {
             co1.collision_groups().can_interact_with_self()
         } else {
             co1.collision_groups()
