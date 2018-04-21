@@ -1,15 +1,8 @@
-use num::Zero;
+use na::{self, Real, Vector3};
 
-use alga::general::{Id, Real};
-use na::{self, Vector3};
-
-use query::algorithms::JohnsonSimplex;
 use query::{Ray, RayCast, RayIntersection};
-use query::ray_internal;
 use shape::Triangle;
 use math::{Isometry, Point};
-
-use utils;
 
 impl<N: Real> RayCast<N> for Triangle<N> {
     #[inline]
@@ -20,24 +13,10 @@ impl<N: Real> RayCast<N> for Triangle<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
+        let res = triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray);
 
-        #[cfg(feature = "dim3")]
-        {
-            triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray).map(|(r, _)| r)
-        }
-        #[cfg(feature = "dim2")]
-        {
-            ray_internal::implicit_toi_and_normal_with_ray(
-                &Isometry::identity(),
-                self,
-                &mut JohnsonSimplex::<P>::new_w_tls(),
-                &ls_ray,
-                solid,
-            )
-        };
-
-        res.map(|mut r| {
-            r.normal = m.rotate_vector(&r.normal);
+        res.map(|(mut r, _)| {
+            r.normal = m * r.normal;
             r
         })
     }
@@ -47,7 +26,6 @@ impl<N: Real> RayCast<N> for Triangle<N> {
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
-#[cfg(feature = "dim3")]
 pub fn triangle_ray_intersection<N: Real>(
     a: &Point<N>,
     b: &Point<N>,

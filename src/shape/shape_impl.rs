@@ -1,12 +1,12 @@
 use na::Real;
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Segment, Shape,
-            SupportMap, Triangle, Polyline};
+use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Polyline, Segment,
+            Shape, SupportMap, Triangle};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
-use shape::{Cone, ConvexHull, Cylinder};
+use shape::{Cone, ConvexHull, Cylinder, TriMesh};
 use math::{Isometry, Point};
 
 macro_rules! impl_as_convex_polyhedron(
@@ -75,11 +75,12 @@ macro_rules! impl_shape_common(
     }
 );
 
-// impl<N: Real> Shape<N> for Triangle<N> {
-//     impl_shape_common!();
-//     impl_as_support_map!();
-//     // impl_as_convex_polyhedron!();
-// }
+#[cfg(feature = "dim3")]
+impl<N: Real> Shape<N> for Triangle<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+    impl_as_convex_polyhedron!();
+}
 
 impl<N: Real> Shape<N> for Segment<N> {
     impl_shape_common!();
@@ -147,10 +148,11 @@ impl<N: Real> Shape<N> for Compound<N> {
     }
 }
 
-// impl<N: Real> Shape<N> for TriMesh<N> {
-//     impl_shape_common!();
-//     impl_as_composite_shape!();
-// }
+#[cfg(feature = "dim3")]
+impl<N: Real> Shape<N> for TriMesh<N> {
+    impl_shape_common!();
+    impl_as_composite_shape!();
+}
 
 impl<N: Real> Shape<N> for Polyline<N> {
     impl_shape_common!();

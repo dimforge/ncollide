@@ -30,8 +30,9 @@ mod aabb_convex;
 #[cfg(feature = "dim2")]
 mod aabb_convex_polygon;
 mod aabb_compound;
-// mod aabb_mesh;
 mod aabb_polyline;
+#[cfg(feature = "dim3")]
+mod aabb_trimesh;
 mod aabb_utils;
 mod aabb_shape;
 
@@ -53,8 +54,9 @@ mod bounding_sphere_compound;
 #[cfg(feature = "dim3")]
 mod bounding_sphere_triangle;
 mod bounding_sphere_segment;
-// mod aabb_mesh;
 mod bounding_sphere_polyline;
+#[cfg(feature = "dim3")]
+mod bounding_sphere_trimesh;
 mod bounding_sphere_utils;
 mod bounding_sphere_shape;
 

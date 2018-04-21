@@ -18,7 +18,8 @@ mod point_triangle;
 #[cfg(feature = "dim3")]
 mod point_tetrahedron;
 mod point_compound;
-// mod point_mesh;
 mod point_polyline;
+#[cfg(feature = "dim3")]
+mod point_trimesh;
 mod point_shape;
 mod point_bvt;

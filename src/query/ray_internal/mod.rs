@@ -3,7 +3,8 @@
 #[doc(inline)]
 pub use self::ray::{Ray, RayCast, RayIntersection};
 pub use self::ray_plane::{plane_toi_with_line, plane_toi_with_ray};
-// pub use self::ray_triangle::triangle_ray_intersection;
+#[cfg(feature = "dim3")]
+pub use self::ray_triangle::triangle_ray_intersection;
 pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
 pub use self::ray_ball::ball_toi_with_ray;
 pub use self::ray_bvt::{RayInterferencesCollector, RayIntersectionCostFn};
@@ -16,9 +17,11 @@ mod ray_cuboid;
 mod ray_aabb;
 mod ray_bounding_sphere;
 mod ray_support_map;
-// mod ray_triangle;
+#[cfg(feature = "dim3")]
+mod ray_triangle;
 mod ray_compound;
-// mod ray_mesh;
+#[cfg(feature = "dim3")]
+mod ray_trimesh;
 mod ray_polyline;
 mod ray_shape;
 mod ray_bvt;

@@ -1,11 +1,20 @@
 //! Definition of the triangle shape.
 
+#[cfg(feature = "dim3")]
+use std::f64;
 use std::mem;
 use na::{self, Unit};
 use na::Real;
 use shape::SupportMap;
 use math::{Isometry, Point, Vector};
 use utils::IsometryOps;
+
+#[cfg(feature = "dim3")]
+use smallvec::SmallVec;
+#[cfg(feature = "dim3")]
+use shape::{FeatureId, ConvexPolyhedron, ConvexPolyface};
+#[cfg(feature = "dim3")]
+use bounding_volume::PolyhedralCone;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
@@ -51,10 +60,6 @@ impl<N: Real> Triangle<N> {
         unsafe { mem::transmute(arr) }
     }
 
-    pub(crate) fn from_array4(arr: &[Point<N>; 4]) -> &Triangle<N> {
-        unsafe { mem::transmute(arr) }
-    }
-
     /// The fist point of this triangle.
     #[inline]
     pub fn a(&self) -> &Point<N> {
@@ -71,6 +76,13 @@ impl<N: Real> Triangle<N> {
     #[inline]
     pub fn c(&self) -> &Point<N> {
         &self.c
+    }
+
+    #[inline]
+    pub fn as_array(&self) -> &[Point<N>; 3] {
+        unsafe {
+            mem::transmute(self)
+        }
     }
 
     /// The normal of this triangle assuming it is oriented ccw.
@@ -121,123 +133,166 @@ impl<N: Real> SupportMap<N> for Triangle<N> {
     }
 }
 
-// impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
-//     fn vertex(&self, id: FeatureId) -> Point<N> {
-//         match id.unwrap_vertex() {
-//             0 => self.a,
-//             1 => self.b,
-//             2 => self.c,
-//             _ => panic!("Triangle vertex index out of bounds."),
-//         }
-//     }
-//     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId) {
-//         match id.unwrap_edge() {
-//             0 => (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1)),
-//             2 => (self.b, self.c, FeatureId::Vertex(1), FeatureId::Vertex(2)),
-//             3 => (self.c, self.a, FeatureId::Vertex(2), FeatureId::Vertex(0)),
-//             _ => panic!("Triangle edge index out of bounds."),
-//         }
-//     }
+#[cfg(feature = "dim3")]
+impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
+    fn vertex(&self, id: FeatureId) -> Point<N> {
+        match id.unwrap_vertex() {
+            0 => self.a,
+            1 => self.b,
+            2 => self.c,
+            _ => panic!("Triangle vertex index out of bounds."),
+        }
+    }
+    fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId) {
+        match id.unwrap_edge() {
+            0 => (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1)),
+            2 => (self.b, self.c, FeatureId::Vertex(1), FeatureId::Vertex(2)),
+            3 => (self.c, self.a, FeatureId::Vertex(2), FeatureId::Vertex(0)),
+            _ => panic!("Triangle edge index out of bounds."),
+        }
+    }
 
-//     fn face(&self, id: FeatureId, face: &mut ConvexPolyface<N>) {
-//         if na::dimension::<Vector<N>>() != 2 {
-//             panic!("A segment does not have any face indimensions higher than 2.")
-//         }
+    fn face(&self, id: FeatureId, face: &mut ConvexPolyface<N>) {
+        face.clear();
 
-//         face.clear();
+        if let Some(normal) = self.normal() {
+            face.set_feature_id(id);
 
-//         if let Some(normal) = self.normal() {
-//             face.set_feature_id(id);
+            match id.unwrap_face() {
+                0 => {
+                    face.push(self.a, FeatureId::Vertex(0));
+                    face.push(self.b, FeatureId::Vertex(1));
+                    face.push(self.c, FeatureId::Vertex(2));
+                    face.push_edge_feature_id(FeatureId::Edge(0));
+                    face.push_edge_feature_id(FeatureId::Edge(1));
+                    face.push_edge_feature_id(FeatureId::Edge(2));
+                    face.set_normal(normal);
+                }
+                1 => {
+                    face.push(self.a, FeatureId::Vertex(0));
+                    face.push(self.c, FeatureId::Vertex(2));
+                    face.push(self.b, FeatureId::Vertex(1));
+                    face.push_edge_feature_id(FeatureId::Edge(2));
+                    face.push_edge_feature_id(FeatureId::Edge(1));
+                    face.push_edge_feature_id(FeatureId::Edge(0));
+                    face.set_normal(-normal);
+                }
+                _ => unreachable!(),
+            }
 
-//             match id.unwrap_face() {
-//                 0 => {
-//                     face.push(self.a, FeatureId::Vertex(0));
-//                     face.push(self.b, FeatureId::Vertex(1));
-//                     face.push(self.c, FeatureId::Vertex(2));
-//                     face.set_normal(normal);
-//                 }
-//                 1 => {
-//                     face.push(self.a, FeatureId::Vertex(0));
-//                     face.push(self.c, FeatureId::Vertex(2));
-//                     face.push(self.b, FeatureId::Vertex(1));
-//                     face.set_normal(-normal);
-//                 }
-//                 _ => unreachable!(),
-//             }
-//         } else {
-//             face.push(self.a, FeatureId::Vertex(0));
-//             face.set_feature_id(FeatureId::Vertex(0));
-//         }
-//     }
+            face.recompute_edge_normals();
+        } else {
+            face.push(self.a, FeatureId::Vertex(0));
+            face.set_feature_id(FeatureId::Vertex(0));
+        }
+    }
 
-//     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<Vector<N>> {
-//         if let Some(direction) = self.direction() {
-//             match feature {
-//                 FeatureId::Vertex(id) => {
-//                     if id == 0 {
-//                         PolyhedralCone::HalfSpace(direction)
-//                     } else {
-//                         PolyhedralCone::HalfSpace(-direction)
-//                     }
-//                 }
-//                 FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
-//                 FeatureId::Face(id) => {
-//                     assert!(na::dimension::<Vector<N>>() == 2);
+    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
+        if let Some(normal) = self.normal() {
+            match feature {
+                FeatureId::Vertex(id2) => {
+                    let vtx = self.as_array();
+                    let mut generators = SmallVec::new();
+                    let id1 = if id2 == 0 {
+                        2
+                    } else {
+                        id2 - 1
+                    };
+                    let id3 = (id2 + 1) % 3;
 
-//                     let mut dir = Vector<N>::zero();
-//                     if id == 0 {
-//                         dir[0] = direction[1];
-//                         dir[1] = -direction[0];
-//                     } else {
-//                         dir[0] = -direction[1];
-//                         dir[1] = direction[0];
-//                     }
-//                     PolyhedralCone::HalfLine(Unit::new_unchecked(dir))
-//                 }
-//                 _ => PolyhedralCone::Empty,
-//             }
-//         } else {
-//             PolyhedralCone::Full
-//         }
-//     }
+                    if let Some(side1) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
+                        generators.push(side1);
+                    }
+                    generators.push(-normal);
+                    if let Some(side2) = Unit::try_new(vtx[id3] - vtx[id2], N::default_epsilon()) {
+                        generators.push(side2);
+                    }
+                    generators.push(normal);
 
-//     fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
-//         assert!(na::dimension::<Vector<N>>() == 3);
-//         let normal = self.scaled_normal();
+                    // FIXME: is it meaningful not to push the sides if the triangle is degenerate?
+        
+                    PolyhedralCone::Span(generators)
+                }
+                FeatureId::Edge(id1) => {
+                    // FIXME: We should be able to do much better here.
+                    let id2 = (id1 + 1) % 3;
+                    let vtx = self.as_array();
+                    let mut generators = SmallVec::new();
+                    
+                    if let Some(side) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
+                        generators.push(side);
+                        generators.push(-normal);
+                        generators.push(side);
+                        generators.push(normal);
+                    } else {
+                        // FIXME: is this meaningful?
+                        generators.push(-normal);
+                        generators.push(normal);                        
+                    }
 
-//         if na::dot(&normal, &*dir) >= na::zero() {
-//             ConvexPolyhedron::<N>::face(self, FeatureId::Face(0), face);
-//         } else {
-//             ConvexPolyhedron::<N>::face(self, FeatureId::Face(1), face);
-//         }
-//         face.transform_by(m)
-//     }
+                    PolyhedralCone::Span(generators)                    
+                },
+                FeatureId::Face(0) => PolyhedralCone::HalfLine(normal),
+                FeatureId::Face(1) => PolyhedralCone::HalfLine(-normal),
+                _ => panic!("Invalid feature ID."),
+            }
+        } else {
+            PolyhedralCone::Full
+        }
+    }
 
-//     fn support_feature_toward(
-//         &self,
-//         transform: &Isometry<N>,
-//         dir: &Unit<Vector<N>>,
-//         _angle: N,
-//         out: &mut ConvexPolyface<N>,
-//     ) {
-//         out.clear();
-//         // FIXME: actualy find the support feature.
-//         self.support_face_toward(transform, dir, out)
-//     }
+    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
+        let normal = self.scaled_normal();
 
-//     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
-//         if let Some(normal) = self.normal() {
-//             let eps: N = na::convert(f64::consts::PI / 180.0);
-//             let (seps, ceps) = eps.sin_cos();
+        if na::dot(&normal, &*dir) >= na::zero() {
+            ConvexPolyhedron::<N>::face(self, FeatureId::Face(0), face);
+        } else {
+            ConvexPolyhedron::<N>::face(self, FeatureId::Face(1), face);
+        }
+        face.transform_by(m)
+    }
 
-//             let normal_dot = na::dot(&*local_dir, &*normal);
-//             if normal_dot >= ceps {
-//                 FeatureId::Face(0)
-//             } else if normal_dot <= -ceps {
-//                 FeatureId::Face(1)
-//             }
-//         } else {
-//             unimplemented!()
-//         }
-//     }
-// }
+    fn support_feature_toward(
+        &self,
+        transform: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        _angle: N,
+        out: &mut ConvexPolyface<N>,
+    ) {
+        out.clear();
+        // FIXME: actualy find the support feature.
+        self.support_face_toward(transform, dir, out)
+    }
+
+    fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
+        if let Some(normal) = self.normal() {
+            let eps: N = na::convert(f64::consts::PI / 180.0);
+            let (seps, ceps) = eps.sin_cos();
+
+            let normal_dot = local_dir.dot(&*normal);
+            if normal_dot >= ceps {
+                FeatureId::Face(0)
+            } else if normal_dot <= -ceps {
+                FeatureId::Face(1)
+            } else {
+                let dot1 = local_dir.dot(&self.a.coords);
+                let dot2 = local_dir.dot(&self.b.coords);
+                let dot3 = local_dir.dot(&self.c.coords);
+
+                if dot1 > dot2 {
+                    if dot1 > dot3 {
+                        FeatureId::Vertex(0)
+                    } else {
+                        FeatureId::Vertex(2)
+                    }
+                } else if dot2 > dot3 {
+                    FeatureId::Vertex(1)
+                } else {
+                    FeatureId::Vertex(2)
+                }
+            }
+        } else {
+            FeatureId::Vertex(0)
+        }
+    }
+}

@@ -375,6 +375,12 @@ impl<N: Real> EPA<N> {
             self.compute_silhouette(support_point_id, face.adj[2], adj_opp_pt_id3);
 
             let first_new_face_id = self.faces.len();
+            
+            if self.silhouette.len() == 0 {
+                // FIXME: Something went very wrong because we failed to extract a silhouette…
+                return None;
+            }
+
             for edge in &self.silhouette {
                 if !self.faces[edge.face_id].deleted {
                     let new_face_id = self.faces.len();

@@ -17,8 +17,8 @@ pub use self::convex_polygon::ConvexPolygon;
 //                               AnnotatedPoint, MinkowskiSum, CSO};
 // pub use self::reflection::Reflection;
 pub use self::compound::Compound;
-// pub use self::base_mesh::{BaseMesh, BaseMeshElement};
-// pub use self::trimesh::TriMesh;
+#[cfg(feature = "dim3")]
+pub use self::trimesh::TriMesh;
 pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
@@ -51,8 +51,8 @@ mod segment;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod tetrahedron;
-// mod base_mesh;
-// mod trimesh;
+#[cfg(feature = "dim3")]
+mod trimesh;
 mod polyline;
 mod ball;
 mod capsule;
