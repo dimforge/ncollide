@@ -1,7 +1,6 @@
 use std::collections::HashMap;
-use alga::linear::{Rotation, Translation};
+use alga::linear::Translation;
 use na::{self, Point2, Point3, Real};
-use utils::AsBytes;
 use super::utils;
 use math::{Isometry, Point, Vector};
 

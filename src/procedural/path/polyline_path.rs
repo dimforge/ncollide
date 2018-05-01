@@ -1,5 +1,3 @@
-use alga::linear::NormedSpace;
-
 use na::Real;
 use procedural::path::{CurveSampler, PathSample};
 use math::{Point, Vector};

@@ -41,13 +41,16 @@ pub fn segment_against_segment_with_locations<N: Real>(
     segment_against_segment_with_locations_nD((seg1.a(), seg1.b()), (seg2.a(), seg2.b()))
 }
 
+#[allow(non_snake_case)]
 #[inline]
 pub fn segment_against_segment_with_locations_nD<P>(
     seg1: (&P, &P),
-    seg2: (&P, &P)
+    seg2: (&P, &P),
 ) -> (SegmentPointLocation<P::Real>, SegmentPointLocation<P::Real>)
-    where P: EuclideanSpace + Copy,
-          P::Real: ApproxEq {
+where
+    P: EuclideanSpace + Copy,
+    P::Real: ApproxEq,
+{
     // Inspired by Real-time collision detection by Christer Ericson.
     let d1 = *seg1.1 - *seg1.0;
     let d2 = *seg2.1 - *seg2.0;

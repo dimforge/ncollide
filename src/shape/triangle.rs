@@ -12,7 +12,7 @@ use utils::IsometryOps;
 #[cfg(feature = "dim3")]
 use smallvec::SmallVec;
 #[cfg(feature = "dim3")]
-use shape::{FeatureId, ConvexPolyhedron, ConvexPolyface};
+use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use bounding_volume::PolyhedralCone;
 
@@ -80,9 +80,7 @@ impl<N: Real> Triangle<N> {
 
     #[inline]
     pub fn as_array(&self) -> &[Point<N>; 3] {
-        unsafe {
-            mem::transmute(self)
-        }
+        unsafe { mem::transmute(self) }
     }
 
     /// The normal of this triangle assuming it is oriented ccw.
@@ -193,11 +191,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                 FeatureId::Vertex(id2) => {
                     let vtx = self.as_array();
                     let mut generators = SmallVec::new();
-                    let id1 = if id2 == 0 {
-                        2
-                    } else {
-                        id2 - 1
-                    };
+                    let id1 = if id2 == 0 { 2 } else { id2 - 1 };
                     let id3 = (id2 + 1) % 3;
 
                     if let Some(side1) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
@@ -210,7 +204,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                     generators.push(normal);
 
                     // FIXME: is it meaningful not to push the sides if the triangle is degenerate?
-        
+
                     PolyhedralCone::Span(generators)
                 }
                 FeatureId::Edge(id1) => {
@@ -218,7 +212,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                     let id2 = (id1 + 1) % 3;
                     let vtx = self.as_array();
                     let mut generators = SmallVec::new();
-                    
+
                     if let Some(side) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
                         generators.push(side);
                         generators.push(-normal);
@@ -227,11 +221,11 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                     } else {
                         // FIXME: is this meaningful?
                         generators.push(-normal);
-                        generators.push(normal);                        
+                        generators.push(normal);
                     }
 
-                    PolyhedralCone::Span(generators)                    
-                },
+                    PolyhedralCone::Span(generators)
+                }
                 FeatureId::Face(0) => PolyhedralCone::HalfLine(normal),
                 FeatureId::Face(1) => PolyhedralCone::HalfLine(-normal),
                 _ => panic!("Invalid feature ID."),
@@ -241,7 +235,12 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         }
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, face: &mut ConvexPolyface<N>) {
+    fn support_face_toward(
+        &self,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        face: &mut ConvexPolyface<N>,
+    ) {
         let normal = self.scaled_normal();
 
         if na::dot(&normal, &*dir) >= na::zero() {
@@ -267,7 +266,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
         if let Some(normal) = self.normal() {
             let eps: N = na::convert(f64::consts::PI / 180.0);
-            let (seps, ceps) = eps.sin_cos();
+            let ceps = eps.cos();
 
             let normal_dot = local_dir.dot(&*normal);
             if normal_dot >= ceps {

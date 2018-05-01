@@ -1,5 +1,5 @@
 use math::{Isometry, Vector};
-use na::{self, Real, Unit};
+use na::{Real, Unit};
 use query::Contact;
 use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
 use query::algorithms::{VoronoiSimplex, EPA};

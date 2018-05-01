@@ -1,6 +1,6 @@
 use alga::general::Real;
 use na;
-use na::{Point2, Point3, Vector3};
+use na::{Point2, Vector3};
 use super::{IndexBuffer, TriMesh};
 use super::utils;
 

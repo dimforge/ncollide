@@ -8,7 +8,11 @@ use math::Point;
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<N: Real>(control_points: &[Point<N>], t: N, cache: &mut Vec<Point<N>>) -> Point<N> {
+pub fn bezier_curve_at<N: Real>(
+    control_points: &[Point<N>],
+    t: N,
+    cache: &mut Vec<Point<N>>,
+) -> Point<N> {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
         cache.extend(iter::repeat(Point::origin()).take(diff))
@@ -38,6 +42,7 @@ pub fn bezier_curve_at<N: Real>(control_points: &[Point<N>], t: N, cache: &mut V
 }
 
 // Evaluates the bezier curve with control points `control_points`.
+#[cfg(feature = "dim3")]
 #[doc(hidden)]
 pub fn bezier_surface_at<N: Real>(
     control_points: &[Point<N>],

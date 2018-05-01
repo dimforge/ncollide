@@ -1,4 +1,4 @@
-use na::{self, Real, Unit};
+use na::{Real, Unit};
 use math::{Isometry, Vector};
 use shape::Shape;
 use query::algorithms::VoronoiSimplex;

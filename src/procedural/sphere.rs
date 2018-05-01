@@ -1,12 +1,12 @@
 use alga::general::Real;
 use na;
+#[cfg(feature = "dim3")]
 use na::{Point2, Point3, Vector3};
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
 #[cfg(feature = "dim2")]
 use super::Polyline;
 use super::utils;
-use math::Point;
 
 /// Generates a UV sphere.
 #[cfg(feature = "dim3")]
@@ -28,11 +28,7 @@ where
 
 /// Generates a UV sphere centered at the origin and with a unit diameter.
 #[cfg(feature = "dim3")]
-pub fn unit_sphere<N>(
-    ntheta_subdiv: u32,
-    nphi_subdiv: u32,
-    generate_uvs: bool,
-) -> TriMesh<N>
+pub fn unit_sphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32, generate_uvs: bool) -> TriMesh<N>
 where
     N: Real,
 {

@@ -1,4 +1,4 @@
-use na::{self, Point2, Real};
+use na::{Point2, Real};
 
 // FIXME: move this on ncollide_geometry.
 /// Tests if the given point is inside of a polygon with arbitrary orientation.

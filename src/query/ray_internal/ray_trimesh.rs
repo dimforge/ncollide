@@ -1,14 +1,10 @@
-use std::ops::Index;
-use num::Zero;
-
-use alga::linear::NormedSpace;
-use na::{self, Real, Point2, Vector3};
+use na::{Point2, Real, Vector3};
 
 use query::{ray_internal, Ray, RayCast, RayIntersection};
-use shape::{TriMesh, CompositeShape};
+use shape::TriMesh;
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
-use math::{Isometry, Point};
+use math::Isometry;
 
 impl<N: Real> RayCast<N> for TriMesh<N> {
     #[inline]
@@ -82,7 +78,11 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
                 let uvx = uv1.x * uv.x + uv2.x * uv.y + uv3.x * uv.z;
                 let uvy = uv1.y * uv.x + uv2.y * uv.y + uv3.y * uv.z;
 
-                Some(RayIntersection::new_with_uvs(toi, m * n, Some(Point2::new(uvx, uvy))))
+                Some(RayIntersection::new_with_uvs(
+                    toi,
+                    m * n,
+                    Some(Point2::new(uvx, uvy)),
+                ))
             }
         }
     }
@@ -140,7 +140,7 @@ struct TriMeshRayToiAndNormalAndUVsCostFn<'a, N: 'a + Real> {
     ray: &'a Ray<N>,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshRayToiAndNormalAndUVsCostFn<'a, N>{
+impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshRayToiAndNormalAndUVsCostFn<'a, N> {
     type UserData = (RayIntersection<N>, Vector3<N>);
 
     #[inline]
@@ -149,10 +149,7 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshRayToiAndNormalAndUVsC
     }
 
     #[inline]
-    fn compute_b_cost(
-        &mut self,
-        b: &usize,
-    ) -> Option<(N, (RayIntersection<N>, Vector3<N>))> {
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, (RayIntersection<N>, Vector3<N>))> {
         let vs = &self.mesh.vertices()[..];
         let idx = &self.mesh.indices()[*b];
 

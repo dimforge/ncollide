@@ -1,9 +1,9 @@
 use na::{self, Real};
 
 use utils::IsometryOps;
-use bounding_volume::{self, HasBoundingVolume, AABB};
-use shape::{CompositeShape, TriMesh};
-use math::{Isometry, Point};
+use bounding_volume::{HasBoundingVolume, AABB};
+use shape::TriMesh;
+use math::Isometry;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for TriMesh<N> {
     #[inline]

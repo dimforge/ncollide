@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use na::{self, Point2, Real, Unit};
 
 #[cfg(feature = "dim3")]
@@ -13,10 +11,12 @@ use query::closest_points_internal;
 use query::contacts_internal;
 #[cfg(feature = "dim3")]
 use query::ray_internal;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, PointQueryWithLocation};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
 use shape::ConvexPolyface;
 use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
-use utils::{self, IdAllocator, IsometryOps};
+#[cfg(feature = "dim3")]
+use utils;
+use utils::{IdAllocator, IsometryOps};
 
 #[derive(Clone)]
 struct ClippingCache<N: Real> {
@@ -118,6 +118,8 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     }
 
     fn clip_polyfaces(&mut self, prediction: &ContactPrediction<N>, normal: Unit<Vector<N>>) {
+        self.clip_cache.clear();
+
         #[cfg(feature = "dim2")]
         {
             if self.manifold1.nvertices <= 1 || self.manifold2.nvertices <= 1 {
@@ -214,7 +216,6 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             if self.manifold1.vertices.len() <= 2 && self.manifold2.vertices.len() <= 2 {
                 return;
             }
-            self.clip_cache.clear();
 
             // In 3D we may end up with more than two points.
             let mut basis = [na::zero(), na::zero()];

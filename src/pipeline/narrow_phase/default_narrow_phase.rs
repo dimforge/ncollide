@@ -6,7 +6,7 @@ use utils::IdAllocator;
 use utils::{DeterministicState, SortedPair};
 use query::Proximity;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
-                   ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
+                             ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
 use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 
@@ -73,15 +73,15 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
                 }
 
-                // if value.num_contacts() == 0 {
-                //     if had_contacts {
-                //         contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
-                //     }
-                // } else {
-                //     if !had_contacts {
-                //         contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
-                //     }
-                // }
+                if value.num_contacts() == 0 {
+                    if had_contacts {
+                        contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                    }
+                } else {
+                    if !had_contacts {
+                        contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
+                    }
+                }
             }
         }
 

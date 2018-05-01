@@ -1,5 +1,4 @@
 use alga::general::Real;
-use na::Point;
 use shape::Triangle;
 use procedural::TriMesh;
 use super::ToTriMesh;

@@ -1,11 +1,10 @@
 use na::{self, Real};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{CompositeShape, FeatureId, TriMesh, Triangle, TrianglePointLocation};
+use shape::{FeatureId, TriMesh, TrianglePointLocation};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use utils::IsometryOps;
 use math::{Isometry, Point};
-
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
@@ -15,7 +14,11 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        _: &Isometry<N>,
+        _: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
@@ -44,7 +47,7 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-        solid: bool,
+        _: bool,
     ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(point);
         let mut cost_fn = TriMeshPointProjCostFn {
@@ -58,7 +61,6 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
         (proj, extra_info)
     }
 }
-
 
 /*
  * Costs function.
@@ -78,10 +80,11 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshPointProjCostFn<'a, N>
 
     #[inline]
     fn compute_b_cost(&mut self, b: &usize) -> Option<(N, Self::UserData)> {
-        let (proj, extra_info) =
-            self.polyline
-                .triangle_at(*b)
-                .project_point_with_location(&Isometry::identity(), self.point, true);
+        let (proj, extra_info) = self.polyline.triangle_at(*b).project_point_with_location(
+            &Isometry::identity(),
+            self.point,
+            true,
+        );
 
         let extra_info = (*b, extra_info);
         Some((na::distance(self.point, &proj.point), (proj, extra_info)))

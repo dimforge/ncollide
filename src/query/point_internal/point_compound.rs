@@ -24,7 +24,11 @@ impl<N: Real> PointQuery<N> for Compound<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, point: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        _: &Isometry<N>,
+        _: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         // XXX Properly propagate the feature id.
         unimplemented!()
         // (self.project_point(m, point), FeatureId::Unknown)

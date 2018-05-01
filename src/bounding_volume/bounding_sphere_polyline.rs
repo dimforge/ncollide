@@ -3,7 +3,7 @@ use na::Real;
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
 use shape::Polyline;
-use math::{Isometry, Point};
+use math::Isometry;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Polyline<N> {
     #[inline]

@@ -1,6 +1,5 @@
 use alga::general::Real;
 use na;
-use na::Point3;
 use super::{IndexBuffer, TriMesh};
 use super::{sphere, utils};
 

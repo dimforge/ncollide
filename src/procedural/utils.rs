@@ -1,12 +1,18 @@
 //! Utilities useful for various generations tasks.
 
+#[cfg(feature = "dim3")]
 use std::iter;
+#[cfg(feature = "dim3")]
 use std::collections::HashMap;
+#[cfg(feature = "dim3")]
 use std::collections::hash_map::Entry;
+#[cfg(feature = "dim3")]
 use num::Zero;
-
-use na::{self, Real};
-use utils::{self, AsBytes, HashablePartialEq};
+#[cfg(feature = "dim3")]
+use na;
+use na::Real;
+#[cfg(feature = "dim3")]
+use utils::HashablePartialEq;
 use math::{Point, Vector};
 
 // FIXME: remove that in favor of `push_xy_circle` ?

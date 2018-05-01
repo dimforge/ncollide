@@ -1,6 +1,6 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
-use na::{self, Point2, Point3, Real};
+use na::{Point2, Point3, Real};
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{CompositeShape, Shape, Triangle};
@@ -38,7 +38,6 @@ impl<N: Real> TriMesh<N> {
         let mut bvs = Vec::new();
 
         {
-            let vs = &*vertices;
             let is = &*indices;
 
             for (i, is) in is.iter().enumerate() {

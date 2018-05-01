@@ -2,11 +2,14 @@ use num::Bounded;
 use alga::linear::EuclideanSpace;
 
 use na::{self, Real};
-use math::{Point, Vector, Isometry};
+use math::{Isometry, Point};
 use bounding_volume;
 
 /// Returns the index of the support point of a list of points.
-pub fn support_point_id<P: EuclideanSpace>(direction: &P::Coordinates, points: &[P]) -> Option<usize> {
+pub fn support_point_id<P: EuclideanSpace>(
+    direction: &P::Coordinates,
+    points: &[P],
+) -> Option<usize> {
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;

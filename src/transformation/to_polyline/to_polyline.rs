@@ -1,6 +1,5 @@
 use na::Real;
 use procedural::Polyline;
-use math::Point;
 
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
 pub trait ToPolyline<N: Real> {

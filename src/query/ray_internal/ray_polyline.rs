@@ -1,10 +1,10 @@
-use na::{Real, Point2, Vector3};
+use na::Real;
 
 use query::{Ray, RayCast, RayIntersection};
 use shape::{CompositeShape, Polyline};
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
-use math::{Isometry, Point};
+use math::Isometry;
 
 impl<N: Real> RayCast<N> for Polyline<N> {
     #[inline]

@@ -1,5 +1,4 @@
 use alga::general::Real;
-use na::Point2;
 use na;
 use shape::Cuboid;
 use procedural::Polyline;

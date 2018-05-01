@@ -1,5 +1,5 @@
 use alga::general::Real;
-use na::{self, Point2};
+use na;
 use shape::Ball;
 use procedural::{self, Polyline};
 use super::ToPolyline;

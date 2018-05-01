@@ -10,7 +10,7 @@ impl<N: Real> RayCast<N> for Triangle<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
-        solid: bool,
+        _: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
         let res = triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray);

@@ -1,12 +1,11 @@
-use approx::ApproxEq;
-use na::{self, Real, Unit};
+use na::{Real, Unit};
 
 use query::algorithms::{gjk, VoronoiSimplex, EPA, CSOPoint};
 use query::{PointProjection, PointQuery};
 use utils::IsometryOps;
 use shape::{ConvexPolyhedron, FeatureId, SupportMap, ConstantOrigin};
 #[cfg(feature = "dim3")]
-use shape::{Capsule, Cone, ConvexHull, Cylinder};
+use shape::{Cone, ConvexHull, Cylinder};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 use math::{Isometry, Point, Translation, Vector};

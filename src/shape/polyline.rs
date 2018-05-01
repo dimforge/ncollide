@@ -1,9 +1,6 @@
 //! 2d line strip, 3d segment mesh, and nd subsimplex mesh.
 
-use std::mem;
-use std::sync::Arc;
-
-use na::{self, Point2, Real};
+use na::Real;
 use partitioning::BVT;
 use bounding_volume::AABB;
 use shape::{CompositeShape, Segment, Shape};
@@ -50,7 +47,7 @@ impl<N: Real> Polyline<N> {
     pub fn bounding_volumes(&self) -> &[AABB<N>] {
         &self.bvs
     }
-    
+
     /// Gets the i-th mesh element.
     #[inline]
     pub fn segment_at(&self, i: usize) -> Segment<N> {
@@ -70,7 +67,12 @@ impl<N: Real> CompositeShape<N> for Polyline<N> {
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &Isometry<N>, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
+    fn map_transformed_part_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
+    ) {
         let element = self.segment_at(i);
 
         f(i, m, &element)

@@ -1,5 +1,4 @@
 use alga::general::Real;
-use na::Point2;
 use shape::Segment;
 use procedural::Polyline;
 use super::ToPolyline;

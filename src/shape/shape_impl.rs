@@ -2,12 +2,12 @@ use na::Real;
 use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
 use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Polyline, Segment,
-            Shape, SupportMap, Triangle};
+            Shape, SupportMap};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
-use shape::{Cone, ConvexHull, Cylinder, TriMesh};
-use math::{Isometry, Point};
+use shape::{ConvexHull, TriMesh, Triangle};
+use math::Isometry;
 
 macro_rules! impl_as_convex_polyhedron(
     () => {
@@ -98,18 +98,6 @@ impl<N: Real> Shape<N> for Cuboid<N> {
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
-
-// #[cfg(feature = "dim3")]
-// impl<N: Real> Shape<N> for Cylinder<N> {
-//     impl_shape_common!();
-//     impl_as_support_map!();
-// }
-
-// #[cfg(feature = "dim3")]
-// impl<N: Real> Shape<N> for Cone<N> {
-//     impl_shape_common!();
-//     impl_as_support_map!();
-// }
 
 #[cfg(feature = "dim3")]
 impl<N: Real> Shape<N> for ConvexHull<N> {

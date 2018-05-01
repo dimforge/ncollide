@@ -7,7 +7,12 @@ use bounding_volume::AABB;
 use math::{Isometry, Point, Vector, DIM};
 
 impl<N: Real> AABB<N> {
-    fn local_point_projection(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> (bool, Point<N>, Vector<N>) {
+    fn local_point_projection(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+        solid: bool,
+    ) -> (bool, Point<N>, Vector<N>) {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -59,8 +64,14 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         PointProjection::new(inside, m * ls_pt)
     }
 
+    #[allow(unused_assignments)] // For last_zero_shift which is used only in 3D.
+    #[allow(unused_variables)] // For last_zero_shift which is used only in 3D.
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
         let proj = PointProjection::new(inside, m * ls_pt);
         let mut nzero_shifts = 0;
@@ -105,7 +116,6 @@ impl<N: Real> PointQuery<N> for AABB<N> {
                 }
             }
 
-
             #[cfg(feature = "dim3")]
             {
                 if nzero_shifts == 0 {
@@ -117,7 +127,7 @@ impl<N: Real> PointQuery<N> for AABB<N> {
 
             #[cfg(feature = "dim2")]
             {
-                (proj, FeatureId::Vertex(id))                
+                (proj, FeatureId::Vertex(id))
             }
         }
     }
