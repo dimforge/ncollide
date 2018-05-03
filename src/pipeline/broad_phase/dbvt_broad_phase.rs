@@ -9,8 +9,7 @@ use math::Point;
 use utils::{DeterministicState, SortedPair};
 use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
-use query::{PointInterferencesCollector, PointQuery, Ray, RayCast,
-                      RayInterferencesCollector};
+use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -55,7 +54,7 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
     tree: DBVT<N, ProxyHandle, BV>,  // DBVT for moving objects.
     stree: DBVT<N, ProxyHandle, BV>, // DBVT for static objects.
     pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
-    margin: N,                 // The margin added to each bounding volume.
+    margin: N,                       // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -335,6 +334,21 @@ where
             }
         } else {
             panic!("Attempting to set the bounding volume of an object that does not exist.");
+        }
+    }
+
+    fn deferred_recompute_all_proximities_with(&mut self, handle: ProxyHandle) {
+        if let Some(proxy) = self.proxies.get(handle.uid()) {
+            let bv = match proxy.status {
+                ProxyStatus::OnStaticTree(leaf) => self.stree[leaf].bounding_volume.clone(),
+                ProxyStatus::OnDynamicTree(leaf, _) => self.tree[leaf].bounding_volume.clone(),
+                ProxyStatus::Detached(_) => return,
+                ProxyStatus::Deleted => {
+                    panic!("DBVT broad phase: internal error, proxy not found.")
+                }
+            };
+
+            self.proxies_to_update.push((handle, bv));
         }
     }
 

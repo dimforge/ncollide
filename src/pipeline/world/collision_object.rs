@@ -42,13 +42,19 @@ impl<N: Real> GeometricQueryType<N> {
     }
 
     /// Given two contact query types, returns the corresponding contact prediction parameters.
-    /// 
+    ///
     /// Returns `None` if any of `self` or `other` is not a `GeometricQueryType::Contacts`.
     pub fn contact_queries_to_prediction(self, other: Self) -> Option<ContactPrediction<N>> {
         match (self, other) {
-            (GeometricQueryType::Contacts(linear1, angular1), GeometricQueryType::Contacts(linear2, angular2)) =>
-                Some(ContactPrediction::new(linear1 + linear2, angular1, angular2)),
-            _ => None
+            (
+                GeometricQueryType::Contacts(linear1, angular1),
+                GeometricQueryType::Contacts(linear2, angular2),
+            ) => Some(ContactPrediction::new(
+                linear1 + linear2,
+                angular1,
+                angular2,
+            )),
+            _ => None,
         }
     }
 
@@ -157,6 +163,11 @@ impl<N: Real, T> CollisionObject<N, T> {
         &self.collision_groups
     }
 
+    #[inline]
+    pub(crate) fn set_collision_groups(&mut self, groups: CollisionGroups) {
+        self.collision_groups = groups
+    }
+
     /// The kind of queries this collision object is expected to .
     #[inline]
     pub fn query_type(&self) -> GeometricQueryType<N> {
@@ -213,7 +224,7 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
     }
 
     /// Removes from this collection the collision object identified by the given handle.
-    /// 
+    ///
     /// The removed collision object structure is returned.
     #[inline]
     pub fn remove(&mut self, handle: CollisionObjectHandle) -> CollisionObject<N, T> {
@@ -228,10 +239,7 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
 
     /// If it exists, retrieves a mutable reference to the collision object identified by the given handle.
     #[inline]
-    pub fn get_mut(
-        &mut self,
-        handle: CollisionObjectHandle,
-    ) -> Option<&mut CollisionObject<N, T>> {
+    pub fn get_mut(&mut self, handle: CollisionObjectHandle) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle.0)
     }
 
@@ -276,8 +284,6 @@ impl<'a, N: 'a + Real, T: 'a> Iterator for CollisionObjects<'a, N, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter
-            .next()
-            .map(|obj| obj.1)
+        self.iter.next().map(|obj| obj.1)
     }
 }

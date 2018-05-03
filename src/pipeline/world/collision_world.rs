@@ -6,12 +6,14 @@ use math::{Isometry, Point};
 use bounding_volume::{self, BoundingVolume, AABB};
 use shape::ShapeHandle;
 use query::{PointQuery, Ray, RayCast, RayIntersection};
-use pipeline::narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
-                   DefaultProximityDispatcher, NarrowPhase, ProximityPairs};
-use pipeline::broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase,
-                  ProxyHandle};
-use pipeline::world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
-            CollisionObjectSlab, CollisionObjects, GeometricQueryType};
+use pipeline::narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher,
+                             DefaultNarrowPhase, DefaultProximityDispatcher, NarrowPhase,
+                             ProximityPairs};
+use pipeline::broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters,
+                            DBVTBroadPhase, ProxyHandle};
+use pipeline::world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject,
+                      CollisionObjectHandle, CollisionObjectSlab, CollisionObjects,
+                      GeometricQueryType};
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 
 /// Type of the narrow phase trait-object used by the collision world.
@@ -259,6 +261,16 @@ impl<N: Real, T> CollisionWorld<N, T> {
         handle: CollisionObjectHandle,
     ) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle)
+    }
+
+    /// Sets the collision groups of the given collision object.
+    #[inline]
+    pub fn set_collision_groups(&mut self, handle: CollisionObjectHandle, groups: CollisionGroups) {
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_collision_groups(groups);
+            self.broad_phase
+                .deferred_recompute_all_proximities_with(co.proxy_handle());
+        }
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.

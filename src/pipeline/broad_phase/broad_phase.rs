@@ -35,6 +35,9 @@ pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
     /// Sets the next bounding volume to be used during the update of this broad phase.
     fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bv: BV);
 
+    /// Forces the broad-phase to recompute and re-report all the proximities with the given object.
+    fn deferred_recompute_all_proximities_with(&mut self, handle: ProxyHandle);
+
     /// Forces the broad-phase to recompute and re-report all the proximities.
     fn deferred_recompute_all_proximities(&mut self);
 
