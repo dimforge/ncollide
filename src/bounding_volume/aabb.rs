@@ -32,8 +32,7 @@ impl<N: Real> AABB<N> {
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
     pub fn new(mins: Point<N>, maxs: Point<N>) -> AABB<N> {
-        assert!(na::partial_le(&mins, &maxs));
-
+        // assert!(na::partial_le(&mins, &maxs));
         AABB {
             mins: mins,
             maxs: maxs,

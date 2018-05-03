@@ -118,10 +118,9 @@ impl<N: Real> ConvexHull<N> {
                     Entry::Vacant(e) => {
                         edges_id[i1] = *e.insert(edges.len());
 
-                        if let Some(dir) = Unit::try_new(
-                            points[vtx[i2]] - points[vtx[i1]],
-                            N::default_epsilon(),
-                        ) {
+                        if let Some(dir) =
+                            Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
+                        {
                             edges.push(Edge {
                                 vertices: Point2::new(vtx[i1], vtx[i2]),
                                 faces: Point2::new(face_id, 0),
@@ -136,7 +135,8 @@ impl<N: Real> ConvexHull<N> {
             }
 
             let vertices = Point3::new(vtx[0], vtx[1], vtx[2]);
-            let normal = utils::ccw_face_normal([&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
+            let normal =
+                utils::ccw_face_normal([&points[vtx[0]], &points[vtx[1]], &points[vtx[2]]])?;
             let triangle = Triangle {
                 vertices,
                 edges: edges_id,
@@ -300,7 +300,7 @@ impl<N: Real> ConvexHull<N> {
             };
 
             // FIXME: for debug.
-            res.check_geometry();
+            // res.check_geometry();
 
             Some(res)
         }
@@ -313,7 +313,6 @@ impl<N: Real> ConvexHull<N> {
 
             for v in &self.points {
                 assert!((v - p0).dot(face.normal.as_ref()) <= N::default_epsilon());
-
             }
         }
     }
@@ -396,7 +395,12 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         PolyhedralCone::Span(generators)
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolyface<N>) {
+    fn support_face_toward(
+        &self,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        out: &mut ConvexPolyface<N>,
+    ) {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.faces[0].normal, &ls_dir);

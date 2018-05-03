@@ -94,8 +94,12 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
-                    let dir1 = m1.inverse_transform_unit_vector(&e1.direction().unwrap());
-                    kinematic.set_line1(f1, local1, dir1, n1)
+                    if let Some(dir1) = e1.direction() {
+                        let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
+                        kinematic.set_line1(f1, local1, local_dir1, n1)
+                    } else {
+                        continue;
+                    }
                 }
                 FeatureId::Vertex(..) => kinematic.set_point1(f1, local1, n1),
                 FeatureId::Unknown => unreachable!(),
@@ -106,8 +110,12 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
-                    let dir2 = m2.inverse_transform_unit_vector(&e2.direction().unwrap());
-                    kinematic.set_line2(f2, local2, dir2, n2)
+                    if let Some(dir2) = e2.direction() {
+                        let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
+                        kinematic.set_line2(f2, local2, local_dir2, n2)
+                    } else {
+                        continue;
+                    }
                 }
                 FeatureId::Vertex(..) => kinematic.set_point2(f2, local2, n2),
                 FeatureId::Unknown => unreachable!(),
