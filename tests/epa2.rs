@@ -1,32 +1,15 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
-use na::{Isometry3, Vector3};
-use na::{Isometry2, Vector2, Point2};
-use ncollide::shape::Cuboid;
-use ncollide::query::contacts_internal;
-use ncollide::query::ContactPrediction;
-use ncollide::narrow_phase::{ContactDispatcher, DefaultContactDispatcher};
-
-#[test]
-fn cuboid_cuboid_EPA() {
-    let c = Cuboid::new(Vector3::new(2.0, 1.0, 1.0));
-    let m1 = Isometry3::new(Vector3::new(3.5, 0.0, 0.0), na::zero());
-    let m2 = Isometry3::identity();
-
-    let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
-        .expect("Penetration not found.");
-    assert_eq!(res.depth, 0.5);
-    assert_eq!(res.normal, -Vector3::x_axis());
-
-    let m1 = Isometry3::new(Vector3::new(0.0, 0.2, 0.0), na::zero());
-    let res = contacts_internal::support_map_against_support_map(&m1, &c, &m2, &c, 10.0)
-        .expect("Penetration not found.");
-    assert_eq!(res.depth, 1.8);
-    assert_eq!(res.normal, -Vector3::y_axis());
-}
+use na::{Isometry2, Vector2};
+use ncollide2d::utils::IdAllocator;
+use ncollide2d::shape::Cuboid;
+use ncollide2d::query::contacts_internal;
+use ncollide2d::query::ContactPrediction;
+use ncollide2d::narrow_phase::{ContactDispatcher, DefaultContactDispatcher};
 
 #[test]
+#[allow(non_snake_case)]
 fn cuboid_cuboid_EPA() {
     let c = Cuboid::new(Vector2::new(2.0, 1.0));
     let m1 = Isometry2::new(Vector2::new(3.5, 0.0), na::zero());
@@ -51,13 +34,14 @@ fn cuboids_large_size_ratio_issue_181() {
 
     let pos_b = Isometry2::new(Vector2::new(5.0, 0.0), 1.5);
 
-    let dispatcher = DefaultContactDispatcher::<Point2<f32>, Isometry2<f32>>::new();
+    let dispatcher = DefaultContactDispatcher::new();
     let mut algorithm = dispatcher.get_contact_algorithm(&cuboid_a, &cuboid_b).unwrap();
 
     let prediction = ContactPrediction::new(0.0, 0.0, 0.0);
   
     let mut p = Vector2::new(0.0, 0.0); 
     let mut angle = 0.0; 
+    let mut id_alloc = IdAllocator::new();
     
     // Used to panic at some point:
     // thread 'main' panicked at 'assertion failed: neg_dist <= gjk::eps_tol()', ncollide_geometry/query/algorithms/EPA.rs:26:9
@@ -67,13 +51,14 @@ fn cuboids_large_size_ratio_issue_181() {
             
         let pos_a = Isometry2::new(p, angle); 
           
-        algorithm.update(&dispatcher, &pos_a, &cuboid_a, &pos_b, &cuboid_b, &prediction);
+        algorithm.update(&dispatcher, 0, &pos_a, &cuboid_a, 0, &pos_b, &cuboid_b, &prediction, &mut id_alloc);
           
-        let mut contacts = Vec::new();
-        algorithm.contacts(&mut contacts);
+        let mut manifolds = Vec::new();
+        algorithm.contacts(&mut manifolds);
       
-        for contact in contacts.iter() {
-            p -= contact.normal.unwrap() * contact.depth;
+        for manifold in manifolds.iter() {
+            let contact = manifold.deepest_contact().unwrap().contact.clone();
+            p -= *contact.normal * contact.depth;
         } 
     }
 } 

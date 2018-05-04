@@ -11,14 +11,14 @@ use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
 trait Shape3
-    : HasBoundingVolume<Isometry3<f64>, BoundingSphere<Point3<f64>>>
-    + RayCast<f32> {
+    : HasBoundingVolume<f64, BoundingSphere<f64>>
+    + RayCast<f64> {
 }
 
 impl<T> Shape3 for T
 where
-    T: HasBoundingVolume<Isometry3<f64>, BoundingSphere<Point3<f64>>>
-        + RayCast<f32>,
+    T: HasBoundingVolume<f64, BoundingSphere<f64>>
+        + RayCast<f64>,
 {
 }
 
@@ -42,10 +42,10 @@ fn main() {
         Isometry3::new(Vector3::new(0.0, 2.0, 4.0), na::zero()),
     ];
 
-    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<Point3<f64>>)> = vec![
+    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<f64>)> = vec![
         (
             0usize,
-            bounding_volume::bounding_sphere::<Point3<f64>, _, _>(shapes[0], &poss[0]),
+            bounding_volume::bounding_sphere(shapes[0], &poss[0]),
         ),
         (
             1usize,

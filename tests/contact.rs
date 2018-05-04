@@ -1,15 +1,15 @@
-extern crate ncollide;
+extern crate ncollide3d;
 extern crate nalgebra;
 
 use nalgebra::{Point3, Vector3, Isometry3, zero};
-use ncollide::world::{CollisionWorld, GeometricQueryType, CollisionGroups};
-use ncollide::bounding_volume::*;
-use ncollide::shape::*;
+use ncollide3d::world::{CollisionWorld, GeometricQueryType, CollisionGroups};
+use ncollide3d::bounding_volume::*;
+use ncollide3d::shape::*;
 
 
 #[test]
 fn just_touching_nan3d() {
-    let mut world: CollisionWorld<Point3<f32>, Isometry3<f32>, ()> = CollisionWorld::new(0.02f32);
+    let mut world = CollisionWorld::new(0.02f32);
     let groups = CollisionGroups::new();
     let contacts_query = GeometricQueryType::Contacts(0.0, 0.0);
 

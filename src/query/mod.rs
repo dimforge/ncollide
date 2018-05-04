@@ -11,10 +11,10 @@ pub use self::closest_points_internal::ClosestPoints;
 pub use self::closest_points_internal::closest_points_internal as closest_points;
 #[doc(inline)]
 pub use self::proximity_internal::Proximity;
-// #[doc(inline)]
-// pub use self::proximity_internal::proximity_internal as proximity;
-// #[doc(inline)]
-// pub use self::distance_internal::distance;
+#[doc(inline)]
+pub use self::proximity_internal::proximity_internal as proximity;
+#[doc(inline)]
+pub use self::distance_internal::distance;
 // #[doc(inline)]
 // pub use self::time_of_impact_internal::time_of_impact;
 #[doc(inline)]

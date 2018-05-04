@@ -1,5 +1,6 @@
 extern crate nalgebra as na;
 extern crate ncollide3d;
+extern crate ncollide2d;
 
 use na::Point3;
 use ncollide3d::procedural::path::{ArrowheadCap, PolylinePath, PolylinePattern, StrokePattern};
@@ -28,8 +29,8 @@ fn main() {
     // Setup the pattern.
     let start_cap = ArrowheadCap::new(1.5, 2.0, 0.0);
     let end_cap = ArrowheadCap::new(2.0, 2.0, 0.5);
-    let pattern = procedural::unit_circle(100);
-    let mut pattern = PolylinePattern::new(&pattern, true, start_cap, end_cap);
+    let pattern = ncollide2d::procedural::unit_circle(100);
+    let mut pattern = PolylinePattern::new(pattern.coords(), true, start_cap, end_cap);
 
     // Stroke!
     let _ = pattern.stroke(&mut path);

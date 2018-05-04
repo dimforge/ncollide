@@ -5,7 +5,7 @@ extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Translation2, Vector2};
 use ncollide2d::query::{self, Proximity};
-use ncollide2d::shape::{CompositeShape, CompositeShape, Cuboid, Shape, Shape};
+use ncollide2d::shape::{CompositeShape, Cuboid, Shape};
 use ncollide2d::partitioning::BVT;
 use ncollide2d::bounding_volume::AABB;
 
@@ -52,8 +52,12 @@ impl CrossedCuboids {
     }
 }
 
-impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
-    fn map_part_at(&self, i: usize, f: &mut FnMut(&Isometry2<f32>, &Shape<f32>)) {
+impl CompositeShape<f32> for CrossedCuboids {
+    fn nparts(&self) -> usize {
+        2
+    }
+
+    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry2<f32>, &Shape<f32>)) {
         // The translation needed to center the cuboid at the point (1, 1).
         let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
 
@@ -61,14 +65,14 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         let cuboid = CrossedCuboids::generate_cuboid(i);
 
         // Call the function.
-        f(&transform, &cuboid)
+        f(i, &transform, &cuboid)
     }
 
     fn map_transformed_part_at(
         &self,
         i: usize,
         m: &Isometry2<f32>,
-        f: &mut FnMut(&Isometry2<f32>, &Shape<f32>),
+        f: &mut FnMut(usize, &Isometry2<f32>, &Shape<f32>),
     ) {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m * Translation2::new(1.0, 1.0);
@@ -77,7 +81,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
         let cuboid = CrossedCuboids::generate_cuboid(i);
 
         // Call the function.
-        f(&transform, &cuboid)
+        f(i, &transform, &cuboid)
     }
 
     fn aabb_at(&self, i: usize) -> AABB<f32> {
@@ -91,7 +95,7 @@ impl CompositeShape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
     }
 }
 
-impl Shape<Point2<f32>, Isometry2<f32>> for CrossedCuboids {
+impl Shape<f32> for CrossedCuboids {
     fn aabb(&self, m: &Isometry2<f32>) -> AABB<f32> {
         // This is far from an optimal AABB.
         AABB::new(

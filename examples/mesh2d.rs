@@ -13,15 +13,8 @@ fn main() {
         Point2::new(1.0, -1.0),
     ];
 
-    let indices = vec![
-        Point2::new(0usize, 1),
-        Point2::new(1, 2),
-        Point2::new(2, 3),
-        Point2::new(3, 1),
-    ];
+    // Build the polyline.
+    let polyline = Polyline::new(points);
 
-    // Build the mesh.
-    let mesh = Polyline::new(Arc::new(points), Arc::new(indices), None, None);
-
-    assert!(mesh.vertices().len() == 4);
+    assert!(polyline.vertices().len() == 4);
 }

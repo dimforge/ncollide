@@ -12,6 +12,6 @@ fn main() {
         Point2::new(1.0, 1.0),
     ];
 
-    let convex = ConvexPolygon::new(points);
+    let convex = ConvexPolygon::try_new(points).expect("Invalid convex polygon.");
     assert!(convex.points().len() == 4);
 }

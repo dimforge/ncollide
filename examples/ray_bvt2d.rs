@@ -3,7 +3,7 @@ extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Vector2};
 use ncollide2d::partitioning::BVT;
-use ncollide2d::shape::{Ball, Capsule, Cone, Cuboid};
+use ncollide2d::shape::{Ball, Cuboid};
 use ncollide2d::query::{Ray, RayCast, RayInterferencesCollector};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
@@ -11,28 +11,28 @@ use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
 trait Shape
-    : HasBoundingVolume<Isometry2<f64>, BoundingSphere<Point2<f64>>>
-    + RayCast<Point2<f64>, Isometry2<f64>> {
+    : HasBoundingVolume<f64, BoundingSphere<f64>>
+    + RayCast<f64> {
 }
 
 impl<T> Shape for T
 where
-    T: HasBoundingVolume<Isometry2<f64>, BoundingSphere<Point2<f64>>>
-        + RayCast<Point2<f64>, Isometry2<f64>>,
+    T: HasBoundingVolume<f64, BoundingSphere<f64>>
+        + RayCast<f64>,
 {
 }
 
 fn main() {
-    let ball = Ball::new(0.5);
-    let caps = Capsule::new(0.5, 0.75);
-    let cone = Cone::new(0.5, 0.75);
-    let cube = Cuboid::new(Vector2::new(1.0, 0.5));
+    let ball1 = Ball::new(0.5);
+    let ball2 = Ball::new(0.75);
+    let cube1 = Cuboid::new(Vector2::new(0.5, 0.75));
+    let cube2 = Cuboid::new(Vector2::new(1.0, 0.5));
 
     let shapes = [
-        &ball as &Shape,
-        &caps as &Shape,
-        &cone as &Shape,
-        &cube as &Shape,
+        &ball1 as &Shape,
+        &ball2 as &Shape,
+        &cube1 as &Shape,
+        &cube2 as &Shape,
     ];
 
     let poss = [
@@ -43,7 +43,7 @@ fn main() {
     ];
 
     // FIXME: why do we need the explicit type annotation here?
-    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<Point2<f64>>)> = vec![
+    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<f64>)> = vec![
         (
             0usize,
             bounding_volume::bounding_sphere(shapes[0], &poss[0]),
