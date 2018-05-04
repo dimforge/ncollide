@@ -1,14 +1,10 @@
-use std::marker::PhantomData;
-
-use alga::general::Id;
-
-use na;
+use na::{self, Real};
 use bounding_volume::AABB;
 use partitioning::BVTCostFn;
 use shape::{CompositeShape, Shape};
 use query::distance_internal;
 use query::PointQuery;
-use math::{Isometry, Point};
+use math::{Isometry, Point, Vector};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(
@@ -19,7 +15,6 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
 ) -> N
 where
     N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     let mut cost_fn = CompositeShapeAgainstAnyDistCostFn::new(m1, g1, m2, g2);
@@ -39,34 +34,30 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
 ) -> N
 where
     N: Real,
-    M: Isometry<P>,
     G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1)
 }
 
-struct CompositeShapeAgainstAnyDistCostFn<'a, P: 'a + Point, M: 'a, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyDistCostFn<'a, N: 'a + Real, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
 
-    m1: &'a M,
+    m1: &'a Isometry<N>,
     g1: &'a G1,
-    m2: &'a M,
+    m2: &'a Isometry<N>,
     g2: &'a Shape<N>,
-
-    point_type: PhantomData<P>,
 }
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyDistCostFn<'a, N, G1>
 where
     N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     pub fn new(
-        m1: &'a M,
+        m1: &'a Isometry<N>,
         g1: &'a G1,
-        m2: &'a M,
+        m2: &'a Isometry<N>,
         g2: &'a Shape<N>,
     ) -> CompositeShapeAgainstAnyDistCostFn<'a, N, G1> {
         let ls_m2 = na::inverse(m1) * m2.clone();
@@ -79,7 +70,6 @@ where
             g1: g1,
             m2: m2,
             g2: g2,
-            point_type: PhantomData,
         }
     }
 }
@@ -88,7 +78,6 @@ impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyDistCostFn<'a, N, G1>
 where
     N: Real,
-    M: Isometry<P>,
     G1: CompositeShape<N>,
 {
     type UserData = N;
