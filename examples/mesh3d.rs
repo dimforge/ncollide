@@ -1,9 +1,9 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use std::sync::Arc;
 use na::Point3;
-use ncollide::shape::TriMesh;
+use ncollide3d::shape::TriMesh;
 
 fn main() {
     let points = vec![

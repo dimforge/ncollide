@@ -1,9 +1,9 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
 use na::{Id, Point2, Vector2};
-use ncollide::shape::Cuboid;
-use ncollide::query::{Ray, RayCast};
+use ncollide2d::shape::Cuboid;
+use ncollide2d::query::{Ray, RayCast};
 
 fn main() {
     let cuboid = Cuboid::new(Vector2::new(1.0, 2.0));

@@ -1,8 +1,8 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::Vector3;
-use ncollide::shape::Plane;
+use ncollide3d::shape::Plane;
 
 fn main() {
     let plane = Plane::new(Vector3::<f32>::y_axis());

@@ -1,9 +1,9 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::{Isometry3, Vector3};
-use ncollide::bounding_volume::{self, BoundingVolume};
-use ncollide::shape::{Cone, Cylinder};
+use ncollide3d::bounding_volume::{self, BoundingVolume};
+use ncollide3d::shape::{Cone, Cylinder};
 
 fn main() {
     /*

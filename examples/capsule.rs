@@ -1,6 +1,6 @@
-extern crate ncollide;
+extern crate ncollide3d;
 
-use ncollide::shape::Capsule;
+use ncollide3d::shape::Capsule;
 
 fn main() {
     let capsule = Capsule::new(0.5f32, 0.75);

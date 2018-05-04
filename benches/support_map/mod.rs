@@ -2,7 +2,7 @@ use rand::IsaacRng;
 use test::Bencher;
 use test;
 use na::{Isometry3, Vector3};
-use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid3, Cylinder3, Segment3, Triangle3};
+use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, Triangle3};
 use ncollide::shape::SupportMap;
 use common::{generate, unref};
 
@@ -20,7 +20,7 @@ bench_method!(
 bench_method!(
     bench_cuboid_support_map,
     support_point,
-    c: Cuboid3<f32>,
+    c: Cuboid<f32>,
     m: Isometry3<f32>,
     dir: Vector3<f32>
 );

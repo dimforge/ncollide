@@ -1,6 +1,6 @@
-extern crate ncollide;
+extern crate ncollide3d;
 
-use ncollide::world::CollisionGroups;
+use ncollide3d::world::CollisionGroups;
 
 fn main() {
     let mut a = CollisionGroups::new();

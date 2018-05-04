@@ -1,21 +1,21 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Vector2};
-use ncollide::partitioning::BVT;
-use ncollide::shape::{Ball, Capsule, Cone, Cuboid};
-use ncollide::query::{Ray, RayCast, RayInterferencesCollector};
-use ncollide::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
+use ncollide2d::partitioning::BVT;
+use ncollide2d::shape::{Ball, Capsule, Cone, Cuboid};
+use ncollide2d::query::{Ray, RayCast, RayInterferencesCollector};
+use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
 /*
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
-trait Shape2
+trait Shape
     : HasBoundingVolume<Isometry2<f64>, BoundingSphere<Point2<f64>>>
     + RayCast<Point2<f64>, Isometry2<f64>> {
 }
 
-impl<T> Shape2 for T
+impl<T> Shape for T
 where
     T: HasBoundingVolume<Isometry2<f64>, BoundingSphere<Point2<f64>>>
         + RayCast<Point2<f64>, Isometry2<f64>>,
@@ -29,10 +29,10 @@ fn main() {
     let cube = Cuboid::new(Vector2::new(1.0, 0.5));
 
     let shapes = [
-        &ball as &Shape2,
-        &caps as &Shape2,
-        &cone as &Shape2,
-        &cube as &Shape2,
+        &ball as &Shape,
+        &caps as &Shape,
+        &cone as &Shape,
+        &cube as &Shape,
     ];
 
     let poss = [

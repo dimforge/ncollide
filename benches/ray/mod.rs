@@ -2,8 +2,8 @@ use rand::IsaacRng;
 use test::Bencher;
 use test;
 use na::Id;
-use ncollide::bounding_volume::{AABB3, BoundingSphere3};
-use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid3, Cylinder3, Segment3, TriMesh3,
+use ncollide::bounding_volume::{AABB, BoundingSphere3};
+use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, TriMesh3,
                       Triangle3};
 use ncollide::ray::{Ray3, RayCast};
 use common::{generate, generate_trimesh_around_origin, unref};
@@ -25,7 +25,7 @@ bench_method!(
 bench_method!(
     bench_ray_against_cuboid,
     toi_with_ray,
-    c: Cuboid3<f32>,
+    c: Cuboid<f32>,
     id: Id,
     ray: Ray3<f32>,
     solid: bool
@@ -61,7 +61,7 @@ bench_method!(
 bench_method!(
     bench_ray_against_aabb,
     toi_with_ray,
-    a: AABB3<f32>,
+    a: AABB<f32>,
     id: Id,
     ray: Ray3<f32>,
     solid: bool
@@ -88,7 +88,7 @@ bench_method!(
 bench_method!(
     bench_ray_against_cuboid_with_normal_uv,
     toi_and_normal_and_uv_with_ray,
-    c: Cuboid3<f32>,
+    c: Cuboid<f32>,
     id: Id,
     ray: Ray3<f32>,
     solid: bool

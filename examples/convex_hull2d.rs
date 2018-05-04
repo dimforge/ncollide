@@ -1,9 +1,9 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 extern crate rand;
 
 use na::Point2;
-use ncollide::transformation;
+use ncollide2d::transformation;
 
 fn main() {
     let mut points = Vec::new();
@@ -11,5 +11,5 @@ fn main() {
         points.push(rand::random::<Point2<f32>>() * 2.0);
     }
 
-    let _ = transformation::convex_hull2(&points[..]);
+    let _ = transformation::convex_hull(&points[..]);
 }

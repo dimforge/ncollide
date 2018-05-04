@@ -116,9 +116,9 @@ pub fn is_point_in_triangle<N: Real>(
         && d12 <= na::norm_squared(&p2p3) && d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
 }
 
+#[cfg(feature = "dim3")]
 #[cfg(test)]
 mod test {
-    use na;
     use na::Point3;
 
     #[test]
@@ -127,6 +127,6 @@ mod test {
         let pb = Point3::new(0.0f64, 0.0, 0.0);
         let pc = Point3::new(0.0f64, 0.0, 4.0);
 
-        assert!(na::approx_eq(&super::triangle_area(&pa, &pb, &pc), &10.0));
+        assert!(relative_eq!(super::triangle_area(&pa, &pb, &pc), 10.0));
     }
 }

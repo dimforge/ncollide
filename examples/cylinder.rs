@@ -1,6 +1,6 @@
-extern crate ncollide;
+extern crate ncollide3d;
 
-use ncollide::shape::Cylinder;
+use ncollide3d::shape::Cylinder;
 
 fn main() {
     let cylinder = Cylinder::new(0.5f32, 1.0);

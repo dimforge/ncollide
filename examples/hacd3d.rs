@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::Point3;
-use ncollide::procedural::path::{NoCap, PolylinePath, PolylinePattern, StrokePattern};
-use ncollide::procedural;
-use ncollide::transformation;
+use ncollide3d::procedural::path::{NoCap, PolylinePath, PolylinePattern, StrokePattern};
+use ncollide3d::procedural;
+use ncollide3d::transformation;
 
 fn main() {
     /*

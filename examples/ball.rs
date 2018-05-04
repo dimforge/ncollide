@@ -1,6 +1,6 @@
-extern crate ncollide;
+extern crate ncollide3d;
 
-use ncollide::shape::Ball;
+use ncollide3d::shape::Ball;
 
 fn main() {
     let ball = Ball::new(1.0f32);

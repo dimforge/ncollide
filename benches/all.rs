@@ -1,7 +1,7 @@
 #![feature(test)]
 
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 extern crate rand;
 extern crate test;
 

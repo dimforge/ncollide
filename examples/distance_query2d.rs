@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate approx; // for relative_eq!
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
-use ncollide::shape::{Ball, Cuboid};
-use ncollide::query;
+use ncollide2d::shape::{Ball, Cuboid};
+use ncollide2d::query;
 
 fn main() {
     let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));

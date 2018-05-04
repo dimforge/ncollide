@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
-use ncollide::shape::Ball;
-use ncollide::bounding_volume;
-use ncollide::broad_phase::{BroadPhase, DBVTBroadPhase};
+use ncollide2d::shape::Ball;
+use ncollide2d::bounding_volume;
+use ncollide2d::broad_phase::{BroadPhase, DBVTBroadPhase};
 
 fn main() {
     /*

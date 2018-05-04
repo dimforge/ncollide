@@ -1,8 +1,8 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::Point3;
-use ncollide::shape::ConvexHull;
+use ncollide3d::shape::ConvexHull;
 
 fn main() {
     let points = vec![
@@ -16,7 +16,5 @@ fn main() {
     ];
 
     let convex = ConvexHull::new(points);
-
-    // ConvexHull does not compute explicitely the convex hull (which has 6 vertices)!
-    assert!(convex.points().len() == 7);
+    convex.check_geometry();
 }

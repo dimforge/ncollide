@@ -1,6 +1,6 @@
-extern crate ncollide;
+extern crate ncollide3d;
 
-use ncollide::shape::Cone;
+use ncollide3d::shape::Cone;
 
 fn main() {
     let cone = Cone::new(0.5f32, 0.75);
