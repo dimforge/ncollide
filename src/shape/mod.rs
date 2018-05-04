@@ -25,9 +25,9 @@ pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
 pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 #[cfg(feature = "dim2")]
-pub use self::convex_polyface2::ConvexPolyface;
+pub use self::convex_polygonal_feature2::ConvexPolygonalFeature;
 #[cfg(feature = "dim3")]
-pub use self::convex_polyface3::ConvexPolyface;
+pub use self::convex_polygonal_feature3::ConvexPolygonalFeature;
 #[doc(inline)]
 pub use self::composite_shape::CompositeShape;
 #[doc(inline)]
@@ -68,7 +68,7 @@ mod convex;
 #[cfg(feature = "dim2")]
 mod convex_polygon;
 #[cfg(feature = "dim2")]
-mod convex_polyface2;
+mod convex_polygonal_feature2;
 #[cfg(feature = "dim3")]
-mod convex_polyface3;
+mod convex_polygonal_feature3;
 mod shape_impl;

@@ -60,4 +60,4 @@ mod bounding_sphere_trimesh;
 mod bounding_sphere_utils;
 mod bounding_sphere_shape;
 
-pub mod polyhedral_cone;
+mod polyhedral_cone;

@@ -30,7 +30,17 @@ pub fn eps_tol<N: Real>() -> N {
     _eps * na::convert(100.0f64)
 }
 
-pub fn project_origin<N, G: ?Sized>(m: &Isometry<N>, g: &G, simplex: &mut VoronoiSimplex<N>) -> Option<Point<N>>
+/// Projects the origin on the boundary of the given shape.
+///
+/// The origin is assumed to be outside of the shape. If it is inside,
+/// use the EPA algorithm instead.
+/// Return `None` if the origin is not inside of the shape or if
+/// the EPA algorithm failed to compute the projection.
+pub fn project_origin<N, G: ?Sized>(
+    m: &Isometry<N>,
+    g: &G,
+    simplex: &mut VoronoiSimplex<N>,
+) -> Option<Point<N>>
 where
     N: Real,
     G: SupportMap<N>,

@@ -9,7 +9,7 @@ use na::{self, Real, Unit};
 use math::{Isometry, Point, Vector};
 use query::PointQueryWithLocation;
 use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use shape::{SupportMap, Triangle, TrianglePointLocation, ConstantOrigin};
+use shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
 use utils;
 
 #[derive(Copy, Clone, PartialEq)]
@@ -192,6 +192,12 @@ impl<N: Real> EPA<N> {
         self.silhouette.clear();
     }
 
+    /// Projects the origin on boundary of the given shape.
+    ///
+    /// The origin is assumed to be inside of the shape. If it is outside
+    /// use the GJK algorithm instead.
+    /// Return `None` if the origin is not inside of the shape or if
+    /// the EPA algorithm failed to compute the projection.
     pub fn project_origin<G: ?Sized>(
         &mut self,
         m: &Isometry<N>,
@@ -201,13 +207,8 @@ impl<N: Real> EPA<N> {
     where
         G: SupportMap<N>,
     {
-        self.closest_points(
-            m,
-            g,
-            &Isometry::identity(),
-            &ConstantOrigin,
-            simplex,
-        ).map(|(p, _, _)| p)
+        self.closest_points(m, g, &Isometry::identity(), &ConstantOrigin, simplex)
+            .map(|(p, _, _)| p)
     }
 
     /// Projects the origin on a shape unsing the EPA algorithm.
@@ -375,7 +376,7 @@ impl<N: Real> EPA<N> {
             self.compute_silhouette(support_point_id, face.adj[2], adj_opp_pt_id3);
 
             let first_new_face_id = self.faces.len();
-            
+
             if self.silhouette.len() == 0 {
                 // FIXME: Something went very wrong because we failed to extract a silhouette…
                 return None;

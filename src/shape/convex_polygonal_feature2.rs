@@ -4,20 +4,26 @@ use math::{Isometry, Point, Vector};
 use query::Contact;
 use shape::FeatureId;
 
+/// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
-pub struct ConvexPolyface<N: Real> {
+pub struct ConvexPolygonalFeature<N: Real> {
     // FIXME: don't keep all those public.
+    /// The vertices of this face.
     pub vertices: [Point<N>; 2],
+    /// Number of vertices in `vertices` to be considered.
     pub nvertices: usize,
+    /// The normal of this feature if it is an edge.
     pub normal: Option<Unit<Vector<N>>>,
+    /// The shape-dependent identifier of this feature.
     pub feature_id: FeatureId,
+    /// The shape-dependent indentifier of each vertex of this feature.
     pub vertices_id: [FeatureId; 2],
 }
 
-impl<N: Real> ConvexPolyface<N> {
+impl<N: Real> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
-        ConvexPolyface {
+        ConvexPolygonalFeature {
             vertices: [Point::origin(); 2],
             nvertices: 0,
             normal: None,
@@ -26,13 +32,14 @@ impl<N: Real> ConvexPolyface<N> {
         }
     }
 
-    /// Removes all the vertices of this face.
+    /// Removes all the vertices, normals, and feature IDs of this feature.
     pub fn clear(&mut self) {
         self.nvertices = 0;
         self.normal = None;
         self.feature_id = FeatureId::Unknown;
     }
 
+    /// Transforms all the vertices and normal of this feature by the given isometry.
     pub fn transform_by(&mut self, m: &Isometry<N>) {
         for p in &mut self.vertices {
             *p = m * *p;
@@ -67,10 +74,12 @@ impl<N: Real> ConvexPolyface<N> {
         self.normal = Some(normal)
     }
 
+    /// Sets the identifier of the feature represented by this convex polygon.
     pub fn set_feature_id(&mut self, id: FeatureId) {
         self.feature_id = id
     }
 
+    /// Projects a point on this feature.
     pub fn project_point(&self, pt: &Point<N>) -> Option<Contact<N>> {
         if let Some(n) = self.normal {
             let dir = self.vertices[1] - self.vertices[0];

@@ -49,14 +49,24 @@ impl<N: Real> Contact<N> {
     }
 }
 
+/// A contact combined with contact kinematic information as well as a persistant identifier.
+/// 
+/// When ncollide is used to compute contact points between moving solids, it will attempt to
+/// match contact points found at successive frames. Two contact points are said to "match" if
+/// they can be seen as the same contact point that moved in-between frames. Two matching
+/// contact points are given the same `id` here.
 #[derive(Clone, Debug)]
 pub struct TrackedContact<N: Real> {
+    /// The geometric contact information.
     pub contact: Contact<N>,
+    /// The local contact kinematic.
     pub kinematic: ContactKinematic<N>,
+    /// The identifier of this contact.
     pub id: GenerationalId,
 }
 
 impl<N: Real> TrackedContact<N> {
+    /// Creates a new tracked contact.
     pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>, id: GenerationalId) -> Self {
         TrackedContact {
             contact,

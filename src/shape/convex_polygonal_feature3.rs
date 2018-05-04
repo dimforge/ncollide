@@ -9,20 +9,26 @@ use math::{Isometry, Point, Vector};
 /// It is never checked if the vertices actually form a convex polygon.
 /// If they do not, results of any geometric query may end up being invalid.
 #[derive(Clone, Debug)]
-pub struct ConvexPolyface<N: Real> {
+pub struct ConvexPolygonalFeature<N: Real> {
     // FIXME: don't keep all those public.
+    /// The vertices of this face.
     pub vertices: Vec<Point<N>>,
+    /// The outward normal of the edges if it is a face.
     pub edge_normals: Vec<Vector<N>>,
+    /// The normal of this feature if it is an edge.
     pub normal: Option<Unit<Vector<N>>>,
+    /// The shape-dependent identifier of this feature.
     pub feature_id: FeatureId,
+    /// The shape-dependent indentifier of each vertex of this feature.
     pub vertices_id: Vec<FeatureId>,
+    /// The shape-dependent indentifier of each edge of this feature.
     pub edges_id: Vec<FeatureId>,
 }
 
-impl<N: Real> ConvexPolyface<N> {
+impl<N: Real> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
-        ConvexPolyface {
+        ConvexPolygonalFeature {
             vertices: Vec::new(),
             edge_normals: Vec::new(),
             normal: None,
@@ -32,6 +38,7 @@ impl<N: Real> ConvexPolyface<N> {
         }
     }
     
+    /// Removes all the vertices, normals, and feature IDs of this feature.
     pub fn clear(&mut self) {
         self.vertices.clear();
         self.edge_normals.clear();
@@ -41,6 +48,7 @@ impl<N: Real> ConvexPolyface<N> {
         self.feature_id = FeatureId::Unknown;
     }
 
+    /// Transforms all the vertices and normals of this feature by the given isometry.
     pub fn transform_by(&mut self, m: &Isometry<N>) {
         for p in &mut self.vertices {
             *p = m * *p;
@@ -126,6 +134,7 @@ impl<N: Real> ConvexPolyface<N> {
         }
     }
 
+    /// Transforms all the vertices of this feature by the given isometry.
     pub fn project_point(&self, pt: &Point<N>) -> Option<Contact<N>> {
         if let Some(n) = self.normal {
             let dpt = *pt - self.vertices[0];
@@ -151,10 +160,12 @@ impl<N: Real> ConvexPolyface<N> {
         self.normal = Some(normal)
     }
 
+    /// Add the shape-dependent identifier of a edge of this feature (if it is a face).
     pub fn push_edge_feature_id(&mut self, id: FeatureId) {
         self.edges_id.push(id)
     }
 
+    /// Add the shape-dependent identifier of this feature.
     pub fn set_feature_id(&mut self, id: FeatureId) {
         self.feature_id = id
     }

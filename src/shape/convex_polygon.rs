@@ -4,15 +4,20 @@ use na::{self, Real, Unit};
 
 use utils::{self, IsometryOps};
 use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
 
+/// A 2D convex polygon.
 pub struct ConvexPolygon<N: Real> {
     points: Vec<Point<N>>,
     normals: Vec<Unit<Vector<N>>>,
 }
 
 impl<N: Real> ConvexPolygon<N> {
+    /// Creates a new 2D convex polygon from a set of points assumed to describe a convex polyline.
+    /// 
+    /// Convexity of the input polyline is not checked.
+    /// Returns `None` if some consecutive points are identical (or too close to being so).
     pub fn try_new(mut points: Vec<Point<N>>) -> Option<Self> {
         let eps = N::default_epsilon().sqrt();
         let mut normals = Vec::with_capacity(points.len());
@@ -53,11 +58,13 @@ impl<N: Real> ConvexPolygon<N> {
         }
     }
 
+    /// The vertices of this convex polygon.
     #[inline]
     pub fn points(&self) -> &[Point<N>] {
         &self.points
     }
 
+    /// The normals of the edges of this convex polygon.
     #[inline]
     pub fn normals(&self) -> &[Unit<Vector<N>>] {
         &self.normals
@@ -79,7 +86,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         self.points[id.unwrap_vertex()]
     }
 
-    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<N>) {
+    fn face(&self, id: FeatureId, out: &mut ConvexPolygonalFeature<N>) {
         out.clear();
 
         let ia = id.unwrap_face();
@@ -106,7 +113,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         }
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolyface<N>) {
+    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolygonalFeature<N>) {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
@@ -129,7 +136,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         _angle: N,
-        out: &mut ConvexPolyface<N>,
+        out: &mut ConvexPolygonalFeature<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.

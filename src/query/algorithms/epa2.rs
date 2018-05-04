@@ -8,7 +8,7 @@ use na::{self, Unit};
 
 use math::{Isometry, Point, Vector};
 use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use shape::{SupportMap, ConstantOrigin};
+use shape::{ConstantOrigin, SupportMap};
 use utils;
 
 #[derive(Copy, Clone, PartialEq)]
@@ -137,6 +137,12 @@ impl<N: Real> EPA<N> {
         self.heap.clear();
     }
 
+    /// Projects the origin on boundary the given shape.
+    ///
+    /// The origin is assumed to be inside of the shape. If it is outside, use
+    /// the GJK algorithm instead.
+    /// Return `None` if the origin is not inside of the shape or if
+    /// the EPA algorithm failed to compute the projection.
     pub fn project_origin<G: ?Sized>(
         &mut self,
         m: &Isometry<N>,
@@ -146,13 +152,8 @@ impl<N: Real> EPA<N> {
     where
         G: SupportMap<N>,
     {
-        self.closest_points(
-            m,
-            g,
-            &Isometry::identity(),
-            &ConstantOrigin,
-            simplex,
-        ).map(|(p, _, _)| p)
+        self.closest_points(m, g, &Isometry::identity(), &ConstantOrigin, simplex)
+            .map(|(p, _, _)| p)
     }
 
     /// Projects the origin on a shape unsing the EPA algorithm.

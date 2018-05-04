@@ -21,6 +21,12 @@ enum KinematicVariant<N: Real> {
     LinePlane(Unit<Vector<N>>),
 }
 
+/// Local contact kinematic of a pair of solids around two given points.
+/// 
+/// This is used to update the localization of contact points between two solids
+/// from one frame to another. To achieve this, the local shape of the solids
+/// around the given points are approximated by either dilated lines (unbounded
+/// cylinders), planes, dilated points (spheres).
 #[derive(Clone, Debug)]
 pub struct ContactKinematic<N: Real> {
     local1: Point<N>,
@@ -39,6 +45,10 @@ pub struct ContactKinematic<N: Real> {
 }
 
 impl<N: Real> ContactKinematic<N> {
+    /// Initializes an empty contact kinematic.
+    /// 
+    /// All the contact kinematic information must be filled using methods
+    /// prefixed by `set_`.
     pub fn new() -> Self {
         ContactKinematic {
             local1: Point::origin(),
@@ -53,6 +63,7 @@ impl<N: Real> ContactKinematic<N> {
         }
     }
 
+    /// Applies the given transformation to the first set of contact information.
     pub fn transform1(&mut self, m: &Isometry<N>) {
         self.local1 = m * self.local1;
         self.normals1.transform_by(m);
@@ -74,6 +85,7 @@ impl<N: Real> ContactKinematic<N> {
         }
     }
 
+    /// Applies the given transformation to the second set of contact information.
     pub fn transform2(&mut self, m: &Isometry<N>) {
         self.local2 = m * self.local2;
         self.normals2.transform_by(m);
@@ -95,10 +107,12 @@ impl<N: Real> ContactKinematic<N> {
         }
     }
 
+    /// The dilation of the first solid.
     pub fn dilation1(&self) -> N {
         self.margin1
     }
 
+    /// The dilation of the second solid.
     pub fn dilation2(&self) -> N {
         self.margin2
     }
@@ -121,22 +135,29 @@ impl<N: Real> ContactKinematic<N> {
         self.local2
     }
 
+    /// The shape-dependent identifier of the feature of the first solid
+    /// on which lies the contact point.
     pub fn feature1(&self) -> FeatureId {
         self.feature1
     }
 
+    /// The shape-dependent identifier of the feature of the second solid
+    /// on which lies the contact point.
     pub fn feature2(&self) -> FeatureId {
         self.feature2
     }
 
+    /// Sets the dilation of the first solid.
     pub fn set_dilation1(&mut self, margin: N) {
         self.margin1 = margin;
     }
 
+    /// Sets the dilation of the second solid.
     pub fn set_dilation2(&mut self, margin: N) {
         self.margin2 = margin;
     }
 
+    /// Define as a plane the local approximation of the shape of the first solid.
     pub fn set_plane1(&mut self, fid: FeatureId, pt: Point<N>, normal: Unit<Vector<N>>) {
         self.feature1 = fid;
         self.local1 = pt;
@@ -156,6 +177,7 @@ impl<N: Real> ContactKinematic<N> {
         }
     }
 
+    /// Define as a plane the local approximation of the shape of the second solid.
     pub fn set_plane2(&mut self, fid: FeatureId, pt: Point<N>, normal: Unit<Vector<N>>) {
         self.feature2 = fid;
         self.local2 = pt;
@@ -175,6 +197,7 @@ impl<N: Real> ContactKinematic<N> {
         }
     }
 
+    /// Define as a line the local approximation of the shape of the second solid.
     pub fn set_line1(
         &mut self,
         fid: FeatureId,
@@ -199,6 +222,7 @@ impl<N: Real> ContactKinematic<N> {
         };
     }
 
+    /// Define as a line the local approximation of the shape of the second solid.
     pub fn set_line2(
         &mut self,
         fid: FeatureId,
@@ -223,6 +247,7 @@ impl<N: Real> ContactKinematic<N> {
         };
     }
 
+    /// Define as a point the local approximation of the shape of the second solid.
     pub fn set_point1(&mut self, fid: FeatureId, pt: Point<N>, normals: PolyhedralCone<N>) {
         self.feature1 = fid;
         self.local1 = pt;
@@ -242,6 +267,7 @@ impl<N: Real> ContactKinematic<N> {
         };
     }
 
+    /// Define as a point the local approximation of the shape of the second solid.
     pub fn set_point2(&mut self, fid: FeatureId, pt: Point<N>, normals: PolyhedralCone<N>) {
         self.feature2 = fid;
         self.local2 = pt;

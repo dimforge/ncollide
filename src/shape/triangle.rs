@@ -12,7 +12,7 @@ use utils::IsometryOps;
 #[cfg(feature = "dim3")]
 use smallvec::SmallVec;
 #[cfg(feature = "dim3")]
-use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use bounding_volume::PolyhedralCone;
 
@@ -78,6 +78,7 @@ impl<N: Real> Triangle<N> {
         &self.c
     }
 
+    /// Reference to an array containing the three vertices of this triangle.
     #[inline]
     pub fn as_array(&self) -> &[Point<N>; 3] {
         unsafe { mem::transmute(self) }
@@ -150,7 +151,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         }
     }
 
-    fn face(&self, id: FeatureId, face: &mut ConvexPolyface<N>) {
+    fn face(&self, id: FeatureId, face: &mut ConvexPolygonalFeature<N>) {
         face.clear();
 
         if let Some(normal) = self.normal() {
@@ -239,7 +240,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         &self,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        face: &mut ConvexPolyface<N>,
+        face: &mut ConvexPolygonalFeature<N>,
     ) {
         let normal = self.scaled_normal();
 
@@ -256,7 +257,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         _angle: N,
-        out: &mut ConvexPolyface<N>,
+        out: &mut ConvexPolygonalFeature<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.

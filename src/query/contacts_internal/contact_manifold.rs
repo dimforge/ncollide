@@ -19,7 +19,13 @@ impl CacheEntryStatus {
     }
 }
 
-// FIXME: in 2D, should only contain 2 contacts at most.
+/// A contact manifold.
+/// 
+/// A contat manifold is a set of contacts lying on the same plane.
+/// The convex hull of those contacts are often interpreted as a contact
+/// surface. This structure is responsible for matching new contacts with
+/// old ones in order to perform an approximat tracking of the contact
+/// points.
 #[derive(Clone, Debug)]
 pub struct ContactManifold<N: Real> {
     // FIXME: move those to the contact kinematic
@@ -36,6 +42,7 @@ pub struct ContactManifold<N: Real> {
 }
 
 impl<N: Real> ContactManifold<N> {
+    /// Initializes a contact manifold without any contact.
     pub fn new() -> Self {
         ContactManifold {
             subshape_id1: 0,
@@ -48,34 +55,42 @@ impl<N: Real> ContactManifold<N> {
         }
     }
 
+    /// The identifier of the first sub-shape the contacts of this manifold lie on.
     pub fn subshape_id1(&self) -> usize {
         self.subshape_id1
     }
 
+    /// Sets the identifier of the first sub-shape the contacts of this manifold lie on.
     pub fn set_subshape_id1(&mut self, id: usize) {
         self.subshape_id1 = id
     }
 
+    /// The identifier of the first sub-shape the contacts of this manifold lie on.
     pub fn subshape_id2(&self) -> usize {
         self.subshape_id2
     }
 
+    /// Sets the identifier of the first sub-shape the contacts of this manifold lie on.
     pub fn set_subshape_id2(&mut self, id: usize) {
         self.subshape_id2 = id
     }
 
+    /// The number of contacts contained by this manifold.
     pub fn len(&self) -> usize {
         self.contacts.len()
     }
 
+    /// All the contact tracked by this manifold.
     pub fn contacts(&self) -> &[TrackedContact<N>] {
         &self.contacts[..]
     }
 
+    /// The index of the contact with the greatest penetration depth.
     pub fn deepest_contact_id(&self) -> usize {
         self.deepest
     }
 
+    /// The contact of this manifold with the deepest penetration depth.
     pub fn deepest_contact(&self) -> Option<&TrackedContact<N>> {
         if self.len() != 0 {
             Some(&self.contacts[self.deepest])
@@ -84,6 +99,7 @@ impl<N: Real> ContactManifold<N> {
         }
     }
 
+    /// Save the contacts to a cache and empty the manifold.
     pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {
         for (valid, c) in self.cached_contact_used.iter_mut().zip(self.cache.iter()) {
             if valid.is_obsolete() {
@@ -106,6 +122,12 @@ impl<N: Real> ContactManifold<N> {
         self.deepest = 0;
     }
 
+    /// Add a new contact to the manifold.
+    /// 
+    /// The manifold will attempt to match this contact with another one
+    /// previously added and added to the cache by the last call to
+    /// `save_cache_and_clear`. The matching is done by spacial proximity, i.e.,
+    /// two contacts that are sufficiently close will be given the same identifer.
     pub fn push(
         &mut self,
         contact: Contact<N>,
@@ -175,6 +197,8 @@ impl<N: Real> ContactManifold<N> {
     }
 
     /*
+     * Feature-based matching:
+     *
     pub fn push(
         &mut self,
         contact: Contact<N>,

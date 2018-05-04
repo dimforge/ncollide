@@ -41,25 +41,11 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-// #![deny(missing_docs)]
+#![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
-
-// pub extern crate ncollide_geometry;
-// pub extern crate ncollide_math;
-// pub extern crate ncollide_pipeline;
-// pub extern crate ncollide_procedural;
-// pub extern crate ncollide_transformation;
-// pub extern crate ncollide_utils;
-
-// pub use ncollide_math as math;
-// pub use ncollide_utils as utils;
-// pub use ncollide_geometry::{bounding_volume, partitioning, query, shape};
-// pub use ncollide_pipeline::{broad_phase, events, narrow_phase, world};
-// pub use ncollide_procedural as procedural;
-// pub use ncollide_transformation as transformation;
 
 extern crate alga;
 extern crate slab;
@@ -85,8 +71,7 @@ mod pipeline;
 pub mod math {
   use na::{Isometry3, Point3, Translation3, U3, U6, UnitQuaternion, Vector3, Vector6};
 
-  pub const SPATIAL_DIM: usize = 6;
-  pub const ANGULAR_DIM: usize = 3;
+  /// The dimension of the space.
   pub const DIM: usize = 3;
 
   /// The dimension of the ambiant space.
@@ -128,6 +113,7 @@ pub mod math {
 pub mod math {
   use na::{Isometry2, Point2, Translation2, U2, UnitComplex, Vector1, Vector2};
 
+  /// The dimension of the space.
   pub const DIM: usize = 2;
 
   /// The dimension of the ambiant space.

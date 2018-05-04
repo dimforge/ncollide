@@ -3,7 +3,7 @@
 use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use std::mem;
 #[cfg(feature = "dim2")]
@@ -124,12 +124,12 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
     }
 
     #[cfg(feature = "dim3")]
-    fn face(&self, _: FeatureId, _: &mut ConvexPolyface<N>) {
+    fn face(&self, _: FeatureId, _: &mut ConvexPolygonalFeature<N>) {
         panic!("A segment does not have any face indimensions higher than 2.")
     }
 
     #[cfg(feature = "dim2")]
-    fn face(&self, id: FeatureId, face: &mut ConvexPolyface<N>) {
+    fn face(&self, id: FeatureId, face: &mut ConvexPolygonalFeature<N>) {
         face.clear();
 
         if let Some(normal) = utils::ccw_face_normal([&self.a, &self.b]) {
@@ -189,7 +189,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         &self,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        face: &mut ConvexPolyface<N>,
+        face: &mut ConvexPolygonalFeature<N>,
     ) {
         let seg_dir = self.scaled_direction();
 
@@ -206,7 +206,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         &self,
         m: &Isometry<N>,
         _: &Unit<Vector<N>>,
-        face: &mut ConvexPolyface<N>,
+        face: &mut ConvexPolygonalFeature<N>,
     ) {
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
@@ -220,7 +220,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         _angle: N,
-        out: &mut ConvexPolyface<N>,
+        out: &mut ConvexPolygonalFeature<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.

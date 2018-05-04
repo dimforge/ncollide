@@ -12,7 +12,7 @@ use query::contacts_internal;
 #[cfg(feature = "dim3")]
 use query::ray_internal;
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use shape::ConvexPolyface;
+use shape::ConvexPolygonalFeature;
 use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 #[cfg(feature = "dim3")]
 use utils;
@@ -50,8 +50,8 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     contact_manifold: ContactManifold<N>,
     clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
-    manifold1: ConvexPolyface<N>,
-    manifold2: ConvexPolyface<N>,
+    manifold1: ConvexPolygonalFeature<N>,
+    manifold2: ConvexPolygonalFeature<N>,
 }
 
 impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
@@ -64,8 +64,8 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             contact_manifold: ContactManifold::new(),
             clip_cache: ClippingCache::new(),
             new_contacts: Vec::new(),
-            manifold1: ConvexPolyface::new(),
-            manifold2: ConvexPolyface::new(),
+            manifold1: ConvexPolygonalFeature::new(),
+            manifold2: ConvexPolygonalFeature::new(),
         }
     }
 

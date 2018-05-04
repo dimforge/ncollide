@@ -2,7 +2,7 @@ use na::{self, Real};
 
 use math::{Isometry, Point};
 use utils::{IdAllocator, IsometryOps};
-use shape::{ConvexPolyface, FeatureId, Plane, Shape};
+use shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 
@@ -10,7 +10,7 @@ use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 #[derive(Clone)]
 pub struct PlaneConvexPolyhedronManifoldGenerator<N: Real> {
     flip: bool,
-    feature: ConvexPolyface<N>,
+    feature: ConvexPolygonalFeature<N>,
     manifold: ContactManifold<N>,
 }
 
@@ -21,7 +21,7 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
     pub fn new(flip: bool) -> PlaneConvexPolyhedronManifoldGenerator<N> {
         PlaneConvexPolyhedronManifoldGenerator {
             flip,
-            feature: ConvexPolyface::new(),
+            feature: ConvexPolygonalFeature::new(),
             manifold: ContactManifold::new(),
         }
     }

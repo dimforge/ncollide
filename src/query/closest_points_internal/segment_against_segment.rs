@@ -41,6 +41,7 @@ pub fn segment_against_segment_with_locations<N: Real>(
     segment_against_segment_with_locations_nD((seg1.a(), seg1.b()), (seg2.a(), seg2.b()))
 }
 
+/// Segment-segment closest points computation in an arbitrary dimension.
 #[allow(non_snake_case)]
 #[inline]
 pub fn segment_against_segment_with_locations_nD<P>(

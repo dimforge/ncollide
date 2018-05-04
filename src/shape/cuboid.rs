@@ -7,7 +7,7 @@ use smallvec::SmallVec;
 use na::{self, Real, Unit};
 use utils::IsometryOps;
 use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolyface, ConvexPolyhedron, FeatureId, SupportMap};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector, DIM};
 
 /// Shape of a box.
@@ -100,7 +100,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         (p1, p2, vid1, vid2)
     }
 
-    fn face(&self, id: FeatureId, out: &mut ConvexPolyface<N>) {
+    fn face(&self, id: FeatureId, out: &mut ConvexPolygonalFeature<N>) {
         out.clear();
 
         let i = id.unwrap_face();
@@ -192,7 +192,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         }
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolyface<N>) {
+    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolygonalFeature<N>) {
         out.clear();
         let local_dir = m.inverse_transform_vector(dir);
 
@@ -222,7 +222,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         angle: N,
-        out: &mut ConvexPolyface<N>,
+        out: &mut ConvexPolygonalFeature<N>,
     ) {
         let local_dir = m.inverse_transform_vector(dir);
         let cang = angle.cos();

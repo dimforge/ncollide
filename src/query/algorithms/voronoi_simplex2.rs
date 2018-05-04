@@ -29,17 +29,20 @@ impl<N: Real> VoronoiSimplex<N> {
         }
     }
 
+    /// Swap two vertices of this simplex.
     pub fn swap(&mut self, i1: usize, i2: usize) {
         self.vertices.swap(i1, i2);
         self.prev_vertices.swap(i1, i2);
     }
 
+    /// Resets this simplex to a single point.
     pub fn reset(&mut self, pt: CSOPoint<N>) {
         self.prev_dim = 0;
         self.dim = 0;
         self.vertices[0] = pt;
     }
 
+    /// Add a point to this simplex.
     pub fn add_point(&mut self, pt: CSOPoint<N>) -> bool {
         self.prev_dim = self.dim;
         self.prev_proj = self.proj;
@@ -56,26 +59,35 @@ impl<N: Real> VoronoiSimplex<N> {
         return true;
     }
 
+    /// Retrieves the barycentric coordinate associated to the `i`-th by the last call to `project_origin_and_reduce`.
     pub fn proj_coord(&self, i: usize) -> N {
         assert!(i <= self.dim, "Index out of bounds.");
         self.proj[i]
     }
 
+    /// The i-th point of this simplex.
     pub fn point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.dim, "Index out of bounds.");
         &self.vertices[i]
     }
 
+    /// Retrieves the barycentric coordinate associated to the `i`-th before the last call to `project_origin_and_reduce`.
     pub fn prev_proj_coord(&self, i: usize) -> N {
         assert!(i <= self.prev_dim, "Index out of bounds.");
         self.prev_proj[i]
     }
 
+    /// The i-th point of the simplex before the last call to `projet_origin_and_reduce`.
     pub fn prev_point(&self, i: usize) -> &CSOPoint<N> {
         assert!(i <= self.prev_dim, "Index out of bounds.");
         &self.vertices[self.prev_vertices[i]]
     }
 
+    /// Projets the origin on the boundary of this simplex and reduces `self` the smallest subsimplex containing the origin.
+    /// 
+    /// Retruns the result of the projection or Point::origin() if the origin lies inside of the simplex.
+    /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
+    /// by `prev_`.
     pub fn project_origin_and_reduce(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.proj[0] = N::one();
@@ -144,6 +156,7 @@ impl<N: Real> VoronoiSimplex<N> {
         }
     }
 
+    /// Compute the projection of the origin on the boundary of this simplex.
     pub fn project_origin(&mut self) -> Point<N> {
         if self.dim == 0 {
             self.vertices[0].point
@@ -163,6 +176,7 @@ impl<N: Real> VoronoiSimplex<N> {
         }
     }
 
+    /// Tests if the given point is already a vertex of this simplex.
     pub fn contains_point(&self, pt: &Point<N>) -> bool {
         for i in 0..self.dim + 1 {
             if self.vertices[i].point == *pt {
@@ -173,14 +187,17 @@ impl<N: Real> VoronoiSimplex<N> {
         false
     }
 
+    /// The dimension of the smallest subspace that can contain this simplex.
     pub fn dimension(&self) -> usize {
         self.dim
     }
 
+    /// The dimension of the simplex before the last call to `project_origin_and_reduce`.
     pub fn prev_dimension(&self) -> usize {
         self.prev_dim
     }
 
+    /// The maximum squared length of the vertices of this simplex.
     pub fn max_sq_len(&self) -> N {
         let mut max_sq_len = na::zero();
 
@@ -195,6 +212,7 @@ impl<N: Real> VoronoiSimplex<N> {
         max_sq_len
     }
 
+    /// Apply a function to all the vertices of this simplex.
     pub fn modify_pnts(&mut self, f: &Fn(&mut CSOPoint<N>)) {
         for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
