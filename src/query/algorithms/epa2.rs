@@ -180,7 +180,7 @@ impl<N: Real> EPA<N> {
         /*
          * Initialization.
          */
-        for i in 0..=simplex.dimension() {
+        for i in 0..simplex.dimension() + 1 {
             self.vertices.push(*simplex.point(i));
         }
 

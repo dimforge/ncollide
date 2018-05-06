@@ -97,7 +97,7 @@ where
     fn result<N: Real>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
         let mut res = (Point::origin(), Point::origin());
         if prev {
-            for i in 0..=simplex.prev_dimension() {
+            for i in 0..simplex.prev_dimension() + 1 {
                 let coord = simplex.prev_proj_coord(i);
                 let point = simplex.prev_point(i);
                 res.0 += point.orig1.coords * coord;
@@ -106,7 +106,7 @@ where
 
             res
         } else {
-            for i in 0..=simplex.dimension() {
+            for i in 0..simplex.dimension() + 1 {
                 let coord = simplex.proj_coord(i);
                 let point = simplex.point(i);
                 res.0 += point.orig1.coords * coord;

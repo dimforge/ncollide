@@ -33,12 +33,13 @@ install:
   - export LIBRARY_PATH="$LIBRARY_PATH:$HOME/local/lib"
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/local/lib"
   - bash $TRAVIS_BUILD_DIR/.travis.payload/install-dependencies.sh
-before_script:
-  - bash .travis.configure.sh
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - make all
-  - make test
+  - cd $TRAVIS_BUILD_DIR/build/ncollide2d
+  - cargo build
+  - cargo test
+  - cd $TRAVIS_BUILD_DIR/build/ncollide3d
+  - cargo build
+  - cargo test
   # - cd ncollide_testbed2d
   # - make test
   # - cd $TRAVIS_BUILD_DIR
