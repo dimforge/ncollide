@@ -1,9 +1,8 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
-use std::sync::Arc;
 use na::Point3;
-use ncollide::shape::TriMesh;
+use ncollide3d::shape::TriMesh;
 
 fn main() {
     let points = vec![
@@ -20,7 +19,7 @@ fn main() {
     ];
 
     // Build the mesh.
-    let mesh = TriMesh::new(Arc::new(points), Arc::new(indices), None, None);
+    let mesh = TriMesh::new(points, indices, None);
 
     assert!(mesh.vertices().len() == 4);
 }

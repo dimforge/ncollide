@@ -1,24 +1,24 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::{Isometry3, Point3, Vector3};
-use ncollide::partitioning::BVT;
-use ncollide::shape::{Ball, Capsule, Cone, Cuboid};
-use ncollide::query::{Ray, RayCast, RayInterferencesCollector};
-use ncollide::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
+use ncollide3d::partitioning::BVT;
+use ncollide3d::shape::{Ball, Capsule, Cone, Cuboid};
+use ncollide3d::query::{Ray, RayCast, RayInterferencesCollector};
+use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 
 /*
  * Custom trait to group `HasBoudingSphere` and `RayCast` together.
  */
 trait Shape3
-    : HasBoundingVolume<Isometry3<f64>, BoundingSphere<Point3<f64>>>
-    + RayCast<Point3<f64>, Isometry3<f64>> {
+    : HasBoundingVolume<f64, BoundingSphere<f64>>
+    + RayCast<f64> {
 }
 
 impl<T> Shape3 for T
 where
-    T: HasBoundingVolume<Isometry3<f64>, BoundingSphere<Point3<f64>>>
-        + RayCast<Point3<f64>, Isometry3<f64>>,
+    T: HasBoundingVolume<f64, BoundingSphere<f64>>
+        + RayCast<f64>,
 {
 }
 
@@ -42,10 +42,10 @@ fn main() {
         Isometry3::new(Vector3::new(0.0, 2.0, 4.0), na::zero()),
     ];
 
-    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<Point3<f64>>)> = vec![
+    let idx_and_bounding_spheres: Vec<(usize, BoundingSphere<f64>)> = vec![
         (
             0usize,
-            bounding_volume::bounding_sphere::<Point3<f64>, _, _>(shapes[0], &poss[0]),
+            bounding_volume::bounding_sphere(shapes[0], &poss[0]),
         ),
         (
             1usize,

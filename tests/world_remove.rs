@@ -1,14 +1,14 @@
 extern crate nalgebra;
-extern crate ncollide;
+extern crate ncollide2d;
 
-use ncollide::world::{CollisionGroups, CollisionWorld2};
-use ncollide::shape::{Ball, ShapeHandle};
-use ncollide::world::GeometricQueryType;
+use ncollide2d::world::{CollisionGroups, CollisionWorld};
+use ncollide2d::shape::{Ball, ShapeHandle};
+use ncollide2d::world::GeometricQueryType;
 use nalgebra::{Isometry2, Vector2};
 
 #[test]
 fn issue_57_object_remove() {
-    let mut world = CollisionWorld2::new(0.1);
+    let mut world = CollisionWorld::new(0.1);
     let shape = ShapeHandle::new(Ball::new(1.0));
     let contact_query = GeometricQueryType::Contacts(0.0, 0.0);
     let object1 = world.add(

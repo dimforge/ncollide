@@ -1,18 +1,17 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
-use na::{Isometry3, Point3};
-use ncollide::shape::{Ball, ShapeHandle};
-use ncollide::broad_phase::BroadPhasePairFilter;
-use ncollide::world::{CollisionGroups, CollisionObject3, CollisionWorld, GeometricQueryType};
+use ncollide3d::shape::{Ball, ShapeHandle};
+use ncollide3d::broad_phase::BroadPhasePairFilter;
+use ncollide3d::world::{CollisionGroups, CollisionObject, CollisionWorld, GeometricQueryType};
 
 struct ParityFilter;
 
-impl BroadPhasePairFilter<Point3<f32>, Isometry3<f32>, ()> for ParityFilter {
+impl BroadPhasePairFilter<f32, ()> for ParityFilter {
     fn is_pair_valid(
         &self,
-        b1: &CollisionObject3<f32, ()>,
-        b2: &CollisionObject3<f32, ()>,
+        b1: &CollisionObject<f32, ()>,
+        b2: &CollisionObject<f32, ()>,
     ) -> bool {
         b1.handle().uid() % 2 == b2.handle().uid() % 2
     }
@@ -35,5 +34,5 @@ fn main() {
     world.update();
 
     // There will be only 2 contacts instead of 6.
-    assert!(world.contacts().count() == 2);
+    assert!(world.contact_manifolds().count() == 2);
 }

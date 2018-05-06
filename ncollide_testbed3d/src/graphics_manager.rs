@@ -6,7 +6,7 @@ use na::{self, Isometry3, Point3};
 use kiss3d::window::Window;
 use kiss3d::scene::SceneNode;
 use kiss3d::camera::{ArcBall, Camera, FirstPerson};
-use ncollide::shape::{Ball3, Compound3, Cone3, ConvexHull3, Cuboid3, Cylinder3, Plane3, Shape3,
+use ncollide::shape::{Ball3, Compound3, Cone3, ConvexHull3, Cuboid, Cylinder3, Plane3, Shape3,
                       TriMesh3};
 use ncollide::transformation;
 use ncollide::world::{CollisionObject3, CollisionWorld3};
@@ -168,7 +168,7 @@ impl GraphicsManager {
             self.add_plane(window, object, s, color, out)
         } else if let Some(s) = shape.as_shape::<Ball3<f32>>() {
             self.add_ball(window, object, delta, s, color, out)
-        } else if let Some(s) = shape.as_shape::<Cuboid3<f32>>() {
+        } else if let Some(s) = shape.as_shape::<Cuboid<f32>>() {
             self.add_box(window, object, delta, s, color, out)
         } else if let Some(s) = shape.as_shape::<ConvexHull3<f32>>() {
             self.add_convex(window, object, delta, s, color, out)
@@ -257,7 +257,7 @@ impl GraphicsManager {
         window: &mut Window,
         object: &CollisionObject3<f32, T>,
         delta: Isometry3<f32>,
-        shape: &Cuboid3<f32>,
+        shape: &Cuboid<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {

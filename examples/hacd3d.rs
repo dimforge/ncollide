@@ -1,10 +1,11 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
+extern crate ncollide2d; // Needed here only for path generation.
 
 use na::Point3;
-use ncollide::procedural::path::{NoCap, PolylinePath, PolylinePattern, StrokePattern};
-use ncollide::procedural;
-use ncollide::transformation;
+use ncollide3d::procedural::path::{NoCap, PolylinePath, PolylinePattern, StrokePattern};
+use ncollide3d::procedural;
+use ncollide3d::transformation;
 
 fn main() {
     /*
@@ -26,8 +27,8 @@ fn main() {
     ];
     let bezier = procedural::bezier_curve(&control_points, 100);
     let mut path = PolylinePath::new(&bezier);
-    let pattern = procedural::unit_circle(100);
-    let mut pattern = PolylinePattern::new(&pattern, true, NoCap::new(), NoCap::new());
+    let pattern = ncollide2d::procedural::unit_circle(100);
+    let mut pattern = PolylinePattern::new(pattern.coords(), true, NoCap::new(), NoCap::new());
     let mut trimesh = pattern.stroke(&mut path);
 
     // The path stroke does not generate normals =(

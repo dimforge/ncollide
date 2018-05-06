@@ -44,8 +44,10 @@ pub struct Testbed<N: Real> {
     grabbed_object: Option<usize>,
     grab_anchor: Point2<N>,
 
-    #[cfg(feature = "recording")] recorder: Option<Encoder>,
-    #[cfg(not(feature = "recording"))] recorder: Option<()>,
+    #[cfg(feature = "recording")]
+    recorder: Option<Encoder>,
+    #[cfg(not(feature = "recording"))]
+    recorder: Option<()>,
 }
 
 impl<N: Real + ToPrimitive> Testbed<N> {
@@ -54,11 +56,11 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         let ctxt = ContextSettings::default();
         // ctxt.antialiasing(3);
 
-        let mut window =
-            match RenderWindow::new(mode, "ncollide 2d testbed", window_style::CLOSE, &ctxt) {
-                Some(rwindow) => rwindow,
-                None => panic!("Error on creating the sfml window."),
-            };
+        let window_style = window_style::CLOSE | window_style::RESIZE | window_style::CLOSE;
+        let mut window = match RenderWindow::new(mode, "ncollide 2d testbed", window_style, &ctxt) {
+            Some(rwindow) => rwindow,
+            None => panic!("Error on creating the sfml window."),
+        };
 
         window.set_framerate_limit(60);
 
@@ -100,7 +102,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
     }
 
     #[cfg(feature = "recording")]
-    pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
+    pub fn start_recording<P: AsRef<Path>>(&mut self, path: Point<N>) {
         let sz = self.window.get_size();
 
         self.recorder = Some(Encoder::new(path, sz.x as usize, sz.y as usize));
@@ -223,7 +225,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
                 let mapped_coords = self.camera.map_pixel_to_coords(Vector2i::new(x, y));
                 let mapped_point = Point2::new(mapped_coords.x as f64, mapped_coords.y as f64);
 
-                // FIXME: use the collision groups to filter out sensors.
+                // FIXME: use the collision groups to filter out sensors.
                 let all_groups = &CollisionGroups::new();
                 // We give the priority to contacts-enabled objects.
                 let mut grabbed_solid = false; // The grabbed is not a sensor.

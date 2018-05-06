@@ -1,8 +1,8 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 
 use na::{Isometry3, Vector3};
-use ncollide::shape::{Compound, Cuboid, ShapeHandle};
+use ncollide3d::shape::{Compound, Cuboid, ShapeHandle};
 
 fn main() {
     // Delta transformation matrices.

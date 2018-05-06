@@ -11,7 +11,7 @@ use na::{Isometry2, Point2, Point3};
 use na;
 use ncollide::world::{CollisionObject2, CollisionWorld2};
 use ncollide::transformation;
-use ncollide::shape::{Ball2, Compound2, ConvexHull2, Cuboid2, Plane2, Polyline2, Segment2, Shape2};
+use ncollide::shape::{Ball2, Compound2, ConvexHull2, Cuboid, Plane2, Polyline2, Segment2, Shape};
 use camera::Camera;
 use objects::{Ball, Box, Lines, SceneNode, Segment};
 
@@ -56,14 +56,14 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         &mut self,
         object: &CollisionObject2<N, T>,
         delta: &Isometry2<N>,
-        shape: &Shape2<N>,
+        shape: &Shape<N>,
         out: &mut Vec<SceneNode<'a, N>>,
     ) {
         if let Some(s) = shape.as_shape::<Plane2<N>>() {
             self.add_plane(object, s, out)
         } else if let Some(s) = shape.as_shape::<Ball2<N>>() {
             self.add_ball(object, delta, s, out)
-        } else if let Some(s) = shape.as_shape::<Cuboid2<N>>() {
+        } else if let Some(s) = shape.as_shape::<Cuboid<N>>() {
             self.add_box(object, delta, s, out)
         } else if let Some(s) = shape.as_shape::<ConvexHull2<N>>() {
             self.add_convex(object, delta, s, out)
@@ -145,7 +145,7 @@ impl<'a, N: Real + ToPrimitive> GraphicsManager<'a, N> {
         &mut self,
         object: &CollisionObject2<N, T>,
         delta: &Isometry2<N>,
-        shape: &Cuboid2<N>,
+        shape: &Cuboid<N>,
         out: &mut Vec<SceneNode<N>>,
     ) {
         let rx = shape.half_extents().x;

@@ -1,0 +1,187 @@
+use na::{self, Real};
+
+use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use query::{Ray, RayCast, RayIntersection};
+use shape::{Capsule, Segment, SupportMap};
+#[cfg(feature = "dim2")]
+use shape::ConvexPolygon;
+#[cfg(feature = "dim3")]
+use shape::{Cone, ConvexHull, Cylinder};
+use math::Isometry;
+
+/// Cast a ray on a shape using the GJK algorithm.
+pub fn implicit_toi_and_normal_with_ray<N, G: ?Sized>(
+    m: &Isometry<N>,
+    shape: &G,
+    simplex: &mut VoronoiSimplex<N>,
+    ray: &Ray<N>,
+    solid: bool,
+) -> Option<RayIntersection<N>>
+where
+    N: Real,
+    G: SupportMap<N>,
+{
+    let inter = gjk::cast_ray(m, shape, simplex, ray);
+
+    if !solid {
+        match inter {
+            None => None,
+            Some((toi, normal)) => {
+                if toi.is_zero() {
+                    // the ray is inside of the shape.
+                    let ndir = na::normalize(&ray.dir);
+                    let supp = shape.support_point(m, &ndir);
+                    let shift = na::dot(&(supp - ray.origin), &ndir) + na::convert(0.001f64);
+                    let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
+
+                    // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
+                    simplex.reset(CSOPoint::single_point(supp + (-new_ray.origin.coords)));
+
+                    gjk::cast_ray(m, shape, simplex, &new_ray)
+                        .map(|(toi, normal)| RayIntersection::new(shift - toi, normal))
+                } else {
+                    Some(RayIntersection::new(toi, normal))
+                }
+            }
+        }
+    } else {
+        inter.map(|(toi, normal)| RayIntersection::new(toi, normal))
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl<N: Real> RayCast<N> for Cylinder<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl<N: Real> RayCast<N> for Cone<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
+impl<N: Real> RayCast<N> for Capsule<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl<N: Real> RayCast<N> for ConvexHull<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
+#[cfg(feature = "dim2")]
+impl<N: Real> RayCast<N> for ConvexPolygon<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
+impl<N: Real> RayCast<N> for Segment<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        // XXX: optimize if na::dimension::<P>() == 2
+        let ls_ray = ray.inverse_transform_by(m);
+
+        implicit_toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            solid,
+        ).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}

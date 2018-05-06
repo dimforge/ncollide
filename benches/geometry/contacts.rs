@@ -2,7 +2,7 @@ use test::Bencher;
 use test;
 use rand::IsaacRng;
 use na::Isometry3;
-use ncollide::shape::{Ball3, Capsule3, Cone3, Cuboid3, Cylinder3};
+use ncollide::shape::{Ball3, Capsule3, Cone3, Cuboid, Cylinder3};
 use ncollide::geometry;
 use common::{generate, unref};
 
@@ -24,9 +24,9 @@ bench_free_fn!(
     bench_cuboid_against_cuboid,
     geometry::contact,
     m1: Isometry3<f32>,
-    b1: Cuboid3<f32>,
+    b1: Cuboid<f32>,
     m2: Isometry3<f32>,
-    b2: Cuboid3<f32>,
+    b2: Cuboid<f32>,
     prediction: f32
 );
 

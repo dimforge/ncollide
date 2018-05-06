@@ -1,37 +1,37 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
-use ncollide::bounding_volume::{self, BoundingVolume};
-use ncollide::shape::{Cone, Cylinder};
+use ncollide2d::bounding_volume::{self, BoundingVolume};
+use ncollide2d::shape::Ball;
 
 fn main() {
     /*
      * Initialize the shapes.
      */
-    let cone = Cone::new(0.5, 0.5);
-    let cylinder = Cylinder::new(1.0, 0.5);
+    let ball1 = Ball::new(0.5);
+    let ball2 = Ball::new(1.0);
 
-    let cone_pos = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
-    let cylinder_pos = na::one::<Isometry2<f32>>(); // Id matrix.
+    let ball1_pos = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
+    let ball2_pos = Isometry2::identity(); // Id matrix.
 
     /*
      * Compute their axis-aligned bounding boxes.
      */
-    let aabb_cone = bounding_volume::aabb(&cone, &cone_pos);
-    let aabb_cylinder = bounding_volume::aabb(&cylinder, &cylinder_pos);
+    let aabb_ball1 = bounding_volume::aabb(&ball1, &ball1_pos);
+    let aabb_ball2 = bounding_volume::aabb(&ball2, &ball2_pos);
 
     // Merge the two boxes.
-    let bounding_aabb = aabb_cone.merged(&aabb_cylinder);
+    let bounding_aabb = aabb_ball1.merged(&aabb_ball2);
 
-    // Enlarge the cylinder aabb.
-    let loose_aabb_cylinder = aabb_cylinder.loosened(1.0);
+    // Enlarge the ball2 aabb.
+    let loose_aabb_ball2 = aabb_ball2.loosened(1.0);
 
     // Intersection and inclusion tests.
-    assert!(aabb_cone.intersects(&aabb_cylinder));
-    assert!(bounding_aabb.contains(&aabb_cone));
-    assert!(bounding_aabb.contains(&aabb_cylinder));
-    assert!(!aabb_cylinder.contains(&bounding_aabb));
-    assert!(!aabb_cone.contains(&bounding_aabb));
-    assert!(loose_aabb_cylinder.contains(&aabb_cylinder));
+    assert!(aabb_ball1.intersects(&aabb_ball2));
+    assert!(bounding_aabb.contains(&aabb_ball1));
+    assert!(bounding_aabb.contains(&aabb_ball2));
+    assert!(!aabb_ball2.contains(&bounding_aabb));
+    assert!(!aabb_ball1.contains(&bounding_aabb));
+    assert!(loose_aabb_ball2.contains(&aabb_ball2));
 }

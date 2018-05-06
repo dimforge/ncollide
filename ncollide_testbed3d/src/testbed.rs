@@ -110,7 +110,7 @@ impl Testbed {
     }
 
     #[cfg(feature = "recording")]
-    pub fn start_recording<P: AsRef<Path>>(&mut self, path: P) {
+    pub fn start_recording<P: AsRef<Path>>(&mut self, path: Point<N>) {
         let sz = self.window.size();
 
         self.recorder = Some(Encoder::new(path, sz.x as usize, sz.y as usize));
