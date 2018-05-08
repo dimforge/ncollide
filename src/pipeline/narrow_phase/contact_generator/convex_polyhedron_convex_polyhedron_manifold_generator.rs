@@ -258,16 +258,17 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
                         let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
                         let p2 = &self.manifold2.vertices[0];
-                        let toi2 =
-                            ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap());
-                        let world2 = origin + normal.unwrap() * toi2;
-                        let world1 = self.manifold1.vertices[i];
-                        let f2 = self.manifold2.feature_id;
-                        let f1 = self.manifold1.vertices_id[i];
-                        let contact = Contact::new_wo_depth(world1, world2, normal);
+                        if let Some(toi2) =
+                            ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap()) {
+                            let world2 = origin + normal.unwrap() * toi2;
+                            let world1 = self.manifold1.vertices[i];
+                            let f2 = self.manifold2.feature_id;
+                            let f1 = self.manifold1.vertices_id[i];
+                            let contact = Contact::new_wo_depth(world1, world2, normal);
 
-                        if -contact.depth <= prediction.linear {
-                            self.new_contacts.push((contact, f1, f2));
+                            if -contact.depth <= prediction.linear {
+                                self.new_contacts.push((contact, f1, f2));
+                            }
                         }
                     }
                 }
@@ -282,16 +283,17 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
                         let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
                         let p1 = &self.manifold1.vertices[0];
-                        let toi1 =
-                            ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap());
-                        let world1 = origin + normal.unwrap() * toi1;
-                        let world2 = self.manifold2.vertices[i];
-                        let f1 = self.manifold1.feature_id;
-                        let f2 = self.manifold2.vertices_id[i];
-                        let contact = Contact::new_wo_depth(world1, world2, normal);
+                        if let Some(toi1) =
+                            ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap()) {
+                            let world1 = origin + normal.unwrap() * toi1;
+                            let world2 = self.manifold2.vertices[i];
+                            let f1 = self.manifold1.feature_id;
+                            let f2 = self.manifold2.vertices_id[i];
+                            let contact = Contact::new_wo_depth(world1, world2, normal);
 
-                        if -contact.depth <= prediction.linear {
-                            self.new_contacts.push((contact, f1, f2));
+                            if -contact.depth <= prediction.linear {
+                                self.new_contacts.push((contact, f1, f2));
+                            }
                         }
                     }
                 }
