@@ -1,7 +1,4 @@
-extern crate ncollide3d;
-extern crate nalgebra;
-
-use nalgebra::{Point3, Vector3, Isometry3, zero};
+use na::{Point3, Vector3, Isometry3, zero};
 use ncollide3d::world::{CollisionWorld, GeometricQueryType, CollisionGroups};
 use ncollide3d::bounding_volume::*;
 use ncollide3d::shape::*;

@@ -1,7 +1,4 @@
-extern crate nalgebra as na;
-extern crate ncollide3d;
-
-use na::{Isometry3, Vector3};
+use na::{self, Isometry3, Vector3};
 use ncollide3d::shape::Cuboid;
 use ncollide3d::query::contacts_internal;
 
