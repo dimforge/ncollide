@@ -175,7 +175,6 @@ impl<N: Real> RayCast<N> for Segment<N> {
     ) -> Option<RayIntersection<N>> {
         // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
-        println!("Segment: {:?}", *self);
 
         implicit_toi_and_normal_with_ray(
             &Isometry::identity(),
