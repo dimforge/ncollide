@@ -9,7 +9,7 @@ use shape::{ConstantOrigin, SupportMap};
 use query::algorithms::{CSOPoint, VoronoiSimplex};
 // use query::Proximity;
 use query::{ray_internal, Ray};
-use math::{Isometry, Point, Vector};
+use math::{DIM, Isometry, Point, Vector};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
@@ -92,7 +92,6 @@ where
     let _eps = N::default_epsilon();
     let _eps_tol: N = eps_tol();
     let _eps_rel: N = _eps_tol.sqrt();
-    let _dimension = na::dimension::<Vector<N>>();
 
     fn result<N: Real>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
         let mut res = (Point::origin(), Point::origin());
@@ -174,7 +173,7 @@ where
         old_dir = dir;
         proj = simplex.project_origin_and_reduce();
 
-        if simplex.dimension() == _dimension {
+        if simplex.dimension() == DIM {
             if min_bound >= _eps_tol {
                 if exact_dist {
                     let (p1, p2) = result(simplex, true);
@@ -209,17 +208,13 @@ where
     let mut ltoi: N = na::zero();
 
     let _eps_tol = eps_tol();
-    let _dimension = na::dimension::<Vector<N>>();
 
-    // initialization
+    // FIXME: initialization if the simplex is empty?
+    let proj = simplex.project_origin_and_reduce().coords;
     let mut curr_ray = *ray;
-    let mut dir = curr_ray.origin.coords - m.translation.vector;
-
-    if dir == na::zero() {
-        dir[0] = na::one();
-    }
-
+    let mut dir = -proj;
     let mut old_max_bound: N = Bounded::max_value();
+
 
     let mut ldir = dir;
     // FIXME: this converges in more than 100 iterations… something is wrong here…
@@ -257,7 +252,7 @@ where
                 }
             }
             None => {
-                if na::dot(&dir, &ray.dir) > na::zero() {
+                if na::dot(&dir, &ray.dir) >= -N::default_epsilon() {
                     // miss
                     return None;
                 }
@@ -273,7 +268,7 @@ where
         let proj = simplex.project_origin_and_reduce().coords;
         let max_bound = na::norm_squared(&proj);
 
-        if simplex.dimension() == _dimension {
+        if simplex.dimension() == DIM {
             return Some((ltoi, ldir));
         } else if max_bound <= _eps_tol * simplex.max_sq_len() {
             // Return ldir: the last projection plane is tangeant to the intersected surface.

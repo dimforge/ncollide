@@ -21,6 +21,9 @@ where
     N: Real,
     G: SupportMap<N>,
 {
+    let supp = shape.support_point(m, &-ray.dir);
+    simplex.reset(CSOPoint::single_point(supp - ray.origin.coords));
+
     let inter = gjk::cast_ray(m, shape, simplex, ray);
 
     if !solid {
@@ -35,7 +38,7 @@ where
                     let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
 
                     // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
-                    simplex.reset(CSOPoint::single_point(supp + (-new_ray.origin.coords)));
+                    simplex.reset(CSOPoint::single_point(supp - new_ray.origin.coords));
 
                     gjk::cast_ray(m, shape, simplex, &new_ray)
                         .map(|(toi, normal)| RayIntersection::new(shift - toi, normal))
@@ -172,6 +175,7 @@ impl<N: Real> RayCast<N> for Segment<N> {
     ) -> Option<RayIntersection<N>> {
         // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
+        println!("Segment: {:?}", *self);
 
         implicit_toi_and_normal_with_ray(
             &Isometry::identity(),

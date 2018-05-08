@@ -11,9 +11,15 @@ pub fn plane_toi_with_line<N: Real>(
     plane_normal: &Vector<N>,
     line_origin: &Point<N>,
     line_dir: &Vector<N>,
-) -> N {
+) -> Option<N> {
     let dpos = *plane_center - *line_origin;
-    na::dot(plane_normal, &dpos) / na::dot(plane_normal, line_dir)
+    let denom = na::dot(plane_normal, line_dir);
+
+    if relative_eq!(denom, N::zero()) {
+        None
+    } else {
+        Some(na::dot(plane_normal, &dpos) / denom)
+    }
 }
 
 /// Computes the toi of a ray with a plane described by its center and normal.
@@ -23,12 +29,13 @@ pub fn plane_toi_with_ray<N: Real>(
     normal: &Vector<N>,
     ray: &Ray<N>,
 ) -> Option<N> {
-    let t = plane_toi_with_line(center, normal, &ray.origin, &ray.dir);
-    if t >= na::zero() {
-        Some(t)
-    } else {
-        None
+    if let Some(t) = plane_toi_with_line(center, normal, &ray.origin, &ray.dir) {
+        if t >= na::zero() {
+            return Some(t);
+        }
     }
+
+    None
 }
 
 impl<N: Real> RayCast<N> for Plane<N> {
