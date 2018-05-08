@@ -1,10 +1,12 @@
 use std::cmp::Ordering;
 use num::Bounded;
 
-use na::{self, Real, Matrix3, Point2, Point3, Vector3};
+use na::{self, Matrix3, Point2, Point3, Real, Vector3};
 use utils;
 use procedural::{IndexBuffer, TriMesh};
-use transformation::{self, convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id}};
+use transformation::{self,
+                     convex_hull_utils::{denormalize, indexed_support_point_id, normalize,
+                                         support_point_id}};
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -164,10 +166,7 @@ fn build_degenerate_mesh_point<N: Real>(point: Point3<N>) -> TriMesh<N> {
     )
 }
 
-fn build_degenerate_mesh_segment<N: Real>(
-    dir: &Vector3<N>,
-    points: &[Point3<N>],
-) -> TriMesh<N> {
+fn build_degenerate_mesh_segment<N: Real>(dir: &Vector3<N>, points: &[Point3<N>]) -> TriMesh<N> {
     let a = utils::point_cloud_support_point(dir, points);
     let b = utils::point_cloud_support_point(&-*dir, points);
 
@@ -641,28 +640,33 @@ impl<N: Real> TriangleFacet<N> {
 
 #[cfg(test)]
 mod test {
+    #[cfg(feature = "dim2")]
     use na::Point2;
+    #[cfg(feature = "dim3")]
     use procedural;
+    use transformation;
 
+    #[cfg(feature = "dim2")]
     #[test]
-    fn test_simple_convex_hull2() {
+    fn test_simple_convex_hull() {
         let points = [
             Point2::new(4.723881f32, 3.597233),
             Point2::new(3.333363, 3.429991),
             Point2::new(3.137215, 2.812263),
         ];
 
-        let chull = super::convex_hull2(points.as_slice());
+        let chull = transformation::convex_hull(points.as_slice());
 
         assert!(chull.coords.len() == 3);
     }
 
+    #[cfg(feature = "dim3")]
     #[test]
     fn test_ball_convex_hull() {
         // This trigerred a failure to an affinely dependent facet.
-        let sphere = super::sphere(0.4f32, 20, 20, true);
+        let sphere = procedural::sphere(0.4f32, 20, 20, true);
         let points = sphere.coords;
-        let chull = super::convex_hull3(points.as_slice());
+        let chull = transformation::convex_hull(points.as_slice());
 
         // dummy test, we are just checking that the construction did not fail.
         assert!(chull.coords.len() == chull.coords.len());
