@@ -1,14 +1,15 @@
-use std::f64;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
 use smallvec::SmallVec;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::f64;
 
 use na::{self, Point2, Point3, Real, Unit};
 
-use utils::{self, IsometryOps, SortedPair};
 use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use transformation;
+use utils::{self, IsometryOps, SortedPair};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Vertex {
@@ -79,7 +80,20 @@ pub struct ConvexHull<N: Real> {
 }
 
 impl<N: Real> ConvexHull<N> {
-    /// Attemps to create a new solid assumed to be convex from the set of points and indices.
+    /// Creates a new 2D convex polyhedron from an arbitrary set of points.
+    ///
+    /// This explicitly computes the convex hull of the given set of points. Use
+    /// Returns `None` if the convex hull computation failed.
+    pub fn try_from_points(points: &[Point<N>]) -> Option<ConvexHull<N>> {
+        let hull = transformation::convex_hull(points);
+        let indices: Vec<usize> = hull.flat_indices()
+            .into_iter()
+            .map(|i| i as usize)
+            .collect();
+
+        Self::try_new(hull.coords, &indices)
+    }
+    /// Attempts to create a new solid assumed to be convex from the set of points and indices.
     ///
     /// The given points and index informations are assumed to describe a convex polyhedron.
     /// It it is not, weird results may be produced.
@@ -90,7 +104,6 @@ impl<N: Real> ConvexHull<N> {
     ///
     ///   1. The given solid does not satisfy the euler characteristic.
     ///   2. The given solid contains degenerate edges/triangles.
-    #[inline]
     pub fn try_new(points: Vec<Point<N>>, indices: &[usize]) -> Option<ConvexHull<N>> {
         let eps = N::default_epsilon().sqrt();
 
