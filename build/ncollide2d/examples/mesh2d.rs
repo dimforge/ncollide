@@ -1,7 +1,6 @@
 extern crate nalgebra as na;
 extern crate ncollide2d;
 
-use std::sync::Arc;
 use na::Point2;
 use ncollide2d::shape::Polyline;
 

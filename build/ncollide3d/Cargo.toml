@@ -27,3 +27,6 @@ alga            = "0.5"
 nalgebra        = "^0.14.2"
 approx          = "0.1"
 rand            = "0.4"
+
+[dev-dependencies]
+ncollide2d = "0.15"
