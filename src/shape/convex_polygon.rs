@@ -2,10 +2,11 @@ use std::f64;
 
 use na::{self, Real, Unit};
 
-use utils::{self, IsometryOps};
 use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use transformation;
+use utils::{self, IsometryOps};
 
 /// A 2D convex polygon.
 pub struct ConvexPolygon<N: Real> {
@@ -14,8 +15,20 @@ pub struct ConvexPolygon<N: Real> {
 }
 
 impl<N: Real> ConvexPolygon<N> {
+    /// Creates a new 2D convex polygon from an arbitrary set of points.
+    ///
+    /// This explicitly computes the convex hull of the given set of points. Use
+    /// Returns `None` if the convex hull computation failed.
+    pub fn try_from_points(points: &[Point<N>]) -> Option<Self> {
+        let hull = transformation::convex_hull(points);
+        let mut vertices = hull.unwrap().0;
+        vertices.reverse(); // FIXME: it is unfortunate to have to do this reverse.
+
+        Self::try_new(vertices)
+    }
+
     /// Creates a new 2D convex polygon from a set of points assumed to describe a convex polyline.
-    /// 
+    ///
     /// Convexity of the input polyline is not checked.
     /// Returns `None` if some consecutive points are identical (or too close to being so).
     pub fn try_new(mut points: Vec<Point<N>>) -> Option<Self> {
@@ -113,7 +126,12 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         }
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolygonalFeature<N>) {
+    fn support_face_toward(
+        &self,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+        out: &mut ConvexPolygonalFeature<N>,
+    ) {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
