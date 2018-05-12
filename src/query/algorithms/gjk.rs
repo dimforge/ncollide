@@ -246,6 +246,10 @@ where
     let mut ltoi: N = na::zero();
     let _eps_tol = eps_tol();
 
+    if relative_eq!(ray.dir.norm_squared(), N::zero()) {
+        return None;
+    }
+
     let mut curr_ray = *ray;
     let mut dir = -ray.dir;
     let mut old_max_bound: N = Bounded::max_value();
