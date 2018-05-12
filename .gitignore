@@ -7,3 +7,4 @@ target
 private
 Cargo.lock
 Makefile
+.vscode
