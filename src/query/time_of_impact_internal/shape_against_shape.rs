@@ -1,27 +1,21 @@
-use alga::linear::Translation;
-use math::{Isometry, Point};
-use shape::{Ball, Plane, Shape};
+use na::Real;
+
+use math::{Isometry, Point, Vector};
 use query::time_of_impact_internal;
+use shape::{Ball, Plane, Shape};
 
 /// Computes the smallest time of impact of two shapes under translational movement.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<N>(
+pub fn shape_against_shape<N: Real>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &Shape<N>,
-) -> Option<N>
-where
-    N: Real,
-    M: Isometry<P>,
-{
-    if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<N>>(),
-        g2.as_shape::<Ball<N>>(),
-    ) {
+) -> Option<N> {
+    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
         let p1 = Point::from_coordinates(m1.translation.vector);
         let p2 = Point::from_coordinates(m2.translation.vector);
 
