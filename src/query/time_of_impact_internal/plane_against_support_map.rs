@@ -1,7 +1,9 @@
-use shape::SupportMap;
-use shape::Plane;
+use na::Real;
+
+use math::{Isometry, Vector};
 use query::{Ray, RayCast};
-use math::{Isometry, Point};
+use shape::Plane;
+use shape::SupportMap;
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn plane_against_support_map<N, G: ?Sized>(
@@ -14,11 +16,10 @@ pub fn plane_against_support_map<N, G: ?Sized>(
 ) -> Option<N>
 where
     N: Real,
-    M: Isometry<P>,
     G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
-    let plane_normal = mplane.rotate_vector(plane.normal());
+    let plane_normal = mplane * plane.normal();
     let closest_point = other.support_point(mother, &-plane_normal);
 
     plane.toi_with_ray(mplane, &Ray::new(closest_point, vel), true)
@@ -35,7 +36,6 @@ pub fn support_map_against_plane<N, G: ?Sized>(
 ) -> Option<N>
 where
     N: Real,
-    M: Isometry<P>,
     G: SupportMap<N>,
 {
     plane_against_support_map(mplane, vel_plane, plane, mother, vel_other, other)

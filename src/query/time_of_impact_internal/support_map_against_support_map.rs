@@ -1,7 +1,8 @@
-use alga::general::Id;
-use shape::{MinkowskiSum, Reflection, SupportMap};
-use query::{Ray, RayCast};
-use math::{Isometry, Point};
+use na::Real;
+
+use math::{Isometry, Vector};
+use query::algorithms::{gjk, VoronoiSimplex};
+use shape::SupportMap;
 
 /// Time of impacts between two support-mapped shapes under translational movement.
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -14,13 +15,9 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
 ) -> Option<N>
 where
     N: Real,
-    M: Isometry<P>,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let vel = *vel1 - *vel2;
-    let rg2 = Reflection::new(g2);
-    let cso = MinkowskiSum::new(m1, g1, m2, &rg2);
-
-    cso.toi_with_ray(&Isometry::identity(), &Ray::new(Point::origin(), -vel), true)
+    let dvel = vel1 - vel2;
+    gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
 }

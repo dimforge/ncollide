@@ -5,11 +5,11 @@ use num::Bounded;
 use alga::general::Real;
 use na::{self, Unit};
 
-use shape::{ConstantOrigin, SupportMap};
 use query::algorithms::{CSOPoint, VoronoiSimplex};
+use shape::{ConstantOrigin, SupportMap};
 // use query::Proximity;
+use math::{Isometry, Point, Vector, DIM};
 use query::{ray_internal, Ray};
-use math::{DIM, Isometry, Point, Vector};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
@@ -205,28 +205,68 @@ where
     N: Real,
     G: SupportMap<N>,
 {
+    let m2 = Isometry::identity();
+    let g2 = ConstantOrigin;
+    minkowski_ray_cast(m, shape, &m2, &g2, ray, simplex)
+}
+
+/// Compute the distance that can travel `g1` along the direction `dir` so that
+/// `g1` and `g2` just touch.
+pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
+    m1: &Isometry<N>,
+    g1: &G1,
+    m2: &Isometry<N>,
+    g2: &G2,
+    dir: &Vector<N>,
+    simplex: &mut VoronoiSimplex<N>,
+) -> Option<N>
+where
+    N: Real,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
+{
+    let ray = Ray::new(Point::from_coordinates(m1.translation.vector), *dir);
+    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|res| res.0)
+}
+
+// Ray-cast on the Minkoski Difference `m1 * g1 - m2 * g2`.
+fn minkowski_ray_cast<N, G1: ?Sized, G2: ?Sized>(
+    m1: &Isometry<N>,
+    g1: &G1,
+    m2: &Isometry<N>,
+    g2: &G2,
+    ray: &Ray<N>,
+    simplex: &mut VoronoiSimplex<N>,
+) -> Option<(N, Vector<N>)>
+where
+    N: Real,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
+{
     let mut ltoi: N = na::zero();
-
     let _eps_tol = eps_tol();
+    let denom = ray.dir.norm();
 
-    // FIXME: initialization if the simplex is empty?
-    let proj = simplex.project_origin_and_reduce().coords;
+    if denom < N::default_epsilon() {
+        return None;
+    }
+
+    let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &-ray.dir);
+    simplex.reset(support_point.translate1(&-ray.origin.coords));
+
+    let proj = support_point.point.coords;
     let mut curr_ray = *ray;
     let mut dir = -proj;
     let mut old_max_bound: N = Bounded::max_value();
-
-
     let mut ldir = dir;
-    // FIXME: this converges in more than 100 iterations… something is wrong here…
-    let mut niter = 0usize;
-    loop {
-        niter = niter + 1;
 
+    loop {
         if dir.normalize_mut().is_zero() {
-            return Some((ltoi, ldir));
+            println!("Out1");
+            return Some((ltoi / denom, ldir));
         }
 
-        let support_point = shape.support_point(m, &dir);
+        let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
 
         // Clip the ray on the support plane (None <=> t < 0)
         // The configurations are:
@@ -236,16 +276,16 @@ where
         //          < 0        |  > 0  | New lower bound, move the origin.
         //          > 0        |  < 0  | Miss. No intersection.
         //          > 0        |  > 0  | New higher bound.
-        match ray_internal::plane_toi_with_ray(&support_point, &dir, &curr_ray) {
+        match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
                 if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
                     // new lower bound
                     ldir = dir;
                     ltoi = ltoi + t;
                     curr_ray.origin = ray.origin + ray.dir * ltoi;
-                    dir = curr_ray.origin - support_point;
+                    dir = curr_ray.origin - support_point.point;
                     // FIXME: could we simply translate the simpex by old_origin - new_origin ?
-                    simplex.reset(CSOPoint::single_point(Point::from_coordinates(-dir)));
+                    simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
                     let _max: N = Bounded::max_value();
                     old_max_bound = _max;
                     continue;
@@ -259,24 +299,30 @@ where
             }
         }
 
-        if !simplex.add_point(CSOPoint::single_point(Point::from_coordinates(
-            support_point - curr_ray.origin,
-        ))) {
-            return Some((ltoi, dir));
+        if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
+            println!("Out2");
+            
+            return Some((ltoi / denom, dir));
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
         let max_bound = na::norm_squared(&proj);
 
         if simplex.dimension() == DIM {
-            return Some((ltoi, ldir));
+            println!("Out3");
+            
+            return Some((ltoi / denom, ldir));
         } else if max_bound <= _eps_tol * simplex.max_sq_len() {
+            println!("Out4");
+            
             // Return ldir: the last projection plane is tangeant to the intersected surface.
-            return Some((ltoi, ldir));
+            return Some((ltoi / denom, ldir));
         } else if max_bound >= old_max_bound {
+            println!("Out5");
+            
             // Use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
-            return Some((ltoi, dir));
+            return Some((ltoi / denom, dir));
         }
 
         old_max_bound = max_bound;
