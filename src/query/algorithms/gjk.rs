@@ -225,7 +225,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let ray = Ray::new(Point::from_coordinates(m1.translation.vector), *dir);
+    let ray = Ray::new(Point::origin(), *dir);
     minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|res| res.0)
 }
 
@@ -245,25 +245,16 @@ where
 {
     let mut ltoi: N = na::zero();
     let _eps_tol = eps_tol();
-    let denom = ray.dir.norm();
 
-    if denom < N::default_epsilon() {
-        return None;
-    }
-
-    let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &-ray.dir);
-    simplex.reset(support_point.translate1(&-ray.origin.coords));
-
-    let proj = support_point.point.coords;
     let mut curr_ray = *ray;
-    let mut dir = -proj;
+    let mut dir = -ray.dir;
     let mut old_max_bound: N = Bounded::max_value();
     let mut ldir = dir;
+    let mut simplex_init = false;
 
     loop {
         if dir.normalize_mut().is_zero() {
-            println!("Out1");
-            return Some((ltoi / denom, ldir));
+            return Some((ltoi, ldir));
         }
 
         let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
@@ -286,8 +277,7 @@ where
                     dir = curr_ray.origin - support_point.point;
                     // FIXME: could we simply translate the simpex by old_origin - new_origin ?
                     simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
-                    let _max: N = Bounded::max_value();
-                    old_max_bound = _max;
+                    old_max_bound = Bounded::max_value();
                     continue;
                 }
             }
@@ -299,30 +289,25 @@ where
             }
         }
 
-        if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
-            println!("Out2");
-            
-            return Some((ltoi / denom, dir));
+        if !simplex_init {
+            simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
+            simplex_init = true;
+        } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
+            return Some((ltoi, dir));
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
         let max_bound = na::norm_squared(&proj);
 
         if simplex.dimension() == DIM {
-            println!("Out3");
-            
-            return Some((ltoi / denom, ldir));
+            return Some((ltoi, ldir));
         } else if max_bound <= _eps_tol * simplex.max_sq_len() {
-            println!("Out4");
-            
             // Return ldir: the last projection plane is tangeant to the intersected surface.
-            return Some((ltoi / denom, ldir));
+            return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
-            println!("Out5");
-            
             // Use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
-            return Some((ltoi / denom, dir));
+            return Some((ltoi, dir));
         }
 
         old_max_bound = max_bound;

@@ -18,6 +18,6 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let dvel = vel1 - vel2;
+    let dvel = vel2 - vel1;
     gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
 }
