@@ -9,6 +9,7 @@ use transformation;
 use utils::{self, IsometryOps};
 
 /// A 2D convex polygon.
+#[derive(Clone, Debug)]
 pub struct ConvexPolygon<N: Real> {
     points: Vec<Point<N>>,
     normals: Vec<Unit<Vector<N>>>,
