@@ -1,10 +1,10 @@
-use approx::ApproxEq;
+use approx::AbsDiffEq;
 
 use alga::linear::EuclideanSpace;
-use na::{self, Real};
 use math::Isometry;
-use shape::{Segment, SegmentPointLocation};
+use na::{self, Real};
 use query::ClosestPoints;
+use shape::{Segment, SegmentPointLocation};
 
 /// Closest points between segments.
 #[inline]
@@ -50,7 +50,6 @@ pub fn segment_against_segment_with_locations_nD<P>(
 ) -> (SegmentPointLocation<P::Real>, SegmentPointLocation<P::Real>)
 where
     P: EuclideanSpace + Copy,
-    P::Real: ApproxEq,
 {
     // Inspired by Real-time collision detection by Christer Ericson.
     let d1 = *seg1.1 - *seg1.0;
