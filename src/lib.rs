@@ -6,8 +6,7 @@ ncollide
 the rust programming language.
 
 As its name suggests, it is generic wrt the dimension: it works with both
-2-dimensional and 3-dimensional shapes. It might work with higher
-dimensions (never tried).
+2-dimensional and 3-dimensional shapes.
 
 The official user guide is available [here](http://ncollide.org).
 The rustdoc documentation is available [here](http://ncollide.org/rustdoc/ncollide).
@@ -20,7 +19,8 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-ncollide = "0.13"
+ncollide2d = "0.15" # For 2D collision detection.
+ncollide3d = "0.15" # For 3D collision detection.
 ```
 
 
@@ -57,14 +57,14 @@ extern crate smallvec;
 
 pub use pipeline::{broad_phase, events, narrow_phase, world};
 
-pub mod utils;
-pub mod shape;
 pub mod bounding_volume;
 pub mod partitioning;
-pub mod query;
-pub mod procedural;
-pub mod transformation;
 mod pipeline;
+pub mod procedural;
+pub mod query;
+pub mod shape;
+pub mod transformation;
+pub mod utils;
 
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim3")]
