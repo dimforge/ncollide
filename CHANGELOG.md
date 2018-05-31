@@ -5,8 +5,13 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.15.0]
+### Added
+    * This re-adds time-of-impact computation in the `query`module.
+    * Add `::try_from_points(...)` methods to construct a 2D `ConvexPolygon`
+      or an 3D `Convex` shape from a set of point. The convex hull of those
+      points are automatically computed.
 ### Modified
-    * TODO: Change the constructor of the `OneShotContactManifoldGenerator` to add a boolean that controls whether the generation is always recomputed from scratch.
+    * All the dependencies have been updated to their latest.
 
 ## [0.14.0]
 ### Added
@@ -21,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     * All the fields of `CollisionObject` are now private and must be accessed using methods.
     * The trait Point now requires additional methods to compute the normal of
       a face and to project the origin on it.
-    * Everything is now Send/Sync (useful for, e.g., ECS compatibility). 
+    * Everything is now Send/Sync (useful for, e.g., ECS compatibility).
     * Rename `RichPointQuery` -> `PointQueryWithLocation`.
     * Rename `RichPointQuery::project_point_with_extra_info` -> `PointQueryWithLocation::project_point_with_location`.
     * Rename `CollisionWorld::deferred_add          -> CollisionWorld::add`. Now, the addition is performed immediately.
