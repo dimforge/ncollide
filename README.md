@@ -8,7 +8,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="http://ncollide.org/rustdoc/ncollide">Documentation</a> | <a href="http://ncollide.org">User Guide</a> | <a href="http://users.nphysics.org">Forum</a>
+        <a href="http://ncollide.org/rustdoc/ncollide2d">2D documentation</a> | <a href="http://ncollide.org/rustdoc/ncollide3d">3D documentation</a> | <a href="http://ncollide.org">User Guide</a> | <a href="http://users.nphysics.org">Forum</a>
     </strong>
 </p>
 
@@ -23,7 +23,7 @@ As its name suggests, it is generic wrt the dimension: it works with both
 dimensions (never tried).
 
 The official user guide is available [here](http://ncollide.org).
-The rustdoc documentation is available [here](http://ncollide.org/rustdoc/ncollide).
+The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide3d).
 
 ## Compilation
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
@@ -33,7 +33,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```
 [dependencies]
-ncollide = "0.13"
+ncollide = "0.16"
 ```
 
 
