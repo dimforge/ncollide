@@ -8,7 +8,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="http://ncollide.org/rustdoc/ncollide2d">2D documentation</a> | <a href="http://ncollide.org/rustdoc/ncollide3d">3D documentation</a> | <a href="http://ncollide.org">User Guide</a> | <a href="http://users.nphysics.org">Forum</a>
+        <a href="http://ncollide.org/rustdoc/ncollide2d">2D Documentation</a> | <a href="http://ncollide.org/rustdoc/ncollide3d">3D Documentation</a> | <a href="http://ncollide.org">User Guide</a> | <a href="http://users.nphysics.org">Forum</a>
     </strong>
 </p>
 
