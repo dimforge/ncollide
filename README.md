@@ -18,10 +18,6 @@ ncollide
 **ncollide** is a 2 and 3-dimensional collision detection library written with
 the rust programming language.
 
-As its name suggests, it is generic wrt the dimension: it works with both
-2-dimensional and 3-dimensional geometries. It might work with higher
-dimensions (never tried).
-
 The official user guide is available [here](http://ncollide.org).
 The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide3d).
 
@@ -29,11 +25,12 @@ The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncol
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
 and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
-Simply add the following to your `Cargo.toml` file:
+Simply add one the following (or both) to your `Cargo.toml` file:
 
 ```
 [dependencies]
-ncollide = "0.16"
+ncollide2d = "0.16" # For 2D collision detection.
+ncollide3d = "0.16" # For 3D collision detection.
 ```
 
 
