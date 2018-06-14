@@ -3,8 +3,8 @@ use na::{self, Real};
 use bounding_volume::BoundingVolume;
 use math::Isometry;
 use partitioning::BoundingVolumeInterferencesCollector;
-use query::Contact;
 use query::contacts_internal;
+use query::Contact;
 use shape::{CompositeShape, Shape};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
@@ -32,15 +32,8 @@ where
     let mut res = None::<Contact<N>>;
 
     for i in interferences.into_iter() {
-        g1.map_part_at(
-            i,
-            &mut |_, _, part| match contacts_internal::contact_internal(
-                m1,
-                part,
-                m2,
-                g2,
-                prediction,
-            ) {
+        g1.map_transformed_part_at(i, m1, &mut |_, m, part| {
+            match contacts_internal::contact_internal(m, part, m2, g2, prediction) {
                 Some(c) => {
                     let replace = match res {
                         Some(ref cbest) => c.depth > cbest.depth,
@@ -52,8 +45,8 @@ where
                     }
                 }
                 None => {}
-            },
-        );
+            }
+        });
     }
 
     res
