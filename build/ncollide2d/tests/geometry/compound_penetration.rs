@@ -3,6 +3,7 @@ use na::{self, Isometry2, Vector2};
 use ncollide2d::query;
 use ncollide2d::shape::{Compound, Cuboid, ShapeHandle};
 
+// Issue #171.
 #[test]
 fn normal() {
   let c1 = Cuboid::new(Vector2::new(1.0, 1.0));
@@ -19,6 +20,7 @@ fn normal() {
   assert!(contact.is_some()); // ok
 }
 
+// Issue #171.
 #[test]
 fn compound() {
   let c1 = Cuboid::new(Vector2::new(1.0, 1.0));
