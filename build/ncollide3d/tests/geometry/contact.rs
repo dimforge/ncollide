@@ -1,9 +1,9 @@
-use na::{Point3, Vector3, Isometry3, zero};
-use ncollide3d::world::{CollisionWorld, GeometricQueryType, CollisionGroups};
+use na::{zero, Isometry3, Point3, Vector3};
 use ncollide3d::bounding_volume::*;
 use ncollide3d::shape::*;
+use ncollide3d::world::{CollisionGroups, CollisionWorld, GeometricQueryType};
 
-
+// Issue #182.
 #[test]
 fn just_touching_nan3d() {
     let mut world = CollisionWorld::new(0.02f32);
