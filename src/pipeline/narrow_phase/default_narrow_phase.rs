@@ -1,14 +1,16 @@
-use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
 use na::Real;
+use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
+use pipeline::narrow_phase::{
+    ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase, ProximityAlgorithm,
+    ProximityDispatcher, ProximityPairs,
+};
+use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
+use query::Proximity;
 use utils::IdAllocator;
 use utils::{DeterministicState, SortedPair};
-use query::Proximity;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase,
-                             ProximityAlgorithm, ProximityDispatcher, ProximityPairs};
-use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
-use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
@@ -55,7 +57,8 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
                 let had_contacts = value.num_contacts() != 0;
 
-                if let Some(prediction) = co1.query_type()
+                if let Some(prediction) = co1
+                    .query_type()
                     .contact_queries_to_prediction(co2.query_type())
                 {
                     let _ = value.update(
@@ -191,6 +194,15 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         let key = SortedPair::new(handle1, handle2);
         let _ = self.proximity_detectors.remove(&key);
         let _ = self.contact_generators.remove(&key);
+    }
+
+    fn contact_pair(
+        &self,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    ) -> Option<&ContactAlgorithm<N>> {
+        let key = SortedPair::new(handle1, handle2);
+        self.contact_generators.get(&key)
     }
 
     fn contact_pairs<'a>(

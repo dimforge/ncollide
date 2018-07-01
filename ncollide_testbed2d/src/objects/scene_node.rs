@@ -1,13 +1,13 @@
-use std::f32;
+use num::ToPrimitive;
 use sfml::graphics::{Color, Shape, Transformable};
 use sfml::system::Vector2f;
-use num::ToPrimitive;
+use std::f32;
 
 use alga::general::Real;
-use na::{Isometry2, Point3};
-use ncollide::world::{CollisionObject2, GeometricQueryType};
-use objects::{Ball, Box, Lines, Segment};
 use draw_helper::DRAW_SCALE;
+use na::{Isometry2, Point3};
+use ncollide2d::world::{CollisionObject, GeometricQueryType};
+use objects::{Ball, Box, Lines, Segment};
 
 pub enum SceneNode<'a, N: Real> {
     BallNode(Ball<'a, N>),
@@ -47,13 +47,13 @@ impl<'a, N: Real + ToPrimitive> SceneNode<'a, N> {
 
 pub fn update_scene_node<'a, N: Real + ToPrimitive, T, SN>(
     node: &mut SN,
-    object: &CollisionObject2<N, T>,
+    object: &CollisionObject<N, T>,
     color: &Point3<u8>,
     delta: &Isometry2<N>,
 ) where
     SN: Transformable + Shape<'a>,
 {
-    let transform = object.position * *delta;
+    let transform = object.position() * *delta;
     let pos = transform.translation.vector;
     let rot = transform.rotation.angle();
 
@@ -63,14 +63,14 @@ pub fn update_scene_node<'a, N: Real + ToPrimitive, T, SN>(
     ));
     node.set_rotation(rot.to_f32().unwrap() * 180.0 / f32::consts::PI as f32);
 
-    match object.query_type {
+    match object.query_type() {
         GeometricQueryType::Proximity(_) => {
             // FIXME: what is the impact on performance of doing those at each update ?
             node.set_fill_color(&Color::new_rgba(0, 0, 0, 0));
             node.set_outline_thickness(4.0);
             node.set_outline_color(&Color::new_rgb(color.x, color.y, color.z));
         }
-        GeometricQueryType::Contacts(_) => {
+        GeometricQueryType::Contacts(..) => {
             node.set_fill_color(&Color::new_rgb(color.x, color.y, color.z));
         }
     }

@@ -1,20 +1,23 @@
 use std::mem;
 use std::vec::IntoIter;
 
-use na::Real;
-use math::{Isometry, Point};
 use bounding_volume::{self, BoundingVolume, AABB};
-use shape::ShapeHandle;
-use query::{PointQuery, Ray, RayCast, RayIntersection};
-use pipeline::narrow_phase::{ContactManifolds, ContactPairs, DefaultContactDispatcher,
-                             DefaultNarrowPhase, DefaultProximityDispatcher, NarrowPhase,
-                             ProximityPairs};
-use pipeline::broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters,
-                            DBVTBroadPhase, ProxyHandle};
-use pipeline::world::{CollisionGroups, CollisionGroupsPairFilter, CollisionObject,
-                      CollisionObjectHandle, CollisionObjectSlab, CollisionObjects,
-                      GeometricQueryType};
+use math::{Isometry, Point};
+use na::Real;
+use pipeline::broad_phase::{
+    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, ProxyHandle,
+};
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
+use pipeline::narrow_phase::{
+    ContactAlgorithm, ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
+    DefaultProximityDispatcher, NarrowPhase, ProximityPairs,
+};
+use pipeline::world::{
+    CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
+    CollisionObjectSlab, CollisionObjects, GeometricQueryType,
+};
+use query::{PointQuery, Ray, RayCast, RayIntersection};
+use shape::ShapeHandle;
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
@@ -114,7 +117,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
             let mut proxy_handles = Vec::new();
 
             for handle in handles {
-                let co = self.objects
+                let co = self
+                    .objects
                     .get(*handle)
                     .expect("Removal: collision object not found.");
                 proxy_handles.push(co.proxy_handle());
@@ -143,7 +147,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Sets the position the collision object attached to the specified object.
     pub fn set_position(&mut self, handle: CollisionObjectHandle, pos: Isometry<N>) {
-        let co = self.objects
+        let co = self
+            .objects
             .get_mut(handle)
             .expect("Set position: collision object not found.");
         co.set_position(pos.clone());
@@ -217,6 +222,16 @@ impl<N: Real, T> CollisionWorld<N, T> {
         self.broad_phase.deferred_recompute_all_proximities();
 
         old
+    }
+
+    /// The contact pair, if any, between the given collision objects.
+    #[inline]
+    pub fn contact_pair(
+        &self,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    ) -> Option<&ContactAlgorithm<N>> {
+        self.narrow_phase.contact_pair(handle1, handle2)
     }
 
     /// Iterates through all the contact pairs detected since the last update.
@@ -374,7 +389,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
             let co = &self.objects[*handle];
 
             if co.collision_groups().can_interact_with_groups(self.groups) {
-                let inter = co.shape()
+                let inter = co
+                    .shape()
                     .toi_and_normal_with_ray(&co.position(), self.ray, true);
 
                 if let Some(inter) = inter {

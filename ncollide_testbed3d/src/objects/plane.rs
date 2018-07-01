@@ -1,8 +1,8 @@
-use num::Zero;
-use kiss3d::window;
 use kiss3d::scene::SceneNode;
+use kiss3d::window;
 use na::{Point3, Vector3};
-use ncollide::world::{CollisionObject3, GeometricQueryType};
+use ncollide3d::world::{CollisionObject, GeometricQueryType};
+use num::Zero;
 
 pub struct Plane {
     gfx: SceneNode,
@@ -10,7 +10,7 @@ pub struct Plane {
 
 impl Plane {
     pub fn new<T>(
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         world_pos: &Point3<f32>,
         world_normal: &Vector3<f32>,
         color: Point3<f32>,
@@ -20,7 +20,7 @@ impl Plane {
             gfx: window.add_quad(100.0, 100.0, 10, 10),
         };
 
-        if let GeometricQueryType::Proximity(_) = object.query_type {
+        if let GeometricQueryType::Proximity(_) = object.query_type() {
             res.gfx.set_surface_rendering_activation(false);
             res.gfx.set_lines_width(1.0);
         }

@@ -4,38 +4,40 @@ use sfml::graphics::{Color, RenderTarget, Vertex, VertexArray};
 use sfml::system::Vector2f;
 
 use alga::general::Real;
-use na::Point2;
 use na;
-use ncollide::world::CollisionWorld2;
+use na::Point2;
+use ncollide2d::world::CollisionWorld;
 
 pub static DRAW_SCALE: f32 = 20.0;
 
 pub fn draw_colls<N: Real + ToPrimitive, T>(
     window: &mut graphics::RenderWindow,
-    world: &mut CollisionWorld2<N, T>,
+    world: &mut CollisionWorld<N, T>,
 ) {
-    for c in world.contacts() {
-        draw_line(
-            window,
-            &c.2.world1,
-            &c.2.world2,
-            &Color::new_rgb(255, 255, 255),
-        );
+    for m in world.contact_manifolds() {
+        for c in m.2.contacts() {
+            draw_line(
+                window,
+                &c.contact.world1,
+                &c.contact.world2,
+                &Color::new_rgb(255, 255, 255),
+            );
 
-        let center = na::center(&c.2.world1, &c.2.world2);
-        draw_line(
-            window,
-            &center,
-            &(center + c.2.normal * c.2.depth),
-            &Color::new_rgb(255, 0, 0),
-        );
+            let center = na::center(&c.contact.world1, &c.contact.world2);
+            draw_line(
+                window,
+                &center,
+                &(center + c.contact.normal.as_ref() * c.contact.depth),
+                &Color::new_rgb(255, 0, 0),
+            );
 
-        draw_line(
-            window,
-            &center,
-            &(center + c.2.normal),
-            &Color::new_rgb(0, 0, 255),
-        );
+            draw_line(
+                window,
+                &center,
+                &(center + c.contact.normal.unwrap()),
+                &Color::new_rgb(0, 0, 255),
+            );
+        }
     }
 }
 

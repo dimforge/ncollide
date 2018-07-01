@@ -1,13 +1,13 @@
 use kiss3d::scene::SceneNode;
 use na::{Isometry3, Point3};
-use ncollide::world::CollisionObject3;
+use ncollide3d::world::CollisionObject;
 use objects::ball::Ball;
 use objects::box_node::Box;
-use objects::cylinder::Cylinder;
 use objects::cone::Cone;
+use objects::convex::Convex;
+use objects::cylinder::Cylinder;
 use objects::mesh::Mesh;
 use objects::plane::Plane;
-use objects::convex::Convex;
 
 pub enum Node {
     Ball(Ball),
@@ -48,7 +48,7 @@ impl Node {
         }
     }
 
-    pub fn update<T>(&mut self, object: &CollisionObject3<f32, T>) {
+    pub fn update<T>(&mut self, object: &CollisionObject<f32, T>) {
         match *self {
             Node::Plane(ref mut n) => n.update(),
             Node::Ball(ref mut n) => n.update(object),
@@ -99,10 +99,10 @@ impl Node {
 
 pub fn update_scene_node<T>(
     node: &mut SceneNode,
-    object: &CollisionObject3<f32, T>,
+    object: &CollisionObject<f32, T>,
     color: &Point3<f32>,
     delta: &Isometry3<f32>,
 ) {
-    node.set_local_transformation(object.position * *delta);
+    node.set_local_transformation(object.position() * *delta);
     node.set_color(color.x, color.y, color.z);
 }

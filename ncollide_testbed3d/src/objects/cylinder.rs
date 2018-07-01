@@ -1,7 +1,7 @@
-use kiss3d::window;
 use kiss3d::scene::SceneNode;
+use kiss3d::window;
 use na::{Isometry3, Point3};
-use ncollide::world::{CollisionObject3, GeometricQueryType};
+use ncollide3d::world::{CollisionObject, GeometricQueryType};
 use objects::node;
 
 pub struct Cylinder {
@@ -13,7 +13,7 @@ pub struct Cylinder {
 
 impl Cylinder {
     pub fn new<T>(
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
         r: f32,
         h: f32,
@@ -27,14 +27,14 @@ impl Cylinder {
             gfx: window.add_cylinder(r, h),
         };
 
-        if let GeometricQueryType::Proximity(_) = object.query_type {
+        if let GeometricQueryType::Proximity(_) = object.query_type() {
             res.gfx.set_surface_rendering_activation(false);
             res.gfx.set_lines_width(1.0);
         }
 
         res.gfx.set_color(color.x, color.y, color.z);
         res.gfx
-            .set_local_transformation(object.position * res.delta);
+            .set_local_transformation(object.position() * res.delta);
         res.update(object);
 
         res
@@ -48,7 +48,7 @@ impl Cylinder {
         self.color = self.base_color;
     }
 
-    pub fn update<T>(&mut self, object: &CollisionObject3<f32, T>) {
+    pub fn update<T>(&mut self, object: &CollisionObject<f32, T>) {
         node::update_scene_node(&mut self.gfx, &object, &self.color, &self.delta);
     }
 

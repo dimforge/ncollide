@@ -18,10 +18,10 @@ recording = [ "mpeg_encoder" ]
 
 [dependencies]
 time         = "0.1"
-num          = "0.2"
+num-traits   = "0.2"
 rand         = "0.5"
 sfml         = "0.11"
-alga         = "0.5"
+alga         = "0.6"
 nalgebra     = "0.15"
-ncollide     = { path = "..", version = "0.14" }
+ncollide2d   = { path = "../build/ncollide2d", version = "0.16" }
 mpeg_encoder = { version = "0.2", optional = true }

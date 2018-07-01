@@ -1,23 +1,23 @@
-use std::rc::Rc;
-use std::cell::RefCell;
 use num::ToPrimitive;
-use sfml::graphics::{RenderTarget, RenderWindow};
-use sfml::window::{ContextSettings, VideoMode};
-use sfml::window::window_style;
-use sfml::window::event::Event;
-use sfml::window::{Key, MouseButton};
 use sfml::graphics::Color;
+use sfml::graphics::{RenderTarget, RenderWindow};
 use sfml::system::Vector2i;
+use sfml::window::event::Event;
+use sfml::window::window_style;
+use sfml::window::{ContextSettings, VideoMode};
+use sfml::window::{Key, MouseButton};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use alga::general::Real;
 use alga::linear::ProjectiveTransformation;
-use na::{self, Point2, Point3, Translation2};
-use ncollide::world::{CollisionGroups, CollisionWorld2};
-use ncollide::shape::Plane2;
 use camera::Camera;
+use na::{self, Point2, Point3, Translation2};
+use ncollide2d::shape::Plane;
+use ncollide2d::world::{CollisionGroups, CollisionObjectHandle, CollisionWorld};
 // use fps::Fps;
-use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
 use draw_helper;
+use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
 
 #[cfg(feature = "recording")]
 use mpeg_encoder::Encoder;
@@ -41,7 +41,7 @@ pub struct Testbed<N: Real> {
     camera: Camera,
     // font:           Font,
     // fps:            Fps<'static>,
-    grabbed_object: Option<usize>,
+    grabbed_object: Option<CollisionObjectHandle>,
     grab_anchor: Point2<N>,
 
     #[cfg(feature = "recording")]
@@ -88,8 +88,8 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         self.graphics.clone()
     }
 
-    pub fn set_color(&mut self, uid: usize, color: Point3<f32>) {
-        self.graphics.borrow_mut().set_color(uid, color);
+    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+        self.graphics.borrow_mut().set_color(handle, color);
     }
 
     pub fn is_open(&self) -> bool {
@@ -112,7 +112,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         self.recorder = None;
     }
 
-    pub fn step<T>(&mut self, world: &mut CollisionWorld2<N, T>) -> bool {
+    pub fn step<T>(&mut self, world: &mut CollisionWorld<N, T>) -> bool {
         self.graphics.borrow_mut().update(world);
 
         while self.window.is_open() {
@@ -131,7 +131,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         return false;
     }
 
-    pub fn update<T>(&mut self, world: &mut CollisionWorld2<N, T>) {
+    pub fn update<T>(&mut self, world: &mut CollisionWorld<N, T>) {
         self.process_events(world);
 
         // self.fps.reset();
@@ -147,7 +147,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         );
     }
 
-    pub fn render<T>(&mut self, world: &mut CollisionWorld2<N, T>) {
+    pub fn render<T>(&mut self, world: &mut CollisionWorld<N, T>) {
         self.window.clear(&self.background);
         // self.fps.draw_registered(&mut self.window);
         self.graphics
@@ -179,7 +179,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         // Do nothing.
     }
 
-    fn process_events<T>(&mut self, world: &mut CollisionWorld2<N, T>) {
+    fn process_events<T>(&mut self, world: &mut CollisionWorld<N, T>) {
         loop {
             match self.window.poll_event() {
                 Event::KeyPressed { code, .. } => self.process_key_press(code),
@@ -215,7 +215,7 @@ impl<N: Real + ToPrimitive> Testbed<N> {
 
     fn process_mouse_press<T>(
         &mut self,
-        world: &CollisionWorld2<N, T>,
+        world: &CollisionWorld<N, T>,
         button: MouseButton,
         x: i32,
         y: i32,
@@ -234,21 +234,22 @@ impl<N: Real + ToPrimitive> Testbed<N> {
                 {
                     // Planes are infinite so it is more ergonomic to prevent them from being
                     // grabbed.
-                    if !object.shape.is_shape::<Plane2<N>>() {
-                        if object.query_type.is_contacts_query() || !grabbed_solid {
+                    if !object.shape().is_shape::<Plane<N>>() {
+                        if object.query_type().is_contacts_query() || !grabbed_solid {
                             self.grab_anchor = object
-                                .position
+                                .position()
                                 .inverse_transform_point(&na::convert(mapped_point));
-                            self.grabbed_object = Some(object.uid);
-                            grabbed_solid = object.query_type.is_contacts_query();
+                            self.grabbed_object = Some(object.handle());
+                            grabbed_solid = object.query_type().is_contacts_query();
                         }
                     }
                 }
 
-                if let Some(uid) = self.grabbed_object {
-                    for node in self.graphics
+                if let Some(handle) = self.grabbed_object {
+                    for node in self
+                        .graphics
                         .borrow_mut()
-                        .scene_node(uid)
+                        .scene_node(handle)
                         .unwrap()
                         .iter_mut()
                     {
@@ -267,10 +268,11 @@ impl<N: Real + ToPrimitive> Testbed<N> {
     fn process_mouse_release(&mut self, button: MouseButton, x: i32, y: i32) {
         match button {
             MouseButton::Left => {
-                if let Some(uid) = self.grabbed_object {
-                    for node in self.graphics
+                if let Some(handle) = self.grabbed_object {
+                    for node in self
+                        .graphics
                         .borrow_mut()
-                        .scene_node(uid)
+                        .scene_node(handle)
                         .unwrap()
                         .iter_mut()
                     {
@@ -288,28 +290,28 @@ impl<N: Real + ToPrimitive> Testbed<N> {
         }
     }
 
-    fn process_mouse_moved<T>(&mut self, world: &mut CollisionWorld2<N, T>, x: i32, y: i32) {
+    fn process_mouse_moved<T>(&mut self, world: &mut CollisionWorld<N, T>, x: i32, y: i32) {
         let mapped_coords = self.camera.map_pixel_to_coords(Vector2i::new(x, y));
         let mapped_point = Point2::new(mapped_coords.x as f64, mapped_coords.y as f64);
 
-        if let Some(uid) = self.grabbed_object {
+        if let Some(handle) = self.grabbed_object {
             let mut new_pos = na::one();
 
-            if let Some(obj) = world.collision_object(uid) {
-                let anchor = obj.position * self.grab_anchor;
+            if let Some(obj) = world.collision_object(handle) {
+                let anchor = obj.position() * self.grab_anchor;
                 let new_pt: Point2<N> = na::convert(mapped_point);
 
                 let t = Translation2::from_vector(new_pt - anchor);
-                new_pos = t * obj.position;
+                new_pos = t * obj.position();
             }
 
-            world.deferred_set_position(uid, new_pos);
+            world.set_position(handle, new_pos);
         } else {
             self.camera.handle_event(&Event::MouseMoved { x: x, y: y })
         }
     }
 
-    fn draw_collisions<T>(&mut self, world: &mut CollisionWorld2<N, T>) {
+    fn draw_collisions<T>(&mut self, world: &mut CollisionWorld<N, T>) {
         if self.draw_colls {
             draw_helper::draw_colls(&mut self.window, world);
         }

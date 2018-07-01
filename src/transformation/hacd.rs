@@ -1,20 +1,20 @@
-use std::mem;
-use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::collections::hash_map::Entry;
 use num::{Bounded, Zero};
+use std::cmp::Ordering;
+use std::collections::hash_map::Entry;
+use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::mem;
 
-use na::{self, Real, Point3, Translation3, Vector2, Vector3};
+use na::{self, Point3, Real, Translation3, Vector2, Vector3};
 
-use utils;
-use shape::SupportMap;
 use bounding_volume::{self, BoundingVolume, AABB};
+use math::Isometry;
 use partitioning::{BoundingVolumeInterferencesCollector, BVT};
+use procedural::{IndexBuffer, TriMesh};
 use query::algorithms::VoronoiSimplex;
 use query::{ray_internal, Ray, RayCast, RayIntersection};
-use procedural::{IndexBuffer, TriMesh};
+use shape::SupportMap;
 use transformation;
-use math::Isometry;
+use utils;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: Real>(
@@ -120,8 +120,8 @@ pub fn hacd<N: Real>(
 
                 DualGraphVertex::hecol(top, &mut dual_graph[..]);
 
-                assert!(dual_graph[v1].timestamp != Bounded::max_value());
-                assert!(dual_graph[v2].timestamp != Bounded::max_value());
+                assert!(dual_graph[v1].timestamp != usize::max_value());
+                assert!(dual_graph[v2].timestamp != usize::max_value());
                 dual_graph[v1].timestamp = curr_time;
                 dual_graph[v2].timestamp = Bounded::max_value(); // Mark as invalid.
 
@@ -150,7 +150,7 @@ pub fn hacd<N: Real>(
     let mut parts = Vec::with_capacity(dual_graph.len() - curr_time);
 
     for vertex in dual_graph.into_iter() {
-        if vertex.timestamp != Bounded::max_value() {
+        if vertex.timestamp != usize::max_value() {
             let mut chull = vertex.chull.unwrap();
 
             denormalize(&mut chull, &center, diag);
@@ -483,7 +483,11 @@ impl<N: Real> DualGraphEdge<N> {
                 let shift: N = na::convert(0.1f64);
                 let outside_point = ray.origin + ray.dir * (distance + shift);
 
-                match chull.toi_with_ray(&Isometry::identity(), &Ray::new(outside_point, -ray.dir), true) {
+                match chull.toi_with_ray(
+                    &Isometry::identity(),
+                    &Ray::new(outside_point, -ray.dir),
+                    true,
+                ) {
                     None => ancestors.push(VertexWithConcavity::new(id, na::zero())),
                     Some(toi) => {
                         let new_concavity = distance + shift - toi;
@@ -663,7 +667,8 @@ fn edge(a: u32, b: u32) -> Vector2<usize> {
 }
 
 fn compute_ray_bvt<N: Real>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
-    let aabbs = rays.iter()
+    let aabbs = rays
+        .iter()
         .enumerate()
         .map(|(i, r)| (i, AABB::new(r.origin, r.origin)))
         .collect();
@@ -671,9 +676,7 @@ fn compute_ray_bvt<N: Real>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: Real>(
-    mesh: &TriMesh<N>,
-) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: Real>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
 

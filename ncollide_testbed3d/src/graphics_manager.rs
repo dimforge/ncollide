@@ -1,32 +1,26 @@
-use std::rc::Rc;
+use kiss3d::camera::{ArcBall, Camera, FirstPerson};
+use kiss3d::scene::SceneNode;
+use kiss3d::window::Window;
+use na::{self, Isometry3, Point3};
+use ncollide3d::shape::{
+    Ball, Compound, Cone, ConvexHull, Cuboid, Cylinder, Plane, Shape, TriMesh,
+};
+use ncollide3d::transformation;
+use ncollide3d::world::{CollisionObject, CollisionObjectHandle, CollisionWorld};
+use objects::{self, Box, Mesh, Node};
+use rand::{Rng, SeedableRng, XorShiftRng};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use rand::{Rng, SeedableRng, XorShiftRng};
-use na::{self, Isometry3, Point3};
-use kiss3d::window::Window;
-use kiss3d::scene::SceneNode;
-use kiss3d::camera::{ArcBall, Camera, FirstPerson};
-use ncollide::shape::{Ball3, Compound3, Cone3, ConvexHull3, Cuboid, Cylinder3, Plane3, Shape3,
-                      TriMesh3};
-use ncollide::transformation;
-use ncollide::world::{CollisionObject3, CollisionWorld3};
-use objects::ball::Ball;
-use objects::box_node::Box;
-use objects::cylinder::Cylinder;
-use objects::cone::Cone;
-use objects::mesh::Mesh;
-use objects::plane::Plane;
-use objects::convex::Convex;
-use objects::node::Node;
+use std::rc::Rc;
 
 pub type GraphicsManagerHandle = Rc<RefCell<GraphicsManager>>;
 
 pub struct GraphicsManager {
     rand: XorShiftRng,
     // FIXME: merge thote three hashaps into a single one.
-    uid2sn: HashMap<usize, Vec<Node>>,
-    uid2visible: HashMap<usize, bool>,
-    uid2color: HashMap<usize, Point3<f32>>,
+    handle2sn: HashMap<CollisionObjectHandle, Vec<Node>>,
+    handle2visible: HashMap<CollisionObjectHandle, bool>,
+    handle2color: HashMap<CollisionObjectHandle, Point3<f32>>,
     arc_ball: ArcBall,
     first_person: FirstPerson,
     curr_is_arc_ball: bool,
@@ -39,7 +33,7 @@ impl GraphicsManager {
         let first_person =
             FirstPerson::new(Point3::new(10.0, 10.0, 10.0), Point3::new(0.0, 0.0, 0.0));
 
-        let mut rng: XorShiftRng = SeedableRng::from_seed([0, 2, 4, 8]);
+        let mut rng: XorShiftRng = SeedableRng::from_seed([0; 16]);
 
         // the first colors are boring.
         for _ in 0usize..100 {
@@ -51,15 +45,15 @@ impl GraphicsManager {
             first_person: first_person,
             curr_is_arc_ball: true,
             rand: rng,
-            uid2visible: HashMap::new(),
-            uid2sn: HashMap::new(),
-            uid2color: HashMap::new(),
+            handle2visible: HashMap::new(),
+            handle2sn: HashMap::new(),
+            handle2color: HashMap::new(),
             aabbs: Vec::new(),
         }
     }
 
     pub fn clear(&mut self, window: &mut Window) {
-        for sns in self.uid2sn.values() {
+        for sns in self.handle2sn.values() {
             for sn in sns.iter() {
                 window.remove(&mut sn.scene_node().clone());
             }
@@ -69,60 +63,60 @@ impl GraphicsManager {
             window.remove(aabb);
         }
 
-        self.uid2sn.clear();
+        self.handle2sn.clear();
         self.aabbs.clear();
     }
 
-    pub fn remove(&mut self, window: &mut Window, uid: usize) {
-        match self.uid2sn.get(&uid) {
+    pub fn remove(&mut self, window: &mut Window, handle: CollisionObjectHandle) {
+        match self.handle2sn.get(&handle) {
             Some(sns) => for sn in sns.iter() {
                 window.remove(&mut sn.scene_node().clone());
             },
             None => {}
         }
 
-        self.uid2sn.remove(&uid);
+        self.handle2sn.remove(&handle);
     }
 
-    pub fn set_color(&mut self, uid: usize, color: Point3<f32>) {
-        self.uid2color.insert(uid, color);
+    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+        self.handle2color.insert(handle, color);
 
-        if let Some(ns) = self.uid2sn.get_mut(&uid) {
+        if let Some(ns) = self.handle2sn.get_mut(&handle) {
             for n in ns.iter_mut() {
                 n.set_color(color)
             }
         }
     }
 
-    pub fn set_visible(&mut self, uid: usize, visible: bool) {
-        if let Some(ns) = self.uid2sn.get_mut(&uid) {
+    pub fn set_visible(&mut self, handle: CollisionObjectHandle, visible: bool) {
+        if let Some(ns) = self.handle2sn.get_mut(&handle) {
             for n in ns.iter_mut() {
                 n.set_visible(visible)
             }
         } else {
-            self.uid2visible.insert(uid, visible);
+            self.handle2visible.insert(handle, visible);
         }
     }
 
-    pub fn update<T>(&mut self, window: &mut Window, world: &CollisionWorld3<f32, T>) {
+    pub fn update<T>(&mut self, window: &mut Window, world: &CollisionWorld<f32, T>) {
         for object in world.collision_objects() {
-            if !self.uid2sn.contains_key(&object.uid) {
+            if !self.handle2sn.contains_key(&object.handle()) {
                 self.add(window, object);
 
-                let visible = match self.uid2visible.get(&object.uid) {
+                let visible = match self.handle2visible.get(&object.handle()) {
                     Some(visible) => *visible,
                     None => true,
                 };
 
                 if !visible {
-                    self.set_visible(object.uid, false);
+                    self.set_visible(object.handle(), false);
                 }
             }
         }
     }
 
-    pub fn add<T>(&mut self, window: &mut Window, object: &CollisionObject3<f32, T>) {
-        let color = match self.uid2color.get(&object.uid) {
+    pub fn add<T>(&mut self, window: &mut Window, object: &CollisionObject<f32, T>) {
+        let color = match self.handle2color.get(&object.handle()) {
             Some(c) => *c,
             None => self.rand.gen(),
         };
@@ -133,7 +127,7 @@ impl GraphicsManager {
     pub fn add_with_color<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         color: Point3<f32>,
     ) {
         let nodes = {
@@ -143,7 +137,7 @@ impl GraphicsManager {
                 window,
                 object,
                 na::one(),
-                object.shape.as_ref(),
+                object.shape().as_ref(),
                 color,
                 &mut nodes,
             );
@@ -151,36 +145,36 @@ impl GraphicsManager {
             nodes
         };
 
-        self.uid2sn.insert(object.uid, nodes);
-        self.set_color(object.uid, color);
+        self.handle2sn.insert(object.handle(), nodes);
+        self.set_color(object.handle(), color);
     }
 
     fn add_shape<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &Shape3<f32>,
+        shape: &Shape<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
-        if let Some(s) = shape.as_shape::<Plane3<f32>>() {
+        if let Some(s) = shape.as_shape::<Plane<f32>>() {
             self.add_plane(window, object, s, color, out)
-        } else if let Some(s) = shape.as_shape::<Ball3<f32>>() {
+        } else if let Some(s) = shape.as_shape::<Ball<f32>>() {
             self.add_ball(window, object, delta, s, color, out)
         } else if let Some(s) = shape.as_shape::<Cuboid<f32>>() {
             self.add_box(window, object, delta, s, color, out)
-        } else if let Some(s) = shape.as_shape::<ConvexHull3<f32>>() {
+        } else if let Some(s) = shape.as_shape::<ConvexHull<f32>>() {
             self.add_convex(window, object, delta, s, color, out)
-        } else if let Some(s) = shape.as_shape::<Cylinder3<f32>>() {
-            self.add_cylinder(window, object, delta, s, color, out)
-        } else if let Some(s) = shape.as_shape::<Cone3<f32>>() {
-            self.add_cone(window, object, delta, s, color, out)
-        } else if let Some(s) = shape.as_shape::<Compound3<f32>>() {
+        // } else if let Some(s) = shape.as_shape::<Cylinder<f32>>() {
+        //     self.add_cylinder(window, object, delta, s, color, out)
+        // } else if let Some(s) = shape.as_shape::<Cone<f32>>() {
+        //     self.add_cone(window, object, delta, s, color, out)
+        } else if let Some(s) = shape.as_shape::<Compound<f32>>() {
             for &(t, ref s) in s.shapes().iter() {
                 self.add_shape(window, object.clone(), delta * t, s.as_ref(), color, out)
             }
-        } else if let Some(s) = shape.as_shape::<TriMesh3<f32>>() {
+        } else if let Some(s) = shape.as_shape::<TriMesh<f32>>() {
             self.add_mesh(window, object, delta, s, color, out);
         } else {
             panic!("Not yet implemented.")
@@ -190,29 +184,25 @@ impl GraphicsManager {
     fn add_plane<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
-        shape: &Plane3<f32>,
+        object: &CollisionObject<f32, T>,
+        shape: &Plane<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
-        let position = Point3::from_coordinates(object.position.translation.vector);
-        let normal = object.position.rotation * shape.normal();
+        let position = Point3::from_coordinates(object.position().translation.vector);
+        let normal = object.position().rotation * shape.normal();
 
-        out.push(Node::Plane(Plane::new(
-            object,
-            &position,
-            &normal,
-            color,
-            window,
+        out.push(Node::Plane(objects::Plane::new(
+            object, &position, &normal, color, window,
         )))
     }
 
     fn add_mesh<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &TriMesh3<f32>,
+        shape: &TriMesh<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
@@ -221,13 +211,13 @@ impl GraphicsManager {
 
         let is = indices
             .iter()
-            .map(|p| Point3::new(p.x as u32, p.y as u32, p.z as u32))
+            .map(|p| Point3::new(p.x as u16, p.y as u16, p.z as u16))
             .collect();
 
         out.push(Node::Mesh(Mesh::new(
             object,
             delta,
-            vertices.clone(),
+            vertices.clone().to_vec(),
             is,
             color,
             window,
@@ -237,13 +227,13 @@ impl GraphicsManager {
     fn add_ball<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &Ball3<f32>,
+        shape: &Ball<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
-        out.push(Node::Ball(Ball::new(
+        out.push(Node::Ball(objects::Ball::new(
             object,
             delta,
             shape.radius(),
@@ -255,7 +245,7 @@ impl GraphicsManager {
     fn add_box<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
         shape: &Cuboid<f32>,
         color: Point3<f32>,
@@ -266,29 +256,23 @@ impl GraphicsManager {
         let rz = shape.half_extents().z;
 
         out.push(Node::Box(Box::new(
-            object,
-            delta,
-            rx,
-            ry,
-            rz,
-            color,
-            window,
+            object, delta, rx, ry, rz, color, window,
         )))
     }
 
     fn add_convex<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &ConvexHull3<f32>,
+        shape: &ConvexHull<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
-        out.push(Node::Convex(Convex::new(
+        out.push(Node::Convex(objects::Convex::new(
             object,
             delta,
-            &transformation::convex_hull3(shape.points()),
+            &transformation::convex_hull(shape.points()),
             color,
             window,
         )))
@@ -297,43 +281,40 @@ impl GraphicsManager {
     fn add_cylinder<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &Cylinder3<f32>,
+        shape: &Cylinder<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
         let r = shape.radius();
         let h = shape.half_height() * 2.0;
 
-        out.push(Node::Cylinder(Cylinder::new(
-            object,
-            delta,
-            r,
-            h,
-            color,
-            window,
+        out.push(Node::Cylinder(objects::Cylinder::new(
+            object, delta, r, h, color, window,
         )))
     }
 
     fn add_cone<T>(
         &mut self,
         window: &mut Window,
-        object: &CollisionObject3<f32, T>,
+        object: &CollisionObject<f32, T>,
         delta: Isometry3<f32>,
-        shape: &Cone3<f32>,
+        shape: &Cone<f32>,
         color: Point3<f32>,
         out: &mut Vec<Node>,
     ) {
         let r = shape.radius();
         let h = shape.half_height() * 2.0;
 
-        out.push(Node::Cone(Cone::new(object, delta, r, h, color, window)))
+        out.push(Node::Cone(objects::Cone::new(
+            object, delta, r, h, color, window,
+        )))
     }
 
-    pub fn draw<T>(&mut self, world: &CollisionWorld3<f32, T>) {
-        for (uid, ns) in self.uid2sn.iter_mut() {
-            if let Some(object) = world.collision_object(*uid) {
+    pub fn draw<T>(&mut self, world: &CollisionWorld<f32, T>) {
+        for (handle, ns) in self.handle2sn.iter_mut() {
+            if let Some(object) = world.collision_object(*handle) {
                 for n in ns.iter_mut() {
                     n.update(object)
                 }
@@ -341,9 +322,9 @@ impl GraphicsManager {
         }
     }
 
-    pub fn draw_positions<T>(&mut self, window: &mut Window, world: &CollisionWorld3<f32, T>) {
+    pub fn draw_positions<T>(&mut self, window: &mut Window, world: &CollisionWorld<f32, T>) {
         for object in world.collision_objects() {
-            let t = object.position;
+            let t = object.position();
             let center = Point3::from_coordinates(t.translation.vector);
 
             let rotmat = t.rotation.to_rotation_matrix();
@@ -391,11 +372,11 @@ impl GraphicsManager {
         self.first_person.look_at(eye, at);
     }
 
-    pub fn scene_nodes(&self, uid: usize) -> Option<&Vec<Node>> {
-        self.uid2sn.get(&uid)
+    pub fn scene_nodes(&self, handle: CollisionObjectHandle) -> Option<&Vec<Node>> {
+        self.handle2sn.get(&handle)
     }
 
-    pub fn scene_nodes_mut(&mut self, uid: usize) -> Option<&mut Vec<Node>> {
-        self.uid2sn.get_mut(&uid)
+    pub fn scene_nodes_mut(&mut self, handle: CollisionObjectHandle) -> Option<&mut Vec<Node>> {
+        self.handle2sn.get_mut(&handle)
     }
 }

@@ -2,8 +2,8 @@
 
 extern crate alga;
 extern crate nalgebra as na;
-extern crate ncollide;
-extern crate num;
+extern crate ncollide2d;
+extern crate num_traits as num;
 extern crate rand;
 extern crate sfml;
 extern crate time;
@@ -11,11 +11,11 @@ extern crate time;
 #[cfg(feature = "recording")]
 extern crate mpeg_encoder;
 
-pub use testbed::Testbed;
 pub use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
+pub use testbed::Testbed;
 
-mod testbed;
 mod graphics_manager;
+mod testbed;
 
 mod camera;
 // mod fps;

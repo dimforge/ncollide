@@ -3,9 +3,9 @@ use sfml::graphics;
 use sfml::graphics::Color;
 
 use alga::general::Real;
-use na::{Isometry2, Point2, Point3};
-use ncollide::world::CollisionObject2;
 use draw_helper::draw_line;
+use na::{Isometry2, Point2, Point3};
+use ncollide2d::world::CollisionObject;
 
 pub struct Segment<N: Real> {
     color: Point3<u8>,
@@ -30,8 +30,8 @@ impl<N: Real + ToPrimitive> Segment<N> {
 impl<N: Real + ToPrimitive> Segment<N> {
     pub fn update(&mut self) {}
 
-    pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject2<N, T>) {
-        let transform = object.position * self.delta;
+    pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject<N, T>) {
+        let transform = object.position() * self.delta;
         let color = Color::new_rgb(self.color.x, self.color.y, self.color.z);
 
         let ga = transform * self.a;
