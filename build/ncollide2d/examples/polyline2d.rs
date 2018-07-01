@@ -10,10 +10,11 @@ fn main() {
         Point2::new(-1.0, -1.0),
         Point2::new(0.0, -0.5),
         Point2::new(1.0, -1.0),
+        Point2::new(0.0, 1.0), // This forms a loop.
     ];
 
     // Build the polyline.
     let polyline = Polyline::new(points);
 
-    assert!(polyline.vertices().len() == 4);
+    assert!(polyline.vertices().len() == 5);
 }
