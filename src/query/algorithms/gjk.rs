@@ -229,7 +229,7 @@ where
     minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|res| res.0)
 }
 
-// Ray-cast on the Minkoski Difference `m1 * g1 - m2 * g2`.
+// Ray-cast on the Minkowski Difference `m1 * g1 - m2 * g2`.
 fn minkowski_ray_cast<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
@@ -279,15 +279,15 @@ where
                     ltoi = ltoi + t;
                     curr_ray.origin = ray.origin + ray.dir * ltoi;
                     dir = curr_ray.origin - support_point.point;
-                    // FIXME: could we simply translate the simpex by old_origin - new_origin ?
+                    // FIXME: could we simply translate the simplex by old_origin - new_origin ?
                     simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
                     old_max_bound = Bounded::max_value();
                     continue;
                 }
             }
             None => {
-                if na::dot(&dir, &ray.dir) >= -N::default_epsilon() {
-                    // miss
+                if na::dot(&dir, &ray.dir) > -N::zero() {
+                    // misss
                     return None;
                 }
             }
@@ -297,7 +297,7 @@ where
             simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
             simplex_init = true;
         } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
-            return Some((ltoi, dir));
+            return None;
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
