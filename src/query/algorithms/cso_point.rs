@@ -96,6 +96,13 @@ impl<N: Real> CSOPoint<N> {
     pub fn translate2(&self, dir: &Vector<N>) -> Self {
         CSOPoint::new_with_point(self.point - dir, self.orig1, self.orig2 + dir)
     }
+
+    /// Apply the given transformations to each CSOPoint original point.
+    pub fn transform(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
+        self.orig1 = m1 * self.orig1;
+        self.orig2 = m2 * self.orig2;
+        self.point = self.orig1 - self.orig2.coords;
+    }
 }
 
 impl<N: Real> Sub<CSOPoint<N>> for CSOPoint<N> {

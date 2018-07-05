@@ -3,7 +3,7 @@ use na::Real;
 use math::{Isometry, Point};
 use query::contacts_internal;
 use query::contacts_internal::Contact;
-use shape::{Ball, Plane, Shape};
+use shape::{Ball, Cuboid, Plane, Shape};
 
 /// Computes one contact point between two shapes.
 ///

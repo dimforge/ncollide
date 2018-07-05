@@ -83,8 +83,15 @@ impl<N: Real> VoronoiSimplex<N> {
         &self.vertices[self.prev_vertices[i]]
     }
 
+    /// Recompute CSO points, considering the given transforms.
+    pub fn transform_points(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
+        for vtx in &mut self.vertices[..self.dim + 1] {
+            vtx.transform(m1, m2)
+        }
+    }
+
     /// Projets the origin on the boundary of this simplex and reduces `self` the smallest subsimplex containing the origin.
-    /// 
+    ///
     /// Retruns the result of the projection or Point::origin() if the origin lies inside of the simplex.
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.

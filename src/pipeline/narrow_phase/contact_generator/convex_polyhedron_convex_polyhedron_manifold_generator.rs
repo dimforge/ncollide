@@ -4,8 +4,8 @@ use na::{self, Point2, Real, Unit};
 use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Vector};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::algorithms::VoronoiSimplex;
 use query::algorithms::gjk::GJKResult;
+use query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
 use query::closest_points_internal;
 use query::contacts_internal;
@@ -45,7 +45,6 @@ impl<N: Real> ClippingCache<N> {
 #[derive(Clone)]
 pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     simplex: VoronoiSimplex<N>,
-    last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
     contact_manifold: ContactManifold<N>,
     clip_cache: ClippingCache<N>,
@@ -59,7 +58,6 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     pub fn new() -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: VoronoiSimplex::new(),
-            last_gjk_dir: None,
             last_optimal_dir: None,
             contact_manifold: ContactManifold::new(),
             clip_cache: ClippingCache::new(),
@@ -259,7 +257,8 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                         let n2 = self.manifold2.normal.as_ref().unwrap().unwrap();
                         let p2 = &self.manifold2.vertices[0];
                         if let Some(toi2) =
-                            ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap()) {
+                            ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap())
+                        {
                             let world2 = origin + normal.unwrap() * toi2;
                             let world1 = self.manifold1.vertices[i];
                             let f2 = self.manifold2.feature_id;
@@ -284,7 +283,8 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                         let n1 = self.manifold1.normal.as_ref().unwrap().unwrap();
                         let p1 = &self.manifold1.vertices[0];
                         if let Some(toi1) =
-                            ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap()) {
+                            ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap())
+                        {
                             let world1 = origin + normal.unwrap() * toi1;
                             let world2 = self.manifold2.vertices[i];
                             let f1 = self.manifold1.feature_id;
@@ -312,8 +312,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
                     if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
                         closest_points_internal::segment_against_segment_with_locations_nD(
-                            seg1,
-                            seg2,
+                            seg1, seg2,
                         ) {
                         let original1 =
                             Segment::new(self.manifold1.vertices[i1], self.manifold1.vertices[j1]);
@@ -352,16 +351,18 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             self.contact_manifold.set_subshape_id1(ida);
             self.contact_manifold.set_subshape_id2(idb);
+            self.simplex.transform_points(ma, mb);
 
-            let contact = contacts_internal::support_map_against_support_map_with_params(
+            let contact = contacts_internal::support_map_against_support_map_with_simplex(
                 ma,
                 cpa,
                 mb,
                 cpb,
                 prediction.linear,
                 &mut self.simplex,
-                self.last_gjk_dir,
             );
+
+            self.simplex.transform_points(&ma.inverse(), &mb.inverse());
 
             // Generate a contact manifold.
             self.new_contacts.clear();
@@ -370,7 +371,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
 
             match contact {
                 GJKResult::ClosestPoints(world1, world2, dir) => {
-                    self.last_gjk_dir = Some(dir);
                     let contact = Contact::new_wo_depth(world1, world2, dir);
 
                     if contact.depth > na::zero() {
@@ -402,7 +402,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                         ));
                     }
                 }
-                GJKResult::NoIntersection(dir) => self.last_gjk_dir = Some(dir),
                 _ => {}
             }
 

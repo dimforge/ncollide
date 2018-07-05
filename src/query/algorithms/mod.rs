@@ -16,6 +16,7 @@ pub mod epa2;
 #[cfg(feature = "dim3")]
 pub mod epa3;
 pub mod gjk;
+// pub mod sat;
 #[cfg(feature = "dim2")]
 mod voronoi_simplex2;
 #[cfg(feature = "dim3")]
