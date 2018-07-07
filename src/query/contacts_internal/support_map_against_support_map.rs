@@ -5,6 +5,17 @@ use query::algorithms::{VoronoiSimplex, EPA};
 use query::Contact;
 use shape::SupportMap;
 
+fn initial_cso_dir<N: Real>(m1: &Isometry<N>, m2: &Isometry<N>) -> Unit<Vector<N>> {
+    if let Some(dir) = Unit::try_new(
+        m2.translation.vector - m1.translation.vector,
+        N::default_epsilon(),
+    ) {
+        dir
+    } else {
+        Vector::x_axis()
+    }
+}
+
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
@@ -18,16 +29,8 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let init_dir = if let Some(dir) = Unit::try_new(
-        m2.translation.vector - m1.translation.vector,
-        N::default_epsilon(),
-    ) {
-        dir
-    } else {
-        Vector::x_axis()
-    };
-
-    match support_map_against_support_map_with_dir(m1, g1, m2, g2, prediction, &init_dir) {
+    let mut simplex = VoronoiSimplex::new();
+    match support_map_against_support_map_with_simplex(m1, g1, m2, g2, prediction, &mut simplex) {
         GJKResult::ClosestPoints(world1, world2, normal) => {
             Some(Contact::new_wo_depth(world1, world2, normal))
         }
@@ -80,6 +83,11 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
+    if !simplex.initialized() {
+        let init_dir = initial_cso_dir(m1, m2);
+        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &init_dir));
+    }
+
     let cpts = gjk::closest_points(m1, g1, m2, g2, prediction, true, simplex);
     if cpts != GJKResult::Intersection {
         return cpts;

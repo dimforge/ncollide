@@ -17,10 +17,13 @@ pub struct VoronoiSimplex<N: Real> {
     vertices: [CSOPoint<N>; 4],
     proj: [N; 3],
     dim: usize,
+    initialized: bool
 }
 
 impl<N: Real> VoronoiSimplex<N> {
     /// Creates a new empty simplex.
+    // FIXME: this constructor should take a first CSOPoint as argument.
+    // That would avoid the hacke "initialized" field and assertions.
     pub fn new() -> VoronoiSimplex<N> {
         VoronoiSimplex {
             prev_vertices: [0, 1, 2, 3],
@@ -29,6 +32,7 @@ impl<N: Real> VoronoiSimplex<N> {
             vertices: [CSOPoint::origin(); 4],
             proj: [N::zero(); 3],
             dim: 0,
+            initialized: false,
         }
     }
 
@@ -43,6 +47,12 @@ impl<N: Real> VoronoiSimplex<N> {
         self.dim = 0;
         self.prev_dim = 0;
         self.vertices[0] = pt;
+        self.initialized = true;
+    }
+
+    /// Whether this simplex is initialized.
+    pub fn initialized(&self) -> bool {
+        self.initialized
     }
 
     /// Recompute CSO points, considering the given transforms.
@@ -54,6 +64,10 @@ impl<N: Real> VoronoiSimplex<N> {
 
     /// Add a point to this simplex.
     pub fn add_point(&mut self, pt: CSOPoint<N>) -> bool {
+        if !self.initialized {
+            self.reset(pt);
+            return true;
+        }
         self.prev_dim = self.dim;
         self.prev_proj = self.proj;
         self.prev_vertices = [0, 1, 2, 3];
@@ -120,6 +134,8 @@ impl<N: Real> VoronoiSimplex<N> {
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.
     pub fn project_origin_and_reduce(&mut self) -> Point<N> {
+        assert!(self.initialized, "Attempted to project the origin on an uninitialized simplex.");
+
         if self.dim == 0 {
             self.proj[0] = N::one();
             self.vertices[0].point
@@ -288,6 +304,8 @@ impl<N: Real> VoronoiSimplex<N> {
 
     /// Compute the projection of the origin on the boundary of this simplex.
     pub fn project_origin(&mut self) -> Point<N> {
+        assert!(self.initialized, "Attempted to project the origin on an uninitialized simplex.");
+
         if self.dim == 0 {
             self.vertices[0].point
         } else if self.dim == 1 {
