@@ -64,6 +64,8 @@ where
  * Separating Axis GJK
  */
 /// Projects the origin on a shape using the Separating Axis GJK algorithm.
+///
+/// The result of the projection is expressed in the local-space of `g1`.
 /// The algorithm will stop as soon as the polytope can be proven to be at least `max_dist` away
 /// from the origin.
 ///
@@ -76,9 +78,8 @@ where
 /// compute the exact distance and return `GJKResult::Projection(point)` if the origin is closer
 /// than `max_dist` but not inside `shape`.
 pub fn closest_points<N, G1: ?Sized, G2: ?Sized>(
-    m1: &Isometry<N>,
     g1: &G1,
-    m2: &Isometry<N>,
+    m12: &Isometry<N>,
     g2: &G2,
     max_dist: N,
     exact_dist: bool,
@@ -143,7 +144,7 @@ where
             }
         }
 
-        let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
+        let cso_point = CSOPoint::from_shapes_local2(g1, m12, g2, &dir);
         let min_bound = -na::dot(dir.as_ref(), &cso_point.point.coords);
 
         assert!(min_bound == min_bound);

@@ -98,13 +98,11 @@ impl<N: Real> Segment<N> {
 
 impl<N: Real> SupportMap<N> for Segment<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
-        if na::dot(&self.a.coords, &local_dir) > na::dot(&self.b.coords, &local_dir) {
-            m * self.a
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        if na::dot(&self.a.coords, dir) > na::dot(&self.b.coords, dir) {
+            self.a
         } else {
-            m * self.b
+            self.b
         }
     }
 }

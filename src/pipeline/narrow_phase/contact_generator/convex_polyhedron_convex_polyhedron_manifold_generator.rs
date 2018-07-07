@@ -352,8 +352,11 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
+            let mab = ma.inverse() * mb;
+            let mba = mab.inverse();
+
             if let Some(sep_axis) = self.sep_axis {
-                let point = CSOPoint::from_shapes_toward(ma, cpa, mb, cpa, &sep_axis);
+                let point = CSOPoint::from_shapes_toward_local1(cpa, &mab, cpa, &sep_axis);
                 if -point.point.coords.dot(&*sep_axis) > prediction.linear {
                     self.contact_manifold.save_cache_and_clear(ids);
                     return true;
@@ -363,18 +366,17 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
             }
             self.contact_manifold.set_subshape_id1(ida);
             self.contact_manifold.set_subshape_id2(idb);
-            self.simplex.transform_points(ma, mb);
+            self.simplex.transform2(&mab);
 
             let contact = contacts_internal::support_map_against_support_map_with_simplex(
-                ma,
                 cpa,
-                mb,
+                &mab,
                 cpb,
                 prediction.linear,
                 &mut self.simplex,
             );
 
-            self.simplex.transform_points(&ma.inverse(), &mb.inverse());
+            self.simplex.transform2(&mba);
 
             // Generate a contact manifold.
             self.new_contacts.clear();
@@ -382,8 +384,8 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
             self.manifold2.clear();
 
             match contact {
-                GJKResult::ClosestPoints(world1, world2, dir) => {
-                    let contact = Contact::new_wo_depth(world1, world2, dir);
+                GJKResult::ClosestPoints(local1, local2_1, dir) => {
+                    let contact = Contact::new_wo_depth(ma * local1, ma * local2_1, ma * dir);
 
                     if contact.depth > na::zero() {
                         cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);

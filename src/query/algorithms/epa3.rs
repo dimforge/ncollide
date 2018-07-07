@@ -217,9 +217,8 @@ impl<N: Real> EPA<N> {
     /// Returns `None` if the EPA fails to converge or if `g1` and `g2` are not penetrating.
     pub fn closest_points<G1: ?Sized, G2: ?Sized>(
         &mut self,
-        m1: &Isometry<N>,
         g1: &G1,
-        m2: &Isometry<N>,
+        m12: &Isometry<N>,
         g2: &G2,
         simplex: &VoronoiSimplex<N>,
     ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
@@ -311,7 +310,7 @@ impl<N: Real> EPA<N> {
                     // XXX: dir should already be unit on nalgebra!
                     let dir = Unit::new_unchecked(*dir);
                     self.vertices
-                        .push(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
+                        .push(CSOPoint::from_shapes_local1(g1, m12, g2, &dir));
                     false
                 });
             }
@@ -346,7 +345,7 @@ impl<N: Real> EPA<N> {
                 continue;
             }
 
-            let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &face.normal);
+            let cso_point = CSOPoint::from_shapes_local1(g1, m12, g2, &face.normal);
             let support_point_id = self.vertices.len();
             self.vertices.push(cso_point);
 

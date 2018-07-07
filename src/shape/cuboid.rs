@@ -48,18 +48,16 @@ impl<N: Real> Cuboid<N> {
 
 impl<N: Real> SupportMap<N> for Cuboid<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         let mut res = *self.half_extents();
 
         for i in 0usize..DIM {
-            if local_dir[i] < N::zero() {
+            if dir[i] < N::zero() {
                 res[i] = -res[i];
             }
         }
 
-        m * Point::from_coordinates(res)
+        Point::from_coordinates(res)
     }
 }
 
@@ -418,12 +416,12 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                     _ => unreachable!(),
                 }
 
-                PolyhedralCone::Span([Unit::new_unchecked(dir1), Unit::new_unchecked(dir2)])            
+                PolyhedralCone::Span([Unit::new_unchecked(dir1), Unit::new_unchecked(dir2)])
             }
             _ => panic!("Invalid feature ID {:?}.", feature)
         }
     }
-    
+
     #[cfg(feature = "dim3")]
     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
         let mut generators = SmallVec::new();

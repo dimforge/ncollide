@@ -776,6 +776,11 @@ impl<'a, N: Real> ConvexPair<'a, N> {
 impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Isometry<N>, dir: &Vector3<N>) -> Point3<N> {
+        self.local_support_point(dir)
+    }
+
+    #[inline]
+    fn local_support_point(&self,  dir: &Vector3<N>) -> Point3<N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 

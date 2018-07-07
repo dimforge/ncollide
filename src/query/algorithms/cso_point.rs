@@ -65,6 +65,24 @@ impl<N: Real> CSOPoint<N> {
         CSOPoint::new(sp1, sp2)
     }
 
+    // FIXME: in the end, we only want to keep this (i.e. remove from_shapes_toward).
+    /// Same as `.from_shapes_toward` except the CSO point is computed in the local-space of `g1`.
+    pub fn from_shapes_toward_local1<G1: ?Sized, G2: ?Sized>(
+        g1: &G1,
+        m12: &Isometry<N>,
+        g2: &G2,
+        dir: &Unit<Vector<N>>,
+    ) -> Self
+    where
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
+    {
+        let sp1 = g1.local_support_point_toward(dir);
+        let sp2 = g2.support_point_toward(m12, &-*dir);
+
+        CSOPoint::new(sp1, sp2)
+    }
+
     /// Computes the support point of the CSO of `g1` and `g2` toward the direction `dir`.
     pub fn from_shapes<G1: ?Sized, G2: ?Sized>(
         m1: &Isometry<N>,
@@ -97,9 +115,8 @@ impl<N: Real> CSOPoint<N> {
         CSOPoint::new_with_point(self.point - dir, self.orig1, self.orig2 + dir)
     }
 
-    /// Apply the given transformations to each CSOPoint original point.
-    pub fn transform(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
-        self.orig1 = m1 * self.orig1;
+    /// Apply the given transformations to the second CSOPoint's original point.
+    pub fn transform2(&mut self,m2: &Isometry<N>) {
         self.orig2 = m2 * self.orig2;
         self.point = self.orig1 - self.orig2.coords;
     }

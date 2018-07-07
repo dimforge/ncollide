@@ -93,10 +93,10 @@ impl<N: Real> VoronoiSimplex<N> {
         &self.vertices[self.prev_vertices[i]]
     }
 
-    /// Recompute CSO points, considering the given transforms.
-    pub fn transform_points(&mut self, m1: &Isometry<N>, m2: &Isometry<N>) {
+    /// Apply the given transform to the second original point of each CSO point.
+    pub fn transform2(&mut self, m2: &Isometry<N>) {
         for vtx in &mut self.vertices[..self.dim + 1] {
-            vtx.transform(m1, m2)
+            vtx.transform2(m2)
         }
     }
 

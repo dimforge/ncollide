@@ -107,28 +107,24 @@ impl<N: Real> Triangle<N> {
 
 impl<N: Real> SupportMap<N> for Triangle<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        let d1 = na::dot(&self.a().coords, dir);
+        let d2 = na::dot(&self.b().coords, dir);
+        let d3 = na::dot(&self.c().coords, dir);
 
-        let d1 = na::dot(&self.a().coords, &local_dir);
-        let d2 = na::dot(&self.b().coords, &local_dir);
-        let d3 = na::dot(&self.c().coords, &local_dir);
-
-        let res = if d1 > d2 {
+        if d1 > d2 {
             if d1 > d3 {
-                self.a()
+                self.a
             } else {
-                self.c()
+                self.c
             }
         } else {
             if d2 > d3 {
-                self.b()
+                self.b
             } else {
-                self.c()
+                self.c
             }
-        };
-
-        m * res
+        }
     }
 }
 

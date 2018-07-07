@@ -38,4 +38,14 @@ impl<N: Real> SupportMap<N> for Ball<N> {
     fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
         m * Point::origin() + **dir * self.radius()
     }
+
+    #[inline]
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        self.local_support_point_toward(&Unit::new_normalize(*dir))
+    }
+
+    #[inline]
+    fn local_support_point_toward(&self, dir: &Unit<Vector<N>>) -> Point<N> {
+        Point::from_coordinates(**dir * self.radius())
+    }
 }

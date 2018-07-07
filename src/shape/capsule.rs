@@ -43,22 +43,20 @@ impl<N: Real> Capsule<N> {
 
 impl<N: Real> SupportMap<N> for Capsule<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        self.support_point_toward(m, &Unit::new_normalize(*dir))
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        self.local_support_point_toward(&Unit::new_normalize(*dir))
     }
 
     #[inline]
-    fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
+    fn local_support_point_toward(&self, dir: &Unit<Vector<N>>) -> Point<N> {
         let mut res: Vector<N> = na::zero();
 
-        if local_dir[1].is_negative() {
+        if dir[1].is_negative() {
             res[1] = -self.half_height()
         } else {
             res[1] = self.half_height()
         }
 
-        m * Point::from_coordinates(res + local_dir * self.radius())
+        Point::from_coordinates(res + dir.as_ref() * self.radius())
     }
 }

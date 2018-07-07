@@ -42,17 +42,15 @@ impl<N: Real> Cone<N> {
 
 impl<N: Real> SupportMap<N> for Cone<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
-        let mut vres = local_dir;
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        let mut vres = *dir;
 
         vres[1] = na::zero();
 
         if vres.normalize_mut().is_zero() {
             vres = na::zero();
 
-            if local_dir[1].is_negative() {
+            if dir[1].is_negative() {
                 vres[1] = -self.half_height()
             } else {
                 vres[1] = self.half_height()
@@ -61,12 +59,12 @@ impl<N: Real> SupportMap<N> for Cone<N> {
             vres = vres * self.radius();
             vres[1] = -self.half_height();
 
-            if na::dot(&local_dir, &vres) < local_dir[1] * self.half_height() {
+            if na::dot(dir, &vres) < dir[1] * self.half_height() {
                 vres = na::zero();
                 vres[1] = self.half_height()
             }
         }
 
-        m * Point::from_coordinates(vres)
+        Point::from_coordinates(vres)
     }
 }
