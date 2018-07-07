@@ -145,8 +145,8 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId) {
         match id.unwrap_edge() {
             0 => (self.a, self.b, FeatureId::Vertex(0), FeatureId::Vertex(1)),
-            2 => (self.b, self.c, FeatureId::Vertex(1), FeatureId::Vertex(2)),
-            3 => (self.c, self.a, FeatureId::Vertex(2), FeatureId::Vertex(0)),
+            1 => (self.b, self.c, FeatureId::Vertex(1), FeatureId::Vertex(2)),
+            2 => (self.c, self.a, FeatureId::Vertex(2), FeatureId::Vertex(0)),
             _ => panic!("Triangle edge index out of bounds."),
         }
     }
