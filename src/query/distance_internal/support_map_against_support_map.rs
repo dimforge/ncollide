@@ -1,7 +1,7 @@
 use math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
 use query::algorithms::VoronoiSimplex;
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use shape::SupportMap;
 
 /// Distance between support-mapped shapes.
@@ -16,14 +16,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    support_map_against_support_map_with_params(
-        m1,
-        g1,
-        m2,
-        g2,
-        &mut VoronoiSimplex::new(),
-        None,
-    )
+    support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex::new(), None)
 }
 
 /// Distance between support-mapped shapes.
@@ -48,13 +41,19 @@ where
         Some(dir) => dir,
     };
 
+    let m12 = m1.inverse() * m2;
     if let Some(dir) = Unit::try_new(dir, N::default_epsilon()) {
-        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
+        simplex.reset(CSOPoint::from_shapes_local1(g1, &m12, g2, &dir));
     } else {
-        simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &Vector::x_axis()));
+        simplex.reset(CSOPoint::from_shapes_local1(
+            g1,
+            &m12,
+            g2,
+            &Vector::x_axis(),
+        ));
     }
 
-    match gjk::closest_points(m1, g1, m2, g2, N::max_value(), true, simplex) {
+    match gjk::closest_points(g1, &m12, g2, N::max_value(), true, simplex) {
         GJKResult::Intersection => N::zero(),
         GJKResult::ClosestPoints(p1, p2, _) => na::distance(&p1, &p2),
         GJKResult::Proximity(_) => unreachable!(),

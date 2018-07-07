@@ -45,17 +45,10 @@ where
     N: Real,
     G: SupportMap<N>,
 {
-    match closest_points(
-        m,
-        g,
-        &Isometry::identity(),
-        &ConstantOrigin,
-        N::max_value(),
-        true,
-        simplex,
-    ) {
+    // FIXME: it would be more efficient to work on the local-space of g.
+    match closest_points(&ConstantOrigin, m, g, N::max_value(), true, simplex) {
         GJKResult::Intersection => None,
-        GJKResult::ClosestPoints(p, _, _) => Some(p),
+        GJKResult::ClosestPoints(_, p, _) => Some(p),
         _ => unreachable!(),
     }
 }
@@ -144,7 +137,7 @@ where
             }
         }
 
-        let cso_point = CSOPoint::from_shapes_local2(g1, m12, g2, &dir);
+        let cso_point = CSOPoint::from_shapes_local1(g1, m12, g2, &dir);
         let min_bound = -na::dot(dir.as_ref(), &cso_point.point.coords);
 
         assert!(min_bound == min_bound);

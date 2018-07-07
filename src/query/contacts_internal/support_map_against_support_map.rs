@@ -5,11 +5,8 @@ use query::algorithms::{VoronoiSimplex, EPA};
 use query::Contact;
 use shape::SupportMap;
 
-fn initial_cso_dir<N: Real>(m1: &Isometry<N>, m2: &Isometry<N>) -> Unit<Vector<N>> {
-    if let Some(dir) = Unit::try_new(
-        m2.translation.vector - m1.translation.vector,
-        N::default_epsilon(),
-    ) {
+fn initial_cso_dir<N: Real>(m12: &Isometry<N>) -> Unit<Vector<N>> {
+    if let Some(dir) = Unit::try_new(-m12.translation.vector, N::default_epsilon()) {
         dir
     } else {
         Vector::x_axis()
@@ -94,7 +91,7 @@ where
 
     // The point is inside of the CSO: use the fallback algorithm
     let mut epa = EPA::new();
-    if let Some((p1, p2, n)) = epa.closest_points(&Isometry::identity(), g1, m12, g2, simplex) {
+    if let Some((p1, p2, n)) = epa.closest_points(g1, m12, g2, simplex) {
         // FIXME: the n here,
         return GJKResult::ClosestPoints(p1, p2, n);
     }

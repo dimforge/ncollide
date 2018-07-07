@@ -5,6 +5,7 @@ use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Vector};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use query::algorithms::gjk::GJKResult;
+use query::algorithms::CSOPoint;
 use query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
 use query::closest_points_internal;
@@ -17,7 +18,6 @@ use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 #[cfg(feature = "dim3")]
 use utils;
 use utils::{IdAllocator, IsometryOps};
-use query::algorithms::CSOPoint;
 
 #[derive(Clone)]
 struct ClippingCache<N: Real> {
@@ -52,7 +52,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     manifold1: ConvexPolygonalFeature<N>,
     manifold2: ConvexPolygonalFeature<N>,
-    sep_axis: Option<Unit<Vector<N>>>
+    sep_axis: Option<Unit<Vector<N>>>,
 }
 
 impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
@@ -66,7 +66,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             new_contacts: Vec::new(),
             manifold1: ConvexPolygonalFeature::new(),
             manifold2: ConvexPolygonalFeature::new(),
-            sep_axis: None
+            sep_axis: None,
         }
     }
 
@@ -353,10 +353,9 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             let mab = ma.inverse() * mb;
-            let mba = mab.inverse();
 
             if let Some(sep_axis) = self.sep_axis {
-                let point = CSOPoint::from_shapes_toward_local1(cpa, &mab, cpa, &sep_axis);
+                let point = CSOPoint::from_shapes_toward_local1(cpa, &mab, cpb, &sep_axis);
                 if -point.point.coords.dot(&*sep_axis) > prediction.linear {
                     self.contact_manifold.save_cache_and_clear(ids);
                     return true;
@@ -364,8 +363,10 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
 
                 self.sep_axis = None;
             }
+
             self.contact_manifold.set_subshape_id1(ida);
             self.contact_manifold.set_subshape_id2(idb);
+
             self.simplex.transform2(&mab);
 
             let contact = contacts_internal::support_map_against_support_map_with_simplex(
@@ -376,7 +377,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                 &mut self.simplex,
             );
 
-            self.simplex.transform2(&mba);
+            self.simplex.transform2(&mab.inverse());
 
             // Generate a contact manifold.
             self.new_contacts.clear();
@@ -384,8 +385,8 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
             self.manifold2.clear();
 
             match contact {
-                GJKResult::ClosestPoints(local1, local2_1, dir) => {
-                    let contact = Contact::new_wo_depth(ma * local1, ma * local2_1, ma * dir);
+                GJKResult::ClosestPoints(local1, local2_1, dir1) => {
+                    let contact = Contact::new_wo_depth(ma * local1, ma * local2_1, ma * dir1);
 
                     if contact.depth > na::zero() {
                         cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);

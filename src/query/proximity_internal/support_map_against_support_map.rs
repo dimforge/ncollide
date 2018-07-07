@@ -1,10 +1,10 @@
 use na::{self, Real, Unit};
 
-use shape::SupportMap;
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::VoronoiSimplex;
-use query::Proximity;
 use math::{Isometry, Vector};
+use query::algorithms::VoronoiSimplex;
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
+use query::Proximity;
+use shape::SupportMap;
 
 /// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -63,9 +63,10 @@ where
         Vector::x_axis()
     };
 
-    simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));
+    let m12 = m1.inverse() * m2;
+    simplex.reset(CSOPoint::from_shapes_local1(g1, &m12, g2, &dir));
 
-    match gjk::closest_points(m1, g1, m2, g2, margin, false, simplex) {
+    match gjk::closest_points(g1, &m12, g2, margin, false, simplex) {
         GJKResult::Intersection => (Proximity::Intersecting, dir),
         GJKResult::Proximity(dir) => (Proximity::WithinMargin, dir),
         GJKResult::NoIntersection(dir) => (Proximity::Disjoint, dir),

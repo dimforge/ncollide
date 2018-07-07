@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
 
-use na::{self, Point3, Real, Translation3, Vector2, Vector3};
+use na::{self, Point3, Real, Translation3, Unit, Vector2, Vector3};
 
 use bounding_volume::{self, BoundingVolume, AABB};
 use math::Isometry;
@@ -780,7 +780,12 @@ impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
     }
 
     #[inline]
-    fn local_support_point(&self,  dir: &Vector3<N>) -> Point3<N> {
+    fn support_point_toward(&self, _: &Isometry<N>, dir: &Unit<Vector3<N>>) -> Point3<N> {
+        self.local_support_point_toward(dir)
+    }
+
+    #[inline]
+    fn local_support_point(&self, dir: &Vector3<N>) -> Point3<N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 

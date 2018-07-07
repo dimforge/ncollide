@@ -101,6 +101,23 @@ impl<N: Real> CSOPoint<N> {
         CSOPoint::new(sp1, sp2)
     }
 
+    /// Computes the support point of the CSO of `g1` and `g2` toward the direction `dir`.
+    pub fn from_shapes_local1<G1: ?Sized, G2: ?Sized>(
+        g1: &G1,
+        m12: &Isometry<N>,
+        g2: &G2,
+        dir: &Vector<N>,
+    ) -> Self
+    where
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
+    {
+        let sp1 = g1.local_support_point(dir);
+        let sp2 = g2.support_point(&m12, &-*dir);
+
+        CSOPoint::new(sp1, sp2)
+    }
+
     /// Translate the first original point of this CSO point.
     ///
     /// This will apply the same translation to `self.point`.
@@ -116,7 +133,7 @@ impl<N: Real> CSOPoint<N> {
     }
 
     /// Apply the given transformations to the second CSOPoint's original point.
-    pub fn transform2(&mut self,m2: &Isometry<N>) {
+    pub fn transform2(&mut self, m2: &Isometry<N>) {
         self.orig2 = m2 * self.orig2;
         self.point = self.orig1 - self.orig2.coords;
     }

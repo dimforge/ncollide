@@ -1,8 +1,8 @@
-use std::mem;
-use utils::GenerationalId;
+use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use query::ContactKinematic;
-use math::{Point, Vector};
+use std::mem;
+use utils::{GenerationalId, IsometryOps};
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone)]
@@ -47,10 +47,18 @@ impl<N: Real> Contact<N> {
         mem::swap(&mut self.world1, &mut self.world2);
         self.normal = -self.normal;
     }
+
+    /// Apply a transformation to this cotacte.
+    #[inline]
+    pub fn transform(&mut self, m: &Isometry<N>) {
+        self.world1 = m * self.world1;
+        self.world2 = m * self.world2;
+        self.normal = m * self.normal;
+    }
 }
 
 /// A contact combined with contact kinematic information as well as a persistant identifier.
-/// 
+///
 /// When ncollide is used to compute contact points between moving solids, it will attempt to
 /// match contact points found at successive frames. Two contact points are said to "match" if
 /// they can be seen as the same contact point that moved in-between frames. Two matching

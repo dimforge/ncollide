@@ -152,8 +152,9 @@ impl<N: Real> EPA<N> {
     where
         G: SupportMap<N>,
     {
-        self.closest_points(m, g, &Isometry::identity(), &ConstantOrigin, simplex)
-            .map(|(p, _, _)| p)
+        // FIXME: is would be more efficient to work in the local-space of g.
+        self.closest_points(&ConstantOrigin, m, g, simplex)
+            .map(|(_, p, _)| p)
     }
 
     /// Projects the origin on a shape unsing the EPA algorithm.

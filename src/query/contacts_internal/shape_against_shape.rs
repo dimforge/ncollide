@@ -25,7 +25,14 @@ pub fn shape_against_shape<N: Real>(
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
         contacts_internal::support_map_against_plane(m1, s1, m2, p2, prediction)
     } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
-        contacts_internal::support_map_against_support_map(m1, s1, m2, s2, prediction)
+        let m12 = m1.inverse() * m2;
+        let mut res = contacts_internal::support_map_against_support_map(s1, &m12, s2, prediction);
+
+        if let Some(ref mut c) = res {
+            c.transform(m1)
+        }
+
+        res
     } else if let Some(c1) = g1.as_composite_shape() {
         contacts_internal::composite_shape_against_shape(m1, c1, m2, g2, prediction)
     } else if let Some(c2) = g2.as_composite_shape() {
