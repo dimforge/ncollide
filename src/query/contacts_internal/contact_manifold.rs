@@ -20,7 +20,7 @@ impl CacheEntryStatus {
 }
 
 /// A contact manifold.
-/// 
+///
 /// A contat manifold is a set of contacts lying on the same plane.
 /// The convex hull of those contacts are often interpreted as a contact
 /// surface. This structure is responsible for matching new contacts with
@@ -123,7 +123,7 @@ impl<N: Real> ContactManifold<N> {
     }
 
     /// Add a new contact to the manifold.
-    /// 
+    ///
     /// The manifold will attempt to match this contact with another one
     /// previously added and added to the cache by the last call to
     /// `save_cache_and_clear`. The matching is done by spacial proximity, i.e.,

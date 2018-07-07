@@ -17,6 +17,7 @@ use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 #[cfg(feature = "dim3")]
 use utils;
 use utils::{IdAllocator, IsometryOps};
+use query::algorithms::CSOPoint;
 
 #[derive(Clone)]
 struct ClippingCache<N: Real> {
@@ -51,6 +52,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     manifold1: ConvexPolygonalFeature<N>,
     manifold2: ConvexPolygonalFeature<N>,
+    sep_axis: Option<Unit<Vector<N>>>
 }
 
 impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
@@ -64,6 +66,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             new_contacts: Vec::new(),
             manifold1: ConvexPolygonalFeature::new(),
             manifold2: ConvexPolygonalFeature::new(),
+            sep_axis: None
         }
     }
 
@@ -349,6 +352,15 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         ids: &mut IdAllocator,
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
+            if let Some(sep_axis) = self.sep_axis {
+                let point = CSOPoint::from_shapes_toward(ma, cpa, mb, cpa, &sep_axis);
+                if -point.point.coords.dot(&*sep_axis) > prediction.linear {
+                    self.contact_manifold.save_cache_and_clear(ids);
+                    return true;
+                }
+
+                self.sep_axis = None;
+            }
             self.contact_manifold.set_subshape_id1(ida);
             self.contact_manifold.set_subshape_id2(idb);
             self.simplex.transform_points(ma, mb);
@@ -402,6 +414,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                         ));
                     }
                 }
+                GJKResult::NoIntersection(sep_axis) => self.sep_axis = Some(sep_axis),
                 _ => {}
             }
 

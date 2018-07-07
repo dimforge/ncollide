@@ -149,10 +149,12 @@ where
         assert!(min_bound == min_bound);
 
         if min_bound > max_dist {
+            // Typical branch when no intersection are found.
             return GJKResult::NoIntersection(dir);
         } else if !exact_dist && min_bound > na::zero() {
             return GJKResult::Proximity(old_dir);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
+            // Typical branch when closest points are found.
             if exact_dist {
                 let (p1, p2) = result(simplex, false);
                 return GJKResult::ClosestPoints(p1, p2, dir); // the distance found has a good enough precision
@@ -174,6 +176,7 @@ where
         proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == DIM {
+            // Typical branch when penetration occurs.
             if min_bound >= _eps_tol {
                 if exact_dist {
                     let (p1, p2) = result(simplex, true);
