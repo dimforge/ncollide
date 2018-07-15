@@ -50,3 +50,18 @@ fn ball_cuboid_toi() {
     ));
     assert_eq!(toi_wont_touch, None);
 }
+
+#[test]
+fn cuboid_cuboid_toi_issue_214() {
+    let shape1 = Cuboid::new(Vector2::new(1.0, 1.0));
+    let shape2 = Cuboid::new(Vector2::new(1.0, 1.5));
+
+    let pos1 = Isometry2::new(Vector2::new(0.0, 0.0), na::zero());
+    let pos2 = Isometry2::new(Vector2::new(10.0, 0.0), na::zero());
+
+    let vel1 = Vector2::new(1.0, 0.0);
+    let vel2 = Vector2::new(0.0, 0.0);
+
+    let toi = query::time_of_impact(&pos1, &vel1, &shape1, &pos2, &vel2, &shape2);
+    assert!(toi.is_some());
+}
