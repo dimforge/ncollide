@@ -29,7 +29,7 @@ impl<N: Real> VoronoiSimplex<N> {
             vertices: [CSOPoint::origin(); 3],
             proj: [N::zero(); 2],
             dim: 0,
-            initialized: false
+            initialized: false,
         }
     }
 
@@ -44,7 +44,7 @@ impl<N: Real> VoronoiSimplex<N> {
         self.prev_dim = 0;
         self.dim = 0;
         self.vertices[0] = pt;
-        self.initialized = false;
+        self.initialized = true;
     }
 
     /// Add a point to this simplex.
@@ -111,7 +111,10 @@ impl<N: Real> VoronoiSimplex<N> {
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.
     pub fn project_origin_and_reduce(&mut self) -> Point<N> {
-        assert!(self.initialized, "Attempted to project the origin on an uninitialized simplex.");
+        assert!(
+            self.initialized,
+            "Attempted to project the origin on an uninitialized simplex."
+        );
 
         if self.dim == 0 {
             self.proj[0] = N::one();
@@ -182,7 +185,10 @@ impl<N: Real> VoronoiSimplex<N> {
 
     /// Compute the projection of the origin on the boundary of this simplex.
     pub fn project_origin(&mut self) -> Point<N> {
-        assert!(self.initialized, "Attempted to project the origin on an uninitialized simplex.");
+        assert!(
+            self.initialized,
+            "Attempted to project the origin on an uninitialized simplex."
+        );
 
         if self.dim == 0 {
             self.vertices[0].point
