@@ -255,8 +255,10 @@ where
     let mut old_max_bound: N = Bounded::max_value();
     let mut ldir = dir;
     let mut simplex_init = false;
+    let mut niter = 0;
 
     loop {
+        niter += 1;
         if dir.normalize_mut().is_zero() {
             return Some((ltoi, ldir));
         }
@@ -286,8 +288,8 @@ where
                 }
             }
             None => {
-                if na::dot(&dir, &ray.dir) > -N::zero() {
-                    // misss
+                if na::dot(&dir, &ray.dir) > N::zero() {
+                    // miss
                     return None;
                 }
             }
@@ -305,7 +307,8 @@ where
 
         if simplex.dimension() == DIM {
             return Some((ltoi, ldir));
-        } else if max_bound <= _eps_tol * simplex.max_sq_len() {
+        } else if max_bound <= _eps_tol || max_bound <= _eps_tol * simplex.max_sq_len() {
+            // FIXME: we use the same tolerence for absolute and relative epsilons. This could be improved.
             // Return ldir: the last projection plane is tangeant to the intersected surface.
             return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
