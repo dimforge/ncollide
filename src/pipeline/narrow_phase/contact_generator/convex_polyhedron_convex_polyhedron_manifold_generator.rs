@@ -16,7 +16,7 @@ use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
 use shape::ConvexPolygonalFeature;
 use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 #[cfg(feature = "dim3")]
-use utils;
+use utils::{self, PolylinePointLocation};
 use utils::{IdAllocator, IsometryOps};
 
 #[derive(Clone)]
@@ -72,6 +72,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
     fn save_new_contacts_as_contact_manifold<G1: ?Sized, G2: ?Sized>(
         &mut self,
+        m12: &Isometry<N>,
         m1: &Isometry<N>,
         g1: &G1,
         m2: &Isometry<N>,
@@ -83,10 +84,10 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     {
         self.contact_manifold.save_cache_and_clear(ids);
 
-        for (c, f1, f2) in self.new_contacts.drain(..) {
+        for (mut c, f1, f2) in self.new_contacts.drain(..) {
             let mut kinematic = ContactKinematic::new();
-            let local1 = m1.inverse_transform_point(&c.world1);
-            let local2 = m2.inverse_transform_point(&c.world2);
+            let local1 = c.world1;
+            let local2 = m12.inverse_transform_point(&c.world2);
             let n1 = g1.normal_cone(f1);
             let n2 = g2.normal_cone(f2);
 
@@ -96,8 +97,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 FeatureId::Edge(..) => {
                     let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
                     if let Some(dir1) = e1.direction() {
-                        let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
-                        kinematic.set_line1(f1, local1, local_dir1, n1)
+                        kinematic.set_line1(f1, local1, dir1, n1)
                     } else {
                         continue;
                     }
@@ -112,7 +112,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 FeatureId::Edge(..) => {
                     let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
                     if let Some(dir2) = e2.direction() {
-                        let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
+                        let local_dir2 = m12.inverse_transform_unit_vector(&dir2);
                         kinematic.set_line2(f2, local2, local_dir2, n2)
                     } else {
                         continue;
@@ -122,6 +122,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 FeatureId::Unknown => unreachable!(),
             }
 
+            c.transform(m1);
             let _ = self.contact_manifold.push(c, kinematic, ids);
         }
     }
@@ -226,6 +227,10 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 return;
             }
 
+            if self.manifold1.vertices.len() == 1 || self.manifold2.vertices.len() == 1 {
+                return;
+            }
+
             // In 3D we may end up with more than two points.
             let mut basis = [na::zero(), na::zero()];
             let mut basis_i = 0;
@@ -249,7 +254,123 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
                 self.clip_cache.poly2.push(coords);
             }
+            /*
+            {
+                let clip_cache = &self.clip_cache;
+                let manifold1 = &self.manifold1;
+                let manifold2 = &self.manifold2;
+                let new_contacts = &mut self.new_contacts;
 
+                utils::convex_polygons_intersection(
+                    &clip_cache.poly1,
+                    &clip_cache.poly2,
+                    |loc1, loc2| match (loc1, loc2) {
+                        (Some(ref loc1), Some(ref loc2)) => {
+                            let (world1, f1) = match loc1 {
+                                PolylinePointLocation::OnVertex(i) => {
+                                    (manifold1.vertices[*i], manifold1.vertices_id[*i])
+                                }
+                                PolylinePointLocation::OnEdge(i1, i2, bcoords) => {
+                                    let world1 = manifold1.vertices[*i1] * bcoords[0]
+                                        + manifold1.vertices[*i2].coords * bcoords[1];
+
+                                    if manifold1.edges_id.len() == 1 {
+                                        (world1, manifold1.feature_id)
+                                    } else {
+                                        (world1, manifold1.edges_id[*i1])
+                                    }
+                                }
+                            };
+
+                            let (world2, f2) = match loc2 {
+                                PolylinePointLocation::OnVertex(i) => {
+                                    (manifold2.vertices[*i], manifold2.vertices_id[*i])
+                                }
+                                PolylinePointLocation::OnEdge(i1, i2, bcoords) => {
+                                    let world2 = manifold2.vertices[*i1] * bcoords[0]
+                                        + manifold2.vertices[*i2].coords * bcoords[1];
+                                    if manifold2.edges_id.len() == 1 {
+                                        (world2, manifold2.feature_id)
+                                    } else {
+                                        (world2, manifold2.edges_id[*i1])
+                                    }
+                                }
+                            };
+
+                            let contact = Contact::new_wo_depth(world1, world2, normal);
+
+                            if -contact.depth <= prediction.linear {
+                                new_contacts.push((contact, f1, f2));
+                            }
+                        }
+                        (None, Some(PolylinePointLocation::OnVertex(i))) => {
+                            if manifold1.normal.is_none() {
+                                // FIXME: special case not handled yet.
+                                // Here, et seems we have an edge vertex exactly on
+                                // an edge feature interior (which for some reasons has
+                                // not been detected as a point-on-edge case by the intersection algorithm).
+                                return;
+                            }
+
+                            let pt = &clip_cache.poly2[i];
+                            let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+                            let n1 = manifold1.normal.as_ref().unwrap().unwrap();
+                            let p1 = &manifold1.vertices[0];
+
+                            if let Some(toi1) = ray_internal::plane_toi_with_line(
+                                p1,
+                                &n1,
+                                &origin,
+                                &normal.unwrap(),
+                            ) {
+                                let world1 = origin + normal.unwrap() * toi1;
+                                let world2 = manifold2.vertices[i];
+                                let f1 = manifold1.feature_id;
+                                let f2 = manifold2.vertices_id[i];
+                                let contact = Contact::new_wo_depth(world1, world2, normal);
+
+                                if -contact.depth <= prediction.linear {
+                                    new_contacts.push((contact, f1, f2));
+                                }
+                            }
+                        }
+                        (Some(PolylinePointLocation::OnVertex(i)), None) => {
+                            if manifold2.normal.is_none() {
+                                // FIXME: special case not handled yet.
+                                // Here, et seems we have an edge vertex exactly on
+                                // an edge feature interior (which for some reasons has
+                                // not been detected as a point-on-edge case by the intersection algorithm).
+                                return;
+                            }
+
+                            let pt = &clip_cache.poly1[i];
+                            let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+
+                            let n2 = manifold2.normal.as_ref().unwrap().unwrap();
+                            let p2 = &manifold2.vertices[0];
+                            if let Some(toi2) = ray_internal::plane_toi_with_line(
+                                p2,
+                                &n2,
+                                &origin,
+                                &normal.unwrap(),
+                            ) {
+                                let world2 = origin + normal.unwrap() * toi2;
+                                let world1 = manifold1.vertices[i];
+                                let f2 = manifold2.feature_id;
+                                let f1 = manifold1.vertices_id[i];
+                                let contact = Contact::new_wo_depth(world1, world2, normal);
+
+                                if -contact.depth <= prediction.linear {
+                                    new_contacts.push((contact, f1, f2));
+                                }
+                            }
+                        }
+                        _ => {}
+                    },
+                );
+            }*/
+
+            self.new_contacts.clear();
             if self.clip_cache.poly2.len() > 2 {
                 for i in 0..self.clip_cache.poly1.len() {
                     let pt = &self.clip_cache.poly1[i];
@@ -385,22 +506,21 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
             self.manifold2.clear();
 
             match contact {
-                GJKResult::ClosestPoints(local1, local2_1, dir1) => {
-                    let contact = Contact::new_wo_depth(ma * local1, ma * local2_1, ma * dir1);
+                GJKResult::ClosestPoints(local1, local2_1, local_normal1) => {
+                    let contact = Contact::new_wo_depth(local1, local2_1, local_normal1);
 
                     if contact.depth > na::zero() {
-                        cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);
-                        cpb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+                        cpa.local_support_face_toward(&contact.normal, &mut self.manifold1);
+                        cpb.support_face_toward(&mab, &-contact.normal, &mut self.manifold2);
                         self.clip_polyfaces(prediction, contact.normal);
                     } else {
-                        cpa.support_feature_toward(
-                            ma,
+                        cpa.local_support_feature_toward(
                             &contact.normal,
                             prediction.angular1,
                             &mut self.manifold1,
                         );
                         cpb.support_feature_toward(
-                            mb,
+                            &mab,
                             &-contact.normal,
                             prediction.angular2,
                             &mut self.manifold2,
@@ -411,7 +531,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
 
                     if self.new_contacts.len() == 0 {
                         self.new_contacts.push((
-                            contact.clone(),
+                            contact,
                             self.manifold1.feature_id,
                             self.manifold2.feature_id,
                         ));
@@ -421,7 +541,7 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                 _ => {}
             }
 
-            self.save_new_contacts_as_contact_manifold(ma, cpa, mb, cpb, ids);
+            self.save_new_contacts_as_contact_manifold(&mab, ma, cpa, mb, cpb, ids);
 
             true
         } else {
