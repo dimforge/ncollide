@@ -124,18 +124,16 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         }
     }
 
-    fn support_face_toward(
+    fn local_support_face_toward(
         &self,
-        m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
     ) {
-        let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
+        let mut max_dot = na::dot(&*self.normals[0], &dir);
 
         for i in 1..self.points.len() {
-            let dot = na::dot(&*self.normals[i], &ls_dir);
+            let dot = na::dot(&*self.normals[i], &dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -144,19 +142,17 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         }
 
         self.face(FeatureId::Face(best_face), out);
-        out.transform_by(m);
     }
 
-    fn support_feature_toward(
+    fn local_support_feature_toward(
         &self,
-        transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        self.local_support_face_toward(dir, out)
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {

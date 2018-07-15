@@ -2,9 +2,10 @@ use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point, Vector};
 use na::{Real, Unit};
 use shape::{ConvexPolygonalFeature, SupportMap};
+use utils::IsometryOps;
 
 /// An identifier of a feature of a convex polyhedron.
-/// 
+///
 /// This identifier is shape-dependent and is seach that it
 /// allows an efficient retrieval of the geometric information of the
 /// feature.
@@ -62,22 +63,41 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     /// Get the normal cone of the specified feature, in the shape's local-space.
     fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N>;
 
+    /// Retrieve the face (in local-space) with a normal that maximizes the scalar product with `dir`.
+    fn local_support_face_toward(&self, dir: &Unit<Vector<N>>, out: &mut ConvexPolygonalFeature<N>);
+
+    /// Retrieve the feature (in local-space) which normal cone contains `dir`.
+    fn local_support_feature_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        angle: N,
+        out: &mut ConvexPolygonalFeature<N>,
+    );
+
     /// Retrieve the face (in world-space) with a normal that maximizes the scalar product with `dir`.
     fn support_face_toward(
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    );
+    ) {
+        let local_dir = transform.inverse_transform_unit_vector(dir);
+        self.local_support_face_toward(&local_dir, out);
+        out.transform_by(transform);
+    }
 
     /// Retrieve the feature (in world-space) which normal cone contains `dir`.
     fn support_feature_toward(
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        _angle: N,
+        angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    );
+    ) {
+        let local_dir = transform.inverse_transform_unit_vector(dir);
+        self.local_support_feature_toward(&local_dir, angle, out);
+        out.transform_by(transform);
+    }
 
     /// Retrieve the identifier of the feature which normal cone contains `dir`.
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId;

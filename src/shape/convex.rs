@@ -86,7 +86,8 @@ impl<N: Real> ConvexHull<N> {
     /// Returns `None` if the convex hull computation failed.
     pub fn try_from_points(points: &[Point<N>]) -> Option<ConvexHull<N>> {
         let hull = transformation::convex_hull(points);
-        let indices: Vec<usize> = hull.flat_indices()
+        let indices: Vec<usize> = hull
+            .flat_indices()
             .into_iter()
             .map(|i| i as usize)
             .collect();
@@ -418,19 +419,17 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         PolyhedralCone::Span(generators)
     }
 
-    fn support_face_toward(
+    fn local_support_face_toward(
         &self,
-        m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
     ) {
-        let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.faces[0].normal, &ls_dir);
+        let mut max_dot = na::dot(&*self.faces[0].normal, &dir);
 
         for i in 1..self.faces.len() {
             let face = &self.faces[i];
-            let dot = na::dot(&*face.normal, &ls_dir);
+            let dot = na::dot(&*face.normal, &dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -439,19 +438,17 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         }
 
         self.face(FeatureId::Face(best_face), out);
-        out.transform_by(m);
     }
 
-    fn support_feature_toward(
+    fn local_support_feature_toward(
         &self,
-        transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
     ) {
         out.clear();
         // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        self.local_support_face_toward(dir, out)
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {

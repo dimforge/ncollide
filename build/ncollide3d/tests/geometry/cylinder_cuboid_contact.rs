@@ -18,7 +18,10 @@ fn cylinder_cuboid_contact() {
     );
 
     let contact = query::contacts_internal::support_map_against_support_map(
-        &cyl_at, &cyl, &cuboid_at, &cuboid, 10.0,
+        &cyl,
+        &(cyl_at.inverse() * cuboid_at),
+        &cuboid,
+        10.0,
     );
 
     assert!(distance == 0.0);

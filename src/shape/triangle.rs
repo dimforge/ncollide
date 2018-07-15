@@ -1,20 +1,20 @@
 //! Definition of the triangle shape.
 
+use math::{Isometry, Point, Vector};
+use na::Real;
+use na::{self, Unit};
+use shape::SupportMap;
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
-use na::{self, Unit};
-use na::Real;
-use shape::SupportMap;
-use math::{Isometry, Point, Vector};
 use utils::IsometryOps;
 
 #[cfg(feature = "dim3")]
-use smallvec::SmallVec;
+use bounding_volume::PolyhedralCone;
 #[cfg(feature = "dim3")]
 use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
-use bounding_volume::PolyhedralCone;
+use smallvec::SmallVec;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
@@ -258,6 +258,31 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
+    }
+
+    fn local_support_face_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        face: &mut ConvexPolygonalFeature<N>,
+    ) {
+        let normal = self.scaled_normal();
+
+        if na::dot(&normal, &*dir) >= na::zero() {
+            ConvexPolyhedron::<N>::face(self, FeatureId::Face(0), face);
+        } else {
+            ConvexPolyhedron::<N>::face(self, FeatureId::Face(1), face);
+        }
+    }
+
+    fn local_support_feature_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        _angle: N,
+        out: &mut ConvexPolygonalFeature<N>,
+    ) {
+        out.clear();
+        // FIXME: actualy find the support feature.
+        self.local_support_face_toward(dir, out)
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {

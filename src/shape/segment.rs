@@ -18,6 +18,7 @@ pub struct Segment<N: Real> {
 }
 
 /// Logical description of the location of a point on a triangle.
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum SegmentPointLocation<N: Real> {
     /// The point lies on a vertex.
     OnVertex(usize),
@@ -183,6 +184,21 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
     }
 
     #[cfg(feature = "dim2")]
+    fn local_support_face_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        face: &mut ConvexPolygonalFeature<N>,
+    ) {
+        let seg_dir = self.scaled_direction();
+
+        if dir.perp(&seg_dir) >= na::zero() {
+            self.face(FeatureId::Face(0), face);
+        } else {
+            self.face(FeatureId::Face(1), face);
+        }
+    }
+
+    #[cfg(feature = "dim2")]
     fn support_face_toward(
         &self,
         m: &Isometry<N>,
@@ -197,6 +213,14 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
             self.face(FeatureId::Face(1), face);
         }
         face.transform_by(m)
+    }
+
+    #[cfg(feature = "dim3")]
+    fn local_support_face_toward(&self, _: &Unit<Vector<N>>, face: &mut ConvexPolygonalFeature<N>) {
+        face.push(self.a, FeatureId::Vertex(0));
+        face.push(self.b, FeatureId::Vertex(1));
+        face.push_edge_feature_id(FeatureId::Edge(0));
+        face.set_feature_id(FeatureId::Edge(0));
     }
 
     #[cfg(feature = "dim3")]
@@ -223,6 +247,17 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
+    }
+
+    fn local_support_feature_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        _angle: N,
+        out: &mut ConvexPolygonalFeature<N>,
+    ) {
+        out.clear();
+        // FIXME: actualy find the support feature.
+        self.local_support_face_toward(dir, out)
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {

@@ -377,11 +377,6 @@ impl<N: Real> EPA<N> {
 
             let first_new_face_id = self.faces.len();
 
-            if self.silhouette.len() == 0 {
-                // FIXME: Something went very wrong because we failed to extract a silhouette…
-                return None;
-            }
-
             for edge in &self.silhouette {
                 if !self.faces[edge.face_id].deleted {
                     let new_face_id = self.faces.len();
@@ -415,6 +410,11 @@ impl<N: Real> EPA<N> {
                         self.heap.push(FaceId::new(new_face_id, -dist)?);
                     }
                 }
+            }
+
+            if first_new_face_id >= self.faces.len() {
+                // FIXME: Something went very wrong because we failed to extract a silhouette…
+                return None;
             }
 
             self.faces[first_new_face_id].adj[2] = self.faces.len() - 1;

@@ -1,14 +1,14 @@
 //! Support mapping based Cuboid shape.
 
-use std::f64;
 #[cfg(feature = "dim3")]
 use smallvec::SmallVec;
+use std::f64;
 
-use na::{self, Real, Unit};
-use utils::IsometryOps;
 use bounding_volume::PolyhedralCone;
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use math::{Isometry, Point, Vector, DIM};
+use na::{self, Real, Unit};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use utils::IsometryOps;
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone)]
@@ -155,25 +155,37 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             let (sbit, msbit) = if sign < na::zero() { (1, 0) } else { (0, 1) };
             let mut vertex_id = sbit << i1;
-            out.push(Point::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push(
+                Point::from_coordinates(vertex),
+                FeatureId::Vertex(vertex_id),
+            );
             out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
 
             vertex[i2] = -sign * self.half_extents[i2];
             vertex[i3] = sign * self.half_extents[i3];
             vertex_id |= msbit << i2 | sbit << i3;
-            out.push(Point::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push(
+                Point::from_coordinates(vertex),
+                FeatureId::Vertex(vertex_id),
+            );
             out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
 
             vertex[i2] = -self.half_extents[i2];
             vertex[i3] = -self.half_extents[i3];
             vertex_id |= 1 << i2 | 1 << i3;
-            out.push(Point::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push(
+                Point::from_coordinates(vertex),
+                FeatureId::Vertex(vertex_id),
+            );
             out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
 
             vertex[i2] = sign * self.half_extents[i2];
             vertex[i3] = -sign * self.half_extents[i3];
             vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
-            out.push(Point::from_coordinates(vertex), FeatureId::Vertex(vertex_id));
+            out.push(
+                Point::from_coordinates(vertex),
+                FeatureId::Vertex(vertex_id),
+            );
             out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
 
             let mut normal: Vector<N> = na::zero();
@@ -190,39 +202,38 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         }
     }
 
-    fn support_face_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>, out: &mut ConvexPolygonalFeature<N>) {
+    fn local_support_face_toward(
+        &self,
+        dir: &Unit<Vector<N>>,
+        out: &mut ConvexPolygonalFeature<N>,
+    ) {
         out.clear();
-        let local_dir = m.inverse_transform_vector(dir);
 
         let mut iamax = 0;
-        let mut amax = local_dir[0].abs();
+        let mut amax = dir[0].abs();
 
         // FIXME: we should use nalgebra's iamax method.
         for i in 1..DIM {
-            let candidate = local_dir[i].abs();
+            let candidate = dir[i].abs();
             if candidate > amax {
                 amax = candidate;
                 iamax = i;
             }
         }
 
-        if local_dir[iamax] > na::zero() {
+        if dir[iamax] > na::zero() {
             self.face(FeatureId::Face(iamax), out);
-            out.transform_by(m);
         } else {
             self.face(FeatureId::Face(iamax + DIM), out);
-            out.transform_by(m);
         }
     }
 
-    fn support_feature_toward(
+    fn local_support_feature_toward(
         &self,
-        m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         angle: N,
         out: &mut ConvexPolygonalFeature<N>,
     ) {
-        let local_dir = m.inverse_transform_vector(dir);
         let cang = angle.cos();
         let mut support_point = self.half_extents;
 
@@ -232,14 +243,12 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         {
             let mut support_point_id = 0;
             for i1 in 0..2 {
-                let sign = local_dir[i1].signum();
-                if sign * local_dir[i1] >= cang {
+                let sign = dir[i1].signum();
+                if sign * dir[i1] >= cang {
                     if sign > na::zero() {
                         self.face(FeatureId::Face(i1), out);
-                        out.transform_by(m);
                     } else {
                         self.face(FeatureId::Face(i1 + 2), out);
-                        out.transform_by(m);
                     }
                     return;
                 } else {
@@ -252,7 +261,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             // We are not on a face, return the support vertex.
             out.push(
-                m * Point::from_coordinates(support_point),
+                Point::from_coordinates(support_point),
                 FeatureId::Vertex(support_point_id),
             );
             out.set_feature_id(FeatureId::Vertex(support_point_id));
@@ -265,14 +274,12 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             // Check faces.
             for i1 in 0..3 {
-                let sign = local_dir[i1].signum();
-                if sign * local_dir[i1] >= cang {
+                let sign = dir[i1].signum();
+                if sign * dir[i1] >= cang {
                     if sign > na::zero() {
                         self.face(FeatureId::Face(i1), out);
-                        out.transform_by(m);
                     } else {
                         self.face(FeatureId::Face(i1 + 3), out);
-                        out.transform_by(m);
                     }
                     return;
                 } else {
@@ -285,22 +292,16 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             // Check edges.
             for i in 0..3 {
-                let sign = local_dir[i].signum();
+                let sign = dir[i].signum();
 
-                // sign * local_dir[i] <= cos(pi / 2 - angle)
-                if sign * local_dir[i] <= sang {
+                // sign * dir[i] <= cos(pi / 2 - angle)
+                if sign * dir[i] <= sang {
                     support_point[i] = -self.half_extents[i];
                     let p1 = Point::from_coordinates(support_point);
                     support_point[i] = self.half_extents[i];
                     let p2 = Point::from_coordinates(support_point);
-                    out.push(
-                        m * p1,
-                        FeatureId::Vertex(support_point_id | (1 << i)),
-                    );
-                    out.push(
-                        m * p2,
-                        FeatureId::Vertex(support_point_id & !(1 << i)),
-                    );
+                    out.push(p1, FeatureId::Vertex(support_point_id | (1 << i)));
+                    out.push(p2, FeatureId::Vertex(support_point_id & !(1 << i)));
 
                     let edge_id = FeatureId::Edge(i | (support_point_id << 2));
                     out.push_edge_feature_id(edge_id);
@@ -311,7 +312,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             // We are not on a face or edge, return the support vertex.
             out.push(
-                m * Point::from_coordinates(support_point),
+                Point::from_coordinates(support_point),
                 FeatureId::Vertex(support_point_id),
             );
             out.set_feature_id(FeatureId::Vertex(support_point_id));
@@ -418,7 +419,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
                 PolyhedralCone::Span([Unit::new_unchecked(dir1), Unit::new_unchecked(dir2)])
             }
-            _ => panic!("Invalid feature ID {:?}.", feature)
+            _ => panic!("Invalid feature ID {:?}.", feature),
         }
     }
 
