@@ -6,10 +6,10 @@ extern crate ncollide2d;
 
 use alga::linear::ProjectiveTransformation;
 use na::{Isometry2, Point2, Vector2};
-use ncollide2d::shape::SupportMap;
-use ncollide2d::query::{self, Proximity};
-use ncollide2d::shape::{Cuboid, Shape};
 use ncollide2d::bounding_volume::{self, AABB};
+use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::SupportMap;
+use ncollide2d::shape::{Cuboid, Shape};
 
 struct Ellipse {
     a: f32, // The first radius.
@@ -17,24 +17,15 @@ struct Ellipse {
 }
 
 impl SupportMap<f32> for Ellipse {
-    fn support_point(&self, transform: &Isometry2<f32>, dir: &Vector2<f32>) -> Point2<f32> {
-        // Bring `dir` into the ellipse's local frame.
-        let local_dir = transform.inverse_transform_vector(dir);
-
+    fn local_support_point(&self, dir: &Vector2<f32>) -> Point2<f32> {
         // Compute the denominator.
-        let denom = f32::sqrt(
-            local_dir.x * local_dir.x * self.a * self.a
-                + local_dir.y * local_dir.y * self.b * self.b,
-        );
+        let denom = f32::sqrt(dir.x * dir.x * self.a * self.a + dir.y * dir.y * self.b * self.b);
 
         // Compute the support point into the ellipse's local frame.
-        let local_support_point = Point2::new(
-            self.a * self.a * local_dir.x / denom,
-            self.b * self.b * local_dir.y / denom,
-        );
-
-        // Return the support point transformed back into the global frame.
-        *transform * local_support_point
+        Point2::new(
+            self.a * self.a * dir.x / denom,
+            self.b * self.b * dir.y / denom,
+        )
     }
 }
 
