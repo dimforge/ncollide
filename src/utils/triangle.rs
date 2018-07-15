@@ -1,7 +1,17 @@
-use alga::general::Real;
-use na;
-use utils;
 use math::Point;
+use na::{self, Point2, Real};
+use utils;
+
+/// Orientation of a triangle.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum TriangleOrientation {
+    /// Orientation with a clockwise orientaiton, i.e., with a positive signed area.
+    Clockwise,
+    /// Orientation with a clockwise orientaiton, i.e., with a negative signed area.
+    Counterclockwise,
+    /// Degenerate triangle.
+    Degenerate,
+}
 
 /// Computes the area of a triangle.
 #[inline]
@@ -112,8 +122,29 @@ pub fn is_point_in_triangle<N: Real>(
     let d12 = na::dot(&p2p, &p2p3);
     let d13 = na::dot(&p3p, &p3p1);
 
-    d11 >= na::zero() && d11 <= na::norm_squared(&p1p2) && d12 >= na::zero()
-        && d12 <= na::norm_squared(&p2p3) && d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
+    d11 >= na::zero()
+        && d11 <= na::norm_squared(&p1p2)
+        && d12 >= na::zero()
+        && d12 <= na::norm_squared(&p2p3)
+        && d13 >= na::zero()
+        && d13 <= na::norm_squared(&p3p1)
+}
+
+/// The orientation of the provided triangle, based on its signed area.
+pub fn triangle_orientation<N: Real>(
+    a: &Point2<N>,
+    b: &Point2<N>,
+    c: &Point2<N>,
+) -> TriangleOrientation {
+    let area2 = (b - a).perp(&(c - a));
+    // println!("area2: {}", area2);
+    if area2 > N::default_epsilon() {
+        TriangleOrientation::Counterclockwise
+    } else if area2 < -N::default_epsilon() {
+        TriangleOrientation::Clockwise
+    } else {
+        TriangleOrientation::Degenerate
+    }
 }
 
 #[cfg(feature = "dim3")]
