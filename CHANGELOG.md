@@ -4,6 +4,9 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.16.0] and [0.17.0]
+Those two released are mostly composed of bug-fixes and dependencies updates.
+
 ## [0.15.0]
 ### Added
     * This re-adds time-of-impact computation in the `query`module.
