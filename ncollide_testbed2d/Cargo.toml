@@ -21,7 +21,7 @@ time         = "0.1"
 num-traits   = "0.2"
 rand         = "0.5"
 sfml         = "0.11"
-alga         = "0.6"
-nalgebra     = "0.15"
-ncollide2d   = { path = "../build/ncollide2d", version = "0.16" }
+alga         = "0.7"
+nalgebra     = "0.16"
+ncollide2d   = "0.16"
 mpeg_encoder = { version = "0.2", optional = true }

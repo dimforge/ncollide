@@ -2,9 +2,7 @@ use kiss3d::camera::{ArcBall, Camera, FirstPerson};
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
 use na::{self, Isometry3, Point3};
-use ncollide3d::shape::{
-    Ball, Compound, Cone, ConvexHull, Cuboid, Cylinder, Plane, Shape, TriMesh,
-};
+use ncollide3d::shape::{Ball, Compound, ConvexHull, Cuboid, Plane, Shape, TriMesh};
 use ncollide3d::transformation;
 use ncollide3d::world::{CollisionObject, CollisionObjectHandle, CollisionWorld};
 use objects::{self, Box, Mesh, Node};
@@ -278,6 +276,7 @@ impl GraphicsManager {
         )))
     }
 
+    /*
     fn add_cylinder<T>(
         &mut self,
         window: &mut Window,
@@ -311,6 +310,7 @@ impl GraphicsManager {
             object, delta, r, h, color, window,
         )))
     }
+    */
 
     pub fn draw<T>(&mut self, world: &CollisionWorld<f32, T>) {
         for (handle, ns) in self.handle2sn.iter_mut() {
