@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide3d"
-version = "0.16.2"
+version = "0.17.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
@@ -29,4 +29,4 @@ approx     = { version = "0.3", default-features = false }
 rand       = { version = "0.5", default-features = false }
 
 [dev-dependencies]
-ncollide2d = { version = "0.16", path = "../ncollide2d" }
+ncollide2d = { version = "0.17", path = "../ncollide2d" }
