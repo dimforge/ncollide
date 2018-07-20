@@ -1,34 +1,26 @@
-use std::sync::Arc;
 use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::Color;
 
 use alga::general::Real;
-use na::{Isometry2, Point2, Point3};
-use ncollide::world::CollisionObject2;
 use draw_helper::draw_line;
+use na::{Isometry2, Point2, Point3};
+use ncollide2d::world::CollisionObject;
 
 pub struct Lines<N: Real> {
     color: Point3<u8>,
     base_color: Point3<u8>,
     delta: Isometry2<N>,
-    indices: Arc<Vec<Point2<usize>>>,
-    vertices: Arc<Vec<Point2<N>>>,
+    vertices: Vec<Point2<N>>,
 }
 
 impl<N: Real> Lines<N> {
-    pub fn new(
-        delta: Isometry2<N>,
-        vertices: Arc<Vec<Point2<N>>>,
-        indices: Arc<Vec<Point2<usize>>>,
-        color: Point3<u8>,
-    ) -> Lines<N> {
+    pub fn new(delta: Isometry2<N>, vertices: Vec<Point2<N>>, color: Point3<u8>) -> Lines<N> {
         Lines {
             color: color,
             base_color: color,
             delta: delta,
             vertices: vertices,
-            indices: indices,
         }
     }
 }
@@ -36,15 +28,13 @@ impl<N: Real> Lines<N> {
 impl<N: Real + ToPrimitive> Lines<N> {
     pub fn update(&mut self) {}
 
-    pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject2<N, T>) {
-        let transform = object.position * self.delta;
+    pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject<N, T>) {
+        let transform = object.position() * self.delta;
         let color = Color::new_rgb(self.color.x, self.color.y, self.color.z);
 
-        let vs = &*self.vertices;
-
-        for is in self.indices.iter() {
-            let gsv0 = transform * vs[is.x];
-            let gsv1 = transform * vs[is.y];
+        for v in self.vertices.windows(2) {
+            let gsv0 = transform * v[0];
+            let gsv1 = transform * v[1];
             draw_line(rw, &gsv0, &gsv1, &color);
         }
     }

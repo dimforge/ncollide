@@ -1,14 +1,14 @@
 extern crate nalgebra as na;
-extern crate ncollide;
+extern crate ncollide3d;
 extern crate ncollide_testbed3d;
 
-use std::cell::Cell;
 use na::{Isometry3, Point3, Translation3, Vector3};
-use ncollide::world::{CollisionGroups, CollisionObject3, CollisionWorld, GeometricQueryType};
-use ncollide::narrow_phase::{ContactAlgorithm3, ContactHandler, ProximityHandler};
-use ncollide::shape::{Ball, Cuboid, Plane, ShapeHandle3};
-use ncollide::query::Proximity;
+use ncollide3d::events::{ContactEvent, ProximityEvent};
+use ncollide3d::query::Proximity;
+use ncollide3d::shape::{Ball, Cuboid, Plane, ShapeHandle};
+use ncollide3d::world::{CollisionGroups, CollisionWorld, GeometricQueryType};
 use ncollide_testbed3d::Testbed;
+use std::cell::Cell;
 
 /*
  *
@@ -42,30 +42,25 @@ impl CollisionObjectData {
  * Proximity handler.
  *
  */
-struct ProximityMessage;
+fn handle_proximity_event(
+    world: &CollisionWorld<f32, CollisionObjectData>,
+    event: &ProximityEvent,
+) {
+    // The collision object with a None velocity is the coloured area.
+    let area_name;
+    let co1 = world.collision_object(event.collider1).unwrap();
+    let co2 = world.collision_object(event.collider2).unwrap();
 
-impl ProximityHandler<Point3<f32>, Isometry3<f32>, CollisionObjectData> for ProximityMessage {
-    fn handle_proximity(
-        &mut self,
-        co1: &CollisionObject3<f32, CollisionObjectData>,
-        co2: &CollisionObject3<f32, CollisionObjectData>,
-        _: Proximity,
-        new_proximity: Proximity,
-    ) {
-        // The collision object with a None velocity is the coloured area.
-        let area_name;
+    if co1.data().velocity.is_none() {
+        area_name = co1.data().name;
+    } else {
+        area_name = co2.data().name;
+    }
 
-        if co1.data().velocity.is_none() {
-            area_name = co1.data().name;
-        } else {
-            area_name = co2.data().name;
-        }
-
-        if new_proximity == Proximity::Intersecting {
-            println!("The ball enters the {} area.", area_name);
-        } else if new_proximity == Proximity::Disjoint {
-            println!("The ball leaves the {} area.", area_name);
-        }
+    if event.new_status == Proximity::Intersecting {
+        println!("The ball enters the {} area.", area_name);
+    } else if event.new_status == Proximity::Disjoint {
+        println!("The ball leaves the {} area.", area_name);
     }
 }
 
@@ -74,36 +69,25 @@ impl ProximityHandler<Point3<f32>, Isometry3<f32>, CollisionObjectData> for Prox
  * Contact handler.
  *
  */
-struct VelocityBouncer;
-
-impl ContactHandler<Point3<f32>, Isometry3<f32>, CollisionObjectData> for VelocityBouncer {
-    fn handle_contact_started(
-        &mut self,
-        co1: &CollisionObject3<f32, CollisionObjectData>,
-        co2: &CollisionObject3<f32, CollisionObjectData>,
-        alg: &ContactAlgorithm3<f32>,
-    ) {
+fn handle_contact_event(world: &CollisionWorld<f32, CollisionObjectData>, event: &ContactEvent) {
+    if let &ContactEvent::Started(collider1, collider2) = event {
         // NOTE: real-life applications would avoid this systematic allocation.
+        let pair = world.contact_pair(collider1, collider2);
         let mut collector = Vec::new();
-        alg.contacts(&mut collector);
+        pair.contacts(&mut collector);
+
+        let co1 = world.collision_object(collider1).unwrap();
+        let co2 = world.collision_object(collider2).unwrap();
 
         // The ball is the one with a non-None velocity.
         if let Some(ref vel) = co1.data().velocity {
             let normal = collector[0].normal;
             vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
         }
-        if let Some(ref vel) = co2.data.velocity {
+        if let Some(ref vel) = co2.data().velocity {
             let normal = -collector[0].normal;
             vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
         }
-    }
-
-    fn handle_contact_stopped(
-        &mut self,
-        _: &CollisionObject3<f32, CollisionObjectData>,
-        _: &CollisionObject3<f32, CollisionObjectData>,
-    ) {
-        // We don't care.
     }
 }
 
@@ -112,18 +96,18 @@ fn main() {
      * Setup initial object properties.
      */
     // Plane shapes.
-    let plane_left = ShapeHandle3::new(Plane::new(Vector3::x()));
-    let plane_bottom = ShapeHandle3::new(Plane::new(Vector3::y()));
-    let plane_back = ShapeHandle3::new(Plane::new(Vector3::z()));
-    let plane_right = ShapeHandle3::new(Plane::new(-Vector3::x()));
-    let plane_top = ShapeHandle3::new(Plane::new(-Vector3::y()));
-    let plane_front = ShapeHandle3::new(Plane::new(-Vector3::z()));
+    let plane_left = ShapeHandle::new(Plane::new(Vector3::x_axis()));
+    let plane_bottom = ShapeHandle::new(Plane::new(Vector3::y_axis()));
+    let plane_back = ShapeHandle::new(Plane::new(Vector3::z_axis()));
+    let plane_right = ShapeHandle::new(Plane::new(-Vector3::x_axis()));
+    let plane_top = ShapeHandle::new(Plane::new(-Vector3::y_axis()));
+    let plane_front = ShapeHandle::new(Plane::new(-Vector3::z_axis()));
 
     // Shared cuboid for the rectangular areas.
-    let rect = ShapeHandle3::new(Cuboid::new(Vector3::new(4.9f32, 4.9, 4.9)));
+    let rect = ShapeHandle::new(Cuboid::new(Vector3::new(4.9f32, 4.9, 4.9)));
 
     // Ball shape.
-    let ball = ShapeHandle3::new(Ball::new(0.5f32));
+    let ball = ShapeHandle::new(Ball::new(0.5f32));
 
     // Positions of the planes.
     let planes_pos = [
@@ -175,54 +159,48 @@ fn main() {
      * Setup the world.
      */
     // Collision world 0.02 optimization margin and small object identifiers.
-    let mut world = CollisionWorld::new(0.02, true);
+    let mut world = CollisionWorld::new(0.02);
 
     // Add the planes to the world.
-    let contacts_query = GeometricQueryType::Contacts(0.0);
+    let contacts_query = GeometricQueryType::Contacts(0.0, 0.0);
     let proximity_query = GeometricQueryType::Proximity(0.0);
 
-    world.deferred_add(
-        0,
+    let handle0 = world.add(
         planes_pos[0],
         plane_left,
         others_groups,
         contacts_query,
         plane_data.clone(),
     );
-    world.deferred_add(
-        1,
+    let handle1 = world.add(
         planes_pos[1],
         plane_bottom,
         others_groups,
         contacts_query,
         plane_data.clone(),
     );
-    world.deferred_add(
-        2,
+    let handle2 = world.add(
         planes_pos[2],
         plane_back,
         others_groups,
         contacts_query,
         plane_data.clone(),
     );
-    world.deferred_add(
-        3,
+    let handle3 = world.add(
         planes_pos[3],
         plane_right,
         others_groups,
         contacts_query,
         plane_data.clone(),
     );
-    world.deferred_add(
-        4,
+    let handle4 = world.add(
         planes_pos[4],
         plane_top,
         others_groups,
         contacts_query,
         plane_data.clone(),
     );
-    world.deferred_add(
-        5,
+    let handle5 = world.add(
         planes_pos[5],
         plane_front,
         others_groups,
@@ -231,64 +209,56 @@ fn main() {
     );
 
     // Add the colored rectangles to the world.
-    world.deferred_add(
-        6,
+    let handle6 = world.add(
         rects_pos[0],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_purple,
     );
-    world.deferred_add(
-        7,
+    let handle7 = world.add(
         rects_pos[1],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_blue,
     );
-    world.deferred_add(
-        8,
+    let handle8 = world.add(
         rects_pos[2],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_green,
     );
-    world.deferred_add(
-        9,
+    let handle9 = world.add(
         rects_pos[3],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_yellow,
     );
-    world.deferred_add(
-        10,
+    let handle10 = world.add(
         rects_pos[4],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_red,
     );
-    world.deferred_add(
-        11,
+    let handle11 = world.add(
         rects_pos[5],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_grey,
     );
-    world.deferred_add(
-        12,
+    let handle12 = world.add(
         rects_pos[6],
         rect.clone(),
         others_groups,
         proximity_query,
         rect_data_pink,
     );
-    world.deferred_add(
-        13,
+    let handle13 = world.add(
         rects_pos[7],
         rect.clone(),
         others_groups,
@@ -297,18 +267,7 @@ fn main() {
     );
 
     // Add the ball to the world.
-    world.deferred_add(
-        14,
-        ball_pos,
-        ball,
-        ball_groups,
-        GeometricQueryType::Contacts(0.0),
-        ball_data,
-    );
-
-    // Register our handlers.
-    world.register_proximity_handler("ProximityMessage", ProximityMessage);
-    world.register_contact_handler("VelocityBouncer", VelocityBouncer);
+    let ball_handle = world.add(ball_pos, ball, ball_groups, contacts_query, ball_data);
 
     /*
      * Run indefinitely.
@@ -316,21 +275,21 @@ fn main() {
     let timestep = 0.016;
 
     let mut testbed = Testbed::new();
-    testbed.set_visible(0, false);
-    testbed.set_visible(1, false);
-    testbed.set_visible(2, false);
-    testbed.set_visible(3, false);
-    testbed.set_visible(4, false);
-    testbed.set_visible(5, false);
-    testbed.set_color(6, Point3::new(0.5, 0.0, 0.5));
-    testbed.set_color(7, Point3::new(0.0, 0.0, 1.0));
-    testbed.set_color(8, Point3::new(0.0, 1.0, 0.0));
-    testbed.set_color(9, Point3::new(1.0, 1.0, 0.0));
-    testbed.set_color(10, Point3::new(1.0, 0.0, 0.0));
-    testbed.set_color(11, Point3::new(0.5, 0.5, 0.5));
-    testbed.set_color(12, Point3::new(1.0, 0.75, 0.8));
-    testbed.set_color(13, Point3::new(0.0, 1.0, 1.0));
-    testbed.set_color(14, Point3::new(1.0, 1.0, 1.0));
+    testbed.set_visible(handle0, false);
+    testbed.set_visible(handle1, false);
+    testbed.set_visible(handle2, false);
+    testbed.set_visible(handle3, false);
+    testbed.set_visible(handle4, false);
+    testbed.set_visible(handle5, false);
+    testbed.set_color(handle6, Point3::new(0.5, 0.0, 0.5));
+    testbed.set_color(handle7, Point3::new(0.0, 0.0, 1.0));
+    testbed.set_color(handle8, Point3::new(0.0, 1.0, 0.0));
+    testbed.set_color(handle9, Point3::new(1.0, 1.0, 0.0));
+    testbed.set_color(handle10, Point3::new(1.0, 0.0, 0.0));
+    testbed.set_color(handle11, Point3::new(0.5, 0.5, 0.5));
+    testbed.set_color(handle12, Point3::new(1.0, 0.75, 0.8));
+    testbed.set_color(handle13, Point3::new(0.0, 1.0, 1.0));
+    testbed.set_color(ball_handle, Point3::new(1.0, 1.0, 1.0));
 
     // let mut i = 0;
     // testbed.start_recording("bouncing_ball.mpg");
@@ -338,18 +297,26 @@ fn main() {
     while testbed.step(&mut world) {
         let ball_pos;
 
+        for event in world.proximity_events() {
+            handle_proximity_event(&world, event)
+        }
+
+        for event in world.contact_events() {
+            handle_contact_event(&world, event)
+        }
+
         {
             // Integrate the velocities.
-            let ball_object = world.collision_object(14).unwrap();
-            let ball_velocity = ball_object.data.velocity.as_ref().unwrap();
+            let ball_object = world.collision_object(ball_handle).unwrap();
+            let ball_velocity = ball_object.data().velocity.as_ref().unwrap();
 
             // Integrate the positions.
             let displacement = Translation3::from_vector(timestep * ball_velocity.get());
-            ball_pos = displacement * ball_object.position;
+            ball_pos = displacement * ball_object.position();
         }
 
         // Submit the position update to the world.
-        world.deferred_set_position(14, ball_pos);
+        world.set_position(ball_handle, ball_pos);
 
         // i += 1;
         // if i == 96 * 5 {

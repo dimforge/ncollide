@@ -13,7 +13,7 @@ fn main() {
     let ball2 = Ball::new(1.0);
 
     let ball1_pos = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
-    let ball2_pos = Isometry2::identity(); // Id matrix.
+    let ball2_pos = Isometry2::identity(); // Identity matrix.
 
     /*
      * Compute their axis-aligned bounding boxes.

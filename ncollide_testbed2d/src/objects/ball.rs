@@ -4,9 +4,9 @@ use sfml::graphics::{CircleShape, Color, RenderTarget, Shape, Transformable};
 use sfml::system::Vector2f;
 
 use alga::general::Real;
-use na::{Isometry2, Point3};
-use ncollide::world::CollisionObject2;
 use draw_helper::DRAW_SCALE;
+use na::{Isometry2, Point3};
+use ncollide2d::world::CollisionObject;
 use objects;
 
 pub struct Ball<'a, N: Real> {
@@ -37,7 +37,7 @@ impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
 }
 
 impl<'a, N: Real + ToPrimitive> Ball<'a, N> {
-    pub fn update<T>(&mut self, object: &CollisionObject2<N, T>) {
+    pub fn update<T>(&mut self, object: &CollisionObject<N, T>) {
         objects::update_scene_node(&mut self.gfx, &object, &self.color, &self.delta)
     }
 

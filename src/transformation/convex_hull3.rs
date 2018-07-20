@@ -1,12 +1,12 @@
-use std::cmp::Ordering;
 use num::Bounded;
+use std::cmp::Ordering;
 
 use na::{self, Matrix3, Point2, Point3, Real, Vector3};
-use utils;
 use procedural::{IndexBuffer, TriMesh};
-use transformation::{self,
-                     convex_hull_utils::{denormalize, indexed_support_point_id, normalize,
-                                         support_point_id}};
+use transformation::{
+    self, convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
+};
+use utils;
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -288,7 +288,7 @@ fn get_initial_mesh<N: Real>(
             let p2 = support_point_id(&-eigpairs[0].0, points).unwrap();
 
             let mut max_area = na::zero();
-            let mut p3 = Bounded::max_value();
+            let mut p3 = usize::max_value();
 
             for (i, point) in points.iter().enumerate() {
                 let area = utils::triangle_area(&points[p1], &points[p2], point);
@@ -300,7 +300,7 @@ fn get_initial_mesh<N: Real>(
             }
 
             assert!(
-                p3 != Bounded::max_value(),
+                p3 != usize::max_value(),
                 "Internal convex hull error: no triangle found."
             );
 
@@ -322,7 +322,7 @@ fn get_initial_mesh<N: Real>(
                     continue;
                 }
 
-                let mut furthest = Bounded::max_value();
+                let mut furthest = usize::max_value();
                 let mut furthest_dist = na::zero();
 
                 for (i, curr_facet) in facets.iter().enumerate() {
@@ -336,7 +336,7 @@ fn get_initial_mesh<N: Real>(
                     }
                 }
 
-                if furthest != Bounded::max_value() {
+                if furthest != usize::max_value() {
                     facets[furthest].add_visible_point(point, points);
                 } else {
                     undecidable.push(point);
@@ -473,7 +473,7 @@ fn attach_and_push_facets3<N: Real>(
                 continue;
             }
 
-            let mut furthest = Bounded::max_value();
+            let mut furthest = usize::max_value();
             let mut furthest_dist = na::zero();
 
             for (i, curr_facet) in new_facets.iter_mut().enumerate() {
@@ -487,7 +487,7 @@ fn attach_and_push_facets3<N: Real>(
                 }
             }
 
-            if furthest != Bounded::max_value() {
+            if furthest != usize::max_value() {
                 new_facets[furthest].add_visible_point(*visible_point, points);
             }
 
@@ -499,7 +499,7 @@ fn attach_and_push_facets3<N: Real>(
     let mut i = 0;
 
     while i != undecidable.len() {
-        let mut furthest = Bounded::max_value();
+        let mut furthest = usize::max_value();
         let mut furthest_dist = na::zero();
         let undecidable_point = undecidable[i];
 
@@ -514,7 +514,7 @@ fn attach_and_push_facets3<N: Real>(
             }
         }
 
-        if furthest != Bounded::max_value() {
+        if furthest != usize::max_value() {
             new_facets[furthest].add_visible_point(undecidable_point, points);
             let _ = undecidable.swap_remove(i);
         } else {

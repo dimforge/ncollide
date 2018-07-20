@@ -13,7 +13,7 @@ fn main() {
     let cube2 = Cuboid::new(Vector2::new(1.0, 0.5));
 
     let cube1_pos = Isometry2::new(Vector2::y(), na::zero()); // 1.0 along the `y` axis.
-    let cube2_pos = na::one::<Isometry2<f32>>(); // Id matrix.
+    let cube2_pos = na::one::<Isometry2<f32>>(); // Identity matrix.
 
     /*
      * Compute their bounding spheres.

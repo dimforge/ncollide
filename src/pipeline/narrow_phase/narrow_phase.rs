@@ -1,11 +1,13 @@
+use na::Real;
+use pipeline::events::{ContactEvents, ProximityEvents};
+use pipeline::narrow_phase::{
+    ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector,
+};
+use pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
+use query::ContactManifold;
 use std::any::Any;
 use std::collections::hash_map::Iter;
-use na::Real;
 use utils::SortedPair;
-use query::ContactManifold;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector};
-use pipeline::events::{ContactEvents, ProximityEvents};
-use pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
 
 /// Trait implemented by the narrow phase manager.
 ///
@@ -41,6 +43,15 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
     );
+
+    /// Retrieve the contact pair for the given two objects.
+    ///
+    /// Retruns `None` if no pairs is available for those two objects.
+    fn contact_pair(
+        &self,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    ) -> Option<&ContactAlgorithm<N>>;
 
     // FIXME: the fact that the return type is imposed is not as generic as it could be.
     /// Returns all the potential contact pairs found during the broad phase, and validated by the
