@@ -29,4 +29,4 @@ approx     = { version = "0.3", default-features = false }
 rand       = { version = "0.5", default-features = false }
 
 [dev-dependencies]
-ncollide2d = { version = "0.16" }
+ncollide2d = { version = "0.16", path = "../ncollide2d" }
