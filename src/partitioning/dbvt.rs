@@ -1,11 +1,11 @@
-use std::ops::Index;
 use slab::Slab;
+use std::ops::Index;
 
 use na::{self, Real};
 
+use bounding_volume::BoundingVolume;
 use math::Point;
 use partitioning::BVTVisitor;
-use bounding_volume::BoundingVolume;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// The unique identifier of a DBVT leaf.
@@ -298,6 +298,8 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
                     self.root = other;
                 }
             }
+
+            let _ = self.internals.remove(p);
         } else {
             // The tree is now empty.
             self.leaves.clear();
