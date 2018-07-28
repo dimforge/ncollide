@@ -24,6 +24,34 @@ impl ProxyHandle {
     }
 }
 
+/// Proximity handling for BroadPhase updates.
+pub trait BroadPhaseProximityHandler<T> {
+    /// A pre-filter that may cheaply discard objects before checking for bounding volume
+    /// interference.
+    fn allow(&mut self, &T, &T) -> bool;
+
+    /// Actually handle the interference.
+    /// The boolean specifies whether the objects start or stop interacting.
+    fn handle(&mut self, &T, &T, bool);
+}
+
+struct SimpleBroadPhaseProximityHandler<'a, T: 'a> {
+    allow_proximity: &'a mut FnMut(&T, &T) -> bool,
+    handle_proximity: &'a mut FnMut(&T, &T, bool),
+}
+
+impl<'a, T> BroadPhaseProximityHandler<T> for SimpleBroadPhaseProximityHandler<'a, T> {
+    #[inline]
+    fn allow(&mut self, a: &T, b: &T) -> bool {
+        (self.allow_proximity)(a, b)
+    }
+
+    #[inline]
+    fn handle(&mut self, a: &T, b: &T, started: bool) {
+        (self.handle_proximity)(a, b, started)
+    }
+}
+
 /// Trait all broad phase must implement.
 pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
     /// Tells the broad phase to add a bounding-volume at the next update.
@@ -42,11 +70,19 @@ pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
+    fn update_with_handler(&mut self, handler: &mut BroadPhaseProximityHandler<T>);
+
+    /// Updates the object additions, removals, and interferences detection.
     fn update(
         &mut self,
         allow_proximity: &mut FnMut(&T, &T) -> bool,
-        proximity_handler: &mut FnMut(&T, &T, bool),
-    );
+        handle_proximity: &mut FnMut(&T, &T, bool),
+    ) {
+        self.update_with_handler(&mut SimpleBroadPhaseProximityHandler {
+            allow_proximity,
+            handle_proximity,
+        })
+    }
 
     /*
      * FIXME: the following are not flexible enough.
