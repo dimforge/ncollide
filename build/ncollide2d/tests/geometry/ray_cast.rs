@@ -102,7 +102,7 @@ fn perpendicular_raycast_starting_bellow_segment() {
 /// Tests the accuracy of raycaster collision detection against a `ConvexPolygon`.
 #[test]
 fn convexpoly_raycast_fuzz() {
-    let vertices: Vec<Point2<f64>> = vec![[1, 1], [1, 2], [2, 2], [2, 1]]
+    let vertices: Vec<Point2<f64>> = vec![[2, 1], [2, 2], [1, 2], [1, 1]]
         .into_iter()
         .map(|[x, y]| Point2::new(x as f64, y as f64))
         .collect();
@@ -111,14 +111,11 @@ fn convexpoly_raycast_fuzz() {
     let raycaster = square.as_ray_cast().unwrap();
 
     let test_raycast = |ray_origin: Point2<f64>, ray_look_at: Point2<f64>| -> Option<f64> {
-        let mut ray_angle: Vector2<f64> = ray_look_at - ray_origin;
-        let ray_angle_magnitude =
-            ((ray_angle.x * ray_angle.x) + (ray_angle.y + ray_angle.y)).sqrt();
-        ray_angle /= ray_angle_magnitude;
+        let ray_angle = ray_look_at - ray_origin;
 
         raycaster.toi_with_ray(
             &Isometry2::identity(),
-            &Ray::new(ray_origin, ray_angle),
+            &Ray::new(ray_origin, ray_angle.normalize()),
             true,
         )
     };
