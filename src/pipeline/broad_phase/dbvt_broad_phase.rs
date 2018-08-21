@@ -7,8 +7,8 @@ use slab::Slab;
 use na::Real;
 use math::Point;
 use utils::{DeterministicState, SortedPair};
-use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
+use bounding_volume::BoundingVolume;
+use partitioning::{BoundingVolumeInterferencesCollector, DBVTLeaf, DBVTLeafId, DBVT};
 use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
 
