@@ -374,10 +374,13 @@ impl <'a, N: Real, B: Copy, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'
                         self.node.push(internal.right);
                     }
                 }
-                DBVTNodeId::Leaf(i) => {
+                // TODO: This could be better if root was Option<> or had a None/Invalid enum
+                // As-is we have to check that the tree isn't empty because Leaf(0) is default.
+                DBVTNodeId::Leaf(i) if !self.tree.is_empty() => {
                     let leaf = &self.tree.leaves[i];
                     return Some(leaf.data);
                 }
+                _ => return None,
             }
         }
 
