@@ -8,7 +8,7 @@ use na::Real;
 use math::Point;
 use utils::{DeterministicState, SortedPair};
 use bounding_volume::BoundingVolume;
-use partitioning::{BoundingVolumeInterferencesCollector, DBVTLeaf, DBVTLeafId, DBVT};
+use partitioning::{DBVTLeaf, DBVTLeafId, DBVT, DBVTBVIterator};
 use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
 
@@ -58,7 +58,6 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
-    collector: Vec<ProxyHandle>,
     pairs_to_remove: Vec<SortedPair<ProxyHandle>>,
     leaves_to_update: Vec<DBVTLeaf<N, ProxyHandle, BV>>,
     proxies_to_update: Vec<(ProxyHandle, BV)>,
@@ -77,7 +76,6 @@ where
             stree: DBVT::new(),
             pairs: HashMap::with_hasher(DeterministicState::new()),
             purge_all: false,
-            collector: Vec::new(),
             leaves_to_update: Vec::new(),
             pairs_to_remove: Vec::new(),
             proxies_to_update: Vec::new(),
@@ -164,6 +162,14 @@ where
             }
         }
     }
+
+    /// Returns an interference iterator for the given bounding volume.
+    pub fn interferences_with_bounding_volume(&self, bv: BV) -> DBVTBroadPhaseBVIterator<N, BV> {
+        DBVTBroadPhaseBVIterator{
+            tree_iter: self.tree.interferences_with_bounding_volume(bv.clone()),
+            stree_iter: self.stree.interferences_with_bounding_volume(bv),
+        }
+    }
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
@@ -220,37 +226,30 @@ where
          * Re-insert outdated nodes one by one and collect interferences at the same time.
          */
         let some_leaves_updated = self.leaves_to_update.len() != 0;
-        for leaf in self.leaves_to_update.drain(..) {
-            {
-                let proxy1 = &self.proxies[leaf.data.uid()];
-                {
-                    let mut visitor = BoundingVolumeInterferencesCollector::new(
-                        &leaf.bounding_volume,
-                        &mut self.collector,
-                    );
+        for leaf in &self.leaves_to_update {
+            let proxy1 = &self.proxies[leaf.data.uid()];
 
-                    self.tree.visit(&mut visitor);
-                    self.stree.visit(&mut visitor);
-                }
+            // Event generation. During iteration we move the pairs out and then back
+            // in, at the end of the loop. We do this using empty memory because this
+            // code path does not expose access to pairs during the loop, we're safe.
+            let mut pairs = mem::replace(&mut self.pairs, unsafe { mem::zeroed() });
+            for proxy_key2 in self.interferences_with_bounding_volume(leaf.bounding_volume.clone()) {
+                let proxy2 = &self.proxies[proxy_key2.uid()];
 
-                // Event generation.
-                for proxy_key2 in self.collector.iter() {
-                    let proxy2 = &self.proxies[proxy_key2.uid()];
-
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
-                        match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
-                            Entry::Occupied(entry) => *entry.into_mut() = true,
-                            Entry::Vacant(entry) => {
-                                handler(&proxy1.data, &proxy2.data, true);
-                                let _ = entry.insert(true);
-                            }
+                if allow_proximity(&proxy1.data, &proxy2.data) {
+                    match pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
+                        Entry::Occupied(entry) => *entry.into_mut() = true,
+                        Entry::Vacant(entry) => {
+                            handler(&proxy1.data, &proxy2.data, true);
+                            let _ = entry.insert(true);
                         }
                     }
                 }
-
-                self.collector.clear();
             }
+            let _ = mem::replace(&mut self.pairs, pairs);
+        }
 
+        for leaf in self.leaves_to_update.drain(..) {
             let proxy1 = &mut self.proxies[leaf.data.uid()];
             assert!(proxy1.is_detached());
             let leaf = self.tree.insert(leaf);
@@ -377,19 +376,8 @@ where
         self.purge_all = true;
     }
 
-    fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>) {
-        let mut collector = Vec::new();
-
-        {
-            let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut collector);
-
-            self.tree.visit(&mut visitor);
-            self.stree.visit(&mut visitor);
-        }
-
-        for l in collector.into_iter() {
-            out.push(&self.proxies[l.uid()].data)
-        }
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: BV) -> Box<'a + Iterator<Item = ProxyHandle>> {
+        Box::new(self.interferences_with_bounding_volume(bv))
     }
 
     fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>) {
@@ -419,6 +407,26 @@ where
 
         for l in collector.into_iter() {
             out.push(&self.proxies[l.uid()].data)
+        }
+    }
+}
+
+pub struct DBVTBroadPhaseBVIterator<'a, N: Real, BV: 'a> {
+    tree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
+    stree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
+}
+
+impl <'a, N: Real, BV: BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
+    type Item = ProxyHandle;
+
+    fn next(&mut self) -> Option<ProxyHandle> {
+        // TODO: The below looks like an 'either' pattern (https://docs.rs/either/1.5.0/either/enum.Either.html)
+        if let t@Some(_) = self.tree_iter.next() {
+            t
+        } else if let s@Some(_) = self.stree_iter.next() {
+            s
+        } else {
+            None
         }
     }
 }

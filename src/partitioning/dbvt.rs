@@ -236,6 +236,15 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
         }
     }
 
+    /// Returns an interference iterator for the given bounding volume.
+    pub fn interferences_with_bounding_volume(&self, bv: BV) -> DBVTBVIterator<N, B, BV> {
+        DBVTBVIterator{
+            bv: bv,
+            node: vec![self.root],
+            tree: &self,
+        }
+    }
+
     /// Removes a leaf from this DBVT.
     ///
     /// Panics if the provided leaf is not attached to this DBVT.
@@ -342,5 +351,36 @@ impl<N: Real, B, BV> Index<DBVTLeafId> for DBVT<N, B, BV> {
     #[inline]
     fn index(&self, DBVTLeafId(id): DBVTLeafId) -> &Self::Output {
         &self.leaves[id]
+    }
+}
+
+/// Bounding Volume iterator over a dynamic bounding volume tree.
+pub struct DBVTBVIterator<'a, N: Real, B: 'a, BV: 'a> {
+    bv: BV,
+    node: Vec<DBVTNodeId>,
+    tree: &'a DBVT<N, B, BV>,
+}
+
+impl <'a, N: Real, B: Copy, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
+    type Item = B;
+
+    fn next(&mut self) -> Option<B> {
+        while let Some(node) = self.node.pop() {
+            match node {
+                DBVTNodeId::Internal(i) => {
+                    let internal = &self.tree.internals[i];
+                    if self.bv.intersects(&internal.bounding_volume) {
+                        self.node.push(internal.left);
+                        self.node.push(internal.right);
+                    }
+                }
+                DBVTNodeId::Leaf(i) => {
+                    let leaf = &self.tree.leaves[i];
+                    return Some(leaf.data);
+                }
+            }
+        }
+
+        None
     }
 }

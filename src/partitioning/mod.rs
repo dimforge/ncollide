@@ -1,6 +1,6 @@
 //! Spatial partitioning tools.
 
-pub use partitioning::dbvt::{DBVT, DBVTLeaf, DBVTLeafId};
+pub use partitioning::dbvt::{DBVT, DBVTBVIterator, DBVTLeaf, DBVTLeafId};
 pub use partitioning::bvt::{BVTNode, BinaryPartition, BVT};
 #[doc(inline)]
 pub use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};

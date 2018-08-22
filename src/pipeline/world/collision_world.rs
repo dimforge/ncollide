@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::mem;
 use std::vec::IntoIter;
 
@@ -18,6 +19,7 @@ use pipeline::world::{
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
 use shape::ShapeHandle;
+use utils::DeterministicState;
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
@@ -27,6 +29,7 @@ pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>
 /// A world that handles collision objects.
 pub struct CollisionWorld<N: Real, T> {
     objects: CollisionObjectSlab<N, T>,
+    proxies: HashMap<ProxyHandle, CollisionObjectHandle, DeterministicState>,
     broad_phase: BroadPhaseObject<N>,
     narrow_phase: Box<NarrowPhase<N, T>>,
     contact_events: ContactEvents,
@@ -51,6 +54,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
             contact_events: ContactEvents::new(),
             proximity_events: ProximityEvents::new(),
             objects: objects,
+            proxies: HashMap::with_hasher(DeterministicState::new()),
             broad_phase: broad_phase,
             narrow_phase: Box::new(narrow_phase),
             pair_filters: BroadPhasePairFilters::new(),
@@ -88,6 +92,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
         co.set_handle(handle);
         co.set_proxy_handle(proxy_handle);
 
+        // Keep track of the proxy handles we're assigned so that we can figure out which collision
+        // objects they equate to when we find them during enumeration of the Iterator methods.
+        let _ = self.proxies.insert(proxy_handle, handle);
+
         handle
     }
 
@@ -122,6 +130,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
                     .get(*handle)
                     .expect("Removal: collision object not found.");
                 proxy_handles.push(co.proxy_handle());
+            }
+
+            for handle in &proxy_handles {
+                let _ = self.proxies.remove(&handle);
             }
 
             let nf = &mut self.narrow_phase;
@@ -329,20 +341,15 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline]
-    pub fn interferences_with_aabb<'a, 'b>(
+    pub fn interferences_with_aabb<'a, 'b: 'a>(
         &'a self,
-        aabb: &'b AABB<N>,
+        aabb: AABB<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithAABB<'a, 'b, N, T> {
-        // FIXME: avoid allocation.
-        let mut handles = Vec::new();
-        self.broad_phase
-            .interferences_with_bounding_volume(aabb, &mut handles);
-
+    ) -> InterferencesWithAABB<N, T> {
         InterferencesWithAABB {
             groups: groups,
-            objects: &self.objects,
-            handles: handles.into_iter(),
+            iter: self.broad_phase.interferences_with_bounding_volume(aabb),
+            world: self,
         }
     }
 
@@ -431,10 +438,10 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, N: 'a + Real, T: 'a> {
-    objects: &'a CollisionObjectSlab<N, T>,
+pub struct InterferencesWithAABB<'a, 'b, N: Real, T: 'a> {
     groups: &'b CollisionGroups,
-    handles: IntoIter<&'a CollisionObjectHandle>,
+    iter: Box<'a + Iterator<Item = ProxyHandle>>,
+    world: &'a CollisionWorld<N, T>,
 }
 
 impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
@@ -442,9 +449,9 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(handle) = self.handles.next() {
-            let co = &self.objects[*handle];
-
+        while let Some(ref proxy_handle) = self.iter.next() {
+            let po = self.world.proxies.get(proxy_handle).expect("Iterator: ProxyHandle not found.");
+            let co = &self.world.objects[*po];
             if co.collision_groups().can_interact_with_groups(self.groups) {
                 return Some(co);
             }
