@@ -230,9 +230,8 @@ where
             let proxy1 = &self.proxies[leaf.data.uid()];
 
             // Event generation. During iteration we move the pairs out and then back
-            // in, at the end of the loop. We do this using empty memory because this
-            // code path does not expose access to pairs during the loop, we're safe.
-            let mut pairs = mem::replace(&mut self.pairs, unsafe { mem::zeroed() });
+            // in, at the end of the loop. TODO: Use zeroed memory; but resolve segmentation fault it causes
+            let mut pairs = mem::replace(&mut self.pairs, HashMap::with_hasher(DeterministicState::new()));
             for proxy_key2 in self.interferences_with_bounding_volume(leaf.bounding_volume.clone()) {
                 let proxy2 = &self.proxies[proxy_key2.uid()];
 
