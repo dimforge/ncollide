@@ -165,10 +165,7 @@ where
 
     /// Returns an interference iterator for the given bounding volume.
     pub fn interferences_with_bounding_volume(&self, bv: BV) -> DBVTBroadPhaseBVIterator<N, BV> {
-        DBVTBroadPhaseBVIterator{
-            tree_iter: self.tree.interferences_with_bounding_volume(bv.clone()),
-            stree_iter: self.stree.interferences_with_bounding_volume(bv),
-        }
+        DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, bv)
     }
 }
 
@@ -228,15 +225,14 @@ where
         let some_leaves_updated = self.leaves_to_update.len() != 0;
         for leaf in &self.leaves_to_update {
             let proxy1 = &self.proxies[leaf.data.uid()];
+            let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, leaf.bounding_volume.clone());
 
-            // Event generation. During iteration we move the pairs out and then back
-            // in, at the end of the loop. TODO: Use zeroed memory; but resolve segmentation fault it causes
-            let mut pairs = mem::replace(&mut self.pairs, HashMap::with_hasher(DeterministicState::new()));
-            for proxy_key2 in self.interferences_with_bounding_volume(leaf.bounding_volume.clone()) {
+            // Event generation.
+            for proxy_key2 in interferences {
                 let proxy2 = &self.proxies[proxy_key2.uid()];
 
                 if allow_proximity(&proxy1.data, &proxy2.data) {
-                    match pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
+                    match self.pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
                         Entry::Occupied(entry) => *entry.into_mut() = true,
                         Entry::Vacant(entry) => {
                             handler(&proxy1.data, &proxy2.data, true);
@@ -245,7 +241,6 @@ where
                     }
                 }
             }
-            let _ = mem::replace(&mut self.pairs, pairs);
         }
 
         for leaf in self.leaves_to_update.drain(..) {
@@ -413,6 +408,15 @@ where
 pub struct DBVTBroadPhaseBVIterator<'a, N: Real, BV: 'a> {
     tree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
     stree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
+}
+
+impl <'a, N: Real, BV: BoundingVolume<N> + Clone> DBVTBroadPhaseBVIterator<'a, N, BV> {
+    fn new(tree: &'a DBVT<N, ProxyHandle, BV>, stree: &'a DBVT<N, ProxyHandle, BV>, bv: BV) -> Self {
+        Self {
+            tree_iter: tree.interferences_with_bounding_volume(bv.clone()),
+            stree_iter: stree.interferences_with_bounding_volume(bv),
+        }
+    }
 }
 
 impl <'a, N: Real, BV: BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
