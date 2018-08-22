@@ -224,19 +224,21 @@ where
          */
         let some_leaves_updated = self.leaves_to_update.len() != 0;
         for leaf in &self.leaves_to_update {
-            let proxy1 = &self.proxies[leaf.data.uid()];
-            let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, leaf.bounding_volume.clone());
+            {
+                let proxy1 = &self.proxies[leaf.data.uid()];
+                let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, leaf.bounding_volume.clone());
 
-            // Event generation.
-            for proxy_key2 in interferences {
-                let proxy2 = &self.proxies[proxy_key2.uid()];
+                // Event generation.
+                for proxy_key2 in interferences {
+                    let proxy2 = &self.proxies[proxy_key2.uid()];
 
-                if allow_proximity(&proxy1.data, &proxy2.data) {
-                    match self.pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
-                        Entry::Occupied(entry) => *entry.into_mut() = true,
-                        Entry::Vacant(entry) => {
-                            handler(&proxy1.data, &proxy2.data, true);
-                            let _ = entry.insert(true);
+                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                        match self.pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
+                            Entry::Occupied(entry) => *entry.into_mut() = true,
+                            Entry::Vacant(entry) => {
+                                handler(&proxy1.data, &proxy2.data, true);
+                                let _ = entry.insert(true);
+                            }
                         }
                     }
                 }
