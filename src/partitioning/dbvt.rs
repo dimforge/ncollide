@@ -241,7 +241,7 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
         DBVTBVIterator{
             bv: bv,
             node: vec![self.root],
-            tree: &self,
+            tree: self,
         }
     }
 
