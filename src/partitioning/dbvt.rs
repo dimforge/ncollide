@@ -361,7 +361,7 @@ pub struct DBVTBVIterator<'a, N: Real, B: 'a, BV: 'a> {
     tree: &'a DBVT<N, B, BV>,
 }
 
-impl <'a, N: Real, B: Copy, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
+impl <'a, N: Real, B: Clone, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
     type Item = B;
 
     fn next(&mut self) -> Option<B> {
@@ -374,11 +374,9 @@ impl <'a, N: Real, B: Copy, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'
                         self.node.push(internal.right);
                     }
                 }
-                // TODO: This could be better if root was Option<> or had a None/Invalid enum
-                // As-is we have to check that the tree isn't empty because Leaf(0) is default.
                 DBVTNodeId::Leaf(i) if !self.tree.is_empty() => {
                     let leaf = &self.tree.leaves[i];
-                    return Some(leaf.data);
+                    return Some(leaf.data.clone());
                 }
                 _ => return None,
             }
