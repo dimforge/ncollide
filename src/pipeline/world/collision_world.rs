@@ -341,10 +341,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
     #[inline]
-    pub fn interferences_with_aabb<'a, 'b: 'a>(
+    pub fn interferences_with_aabb<'a>(
         &'a self,
-        aabb: AABB<N>,
-        groups: &'b CollisionGroups,
+        aabb: &'a AABB<N>,
+        groups: &'a CollisionGroups,
     ) -> InterferencesWithAABB<N, T> {
         InterferencesWithAABB {
             groups: groups,

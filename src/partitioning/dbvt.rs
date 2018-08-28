@@ -237,7 +237,7 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
     }
 
     /// Returns an interference iterator for the given bounding volume.
-    pub fn interferences_with_bounding_volume(&self, bv: BV) -> DBVTBVIterator<N, B, BV> {
+    pub fn interferences_with_bounding_volume<'a, 'bv: 'a>(&'a self, bv: &'bv BV) -> DBVTBVIterator<N, B, BV> {
         DBVTBVIterator{
             bv: bv,
             node: vec![self.root],
@@ -356,12 +356,12 @@ impl<N: Real, B, BV> Index<DBVTLeafId> for DBVT<N, B, BV> {
 
 /// Bounding Volume iterator over a dynamic bounding volume tree.
 pub struct DBVTBVIterator<'a, N: Real, B: 'a, BV: 'a> {
-    bv: BV,
+    bv: &'a BV,
     node: Vec<DBVTNodeId>,
     tree: &'a DBVT<N, B, BV>,
 }
 
-impl <'a, N: Real, B: Clone, BV: BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
+impl <'a, N: Real, B: Clone, BV: 'a + BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
     type Item = B;
 
     fn next(&mut self) -> Option<B> {

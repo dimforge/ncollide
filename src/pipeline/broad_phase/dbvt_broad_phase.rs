@@ -164,7 +164,7 @@ where
     }
 
     /// Returns an interference iterator for the given bounding volume.
-    pub fn interferences_with_bounding_volume(&self, bv: BV) -> DBVTBroadPhaseBVIterator<N, BV> {
+    pub fn interferences_with_bounding_volume<'a, 'b: 'a>(&'a self, bv: &'b BV) -> DBVTBroadPhaseBVIterator<N, BV> {
         DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, bv)
     }
 }
@@ -226,7 +226,7 @@ where
         for leaf in &self.leaves_to_update {
             {
                 let proxy1 = &self.proxies[leaf.data.uid()];
-                let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, leaf.bounding_volume.clone());
+                let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, &leaf.bounding_volume);
 
                 // Event generation.
                 for proxy_key2 in interferences {
@@ -372,7 +372,7 @@ where
         self.purge_all = true;
     }
 
-    fn interferences_with_bounding_volume<'a>(&'a self, bv: BV) -> Box<'a + Iterator<Item = ProxyHandle>> {
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: &'a BV) -> Box<'a + Iterator<Item = ProxyHandle>> {
         Box::new(self.interferences_with_bounding_volume(bv))
     }
 
@@ -408,20 +408,22 @@ where
 }
 
 pub struct DBVTBroadPhaseBVIterator<'a, N: Real, BV: 'a> {
+    bv: &'a BV,
     tree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
     stree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
 }
 
-impl <'a, N: Real, BV: BoundingVolume<N> + Clone> DBVTBroadPhaseBVIterator<'a, N, BV> {
-    fn new(tree: &'a DBVT<N, ProxyHandle, BV>, stree: &'a DBVT<N, ProxyHandle, BV>, bv: BV) -> Self {
+impl <'a, N: Real, BV: 'a + BoundingVolume<N>> DBVTBroadPhaseBVIterator<'a, N, BV> {
+    fn new(tree: &'a DBVT<N, ProxyHandle, BV>, stree: &'a DBVT<N, ProxyHandle, BV>, bv: &'a BV) -> Self {
         Self {
-            tree_iter: tree.interferences_with_bounding_volume(bv.clone()),
+            bv: bv,
+            tree_iter: tree.interferences_with_bounding_volume(bv),
             stree_iter: stree.interferences_with_bounding_volume(bv),
         }
     }
 }
 
-impl <'a, N: Real, BV: BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
+impl <'a, N: Real, BV: 'a + BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
     type Item = ProxyHandle;
 
     fn next(&mut self) -> Option<ProxyHandle> {

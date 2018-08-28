@@ -53,7 +53,7 @@ pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
      */
     // XXX: return iterators when associated types work.
     /// Returns an interference iterator for the given bounding volume.
-    fn interferences_with_bounding_volume<'a>(&'a self, bv: BV) -> Box<'a + Iterator<Item = ProxyHandle>>;
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: &'a BV) -> Box<'a + Iterator<Item = ProxyHandle>>;
 
     /// Collects every object which might intersect a given ray.
     fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>);
