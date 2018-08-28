@@ -164,8 +164,8 @@ where
     }
 
     /// Returns an interference iterator for the given bounding volume.
-    pub fn interferences_with_bounding_volume<'a, 'b: 'a>(&'a self, bv: &'b BV) -> DBVTBroadPhaseBVIterator<N, BV> {
-        DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, bv)
+    pub fn interferences_with_bounding_volume<'a, 'b: 'a>(&'a self, bv: &'b BV) -> DBVTBroadPhaseBVIterator<N, T, BV> {
+        DBVTBroadPhaseBVIterator::new(&self.proxies, &self.tree, &self.stree, bv)
     }
 }
 
@@ -226,17 +226,16 @@ where
         for leaf in &self.leaves_to_update {
             {
                 let proxy1 = &self.proxies[leaf.data.uid()];
-                let interferences = DBVTBroadPhaseBVIterator::new(&self.tree, &self.stree, &leaf.bounding_volume);
+                let interferences = DBVTBroadPhaseBVIterator::new(&self.proxies, &self.tree, &self.stree, &leaf.bounding_volume);
 
                 // Event generation.
-                for proxy_key2 in interferences {
-                    let proxy2 = &self.proxies[proxy_key2.uid()];
+                for (proxy2, proxy2data) in interferences {
 
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
-                        match self.pairs.entry(SortedPair::new(leaf.data, proxy_key2)) {
+                    if allow_proximity(&proxy1.data, proxy2data) {
+                        match self.pairs.entry(SortedPair::new(leaf.data, proxy2)) {
                             Entry::Occupied(entry) => *entry.into_mut() = true,
                             Entry::Vacant(entry) => {
-                                handler(&proxy1.data, &proxy2.data, true);
+                                handler(&proxy1.data, proxy2data, true);
                                 let _ = entry.insert(true);
                             }
                         }
@@ -372,7 +371,7 @@ where
         self.purge_all = true;
     }
 
-    fn interferences_with_bounding_volume<'a>(&'a self, bv: &'a BV) -> Box<'a + Iterator<Item = ProxyHandle>> {
+    fn interferences_with_bounding_volume<'a>(&'a self, bv: &'a BV) -> Box<'a + Iterator<Item = (ProxyHandle, &'a T)>> {
         Box::new(self.interferences_with_bounding_volume(bv))
     }
 
@@ -407,33 +406,35 @@ where
     }
 }
 
-pub struct DBVTBroadPhaseBVIterator<'a, N: Real, BV: 'a> {
-    bv: &'a BV,
+pub struct DBVTBroadPhaseBVIterator<'a, N: Real, T: 'a, BV: 'a> {
+    proxies: &'a Slab<DBVTBroadPhaseProxy<T>>,
     tree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
     stree_iter: DBVTBVIterator<'a, N, ProxyHandle, BV>,
 }
 
-impl <'a, N: Real, BV: 'a + BoundingVolume<N>> DBVTBroadPhaseBVIterator<'a, N, BV> {
-    fn new(tree: &'a DBVT<N, ProxyHandle, BV>, stree: &'a DBVT<N, ProxyHandle, BV>, bv: &'a BV) -> Self {
+impl <'a, N: Real, T, BV: 'a + BoundingVolume<N>> DBVTBroadPhaseBVIterator<'a, N, T, BV> {
+    fn new(proxies: &'a Slab<DBVTBroadPhaseProxy<T>>, tree: &'a DBVT<N, ProxyHandle, BV>, stree: &'a DBVT<N, ProxyHandle, BV>, bv: &'a BV) -> Self {
         Self {
-            bv: bv,
+            proxies: proxies,
             tree_iter: tree.interferences_with_bounding_volume(bv),
             stree_iter: stree.interferences_with_bounding_volume(bv),
         }
     }
 }
 
-impl <'a, N: Real, BV: 'a + BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
-    type Item = ProxyHandle;
+impl <'a, N: Real, T, BV: 'a + BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, T, BV> {
+    type Item = (ProxyHandle, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
         // TODO: The below looks like an 'either' pattern (https://docs.rs/either/1.5.0/either/enum.Either.html)
-        if let t@Some(_) = self.tree_iter.next() {
+        let proxy = if let Some(t) = self.tree_iter.next() {
             t
-        } else if let s@Some(_) = self.stree_iter.next() {
+        } else if let Some(s) = self.stree_iter.next() {
             s
         } else {
-            None
-        }
+            return None;
+        };
+
+        Some((proxy, &self.proxies[proxy.uid()].data))
     }
 }

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::mem;
 use std::vec::IntoIter;
 
@@ -19,7 +18,6 @@ use pipeline::world::{
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
 use shape::ShapeHandle;
-use utils::DeterministicState;
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
@@ -29,7 +27,6 @@ pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>
 /// A world that handles collision objects.
 pub struct CollisionWorld<N: Real, T> {
     objects: CollisionObjectSlab<N, T>,
-    proxies: HashMap<ProxyHandle, CollisionObjectHandle, DeterministicState>,
     broad_phase: BroadPhaseObject<N>,
     narrow_phase: Box<NarrowPhase<N, T>>,
     contact_events: ContactEvents,
@@ -54,7 +51,6 @@ impl<N: Real, T> CollisionWorld<N, T> {
             contact_events: ContactEvents::new(),
             proximity_events: ProximityEvents::new(),
             objects: objects,
-            proxies: HashMap::with_hasher(DeterministicState::new()),
             broad_phase: broad_phase,
             narrow_phase: Box::new(narrow_phase),
             pair_filters: BroadPhasePairFilters::new(),
@@ -92,10 +88,6 @@ impl<N: Real, T> CollisionWorld<N, T> {
         co.set_handle(handle);
         co.set_proxy_handle(proxy_handle);
 
-        // Keep track of the proxy handles we're assigned so that we can figure out which collision
-        // objects they equate to when we find them during enumeration of the Iterator methods.
-        let _ = self.proxies.insert(proxy_handle, handle);
-
         handle
     }
 
@@ -130,10 +122,6 @@ impl<N: Real, T> CollisionWorld<N, T> {
                     .get(*handle)
                     .expect("Removal: collision object not found.");
                 proxy_handles.push(co.proxy_handle());
-            }
-
-            for handle in &proxy_handles {
-                let _ = self.proxies.remove(&handle);
             }
 
             let nf = &mut self.narrow_phase;
@@ -440,7 +428,7 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
 pub struct InterferencesWithAABB<'a, 'b, N: Real, T: 'a> {
     groups: &'b CollisionGroups,
-    iter: Box<'a + Iterator<Item = ProxyHandle>>,
+    iter: Box<'a + Iterator<Item = (ProxyHandle, &'a CollisionObjectHandle)>>,
     world: &'a CollisionWorld<N, T>,
 }
 
@@ -449,9 +437,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(ref proxy_handle) = self.iter.next() {
-            let po = self.world.proxies.get(proxy_handle).expect("Iterator: ProxyHandle not found.");
-            let co = &self.world.objects[*po];
+        while let Some((_, handle)) = self.iter.next() {
+            let co = &self.world.objects[*handle];
             if co.collision_groups().can_interact_with_groups(self.groups) {
                 return Some(co);
             }
