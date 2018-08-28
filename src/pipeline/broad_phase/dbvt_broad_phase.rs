@@ -426,7 +426,7 @@ impl <'a, N: Real, BV: 'a + BoundingVolume<N>> DBVTBroadPhaseBVIterator<'a, N, B
 impl <'a, N: Real, BV: 'a + BoundingVolume<N>> Iterator for DBVTBroadPhaseBVIterator<'a, N, BV> {
     type Item = ProxyHandle;
 
-    fn next(&mut self) -> Option<ProxyHandle> {
+    fn next(&mut self) -> Option<Self::Item> {
         // TODO: The below looks like an 'either' pattern (https://docs.rs/either/1.5.0/either/enum.Either.html)
         if let t@Some(_) = self.tree_iter.next() {
             t

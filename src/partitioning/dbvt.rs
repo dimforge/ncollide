@@ -364,7 +364,7 @@ pub struct DBVTBVIterator<'a, N: Real, B: 'a, BV: 'a> {
 impl <'a, N: Real, B: Clone, BV: 'a + BoundingVolume<N>> Iterator for DBVTBVIterator<'a, N, B, BV> {
     type Item = B;
 
-    fn next(&mut self) -> Option<B> {
+    fn next(&mut self) -> Option<Self::Item> {
         while let Some(node) = self.node.pop() {
             match node {
                 DBVTNodeId::Internal(i) => {
