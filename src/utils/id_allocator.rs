@@ -39,7 +39,8 @@ impl IdAllocator {
             generation_used: false,
         }
     }
-    /// Allocates a new identifuer.
+
+    /// Allocates a new identifier.
     pub fn alloc(&mut self) -> GenerationalId {
         let id = self.generator.insert(());
         let tag = self.generation;
