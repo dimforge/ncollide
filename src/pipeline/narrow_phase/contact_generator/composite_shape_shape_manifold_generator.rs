@@ -155,6 +155,16 @@ impl<N: Real> ContactManifoldGenerator<N>
         return false;
     }
 
+    fn clear(&mut self, id_alloc: &mut IdAllocator) {
+        for detector in self.sub_detectors.values_mut() {
+            detector.clear(id_alloc)
+        }
+
+        self.to_delete.clear();
+        self.sub_detectors.clear();
+        self.interferences.clear();
+    }
+
     fn num_contacts(&self) -> usize {
         let mut res = 0;
 

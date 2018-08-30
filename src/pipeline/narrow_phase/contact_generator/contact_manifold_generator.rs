@@ -23,6 +23,10 @@ pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
         id_alloc: &mut IdAllocator,
     ) -> bool;
 
+    /// Clears all spacial and time coherence information stored by this
+    /// generator and frees all its contact indices.
+    fn clear(&mut self, id_alloc: &mut IdAllocator);
+
     /// The number of contacts found.
     fn num_contacts(&self) -> usize;
 

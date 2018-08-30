@@ -1,7 +1,7 @@
-use std::mem;
 use na::{self, Real};
-use utils::{GenerationalId, IdAllocator};
 use query::{Contact, ContactKinematic, TrackedContact};
+use std::mem;
+use utils::{GenerationalId, IdAllocator};
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -11,7 +11,7 @@ enum CacheEntryStatus {
 }
 
 impl CacheEntryStatus {
-    fn is_obsolete(&self) -> bool {
+    fn is_unused(&self) -> bool {
         match *self {
             CacheEntryStatus::Unused => true,
             _ => false,
@@ -51,7 +51,7 @@ impl<N: Real> ContactManifold<N> {
             contacts: Vec::new(),
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
-            new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
+            new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly (just to avoid a per-update allocation).
         }
     }
 
@@ -99,17 +99,34 @@ impl<N: Real> ContactManifold<N> {
         }
     }
 
+    /// Empty the manifold as well as its cache.
+    pub fn clear(&mut self, gen: &mut IdAllocator) {
+        for c in &self.contacts {
+            gen.free(c.id)
+        }
+
+        for (valid, c) in self.cached_contact_used.iter_mut().zip(self.cache.iter()) {
+            if valid.is_unused() {
+                gen.free(c.id)
+            }
+            // NOTE: other contact ids have already been freed.
+        }
+
+        self.cache.clear();
+        self.contacts.clear();
+        self.cached_contact_used.clear();
+    }
+
     /// Save the contacts to a cache and empty the manifold.
     pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {
         for (valid, c) in self.cached_contact_used.iter_mut().zip(self.cache.iter()) {
-            if valid.is_obsolete() {
+            if valid.is_unused() {
                 gen.free(c.id)
             }
         }
 
         mem::swap(&mut self.contacts, &mut self.cache);
 
-        self.new_cached_contact_used.clear();
         self.new_cached_contact_used
             .resize(self.cache.len(), CacheEntryStatus::Unused);
 
@@ -118,12 +135,13 @@ impl<N: Real> ContactManifold<N> {
             &mut self.cached_contact_used,
         );
 
+        self.new_cached_contact_used.clear();
         self.contacts.clear();
         self.deepest = 0;
     }
 
     /// Add a new contact to the manifold.
-    /// 
+    ///
     /// The manifold will attempt to match this contact with another one
     /// previously added and added to the cache by the last call to
     /// `save_cache_and_clear`. The matching is done by spacial proximity, i.e.,
@@ -209,7 +227,7 @@ impl<N: Real> ContactManifold<N> {
         let mut matched = false;
 
         for i in 0..self.cache.len() {
-            if self.cached_contact_used[i].is_obsolete()
+            if self.cached_contact_used[i].is_unused()
                 && self.cache[i].kinematic.feature1() == kinematic.feature1()
                 && self.cache[i].kinematic.feature2() == kinematic.feature2()
             {

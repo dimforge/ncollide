@@ -28,7 +28,7 @@ impl<N: Real> ConvexPolygon<N> {
         Self::try_new(vertices)
     }
 
-    /// Creates a new 2D convex polygon from a set of points assumed to describe a convex polyline.
+    /// Creates a new 2D convex polygon from a set of points assumed to describe a counter-clockwise convex polyline.
     ///
     /// Convexity of the input polyline is not checked.
     /// Returns `None` if some consecutive points are identical (or too close to being so).

@@ -107,6 +107,10 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         }
     }
 
+    fn clear(&mut self, id_alloc: &mut IdAllocator) {
+        self.manifold.clear(id_alloc)
+    }
+
     #[inline]
     fn num_contacts(&self) -> usize {
         self.manifold.len()
