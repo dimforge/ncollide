@@ -148,8 +148,9 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                         // Register a collision lost event if there was a contact.
                         if detector.num_contacts() != 0 {
                             contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
-                            detector.clear(&mut self.id_alloc);
                         }
+
+                        detector.clear(&mut self.id_alloc);
                     }
                 }
             }
