@@ -243,6 +243,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
+    println!("Performing cast");
     let mut ltoi: N = na::zero();
     let _eps_tol = eps_tol();
 
@@ -259,6 +260,7 @@ where
 
     loop {
         niter += 1;
+        println!("Current ray: {:?}", curr_ray);
         if dir.normalize_mut().is_zero() {
             return Some((ltoi, ldir));
         }
@@ -267,7 +269,7 @@ where
 
         // Clip the ray on the support plane (None <=> t < 0)
         // The configurations are:
-        //   dir.dot(ray.dir)  |   t   |               Action
+        //   dir.dot(curr_ray.dir)  |   t   |               Action
         // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
         //          < 0        |  < 0  | Continue.
         //          < 0        |  > 0  | New lower bound, move the origin.
@@ -275,20 +277,22 @@ where
         //          > 0        |  > 0  | New higher bound.
         match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
-                if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
+                if na::dot(&dir, &curr_ray.dir) < na::zero() && t > _eps_tol {
                     // new lower bound
                     ldir = dir;
                     ltoi = ltoi + t;
-                    curr_ray.origin = ray.origin + ray.dir * ltoi;
+                    curr_ray.origin = curr_ray.origin + curr_ray.dir * ltoi;
                     dir = curr_ray.origin - support_point.point;
                     // FIXME: could we simply translate the simplex by old_origin - new_origin ?
                     simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
                     old_max_bound = Bounded::max_value();
+                    simplex_init = true;
                     continue;
                 }
             }
             None => {
-                if na::dot(&dir, &ray.dir) > N::zero() {
+                if na::dot(&dir, &curr_ray.dir) > N::default_epsilon() {
+                    println!("[{}] Exis1: {}, {}", niter, dir, curr_ray.dir);
                     // miss
                     return None;
                 }
@@ -299,6 +303,7 @@ where
             simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
             simplex_init = true;
         } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
+            println!("Exis2");
             return None;
         }
 
@@ -306,14 +311,17 @@ where
         let max_bound = na::norm_squared(&proj);
 
         if simplex.dimension() == DIM {
+            println!("Exis3");
             return Some((ltoi, ldir));
         } else if max_bound <= _eps_tol || max_bound <= _eps_tol * simplex.max_sq_len() {
             // FIXME: we use the same tolerence for absolute and relative epsilons. This could be improved.
             // Return ldir: the last projection plane is tangeant to the intersected surface.
+            println!("Exis4");
             return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
             // Use dir instead of proj since this situations means that the new projection is less
             // accurate than the last one (which is stored on dir).
+            println!("Exis5");
             return Some((ltoi, dir));
         }
 

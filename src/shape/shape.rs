@@ -1,21 +1,33 @@
-use std::mem;
+// Queries.
+use bounding_volume::{AABB, BoundingSphere};
+use math::Isometry;
+use na::{self, Real};
+use query::{PointQuery, RayCast};
+// Repr.
+use shape::{CompositeShape, ConvexPolyhedron, DeformableShape, SupportMap};
 use std::any::{Any, TypeId};
+use std::mem;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use na::{self, Real};
 
-// Repr.
-use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
-// Queries.
-use bounding_volume::{BoundingSphere, AABB};
-use query::{PointQuery, RayCast};
-use math::Isometry;
+pub trait ShapeClone<N: Real> {
+    fn clone_box(&self) -> Box<Shape<N>> {
+        unimplemented!()
+    }
+}
+
+impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T
+{
+    fn clone_box(&self) -> Box<Shape<N>> {
+        Box::new(self.clone())
+    }
+}
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
+pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
@@ -65,13 +77,21 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
         None
     }
 
-    /// Whether `self` uses a conve polyhedron representation.
+    /// The deformable shape representation of `self` if applicable.
+    #[inline]
+    fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> { None }
+
+    /// The mutable deformable shape representation of `self` if applicable.
+    #[inline]
+    fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> { None }
+
+    /// Whether `self` uses a convex polyhedron representation.
     #[inline]
     fn is_convex_polyhedron(&self) -> bool {
         self.as_convex_polyhedron().is_some()
     }
 
-    /// Whether `self` uses a supportmapping-based representation.
+    /// Whether `self` uses a support-mapping based representation.
     #[inline]
     fn is_support_map(&self) -> bool {
         self.as_support_map().is_some()
@@ -82,8 +102,15 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
     fn is_composite_shape(&self) -> bool {
         self.as_composite_shape().is_some()
     }
+
+    /// Whether `self` uses a composite shape-based representation.
+    #[inline]
+    fn is_deformable_shape(&self) -> bool {
+        self.as_deformable_shape().is_some()
+    }
 }
 
+// FIXME: use the downcast-rs crate instead
 // Define our own because it is unstable.
 /// Raw representation of a trait-object.
 #[repr(C)]
@@ -117,26 +144,36 @@ impl<N: Real> Shape<N> {
     }
 }
 
+impl<N: Real> Clone for Box<Shape<N>> {
+    fn clone(&self) -> Box<Shape<N>> {
+        self.clone_box()
+    }
+}
+
 /// A shared immutable handle to an abstract shape.
 #[derive(Clone)]
 pub struct ShapeHandle<N: Real> {
-    handle: Arc<Shape<N>>,
+    handle: Arc<Box<Shape<N>>>,
 }
 
 impl<N: Real> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
-    pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
+    pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
         ShapeHandle {
-            handle: Arc::new(shape),
+            handle: Arc::new(Box::new(shape)),
         }
+    }
+
+    pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
+        &mut **Arc::make_mut(&mut self.handle)
     }
 }
 
 impl<N: Real> AsRef<Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &Shape<N> {
-        self.deref()
+        &*self.deref()
     }
 }
 
@@ -145,7 +182,7 @@ impl<N: Real> Deref for ShapeHandle<N> {
 
     #[inline]
     fn deref(&self) -> &Shape<N> {
-        self.handle.deref()
+        &**self.handle.deref()
     }
 }
 

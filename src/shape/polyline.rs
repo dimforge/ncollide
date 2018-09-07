@@ -1,15 +1,17 @@
 //! 2d line strip, 3d segment mesh, and nd subsimplex mesh.
 
+use bounding_volume::AABB;
+use math::{Isometry, Point};
 use na::Real;
 use partitioning::BVT;
-use bounding_volume::AABB;
 use shape::{CompositeShape, Segment, Shape};
-use math::{Isometry, Point};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
+#[derive(Clone)]
 pub struct Polyline<N: Real> {
     bvt: BVT<usize, AABB<N>>,
-    bvs: Vec<AABB<N>>, // FIXME: duplicate of what is already of the BVT.
+    bvs: Vec<AABB<N>>,
+    // FIXME: duplicate of what is already of the BVT.
     vertices: Vec<Point<N>>,
 }
 

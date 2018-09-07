@@ -1,14 +1,12 @@
-use std::collections::{HashMap, hash_map::Entry};
-
-use na::{self, Real};
+use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
+use na::{self, Real};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use query::{ContactManifold, ContactPrediction, visitors::BoundingVolumeInterferencesCollector};
+use shape::{CompositeShape, Shape};
+use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
 use utils::IdAllocator;
-use bounding_volume::{self, BoundingVolume};
-use partitioning::BoundingVolumeInterferencesCollector;
-use shape::{CompositeShape, Shape};
-use query::{ContactManifold, ContactPrediction};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N> {
@@ -91,7 +89,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                                 m1,
                                 g1,
                                 prediction,
-                                id_alloc
+                                id_alloc,
                             ),
                             "Internal error: the shape was no longer valid."
                         );
@@ -106,7 +104,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                                 m2,
                                 g2,
                                 prediction,
-                                id_alloc
+                                id_alloc,
                             ),
                             "Internal error: the shape was no longer valid."
                         );
@@ -126,7 +124,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N>
-    for CompositeShapeShapeManifoldGenerator<N>
+for CompositeShapeShapeManifoldGenerator<N>
 {
     fn update(
         &mut self,

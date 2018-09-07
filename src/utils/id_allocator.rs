@@ -56,4 +56,9 @@ impl IdAllocator {
         }
         self.generator.remove(id.id)
     }
+
+    /// Number of allocated IDs.
+    pub fn len(&self) -> usize {
+        self.generator.len()
+    }
 }

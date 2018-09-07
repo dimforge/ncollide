@@ -2,7 +2,6 @@
 
 #[doc(inline)]
 pub use self::point_query::{PointProjection, PointQuery, PointQueryWithLocation};
-pub use self::point_bvt::PointInterferencesCollector;
 
 #[doc(hidden)]
 pub mod point_query;
@@ -22,4 +21,3 @@ mod point_polyline;
 #[cfg(feature = "dim3")]
 mod point_trimesh;
 mod point_shape;
-mod point_bvt;

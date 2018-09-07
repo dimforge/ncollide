@@ -1,10 +1,10 @@
-use na::{self, Real};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{FeatureId, TriMesh, TrianglePointLocation};
 use bounding_volume::AABB;
-use partitioning::{BVTCostFn, BVTVisitor};
-use utils::IsometryOps;
 use math::{Isometry, Point};
+use na::{self, Real};
+use partitioning::BVTCostFn;
+use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::PointContainmentTest};
+use shape::{FeatureId, TrianglePointLocation, TriMesh};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
@@ -27,15 +27,15 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut test = PointContainementTest {
-            polyline: self,
+        let mut visitor = PointContainmentTest {
+            shape: self,
             point: &ls_pt,
             found: false,
         };
 
-        self.bvt().visit(&mut test);
+        self.bvt().visit(&mut visitor);
 
-        test.found
+        visitor.found
     }
 }
 
@@ -88,33 +88,5 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshPointProjCostFn<'a, N>
 
         let extra_info = (*b, extra_info);
         Some((na::distance(self.point, &proj.point), (proj, extra_info)))
-    }
-}
-
-/*
- * Visitor.
- */
-/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
-struct PointContainementTest<'a, N: 'a + Real> {
-    polyline: &'a TriMesh<N>,
-    point: &'a Point<N>,
-    found: bool,
-}
-
-impl<'a, N: Real> BVTVisitor<usize, AABB<N>> for PointContainementTest<'a, N> {
-    #[inline]
-    fn visit_internal(&mut self, bv: &AABB<N>) -> bool {
-        !self.found && bv.contains_point(&Isometry::identity(), self.point)
-    }
-
-    #[inline]
-    fn visit_leaf(&mut self, b: &usize, bv: &AABB<N>) {
-        if !self.found && bv.contains_point(&Isometry::identity(), self.point)
-            && self.polyline
-                .triangle_at(*b)
-                .contains_point(&Isometry::identity(), self.point)
-        {
-            self.found = true;
-        }
     }
 }

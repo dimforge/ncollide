@@ -1,22 +1,23 @@
-use std::any::Any;
-use std::mem;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
-use slab::Slab;
-
-use na::Real;
+use bounding_volume::BoundingVolume;
 use math::Point;
-use utils::{DeterministicState, SortedPair};
-use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
-use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
+use na::Real;
+use partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
+use query::{PointQuery, Ray, RayCast};
+use query::visitors::{BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector};
+use slab::Slab;
+use std::any::Any;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::mem;
+use utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
-    Detached(Option<usize>), // The usize is the location of the corresponding on proxies_to_update
+    Detached(Option<usize>),
+    // The usize is the location of the corresponding on proxies_to_update
     Deleted,
 }
 
@@ -51,10 +52,14 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<N, ProxyHandle, BV>,  // DBVT for moving objects.
-    stree: DBVT<N, ProxyHandle, BV>, // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
-    margin: N,                       // The margin added to each bounding volume.
+    tree: DBVT<N, ProxyHandle, BV>,
+    // DBVT for moving objects.
+    stree: DBVT<N, ProxyHandle, BV>,
+    // DBVT for static objects.
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    // Pairs detected.
+    margin: N,
+    // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -65,9 +70,9 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: 'static + BoundingVolume<N> + Clone,
+    where
+        N: Real,
+        BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -167,10 +172,10 @@ where
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-    T: Any + Send + Sync,
+    where
+        N: Real,
+        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+        T: Any + Send + Sync,
 {
     fn update(
         &mut self,

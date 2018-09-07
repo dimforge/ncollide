@@ -2,12 +2,12 @@
 
 #[doc(inline)]
 pub use self::ray::{Ray, RayCast, RayIntersection};
+pub use self::ray_ball::ball_toi_with_ray;
+pub use self::ray_bvt::RayIntersectionCostFn;
 pub use self::ray_plane::{plane_toi_with_line, plane_toi_with_ray};
+pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
 #[cfg(feature = "dim3")]
 pub use self::ray_triangle::triangle_ray_intersection;
-pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
-pub use self::ray_ball::ball_toi_with_ray;
-pub use self::ray_bvt::{RayInterferencesCollector, RayIntersectionCostFn};
 
 #[doc(hidden)]
 pub mod ray;

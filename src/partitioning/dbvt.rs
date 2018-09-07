@@ -1,11 +1,9 @@
-use slab::Slab;
-use std::ops::Index;
-
-use na::{self, Real};
-
 use bounding_volume::BoundingVolume;
 use math::Point;
-use partitioning::BVTVisitor;
+use na::{self, Real};
+use partitioning::{self, PartitioningStructure, SimultaneousVisitor, Visitor};
+use slab::Slab;
+use std::ops::Index;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// The unique identifier of a DBVT leaf.
@@ -39,28 +37,29 @@ enum DBVTInternalId {
     Root,
 }
 
+/// The identifier of a node of the DBVT.
 #[derive(Copy, Clone, Debug, Hash)]
-enum DBVTNodeId {
+pub enum DBVTNodeId {
     Leaf(usize),
     Internal(usize),
 }
 
 /// A boundin volume hierarchy on which objects can be added or removed after construction.
-pub struct DBVT<N: Real, B, BV> {
+pub struct DBVT<N: Real, T, BV> {
     root: DBVTNodeId,
-    leaves: Slab<DBVTLeaf<N, B, BV>>,
+    leaves: Slab<DBVTLeaf<N, T, BV>>,
     internals: Slab<DBVTInternal<N, BV>>,
 }
 
 /// Leaf of a Dynamic Bounding Volume Tree.
 #[derive(Clone)]
-pub struct DBVTLeaf<N: Real, B, BV> {
+pub struct DBVTLeaf<N: Real, T, BV> {
     /// The bounding volume of this node.
     pub bounding_volume: BV,
     /// The center of this node bounding volume.
     pub center: Point<N>,
     /// An user-defined data.
-    pub data: B,
+    pub data: T,
     /// This node parent.
     parent: DBVTInternalId,
 }
@@ -81,9 +80,9 @@ struct DBVTInternal<N: Real, BV> {
     state: UpdateStatus,
 }
 
-impl<N: Real, B, BV: BoundingVolume<N>> DBVTLeaf<N, B, BV> {
+impl<N: Real, T, BV: BoundingVolume<N>> DBVTLeaf<N, T, BV> {
     /// Creates a new DBVT leaf from its bounding volume and contained data.
-    pub fn new(bounding_volume: BV, data: B) -> DBVTLeaf<N, B, BV> {
+    pub fn new(bounding_volume: BV, data: T) -> DBVTLeaf<N, T, BV> {
         DBVTLeaf {
             center: bounding_volume.center(),
             bounding_volume: bounding_volume,
@@ -120,9 +119,9 @@ impl<N: Real, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
     }
 }
 
-impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
+impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
     /// Creates a new empty dynamic bonding volume hierarchy.
-    pub fn new() -> DBVT<N, B, BV> {
+    pub fn new() -> DBVT<N, T, BV> {
         DBVT {
             root: DBVTNodeId::Leaf(0),
             leaves: Slab::new(),
@@ -137,7 +136,7 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
     }
 
     /// Inserts a leaf into this DBVT.
-    pub fn insert(&mut self, leaf: DBVTLeaf<N, B, BV>) -> DBVTLeafId {
+    pub fn insert(&mut self, leaf: DBVTLeaf<N, T, BV>) -> DBVTLeafId {
         if self.is_empty() {
             let new_id = self.leaves.insert(leaf);
             self.leaves[new_id].parent = DBVTInternalId::Root;
@@ -239,7 +238,7 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
     /// Removes a leaf from this DBVT.
     ///
     /// Panics if the provided leaf is not attached to this DBVT.
-    pub fn remove(&mut self, leaf_id: DBVTLeafId) -> DBVTLeaf<N, B, BV> {
+    pub fn remove(&mut self, leaf_id: DBVTLeafId) -> DBVTLeaf<N, T, BV> {
         let DBVTLeafId(leaf_id) = leaf_id;
         let leaf = self.leaves.remove(leaf_id);
 
@@ -309,38 +308,69 @@ impl<N: Real, B, BV: BoundingVolume<N>> DBVT<N, B, BV> {
         leaf
     }
 
-    /// Traverses this tree using an object implementing the `BVTVisitor`trait.
-    ///
-    /// This will traverse the whole tree and call the visitor `.visit_internal(...)` (resp.
-    /// `.visit_leaf(...)`) method on each internal (resp. leaf) node.
-    pub fn visit<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis) {
-        if !self.is_empty() {
-            self.visit_node(visitor, self.root);
-        }
+    /// Traverses this tree using a visitor.
+    pub fn visit<Vis: Visitor<T, BV>>(&self, visitor: &mut Vis) {
+        // FIXME: avoid the Vec allocation?
+        partitioning::visit(self, visitor, &mut Vec::new());
     }
 
-    fn visit_node<Vis: BVTVisitor<B, BV>>(&self, visitor: &mut Vis, node: DBVTNodeId) {
-        match node {
-            DBVTNodeId::Internal(i) => {
-                let internal = &self.internals[i];
-                if visitor.visit_internal(&internal.bounding_volume) {
-                    self.visit_node(visitor, internal.left);
-                    self.visit_node(visitor, internal.right);
-                }
-            }
-            DBVTNodeId::Leaf(i) => {
-                let leaf = &self.leaves[i];
-                visitor.visit_leaf(&leaf.data, &leaf.bounding_volume);
-            }
-        }
+    /// Visits the bounding volume traversal tree implicitly formed with `other`.
+    pub fn visit_bvtt<Vis: SimultaneousVisitor<T, BV>>(&self, other: &DBVT<N, T, BV>, visitor: &mut Vis) {
+        // FIXME: preallocate the vec?
+        partitioning::simultaneous_visit(self, other, visitor, &mut Vec::new())
     }
 }
 
-impl<N: Real, B, BV> Index<DBVTLeafId> for DBVT<N, B, BV> {
-    type Output = DBVTLeaf<N, B, BV>;
+impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
+    type Output = DBVTLeaf<N, T, BV>;
 
     #[inline]
     fn index(&self, DBVTLeafId(id): DBVTLeafId) -> &Self::Output {
         &self.leaves[id]
+    }
+}
+
+impl<'a, N: Real, T, BV> PartitioningStructure<T, BV> for DBVT<N, T, BV> {
+    type Node = DBVTNodeId;
+
+    fn root(&self) -> Option<Self::Node> {
+        if self.leaves.len() != 0 {
+            Some(self.root)
+        } else {
+            None
+        }
+    }
+
+    fn num_children(&self, node: Self::Node) -> usize {
+        match node {
+            DBVTNodeId::Internal(_) => 2,
+            DBVTNodeId::Leaf(_) => 0
+        }
+    }
+
+    fn child(&self, i: usize, node: Self::Node) -> Self::Node {
+        match node {
+            DBVTNodeId::Internal(_) => {
+                if i == 0 {
+                    self.internals[i].left
+                } else {
+                    self.internals[i].right
+                }
+            }
+            DBVTNodeId::Leaf(_) => panic!("DBVT child index out of bounds.")
+        }
+    }
+
+    fn content(&self, node: Self::Node) -> (&BV, Option<&T>) {
+        match node {
+            DBVTNodeId::Internal(i) => {
+                let node = &self.internals[i];
+                (&node.bounding_volume, None)
+            }
+            DBVTNodeId::Leaf(i) => {
+                let node = &self.leaves[i];
+                (&node.bounding_volume, Some(&node.data))
+            }
+        }
     }
 }

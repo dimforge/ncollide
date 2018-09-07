@@ -50,6 +50,7 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         proximity_events: &mut ProximityEvents,
         timestamp: usize,
     ) {
+        println!("NF structure lenghts: {}, {}, {}", self.id_alloc.len(), self.contact_generators.len(), self.proximity_detectors.len());
         for (key, value) in self.contact_generators.iter_mut() {
             let co1 = &objects[key.0];
             let co2 = &objects[key.1];

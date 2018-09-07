@@ -1,7 +1,4 @@
-use std::mem;
-use std::vec::IntoIter;
-
-use bounding_volume::{self, BoundingVolume, AABB};
+use bounding_volume::{self, AABB, BoundingVolume};
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::broad_phase::{
@@ -14,10 +11,12 @@ use pipeline::narrow_phase::{
 };
 use pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
-    CollisionObjectSlab, CollisionObjects, GeometricQueryType,
+    CollisionObjects, CollisionObjectSlab, GeometricQueryType,
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
 use shape::ShapeHandle;
+use std::mem;
+use std::vec::IntoIter;
 
 /// Type of the narrow phase trait-object used by the collision world.
 pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
@@ -98,6 +97,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// 2. Executes the broad phase first.
     /// 3. Executes the narrow phase.
     pub fn update(&mut self) {
+        println!("Structures lens: {}, {}, {}",
+                 self.objects.len(),
+                 self.contact_events.len(),
+                 self.proximity_events.len());
         self.clear_events();
         self.perform_broad_phase();
         self.perform_narrow_phase();
@@ -159,6 +162,20 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .deferred_set_bounding_volume(co.proxy_handle(), aabb);
     }
 
+    /// Apply the given deformations to the specified object.
+    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: &[usize]) {
+        let co = self
+            .objects
+            .get_mut(handle)
+            .expect("Set deformations: collision object not found.");
+        co.set_deformations(coords, indices);
+        co.timestamp = self.timestamp;
+        let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
+        aabb.loosen(co.query_type().query_limit());
+        self.broad_phase
+            .deferred_set_bounding_volume(co.proxy_handle(), aabb);
+    }
+
     /// Adds a filter that tells if a potential collision pair should be ignored or not.
     ///
     /// The proximity filter returns `false` for a given pair of collision objects if they should
@@ -166,8 +183,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-    where
-        F: BroadPhasePairFilter<N, T>,
+        where
+            F: BroadPhasePairFilter<N, T>,
     {
         self.pair_filters
             .register_collision_filter(name, Box::new(filter));
@@ -421,9 +438,9 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 
             if co.collision_groups().can_interact_with_groups(self.groups)
                 && co.shape().contains_point(&co.position(), self.point)
-            {
-                return Some(co);
-            }
+                {
+                    return Some(co);
+                }
         }
 
         None

@@ -1,10 +1,9 @@
-use na::{self, Real};
-
 use bounding_volume::BoundingVolume;
 use math::Isometry;
-use partitioning::BoundingVolumeInterferencesCollector;
-use query::contacts_internal;
+use na::{self, Real};
 use query::Contact;
+use query::contacts_internal;
+use query::visitors::BoundingVolumeInterferencesCollector;
 use shape::{CompositeShape, Shape};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
@@ -15,8 +14,8 @@ pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
     g2: &Shape<N>,
     prediction: N,
 ) -> Option<Contact<N>>
-where
-    G1: CompositeShape<N>,
+    where
+        G1: CompositeShape<N>,
 {
     // Find new collisions
     let ls_m2 = na::inverse(m1) * m2.clone();
@@ -60,8 +59,8 @@ pub fn shape_against_composite_shape<N: Real, G2: ?Sized>(
     g2: &G2,
     prediction: N,
 ) -> Option<Contact<N>>
-where
-    G2: CompositeShape<N>,
+    where
+        G2: CompositeShape<N>,
 {
     let mut res = composite_shape_against_shape(m2, g2, m1, g1, prediction);
 

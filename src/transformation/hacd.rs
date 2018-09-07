@@ -1,18 +1,16 @@
-use num::{Bounded, Zero};
-use std::cmp::Ordering;
-use std::collections::hash_map::Entry;
-use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::mem;
-
-use na::{self, Point3, Real, Translation3, Vector2, Vector3};
-
-use bounding_volume::{self, BoundingVolume, AABB};
+use bounding_volume::{self, AABB, BoundingVolume};
 use math::Isometry;
-use partitioning::{BoundingVolumeInterferencesCollector, BVT};
+use na::{self, Point3, Real, Translation3, Vector2, Vector3};
+use num::{Bounded, Zero};
+use partitioning::BVT;
 use procedural::{IndexBuffer, TriMesh};
+use query::{Ray, ray_internal, RayCast, RayIntersection, visitors::BoundingVolumeInterferencesCollector};
 use query::algorithms::VoronoiSimplex;
-use query::{ray_internal, Ray, RayCast, RayIntersection};
 use shape::SupportMap;
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::hash_map::Entry;
+use std::mem;
 use transformation;
 use utils;
 
@@ -181,8 +179,10 @@ fn denormalize<N: Real>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
 
 struct DualGraphVertex<N: Real> {
     // XXX: Loss of determinism because of the randomized HashSet.
-    neighbors: Option<HashSet<usize>>, // vertices adjascent to this one.
-    ancestors: Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
+    neighbors: Option<HashSet<usize>>,
+    // vertices adjascent to this one.
+    ancestors: Option<Vec<VertexWithConcavity<N>>>,
+    // faces from the original surface.
     uancestors: Option<HashSet<usize>>,
     border: Option<HashSet<Vector2<usize>>>,
     chull: Option<TriMesh<N>>,
@@ -404,9 +404,9 @@ impl<N: Real> DualGraphEdge<N> {
         for d in border_1
             .symmetric_difference(border_2)
             .map(|e| na::distance(&coords[e.x], &coords[e.y]))
-        {
-            perimeter = perimeter + d;
-        }
+            {
+                perimeter = perimeter + d;
+            }
 
         let area = dual_graph[v1].area + dual_graph[v2].area;
 
@@ -508,10 +508,10 @@ impl<N: Real> DualGraphEdge<N> {
 
             if self.iv1 != a1.len()
                 && (self.iv2 == a2.len() || a1[self.iv1].concavity > a2[self.iv2].concavity)
-            {
-                id = a1[self.iv1].id;
-                self.iv1 = self.iv1 + 1;
-            } else {
+                {
+                    id = a1[self.iv1].id;
+                    self.iv1 = self.iv1 + 1;
+                } else {
                 id = a2[self.iv2].id;
                 self.iv2 = self.iv2 + 1;
             }

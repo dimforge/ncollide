@@ -20,6 +20,9 @@ pub use self::convex_polyhedron::{ConvexPolyhedron, FeatureId};
 pub use self::cuboid::Cuboid;
 #[cfg(feature = "dim3")]
 pub use self::cylinder::Cylinder;
+pub use self::deformable_shape::{DeformableShape, DeformationType};
+//#[cfg(feature = "dim3")]
+//pub use self::deformable_trimesh::DeformableTriMesh;
 pub use self::plane::Plane;
 pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
@@ -66,3 +69,6 @@ mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
+mod deformable_shape;
+//#[cfg(feature = "dim3")]
+//mod deformable_trimesh;

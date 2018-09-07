@@ -1,10 +1,10 @@
-use na::{self, Real};
-use utils::IsometryOps;
-use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
-use shape::{CompositeShape, Compound, FeatureId};
-use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Isometry, Point};
+use na::{self, Real};
+use partitioning::{BVTCostFn, Visitor, VisitStatus};
+use query::{PointProjection, PointQuery, visitors::PointContainmentTest};
+use shape::{CompositeShape, Compound, FeatureId};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.
@@ -37,15 +37,15 @@ impl<N: Real> PointQuery<N> for Compound<N> {
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut test = PointContainementTest {
-            compound: self,
+        let mut visitor = PointContainmentTest {
+            shape: self,
             point: &ls_pt,
             found: false,
         };
 
-        self.bvt().visit(&mut test);
+        self.bvt().visit(&mut visitor);
 
-        test.found
+        visitor.found
     }
 }
 
@@ -77,31 +77,5 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for CompoundPointProjCostFn<'a, N
         });
 
         res
-    }
-}
-
-/*
- * Visitor.
- */
-/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
-struct PointContainementTest<'a, N: 'a + Real> {
-    compound: &'a Compound<N>,
-    point: &'a Point<N>,
-    found: bool,
-}
-
-impl<'a, N: Real> BVTVisitor<usize, AABB<N>> for PointContainementTest<'a, N> {
-    #[inline]
-    fn visit_internal(&mut self, bv: &AABB<N>) -> bool {
-        !self.found && bv.contains_point(&Isometry::identity(), self.point)
-    }
-
-    #[inline]
-    fn visit_leaf(&mut self, b: &usize, bv: &AABB<N>) {
-        if !self.found && bv.contains_point(&Isometry::identity(), self.point) {
-            self.compound.map_part_at(*b, &mut |_, objm, obj| {
-                self.found = obj.contains_point(objm, self.point)
-            })
-        }
     }
 }

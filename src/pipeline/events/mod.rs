@@ -1,9 +1,9 @@
 //! Structures for describing and storing collision-related events.
 
-use std::slice::Iter;
-use std::iter::IntoIterator;
-use query::Proximity;
 use pipeline::world::CollisionObjectHandle;
+use query::Proximity;
+use std::iter::IntoIterator;
+use std::slice::Iter;
 
 // FIXME: we want a structure where we can add elements, iterate on them, but not remove them
 // without clearing the whole structure.
@@ -40,10 +40,15 @@ impl<E> EventPool<E> {
 
     /// Removes from this set all events for which `filter` returns `false`.
     pub fn retain<F>(&mut self, filter: F)
-    where
-        F: FnMut(&E) -> bool,
+        where
+            F: FnMut(&E) -> bool,
     {
         self.events.retain(filter)
+    }
+
+    /// The number of events on this pool.
+    pub fn len(&self) -> usize {
+        self.events.len()
     }
 }
 

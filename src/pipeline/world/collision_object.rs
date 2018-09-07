@@ -1,13 +1,12 @@
-use std::ops::{Index, IndexMut};
-use slab::{Iter, Slab};
-
 use alga::general::Real;
-
-use shape::ShapeHandle;
-use query::ContactPrediction;
+use math::Isometry;
 use pipeline::broad_phase::ProxyHandle;
 use pipeline::world::CollisionGroups;
-use math::Isometry;
+use query::ContactPrediction;
+use shape::ShapeHandle;
+use slab::{Iter, Slab};
+use std::ops::{Index, IndexMut};
+
 
 /// The kind of query a CollisionObject may be involved on.
 ///
@@ -151,6 +150,17 @@ impl<N: Real, T> CollisionObject<N, T> {
         self.position = pos
     }
 
+    /// Deforms the underlying shape if possible.
+    ///
+    /// Panics if the shape is not deformable.
+    #[inline]
+    pub fn set_deformations(&mut self, coords: &[N], indices: &[usize]) {
+        self.shape.make_mut()
+            .as_deformable_shape_mut()
+            .expect("Attempting to deform a non-deformable shape.")
+            .set_deformations(coords, indices)
+    }
+
     /// The collision object shape.
     #[inline]
     pub fn shape(&self) -> &ShapeHandle<N> {
@@ -255,6 +265,12 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
         CollisionObjects {
             iter: self.objects.iter(),
         }
+    }
+
+    /// The number of collision objects in this slab.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.objects.len()
     }
 }
 

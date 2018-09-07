@@ -1,23 +1,19 @@
 //! Bounding volumes.
 
 #[doc(inline)]
-pub use bounding_volume::bounding_volume::{BoundingVolume, HasBoundingVolume};
-#[doc(inline)]
 pub use bounding_volume::aabb::{aabb, AABB};
+pub use bounding_volume::aabb_ball::ball_aabb;
+pub use bounding_volume::aabb_utils::{point_cloud_aabb, support_map_aabb};
 #[doc(inline)]
 pub use bounding_volume::bounding_sphere::{bounding_sphere, BoundingSphere};
-
-pub use bounding_volume::aabb_utils::{point_cloud_aabb, support_map_aabb};
-pub use bounding_volume::aabb_ball::ball_aabb;
 pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere,
                                                  point_cloud_bounding_sphere_with_center};
-pub use bounding_volume::bounding_volume_bvt::BoundingVolumeInterferencesCollector;
-
+#[doc(inline)]
+pub use bounding_volume::bounding_volume::{BoundingVolume, HasBoundingVolume};
 pub use self::polyhedral_cone::PolyhedralCone;
 
 #[doc(hidden)]
 pub mod bounding_volume;
-mod bounding_volume_bvt;
 
 #[doc(hidden)]
 pub mod aabb;
