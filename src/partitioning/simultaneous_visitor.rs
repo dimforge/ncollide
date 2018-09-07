@@ -1,10 +1,16 @@
 use partitioning::{PartitioningStructure, VisitStatus};
 
+/// Trait implemented by visitor called during a simultaneous spatial partitioning data structure tarversal.
 pub trait SimultaneousVisitor<T, BV> {
+    /// Execute an operation on the content of two nodes, one from each structure.
+    ///
+    /// Returns whether the traversal should continue on the nodes children, if it should not continue
+    /// on those children, or if the whole traversal should be exited early.
     fn visit_pair(&mut self, left_bv: &BV, left_data: Option<&T>, right_bv: &BV, right_data: Option<&T>) -> VisitStatus;
 }
 
 
+/// Executes a simultaneous traversal of two spatial partitioning data structures.
 pub fn simultaneous_visit<P1, P2, T, BV>(part1: &P1,
                                          part2: &P2,
                                          visitor: &mut impl SimultaneousVisitor<T, BV>,

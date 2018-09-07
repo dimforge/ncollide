@@ -267,7 +267,7 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
         }
     }
 
-    /// The number of collision objects in this slab.
+    /// The number of collision objects on this slab.
     #[inline]
     pub fn len(&self) -> usize {
         self.objects.len()

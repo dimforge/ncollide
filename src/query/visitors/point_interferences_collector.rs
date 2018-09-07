@@ -5,9 +5,11 @@ use query::PointQuery;
 
 // FIXME: add a point cost fn.
 
-/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
+/// Spatial partitioning structure visitor collecting nodes that may contain a given point.
 pub struct PointInterferencesCollector<'a, N: 'a + Real, T: 'a> {
+    /// Point to be tested.
     pub point: &'a Point<N>,
+    /// The data contained by the nodes which bounding volume contain `self.point`.
     pub collector: &'a mut Vec<T>,
 }
 

@@ -6,7 +6,9 @@ use query::{Ray, RayCast};
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
 pub struct RayInterferencesCollector<'a, N: 'a + Real, T: 'a> {
+    /// Ray to be tested.
     pub ray: &'a Ray<N>,
+    /// The data contained by the nodes which bounding volume intersects `self.ray`.
     pub collector: &'a mut Vec<T>,
 }
 

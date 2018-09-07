@@ -4,9 +4,11 @@ use partitioning::{Visitor, VisitStatus};
 use std::marker::PhantomData;
 
 
-/// Bounding Volume Tree visitor collecting interferences with a given bounding volume.
+/// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
 pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, T: 'a, BV: 'a> {
+    /// The bounding volume used for interference tests.
     pub bv: &'a BV,
+    /// The data contained by the nodes with bounding volumes intersecting `self.bv`.
     pub collector: &'a mut Vec<T>,
     _point: PhantomData<N>,
 }

@@ -1,3 +1,5 @@
+//! Visitors for performing geometric queries exploiting spatial partitioning data structures.
+
 pub use self::bounding_volume_interferences_collector::BoundingVolumeInterferencesCollector;
 pub use self::point_containment_test::PointContainmentTest;
 pub use self::point_interferences_collector::PointInterferencesCollector;

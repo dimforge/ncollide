@@ -47,6 +47,7 @@ impl<E> EventPool<E> {
     }
 
     /// The number of events on this pool.
+    #[inline]
     pub fn len(&self) -> usize {
         self.events.len()
     }

@@ -5,10 +5,13 @@ use partitioning::{Visitor, VisitStatus};
 use query::PointQuery;
 use shape::CompositeShape;
 
-/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
+/// Visitor for checking if a composite shape contains a specific point.
 pub struct PointContainmentTest<'a, N: 'a + Real, S: 'a + CompositeShape<N>> {
+    /// The composite shape on which the point containment test should be performed.
     pub shape: &'a S,
+    /// The point to be tested.
     pub point: &'a Point<N>,
+    /// A traversal will set this to `true` if the point is inside of `self.shape`.
     pub found: bool,
 }
 
