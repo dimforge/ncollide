@@ -1,9 +1,9 @@
-/// Trait implemented by spatial partitioning data structures.
-pub trait PartitioningStructure<T, BV> {
-    /// A node of this structure.
+/// Trait implemented by Bounding Volume Hierarchy.
+pub trait BVH<T, BV> {
+    /// Type of a node of this BVH.
     type Node: Copy;
 
-    /// The root of the structure.
+    /// The root of the BVH.
     fn root(&self) -> Option<Self::Node>;
     /// The number of children of the given node.
     fn num_children(&self, node: Self::Node) -> usize;

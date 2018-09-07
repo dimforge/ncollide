@@ -1,8 +1,8 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::BVTCostFn;
-use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::PointContainmentTest};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::CompositePointContainmentTest};
 use shape::{CompositeShape, FeatureId, Polyline, SegmentPointLocation};
 use utils::IsometryOps;
 
@@ -27,7 +27,7 @@ impl<N: Real> PointQuery<N> for Polyline<N> {
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut visitor = PointContainmentTest {
+        let mut visitor = CompositePointContainmentTest {
             shape: self,
             point: &ls_pt,
             found: false,
@@ -50,12 +50,12 @@ impl<N: Real> PointQueryWithLocation<N> for Polyline<N> {
         _: bool,
     ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = PolylinePointProjCostFn {
+        let mut visitor = PolylinePointProjVisitor {
             polyline: self,
             point: &ls_pt,
         };
 
-        let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        let (mut proj, extra_info) = self.bvt().best_first_search(&mut visitor).unwrap();
         proj.point = m * proj.point;
 
         (proj, extra_info)
@@ -63,23 +63,23 @@ impl<N: Real> PointQueryWithLocation<N> for Polyline<N> {
 }
 
 /*
- * Costs function.
+ * Visitors
  */
-struct PolylinePointProjCostFn<'a, N: 'a + Real> {
+struct PolylinePointProjVisitor<'a, N: 'a + Real> {
     polyline: &'a Polyline<N>,
     point: &'a Point<N>,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for PolylinePointProjCostFn<'a, N> {
-    type UserData = (PointProjection<N>, (usize, SegmentPointLocation<N>));
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisitor<'a, N> {
+    type Result = (PointProjection<N>, (usize, SegmentPointLocation<N>));
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        Some(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(&Isometry::identity(), self.point, true))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, Self::UserData)> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, Self::Result> {
         let (proj, extra_info) = self.polyline.segment_at(*b).project_point_with_location(
             &Isometry::identity(),
             self.point,
@@ -87,6 +87,6 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for PolylinePointProjCostFn<'a, N
         );
 
         let extra_info = (*b, extra_info);
-        Some((na::distance(self.point, &proj.point), (proj, extra_info)))
+        BestFirstDataVisitStatus::ContinueWithResult(na::distance(self.point, &proj.point), (proj, extra_info))
     }
 }

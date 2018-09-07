@@ -1,24 +1,22 @@
-use na::Real;
 use bounding_volume::AABB;
-use shape::Compound;
-use partitioning::BVTCostFn;
-use query::{Ray, RayCast, RayIntersection};
 use math::Isometry;
+use na::Real;
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use query::{Ray, RayCast, RayIntersection};
+use shape::Compound;
 
 // XXX: if solid == false, this might return internal intersection.
 impl<N: Real> RayCast<N> for Compound<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        let mut cost_fn = CompoundRayToiCostFn {
+        let mut visitor = CompoundRayToiVisitor {
             compound: self,
             ray: &ls_ray,
             solid: solid,
         };
 
-        self.bvt()
-            .best_first_search(&mut cost_fn)
-            .map(|(_, res)| res)
+        self.bvt().best_first_search(&mut visitor)
     }
 
     fn toi_and_normal_with_ray(
@@ -29,15 +27,15 @@ impl<N: Real> RayCast<N> for Compound<N> {
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        let mut cost_fn = CompoundRayToiAndNormalCostFn {
+        let mut visitor = CompoundRayToiAndNormalVisitor {
             compound: self,
             ray: &ls_ray,
             solid: solid,
         };
 
         self.bvt()
-            .best_first_search(&mut cost_fn)
-            .map(|(_, mut res)| {
+            .best_first_search(&mut visitor)
+            .map(|mut res| {
                 res.normal = m * res.normal;
                 res
             })
@@ -50,48 +48,59 @@ impl<N: Real> RayCast<N> for Compound<N> {
 /*
  * Costs functions.
  */
-struct CompoundRayToiCostFn<'a, N: 'a + Real> {
+struct CompoundRayToiVisitor<'a, N: 'a + Real> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     solid: bool,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for CompoundRayToiCostFn<'a, N> {
-    type UserData = N;
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<'a, N> {
+    type Result = N;
+
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid)
+    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+        match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
+            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
+            None => BestFirstBVVisitStatus::Stop
+        }
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
         let elt = &self.compound.shapes()[*b];
-        elt.1
-            .toi_with_ray(&elt.0, self.ray, self.solid)
-            .map(|toi| (toi, toi))
+        match elt.1
+            .toi_with_ray(&elt.0, self.ray, self.solid) {
+            Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
+            None => BestFirstDataVisitStatus::Continue
+        }
     }
 }
 
-struct CompoundRayToiAndNormalCostFn<'a, N: 'a + Real> {
+struct CompoundRayToiAndNormalVisitor<'a, N: 'a + Real> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     solid: bool,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>>
-    for CompoundRayToiAndNormalCostFn<'a, N> {
-    type UserData = RayIntersection<N>;
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>>
+for CompoundRayToiAndNormalVisitor<'a, N> {
+    type Result = RayIntersection<N>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid)
+    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+        match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
+            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
+            None => BestFirstBVVisitStatus::Stop
+        }
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, RayIntersection<N>)> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
         let elt = &self.compound.shapes()[*b];
-        elt.1
-            .toi_and_normal_with_ray(&elt.0, self.ray, self.solid)
-            .map(|inter| (inter.toi, inter))
+        match elt.1
+            .toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
+            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
+            None => BestFirstDataVisitStatus::Continue
+        }
     }
 }

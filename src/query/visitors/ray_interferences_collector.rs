@@ -1,4 +1,4 @@
-use math::{Isometry, Point};
+use math::Isometry;
 use na::Real;
 use partitioning::{Visitor, VisitStatus};
 use query::{Ray, RayCast};

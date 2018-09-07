@@ -3,7 +3,6 @@
 #[doc(inline)]
 pub use self::ray::{Ray, RayCast, RayIntersection};
 pub use self::ray_ball::ball_toi_with_ray;
-pub use self::ray_bvt::RayIntersectionCostFn;
 pub use self::ray_plane::{plane_toi_with_line, plane_toi_with_ray};
 pub use self::ray_support_map::implicit_toi_and_normal_with_ray;
 #[cfg(feature = "dim3")]
@@ -24,4 +23,3 @@ mod ray_compound;
 mod ray_trimesh;
 mod ray_polyline;
 mod ray_shape;
-mod ray_bvt;

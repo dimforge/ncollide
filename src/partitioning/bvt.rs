@@ -4,10 +4,8 @@ use alga::general::Real;
 use bounding_volume::BoundingVolume;
 use math::{DIM, Point};
 use na;
-use partitioning::{self, BVTCostFn, PartitioningStructure, SimultaneousVisitor, Visitor};
-use std::collections::BinaryHeap;
+use partitioning::{self, BestFirstVisitor, BVH, SimultaneousVisitor, Visitor};
 use utils;
-use utils::RefWithCost;
 
 /// A Bounding Volume Tree.
 #[derive(Clone)]
@@ -66,18 +64,12 @@ impl<T, BV> BVT<T, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    pub fn best_first_search<'a, N, BFS>(
-        &'a self,
-        algorithm: &mut BFS,
-    ) -> Option<(&'a T, BFS::UserData)>
+    pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<BFS::Result>
         where
             N: Real,
-            BFS: BVTCostFn<N, T, BV>,
+            BFS: BestFirstVisitor<N, T, BV>,
     {
-        match self.tree {
-            Some(ref t) => t.best_first_search(algorithm),
-            None => None,
-        }
+        partitioning::best_first_visit(&self, algorithm)
     }
 
     /// Reference to the bounding volume of the tree root.
@@ -210,68 +202,6 @@ impl<T, BV> BVTNode<T, BV> {
         }
     }
 
-    fn best_first_search<'a, N, BFS>(
-        &'a self,
-        algorithm: &mut BFS,
-    ) -> Option<(&'a T, BFS::UserData)>
-        where
-            N: Real,
-            BFS: BVTCostFn<N, T, BV>,
-    {
-        let mut queue: BinaryHeap<RefWithCost<'a, N, BVTNode<T, BV>>> = BinaryHeap::new();
-        let mut best_cost = N::max_value();
-        let mut result = None;
-
-        match algorithm.compute_bv_cost(self.bounding_volume()) {
-            Some(cost) => queue.push(RefWithCost::new(self, cost)),
-            None => return None,
-        }
-
-        loop {
-            match queue.pop() {
-                Some(node) => {
-                    if -node.cost >= best_cost {
-                        break; // solution found.
-                    }
-
-                    match *node.object {
-                        BVTNode::Internal(_, ref left, ref right) => {
-                            match algorithm.compute_bv_cost(left.bounding_volume()) {
-                                Some(lcost) => {
-                                    if lcost < best_cost {
-                                        queue.push(RefWithCost::new(&**left, -lcost))
-                                    }
-                                }
-                                None => {}
-                            }
-
-                            match algorithm.compute_bv_cost(right.bounding_volume()) {
-                                Some(rcost) => {
-                                    if rcost < best_cost {
-                                        queue.push(RefWithCost::new(&**right, -rcost))
-                                    }
-                                }
-                                None => {}
-                            }
-                        }
-                        BVTNode::Leaf(_, ref b) => match algorithm.compute_b_cost(b) {
-                            Some((candidate_cost, candidate_result)) => {
-                                if candidate_cost < best_cost {
-                                    best_cost = candidate_cost;
-                                    result = Some((b, candidate_result));
-                                }
-                            }
-                            None => {}
-                        },
-                    }
-                }
-                None => break,
-            }
-        }
-
-        result
-    }
-
     fn depth(&self) -> usize {
         match *self {
             BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
@@ -280,7 +210,7 @@ impl<T, BV> BVTNode<T, BV> {
     }
 }
 
-impl<'a, T, BV> PartitioningStructure<T, BV> for &'a BVT<T, BV> {
+impl<'a, T, BV> BVH<T, BV> for &'a BVT<T, BV> {
     type Node = &'a BVTNode<T, BV>;
 
     fn root(&self) -> Option<Self::Node> {

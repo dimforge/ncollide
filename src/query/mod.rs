@@ -22,7 +22,7 @@ pub use self::proximity_internal::Proximity;
 pub use self::proximity_internal::proximity_internal as proximity;
 #[doc(inline)]
 pub use self::ray_internal::{
-    Ray, RayCast, RayIntersection, RayIntersectionCostFn,
+    Ray, RayCast, RayIntersection,
 };
 #[doc(inline)]
 pub use self::time_of_impact_internal::time_of_impact;

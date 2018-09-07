@@ -1,8 +1,8 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BVTCostFn, Visitor, VisitStatus};
-use query::{PointProjection, PointQuery, visitors::PointContainmentTest};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use query::{PointProjection, PointQuery, visitors::CompositePointContainmentTest};
 use shape::{CompositeShape, Compound, FeatureId};
 use utils::IsometryOps;
 
@@ -11,13 +11,13 @@ impl<N: Real> PointQuery<N> for Compound<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = CompoundPointProjCostFn {
+        let mut visitor = CompoundPointProjVisitor {
             compound: self,
             point: &ls_pt,
             solid: solid,
         };
 
-        let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        let mut proj = self.bvt().best_first_search(&mut visitor).unwrap();
         proj.point = m * proj.point;
 
         proj
@@ -37,7 +37,7 @@ impl<N: Real> PointQuery<N> for Compound<N> {
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut visitor = PointContainmentTest {
+        let mut visitor = CompositePointContainmentTest {
             shape: self,
             point: &ls_pt,
             found: false,
@@ -50,30 +50,30 @@ impl<N: Real> PointQuery<N> for Compound<N> {
 }
 
 /*
- * Costs function.
+ * Visitors
  */
-struct CompoundPointProjCostFn<'a, N: 'a + Real> {
+struct CompoundPointProjVisitor<'a, N: 'a + Real> {
     compound: &'a Compound<N>,
     point: &'a Point<N>,
     solid: bool,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for CompoundPointProjCostFn<'a, N> {
-    type UserData = PointProjection<N>;
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisitor<'a, N> {
+    type Result = PointProjection<N>;
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        Some(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(&Isometry::identity(), self.point, true))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, PointProjection<N>)> {
-        let mut res = None;
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, PointProjection<N>> {
+        let mut res = BestFirstDataVisitStatus::Continue;
 
         self.compound.map_part_at(*b, &mut |_, objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
-            res = Some((na::distance(self.point, &proj.point), proj));
+            res = BestFirstDataVisitStatus::ContinueWithResult(na::distance(self.point, &proj.point), proj);
         });
 
         res
