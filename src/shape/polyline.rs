@@ -6,7 +6,7 @@ use na::Real;
 use partitioning::{BVHImpl, BVT};
 use shape::{CompositeShape, Segment, Shape};
 
-/// Shape commonly known as a 2d line strip or a 3d segment mesh.
+/// A set of connected lines.
 #[derive(Clone)]
 pub struct Polyline<N: Real> {
     bvt: BVT<usize, AABB<N>>,

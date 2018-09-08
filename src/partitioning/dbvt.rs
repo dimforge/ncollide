@@ -44,7 +44,8 @@ pub enum DBVTNodeId {
     Internal(usize),
 }
 
-/// A boundin volume hierarchy on which objects can be added or removed after construction.
+/// A bounding volume hierarchy on which objects can be added or removed after construction.
+#[derive(Clone)]
 pub struct DBVT<N: Real, T, BV> {
     root: DBVTNodeId,
     leaves: Slab<DBVTLeaf<N, T, BV>>,
@@ -65,6 +66,7 @@ pub struct DBVTLeaf<N: Real, T, BV> {
 }
 
 /// Internal node of a DBVT. An internal node always has two children.
+#[derive(Clone)]
 struct DBVTInternal<N: Real, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
@@ -126,6 +128,21 @@ impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
             root: DBVTNodeId::Leaf(0),
             leaves: Slab::new(),
             internals: Slab::new(),
+        }
+    }
+
+    /// The bounding volume of the root of this DBVT.
+    ///
+    /// Returns `None` if the DBVT is empty.
+    #[inline]
+    pub fn root_bounding_volume(&self) -> Option<&BV> {
+        if self.leaves.len() == 0 {
+            return None;
+        }
+
+        match self.root {
+            DBVTNodeId::Leaf(i) => Some(&self.leaves[i].bounding_volume),
+            DBVTNodeId::Internal(i) => Some(&self.internals[i].bounding_volume)
         }
     }
 

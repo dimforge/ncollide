@@ -1,9 +1,9 @@
 use bounding_volume::AABB;
 use math::Isometry;
 use na::{Point2, Real, Vector3};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::{Ray, ray_internal, RayCast, RayIntersection};
-use shape::TriMesh;
+use shape::{CompositeShape, TriMesh};
 
 impl<N: Real> RayCast<N> for TriMesh<N> {
     #[inline]
@@ -15,8 +15,7 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
             ray: &ls_ray,
         };
 
-        self.bvt()
-            .best_first_search(&mut visitor)
+        self.bvh().best_first_search(&mut visitor)
     }
 
     #[inline]
@@ -33,7 +32,7 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
             ray: &ls_ray,
         };
 
-        self.bvt()
+        self.bvh()
             .best_first_search(&mut visitor)
             .map(|mut res| {
                 res.normal = m * res.normal;
@@ -57,7 +56,7 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
             mesh: self,
             ray: &ls_ray,
         };
-        let cast = self.bvt().best_first_search(&mut visitor);
+        let cast = self.bvh().best_first_search(&mut visitor);
 
         match cast {
             None => None,

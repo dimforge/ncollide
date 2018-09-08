@@ -14,7 +14,7 @@ use pipeline::world::{
     CollisionObjects, CollisionObjectSlab, GeometricQueryType,
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
-use shape::ShapeHandle;
+use shape::{DeformationIndex, ShapeHandle};
 use std::mem;
 use std::vec::IntoIter;
 
@@ -163,7 +163,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     }
 
     /// Apply the given deformations to the specified object.
-    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: &[usize]) {
+    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: &[DeformationIndex]) {
         let co = self
             .objects
             .get_mut(handle)

@@ -173,7 +173,7 @@ impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
         // Note: the dispatch on each pair is split into two method to avoid
         // having to write a manually a match over each possible pair.
         match other {
-            BVHImpl::BVT(bvh2) => self.visit_bvtt_dispatch(&bvh2, visitor),
+            BVHImpl::BVT(bvh2) => self.visit_bvtt_dispatch(bvh2, visitor),
             BVHImpl::DBVT(bvh2) => self.visit_bvtt_dispatch(bvh2, visitor),
         }
     }

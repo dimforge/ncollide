@@ -48,6 +48,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
 extern crate alga;
+extern crate either;
 extern crate slab;
 #[macro_use]
 extern crate approx;

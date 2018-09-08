@@ -20,10 +20,11 @@ name = "ncollide2d"
 path = "../../src/lib.rs"
 
 [dependencies]
-num-traits      = "0.2"
+either          = "1.0"
+num-traits      = { version = "0.2", default-features = false }
 smallvec        = "0.6"
 slab            = "0.4"
 alga            = "0.7"
 nalgebra        = "0.16"
-approx          = "0.3"
-rand            = "0.5"
+approx          = { version = "0.3", default-features = false }
+rand            = { version = "0.5", default-features = false }

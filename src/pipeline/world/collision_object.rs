@@ -3,7 +3,7 @@ use math::Isometry;
 use pipeline::broad_phase::ProxyHandle;
 use pipeline::world::CollisionGroups;
 use query::ContactPrediction;
-use shape::ShapeHandle;
+use shape::{DeformationIndex, ShapeHandle};
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
 
@@ -154,7 +154,7 @@ impl<N: Real, T> CollisionObject<N, T> {
     ///
     /// Panics if the shape is not deformable.
     #[inline]
-    pub fn set_deformations(&mut self, coords: &[N], indices: &[usize]) {
+    pub fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]) {
         self.shape.make_mut()
             .as_deformable_shape_mut()
             .expect("Attempting to deform a non-deformable shape.")

@@ -3,25 +3,50 @@
 use alga::general::Real;
 use bounding_volume::BoundingVolume;
 use math::{DIM, Point};
-use na;
 use partitioning::BVH;
+use std::collections::VecDeque;
 use utils;
 
 /// A Bounding Volume Tree.
 #[derive(Clone)]
 pub struct BVT<T, BV> {
-    tree: Option<BVTNode<T, BV>>,
+    root: BVTNodeId,
+    internals: Vec<BVTInternal<BV>>,
+    leaves: Vec<BVTLeaf<T, BV>>,
+    // This will be filled only when at least one
+    // deformation occurred to avoid memory usage
+    // that are not needed in the general case.
+    deformation_timestamp: usize,
+    deformation_infos: Vec<BVTDeformationInfo>,
+    deformed_nodes: VecDeque<BVTNodeId>,
 }
 
-/// A node of the bounding volume tree.
+/// The identifier of a BVT node.
+#[derive(Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BVTNodeId {
+    /// Identifier of an internal node.
+    Internal(usize),
+    /// Identifier of a leaf node.
+    Leaf(usize),
+}
+
 #[derive(Clone)]
-pub enum BVTNode<T, BV> {
-    // XXX: give a faster access to the BV.
-    // FIXME: avoid all the boxes.
-    /// An internal node.
-    Internal(BV, Box<BVTNode<T, BV>>, Box<BVTNode<T, BV>>),
-    /// A leaf.
-    Leaf(BV, T),
+struct BVTInternal<BV> {
+    bounding_volume: BV,
+    right: BVTNodeId,
+    left: BVTNodeId,
+}
+
+#[derive(Clone)]
+struct BVTLeaf<T, BV> {
+    bounding_volume: BV,
+    data: T,
+}
+
+#[derive(Clone)]
+struct BVTDeformationInfo {
+    parent: usize,
+    timestamp: usize,
 }
 
 /// Result of a binary partition.
@@ -36,34 +61,45 @@ impl<T, BV> BVT<T, BV> {
     // FIXME: add higher level constructors ?
     /// Builds a bounding volume tree using an user-defined construction function.
     pub fn new_with_partitioner<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
-        leaves: Vec<(T, BV)>,
+        elements: Vec<(T, BV)>,
         partitioner: &mut F,
     ) -> BVT<T, BV> {
-        if leaves.len() == 0 {
-            BVT { tree: None }
-        } else {
+        if elements.len() == 0 {
             BVT {
-                tree: Some(Self::_new_with_partitioner(0, leaves, partitioner)),
+                root: BVTNodeId::Leaf(0),
+                internals: Vec::new(),
+                leaves: Vec::new(),
+                deformation_timestamp: 0,
+                deformation_infos: Vec::new(),
+                deformed_nodes: VecDeque::new(),
+            }
+        } else {
+            let mut internals = Vec::new();
+            let mut leaves = Vec::new();
+            let root = Self::_new_with_partitioner(0, elements, &mut internals, &mut leaves, partitioner);
+            internals.shrink_to_fit();
+            leaves.shrink_to_fit();
+
+            BVT {
+                root,
+                internals,
+                leaves,
+                deformation_timestamp: 0,
+                deformation_infos: Vec::new(),
+                deformed_nodes: VecDeque::new(),
             }
         }
     }
 
     /// Reference to the bounding volume of the tree root.
-    pub fn root_bounding_volume<'r>(&'r self) -> Option<&'r BV> {
-        match self.tree {
-            Some(ref n) => match *n {
-                BVTNode::Internal(ref bv, _, _) => Some(bv),
-                BVTNode::Leaf(ref bv, _) => Some(bv),
-            },
-            None => None,
+    pub fn root_bounding_volume(&self) -> Option<&BV> {
+        if self.leaves.is_empty() {
+            return None;
         }
-    }
 
-    /// Computes the depth of this tree.
-    pub fn depth(&self) -> usize {
-        match self.tree {
-            Some(ref n) => n.depth(),
-            None => 0,
+        match self.root {
+            BVTNodeId::Leaf(i) => Some(&self.leaves[i].bounding_volume),
+            BVTNodeId::Internal(i) => Some(&self.internals[i].bounding_volume),
         }
     }
 }
@@ -153,64 +189,69 @@ impl<T, BV> BVT<T, BV> {
     fn _new_with_partitioner<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
         depth: usize,
         leaves: Vec<(T, BV)>,
+        out_internals: &mut Vec<BVTInternal<BV>>,
+        out_leaves: &mut Vec<BVTLeaf<T, BV>>,
         partitioner: &mut F,
-    ) -> BVTNode<T, BV> {
+    ) -> BVTNodeId {
         let (bv, partitions) = partitioner(depth, leaves);
 
         match partitions {
-            BinaryPartition::Part(b) => BVTNode::Leaf(bv, b),
+            BinaryPartition::Part(b) => {
+                out_leaves.push(BVTLeaf { bounding_volume: bv, data: b });
+                BVTNodeId::Leaf(out_leaves.len() - 1)
+            }
             BinaryPartition::Parts(left, right) => {
-                let left = Self::_new_with_partitioner(depth + 1, left, partitioner);
-                let right = Self::_new_with_partitioner(depth + 1, right, partitioner);
-                BVTNode::Internal(bv, Box::new(left), Box::new(right))
+                let left = Self::_new_with_partitioner(depth + 1, left, out_internals, out_leaves, partitioner);
+                let right = Self::_new_with_partitioner(depth + 1, right, out_internals, out_leaves, partitioner);
+                out_internals.push(BVTInternal { bounding_volume: bv, left, right });
+                BVTNodeId::Internal(out_internals.len() - 1)
             }
         }
     }
 }
 
-impl<T, BV> BVTNode<T, BV> {
-    /// The bounding volume of this node.
-    #[inline]
-    pub fn bounding_volume<'a>(&'a self) -> &'a BV {
-        match *self {
-            BVTNode::Internal(ref bv, _, _) => bv,
-            BVTNode::Leaf(ref bv, _) => bv,
-        }
-    }
 
-    fn depth(&self) -> usize {
-        match *self {
-            BVTNode::Internal(_, ref left, ref right) => 1 + na::max(left.depth(), right.depth()),
-            BVTNode::Leaf(_, _) => 1,
-        }
-    }
-}
-
-impl<'a, T, BV> BVH<T, BV> for &'a BVT<T, BV> {
-    type Node = &'a BVTNode<T, BV>;
+impl<'a, T, BV> BVH<T, BV> for BVT<T, BV> {
+    type Node = BVTNodeId;
 
     fn root(&self) -> Option<Self::Node> {
-        self.tree.as_ref()
+        if self.leaves.len() != 0 {
+            Some(self.root)
+        } else {
+            None
+        }
     }
 
     fn num_children(&self, node: Self::Node) -> usize {
         match node {
-            BVTNode::Internal(..) => 2,
-            BVTNode::Leaf(..) => 0
+            BVTNodeId::Internal(_) => 2,
+            BVTNodeId::Leaf(_) => 0
         }
     }
 
     fn child(&self, i: usize, node: Self::Node) -> Self::Node {
         match node {
-            BVTNode::Internal(_, l, r) => [l, r][i],
-            BVTNode::Leaf(..) => panic!("Child index out of bounds.")
+            BVTNodeId::Internal(node_id) => {
+                if i == 0 {
+                    self.internals[node_id].left
+                } else {
+                    self.internals[node_id].right
+                }
+            }
+            BVTNodeId::Leaf(_) => panic!("DBVT child index out of bounds.")
         }
     }
 
     fn content(&self, node: Self::Node) -> (&BV, Option<&T>) {
         match node {
-            BVTNode::Leaf(bv, t) => (bv, Some(t)),
-            BVTNode::Internal(bv, ..) => (bv, None)
+            BVTNodeId::Internal(i) => {
+                let node = &self.internals[i];
+                (&node.bounding_volume, None)
+            }
+            BVTNodeId::Leaf(i) => {
+                let node = &self.leaves[i];
+                (&node.bounding_volume, Some(&node.data))
+            }
         }
     }
 }

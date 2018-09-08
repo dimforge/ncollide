@@ -1,14 +1,15 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
 use bounding_volume::AABB;
-use math::{Isometry, Point};
+use either::Either;
+use math::{DIM, Isometry, Point, Vector};
 use na::{Point2, Point3, Real};
-use partitioning::{BVHImpl, BVT};
-use shape::{CompositeShape, Shape, Triangle};
+use partitioning::{BVHImpl, BVT, DBVT};
+use shape::{CompositeShape, DeformableShape, DeformationIndex, DeformationsType, Shape, Triangle};
 
-/// Shape commonly known as a 2d line strip or a 3d triangle mesh.
+/// A 3d triangle mesh.
 pub struct TriMesh<N: Real> {
-    bvt: BVT<usize, AABB<N>>,
+    bvt: Either<BVT<usize, AABB<N>>, DBVT<N, usize, AABB<N>>>,
     bvs: Vec<AABB<N>>,
     vertices: Vec<Point<N>>,
     indices: Vec<Point3<usize>>,
@@ -33,6 +34,7 @@ impl<N: Real> TriMesh<N> {
         vertices: Vec<Point<N>>,
         indices: Vec<Point3<usize>>,
         uvs: Option<Vec<Point2<N>>>,
+        deformable: bool,
     ) -> TriMesh<N> {
         let mut leaves = Vec::new();
         let mut bvs = Vec::new();
@@ -42,7 +44,7 @@ impl<N: Real> TriMesh<N> {
 
             for (i, is) in is.iter().enumerate() {
                 let triangle = Triangle::new(vertices[is.x], vertices[is.y], vertices[is.z]);
-                // FIXME: loosen for better persistancy?
+                // FIXME: loosen for better persistency?
                 let bv = triangle.aabb(&Isometry::identity());
                 leaves.push((i, bv.clone()));
                 bvs.push(bv);
@@ -52,11 +54,20 @@ impl<N: Real> TriMesh<N> {
         let bvt = BVT::new_balanced(leaves);
 
         TriMesh {
-            bvt: bvt,
+            bvt: Either::Left(bvt),
             bvs: bvs,
             vertices: vertices,
             indices: indices,
             uvs: uvs,
+        }
+    }
+
+    /// The triangle mesh's AABB.
+    #[inline]
+    pub fn aabb(&self) -> &AABB<N> {
+        match &self.bvt {
+            Either::Left(bvt) => bvt.root_bounding_volume().expect("An empty TriMesh has no AABB."),
+            Either::Right(dbvt) => dbvt.root_bounding_volume().expect("An empty TriMesh has no AABB."),
         }
     }
 
@@ -82,12 +93,6 @@ impl<N: Real> TriMesh<N> {
     #[inline]
     pub fn uvs(&self) -> &Option<Vec<Point2<N>>> {
         &self.uvs
-    }
-
-    /// The acceleration structure used for efficient collision detection and ray casting.
-    #[inline]
-    pub fn bvt(&self) -> &BVT<usize, AABB<N>> {
-        &self.bvt
     }
 
     /// Gets the i-th mesh element.
@@ -133,6 +138,22 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
 
     #[inline]
     fn bvh(&self) -> BVHImpl<N, usize, AABB<N>> {
-        BVHImpl::BVT(&self.bvt)
+        match &self.bvt {
+            Either::Left(bvt) => BVHImpl::BVT(bvt),
+            Either::Right(dbvt) => BVHImpl::DBVT(dbvt)
+        }
+    }
+}
+
+impl<N: Real> DeformableShape<N> for TriMesh<N> {
+    fn deformations_type(&self) -> DeformationsType {
+        DeformationsType::Vectors
+    }
+
+    /// Updates all the degrees of freedom of this shape.
+    fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]) {
+        for id in indices {
+            self.vertices[id.target].coords = Vector::from_column_slice(&coords[id.source..DIM])
+        }
     }
 }

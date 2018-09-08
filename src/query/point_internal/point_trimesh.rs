@@ -1,9 +1,9 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::CompositePointContainmentTest};
-use shape::{FeatureId, TrianglePointLocation, TriMesh};
+use shape::{CompositeShape, FeatureId, TrianglePointLocation, TriMesh};
 use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
@@ -33,7 +33,7 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
             found: false,
         };
 
-        self.bvt().visit(&mut visitor);
+        self.bvh().visit(&mut visitor);
 
         visitor.found
     }
@@ -55,7 +55,7 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
             point: &ls_pt,
         };
 
-        let (mut proj, extra_info) = self.bvt().best_first_search(&mut visitor).unwrap();
+        let (mut proj, extra_info) = self.bvh().best_first_search(&mut visitor).unwrap();
         proj.point = m * proj.point;
 
         (proj, extra_info)
