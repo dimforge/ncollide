@@ -1,7 +1,7 @@
-use na::Real;
-use math::Isometry;
-use partitioning::BVT;
 use bounding_volume::AABB;
+use math::Isometry;
+use na::Real;
+use partitioning::BVT;
 use shape::Shape;
 
 /// Trait implemented by shapes composed of multiple simpler shapes.

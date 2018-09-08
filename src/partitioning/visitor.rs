@@ -1,5 +1,3 @@
-use partitioning::BVH;
-
 /// The status of the spatial partitoning structure traversal.
 pub enum VisitStatus {
     /// The traversal should continue on the children of the currently visited nodes.
@@ -19,26 +17,47 @@ pub trait Visitor<T, BV> {
     fn visit(&mut self, bv: &BV, data: Option<&T>) -> VisitStatus;
 }
 
-/// Executes a traversal of a spatial partitioning data structure.
-pub fn visit<H, T, BV>(hierarchy: &H,
-                       visitor: &mut impl Visitor<T, BV>,
-                       stack: &mut Vec<H::Node>)
-    where H: BVH<T, BV> {
-    if let Some(root) = hierarchy.root() {
-        stack.push(root);
 
-        while let Some(node) = stack.pop() {
-            let content = hierarchy.content(node);
+/// Trait implemented by visitor called during a simultaneous spatial partitioning data structure tarversal.
+pub trait SimultaneousVisitor<T, BV> {
+    /// Execute an operation on the content of two nodes, one from each structure.
+    ///
+    /// Returns whether the traversal should continue on the nodes children, if it should not continue
+    /// on those children, or if the whole traversal should be exited early.
+    fn visit(&mut self, left_bv: &BV, left_data: Option<&T>, right_bv: &BV, right_data: Option<&T>) -> VisitStatus;
+}
 
-            match visitor.visit(content.0, content.1) {
-                VisitStatus::Continue => {
-                    for i in 0..hierarchy.num_children(node) {
-                        stack.push(hierarchy.child(i, node))
-                    }
-                }
-                VisitStatus::ExitEarly => return,
-                VisitStatus::Stop => {}
-            }
-        }
-    }
+
+/// The next action to be taken by a AbstractBVH traversal algorithm after having visited a node with a bounding volume.
+pub enum BestFirstBVVisitStatus<N> {
+    /// The traversal continues recursively, associating the given cost to the visited node.
+    ContinueWithCost(N),
+    // FIXME: rename this to StopPropagation?
+    /// The traversal does not continue recursively on the descendants of this node (but continues on other nodes).
+    Stop,
+    /// The traversal aborts, returning the last best result found.
+    ExitEarly,
+}
+
+/// The next action to be taken by a AbstractBVH traversal algorithm after having visited a node with some data.
+pub enum BestFirstDataVisitStatus<N, Res> {
+    /// The traversal continues recursively on the descendants of this node, if any. The given result associated by a cost value are registered.
+    ContinueWithResult(N, Res),
+    /// The traversal continues recursively on the descendant of this node.
+    Continue,
+    /// The traversal aborts, returning the given result.
+    ExitEarlyWithResult(Res),
+    /// The traversal aborts, returnin the last best result found.
+    ExitEarly,
+}
+
+/// Trait implemented by cost functions used by the best-first search on a `BVT`.
+pub trait BestFirstVisitor<N, T, BV> {
+    /// The result of a best-fist traversal.
+    type Result;
+
+    /// Compute the next action to be taken by the best-first-search after visiting a node containing the given bounding volume.
+    fn visit_bv(&mut self, bv: &BV) -> BestFirstBVVisitStatus<N>;
+    /// Compute the next action to be taken by the best-first-search after visiting a node containing the given data.
+    fn visit_data(&mut self, data: &T) -> BestFirstDataVisitStatus<N, Self::Result>;
 }

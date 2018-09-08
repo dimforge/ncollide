@@ -1,11 +1,13 @@
 use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
+use partitioning::AbstractBVH;
 use pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
 use query::{Proximity, visitors::BoundingVolumeInterferencesCollector};
 use shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
+
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {

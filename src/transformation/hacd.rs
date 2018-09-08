@@ -2,7 +2,7 @@ use bounding_volume::{self, AABB, BoundingVolume};
 use math::Isometry;
 use na::{self, Point3, Real, Translation3, Vector2, Vector3};
 use num::{Bounded, Zero};
-use partitioning::BVT;
+use partitioning::{AbstractBVH, BVT};
 use procedural::{IndexBuffer, TriMesh};
 use query::{Ray, ray_internal, RayCast, RayIntersection, visitors::BoundingVolumeInterferencesCollector};
 use query::algorithms::VoronoiSimplex;

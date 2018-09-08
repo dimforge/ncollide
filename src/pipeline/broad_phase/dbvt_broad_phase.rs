@@ -1,7 +1,7 @@
 use bounding_volume::BoundingVolume;
 use math::Point;
 use na::Real;
-use partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
+use partitioning::{AbstractBVH, DBVT, DBVTLeaf, DBVTLeafId};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
 use query::{PointQuery, Ray, RayCast};
 use query::visitors::{BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector};

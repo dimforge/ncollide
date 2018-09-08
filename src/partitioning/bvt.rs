@@ -4,7 +4,7 @@ use alga::general::Real;
 use bounding_volume::BoundingVolume;
 use math::{DIM, Point};
 use na;
-use partitioning::{self, BestFirstVisitor, BVH, SimultaneousVisitor, Visitor};
+use partitioning::AbstractBVH;
 use utils;
 
 /// A Bounding Volume Tree.
@@ -45,31 +45,6 @@ impl<T, BV> BVT<T, BV> {
                 tree: Some(Self::_new_with_partitioner(0, leaves, partitioner)),
             }
         }
-    }
-
-    /// Traverses this tree using a visitor.
-    pub fn visit<Vis: Visitor<T, BV>>(&self, visitor: &mut Vis) {
-        // FIXME: preallocate the vec?
-        partitioning::visit(&self, visitor, &mut Vec::new())
-    }
-
-    /// Visits the bounding volume traversal tree implicitly formed with `other`.
-    pub fn visit_bvtt<Vis: SimultaneousVisitor<T, BV>>(&self, other: &BVT<T, BV>, visitor: &mut Vis) {
-        // FIXME: preallocate the vec?
-        partitioning::simultaneous_visit(&self, &other, visitor, &mut Vec::new())
-    }
-
-    // FIXME: really return a ref to T ?
-    /// Performs a best-fist-search on the tree.
-    ///
-    /// Returns the content of the leaf with the smallest associated cost, and a result of
-    /// user-defined type.
-    pub fn best_first_search<'a, N, BFS>(&'a self, algorithm: &mut BFS) -> Option<BFS::Result>
-        where
-            N: Real,
-            BFS: BestFirstVisitor<N, T, BV>,
-    {
-        partitioning::best_first_visit(&self, algorithm)
     }
 
     /// Reference to the bounding volume of the tree root.
@@ -210,7 +185,7 @@ impl<T, BV> BVTNode<T, BV> {
     }
 }
 
-impl<'a, T, BV> BVH<T, BV> for &'a BVT<T, BV> {
+impl<'a, T, BV> AbstractBVH<T, BV> for &'a BVT<T, BV> {
     type Node = &'a BVTNode<T, BV>;
 
     fn root(&self) -> Option<Self::Node> {

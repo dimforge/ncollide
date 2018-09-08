@@ -2,12 +2,11 @@
 //! Shape composed from the union of primitives.
 //!
 
+use bounding_volume::{AABB, BoundingVolume};
+use math::Isometry;
 use na::{self, Real};
-
-use bounding_volume::{BoundingVolume, AABB};
 use partitioning::BVT;
 use shape::{CompositeShape, Shape, ShapeHandle};
-use math::Isometry;
 
 /// A compound shape with an aabb bounding volume.
 ///

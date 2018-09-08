@@ -1,7 +1,7 @@
 use bounding_volume::BoundingVolume;
 use math::Point;
 use na::{self, Real};
-use partitioning::{self, BVH, SimultaneousVisitor, Visitor};
+use partitioning::AbstractBVH;
 use slab::Slab;
 use std::ops::Index;
 
@@ -307,18 +307,6 @@ impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
 
         leaf
     }
-
-    /// Traverses this tree using a visitor.
-    pub fn visit<Vis: Visitor<T, BV>>(&self, visitor: &mut Vis) {
-        // FIXME: avoid the Vec allocation?
-        partitioning::visit(self, visitor, &mut Vec::new());
-    }
-
-    /// Visits the bounding volume traversal tree implicitly formed with `other`.
-    pub fn visit_bvtt<Vis: SimultaneousVisitor<T, BV>>(&self, other: &DBVT<N, T, BV>, visitor: &mut Vis) {
-        // FIXME: preallocate the vec?
-        partitioning::simultaneous_visit(self, other, visitor, &mut Vec::new())
-    }
 }
 
 impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
@@ -330,7 +318,7 @@ impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
     }
 }
 
-impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
+impl<'a, N: Real, T, BV> AbstractBVH<T, BV> for DBVT<N, T, BV> {
     type Node = DBVTNodeId;
 
     fn root(&self) -> Option<Self::Node> {
@@ -350,11 +338,11 @@ impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
 
     fn child(&self, i: usize, node: Self::Node) -> Self::Node {
         match node {
-            DBVTNodeId::Internal(_) => {
+            DBVTNodeId::Internal(node_id) => {
                 if i == 0 {
-                    self.internals[i].left
+                    self.internals[node_id].left
                 } else {
-                    self.internals[i].right
+                    self.internals[node_id].right
                 }
             }
             DBVTNodeId::Leaf(_) => panic!("DBVT child index out of bounds.")

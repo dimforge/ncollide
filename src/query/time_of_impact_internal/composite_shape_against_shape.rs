@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::{Ray, RayCast, time_of_impact_internal};
 use shape::{CompositeShape, Shape};
 use utils::IsometryOps;
