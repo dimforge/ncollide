@@ -3,7 +3,7 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::Real;
-use partitioning::BVT;
+use partitioning::{BVHImpl, BVT};
 use shape::{CompositeShape, Segment, Shape};
 
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
@@ -55,6 +55,12 @@ impl<N: Real> Polyline<N> {
     pub fn segment_at(&self, i: usize) -> Segment<N> {
         Segment::new(self.vertices[i], self.vertices[i + 1])
     }
+
+    /// The bounding volume tree used by this polyline.
+    #[inline]
+    pub fn bvt(&self) -> &BVT<usize, AABB<N>> {
+        &self.bvt
+    }
 }
 
 impl<N: Real> CompositeShape<N> for Polyline<N> {
@@ -86,7 +92,7 @@ impl<N: Real> CompositeShape<N> for Polyline<N> {
     }
 
     #[inline]
-    fn bvt(&self) -> &BVT<usize, AABB<N>> {
-        &self.bvt
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>> {
+        BVHImpl::BVT(&self.bvt)
     }
 }

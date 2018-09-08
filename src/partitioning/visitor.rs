@@ -28,7 +28,7 @@ pub trait SimultaneousVisitor<T, BV> {
 }
 
 
-/// The next action to be taken by a AbstractBVH traversal algorithm after having visited a node with a bounding volume.
+/// The next action to be taken by a BVH traversal algorithm after having visited a node with a bounding volume.
 pub enum BestFirstBVVisitStatus<N> {
     /// The traversal continues recursively, associating the given cost to the visited node.
     ContinueWithCost(N),
@@ -39,7 +39,7 @@ pub enum BestFirstBVVisitStatus<N> {
     ExitEarly,
 }
 
-/// The next action to be taken by a AbstractBVH traversal algorithm after having visited a node with some data.
+/// The next action to be taken by a BVH traversal algorithm after having visited a node with some data.
 pub enum BestFirstDataVisitStatus<N, Res> {
     /// The traversal continues recursively on the descendants of this node, if any. The given result associated by a cost value are registered.
     ContinueWithResult(N, Res),

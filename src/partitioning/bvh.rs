@@ -6,11 +6,11 @@ use std::collections::BinaryHeap;
 
 
 /// Trait implemented by Bounding Volume Hierarchy.
-pub trait AbstractBVH<T, BV> {
-    /// Type of a node of this AbstractBVH.
+pub trait BVH<T, BV> {
+    /// Type of a node of this BVH.
     type Node: Copy;
 
-    /// The root of the AbstractBVH.
+    /// The root of the BVH.
     fn root(&self) -> Option<Self::Node>;
     /// The number of children of the given node.
     fn num_children(&self, node: Self::Node) -> usize;
@@ -45,7 +45,7 @@ pub trait AbstractBVH<T, BV> {
     }
 
     /// Visits the bounding volume test tree implicitly formed with `other`.
-    fn visit_bvtt(&self, other: &impl AbstractBVH<T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
+    fn visit_bvtt(&self, other: &impl BVH<T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
         // FIXME: find a way to avoid the allocation.
         let mut stack = Vec::new();
 
@@ -79,7 +79,7 @@ pub trait AbstractBVH<T, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    fn best_first_search<'a, N, BFS>(&'a self, visitor: &mut BFS) -> Option<BFS::Result>
+    fn best_first_search<N, BFS>(&self, visitor: &mut BFS) -> Option<BFS::Result>
         where
             N: Real,
             BFS: BestFirstVisitor<N, T, BV>,
@@ -150,37 +150,38 @@ pub trait AbstractBVH<T, BV> {
     }
 }
 
-/// An enum grouping all the BVH implementations on ncollide.
-pub enum BVH<N: Real, T, BV> {
+/// An enum grouping references to all the BVH implementations on ncollide.
+#[derive(Copy, Clone)]
+pub enum BVHImpl<'a, N: 'a + Real, T: 'a, BV: 'a> {
     /// A static binary bounding volume tree.
-    BVT(BVT<T, BV>),
+    BVT(&'a BVT<T, BV>),
     /// A dynamic binary bounding volume tree.
-    DBVT(DBVT<N, T, BV>),
+    DBVT(&'a DBVT<N, T, BV>),
 }
 
-impl<N: Real, T, BV> BVH<N, T, BV> {
+impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
     /// Traverses this tree using a visitor.
-    pub fn visit(&self, visitor: &mut impl Visitor<T, BV>) {
+    pub fn visit(self, visitor: &mut impl Visitor<T, BV>) {
         match self {
-            BVH::BVT(bvt) => bvt.visit(visitor),
-            BVH::DBVT(dbvt) => dbvt.visit(visitor)
+            BVHImpl::BVT(bvt) => bvt.visit(visitor),
+            BVHImpl::DBVT(dbvt) => dbvt.visit(visitor)
         }
     }
 
     /// Visits the bounding volume traversal tree implicitly formed with `other`.
-    pub fn visit_bvtt(&self, other: &BVH<N, T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
+    pub fn visit_bvtt<'b>(self, other: BVHImpl<'b, N, T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
         // Note: the dispatch on each pair is split into two method to avoid
         // having to write a manually a match over each possible pair.
         match other {
-            BVH::BVT(bvh2) => self.visit_bvtt_dispatch(&bvh2, visitor),
-            BVH::DBVT(bvh2) => self.visit_bvtt_dispatch(bvh2, visitor),
+            BVHImpl::BVT(bvh2) => self.visit_bvtt_dispatch(&bvh2, visitor),
+            BVHImpl::DBVT(bvh2) => self.visit_bvtt_dispatch(bvh2, visitor),
         }
     }
 
-    fn visit_bvtt_dispatch(&self, bvh2: &impl AbstractBVH<T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
+    fn visit_bvtt_dispatch(self, bvh2: &impl BVH<T, BV>, visitor: &mut impl SimultaneousVisitor<T, BV>) {
         match self {
-            BVH::BVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
-            BVH::DBVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
+            BVHImpl::BVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
+            BVHImpl::DBVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
         }
     }
 
@@ -188,13 +189,13 @@ impl<N: Real, T, BV> BVH<N, T, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    pub fn best_first_search<'a, BFS>(&'a self, visitor: &mut BFS) -> Option<BFS::Result>
+    pub fn best_first_search<BFS>(self, visitor: &mut BFS) -> Option<BFS::Result>
         where
             BFS: BestFirstVisitor<N, T, BV>,
     {
         match self {
-            BVH::BVT(bvt) => bvt.best_first_search(visitor),
-            BVH::DBVT(dbvt) => dbvt.best_first_search(visitor)
+            BVHImpl::BVT(bvt) => bvt.best_first_search(visitor),
+            BVHImpl::DBVT(dbvt) => dbvt.best_first_search(visitor)
         }
     }
 }

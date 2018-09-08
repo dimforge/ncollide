@@ -1,9 +1,9 @@
 use bounding_volume::AABB;
 use math::Isometry;
 use na::Real;
-use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
 use query::{Ray, RayCast, RayIntersection};
-use shape::{CompositeShape, Polyline};
+use shape::Polyline;
 
 impl<N: Real> RayCast<N> for Polyline<N> {
     #[inline]

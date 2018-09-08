@@ -1,9 +1,8 @@
-use na::{self, Real};
-
-use utils::IsometryOps;
-use bounding_volume::{HasBoundingVolume, AABB};
-use shape::{CompositeShape, Polyline};
+use bounding_volume::{AABB, HasBoundingVolume};
 use math::Isometry;
+use na::{self, Real};
+use shape::Polyline;
+use utils::IsometryOps;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Polyline<N> {
     #[inline]

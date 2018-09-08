@@ -4,7 +4,7 @@ use alga::general::Real;
 use bounding_volume::BoundingVolume;
 use math::{DIM, Point};
 use na;
-use partitioning::AbstractBVH;
+use partitioning::BVH;
 use utils;
 
 /// A Bounding Volume Tree.
@@ -16,7 +16,8 @@ pub struct BVT<T, BV> {
 /// A node of the bounding volume tree.
 #[derive(Clone)]
 pub enum BVTNode<T, BV> {
-    // XXX: give a faster access to the BV
+    // XXX: give a faster access to the BV.
+    // FIXME: avoid all the boxes.
     /// An internal node.
     Internal(BV, Box<BVTNode<T, BV>>, Box<BVTNode<T, BV>>),
     /// A leaf.
@@ -185,7 +186,7 @@ impl<T, BV> BVTNode<T, BV> {
     }
 }
 
-impl<'a, T, BV> AbstractBVH<T, BV> for &'a BVT<T, BV> {
+impl<'a, T, BV> BVH<T, BV> for &'a BVT<T, BV> {
     type Node = &'a BVTNode<T, BV>;
 
     fn root(&self) -> Option<Self::Node> {

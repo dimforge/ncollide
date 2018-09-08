@@ -1,7 +1,6 @@
 use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
-use partitioning::AbstractBVH;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::{ContactManifold, ContactPrediction, visitors::BoundingVolumeInterferencesCollector};
 use shape::{CompositeShape, Shape};
@@ -51,7 +50,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         {
             let mut visitor =
                 BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
-            g1.bvt().visit(&mut visitor);
+            g1.bvh().visit(&mut visitor);
         }
 
         for i in self.interferences.drain(..) {

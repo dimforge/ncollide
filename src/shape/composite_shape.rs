@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use math::Isometry;
 use na::Real;
-use partitioning::BVT;
+use partitioning::BVHImpl;
 use shape::Shape;
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
@@ -21,5 +21,5 @@ pub trait CompositeShape<N: Real> {
     /// Gets the AABB of the shape identified by the index `i`.
     fn aabb_at(&self, i: usize) -> AABB<N>;
     /// Gets the acceleration structure of the concave shape.
-    fn bvt(&self) -> &BVT<usize, AABB<N>>;
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>>;
 }

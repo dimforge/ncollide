@@ -1,10 +1,10 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
-use na::{Point2, Point3, Real};
-use partitioning::BVT;
 use bounding_volume::AABB;
-use shape::{CompositeShape, Shape, Triangle};
 use math::{Isometry, Point};
+use na::{Point2, Point3, Real};
+use partitioning::{BVHImpl, BVT};
+use shape::{CompositeShape, Shape, Triangle};
 
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<N: Real> {
@@ -132,7 +132,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
     }
 
     #[inline]
-    fn bvt(&self) -> &BVT<usize, AABB<N>> {
-        &self.bvt
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>> {
+        BVHImpl::BVT(&self.bvt)
     }
 }

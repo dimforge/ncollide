@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::{PointQuery, Proximity};
 use query::proximity_internal;
 use shape::{CompositeShape, Shape};
@@ -24,7 +24,7 @@ pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
 
     let mut visitor = CompositeShapeAgainstAnyInterfVisitor::new(m1, g1, m2, g2, margin);
 
-    match g1.bvt().best_first_search(&mut visitor) {
+    match g1.bvh().best_first_search(&mut visitor) {
         None => Proximity::Disjoint,
         Some(prox) => prox,
     }

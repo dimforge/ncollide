@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::{Ray, RayCast, time_of_impact_internal};
 use shape::{CompositeShape, Shape};
 use utils::IsometryOps;
@@ -21,7 +21,7 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
 
-    g1.bvt().best_first_search(&mut visitor)
+    g1.bvh().best_first_search(&mut visitor)
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.

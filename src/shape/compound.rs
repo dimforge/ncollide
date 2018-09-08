@@ -5,7 +5,7 @@
 use bounding_volume::{AABB, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
-use partitioning::BVT;
+use partitioning::{BVHImpl, BVT};
 use shape::{CompositeShape, Shape, ShapeHandle};
 
 /// A compound shape with an aabb bounding volume.
@@ -123,7 +123,7 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
     }
 
     #[inline]
-    fn bvt(&self) -> &BVT<usize, AABB<N>> {
-        self.bvt()
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>> {
+        BVHImpl::BVT(&self.bvt)
     }
 }

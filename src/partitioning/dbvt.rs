@@ -1,7 +1,7 @@
 use bounding_volume::BoundingVolume;
 use math::Point;
 use na::{self, Real};
-use partitioning::AbstractBVH;
+use partitioning::BVH;
 use slab::Slab;
 use std::ops::Index;
 
@@ -318,7 +318,7 @@ impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
     }
 }
 
-impl<'a, N: Real, T, BV> AbstractBVH<T, BV> for DBVT<N, T, BV> {
+impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
     type Node = DBVTNodeId;
 
     fn root(&self) -> Option<Self::Node> {

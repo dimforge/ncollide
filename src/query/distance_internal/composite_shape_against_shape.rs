@@ -1,7 +1,7 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use query::distance_internal;
 use query::PointQuery;
 use shape::{CompositeShape, Shape};
@@ -29,7 +29,7 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
         g2: g2,
     };
 
-    g1.bvt()
+    g1.bvh()
         .best_first_search(&mut visitor)
         .expect("The composite shape must not be empty.")
 }

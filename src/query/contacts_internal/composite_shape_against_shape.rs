@@ -1,7 +1,6 @@
 use bounding_volume::BoundingVolume;
 use math::Isometry;
 use na::{self, Real};
-use partitioning::AbstractBVH;
 use query::Contact;
 use query::contacts_internal;
 use query::visitors::BoundingVolumeInterferencesCollector;
@@ -26,7 +25,7 @@ pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
 
     {
         let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut interferences);
-        g1.bvt().visit(&mut visitor);
+        g1.bvh().visit(&mut visitor);
     }
 
     let mut res = None::<Contact<N>>;

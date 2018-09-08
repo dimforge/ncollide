@@ -1,9 +1,9 @@
 use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{AbstractBVH, BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
 use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::CompositePointContainmentTest};
-use shape::{CompositeShape, FeatureId, Polyline, SegmentPointLocation};
+use shape::{FeatureId, Polyline, SegmentPointLocation};
 use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Polyline<N> {
