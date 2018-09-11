@@ -1,18 +1,17 @@
 //! Axis Aligned Bounding Box.
 
-use na::{self, Real};
-
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
-use math::{Point, Vector, Isometry};
+use math::{Isometry, Point, Vector};
+use na::{self, Real};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
 ///
 /// Same as `g.aabb(m)`.
 pub fn aabb<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> AABB<N>
-where
-    N: Real,
-    G: HasBoundingVolume<N, AABB<N>>,
+    where
+        N: Real,
+        G: HasBoundingVolume<N, AABB<N>>,
 {
     g.bounding_volume(m)
 }
@@ -62,6 +61,12 @@ impl<N: Real> AABB<N> {
     pub fn half_extents(&self) -> Vector<N> {
         let half: N = na::convert(0.5);
         (self.maxs - self.mins) * half
+    }
+
+    /// The extents of this AABB.
+    #[inline]
+    pub fn extents(&self) -> Vector<N> {
+        self.maxs - self.mins
     }
 }
 

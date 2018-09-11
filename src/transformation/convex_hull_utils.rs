@@ -1,9 +1,8 @@
-use num::Bounded;
 use alga::linear::EuclideanSpace;
-
-use na::{self, Real};
-use math::{Isometry, Point};
 use bounding_volume;
+use math::{Isometry, Point};
+use na::{self, Real};
+use num::Bounded;
 
 /// Returns the index of the support point of a list of points.
 pub fn support_point_id<P: EuclideanSpace>(
@@ -50,9 +49,9 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
 
 /// Scale and center the given set of point depending on their AABB.
 pub fn normalize<N: Real>(coords: &mut [Point<N>]) -> (Point<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
-    let diag = na::distance(&mins, &maxs);
-    let center = na::center(&mins, &maxs);
+    let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
+    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let center = aabb.center();
 
     for c in coords.iter_mut() {
         *c = (*c + (-center.coords)) / diag;

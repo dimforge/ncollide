@@ -5,6 +5,8 @@ use bounding_volume::BoundingVolume;
 use math::{DIM, Point};
 use partitioning::BVH;
 use std::collections::VecDeque;
+use std::iter;
+use std::usize;
 use utils;
 
 /// A Bounding Volume Tree.
@@ -18,7 +20,8 @@ pub struct BVT<T, BV> {
     // that are not needed in the general case.
     deformation_timestamp: usize,
     deformation_infos: Vec<BVTDeformationInfo>,
-    deformed_nodes: VecDeque<BVTNodeId>,
+    // Infos for leaves are stored starting at the index self.internals.len().
+    parents_to_update: VecDeque<usize>,
 }
 
 /// The identifier of a BVT node.
@@ -37,10 +40,25 @@ struct BVTInternal<BV> {
     left: BVTNodeId,
 }
 
+/// A leaf of the BVT.
 #[derive(Clone)]
-struct BVTLeaf<T, BV> {
+pub struct BVTLeaf<T, BV> {
     bounding_volume: BV,
     data: T,
+}
+
+impl<T, BV> BVTLeaf<T, BV> {
+    /// The bounding volume stored on this leaf.
+    #[inline]
+    pub fn bounding_volume(&self) -> &BV {
+        &self.bounding_volume
+    }
+
+    /// The user-data stored on this leaf.
+    #[inline]
+    pub fn data(&self) -> &T {
+        &self.data
+    }
 }
 
 #[derive(Clone)]
@@ -58,25 +76,34 @@ pub enum BinaryPartition<T, BV> {
 }
 
 impl<T, BV> BVT<T, BV> {
-    // FIXME: add higher level constructors ?
-    /// Builds a bounding volume tree using an user-defined construction function.
-    pub fn new_with_partitioner<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
+    /// Builds a bounding volume tree using the specified partitioning function.
+    #[deprecated(note = "please use `from_partitioning` instead")]
+    pub fn new_with_partitioning<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
         elements: Vec<(T, BV)>,
-        partitioner: &mut F,
+        partitioning: &mut F,
+    ) -> BVT<T, BV> {
+        Self::from_partitioning(elements, partitioning)
+    }
+
+    // FIXME: add higher level constructors ?
+    /// Builds a bounding volume tree using the specified partitioning function.
+    pub fn from_partitioning(
+        elements: Vec<(T, BV)>,
+        partitioning: &mut impl FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>),
     ) -> BVT<T, BV> {
         if elements.len() == 0 {
             BVT {
                 root: BVTNodeId::Leaf(0),
                 internals: Vec::new(),
                 leaves: Vec::new(),
-                deformation_timestamp: 0,
+                deformation_timestamp: 1,
                 deformation_infos: Vec::new(),
-                deformed_nodes: VecDeque::new(),
+                parents_to_update: VecDeque::new(),
             }
         } else {
             let mut internals = Vec::new();
             let mut leaves = Vec::new();
-            let root = Self::_new_with_partitioner(0, elements, &mut internals, &mut leaves, partitioner);
+            let root = Self::_from_partitioning(0, elements, &mut internals, &mut leaves, partitioning);
             internals.shrink_to_fit();
             leaves.shrink_to_fit();
 
@@ -84,11 +111,23 @@ impl<T, BV> BVT<T, BV> {
                 root,
                 internals,
                 leaves,
-                deformation_timestamp: 0,
+                deformation_timestamp: 1,
                 deformation_infos: Vec::new(),
-                deformed_nodes: VecDeque::new(),
+                parents_to_update: VecDeque::new(),
             }
         }
+    }
+
+    /// The set of leaves on this BVT.
+    #[inline]
+    pub fn leaves(&self) -> &[BVTLeaf<T, BV>] {
+        &self.leaves
+    }
+
+    /// Referenceto the i-th leaf of this BVT.
+    #[inline]
+    pub fn leaf(&self, i: usize) -> &BVTLeaf<T, BV> {
+        &self.leaves[i]
     }
 
     /// Reference to the bounding volume of the tree root.
@@ -102,6 +141,100 @@ impl<T, BV> BVT<T, BV> {
             BVTNodeId::Internal(i) => Some(&self.internals[i].bounding_volume),
         }
     }
+
+    /// Set the bounding volume of the i-th leaf.
+    ///
+    /// If `refit_now` is `true`, the bounding volumes of all the ancestors of the
+    /// modifiad leaf will be updated as well to enclose the new leaf bounding volume.
+    /// If `refit_now` is `false`, no ancestor update will be performed until the
+    /// `.refit()` method is called. This is useful to refit the tree only once after
+    /// several leaf bounding volume modifications.
+    pub fn set_leaf_bounding_volume<N: Real>(&mut self, i: usize, bv: BV, refit_now: bool)
+        where BV: BoundingVolume<N> {
+        self.init_deformation_infos();
+        self.leaves[i].bounding_volume = bv;
+
+        if refit_now {
+            let mut curr = self.deformation_infos[self.internals.len() + i].parent;
+
+            while curr != usize::max_value() {
+                let new_bv =
+                    match (self.internals[curr].left, self.internals[curr].right) {
+                        (BVTNodeId::Internal(i), BVTNodeId::Internal(j)) => self.internals[i].bounding_volume.merged(&self.internals[j].bounding_volume),
+                        (BVTNodeId::Internal(i), BVTNodeId::Leaf(j)) => self.internals[i].bounding_volume.merged(&self.leaves[j].bounding_volume),
+                        (BVTNodeId::Leaf(i), BVTNodeId::Internal(j)) => self.leaves[i].bounding_volume.merged(&self.internals[j].bounding_volume),
+                        (BVTNodeId::Leaf(i), BVTNodeId::Leaf(j)) => self.leaves[i].bounding_volume.merged(&self.leaves[j].bounding_volume),
+                    };
+                self.internals[curr].bounding_volume = new_bv;
+                curr = self.deformation_infos[curr].parent;
+            }
+        } else {
+            if self.leaves.len() != 1 {
+                self.parents_to_update.push_back(self.deformation_infos[self.internals.len() + i].parent)
+            }
+        }
+    }
+
+    /// Refits the bounding volumes so that all node of the BVT have boundin volumes that enclose their children.
+    ///
+    /// This must be called to ensure the BVT is in a valid state after several calls to
+    /// `.set_leaf_bounding_volume(_, _, false)`.
+    /// Every bounding volume created during this update will be enlarged by a margin of `margin`.
+    /// The larger this margin here, the looser will the resulting AABB will be, but the less frequent
+    /// future updates will be necessary.
+    /// Setting a margin equal to 0.0 is allowed.
+    pub fn refit<N: Real>(&mut self, margin: N)
+        where BV: BoundingVolume<N> {
+        assert!(margin >= N::zero(), "Cannot set a negative margin.");
+
+        self.deformation_timestamp += 1;
+
+        while let Some(curr) = self.parents_to_update.pop_front() {
+            let infos = &mut self.deformation_infos[curr];
+            if infos.timestamp < self.deformation_timestamp {
+                // This node has not been updated yet.
+                infos.timestamp = self.deformation_timestamp;
+
+                let mut new_bv =
+                    match (self.internals[curr].left, self.internals[curr].right) {
+                        (BVTNodeId::Internal(i), BVTNodeId::Internal(j)) => self.internals[i].bounding_volume.merged(&self.internals[j].bounding_volume),
+                        (BVTNodeId::Internal(i), BVTNodeId::Leaf(j)) => self.internals[i].bounding_volume.merged(&self.leaves[j].bounding_volume),
+                        (BVTNodeId::Leaf(i), BVTNodeId::Internal(j)) => self.leaves[i].bounding_volume.merged(&self.internals[j].bounding_volume),
+                        (BVTNodeId::Leaf(i), BVTNodeId::Leaf(j)) => self.leaves[i].bounding_volume.merged(&self.leaves[j].bounding_volume),
+                    };
+
+                if !self.internals[curr].bounding_volume.contains(&new_bv) {
+                    if !margin.is_zero() {
+                        new_bv.loosen(margin)
+                    }
+
+                    self.internals[curr].bounding_volume = new_bv;
+                    self.parents_to_update.push_back(infos.parent);
+                }
+            }
+        }
+    }
+
+    fn init_deformation_infos(&mut self) {
+        if self.deformation_infos.is_empty() {
+            self.deformation_infos =
+                iter::repeat(BVTDeformationInfo { parent: usize::max_value(), timestamp: 0 })
+                    .take(self.internals.len() + self.leaves.len())
+                    .collect();
+
+            for (i, internal) in self.internals.iter().enumerate() {
+                match internal.left {
+                    BVTNodeId::Internal(j) => self.deformation_infos[j].parent = i,
+                    BVTNodeId::Leaf(j) => self.deformation_infos[self.internals.len() + j].parent = i,
+                }
+
+                match internal.right {
+                    BVTNodeId::Internal(j) => self.deformation_infos[j].parent = i,
+                    BVTNodeId::Leaf(j) => self.deformation_infos[self.internals.len() + j].parent = i,
+                }
+            }
+        }
+    }
 }
 
 impl<T, BV> BVT<T, BV> {
@@ -111,11 +244,11 @@ impl<T, BV> BVT<T, BV> {
             N: Real,
             BV: BoundingVolume<N> + Clone,
     {
-        BVT::new_with_partitioner(leaves, &mut Self::median_partitioner)
+        BVT::from_partitioning(leaves, &mut Self::median_partitioning)
     }
 
-    /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-    pub fn median_partitioner_with_centers<N, F: FnMut(&T, &BV) -> Point<N>>(
+    /// Construction function for a kdree to be used with `BVT::from_partitioning`.
+    pub fn median_partitioning_with_centers<N, F: FnMut(&T, &BV) -> Point<N>>(
         depth: usize,
         leaves: Vec<(T, BV)>,
         center: &mut F,
@@ -177,23 +310,23 @@ impl<T, BV> BVT<T, BV> {
         }
     }
 
-    /// Construction function for a kdree to be used with `BVT::new_with_partitioner`.
-    pub fn median_partitioner<N>(depth: usize, leaves: Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)
+    /// Construction function for a kdree to be used with `BVT::from_partitioning`.
+    pub fn median_partitioning<N>(depth: usize, leaves: Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)
         where
             N: Real,
             BV: BoundingVolume<N> + Clone,
     {
-        Self::median_partitioner_with_centers(depth, leaves, &mut |_, bv| bv.center())
+        Self::median_partitioning_with_centers(depth, leaves, &mut |_, bv| bv.center())
     }
 
-    fn _new_with_partitioner<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
+    fn _from_partitioning<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
         depth: usize,
         leaves: Vec<(T, BV)>,
         out_internals: &mut Vec<BVTInternal<BV>>,
         out_leaves: &mut Vec<BVTLeaf<T, BV>>,
-        partitioner: &mut F,
+        partitioning: &mut F,
     ) -> BVTNodeId {
-        let (bv, partitions) = partitioner(depth, leaves);
+        let (bv, partitions) = partitioning(depth, leaves);
 
         match partitions {
             BinaryPartition::Part(b) => {
@@ -201,8 +334,8 @@ impl<T, BV> BVT<T, BV> {
                 BVTNodeId::Leaf(out_leaves.len() - 1)
             }
             BinaryPartition::Parts(left, right) => {
-                let left = Self::_new_with_partitioner(depth + 1, left, out_internals, out_leaves, partitioner);
-                let right = Self::_new_with_partitioner(depth + 1, right, out_internals, out_leaves, partitioner);
+                let left = Self::_from_partitioning(depth + 1, left, out_internals, out_leaves, partitioning);
+                let right = Self::_from_partitioning(depth + 1, right, out_internals, out_leaves, partitioning);
                 out_internals.push(BVTInternal { bounding_volume: bv, left, right });
                 BVTNodeId::Internal(out_internals.len() - 1)
             }

@@ -1,6 +1,6 @@
 use bounding_volume::{self, AABB, BoundingVolume};
 use math::Isometry;
-use na::{self, Point3, Real, Translation3, Vector2, Vector3};
+use na::{self, Id, Point3, Real, Translation3, Vector2, Vector3};
 use num::{Bounded, Zero};
 use partitioning::{BVH, BVT};
 use procedural::{IndexBuffer, TriMesh};
@@ -161,9 +161,9 @@ pub fn hacd<N: Real>(
 }
 
 fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
-    let diag = na::distance(&mins, &maxs);
-    let center = na::center(&mins, &maxs);
+    let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
+    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let center = aabb.center();
 
     mesh.translate_by(&Translation3::from_vector(-center.coords));
     let _1: N = na::one();
@@ -217,8 +217,7 @@ impl<N: Real> DualGraphVertex<N> {
         ];
 
         let area = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &triangle[..]);
-        let aabb = AABB::new(vmin, vmax);
+        let aabb = bounding_volume::point_cloud_aabb(&Id::new(), &triangle[..]);
 
         let chull = TriMesh::new(triangle, None, None, None);
 
