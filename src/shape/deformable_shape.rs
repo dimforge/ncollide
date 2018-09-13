@@ -1,6 +1,7 @@
 use na::Real;
 
 /// The type of elements used to describe a deformation on a collision object.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum DeformationsType {
     /// Deformations described as scalars.
     Scalars,

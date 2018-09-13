@@ -1,15 +1,15 @@
+use bounding_volume::{self, AABB, BoundingSphere};
+use math::Isometry;
 use na::Real;
-use bounding_volume::{self, BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Polyline, Segment,
-            Shape, SupportMap};
+use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, DeformableShape, Plane, Polyline,
+            Segment, Shape, SupportMap};
+#[cfg(feature = "dim3")]
+use shape::{ConvexHull, Triangle, TriMesh};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
-#[cfg(feature = "dim3")]
-use shape::{ConvexHull, TriMesh, Triangle};
-use math::Isometry;
 
-macro_rules! impl_as_convex_polyhedron(
+macro_rules! impl_as_convex_polyhedron (
     () => {
         #[inline]
         fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<N>> {
@@ -23,7 +23,7 @@ macro_rules! impl_as_convex_polyhedron(
     }
 );
 
-macro_rules! impl_as_support_map(
+macro_rules! impl_as_support_map (
     () => {
         #[inline]
         fn as_support_map(&self) -> Option<&SupportMap<N>> {
@@ -37,7 +37,7 @@ macro_rules! impl_as_support_map(
     }
 );
 
-macro_rules! impl_as_composite_shape(
+macro_rules! impl_as_composite_shape (
     () => {
         #[inline]
         fn as_composite_shape(&self) -> Option<&CompositeShape<N>> {
@@ -51,7 +51,26 @@ macro_rules! impl_as_composite_shape(
     }
 );
 
-macro_rules! impl_shape_common(
+macro_rules! impl_as_deformable_shape (
+    () => {
+        #[inline]
+        fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> {
+            Some(self)
+        }
+
+        #[inline]
+        fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> {
+            Some(self)
+        }
+
+        #[inline]
+        fn is_deformable_shape(&self) -> bool {
+            true
+        }
+    }
+);
+
+macro_rules! impl_shape_common (
     () => {
         #[inline]
         fn aabb(&self, m: &Isometry<N>) -> AABB<N> {
@@ -140,6 +159,7 @@ impl<N: Real> Shape<N> for Compound<N> {
 impl<N: Real> Shape<N> for TriMesh<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
+    impl_as_deformable_shape!();
 }
 
 impl<N: Real> Shape<N> for Polyline<N> {

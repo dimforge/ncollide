@@ -61,7 +61,7 @@ impl<N: Real> TriMesh<N> {
         }
 
         let bvt = BVT::new_balanced(leaves);
-        let mut bvt_leaf_ids: Vec<usize> = iter::repeat(0).collect();
+        let mut bvt_leaf_ids: Vec<usize> = iter::repeat(0).take(bvt.leaves().len()).collect();
 
         for (i, leaf) in bvt.leaves().iter().enumerate() {
             bvt_leaf_ids[*leaf.data()] = i
@@ -130,6 +130,7 @@ impl<N: Real> TriMesh<N> {
 
     fn init_deformation_infos(&mut self) {
         if self.deformations.ref_vertices.is_empty() {
+            self.deformations.ref_vertices = Vec::with_capacity(self.vertices.len());
             self.deformations.timestamps = iter::repeat(0).take(self.indices.len()).collect();
             let mut num_neighbors: Vec<usize> = iter::repeat(0).take(self.vertices.len()).collect();
 
@@ -139,15 +140,17 @@ impl<N: Real> TriMesh<N> {
                 num_neighbors[idx.z] += 1;
             }
 
-            let mut curr_neighbor = 0;
+            let mut total_num_nbh = 0;
 
             for (num_nbh, pt) in num_neighbors.iter().zip(self.vertices.iter()) {
                 self.deformations.ref_vertices.push(RefVertex {
                     point: *pt,
-                    adj_bvs: curr_neighbor..curr_neighbor + num_nbh,
+                    adj_bvs: total_num_nbh..total_num_nbh + num_nbh,
                 });
-                curr_neighbor += num_nbh;
+                total_num_nbh += num_nbh;
             }
+
+            self.deformations.adj_list = iter::repeat(0).take(total_num_nbh).collect();
 
             // Build the adjascency list.
             for n in &mut num_neighbors {
@@ -218,7 +221,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
             let sq_dist_to_ref = na::distance_squared(pt, &ref_pt.point);
 
             if sq_dist_to_ref > self.deformations.margin * self.deformations.margin {
-                // We have to update the adjascent bounding volumes.
+                // We have to update the adjacent bounding volumes.
                 self.deformations.tri_to_update.extend_from_slice(&self.deformations.adj_list[ref_pt.adj_bvs.clone()]);
                 ref_pt.point = *pt;
             }

@@ -209,7 +209,11 @@ impl<T, BV> BVT<T, BV> {
                     }
 
                     self.internals[curr].bounding_volume = new_bv;
-                    self.parents_to_update.push_back(infos.parent);
+
+                    if infos.parent != usize::max_value() {
+                        // Push the parent if it is not the root.
+                        self.parents_to_update.push_back(infos.parent);
+                    }
                 }
             }
         }
