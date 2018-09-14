@@ -128,7 +128,7 @@ impl<N: Real> TriMesh<N> {
         &self.bvt
     }
 
-    fn init_deformation_infos(&mut self) {
+    fn init_deformation_infos(&mut self) -> bool {
         if self.deformations.ref_vertices.is_empty() {
             self.deformations.ref_vertices = Vec::with_capacity(self.vertices.len());
             self.deformations.timestamps = iter::repeat(0).take(self.indices.len()).collect();
@@ -166,6 +166,10 @@ impl<N: Real> TriMesh<N> {
                 num_neighbors[idx.y] += 1;
                 num_neighbors[idx.z] += 1;
             }
+
+            true
+        } else {
+            false
         }
     }
 }
@@ -211,7 +215,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]) {
-        self.init_deformation_infos();
+        let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
         for id in indices {
@@ -220,7 +224,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
             let ref_pt = &mut self.deformations.ref_vertices[id.target];
             let sq_dist_to_ref = na::distance_squared(pt, &ref_pt.point);
 
-            if sq_dist_to_ref > self.deformations.margin * self.deformations.margin {
+            if is_first_init || sq_dist_to_ref > self.deformations.margin * self.deformations.margin {
                 // We have to update the adjacent bounding volumes.
                 self.deformations.tri_to_update.extend_from_slice(&self.deformations.adj_list[ref_pt.adj_bvs.clone()]);
                 ref_pt.point = *pt;
