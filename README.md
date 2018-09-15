@@ -2,8 +2,8 @@
     <a href="https://crates.io/crates/ncollide">
          <img src="http://meritbadge.herokuapp.com/ncollide?style=flat-square" alt="crates.io">
     </a>
-    <a href="https://travis-ci.org/sebcrozet/ncollide">
-        <img src="https://travis-ci.org/sebcrozet/ncollide.svg?branch=master" alt="Build status">
+    <a href="https://travis-ci.org/rustsim/ncollide">
+        <img src="https://travis-ci.org/rustsim/ncollide.svg?branch=master" alt="Build status">
     </a>
 </p>
 <p align = "center">
