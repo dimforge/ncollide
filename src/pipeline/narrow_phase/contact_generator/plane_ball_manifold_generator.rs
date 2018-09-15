@@ -1,11 +1,10 @@
-use na::{self, Real};
-
-use math::{Isometry, Point};
-use utils::{IdAllocator, IsometryOps};
-use shape::{Ball, FeatureId, Plane, Shape};
 use bounding_volume::PolyhedralCone;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use math::{Isometry, Point};
+use na::{self, Real};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation};
+use shape::{Ball, FeatureId, Plane, Shape};
+use utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -61,16 +60,21 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                 let mut kinematic = ContactKinematic::new();
                 let contact;
 
+                let approx_ball = LocalShapeApproximation::Point(local2);
+                let normals_ball = PolyhedralCone::Full;
+                let approx_plane = LocalShapeApproximation::Plane(local1, *plane.normal());
+                let normals_plane = PolyhedralCone::HalfSpace(*plane.normal());
+
                 if !flip {
                     contact = Contact::new(world1, world2, plane_normal, depth);
-                    kinematic.set_plane1(f1, local1, *plane.normal());
-                    kinematic.set_point2(f2, local2, PolyhedralCone::Full);
+                    kinematic.set_approx1(f1, approx_plane, normals_plane);
+                    kinematic.set_approx2(f2, approx_ball, normals_ball);
                     kinematic.set_dilation2(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
-                    kinematic.set_point1(f2, local2, PolyhedralCone::Full);
+                    kinematic.set_approx1(f2, approx_ball, normals_ball);
                     kinematic.set_dilation1(ball.radius());
-                    kinematic.set_plane2(f1, local1, *plane.normal());
+                    kinematic.set_approx2(f1, approx_plane, normals_plane);
                 }
 
                 let _ = self.manifold.push(contact, kinematic, id_alloc);

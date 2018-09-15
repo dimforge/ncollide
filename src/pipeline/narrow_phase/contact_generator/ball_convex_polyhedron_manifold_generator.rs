@@ -1,10 +1,10 @@
-use na::{Unit, Real};
-use math::{Isometry, Point};
-use utils::{IdAllocator, IsometryOps};
 use bounding_volume::PolyhedralCone;
-use shape::{Ball, FeatureId, Shape};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use math::{Isometry, Point};
+use na::{Real, Unit};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation};
+use shape::{Ball, FeatureId, Shape};
+use utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between two balls.
 pub struct BallConvexPolyhedronManifoldGenerator<N: Real> {
@@ -71,47 +71,43 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     let world1 = ball_center + normal.unwrap() * ball.radius();
 
                     let contact;
+                    let ball_approx = LocalShapeApproximation::Point(Point::origin());
 
                     if !flip {
                         contact = Contact::new(world1, world2, normal, depth);
-                        kinematic.set_point1(f1, Point::origin(), PolyhedralCone::Full);
+                        kinematic.set_approx1(f1, ball_approx, PolyhedralCone::Full);
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_point2(f1, Point::origin(), PolyhedralCone::Full);
+                        kinematic.set_approx2(f1, ball_approx, PolyhedralCone::Full);
                         kinematic.set_dilation2(ball.radius());
                     }
 
                     let local2 = m2.inverse_transform_point(&world2);
                     let n2 = cp2.normal_cone(f2);
+                    let approx2;
 
                     match f2 {
                         FeatureId::Face { .. } => {
-                            if !flip {
-                                kinematic.set_plane2(f2, local2, n2.unwrap_half_line())
-                            } else {
-                                kinematic.set_plane1(f2, local2, n2.unwrap_half_line())
-                            }
+                            let n = n2.unwrap_half_line();
+                            approx2 = LocalShapeApproximation::Plane(local2, n);
                         }
                         #[cfg(feature = "dim3")]
                         FeatureId::Edge { .. } => {
                             let edge = cp2.edge(f2);
                             let dir = Unit::new_normalize(edge.1 - edge.0);
-
-                            if !flip {
-                                kinematic.set_line2(f2, local2, dir, n2)
-                            } else {
-                                kinematic.set_line1(f2, local2, dir, n2)
-                            }
+                            approx2 = LocalShapeApproximation::Line(local2, dir);
                         }
                         FeatureId::Vertex { .. } => {
-                            if !flip {
-                                kinematic.set_point2(f2, local2, n2)
-                            } else {
-                                kinematic.set_point1(f2, local2, n2)
-                            }
+                            approx2 = LocalShapeApproximation::Point(local2);
                         }
                         FeatureId::Unknown => panic!("Feature id cannot be unknown."),
+                    }
+
+                    if !flip {
+                        kinematic.set_approx2(f2, approx2, n2)
+                    } else {
+                        kinematic.set_approx1(f2, approx2, n2)
                     }
 
                     let _ = self.contact_manifold.push(contact, kinematic, id_alloc);
@@ -128,7 +124,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N>
-    for BallConvexPolyhedronManifoldGenerator<N>
+for BallConvexPolyhedronManifoldGenerator<N>
 {
     fn update(
         &mut self,
