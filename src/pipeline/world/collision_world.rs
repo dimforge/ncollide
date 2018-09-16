@@ -163,7 +163,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     }
 
     /// Apply the given deformations to the specified object.
-    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: &[DeformationIndex]) {
+    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: &[usize]) {
         let co = self
             .objects
             .get_mut(handle)

@@ -215,14 +215,14 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     }
 
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]) {
+    fn set_deformations(&mut self, coords: &[N], indices: &[usize]) {
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
-        for id in indices {
-            let pt = &mut self.vertices[id.target];
-            pt.coords.copy_from_slice(&coords[id.source..id.source + DIM]);
-            let ref_pt = &mut self.deformations.ref_vertices[id.target];
+        for (target, source) in indices.iter().enumerate() {
+            let pt = &mut self.vertices[target];
+            pt.coords.copy_from_slice(&coords[*source..*source + DIM]);
+            let ref_pt = &mut self.deformations.ref_vertices[target];
             let sq_dist_to_ref = na::distance_squared(pt, &ref_pt.point);
 
             if is_first_init || sq_dist_to_ref > self.deformations.margin * self.deformations.margin {

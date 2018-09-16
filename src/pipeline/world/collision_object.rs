@@ -154,7 +154,7 @@ impl<N: Real, T> CollisionObject<N, T> {
     ///
     /// Panics if the shape is not deformable.
     #[inline]
-    pub fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]) {
+    pub fn set_deformations(&mut self, coords: &[N], indices: &[usize]) {
         self.shape.make_mut()
             .as_deformable_shape_mut()
             .expect("Attempting to deform a non-deformable shape.")

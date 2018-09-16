@@ -28,8 +28,11 @@ pub trait DeformableShape<N: Real> {
 //    /// Applies a deformation to all the degrees of freedom of this shape.
 //    fn deform_all(&mut self, coords: &[N], indices: &[usize]);
 
+    /// Updates some the degrees of freedom of this shape.
+//    fn set_partial_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
+
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
+    fn set_deformations(&mut self, coords: &[N], indices: &[usize]);
 
     /// Updates the given local approximation of this shape.
     fn update_local_approximation(
