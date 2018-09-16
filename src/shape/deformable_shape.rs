@@ -1,4 +1,5 @@
 use na::Real;
+use query::LocalShapeApproximation;
 
 /// The type of elements used to describe a deformation on a collision object.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -24,6 +25,18 @@ pub trait DeformableShape<N: Real> {
     /// The type of degrees of freedom this shape has.
     fn deformations_type(&self) -> DeformationsType;
 
+//    /// Applies a deformation to all the degrees of freedom of this shape.
+//    fn deform_all(&mut self, coords: &[N], indices: &[usize]);
+
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
+
+    /// Updates the given local approximation of this shape.
+    fn update_local_approximation(
+        &self,
+        coords: &[N],
+        indices: &[usize],
+        part_id: usize,
+        approx: &mut LocalShapeApproximation<N>,
+    );
 }

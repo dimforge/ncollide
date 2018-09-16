@@ -70,5 +70,3 @@ mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
 mod deformable_shape;
-//#[cfg(feature = "dim3")]
-//mod deformable_trimesh;

@@ -1,20 +1,21 @@
 //! Definition of the triangle shape.
 
 #[cfg(feature = "dim3")]
-use std::f64;
-use std::mem;
+use bounding_volume::PolyhedralCone;
+use math::{Isometry, Point, Vector};
 use na::{self, Unit};
 use na::Real;
+#[cfg(feature = "dim3")]
+use query::{LocalShapeApproximation, NeighborhoodGeometry};
+#[cfg(feature = "dim3")]
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, Segment};
 use shape::SupportMap;
-use math::{Isometry, Point, Vector};
-use utils::IsometryOps;
-
 #[cfg(feature = "dim3")]
 use smallvec::SmallVec;
 #[cfg(feature = "dim3")]
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
-#[cfg(feature = "dim3")]
-use bounding_volume::PolyhedralCone;
+use std::f64;
+use std::mem;
+use utils::IsometryOps;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
@@ -102,6 +103,37 @@ impl<N: Real> Triangle<N> {
         let ab = self.b - self.a;
         let ac = self.c - self.a;
         ab.cross(&ac)
+    }
+
+    /// Updates the approximation of this shape of the feature specified in `approx`.
+    // FIXME: implement this for the 2D case too.
+    #[cfg(feature = "dim3")]
+    #[inline]
+    pub fn update_local_approximation(&self, approx: &mut LocalShapeApproximation<N>) {
+        approx.normals = self.normal_cone(approx.feature);
+
+        match approx.feature {
+            FeatureId::Vertex(i) => {
+                approx.point = self.as_array()[i];
+            }
+            FeatureId::Edge(i) => {
+                let points = self.as_array();
+                approx.point = points[i];
+                let edge = Segment::new(points[i], points[(i + 1) % 3]);
+
+                if let Some(dir) = edge.direction() {
+                    approx.geometry = NeighborhoodGeometry::Line(dir);
+                } else {
+                    approx.feature = FeatureId::Vertex(i);
+                    approx.geometry = NeighborhoodGeometry::Point;
+                }
+            }
+            FeatureId::Face(_) => {
+                approx.point = self.a;
+                approx.geometry = NeighborhoodGeometry::Plane(approx.normals.unwrap_half_line());
+            }
+            FeatureId::Unknown => panic!("Encountered unknown feature.")
+        }
     }
 }
 

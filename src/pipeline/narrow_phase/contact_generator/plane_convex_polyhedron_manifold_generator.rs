@@ -2,7 +2,7 @@ use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point};
 use na::{self, Real};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
 use utils::{IdAllocator, IsometryOps};
 
@@ -60,19 +60,19 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
                         let mut kinematic = ContactKinematic::new();
                         let contact;
 
-                        let approx_plane = LocalShapeApproximation::Plane(local1, *plane.normal());
+                        let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
                         let normals_plane = PolyhedralCone::HalfLine(*plane.normal());
 
-                        let approx2 = LocalShapeApproximation::Point(local2);
+                        let approx2 = NeighborhoodGeometry::Point;
 
                         if !flip {
                             contact = Contact::new(world1, *world2, plane_normal, -dist);
-                            kinematic.set_approx1(f1, approx_plane, normals_plane);
-                            kinematic.set_approx2(f2, approx2, n2);
+                            kinematic.set_approx1(f1, local1, approx_plane, normals_plane);
+                            kinematic.set_approx2(f2, local2, approx2, n2);
                         } else {
                             contact = Contact::new(*world2, world1, -plane_normal, -dist);
-                            kinematic.set_approx1(f2, approx2, n2);
-                            kinematic.set_approx2(f1, approx_plane, normals_plane);
+                            kinematic.set_approx1(f2, local2, approx2, n2);
+                            kinematic.set_approx2(f1, local1, approx_plane, normals_plane);
                         }
                         let _ = self.manifold.push(contact, kinematic, id_alloc);
                     }

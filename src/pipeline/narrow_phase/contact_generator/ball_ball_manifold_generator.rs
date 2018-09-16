@@ -2,7 +2,7 @@ use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::{ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation};
+use query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use query::contacts_internal;
 use shape::{Ball, FeatureId, Shape};
 use utils::IdAllocator;
@@ -54,9 +54,8 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
             contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
                 {
                     let mut kinematic = ContactKinematic::new();
-                    let approx = LocalShapeApproximation::Point(Point::origin());
-                    kinematic.set_approx1(FeatureId::Face(0), approx, PolyhedralCone::Full);
-                    kinematic.set_approx2(FeatureId::Face(0), approx, PolyhedralCone::Full);
+                    kinematic.set_approx1(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point, PolyhedralCone::Full);
+                    kinematic.set_approx2(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point, PolyhedralCone::Full);
                     kinematic.set_dilation1(a.radius());
                     kinematic.set_dilation2(b.radius());
 

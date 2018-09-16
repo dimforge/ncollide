@@ -3,7 +3,8 @@ use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Vector};
 use na::{self, Point2, Real, Unit};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction,
+            NeighborhoodGeometry};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
@@ -90,41 +91,44 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
 
             match f1 {
                 FeatureId::Face(..) => {
-                    let approx1 = LocalShapeApproximation::Plane(local1, n1.unwrap_half_line());
-                    kinematic.set_approx1(f1, approx1, n1)
+                    kinematic.set_approx1(f1,
+                                          local1,
+                                          NeighborhoodGeometry::Plane(n1.unwrap_half_line()),
+                                          n1)
                 }
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e1 = self.manifold1.edge(f1).expect("Invalid edge id.");
                     if let Some(dir1) = e1.direction() {
                         let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
-                        let approx1 = LocalShapeApproximation::Line(local1, local_dir1);
-                        kinematic.set_approx1(f1, approx1, n1)
+                        let approx1 = NeighborhoodGeometry::Line(local_dir1);
+                        kinematic.set_approx1(f1, local1, approx1, n1)
                     } else {
                         continue;
                     }
                 }
-                FeatureId::Vertex(..) => kinematic.set_approx1(f1, LocalShapeApproximation::Point(local1), n1),
-                FeatureId::Unknown => unreachable!(),
+                FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point, n1),
+                FeatureId::Unknown =>
+                    unreachable!(),
             }
 
             match f2 {
                 FeatureId::Face(..) => {
-                    let approx2 = LocalShapeApproximation::Plane(local2, n2.unwrap_half_line());
-                    kinematic.set_approx2(f2, approx2, n2)
+                    let approx2 = NeighborhoodGeometry::Plane(n2.unwrap_half_line());
+                    kinematic.set_approx2(f2, local2, approx2, n2)
                 }
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
                     let e2 = self.manifold2.edge(f2).expect("Invalid edge id.");
                     if let Some(dir2) = e2.direction() {
                         let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
-                        let approx2 = LocalShapeApproximation::Line(local2, local_dir2);
-                        kinematic.set_approx2(f2, approx2, n2)
+                        let approx2 = NeighborhoodGeometry::Line(local_dir2);
+                        kinematic.set_approx2(f2, local2, approx2, n2)
                     } else {
                         continue;
                     }
                 }
-                FeatureId::Vertex(..) => kinematic.set_approx2(f2, LocalShapeApproximation::Point(local2), n2),
+                FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point, n2),
                 FeatureId::Unknown => unreachable!(),
             }
 

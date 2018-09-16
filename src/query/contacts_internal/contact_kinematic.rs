@@ -6,16 +6,55 @@ use query::Contact;
 use shape::FeatureId;
 use utils::IsometryOps;
 
-/// Approximation of a shape at the neighborhood of a point.
+
+/// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum LocalShapeApproximation<N: Real> {
+pub enum NeighborhoodGeometry<N: Real> {
     /// A punctual approximation.
-    Point(Point<N>),
+    Point,
     /// A line approximation.
-    Line(Point<N>, Unit<Vector<N>>),
+    Line(Unit<Vector<N>>),
     /// A planar approximation.
-    Plane(Point<N>, Unit<Vector<N>>),
+    Plane(Unit<Vector<N>>),
 }
+
+/// The approximation of a shape on the neighborhood of a point.
+#[derive(Clone, Debug)]
+pub struct LocalShapeApproximation<N: Real> {
+    // XXX: currently, there is no explicit representation
+    // of the point where the approximation occurs in terms
+    // of shape-specific parameters. That's because we work
+    // so far with polyhedral approximations. Thus, it is
+    // sufficient to known the feature alone to derive an
+    // approximation.
+    // In the future, we might want to:
+    // - Use `parameters` as a set of shape-dependent coordinates giving the location of the
+    //   point on it.
+    // - Use `point` as the local-space point where the approximation occurs. It should be
+    //   computed by the shape from the parameters.
+
+    /// The shape feature the point lies on.
+    pub feature: FeatureId,
+    /// The point where approximation is computed.
+    pub point: Point<N>,
+    /// The approximation geometry.
+    pub geometry: NeighborhoodGeometry<N>,
+    /// The normal cone at this point.
+    pub normals: PolyhedralCone<N>,
+}
+
+impl<N: Real> LocalShapeApproximation<N> {
+    /// Initializes a new local shape approximation at `point`.
+    pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) -> Self {
+        LocalShapeApproximation {
+            feature,
+            point,
+            geometry,
+            normals,
+        }
+    }
+}
+
 
 /// Local contact kinematic of a pair of solids around two given points.
 /// 
@@ -25,45 +64,41 @@ pub enum LocalShapeApproximation<N: Real> {
 /// cylinders), planes, dilated points (spheres).
 #[derive(Clone, Debug)]
 pub struct ContactKinematic<N: Real> {
-    normals1: PolyhedralCone<N>,
-    normals2: PolyhedralCone<N>,
+    approx1: LocalShapeApproximation<N>,
+    approx2: LocalShapeApproximation<N>,
 
     margin1: N,
     margin2: N,
-
-    feature1: FeatureId,
-    feature2: FeatureId,
-
-    approx1: LocalShapeApproximation<N>,
-    approx2: LocalShapeApproximation<N>,
 }
 
 impl<N: Real> ContactKinematic<N> {
     /// Initializes an empty contact kinematic.
-    /// 
+    ///
     /// All the contact kinematic information must be filled using methods
     /// prefixed by `set_`.
     pub fn new() -> Self {
+        let approx = LocalShapeApproximation::new(
+            FeatureId::Unknown,
+            Point::origin(),
+            NeighborhoodGeometry::Point,
+            PolyhedralCone::Full);
+
         ContactKinematic {
             margin1: na::zero(),
             margin2: na::zero(),
-            normals1: PolyhedralCone::Full,
-            normals2: PolyhedralCone::Full,
-            feature1: FeatureId::Unknown,
-            feature2: FeatureId::Unknown,
-            approx1: LocalShapeApproximation::Point(Point::origin()),
-            approx2: LocalShapeApproximation::Point(Point::origin()),
+            approx1: approx.clone(),
+            approx2: approx,
         }
     }
 
     /// Applies the given transformation to the first set of contact information.
     pub fn transform1(&mut self, m: &Isometry<N>) {
-        self.normals1.transform_by(m);
+        self.approx1.normals.transform_by(m);
+        self.approx1.point = m * self.approx1.point;
 
-        match &mut self.approx1 {
-            LocalShapeApproximation::Point(pt) => *pt = m * &*pt,
-            LocalShapeApproximation::Plane(pt, n) | LocalShapeApproximation::Line(pt, n) => {
-                *pt = m * &*pt;
+        match &mut self.approx1.geometry {
+            NeighborhoodGeometry::Point => {}
+            NeighborhoodGeometry::Plane(n) | NeighborhoodGeometry::Line(n) => {
                 *n = m * &*n;
             }
         }
@@ -71,12 +106,12 @@ impl<N: Real> ContactKinematic<N> {
 
     /// Applies the given transformation to the second set of contact information.
     pub fn transform2(&mut self, m: &Isometry<N>) {
-        self.normals2.transform_by(m);
+        self.approx2.normals.transform_by(m);
+        self.approx2.point = m * self.approx2.point;
 
-        match &mut self.approx2 {
-            LocalShapeApproximation::Point(pt) => *pt = m * &*pt,
-            LocalShapeApproximation::Plane(pt, n) | LocalShapeApproximation::Line(pt, n) => {
-                *pt = m * &*pt;
+        match &mut self.approx2.geometry {
+            NeighborhoodGeometry::Point => {}
+            NeighborhoodGeometry::Plane(n) | NeighborhoodGeometry::Line(n) => {
                 *n = m * &*n;
             }
         }
@@ -99,11 +134,7 @@ impl<N: Real> ContactKinematic<N> {
     /// into account.
     // FIXME: we might want to remove this in the future as it is not generalizable to surfaces.
     pub fn local1(&self) -> Point<N> {
-        match self.approx1 {
-            LocalShapeApproximation::Point(pt) |
-            LocalShapeApproximation::Plane(pt, _) |
-            LocalShapeApproximation::Line(pt, _) => pt
-        }
+        self.approx1.point
     }
 
     /// The tracked point in local space of the second solid.
@@ -113,23 +144,19 @@ impl<N: Real> ContactKinematic<N> {
     /// into account.
     // FIXME: we might want to remove this in the future as it is not generalizable to surfaces.
     pub fn local2(&self) -> Point<N> {
-        match self.approx2 {
-            LocalShapeApproximation::Point(pt) |
-            LocalShapeApproximation::Plane(pt, _) |
-            LocalShapeApproximation::Line(pt, _) => pt
-        }
+        self.approx2.point
     }
 
     /// The shape-dependent identifier of the feature of the first solid
     /// on which lies the contact point.
     pub fn feature1(&self) -> FeatureId {
-        self.feature1
+        self.approx1.feature
     }
 
     /// The shape-dependent identifier of the feature of the second solid
     /// on which lies the contact point.
     pub fn feature2(&self) -> FeatureId {
-        self.feature2
+        self.approx2.feature
     }
 
     /// Sets the dilation of the first solid.
@@ -142,18 +169,35 @@ impl<N: Real> ContactKinematic<N> {
         self.margin2 = margin;
     }
 
+    /// The local approximation of the first shape.
+    pub fn approx1(&self) -> &LocalShapeApproximation<N> {
+        &self.approx1
+    }
+
+    /// The local approximation of the first shape.
+    pub fn approx2(&self) -> &LocalShapeApproximation<N> {
+        &self.approx2
+    }
+
+    /// The local approximation of the first shape.
+    pub fn approx1_mut(&mut self) -> &mut LocalShapeApproximation<N> {
+        &mut self.approx1
+    }
+
+    /// The local approximation of the second shape.
+    pub fn approx2_mut(&mut self) -> &mut LocalShapeApproximation<N> {
+        &mut self.approx2
+    }
+
+
     /// Sets the local approximation of the first shape.
-    pub fn set_approx1(&mut self, fid: FeatureId, approx: LocalShapeApproximation<N>, normals: PolyhedralCone<N>) {
-        self.feature1 = fid;
-        self.approx1 = approx;
-        self.normals1 = normals;
+    pub fn set_approx1(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) {
+        self.approx1 = LocalShapeApproximation::new(feature, point, geom, normals);
     }
 
     /// Sets the local approximation of the second shape.
-    pub fn set_approx2(&mut self, fid: FeatureId, approx: LocalShapeApproximation<N>, normals: PolyhedralCone<N>) {
-        self.feature2 = fid;
-        self.approx2 = approx;
-        self.normals2 = normals;
+    pub fn set_approx2(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) {
+        self.approx2 = LocalShapeApproximation::new(feature, point, geom, normals);
     }
 
 
@@ -168,38 +212,32 @@ impl<N: Real> ContactKinematic<N> {
         m2: &Isometry<N>,
         default_normal1: &Unit<Vector<N>>,
     ) -> Option<Contact<N>> {
-        let mut world1;
-        let mut world2;
         let normal;
         let mut depth;
 
-        match (&self.approx1, &self.approx2) {
-            (LocalShapeApproximation::Plane(local1, _), LocalShapeApproximation::Point(local2)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-                normal = m1 * self.normals1.unwrap_half_line();
+        let mut world1 = m1 * self.approx1.point;
+        let mut world2 = m2 * self.approx2.point;
+
+        match (&self.approx1.geometry, &self.approx2.geometry) {
+            (NeighborhoodGeometry::Plane(_), NeighborhoodGeometry::Point) => {
+                normal = m1 * self.approx1.normals.unwrap_half_line();
                 depth = -na::dot(normal.as_ref(), &(world2 - world1));
                 world1 = world2 + *normal * depth;
             }
-            (LocalShapeApproximation::Point(local1), LocalShapeApproximation::Plane(local2, _)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-                let world_normal2 = m2 * self.normals2.unwrap_half_line();
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Plane(_)) => {
+                let world_normal2 = m2 * self.approx2.normals.unwrap_half_line();
                 depth = -na::dot(&*world_normal2, &(world1 - world2));
                 world2 = world1 + *world_normal2 * depth;
                 normal = -world_normal2;
             }
-            (LocalShapeApproximation::Point(local1), LocalShapeApproximation::Point(local2)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Point) => {
                 if let Some((n, d)) =
                 Unit::try_new_and_get(world2 - world1, N::default_epsilon())
                     {
                         let local_n1 = m1.inverse_transform_unit_vector(&n);
                         let local_n2 = m2.inverse_transform_unit_vector(&-n);
-                        if self.normals1.polar_contains_dir(&local_n1)
-                            || self.normals2.polar_contains_dir(&local_n2)
+                        if self.approx1.normals.polar_contains_dir(&local_n1)
+                            || self.approx2.normals.polar_contains_dir(&local_n2)
                             {
                                 depth = d;
                                 normal = -n;
@@ -212,10 +250,7 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            (LocalShapeApproximation::Line(local1, dir1), LocalShapeApproximation::Point(local2)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-
+            (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Point) => {
                 let world_dir1 = m1 * dir1;
                 let mut shift = world2 - world1;
                 let proj = na::dot(world_dir1.as_ref(), &shift);
@@ -226,7 +261,7 @@ impl<N: Real> ContactKinematic<N> {
                     let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world1 = world2 + (-shift);
 
-                    if self.normals1.polar_contains_dir(&local_n1) || self.normals2.polar_contains_dir(&local_n2)
+                    if self.approx1.normals.polar_contains_dir(&local_n1) || self.approx2.normals.polar_contains_dir(&local_n2)
                         {
                             depth = d;
                             normal = -n;
@@ -239,10 +274,7 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            (LocalShapeApproximation::Point(local1), LocalShapeApproximation::Line(local2, dir2)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir2 = m2 * dir2;
                 let mut shift = world1 - world2;
                 let proj = na::dot(world_dir2.as_ref(), &shift);
@@ -256,8 +288,8 @@ impl<N: Real> ContactKinematic<N> {
                     let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world2 = world1 + shift;
 
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
+                    if self.approx1.normals.polar_contains_dir(&local_n1)
+                        || self.approx2.normals.polar_contains_dir(&local_n2)
                         {
                             depth = d;
                             normal = -n;
@@ -270,10 +302,7 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            (LocalShapeApproximation::Line(local1, dir1), LocalShapeApproximation::Line(local2, dir2)) => {
-                world1 = m1 * local1;
-                world2 = m2 * local2;
-
+            (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir1 = m1 * dir1;
                 let world_dir2 = m2 * dir2;
                 let (pt1, pt2) = closest_points_internal::line_against_line(
@@ -290,8 +319,8 @@ impl<N: Real> ContactKinematic<N> {
                     let local_n1 = m1.inverse_transform_unit_vector(&n);
                     let local_n2 = m2.inverse_transform_unit_vector(&-n);
 
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
+                    if self.approx1.normals.polar_contains_dir(&local_n1)
+                        || self.approx2.normals.polar_contains_dir(&local_n2)
                         {
                             depth = d;
                             normal = -n;

@@ -4,6 +4,7 @@ use bounding_volume::{self, AABB, BoundingVolume};
 use math::{DIM, Isometry, Point};
 use na::{self, Id, Point2, Point3, Real};
 use partitioning::{BVHImpl, BVT};
+use query::LocalShapeApproximation;
 use shape::{CompositeShape, DeformableShape, DeformationIndex, DeformationsType, Shape, Triangle};
 use std::iter;
 use std::ops::Range;
@@ -245,5 +246,25 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
         // FIXME: measure efficiency with a non-zero margin.
         self.bvt.refit(N::zero())
+    }
+
+    fn update_local_approximation(
+        &self,
+        coords: &[N],
+        indices: &[usize],
+        part_id: usize,
+        approx: &mut LocalShapeApproximation<N>,
+    ) {
+        let tri_id = self.indices[part_id];
+        let a_id = indices[tri_id.x];
+        let b_id = indices[tri_id.y];
+        let c_id = indices[tri_id.z];
+
+        let a = Point3::new(coords[a_id + 0], coords[a_id + 1], coords[a_id + 2]);
+        let b = Point3::new(coords[b_id + 0], coords[b_id + 1], coords[b_id + 2]);
+        let c = Point3::new(coords[c_id + 0], coords[c_id + 1], coords[c_id + 2]);
+        let tri = Triangle::new(a, b, c);
+
+        tri.update_local_approximation(approx);
     }
 }

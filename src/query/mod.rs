@@ -6,7 +6,8 @@ pub use self::closest_points_internal::closest_points_internal as closest_points
 pub use self::closest_points_internal::ClosestPoints;
 #[doc(inline)]
 pub use self::contacts_internal::{
-    Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation, TrackedContact,
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation, NeighborhoodGeometry,
+    TrackedContact,
 };
 #[doc(inline)]
 pub use self::contacts_internal::contact_internal as contact;
