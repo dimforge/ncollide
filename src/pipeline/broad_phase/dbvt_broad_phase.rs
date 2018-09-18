@@ -168,7 +168,7 @@ where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {
-    fn update_with_handler(&mut self, handler: &mut BroadPhaseProximityHandler<T>) {
+    fn update(&mut self, handler: &mut BroadPhaseProximityHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
