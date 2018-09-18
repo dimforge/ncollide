@@ -23,15 +23,22 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
         timestamp: usize,
     );
 
-    /// Called when the broad phase detects that two objects are, or stop to be, in close proximity.
-    fn handle_interaction(
+    /// Called when the broad phase detects that two objects are in close proximity.
+    fn interaction_started(
+        &mut self,
+        objects: &CollisionObjectSlab<N, T>,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    );
+
+    /// Called when the broad phase detects that two objects stop to be in close proximity.
+    fn interaction_stopped(
         &mut self,
         contact_signal: &mut ContactEvents,
         proximity_signal: &mut ProximityEvents,
         objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-        started: bool,
     );
 
     /// Called when the interactions between two objects have to be removed because at least one of the objects is being removed.

@@ -49,11 +49,11 @@ impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for C
     }
 
     fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
-        self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, true)
+        self.narrow_phase.interaction_started(&self.objects, *b1, *b2)
     }
 
     fn interference_stopped(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
-        self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, false)
+        self.narrow_phase.interaction_stopped(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2)
     }
 }
 

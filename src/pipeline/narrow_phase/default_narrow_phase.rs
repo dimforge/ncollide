@@ -118,14 +118,11 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         }
     }
 
-    fn handle_interaction(
+    fn interaction_started(
         &mut self,
-        contact_events: &mut ContactEvents,
-        proximity_events: &mut ProximityEvents,
         objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-        started: bool,
     ) {
         let key = SortedPair::new(handle1, handle2);
         let co1 = &objects[key.0];
@@ -133,52 +130,64 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
 
         match (co1.query_type(), co2.query_type()) {
             (GeometricQueryType::Contacts(..), GeometricQueryType::Contacts(..)) => {
-                if started {
-                    let dispatcher = &self.contact_dispatcher;
+                let dispatcher = &self.contact_dispatcher;
 
-                    if let Entry::Vacant(entry) = self.contact_generators.entry(key) {
-                        if let Some(detector) = dispatcher
-                            .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                        {
-                            let _ = entry.insert(detector);
-                        }
-                    }
-                } else {
-                    // Proximity stopped.
-                    if let Some(detector) = self.contact_generators.remove(&key) {
-                        // Register a collision lost event if there was a contact.
-                        if detector.num_contacts() != 0 {
-                            contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
-                        }
+                if let Entry::Vacant(entry) = self.contact_generators.entry(key) {
+                    if let Some(detector) = dispatcher
+                        .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
+                    {
+                        let _ = entry.insert(detector);
                     }
                 }
             }
             (_, GeometricQueryType::Proximity(_)) | (GeometricQueryType::Proximity(_), _) => {
-                if started {
-                    let dispatcher = &self.proximity_dispatcher;
+                let dispatcher = &self.proximity_dispatcher;
 
-                    if let Entry::Vacant(entry) = self.proximity_detectors.entry(key) {
-                        if let Some(detector) = dispatcher
-                            .get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                        {
-                            let _ = entry.insert(detector);
-                        }
+                if let Entry::Vacant(entry) = self.proximity_detectors.entry(key) {
+                    if let Some(detector) = dispatcher
+                        .get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
+                    {
+                        let _ = entry.insert(detector);
                     }
-                } else {
-                    // Proximity stopped.
-                    if let Some(detector) = self.proximity_detectors.remove(&key) {
-                        // Register a proximity lost signal if they were not disjoint.
-                        let prev_prox = detector.proximity();
+                }
+            }
+        }
+    }
 
-                        if prev_prox != Proximity::Disjoint {
-                            let event = ProximityEvent::new(
-                                co1.handle(),
-                                co2.handle(),
-                                prev_prox,
-                                Proximity::Disjoint,
-                            );
-                            proximity_events.push(event);
-                        }
+    fn interaction_stopped(
+        &mut self,
+        contact_events: &mut ContactEvents,
+        proximity_events: &mut ProximityEvents,
+        objects: &CollisionObjectSlab<N, T>,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    ) {
+        let key = SortedPair::new(handle1, handle2);
+        let co1 = &objects[key.0];
+        let co2 = &objects[key.1];
+
+        match (co1.query_type(), co2.query_type()) {
+            (GeometricQueryType::Contacts(..), GeometricQueryType::Contacts(..)) => {
+                if let Some(detector) = self.contact_generators.remove(&key) {
+                    // Register a collision lost event if there was a contact.
+                    if detector.num_contacts() != 0 {
+                        contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                    }
+                }
+            }
+            (_, GeometricQueryType::Proximity(_)) | (GeometricQueryType::Proximity(_), _) => {
+                if let Some(detector) = self.proximity_detectors.remove(&key) {
+                    // Register a proximity lost signal if they were not disjoint.
+                    let prev_prox = detector.proximity();
+
+                    if prev_prox != Proximity::Disjoint {
+                        let event = ProximityEvent::new(
+                            co1.handle(),
+                            co2.handle(),
+                            prev_prox,
+                            Proximity::Disjoint,
+                        );
+                        proximity_events.push(event);
                     }
                 }
             }
