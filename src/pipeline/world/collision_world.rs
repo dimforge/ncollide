@@ -5,7 +5,7 @@ use bounding_volume::{self, BoundingVolume, AABB};
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::broad_phase::{
-    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, BroadPhaseProximityHandler, DBVTBroadPhase, ProxyHandle,
+    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, BroadPhaseInterferenceHandler, DBVTBroadPhase, ProxyHandle,
 };
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use pipeline::narrow_phase::{
@@ -35,7 +35,7 @@ pub struct CollisionWorld<N: Real, T> {
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
-struct CollisionWorldProximityHandler<'a, N: Real, T: 'a> {
+struct CollisionWorldInterferenceHandler<'a, N: Real, T: 'a> {
     narrow_phase: &'a mut Box<NarrowPhase<N, T>>,
     contact_events: &'a mut ContactEvents,
     proximity_events: &'a mut ProximityEvents,
@@ -43,12 +43,12 @@ struct CollisionWorldProximityHandler<'a, N: Real, T: 'a> {
     pair_filters: &'a BroadPhasePairFilters<N, T>,
 }
 
-impl <'a, N: Real, T> BroadPhaseProximityHandler<CollisionObjectHandle> for CollisionWorldProximityHandler<'a, N, T> {
-    fn allow(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
+impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
+    fn is_interference_allowed(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
         CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
     }
 
-    fn handle(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle, started: bool) {
+    fn handle_interference(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle, started: bool) {
         self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, started)
     }
 }
@@ -201,7 +201,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Executes the broad phase of the collision detection pipeline.
     pub fn perform_broad_phase(&mut self) {
-        self.broad_phase.update(&mut CollisionWorldProximityHandler {
+        self.broad_phase.update(&mut CollisionWorldInterferenceHandler {
             narrow_phase: &mut self.narrow_phase,
             contact_events: &mut self.contact_events,
             proximity_events: &mut self.proximity_events,

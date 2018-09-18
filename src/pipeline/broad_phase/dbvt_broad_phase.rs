@@ -10,7 +10,7 @@ use utils::{DeterministicState, SortedPair};
 use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
 use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
 use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
-use pipeline::broad_phase::{BroadPhase, BroadPhaseProximityHandler, ProxyHandle};
+use pipeline::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, ProxyHandle};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
@@ -91,7 +91,7 @@ where
         self.pairs.len()
     }
 
-    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseProximityHandler<T>) {
+    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         for (pair, up_to_date) in &mut self.pairs {
             if self.purge_all || !*up_to_date {
                 *up_to_date = true;
@@ -105,7 +105,7 @@ where
                     .expect("DBVT broad phase: internal error.");
 
                 if self.purge_all || proxy1.updated || proxy2.updated {
-                    if handler.allow(&proxy1.data, &proxy2.data) {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         let l1 = match proxy1.status {
                             ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
                             ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
@@ -127,7 +127,7 @@ where
                 }
 
                 if remove {
-                    handler.handle(&proxy1.data, &proxy2.data, false);
+                    handler.handle_interference(&proxy1.data, &proxy2.data, false);
                     self.pairs_to_remove.push(*pair);
                 }
             }
@@ -168,7 +168,7 @@ where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {
-    fn update(&mut self, handler: &mut BroadPhaseProximityHandler<T>) {
+    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -229,11 +229,11 @@ where
                 for proxy_key2 in self.collector.iter() {
                     let proxy2 = &self.proxies[proxy_key2.uid()];
 
-                    if handler.allow(&proxy1.data, &proxy2.data) {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
                             Entry::Occupied(entry) => *entry.into_mut() = true,
                             Entry::Vacant(entry) => {
-                                handler.handle(&proxy1.data, &proxy2.data, true);
+                                handler.handle_interference(&proxy1.data, &proxy2.data, true);
                                 let _ = entry.insert(true);
                             }
                         }

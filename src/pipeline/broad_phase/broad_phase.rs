@@ -25,14 +25,14 @@ impl ProxyHandle {
 }
 
 /// Proximity handling for BroadPhase updates.
-pub trait BroadPhaseProximityHandler<T> {
+pub trait BroadPhaseInterferenceHandler<T> {
     /// A pre-filter that may cheaply discard objects before checking for bounding volume
     /// interference.
-    fn allow(&mut self, &T, &T) -> bool;
+    fn is_interference_allowed(&mut self, &T, &T) -> bool;
 
     /// Actually handle the interference.
     /// The boolean specifies whether the objects start or stop interacting.
-    fn handle(&mut self, &T, &T, bool);
+    fn handle_interference(&mut self, &T, &T, bool);
 }
 
 /// Trait all broad phase must implement.
@@ -53,7 +53,7 @@ pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self, handler: &mut BroadPhaseProximityHandler<T>);
+    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>);
 
     /*
      * FIXME: the following are not flexible enough.

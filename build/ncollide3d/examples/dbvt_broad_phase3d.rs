@@ -4,17 +4,17 @@ extern crate ncollide3d;
 use na::{Isometry3, Vector3};
 use ncollide3d::shape::Ball;
 use ncollide3d::bounding_volume;
-use ncollide3d::broad_phase::{BroadPhase, BroadPhaseProximityHandler, DBVTBroadPhase};
+use ncollide3d::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, DBVTBroadPhase};
 
-struct ProximityHandler;
+struct InterferenceHandler;
 
-impl BroadPhaseProximityHandler<i32> for ProximityHandler {
-    fn allow(&mut self, a: &i32, b: &i32) -> bool {
+impl BroadPhaseInterferenceHandler<i32> for InterferenceHandler {
+    fn is_interference_allowed(&mut self, a: &i32, b: &i32) -> bool {
         // Prevent self-collision.
         *a != *b
     }
 
-    fn handle(&mut self, _: &i32, _: &i32, _: bool) {
+    fn handle_interference(&mut self, _: &i32, _: &i32, _: bool) {
     }
 }
 
@@ -46,7 +46,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut ProximityHandler);
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 6);
 
@@ -55,7 +55,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut ProximityHandler);
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 1)
 }

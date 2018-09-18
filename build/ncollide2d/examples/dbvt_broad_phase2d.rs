@@ -4,17 +4,17 @@ extern crate ncollide2d;
 use na::{Isometry2, Vector2};
 use ncollide2d::shape::Ball;
 use ncollide2d::bounding_volume;
-use ncollide2d::broad_phase::{BroadPhase, BroadPhaseProximityHandler, DBVTBroadPhase};
+use ncollide2d::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, DBVTBroadPhase};
 
-struct ProximityHandler;
+struct InterferenceHandler;
 
-impl BroadPhaseProximityHandler<i32> for ProximityHandler {
-    fn allow(&mut self, a: &i32, b: &i32) -> bool {
+impl BroadPhaseInterferenceHandler<i32> for InterferenceHandler {
+    fn is_interference_allowed(&mut self, a: &i32, b: &i32) -> bool {
         // Prevent self-collision.
         *a != *b
     }
 
-    fn handle(&mut self, _: &i32, _: &i32, _: bool) {
+    fn handle_interference(&mut self, _: &i32, _: &i32, _: bool) {
     }
 }
 
@@ -45,7 +45,7 @@ fn main() {
     let _ = bf.create_proxy(bounding_volume::aabb(&ball, &poss[3]), 3);
 
     // Update the broad phase.
-    bf.update(&mut ProximityHandler);
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 6);
 
@@ -53,7 +53,7 @@ fn main() {
     bf.remove(&[proxy1, proxy2], &mut |_, _| {});
 
     // Update the broad phase.
-    bf.update(&mut ProximityHandler);
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 1)
 }
