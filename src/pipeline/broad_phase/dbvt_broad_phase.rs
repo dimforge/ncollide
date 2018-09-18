@@ -127,7 +127,7 @@ where
                 }
 
                 if remove {
-                    handler.handle_interference(&proxy1.data, &proxy2.data, false);
+                    handler.interference_stopped(&proxy1.data, &proxy2.data);
                     self.pairs_to_remove.push(*pair);
                 }
             }
@@ -233,7 +233,7 @@ where
                         match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
                             Entry::Occupied(entry) => *entry.into_mut() = true,
                             Entry::Vacant(entry) => {
-                                handler.handle_interference(&proxy1.data, &proxy2.data, true);
+                                handler.interference_started(&proxy1.data, &proxy2.data);
                                 let _ = entry.insert(true);
                             }
                         }

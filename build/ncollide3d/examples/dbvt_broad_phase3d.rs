@@ -14,7 +14,10 @@ impl BroadPhaseInterferenceHandler<i32> for InterferenceHandler {
         *a != *b
     }
 
-    fn handle_interference(&mut self, _: &i32, _: &i32, _: bool) {
+    fn interference_started(&mut self, _: &i32, _: &i32) {
+    }
+
+    fn interference_stopped(&mut self, _: &i32, _: &i32) {
     }
 }
 

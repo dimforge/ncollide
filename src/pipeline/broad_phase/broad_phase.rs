@@ -30,9 +30,11 @@ pub trait BroadPhaseInterferenceHandler<T> {
     /// interference.
     fn is_interference_allowed(&mut self, &T, &T) -> bool;
 
-    /// Actually handle the interference.
-    /// The boolean specifies whether the objects start or stop interacting.
-    fn handle_interference(&mut self, &T, &T, bool);
+    /// Handle a starting interference.
+    fn interference_started(&mut self, &T, &T);
+
+    /// Handle a stopping interference.
+    fn interference_stopped(&mut self, &T, &T);
 }
 
 /// Trait all broad phase must implement.

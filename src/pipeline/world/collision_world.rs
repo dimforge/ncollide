@@ -48,8 +48,12 @@ impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for C
         CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
     }
 
-    fn handle_interference(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle, started: bool) {
-        self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, started)
+    fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
+        self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, true)
+    }
+
+    fn interference_stopped(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
+        self.narrow_phase.handle_interaction(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2, false)
     }
 }
 
