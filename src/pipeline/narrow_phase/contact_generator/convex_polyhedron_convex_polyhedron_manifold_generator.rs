@@ -414,6 +414,13 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         }
     }
 
+    fn clear(&mut self, id_alloc: &mut IdAllocator) {
+        self.simplex = VoronoiSimplex::new();
+        self.last_gjk_dir = None;
+        self.last_optimal_dir = None;
+        self.contact_manifold.clear(id_alloc);
+    }
+
     #[inline]
     fn num_contacts(&self) -> usize {
         self.contact_manifold.len()
