@@ -5,7 +5,7 @@ use bounding_volume::{self, BoundingVolume, AABB};
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::broad_phase::{
-    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, ProxyHandle,
+    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, BroadPhaseInterferenceHandler, DBVTBroadPhase, ProxyHandle,
 };
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use pipeline::narrow_phase::{
@@ -33,6 +33,28 @@ pub struct CollisionWorld<N: Real, T> {
     proximity_events: ProximityEvents,
     pair_filters: BroadPhasePairFilters<N, T>,
     timestamp: usize, // FIXME: allow modification of the other properties too.
+}
+
+struct CollisionWorldInterferenceHandler<'a, N: Real, T: 'a> {
+    narrow_phase: &'a mut Box<NarrowPhase<N, T>>,
+    contact_events: &'a mut ContactEvents,
+    proximity_events: &'a mut ProximityEvents,
+    objects: &'a CollisionObjectSlab<N, T>,
+    pair_filters: &'a BroadPhasePairFilters<N, T>,
+}
+
+impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
+    fn is_interference_allowed(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
+        CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
+    }
+
+    fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
+        self.narrow_phase.interaction_started(&self.objects, *b1, *b2)
+    }
+
+    fn interference_stopped(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
+        self.narrow_phase.interaction_stopped(&mut self.contact_events, &mut self.proximity_events, &self.objects, *b1, *b2)
+    }
 }
 
 impl<N: Real, T> CollisionWorld<N, T> {
@@ -183,19 +205,13 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Executes the broad phase of the collision detection pipeline.
     pub fn perform_broad_phase(&mut self) {
-        let bf = &mut self.broad_phase;
-        let nf = &mut self.narrow_phase;
-        let sig = &mut self.contact_events;
-        let prox = &mut self.proximity_events;
-        let filts = &self.pair_filters;
-        let objs = &self.objects;
-
-        bf.update(
-            // Filter:
-            &mut |b1, b2| CollisionWorld::filter_collision(filts, objs, *b1, *b2),
-            // Handler:
-            &mut |b1, b2, started| nf.handle_interaction(sig, prox, objs, *b1, *b2, started),
-        );
+        self.broad_phase.update(&mut CollisionWorldInterferenceHandler {
+            narrow_phase: &mut self.narrow_phase,
+            contact_events: &mut self.contact_events,
+            proximity_events: &mut self.proximity_events,
+            pair_filters: &self.pair_filters,
+            objects: &self.objects,
+        });
     }
 
     /// Executes the narrow phase of the collision detection pipeline.

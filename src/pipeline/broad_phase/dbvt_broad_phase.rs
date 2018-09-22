@@ -1,22 +1,22 @@
-use std::any::Any;
-use std::mem;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
-use slab::Slab;
-
-use na::Real;
-use math::Point;
-use utils::{DeterministicState, SortedPair};
 use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
+use math::Point;
+use na::Real;
+use partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
+use pipeline::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, ProxyHandle};
 use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
-use pipeline::broad_phase::{BroadPhase, ProxyHandle};
+use slab::Slab;
+use std::any::Any;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::mem;
+use utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
-    Detached(Option<usize>), // The usize is the location of the corresponding on proxies_to_update
+    // The usize is the location of the corresponding on proxies_to_update
+    Detached(Option<usize>),
     Deleted,
 }
 
@@ -51,10 +51,14 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<N, ProxyHandle, BV>,  // DBVT for moving objects.
-    stree: DBVT<N, ProxyHandle, BV>, // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
-    margin: N,                       // The margin added to each bounding volume.
+    // DBVT for moving objects.
+    tree: DBVT<N, ProxyHandle, BV>,
+    // DBVT for static objects.
+    stree: DBVT<N, ProxyHandle, BV>,
+    // Pairs detected.
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    // The margin added to each bounding volume.
+    margin: N,
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -64,9 +68,9 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: 'static + BoundingVolume<N> + Clone,
+    where
+        N: Real,
+        BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -89,11 +93,7 @@ where
         self.pairs.len()
     }
 
-    fn purge_some_contact_pairs(
-        &mut self,
-        allow_proximity: &mut FnMut(&T, &T) -> bool,
-        handler: &mut FnMut(&T, &T, bool),
-    ) {
+    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         let purge_all = self.purge_all;
         let proxies = &self.proxies;
         let stree = &self.stree;
@@ -112,7 +112,7 @@ where
                     .expect("DBVT broad phase: internal error.");
 
                 if purge_all || proxy1.updated || proxy2.updated {
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         let l1 = match proxy1.status {
                             ProxyStatus::OnStaticTree(leaf) => &stree[leaf],
                             ProxyStatus::OnDynamicTree(leaf, _) => &tree[leaf],
@@ -126,7 +126,7 @@ where
                         };
 
                         if !l1.bounding_volume.intersects(&l2.bounding_volume) {
-                            handler(&proxy1.data, &proxy2.data, false);
+                            handler.interference_stopped(&proxy1.data, &proxy2.data);
                             retain = false;
                         }
                     }
@@ -158,16 +158,12 @@ where
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-    T: Any + Send + Sync,
+    where
+        N: Real,
+        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+        T: Any + Send + Sync,
 {
-    fn update(
-        &mut self,
-        allow_proximity: &mut FnMut(&T, &T) -> bool,
-        handler: &mut FnMut(&T, &T, bool),
-    ) {
+    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -228,11 +224,11 @@ where
                 for proxy_key2 in self.collector.iter() {
                     let proxy2 = &self.proxies[proxy_key2.uid()];
 
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
                             Entry::Occupied(entry) => *entry.into_mut() = true,
                             Entry::Vacant(entry) => {
-                                handler(&proxy1.data, &proxy2.data, true);
+                                handler.interference_started(&proxy1.data, &proxy2.data);
                                 let _ = entry.insert(true);
                             }
                         }
@@ -249,7 +245,7 @@ where
         }
 
         if some_leaves_updated {
-            self.purge_some_contact_pairs(allow_proximity, handler);
+            self.purge_some_contact_pairs(handler);
         }
         self.update_activation_states();
     }
