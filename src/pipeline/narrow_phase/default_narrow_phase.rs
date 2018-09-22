@@ -134,9 +134,9 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                 if let Entry::Vacant(entry) = self.contact_generators.entry(key) {
                     if let Some(detector) = dispatcher
                         .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                    {
-                        let _ = entry.insert(detector);
-                    }
+                        {
+                            let _ = entry.insert(detector);
+                        }
                 }
             }
             (_, GeometricQueryType::Proximity(_)) | (GeometricQueryType::Proximity(_), _) => {
@@ -145,9 +145,9 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                 if let Entry::Vacant(entry) = self.proximity_detectors.entry(key) {
                     if let Some(detector) = dispatcher
                         .get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                    {
-                        let _ = entry.insert(detector);
-                    }
+                        {
+                            let _ = entry.insert(detector);
+                        }
                 }
             }
         }
@@ -167,7 +167,7 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
 
         match (co1.query_type(), co2.query_type()) {
             (GeometricQueryType::Contacts(..), GeometricQueryType::Contacts(..)) => {
-                if let Some(detector) = self.contact_generators.remove(&key) {
+                if let Some(mut detector) = self.contact_generators.remove(&key) {
                     // Register a collision lost event if there was a contact.
                     if detector.num_contacts() != 0 {
                         contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
