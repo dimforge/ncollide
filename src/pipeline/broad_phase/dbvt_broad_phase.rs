@@ -15,8 +15,8 @@ use utils::{DeterministicState, SortedPair};
 enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
-    Detached(Option<usize>),
     // The usize is the location of the corresponding on proxies_to_update
+    Detached(Option<usize>),
     Deleted,
 }
 
@@ -51,14 +51,14 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<N, ProxyHandle, BV>,
     // DBVT for moving objects.
-    stree: DBVT<N, ProxyHandle, BV>,
+    tree: DBVT<N, ProxyHandle, BV>,
     // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    stree: DBVT<N, ProxyHandle, BV>,
     // Pairs detected.
-    margin: N,
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
     // The margin added to each bounding volume.
+    margin: N,
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
