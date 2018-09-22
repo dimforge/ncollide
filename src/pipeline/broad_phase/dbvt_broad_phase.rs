@@ -1,22 +1,22 @@
-use std::any::Any;
-use std::mem;
-use std::collections::HashMap;
-use std::collections::hash_map::Entry;
-use slab::Slab;
-
-use na::Real;
-use math::Point;
-use utils::{DeterministicState, SortedPair};
 use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use partitioning::{DBVTLeaf, DBVTLeafId, DBVT};
-use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
+use math::Point;
+use na::Real;
+use partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
 use pipeline::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, ProxyHandle};
+use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
+use slab::Slab;
+use std::any::Any;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::mem;
+use utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
-    Detached(Option<usize>), // The usize is the location of the corresponding on proxies_to_update
+    Detached(Option<usize>),
+    // The usize is the location of the corresponding on proxies_to_update
     Deleted,
 }
 
@@ -51,10 +51,14 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<N, ProxyHandle, BV>,  // DBVT for moving objects.
-    stree: DBVT<N, ProxyHandle, BV>, // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>, // Pairs detected.
-    margin: N,                       // The margin added to each bounding volume.
+    tree: DBVT<N, ProxyHandle, BV>,
+    // DBVT for moving objects.
+    stree: DBVT<N, ProxyHandle, BV>,
+    // DBVT for static objects.
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    // Pairs detected.
+    margin: N,
+    // The margin added to each bounding volume.
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
@@ -64,9 +68,9 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: 'static + BoundingVolume<N> + Clone,
+    where
+        N: Real,
+        BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -90,8 +94,14 @@ where
     }
 
     fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
-        for (pair, up_to_date) in &mut self.pairs {
-            if self.purge_all || !*up_to_date {
+        let purge_all = self.purge_all;
+        let proxies = &self.proxies;
+        let stree = &self.stree;
+        let tree = &self.tree;
+        self.pairs.retain(|pair, up_to_date| {
+            let mut retain = true;
+
+            if purge_all || !*up_to_date {
                 *up_to_date = true;
 
                 let proxy1 = proxies
@@ -101,7 +111,7 @@ where
                     .get(pair.1.uid())
                     .expect("DBVT broad phase: internal error.");
 
-                if self.purge_all || proxy1.updated || proxy2.updated {
+                if purge_all || proxy1.updated || proxy2.updated {
                     if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         let l1 = match proxy1.status {
                             ProxyStatus::OnStaticTree(leaf) => &stree[leaf],
@@ -116,7 +126,7 @@ where
                         };
 
                         if !l1.bounding_volume.intersects(&l2.bounding_volume) {
-                            handler.interference_stopped(&proxy1.data, &proxy2.data, false);
+                            handler.interference_stopped(&proxy1.data, &proxy2.data);
                             retain = false;
                         }
                     }
@@ -148,10 +158,10 @@ where
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-    T: Any + Send + Sync,
+    where
+        N: Real,
+        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+        T: Any + Send + Sync,
 {
     fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         /*
