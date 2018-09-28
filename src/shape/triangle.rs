@@ -31,17 +31,57 @@ pub enum TrianglePointLocation<N: Real> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on an edge.
+    ///
+    /// The 0-st edge is the segment AB.
+    /// The 1-st edge is the segment BC.
+    /// The 2-nd edge is the segment AC.
+    // XXX: it appears the conversion of edge indexing here does not match the
+    // convension of edge indexing for the `fn edge` method (from the ConvexPolyhedron impl).
     OnEdge(usize, [N; 2]),
     /// The point lies on the triangle interior.
-    OnFace([N; 3]),
+    ///
+    /// The integer indicates on which side of the face the point is. 0 indicates the point
+    /// is on the half-space toward the CW normal of the triangle. 1 indicates the point is on the other
+    /// half-space. This is always set to 0 in 2D.
+    OnFace(usize, [N; 3]),
     /// The point lies on the triangle interior (for "solid" point queries).
     OnSolid,
 }
 
 impl<N: Real> TrianglePointLocation<N> {
+    /// The barycentric coordinates corresponding to this point location.
+    ///
+    /// Returns `None` if the location is `TetrahedronPointLocation::OnSolid`.
+    pub fn barycentric_coordinates(&self) -> Option<[N; 3]> {
+        let mut bcoords = [N::zero(); 3];
+
+        match self {
+            TrianglePointLocation::OnVertex(i) => bcoords[*i] = N::one(),
+            TrianglePointLocation::OnEdge(i, uv) => {
+                let idx = match i {
+                    0 => (0, 1),
+                    1 => (1, 2),
+                    2 => (0, 2),
+                    _ => unreachable!()
+                };
+
+                bcoords[idx.0] = uv[0];
+                bcoords[idx.1] = uv[1];
+            }
+            TrianglePointLocation::OnFace(_, uvw) => {
+                bcoords[0] = uvw[0];
+                bcoords[1] = uvw[1];
+                bcoords[2] = uvw[2];
+            }
+            TrianglePointLocation::OnSolid => { return None; }
+        }
+
+        Some(bcoords)
+    }
+
     /// Returns `true` if the point is located on the relative interior of the triangle.
     pub fn is_on_face(&self) -> bool {
-        if let TrianglePointLocation::OnFace(_) = *self {
+        if let TrianglePointLocation::OnFace(..) = *self {
             true
         } else {
             false

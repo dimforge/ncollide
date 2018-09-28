@@ -32,13 +32,13 @@ pub trait DeformableShape<N: Real> {
 //    fn set_partial_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
 
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: &[usize]);
+    fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>);
 
     /// Updates the given local approximation of this shape.
     fn update_local_approximation(
         &self,
         coords: &[N],
-        indices: &[usize],
+        indices: Option<&[usize]>,
         part_id: usize,
         approx: &mut LocalShapeApproximation<N>,
     );

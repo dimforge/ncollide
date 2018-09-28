@@ -203,7 +203,7 @@ impl<N: Real> ContactKinematic<N> {
 
     /// Computes the updated contact points with the new positions of the solids.
     ///
-    /// The vector `default_normal1` is the normal of the resulting contactc
+    /// The vector `default_normal1` is the normal of the resulting contact
     /// in the rare case where the contact normal cannot be determined by the update.
     /// Typically, this should be set to the latest contact normal known.
     pub fn contact(

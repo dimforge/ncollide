@@ -8,6 +8,7 @@ use query::LocalShapeApproximation;
 use shape::{CompositeShape, DeformableShape, DeformationIndex, DeformationsType, Shape, Triangle};
 use std::iter;
 use std::ops::Range;
+use std::slice;
 
 #[derive(Clone)]
 struct RefVertex<N: Real> {
@@ -215,13 +216,28 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     }
 
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: &[usize]) {
+    fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
-        for (target, source) in indices.iter().enumerate() {
-            let pt = &mut self.vertices[target];
-            pt.coords.copy_from_slice(&coords[*source..*source + DIM]);
+        if indices.is_none() {
+            // There is a bit of unsafe code in order to perform a memcopy for
+            // efficiency reasons when the mapping between degrees of freedom
+            // is trivial.
+            unsafe {
+                let len = coords.len() / DIM;
+                let coords_ptr = coords.as_ptr() as *const Point<N>;
+                let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
+                self.vertices.copy_from_slice(coords_pt);
+            }
+        }
+
+        for (target, pt) in self.vertices.iter_mut().enumerate() {
+            if let Some(idx) = indices {
+                let source = idx[target];
+                pt.coords.copy_from_slice(&coords[source..source + DIM]);
+            }
+
             let ref_pt = &mut self.deformations.ref_vertices[target];
             let sq_dist_to_ref = na::distance_squared(pt, &ref_pt.point);
 
@@ -251,14 +267,16 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     fn update_local_approximation(
         &self,
         coords: &[N],
-        indices: &[usize],
+        indices: Option<&[usize]>,
         part_id: usize,
         approx: &mut LocalShapeApproximation<N>,
     ) {
         let tri_id = self.indices[part_id];
-        let a_id = indices[tri_id.x];
-        let b_id = indices[tri_id.y];
-        let c_id = indices[tri_id.z];
+        let (a_id, b_id, c_id) = if let Some(idx) = indices {
+            (idx[tri_id.x], idx[tri_id.y], idx[tri_id.z])
+        } else {
+            (tri_id.x * 3, tri_id.y * 3, tri_id.z * 3)
+        };
 
         let a = Point3::new(coords[a_id + 0], coords[a_id + 1], coords[a_id + 2]);
         let b = Point3::new(coords[b_id + 0], coords[b_id + 1], coords[b_id + 2]);

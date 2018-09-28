@@ -1,7 +1,7 @@
 use math::{Isometry, Point};
 use na::{self, Real};
-use query::algorithms::{gjk, CSOPoint};
 use query::{PointQuery, PointQueryWithLocation};
+use query::algorithms::{CSOPoint, gjk};
 use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
             TrianglePointLocation};
 
@@ -173,7 +173,7 @@ impl<N: Real> VoronoiSimplex<N> {
                     self.proj[1] = coords[1];
                     self.dim = 1;
                 }
-                TrianglePointLocation::OnFace(coords) => {
+                TrianglePointLocation::OnFace(_, coords) => {
                     self.proj = coords;
                 }
                 _ => {}

@@ -1,6 +1,5 @@
-use na::{self, Real};
-
 use math::{Isometry, Point, Vector};
+use na::{self, Real};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use shape::{FeatureId, Triangle, TrianglePointLocation};
 use utils::IsometryOps;
@@ -8,16 +7,16 @@ use utils::IsometryOps;
 #[inline]
 fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {
     #[cfg(feature = "dim2")]
-    {
-        PointProjection::new(*pt == proj, proj)
-    }
+        {
+            PointProjection::new(*pt == proj, proj)
+        }
 
     #[cfg(feature = "dim3")]
-    {
-        // FIXME: is this acceptable to assume the point is inside of the
-        // triangle if it is close enough?
-        PointProjection::new(relative_eq!(proj, *pt), proj)
-    }
+        {
+            // FIXME: is this acceptable to assume the point is inside of the
+            // triangle if it is close enough?
+            PointProjection::new(relative_eq!(proj, *pt), proj)
+        }
 }
 
 impl<N: Real> PointQuery<N> for Triangle<N> {
@@ -45,7 +44,7 @@ impl<N: Real> PointQuery<N> for Triangle<N> {
             TrianglePointLocation::OnEdge(i, _) => FeatureId::Edge(i),
             #[cfg(feature = "dim2")]
             TrianglePointLocation::OnEdge(i, _) => FeatureId::Face(i),
-            TrianglePointLocation::OnFace(_) => FeatureId::Face(0),
+            TrianglePointLocation::OnFace(i, _) => FeatureId::Face(i),
             TrianglePointLocation::OnSolid => FeatureId::Face(0),
         };
 
@@ -116,7 +115,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             OnAB,
             OnAC,
             OnBC,
-            OnFace(N, N, N),
+            // The usize indicates if we are on the CW side (0) or CCW side (1) of the face.
+            OnFace(usize, N, N, N),
         }
 
         // Checks on which edge voronoï region the point is.
@@ -137,45 +137,51 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             ab_cp: N,
         ) -> ProjectionInfo<N> {
             #[cfg(feature = "dim2")]
-            {
-                let n = ab.perp(&ac);
-                let vc = n * ab.perp(&ap);
-                if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
-                    return ProjectionInfo::OnAB;
-                }
+                {
+                    let n = ab.perp(&ac);
+                    let vc = n * ab.perp(&ap);
+                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                        return ProjectionInfo::OnAB;
+                    }
 
-                let vb = -n * ac.perp(&cp);
-                if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
-                    return ProjectionInfo::OnAC;
-                }
+                    let vb = -n * ac.perp(&cp);
+                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                        return ProjectionInfo::OnAC;
+                    }
 
-                let va = n * bc.perp(&bp);
-                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
-                    return ProjectionInfo::OnBC;
-                }
+                    let va = n * bc.perp(&bp);
+                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                        return ProjectionInfo::OnBC;
+                    }
 
-                return ProjectionInfo::OnFace(va, vb, vc);
-            }
+                    return ProjectionInfo::OnFace(0, va, vb, vc);
+                }
             #[cfg(feature = "dim3")]
-            {
-                let n = ab.cross(&ac);
-                let vc = na::dot(&n, &ab.cross(&ap));
-                if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
-                    return ProjectionInfo::OnAB;
-                }
+                {
+                    let n = ab.cross(&ac);
+                    let vc = na::dot(&n, &ab.cross(&ap));
+                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                        return ProjectionInfo::OnAB;
+                    }
 
-                let vb = -na::dot(&n, &ac.cross(&cp));
-                if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
-                    return ProjectionInfo::OnAC;
-                }
+                    let vb = -na::dot(&n, &ac.cross(&cp));
+                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                        return ProjectionInfo::OnAC;
+                    }
 
-                let va = na::dot(&n, &bc.cross(&bp));
-                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
-                    return ProjectionInfo::OnBC;
-                }
+                    let va = na::dot(&n, &bc.cross(&bp));
+                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                        return ProjectionInfo::OnBC;
+                    }
 
-                return ProjectionInfo::OnFace(va, vb, vc);
-            }
+                    let clockwise = if na::dot(&n, &ap) >= N::zero() {
+                        0
+                    } else {
+                        1
+                    };
+
+                    return ProjectionInfo::OnFace(clockwise, va, vb, vc);
+                }
         }
 
         let bc = c - b;
@@ -226,19 +232,18 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
                     TrianglePointLocation::OnEdge(1, bcoords),
                 );
             }
-            ProjectionInfo::OnFace(va, vb, vc) => {
+            ProjectionInfo::OnFace(face_side, va, vb, vc) => {
                 // Voronoï region of the face.
                 if na::dimension::<Vector<N>>() != 2 {
                     let denom = _1 / (va + vb + vc);
                     let v = vb * denom;
                     let w = vc * denom;
                     let bcoords = [_1 - v - w, v, w];
-
                     let res = a + ab * v + ac * w;
 
                     return (
                         compute_result(pt, m * res),
-                        TrianglePointLocation::OnFace(bcoords),
+                        TrianglePointLocation::OnFace(face_side, bcoords),
                     );
                 }
             }
