@@ -4,6 +4,7 @@ use bounding_volume::{self, AABB, BoundingVolume};
 use math::{DIM, Isometry, Point};
 use na::{self, Id, Point2, Point3, Real};
 use partitioning::{BVHImpl, BVT};
+use procedural;
 use query::LocalShapeApproximation;
 use shape::{CompositeShape, DeformableShape, DeformationIndex, DeformationsType, Shape, Triangle};
 use std::iter;
@@ -284,5 +285,16 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         let tri = Triangle::new(a, b, c);
 
         tri.update_local_approximation(approx);
+    }
+}
+
+impl<N: Real> From<procedural::TriMesh<N>> for TriMesh<N> {
+    fn from(trimesh: procedural::TriMesh<N>) -> Self {
+        let indices =
+            trimesh
+                .flat_indices()
+                .chunks(3).map(|idx| Point3::new(idx[0] as usize, idx[1] as usize, idx[2] as usize))
+                .collect();
+        TriMesh::new(trimesh.coords, indices, trimesh.uvs)
     }
 }
