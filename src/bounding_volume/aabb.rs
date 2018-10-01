@@ -30,12 +30,19 @@ impl<N: Real> AABB<N> {
     ///   * `mins` - position of the point with the smallest coordinates.
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
+    #[inline]
     pub fn new(mins: Point<N>, maxs: Point<N>) -> AABB<N> {
         // assert!(na::partial_le(&mins, &maxs));
         AABB {
             mins: mins,
             maxs: maxs,
         }
+    }
+
+    /// Creates a new AABB from its scenter and its half-extents.
+    #[inline]
+    pub fn from_half_extents(center: Point<N>, half_extents: Vector<N>) -> Self {
+        Self::new(center - half_extents, center + half_extents)
     }
 
     /// Reference to the AABB point with the smallest components along each axis.

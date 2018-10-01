@@ -1,11 +1,9 @@
 //! Persistent collision detection algorithms to compute contact points.
 
-pub use self::default_narrow_phase::DefaultNarrowPhase;
-pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, ProximityPairs};
-
 #[doc(inline)]
 pub use self::contact_generator::{BallBallManifoldGenerator,
                                   BallConvexPolyhedronManifoldGenerator,
+                                  CompositeShapeCompositeShapeManifoldGenerator,
                                   CompositeShapeShapeManifoldGenerator,
                                   ContactAlgorithm,
                                   ContactDispatcher,
@@ -14,7 +12,8 @@ pub use self::contact_generator::{BallBallManifoldGenerator,
                                   DefaultContactDispatcher,
                                   PlaneBallManifoldGenerator,
                                   PlaneConvexPolyhedronManifoldGenerator};
-
+pub use self::default_narrow_phase::DefaultNarrowPhase;
+pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, ProximityPairs};
 #[doc(inline)]
 pub use self::proximity_detector::{BallBallProximityDetector,
                                    CompositeShapeShapeProximityDetector,

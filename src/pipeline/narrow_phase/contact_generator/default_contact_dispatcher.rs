@@ -1,23 +1,22 @@
 use na::Real;
-use shape::{Ball, Plane, Shape};
 use pipeline::narrow_phase::{BallBallManifoldGenerator,
-                   BallConvexPolyhedronManifoldGenerator,
-                   CompositeShapeShapeManifoldGenerator,
-                   ContactAlgorithm,
-                   ContactDispatcher,
-                   ConvexPolyhedronConvexPolyhedronManifoldGenerator,
-                   PlaneBallManifoldGenerator,
-                   PlaneConvexPolyhedronManifoldGenerator};
+                             BallConvexPolyhedronManifoldGenerator,
+                             CompositeShapeCompositeShapeManifoldGenerator,
+                             CompositeShapeShapeManifoldGenerator,
+                             ContactAlgorithm,
+                             ContactDispatcher,
+                             ConvexPolyhedronConvexPolyhedronManifoldGenerator,
+                             PlaneBallManifoldGenerator,
+                             PlaneConvexPolyhedronManifoldGenerator};
+use shape::{Ball, Plane, Shape};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
-pub struct DefaultContactDispatcher {
-}
+pub struct DefaultContactDispatcher {}
 
 impl DefaultContactDispatcher {
     /// Creates a new basic collision dispatcher.
     pub fn new() -> DefaultContactDispatcher {
-        DefaultContactDispatcher {
-        }
+        DefaultContactDispatcher {}
     }
 }
 
@@ -53,6 +52,8 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new();
             Some(Box::new(gen))
+        } else if a.is_composite_shape() && b.is_composite_shape() {
+            Some(Box::new(CompositeShapeCompositeShapeManifoldGenerator::<N>::new()))
         } else if a.is_composite_shape() {
             Some(Box::new(CompositeShapeShapeManifoldGenerator::<N>::new(
                 false,

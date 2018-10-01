@@ -160,6 +160,24 @@ pub enum BVHImpl<'a, N: 'a + Real, T: 'a, BV: 'a> {
 }
 
 impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
+    /// Gets the underlying reference to a BVT, or panics if this is not a `BVTImpl::BVT`.
+    #[inline]
+    pub fn unwrap_bvt(self) -> &'a BVT<T, BV> {
+        match self {
+            BVHImpl::BVT(bvt) => bvt,
+            _ => panic!("This BVTImpl is not a BVT.")
+        }
+    }
+
+    /// Gets the underlying reference to a DBVT, or panics if this is not a `BVTImpl::DBVT`.
+    #[inline]
+    pub fn unwrap_dbvt(self) -> &'a DBVT<N, T, BV> {
+        match self {
+            BVHImpl::DBVT(dbvt) => dbvt,
+            _ => panic!("This BVTImpl is not a DBVT.")
+        }
+    }
+
     /// Traverses this tree using a visitor.
     pub fn visit(self, visitor: &mut impl Visitor<T, BV>) {
         match self {

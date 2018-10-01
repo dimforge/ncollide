@@ -46,21 +46,16 @@ impl<N: Real> TriMesh<N> {
         uvs: Option<Vec<Point2<N>>>,
     ) -> TriMesh<N> {
         let mut leaves = Vec::new();
-        let margin;
 
         {
             let is = &*indices;
-            let mut mean_extents = N::zero();
 
             for (i, is) in is.iter().enumerate() {
                 let triangle = Triangle::new(vertices[is.x], vertices[is.y], vertices[is.z]);
                 // FIXME: loosen for better persistency?
                 let bv = triangle.aabb(&Isometry::identity());
-                mean_extents += bv.extents().norm() / na::convert(is.len() as f64);
                 leaves.push((i, bv.clone()));
             }
-
-            margin = mean_extents / na::convert(10.0);
         }
 
         let bvt = BVT::new_balanced(leaves);
@@ -71,7 +66,7 @@ impl<N: Real> TriMesh<N> {
         }
 
         let deformations = DeformationInfos {
-            margin,
+            margin: na::convert(0.1), // FIXME: find a better way to defined the margin.
             curr_timestamp: 0,
             timestamps: Vec::new(),
             adj_list: Vec::new(),
