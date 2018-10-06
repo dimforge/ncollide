@@ -1,10 +1,9 @@
 use alga::general::Real;
+use math::{Isometry, Point};
 use na;
-
-use utils::IsometryOps;
 use query::{PointProjection, PointQuery};
 use shape::{Ball, FeatureId};
-use math::{Isometry, Point};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Ball<N> {
     #[inline]
@@ -17,9 +16,10 @@ impl<N: Real> PointQuery<N> for Ball<N> {
         if inside && solid {
             PointProjection::new(true, *pt)
         } else {
-            let ls_proj = Point::origin() + ls_pt.coords / distance_squared.sqrt();
+            let normal = ls_pt.coords / distance_squared.sqrt();
+            let proj = m * Point::from_coordinates(normal * self.radius());
 
-            PointProjection::new(inside, m * ls_proj)
+            PointProjection::new(inside, proj)
         }
     }
 
