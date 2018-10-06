@@ -64,7 +64,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     normal = dir;
                 }
             } else {
-                if f2 == FeatureId::Unknown() {
+                if f2 == FeatureId::Unknown {
                     // We cant do anything more at this point.
                     return true;
                 }
