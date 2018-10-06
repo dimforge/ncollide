@@ -1,13 +1,11 @@
+use bounding_volume::PolyhedralCone;
+use math::{Isometry, Point, Vector};
+use na::{self, Point2, Point3, Real, Unit};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use smallvec::SmallVec;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::f64;
-
-use na::{self, Point2, Point3, Real, Unit};
-
-use bounding_volume::PolyhedralCone;
-use math::{Isometry, Point, Vector};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use transformation;
 use utils::{self, IsometryOps, SortedPair};
 
@@ -95,7 +93,7 @@ impl<N: Real> ConvexHull<N> {
     }
     /// Attempts to create a new solid assumed to be convex from the set of points and indices.
     ///
-    /// The given points and index informations are assumed to describe a convex polyhedron.
+    /// The given points and index information are assumed to describe a convex polyhedron.
     /// It it is not, weird results may be produced.
     ///
     /// # Return
@@ -143,15 +141,15 @@ impl<N: Real> ConvexHull<N> {
                         edges_id[i1] = *e.insert(edges.len());
 
                         if let Some(dir) =
-                            Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
-                        {
-                            edges.push(Edge {
-                                vertices: Point2::new(vtx[i1], vtx[i2]),
-                                faces: Point2::new(face_id, 0),
-                                dir,
-                                deleted: false,
-                            })
-                        } else {
+                        Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
+                            {
+                                edges.push(Edge {
+                                    vertices: Point2::new(vtx[i1], vtx[i2]),
+                                    faces: Point2::new(face_id, 0),
+                                    dir,
+                                    deleted: false,
+                                })
+                            } else {
                             return None;
                         }
                     }
@@ -419,6 +417,29 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         }
 
         PolyhedralCone::Span(generators)
+    }
+
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => self.faces[id].normal,
+            FeatureId::Edge(id) => {
+                let edge = &self.edges[id];
+                Unit::new_normalize(*self.faces[edge.faces[0]].normal + *self.faces[edge.faces[1]].normal)
+            }
+            FeatureId::Vertex(id) => {
+                let vertex = &self.vertices[id];
+                let first = vertex.first_adj_face_or_edge;
+                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
+                let mut normal = Vector::zeros();
+
+                for face in &self.faces_adj_to_vertex[first..last] {
+                    normal += *self.faces[*face].normal
+                }
+
+                Unit::new_normalize(normal)
+            }
+            FeatureId::Unknown => panic!("Invalid feature ID: {:?}", feature)
+        }
     }
 
     fn support_face_toward(

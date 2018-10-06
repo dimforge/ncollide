@@ -1,8 +1,8 @@
+use math::{Isometry, Point};
 use na::{self, Real};
-use utils::IsometryOps;
 use query::{PointProjection, PointQuery};
 use shape::{FeatureId, Plane};
-use math::{Isometry, Point};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Plane<N> {
     #[inline]
@@ -15,7 +15,8 @@ impl<N: Real> PointQuery<N> for Plane<N> {
         if inside && solid {
             PointProjection::new(true, *pt)
         } else {
-            PointProjection::new(inside, *pt + (-*self.normal().as_ref() * d))
+            let normal = m * self.normal();
+            PointProjection::new(inside, *pt + *normal * -d)
         }
     }
 

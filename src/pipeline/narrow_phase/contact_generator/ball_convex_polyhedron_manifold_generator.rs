@@ -1,10 +1,10 @@
-use na::{Unit, Real};
-use math::{Isometry, Point};
-use utils::{IdAllocator, IsometryOps};
 use bounding_volume::PolyhedralCone;
-use shape::{Ball, FeatureId, Shape};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use math::{Isometry, Point};
+use na::{Real, Unit};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
+use shape::{Ball, FeatureId, Shape};
+use utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between two balls.
 pub struct BallConvexPolyhedronManifoldGenerator<N: Real> {
@@ -53,10 +53,9 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
             let world2 = proj.point;
             let dpt = world2 - ball_center;
 
+            let depth;
+            let normal;
             if let Some((dir, dist)) = Unit::try_new_and_get(dpt, N::default_epsilon()) {
-                let depth;
-                let normal;
-
                 if proj.is_inside {
                     depth = dist + ball.radius();
                     normal = -dir;
@@ -64,60 +63,66 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     depth = -dist + ball.radius();
                     normal = dir;
                 }
-
-                if depth >= -prediction.linear {
-                    let mut kinematic = ContactKinematic::new();
-                    let f1 = FeatureId::Face(0);
-                    let world1 = ball_center + normal.unwrap() * ball.radius();
-
-                    let contact;
-
-                    if !flip {
-                        contact = Contact::new(world1, world2, normal, depth);
-                        kinematic.set_point1(f1, Point::origin(), PolyhedralCone::Full);
-                        kinematic.set_dilation1(ball.radius());
-                    } else {
-                        contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_point2(f1, Point::origin(), PolyhedralCone::Full);
-                        kinematic.set_dilation2(ball.radius());
-                    }
-
-                    let local2 = m2.inverse_transform_point(&world2);
-                    let n2 = cp2.normal_cone(f2);
-
-                    match f2 {
-                        FeatureId::Face { .. } => {
-                            if !flip {
-                                kinematic.set_plane2(f2, local2, n2.unwrap_half_line())
-                            } else {
-                                kinematic.set_plane1(f2, local2, n2.unwrap_half_line())
-                            }
-                        }
-                        #[cfg(feature = "dim3")]
-                        FeatureId::Edge { .. } => {
-                            let edge = cp2.edge(f2);
-                            let dir = Unit::new_normalize(edge.1 - edge.0);
-
-                            if !flip {
-                                kinematic.set_line2(f2, local2, dir, n2)
-                            } else {
-                                kinematic.set_line1(f2, local2, dir, n2)
-                            }
-                        }
-                        FeatureId::Vertex { .. } => {
-                            if !flip {
-                                kinematic.set_point2(f2, local2, n2)
-                            } else {
-                                kinematic.set_point1(f2, local2, n2)
-                            }
-                        }
-                        FeatureId::Unknown => panic!("Feature id cannot be unknown."),
-                    }
-
-                    let _ = self.contact_manifold.push(contact, kinematic, id_alloc);
-                }
             } else {
-                // FIXME: unhandled case where the ball center is exactly on the polyhedra surface.
+                if f2 == FeatureId::Unknown() {
+                    // We cant do anything more at this point.
+                    return true;
+                }
+
+                depth = N::zero();
+                normal = -cp2.feature_normal(f2);
+            }
+
+            if depth >= -prediction.linear {
+                let mut kinematic = ContactKinematic::new();
+                let f1 = FeatureId::Face(0);
+                let world1 = ball_center + normal.unwrap() * ball.radius();
+
+                let contact;
+
+                if !flip {
+                    contact = Contact::new(world1, world2, normal, depth);
+                    kinematic.set_point1(f1, Point::origin(), PolyhedralCone::Full);
+                    kinematic.set_dilation1(ball.radius());
+                } else {
+                    contact = Contact::new(world2, world1, -normal, depth);
+                    kinematic.set_point2(f1, Point::origin(), PolyhedralCone::Full);
+                    kinematic.set_dilation2(ball.radius());
+                }
+
+                let local2 = m2.inverse_transform_point(&world2);
+                let n2 = cp2.normal_cone(f2);
+
+                match f2 {
+                    FeatureId::Face { .. } => {
+                        if !flip {
+                            kinematic.set_plane2(f2, local2, n2.unwrap_half_line())
+                        } else {
+                            kinematic.set_plane1(f2, local2, n2.unwrap_half_line())
+                        }
+                    }
+                    #[cfg(feature = "dim3")]
+                    FeatureId::Edge { .. } => {
+                        let edge = cp2.edge(f2);
+                        let dir = Unit::new_normalize(edge.1 - edge.0);
+
+                        if !flip {
+                            kinematic.set_line2(f2, local2, dir, n2)
+                        } else {
+                            kinematic.set_line1(f2, local2, dir, n2)
+                        }
+                    }
+                    FeatureId::Vertex { .. } => {
+                        if !flip {
+                            kinematic.set_point2(f2, local2, n2)
+                        } else {
+                            kinematic.set_point1(f2, local2, n2)
+                        }
+                    }
+                    FeatureId::Unknown => panic!("Feature id cannot be unknown."),
+                }
+
+                let _ = self.contact_manifold.push(contact, kinematic, id_alloc);
             }
 
             true
@@ -128,7 +133,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N>
-    for BallConvexPolyhedronManifoldGenerator<N>
+for BallConvexPolyhedronManifoldGenerator<N>
 {
     fn update(
         &mut self,

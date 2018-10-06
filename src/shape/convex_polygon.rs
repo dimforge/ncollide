@@ -1,10 +1,8 @@
-use std::f64;
-
-use na::{self, Real, Unit};
-
 use bounding_volume::PolyhedralCone;
 use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
 use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use std::f64;
 use transformation;
 use utils::{self, IsometryOps};
 
@@ -123,7 +121,22 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
                 };
                 PolyhedralCone::Span([self.normals[id1], self.normals[id2]])
             }
-            _ => unreachable!(),
+            _ => panic!("Invalid feature ID: {:?}", feature),
+        }
+    }
+
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => self.normals[id],
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+                Unit::new_normalize(*self.normals[id1] + *self.normals[id2])
+            }
+            _ => panic!("Invalid feature ID: {:?}", feature),
         }
     }
 

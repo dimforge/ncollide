@@ -1,20 +1,19 @@
 //! Definition of the triangle shape.
 
 #[cfg(feature = "dim3")]
-use std::f64;
-use std::mem;
+use bounding_volume::PolyhedralCone;
+use math::{Isometry, Point, Vector};
 use na::{self, Unit};
 use na::Real;
+#[cfg(feature = "dim3")]
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 use shape::SupportMap;
-use math::{Isometry, Point, Vector};
-use utils::IsometryOps;
-
 #[cfg(feature = "dim3")]
 use smallvec::SmallVec;
 #[cfg(feature = "dim3")]
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
-#[cfg(feature = "dim3")]
-use bounding_volume::PolyhedralCone;
+use std::f64;
+use std::mem;
+use utils::IsometryOps;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
@@ -233,6 +232,15 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
             }
         } else {
             PolyhedralCone::Full
+        }
+    }
+
+    fn feature_normal(&self, _: FeatureId) -> Unit<Vector<N>> {
+        if let Some(normal) = self.normal() {
+            // FIXME: We should be able to do much better here.
+            normal
+        } else {
+            Vector::y_axis()
         }
     }
 
