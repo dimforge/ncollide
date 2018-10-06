@@ -10,7 +10,9 @@ pub use bounding_volume::bounding_sphere_utils::{point_cloud_bounding_sphere,
                                                  point_cloud_bounding_sphere_with_center};
 #[doc(inline)]
 pub use bounding_volume::bounding_volume::{BoundingVolume, HasBoundingVolume};
-pub use self::polyhedral_cone::PolyhedralCone;
+pub use self::circular_cone::CircularCone;
+pub use self::conical_approximation::ConicalApproximation;
+pub use self::spatialized_normal_cone::SpatializedNormalCone;
 
 #[doc(hidden)]
 pub mod bounding_volume;
@@ -56,4 +58,6 @@ mod bounding_sphere_trimesh;
 mod bounding_sphere_utils;
 mod bounding_sphere_shape;
 
-mod polyhedral_cone;
+mod conical_approximation;
+pub(crate) mod circular_cone;
+mod spatialized_normal_cone;

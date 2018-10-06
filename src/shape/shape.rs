@@ -1,10 +1,10 @@
 // Queries.
 use bounding_volume::{AABB, BoundingSphere};
-use math::Isometry;
-use na::{self, Real};
+use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
 use query::{PointQuery, RayCast};
 // Repr.
-use shape::{CompositeShape, ConvexPolyhedron, DeformableShape, SupportMap};
+use shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
 use std::any::{Any, TypeId};
 use std::mem;
 use std::ops::Deref;
@@ -38,6 +38,12 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
         let aabb = self.aabb(m);
         BoundingSphere::new(aabb.center(), na::norm_squared(&aabb.half_extents()))
     }
+
+    /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent
+    /// cone that contains `dir` at the point `pt`.
+    // NOTE: for the moment, we assume the tangent cone is the same for the whole feature.
+    #[inline]
+    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool;
 
     /// The transform of a specific subshape.
     ///

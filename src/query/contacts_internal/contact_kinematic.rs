@@ -1,9 +1,9 @@
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use query::closest_points_internal;
 use query::Contact;
-use shape::FeatureId;
+use shape::{FeatureId, Shape};
 use utils::IsometryOps;
 
 
@@ -39,18 +39,15 @@ pub struct LocalShapeApproximation<N: Real> {
     pub point: Point<N>,
     /// The approximation geometry.
     pub geometry: NeighborhoodGeometry<N>,
-    /// The normal cone at this point.
-    pub normals: PolyhedralCone<N>,
 }
 
 impl<N: Real> LocalShapeApproximation<N> {
     /// Initializes a new local shape approximation at `point`.
-    pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) -> Self {
+    pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>) -> Self {
         LocalShapeApproximation {
             feature,
             point,
             geometry,
-            normals,
         }
     }
 }
@@ -80,8 +77,7 @@ impl<N: Real> ContactKinematic<N> {
         let approx = LocalShapeApproximation::new(
             FeatureId::Unknown,
             Point::origin(),
-            NeighborhoodGeometry::Point,
-            PolyhedralCone::Full);
+            NeighborhoodGeometry::Point);
 
         ContactKinematic {
             margin1: na::zero(),
@@ -93,7 +89,6 @@ impl<N: Real> ContactKinematic<N> {
 
     /// Applies the given transformation to the first set of contact information.
     pub fn transform1(&mut self, m: &Isometry<N>) {
-        self.approx1.normals.transform_by(m);
         self.approx1.point = m * self.approx1.point;
 
         match &mut self.approx1.geometry {
@@ -106,7 +101,6 @@ impl<N: Real> ContactKinematic<N> {
 
     /// Applies the given transformation to the second set of contact information.
     pub fn transform2(&mut self, m: &Isometry<N>) {
-        self.approx2.normals.transform_by(m);
         self.approx2.point = m * self.approx2.point;
 
         match &mut self.approx2.geometry {
@@ -191,13 +185,13 @@ impl<N: Real> ContactKinematic<N> {
 
 
     /// Sets the local approximation of the first shape.
-    pub fn set_approx1(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) {
-        self.approx1 = LocalShapeApproximation::new(feature, point, geom, normals);
+    pub fn set_approx1(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>) {
+        self.approx1 = LocalShapeApproximation::new(feature, point, geom);
     }
 
     /// Sets the local approximation of the second shape.
-    pub fn set_approx2(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>, normals: PolyhedralCone<N>) {
-        self.approx2 = LocalShapeApproximation::new(feature, point, geom, normals);
+    pub fn set_approx2(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>) {
+        self.approx2 = LocalShapeApproximation::new(feature, point, geom);
     }
 
 
@@ -209,7 +203,9 @@ impl<N: Real> ContactKinematic<N> {
     pub fn contact(
         &self,
         m1: &Isometry<N>,
+        s1: &Shape<N>,
         m2: &Isometry<N>,
+        s2: &Shape<N>,
         default_normal1: &Unit<Vector<N>>,
     ) -> Option<Contact<N>> {
         let normal;
@@ -219,33 +215,29 @@ impl<N: Real> ContactKinematic<N> {
         let mut world2 = m2 * self.approx2.point;
 
         match (&self.approx1.geometry, &self.approx2.geometry) {
-            (NeighborhoodGeometry::Plane(_), NeighborhoodGeometry::Point) => {
-                normal = m1 * self.approx1.normals.unwrap_half_line();
+            (NeighborhoodGeometry::Plane(normal1), NeighborhoodGeometry::Point) => {
+                normal = m1 * normal1;
                 depth = -na::dot(normal.as_ref(), &(world2 - world1));
                 world1 = world2 + *normal * depth;
             }
-            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Plane(_)) => {
-                let world_normal2 = m2 * self.approx2.normals.unwrap_half_line();
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Plane(normal2)) => {
+                let world_normal2 = m2 * normal2;
                 depth = -na::dot(&*world_normal2, &(world1 - world2));
                 world2 = world1 + *world_normal2 * depth;
                 normal = -world_normal2;
             }
             (NeighborhoodGeometry::Point, NeighborhoodGeometry::Point) => {
                 if let Some((n, d)) =
-                Unit::try_new_and_get(world2 - world1, N::default_epsilon())
-                    {
-                        let local_n1 = m1.inverse_transform_unit_vector(&n);
-                        let local_n2 = m2.inverse_transform_unit_vector(&-n);
-                        if self.approx1.normals.polar_contains_dir(&local_n1)
-                            || self.approx2.normals.polar_contains_dir(&local_n2)
-                            {
-                                depth = d;
-                                normal = -n;
-                            } else {
-                            depth = -d;
-                            normal = n;
-                        }
+                Unit::try_new_and_get(world2 - world1, N::default_epsilon()) {
+                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
+                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                        depth = d;
+                        normal = -n;
                     } else {
+                        depth = -d;
+                        normal = n;
+                    }
+                } else {
                     depth = na::zero();
                     normal = m1 * default_normal1;
                 }
@@ -257,15 +249,13 @@ impl<N: Real> ContactKinematic<N> {
                 shift -= dir1.unwrap() * proj;
 
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world1 = world2 + (-shift);
 
-                    if self.approx1.normals.polar_contains_dir(&local_n1) || self.approx2.normals.polar_contains_dir(&local_n2)
-                        {
-                            depth = d;
-                            normal = -n;
-                        } else {
+                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
+                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                        depth = d;
+                        normal = -n;
+                    } else {
                         depth = -d;
                         normal = n;
                     }
@@ -284,16 +274,13 @@ impl<N: Real> ContactKinematic<N> {
                 let shift = -shift;
 
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world2 = world1 + shift;
 
-                    if self.approx1.normals.polar_contains_dir(&local_n1)
-                        || self.approx2.normals.polar_contains_dir(&local_n2)
-                        {
-                            depth = d;
-                            normal = -n;
-                        } else {
+                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
+                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                        depth = d;
+                        normal = -n;
+                    } else {
                         depth = -d;
                         normal = n;
                     }
@@ -316,15 +303,11 @@ impl<N: Real> ContactKinematic<N> {
                 world2 = pt2;
 
                 if let Some((n, d)) = Unit::try_new_and_get(world2 - world1, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
-
-                    if self.approx1.normals.polar_contains_dir(&local_n1)
-                        || self.approx2.normals.polar_contains_dir(&local_n2)
-                        {
-                            depth = d;
-                            normal = -n;
-                        } else {
+                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
+                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                        depth = d;
+                        normal = -n;
+                    } else {
                         depth = -d;
                         normal = n;
                     }

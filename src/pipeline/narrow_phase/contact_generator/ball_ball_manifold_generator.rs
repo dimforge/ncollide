@@ -1,4 +1,4 @@
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
@@ -54,8 +54,8 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
             contacts_internal::ball_against_ball(&center_a, a, &center_b, b, prediction.linear)
                 {
                     let mut kinematic = ContactKinematic::new();
-                    kinematic.set_approx1(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point, PolyhedralCone::Full);
-                    kinematic.set_approx2(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point, PolyhedralCone::Full);
+                    kinematic.set_approx1(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point);
+                    kinematic.set_approx2(FeatureId::Face(0), Point::origin(), NeighborhoodGeometry::Point);
                     kinematic.set_dilation1(a.radius());
                     kinematic.set_dilation2(b.radius());
 

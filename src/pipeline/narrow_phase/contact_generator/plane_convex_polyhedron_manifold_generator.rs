@@ -1,4 +1,4 @@
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{self, Real};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
@@ -56,23 +56,20 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
                         let local2 = m2.inverse_transform_point(&world2);
                         let f1 = FeatureId::Face(0);
                         let f2 = self.feature.vertices_id[i];
-                        let n2 = cp.normal_cone(f2);
                         let mut kinematic = ContactKinematic::new();
                         let contact;
 
                         let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
-                        let normals_plane = PolyhedralCone::HalfLine(*plane.normal());
-
                         let approx2 = NeighborhoodGeometry::Point;
 
                         if !flip {
                             contact = Contact::new(world1, *world2, plane_normal, -dist);
-                            kinematic.set_approx1(f1, local1, approx_plane, normals_plane);
-                            kinematic.set_approx2(f2, local2, approx2, n2);
+                            kinematic.set_approx1(f1, local1, approx_plane);
+                            kinematic.set_approx2(f2, local2, approx2);
                         } else {
                             contact = Contact::new(*world2, world1, -plane_normal, -dist);
-                            kinematic.set_approx1(f2, local2, approx2, n2);
-                            kinematic.set_approx2(f1, local1, approx_plane, normals_plane);
+                            kinematic.set_approx1(f2, local2, approx2);
+                            kinematic.set_approx2(f1, local1, approx_plane);
                         }
                         let _ = self.manifold.push(contact, kinematic, id_alloc);
                     }

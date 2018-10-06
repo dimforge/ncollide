@@ -1,6 +1,6 @@
-use bounding_volume::{self, AABB, BoundingVolume};
+use bounding_volume::{AABB, BoundingVolume};
 use math::Isometry;
-use na::{self, Real};
+use na::Real;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::{ContactManifold, ContactPrediction, visitors::AABBSetsInterferencesCollector};
 use shape::{CompositeShape, Shape};
@@ -12,7 +12,6 @@ use utils::IdAllocator;
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeCompositeShapeManifoldGenerator<N> {
     sub_detectors: HashMap<(usize, usize), ContactAlgorithm<N>, DeterministicState>,
-    to_delete: Vec<(usize, usize)>,
     interferences: Vec<(usize, usize)>,
 }
 
@@ -21,7 +20,6 @@ impl<N> CompositeShapeCompositeShapeManifoldGenerator<N> {
     pub fn new() -> CompositeShapeCompositeShapeManifoldGenerator<N> {
         CompositeShapeCompositeShapeManifoldGenerator {
             sub_detectors: HashMap::with_hasher(DeterministicState),
-            to_delete: Vec::new(),
             interferences: Vec::new(),
         }
     }

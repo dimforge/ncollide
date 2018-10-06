@@ -1,4 +1,4 @@
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{Real, Unit};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
@@ -77,15 +77,13 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                         contact = Contact::new(world1, world2, normal, depth);
                         kinematic.set_approx1(f1,
                                               Point::origin(),
-                                              NeighborhoodGeometry::Point,
-                                              PolyhedralCone::Full);
+                                              NeighborhoodGeometry::Point);
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
                         kinematic.set_approx2(f1,
                                               Point::origin(),
-                                              NeighborhoodGeometry::Point,
-                                              PolyhedralCone::Full);
+                                              NeighborhoodGeometry::Point);
                         kinematic.set_dilation2(ball.radius());
                     }
 
@@ -111,9 +109,9 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     }
 
                     if !flip {
-                        kinematic.set_approx2(f2, local2, geom2, n2)
+                        kinematic.set_approx2(f2, local2, geom2)
                     } else {
-                        kinematic.set_approx1(f2, local2, geom2, n2)
+                        kinematic.set_approx1(f2, local2, geom2)
                     }
 
                     let _ = self.contact_manifold.push(contact, kinematic, id_alloc);

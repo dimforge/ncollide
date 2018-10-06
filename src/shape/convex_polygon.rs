@@ -1,10 +1,9 @@
-use std::f64;
-
-use na::{self, Real, Unit};
-
-use bounding_volume::PolyhedralCone;
+use arrayvec::ArrayVec;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
 use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use std::f64;
 use transformation;
 use utils::{self, IsometryOps};
 
@@ -112,20 +111,40 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         out.set_feature_id(FeatureId::Face(ia));
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
+    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
         match feature {
-            FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
+            FeatureId::Face(id) => ConicalApproximation::HalfLine(self.normals[id]),
             FeatureId::Vertex(id2) => {
                 let id1 = if id2 == 0 {
                     self.normals.len() - 1
                 } else {
                     id2 - 1
                 };
-                PolyhedralCone::Span([self.normals[id1], self.normals[id2]])
+                ConicalApproximation::Span(ArrayVec::from([self.normals[id1], self.normals[id2]]))
             }
             _ => unreachable!(),
         }
     }
+
+    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+        let local_dir = m.inverse_transform_unit_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => self.normals[id].dot(&local_dir) <= N::zero(),
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+
+                self.normals[id1].dot(&local_dir) <= N::zero() &&
+                    self.normals[id2].dot(&local_dir) <= N::zero()
+            }
+            _ => unreachable!(),
+        }
+    }
+
 
     fn support_face_toward(
         &self,

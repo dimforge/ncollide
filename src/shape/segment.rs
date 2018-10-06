@@ -1,6 +1,6 @@
 //! Definition of the segment shape.
 
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
@@ -154,18 +154,18 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         }
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
+    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
         if let Some(direction) = self.direction() {
             match feature {
                 FeatureId::Vertex(id) => {
                     if id == 0 {
-                        PolyhedralCone::HalfSpace(direction)
+                        ConicalApproximation::HalfSpace(direction)
                     } else {
-                        PolyhedralCone::HalfSpace(-direction)
+                        ConicalApproximation::HalfSpace(-direction)
                     }
                 }
                 #[cfg(feature = "dim3")]
-                FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
+                FeatureId::Edge(_) => ConicalApproximation::OrthogonalSubspace(direction),
                 FeatureId::Face(id) => {
                     let mut dir = Vector::zeros();
                     if id == 0 {
@@ -175,14 +175,49 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
                         dir[0] = -direction[1];
                         dir[1] = direction[0];
                     }
-                    PolyhedralCone::HalfLine(Unit::new_unchecked(dir))
+                    ConicalApproximation::HalfLine(Unit::new_unchecked(dir))
                 }
-                _ => PolyhedralCone::Empty,
+                _ => ConicalApproximation::Empty,
             }
         } else {
-            PolyhedralCone::Full
+            ConicalApproximation::Full
         }
     }
+
+    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        if let Some(direction) = self.direction() {
+            match feature {
+                FeatureId::Vertex(id) => {
+                    let dot = ls_dir.dot(&direction);
+                    if id == 0 {
+                        dot >= N::one() - N::default_epsilon()
+                    } else {
+                        -dot >= N::one() - N::default_epsilon()
+                    }
+                }
+                #[cfg(feature = "dim3")]
+                FeatureId::Edge(_) => ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon(),
+                FeatureId::Face(id) => {
+                    let mut dir = Vector::zeros();
+                    if id == 0 {
+                        dir[0] = direction[1];
+                        dir[1] = -direction[0];
+                    } else {
+                        dir[0] = -direction[1];
+                        dir[1] = direction[0];
+                    }
+
+                    ls_dir.dot(&dir) <= N::zero()
+                }
+                _ => true,
+            }
+        } else {
+            false
+        }
+    }
+
 
     #[cfg(feature = "dim2")]
     fn support_face_toward(
@@ -235,17 +270,17 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]
-                {
-                    if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
-                        FeatureId::Face(0)
-                    } else {
-                        FeatureId::Face(1)
+                    {
+                        if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
+                            FeatureId::Face(0)
+                        } else {
+                            FeatureId::Face(1)
+                        }
                     }
-                }
                 #[cfg(feature = "dim3")]
-                {
-                    FeatureId::Edge(0)
-                }
+                    {
+                        FeatureId::Edge(0)
+                    }
             } else if dot >= na::zero() {
                 FeatureId::Vertex(1)
             } else {

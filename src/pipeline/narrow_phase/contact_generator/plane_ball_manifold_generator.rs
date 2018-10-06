@@ -1,4 +1,4 @@
-use bounding_volume::PolyhedralCone;
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{self, Real};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
@@ -61,20 +61,18 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                 let contact;
 
                 let approx_ball = NeighborhoodGeometry::Point;
-                let normals_ball = PolyhedralCone::Full;
                 let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
-                let normals_plane = PolyhedralCone::HalfSpace(*plane.normal());
 
                 if !flip {
                     contact = Contact::new(world1, world2, plane_normal, depth);
-                    kinematic.set_approx1(f1, local1, approx_plane, normals_plane);
-                    kinematic.set_approx2(f2, local2, approx_ball, normals_ball);
+                    kinematic.set_approx1(f1, local1, approx_plane);
+                    kinematic.set_approx2(f2, local2, approx_ball);
                     kinematic.set_dilation2(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
-                    kinematic.set_approx1(f2, local2, approx_ball, normals_ball);
+                    kinematic.set_approx1(f2, local2, approx_ball);
                     kinematic.set_dilation1(ball.radius());
-                    kinematic.set_approx2(f1, local1, approx_plane, normals_plane);
+                    kinematic.set_approx2(f1, local1, approx_plane);
                 }
 
                 let _ = self.manifold.push(contact, kinematic, id_alloc);

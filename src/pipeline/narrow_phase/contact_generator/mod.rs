@@ -10,6 +10,8 @@ pub use self::convex_polyhedron_convex_polyhedron_manifold_generator::ConvexPoly
 pub use self::default_contact_dispatcher::DefaultContactDispatcher;
 pub use self::plane_ball_manifold_generator::PlaneBallManifoldGenerator;
 pub use self::plane_convex_polyhedron_manifold_generator::PlaneConvexPolyhedronManifoldGenerator;
+//#[cfg(feature = "dim3")]
+//pub use self::simplicial_complex_simplicial_complex_manifold_generator::SimplicialComplexSimplicialComplexManifoldGenerator;
 
 // // FIXME: un-hide this and move everything to a folder.
 #[doc(hidden)]
@@ -22,3 +24,5 @@ mod plane_ball_manifold_generator;
 mod plane_convex_polyhedron_manifold_generator;
 mod composite_shape_shape_manifold_generator;
 mod composite_shape_composite_shape_manifold_generator;
+//#[cfg(feature = "dim3")]
+//mod simplicial_complex_simplicial_complex_manifold_generator;

@@ -93,8 +93,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 FeatureId::Face(..) => {
                     kinematic.set_approx1(f1,
                                           local1,
-                                          NeighborhoodGeometry::Plane(n1.unwrap_half_line()),
-                                          n1)
+                                          NeighborhoodGeometry::Plane(n1.unwrap_half_line()))
                 }
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
@@ -102,12 +101,12 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                     if let Some(dir1) = e1.direction() {
                         let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
                         let approx1 = NeighborhoodGeometry::Line(local_dir1);
-                        kinematic.set_approx1(f1, local1, approx1, n1)
+                        kinematic.set_approx1(f1, local1, approx1)
                     } else {
                         continue;
                     }
                 }
-                FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point, n1),
+                FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point),
                 FeatureId::Unknown =>
                     unreachable!(),
             }
@@ -115,7 +114,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             match f2 {
                 FeatureId::Face(..) => {
                     let approx2 = NeighborhoodGeometry::Plane(n2.unwrap_half_line());
-                    kinematic.set_approx2(f2, local2, approx2, n2)
+                    kinematic.set_approx2(f2, local2, approx2)
                 }
                 #[cfg(feature = "dim3")]
                 FeatureId::Edge(..) => {
@@ -123,12 +122,12 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                     if let Some(dir2) = e2.direction() {
                         let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
                         let approx2 = NeighborhoodGeometry::Line(local_dir2);
-                        kinematic.set_approx2(f2, local2, approx2, n2)
+                        kinematic.set_approx2(f2, local2, approx2)
                     } else {
                         continue;
                     }
                 }
-                FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point, n2),
+                FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point),
                 FeatureId::Unknown => unreachable!(),
             }
 

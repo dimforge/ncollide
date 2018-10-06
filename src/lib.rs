@@ -50,6 +50,7 @@ And various traits for collision detectors and broad phase collision detection.
 extern crate alga;
 #[macro_use]
 extern crate approx;
+extern crate arrayvec;
 extern crate either;
 extern crate nalgebra as na;
 extern crate num_traits as num;
@@ -70,7 +71,7 @@ pub mod utils;
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim3")]
 pub mod math {
-    use na::{Isometry3, Point3, Translation3, U3, U6, UnitQuaternion, Vector3, Vector6, Matrix3};
+    use na::{Isometry3, Matrix3, Point3, Translation3, UnitQuaternion, Vector3, Vector6, U3, U6};
 
     /// The dimension of the space.
     pub const DIM: usize = 3;
@@ -115,7 +116,7 @@ pub mod math {
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim2")]
 pub mod math {
-    use na::{Isometry2, Point2, Translation2, U2, UnitComplex, Vector1, Vector2, Matrix2};
+    use na::{Isometry2, Matrix2, Point2, Translation2, UnitComplex, Vector1, Vector2, U2};
 
     /// The dimension of the space.
     pub const DIM: usize = 2;

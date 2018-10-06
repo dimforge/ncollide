@@ -14,7 +14,7 @@ use pipeline::world::{
     CollisionObjects, CollisionObjectSlab, GeometricQueryType,
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
-use shape::{DeformationIndex, ShapeHandle};
+use shape::ShapeHandle;
 use std::mem;
 use std::vec::IntoIter;
 

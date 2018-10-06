@@ -1,11 +1,11 @@
 use bounding_volume::{self, AABB, BoundingSphere};
-use math::Isometry;
-use na::Real;
+use math::{Isometry, Point, Vector};
+use na::{Real, Unit};
 use query::{PointQuery, RayCast};
-use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, DeformableShape, Plane, Polyline,
-            Segment, Shape, SupportMap};
+use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane,
+            Polyline, Segment, Shape, SupportMap};
 #[cfg(feature = "dim3")]
-use shape::{ConvexHull, Triangle, TriMesh};
+use shape::{ConvexHull, DeformableShape, Triangle, TriMesh};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 
@@ -19,6 +19,11 @@ macro_rules! impl_as_convex_polyhedron (
         #[inline]
         fn is_convex_polyhedron(&self) -> bool {
             true
+        }
+
+        #[inline]
+        fn subshape_tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+            self.tangent_cone_contains_dir(feature, m, dir)
         }
     }
 );
@@ -91,6 +96,7 @@ macro_rules! impl_shape_common (
         fn as_point_query(&self) -> Option<&PointQuery<N>> {
             Some(self)
         }
+
     }
 );
 
@@ -110,6 +116,10 @@ impl<N: Real> Shape<N> for Segment<N> {
 impl<N: Real> Shape<N> for Ball<N> {
     impl_shape_common!();
     impl_as_support_map!();
+
+    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool {
+        false
+    }
 }
 
 impl<N: Real> Shape<N> for Cuboid<N> {
@@ -153,6 +163,10 @@ impl<N: Real> Shape<N> for Compound<N> {
             Some(shape.0.clone())
         }
     }
+
+    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool {
+        unimplemented!()
+    }
 }
 
 #[cfg(feature = "dim3")]
@@ -160,13 +174,26 @@ impl<N: Real> Shape<N> for TriMesh<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
     impl_as_deformable_shape!();
+
+    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool {
+        unimplemented!()
+    }
 }
 
 impl<N: Real> Shape<N> for Polyline<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
+
+    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool {
+        unimplemented!()
+    }
 }
 
 impl<N: Real> Shape<N> for Plane<N> {
     impl_shape_common!();
+
+    fn subshape_tangent_cone_contains_dir(&self, _: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+        let world_normal = m * self.normal();
+        dir.dot(&world_normal) <= N::zero()
+    }
 }

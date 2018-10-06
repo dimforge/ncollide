@@ -3,7 +3,7 @@ use math::Isometry;
 use pipeline::broad_phase::ProxyHandle;
 use pipeline::world::CollisionGroups;
 use query::ContactPrediction;
-use shape::{DeformationIndex, ShapeHandle};
+use shape::ShapeHandle;
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
 

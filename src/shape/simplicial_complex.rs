@@ -1,12 +1,13 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
-use bounding_volume::{self, AABB, BoundingVolume};
+use arrayvec::ArrayVec;
+use bounding_volume::{self, AABB, BoundingVolume, CircularCone, ConicalApproximation, SpatializedNormalCone};
 use math::{DIM, Isometry, Point, Vector};
 use na::{self, Id, Point2, Point3, Real, Unit};
 use partitioning::{BVHImpl, BVT};
 use procedural;
-use query::LocalShapeApproximation;
-use shape::{CompositeShape, DeformableShape, DeformationsType, Shape, Triangle};
+use query::{LocalShapeApproximation, NeighborhoodGeometry};
+use shape::{CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle};
 use std::iter;
 use std::ops::Range;
 use std::slice;
@@ -28,40 +29,50 @@ struct DeformationInfos<N: Real> {
 }
 
 #[derive(Clone)]
-struct Face<N: Real> {
-    indices: Point3<usize>,
-    normal: Unit<Vector<N>>,
+struct Vertex<N: Real> {
+    adj_faces: Range<usize>,
+    normals: ConicalApproximation<N>,
+    bvt_leaf: usize,
 }
 
 #[derive(Clone)]
-struct Edge {
-    indices: Point2<usize>,
+struct Edge<N: Real> {
+    idx: Point2<usize>,
     adj_faces: (usize, usize),
+    dir: Unit<Vector<N>>,
+    normals: ConicalApproximation<N>,
+    bvt_leaf: usize,
 }
 
 #[derive(Clone)]
-struct Vertex {
-    adj_faces: Range<usize>
+struct Face<N: Real> {
+    idx: Point3<usize>,
+    normal: Option<Unit<Vector<N>>>,
+    bvt_leaf: usize,
 }
 
-/// A 3d triangle mesh.
+/// A 3d triangle mesh represented as a simplicial complex.
 #[derive(Clone)]
-pub struct TriMesh<N: Real> {
-    bvt: BVT<usize, AABB<N>>,
-    bvt_leaf_ids: Vec<usize>,
-    vertices: Vec<Point<N>>,
-    indices: Vec<Point3<usize>>,
+pub struct SimplicialComplex<N: Real> {
+    bvt: BVT<FeatureId, SpatializedNormalCone<N>>,
+    points: Vec<Point<N>>,
+    faces: Vec<Face<N>>,
+    edges: Vec<Edge<N>>,
+    vertices: Vec<Vertex<N>>,
+    // Collection of adjacent faces for vertices.
+    adj_list: Vec<usize>,
     uvs: Option<Vec<Point2<N>>>,
     deformations: DeformationInfos<N>,
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: Real> SimplicialComplex<N> {
     /// Builds a new mesh.
     pub fn new(
         vertices: Vec<Point<N>>,
         indices: Vec<Point3<usize>>,
         uvs: Option<Vec<Point2<N>>>,
-    ) -> TriMesh<N> {
+    ) -> SimplicialComplex<N> {
+        /*
         let mut leaves = Vec::new();
 
         {
@@ -91,7 +102,7 @@ impl<N: Real> TriMesh<N> {
             tri_to_update: Vec::new(),
         };
 
-        TriMesh {
+        SimplicialComplex {
             bvt,
             bvt_leaf_ids,
             vertices,
@@ -99,24 +110,20 @@ impl<N: Real> TriMesh<N> {
             uvs,
             deformations,
         }
+        */
+        unimplemented!()
     }
 
-    /// The triangle mesh's AABB.
+    /// The simplicial complex's AABB.
     #[inline]
     pub fn aabb(&self) -> &AABB<N> {
-        self.bvt.root_bounding_volume().expect("An empty TriMesh has no AABB.")
+        &self.bvt.root_bounding_volume().expect("An empty SimplicialComplex has no AABB.").aabb
     }
 
-    /// The vertices of this mesh.
+    /// The vertices of this complex.
     #[inline]
-    pub fn vertices(&self) -> &Vec<Point<N>> {
-        &self.vertices
-    }
-
-    /// The indices of this mesh.
-    #[inline]
-    pub fn indices(&self) -> &Vec<Point3<usize>> {
-        &self.indices
+    pub fn points(&self) -> &Vec<Point<N>> {
+        &self.points
     }
 
     /// The texture coordinates of this mesh.
@@ -128,22 +135,97 @@ impl<N: Real> TriMesh<N> {
     /// Gets the i-th mesh element.
     #[inline]
     pub fn triangle_at(&self, i: usize) -> Triangle<N> {
-        let idx = self.indices[i];
+        let idx = self.faces[i].idx;
 
         Triangle::new(
-            self.vertices[idx.x],
-            self.vertices[idx.y],
-            self.vertices[idx.z],
+            self.points[idx.x],
+            self.points[idx.y],
+            self.points[idx.z],
         )
+    }
+
+    /// Gets the i-th segment of this mesh.
+    #[inline]
+    pub fn segment_at(&self, i: usize) -> Segment<N> {
+        let idx = self.edges[i].idx;
+
+        Segment::new(
+            self.points[idx.x],
+            self.points[idx.y],
+        )
+    }
+
+    /// Sets to `out` the local linear approximation of the feature `id` of this shape.
+    ///
+    /// Note that because this shape is polyhedral, this local approximation is actually exact.
+    /// Returns `false` if the requested feature is a degenerate face or a degenerate edge.
+    #[inline]
+    pub fn local_approximation(&self, id: FeatureId, out: &mut LocalShapeApproximation<N>) -> bool {
+        out.feature = id;
+
+        match id {
+            FeatureId::Face(i) => {
+                let face = &self.faces[i];
+                out.point = self.points[face.idx.x];
+
+                if let Some(normal) = face.normal {
+                    out.geometry = NeighborhoodGeometry::Plane(normal);
+                    true
+                } else {
+                    false
+                }
+            }
+            FeatureId::Edge(i) => {
+                let edge = &self.edges[i];
+                out.point = self.points[edge.idx.x];
+                out.geometry = NeighborhoodGeometry::Line(edge.dir);
+                true
+            }
+            FeatureId::Vertex(i) => {
+                out.point = self.points[i];
+                out.geometry = NeighborhoodGeometry::Point;
+                true
+            }
+            FeatureId::Unknown => false
+        }
     }
 
     /// The optimization structure used by this triangle mesh.
     #[inline]
-    pub fn bvt(&self) -> &BVT<usize, AABB<N>> {
+    pub fn bvt(&self) -> &BVT<FeatureId, SpatializedNormalCone<N>> {
         &self.bvt
     }
 
+    // Update normal cones after vertices have been modified.
+    fn update_normals(&mut self) {
+        // First, update faces normals.
+        for face in &mut self.faces {
+            let triangle = Triangle::new(
+                self.points[face.idx.x],
+                self.points[face.idx.y],
+                self.points[face.idx.z],
+            );
+
+            face.normal = triangle.normal();
+        }
+
+        // Second, update edges normal cones.
+        // Third, update vertices normal cones.
+        for vtx in &mut self.vertices {
+            vtx.normals = ConicalApproximation::Empty;
+
+            for adj in vtx.adj_faces.clone() {
+                let face = &self.faces[adj];
+                if let Some(normal) = face.normal {
+                    vtx.normals.push(normal)
+                }
+            }
+        }
+    }
+
     fn init_deformation_infos(&mut self) -> bool {
+        unimplemented!()
+        /*
         if self.deformations.ref_vertices.is_empty() {
             self.deformations.ref_vertices = Vec::with_capacity(self.vertices.len());
             self.deformations.timestamps = iter::repeat(0).take(self.indices.len()).collect();
@@ -186,13 +268,15 @@ impl<N: Real> TriMesh<N> {
         } else {
             false
         }
+        */
     }
 }
 
-impl<N: Real> CompositeShape<N> for TriMesh<N> {
+/*
+impl<N: Real> CompositeShape<N> for SimplicialComplex<N> {
     #[inline]
     fn nparts(&self) -> usize {
-        self.indices.len()
+        self.faces.len()
     }
 
     #[inline(always)]
@@ -223,7 +307,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
     }
 }
 
-impl<N: Real> DeformableShape<N> for TriMesh<N> {
+impl<N: Real> DeformableShape<N> for SimplicialComplex<N> {
     fn deformations_type(&self) -> DeformationsType {
         DeformationsType::Vectors
     }
@@ -298,15 +382,15 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
         tri.update_local_approximation(approx);
     }
-}
+}*/
 
-impl<N: Real> From<procedural::TriMesh<N>> for TriMesh<N> {
+impl<N: Real> From<procedural::TriMesh<N>> for SimplicialComplex<N> {
     fn from(trimesh: procedural::TriMesh<N>) -> Self {
         let indices =
             trimesh
                 .flat_indices()
                 .chunks(3).map(|idx| Point3::new(idx[0] as usize, idx[1] as usize, idx[2] as usize))
                 .collect();
-        TriMesh::new(trimesh.coords, indices, trimesh.uvs)
+        SimplicialComplex::new(trimesh.coords, indices, trimesh.uvs)
     }
 }

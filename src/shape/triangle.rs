@@ -1,7 +1,9 @@
 //! Definition of the triangle shape.
 
 #[cfg(feature = "dim3")]
-use bounding_volume::PolyhedralCone;
+use arrayvec::ArrayVec;
+#[cfg(feature = "dim3")]
+use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
 use na::{self, Unit};
 use na::Real;
@@ -10,8 +12,6 @@ use query::{LocalShapeApproximation, NeighborhoodGeometry};
 #[cfg(feature = "dim3")]
 use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, Segment};
 use shape::SupportMap;
-#[cfg(feature = "dim3")]
-use smallvec::SmallVec;
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
@@ -150,8 +150,6 @@ impl<N: Real> Triangle<N> {
     #[cfg(feature = "dim3")]
     #[inline]
     pub fn update_local_approximation(&self, approx: &mut LocalShapeApproximation<N>) {
-        approx.normals = self.normal_cone(approx.feature);
-
         match approx.feature {
             FeatureId::Vertex(i) => {
                 approx.point = self.as_array()[i];
@@ -169,8 +167,9 @@ impl<N: Real> Triangle<N> {
                 }
             }
             FeatureId::Face(_) => {
+                unimplemented!();
                 approx.point = self.a;
-                approx.geometry = NeighborhoodGeometry::Plane(approx.normals.unwrap_half_line());
+//                approx.geometry = NeighborhoodGeometry::Plane(self.normal());
             }
             FeatureId::Unknown => panic!("Encountered unknown feature.")
         }
@@ -258,12 +257,12 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         }
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
+    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
         if let Some(normal) = self.normal() {
             match feature {
                 FeatureId::Vertex(id2) => {
                     let vtx = self.as_array();
-                    let mut generators = SmallVec::new();
+                    let mut generators = ArrayVec::new();
                     let id1 = if id2 == 0 { 2 } else { id2 - 1 };
                     let id3 = (id2 + 1) % 3;
 
@@ -278,13 +277,13 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
 
                     // FIXME: is it meaningful not to push the sides if the triangle is degenerate?
 
-                    PolyhedralCone::Span(generators)
+                    ConicalApproximation::Span(generators)
                 }
                 FeatureId::Edge(id1) => {
                     // FIXME: We should be able to do much better here.
                     let id2 = (id1 + 1) % 3;
                     let vtx = self.as_array();
-                    let mut generators = SmallVec::new();
+                    let mut generators = ArrayVec::new();
 
                     if let Some(side) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
                         generators.push(side);
@@ -297,14 +296,38 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                         generators.push(normal);
                     }
 
-                    PolyhedralCone::Span(generators)
+                    ConicalApproximation::Span(generators)
                 }
-                FeatureId::Face(0) => PolyhedralCone::HalfLine(normal),
-                FeatureId::Face(1) => PolyhedralCone::HalfLine(-normal),
+                FeatureId::Face(0) => ConicalApproximation::HalfLine(normal),
+                FeatureId::Face(1) => ConicalApproximation::HalfLine(-normal),
                 _ => panic!("Invalid feature ID."),
             }
         } else {
-            PolyhedralCone::Full
+            ConicalApproximation::Full
+        }
+    }
+
+    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+        let ls_dir = m.inverse_transform_vector(dir);
+
+        if let Some(normal) = self.normal() {
+            match feature {
+                FeatureId::Vertex(_) => {
+                    // FIXME: for now we assume since the triangle has no thickness,
+                    // the case where `dir` is coplanar with the triangle never happens.
+                    false
+                }
+                FeatureId::Edge(_) => {
+                    // FIXME: for now we assume since the triangle has no thickness,
+                    // the case where `dir` is coplanar with the triangle never happens.
+                    false
+                }
+                FeatureId::Face(0) => ls_dir.dot(&normal) <= N::zero(),
+                FeatureId::Face(1) => ls_dir.dot(&normal) >= N::zero(),
+                _ => panic!("Invalid feature ID."),
+            }
+        } else {
+            false
         }
     }
 
