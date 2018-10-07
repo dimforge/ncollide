@@ -12,6 +12,8 @@ pub use self::contact_generator::{BallBallManifoldGenerator,
                                   DefaultContactDispatcher,
                                   PlaneBallManifoldGenerator,
                                   PlaneConvexPolyhedronManifoldGenerator};
+#[cfg(feature = "dim3")]
+pub use self::contact_generator::TriMeshTriMeshManifoldGenerator;
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, ProximityPairs};
 #[doc(inline)]
@@ -23,6 +25,7 @@ pub use self::proximity_detector::{BallBallProximityDetector,
                                    ProximityDispatcher,
                                    SupportMapPlaneProximityDetector,
                                    SupportMapSupportMapProximityDetector};
+
 
 #[doc(hidden)]
 pub mod contact_generator;

@@ -10,7 +10,8 @@ use na::Real;
 #[cfg(feature = "dim3")]
 use query::{LocalShapeApproximation, NeighborhoodGeometry};
 #[cfg(feature = "dim3")]
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, Segment};
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
+use shape::Segment;
 use shape::SupportMap;
 #[cfg(feature = "dim3")]
 use std::f64;
@@ -121,7 +122,7 @@ impl<N: Real> Triangle<N> {
 
     /// Reference to an array containing the three vertices of this triangle.
     #[inline]
-    pub fn as_array(&self) -> &[Point<N>; 3] {
+    pub fn vertices(&self) -> &[Point<N>; 3] {
         unsafe { mem::transmute(self) }
     }
 
@@ -132,6 +133,18 @@ impl<N: Real> Triangle<N> {
     #[inline]
     pub fn normal(&self) -> Option<Unit<Vector<N>>> {
         Unit::try_new(self.scaled_normal(), N::default_epsilon())
+    }
+
+    /// The three edges of this triangle: [AB, BC, CA].
+    #[inline]
+    pub fn edges(&self) -> [Segment<N>; 3] {
+        [Segment::new(self.a, self.b), Segment::new(self.b, self.c), Segment::new(self.c, self.a)]
+    }
+
+    /// The three edges scaled directions of this triangle: [B - A, C - B, A - C].
+    #[inline]
+    pub fn edges_scaled_directions(&self) -> [Vector<N>; 3] {
+        [self.b - self.a, self.c - self.b, self.a - self.c]
     }
 
     /// A vector normal of this triangle.
@@ -145,6 +158,36 @@ impl<N: Real> Triangle<N> {
         ab.cross(&ac)
     }
 
+    /// Computes the extents of this triangle on the given direction.
+    ///
+    /// This computes the min and max values of the dot products between each
+    /// vertex of this triangle and `dir`.
+    #[inline]
+    pub fn extents_on_dir(&self, dir: &Unit<Vector<N>>) -> (N, N) {
+        let a = self.a.coords.dot(dir);
+        let b = self.b.coords.dot(dir);
+        let c = self.c.coords.dot(dir);
+
+        if a > b {
+            if b > c {
+                (c, a)
+            } else if a > c {
+                (b, a)
+            } else {
+                (b, c)
+            }
+        } else {
+            // b >= a
+            if a > c {
+                (c, b)
+            } else if b > c {
+                (a, b)
+            } else {
+                (a, c)
+            }
+        }
+    }
+
     /// Updates the approximation of this shape of the feature specified in `approx`.
     // FIXME: implement this for the 2D case too.
     #[cfg(feature = "dim3")]
@@ -152,10 +195,10 @@ impl<N: Real> Triangle<N> {
     pub fn update_local_approximation(&self, approx: &mut LocalShapeApproximation<N>) {
         match approx.feature {
             FeatureId::Vertex(i) => {
-                approx.point = self.as_array()[i];
+                approx.point = self.vertices()[i];
             }
             FeatureId::Edge(i) => {
-                let points = self.as_array();
+                let points = self.vertices();
                 approx.point = points[i];
                 let edge = Segment::new(points[i], points[(i + 1) % 3]);
 
@@ -261,7 +304,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         if let Some(normal) = self.normal() {
             match feature {
                 FeatureId::Vertex(id2) => {
-                    let vtx = self.as_array();
+                    let vtx = self.vertices();
                     let mut generators = ArrayVec::new();
                     let id1 = if id2 == 0 { 2 } else { id2 - 1 };
                     let id3 = (id2 + 1) % 3;
@@ -282,7 +325,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
                 FeatureId::Edge(id1) => {
                     // FIXME: We should be able to do much better here.
                     let id2 = (id1 + 1) % 3;
-                    let vtx = self.as_array();
+                    let vtx = self.vertices();
                     let mut generators = ArrayVec::new();
 
                     if let Some(side) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {

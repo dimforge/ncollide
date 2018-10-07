@@ -12,25 +12,31 @@ use std::ops::Range;
 use std::slice;
 
 #[derive(Clone)]
-struct RefVertex<N: Real> {
-    point: Point<N>,
-    adj_bvs: Range<usize>,
-}
-
-#[derive(Clone)]
 struct DeformationInfos<N: Real> {
     margin: N,
     curr_timestamp: usize,
     timestamps: Vec<usize>,
-    adj_list: Vec<usize>,
-    ref_vertices: Vec<RefVertex<N>>,
+    ref_vertices: Vec<Point<N>>,
     tri_to_update: Vec<usize>,
 }
 
 #[derive(Clone)]
-struct Face<N: Real> {
+pub struct TriMeshFace<N: Real> {
     indices: Point3<usize>,
+    bvt_leaf: usize,
     normal: Unit<Vector<N>>,
+}
+
+impl<N: Real> TriMeshFace<N> {
+    /// Indices of the vertices of this triangular face.
+    pub fn indices(&self) -> &Point3<usize> {
+        &self.indices
+    }
+
+    /// The counterclockwise normal of this triangular face.
+    pub fn normal(&self) -> &Unit<Vector<N>> {
+        &self.normal
+    }
 }
 
 #[derive(Clone)]
@@ -48,27 +54,31 @@ struct Vertex {
 #[derive(Clone)]
 pub struct TriMesh<N: Real> {
     bvt: BVT<usize, AABB<N>>,
-    bvt_leaf_ids: Vec<usize>,
-    vertices: Vec<Point<N>>,
-    indices: Vec<Point3<usize>>,
     uvs: Option<Vec<Point2<N>>>,
+    points: Vec<Point<N>>,
+    vertices: Vec<Vertex>,
+    edges: Vec<Edge>,
+    faces: Vec<TriMeshFace<N>>,
+    adj_list: Vec<usize>,
     deformations: DeformationInfos<N>,
 }
 
 impl<N: Real> TriMesh<N> {
     /// Builds a new mesh.
     pub fn new(
-        vertices: Vec<Point<N>>,
+        points: Vec<Point<N>>,
         indices: Vec<Point3<usize>>,
         uvs: Option<Vec<Point2<N>>>,
     ) -> TriMesh<N> {
+        unimplemented!()
+        /*
         let mut leaves = Vec::new();
 
         {
             let is = &*indices;
 
             for (i, is) in is.iter().enumerate() {
-                let triangle = Triangle::new(vertices[is.x], vertices[is.y], vertices[is.z]);
+                let triangle = Triangle::new(points[is.x], points[is.y], points[is.z]);
                 // FIXME: loosen for better persistency?
                 let bv = triangle.aabb(&Isometry::identity());
                 leaves.push((i, bv.clone()));
@@ -94,11 +104,12 @@ impl<N: Real> TriMesh<N> {
         TriMesh {
             bvt,
             bvt_leaf_ids,
-            vertices,
+            points,
             indices,
             uvs,
             deformations,
         }
+        */
     }
 
     /// The triangle mesh's AABB.
@@ -107,33 +118,33 @@ impl<N: Real> TriMesh<N> {
         self.bvt.root_bounding_volume().expect("An empty TriMesh has no AABB.")
     }
 
-    /// The vertices of this mesh.
+    /// The points of this mesh.
     #[inline]
-    pub fn vertices(&self) -> &Vec<Point<N>> {
-        &self.vertices
+    pub fn points(&self) -> &[Point<N>] {
+        &self.points
     }
 
-    /// The indices of this mesh.
+    /// The faces of this mesh.
     #[inline]
-    pub fn indices(&self) -> &Vec<Point3<usize>> {
-        &self.indices
+    pub fn faces(&self) -> &[TriMeshFace<N>] {
+        &self.faces
     }
 
     /// The texture coordinates of this mesh.
     #[inline]
-    pub fn uvs(&self) -> &Option<Vec<Point2<N>>> {
-        &self.uvs
+    pub fn uvs(&self) -> Option<&[Point2<N>]> {
+        self.uvs.as_ref().map(|uvs| &uvs[..])
     }
 
     /// Gets the i-th mesh element.
     #[inline]
     pub fn triangle_at(&self, i: usize) -> Triangle<N> {
-        let idx = self.indices[i];
+        let idx = self.faces[i].indices;
 
         Triangle::new(
-            self.vertices[idx.x],
-            self.vertices[idx.y],
-            self.vertices[idx.z],
+            self.points[idx.x],
+            self.points[idx.y],
+            self.points[idx.z],
         )
     }
 
@@ -144,10 +155,11 @@ impl<N: Real> TriMesh<N> {
     }
 
     fn init_deformation_infos(&mut self) -> bool {
+        /*
         if self.deformations.ref_vertices.is_empty() {
-            self.deformations.ref_vertices = Vec::with_capacity(self.vertices.len());
+            self.deformations.ref_vertices = Vec::with_capacity(self.points.len());
             self.deformations.timestamps = iter::repeat(0).take(self.indices.len()).collect();
-            let mut num_neighbors: Vec<usize> = iter::repeat(0).take(self.vertices.len()).collect();
+            let mut num_neighbors: Vec<usize> = iter::repeat(0).take(self.points.len()).collect();
 
             for idx in &self.indices {
                 num_neighbors[idx.x] += 1;
@@ -157,7 +169,7 @@ impl<N: Real> TriMesh<N> {
 
             let mut total_num_nbh = 0;
 
-            for (num_nbh, pt) in num_neighbors.iter().zip(self.vertices.iter()) {
+            for (num_nbh, pt) in num_neighbors.iter().zip(self.points.iter()) {
                 self.deformations.ref_vertices.push(RefVertex {
                     point: *pt,
                     adj_bvs: total_num_nbh..total_num_nbh + num_nbh,
@@ -186,13 +198,16 @@ impl<N: Real> TriMesh<N> {
         } else {
             false
         }
+        */
+        unimplemented!()
     }
 }
+
 
 impl<N: Real> CompositeShape<N> for TriMesh<N> {
     #[inline]
     fn nparts(&self) -> usize {
-        self.indices.len()
+        self.faces.len()
     }
 
     #[inline(always)]
@@ -214,7 +229,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
 
     #[inline]
     fn aabb_at(&self, i: usize) -> AABB<N> {
-        self.bvt.leaf(self.bvt_leaf_ids[i]).bounding_volume().clone()
+        self.bvt.leaf(self.faces[i].bvt_leaf).bounding_volume().clone()
     }
 
     #[inline]
@@ -223,6 +238,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
     }
 }
 
+
 impl<N: Real> DeformableShape<N> for TriMesh<N> {
     fn deformations_type(&self) -> DeformationsType {
         DeformationsType::Vectors
@@ -230,6 +246,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
+        /*
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
@@ -241,11 +258,11 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
                 let len = coords.len() / DIM;
                 let coords_ptr = coords.as_ptr() as *const Point<N>;
                 let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
-                self.vertices.copy_from_slice(coords_pt);
+                self.points.copy_from_slice(coords_pt);
             }
         }
 
-        for (target, pt) in self.vertices.iter_mut().enumerate() {
+        for (target, pt) in self.points.iter_mut().enumerate() {
             if let Some(idx) = indices {
                 let source = idx[target];
                 pt.coords.copy_from_slice(&coords[source..source + DIM]);
@@ -266,7 +283,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
             if self.deformations.timestamps[tri_id] != self.deformations.curr_timestamp {
                 // Update the BV.
                 let idx = &self.indices[tri_id];
-                let mut new_bv = bounding_volume::point_cloud_aabb(&Id::new(), &[self.vertices[idx.x], self.vertices[idx.y], self.vertices[idx.z]]);
+                let mut new_bv = bounding_volume::point_cloud_aabb(&Id::new(), &[self.points[idx.x], self.points[idx.y], self.points[idx.z]]);
                 new_bv.loosen(self.deformations.margin);
                 self.bvt.set_leaf_bounding_volume(self.bvt_leaf_ids[tri_id], new_bv, false);
                 self.deformations.timestamps[tri_id] = self.deformations.curr_timestamp;
@@ -275,6 +292,8 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
         // FIXME: measure efficiency with a non-zero margin.
         self.bvt.refit(N::zero())
+        */
+        unimplemented!()
     }
 
     fn update_local_approximation(
@@ -284,6 +303,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         part_id: usize,
         approx: &mut LocalShapeApproximation<N>,
     ) {
+        /*
         let tri_id = self.indices[part_id];
         let (a_id, b_id, c_id) = if let Some(idx) = indices {
             (idx[tri_id.x], idx[tri_id.y], idx[tri_id.z])
@@ -297,6 +317,8 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         let tri = Triangle::new(a, b, c);
 
         tri.update_local_approximation(approx);
+        */
+        unimplemented!()
     }
 }
 

@@ -1,16 +1,18 @@
+use math::{Point, Vector};
 use na::{self, Real};
 
-use math::{Point, Vector};
 
-// FIXME: can we re-used this for the segment/segment case?
 /// Closest points between two segments.
+///
+/// The result, say `res`, is such that the closest points between both lines are
+/// `orig1 + dir1 * res.0` and `orig2 + dir2 * res.1`.
 #[inline]
-pub fn line_against_line<N: Real>(
+pub fn line_against_line_parameters<N: Real>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,
-    dir2: &Vector<N>
-) -> (Point<N>, Point<N>) {
+    dir2: &Vector<N>,
+) -> (N, N) {
     // Inspired by Real-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
@@ -53,5 +55,18 @@ pub fn line_against_line<N: Real>(
         }
     }
 
+    (s, t)
+}
+
+// FIXME: can we re-used this for the segment/segment case?
+/// Closest points between two segments.
+#[inline]
+pub fn line_against_line<N: Real>(
+    orig1: &Point<N>,
+    dir1: &Vector<N>,
+    orig2: &Point<N>,
+    dir2: &Vector<N>,
+) -> (Point<N>, Point<N>) {
+    let (s, t) = line_against_line_parameters(orig1, dir1, orig2, dir2);
     (*orig1 + *dir1 * s, *orig2 + *dir2 * t)
 }
