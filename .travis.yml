@@ -1,47 +1,41 @@
 sudo: false
 language: rust
 rust:
-    - stable
-    - beta
-    - nightly
+- stable
+- beta
+- nightly
 matrix:
   allow_failures:
-    - rust: beta
-    - rust: nightly
+  - rust: beta
+  - rust: nightly
 addons:
   apt:
     sources:
-      - kalakris-cmake
-      - kubuntu-backports
+    - kalakris-cmake
+    - kubuntu-backports
     packages:
-      - cmake
-      - libxi-dev
-      - libxrandr-dev
-      - libxxf86vm-dev
-      - libglew-dev
-      - libopenal-dev
-      - libsndfile1-dev
-      - libxinerama-dev
-      - libxcursor-dev
+    - cmake
+    - libxi-dev
+    - libxrandr-dev
+    - libxxf86vm-dev
+    - libglew-dev
+    - libopenal-dev
+    - libsndfile1-dev
+    - libxinerama-dev
+    - libxcursor-dev
 cache:
   cargo: true
   apt: true
   directories:
   - $HOME/local
 install:
-  - export PATH="$PATH:$HOME/local/bin"
-  - export LIBRARY_PATH="$LIBRARY_PATH:$HOME/local/lib"
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/local/lib"
-  - bash $TRAVIS_BUILD_DIR/.travis.payload/install-dependencies.sh
+- export PATH="$PATH:$HOME/local/bin"
+- export LIBRARY_PATH="$LIBRARY_PATH:$HOME/local/lib"
+- export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/local/lib"
+- bash $TRAVIS_BUILD_DIR/.travis.payload/install-dependencies.sh
 script:
-  - cd $TRAVIS_BUILD_DIR/build/ncollide2d
-  - cargo build
-  - cargo test
-  - cd $TRAVIS_BUILD_DIR/build/ncollide3d
-  - cargo build
-  - cargo test
-  # - cd ncollide_testbed2d
-  # - make test
-  # - cd $TRAVIS_BUILD_DIR
-  # - cd ncollide_testbed3d
-  # - make test
+- rustc --version
+- cargo --version
+- ./ci/build.sh
+- ./ci/test.sh
+- ./ci/bench.sh
