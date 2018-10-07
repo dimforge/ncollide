@@ -1,13 +1,12 @@
 #![feature(test)]
+#![allow(unused_macros)]
 
 extern crate nalgebra as na;
 extern crate ncollide3d;
 extern crate rand;
 extern crate test;
 
-mod geometry;
-mod utils;
+mod query;
 mod common;
-mod ray;
 mod bounding_volume;
 mod support_map;

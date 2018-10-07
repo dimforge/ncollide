@@ -1,10 +1,10 @@
-macro_rules! bench_free_fn(
+macro_rules! bench_free_fn (
     ($name: ident, $function: path, $($args: ident: $types: ty),*) => {
         bench_free_fn_gen!($name, $function, $($args: $types = generate),*);
     }
 );
 
-macro_rules! bench_method(
+macro_rules! bench_method (
     ($name: ident, $method: ident, $arg: ident: $typ: ty, $($args: ident: $types: ty),*) => {
         bench_method_gen!($name, $method, $arg: $typ = generate, $($args: $types = generate),*);
     };
@@ -13,13 +13,13 @@ macro_rules! bench_method(
     };
 );
 
-macro_rules! bench_free_fn_gen(
+macro_rules! bench_free_fn_gen (
     ($name: ident, $function: path, $($args: ident: $types: ty = $gens: path),*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_unseeded();
+            let mut rng = IsaacRng::new_from_u64(0);
 
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
             let mut i = 0;
@@ -35,13 +35,13 @@ macro_rules! bench_free_fn_gen(
     }
 );
 
-macro_rules! bench_method_gen(
+macro_rules! bench_method_gen (
     ($name: ident, $method: ident, $arg: ident: $typ: ty = $gen: path, $($args: ident: $types: ty = $gens: path),*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_unseeded();
+            let mut rng = IsaacRng::new_from_u64(0);
 
             let $arg: Vec<$typ> = (0usize .. LEN).map(|_| $gen(&mut rng)).collect();
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
@@ -61,7 +61,7 @@ macro_rules! bench_method_gen(
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_unseeded();
+            let mut rng = IsaacRng::new_from_u64(0);
 
             let $arg: Vec<$typ> = (0usize .. LEN).map(|_| $gen(&mut rng)).collect();
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
