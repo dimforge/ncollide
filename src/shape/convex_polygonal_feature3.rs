@@ -1,8 +1,8 @@
 use na::{self, Real, Unit};
 
-use shape::{Segment, FeatureId};
-use query::Contact;
 use math::{Isometry, Point, Vector};
+use query::Contact;
+use shape::{FeatureId, Segment};
 
 /// Represents a convex polygonal approximation of a face of a solid.
 ///
@@ -37,7 +37,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
             edges_id: Vec::new(),
         }
     }
-    
+
     /// Removes all the vertices, normals, and feature IDs of this feature.
     pub fn clear(&mut self) {
         self.vertices.clear();

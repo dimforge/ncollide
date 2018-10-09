@@ -126,7 +126,12 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         }
     }
 
-    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
         let local_dir = m.inverse_transform_unit_vector(dir);
 
         match feature {
@@ -138,13 +143,12 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
                     id2 - 1
                 };
 
-                self.normals[id1].dot(&local_dir) <= N::zero() &&
-                    self.normals[id2].dot(&local_dir) <= N::zero()
+                self.normals[id1].dot(&local_dir) <= N::zero()
+                    && self.normals[id2].dot(&local_dir) <= N::zero()
             }
             _ => unreachable!(),
         }
     }
-
 
     fn support_face_toward(
         &self,

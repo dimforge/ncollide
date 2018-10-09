@@ -1,9 +1,9 @@
 //! Support mapping based Cone shape.
 
+use math::{Isometry, Point, Vector};
 use na::{self, Real};
-use utils::IsometryOps;
 use shape::SupportMap;
-use math::{Point, Vector, Isometry};
+use utils::IsometryOps;
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]

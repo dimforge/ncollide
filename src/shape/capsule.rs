@@ -1,10 +1,10 @@
 //! Support mapping based Capsule shape.
 
-use na::{self, Unit, Real};
+use na::{self, Real, Unit};
 
-use utils::IsometryOps;
-use shape::SupportMap;
 use math::{Isometry, Point, Vector};
+use shape::SupportMap;
+use utils::IsometryOps;
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]

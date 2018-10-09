@@ -64,7 +64,7 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
                 let toi = inter.toi;
                 let n = inter.normal;
 
-                let idx = &self.faces()[best].indices();
+                let idx = &self.faces()[best].indices;
                 let uvs = self.uvs().unwrap();
 
                 let uv1 = uvs[idx[0]];
@@ -160,7 +160,7 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormal
     #[inline]
     fn visit_data(&mut self, i: &usize) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)> {
         let vs = self.mesh.points();
-        let idx = self.mesh.faces()[*i].indices();
+        let idx = self.mesh.faces()[*i].indices;
 
         let a = &vs[idx[0]];
         let b = &vs[idx[1]];

@@ -28,8 +28,6 @@ pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
 #[doc(inline)]
 pub use self::shape::{Shape, ShapeHandle};
-#[cfg(feature = "dim3")]
-pub use self::simplicial_complex::SimplicialComplex;
 #[doc(inline)]
 pub use self::support_map::SupportMap;
 #[cfg(feature = "dim3")]
@@ -58,6 +56,7 @@ mod convex_polyhedron;
 mod cuboid;
 #[cfg(feature = "dim3")]
 mod cylinder;
+mod deformable_shape;
 mod plane;
 mod polyline;
 mod segment;
@@ -71,6 +70,3 @@ mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
-#[cfg(feature = "dim3")]
-mod simplicial_complex;
-mod deformable_shape;

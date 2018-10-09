@@ -1,9 +1,9 @@
-use std::any::Any;
-use na::Real;
-use utils::IdAllocator;
-use shape::Shape;
-use query::{ContactManifold, ContactPrediction};
 use math::Isometry;
+use na::Real;
+use query::{ContactManifold, ContactPrediction};
+use shape::Shape;
+use std::any::Any;
+use utils::IdAllocator;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
 pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
@@ -23,6 +23,23 @@ pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
         id_alloc: &mut IdAllocator,
     ) -> bool;
 
+    /// Runs the collision detection on two objects and output the results to the
+    /// given manifold structure. It is assumed that the same collision detector
+    /// (the same structure) is always used with the same pair of object.
+    fn update_to(
+        &mut self,
+        dispatcher: &ContactDispatcher<N>,
+        ida: usize,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
+        idb: usize,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
+        id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
+    ) -> bool;
+
     /// The number of contacts found.
     fn num_contacts(&self) -> usize;
 
@@ -34,9 +51,5 @@ pub type ContactAlgorithm<N> = Box<ContactManifoldGenerator<N>>;
 
 pub trait ContactDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_contact_algorithm(
-        &self,
-        a: &Shape<N>,
-        b: &Shape<N>,
-    ) -> Option<ContactAlgorithm<N>>;
+    fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>>;
 }

@@ -85,7 +85,8 @@ impl<N: Real> ConvexHull<N> {
     /// Returns `None` if the convex hull computation failed.
     pub fn try_from_points(points: &[Point<N>]) -> Option<ConvexHull<N>> {
         let hull = transformation::convex_hull(points);
-        let indices: Vec<usize> = hull.flat_indices()
+        let indices: Vec<usize> = hull
+            .flat_indices()
             .into_iter()
             .map(|i| i as usize)
             .collect();
@@ -142,15 +143,15 @@ impl<N: Real> ConvexHull<N> {
                         edges_id[i1] = *e.insert(edges.len());
 
                         if let Some(dir) =
-                        Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
-                            {
-                                edges.push(Edge {
-                                    vertices: Point2::new(vtx[i1], vtx[i2]),
-                                    faces: Point2::new(face_id, 0),
-                                    dir,
-                                    deleted: false,
-                                })
-                            } else {
+                            Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
+                        {
+                            edges.push(Edge {
+                                vertices: Point2::new(vtx[i1], vtx[i2]),
+                                faces: Point2::new(face_id, 0),
+                                dir,
+                                deleted: false,
+                            })
+                        } else {
                             return None;
                         }
                     }
@@ -424,19 +425,24 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
                     cone.into()
                 }
             }
-            FeatureId::Unknown => ConicalApproximation::Full
+            FeatureId::Unknown => ConicalApproximation::Full,
         }
     }
 
-    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         match feature {
             FeatureId::Face(id) => ls_dir.dot(&self.faces[id].normal) <= N::zero(),
             FeatureId::Edge(id) => {
                 let edge = &self.edges[id];
-                ls_dir.dot(&self.faces[edge.faces[0]].normal) <= N::zero() &&
-                    ls_dir.dot(&self.faces[edge.faces[1]].normal) <= N::zero()
+                ls_dir.dot(&self.faces[edge.faces[0]].normal) <= N::zero()
+                    && ls_dir.dot(&self.faces[edge.faces[1]].normal) <= N::zero()
             }
             FeatureId::Vertex(id) => {
                 let vertex = &self.vertices[id];
@@ -451,7 +457,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
 
                 true
             }
-            FeatureId::Unknown => false
+            FeatureId::Unknown => false,
         }
     }
 

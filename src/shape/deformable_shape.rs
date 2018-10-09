@@ -25,11 +25,11 @@ pub trait DeformableShape<N: Real> {
     /// The type of degrees of freedom this shape has.
     fn deformations_type(&self) -> DeformationsType;
 
-//    /// Applies a deformation to all the degrees of freedom of this shape.
-//    fn deform_all(&mut self, coords: &[N], indices: &[usize]);
+    //    /// Applies a deformation to all the degrees of freedom of this shape.
+    //    fn deform_all(&mut self, coords: &[N], indices: &[usize]);
 
     /// Updates some the degrees of freedom of this shape.
-//    fn set_partial_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
+    //    fn set_partial_deformations(&mut self, coords: &[N], indices: &[DeformationIndex]);
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>);
@@ -39,7 +39,6 @@ pub trait DeformableShape<N: Real> {
         &self,
         coords: &[N],
         indices: Option<&[usize]>,
-        part_id: usize,
         approx: &mut LocalShapeApproximation<N>,
     );
 }

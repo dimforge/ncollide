@@ -1,7 +1,7 @@
 use na::{Real, Unit};
 
+use math::{Isometry, Point, Vector};
 use shape::SupportMap;
-use math::{Vector, Point, Isometry};
 
 /// A Ball shape.
 #[derive(PartialEq, Debug, Clone)]

@@ -4,7 +4,7 @@ use na::{Real, Unit};
 use shape::{ConvexPolygonalFeature, SupportMap};
 
 /// An identifier of a feature of a convex polyhedron.
-/// 
+///
 /// This identifier is shape-dependent and is seach that it
 /// allows an efficient retrieval of the geometric information of the
 /// feature.
@@ -63,7 +63,12 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N>;
 
     /// Tests if the tangent cone of the specified feature contains the specified direction (given in world-space).
-    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool;
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool;
 
     /// Retrieve the face (in world-space) with a normal that maximizes the scalar product with `dir`.
     fn support_face_toward(

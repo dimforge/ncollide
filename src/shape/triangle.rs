@@ -5,14 +5,14 @@ use arrayvec::ArrayVec;
 #[cfg(feature = "dim3")]
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
-use na::{self, Unit};
 use na::Real;
+use na::{self, Unit};
 #[cfg(feature = "dim3")]
 use query::{LocalShapeApproximation, NeighborhoodGeometry};
-#[cfg(feature = "dim3")]
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 use shape::Segment;
 use shape::SupportMap;
+#[cfg(feature = "dim3")]
+use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
@@ -63,7 +63,7 @@ impl<N: Real> TrianglePointLocation<N> {
                     0 => (0, 1),
                     1 => (1, 2),
                     2 => (0, 2),
-                    _ => unreachable!()
+                    _ => unreachable!(),
                 };
 
                 bcoords[idx.0] = uv[0];
@@ -74,7 +74,9 @@ impl<N: Real> TrianglePointLocation<N> {
                 bcoords[1] = uvw[1];
                 bcoords[2] = uvw[2];
             }
-            TrianglePointLocation::OnSolid => { return None; }
+            TrianglePointLocation::OnSolid => {
+                return None;
+            }
         }
 
         Some(bcoords)
@@ -138,7 +140,11 @@ impl<N: Real> Triangle<N> {
     /// The three edges of this triangle: [AB, BC, CA].
     #[inline]
     pub fn edges(&self) -> [Segment<N>; 3] {
-        [Segment::new(self.a, self.b), Segment::new(self.b, self.c), Segment::new(self.c, self.a)]
+        [
+            Segment::new(self.a, self.b),
+            Segment::new(self.b, self.c),
+            Segment::new(self.c, self.a),
+        ]
     }
 
     /// The three edges scaled directions of this triangle: [B - A, C - B, A - C].
@@ -185,36 +191,6 @@ impl<N: Real> Triangle<N> {
             } else {
                 (a, c)
             }
-        }
-    }
-
-    /// Updates the approximation of this shape of the feature specified in `approx`.
-    // FIXME: implement this for the 2D case too.
-    #[cfg(feature = "dim3")]
-    #[inline]
-    pub fn update_local_approximation(&self, approx: &mut LocalShapeApproximation<N>) {
-        match approx.feature {
-            FeatureId::Vertex(i) => {
-                approx.point = self.vertices()[i];
-            }
-            FeatureId::Edge(i) => {
-                let points = self.vertices();
-                approx.point = points[i];
-                let edge = Segment::new(points[i], points[(i + 1) % 3]);
-
-                if let Some(dir) = edge.direction() {
-                    approx.geometry = NeighborhoodGeometry::Line(dir);
-                } else {
-                    approx.feature = FeatureId::Vertex(i);
-                    approx.geometry = NeighborhoodGeometry::Point;
-                }
-            }
-            FeatureId::Face(_) => {
-                unimplemented!();
-                approx.point = self.a;
-//                approx.geometry = NeighborhoodGeometry::Plane(self.normal());
-            }
-            FeatureId::Unknown => panic!("Encountered unknown feature.")
         }
     }
 }
@@ -350,7 +326,12 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         }
     }
 
-    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
         let ls_dir = m.inverse_transform_vector(dir);
 
         if let Some(normal) = self.normal() {

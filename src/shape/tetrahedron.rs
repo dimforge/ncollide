@@ -59,7 +59,9 @@ impl<N: Real> TetrahedronPointLocation<N> {
                 bcoords[idx.1] = uvw[1];
                 bcoords[idx.2] = uvw[2];
             }
-            TetrahedronPointLocation::OnSolid => { return None; }
+            TetrahedronPointLocation::OnSolid => {
+                return None;
+            }
         }
 
         Some(bcoords)
@@ -150,7 +152,6 @@ impl<N: Real> Tetrahedron<N> {
             _ => panic!("Tetrahedron face index out of bounds (must be < 4."),
         }
     }
-
 
     /// Returns the i-th edge of this tetrahedron.
     ///

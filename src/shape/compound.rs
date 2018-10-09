@@ -2,7 +2,7 @@
 //! Shape composed from the union of primitives.
 //!
 
-use bounding_volume::{AABB, BoundingVolume};
+use bounding_volume::{BoundingVolume, AABB};
 use math::Isometry;
 use na::{self, Real};
 use partitioning::{BVHImpl, BVT};
@@ -110,7 +110,12 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
     }
 
     #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &Isometry<N>, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
+    fn map_transformed_part_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
+    ) {
         let id = self.start_idx[i];
         let elt = &self.shapes()[i];
 

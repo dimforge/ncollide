@@ -1,5 +1,5 @@
 // Queries.
-use bounding_volume::{AABB, BoundingSphere};
+use bounding_volume::{BoundingSphere, AABB};
 use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use query::{PointQuery, RayCast};
@@ -10,15 +10,13 @@ use std::mem;
 use std::ops::Deref;
 use std::sync::Arc;
 
-
 pub trait ShapeClone<N: Real> {
     fn clone_box(&self) -> Box<Shape<N>> {
         unimplemented!()
     }
 }
 
-impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T
-{
+impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
     fn clone_box(&self) -> Box<Shape<N>> {
         Box::new(self.clone())
     }
@@ -43,7 +41,12 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
     /// cone that contains `dir` at the point `pt`.
     // NOTE: for the moment, we assume the tangent cone is the same for the whole feature.
     #[inline]
-    fn subshape_tangent_cone_contains_dir(&self, _feature: FeatureId, _m: &Isometry<N>, _dir: &Unit<Vector<N>>) -> bool;
+    fn subshape_tangent_cone_contains_dir(
+        &self,
+        _feature: FeatureId,
+        _m: &Isometry<N>,
+        _dir: &Unit<Vector<N>>,
+    ) -> bool;
 
     /// The transform of a specific subshape.
     ///
@@ -51,6 +54,13 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
     #[inline]
     fn subshape_transform(&self, _: usize) -> Option<Isometry<N>> {
         None
+    }
+
+    /// Returns the id of the subshape containing the specified feature.
+    ///
+    /// If several subshape contains the same feature, any one is returned.
+    fn subshape_containing_feature(&self, _i: FeatureId) -> usize {
+        0
     }
 
     /// The `RayCast` implementation of `self`.
@@ -85,11 +95,15 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
 
     /// The deformable shape representation of `self` if applicable.
     #[inline]
-    fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> { None }
+    fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> {
+        None
+    }
 
     /// The mutable deformable shape representation of `self` if applicable.
     #[inline]
-    fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> { None }
+    fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> {
+        None
+    }
 
     /// Whether `self` uses a convex polyhedron representation.
     #[inline]

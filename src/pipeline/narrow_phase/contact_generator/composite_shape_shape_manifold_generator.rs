@@ -2,21 +2,20 @@ use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::{ContactManifold, ContactPrediction, visitors::BoundingVolumeInterferencesCollector};
+use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction};
 use shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
 use utils::IdAllocator;
 
-
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeManifoldGenerator<N> {
-    sub_detectors: HashMap<usize, ContactAlgorithm<N>, DeterministicState>,
+pub struct CompositeShapeShapeManifoldGenerator<N: Real> {
+    sub_detectors: HashMap<usize, (ContactAlgorithm<N>, ContactManifold<N>), DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
 }
 
-impl<N> CompositeShapeShapeManifoldGenerator<N> {
+impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
@@ -25,9 +24,7 @@ impl<N> CompositeShapeShapeManifoldGenerator<N> {
             flip,
         }
     }
-}
 
-impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
@@ -43,7 +40,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     ) {
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
-        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear);
+        let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
 
         {
             let mut visitor =
@@ -66,7 +63,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                     });
 
                     if let Some(new_detector) = new_detector {
-                        let _ = entry.insert(new_detector);
+                        let _ = entry.insert((new_detector, ContactManifold::new()));
                     }
                 }
             }
@@ -76,9 +73,11 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         self.sub_detectors.retain(|key, detector| {
             if ls_aabb2.intersects(&g1.aabb_at(*key)) {
                 g1.map_transformed_part_at(*key, m1, &mut |sub_id1, m1, g1| {
+                    detector.1.save_cache_and_clear(id_alloc);
+
                     if flip {
                         assert!(
-                            detector.update(
+                            detector.0.update_to(
                                 dispatcher,
                                 id2,
                                 m2,
@@ -88,12 +87,13 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                                 g1,
                                 prediction,
                                 id_alloc,
+                                &mut detector.1
                             ),
                             "Internal error: the shape was no longer valid."
                         );
                     } else {
                         assert!(
-                            detector.update(
+                            detector.0.update_to(
                                 dispatcher,
                                 id1 + sub_id1,
                                 m1,
@@ -103,6 +103,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                                 g2,
                                 prediction,
                                 id_alloc,
+                                &mut detector.1
                             ),
                             "Internal error: the shape was no longer valid."
                         );
@@ -118,9 +119,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N>
-for CompositeShapeShapeManifoldGenerator<N>
-{
+impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
     fn update(
         &mut self,
         d: &ContactDispatcher<N>,
@@ -148,11 +147,27 @@ for CompositeShapeShapeManifoldGenerator<N>
         return false;
     }
 
+    fn update_to(
+        &mut self,
+        d: &ContactDispatcher<N>,
+        ida: usize,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
+        idb: usize,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
+        id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
+    ) -> bool {
+        unimplemented!()
+    }
+
     fn num_contacts(&self) -> usize {
         let mut res = 0;
 
         for detector in &self.sub_detectors {
-            res = res + detector.1.num_contacts()
+            res = res + (detector.1).1.len()
         }
 
         res
@@ -160,7 +175,7 @@ for CompositeShapeShapeManifoldGenerator<N>
 
     fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
         for detector in &self.sub_detectors {
-            detector.1.contacts(out);
+            out.push(&(detector.1).1);
         }
     }
 }

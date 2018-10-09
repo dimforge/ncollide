@@ -25,22 +25,17 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     }
 
     #[inline]
-    fn do_update(
-        &mut self,
+    fn do_update_to(
         m1: &Isometry<N>,
         g1: &Shape<N>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
         flip: bool,
     ) -> bool {
-        if let (Some(plane), Some(ball)) = (
-            g1.as_shape::<Plane<N>>(),
-            g2.as_shape::<Ball<N>>(),
-        ) {
-            self.manifold.save_cache_and_clear(id_alloc);
-
+        if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from_coordinates(m1.translation.vector);
 
@@ -48,7 +43,7 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
             let dist = na::dot(&(ball_center - plane_center), plane_normal.as_ref());
             let depth = -dist + ball.radius();
 
-            if depth > -prediction.linear {
+            if depth > -prediction.linear() {
                 let world1 = ball_center + *plane_normal * (-dist);
                 let world2 = ball_center + *plane_normal * (-ball.radius());
 
@@ -75,7 +70,7 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                     kinematic.set_approx2(f1, local1, approx_plane);
                 }
 
-                let _ = self.manifold.push(contact, kinematic, id_alloc);
+                let _ = manifold.push(contact, Point::origin(), kinematic, id_alloc);
             }
 
             true
@@ -99,13 +94,51 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
     ) -> bool {
-        self.manifold.set_subshape_id1(id1);
-        self.manifold.set_subshape_id2(id2);
+        self.manifold.save_cache_and_clear(id_alloc);
 
         if !self.flip {
-            self.do_update(m1, g1, m2, g2, prediction, id_alloc, false)
+            Self::do_update_to(
+                m1,
+                g1,
+                m2,
+                g2,
+                prediction,
+                id_alloc,
+                &mut self.manifold,
+                false,
+            )
         } else {
-            self.do_update(m2, g2, m1, g1, prediction, id_alloc, true)
+            Self::do_update_to(
+                m2,
+                g2,
+                m1,
+                g1,
+                prediction,
+                id_alloc,
+                &mut self.manifold,
+                true,
+            )
+        }
+    }
+
+    #[inline]
+    fn update_to(
+        &mut self,
+        _: &ContactDispatcher<N>,
+        id1: usize,
+        m1: &Isometry<N>,
+        g1: &Shape<N>,
+        id2: usize,
+        m2: &Isometry<N>,
+        g2: &Shape<N>,
+        prediction: &ContactPrediction<N>,
+        id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
+    ) -> bool {
+        if !self.flip {
+            Self::do_update_to(m1, g1, m2, g2, prediction, id_alloc, manifold, false)
+        } else {
+            Self::do_update_to(m2, g2, m1, g1, prediction, id_alloc, manifold, true)
         }
     }
 

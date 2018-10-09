@@ -1,13 +1,12 @@
-use bounding_volume::{AABB, BoundingVolume};
+use bounding_volume::{BoundingVolume, AABB};
 use math::Isometry;
 use na::Real;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::{ContactManifold, ContactPrediction, visitors::AABBSetsInterferencesCollector};
+use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction};
 use shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
 use utils::IdAllocator;
-
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeCompositeShapeManifoldGenerator<N> {
@@ -44,8 +43,11 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         let ls_m2_abs_rot = ls_m2.rotation.to_rotation_matrix().matrix().abs();
 
         {
-            let mut visitor =
-                AABBSetsInterferencesCollector::new(&ls_m2, &ls_m2_abs_rot, &mut self.interferences);
+            let mut visitor = AABBSetsInterferencesCollector::new(
+                &ls_m2,
+                &ls_m2_abs_rot,
+                &mut self.interferences,
+            );
             g1.bvh().visit_bvtt(g2.bvh(), &mut visitor);
         }
 
@@ -72,7 +74,10 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         self.sub_detectors.retain(|key, detector| {
             let aabb1 = g1.aabb_at(key.0);
             let aabb2 = g2.aabb_at(key.1);
-            let ls_aabb2 = AABB::from_half_extents(ls_m2 * aabb2.center(), ls_m2_abs_rot * aabb2.half_extents());
+            let ls_aabb2 = AABB::from_half_extents(
+                ls_m2 * aabb2.center(),
+                ls_m2_abs_rot * aabb2.half_extents(),
+            );
 
             if ls_aabb2.intersects(&aabb1) {
                 g1.map_transformed_part_at(key.0, m1, &mut |sub_id1, m1, g1| {
@@ -103,8 +108,7 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N>
-for CompositeShapeCompositeShapeManifoldGenerator<N> {
+impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifoldGenerator<N> {
     fn update(
         &mut self,
         d: &ContactDispatcher<N>,
@@ -123,6 +127,22 @@ for CompositeShapeCompositeShapeManifoldGenerator<N> {
         } else {
             false
         }
+    }
+
+    fn update_to(
+        &mut self,
+        d: &ContactDispatcher<N>,
+        ida: usize,
+        ma: &Isometry<N>,
+        a: &Shape<N>,
+        idb: usize,
+        mb: &Isometry<N>,
+        b: &Shape<N>,
+        prediction: &ContactPrediction<N>,
+        id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
+    ) -> bool {
+        unimplemented!()
     }
 
     fn num_contacts(&self) -> usize {

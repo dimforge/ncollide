@@ -18,6 +18,7 @@ pub struct Segment<N: Real> {
 }
 
 /// Logical description of the location of a point on a triangle.
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum SegmentPointLocation<N: Real> {
     /// The point lies on a vertex.
     OnVertex(usize),
@@ -91,7 +92,7 @@ impl<N: Real> Segment<N> {
             SegmentPointLocation::OnEdge(bcoords) => {
                 self.a * bcoords[0] + self.b.coords * bcoords[1]
             }
-            _ => unreachable!(),
+            _ => panic!(),
         }
     }
 }
@@ -184,7 +185,12 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         }
     }
 
-    fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         if let Some(direction) = self.direction() {
@@ -198,7 +204,9 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
                     }
                 }
                 #[cfg(feature = "dim3")]
-                FeatureId::Edge(_) => ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon(),
+                FeatureId::Edge(_) => {
+                    ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon()
+                }
                 FeatureId::Face(id) => {
                     let mut dir = Vector::zeros();
                     if id == 0 {
@@ -217,7 +225,6 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
             false
         }
     }
-
 
     #[cfg(feature = "dim2")]
     fn support_face_toward(
@@ -270,17 +277,17 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]
-                    {
-                        if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
-                            FeatureId::Face(0)
-                        } else {
-                            FeatureId::Face(1)
-                        }
+                {
+                    if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
+                        FeatureId::Face(0)
+                    } else {
+                        FeatureId::Face(1)
                     }
+                }
                 #[cfg(feature = "dim3")]
-                    {
-                        FeatureId::Edge(0)
-                    }
+                {
+                    FeatureId::Edge(0)
+                }
             } else if dot >= na::zero() {
                 FeatureId::Vertex(1)
             } else {

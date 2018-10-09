@@ -1,8 +1,8 @@
-use std::mem;
+use math::Point;
 use na::{self, Real};
-use utils::{GenerationalId, IdAllocator};
 use query::{Contact, ContactKinematic, TrackedContact};
-
+use std::mem;
+use utils::{GenerationalId, IdAllocator};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum CacheEntryStatus {
@@ -20,7 +20,7 @@ impl CacheEntryStatus {
 }
 
 /// A contact manifold.
-/// 
+///
 /// A contat manifold is a set of contacts lying on the same plane.
 /// The convex hull of those contacts are often interpreted as a contact
 /// surface. This structure is responsible for matching new contacts with
@@ -28,10 +28,6 @@ impl CacheEntryStatus {
 /// points.
 #[derive(Clone, Debug)]
 pub struct ContactManifold<N: Real> {
-    // FIXME: move those to the contact kinematic
-    // even if all contacts share the same shubshape ?
-    subshape_id1: usize,
-    subshape_id2: usize,
     deepest: usize,
     contacts: Vec<TrackedContact<N>>,
     // FIXME: the cache should only contain points
@@ -45,34 +41,12 @@ impl<N: Real> ContactManifold<N> {
     /// Initializes a contact manifold without any contact.
     pub fn new() -> Self {
         ContactManifold {
-            subshape_id1: 0,
-            subshape_id2: 0,
             deepest: 0,
             contacts: Vec::new(),
             cache: Vec::new(),
             cached_contact_used: Vec::new(),
             new_cached_contact_used: Vec::new(), // FIXME: the existence of this buffer is ugly.
         }
-    }
-
-    /// The identifier of the first sub-shape the contacts of this manifold lie on.
-    pub fn subshape_id1(&self) -> usize {
-        self.subshape_id1
-    }
-
-    /// Sets the identifier of the first sub-shape the contacts of this manifold lie on.
-    pub fn set_subshape_id1(&mut self, id: usize) {
-        self.subshape_id1 = id
-    }
-
-    /// The identifier of the first sub-shape the contacts of this manifold lie on.
-    pub fn subshape_id2(&self) -> usize {
-        self.subshape_id2
-    }
-
-    /// Sets the identifier of the first sub-shape the contacts of this manifold lie on.
-    pub fn set_subshape_id2(&mut self, id: usize) {
-        self.subshape_id2 = id
     }
 
     /// The number of contacts contained by this manifold.
@@ -123,7 +97,7 @@ impl<N: Real> ContactManifold<N> {
     }
 
     /// Add a new contact to the manifold.
-    /// 
+    ///
     /// The manifold will attempt to match this contact with another one
     /// previously added and added to the cache by the last call to
     /// `save_cache_and_clear`. The matching is done by spacial proximity, i.e.,
@@ -131,6 +105,7 @@ impl<N: Real> ContactManifold<N> {
     pub fn push(
         &mut self,
         contact: Contact<N>,
+        tracking_pt: Point<N>,
         kinematic: ContactKinematic<N>,
         gen: &mut IdAllocator,
     ) -> bool {
@@ -142,7 +117,7 @@ impl<N: Real> ContactManifold<N> {
         let mut closest_dist: N = na::convert(0.02 * 0.02); // FIXME: don't hard-code this.
 
         for i in 0..self.cache.len() {
-            let dist = na::distance_squared(&kinematic.local1(), &self.cache[i].kinematic.local1());
+            let dist = na::distance_squared(&tracking_pt, &self.cache[i].tracking_pt);
             if dist < closest_dist {
                 closest_dist = dist;
                 closest = self.cache[i].id;
@@ -151,8 +126,7 @@ impl<N: Real> ContactManifold<N> {
         }
 
         for i in 0..self.contacts.len() {
-            let dist =
-                na::distance_squared(&kinematic.local1(), &self.contacts[i].kinematic.local1());
+            let dist = na::distance_squared(&tracking_pt, &self.contacts[i].tracking_pt);
             if dist < closest_dist {
                 closest_is_contact = true;
                 closest_dist = dist;
@@ -169,14 +143,16 @@ impl<N: Real> ContactManifold<N> {
             closest = gen.alloc();
         } else {
             if closest_is_contact {
-                self.contacts[closest_i] = TrackedContact::new(contact, kinematic, closest);
+                self.contacts[closest_i] =
+                    TrackedContact::new(contact, tracking_pt, kinematic, closest);
                 if is_deepest {
                     self.deepest = closest_i;
                 }
                 return false;
             }
             if let CacheEntryStatus::Used(used_i) = self.cached_contact_used[closest_i] {
-                self.contacts[used_i] = TrackedContact::new(contact, kinematic, closest);
+                self.contacts[used_i] =
+                    TrackedContact::new(contact, tracking_pt, kinematic, closest);
 
                 if is_deepest {
                     self.deepest = used_i;
@@ -191,9 +167,10 @@ impl<N: Real> ContactManifold<N> {
         if is_deepest {
             self.deepest = self.contacts.len();
         }
-        let tracked = TrackedContact::new(contact, kinematic, closest);
+
+        let tracked = TrackedContact::new(contact, tracking_pt, kinematic, closest);
         self.contacts.push(tracked);
-        return matched;
+        matched
     }
 
     /*
