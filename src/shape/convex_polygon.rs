@@ -82,6 +82,31 @@ impl<N: Real> ConvexPolygon<N> {
     pub fn normals(&self) -> &[Unit<Vector<N>>] {
         &self.normals
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let local_dir = m.inverse_transform_unit_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => self.normals[id].dot(&local_dir) <= N::zero(),
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+
+                self.normals[id1].dot(&local_dir) <= N::zero()
+                    && self.normals[id2].dot(&local_dir) <= N::zero()
+            }
+            _ => unreachable!(),
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for ConvexPolygon<N> {
@@ -121,30 +146,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
                     id2 - 1
                 };
                 ConicalApproximation::Span(ArrayVec::from([self.normals[id1], self.normals[id2]]))
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let local_dir = m.inverse_transform_unit_vector(dir);
-
-        match feature {
-            FeatureId::Face(id) => self.normals[id].dot(&local_dir) <= N::zero(),
-            FeatureId::Vertex(id2) => {
-                let id1 = if id2 == 0 {
-                    self.normals.len() - 1
-                } else {
-                    id2 - 1
-                };
-
-                self.normals[id1].dot(&local_dir) <= N::zero()
-                    && self.normals[id2].dot(&local_dir) <= N::zero()
             }
             _ => unreachable!(),
         }

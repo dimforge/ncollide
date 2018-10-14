@@ -10,6 +10,7 @@ use shape::{
 };
 #[cfg(feature = "dim3")]
 use shape::{ConvexHull, DeformableShape, TriMesh, Triangle};
+use utils::IsometryOps;
 
 macro_rules! impl_as_convex_polyhedron (
     () => {
@@ -24,7 +25,7 @@ macro_rules! impl_as_convex_polyhedron (
         }
 
         #[inline]
-        fn subshape_tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> bool {
+        fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, _: Option<&[N]>, dir: &Unit<Vector<N>>) -> bool {
             self.tangent_cone_contains_dir(feature, m, dir)
         }
     }
@@ -119,11 +120,12 @@ impl<N: Real> Shape<N> for Ball<N> {
     impl_shape_common!();
     impl_as_support_map!();
 
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
-        _feature: FeatureId,
-        _m: &Isometry<N>,
-        _dir: &Unit<Vector<N>>,
+        _: FeatureId,
+        _: &Isometry<N>,
+        _: Option<&[N]>,
+        _: &Unit<Vector<N>>,
     ) -> bool {
         false
     }
@@ -171,10 +173,11 @@ impl<N: Real> Shape<N> for Compound<N> {
         }
     }
 
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
         _feature: FeatureId,
         _m: &Isometry<N>,
+        _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
     ) -> bool {
         unimplemented!()
@@ -187,13 +190,21 @@ impl<N: Real> Shape<N> for TriMesh<N> {
     impl_as_composite_shape!();
     impl_as_deformable_shape!();
 
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
-        _feature: FeatureId,
-        _m: &Isometry<N>,
-        _dir: &Unit<Vector<N>>,
+        fid: FeatureId,
+        m: &Isometry<N>,
+        deformations: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
     ) -> bool {
-        true
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        match fid {
+            FeatureId::Face(i) => self.face_tangent_cone_contains_dir(i, deformations, &ls_dir),
+            FeatureId::Edge(i) => self.edge_tangent_cone_contains_dir(i, deformations, &ls_dir),
+            FeatureId::Vertex(i) => self.vertex_tangent_cone_contains_dir(i, deformations, &ls_dir),
+            FeatureId::Unknown => false,
+        }
     }
 
     fn subshape_containing_feature(&self, id: FeatureId) -> usize {
@@ -205,10 +216,11 @@ impl<N: Real> Shape<N> for Polyline<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
 
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
         _feature: FeatureId,
         _m: &Isometry<N>,
+        _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
     ) -> bool {
         unimplemented!()
@@ -218,10 +230,11 @@ impl<N: Real> Shape<N> for Polyline<N> {
 impl<N: Real> Shape<N> for Plane<N> {
     impl_shape_common!();
 
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
         _: FeatureId,
         m: &Isometry<N>,
+        _: Option<&[N]>,
         dir: &Unit<Vector<N>>,
     ) -> bool {
         let world_normal = m * self.normal();

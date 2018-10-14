@@ -193,6 +193,38 @@ impl<N: Real> Triangle<N> {
             }
         }
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    #[cfg(feature = "dim3")]
+    #[inline]
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let ls_dir = m.inverse_transform_vector(dir);
+
+        if let Some(normal) = self.normal() {
+            match feature {
+                FeatureId::Vertex(_) => {
+                    // FIXME: for now we assume since the triangle has no thickness,
+                    // the case where `dir` is coplanar with the triangle never happens.
+                    false
+                }
+                FeatureId::Edge(_) => {
+                    // FIXME: for now we assume since the triangle has no thickness,
+                    // the case where `dir` is coplanar with the triangle never happens.
+                    false
+                }
+                FeatureId::Face(0) => ls_dir.dot(&normal) <= N::zero(),
+                FeatureId::Face(1) => ls_dir.dot(&normal) >= N::zero(),
+                _ => panic!("Invalid feature ID."),
+            }
+        } else {
+            false
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for Triangle<N> {
@@ -323,35 +355,6 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
             }
         } else {
             ConicalApproximation::Full
-        }
-    }
-
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let ls_dir = m.inverse_transform_vector(dir);
-
-        if let Some(normal) = self.normal() {
-            match feature {
-                FeatureId::Vertex(_) => {
-                    // FIXME: for now we assume since the triangle has no thickness,
-                    // the case where `dir` is coplanar with the triangle never happens.
-                    false
-                }
-                FeatureId::Edge(_) => {
-                    // FIXME: for now we assume since the triangle has no thickness,
-                    // the case where `dir` is coplanar with the triangle never happens.
-                    false
-                }
-                FeatureId::Face(0) => ls_dir.dot(&normal) <= N::zero(),
-                FeatureId::Face(1) => ls_dir.dot(&normal) >= N::zero(),
-                _ => panic!("Invalid feature ID."),
-            }
-        } else {
-            false
         }
     }
 

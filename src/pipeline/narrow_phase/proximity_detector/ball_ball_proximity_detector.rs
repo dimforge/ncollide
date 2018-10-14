@@ -1,9 +1,9 @@
-use na::Real;
 use math::{Isometry, Point};
-use shape::{Ball, Shape};
-use query::Proximity;
-use query::proximity_internal;
+use na::Real;
 use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use query::proximity_internal;
+use query::Proximity;
+use shape::{Ball, Shape};
 
 /// Proximity detector between two balls.
 pub struct BallBallProximityDetector {

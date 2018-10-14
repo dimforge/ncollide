@@ -8,8 +8,8 @@ use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQuery
 use query::Proximity;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use utils::{DeterministicState, SortedPair};
 use utils::IdAllocator;
+use utils::{DeterministicState, SortedPair};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
@@ -17,11 +17,11 @@ pub struct DefaultNarrowPhase<N> {
     id_alloc: IdAllocator,
     contact_dispatcher: Box<ContactDispatcher<N>>,
     contact_generators:
-    HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<N>, DeterministicState>,
+        HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<N>, DeterministicState>,
 
     proximity_dispatcher: Box<ProximityDispatcher<N>>,
     proximity_detectors:
-    HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<N>, DeterministicState>,
+        HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<N>, DeterministicState>,
 }
 
 impl<N: 'static> DefaultNarrowPhase<N> {
@@ -59,19 +59,19 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                 if let Some(prediction) = co1
                     .query_type()
                     .contact_queries_to_prediction(co2.query_type())
-                    {
-                        let _ = value.update(
-                            &*self.contact_dispatcher,
-                            0,
-                            &co1.position(),
-                            co1.shape().as_ref(),
-                            0,
-                            &co2.position(),
-                            co2.shape().as_ref(),
-                            &prediction,
-                            &mut self.id_alloc,
-                        );
-                    } else {
+                {
+                    let _ = value.update(
+                        &*self.contact_dispatcher,
+                        0,
+                        &co1.position(),
+                        co1.shape().as_ref(),
+                        0,
+                        &co2.position(),
+                        co2.shape().as_ref(),
+                        &prediction,
+                        &mut self.id_alloc,
+                    );
+                } else {
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
                 }
 
@@ -138,9 +138,9 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                     if let Entry::Vacant(entry) = self.contact_generators.entry(key) {
                         if let Some(detector) = dispatcher
                             .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                            {
-                                let _ = entry.insert(detector);
-                            }
+                        {
+                            let _ = entry.insert(detector);
+                        }
                     }
                 } else {
                     // Proximity stopped.
@@ -159,9 +159,9 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                     if let Entry::Vacant(entry) = self.proximity_detectors.entry(key) {
                         if let Some(detector) = dispatcher
                             .get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
-                            {
-                                let _ = entry.insert(detector);
-                            }
+                        {
+                            let _ = entry.insert(detector);
+                        }
                     }
                 } else {
                     // Proximity stopped.

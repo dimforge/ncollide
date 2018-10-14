@@ -62,14 +62,6 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     /// Get the normal cone of the specified feature, in the shape's local-space.
     fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N>;
 
-    /// Tests if the tangent cone of the specified feature contains the specified direction (given in world-space).
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool;
-
     /// Retrieve the face (in world-space) with a normal that maximizes the scalar product with `dir`.
     fn support_face_toward(
         &self,

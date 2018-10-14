@@ -118,7 +118,6 @@ impl<N: Real> TriMesh<N> {
         }
 
         let bvt = BVT::new_balanced(leaves);
-        let mut bvt_leaf_ids: Vec<usize> = iter::repeat(0).take(bvt.leaves().len()).collect();
 
         // Set face.bvt_leaf
         for (i, leaf) in bvt.leaves().iter().enumerate() {
@@ -242,7 +241,7 @@ impl<N: Real> TriMesh<N> {
             *n = 0;
         }
 
-        for (i, e) in edges.iter().enumerate() {
+        for e in edges.iter() {
             adj_vertex_list
                 [vertices[e.indices.x].adj_vertices.start + num_neighbors[e.indices.x]] =
                 e.indices.y;
@@ -325,7 +324,7 @@ impl<N: Real> TriMesh<N> {
         match id {
             FeatureId::Vertex(i) => self.adj_face_list[self.vertices[i].adj_faces.start],
             FeatureId::Edge(i) => self.edges[i].adj_faces.0.face_id,
-            FeatureId::Face(i) => i,
+            FeatureId::Face(i) => i % self.faces.len(),
             _ => panic!("Feature ID cannot be unknown."),
         }
     }
@@ -357,6 +356,46 @@ impl<N: Real> TriMesh<N> {
         &self.bvt
     }
 
+    /// Tests that the given `dir` is on the tangent cone of the `i`th vertex
+    /// of this mesh.
+    pub fn vertex_tangent_cone_contains_dir(
+        &self,
+        i: usize,
+        deformations: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let v = &self.vertices[i];
+
+        if let Some(coords) = deformations {
+            for adj_face in &self.adj_face_list[v.adj_faces.clone()] {
+                let indices = self.faces[*adj_face].indices * DIM;
+                let tri = Triangle::new(
+                    Point::from_slice(&coords[indices.x..indices.x + DIM]),
+                    Point::from_slice(&coords[indices.y..indices.y + DIM]),
+                    Point::from_slice(&coords[indices.z..indices.z + DIM]),
+                );
+
+                if let Some(n) = tri.normal() {
+                    if n.dot(dir) > N::zero() {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            for adj_face in &self.adj_face_list[v.adj_faces.clone()] {
+                let face = &self.faces[*adj_face];
+
+                if let Some(ref n) = face.normal {
+                    if n.dot(dir) > N::zero() {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
+    }
+
     /// Tests that the given `dir` is on the polar of the tangent cone of the `i`th vertex
     /// of this mesh.
     pub fn vertex_tangent_cone_polar_contains_dir(
@@ -373,6 +412,46 @@ impl<N: Real> TriMesh<N> {
             // FIXME: don't compute the norm every time.
             if edge_dir.dot(dir) < -sin_ang_tol * edge_dir.norm() {
                 return false;
+            }
+        }
+
+        true
+    }
+
+    /// Tests that the given `dir` is on the tangent cone of the `i`th edge
+    /// of this mesh.
+    pub fn edge_tangent_cone_contains_dir(
+        &self,
+        i: usize,
+        deformations: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let e = &self.edges[i];
+
+        if let Some(coords) = deformations {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+                let indices = self.faces[*adj_face].indices * DIM;
+                let tri = Triangle::new(
+                    Point::from_slice(&coords[indices.x..indices.x + DIM]),
+                    Point::from_slice(&coords[indices.y..indices.y + DIM]),
+                    Point::from_slice(&coords[indices.z..indices.z + DIM]),
+                );
+
+                if let Some(n) = tri.normal() {
+                    if n.dot(dir) > N::zero() {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+                let face = &self.faces[*adj_face];
+
+                if let Some(ref n) = face.normal {
+                    if n.dot(dir) > N::zero() {
+                        return false;
+                    }
+                }
             }
         }
 
@@ -401,6 +480,46 @@ impl<N: Real> TriMesh<N> {
 
         if let Some(side_normal2) = f2.side_normals.as_ref() {
             if side_normal2[e.adj_faces.1.edge_id].dot(dir) <= na::convert(-sin_ang_tol) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// Tests that the given `dir` is on the tangent cone of the `i`th face
+    /// of this mesh.
+    pub fn face_tangent_cone_contains_dir(
+        &self,
+        i: usize,
+        deformations: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let normal;
+
+        if let Some(coords) = deformations {
+            let indices = self.faces[i % self.faces.len()].indices * DIM;
+            let tri = Triangle::new(
+                Point::from_slice(&coords[indices.x..indices.x + DIM]),
+                Point::from_slice(&coords[indices.y..indices.y + DIM]),
+                Point::from_slice(&coords[indices.z..indices.z + DIM]),
+            );
+
+            if i >= self.faces.len() {
+                normal = tri.normal().map(|n| -n)
+            } else {
+                normal = tri.normal();
+            }
+        } else {
+            if i >= self.faces.len() {
+                normal = self.faces[i - self.faces.len()].normal.map(|n| -n)
+            } else {
+                normal = self.faces[i].normal;
+            }
+        }
+
+        if let Some(n) = normal {
+            if n.dot(dir) > N::zero() {
                 return false;
             }
         }
@@ -545,9 +664,14 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         indices: Option<&[usize]>,
         approx: &mut LocalShapeApproximation<N>,
     ) {
+        assert!(
+            indices.is_none(),
+            "Remapping indices are not yet supported."
+        );
+
         match approx.feature {
             FeatureId::Vertex(i) => {
-                approx.point = self.points()[i];
+                approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);
                 approx.geometry = NeighborhoodGeometry::Point;
             }
             FeatureId::Edge(i) => {
@@ -566,21 +690,26 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
                     approx.geometry = NeighborhoodGeometry::Point;
                 }
             }
-            FeatureId::Face(i) => {
+            FeatureId::Face(mut i) => {
+                let is_backface = i >= self.faces.len();
+                if is_backface {
+                    i -= self.faces.len();
+                }
+
                 let face = &self.faces[i];
                 let pid1 = face.indices.x * DIM;
                 let pid2 = face.indices.y * DIM;
                 let pid3 = face.indices.z * DIM;
                 let tri = Triangle::new(
                     Point::from_slice(&coords[pid1..pid1 + DIM]),
-                    Point::from_slice(&coords[pid3..pid3 + DIM]),
                     Point::from_slice(&coords[pid2..pid2 + DIM]),
+                    Point::from_slice(&coords[pid3..pid3 + DIM]),
                 );
 
                 approx.point = *tri.a();
 
                 if let Some(n) = tri.normal() {
-                    if i == 0 {
+                    if !is_backface {
                         approx.geometry = NeighborhoodGeometry::Plane(n);
                     } else {
                         approx.geometry = NeighborhoodGeometry::Plane(-n);

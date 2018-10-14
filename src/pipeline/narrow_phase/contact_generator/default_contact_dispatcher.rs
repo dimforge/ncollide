@@ -1,12 +1,12 @@
 use na::Real;
-#[cfg(feature = "dim3")]
-use pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
 use pipeline::narrow_phase::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
     PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator,
 };
+#[cfg(feature = "dim3")]
+use pipeline::narrow_phase::{TriMeshShapeManifoldGenerator, TriMeshTriMeshManifoldGenerator};
 #[cfg(feature = "dim3")]
 use shape::TriMesh;
 use shape::{Ball, Plane, Shape};
@@ -35,6 +35,10 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
 
             if a_is_trimesh && b_is_trimesh {
                 return Some(Box::new(TriMeshTriMeshManifoldGenerator::<N>::new()));
+            } else if a_is_trimesh {
+                return Some(Box::new(TriMeshShapeManifoldGenerator::<N>::new(false)));
+            } else if b_is_trimesh {
+                return Some(Box::new(TriMeshShapeManifoldGenerator::<N>::new(true)));
             }
         }
 

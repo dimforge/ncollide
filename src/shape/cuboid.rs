@@ -42,6 +42,102 @@ impl<N: Real> Cuboid<N> {
     pub fn half_extents(&self) -> &Vector<N> {
         &self.half_extents
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    #[cfg(feature = "dim2")]
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let ls_dir = m.inverse_transform_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => {
+                if id < 2 {
+                    ls_dir[id] <= N::zero()
+                } else {
+                    ls_dir[id - 2] <= N::zero()
+                }
+            }
+            FeatureId::Vertex(id) => match id {
+                0b00 => ls_dir.x <= N::zero() && ls_dir.y <= N::zero(),
+                0b01 => ls_dir.x <= N::zero() && ls_dir.y >= N::zero(),
+                0b11 => ls_dir.x >= N::zero() && ls_dir.y >= N::zero(),
+                0b10 => ls_dir.x >= N::zero() && ls_dir.y <= N::zero(),
+                _ => unreachable!(),
+            },
+            _ => panic!("Invalid feature ID {:?}.", feature),
+        }
+    }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    #[cfg(feature = "dim3")]
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let ls_dir = m.inverse_transform_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => {
+                let mut dir: Vector<N> = na::zero();
+
+                if id < 3 {
+                    ls_dir[id] <= N::zero()
+                } else {
+                    ls_dir[id - 3] <= N::zero()
+                }
+            }
+            FeatureId::Edge(id) => {
+                let edge = id & 0b011;
+                let face1 = (edge + 1) % 3;
+                let face2 = (edge + 2) % 3;
+                let signs = id >> 2;
+
+                if signs & (1 << face1) != 0 {
+                    if ls_dir[face1] < N::zero() {
+                        return false;
+                    }
+                } else {
+                    if ls_dir[face1] > N::zero() {
+                        return false;
+                    }
+                }
+
+                if signs & (1 << face2) != 0 {
+                    if ls_dir[face2] < N::zero() {
+                        return false;
+                    }
+                } else {
+                    if ls_dir[face2] > N::zero() {
+                        return false;
+                    }
+                }
+
+                true
+            }
+            FeatureId::Vertex(id) => {
+                for i in 0..3 {
+                    if id & (1 << i) != 0 {
+                        if ls_dir[i] < N::zero() {
+                            return false;
+                        }
+                    } else {
+                        if ls_dir[i] > N::zero() {
+                            return false;
+                        }
+                    }
+                }
+
+                true
+            }
+            _ => false,
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for Cuboid<N> {
@@ -387,100 +483,6 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
             }
 
             FeatureId::Vertex(support_point_id)
-        }
-    }
-
-    #[cfg(feature = "dim2")]
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let ls_dir = m.inverse_transform_vector(dir);
-
-        match feature {
-            FeatureId::Face(id) => {
-                if id < 2 {
-                    ls_dir[id] <= N::zero()
-                } else {
-                    ls_dir[id - 2] <= N::zero()
-                }
-            }
-            FeatureId::Vertex(id) => match id {
-                0b00 => ls_dir.x <= N::zero() && ls_dir.y <= N::zero(),
-                0b01 => ls_dir.x <= N::zero() && ls_dir.y >= N::zero(),
-                0b11 => ls_dir.x >= N::zero() && ls_dir.y >= N::zero(),
-                0b10 => ls_dir.x >= N::zero() && ls_dir.y <= N::zero(),
-                _ => unreachable!(),
-            },
-            _ => panic!("Invalid feature ID {:?}.", feature),
-        }
-    }
-
-    #[cfg(feature = "dim3")]
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let ls_dir = m.inverse_transform_vector(dir);
-
-        match feature {
-            FeatureId::Face(id) => {
-                let mut dir: Vector<N> = na::zero();
-
-                if id < 3 {
-                    ls_dir[id] <= N::zero()
-                } else {
-                    ls_dir[id - 3] <= N::zero()
-                }
-            }
-            FeatureId::Edge(id) => {
-                let edge = id & 0b011;
-                let face1 = (edge + 1) % 3;
-                let face2 = (edge + 2) % 3;
-                let signs = id >> 2;
-
-                if signs & (1 << face1) != 0 {
-                    if ls_dir[face1] < N::zero() {
-                        return false;
-                    }
-                } else {
-                    if ls_dir[face1] > N::zero() {
-                        return false;
-                    }
-                }
-
-                if signs & (1 << face2) != 0 {
-                    if ls_dir[face2] < N::zero() {
-                        return false;
-                    }
-                } else {
-                    if ls_dir[face2] > N::zero() {
-                        return false;
-                    }
-                }
-
-                true
-            }
-            FeatureId::Vertex(id) => {
-                for i in 0..3 {
-                    if id & (1 << i) != 0 {
-                        if ls_dir[i] < N::zero() {
-                            return false;
-                        }
-                    } else {
-                        if ls_dir[i] > N::zero() {
-                            return false;
-                        }
-                    }
-                }
-
-                true
-            }
-            _ => false,
         }
     }
 

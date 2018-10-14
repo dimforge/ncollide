@@ -15,7 +15,7 @@ pub use self::convex_polygon::ConvexPolygon;
 #[cfg(feature = "dim2")]
 pub use self::convex_polygonal_feature2::ConvexPolygonalFeature;
 #[cfg(feature = "dim3")]
-pub use self::convex_polygonal_feature3::ConvexPolygonalFeature;
+pub use self::convex_polygonal_feature3::{ClippingCache, ConvexPolygonalFeature};
 pub use self::convex_polyhedron::{ConvexPolyhedron, FeatureId};
 pub use self::cuboid::Cuboid;
 #[cfg(feature = "dim3")]

@@ -2,11 +2,10 @@ use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
 use pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
-use query::{Proximity, visitors::BoundingVolumeInterferencesCollector};
+use query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
 use shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
-
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {
@@ -161,9 +160,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: Real> ProximityDetector<N>
-for CompositeShapeShapeProximityDetector<N>
-{
+impl<N: Real> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
         dispatcher: &ProximityDispatcher<N>,

@@ -1,8 +1,8 @@
-use std::any::Any;
+use math::Isometry;
 use na::Real;
 use query::Proximity;
 use shape::Shape;
-use math::Isometry;
+use std::any::Any;
 
 /// Trait implemented by algorithms that determine if two objects are in close proximity.
 pub trait ProximityDetector<N: Real>: Any + Send + Sync {
@@ -26,9 +26,5 @@ pub type ProximityAlgorithm<N> = Box<ProximityDetector<N>>;
 
 pub trait ProximityDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_proximity_algorithm(
-        &self,
-        a: &Shape<N>,
-        b: &Shape<N>,
-    ) -> Option<ProximityAlgorithm<N>>;
+    fn get_proximity_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ProximityAlgorithm<N>>;
 }

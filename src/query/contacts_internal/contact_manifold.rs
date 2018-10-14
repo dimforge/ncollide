@@ -59,6 +59,11 @@ impl<N: Real> ContactManifold<N> {
         &self.contacts[..]
     }
 
+    /// Mutable reference to all the contact tracked by this manifold.
+    pub fn contacts_mut(&mut self) -> &mut [TrackedContact<N>] {
+        &mut self.contacts[..]
+    }
+
     /// The index of the contact with the greatest penetration depth.
     pub fn deepest_contact_id(&self) -> usize {
         self.deepest

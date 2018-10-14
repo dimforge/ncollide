@@ -1,5 +1,5 @@
 use bounding_volume::{BoundingVolume, AABB};
-use math::Isometry;
+use math::{Isometry, Vector};
 use na::{self, Real, Unit};
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::closest_points_internal;
@@ -7,7 +7,10 @@ use query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
     ContactPrediction, NeighborhoodGeometry,
 };
-use shape::{CompositeShape, FeatureId, Segment, SegmentPointLocation, Shape, TriMesh, Triangle};
+use shape::{
+    ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
+    SegmentPointLocation, Shape, TriMesh, Triangle,
+};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
 use utils::IdAllocator;
@@ -15,6 +18,10 @@ use utils::IdAllocator;
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshTriMeshManifoldGenerator<N: Real> {
     manifold: ContactManifold<N>,
+    clip_cache: ClippingCache<N>,
+    new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
+    convex_feature1: ConvexPolygonalFeature<N>,
+    convex_feature2: ConvexPolygonalFeature<N>,
     interferences: Vec<(usize, usize)>,
 }
 
@@ -23,6 +30,10 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     pub fn new() -> TriMeshTriMeshManifoldGenerator<N> {
         TriMeshTriMeshManifoldGenerator {
             manifold: ContactManifold::new(),
+            clip_cache: ClippingCache::new(),
+            new_contacts: Vec::new(),
+            convex_feature1: ConvexPolygonalFeature::with_size(3),
+            convex_feature2: ConvexPolygonalFeature::with_size(3),
             interferences: Vec::new(),
         }
     }
@@ -39,6 +50,10 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
         mesh2: &TriMesh<N>,
         i2: usize,
         prediction: &ContactPrediction<N>,
+        clip_cache: &mut ClippingCache<N>,
+        new_contacts: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
+        convex_feature1: &mut ConvexPolygonalFeature<N>,
+        convex_feature2: &mut ConvexPolygonalFeature<N>,
         manifold: &mut ContactManifold<N>,
         id_alloc: &mut IdAllocator,
     ) {
@@ -66,12 +81,19 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
             let mut sep_axis = None;
 
             #[inline(always)]
-            fn penetration<N: Real>(a: (N, N), b: (N, N)) -> Option<N> {
+            fn penetration<N: Real>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
                 if a.0 > b.1 || b.0 > a.1 {
                     // The intervals are disjoint.
                     None
                 } else {
-                    Some((b.1 - a.0).min(a.1 - a.0))
+                    let depth1 = b.1 - a.0;
+                    let depth2 = a.1 - b.0;
+
+                    if depth1 < depth2 {
+                        Some((depth1, true))
+                    } else {
+                        Some((depth2, false))
+                    }
                 }
             }
 
@@ -91,9 +113,14 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 // First, test normals.
                 let interval1 = t1.a().coords.dot(&n1);
                 let interval2 = t2.extents_on_dir(&n1);
+                let mut penetration_depth = (N::max_value(), false);
+                let mut penetration_dir = Vector::y_axis();
 
                 if let Some(overlap) = penetration((interval1, interval1), interval2) {
-                    // XXX accept the contact.
+                    if overlap.0 < penetration_depth.0 {
+                        penetration_depth = overlap;
+                        penetration_dir = n1;
+                    }
                 } else {
                     // The triangles are disjoint.
                     sep_axis = Some(n1);
@@ -103,7 +130,10 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 let interval2 = t2.a().coords.dot(&n2);
                 let interval1 = t1.extents_on_dir(&n2);
                 if let Some(overlap) = penetration(interval1, (interval2, interval2)) {
-                    // XXX accept the contact.
+                    if overlap.0 < penetration_depth.0 {
+                        penetration_depth = overlap;
+                        penetration_dir = n2;
+                    }
                 } else {
                     // The triangles are disjoint.
                     sep_axis = Some(n2);
@@ -127,7 +157,10 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                             );
 
                             if let Some(overlap) = penetration(interval1, interval2) {
-                                // XXX accept the contact.
+                                if overlap.0 < penetration_depth.0 {
+                                    penetration_depth = overlap;
+                                    penetration_dir = dir;
+                                }
                             } else {
                                 // Triangles are disjoint.
                                 sep_axis = Some(dir);
@@ -138,7 +171,78 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 }
 
                 // If we reached this point, no separating axis was found: the triangles intersect.
-                // XXX accept the contact.
+                if let (Some(side_normals1), Some(side_normals2)) =
+                    (face1.side_normals.as_ref(), face2.side_normals.as_ref())
+                {
+                    for i in 0..3 {
+                        convex_feature1.vertices[i] = m1 * t1.vertices()[i];
+                        convex_feature1.edge_normals[i] = m1 * *side_normals1[i];
+                        convex_feature1.vertices_id[i] = FeatureId::Vertex(face1.indices[i]);
+                        convex_feature1.edges_id[i] = FeatureId::Edge(face1.edges[i]);
+
+                        convex_feature2.vertices[i] = m1 * t2.vertices()[i]; // m1 because t1 is in the local-space of the first geometry.
+                        convex_feature2.edge_normals[i] = m2 * *side_normals2[i];
+                        convex_feature2.vertices_id[i] = FeatureId::Vertex(face2.indices[i]);
+                        convex_feature2.edges_id[i] = FeatureId::Edge(face2.edges[i]);
+                    }
+
+                    let normal = if !penetration_depth.1 {
+                        m1 * penetration_dir
+                    } else {
+                        m1 * -penetration_dir
+                    };
+
+                    convex_feature1.normal = face1.normal.map(|n| m1 * n);
+                    convex_feature1.feature_id = FeatureId::Face(i1);
+
+                    // XXX: do we have to swap the vertices and edge normals too?
+                    if let Some(normal_f1) = convex_feature1.normal.as_mut() {
+                        if normal_f1.dot(&normal) < N::zero() {
+                            *normal_f1 = -*normal_f1;
+                            convex_feature1.feature_id = FeatureId::Face(i1 + mesh1.faces().len());
+                            convex_feature1.vertices.swap(0, 1);
+                            convex_feature1.edge_normals.swap(1, 2);
+                            convex_feature1.vertices_id.swap(0, 1);
+                            convex_feature1.edges_id.swap(1, 2);
+                        }
+                    }
+
+                    convex_feature2.normal = face2.normal.map(|n| m2 * n);
+                    convex_feature2.feature_id = FeatureId::Face(i2);
+
+                    if let Some(normal_f2) = convex_feature2.normal.as_mut() {
+                        if -normal_f2.dot(&normal) < N::zero() {
+                            *normal_f2 = -*normal_f2;
+                            convex_feature2.feature_id = FeatureId::Face(i2 + mesh2.faces().len());
+                            convex_feature2.vertices.swap(0, 1);
+                            convex_feature2.edge_normals.swap(1, 2);
+                            convex_feature2.vertices_id.swap(0, 1);
+                            convex_feature2.edges_id.swap(1, 2);
+                        }
+                    }
+
+                    convex_feature1.clip(
+                        convex_feature2,
+                        &normal,
+                        prediction,
+                        clip_cache,
+                        new_contacts,
+                    );
+
+                    for (c, f1, f2) in new_contacts.drain(..) {
+                        convex_feature1.add_contact_to_manifold(
+                            convex_feature2,
+                            c,
+                            m1,
+                            f1,
+                            m2,
+                            f2,
+                            id_alloc,
+                            manifold,
+                        );
+                    }
+                }
+
                 return;
             }
 
@@ -307,12 +411,13 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 }
 
                 let dpt = p1 - t2.a();
-                if mesh1.vertex_tangent_cone_polar_contains_dir(
+                let dist = dpt.dot(&n2);
+
+                if dist >= N::zero() && mesh1.vertex_tangent_cone_polar_contains_dir(
                     *iv,
                     &(m12 * -n2),
                     prediction.sin_angular1(),
                 ) {
-                    let dist = dpt.dot(&n2);
                     let proj = p1 + *n2 * -dist;
 
                     // Accept the contact.
@@ -348,12 +453,13 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 }
 
                 let dpt = p2 - t1.a();
-                if mesh2.vertex_tangent_cone_polar_contains_dir(
+                let dist = dpt.dot(&n1);
+
+                if dist >= N::zero() && mesh2.vertex_tangent_cone_polar_contains_dir(
                     *iv,
                     &-n1,
                     prediction.sin_angular2(),
                 ) {
-                    let dist = dpt.dot(&n1);
                     let proj = p2 + *n1 * -dist;
 
                     // Accept the contact.
@@ -384,6 +490,10 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
         m2: &Isometry<N>,
         mesh2: &TriMesh<N>,
         prediction: &ContactPrediction<N>,
+        clip_cache: &mut ClippingCache<N>,
+        new_contacts: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
+        convex_feature1: &mut ConvexPolygonalFeature<N>,
+        convex_feature2: &mut ConvexPolygonalFeature<N>,
         interferences: &mut Vec<(usize, usize)>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -403,7 +513,21 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 
         for id in interferences.drain(..) {
             Self::compute_faces_closest_points(
-                &m12, &m21, m1, mesh1, id.0, m2, mesh2, id.1, prediction, manifold, id_alloc,
+                &m12,
+                &m21,
+                m1,
+                mesh1,
+                id.0,
+                m2,
+                mesh2,
+                id.1,
+                prediction,
+                clip_cache,
+                new_contacts,
+                convex_feature1,
+                convex_feature2,
+                manifold,
+                id_alloc,
             );
         }
     }
@@ -435,6 +559,10 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
                 mb,
                 mesh2,
                 prediction,
+                &mut self.clip_cache,
+                &mut self.new_contacts,
+                &mut self.convex_feature1,
+                &mut self.convex_feature2,
                 &mut self.interferences,
                 id_alloc,
                 &mut self.manifold,
@@ -469,6 +597,10 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
                 mb,
                 mesh2,
                 prediction,
+                &mut self.clip_cache,
+                &mut self.new_contacts,
+                &mut self.convex_feature1,
+                &mut self.convex_feature2,
                 &mut self.interferences,
                 id_alloc,
                 manifold,

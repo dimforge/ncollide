@@ -41,10 +41,11 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
     /// cone that contains `dir` at the point `pt`.
     // NOTE: for the moment, we assume the tangent cone is the same for the whole feature.
     #[inline]
-    fn subshape_tangent_cone_contains_dir(
+    fn tangent_cone_contains_dir(
         &self,
         _feature: FeatureId,
         _m: &Isometry<N>,
+        _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
     ) -> bool;
 

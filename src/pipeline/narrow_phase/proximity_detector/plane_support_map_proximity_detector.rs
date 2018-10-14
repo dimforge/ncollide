@@ -1,9 +1,9 @@
-use na::Real;
 use math::Isometry;
-use shape::{Plane, Shape};
-use query::Proximity;
-use query::proximity_internal;
+use na::Real;
 use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use query::proximity_internal;
+use query::Proximity;
+use shape::{Plane, Shape};
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]

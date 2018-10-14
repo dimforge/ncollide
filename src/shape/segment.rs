@@ -95,6 +95,48 @@ impl<N: Real> Segment<N> {
             _ => panic!(),
         }
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        if let Some(direction) = self.direction() {
+            match feature {
+                FeatureId::Vertex(id) => {
+                    let dot = ls_dir.dot(&direction);
+                    if id == 0 {
+                        dot >= N::one() - N::default_epsilon()
+                    } else {
+                        -dot >= N::one() - N::default_epsilon()
+                    }
+                }
+                #[cfg(feature = "dim3")]
+                FeatureId::Edge(_) => {
+                    ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon()
+                }
+                FeatureId::Face(id) => {
+                    let mut dir = Vector::zeros();
+                    if id == 0 {
+                        dir[0] = direction[1];
+                        dir[1] = -direction[0];
+                    } else {
+                        dir[0] = -direction[1];
+                        dir[1] = direction[0];
+                    }
+
+                    ls_dir.dot(&dir) <= N::zero()
+                }
+                _ => true,
+            }
+        } else {
+            false
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for Segment<N> {
@@ -182,47 +224,6 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
             }
         } else {
             ConicalApproximation::Full
-        }
-    }
-
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let ls_dir = m.inverse_transform_unit_vector(dir);
-
-        if let Some(direction) = self.direction() {
-            match feature {
-                FeatureId::Vertex(id) => {
-                    let dot = ls_dir.dot(&direction);
-                    if id == 0 {
-                        dot >= N::one() - N::default_epsilon()
-                    } else {
-                        -dot >= N::one() - N::default_epsilon()
-                    }
-                }
-                #[cfg(feature = "dim3")]
-                FeatureId::Edge(_) => {
-                    ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon()
-                }
-                FeatureId::Face(id) => {
-                    let mut dir = Vector::zeros();
-                    if id == 0 {
-                        dir[0] = direction[1];
-                        dir[1] = -direction[0];
-                    } else {
-                        dir[0] = -direction[1];
-                        dir[1] = direction[0];
-                    }
-
-                    ls_dir.dot(&dir) <= N::zero()
-                }
-                _ => true,
-            }
-        } else {
-            false
         }
     }
 

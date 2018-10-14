@@ -347,6 +347,39 @@ impl<N: Real> ConvexHull<N> {
     pub fn points(&self) -> &[Point<N>] {
         &self.points[..]
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool {
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => ls_dir.dot(&self.faces[id].normal) <= N::zero(),
+            FeatureId::Edge(id) => {
+                let edge = &self.edges[id];
+                ls_dir.dot(&self.faces[edge.faces[0]].normal) <= N::zero()
+                    && ls_dir.dot(&self.faces[edge.faces[1]].normal) <= N::zero()
+            }
+            FeatureId::Vertex(id) => {
+                let vertex = &self.vertices[id];
+                let first = vertex.first_adj_face_or_edge;
+                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
+
+                for face in &self.faces_adj_to_vertex[first..last] {
+                    if ls_dir.dot(&self.faces[*face].normal) > N::zero() {
+                        return false;
+                    }
+                }
+
+                true
+            }
+            FeatureId::Unknown => false,
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for ConvexHull<N> {
@@ -426,38 +459,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
                 }
             }
             FeatureId::Unknown => ConicalApproximation::Full,
-        }
-    }
-
-    fn tangent_cone_contains_dir(
-        &self,
-        feature: FeatureId,
-        m: &Isometry<N>,
-        dir: &Unit<Vector<N>>,
-    ) -> bool {
-        let ls_dir = m.inverse_transform_unit_vector(dir);
-
-        match feature {
-            FeatureId::Face(id) => ls_dir.dot(&self.faces[id].normal) <= N::zero(),
-            FeatureId::Edge(id) => {
-                let edge = &self.edges[id];
-                ls_dir.dot(&self.faces[edge.faces[0]].normal) <= N::zero()
-                    && ls_dir.dot(&self.faces[edge.faces[1]].normal) <= N::zero()
-            }
-            FeatureId::Vertex(id) => {
-                let vertex = &self.vertices[id];
-                let first = vertex.first_adj_face_or_edge;
-                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
-
-                for face in &self.faces_adj_to_vertex[first..last] {
-                    if ls_dir.dot(&self.faces[*face].normal) > N::zero() {
-                        return false;
-                    }
-                }
-
-                true
-            }
-            FeatureId::Unknown => false,
         }
     }
 

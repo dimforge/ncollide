@@ -6,7 +6,6 @@ use query::Contact;
 use shape::{FeatureId, Shape};
 use utils::IsometryOps;
 
-
 /// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NeighborhoodGeometry<N: Real> {
@@ -32,7 +31,6 @@ pub struct LocalShapeApproximation<N: Real> {
     //   point on it.
     // - Use `point` as the local-space point where the approximation occurs. It should be
     //   computed by the shape from the parameters.
-
     /// The shape feature the point lies on.
     pub feature: FeatureId,
     /// The point where approximation is computed.
@@ -52,9 +50,8 @@ impl<N: Real> LocalShapeApproximation<N> {
     }
 }
 
-
 /// Local contact kinematic of a pair of solids around two given points.
-/// 
+///
 /// This is used to update the localization of contact points between two solids
 /// from one frame to another. To achieve this, the local shape of the solids
 /// around the given points are approximated by either dilated lines (unbounded
@@ -77,7 +74,8 @@ impl<N: Real> ContactKinematic<N> {
         let approx = LocalShapeApproximation::new(
             FeatureId::Unknown,
             Point::origin(),
-            NeighborhoodGeometry::Point);
+            NeighborhoodGeometry::Point,
+        );
 
         ContactKinematic {
             margin1: na::zero(),
@@ -183,17 +181,25 @@ impl<N: Real> ContactKinematic<N> {
         &mut self.approx2
     }
 
-
     /// Sets the local approximation of the first shape.
-    pub fn set_approx1(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>) {
+    pub fn set_approx1(
+        &mut self,
+        feature: FeatureId,
+        point: Point<N>,
+        geom: NeighborhoodGeometry<N>,
+    ) {
         self.approx1 = LocalShapeApproximation::new(feature, point, geom);
     }
 
     /// Sets the local approximation of the second shape.
-    pub fn set_approx2(&mut self, feature: FeatureId, point: Point<N>, geom: NeighborhoodGeometry<N>) {
+    pub fn set_approx2(
+        &mut self,
+        feature: FeatureId,
+        point: Point<N>,
+        geom: NeighborhoodGeometry<N>,
+    ) {
         self.approx2 = LocalShapeApproximation::new(feature, point, geom);
     }
-
 
     /// Computes the updated contact points with the new positions of the solids.
     ///
@@ -204,8 +210,10 @@ impl<N: Real> ContactKinematic<N> {
         &self,
         m1: &Isometry<N>,
         s1: &Shape<N>,
+        deformations1: Option<&[N]>,
         m2: &Isometry<N>,
         s2: &Shape<N>,
+        deformations2: Option<&[N]>,
         default_normal1: &Unit<Vector<N>>,
     ) -> Option<Contact<N>> {
         let normal;
@@ -227,10 +235,14 @@ impl<N: Real> ContactKinematic<N> {
                 normal = -world_normal2;
             }
             (NeighborhoodGeometry::Point, NeighborhoodGeometry::Point) => {
-                if let Some((n, d)) =
-                Unit::try_new_and_get(world2 - world1, N::default_epsilon()) {
-                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
-                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                if let Some((n, d)) = Unit::try_new_and_get(world2 - world1, N::default_epsilon()) {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
                         depth = d;
                         normal = -n;
                     } else {
@@ -251,8 +263,13 @@ impl<N: Real> ContactKinematic<N> {
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
                     world1 = world2 + (-shift);
 
-                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
-                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
                         depth = d;
                         normal = -n;
                     } else {
@@ -276,8 +293,13 @@ impl<N: Real> ContactKinematic<N> {
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
                     world2 = world1 + shift;
 
-                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
-                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
                         depth = d;
                         normal = -n;
                     } else {
@@ -303,8 +325,13 @@ impl<N: Real> ContactKinematic<N> {
                 world2 = pt2;
 
                 if let Some((n, d)) = Unit::try_new_and_get(world2 - world1, na::zero()) {
-                    if s1.subshape_tangent_cone_contains_dir(self.approx1.feature, m1, &n)
-                        || s2.subshape_tangent_cone_contains_dir(self.approx2.feature, m2, &-n) {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
                         depth = d;
                         normal = -n;
                     } else {

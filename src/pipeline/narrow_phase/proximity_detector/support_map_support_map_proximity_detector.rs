@@ -1,10 +1,10 @@
-use na::{Real, Unit};
 use math::{Isometry, Vector};
-use shape::Shape;
+use na::{Real, Unit};
+use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use query::algorithms::VoronoiSimplex;
 use query::proximity_internal;
 use query::Proximity;
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use shape::Shape;
 
 /// Persistent proximity detector between two shapes having a support mapping function.
 ///
