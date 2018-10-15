@@ -13,6 +13,7 @@ use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
+use utils::DeterministicState;
 
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
@@ -69,6 +70,7 @@ pub struct TriMesh<N: Real> {
     adj_face_list: Vec<usize>,
     adj_vertex_list: Vec<usize>,
     deformations: DeformationInfos<N>,
+    oriented: bool,
 }
 
 impl<N: Real> TriMesh<N> {
@@ -105,7 +107,7 @@ impl<N: Real> TriMesh<N> {
                 });
 
                 // FIXME: loosen for better persistancy?
-                let bv = triangle.aabb(&Isometry::identity());
+                let bv = triangle.aabb(&Isometry::identity()); //                    .loosened(na::convert(10.0));
                 leaves.push((i, bv.clone()));
                 faces.push(TriMeshFace {
                     indices: *is,
@@ -157,11 +159,12 @@ impl<N: Real> TriMesh<N> {
             faces,
             adj_face_list,
             adj_vertex_list,
+            oriented: false,
         }
     }
 
     fn edges_list(indices: &[Point3<usize>]) -> Vec<TriMeshEdge> {
-        let mut edges = HashMap::new();
+        let mut edges = HashMap::with_hasher(DeterministicState::new());
 
         fn key(a: usize, b: usize) -> (usize, usize) {
             if a < b {
@@ -318,6 +321,22 @@ impl<N: Real> TriMesh<N> {
         &self.edges
     }
 
+    /// Whether this trimesh is considered is oriented or not.
+    ///
+    /// By default a trimesh is not oriented.
+    #[inline]
+    pub fn oriented(&self) -> bool {
+        self.oriented
+    }
+
+    /// Whether this trimesh is considered as oriented or not.
+    ///
+    /// This is determined at the initialization of the trimesh.
+    #[inline]
+    pub fn set_oriented(&mut self, oriented: bool) {
+        self.oriented = oriented
+    }
+
     /// Face containing feature.
     #[inline]
     pub fn face_containing_feature(&self, id: FeatureId) -> usize {
@@ -364,6 +383,10 @@ impl<N: Real> TriMesh<N> {
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
     ) -> bool {
+        if !self.oriented {
+            return false;
+        }
+
         let v = &self.vertices[i];
 
         if let Some(coords) = deformations {
@@ -426,6 +449,10 @@ impl<N: Real> TriMesh<N> {
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
     ) -> bool {
+        if !self.oriented {
+            return false;
+        }
+
         let e = &self.edges[i];
 
         if let Some(coords) = deformations {
@@ -437,10 +464,8 @@ impl<N: Real> TriMesh<N> {
                     Point::from_slice(&coords[indices.z..indices.z + DIM]),
                 );
 
-                if let Some(n) = tri.normal() {
-                    if n.dot(dir) > N::zero() {
-                        return false;
-                    }
+                if tri.scaled_normal().dot(dir) > N::zero() {
+                    return false;
                 }
             }
         } else {
@@ -484,6 +509,12 @@ impl<N: Real> TriMesh<N> {
             }
         }
 
+        if let (Some(n1), Some(n2)) = (f1.normal, f2.normal) {
+            if (n1.unwrap() + n2.unwrap()).dot(dir) < N::zero() {
+                return false;
+            }
+        }
+
         true
     }
 
@@ -495,6 +526,10 @@ impl<N: Real> TriMesh<N> {
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
     ) -> bool {
+        if !self.oriented {
+            return false;
+        }
+
         let normal;
 
         if let Some(coords) = deformations {
@@ -506,22 +541,26 @@ impl<N: Real> TriMesh<N> {
             );
 
             if i >= self.faces.len() {
-                normal = tri.normal().map(|n| -n)
+                normal = -tri.scaled_normal();
             } else {
-                normal = tri.normal();
+                normal = tri.scaled_normal();
             }
         } else {
             if i >= self.faces.len() {
-                normal = self.faces[i - self.faces.len()].normal.map(|n| -n)
+                normal = -self.faces[i - self.faces.len()]
+                    .normal
+                    .map(|n| n.unwrap())
+                    .unwrap_or(Vector::zeros());
             } else {
-                normal = self.faces[i].normal;
+                normal = self.faces[i]
+                    .normal
+                    .map(|n| n.unwrap())
+                    .unwrap_or(Vector::zeros());
             }
         }
 
-        if let Some(n) = normal {
-            if n.dot(dir) > N::zero() {
-                return false;
-            }
+        if normal.dot(dir) > N::zero() {
+            return false;
         }
 
         true

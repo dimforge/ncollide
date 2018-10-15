@@ -1,19 +1,19 @@
 //! Utilities useful for various generations tasks.
 
-#[cfg(feature = "dim3")]
-use std::iter;
-#[cfg(feature = "dim3")]
-use std::collections::HashMap;
-#[cfg(feature = "dim3")]
-use std::collections::hash_map::Entry;
-#[cfg(feature = "dim3")]
-use num::Zero;
+use math::{Point, Vector};
 #[cfg(feature = "dim3")]
 use na;
 use na::Real;
 #[cfg(feature = "dim3")]
-use utils::HashablePartialEq;
-use math::{Point, Vector};
+use num::Zero;
+#[cfg(feature = "dim3")]
+use std::collections::hash_map::Entry;
+#[cfg(feature = "dim3")]
+use std::collections::HashMap;
+#[cfg(feature = "dim3")]
+use std::iter;
+#[cfg(feature = "dim3")]
+use utils::{DeterministicState, HashablePartialEq};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
@@ -179,13 +179,13 @@ pub fn split_index_buffer_and_recover_topology<N: Real>(
     indices: &[Point<u32>],
     coords: &[Point<N>],
 ) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>) {
-    let mut vtx_to_id = HashMap::new();
+    let mut vtx_to_id = HashMap::with_hasher(DeterministicState::new());
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
 
     fn resolve_coord_id<N: Real>(
         coord: &Point<N>,
-        vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32>,
+        vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32, DeterministicState>,
         new_coords: &mut Vec<Point<N>>,
     ) -> u32 {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };

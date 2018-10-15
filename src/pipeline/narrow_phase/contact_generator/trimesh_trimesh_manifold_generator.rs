@@ -59,6 +59,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     ) {
         let face1 = &mesh1.faces()[i1];
         let face2 = &mesh2.faces()[i2];
+
         let pts1 = mesh1.points();
         let pts2 = mesh2.points();
         let t1 = Triangle::new(
@@ -82,6 +83,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 
             #[inline(always)]
             fn penetration<N: Real>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
+                assert!(a.0 <= a.1 && b.0 <= b.1);
                 if a.0 > b.1 || b.0 > a.1 {
                     // The intervals are disjoint.
                     None
@@ -110,13 +112,20 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
             // as we find one using `break 'search` (without having to do all this on a separate function
             // and do a return instead of breaks).
             'search: loop {
-                // First, test normals.
-                let interval1 = t1.a().coords.dot(&n1);
-                let interval2 = t2.extents_on_dir(&n1);
+                let _big: N = na::convert(10000000.0);
                 let mut penetration_depth = (N::max_value(), false);
                 let mut penetration_dir = Vector::y_axis();
 
-                if let Some(overlap) = penetration((interval1, interval1), interval2) {
+                // First, test normals.
+                let proj1 = t1.a().coords.dot(&n1);
+                let mut interval1 = (proj1, proj1);
+                let mut interval2 = t2.extents_on_dir(&n1);
+
+                if mesh1.oriented() {
+                    interval1.0 = -_big;
+                }
+
+                if let Some(overlap) = penetration(interval1, interval2) {
                     if overlap.0 < penetration_depth.0 {
                         penetration_depth = overlap;
                         penetration_dir = n1;
@@ -127,9 +136,15 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                     break;
                 }
 
-                let interval2 = t2.a().coords.dot(&n2);
-                let interval1 = t1.extents_on_dir(&n2);
-                if let Some(overlap) = penetration(interval1, (interval2, interval2)) {
+                let proj2 = t2.a().coords.dot(&n2);
+                let mut interval2 = (proj2, proj2);
+                let mut interval1 = t1.extents_on_dir(&n2);
+
+                if mesh2.oriented() {
+                    interval2.0 = -_big;
+                }
+
+                if let Some(overlap) = penetration(interval1, interval2) {
                     if overlap.0 < penetration_depth.0 {
                         penetration_depth = overlap;
                         penetration_dir = n2;
@@ -147,14 +162,37 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 for (i, e1) in edge_dirs_a.iter().enumerate() {
                     for (j, e2) in edge_dirs_b.iter().enumerate() {
                         if let Some(dir) = Unit::try_new(e1.cross(e2), N::default_epsilon()) {
-                            let interval1 = sort2(
+                            let mut interval1 = sort2(
                                 dir.dot(&t1.vertices()[i].coords),
                                 dir.dot(&t1.vertices()[(i + 2) % 3].coords),
                             );
-                            let interval2 = sort2(
+                            let mut interval2 = sort2(
                                 dir.dot(&t2.vertices()[j].coords),
                                 dir.dot(&t2.vertices()[(j + 2) % 3].coords),
                             );
+
+                            let eid1 = face1.edges[i];
+                            let eid2 = face2.edges[j];
+
+                            if mesh1.oriented() {
+                                if mesh1.edge_tangent_cone_contains_dir(eid1, None, &dir) {
+                                    interval1.0 = -_big;
+                                } else if mesh1.edge_tangent_cone_contains_dir(eid1, None, &-dir) {
+                                    interval1.1 = _big;
+                                }
+                            }
+
+                            if mesh2.oriented() {
+                                if mesh2.edge_tangent_cone_contains_dir(eid2, None, &(m21 * dir)) {
+                                    interval2.0 = -_big;
+                                } else if mesh2.edge_tangent_cone_contains_dir(
+                                    eid2,
+                                    None,
+                                    &-(m21 * dir),
+                                ) {
+                                    interval2.1 = _big;
+                                }
+                            }
 
                             if let Some(overlap) = penetration(interval1, interval2) {
                                 if overlap.0 < penetration_depth.0 {
@@ -332,7 +370,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                 }
                             }
                             (
-                                SegmentPointLocation::OnEdge(_),
+                                SegmentPointLocation::OnEdge(ecoords),
                                 SegmentPointLocation::OnVertex(j),
                             ) => {
                                 let ip2 = e2.indices[j];
@@ -358,6 +396,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                         pts2[ip2],
                                         NeighborhoodGeometry::Point,
                                     );
+
                                     let _ = manifold.push(contact, p1, kinematic, id_alloc);
                                 }
                             }
@@ -415,7 +454,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 
                 if dist >= N::zero() && mesh1.vertex_tangent_cone_polar_contains_dir(
                     *iv,
-                    &(m12 * -n2),
+                    &-n2,
                     prediction.sin_angular1(),
                 ) {
                     let proj = p1 + *n2 * -dist;
@@ -457,7 +496,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 
                 if dist >= N::zero() && mesh2.vertex_tangent_cone_polar_contains_dir(
                     *iv,
-                    &-n1,
+                    &(m21 * -n1),
                     prediction.sin_angular2(),
                 ) {
                     let proj = p2 + *n1 * -dist;

@@ -75,9 +75,9 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
 
             if ls_aabb2.intersects(&g1.aabb_at(*key)) {
                 let tri = Triangle::new(
-                    m1 * g1.points()[face.indices.x],
-                    m1 * g1.points()[face.indices.y],
-                    m1 * g1.points()[face.indices.z],
+                    g1.points()[face.indices.x],
+                    g1.points()[face.indices.y],
+                    g1.points()[face.indices.z],
                 );
 
                 detector.1.save_cache_and_clear(id_alloc);

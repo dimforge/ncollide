@@ -1,8 +1,9 @@
-use std::collections::HashMap;
-use alga::linear::Translation;
-use na::{self, Point2, Point3, Real};
 use super::utils;
+use alga::linear::Translation;
 use math::{Isometry, Point, Vector};
+use na::{self, Point2, Point3, Real};
+use std::collections::HashMap;
+use utils::DeterministicState;
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
@@ -154,7 +155,8 @@ impl<N: Real> TriMesh<N> {
                 // XXX: too bad we have to reconstruct the index buffer here.
                 // The utils::recompute_normals function should be generic wrt. the index buffer
                 // type (it could use an iterator instead).
-                let coord_idx: Vec<Point3<u32>> = idx.iter()
+                let coord_idx: Vec<Point3<u32>> = idx
+                    .iter()
                     .map(|t| Point3::new(t.x.x, t.y.x, t.z.x))
                     .collect();
 
@@ -196,7 +198,8 @@ impl<N: Real> TriMesh<N> {
     pub fn unify_index_buffer(&mut self) {
         let new_indices = match self.indices {
             IndexBuffer::Split(ref ids) => {
-                let mut vt2id: HashMap<Point3<u32>, u32> = HashMap::new();
+                let mut vt2id: HashMap<Point3<u32>, u32, _> =
+                    HashMap::with_hasher(DeterministicState::new());
                 let mut resi: Vec<u32> = Vec::new();
                 let mut resc: Vec<Point<N>> = Vec::new();
                 let mut resn: Option<Vec<Vector<N>>> = self.normals.as_ref().map(|_| Vec::new());
@@ -265,9 +268,11 @@ impl<N: Real> TriMesh<N> {
                     let idx = resc.len() as u32;
                     resc.push(self.coords[point.x as usize].clone());
 
-                    let _ = resn.as_mut()
+                    let _ = resn
+                        .as_mut()
                         .map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
-                    let _ = resu.as_mut()
+                    let _ = resu
+                        .as_mut()
                         .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
 
                     resi.push(idx);
@@ -278,9 +283,11 @@ impl<N: Real> TriMesh<N> {
                     let idx = resc.len() as u32;
                     resc.push(self.coords[*point as usize].clone());
 
-                    let _ = resn.as_mut()
+                    let _ = resn
+                        .as_mut()
                         .map(|l| l.push(self.normals.as_ref().unwrap()[*point as usize].clone()));
-                    let _ = resu.as_mut()
+                    let _ = resu
+                        .as_mut()
                         .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
 
                     resi.push(idx);
