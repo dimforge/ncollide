@@ -19,7 +19,7 @@ ncollide
 the rust programming language.
 
 The official user guide is available [here](http://ncollide.org).
-The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide3d).
+The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide2d).
 
 ## Compilation
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
