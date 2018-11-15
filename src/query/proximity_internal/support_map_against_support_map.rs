@@ -1,10 +1,10 @@
 use na::{self, Real, Unit};
 
-use shape::SupportMap;
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::VoronoiSimplex;
-use query::Proximity;
 use math::{Isometry, Vector};
+use query::algorithms::VoronoiSimplex;
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
+use query::Proximity;
+use shape::SupportMap;
 
 /// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -27,7 +27,8 @@ where
         margin,
         &mut VoronoiSimplex::new(),
         None,
-    ).0
+    )
+    .0
 }
 
 /// Proximity between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)

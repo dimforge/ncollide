@@ -1,13 +1,13 @@
-use std::mem;
 use num::Bounded;
+use std::mem;
 
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::{self, Real};
 
-use query::{Ray, RayCast, RayIntersection};
 use bounding_volume::AABB;
 use math::{Isometry, Vector};
+use query::{Ray, RayCast, RayIntersection};
 
 impl<N: Real> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {

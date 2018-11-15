@@ -1,7 +1,7 @@
 use bounding_volume::BoundingVolume;
 use math::{Isometry, Point};
 use na::Real;
-use partitioning::{Visitor, VisitStatus};
+use partitioning::{VisitStatus, Visitor};
 use query::PointQuery;
 use shape::CompositeShape;
 
@@ -16,7 +16,8 @@ pub struct CompositePointContainmentTest<'a, N: 'a + Real, S: 'a + CompositeShap
 }
 
 impl<'a, N: Real, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>> Visitor<usize, BV>
-for CompositePointContainmentTest<'a, N, S> {
+    for CompositePointContainmentTest<'a, N, S>
+{
     #[inline]
     fn visit(&mut self, bv: &BV, b: Option<&usize>) -> VisitStatus {
         if bv.contains_point(&Isometry::identity(), self.point) {

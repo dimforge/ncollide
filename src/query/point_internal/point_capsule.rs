@@ -1,7 +1,7 @@
-use na::{self, Unit, Real};
-use shape::{Capsule, FeatureId, Segment};
-use query::{PointProjection, PointQuery};
 use math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use query::{PointProjection, PointQuery};
+use shape::{Capsule, FeatureId, Segment};
 
 impl<N: Real> PointQuery<N> for Capsule<N> {
     #[inline]
@@ -32,7 +32,11 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

@@ -7,16 +7,16 @@ use utils::IsometryOps;
 #[inline]
 fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {
     #[cfg(feature = "dim2")]
-        {
-            PointProjection::new(*pt == proj, proj)
-        }
+    {
+        PointProjection::new(*pt == proj, proj)
+    }
 
     #[cfg(feature = "dim3")]
-        {
-            // FIXME: is this acceptable to assume the point is inside of the
-            // triangle if it is close enough?
-            PointProjection::new(relative_eq!(proj, *pt), proj)
-        }
+    {
+        // FIXME: is this acceptable to assume the point is inside of the
+        // triangle if it is close enough?
+        PointProjection::new(relative_eq!(proj, *pt), proj)
+    }
 }
 
 impl<N: Real> PointQuery<N> for Triangle<N> {
@@ -137,67 +137,52 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             ab_cp: N,
         ) -> ProjectionInfo<N> {
             #[cfg(feature = "dim2")]
-                {
-                    let n = ab.perp(&ac);
-                    let vc = n * ab.perp(&ap);
-                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
-                        return ProjectionInfo::OnAB;
-                    }
-
-                    let vb = -n * ac.perp(&cp);
-                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
-                        return ProjectionInfo::OnAC;
-                    }
-
-                    let va = n * bc.perp(&bp);
-                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
-                        return ProjectionInfo::OnBC;
-                    }
-
-                    return ProjectionInfo::OnFace(0, va, vb, vc);
+            {
+                let n = ab.perp(&ac);
+                let vc = n * ab.perp(&ap);
+                if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                    return ProjectionInfo::OnAB;
                 }
+
+                let vb = -n * ac.perp(&cp);
+                if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                    return ProjectionInfo::OnAC;
+                }
+
+                let va = n * bc.perp(&bp);
+                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                    return ProjectionInfo::OnBC;
+                }
+
+                return ProjectionInfo::OnFace(0, va, vb, vc);
+            }
             #[cfg(feature = "dim3")]
-                {
-                    let n = ab.cross(&ac);
-                    let vc = na::dot(&n, &ab.cross(&ap));
-                    if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
-                        return ProjectionInfo::OnAB;
-                    }
-
-                    let vb = -na::dot(&n, &ac.cross(&cp));
-                    if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
-                        return ProjectionInfo::OnAC;
-                    }
-
-                    let va = na::dot(&n, &bc.cross(&bp));
-                    if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
-                        return ProjectionInfo::OnBC;
-                    }
-
-                    let clockwise = if na::dot(&n, &ap) >= N::zero() {
-                        0
-                    } else {
-                        1
-                    };
-
-                    return ProjectionInfo::OnFace(clockwise, va, vb, vc);
+            {
+                let n = ab.cross(&ac);
+                let vc = na::dot(&n, &ab.cross(&ap));
+                if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
+                    return ProjectionInfo::OnAB;
                 }
+
+                let vb = -na::dot(&n, &ac.cross(&cp));
+                if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
+                    return ProjectionInfo::OnAC;
+                }
+
+                let va = na::dot(&n, &bc.cross(&bp));
+                if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
+                    return ProjectionInfo::OnBC;
+                }
+
+                let clockwise = if na::dot(&n, &ap) >= N::zero() { 0 } else { 1 };
+
+                return ProjectionInfo::OnFace(clockwise, va, vb, vc);
+            }
         }
 
         let bc = c - b;
         match stable_check_edges_voronoi(
-            &ab,
-            &ac,
-            &bc,
-            &ap,
-            &bp,
-            &cp,
-            ab_ap,
-            ab_bp,
-            ac_ap,
-            ac_cp,
-            ac_bp,
-            ab_cp,
+            &ab, &ac, &bc, &ap, &bp, &cp, ab_ap, ab_bp, ac_ap, ac_cp, ac_bp, ab_cp,
         ) {
             ProjectionInfo::OnAB => {
                 // Voronoï region of `ab`.

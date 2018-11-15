@@ -1,5 +1,5 @@
-use na::{self, Unit, Real};
 use math::{Point, Vector};
+use na::{self, Real, Unit};
 use query::Contact;
 use shape::Ball;
 

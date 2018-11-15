@@ -15,8 +15,7 @@ impl<N: Real> RayCast<N> for Polyline<N> {
             ray: &ls_ray,
         };
 
-        self.bvt()
-            .best_first_search(&mut visitor)
+        self.bvt().best_first_search(&mut visitor)
     }
 
     #[inline]
@@ -33,12 +32,10 @@ impl<N: Real> RayCast<N> for Polyline<N> {
             ray: &ls_ray,
         };
 
-        self.bvt()
-            .best_first_search(&mut visitor)
-            .map(|mut res| {
-                res.normal = m * res.normal;
-                res
-            })
+        self.bvt().best_first_search(&mut visitor).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
     }
 }
 
@@ -57,18 +54,20 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVisitor<
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
         // FIXME: optimize this by not using Isometry identity.
-        match self.polyline
+        match self
+            .polyline
             .segment_at(*b)
-            .toi_with_ray(&Isometry::identity(), self.ray, true) {
+            .toi_with_ray(&Isometry::identity(), self.ray, true)
+        {
             Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }
@@ -85,18 +84,20 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiAndNorma
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
         // FIXME: optimize this by not using the Isometry identity.
-        match self.polyline
-            .segment_at(*b)
-            .toi_and_normal_with_ray(&Isometry::identity(), self.ray, true) {
+        match self.polyline.segment_at(*b).toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self.ray,
+            true,
+        ) {
             Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }

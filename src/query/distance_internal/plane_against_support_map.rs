@@ -1,7 +1,7 @@
-use na::{self, Real};
-use shape::SupportMap;
-use shape::Plane;
 use math::{Isometry, Point};
+use na::{self, Real};
+use shape::Plane;
+use shape::SupportMap;
 
 /// Distance between a plane and a support-mapped shape.
 pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(

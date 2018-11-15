@@ -3,7 +3,10 @@ use math::Isometry;
 use na::{self, Real};
 use partitioning::BVH;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction};
+use query::{
+    visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction,
+    ContactTrackingMode,
+};
 use shape::{CompositeShape, FeatureId, Shape, TriMesh, Triangle};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
@@ -11,7 +14,7 @@ use utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshShapeManifoldGenerator<N: Real> {
-    sub_detectors: HashMap<usize, (ContactAlgorithm<N>, ContactManifold<N>), DeterministicState>,
+    sub_detectors: HashMap<usize, ContactAlgorithm<N>, DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
 }
@@ -29,15 +32,15 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         g1: &TriMesh<N>,
-        id2: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
-        flip: bool,
+        manifold: &mut ContactManifold<N>,
     ) {
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
@@ -56,20 +59,21 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                     let mut new_detector = None;
 
                     let tri = g1.triangle_at(i);
-                    if flip {
+                    if self.flip {
                         new_detector = dispatcher.get_contact_algorithm(g2, &tri)
                     } else {
                         new_detector = dispatcher.get_contact_algorithm(&tri, g2)
                     }
 
                     if let Some(new_detector) = new_detector {
-                        let _ = entry.insert((new_detector, ContactManifold::new()));
+                        let _ = entry.insert(new_detector);
                     }
                 }
             }
         }
 
         // Update all collisions
+        let flip = self.flip;
         self.sub_detectors.retain(|key, detector| {
             let face = &g1.faces()[*key];
 
@@ -80,70 +84,51 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                     g1.points()[face.indices.z],
                 );
 
-                detector.1.save_cache_and_clear(id_alloc);
+                let remap_feature = |f| match f {
+                    FeatureId::Vertex(i) => FeatureId::Vertex(face.indices[i]),
+                    FeatureId::Edge(i) => FeatureId::Edge(face.edges[i]),
+                    FeatureId::Face(i) => {
+                        if i == 0 {
+                            FeatureId::Face(*key)
+                        } else {
+                            FeatureId::Face(*key + g1.faces().len())
+                        }
+                    }
+                    FeatureId::Unknown => FeatureId::Unknown,
+                };
 
                 if flip {
                     assert!(
-                        detector.0.update_to(
+                        detector.generate_contacts(
                             dispatcher,
-                            id2,
                             m2,
                             g2,
-                            id1,
+                            fmap2,
                             m1,
                             &tri,
+                            Some(&remap_feature),
                             prediction,
                             id_alloc,
-                            &mut detector.1
+                            manifold
                         ),
                         "Internal error: the shape was no longer valid."
                     );
-
-                    for contact in detector.1.contacts_mut() {
-                        match &mut contact.kinematic.approx2_mut().feature {
-                            FeatureId::Vertex(i) => *i = face.indices[*i],
-                            FeatureId::Edge(i) => *i = face.edges[*i],
-                            FeatureId::Face(i) => {
-                                if *i == 0 {
-                                    *i = *key
-                                } else {
-                                    *i = *key + g1.faces().len()
-                                }
-                            }
-                            FeatureId::Unknown => {}
-                        }
-                    }
                 } else {
                     assert!(
-                        detector.0.update_to(
+                        detector.generate_contacts(
                             dispatcher,
-                            id1,
                             m1,
                             &tri,
-                            id2,
+                            Some(&remap_feature),
                             m2,
                             g2,
+                            fmap2,
                             prediction,
                             id_alloc,
-                            &mut detector.1
+                            manifold
                         ),
                         "Internal error: the shape was no longer valid."
                     );
-
-                    for contact in detector.1.contacts_mut() {
-                        match &mut contact.kinematic.approx1_mut().feature {
-                            FeatureId::Vertex(i) => *i = face.indices[*i],
-                            FeatureId::Edge(i) => *i = face.edges[*i],
-                            FeatureId::Face(i) => {
-                                if *i == 0 {
-                                    *i = *key
-                                } else {
-                                    *i = *key + g1.faces().len()
-                                }
-                            }
-                            FeatureId::Unknown => {}
-                        }
-                    }
                 }
 
                 true
@@ -156,26 +141,31 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N> for TriMeshShapeManifoldGenerator<N> {
-    fn update(
+    fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,
-        ida: usize,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        idb: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         mb: &Isometry<N>,
         b: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
     ) -> bool {
         if !self.flip {
             if let Some(trimesh) = a.as_shape::<TriMesh<N>>() {
-                self.do_update(d, ida, ma, trimesh, idb, mb, b, prediction, id_alloc, false);
+                self.do_update(
+                    d, ma, trimesh, fmap1, mb, b, fmap2, prediction, id_alloc, manifold,
+                );
                 return true;
             }
         } else {
             if let Some(trimesh) = b.as_shape::<TriMesh<N>>() {
-                self.do_update(d, idb, mb, trimesh, ida, ma, a, prediction, id_alloc, true);
+                self.do_update(
+                    d, mb, trimesh, fmap2, ma, a, fmap1, prediction, id_alloc, manifold,
+                );
                 return true;
             }
         }
@@ -183,35 +173,9 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshShapeManifoldGenerator<N> {
         return false;
     }
 
-    fn update_to(
-        &mut self,
-        d: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-        manifold: &mut ContactManifold<N>,
-    ) -> bool {
-        unimplemented!()
-    }
-
-    fn num_contacts(&self) -> usize {
-        let mut res = 0;
-
-        for detector in &self.sub_detectors {
-            res = res + (detector.1).1.len()
-        }
-
+    fn init_manifold(&self) -> ContactManifold<N> {
+        let mut res = ContactManifold::new();
+        res.set_tracking_mode(ContactTrackingMode::FeatureBased);
         res
-    }
-
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        for detector in &self.sub_detectors {
-            out.push(&(detector.1).1);
-        }
     }
 }

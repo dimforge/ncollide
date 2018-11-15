@@ -1,7 +1,7 @@
-use na::Real;
 use math::Isometry;
-use shape::Shape;
+use na::Real;
 use query::{Ray, RayCast, RayIntersection};
+use shape::Shape;
 
 impl<N: Real> RayCast<N> for Shape<N> {
     #[inline]

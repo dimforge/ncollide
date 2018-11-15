@@ -2,7 +2,7 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{PointProjection, PointQuery, visitors::CompositePointContainmentTest};
+use query::{visitors::CompositePointContainmentTest, PointProjection, PointQuery};
 use shape::{CompositeShape, Compound, FeatureId};
 use utils::IsometryOps;
 
@@ -63,7 +63,11 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisit
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
+            &Isometry::identity(),
+            self.point,
+            true,
+        ))
     }
 
     #[inline]
@@ -73,7 +77,10 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisit
         self.compound.map_part_at(*b, &mut |_, objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
-            res = BestFirstDataVisitStatus::ContinueWithResult(na::distance(self.point, &proj.point), proj);
+            res = BestFirstDataVisitStatus::ContinueWithResult(
+                na::distance(self.point, &proj.point),
+                proj,
+            );
         });
 
         res

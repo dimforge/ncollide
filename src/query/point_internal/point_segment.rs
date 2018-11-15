@@ -1,5 +1,5 @@
-use na::{self, Real};
 use math::{Isometry, Point};
+use na::{self, Real};
 use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use shape::{FeatureId, Segment, SegmentPointLocation};
 use utils::IsometryOps;
@@ -12,7 +12,11 @@ impl<N: Real> PointQuery<N> for Segment<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -27,7 +31,7 @@ impl<N: Real> PointQuery<N> for Segment<N> {
                         FeatureId::Face(1)
                     }
                 }
-                
+
                 #[cfg(feature = "dim3")]
                 {
                     FeatureId::Edge(0)

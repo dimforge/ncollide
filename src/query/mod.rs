@@ -5,26 +5,22 @@ pub use self::closest_points_internal::closest_points_internal as closest_points
 #[doc(inline)]
 pub use self::closest_points_internal::ClosestPoints;
 #[doc(inline)]
-pub use self::contacts_internal::{
-    Contact, ContactKinematic, ContactManifold, ContactPrediction, LocalShapeApproximation, NeighborhoodGeometry,
-    TrackedContact,
-};
-#[doc(inline)]
 pub use self::contacts_internal::contact_internal as contact;
+#[doc(inline)]
+pub use self::contacts_internal::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactTrackingMode,
+    LocalShapeApproximation, NeighborhoodGeometry, TrackedContact,
+};
 #[doc(inline)]
 pub use self::distance_internal::distance;
 #[doc(inline)]
-pub use self::point_internal::{
-    PointProjection, PointQuery, PointQueryWithLocation,
-};
-#[doc(inline)]
-pub use self::proximity_internal::Proximity;
+pub use self::point_internal::{PointProjection, PointQuery, PointQueryWithLocation};
 #[doc(inline)]
 pub use self::proximity_internal::proximity_internal as proximity;
 #[doc(inline)]
-pub use self::ray_internal::{
-    Ray, RayCast, RayIntersection,
-};
+pub use self::proximity_internal::Proximity;
+#[doc(inline)]
+pub use self::ray_internal::{Ray, RayCast, RayIntersection};
 #[doc(inline)]
 pub use self::time_of_impact_internal::time_of_impact;
 

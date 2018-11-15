@@ -1,4 +1,4 @@
-use bounding_volume::{self, AABB, BoundingVolume};
+use bounding_volume::{self, BoundingVolume, AABB};
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::broad_phase::{
@@ -6,14 +6,14 @@ use pipeline::broad_phase::{
 };
 use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use pipeline::narrow_phase::{
-    ContactAlgorithm, ContactManifolds, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
+    ContactAlgorithm, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
     DefaultProximityDispatcher, NarrowPhase, ProximityPairs,
 };
 use pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
-    CollisionObjects, CollisionObjectSlab, GeometricQueryType,
+    CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
-use query::{PointQuery, Ray, RayCast, RayIntersection};
+use query::{ContactManifold, PointQuery, Ray, RayCast, RayIntersection};
 use shape::ShapeHandle;
 use std::mem;
 use std::vec::IntoIter;
@@ -97,10 +97,12 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// 2. Executes the broad phase first.
     /// 3. Executes the narrow phase.
     pub fn update(&mut self) {
-        println!("Structures lens: {}, {}, {}",
-                 self.objects.len(),
-                 self.contact_events.len(),
-                 self.proximity_events.len());
+        println!(
+            "Structures lens: {}, {}, {}",
+            self.objects.len(),
+            self.contact_events.len(),
+            self.proximity_events.len()
+        );
         self.clear_events();
         self.perform_broad_phase();
         self.perform_narrow_phase();
@@ -163,7 +165,12 @@ impl<N: Real, T> CollisionWorld<N, T> {
     }
 
     /// Apply the given deformations to the specified object.
-    pub fn set_deformations(&mut self, handle: CollisionObjectHandle, coords: &[N], indices: Option<&[usize]>) {
+    pub fn set_deformations(
+        &mut self,
+        handle: CollisionObjectHandle,
+        coords: &[N],
+        indices: Option<&[usize]>,
+    ) {
         let co = self
             .objects
             .get_mut(handle)
@@ -183,8 +190,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-        where
-            F: BroadPhasePairFilter<N, T>,
+    where
+        F: BroadPhasePairFilter<N, T>,
     {
         self.pair_filters
             .register_collision_filter(name, Box::new(filter));
@@ -247,7 +254,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<&ContactAlgorithm<N>> {
+    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)> {
         self.narrow_phase.contact_pair(handle1, handle2)
     }
 
@@ -261,14 +268,6 @@ impl<N: Real, T> CollisionWorld<N, T> {
     #[inline]
     pub fn proximity_pairs(&self) -> ProximityPairs<N, T> {
         self.narrow_phase.proximity_pairs(&self.objects)
-    }
-
-    /// Iterates through every contact detected since the last update.
-    #[inline]
-    pub fn contact_manifolds(&self) -> ContactManifolds<N, T> {
-        self.narrow_phase
-            .contact_pairs(&self.objects)
-            .contact_manifolds()
     }
 
     /// Iterates through all collision objects.
@@ -438,9 +437,9 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 
             if co.collision_groups().can_interact_with_groups(self.groups)
                 && co.shape().contains_point(&co.position(), self.point)
-                {
-                    return Some(co);
-                }
+            {
+                return Some(co);
+            }
         }
 
         None

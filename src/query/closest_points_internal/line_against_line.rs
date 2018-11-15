@@ -1,7 +1,6 @@
 use math::{Point, Vector};
 use na::{self, Real};
 
-
 /// Closest points between two segments.
 ///
 /// The result, say `res`, is such that the closest points between both lines are

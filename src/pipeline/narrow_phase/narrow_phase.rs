@@ -51,7 +51,7 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<&ContactAlgorithm<N>>;
+    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)>;
 
     // FIXME: the fact that the return type is imposed is not as generic as it could be.
     /// Returns all the potential contact pairs found during the broad phase, and validated by the
@@ -72,7 +72,11 @@ pub trait NarrowPhase<N: Real, T>: Any + Send + Sync {
 /// Iterator through contact pairs.
 pub struct ContactPairs<'a, N: Real + 'a, T: 'a> {
     objects: &'a CollisionObjectSlab<N, T>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
+    pairs: Iter<
+        'a,
+        SortedPair<CollisionObjectHandle>,
+        (Box<ContactManifoldGenerator<N>>, ContactManifold<N>),
+    >,
 }
 
 impl<'a, N: 'a + Real, T: 'a> ContactPairs<'a, N, T> {
@@ -80,25 +84,13 @@ impl<'a, N: 'a + Real, T: 'a> ContactPairs<'a, N, T> {
     #[inline]
     pub fn new(
         objects: &'a CollisionObjectSlab<N, T>,
-        pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
+        pairs: Iter<
+            'a,
+            SortedPair<CollisionObjectHandle>,
+            (Box<ContactManifoldGenerator<N>>, ContactManifold<N>),
+        >,
     ) -> ContactPairs<'a, N, T> {
-        ContactPairs {
-            objects: objects,
-            pairs: pairs,
-        }
-    }
-
-    /// Transforms contact-pairs iterator to an iterator through each individual contact manifold.
-    #[inline]
-    pub fn contact_manifolds(self) -> ContactManifolds<'a, N, T> {
-        ContactManifolds {
-            objects: self.objects,
-            co1: None,
-            co2: None,
-            pairs: self.pairs,
-            collector: Vec::new(), // FIXME: avoid allocations.
-            curr_contact: 0,
-        }
+        ContactPairs { objects, pairs }
     }
 }
 
@@ -107,6 +99,7 @@ impl<'a, N: Real, T> Iterator for ContactPairs<'a, N, T> {
         &'a CollisionObject<N, T>,
         &'a CollisionObject<N, T>,
         &'a ContactAlgorithm<N>,
+        &'a ContactManifold<N>,
     );
 
     #[inline]
@@ -116,61 +109,9 @@ impl<'a, N: Real, T> Iterator for ContactPairs<'a, N, T> {
                 let co1 = &self.objects[key.0];
                 let co2 = &self.objects[key.1];
 
-                Some((&co1, &co2, value))
+                Some((&co1, &co2, &value.0, &value.1))
             }
             None => None,
-        }
-    }
-}
-
-/// An iterator through contact manifolds.
-pub struct ContactManifolds<'a, N: 'a + Real, T: 'a> {
-    objects: &'a CollisionObjectSlab<N, T>,
-    co1: Option<&'a CollisionObject<N, T>>,
-    co2: Option<&'a CollisionObject<N, T>>,
-    pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ContactManifoldGenerator<N>>>,
-    collector: Vec<&'a ContactManifold<N>>,
-    curr_contact: usize,
-}
-
-impl<'a, N: Real, T> Iterator for ContactManifolds<'a, N, T> {
-    type Item = (
-        &'a CollisionObject<N, T>,
-        &'a CollisionObject<N, T>,
-        &'a ContactManifold<N>,
-    );
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        // FIXME: is there a more efficient way to do this (i-e. avoid using an index)?
-        if self.curr_contact < self.collector.len() {
-            self.curr_contact = self.curr_contact + 1;
-
-            // FIXME: would be nice to avoid the `clone` and return a reference
-            // instead (but what would be its lifetime?).
-            Some((
-                self.co1.unwrap(),
-                self.co2.unwrap(),
-                self.collector[self.curr_contact - 1],
-            ))
-        } else {
-            self.collector.clear();
-
-            while let Some((key, value)) = self.pairs.next() {
-                value.contacts(&mut self.collector);
-
-                if !self.collector.is_empty() {
-                    self.co1 = Some(&self.objects[key.0]);
-                    self.co2 = Some(&self.objects[key.1]);
-                    self.curr_contact = 1; // Start at 1 instead of 0 because we will return the first one here.
-
-                    // FIXME: would be nice to avoid the `clone` and return a reference
-                    // instead (but what would be its lifetime?).
-                    return Some((self.co1.unwrap(), self.co2.unwrap(), self.collector[0]));
-                }
-            }
-
-            None
         }
     }
 }

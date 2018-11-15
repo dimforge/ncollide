@@ -204,8 +204,10 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         c: Contact<N>,
         m1: &Isometry<N>,
         f1: FeatureId,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         f2: FeatureId,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) {
@@ -215,13 +217,15 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
         match f1 {
             FeatureId::Face(..) => kinematic.set_approx1(
-                f1,
+                f1.apply(fmap1),
                 local1,
                 NeighborhoodGeometry::Plane(
                     m1.inverse_transform_unit_vector(&self.normal.as_ref().unwrap()),
                 ),
             ),
-            FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point),
+            FeatureId::Vertex(..) => {
+                kinematic.set_approx1(f1.apply(fmap1), local1, NeighborhoodGeometry::Point)
+            }
             FeatureId::Unknown => return,
         }
 
@@ -230,9 +234,11 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 let approx2 = NeighborhoodGeometry::Plane(
                     m2.inverse_transform_unit_vector(other.normal.as_ref().unwrap()),
                 );
-                kinematic.set_approx2(f2, local2, approx2)
+                kinematic.set_approx2(f2.apply(fmap2), local2, approx2)
             }
-            FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point),
+            FeatureId::Vertex(..) => {
+                kinematic.set_approx2(f2.apply(fmap2), local2, NeighborhoodGeometry::Point)
+            }
             FeatureId::Unknown => return,
         }
 

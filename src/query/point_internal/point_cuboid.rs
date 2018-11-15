@@ -1,8 +1,8 @@
-use na::Real;
 use bounding_volume::AABB;
-use shape::{Cuboid, FeatureId};
-use query::{PointProjection, PointQuery};
 use math::{Isometry, Point};
+use na::Real;
+use query::{PointProjection, PointQuery};
+use shape::{Cuboid, FeatureId};
 
 impl<N: Real> PointQuery<N> for Cuboid<N> {
     #[inline]
@@ -13,7 +13,11 @@ impl<N: Real> PointQuery<N> for Cuboid<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let dl = Point::origin() + (-*self.half_extents());
         let ur = Point::origin() + *self.half_extents();
         AABB::new(dl, ur).project_point_with_feature(m, pt)

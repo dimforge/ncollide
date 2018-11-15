@@ -13,9 +13,9 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     g2: &Shape<N>,
     margin: N,
 ) -> ClosestPoints<N>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstShapeClosestPointsVisitor::new(m1, g1, m2, g2, margin);
 
@@ -32,9 +32,9 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     g2: &G2,
     margin: N,
 ) -> ClosestPoints<N>
-    where
-        N: Real,
-        G2: CompositeShape<N>,
+where
+    N: Real,
+    G2: CompositeShape<N>,
 {
     let mut res = composite_shape_against_shape(m2, g2, m1, g1, margin);
     res.flip();
@@ -53,9 +53,9 @@ struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + Real, G1: ?Siz
 }
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a Isometry<N>,
@@ -80,10 +80,10 @@ impl<'a, N, G1: ?Sized> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1
 }
 
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+    for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     type Result = ClosestPoints<N>;
 
@@ -95,7 +95,11 @@ for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
         );
 
         // Compute the distance to the origin.
-        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(&Isometry::identity(), &Point::origin(), true))
+        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(
+            &Isometry::identity(),
+            &Point::origin(),
+            true,
+        ))
     }
 
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, ClosestPoints<N>> {
@@ -105,14 +109,13 @@ for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
             .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
                 let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
                 res = match pts {
-                    ClosestPoints::WithinMargin(ref p1, ref p2) =>
-                        BestFirstDataVisitStatus::ContinueWithResult(na::distance(p1, p2), pts),
+                    ClosestPoints::WithinMargin(ref p1, ref p2) => {
+                        BestFirstDataVisitStatus::ContinueWithResult(na::distance(p1, p2), pts)
+                    }
                     ClosestPoints::Intersecting => {
                         BestFirstDataVisitStatus::ExitEarlyWithResult(pts)
                     }
-                    ClosestPoints::Disjoint => {
-                        BestFirstDataVisitStatus::Continue
-                    }
+                    ClosestPoints::Disjoint => BestFirstDataVisitStatus::Continue,
                 };
             });
 

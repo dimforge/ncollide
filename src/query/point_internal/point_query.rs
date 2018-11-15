@@ -1,6 +1,6 @@
+use math::{Isometry, Point};
 use na::{self, Real};
 use shape::FeatureId;
-use math::{Point, Isometry};
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
@@ -43,7 +43,11 @@ pub trait PointQuery<N: Real> {
     /// Projects a point on the boundary of `self` transformed by `m` and retuns the id of the
     /// feature the point was projected on.
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId);
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId);
 
     /// Tests if the given point is inside of `self` transformed by `m`.
     #[inline]

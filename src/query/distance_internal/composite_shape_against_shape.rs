@@ -13,9 +13,9 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
 ) -> N
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     let ls_m2 = na::inverse(m1) * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2);
@@ -41,9 +41,9 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
 ) -> N
-    where
-        N: Real,
-        G2: CompositeShape<N>,
+where
+    N: Real,
+    G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1)
 }
@@ -59,10 +59,10 @@ struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + Real, G1: ?Sized + 'a
 }
 
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-for CompositeShapeAgainstAnyDistanceVisitor<'a, N, G1>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+    for CompositeShapeAgainstAnyDistanceVisitor<'a, N, G1>
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     type Result = N;
 
@@ -74,7 +74,11 @@ for CompositeShapeAgainstAnyDistanceVisitor<'a, N, G1>
         );
 
         // Compute the distance to the origin.
-        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(&Isometry::identity(), &Point::origin(), true))
+        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(
+            &Isometry::identity(),
+            &Point::origin(),
+            true,
+        ))
     }
 
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {

@@ -2,7 +2,9 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::CompositePointContainmentTest};
+use query::{
+    visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
+};
 use shape::{FeatureId, Polyline, SegmentPointLocation};
 use utils::IsometryOps;
 
@@ -75,7 +77,11 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisit
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
+            &Isometry::identity(),
+            self.point,
+            true,
+        ))
     }
 
     #[inline]
@@ -87,6 +93,9 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisit
         );
 
         let extra_info = (*b, extra_info);
-        BestFirstDataVisitStatus::ContinueWithResult(na::distance(self.point, &proj.point), (proj, extra_info))
+        BestFirstDataVisitStatus::ContinueWithResult(
+            na::distance(self.point, &proj.point),
+            (proj, extra_info),
+        )
     }
 }

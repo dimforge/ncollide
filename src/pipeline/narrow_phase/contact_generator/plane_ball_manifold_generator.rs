@@ -82,20 +82,20 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
 
 impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
     #[inline]
-    fn update(
+    fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        id2: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
     ) -> bool {
-        self.manifold.save_cache_and_clear(id_alloc);
-
+        /*
         if !self.flip {
             Self::do_update_to(
                 m1,
@@ -118,37 +118,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
                 &mut self.manifold,
                 true,
             )
-        }
-    }
-
-    #[inline]
-    fn update_to(
-        &mut self,
-        _: &ContactDispatcher<N>,
-        id1: usize,
-        m1: &Isometry<N>,
-        g1: &Shape<N>,
-        id2: usize,
-        m2: &Isometry<N>,
-        g2: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-        manifold: &mut ContactManifold<N>,
-    ) -> bool {
-        if !self.flip {
-            Self::do_update_to(m1, g1, m2, g2, prediction, id_alloc, manifold, false)
-        } else {
-            Self::do_update_to(m2, g2, m1, g1, prediction, id_alloc, manifold, true)
-        }
-    }
-
-    #[inline]
-    fn num_contacts(&self) -> usize {
-        self.manifold.len()
-    }
-
-    #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        out.push(&self.manifold)
+        }*/
+        unimplemented!()
     }
 }

@@ -1,6 +1,6 @@
 use math::{Isometry, Point};
 use na::Real;
-use partitioning::{Visitor, VisitStatus};
+use partitioning::{VisitStatus, Visitor};
 use query::PointQuery;
 
 // FIXME: add a point cost fn.
@@ -16,7 +16,10 @@ pub struct PointInterferencesCollector<'a, N: 'a + Real, T: 'a> {
 impl<'a, N: Real, T> PointInterferencesCollector<'a, N, T> {
     /// Creates a new `PointInterferencesCollector`.
     #[inline]
-    pub fn new(point: &'a Point<N>, buffer: &'a mut Vec<T>) -> PointInterferencesCollector<'a, N, T> {
+    pub fn new(
+        point: &'a Point<N>,
+        buffer: &'a mut Vec<T>,
+    ) -> PointInterferencesCollector<'a, N, T> {
         PointInterferencesCollector {
             point: point,
             collector: buffer,
@@ -25,10 +28,10 @@ impl<'a, N: Real, T> PointInterferencesCollector<'a, N, T> {
 }
 
 impl<'a, N, T, BV> Visitor<T, BV> for PointInterferencesCollector<'a, N, T>
-    where
-        N: Real,
-        T: Clone,
-        BV: PointQuery<N>,
+where
+    N: Real,
+    T: Clone,
+    BV: PointQuery<N>,
 {
     #[inline]
     fn visit(&mut self, bv: &BV, t: Option<&T>) -> VisitStatus {

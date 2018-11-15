@@ -4,21 +4,14 @@ use na::{Real, Unit};
 use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use shape::{Ball, FeatureId, Shape};
+use std::marker::PhantomData;
 use utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between two balls.
+#[derive(Clone)]
 pub struct BallConvexPolyhedronManifoldGenerator<N: Real> {
+    phantom: PhantomData<N>,
     flip: bool,
-    contact_manifold: ContactManifold<N>,
-}
-
-impl<N: Real> Clone for BallConvexPolyhedronManifoldGenerator<N> {
-    fn clone(&self) -> BallConvexPolyhedronManifoldGenerator<N> {
-        BallConvexPolyhedronManifoldGenerator {
-            flip: self.flip,
-            contact_manifold: self.contact_manifold.clone(),
-        }
-    }
 }
 
 impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
@@ -26,20 +19,22 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
     #[inline]
     pub fn new(flip: bool) -> BallConvexPolyhedronManifoldGenerator<N> {
         BallConvexPolyhedronManifoldGenerator {
+            phantom: PhantomData,
             flip,
-            contact_manifold: ContactManifold::new(),
         }
     }
 
-    fn do_update_to(
+    fn do_generate(
+        &mut self,
         m1: &Isometry<N>,
         a: &Shape<N>,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         b: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-        flip: bool,
     ) -> bool {
         if let (Some(ball), Some(pq2), Some(cp2)) = (
             a.as_shape::<Ball<N>>(),
@@ -70,13 +65,21 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
 
                     let contact;
 
-                    if !flip {
+                    if !self.flip {
                         contact = Contact::new(world1, world2, normal, depth);
-                        kinematic.set_approx1(f1, Point::origin(), NeighborhoodGeometry::Point);
+                        kinematic.set_approx1(
+                            f1.apply(fmap1),
+                            Point::origin(),
+                            NeighborhoodGeometry::Point,
+                        );
                         kinematic.set_dilation1(ball.radius());
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
-                        kinematic.set_approx2(f1, Point::origin(), NeighborhoodGeometry::Point);
+                        kinematic.set_approx2(
+                            f1.apply(fmap1),
+                            Point::origin(),
+                            NeighborhoodGeometry::Point,
+                        );
                         kinematic.set_dilation2(ball.radius());
                     }
 
@@ -101,10 +104,10 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                         FeatureId::Unknown => panic!("Feature id cannot be unknown."),
                     }
 
-                    if !flip {
-                        kinematic.set_approx2(f2, local2, geom2)
+                    if !self.flip {
+                        kinematic.set_approx2(f2.apply(fmap2), local2, geom2)
                     } else {
-                        kinematic.set_approx1(f2, local2, geom2)
+                        kinematic.set_approx1(f2.apply(fmap2), local2, geom2)
                     }
 
                     let _ = manifold.push(contact, Point::origin(), kinematic, id_alloc);
@@ -121,74 +124,23 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenerator<N> {
-    fn update(
+    fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         a: &Shape<N>,
-        id2: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-    ) -> bool {
-        self.contact_manifold.save_cache_and_clear(id_alloc);
-
-        if !self.flip {
-            Self::do_update_to(
-                m1,
-                a,
-                m2,
-                b,
-                prediction,
-                id_alloc,
-                &mut self.contact_manifold,
-                false,
-            )
-        } else {
-            Self::do_update_to(
-                m2,
-                b,
-                m1,
-                a,
-                prediction,
-                id_alloc,
-                &mut self.contact_manifold,
-                true,
-            )
-        }
-    }
-
-    fn update_to(
-        &mut self,
-        _: &ContactDispatcher<N>,
-        id1: usize,
-        m1: &Isometry<N>,
-        a: &Shape<N>,
-        id2: usize,
-        m2: &Isometry<N>,
-        b: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool {
         if !self.flip {
-            Self::do_update_to(m1, a, m2, b, prediction, id_alloc, manifold, false)
+            self.do_generate(m1, a, fmap1, m2, b, fmap2, prediction, id_alloc, manifold)
         } else {
-            Self::do_update_to(m2, b, m1, a, prediction, id_alloc, manifold, true)
-        }
-    }
-
-    #[inline]
-    fn num_contacts(&self) -> usize {
-        self.contact_manifold.len()
-    }
-
-    #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        if self.contact_manifold.len() != 0 {
-            out.push(&self.contact_manifold)
+            self.do_generate(m2, b, fmap2, m1, a, fmap1, prediction, id_alloc, manifold)
         }
     }
 }

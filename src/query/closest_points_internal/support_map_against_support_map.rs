@@ -1,8 +1,8 @@
 use math::{Isometry, Vector};
 use na::{Real, Unit};
-use query::ClosestPoints;
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
 use query::algorithms::VoronoiSimplex;
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
+use query::ClosestPoints;
 use shape::SupportMap;
 
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)

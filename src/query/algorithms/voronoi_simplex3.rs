@@ -1,9 +1,11 @@
 use math::{Isometry, Point};
 use na::{self, Real};
+use query::algorithms::{gjk, CSOPoint};
 use query::{PointQuery, PointQueryWithLocation};
-use query::algorithms::{CSOPoint, gjk};
-use shape::{Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
-            TrianglePointLocation};
+use shape::{
+    Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
+    TrianglePointLocation,
+};
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]
@@ -106,7 +108,7 @@ impl<N: Real> VoronoiSimplex<N> {
     }
 
     /// Projets the origin on the boundary of this simplex and reduces `self` the smallest subsimplex containing the origin.
-    /// 
+    ///
     /// Retruns the result of the projection or Point::origin() if the origin lies inside of the simplex.
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.
@@ -135,7 +137,7 @@ impl<N: Real> VoronoiSimplex<N> {
                     self.proj[0] = coords[0];
                     self.proj[1] = coords[1];
                 }
-                _ => unreachable!()
+                _ => unreachable!(),
             }
 
             proj.point

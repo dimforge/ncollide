@@ -1,8 +1,8 @@
+use math::{Isometry, Point};
 use na::{self, Real};
-use utils::IsometryOps;
 use query::{PointProjection, PointQuery};
 use shape::{FeatureId, Plane};
-use math::{Isometry, Point};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Plane<N> {
     #[inline]
@@ -20,7 +20,11 @@ impl<N: Real> PointQuery<N> for Plane<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 

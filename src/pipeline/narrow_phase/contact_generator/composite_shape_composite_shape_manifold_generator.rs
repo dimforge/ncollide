@@ -3,7 +3,7 @@ use math::Isometry;
 use na::Real;
 use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction};
-use shape::{CompositeShape, Shape};
+use shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
 use utils::IdAllocator;
@@ -28,14 +28,15 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        id2: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         m2: &Isometry<N>,
         g2: &CompositeShape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
     ) {
         // Find new collisions
         let ls_m2 = m1.inverse() * m2;
@@ -82,17 +83,11 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
             if ls_aabb2.intersects(&aabb1) {
                 g1.map_transformed_part_at(key.0, m1, &mut |sub_id1, m1, g1| {
                     g2.map_transformed_part_at(key.1, m2, &mut |sub_id2, m2, g2| {
+                        // FIXME: change the update functions.
                         assert!(
-                            detector.update(
-                                dispatcher,
-                                id1 + sub_id1,
-                                m1,
-                                g1,
-                                id2 + sub_id2,
-                                m2,
-                                g2,
-                                prediction,
-                                id_alloc,
+                            detector.generate_contacts(
+                                dispatcher, m1, g1, fmap1, m2, g2, fmap2, prediction, id_alloc,
+                                manifold
                             ),
                             "Internal error: the shape was no longer valid."
                         );
@@ -109,55 +104,26 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
 }
 
 impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifoldGenerator<N> {
-    fn update(
+    fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,
-        ida: usize,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        idb: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-    ) -> bool {
-        if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
-            self.do_update(d, ida, ma, csa, idb, mb, csb, prediction, id_alloc);
-            true
-        } else {
-            false
-        }
-    }
-
-    fn update_to(
-        &mut self,
-        d: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool {
-        unimplemented!()
-    }
-
-    fn num_contacts(&self) -> usize {
-        let mut res = 0;
-
-        for detector in &self.sub_detectors {
-            res = res + detector.1.num_contacts()
-        }
-
-        res
-    }
-
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        for detector in &self.sub_detectors {
-            detector.1.contacts(out);
+        if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
+            self.do_update(
+                d, ma, csa, fmap1, mb, csb, fmap2, prediction, id_alloc, manifold,
+            );
+            true
+        } else {
+            false
         }
     }
 }

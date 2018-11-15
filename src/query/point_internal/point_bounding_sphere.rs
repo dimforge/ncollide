@@ -1,9 +1,9 @@
-use na::Real;
-use utils::IsometryOps;
-use query::{PointProjection, PointQuery};
-use shape::{Ball, FeatureId};
 use bounding_volume::BoundingSphere;
 use math::{Isometry, Point};
+use na::Real;
+use query::{PointProjection, PointQuery};
+use shape::{Ball, FeatureId};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for BoundingSphere<N> {
     #[inline]
@@ -17,7 +17,11 @@ impl<N: Real> PointQuery<N> for BoundingSphere<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 

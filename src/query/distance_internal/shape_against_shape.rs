@@ -1,16 +1,18 @@
-use na::Real;
 use math::{Isometry, Point};
-use shape::{Ball, Plane, Shape};
+use na::Real;
 use query::distance_internal;
+use shape::{Ball, Plane, Shape};
 
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<N: Real>(m1: &Isometry<N>, g1: &Shape<N>, m2: &Isometry<N>, g2: &Shape<N>) -> N {
-    if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<N>>(),
-        g2.as_shape::<Ball<N>>(),
-    ) {
+pub fn shape_against_shape<N: Real>(
+    m1: &Isometry<N>,
+    g1: &Shape<N>,
+    m2: &Isometry<N>,
+    g2: &Shape<N>,
+) -> N {
+    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
         let p1 = Point::from_coordinates(m1.translation.vector);
         let p2 = Point::from_coordinates(m2.translation.vector);
 

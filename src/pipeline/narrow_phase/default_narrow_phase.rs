@@ -5,7 +5,7 @@ use pipeline::narrow_phase::{
     ProximityDispatcher, ProximityPairs,
 };
 use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
-use query::Proximity;
+use query::{ContactManifold, Proximity};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use utils::IdAllocator;
@@ -13,18 +13,21 @@ use utils::{DeterministicState, SortedPair};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
-pub struct DefaultNarrowPhase<N> {
+pub struct DefaultNarrowPhase<N: Real> {
     id_alloc: IdAllocator,
     contact_dispatcher: Box<ContactDispatcher<N>>,
-    contact_generators:
-        HashMap<SortedPair<CollisionObjectHandle>, ContactAlgorithm<N>, DeterministicState>,
+    contact_generators: HashMap<
+        SortedPair<CollisionObjectHandle>,
+        (ContactAlgorithm<N>, ContactManifold<N>),
+        DeterministicState,
+    >,
 
     proximity_dispatcher: Box<ProximityDispatcher<N>>,
     proximity_detectors:
         HashMap<SortedPair<CollisionObjectHandle>, ProximityAlgorithm<N>, DeterministicState>,
 }
 
-impl<N: 'static> DefaultNarrowPhase<N> {
+impl<N: Real> DefaultNarrowPhase<N> {
     /// Creates a new `DefaultNarrowPhase`.
     pub fn new(
         contact_dispatcher: Box<ContactDispatcher<N>>,
@@ -54,28 +57,30 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
             let co2 = &objects[key.1];
 
             if co1.timestamp == timestamp || co2.timestamp == timestamp {
-                let had_contacts = value.num_contacts() != 0;
+                let had_contacts = value.1.len() != 0;
 
                 if let Some(prediction) = co1
                     .query_type()
                     .contact_queries_to_prediction(co2.query_type())
                 {
-                    let _ = value.update(
+                    value.1.save_cache_and_clear(&mut self.id_alloc);
+                    let _ = value.0.generate_contacts(
                         &*self.contact_dispatcher,
-                        0,
                         &co1.position(),
                         co1.shape().as_ref(),
-                        0,
+                        None,
                         &co2.position(),
                         co2.shape().as_ref(),
+                        None,
                         &prediction,
                         &mut self.id_alloc,
+                        &mut value.1,
                     );
                 } else {
                     panic!("Unable to compute contact between collision objects with query types different from `GeometricQueryType::Contacts(..)`.")
                 }
 
-                if value.num_contacts() == 0 {
+                if value.1.len() == 0 {
                     if had_contacts {
                         contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
                     }
@@ -139,14 +144,15 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
                         if let Some(detector) = dispatcher
                             .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
                         {
-                            let _ = entry.insert(detector);
+                            let manifold = detector.init_manifold();
+                            let _ = entry.insert((detector, manifold));
                         }
                     }
                 } else {
                     // Proximity stopped.
                     if let Some(detector) = self.contact_generators.remove(&key) {
                         // Register a collision lost event if there was a contact.
-                        if detector.num_contacts() != 0 {
+                        if detector.1.len() != 0 {
                             contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
                         }
                     }
@@ -199,9 +205,11 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<&ContactAlgorithm<N>> {
+    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)> {
         let key = SortedPair::new(handle1, handle2);
-        self.contact_generators.get(&key)
+        self.contact_generators
+            .get(&key)
+            .map(|val| (&val.0, &val.1))
     }
 
     fn contact_pairs<'a>(

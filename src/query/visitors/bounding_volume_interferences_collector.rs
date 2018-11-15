@@ -1,8 +1,7 @@
 use bounding_volume::BoundingVolume;
 use na::Real;
-use partitioning::{Visitor, VisitStatus};
+use partitioning::{VisitStatus, Visitor};
 use std::marker::PhantomData;
-
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
 pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, T: 'a, BV: 'a> {
@@ -14,9 +13,9 @@ pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, T: 'a, BV: 'a> {
 }
 
 impl<'a, N, T, BV> BoundingVolumeInterferencesCollector<'a, N, T, BV>
-    where
-        N: Real,
-        BV: BoundingVolume<N>,
+where
+    N: Real,
+    BV: BoundingVolume<N>,
 {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
     #[inline]
@@ -33,10 +32,10 @@ impl<'a, N, T, BV> BoundingVolumeInterferencesCollector<'a, N, T, BV>
 }
 
 impl<'a, N, T, BV> Visitor<T, BV> for BoundingVolumeInterferencesCollector<'a, N, T, BV>
-    where
-        N: Real,
-        T: Clone,
-        BV: BoundingVolume<N>,
+where
+    N: Real,
+    T: Clone,
+    BV: BoundingVolume<N>,
 {
     #[inline]
     fn visit(&mut self, bv: &BV, t: Option<&T>) -> VisitStatus {

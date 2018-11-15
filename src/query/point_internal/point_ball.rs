@@ -1,10 +1,10 @@
 use alga::general::Real;
 use na;
 
-use utils::IsometryOps;
+use math::{Isometry, Point};
 use query::{PointProjection, PointQuery};
 use shape::{Ball, FeatureId};
-use math::{Isometry, Point};
+use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Ball<N> {
     #[inline]
@@ -24,7 +24,11 @@ impl<N: Real> PointQuery<N> for Ball<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 
@@ -41,7 +45,6 @@ impl<N: Real> PointQuery<N> for Ball<N> {
 
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
-        na::norm_squared(&m.inverse_transform_point(pt).coords)
-            <= self.radius() * self.radius()
+        na::norm_squared(&m.inverse_transform_point(pt).coords) <= self.radius() * self.radius()
     }
 }

@@ -33,12 +33,10 @@ impl<N: Real> RayCast<N> for Compound<N> {
             solid: solid,
         };
 
-        self.bvt()
-            .best_first_search(&mut visitor)
-            .map(|mut res| {
-                res.normal = m * res.normal;
-                res
-            })
+        self.bvt().best_first_search(&mut visitor).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
     }
 
     // XXX: We have to implement toi_and_normal_and_uv_with_ray! Otherwise, no uv will be computed
@@ -61,17 +59,16 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
         let elt = &self.compound.shapes()[*b];
-        match elt.1
-            .toi_with_ray(&elt.0, self.ray, self.solid) {
+        match elt.1.toi_with_ray(&elt.0, self.ray, self.solid) {
             Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }
@@ -82,25 +79,23 @@ struct CompoundRayToiAndNormalVisitor<'a, N: 'a + Real> {
     solid: bool,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>>
-for CompoundRayToiAndNormalVisitor<'a, N> {
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiAndNormalVisitor<'a, N> {
     type Result = RayIntersection<N>;
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
         let elt = &self.compound.shapes()[*b];
-        match elt.1
-            .toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
+        match elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
             Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }

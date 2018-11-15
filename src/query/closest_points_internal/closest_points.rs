@@ -1,6 +1,6 @@
-use std::mem;
-use na::Real;
 use math::Point;
+use na::Real;
+use std::mem;
 
 /// Closest points information.
 #[derive(Debug, PartialEq, Clone, Copy)]

@@ -2,7 +2,7 @@ use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{Ray, RayCast, time_of_impact_internal};
+use query::{time_of_impact_internal, Ray, RayCast};
 use shape::{CompositeShape, Shape};
 use utils::IsometryOps;
 
@@ -15,9 +15,9 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     vel2: &Vector<N>,
     g2: &Shape<N>,
 ) -> Option<N>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
 
@@ -33,9 +33,9 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     vel2: &Vector<N>,
     g2: &G2,
 ) -> Option<N>
-    where
-        N: Real,
-        G2: CompositeShape<N>,
+where
+    N: Real,
+    G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
 }
@@ -54,9 +54,9 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
 }
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a Isometry<N>,
@@ -87,10 +87,10 @@ impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 }
 
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
-    where
-        N: Real,
-        G1: CompositeShape<N>,
+    for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+where
+    N: Real,
+    G1: CompositeShape<N>,
 {
     type Result = N;
 
@@ -105,7 +105,7 @@ for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
         // Compute the TOI.
         match msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 

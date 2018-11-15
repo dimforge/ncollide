@@ -84,7 +84,7 @@ impl<N: Real> VoronoiSimplex<N> {
     }
 
     /// Projets the origin on the boundary of this simplex and reduces `self` the smallest subsimplex containing the origin.
-    /// 
+    ///
     /// Retruns the result of the projection or Point::origin() if the origin lies inside of the simplex.
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.

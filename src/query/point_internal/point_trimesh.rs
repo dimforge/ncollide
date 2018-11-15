@@ -2,8 +2,10 @@ use bounding_volume::AABB;
 use math::{Isometry, Point};
 use na::{self, Real};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{PointProjection, PointQuery, PointQueryWithLocation, visitors::CompositePointContainmentTest};
-use shape::{CompositeShape, FeatureId, TrianglePointLocation, TriMesh};
+use query::{
+    visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
+};
+use shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
 use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
@@ -75,7 +77,11 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisito
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
+            &Isometry::identity(),
+            self.point,
+            true,
+        ))
     }
 
     #[inline]
@@ -87,6 +93,9 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisito
         );
 
         let extra_info = (*b, extra_info);
-        BestFirstDataVisitStatus::ContinueWithResult(na::distance(self.point, &proj.point), (proj, extra_info))
+        BestFirstDataVisitStatus::ContinueWithResult(
+            na::distance(self.point, &proj.point),
+            (proj, extra_info),
+        )
     }
 }

@@ -5,13 +5,14 @@ use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifol
 use query::closest_points_internal;
 use query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
-    ContactPrediction, NeighborhoodGeometry,
+    ContactPrediction, ContactTrackingMode, NeighborhoodGeometry,
 };
 use shape::{
     ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
     SegmentPointLocation, Shape, TriMesh, Triangle,
 };
 use std::collections::{hash_map::Entry, HashMap};
+use std::mem;
 use utils::DeterministicState;
 use utils::IdAllocator;
 
@@ -41,6 +42,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 
 impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     fn compute_faces_closest_points(
+        &mut self,
         m12: &Isometry<N>,
         m21: &Isometry<N>,
         m1: &Isometry<N>,
@@ -50,12 +52,8 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
         mesh2: &TriMesh<N>,
         i2: usize,
         prediction: &ContactPrediction<N>,
-        clip_cache: &mut ClippingCache<N>,
-        new_contacts: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-        convex_feature1: &mut ConvexPolygonalFeature<N>,
-        convex_feature2: &mut ConvexPolygonalFeature<N>,
-        manifold: &mut ContactManifold<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
     ) {
         let face1 = &mesh1.faces()[i1];
         let face2 = &mesh2.faces()[i2];
@@ -213,15 +211,15 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                     (face1.side_normals.as_ref(), face2.side_normals.as_ref())
                 {
                     for i in 0..3 {
-                        convex_feature1.vertices[i] = m1 * t1.vertices()[i];
-                        convex_feature1.edge_normals[i] = m1 * *side_normals1[i];
-                        convex_feature1.vertices_id[i] = FeatureId::Vertex(face1.indices[i]);
-                        convex_feature1.edges_id[i] = FeatureId::Edge(face1.edges[i]);
+                        self.convex_feature1.vertices[i] = m1 * t1.vertices()[i];
+                        self.convex_feature1.edge_normals[i] = m1 * *side_normals1[i];
+                        self.convex_feature1.vertices_id[i] = FeatureId::Vertex(face1.indices[i]);
+                        self.convex_feature1.edges_id[i] = FeatureId::Edge(face1.edges[i]);
 
-                        convex_feature2.vertices[i] = m1 * t2.vertices()[i]; // m1 because t1 is in the local-space of the first geometry.
-                        convex_feature2.edge_normals[i] = m2 * *side_normals2[i];
-                        convex_feature2.vertices_id[i] = FeatureId::Vertex(face2.indices[i]);
-                        convex_feature2.edges_id[i] = FeatureId::Edge(face2.edges[i]);
+                        self.convex_feature2.vertices[i] = m1 * t2.vertices()[i]; // m1 because t1 is in the local-space of the first geometry.
+                        self.convex_feature2.edge_normals[i] = m2 * *side_normals2[i];
+                        self.convex_feature2.vertices_id[i] = FeatureId::Vertex(face2.indices[i]);
+                        self.convex_feature2.edges_id[i] = FeatureId::Edge(face2.edges[i]);
                     }
 
                     let normal = if !penetration_depth.1 {
@@ -230,51 +228,55 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                         m1 * -penetration_dir
                     };
 
-                    convex_feature1.normal = face1.normal.map(|n| m1 * n);
-                    convex_feature1.feature_id = FeatureId::Face(i1);
+                    self.convex_feature1.normal = face1.normal.map(|n| m1 * n);
+                    self.convex_feature1.feature_id = FeatureId::Face(i1);
 
                     // XXX: do we have to swap the vertices and edge normals too?
-                    if let Some(normal_f1) = convex_feature1.normal.as_mut() {
+                    if let Some(normal_f1) = self.convex_feature1.normal.as_mut() {
                         if normal_f1.dot(&normal) < N::zero() {
                             *normal_f1 = -*normal_f1;
-                            convex_feature1.feature_id = FeatureId::Face(i1 + mesh1.faces().len());
-                            convex_feature1.vertices.swap(0, 1);
-                            convex_feature1.edge_normals.swap(1, 2);
-                            convex_feature1.vertices_id.swap(0, 1);
-                            convex_feature1.edges_id.swap(1, 2);
+                            self.convex_feature1.feature_id =
+                                FeatureId::Face(i1 + mesh1.faces().len());
+                            self.convex_feature1.vertices.swap(0, 1);
+                            self.convex_feature1.edge_normals.swap(1, 2);
+                            self.convex_feature1.vertices_id.swap(0, 1);
+                            self.convex_feature1.edges_id.swap(1, 2);
                         }
                     }
 
-                    convex_feature2.normal = face2.normal.map(|n| m2 * n);
-                    convex_feature2.feature_id = FeatureId::Face(i2);
+                    self.convex_feature2.normal = face2.normal.map(|n| m2 * n);
+                    self.convex_feature2.feature_id = FeatureId::Face(i2);
 
-                    if let Some(normal_f2) = convex_feature2.normal.as_mut() {
+                    if let Some(normal_f2) = self.convex_feature2.normal.as_mut() {
                         if -normal_f2.dot(&normal) < N::zero() {
                             *normal_f2 = -*normal_f2;
-                            convex_feature2.feature_id = FeatureId::Face(i2 + mesh2.faces().len());
-                            convex_feature2.vertices.swap(0, 1);
-                            convex_feature2.edge_normals.swap(1, 2);
-                            convex_feature2.vertices_id.swap(0, 1);
-                            convex_feature2.edges_id.swap(1, 2);
+                            self.convex_feature2.feature_id =
+                                FeatureId::Face(i2 + mesh2.faces().len());
+                            self.convex_feature2.vertices.swap(0, 1);
+                            self.convex_feature2.edge_normals.swap(1, 2);
+                            self.convex_feature2.vertices_id.swap(0, 1);
+                            self.convex_feature2.edges_id.swap(1, 2);
                         }
                     }
 
-                    convex_feature1.clip(
-                        convex_feature2,
+                    self.convex_feature1.clip(
+                        &self.convex_feature2,
                         &normal,
                         prediction,
-                        clip_cache,
-                        new_contacts,
+                        &mut self.clip_cache,
+                        &mut self.new_contacts,
                     );
 
-                    for (c, f1, f2) in new_contacts.drain(..) {
-                        convex_feature1.add_contact_to_manifold(
-                            convex_feature2,
+                    for (c, f1, f2) in self.new_contacts.drain(..) {
+                        self.convex_feature1.add_contact_to_manifold(
+                            &self.convex_feature2,
                             c,
                             m1,
                             f1,
+                            None,
                             m2,
                             f2,
+                            None,
                             id_alloc,
                             manifold,
                         );
@@ -519,142 +521,58 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
             }
         }
     }
-
-    fn do_update_to(
-        _: &ContactDispatcher<N>,
-        id1: usize,
-        m1: &Isometry<N>,
-        mesh1: &TriMesh<N>,
-        id2: usize,
-        m2: &Isometry<N>,
-        mesh2: &TriMesh<N>,
-        prediction: &ContactPrediction<N>,
-        clip_cache: &mut ClippingCache<N>,
-        new_contacts: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-        convex_feature1: &mut ConvexPolygonalFeature<N>,
-        convex_feature2: &mut ConvexPolygonalFeature<N>,
-        interferences: &mut Vec<(usize, usize)>,
-        id_alloc: &mut IdAllocator,
-        manifold: &mut ContactManifold<N>,
-    ) {
-        // Find new collisions
-        let m12 = m1.inverse() * m2;
-        let m21 = m12.inverse();
-
-        // For transforming AABBs from mesh2 in the local space of mesh1.
-        let m12_abs_rot = m12.rotation.to_rotation_matrix().matrix().abs();
-
-        {
-            let mut visitor =
-                AABBSetsInterferencesCollector::new(&m12, &m12_abs_rot, interferences);
-            mesh1.bvh().visit_bvtt(mesh2.bvh(), &mut visitor);
-        }
-
-        for id in interferences.drain(..) {
-            Self::compute_faces_closest_points(
-                &m12,
-                &m21,
-                m1,
-                mesh1,
-                id.0,
-                m2,
-                mesh2,
-                id.1,
-                prediction,
-                clip_cache,
-                new_contacts,
-                convex_feature1,
-                convex_feature2,
-                manifold,
-                id_alloc,
-            );
-        }
-    }
 }
 
 impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
-    fn update(
+    fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-    ) -> bool {
-        self.manifold.save_cache_and_clear(id_alloc);
-
-        if let (Some(mesh1), Some(mesh2)) = (a.as_shape::<TriMesh<N>>(), b.as_shape::<TriMesh<N>>())
-        {
-            Self::do_update_to(
-                d,
-                ida,
-                ma,
-                mesh1,
-                idb,
-                mb,
-                mesh2,
-                prediction,
-                &mut self.clip_cache,
-                &mut self.new_contacts,
-                &mut self.convex_feature1,
-                &mut self.convex_feature2,
-                &mut self.interferences,
-                id_alloc,
-                &mut self.manifold,
-            );
-            true
-        } else {
-            false
-        }
-    }
-
-    fn update_to(
-        &mut self,
-        d: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
+        m1: &Isometry<N>,
+        g1: &Shape<N>,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        m2: &Isometry<N>,
+        g2: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool {
-        if let (Some(mesh1), Some(mesh2)) = (a.as_shape::<TriMesh<N>>(), b.as_shape::<TriMesh<N>>())
+        if let (Some(mesh1), Some(mesh2)) =
+            (g1.as_shape::<TriMesh<N>>(), g2.as_shape::<TriMesh<N>>())
         {
-            Self::do_update_to(
-                d,
-                ida,
-                ma,
-                mesh1,
-                idb,
-                mb,
-                mesh2,
-                prediction,
-                &mut self.clip_cache,
-                &mut self.new_contacts,
-                &mut self.convex_feature1,
-                &mut self.convex_feature2,
-                &mut self.interferences,
-                id_alloc,
-                manifold,
-            );
+            // Find new collisions
+            let m12 = m1.inverse() * m2;
+            let m21 = m12.inverse();
+
+            // For transforming AABBs from mesh2 in the local space of mesh1.
+            let m12_abs_rot = m12.rotation.to_rotation_matrix().matrix().abs();
+
+            {
+                let mut visitor = AABBSetsInterferencesCollector::new(
+                    &m12,
+                    &m12_abs_rot,
+                    &mut self.interferences,
+                );
+                mesh1.bvh().visit_bvtt(mesh2.bvh(), &mut visitor);
+            }
+
+            let mut interferences = mem::replace(&mut self.interferences, Vec::new());
+            for id in interferences.drain(..) {
+                self.compute_faces_closest_points(
+                    &m12, &m21, m1, mesh1, id.0, m2, mesh2, id.1, prediction, id_alloc, manifold,
+                );
+            }
+            self.interferences = interferences;
+
             true
         } else {
             false
         }
     }
 
-    fn num_contacts(&self) -> usize {
-        self.manifold.len()
-    }
-
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        out.push(&self.manifold)
+    fn init_manifold(&self) -> ContactManifold<N> {
+        let mut res = ContactManifold::new();
+        res.set_tracking_mode(ContactTrackingMode::FeatureBased);
+        res
     }
 }

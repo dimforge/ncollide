@@ -11,7 +11,7 @@ pub use self::contact_generator::{
 #[cfg(feature = "dim3")]
 pub use self::contact_generator::{TriMeshShapeManifoldGenerator, TriMeshTriMeshManifoldGenerator};
 pub use self::default_narrow_phase::DefaultNarrowPhase;
-pub use self::narrow_phase::{ContactManifolds, ContactPairs, NarrowPhase, ProximityPairs};
+pub use self::narrow_phase::{ContactPairs, NarrowPhase, ProximityPairs};
 #[doc(inline)]
 pub use self::proximity_detector::{
     BallBallProximityDetector, CompositeShapeShapeProximityDetector, DefaultProximityDispatcher,

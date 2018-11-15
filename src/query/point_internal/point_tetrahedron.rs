@@ -1,7 +1,7 @@
-use na::{self, Real};
-use shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
 use math::{Isometry, Point, Vector};
+use na::{self, Real};
+use query::{PointProjection, PointQuery, PointQueryWithLocation};
+use shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
 use utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Tetrahedron<N> {
@@ -12,7 +12,11 @@ impl<N: Real> PointQuery<N> for Tetrahedron<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -309,7 +313,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             dbca: N,
             dacb: N,
             /* ap_ab: N, bp_ab: N, cp_ab: N,
-                                   ap_ac: N, bp_ac: N, cp_ac: N, */
+            ap_ac: N, bp_ac: N, cp_ac: N, */
         ) -> Option<(PointProjection<N>, TetrahedronPointLocation<N>)> {
             let _0: N = na::zero();
             let _1: N = na::one();
@@ -363,7 +367,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             dbca,
             dacb,
             /*ap_ab, bp_ab, cp_ab,
-                                          ap_ac, bp_ac, cp_ac*/
+            ap_ac, bp_ac, cp_ac*/
         ) {
             return res;
         }
@@ -385,7 +389,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             dabd,
             dbda,
             /*ap_ab, bp_ab, dp_ab,
-                                          ap_ad, bp_ad, dp_ad*/
+            ap_ad, bp_ad, dp_ad*/
         ) {
             return res;
         }
@@ -406,7 +410,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             dcda,
             dadc,
             /*ap_ac, cp_ac, dp_ac,
-                                          ap_ad, cp_ad, dp_ad*/
+            ap_ad, cp_ad, dp_ad*/
         ) {
             return res;
         }
@@ -427,7 +431,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             dcdb,
             dbdc,
             /*bp_bc, cp_bc, dp_bc,
-              bp_bd, cp_bd, dp_bd*/
+            bp_bd, cp_bd, dp_bd*/
         ) {
             return res;
         }

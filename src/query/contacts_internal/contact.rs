@@ -63,24 +63,13 @@ pub struct TrackedContact<N: Real> {
     pub kinematic: ContactKinematic<N>,
     /// The identifier of this contact.
     pub id: GenerationalId,
-    /// A reference point using for distance-based contact tracking.
-    /// FIXME: this might not be the right place for this field.
-    /// For example we don't want to waste memory on this when we
-    /// don't use the distance-based contact tracking.
-    pub tracking_pt: Point<N>,
 }
 
 impl<N: Real> TrackedContact<N> {
     /// Creates a new tracked contact.
-    pub fn new(
-        contact: Contact<N>,
-        tracking_pt: Point<N>,
-        kinematic: ContactKinematic<N>,
-        id: GenerationalId,
-    ) -> Self {
+    pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>, id: GenerationalId) -> Self {
         TrackedContact {
             contact,
-            tracking_pt,
             kinematic,
             id,
         }

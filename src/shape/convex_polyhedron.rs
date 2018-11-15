@@ -40,11 +40,20 @@ impl FeatureId {
         }
     }
 
-    /// Revries the value of the identifier if `self` is a face.
+    /// Retrieves the value of the identifier if `self` is a face.
     pub fn unwrap_face(self) -> usize {
         match self {
             FeatureId::Face(id) => id,
             _ => panic!("The feature id does not identify a face."),
+        }
+    }
+
+    /// Applies the given feature transformation function to `self`.
+    pub fn apply(self, f: Option<&Fn(Self) -> Self>) -> Self {
+        if let Some(f) = f {
+            f(self)
+        } else {
+            self
         }
     }
 }

@@ -1,7 +1,7 @@
 use math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
 use query::algorithms::VoronoiSimplex;
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use shape::SupportMap;
 
 /// Distance between support-mapped shapes.
@@ -16,14 +16,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    support_map_against_support_map_with_params(
-        m1,
-        g1,
-        m2,
-        g2,
-        &mut VoronoiSimplex::new(),
-        None,
-    )
+    support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex::new(), None)
 }
 
 /// Distance between support-mapped shapes.

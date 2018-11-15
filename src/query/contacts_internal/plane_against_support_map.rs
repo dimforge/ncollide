@@ -1,7 +1,7 @@
+use math::{Isometry, Point};
 use na::{self, Real};
 use query::Contact;
 use shape::{Plane, SupportMap};
-use math::{Isometry, Point};
 
 /// Contact between a plane and a support-mapped shape (Cuboid, ConvexHull, etc.)
 pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
@@ -20,12 +20,7 @@ pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
     if distance > -prediction {
         let c1 = deepest + *plane_normal * distance;
 
-        Some(Contact::new(
-            c1,
-            deepest,
-            plane_normal,
-            distance,
-        ))
+        Some(Contact::new(c1, deepest, plane_normal, distance))
     } else {
         None
     }

@@ -1,14 +1,14 @@
 use na::{Real, Unit};
 
-use query::algorithms::{gjk, VoronoiSimplex, EPA, CSOPoint};
+use math::{Isometry, Point, Translation, Vector};
+use query::algorithms::{gjk, CSOPoint, VoronoiSimplex, EPA};
 use query::{PointProjection, PointQuery};
-use utils::IsometryOps;
-use shape::{ConvexPolyhedron, FeatureId, SupportMap, ConstantOrigin};
-#[cfg(feature = "dim3")]
-use shape::{Cone, ConvexHull, Cylinder};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
-use math::{Isometry, Point, Translation, Vector};
+#[cfg(feature = "dim3")]
+use shape::{Cone, ConvexHull, Cylinder};
+use shape::{ConstantOrigin, ConvexPolyhedron, FeatureId, SupportMap};
+use utils::IsometryOps;
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<N, G>(
@@ -73,7 +73,6 @@ impl<N: Real> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
-
     }
 
     #[inline]

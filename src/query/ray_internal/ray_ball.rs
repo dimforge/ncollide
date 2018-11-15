@@ -3,11 +3,11 @@ use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
 
-use query::{Ray, RayCast, RayIntersection};
-use shape::Ball;
-use math::{Isometry, Point};
 #[cfg(feature = "dim3")]
 use math::Vector;
+use math::{Isometry, Point};
+use query::{Ray, RayCast, RayIntersection};
+use shape::Ball;
 
 #[cfg(feature = "dim3")]
 #[inline]
@@ -24,7 +24,13 @@ fn ball_uv<N: Real>(normal: &Vector<N>) -> Point2<N> {
 impl<N: Real> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
-        ball_toi_with_ray(&Point::from_coordinates(m.translation.vector), self.radius(), ray, solid).1
+        ball_toi_with_ray(
+            &Point::from_coordinates(m.translation.vector),
+            self.radius(),
+            ray,
+            solid,
+        )
+        .1
     }
 
     #[inline]

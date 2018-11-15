@@ -3,7 +3,7 @@
 use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use query::algorithms::{CSOPoint, gjk, VoronoiSimplex};
+use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use query::PointQueryWithLocation;
 use shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
 use std::cmp::Ordering;
@@ -202,8 +202,8 @@ impl<N: Real> EPA<N> {
         g: &G,
         simplex: &VoronoiSimplex<N>,
     ) -> Option<Point<N>>
-        where
-            G: SupportMap<N>,
+    where
+        G: SupportMap<N>,
     {
         self.closest_points(m, g, &Isometry::identity(), &ConstantOrigin, simplex)
             .map(|(p, _, _)| p)
@@ -221,9 +221,9 @@ impl<N: Real> EPA<N> {
         g2: &G2,
         simplex: &VoronoiSimplex<N>,
     ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
-        where
-            G1: SupportMap<N>,
-            G2: SupportMap<N>,
+    where
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
     {
         let _eps = N::default_epsilon();
         let _eps_tol = _eps * na::convert(100.0f64);

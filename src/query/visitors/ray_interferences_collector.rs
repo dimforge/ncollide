@@ -1,8 +1,7 @@
 use math::Isometry;
 use na::Real;
-use partitioning::{Visitor, VisitStatus};
+use partitioning::{VisitStatus, Visitor};
 use query::{Ray, RayCast};
-
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
 pub struct RayInterferencesCollector<'a, N: 'a + Real, T: 'a> {
@@ -24,10 +23,10 @@ impl<'a, N: Real, T> RayInterferencesCollector<'a, N, T> {
 }
 
 impl<'a, N, T, BV> Visitor<T, BV> for RayInterferencesCollector<'a, N, T>
-    where
-        N: Real,
-        T: Clone,
-        BV: RayCast<N>,
+where
+    N: Real,
+    T: Clone,
+    BV: RayCast<N>,
 {
     #[inline]
     fn visit(&mut self, bv: &BV, t: Option<&T>) -> VisitStatus {

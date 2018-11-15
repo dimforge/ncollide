@@ -1,10 +1,10 @@
 //! Traits and structure needed to cast rays.
 
+use math::{Isometry, Point, Vector};
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::Real;
 use utils::IsometryOps;
-use math::{Isometry, Point, Vector};
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
@@ -70,11 +70,7 @@ impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new_with_uvs(
-        toi: N,
-        normal: Vector<N>,
-        uvs: Option<Point2<N>>,
-    ) -> RayIntersection<N> {
+    pub fn new_with_uvs(toi: N, normal: Vector<N>, uvs: Option<Point2<N>>) -> RayIntersection<N> {
         RayIntersection {
             toi: toi,
             normal: normal,

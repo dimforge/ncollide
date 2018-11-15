@@ -1,8 +1,8 @@
 use math::{Isometry, Vector};
 use na::{Real, Unit};
-use query::Contact;
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
+use query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use query::algorithms::{VoronoiSimplex, EPA};
+use query::Contact;
 use shape::SupportMap;
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)

@@ -1,8 +1,8 @@
+use bounding_volume::BoundingSphere;
+use math::Isometry;
 use na::Real;
 use query::{Ray, RayCast, RayIntersection};
 use shape::Ball;
-use bounding_volume::BoundingSphere;
-use math::Isometry;
 
 impl<N: Real> RayCast<N> for BoundingSphere<N> {
     #[inline]
@@ -21,7 +21,11 @@ impl<N: Real> RayCast<N> for BoundingSphere<N> {
     ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
-        Ball::new(self.radius()).toi_and_normal_with_ray(&Isometry::identity(), &centered_ray, solid)
+        Ball::new(self.radius()).toi_and_normal_with_ray(
+            &Isometry::identity(),
+            &centered_ray,
+            solid,
+        )
     }
 
     #[cfg(feature = "dim3")]
@@ -34,7 +38,11 @@ impl<N: Real> RayCast<N> for BoundingSphere<N> {
     ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
-        Ball::new(self.radius()).toi_and_normal_and_uv_with_ray(&Isometry::identity(), &centered_ray, solid)
+        Ball::new(self.radius()).toi_and_normal_and_uv_with_ray(
+            &Isometry::identity(),
+            &centered_ray,
+            solid,
+        )
     }
 
     #[inline]

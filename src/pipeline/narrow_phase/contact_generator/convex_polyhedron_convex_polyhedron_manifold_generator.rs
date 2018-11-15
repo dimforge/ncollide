@@ -21,7 +21,7 @@ use utils::{IdAllocator, IsometryOps};
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
-struct Cache<N: Real> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -32,7 +32,7 @@ struct Cache<N: Real> {
 
 #[cfg(feature = "dim3")]
 #[derive(Clone)]
-struct Cache<N: Real> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -42,10 +42,10 @@ struct Cache<N: Real> {
     manifold2: ConvexPolygonalFeature<N>,
 }
 
-impl<N: Real> Cache<N> {
+impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     #[cfg(feature = "dim3")]
     pub fn new() -> Self {
-        Cache {
+        ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: VoronoiSimplex::new(),
             last_gjk_dir: None,
             last_optimal_dir: None,
@@ -58,7 +58,7 @@ impl<N: Real> Cache<N> {
 
     #[cfg(feature = "dim2")]
     pub fn new() -> Self {
-        Cache {
+        ConvexPolyhedronConvexPolyhedronManifoldGenerator {
             simplex: VoronoiSimplex::new(),
             last_gjk_dir: None,
             last_optimal_dir: None,
@@ -67,64 +67,38 @@ impl<N: Real> Cache<N> {
             manifold2: ConvexPolygonalFeature::new(),
         }
     }
-}
 
-/// Persistent contact manifold computation between two shapes having a support mapping function.
-///
-/// It is based on the GJK algorithm.  This detector generates only one contact point. For a full
-/// manifold generation, see `IncrementalContactManifoldGenerator`.
-#[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
-    cache: Cache<N>,
-    contact_manifold: ContactManifold<N>,
-}
-
-impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
-    /// Creates a new persistant collision detector between two convex polyhedra.
-    pub fn new() -> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
-        ConvexPolyhedronConvexPolyhedronManifoldGenerator {
-            contact_manifold: ContactManifold::new(),
-            cache: Cache::new(),
-        }
-    }
-
-    fn clip_polyfaces(
-        cache: &mut Cache<N>,
-        prediction: &ContactPrediction<N>,
-        normal: &Unit<Vector<N>>,
-    ) {
+    fn clip_polyfaces(&mut self, prediction: &ContactPrediction<N>, normal: &Unit<Vector<N>>) {
         #[cfg(feature = "dim2")]
         {
-            cache.manifold1.clip(
-                &cache.manifold2,
-                normal,
-                prediction,
-                &mut cache.new_contacts,
-            )
+            self.manifold1
+                .clip(&self.manifold2, normal, prediction, &mut self.new_contacts)
         }
         #[cfg(feature = "dim3")]
         {
-            cache.manifold1.clip(
-                &cache.manifold2,
+            self.manifold1.clip(
+                &self.manifold2,
                 normal,
                 prediction,
-                &mut cache.clip_cache,
-                &mut cache.new_contacts,
+                &mut self.clip_cache,
+                &mut self.new_contacts,
             )
         }
     }
+}
 
-    #[inline]
-    fn do_update_to(
-        ida: usize,
+impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+    fn generate_contacts(
+        &mut self,
+        _: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        idb: usize,
+        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
         mb: &Isometry<N>,
         b: &Shape<N>,
+        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         prediction: &ContactPrediction<N>,
-        cache: &mut Cache<N>,
-        ids: &mut IdAllocator,
+        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
@@ -134,62 +108,64 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
                 mb,
                 cpb,
                 prediction.linear(),
-                &mut cache.simplex,
-                cache.last_gjk_dir,
+                &mut self.simplex,
+                self.last_gjk_dir,
             );
 
             // Generate a contact manifold.
-            cache.new_contacts.clear();
-            cache.manifold1.clear();
-            cache.manifold2.clear();
+            self.new_contacts.clear();
+            self.manifold1.clear();
+            self.manifold2.clear();
 
             match contact {
                 GJKResult::ClosestPoints(world1, world2, dir) => {
-                    cache.last_gjk_dir = Some(dir);
+                    self.last_gjk_dir = Some(dir);
                     let contact = Contact::new_wo_depth(world1, world2, dir);
 
                     if contact.depth > na::zero() {
-                        cpa.support_face_toward(ma, &contact.normal, &mut cache.manifold1);
-                        cpb.support_face_toward(mb, &-contact.normal, &mut cache.manifold2);
-                        Self::clip_polyfaces(cache, prediction, &contact.normal);
+                        cpa.support_face_toward(ma, &contact.normal, &mut self.manifold1);
+                        cpb.support_face_toward(mb, &-contact.normal, &mut self.manifold2);
+                        self.clip_polyfaces(prediction, &contact.normal);
                     } else {
                         cpa.support_feature_toward(
                             ma,
                             &contact.normal,
                             prediction.angular1(),
-                            &mut cache.manifold1,
+                            &mut self.manifold1,
                         );
                         cpb.support_feature_toward(
                             mb,
                             &-contact.normal,
                             prediction.angular2(),
-                            &mut cache.manifold2,
+                            &mut self.manifold2,
                         );
 
-                        Self::clip_polyfaces(cache, prediction, &contact.normal);
+                        self.clip_polyfaces(prediction, &contact.normal);
                     }
 
-                    if cache.new_contacts.len() == 0 {
-                        cache.new_contacts.push((
+                    if self.new_contacts.len() == 0 {
+                        self.new_contacts.push((
                             contact.clone(),
-                            cache.manifold1.feature_id,
-                            cache.manifold2.feature_id,
+                            self.manifold1.feature_id,
+                            self.manifold2.feature_id,
                         ));
                     }
                 }
-                GJKResult::NoIntersection(dir) => cache.last_gjk_dir = Some(dir),
+                GJKResult::NoIntersection(dir) => self.last_gjk_dir = Some(dir),
                 _ => {}
             }
 
-            for (c, f1, f2) in cache.new_contacts.drain(..) {
-                cache.manifold1.add_contact_to_manifold(
-                    &cache.manifold2,
+            for (c, f1, f2) in self.new_contacts.drain(..) {
+                self.manifold1.add_contact_to_manifold(
+                    &self.manifold2,
                     c,
                     ma,
                     f1,
+                    fmap1,
                     mb,
                     f2,
-                    ids,
+                    fmap2,
+                    id_alloc,
                     manifold,
                 )
             }
@@ -197,76 +173,6 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
             true
         } else {
             false
-        }
-    }
-}
-
-impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
-    #[inline]
-    fn update(
-        &mut self,
-        _: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-    ) -> bool {
-        self.contact_manifold.save_cache_and_clear(id_alloc);
-
-        Self::do_update_to(
-            ida,
-            ma,
-            a,
-            idb,
-            mb,
-            b,
-            prediction,
-            &mut self.cache,
-            id_alloc,
-            &mut self.contact_manifold,
-        )
-    }
-
-    fn update_to(
-        &mut self,
-        _: &ContactDispatcher<N>,
-        ida: usize,
-        ma: &Isometry<N>,
-        a: &Shape<N>,
-        idb: usize,
-        mb: &Isometry<N>,
-        b: &Shape<N>,
-        prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
-        manifold: &mut ContactManifold<N>,
-    ) -> bool {
-        Self::do_update_to(
-            ida,
-            ma,
-            a,
-            idb,
-            mb,
-            b,
-            prediction,
-            &mut self.cache,
-            id_alloc,
-            manifold,
-        )
-    }
-
-    #[inline]
-    fn num_contacts(&self) -> usize {
-        self.contact_manifold.len()
-    }
-
-    #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        if self.contact_manifold.len() != 0 {
-            out.push(&self.contact_manifold)
         }
     }
 }

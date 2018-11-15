@@ -2,7 +2,7 @@ use bounding_volume::AABB;
 use math::Isometry;
 use na::{Point2, Real, Vector3};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{Ray, ray_internal, RayCast, RayIntersection};
+use query::{ray_internal, Ray, RayCast, RayIntersection};
 use shape::{CompositeShape, TriMesh};
 
 impl<N: Real> RayCast<N> for TriMesh<N> {
@@ -32,12 +32,10 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
             ray: &ls_ray,
         };
 
-        self.bvh()
-            .best_first_search(&mut visitor)
-            .map(|mut res| {
-                res.normal = m * res.normal;
-                res
-            })
+        self.bvh().best_first_search(&mut visitor).map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
     }
 
     fn toi_and_normal_and_uv_with_ray(
@@ -99,17 +97,19 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
-        match self.mesh
+        match self
+            .mesh
             .triangle_at(*b)
-            .toi_with_ray(&Isometry::identity(), self.ray, true) {
+            .toi_with_ray(&Isometry::identity(), self.ray, true)
+        {
             Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }
@@ -126,17 +126,19 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormal
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
-        match self.mesh
-            .triangle_at(*b)
-            .toi_and_normal_with_ray(&Isometry::identity(), self.ray, true) {
+        match self.mesh.triangle_at(*b).toi_and_normal_with_ray(
+            &Isometry::identity(),
+            self.ray,
+            true,
+        ) {
             Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
-            None => BestFirstDataVisitStatus::Continue
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }
@@ -146,19 +148,24 @@ struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + Real> {
     ray: &'a Ray<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormalAndUVsVisitor<'a, N> {
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>>
+    for TriMeshRayToiAndNormalAndUVsVisitor<'a, N>
+{
     type Result = (usize, RayIntersection<N>, Vector3<N>);
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
             Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop
+            None => BestFirstBVVisitStatus::Stop,
         }
     }
 
     #[inline]
-    fn visit_data(&mut self, i: &usize) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)> {
+    fn visit_data(
+        &mut self,
+        i: &usize,
+    ) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)> {
         let vs = self.mesh.points();
         let idx = self.mesh.faces()[*i].indices;
 
@@ -167,8 +174,10 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormal
         let c = &vs[idx[2]];
 
         match ray_internal::triangle_ray_intersection(a, b, c, self.ray) {
-            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.0.toi, (*i, inter.0, inter.1)),
-            None => BestFirstDataVisitStatus::Continue
+            Some(inter) => {
+                BestFirstDataVisitStatus::ContinueWithResult(inter.0.toi, (*i, inter.0, inter.1))
+            }
+            None => BestFirstDataVisitStatus::Continue,
         }
     }
 }

@@ -1,10 +1,10 @@
-use num::{Bounded, Zero};
-use na::{self, Real};
-use utils::IsometryOps;
-use shape::FeatureId;
-use query::{PointProjection, PointQuery};
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector, DIM};
+use na::{self, Real};
+use num::{Bounded, Zero};
+use query::{PointProjection, PointQuery};
+use shape::FeatureId;
+use utils::IsometryOps;
 
 impl<N: Real> AABB<N> {
     fn local_point_projection(

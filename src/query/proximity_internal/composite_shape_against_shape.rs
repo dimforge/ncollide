@@ -2,8 +2,8 @@ use bounding_volume::AABB;
 use math::{Isometry, Point, Vector};
 use na::{self, Real};
 use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{PointQuery, Proximity};
 use query::proximity_internal;
+use query::{PointQuery, Proximity};
 use shape::{CompositeShape, Shape};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
@@ -14,8 +14,8 @@ pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
     g2: &Shape<N>,
     margin: N,
 ) -> Proximity
-    where
-        G1: CompositeShape<N>,
+where
+    G1: CompositeShape<N>,
 {
     assert!(
         margin >= na::zero(),
@@ -38,8 +38,8 @@ pub fn shape_against_composite_shape<N: Real, G2: ?Sized>(
     g2: &G2,
     margin: N,
 ) -> Proximity
-    where
-        G2: CompositeShape<N>,
+where
+    G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1, margin)
 }
@@ -56,8 +56,8 @@ struct CompositeShapeAgainstAnyInterfVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> 
 }
 
 impl<'a, N: Real, G1: ?Sized> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
-    where
-        G1: CompositeShape<N>,
+where
+    G1: CompositeShape<N>,
 {
     pub fn new(
         m1: &'a Isometry<N>,
@@ -82,9 +82,9 @@ impl<'a, N: Real, G1: ?Sized> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
 }
 
 impl<'a, N: Real, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-for CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
-    where
-        G1: CompositeShape<N>,
+    for CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
+where
+    G1: CompositeShape<N>,
 {
     type Result = Proximity;
 
@@ -113,7 +113,10 @@ for CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
                     self.margin,
                 ) {
                     Proximity::Disjoint => BestFirstDataVisitStatus::Continue,
-                    Proximity::WithinMargin => BestFirstDataVisitStatus::ContinueWithResult(self.margin, Proximity::WithinMargin),
+                    Proximity::WithinMargin => BestFirstDataVisitStatus::ContinueWithResult(
+                        self.margin,
+                        Proximity::WithinMargin,
+                    ),
                     Proximity::Intersecting => {
                         BestFirstDataVisitStatus::ExitEarlyWithResult(Proximity::Intersecting)
                     }

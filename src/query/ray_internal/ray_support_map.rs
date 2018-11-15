@@ -1,13 +1,13 @@
 use na::{self, Real};
 
+use math::Isometry;
 use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use query::{Ray, RayCast, RayIntersection};
-use shape::{Capsule, Segment, SupportMap};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
+use shape::{Capsule, Segment, SupportMap};
 #[cfg(feature = "dim3")]
 use shape::{Cone, ConvexHull, Cylinder};
-use math::Isometry;
 
 /// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<N, G: ?Sized>(
@@ -68,7 +68,8 @@ impl<N: Real> RayCast<N> for Cylinder<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })
@@ -91,7 +92,8 @@ impl<N: Real> RayCast<N> for Cone<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })
@@ -113,7 +115,8 @@ impl<N: Real> RayCast<N> for Capsule<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })
@@ -136,7 +139,8 @@ impl<N: Real> RayCast<N> for ConvexHull<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })
@@ -159,7 +163,8 @@ impl<N: Real> RayCast<N> for ConvexPolygon<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })
@@ -182,7 +187,8 @@ impl<N: Real> RayCast<N> for Segment<N> {
             &mut VoronoiSimplex::new(),
             &ls_ray,
             solid,
-        ).map(|mut res| {
+        )
+        .map(|mut res| {
             res.normal = m * res.normal;
             res
         })

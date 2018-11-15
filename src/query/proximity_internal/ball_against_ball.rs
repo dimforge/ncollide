@@ -1,5 +1,5 @@
-use na::{self, Real};
 use math::Point;
+use na::{self, Real};
 use query::Proximity;
 use shape::Ball;
 
