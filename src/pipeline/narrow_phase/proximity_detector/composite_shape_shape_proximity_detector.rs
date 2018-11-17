@@ -162,9 +162,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: Real> ProximityDetector<N>
-    for CompositeShapeShapeProximityDetector<N>
-{
+impl<N: Real> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
         dispatcher: &ProximityDispatcher<N>,
@@ -174,14 +172,19 @@ impl<N: Real> ProximityDetector<N>
         g2: &Shape<N>,
         margin: N,
     ) -> bool {
-        if let Some(cs1) = g1.as_composite_shape() {
-            let flip = self.flip;
-            self.do_update(dispatcher, m1, cs1, m2, g2, margin, flip);
-
-            true
+        if !self.flip {
+            if let Some(cs) = g1.as_composite_shape() {
+                self.do_update(dispatcher, m1, cs, m2, g2, margin, false);
+                return true;
+            }
         } else {
-            false
+            if let Some(cs) = g2.as_composite_shape() {
+                self.do_update(dispatcher, m2, cs, m1, g1, margin, true);
+                return true;
+            }
         }
+
+        return false;
     }
 
     fn proximity(&self) -> Proximity {
