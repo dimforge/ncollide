@@ -1,10 +1,10 @@
 use alga::linear::ProjectiveTransformation;
-use na::{Real, Unit};
-use math::{Vector, Point};
+use math::{Point, Vector};
 #[cfg(feature = "dim2")]
 use na::Isometry2;
 #[cfg(feature = "dim3")]
 use na::Isometry3;
+use na::{Real, Unit};
 
 /// Extra operations with isometries.
 pub trait IsometryOps<N: Real> {

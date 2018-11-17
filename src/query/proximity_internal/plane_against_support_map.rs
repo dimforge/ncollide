@@ -12,7 +12,8 @@ pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     margin: N,
-) -> Proximity {
+) -> Proximity
+{
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."
@@ -42,6 +43,7 @@ pub fn support_map_against_plane<N: Real, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     margin: N,
-) -> Proximity {
+) -> Proximity
+{
     plane_against_support_map(mplane, plane, mother, other, margin)
 }

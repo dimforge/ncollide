@@ -1,7 +1,7 @@
-use alga::general::Real;
-use shape::Triangle;
-use procedural::TriMesh;
 use super::ToTriMesh;
+use alga::general::Real;
+use procedural::TriMesh;
+use shape::Triangle;
 
 impl<N: Real> ToTriMesh<N> for Triangle<N> {
     type DiscretizationParameter = ();

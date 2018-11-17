@@ -10,7 +10,8 @@ pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     prediction: N,
-) -> Option<Contact<N>> {
+) -> Option<Contact<N>>
+{
     let plane_normal = mplane * plane.normal();
     let plane_center = Point::from_coordinates(mplane.translation.vector);
     let deepest = other.support_point_toward(mother, &-plane_normal);
@@ -33,7 +34,8 @@ pub fn support_map_against_plane<N: Real, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     prediction: N,
-) -> Option<Contact<N>> {
+) -> Option<Contact<N>>
+{
     plane_against_support_map(mplane, plane, mother, other, prediction).map(|mut c| {
         c.flip();
         c

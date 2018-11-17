@@ -80,7 +80,8 @@ impl<N: Real> CompositeShape<N> for Polyline<N> {
         i: usize,
         m: &Isometry<N>,
         f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
-    ) {
+    )
+    {
         let element = self.segment_at(i);
 
         f(i, m, &element)

@@ -111,7 +111,8 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         normal: &Unit<Vector<N>>,
         prediction: &ContactPrediction<N>,
         out: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-    ) {
+    )
+    {
         // XXX: lift this restriction.
         if self.nvertices <= 1 || other.nvertices <= 1 {
             return;
@@ -210,7 +211,8 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) {
+    )
+    {
         let mut kinematic = ContactKinematic::new();
         let local1 = m1.inverse_transform_point(&c.world1);
         let local2 = m2.inverse_transform_point(&c.world2);

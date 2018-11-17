@@ -102,7 +102,8 @@ impl<N: Real> Segment<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         if let Some(direction) = self.direction() {
@@ -233,7 +234,8 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let seg_dir = self.scaled_direction();
 
         if dir.perp(&seg_dir) >= na::zero() {
@@ -250,7 +252,8 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         _: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
         face.push_edge_feature_id(FeatureId::Edge(0));
@@ -264,7 +267,8 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)

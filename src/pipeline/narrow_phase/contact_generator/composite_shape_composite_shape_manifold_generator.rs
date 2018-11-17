@@ -37,7 +37,8 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) {
+    )
+    {
         // Find new collisions
         let ls_m2 = m1.inverse() * m2;
         // For transforming AABBs from g2 in the local space of g1.
@@ -116,7 +117,8 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifo
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
             self.do_update(
                 d, ma, csa, fmap1, mb, csb, fmap2, prediction, id_alloc, manifold,

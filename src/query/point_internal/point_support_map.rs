@@ -63,7 +63,8 @@ impl<N: Real> PointQuery<N> for Cylinder<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
@@ -80,7 +81,8 @@ impl<N: Real> PointQuery<N> for Cone<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
@@ -97,7 +99,8 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {
@@ -127,7 +130,8 @@ impl<N: Real> PointQuery<N> for ConvexPolygon<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {

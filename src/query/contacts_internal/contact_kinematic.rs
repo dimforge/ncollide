@@ -187,7 +187,8 @@ impl<N: Real> ContactKinematic<N> {
         feature: FeatureId,
         point: Point<N>,
         geom: NeighborhoodGeometry<N>,
-    ) {
+    )
+    {
         self.approx1 = LocalShapeApproximation::new(feature, point, geom);
     }
 
@@ -197,7 +198,8 @@ impl<N: Real> ContactKinematic<N> {
         feature: FeatureId,
         point: Point<N>,
         geom: NeighborhoodGeometry<N>,
-    ) {
+    )
+    {
         self.approx2 = LocalShapeApproximation::new(feature, point, geom);
     }
 
@@ -215,7 +217,8 @@ impl<N: Real> ContactKinematic<N> {
         s2: &Shape<N>,
         deformations2: Option<&[N]>,
         default_normal1: &Unit<Vector<N>>,
-    ) -> Option<Contact<N>> {
+    ) -> Option<Contact<N>>
+    {
         let normal;
         let mut depth;
 

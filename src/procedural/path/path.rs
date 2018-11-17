@@ -1,7 +1,7 @@
 use na::Real;
 
-use procedural::TriMesh;
 use math::{Point, Vector};
+use procedural::TriMesh;
 
 /// A sample point and its associated tangent.
 pub enum PathSample<N: Real> {

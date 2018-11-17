@@ -11,7 +11,8 @@ pub fn plane_toi_with_line<N: Real>(
     plane_normal: &Vector<N>,
     line_origin: &Point<N>,
     line_dir: &Vector<N>,
-) -> Option<N> {
+) -> Option<N>
+{
     let dpos = *plane_center - *line_origin;
     let denom = na::dot(plane_normal, line_dir);
 
@@ -28,7 +29,8 @@ pub fn plane_toi_with_ray<N: Real>(
     center: &Point<N>,
     normal: &Vector<N>,
     ray: &Ray<N>,
-) -> Option<N> {
+) -> Option<N>
+{
     if let Some(t) = plane_toi_with_line(center, normal, &ray.origin, &ray.dir) {
         if t >= na::zero() {
             return Some(t);
@@ -45,7 +47,8 @@ impl<N: Real> RayCast<N> for Plane<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         let dpos = -ls_ray.origin;

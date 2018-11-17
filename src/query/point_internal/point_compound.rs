@@ -28,7 +28,8 @@ impl<N: Real> PointQuery<N> for Compound<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         // XXX Properly propagate the feature id.
         unimplemented!()
         // (self.project_point(m, point), FeatureId::Unknown)

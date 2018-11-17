@@ -1,8 +1,8 @@
 //! Bounding sphere.
 
-use na::{self, Real};
 use bounding_volume::{BoundingVolume, HasBoundingVolume};
 use math::{Isometry, Point};
+use na::{self, Real};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the bounding sphere of a shape `g` transformed by `m`.
@@ -26,10 +26,7 @@ pub struct BoundingSphere<N: Real> {
 impl<N: Real> BoundingSphere<N> {
     /// Creates a new bounding sphere.
     pub fn new(center: Point<N>, radius: N) -> BoundingSphere<N> {
-        BoundingSphere {
-            center,
-            radius,
-        }
+        BoundingSphere { center, radius }
     }
 
     /// The bounding sphere center.

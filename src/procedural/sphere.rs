@@ -1,12 +1,12 @@
+use super::utils;
+#[cfg(feature = "dim2")]
+use super::Polyline;
+#[cfg(feature = "dim3")]
+use super::{IndexBuffer, TriMesh};
 use alga::general::Real;
 use na;
 #[cfg(feature = "dim3")]
 use na::{Point2, Point3, Vector3};
-#[cfg(feature = "dim3")]
-use super::{IndexBuffer, TriMesh};
-#[cfg(feature = "dim2")]
-use super::Polyline;
-use super::utils;
 
 /// Generates a UV sphere.
 #[cfg(feature = "dim3")]
@@ -29,9 +29,7 @@ where
 /// Generates a UV sphere centered at the origin and with a unit diameter.
 #[cfg(feature = "dim3")]
 pub fn unit_sphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32, generate_uvs: bool) -> TriMesh<N>
-where
-    N: Real,
-{
+where N: Real {
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
     } else {
@@ -42,9 +40,7 @@ where
 // FIXME: n{theta,phi}_subdiv are not the right names.
 #[cfg(feature = "dim3")]
 fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N>
-where
-    N: Real,
-{
+where N: Real {
     let pi = N::pi();
     let two_pi = N::two_pi();
     let pi_two = N::frac_pi_2();

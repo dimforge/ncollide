@@ -23,7 +23,8 @@ impl<N: Real> PolylineCompatibleCap<N> for NoCap {
         _: bool,
         _: &mut Vec<Point3<N>>,
         _: &mut Vec<Point3<u32>>,
-    ) {
+    )
+    {
     }
 
     fn gen_end_cap(
@@ -35,6 +36,7 @@ impl<N: Real> PolylineCompatibleCap<N> for NoCap {
         _: bool,
         _: &mut Vec<Point3<N>>,
         _: &mut Vec<Point3<u32>>,
-    ) {
+    )
+    {
     }
 }

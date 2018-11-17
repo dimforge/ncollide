@@ -202,7 +202,8 @@ impl<N: Real> Triangle<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let ls_dir = m.inverse_transform_vector(dir);
 
         if let Some(normal) = self.normal() {
@@ -363,7 +364,8 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let normal = self.scaled_normal();
 
         if na::dot(&normal, &*dir) >= na::zero() {
@@ -380,7 +382,8 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)

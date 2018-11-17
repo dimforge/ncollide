@@ -1,8 +1,8 @@
-use na::Real;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
-use shape::ConvexPolygon;
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use math::Isometry;
+use na::Real;
+use shape::ConvexPolygon;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for ConvexPolygon<N> {
     #[inline]

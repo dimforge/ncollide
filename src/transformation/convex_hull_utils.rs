@@ -8,7 +8,8 @@ use num::Bounded;
 pub fn support_point_id<P: EuclideanSpace>(
     direction: &P::Coordinates,
     points: &[P],
-) -> Option<usize> {
+) -> Option<usize>
+{
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
@@ -30,7 +31,8 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
     direction: &P::Coordinates,
     points: &[P],
     idx: &[usize],
-) -> Option<usize> {
+) -> Option<usize>
+{
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;

@@ -1,5 +1,5 @@
-use na::{self, Real};
 use math::Point;
+use na::{self, Real};
 
 /// Computes the center of a set of point.
 #[inline]

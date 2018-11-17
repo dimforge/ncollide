@@ -126,7 +126,8 @@ pub trait RayCast<N: Real> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         self.toi_and_normal_with_ray(m, ray, solid)
     }
 

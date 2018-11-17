@@ -63,7 +63,8 @@ where
         m2: &'a Isometry<N>,
         g2: &'a Shape<N>,
         margin: N,
-    ) -> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1> {
+    ) -> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
+    {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 

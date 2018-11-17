@@ -1,11 +1,12 @@
-use rand::Rng;
 use na;
-use na::{Id, Isometry2, Isometry3, Mat2, Mat3, Mat4, Point2, Point3, Point4, Vec4, Vector2,
-         Vector3};
+use na::{
+    Id, Isometry2, Isometry3, Mat2, Mat3, Mat4, Point2, Point3, Point4, Vec4, Vector2, Vector3,
+};
 use ncollide::bounding_volume::{BoundingSphere, AABB};
-use ncollide::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
 use ncollide::math::{Point, Scalar, Vector};
 use ncollide::ray::Ray;
+use ncollide::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
+use rand::Rng;
 
 pub trait DefaultGen {
     fn generate<R: Rng>(rng: &mut R) -> Self;
@@ -141,7 +142,10 @@ where
     fn generate<R: Rng>(rng: &mut R) -> AABB<N> {
         // an AABB centered at the origin.
         let half_extents = na::abs(&rng.gen::<Vector<N>>());
-        AABB::new(Point::origin() + (-half_extents), Point::origin() + half_extents)
+        AABB::new(
+            Point::origin() + (-half_extents),
+            Point::origin() + half_extents,
+        )
     }
 }
 

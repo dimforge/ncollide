@@ -1,8 +1,8 @@
-use na::{self, Real};
-use utils::IsometryOps;
 use bounding_volume::{HasBoundingVolume, AABB};
-use shape::Compound;
 use math::Isometry;
+use na::{self, Real};
+use shape::Compound;
+use utils::IsometryOps;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Compound<N> {
     #[inline]

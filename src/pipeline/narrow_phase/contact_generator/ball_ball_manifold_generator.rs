@@ -37,7 +37,8 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             let center_a = Point::from_coordinates(ma.translation.vector);
             let center_b = Point::from_coordinates(mb.translation.vector);

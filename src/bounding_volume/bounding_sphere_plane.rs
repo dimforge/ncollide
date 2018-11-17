@@ -1,7 +1,7 @@
-use na::Real;
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use shape::Plane;
 use math::{Isometry, Point};
+use na::Real;
+use shape::Plane;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Plane<N> {
     #[inline]

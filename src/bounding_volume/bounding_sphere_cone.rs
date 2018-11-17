@@ -1,8 +1,8 @@
 use alga::general::Real;
 
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use shape::Cone;
 use math::{Isometry, Point};
+use shape::Cone;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
     #[inline]

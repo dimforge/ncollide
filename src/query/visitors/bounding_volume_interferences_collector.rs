@@ -22,7 +22,8 @@ where
     pub fn new(
         bv: &'a BV,
         buffer: &'a mut Vec<T>,
-    ) -> BoundingVolumeInterferencesCollector<'a, N, T, BV> {
+    ) -> BoundingVolumeInterferencesCollector<'a, N, T, BV>
+    {
         BoundingVolumeInterferencesCollector {
             bv: bv,
             collector: buffer,

@@ -18,7 +18,8 @@ impl<N: Real> RayCast<N> for BoundingSphere<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
         Ball::new(self.radius()).toi_and_normal_with_ray(
@@ -35,7 +36,8 @@ impl<N: Real> RayCast<N> for BoundingSphere<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
         Ball::new(self.radius()).toi_and_normal_and_uv_with_ray(

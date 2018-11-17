@@ -32,7 +32,8 @@ impl<N: Real> DefaultNarrowPhase<N> {
     pub fn new(
         contact_dispatcher: Box<ContactDispatcher<N>>,
         proximity_dispatcher: Box<ProximityDispatcher<N>>,
-    ) -> DefaultNarrowPhase<N> {
+    ) -> DefaultNarrowPhase<N>
+    {
         DefaultNarrowPhase {
             id_alloc: IdAllocator::new(),
             contact_dispatcher: contact_dispatcher,
@@ -51,7 +52,8 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         contact_events: &mut ContactEvents,
         proximity_events: &mut ProximityEvents,
         timestamp: usize,
-    ) {
+    )
+    {
         for (key, value) in self.contact_generators.iter_mut() {
             let co1 = &objects[key.0];
             let co2 = &objects[key.1];
@@ -130,7 +132,8 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
         started: bool,
-    ) {
+    )
+    {
         let key = SortedPair::new(handle1, handle2);
         let co1 = &objects[key.0];
         let co2 = &objects[key.1];
@@ -195,7 +198,8 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         _: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) {
+    )
+    {
         let key = SortedPair::new(handle1, handle2);
         let _ = self.proximity_detectors.remove(&key);
         let _ = self.contact_generators.remove(&key);
@@ -205,7 +209,8 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)> {
+    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)>
+    {
         let key = SortedPair::new(handle1, handle2);
         self.contact_generators
             .get(&key)
@@ -215,14 +220,16 @@ impl<N: Real, T> NarrowPhase<N, T> for DefaultNarrowPhase<N> {
     fn contact_pairs<'a>(
         &'a self,
         objects: &'a CollisionObjectSlab<N, T>,
-    ) -> ContactPairs<'a, N, T> {
+    ) -> ContactPairs<'a, N, T>
+    {
         ContactPairs::new(objects, self.contact_generators.iter())
     }
 
     fn proximity_pairs<'a>(
         &'a self,
         objects: &'a CollisionObjectSlab<N, T>,
-    ) -> ProximityPairs<'a, N, T> {
+    ) -> ProximityPairs<'a, N, T>
+    {
         ProximityPairs::new(objects, self.proximity_detectors.iter())
     }
 }

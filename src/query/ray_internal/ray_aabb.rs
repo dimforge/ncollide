@@ -53,7 +53,8 @@ impl<N: Real> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_aabb(self, &ls_ray, solid).map(|(t, n, _)| RayIntersection::new(t, m * n))
@@ -65,7 +66,8 @@ impl<N: Real> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
     }
 }
@@ -76,7 +78,8 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
     aabb: &AABB<N>,
     ray: &Ray<N>,
     solid: bool,
-) -> Option<RayIntersection<N>> {
+) -> Option<RayIntersection<N>>
+{
     if na::dimension::<Vector<N>>() != 3 {
         aabb.toi_and_normal_with_ray(m, ray, solid)
     } else {

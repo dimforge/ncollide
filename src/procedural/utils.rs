@@ -57,7 +57,8 @@ pub fn push_ring_indices(
     base_upper_circle: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     push_open_ring_indices(base_lower_circle, base_upper_circle, nsubdiv, out);
 
     // adjust the last two triangles
@@ -78,7 +79,8 @@ pub fn push_open_ring_indices(
     base_upper_circle: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     assert!(nsubdiv > 0);
 
     for i in 0..nsubdiv - 1 {
@@ -96,7 +98,8 @@ pub fn push_degenerate_top_ring_indices(
     point: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     push_degenerate_open_top_ring_indices(base_circle, point, nsubdiv, out);
 
     out.push(Point::new(base_circle + nsubdiv - 1, point, base_circle));
@@ -110,7 +113,8 @@ pub fn push_degenerate_open_top_ring_indices(
     point: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     assert!(nsubdiv > 0);
 
     for i in 0..nsubdiv - 1 {
@@ -178,7 +182,8 @@ pub fn split_index_buffer(indices: &[Point<u32>]) -> Vec<Point<Point<u32>>> {
 pub fn split_index_buffer_and_recover_topology<N: Real>(
     indices: &[Point<u32>],
     coords: &[Point<N>],
-) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>) {
+) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>)
+{
     let mut vtx_to_id = HashMap::with_hasher(DeterministicState::new());
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
@@ -187,7 +192,8 @@ pub fn split_index_buffer_and_recover_topology<N: Real>(
         coord: &Point<N>,
         vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32, DeterministicState>,
         new_coords: &mut Vec<Point<N>>,
-    ) -> u32 {
+    ) -> u32
+    {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
         let id = match vtx_to_id.entry(key) {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -231,7 +237,8 @@ pub fn compute_normals<N: Real>(
     coordinates: &[Point<N>],
     faces: &[Point<u32>],
     normals: &mut Vec<Vector<N>>,
-) {
+)
+{
     let mut divisor: Vec<N> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.

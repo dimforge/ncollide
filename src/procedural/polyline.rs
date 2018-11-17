@@ -1,6 +1,6 @@
 use alga::linear::{Rotation, Translation};
-use na::{self, Real};
 use math::{Isometry, Point, Vector};
+use na::{self, Real};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]

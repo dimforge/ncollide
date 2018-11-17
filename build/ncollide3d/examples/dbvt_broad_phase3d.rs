@@ -2,9 +2,9 @@ extern crate nalgebra as na;
 extern crate ncollide3d;
 
 use na::{Isometry3, Vector3};
-use ncollide3d::shape::Ball;
 use ncollide3d::bounding_volume;
 use ncollide3d::broad_phase::{BroadPhase, DBVTBroadPhase};
+use ncollide3d::shape::Ball;
 
 fn main() {
     /*

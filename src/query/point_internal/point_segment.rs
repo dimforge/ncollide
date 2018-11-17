@@ -16,7 +16,8 @@ impl<N: Real> PointQuery<N> for Segment<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -55,7 +56,8 @@ impl<N: Real> PointQueryWithLocation<N> for Segment<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location)
+    {
         let ls_pt = m.inverse_transform_point(pt);
         let ab = *self.b() - *self.a();
         let ap = ls_pt - *self.a();

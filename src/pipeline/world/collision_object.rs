@@ -7,7 +7,6 @@ use shape::ShapeHandle;
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
 
-
 /// The kind of query a CollisionObject may be involved on.
 ///
 /// The following queries are executed for a given pair of `GeometricQueryType` associated with two
@@ -102,7 +101,8 @@ impl<N: Real, T> CollisionObject<N, T> {
         groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObject<N, T> {
+    ) -> CollisionObject<N, T>
+    {
         CollisionObject {
             handle: handle,
             proxy_handle: proxy_handle,
@@ -155,7 +155,8 @@ impl<N: Real, T> CollisionObject<N, T> {
     /// Panics if the shape is not deformable.
     #[inline]
     pub fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
-        self.shape.make_mut()
+        self.shape
+            .make_mut()
             .as_deformable_shape_mut()
             .expect("Attempting to deform a non-deformable shape.")
             .set_deformations(coords, indices)

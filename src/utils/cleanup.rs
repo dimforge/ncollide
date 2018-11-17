@@ -1,6 +1,6 @@
-use std::iter;
-use na::{Point3, Real};
 use math::Point;
+use na::{Point3, Real};
+use std::iter;
 
 /// Given an index buffer, remove from `points` every point that is not indexed.
 pub fn remove_unused_points<N: Real>(points: &mut Vec<Point<N>>, idx: &mut [Point3<u32>]) {

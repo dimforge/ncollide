@@ -1,10 +1,10 @@
-use na::Real;
-use bounding_volume::{HasBoundingVolume, AABB};
 use bounding_volume;
+use bounding_volume::{HasBoundingVolume, AABB};
+use math::Isometry;
+use na::Real;
+use shape::Segment;
 #[cfg(feature = "dim3")]
 use shape::{Capsule, Cone, Cylinder, Triangle};
-use shape::Segment;
-use math::Isometry;
 
 #[cfg(feature = "dim3")]
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cone<N> {

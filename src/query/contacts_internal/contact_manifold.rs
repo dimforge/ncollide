@@ -160,7 +160,8 @@ impl<N: Real> ContactManifold<N> {
         tracking_pt: Point<N>,
         kinematic: ContactKinematic<N>,
         gen: &mut IdAllocator,
-    ) -> bool {
+    ) -> bool
+    {
         match &mut self.cache {
             ContactCache::DistanceBased(cache, threshold) => {
                 let mut closest = cache.len();

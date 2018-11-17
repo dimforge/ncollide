@@ -18,7 +18,8 @@ impl<N: Real> RayCast<N> for Cuboid<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let dl = Point::from_coordinates(-*self.half_extents());
         let ur = Point::from_coordinates(*self.half_extents());
         AABB::new(dl, ur).toi_and_normal_with_ray(m, ray, solid)
@@ -31,7 +32,8 @@ impl<N: Real> RayCast<N> for Cuboid<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let dl = Point::from_coordinates(-*self.half_extents());
         let ur = Point::from_coordinates(*self.half_extents());
         AABB::new(dl, ur).toi_and_normal_and_uv_with_ray(m, ray, solid)

@@ -36,7 +36,8 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

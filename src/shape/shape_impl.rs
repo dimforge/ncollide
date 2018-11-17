@@ -126,7 +126,8 @@ impl<N: Real> Shape<N> for Ball<N> {
         _: &Isometry<N>,
         _: Option<&[N]>,
         _: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         false
     }
 }
@@ -179,7 +180,8 @@ impl<N: Real> Shape<N> for Compound<N> {
         _m: &Isometry<N>,
         _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         unimplemented!()
     }
 }
@@ -196,7 +198,8 @@ impl<N: Real> Shape<N> for TriMesh<N> {
         m: &Isometry<N>,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         match fid {
@@ -222,7 +225,8 @@ impl<N: Real> Shape<N> for Polyline<N> {
         _m: &Isometry<N>,
         _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         unimplemented!()
     }
 }
@@ -236,7 +240,8 @@ impl<N: Real> Shape<N> for Plane<N> {
         m: &Isometry<N>,
         _: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let world_normal = m * self.normal();
         dir.dot(&world_normal) <= N::zero()
     }

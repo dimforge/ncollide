@@ -37,7 +37,8 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         flip: bool,
-    ) {
+    )
+    {
         unimplemented!()
         /*
         // Find new collisions
@@ -137,7 +138,8 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerat
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         /*
         if !self.flip {
             if let Some(cs) = a.as_composite_shape() {

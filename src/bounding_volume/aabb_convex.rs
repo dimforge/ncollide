@@ -1,5 +1,5 @@
-use bounding_volume::{AABB, HasBoundingVolume};
 use bounding_volume::aabb_utils;
+use bounding_volume::{HasBoundingVolume, AABB};
 use math::Isometry;
 use na::Real;
 use shape::ConvexHull;

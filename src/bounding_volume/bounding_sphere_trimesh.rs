@@ -1,5 +1,5 @@
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use math::Isometry;
 use na::Real;
 use shape::TriMesh;

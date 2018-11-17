@@ -1,8 +1,8 @@
-use na::Real;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
-use shape::Triangle;
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use math::Isometry;
+use na::Real;
+use shape::Triangle;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Triangle<N> {
     #[inline]

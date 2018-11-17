@@ -35,7 +35,8 @@ impl<N: Real> ArrowheadCap<N> {
         negative_shifts: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    ) {
+    )
+    {
         let front_dist_to_head = if negative_shifts {
             -self.front_dist_to_head
         } else {
@@ -52,7 +53,8 @@ impl<N: Real> ArrowheadCap<N> {
         let mut attach_id = attach_id;
 
         if !(self.radius_scale == na::convert(1.0)) || !back_dist_to_head.is_zero() {
-            let mut new_pattern: Vec<Point3<N>> = pattern.iter().map(|p| p * self.radius_scale).collect();
+            let mut new_pattern: Vec<Point3<N>> =
+                pattern.iter().map(|p| p * self.radius_scale).collect();
 
             // NOTE: this is done exactly the same on the PolylinePattern::stroke method.
             // Refactor?
@@ -114,7 +116,8 @@ impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
         closed: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    ) {
+    )
+    {
         let start_indices_id = indices.len();
 
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, false, coords, indices);
@@ -130,7 +133,8 @@ impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
         closed: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    ) {
+    )
+    {
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, true, coords, indices)
     }
 }

@@ -1,4 +1,4 @@
-use bounding_volume::{AABB, HasBoundingVolume};
+use bounding_volume::{HasBoundingVolume, AABB};
 use math::Isometry;
 use na::{self, Real};
 use shape::TriMesh;

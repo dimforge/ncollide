@@ -1,8 +1,8 @@
 use algorithm::{JohnsonSimplex, JohnsonSimplexTemplate};
 use algorithms::simplex::Simplex;
 use na::{Point3, Vector3};
-use test::Bencher;
 use test;
+use test::Bencher;
 
 #[bench]
 fn bench_johnson_simplex(bh: &mut Bencher) {

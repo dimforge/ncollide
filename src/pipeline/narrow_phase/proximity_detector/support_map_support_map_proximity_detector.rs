@@ -40,7 +40,8 @@ impl<N: Real> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> 
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction;
             if self.proximity == Proximity::Disjoint {

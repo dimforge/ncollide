@@ -50,7 +50,8 @@ impl<N: Real> Cuboid<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {
@@ -79,7 +80,8 @@ impl<N: Real> Cuboid<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {
@@ -303,7 +305,8 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         let local_dir = m.inverse_transform_vector(dir);
 
@@ -334,7 +337,8 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
         dir: &Unit<Vector<N>>,
         angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let local_dir = m.inverse_transform_vector(dir);
         let cang = angle.cos();
         let mut support_point = self.half_extents;
@@ -572,18 +576,20 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                 generators.push(Unit::new_unchecked(dir1));
                 generators.push(Unit::new_unchecked(dir2));
             }
-            FeatureId::Vertex(id) => for i in 0..3 {
-                let mut dir: Vector<N> = na::zero();
-                let _1: N = na::one();
+            FeatureId::Vertex(id) => {
+                for i in 0..3 {
+                    let mut dir: Vector<N> = na::zero();
+                    let _1: N = na::one();
 
-                if id & (1 << i) != 0 {
-                    dir[i] = -_1;
-                } else {
-                    dir[i] = _1
+                    if id & (1 << i) != 0 {
+                        dir[i] = -_1;
+                    } else {
+                        dir[i] = _1
+                    }
+
+                    generators.push(Unit::new_unchecked(dir));
                 }
-
-                generators.push(Unit::new_unchecked(dir));
-            },
+            }
             _ => {}
         }
 

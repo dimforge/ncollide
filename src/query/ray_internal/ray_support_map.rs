@@ -59,7 +59,8 @@ impl<N: Real> RayCast<N> for Cylinder<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(
@@ -83,7 +84,8 @@ impl<N: Real> RayCast<N> for Cone<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(
@@ -106,7 +108,8 @@ impl<N: Real> RayCast<N> for Capsule<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(
@@ -130,7 +133,8 @@ impl<N: Real> RayCast<N> for ConvexHull<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(
@@ -154,7 +158,8 @@ impl<N: Real> RayCast<N> for ConvexPolygon<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(
@@ -177,7 +182,8 @@ impl<N: Real> RayCast<N> for Segment<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         // XXX: optimize if na::dimension::<P>() == 2
         let ls_ray = ray.inverse_transform_by(m);
 

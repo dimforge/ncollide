@@ -11,7 +11,8 @@ impl<N: Real> RayCast<N> for Triangle<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         _: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
         let res = triangle_ray_intersection(self.a(), self.b(), self.c(), &ls_ray);
 
@@ -31,7 +32,8 @@ pub fn triangle_ray_intersection<N: Real>(
     b: &Point<N>,
     c: &Point<N>,
     ray: &Ray<N>,
-) -> Option<(RayIntersection<N>, Vector3<N>)> {
+) -> Option<(RayIntersection<N>, Vector3<N>)>
+{
     let ab = *b - *a;
     let ac = *c - *a;
 

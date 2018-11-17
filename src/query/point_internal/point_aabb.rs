@@ -12,7 +12,8 @@ impl<N: Real> AABB<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
         solid: bool,
-    ) -> (bool, Point<N>, Vector<N>) {
+    ) -> (bool, Point<N>, Vector<N>)
+    {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -71,7 +72,8 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
         let proj = PointProjection::new(inside, m * ls_pt);
         let mut nzero_shifts = 0;

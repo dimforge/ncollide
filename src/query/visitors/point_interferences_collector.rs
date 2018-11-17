@@ -19,7 +19,8 @@ impl<'a, N: Real, T> PointInterferencesCollector<'a, N, T> {
     pub fn new(
         point: &'a Point<N>,
         buffer: &'a mut Vec<T>,
-    ) -> PointInterferencesCollector<'a, N, T> {
+    ) -> PointInterferencesCollector<'a, N, T>
+    {
         PointInterferencesCollector {
             point: point,
             collector: buffer,

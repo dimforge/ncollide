@@ -31,7 +31,8 @@ impl<N: Real> PointQuery<N> for Triangle<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let (proj, loc) = if na::dimension::<Vector<N>>() == 2 {
             self.project_point_with_location(m, pt, false)
         } else {
@@ -64,7 +65,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
         solid: bool,
-    ) -> (PointProjection<N>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location)
+    {
         let a = *self.a();
         let b = *self.b();
         let c = *self.c();
@@ -135,7 +137,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             ac_cp: N,
             ac_bp: N,
             ab_cp: N,
-        ) -> ProjectionInfo<N> {
+        ) -> ProjectionInfo<N>
+        {
             #[cfg(feature = "dim2")]
             {
                 let n = ab.perp(&ac);

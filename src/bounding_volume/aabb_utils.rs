@@ -1,14 +1,14 @@
 use alga::linear::Transformation;
 use bounding_volume::AABB;
-use math::{DIM, Isometry, Point, Vector};
+use math::{Isometry, Point, Vector, DIM};
 use na::{self, Real};
 use shape::SupportMap;
 
 /// Computes the AABB of an support mapped shape.
 pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
-    where
-        N: Real,
-        G: SupportMap<N>,
+where
+    N: Real,
+    G: SupportMap<N>,
 {
     let mut min = na::zero::<Vector<N>>();
     let mut max = na::zero::<Vector<N>>();

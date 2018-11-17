@@ -221,7 +221,8 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         prediction: &ContactPrediction<N>,
         cache: &mut ClippingCache<N>,
         out: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-    ) {
+    )
+    {
         // FIXME: don't compute contacts further than the prediction.
 
         cache.clear();
@@ -350,7 +351,8 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         fmap2: Option<&Fn(FeatureId) -> FeatureId>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) {
+    )
+    {
         let mut kinematic = ContactKinematic::new();
         let local1 = m1.inverse_transform_point(&c.world1);
         let local2 = m2.inverse_transform_point(&c.world2);

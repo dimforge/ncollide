@@ -9,9 +9,9 @@ use na::{self, Real};
 ///
 /// Same as `g.aabb(m)`.
 pub fn aabb<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> AABB<N>
-    where
-        N: Real,
-        G: HasBoundingVolume<N, AABB<N>>,
+where
+    N: Real,
+    G: HasBoundingVolume<N, AABB<N>>,
 {
     g.bounding_volume(m)
 }

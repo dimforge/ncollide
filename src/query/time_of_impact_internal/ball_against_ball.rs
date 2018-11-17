@@ -13,7 +13,8 @@ pub fn ball_against_ball<N: Real>(
     center2: &Point<N>,
     vel2: &Vector<N>,
     b2: &Ball<N>,
-) -> Option<N> {
+) -> Option<N>
+{
     let vel = *vel1 - *vel2;
     let radius = b1.radius() + b2.radius();
     let center = *center1 + (-center2.coords);

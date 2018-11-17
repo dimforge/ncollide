@@ -11,7 +11,8 @@ pub fn ball_against_ball<N: Real>(
     center2: &Point<N>,
     b2: &Ball<N>,
     margin: N,
-) -> Proximity {
+) -> Proximity
+{
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."

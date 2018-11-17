@@ -215,7 +215,8 @@ impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
         self,
         other: BVHImpl<'b, N, T, BV>,
         visitor: &mut impl SimultaneousVisitor<T, BV>,
-    ) {
+    )
+    {
         // Note: the dispatch on each pair is split into two method to avoid
         // having to write a manually a match over each possible pair.
         match other {
@@ -228,7 +229,8 @@ impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
         self,
         bvh2: &impl BVH<T, BV>,
         visitor: &mut impl SimultaneousVisitor<T, BV>,
-    ) {
+    )
+    {
         match self {
             BVHImpl::BVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
             BVHImpl::DBVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
@@ -240,9 +242,7 @@ impl<'a, N: Real, T, BV> BVHImpl<'a, N, T, BV> {
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
     pub fn best_first_search<BFS>(self, visitor: &mut BFS) -> Option<BFS::Result>
-    where
-        BFS: BestFirstVisitor<N, T, BV>,
-    {
+    where BFS: BestFirstVisitor<N, T, BV> {
         match self {
             BVHImpl::BVT(bvt) => bvt.best_first_search(visitor),
             BVHImpl::DBVT(dbvt) => dbvt.best_first_search(visitor),

@@ -6,10 +6,10 @@ extern crate ncollide2d;
 
 use alga::linear::ProjectiveTransformation;
 use na::{Isometry2, Point2, Vector2};
-use ncollide2d::shape::SupportMap;
-use ncollide2d::query::{self, Proximity};
-use ncollide2d::shape::{Cuboid, Shape};
 use ncollide2d::bounding_volume::{self, AABB};
+use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::SupportMap;
+use ncollide2d::shape::{Cuboid, Shape};
 
 struct Ellipse {
     a: f32, // The first radius.

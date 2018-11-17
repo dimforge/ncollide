@@ -1,6 +1,6 @@
 use na::{self, Isometry3, Vector3};
-use ncollide3d::shape::Cuboid;
 use ncollide3d::query::contacts_internal;
+use ncollide3d::shape::Cuboid;
 
 #[test]
 #[allow(non_snake_case)]

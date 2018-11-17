@@ -35,7 +35,8 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(ball), Some(pq2), Some(cp2)) = (
             a.as_shape::<Ball<N>>(),
             b.as_point_query(),
@@ -136,7 +137,8 @@ impl<N: Real> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenera
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if !self.flip {
             self.do_generate(m1, a, fmap1, m2, b, fmap2, prediction, id_alloc, manifold)
         } else {

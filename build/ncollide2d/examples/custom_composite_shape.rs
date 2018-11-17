@@ -4,10 +4,10 @@ extern crate nalgebra as na;
 extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Translation2, Vector2};
+use ncollide2d::bounding_volume::AABB;
+use ncollide2d::partitioning::BVT;
 use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{CompositeShape, Cuboid, Shape};
-use ncollide2d::partitioning::BVT;
-use ncollide2d::bounding_volume::AABB;
 
 struct CrossedCuboids {
     bvt: BVT<usize, AABB<f32>>,
@@ -73,7 +73,8 @@ impl CompositeShape<f32> for CrossedCuboids {
         i: usize,
         m: &Isometry2<f32>,
         f: &mut FnMut(usize, &Isometry2<f32>, &Shape<f32>),
-    ) {
+    )
+    {
         // Prepend the translation needed to center the cuboid at the point (1, 1).
         let transform = m * Translation2::new(1.0, 1.0);
 

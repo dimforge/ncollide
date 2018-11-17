@@ -54,7 +54,8 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) {
+    )
+    {
         let face1 = &mesh1.faces()[i1];
         let face2 = &mesh2.faces()[i2];
 
@@ -454,11 +455,12 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 let dpt = p1 - t2.a();
                 let dist = dpt.dot(&n2);
 
-                if dist >= N::zero() && mesh1.vertex_tangent_cone_polar_contains_dir(
-                    *iv,
-                    &-n2,
-                    prediction.sin_angular1(),
-                ) {
+                if dist >= N::zero()
+                    && mesh1.vertex_tangent_cone_polar_contains_dir(
+                        *iv,
+                        &-n2,
+                        prediction.sin_angular1(),
+                    ) {
                     let proj = p1 + *n2 * -dist;
 
                     // Accept the contact.
@@ -496,11 +498,12 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 let dpt = p2 - t1.a();
                 let dist = dpt.dot(&n1);
 
-                if dist >= N::zero() && mesh2.vertex_tangent_cone_polar_contains_dir(
-                    *iv,
-                    &(m21 * -n1),
-                    prediction.sin_angular2(),
-                ) {
+                if dist >= N::zero()
+                    && mesh2.vertex_tangent_cone_polar_contains_dir(
+                        *iv,
+                        &(m21 * -n1),
+                        prediction.sin_angular2(),
+                    ) {
                     let proj = p2 + *n1 * -dist;
 
                     // Accept the contact.
@@ -536,7 +539,8 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(mesh1), Some(mesh2)) =
             (g1.as_shape::<TriMesh<N>>(), g2.as_shape::<TriMesh<N>>())
         {

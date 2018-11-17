@@ -1,8 +1,8 @@
-use na::Real;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
 use bounding_volume;
+use bounding_volume::{BoundingSphere, HasBoundingVolume};
+use math::Isometry;
+use na::Real;
 use shape::Segment;
-use math::{Isometry};
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Segment<N> {
     #[inline]

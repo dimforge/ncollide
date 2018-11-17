@@ -109,7 +109,8 @@ impl<N: Real, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
         parent: DBVTInternalId,
         left: DBVTNodeId,
         right: DBVTNodeId,
-    ) -> DBVTInternal<N, BV> {
+    ) -> DBVTInternal<N, BV>
+    {
         DBVTInternal {
             center: bounding_volume.center(),
             bounding_volume: bounding_volume,
@@ -142,7 +143,7 @@ impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
 
         match self.root {
             DBVTNodeId::Leaf(i) => Some(&self.leaves[i].bounding_volume),
-            DBVTNodeId::Internal(i) => Some(&self.internals[i].bounding_volume)
+            DBVTNodeId::Internal(i) => Some(&self.internals[i].bounding_volume),
         }
     }
 
@@ -349,7 +350,7 @@ impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
     fn num_children(&self, node: Self::Node) -> usize {
         match node {
             DBVTNodeId::Internal(_) => 2,
-            DBVTNodeId::Leaf(_) => 0
+            DBVTNodeId::Leaf(_) => 0,
         }
     }
 
@@ -362,7 +363,7 @@ impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
                     self.internals[node_id].right
                 }
             }
-            DBVTNodeId::Leaf(_) => panic!("DBVT child index out of bounds.")
+            DBVTNodeId::Leaf(_) => panic!("DBVT child index out of bounds."),
         }
     }
 

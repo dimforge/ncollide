@@ -16,7 +16,8 @@ impl<N: Real> PointQuery<N> for Shape<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         self.as_point_query()
             .expect("No PointQuery implementation for the underlying shape.")
             .project_point_with_feature(m, pt)

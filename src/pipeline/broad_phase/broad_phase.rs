@@ -1,8 +1,8 @@
-use std::any::Any;
 use na::Real;
+use std::any::Any;
 
-use query::Ray;
 use math::Point;
+use query::Ray;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ProxyHandle(pub usize);

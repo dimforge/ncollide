@@ -89,7 +89,8 @@ impl<N: Real> ConvexPolygon<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         let local_dir = m.inverse_transform_unit_vector(dir);
 
         match feature {
@@ -156,7 +157,8 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
@@ -180,7 +182,8 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)

@@ -1,10 +1,12 @@
 use bounding_volume::BoundingVolume;
 use math::Point;
 use na::Real;
-use partitioning::{BVH, DBVT, DBVTLeaf, DBVTLeafId};
+use partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
 use pipeline::broad_phase::{BroadPhase, ProxyHandle};
+use query::visitors::{
+    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+};
 use query::{PointQuery, Ray, RayCast};
-use query::visitors::{BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector};
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
@@ -70,9 +72,9 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-    where
-        N: Real,
-        BV: 'static + BoundingVolume<N> + Clone,
+where
+    N: Real,
+    BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -100,16 +102,19 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
         &mut self,
         allow_proximity: &mut FnMut(&T, &T) -> bool,
         handler: &mut FnMut(&T, &T, bool),
-    ) {
+    )
+    {
         for (pair, up_to_date) in &mut self.pairs {
             if self.purge_all || !*up_to_date {
                 *up_to_date = true;
                 let mut remove = true;
 
-                let proxy1 = self.proxies
+                let proxy1 = self
+                    .proxies
                     .get(pair.0.uid())
                     .expect("DBVT broad phase: internal error.");
-                let proxy2 = self.proxies
+                let proxy2 = self
+                    .proxies
                     .get(pair.1.uid())
                     .expect("DBVT broad phase: internal error.");
 
@@ -172,16 +177,17 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-    where
-        N: Real,
-        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-        T: Any + Send + Sync,
+where
+    N: Real,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync,
 {
     fn update(
         &mut self,
         allow_proximity: &mut FnMut(&T, &T) -> bool,
         handler: &mut FnMut(&T, &T, bool),
-    ) {
+    )
+    {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -295,10 +301,12 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         }
 
         for (pair, _) in &mut self.pairs {
-            let proxy1 = self.proxies
+            let proxy1 = self
+                .proxies
                 .get(pair.0.uid())
                 .expect("DBVT broad phase: internal error.");
-            let proxy2 = self.proxies
+            let proxy2 = self
+                .proxies
                 .get(pair.1.uid())
                 .expect("DBVT broad phase: internal error.");
 

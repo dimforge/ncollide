@@ -41,7 +41,8 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
         g2: &Shape<N>,
         margin: N,
         flip: bool,
-    ) {
+    )
+    {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
             let _ = self.sub_detectors.remove(key);
@@ -169,7 +170,8 @@ impl<N: Real> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
         m2: &Isometry<N>,
         g2: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         if let Some(cs1) = g1.as_composite_shape() {
             let flip = self.flip;
             self.do_update(dispatcher, m1, cs1, m2, g2, margin, flip);

@@ -1,8 +1,8 @@
 use alga::general::Real;
 
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use shape::Cylinder;
 use math::{Isometry, Point};
+use shape::Cylinder;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Cylinder<N> {
     #[inline]

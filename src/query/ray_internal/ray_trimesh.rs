@@ -24,7 +24,8 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         _: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut visitor = TriMeshRayToiAndNormalVisitor {
@@ -43,7 +44,8 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         if self.uvs().is_none() {
             return self.toi_and_normal_with_ray(m, ray, solid);
         }
@@ -165,7 +167,8 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>>
     fn visit_data(
         &mut self,
         i: &usize,
-    ) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)> {
+    ) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)>
+    {
         let vs = self.mesh.points();
         let idx = self.mesh.faces()[*i].indices;
 

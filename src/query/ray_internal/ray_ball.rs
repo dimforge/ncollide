@@ -39,7 +39,8 @@ impl<N: Real> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let center = Point::from_coordinates(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
@@ -58,7 +59,8 @@ impl<N: Real> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let center = Point::from_coordinates(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
@@ -79,7 +81,8 @@ pub fn ball_toi_with_ray<N: Real>(
     radius: N,
     ray: &Ray<N>,
     solid: bool,
-) -> (bool, Option<N>) {
+) -> (bool, Option<N>)
+{
     let dcenter = ray.origin - *center;
 
     let a = na::norm_squared(&ray.dir);

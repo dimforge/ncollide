@@ -24,7 +24,8 @@ impl<N: Real> RayCast<N> for Compound<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut visitor = CompoundRayToiAndNormalVisitor {

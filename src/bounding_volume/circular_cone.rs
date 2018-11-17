@@ -214,7 +214,8 @@ pub fn cone_polar_contains_dir<N: Real>(
     axis: &Unit<Vector<N>>,
     angle: N,
     dir: &Unit<Vector<N>>,
-) -> bool {
+) -> bool
+{
     let ang = axis.dot(dir).acos();
     ang >= angle + N::frac_pi_2()
 }

@@ -82,7 +82,8 @@ impl<N: Real> Face<N> {
         proj: Point<N>,
         bcoords: [N; 2],
         pts: [usize; 2],
-    ) -> Self {
+    ) -> Self
+    {
         let normal;
         let deleted;
 

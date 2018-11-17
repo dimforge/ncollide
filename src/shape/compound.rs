@@ -115,7 +115,8 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
         i: usize,
         m: &Isometry<N>,
         f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
-    ) {
+    )
+    {
         let id = self.start_idx[i];
         let elt = &self.shapes()[i];
 

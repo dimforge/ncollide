@@ -79,12 +79,14 @@ impl<N: Real> TriMesh<N> {
         points: Vec<Point<N>>,
         indices: Vec<Point3<usize>>,
         uvs: Option<Vec<Point2<N>>>,
-    ) -> TriMesh<N> {
+    ) -> TriMesh<N>
+    {
         let mut leaves = Vec::with_capacity(indices.len());
         let mut vertices: Vec<TriMeshVertex> = iter::repeat(TriMeshVertex {
             adj_faces: 0..0,
             adj_vertices: 0..0,
-        }).take(points.len())
+        })
+        .take(points.len())
         .collect();
         let mut faces = Vec::with_capacity(indices.len());
 
@@ -382,7 +384,8 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         if !self.oriented {
             return false;
         }
@@ -426,7 +429,8 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-    ) -> bool {
+    ) -> bool
+    {
         let v = &self.vertices[i];
 
         for adj_vtx in &self.adj_vertex_list[v.adj_vertices.clone()] {
@@ -448,7 +452,8 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         if !self.oriented {
             return false;
         }
@@ -492,7 +497,8 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-    ) -> bool {
+    ) -> bool
+    {
         let e = &self.edges[i];
         let f1 = &self.faces[e.adj_faces.0.face_id];
         let f2 = &self.faces[e.adj_faces.1.face_id];
@@ -525,7 +531,8 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool {
+    ) -> bool
+    {
         if !self.oriented {
             return false;
         }
@@ -594,7 +601,8 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
         i: usize,
         m: &Isometry<N>,
         f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
-    ) {
+    )
+    {
         let element = self.triangle_at(i);
 
         f(i, m, &element)
@@ -702,7 +710,8 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         coords: &[N],
         indices: Option<&[usize]>,
         approx: &mut LocalShapeApproximation<N>,
-    ) {
+    )
+    {
         assert!(
             indices.is_none(),
             "Remapping indices are not yet supported."

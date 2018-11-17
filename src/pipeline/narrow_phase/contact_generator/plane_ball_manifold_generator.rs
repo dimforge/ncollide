@@ -34,7 +34,8 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from_coordinates(m1.translation.vector);
@@ -94,7 +95,8 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         /*
         if !self.flip {
             Self::do_update_to(

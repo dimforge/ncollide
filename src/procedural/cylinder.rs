@@ -1,8 +1,8 @@
+use super::utils;
+use super::{IndexBuffer, TriMesh};
 use alga::general::Real;
 use na;
 use na::{Point2, Vector3};
-use super::{IndexBuffer, TriMesh};
-use super::utils;
 
 /// Generates a cylinder with a given height and diameter.
 pub fn cylinder<N: Real>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {

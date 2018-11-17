@@ -14,7 +14,8 @@ pub fn segment_against_segment<N: Real>(
     m2: &Isometry<N>,
     seg2: &Segment<N>,
     margin: N,
-) -> ClosestPoints<N> {
+) -> ClosestPoints<N>
+{
     let (loc1, loc2) = segment_against_segment_with_locations(m1, seg1, m2, seg2);
     let p1 = seg1.point_at(&loc1);
     let p2 = seg2.point_at(&loc2);
@@ -34,7 +35,8 @@ pub fn segment_against_segment_with_locations<N: Real>(
     seg1: &Segment<N>,
     m2: &Isometry<N>,
     seg2: &Segment<N>,
-) -> (SegmentPointLocation<N>, SegmentPointLocation<N>) {
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
+{
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);
 

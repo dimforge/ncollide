@@ -12,11 +12,7 @@ use ncollide2d::shape::{Ball, Cuboid};
  */
 trait Shape: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64> {}
 
-impl<T> Shape for T
-where
-    T: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64>,
-{
-}
+impl<T> Shape for T where T: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64> {}
 
 fn main() {
     let ball1 = Ball::new(0.5);

@@ -70,7 +70,8 @@ impl<N: Real> Face<N> {
         bcoords: [N; 3],
         pts: [usize; 3],
         adj: [usize; 3],
-    ) -> Self {
+    ) -> Self
+    {
         let normal;
         let deleted;
 

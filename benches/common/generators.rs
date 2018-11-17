@@ -1,7 +1,7 @@
-use std::sync::Arc;
-use rand::Rng;
 use na::{Point2, Point3, Vector3};
 use ncollide::shape::{TriMesh, TriMesh3};
+use rand::Rng;
+use std::sync::Arc;
 
 pub fn generate_trimesh_around_origin<R: Rng>(rng: &mut R) -> TriMesh3<f32> {
     let pts = (0..3000).map(|_| rng.gen::<Point3<f32>>() * 3.0).collect();

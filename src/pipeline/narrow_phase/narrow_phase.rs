@@ -89,7 +89,8 @@ impl<'a, N: 'a + Real, T: 'a> ContactPairs<'a, N, T> {
             SortedPair<CollisionObjectHandle>,
             (Box<ContactManifoldGenerator<N>>, ContactManifold<N>),
         >,
-    ) -> ContactPairs<'a, N, T> {
+    ) -> ContactPairs<'a, N, T>
+    {
         ContactPairs { objects, pairs }
     }
 }
@@ -128,7 +129,8 @@ impl<'a, N: 'a + Real, T: 'a> ProximityPairs<'a, N, T> {
     pub fn new(
         objects: &'a CollisionObjectSlab<N, T>,
         pairs: Iter<'a, SortedPair<CollisionObjectHandle>, Box<ProximityDetector<N>>>,
-    ) -> ProximityPairs<'a, N, T> {
+    ) -> ProximityPairs<'a, N, T>
+    {
         ProximityPairs {
             objects: objects,
             pairs: pairs,

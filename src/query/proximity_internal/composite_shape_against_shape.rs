@@ -56,8 +56,7 @@ struct CompositeShapeAgainstAnyInterfVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> 
 }
 
 impl<'a, N: Real, G1: ?Sized> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
-where
-    G1: CompositeShape<N>,
+where G1: CompositeShape<N>
 {
     pub fn new(
         m1: &'a Isometry<N>,
@@ -65,7 +64,8 @@ where
         m2: &'a Isometry<N>,
         g2: &'a Shape<N>,
         margin: N,
-    ) -> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1> {
+    ) -> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
+    {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
@@ -83,8 +83,7 @@ where
 
 impl<'a, N: Real, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
-where
-    G1: CompositeShape<N>,
+where G1: CompositeShape<N>
 {
     type Result = Proximity;
 

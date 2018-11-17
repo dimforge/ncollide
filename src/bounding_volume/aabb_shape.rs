@@ -1,6 +1,6 @@
-use na::Real;
 use bounding_volume::{HasBoundingVolume, AABB};
 use math::Isometry;
+use na::Real;
 use shape::Shape;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Shape<N> {

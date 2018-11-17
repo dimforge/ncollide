@@ -22,7 +22,8 @@ impl<'a, N: Real, T> AABBSetsInterferencesCollector<'a, N, T> {
         ls_m2: &'a Isometry<N>,
         ls_m2_abs_rot: &'a Matrix<N>,
         collector: &'a mut Vec<(T, T)>,
-    ) -> AABBSetsInterferencesCollector<'a, N, T> {
+    ) -> AABBSetsInterferencesCollector<'a, N, T>
+    {
         AABBSetsInterferencesCollector {
             ls_m2,
             ls_m2_abs_rot,
@@ -41,7 +42,8 @@ impl<'a, N: Real, T: Clone> SimultaneousVisitor<T, AABB<N>>
         left_data: Option<&T>,
         right_bv: &AABB<N>,
         right_data: Option<&T>,
-    ) -> VisitStatus {
+    ) -> VisitStatus
+    {
         let ls_right_bv = AABB::from_half_extents(
             self.ls_m2 * right_bv.center(),
             self.ls_m2_abs_rot * right_bv.half_extents(),

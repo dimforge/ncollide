@@ -1,9 +1,9 @@
+use super::ToTriMesh;
 use alga::general::Real;
 use na;
-use shape::Cone;
-use procedural::TriMesh;
 use procedural;
-use super::ToTriMesh;
+use procedural::TriMesh;
+use shape::Cone;
 
 impl<N: Real> ToTriMesh<N> for Cone<N> {
     type DiscretizationParameter = u32;

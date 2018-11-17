@@ -65,7 +65,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         collision_groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObjectHandle {
+    ) -> CollisionObjectHandle
+    {
         let mut co = CollisionObject::new(
             CollisionObjectHandle::invalid(),
             ProxyHandle::invalid(),
@@ -170,7 +171,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         handle: CollisionObjectHandle,
         coords: &[N],
         indices: Option<&[usize]>,
-    ) {
+    )
+    {
         let co = self
             .objects
             .get_mut(handle)
@@ -190,9 +192,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-    where
-        F: BroadPhasePairFilter<N, T>,
-    {
+    where F: BroadPhasePairFilter<N, T> {
         self.pair_filters
             .register_collision_filter(name, Box::new(filter));
         self.broad_phase.deferred_recompute_all_proximities();
@@ -241,7 +241,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn set_narrow_phase(
         &mut self,
         narrow_phase: Box<NarrowPhase<N, T>>,
-    ) -> Box<NarrowPhase<N, T>> {
+    ) -> Box<NarrowPhase<N, T>>
+    {
         let old = mem::replace(&mut self.narrow_phase, narrow_phase);
         self.broad_phase.deferred_recompute_all_proximities();
 
@@ -254,7 +255,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)> {
+    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)>
+    {
         self.narrow_phase.contact_pair(handle1, handle2)
     }
 
@@ -281,7 +283,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn collision_object(
         &self,
         handle: CollisionObjectHandle,
-    ) -> Option<&CollisionObject<N, T>> {
+    ) -> Option<&CollisionObject<N, T>>
+    {
         self.objects.get(handle)
     }
 
@@ -290,7 +293,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn collision_object_mut(
         &mut self,
         handle: CollisionObjectHandle,
-    ) -> Option<&mut CollisionObject<N, T>> {
+    ) -> Option<&mut CollisionObject<N, T>>
+    {
         self.objects.get_mut(handle)
     }
 
@@ -310,7 +314,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &'a self,
         ray: &'b Ray<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithRay<'a, 'b, N, T> {
+    ) -> InterferencesWithRay<'a, 'b, N, T>
+    {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase.interferences_with_ray(ray, &mut handles);
@@ -329,7 +334,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &'a self,
         point: &'b Point<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithPoint<'a, 'b, N, T> {
+    ) -> InterferencesWithPoint<'a, 'b, N, T>
+    {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -349,7 +355,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &'a self,
         aabb: &'b AABB<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithAABB<'a, 'b, N, T> {
+    ) -> InterferencesWithAABB<'a, 'b, N, T>
+    {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
         self.broad_phase
@@ -379,7 +386,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
         objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> bool {
+    ) -> bool
+    {
         let o1 = &objects[handle1];
         let o2 = &objects[handle2];
         let filter_by_groups = CollisionGroupsPairFilter;

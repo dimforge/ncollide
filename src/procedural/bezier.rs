@@ -1,9 +1,9 @@
-use std::iter;
-use std::ptr;
-use na::{self, Real};
 #[cfg(feature = "dim3")]
 use super::TriMesh;
 use math::Point;
+use na::{self, Real};
+use std::iter;
+use std::ptr;
 
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
@@ -12,7 +12,8 @@ pub fn bezier_curve_at<N: Real>(
     control_points: &[Point<N>],
     t: N,
     cache: &mut Vec<Point<N>>,
-) -> Point<N> {
+) -> Point<N>
+{
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
         cache.extend(iter::repeat(Point::origin()).take(diff))

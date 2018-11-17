@@ -11,7 +11,8 @@ pub fn line_against_line_parameters<N: Real>(
     dir1: &Vector<N>,
     orig2: &Point<N>,
     dir2: &Vector<N>,
-) -> (N, N) {
+) -> (N, N)
+{
     // Inspired by Real-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
@@ -65,7 +66,8 @@ pub fn line_against_line<N: Real>(
     dir1: &Vector<N>,
     orig2: &Point<N>,
     dir2: &Vector<N>,
-) -> (Point<N>, Point<N>) {
+) -> (Point<N>, Point<N>)
+{
     let (s, t) = line_against_line_parameters(orig1, dir1, orig2, dir2);
     (*orig1 + *dir1 * s, *orig2 + *dir2 * t)
 }

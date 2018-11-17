@@ -1,10 +1,10 @@
 extern crate ncollide;
 extern crate test;
 
-use std::collections::HashMap as StdHashMap;
-use test::Bencher;
 use ncollide::utils::data::hash::UintPairTWHash;
 use ncollide::utils::data::hash_map::HashMap;
+use std::collections::HashMap as StdHashMap;
+use test::Bencher;
 
 #[bench]
 fn bench_insert_this(bh: &mut Bencher) {

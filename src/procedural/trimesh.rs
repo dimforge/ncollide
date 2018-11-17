@@ -57,7 +57,8 @@ impl<N: Real> TriMesh<N> {
         normals: Option<Vec<Vector<N>>>,
         uvs: Option<Vec<Point2<N>>>,
         indices: Option<IndexBuffer>,
-    ) -> TriMesh<N> {
+    ) -> TriMesh<N>
+    {
         // generate trivial indices
         let idx = indices.unwrap_or_else(|| {
             IndexBuffer::Unified(
@@ -124,16 +125,20 @@ impl<N: Real> TriMesh<N> {
         let mut res = Vec::with_capacity(self.num_triangles() * 3);
 
         match self.indices {
-            IndexBuffer::Unified(ref idx) => for i in idx {
-                res.push(i[0]);
-                res.push(i[1]);
-                res.push(i[2]);
-            },
-            IndexBuffer::Split(ref idx) => for i in idx {
-                res.push(i[0][0]);
-                res.push(i[1][0]);
-                res.push(i[2][0]);
-            },
+            IndexBuffer::Unified(ref idx) => {
+                for i in idx {
+                    res.push(i[0]);
+                    res.push(i[1]);
+                    res.push(i[2]);
+                }
+            }
+            IndexBuffer::Split(ref idx) => {
+                for i in idx {
+                    res.push(i[0][0]);
+                    res.push(i[1][0]);
+                    res.push(i[2][0]);
+                }
+            }
         }
 
         res
@@ -263,36 +268,40 @@ impl<N: Real> TriMesh<N> {
         let mut resu: Option<Vec<Point2<N>>> = self.uvs.as_ref().map(|_| Vec::new());
 
         match self.indices {
-            IndexBuffer::Split(ref ids) => for triangle in ids.iter() {
-                for point in triangle.iter() {
-                    let idx = resc.len() as u32;
-                    resc.push(self.coords[point.x as usize].clone());
+            IndexBuffer::Split(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[point.x as usize].clone());
 
-                    let _ = resn
-                        .as_mut()
-                        .map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
-                    let _ = resu
-                        .as_mut()
-                        .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[point.y as usize].clone())
+                        });
+                        let _ = resu
+                            .as_mut()
+                            .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
 
-                    resi.push(idx);
+                        resi.push(idx);
+                    }
                 }
-            },
-            IndexBuffer::Unified(ref ids) => for triangle in ids.iter() {
-                for point in triangle.iter() {
-                    let idx = resc.len() as u32;
-                    resc.push(self.coords[*point as usize].clone());
+            }
+            IndexBuffer::Unified(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[*point as usize].clone());
 
-                    let _ = resn
-                        .as_mut()
-                        .map(|l| l.push(self.normals.as_ref().unwrap()[*point as usize].clone()));
-                    let _ = resu
-                        .as_mut()
-                        .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[*point as usize].clone())
+                        });
+                        let _ = resu
+                            .as_mut()
+                            .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
 
-                    resi.push(idx);
+                        resi.push(idx);
+                    }
                 }
-            },
+            }
         };
 
         self.coords = resc;

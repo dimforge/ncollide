@@ -41,7 +41,8 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) {
+    )
+    {
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
@@ -153,7 +154,8 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshShapeManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         if !self.flip {
             if let Some(trimesh) = a.as_shape::<TriMesh<N>>() {
                 self.do_update(

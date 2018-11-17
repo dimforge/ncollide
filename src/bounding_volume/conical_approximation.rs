@@ -135,9 +135,11 @@ impl<N: Real> ConicalApproximation<N> {
             ConicalApproximation::HalfLine(ref mut dir) => *dir = m * *dir,
             ConicalApproximation::HalfSpace(ref mut normal) => *normal = m * *normal,
             ConicalApproximation::OrthogonalSubspace(ref mut normal) => *normal = m * *normal,
-            ConicalApproximation::Span(ref mut generators) => for gen in generators {
-                *gen = m * *gen;
-            },
+            ConicalApproximation::Span(ref mut generators) => {
+                for gen in generators {
+                    *gen = m * *gen;
+                }
+            }
             ConicalApproximation::Circular { ref mut axis, .. } => *axis = m * &*axis,
             ConicalApproximation::Full => {}
             ConicalApproximation::Empty => {}
@@ -208,73 +210,73 @@ impl<N: Real> ConicalApproximation<N> {
             }
             ConicalApproximation::Span(ref generators) => {
                 #[cfg(feature = "dim2")]
-                    {
-                        // NOTE: the following assumes the polycone
-                        // generator are ordered in CCW order.
-                        let perp1 = dir.as_ref().perp(&*generators[0]);
-                        let perp2 = dir.as_ref().perp(&*generators[1]);
+                {
+                    // NOTE: the following assumes the polycone
+                    // generator are ordered in CCW order.
+                    let perp1 = dir.as_ref().perp(&*generators[0]);
+                    let perp2 = dir.as_ref().perp(&*generators[1]);
 
-                        perp1 <= N::zero() && perp2 >= N::zero()
-                    }
+                    perp1 <= N::zero() && perp2 >= N::zero()
+                }
 
                 #[cfg(feature = "dim3")]
-                    {
-                        // NOTE: the following does not makes any assumptions on the
-                        // polycone orientation.
-                        if generators.len() == 1 {
+                {
+                    // NOTE: the following does not makes any assumptions on the
+                    // polycone orientation.
+                    if generators.len() == 1 {
+                        // The polycone is degenerate and actually has only one generactor.
+                        let eps: N = na::convert(f64::consts::PI / 180.0 * 0.1);
+                        let c_eps = eps.cos();
+                        let dot = na::dot(&*generators[0], dir.as_ref());
+                        dot >= c_eps
+                    } else if generators.len() == 2 {
+                        let eps = na::convert(f64::consts::PI / 180.0 * 0.1);
+                        let normal = generators[1].cross(&*generators[0]);
+
+                        if let Some(normal) = Unit::try_new(normal, na::zero()) {
+                            if na::dot(&*normal, dir.as_ref()).abs() > eps {
+                                return false;
+                            }
+
+                            let middle =
+                                (*generators[0] + *generators[1]) * na::convert::<_, N>(0.5);
+                            if na::dot(&middle, dir.as_ref()) < na::zero() {
+                                return false;
+                            }
+
+                            let cross1 = generators[0].cross(dir.as_ref());
+                            let cross2 = generators[1].cross(dir.as_ref());
+
+                            na::dot(&cross1, &*normal) * na::dot(&cross2, &*normal) <= na::zero()
+                        } else {
+                            // FIXME: duplicate code with the case where we only have one generator.
                             // The polycone is degenerate and actually has only one generactor.
-                            let eps: N = na::convert(f64::consts::PI / 180.0 * 0.1);
                             let c_eps = eps.cos();
                             let dot = na::dot(&*generators[0], dir.as_ref());
                             dot >= c_eps
-                        } else if generators.len() == 2 {
-                            let eps = na::convert(f64::consts::PI / 180.0 * 0.1);
-                            let normal = generators[1].cross(&*generators[0]);
-
-                            if let Some(normal) = Unit::try_new(normal, na::zero()) {
-                                if na::dot(&*normal, dir.as_ref()).abs() > eps {
-                                    return false;
-                                }
-
-                                let middle =
-                                    (*generators[0] + *generators[1]) * na::convert::<_, N>(0.5);
-                                if na::dot(&middle, dir.as_ref()) < na::zero() {
-                                    return false;
-                                }
-
-                                let cross1 = generators[0].cross(dir.as_ref());
-                                let cross2 = generators[1].cross(dir.as_ref());
-
-                                na::dot(&cross1, &*normal) * na::dot(&cross2, &*normal) <= na::zero()
-                            } else {
-                                // FIXME: duplicate code with the case where we only have one generator.
-                                // The polycone is degenerate and actually has only one generactor.
-                                let c_eps = eps.cos();
-                                let dot = na::dot(&*generators[0], dir.as_ref());
-                                dot >= c_eps
-                            }
-                        } else {
-                            let mut sign = N::zero();
-                            let mut center = Vector::zeros();
-
-                            for i1 in 0..generators.len() {
-                                let i2 = (i1 + 1) % generators.len();
-                                let cross = generators[i1].cross(generators[i2].as_ref());
-                                let dot = na::dot(dir.as_ref(), &cross);
-                                center += generators[i1].unwrap();
-
-                                if sign.is_zero() {
-                                    sign = dot
-                                } else if sign * dot < na::zero() {
-                                    return false;
-                                }
-                            }
-
-                            // FIXME: is this a sufficient condition to determine if the
-                            // dir is not of the opposite cone?
-                            na::dot(&center, dir.as_ref()) >= na::zero()
                         }
+                    } else {
+                        let mut sign = N::zero();
+                        let mut center = Vector::zeros();
+
+                        for i1 in 0..generators.len() {
+                            let i2 = (i1 + 1) % generators.len();
+                            let cross = generators[i1].cross(generators[i2].as_ref());
+                            let dot = na::dot(dir.as_ref(), &cross);
+                            center += generators[i1].unwrap();
+
+                            if sign.is_zero() {
+                                sign = dot
+                            } else if sign * dot < na::zero() {
+                                return false;
+                            }
+                        }
+
+                        // FIXME: is this a sufficient condition to determine if the
+                        // dir is not of the opposite cone?
+                        na::dot(&center, dir.as_ref()) >= na::zero()
                     }
+                }
             }
         }
     }
@@ -285,7 +287,7 @@ impl<N: Real> From<CircularCone<N>> for ConicalApproximation<N> {
         match cone {
             CircularCone::Full => ConicalApproximation::Full,
             CircularCone::Empty => ConicalApproximation::Empty,
-            CircularCone::Spread { axis, angle } => ConicalApproximation::Circular { axis, angle }
+            CircularCone::Spread { axis, angle } => ConicalApproximation::Circular { axis, angle },
         }
     }
 }

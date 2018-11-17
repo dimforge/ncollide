@@ -9,7 +9,8 @@ pub fn ball_against_ball<N: Real>(
     b1: &Ball<N>,
     center2: &Point<N>,
     b2: &Ball<N>,
-) -> N {
+) -> N
+{
     let r1 = b1.radius();
     let r2 = b2.radius();
     let delta_pos = *center2 - *center1;

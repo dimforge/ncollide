@@ -20,7 +20,8 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         unimplemented!()
     }
 
@@ -50,7 +51,8 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
         m: &Isometry<N>,
         point: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location)
+    {
         let ls_pt = m.inverse_transform_point(point);
         let mut visitor = TriMeshPointProjVisitor {
             polyline: self,

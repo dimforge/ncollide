@@ -1,5 +1,5 @@
+use math::{Isometry, Point};
 use na::Real;
-use math::{Point, Isometry};
 
 /// Traits of objects having a bounding volume.
 pub trait HasBoundingVolume<N: Real, BV> {

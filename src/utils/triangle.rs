@@ -1,7 +1,7 @@
 use alga::general::Real;
+use math::Point;
 use na;
 use utils;
-use math::Point;
 
 /// Computes the area of a triangle.
 #[inline]
@@ -78,7 +78,8 @@ pub fn is_affinely_dependent_triangle<N: Real>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
-) -> bool {
+) -> bool
+{
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -99,7 +100,8 @@ pub fn is_point_in_triangle<N: Real>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
-) -> bool {
+) -> bool
+{
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;
@@ -112,8 +114,12 @@ pub fn is_point_in_triangle<N: Real>(
     let d12 = na::dot(&p2p, &p2p3);
     let d13 = na::dot(&p3p, &p3p1);
 
-    d11 >= na::zero() && d11 <= na::norm_squared(&p1p2) && d12 >= na::zero()
-        && d12 <= na::norm_squared(&p2p3) && d13 >= na::zero() && d13 <= na::norm_squared(&p3p1)
+    d11 >= na::zero()
+        && d11 <= na::norm_squared(&p1p2)
+        && d12 >= na::zero()
+        && d12 <= na::norm_squared(&p2p3)
+        && d13 >= na::zero()
+        && d13 <= na::norm_squared(&p3p1)
 }
 
 #[cfg(feature = "dim3")]

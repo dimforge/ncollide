@@ -1,8 +1,8 @@
+use super::ToPolyline;
 use alga::general::Real;
 use na;
-use shape::Ball;
 use procedural::{self, Polyline};
-use super::ToPolyline;
+use shape::Ball;
 
 impl<N: Real> ToPolyline<N> for Ball<N> {
     type DiscretizationParameter = u32;

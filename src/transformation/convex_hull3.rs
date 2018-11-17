@@ -4,7 +4,8 @@ use std::cmp::Ordering;
 use na::{self, Matrix3, Point2, Point3, Real, Vector3};
 use procedural::{IndexBuffer, TriMesh};
 use transformation::{
-    self, convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
+    self,
+    convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
 };
 use utils;
 
@@ -184,7 +185,8 @@ fn build_degenerate_mesh_segment<N: Real>(dir: &Vector3<N>, points: &[Point3<N>]
 fn get_initial_mesh<N: Real>(
     points: &mut [Point3<N>],
     undecidable: &mut Vec<usize>,
-) -> InitialMesh<N> {
+) -> InitialMesh<N>
+{
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
@@ -364,7 +366,8 @@ fn compute_silhouette<N: Real>(
     points: &[Point3<N>],
     removed_facets: &mut Vec<usize>,
     triangles: &mut [TriangleFacet<N>],
-) {
+)
+{
     if triangles[facet].valid {
         if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(
             point,
@@ -425,7 +428,8 @@ fn attach_and_push_facets3<N: Real>(
     triangles: &mut Vec<TriangleFacet<N>>,
     removed_facets: &[usize],
     undecidable: &mut Vec<usize>,
-) {
+)
+{
     // The horizon is built to be in CCW order.
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
@@ -585,7 +589,8 @@ impl<N: Real> TriangleFacet<N> {
         id_adj1: usize,
         id_adj2: usize,
         id_adj3: usize,
-    ) {
+    )
+    {
         self.indirect_adj_id[0] = id_adj1;
         self.indirect_adj_id[1] = id_adj2;
         self.indirect_adj_id[2] = id_adj3;
@@ -622,7 +627,8 @@ impl<N: Real> TriangleFacet<N> {
         point: usize,
         points: &[Point3<N>],
         edge: usize,
-    ) -> bool {
+    ) -> bool
+    {
         let p0 = &points[self.first_point_from_edge(edge)];
         let p1 = &points[self.second_point_from_edge(edge)];
         let pt = &points[point];

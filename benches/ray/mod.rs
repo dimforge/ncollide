@@ -1,12 +1,13 @@
-use rand::IsaacRng;
-use test::Bencher;
-use test;
-use na::Id;
-use ncollide::bounding_volume::{AABB, BoundingSphere3};
-use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, TriMesh3,
-                      Triangle3};
-use ncollide::ray::{Ray3, RayCast};
 use common::{generate, generate_trimesh_around_origin, unref};
+use na::Id;
+use ncollide::bounding_volume::{BoundingSphere3, AABB};
+use ncollide::ray::{Ray3, RayCast};
+use ncollide::shape::{
+    Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, TriMesh3, Triangle3,
+};
+use rand::IsaacRng;
+use test;
+use test::Bencher;
 
 #[path = "../common/macros.rs"]
 #[macro_use]

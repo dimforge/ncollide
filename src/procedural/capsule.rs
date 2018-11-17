@@ -1,7 +1,7 @@
+use super::{sphere, utils};
+use super::{IndexBuffer, TriMesh};
 use alga::general::Real;
 use na;
-use super::{IndexBuffer, TriMesh};
-use super::{sphere, utils};
 
 /// Generates a capsule.
 pub fn capsule<N>(

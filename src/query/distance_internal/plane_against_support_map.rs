@@ -9,7 +9,8 @@ pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
     plane: &Plane<N>,
     mother: &Isometry<N>,
     other: &G,
-) -> N {
+) -> N
+{
     let plane_normal = mplane * plane.normal();
     let plane_center = Point::from_coordinates(mplane.translation.vector);
     let deepest = other.support_point_toward(mother, &-plane_normal);
@@ -29,6 +30,7 @@ pub fn support_map_against_plane<N: Real, G: ?Sized + SupportMap<N>>(
     other: &G,
     mplane: &Isometry<N>,
     plane: &Plane<N>,
-) -> N {
+) -> N
+{
     plane_against_support_map(mplane, plane, mother, other)
 }

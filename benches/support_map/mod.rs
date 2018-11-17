@@ -1,10 +1,10 @@
-use rand::IsaacRng;
-use test::Bencher;
-use test;
-use na::{Isometry3, Vector3};
-use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, Triangle3};
-use ncollide::shape::SupportMap;
 use common::{generate, unref};
+use na::{Isometry3, Vector3};
+use ncollide::shape::SupportMap;
+use ncollide::shape::{Ball3, Capsule3, Cone3, Convex3, Cuboid, Cylinder3, Segment3, Triangle3};
+use rand::IsaacRng;
+use test;
+use test::Bencher;
 
 #[path = "../common/macros.rs"]
 #[macro_use]

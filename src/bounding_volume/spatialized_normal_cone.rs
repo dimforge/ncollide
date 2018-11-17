@@ -1,4 +1,4 @@
-use bounding_volume::{AABB, BoundingVolume, CircularCone};
+use bounding_volume::{BoundingVolume, CircularCone, AABB};
 use math::Point;
 use na::Real;
 
@@ -10,7 +10,6 @@ pub struct SpatializedNormalCone<N: Real> {
     /// A circular cone bounding the normals of a geometry.
     pub normals: CircularCone<N>,
 }
-
 
 impl<N: Real> BoundingVolume<N> for SpatializedNormalCone<N> {
     fn center(&self) -> Point<N> {

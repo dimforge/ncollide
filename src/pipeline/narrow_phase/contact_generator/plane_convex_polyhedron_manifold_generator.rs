@@ -37,7 +37,8 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(plane), Some(cp)) = (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from_coordinates(m1.translation.vector);
@@ -93,7 +94,8 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool {
+    ) -> bool
+    {
         /*
         if !self.flip {
             Self::do_update_to(

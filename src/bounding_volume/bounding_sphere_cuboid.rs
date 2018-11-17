@@ -1,7 +1,7 @@
-use na::{self, Real};
 use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use shape::Cuboid;
 use math::{Isometry, Point};
+use na::{self, Real};
+use shape::Cuboid;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Cuboid<N> {
     #[inline]
