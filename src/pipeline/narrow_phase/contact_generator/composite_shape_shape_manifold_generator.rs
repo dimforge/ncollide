@@ -1,7 +1,7 @@
 use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction};
 use shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
@@ -84,10 +84,10 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                                 dispatcher,
                                 m2,
                                 g2,
-                                fmap2,
+                                ctxt2,
                                 m1,
                                 g1,
-                                fmap1,
+                                ctxt1,
                                 prediction,
                                 id_alloc,
                                 &mut detector.1
@@ -131,10 +131,10 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerat
         d: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,

@@ -1,5 +1,5 @@
 use bounding_volume::{BoundingVolume, AABB};
-use math::{Isometry, Matrix};
+use math::{Isometry, Matrix, Vector};
 use na::Real;
 use partitioning::{SimultaneousVisitor, VisitStatus};
 
@@ -11,6 +11,10 @@ pub struct AABBSetsInterferencesCollector<'a, N: 'a + Real, T: 'a> {
     ///
     /// Equals to `ls_m2.rotation.to_rotation.matrix().matrix().abs()`.
     pub ls_m2_abs_rot: &'a Matrix<N>,
+    /// A tolerance applied to the interference tests.
+    ///
+    /// AABB pairs closer than `tolerance` will be reported as intersecting.
+    pub tolerence: N,
     /// The data contained by the nodes with bounding volumes intersecting `self.bv`.
     pub collector: &'a mut Vec<(T, T)>,
 }
@@ -19,12 +23,14 @@ impl<'a, N: Real, T> AABBSetsInterferencesCollector<'a, N, T> {
     /// Creates a new `AABBSetsInterferencesCollector`.
     #[inline]
     pub fn new(
+        tolerence: N,
         ls_m2: &'a Isometry<N>,
         ls_m2_abs_rot: &'a Matrix<N>,
         collector: &'a mut Vec<(T, T)>,
     ) -> AABBSetsInterferencesCollector<'a, N, T>
     {
         AABBSetsInterferencesCollector {
+            tolerence,
             ls_m2,
             ls_m2_abs_rot,
             collector,
@@ -46,7 +52,7 @@ impl<'a, N: Real, T: Clone> SimultaneousVisitor<T, AABB<N>>
     {
         let ls_right_bv = AABB::from_half_extents(
             self.ls_m2 * right_bv.center(),
-            self.ls_m2_abs_rot * right_bv.half_extents(),
+            self.ls_m2_abs_rot * right_bv.half_extents() + Vector::repeat(self.tolerence),
         );
 
         if left_bv.intersects(&ls_right_bv) {

@@ -15,6 +15,9 @@ pub use self::plane_convex_polyhedron_manifold_generator::PlaneConvexPolyhedronM
 pub use self::trimesh_shape_manifold_generator::TriMeshShapeManifoldGenerator;
 #[cfg(feature = "dim3")]
 pub use self::trimesh_trimesh_manifold_generator::TriMeshTriMeshManifoldGenerator;
+#[cfg(feature = "dim3")]
+pub use self::contact_generator_shape_context::TriMeshFaceContext;
+pub use self::contact_generator_shape_context::ContactGeneratorShapeContext;
 
 // // FIXME: un-hide this and move everything to a folder.
 mod ball_ball_manifold_generator;
@@ -31,3 +34,4 @@ mod plane_convex_polyhedron_manifold_generator;
 mod trimesh_shape_manifold_generator;
 #[cfg(feature = "dim3")]
 mod trimesh_trimesh_manifold_generator;
+mod contact_generator_shape_context;

@@ -1,7 +1,7 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::Real;
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::contacts_internal;
 use query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use shape::{Ball, FeatureId, Shape};
@@ -30,10 +30,10 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
         _: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -51,12 +51,12 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
             ) {
                 let mut kinematic = ContactKinematic::new();
                 kinematic.set_approx1(
-                    FeatureId::Face(0).apply(fmap1),
+                    FeatureId::Face(0).apply(ctxt1),
                     Point::origin(),
                     NeighborhoodGeometry::Point,
                 );
                 kinematic.set_approx2(
-                    FeatureId::Face(0).apply(fmap2),
+                    FeatureId::Face(0).apply(ctxt2),
                     Point::origin(),
                     NeighborhoodGeometry::Point,
                 );

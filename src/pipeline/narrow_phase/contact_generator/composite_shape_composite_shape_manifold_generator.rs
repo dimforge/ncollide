@@ -1,7 +1,7 @@
 use bounding_volume::{BoundingVolume, AABB};
 use math::Isometry;
 use na::Real;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction};
 use shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
@@ -30,10 +30,10 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         m2: &Isometry<N>,
         g2: &CompositeShape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -46,6 +46,7 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
 
         {
             let mut visitor = AABBSetsInterferencesCollector::new(
+                prediction.linear(),
                 &ls_m2,
                 &ls_m2_abs_rot,
                 &mut self.interferences,
@@ -87,7 +88,7 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
                         // FIXME: change the update functions.
                         assert!(
                             detector.generate_contacts(
-                                dispatcher, m1, g1, fmap1, m2, g2, fmap2, prediction, id_alloc,
+                                dispatcher, m1, g1, ctxt1, m2, g2, ctxt2, prediction, id_alloc,
                                 manifold
                             ),
                             "Internal error: the shape was no longer valid."
@@ -110,10 +111,10 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifo
         d: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -121,7 +122,7 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifo
     {
         if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
             self.do_update(
-                d, ma, csa, fmap1, mb, csb, fmap2, prediction, id_alloc, manifold,
+                d, ma, csa, ctxt1, mb, csb, ctxt2, prediction, id_alloc, manifold,
             );
             true
         } else {

@@ -1,7 +1,7 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use shape::{Ball, FeatureId, Plane, Shape};
 use utils::{IdAllocator, IsometryOps};
@@ -88,10 +88,10 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         _: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,

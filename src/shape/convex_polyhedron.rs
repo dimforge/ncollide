@@ -2,6 +2,7 @@ use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point, Vector};
 use na::{Real, Unit};
 use shape::{ConvexPolygonalFeature, SupportMap};
+use pipeline::narrow_phase::ContactGeneratorShapeContext;
 
 /// An identifier of a feature of a convex polyhedron.
 ///
@@ -48,10 +49,11 @@ impl FeatureId {
         }
     }
 
+    // FIXME: this should not be here.
     /// Applies the given feature transformation function to `self`.
-    pub fn apply(self, f: Option<&Fn(Self) -> Self>) -> Self {
-        if let Some(f) = f {
-            f(self)
+    pub fn apply<N: Real>(self, ctxt: Option<&ContactGeneratorShapeContext<N>>) -> Self {
+        if let Some(ctxt) = ctxt {
+            ctxt.remap_feature(self)
         } else {
             self
         }

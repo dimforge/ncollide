@@ -2,7 +2,7 @@
 use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Vector};
 use na::{self, Point2, Real, Unit};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
@@ -93,10 +93,10 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         _: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -162,10 +162,11 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                     c,
                     ma,
                     f1,
-                    fmap1,
+                    ctxt1,
                     mb,
                     f2,
-                    fmap2,
+                    ctxt2,
+                    prediction,
                     id_alloc,
                     manifold,
                 )

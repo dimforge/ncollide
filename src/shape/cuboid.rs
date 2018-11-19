@@ -82,6 +82,7 @@ impl<N: Real> Cuboid<N> {
         dir: &Unit<Vector<N>>,
     ) -> bool
     {
+        return false;
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {

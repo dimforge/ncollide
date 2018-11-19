@@ -7,9 +7,10 @@ pub use self::contact_generator::{
     ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator,
     ConvexPolyhedronConvexPolyhedronManifoldGenerator, DefaultContactDispatcher,
     PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator,
+    ContactGeneratorShapeContext
 };
 #[cfg(feature = "dim3")]
-pub use self::contact_generator::{TriMeshShapeManifoldGenerator, TriMeshTriMeshManifoldGenerator};
+pub use self::contact_generator::{TriMeshShapeManifoldGenerator, TriMeshTriMeshManifoldGenerator, TriMeshFaceContext};
 pub use self::default_narrow_phase::DefaultNarrowPhase;
 pub use self::narrow_phase::{ContactPairs, NarrowPhase, ProximityPairs};
 #[doc(inline)]

@@ -246,6 +246,8 @@ impl<N: Real> ContactKinematic<N> {
                             deformations2,
                             &-n,
                         ) {
+                        println!("Is in tangent cone 3.");
+
                         depth = d;
                         normal = -n;
                     } else {
@@ -273,6 +275,8 @@ impl<N: Real> ContactKinematic<N> {
                             deformations2,
                             &-n,
                         ) {
+                        println!("Is in tangent cone 4.");
+
                         depth = d;
                         normal = -n;
                     } else {
@@ -303,6 +307,7 @@ impl<N: Real> ContactKinematic<N> {
                             deformations2,
                             &-n,
                         ) {
+                        println!("Is in tangent cone 5.");
                         depth = d;
                         normal = -n;
                     } else {
@@ -335,6 +340,8 @@ impl<N: Real> ContactKinematic<N> {
                             deformations2,
                             &-n,
                         ) {
+                        println!("Is in tangent cone 6.");
+
                         depth = d;
                         normal = -n;
                     } else {
@@ -351,6 +358,7 @@ impl<N: Real> ContactKinematic<N> {
             }
         }
 
+        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
         world1 += normal.unwrap() * self.margin1;
         world2 += normal.unwrap() * (-self.margin2);
         depth += self.margin1 + self.margin2;

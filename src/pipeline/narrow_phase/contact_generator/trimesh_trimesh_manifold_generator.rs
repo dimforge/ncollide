@@ -1,7 +1,7 @@
 use bounding_volume::{BoundingVolume, AABB};
 use math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
 use query::closest_points_internal;
 use query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
@@ -278,6 +278,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                             m2,
                             f2,
                             None,
+                            prediction,
                             id_alloc,
                             manifold,
                         );
@@ -532,10 +533,10 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
         d: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        fmap1: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        fmap2: Option<&Fn(FeatureId) -> FeatureId>,
+        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -553,6 +554,7 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
 
             {
                 let mut visitor = AABBSetsInterferencesCollector::new(
+                    prediction.linear(),
                     &m12,
                     &m12_abs_rot,
                     &mut self.interferences,

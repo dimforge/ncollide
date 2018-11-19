@@ -129,17 +129,22 @@ impl<N: Real> TriMesh<N> {
         }
 
         // Set face.edges
-        let mut num_face_edges: Vec<_> = iter::repeat(0).take(faces.len()).collect();
-
         for (i, e) in edges.iter().enumerate() {
             let fid1 = e.adj_faces.0.face_id;
             let fid2 = e.adj_faces.1.face_id;
-            faces[fid1].edges[num_face_edges[fid1]] = i;
-            faces[fid2].edges[num_face_edges[fid2]] = i;
-            num_face_edges[fid1] += 1;
 
-            if fid1 != fid2 {
-                num_face_edges[fid2] += 1;
+            for k1 in 0..3 {
+                let k2 = (k1 + 1) % 3;
+
+                if (faces[fid1].indices[k1] == e.indices.x && faces[fid1].indices[k2] == e.indices.y) ||
+                    (faces[fid1].indices[k1] == e.indices.y && faces[fid1].indices[k2] == e.indices.x) {
+                    faces[fid1].edges[k1] = i;
+                }
+
+                if (faces[fid2].indices[k1] == e.indices.x && faces[fid2].indices[k2] == e.indices.y) ||
+                    (faces[fid2].indices[k1] == e.indices.y && faces[fid2].indices[k2] == e.indices.x) {
+                    faces[fid2].edges[k1] = i;
+                }
             }
         }
 
@@ -524,6 +529,25 @@ impl<N: Real> TriMesh<N> {
         true
     }
 
+    /// Tests that the given `dir` is on the polar of the tangent cone of the `i`th edge
+    /// of this mesh.
+    pub fn edge_tangent_cone_polar_contains_dir(
+        &self,
+        i: usize,
+        dir: &Unit<Vector<N>>,
+        sin_ang_tol: N,
+        cos_ang_tol: N,
+    ) -> bool
+    {
+        let e = &self.edges[i];
+        let edge_dir = self.points[e.indices.y] - self.points[e.indices.x];
+
+        println!("Checking edge tangent cone polar: [{}], dir: {:?}, edir: {:?}", i, *dir, edge_dir);
+
+        edge_dir.dot(dir).abs() <= sin_ang_tol * edge_dir.norm() &&
+            self.edge_tangent_cone_polar_contains_orthogonal_dir(i, dir, sin_ang_tol)
+    }
+
     /// Tests that the given `dir` is on the tangent cone of the `i`th face
     /// of this mesh.
     pub fn face_tangent_cone_contains_dir(
@@ -566,11 +590,38 @@ impl<N: Real> TriMesh<N> {
             }
         }
 
-        if normal.dot(dir) > N::zero() {
-            return false;
+        normal.dot(dir) <= N::zero()
+    }
+
+    pub fn face_tangent_cone_polar_contains_dir(
+        &self, i: usize, dir: &Unit<Vector<N>>, cos_ang_tol: N
+    ) -> bool {
+        let normal;
+
+        if i >= self.faces.len() {
+            normal = -self.faces[i - self.faces.len()]
+                .normal
+                .map(|n| n.unwrap())
+                .unwrap_or(Vector::zeros());
+        } else {
+            normal = self.faces[i]
+                .normal
+                .map(|n| n.unwrap())
+                .unwrap_or(Vector::zeros());
         }
 
-        true
+        normal.dot(dir) >= cos_ang_tol
+    }
+
+    pub fn tangent_cone_polar_contains_dir(&self, feature: FeatureId, dir: &Unit<Vector<N>>, sin_ang_tol: N, cos_ang_tol: N) -> bool {
+        match feature {
+            FeatureId::Face(i) => {
+                self.face_tangent_cone_polar_contains_dir(i, dir, cos_ang_tol)
+            },
+            FeatureId::Edge(i) => self.edge_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol, cos_ang_tol),
+            FeatureId::Vertex(i) => self.vertex_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol),
+            FeatureId::Unknown => false
+        }
     }
 
     fn init_deformation_infos(&mut self) -> bool {
