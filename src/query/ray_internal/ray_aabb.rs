@@ -35,6 +35,8 @@ impl<N: Real> RayCast<N> for AABB<N> {
                 tmax = tmax.min(inter_with_far_plane);
 
                 if tmin > tmax {
+                    // This covers the case where tmax is negative because tmin is
+                    // initialized at zero.
                     return None;
                 }
             }
@@ -113,6 +115,8 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
 }
 
 fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
+    // NOTE: we don't start with tmin = 0 so we can return the correct normal
+    // when the ray starts exactly on the object contour.
     let mut tmax: N = Bounded::max_value();
     let mut tmin: N = -tmax;
     let mut near_side = 0;
@@ -163,13 +167,13 @@ fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Ve
                 far_diag = true;
             }
 
-            if tmin > tmax {
+            if tmax < N::zero() || tmin > tmax {
                 return None;
             }
         }
     }
 
-    if tmin < na::convert(0.0f64) {
+    if tmin < N::zero() {
         // the ray starts inside of the box
         if solid {
             Some((na::zero(), na::zero(), far_side))
