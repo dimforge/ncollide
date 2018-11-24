@@ -82,7 +82,6 @@ impl<N: Real> Cuboid<N> {
         dir: &Unit<Vector<N>>,
     ) -> bool
     {
-        return false;
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {
@@ -249,6 +248,8 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
             } else {
                 (i3, i2)
             };
+            let mask_i2 = !(1 << edge_i2); // The masks are for ensuring each edge has a unique ID.
+            let mask_i3 = !(1 << edge_i3);
             let mut vertex = self.half_extents;
             vertex[i1] *= sign;
 
@@ -258,7 +259,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                 Point::from_coordinates(vertex),
                 FeatureId::Vertex(vertex_id),
             );
-            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | ((vertex_id & mask_i2) << 2)));
 
             vertex[i2] = -sign * self.half_extents[i2];
             vertex[i3] = sign * self.half_extents[i3];
@@ -267,7 +268,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                 Point::from_coordinates(vertex),
                 FeatureId::Vertex(vertex_id),
             );
-            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | ((vertex_id & mask_i3) << 2)));
 
             vertex[i2] = -self.half_extents[i2];
             vertex[i3] = -self.half_extents[i3];
@@ -276,7 +277,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                 Point::from_coordinates(vertex),
                 FeatureId::Vertex(vertex_id),
             );
-            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | (vertex_id << 2)));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i2 | ((vertex_id & mask_i2) << 2)));
 
             vertex[i2] = sign * self.half_extents[i2];
             vertex[i3] = -sign * self.half_extents[i3];
@@ -285,7 +286,7 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                 Point::from_coordinates(vertex),
                 FeatureId::Vertex(vertex_id),
             );
-            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | (vertex_id << 2)));
+            out.push_edge_feature_id(FeatureId::Edge(edge_i3 | ((vertex_id & mask_i3) << 2)));
 
             let mut normal: Vector<N> = na::zero();
             normal[i1] = sign;
@@ -411,10 +412,11 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
                     let p1 = Point::from_coordinates(support_point);
                     support_point[i] = self.half_extents[i];
                     let p2 = Point::from_coordinates(support_point);
+                    let p2_id = support_point_id & !(1 << i);
                     out.push(m * p1, FeatureId::Vertex(support_point_id | (1 << i)));
-                    out.push(m * p2, FeatureId::Vertex(support_point_id & !(1 << i)));
+                    out.push(m * p2, FeatureId::Vertex(p2_id));
 
-                    let edge_id = FeatureId::Edge(i | (support_point_id << 2));
+                    let edge_id = FeatureId::Edge(i | (p2_id << 2));
                     out.push_edge_feature_id(edge_id);
                     out.set_feature_id(edge_id);
                     return;
@@ -483,7 +485,8 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
                 // sign * local_dir[i] <= cos(pi / 2 - angle)
                 if sign * local_dir[i] <= sang {
-                    return FeatureId::Edge(i | (support_point_id << 2));
+                    let mask_i = !(1 << i); // To ensure each edge has a unique id.
+                    return FeatureId::Edge(i | ((support_point_id & mask_i) << 2));
                 }
             }
 

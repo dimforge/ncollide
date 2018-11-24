@@ -109,7 +109,7 @@ impl<N: Real> TriMesh<N> {
                 });
 
                 // FIXME: loosen for better persistancy?
-                let bv = triangle.aabb(&Isometry::identity()); //                    .loosened(na::convert(10.0));
+                let bv = triangle.aabb(&Isometry::identity());
                 leaves.push((i, bv.clone()));
                 faces.push(TriMeshFace {
                     indices: *is,
@@ -522,6 +522,7 @@ impl<N: Real> TriMesh<N> {
 
         if let (Some(n1), Some(n2)) = (f1.normal, f2.normal) {
             if (n1.unwrap() + n2.unwrap()).dot(dir) < N::zero() {
+                println!(">>>>> Rejected: n1: {:?}, n2: {:?}, dir: {:?}", n1.unwrap(), n2.unwrap(), dir);
                 return false;
             }
         }
@@ -541,8 +542,6 @@ impl<N: Real> TriMesh<N> {
     {
         let e = &self.edges[i];
         let edge_dir = self.points[e.indices.y] - self.points[e.indices.x];
-
-        println!("Checking edge tangent cone polar: [{}], dir: {:?}, edir: {:?}", i, *dir, edge_dir);
 
         edge_dir.dot(dir).abs() <= sin_ang_tol * edge_dir.norm() &&
             self.edge_tangent_cone_polar_contains_orthogonal_dir(i, dir, sin_ang_tol)

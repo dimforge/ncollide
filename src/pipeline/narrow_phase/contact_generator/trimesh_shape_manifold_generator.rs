@@ -85,12 +85,6 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                     g1.points()[face.indices.z],
                 );
 
-                println!("Triangle points: {:?}", tri);
-                for i in 0..3 {
-                    let edge = &g1.edges()[i];
-                    println!("Edge points: {}, {}", g1.points()[edge.indices.x], g1.points()[edge.indices.y]);
-                }
-
                 let tri_context = TriMeshFaceContext::new(g1, *key);
 
                 if flip {

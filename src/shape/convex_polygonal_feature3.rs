@@ -421,8 +421,8 @@ impl<N: Real> ConvexPolygonalFeature<N> {
             FeatureId::Unknown => return,
         }
 
-        println!("Accepted contact: {:?}", c);
-        println!("Accepted kinematic: {:?}", kinematic);
+//        println!("Accepted contact: {:?}", c);
+//        println!("Accepted kinematic: {:?}", kinematic);
         let _ = manifold.push(c, local1, kinematic, ids);
     }
 }
