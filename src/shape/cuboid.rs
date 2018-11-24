@@ -59,14 +59,14 @@ impl<N: Real> Cuboid<N> {
                 if id < 2 {
                     ls_dir[id] <= N::zero()
                 } else {
-                    ls_dir[id - 2] <= N::zero()
+                    ls_dir[id - 2] >= N::zero()
                 }
             }
             FeatureId::Vertex(id) => match id {
                 0b00 => ls_dir.x <= N::zero() && ls_dir.y <= N::zero(),
-                0b01 => ls_dir.x <= N::zero() && ls_dir.y >= N::zero(),
+                0b01 => ls_dir.x >= N::zero() && ls_dir.y <= N::zero(),
                 0b11 => ls_dir.x >= N::zero() && ls_dir.y >= N::zero(),
-                0b10 => ls_dir.x >= N::zero() && ls_dir.y <= N::zero(),
+                0b10 => ls_dir.x <= N::zero() && ls_dir.y >= N::zero(),
                 _ => unreachable!(),
             },
             _ => panic!("Invalid feature ID {:?}.", feature),
@@ -91,7 +91,7 @@ impl<N: Real> Cuboid<N> {
                 if id < 3 {
                     ls_dir[id] <= N::zero()
                 } else {
-                    ls_dir[id - 3] <= N::zero()
+                    ls_dir[id - 3] >= N::zero()
                 }
             }
             FeatureId::Edge(id) => {
