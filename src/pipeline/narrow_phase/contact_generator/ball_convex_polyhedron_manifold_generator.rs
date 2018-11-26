@@ -1,8 +1,8 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{Real, Unit};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use shape::{Ball, FeatureId, Shape};
 use std::marker::PhantomData;
 use utils::{IdAllocator, IsometryOps};
@@ -28,10 +28,10 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
         &mut self,
         m1: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -69,7 +69,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     if !self.flip {
                         contact = Contact::new(world1, world2, normal, depth);
                         kinematic.set_approx1(
-                            f1.apply(ctxt1),
+                            f1,
                             Point::origin(),
                             NeighborhoodGeometry::Point,
                         );
@@ -77,7 +77,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     } else {
                         contact = Contact::new(world2, world1, -normal, depth);
                         kinematic.set_approx2(
-                            f1.apply(ctxt1),
+                            f1,
                             Point::origin(),
                             NeighborhoodGeometry::Point,
                         );
@@ -106,12 +106,12 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     }
 
                     if !self.flip {
-                        kinematic.set_approx2(f2.apply(ctxt2), local2, geom2)
+                        kinematic.set_approx2(f2, local2, geom2)
                     } else {
-                        kinematic.set_approx1(f2.apply(ctxt2), local2, geom2)
+                        kinematic.set_approx1(f2, local2, geom2)
                     }
 
-                    let _ = manifold.push(contact, Point::origin(), kinematic, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
                 }
             } else {
                 // FIXME: unhandled case where the ball center is exactly on the polyhedra surface.
@@ -130,19 +130,19 @@ impl<N: Real> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenera
         _: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
-            self.do_generate(m1, a, ctxt1, m2, b, ctxt2, prediction, id_alloc, manifold)
+            self.do_generate(m1, a, proc1, m2, b, proc2, prediction, id_alloc, manifold)
         } else {
-            self.do_generate(m2, b, ctxt2, m1, a, ctxt1, prediction, id_alloc, manifold)
+            self.do_generate(m2, b, proc2, m1, a, proc1, prediction, id_alloc, manifold)
         }
     }
 }

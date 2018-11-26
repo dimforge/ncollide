@@ -103,7 +103,7 @@ where G1: CompositeShape<N>
         let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1
-            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+            .map_part_at(*b, self.m1, &mut |m1, g1| {
                 res = match proximity_internal::proximity_internal(
                     m1,
                     g1,

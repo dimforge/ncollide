@@ -57,18 +57,7 @@ impl CompositeShape<f32> for CrossedCuboids {
         2
     }
 
-    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry2<f32>, &Shape<f32>)) {
-        // The translation needed to center the cuboid at the point (1, 1).
-        let transform = Isometry2::new(Vector2::new(1.0, 1.0), na::zero());
-
-        // Create the cuboid on-the-fly.
-        let cuboid = CrossedCuboids::generate_cuboid(i);
-
-        // Call the function.
-        f(i, &transform, &cuboid)
-    }
-
-    fn map_transformed_part_at(
+    fn map_part_at(
         &self,
         i: usize,
         m: &Isometry2<f32>,

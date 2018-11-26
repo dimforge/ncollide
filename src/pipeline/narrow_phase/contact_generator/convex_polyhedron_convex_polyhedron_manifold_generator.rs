@@ -2,7 +2,7 @@
 use alga::linear::FiniteDimInnerSpace;
 use math::{Isometry, Vector};
 use na::{self, Point2, Real, Unit};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use query::algorithms::gjk::GJKResult;
 use query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
@@ -10,7 +10,7 @@ use query::closest_points_internal;
 use query::contacts_internal;
 #[cfg(feature = "dim3")]
 use query::ray_internal;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 #[cfg(feature = "dim3")]
 use shape::ClippingCache;
 use shape::ConvexPolygonalFeature;
@@ -93,10 +93,10 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
         _: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -162,10 +162,10 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                     c,
                     ma,
                     f1,
-                    ctxt1,
+                    proc1,
                     mb,
                     f2,
-                    ctxt2,
+                    proc2,
                     prediction,
                     id_alloc,
                     manifold,

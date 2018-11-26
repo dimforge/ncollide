@@ -1,9 +1,9 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::Real;
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use query::contacts_internal;
-use query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use shape::{Ball, FeatureId, Shape};
 use std::marker::PhantomData;
 use utils::IdAllocator;
@@ -30,10 +30,10 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
         _: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -51,19 +51,19 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
             ) {
                 let mut kinematic = ContactKinematic::new();
                 kinematic.set_approx1(
-                    FeatureId::Face(0).apply(ctxt1),
+                    FeatureId::Face(0),
                     Point::origin(),
                     NeighborhoodGeometry::Point,
                 );
                 kinematic.set_approx2(
-                    FeatureId::Face(0).apply(ctxt2),
+                    FeatureId::Face(0),
                     Point::origin(),
                     NeighborhoodGeometry::Point,
                 );
                 kinematic.set_dilation1(a.radius());
                 kinematic.set_dilation2(b.radius());
 
-                let _ = manifold.push(contact, Point::origin(), kinematic, id_alloc);
+                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
             }
 
             true

@@ -54,7 +54,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
         // First, test if the previously intersecting shapes are still intersecting.
         if self.proximity == Proximity::Intersecting {
             let detector = self.sub_detectors.get_mut(&self.intersecting_key).unwrap();
-            g1.map_transformed_part_at(self.intersecting_key, m1, &mut |_, m1, g1| {
+            g1.map_part_at(self.intersecting_key, m1, &mut |m1, g1| {
                 assert!(
                     detector.update(dispatcher, m1, g1, m2, g2, margin),
                     "The shape was no longer valid."
@@ -83,7 +83,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
             }
 
             if ls_aabb2.intersects(&g1.aabb_at(key)) {
-                g1.map_transformed_part_at(key, m1, &mut |_, m1, g1| {
+                g1.map_part_at(key, m1, &mut |m1, g1| {
                     assert!(
                         detector.1.update(dispatcher, m1, g1, m2, g2, margin),
                         "The shape was no longer valid."
@@ -119,7 +119,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
-                    g1.map_part_at(*key, &mut |_, _, g1| {
+                    g1.map_part_at(*key, &Isometry::identity(), &mut |_, g1| {
                         if flip {
                             new_detector = dispatcher.get_proximity_algorithm(g2, g1)
                         } else {
@@ -136,7 +136,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
             };
 
             if let Some(sub_detector) = detector {
-                g1.map_transformed_part_at(*key, m1, &mut |_, m1, g1| {
+                g1.map_part_at(*key, m1, &mut |m1, g1| {
                     if flip {
                         let _ = sub_detector.update(dispatcher, m2, g2, m1, g1, margin);
                     } else {

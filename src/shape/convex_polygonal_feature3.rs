@@ -7,7 +7,7 @@ use query::closest_points_internal;
 use query::ray_internal;
 use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use shape::{FeatureId, Segment, SegmentPointLocation};
-use pipeline::narrow_phase::ContactGeneratorShapeContext;
+use query::ContactPreprocessor;
 use utils::{self, IdAllocator, IsometryOps};
 
 /// A cache used for polygonal clipping.
@@ -346,37 +346,22 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         c: Contact<N>,
         m1: &Isometry<N>,
         f1: FeatureId,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         f2: FeatureId,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )
     {
-        let original_f1 = f1.apply(ctxt1);
-        let original_f2 = f2.apply(ctxt2);
-
-        if let Some(ctxt1) = ctxt1 {
-            if !ctxt1.validate_lmd(m1, original_f1, &c, true, prediction) {
-                return;
-            }
-        }
-
-        if let Some(ctxt2) = ctxt2 {
-            if !ctxt2.validate_lmd(m2, original_f2, &c, false, prediction) {
-                return;
-            }
-        }
-
         let mut kinematic = ContactKinematic::new();
         let local1 = m1.inverse_transform_point(&c.world1);
         let local2 = m2.inverse_transform_point(&c.world2);
 
         match f1 {
             FeatureId::Face(..) => kinematic.set_approx1(
-                original_f1,
+                f1,
                 local1,
                 NeighborhoodGeometry::Plane(
                     m1.inverse_transform_unit_vector(self.normal.as_ref().unwrap()),
@@ -387,13 +372,13 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 if let Some(dir1) = e1.direction() {
                     let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
                     let approx1 = NeighborhoodGeometry::Line(local_dir1);
-                    kinematic.set_approx1(original_f1, local1, approx1)
+                    kinematic.set_approx1(f1, local1, approx1)
                 } else {
                     return;
                 }
             }
             FeatureId::Vertex(..) => {
-                kinematic.set_approx1(original_f1, local1, NeighborhoodGeometry::Point)
+                kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point)
             }
             FeatureId::Unknown => return,
         }
@@ -403,26 +388,26 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 let approx2 = NeighborhoodGeometry::Plane(
                     m2.inverse_transform_unit_vector(&other.normal.as_ref().unwrap()),
                 );
-                kinematic.set_approx2(original_f2, local2, approx2)
+                kinematic.set_approx2(f2, local2, approx2)
             }
             FeatureId::Edge(..) => {
                 let e2 = other.edge(f2).expect("Invalid edge id.");
                 if let Some(dir2) = e2.direction() {
                     let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
                     let approx2 = NeighborhoodGeometry::Line(local_dir2);
-                    kinematic.set_approx2(original_f2, local2, approx2)
+                    kinematic.set_approx2(f2, local2, approx2)
                 } else {
                     return;
                 }
             }
             FeatureId::Vertex(..) => {
-                kinematic.set_approx2(original_f2, local2, NeighborhoodGeometry::Point)
+                kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point)
             }
             FeatureId::Unknown => return,
         }
 
 //        println!("Accepted contact: {:?}", c);
 //        println!("Accepted kinematic: {:?}", kinematic);
-        let _ = manifold.push(c, local1, kinematic, ids);
+        let _ = manifold.push(c, kinematic, local1, proc1, proc2, ids);
     }
 }

@@ -151,6 +151,18 @@ impl<N: Real> ContactKinematic<N> {
         self.approx2.feature
     }
 
+    /// Sets the shape-dependent identifier of the feature of the first solid
+    /// on which lies the contact point.
+    pub fn set_feature1(&mut self, f: FeatureId) {
+        self.approx1.feature = f
+    }
+
+    /// Sets the shape-dependent identifier of the feature of the second solid
+    /// on which lies the contact point.
+    pub fn set_feature2(&mut self, f: FeatureId) {
+        self.approx2.feature = f
+    }
+
     /// Sets the dilation of the first solid.
     pub fn set_dilation1(&mut self, margin: N) {
         self.margin1 = margin;

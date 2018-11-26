@@ -2,7 +2,7 @@ use math::Isometry;
 use na::Real;
 use query::{ContactManifold, ContactPrediction};
 use shape::{FeatureId, Shape};
-use pipeline::narrow_phase::ContactGeneratorShapeContext;
+use query::ContactPreprocessor;
 use std::any::Any;
 use utils::IdAllocator;
 
@@ -16,10 +16,10 @@ pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
         dispatcher: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,

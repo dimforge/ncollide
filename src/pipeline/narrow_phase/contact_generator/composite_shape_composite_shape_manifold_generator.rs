@@ -1,8 +1,8 @@
 use bounding_volume::{BoundingVolume, AABB};
 use math::Isometry;
 use na::Real;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
-use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor};
 use shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
@@ -30,10 +30,10 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &CompositeShape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -60,8 +60,8 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
-                    g1.map_part_at(id.0, &mut |_, _, g1| {
-                        g2.map_part_at(id.1, &mut |_, _, g2| {
+                    g1.map_part_at(id.0, &Isometry::identity(), &mut |_, g1| {
+                        g2.map_part_at(id.1, &Isometry::identity(), &mut |_, g2| {
                             new_detector = dispatcher.get_contact_algorithm(g1, g2)
                         });
                     });
@@ -83,12 +83,12 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
             );
 
             if ls_aabb2.intersects(&aabb1) {
-                g1.map_transformed_part_at(key.0, m1, &mut |sub_id1, m1, g1| {
-                    g2.map_transformed_part_at(key.1, m2, &mut |sub_id2, m2, g2| {
+                g1.map_part_at(key.0, m1, &mut |m1, g1| {
+                    g2.map_part_at(key.1, m2, &mut |m2, g2| {
                         // FIXME: change the update functions.
                         assert!(
                             detector.generate_contacts(
-                                dispatcher, m1, g1, ctxt1, m2, g2, ctxt2, prediction, id_alloc,
+                                dispatcher, m1, g1, proc1, m2, g2, proc2, prediction, id_alloc,
                                 manifold
                             ),
                             "Internal error: the shape was no longer valid."
@@ -111,10 +111,10 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifo
         d: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -122,7 +122,7 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifo
     {
         if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
             self.do_update(
-                d, ma, csa, ctxt1, mb, csb, ctxt2, prediction, id_alloc, manifold,
+                d, ma, csa, proc1, mb, csb, proc2, prediction, id_alloc, manifold,
             );
             true
         } else {

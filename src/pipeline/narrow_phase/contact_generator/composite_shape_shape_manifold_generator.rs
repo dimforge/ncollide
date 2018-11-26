@@ -1,8 +1,8 @@
 use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
-use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
 use shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use utils::DeterministicState;
@@ -10,7 +10,7 @@ use utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N: Real> {
-    sub_detectors: HashMap<usize, (ContactAlgorithm<N>, ContactManifold<N>), DeterministicState>,
+    sub_detectors: HashMap<usize, ContactAlgorithm<N>, DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
 }
@@ -28,19 +28,18 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        id2: usize,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
         flip: bool,
     )
     {
-        unimplemented!()
-        /*
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
@@ -57,7 +56,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
         
-                    g1.map_part_at(i, &mut |_, _, g1| {
+                    g1.map_part_at(i, &Isometry::identity(), &mut |_, g1| {
                         if flip {
                             new_detector = dispatcher.get_contact_algorithm(g2, g1)
                         } else {
@@ -66,7 +65,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                     });
         
                     if let Some(new_detector) = new_detector {
-                        let _ = entry.insert((new_detector, ContactManifold::new()));
+                        let _ = entry.insert(new_detector);
                     }
                 }
             }
@@ -75,40 +74,36 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         // Update all collisions
         self.sub_detectors.retain(|key, detector| {
             if ls_aabb2.intersects(&g1.aabb_at(*key)) {
-                g1.map_transformed_part_at(*key, m1, &mut |sub_id1, m1, g1| {
-                    detector.1.save_cache_and_clear(id_alloc);
-        
+                g1.map_part_with_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
                     if flip {
                         assert!(
-                            detector.0.generate_contacts(
+                            detector.generate_contacts(
                                 dispatcher,
                                 m2,
                                 g2,
-                                ctxt2,
+                                proc2,
                                 m1,
                                 g1,
-                                ctxt1,
+                                Some(proc1),
                                 prediction,
                                 id_alloc,
-                                &mut detector.1
-                                    manifold
+                                manifold
                             ),
                             "Internal error: the shape was no longer valid."
                         );
                     } else {
                         assert!(
-                            detector.0.update_to(
+                            detector.generate_contacts(
                                 dispatcher,
-                                id1 + sub_id1,
                                 m1,
                                 g1,
-                                id2,
+                                Some(proc1),
                                 m2,
                                 g2,
+                                proc2,
                                 prediction,
                                 id_alloc,
-                                &mut detector.1
-                                    manifold
+                                manifold
                             ),
                             "Internal error: the shape was no longer valid."
                         );
@@ -121,7 +116,6 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                 false
             }
         });
-        */
     }
 }
 
@@ -131,30 +125,33 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerat
         d: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
-        /*
         if !self.flip {
             if let Some(cs) = a.as_composite_shape() {
-                self.do_update(d, ida, ma, cs, idb, mb, b, prediction, id_alloc, false);
+                self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, id_alloc, manifold, false);
                 return true;
             }
         } else {
             if let Some(cs) = b.as_composite_shape() {
-                self.do_update(d, idb, mb, cs, ida, ma, a, prediction, id_alloc, true);
+                self.do_update(d, mb, cs, proc1, ma, a, proc2, prediction, id_alloc, manifold, true);
                 return true;
             }
         }
         
         return false;
-        */
-        unimplemented!()
+    }
+
+    fn init_manifold(&self) -> ContactManifold<N> {
+        let mut res = ContactManifold::new();
+        res.set_tracking_mode(ContactTrackingMode::FeatureBased);
+        res
     }
 }

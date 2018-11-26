@@ -39,7 +39,7 @@ impl<'a, N: Real, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usiz
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, PointProjection<N>> {
         let mut res = BestFirstDataVisitStatus::Continue;
 
-        self.shape.map_part_at(*b, &mut |_, objm, obj| {
+        self.shape.map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
             res = BestFirstDataVisitStatus::ContinueWithResult(
                 na::distance(self.point, &proj.point),

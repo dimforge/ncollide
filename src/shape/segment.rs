@@ -79,6 +79,24 @@ impl<N: Real> Segment<N> {
         Unit::try_new(self.scaled_direction(), N::default_epsilon())
     }
 
+    /// In 2D, the not-normalized counterclockwise normal of this segment.
+    #[cfg(feature = "dim2")]
+    pub fn scaled_normal(&self) -> Vector<N> {
+        let dir = self.scaled_direction();
+        Vector::new(-dir.y, dir.x)
+    }
+
+    /// In 2D, the normalized counterclockwise normal of this segment.
+    #[cfg(feature = "dim2")]
+    pub fn normal(&self) -> Option<Unit<Vector<N>>> {
+        Unit::try_new(self.scaled_normal(), N::default_epsilon())
+    }
+
+    #[cfg(feature = "dim3")]
+    pub(crate) fn normal(&self) -> Option<Unit<Vector<N>>> {
+        None
+    }
+
     /// Applies the isometry `m` to the vertices of this segment and returns the resulting segment.
     pub fn transformed(&self, m: &Isometry<N>) -> Self {
         Segment::new(m * self.a, m * self.b)

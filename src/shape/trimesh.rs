@@ -5,7 +5,7 @@ use math::{Isometry, Point, Vector, DIM};
 use na::{self, Id, Point2, Point3, Real, Unit};
 use partitioning::{BVHImpl, BVT};
 use procedural;
-use query::{LocalShapeApproximation, NeighborhoodGeometry};
+use query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
 use shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
@@ -13,7 +13,7 @@ use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
-use utils::DeterministicState;
+use utils::{DeterministicState, IsometryOps};
 
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
@@ -108,7 +108,6 @@ impl<N: Real> TriMesh<N> {
                     ]
                 });
 
-                // FIXME: loosen for better persistancy?
                 let bv = triangle.aabb(&Isometry::identity());
                 leaves.push((i, bv.clone()));
                 faces.push(TriMeshFace {
@@ -149,7 +148,7 @@ impl<N: Real> TriMesh<N> {
         }
 
         let deformations = DeformationInfos {
-            margin: na::convert(0.1), // FIXME: find a better way to defined the margin.
+            margin: na::convert(0.1), // FIXME: find a better way to define the margin.
             curr_timestamp: 0,
             timestamps: Vec::new(),
             ref_vertices: Vec::new(),
@@ -406,10 +405,8 @@ impl<N: Real> TriMesh<N> {
                     Point::from_slice(&coords[indices.z..indices.z + DIM]),
                 );
 
-                if let Some(n) = tri.normal() {
-                    if n.dot(dir) > N::zero() {
-                        return false;
-                    }
+                if tri.scaled_normal().dot(dir) > N::zero() {
+                    return false;
                 }
             }
         } else {
@@ -641,21 +638,27 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
-        self.map_transformed_part_at(i, &Isometry::identity(), f)
-    }
-
-    #[inline(always)]
-    fn map_transformed_part_at(
+    fn map_part_at(
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
+        f: &mut FnMut(&Isometry<N>, &Shape<N>),
     )
     {
         let element = self.triangle_at(i);
+        f(m, &element)
+    }
 
-        f(i, m, &element)
+    fn map_part_with_preprocessor_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        prediction: &ContactPrediction<N>,
+        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+    ) {
+        let element = self.triangle_at(i);
+        let preprocessor = TriMeshContactProcessor::new(self, m, i, prediction);
+        f(m, &element, &preprocessor)
     }
 
     #[inline]
@@ -832,5 +835,70 @@ impl<N: Real> From<procedural::TriMesh<N>> for TriMesh<N> {
             .map(|idx| Point3::new(idx[0] as usize, idx[1] as usize, idx[2] as usize))
             .collect();
         TriMesh::new(trimesh.coords, indices, trimesh.uvs)
+    }
+}
+
+
+struct TriMeshContactProcessor<'a, N: Real> {
+    mesh: &'a TriMesh<N>,
+    pos: &'a Isometry<N>,
+    face_id: usize,
+    prediction: &'a ContactPrediction<N>
+}
+
+impl<'a, N: Real> TriMeshContactProcessor<'a, N> {
+    pub fn new(mesh: &'a TriMesh<N>, pos: &'a Isometry<N>, face_id: usize, prediction: &'a ContactPrediction<N>) -> Self {
+        TriMeshContactProcessor {
+            mesh, pos, face_id, prediction
+        }
+    }
+}
+
+impl<'a, N: Real> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N> {
+    fn process_contact(
+        &self,
+        c: &mut Contact<N>,
+        kinematic: &mut ContactKinematic<N>,
+        is_first: bool)
+        -> bool {
+        // Fix the feature ID.
+        let feature = if is_first {
+            kinematic.feature1()
+        } else {
+            kinematic.feature2()
+        };
+
+        let face = &self.mesh.faces()[self.face_id];
+        let actual_feature = match feature {
+            FeatureId::Vertex(i) => FeatureId::Vertex(face.indices[i]),
+            FeatureId::Edge(i) => FeatureId::Edge(face.edges[i]),
+            FeatureId::Face(i) => {
+                if i == 0 {
+                    FeatureId::Face(self.face_id)
+                } else {
+                    FeatureId::Face(self.face_id + self.mesh.faces().len())
+                }
+            }
+            FeatureId::Unknown => FeatureId::Unknown,
+        };
+
+        if is_first {
+            kinematic.set_feature1(actual_feature);
+        } else {
+            kinematic.set_feature2(actual_feature);
+        }
+
+        // Test the validity of the LMD.
+        if c.depth > N::zero() {
+            true
+        } else {
+            let local_dir = self.pos.inverse_transform_unit_vector(&c.normal);
+
+            if is_first {
+                self.mesh.tangent_cone_polar_contains_dir(actual_feature, &local_dir, self.prediction.sin_angular1(), self.prediction.cos_angular1())
+            } else {
+                self.mesh.tangent_cone_polar_contains_dir(actual_feature, &-local_dir, self.prediction.sin_angular2(), self.prediction.cos_angular2())
+            }
+        }
     }
 }

@@ -2,15 +2,14 @@ use bounding_volume::{self, BoundingVolume};
 use math::Isometry;
 use na::{self, Real};
 use partitioning::BVH;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext, TriMeshFaceContext};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::{
     visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction,
-    ContactTrackingMode,
+    ContactTrackingMode, ContactPreprocessor, Contact, ContactKinematic
 };
 use shape::{CompositeShape, FeatureId, Shape, TriMesh, Triangle};
 use std::collections::{hash_map::Entry, HashMap};
-use utils::DeterministicState;
-use utils::IdAllocator;
+use utils::{DeterministicState, IdAllocator, IsometryOps};
 
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshShapeManifoldGenerator<N: Real> {
@@ -34,15 +33,17 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &TriMesh<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )
     {
+        unimplemented!()
+        /*
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
@@ -85,7 +86,7 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                     g1.points()[face.indices.z],
                 );
 
-                let tri_context = TriMeshFaceContext::new(g1, *key);
+                let tri_context = TriMeshContactProcessor::new(g1, m1, *key, prediction);
 
                 if flip {
                     assert!(
@@ -93,7 +94,7 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                             dispatcher,
                             m2,
                             g2,
-                            ctxt2,
+                            proc2,
                             m1,
                             &tri,
                             Some(&tri_context),
@@ -112,7 +113,7 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                             Some(&tri_context),
                             m2,
                             g2,
-                            ctxt2,
+                            proc2,
                             prediction,
                             id_alloc,
                             manifold
@@ -126,7 +127,7 @@ impl<N: Real> TriMeshShapeManifoldGenerator<N> {
                 // FIXME: ask the detector if it wants to be removed or not
                 false
             }
-        });
+        });*/
     }
 }
 
@@ -136,10 +137,10 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshShapeManifoldGenerator<N> {
         d: &ContactDispatcher<N>,
         ma: &Isometry<N>,
         a: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         mb: &Isometry<N>,
         b: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -148,14 +149,14 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshShapeManifoldGenerator<N> {
         if !self.flip {
             if let Some(trimesh) = a.as_shape::<TriMesh<N>>() {
                 self.do_update(
-                    d, ma, trimesh, ctxt1, mb, b, ctxt2, prediction, id_alloc, manifold,
+                    d, ma, trimesh, proc1, mb, b, proc2, prediction, id_alloc, manifold,
                 );
                 return true;
             }
         } else {
             if let Some(trimesh) = b.as_shape::<TriMesh<N>>() {
                 self.do_update(
-                    d, mb, trimesh, ctxt2, ma, a, ctxt1, prediction, id_alloc, manifold,
+                    d, mb, trimesh, proc2, ma, a, proc1, prediction, id_alloc, manifold,
                 );
                 return true;
             }

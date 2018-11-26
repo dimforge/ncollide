@@ -6,7 +6,7 @@ use query::{PointQuery, RayCast};
 use shape::ConvexPolygon;
 use shape::{
     Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Polyline, Segment,
-    Shape, SupportMap,
+    Capsule, Shape, SupportMap,
 };
 #[cfg(feature = "dim3")]
 use shape::{ConvexHull, DeformableShape, TriMesh, Triangle};
@@ -120,6 +120,9 @@ impl<N: Real> Shape<N> for Ball<N> {
     impl_shape_common!();
     impl_as_support_map!();
 
+    // FIXME: this is wrong in theory but keep it this
+    // way for now because of the way the ContactKinematic
+    // currently works.
     fn tangent_cone_contains_dir(
         &self,
         _: FeatureId,
@@ -136,6 +139,26 @@ impl<N: Real> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+}
+
+impl<N: Real> Shape<N> for Capsule<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+//    impl_as_convex_polyhedron!();
+
+    // FIXME: this is wrong in theory but keep it this
+    // way for now because of the way the ContactKinematic
+    // currently works.
+    fn tangent_cone_contains_dir(
+        &self,
+        _: FeatureId,
+        _: &Isometry<N>,
+        _: Option<&[N]>,
+        _: &Unit<Vector<N>>,
+    ) -> bool
+    {
+    false
+    }
 }
 
 #[cfg(feature = "dim3")]

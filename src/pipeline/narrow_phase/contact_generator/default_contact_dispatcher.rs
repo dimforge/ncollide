@@ -35,11 +35,11 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
 
             if a_is_trimesh && b_is_trimesh {
                 return Some(Box::new(TriMeshTriMeshManifoldGenerator::<N>::new()));
-            } else if a_is_trimesh {
+            }/* else if a_is_trimesh {
                 return Some(Box::new(TriMeshShapeManifoldGenerator::<N>::new(false)));
             } else if b_is_trimesh {
                 return Some(Box::new(TriMeshShapeManifoldGenerator::<N>::new(true)));
-            }
+            }*/
         }
 
         if a_is_ball && b_is_ball {

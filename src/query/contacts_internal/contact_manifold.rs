@@ -1,11 +1,12 @@
-use math::Point;
+use math::{Point, Isometry};
 use na::{self, Real};
 use query::{Contact, ContactKinematic, TrackedContact};
-use shape::FeatureId;
+use shape::{Shape, FeatureId};
 use slab::Slab;
 use std::collections::{hash_map::Entry, HashMap};
 use std::mem;
 use utils::{GenerationalId, IdAllocator};
+use query::ContactPreprocessor;
 
 /// The technique used for contact tracking.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -148,6 +149,7 @@ impl<N: Real> ContactManifold<N> {
         });
     }
 
+    // FIXME: the method taking a preprocessor should be different?
     /// Add a new contact to the manifold.
     ///
     /// The manifold will attempt to match this contact with another one
@@ -156,12 +158,26 @@ impl<N: Real> ContactManifold<N> {
     /// two contacts that are sufficiently close will be given the same identifier.
     pub fn push(
         &mut self,
-        contact: Contact<N>,
+        mut contact: Contact<N>,
+        mut kinematic: ContactKinematic<N>,
         tracking_pt: Point<N>,
-        kinematic: ContactKinematic<N>,
+        preprocessor1: Option<&ContactPreprocessor<N>>,
+        preprocessor2: Option<&ContactPreprocessor<N>>,
         gen: &mut IdAllocator,
     ) -> bool
     {
+        if let Some(pp) = preprocessor1 {
+            if !pp.process_contact(&mut contact, &mut kinematic, true) {
+                return false;
+            }
+        }
+
+        if let Some(pp) = preprocessor2 {
+            if !pp.process_contact(&mut contact, &mut kinematic, false) {
+                return false;
+            }
+        }
+
         match &mut self.cache {
             ContactCache::DistanceBased(cache, threshold) => {
                 let mut closest = cache.len();

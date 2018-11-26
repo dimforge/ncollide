@@ -1,8 +1,8 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
 use utils::{IdAllocator, IsometryOps};
 
@@ -30,8 +30,10 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
     fn do_update_to(
         m1: &Isometry<N>,
         g1: &Shape<N>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         poly_feature: &mut ConvexPolygonalFeature<N>,
         id_alloc: &mut IdAllocator,
@@ -70,7 +72,7 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
                         kinematic.set_approx1(f2, local2, approx2);
                         kinematic.set_approx2(f1, local1, approx_plane);
                     }
-                    let _ = manifold.push(contact, local2, kinematic, id_alloc);
+                    let _ = manifold.push(contact, kinematic, local2, proc1, proc2, id_alloc);
                 }
             }
 
@@ -87,22 +89,23 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
         _: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
-        /*
         if !self.flip {
             Self::do_update_to(
                 m1,
                 g1,
+                proc1,
                 m2,
                 g2,
+                proc2,
                 prediction,
                 &mut self.feature,
                 id_alloc,
@@ -113,8 +116,10 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
             Self::do_update_to(
                 m2,
                 g2,
+                proc2,
                 m1,
                 g1,
+                proc1,
                 prediction,
                 &mut self.feature,
                 id_alloc,
@@ -122,7 +127,5 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
                 true,
             )
         }
-        */
-        unimplemented!()
     }
 }

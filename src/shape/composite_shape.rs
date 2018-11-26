@@ -3,6 +3,7 @@ use math::Isometry;
 use na::Real;
 use partitioning::BVHImpl;
 use shape::{FeatureId, Shape};
+use query::{ContactPreprocessor, ContactPrediction};
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
 ///
@@ -12,17 +13,25 @@ pub trait CompositeShape<N: Real> {
     /// The number of sub-shape in this composide sahpe.
     fn nparts(&self) -> usize;
 
-    /// Applies a function to each sub-shape of this concave shape.
-    fn map_part_at(&self, usize, &mut FnMut(usize, &Isometry<N>, &Shape<N>));
-
     /// Applies a transformation matrix and a function to each sub-shape of this concave
     /// shape.
-    fn map_transformed_part_at(
+    fn map_part_at(
         &self,
         usize,
         m: &Isometry<N>,
-        &mut FnMut(usize, &Isometry<N>, &Shape<N>),
+        &mut FnMut(&Isometry<N>, &Shape<N>),
     );
+
+    /// Applies a transformation matrix and a function to each sub-shape of this concave
+    /// shape.
+    fn map_part_with_preprocessor_at(
+        &self,
+        usize,
+        m: &Isometry<N>,
+        prediction: &ContactPrediction<N>,
+        &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+    );
+
 
     // FIXME: the following two methods are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.

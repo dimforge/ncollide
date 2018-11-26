@@ -9,7 +9,7 @@ pub use self::contacts_internal::contact_internal as contact;
 #[doc(inline)]
 pub use self::contacts_internal::{
     Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactTrackingMode,
-    LocalShapeApproximation, NeighborhoodGeometry, TrackedContact,
+    LocalShapeApproximation, NeighborhoodGeometry, TrackedContact, ContactPreprocessor
 };
 #[doc(inline)]
 pub use self::distance_internal::distance;

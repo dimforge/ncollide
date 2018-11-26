@@ -1,8 +1,8 @@
 use bounding_volume::ConicalApproximation;
 use math::{Isometry, Point};
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use shape::{Ball, FeatureId, Plane, Shape};
 use utils::{IdAllocator, IsometryOps};
 
@@ -28,8 +28,10 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     fn do_update_to(
         m1: &Isometry<N>,
         g1: &Shape<N>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -71,7 +73,7 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                     kinematic.set_approx2(f1, local1, approx_plane);
                 }
 
-                let _ = manifold.push(contact, Point::origin(), kinematic, id_alloc);
+                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
             }
 
             true
@@ -88,22 +90,23 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         _: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
-        /*
         if !self.flip {
             Self::do_update_to(
                 m1,
                 g1,
+                proc1,
                 m2,
                 g2,
+                proc2,
                 prediction,
                 id_alloc,
                 &mut self.manifold,
@@ -113,14 +116,15 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
             Self::do_update_to(
                 m2,
                 g2,
+                proc2,
                 m1,
                 g1,
+                proc1,
                 prediction,
                 id_alloc,
                 &mut self.manifold,
                 true,
             )
-        }*/
-        unimplemented!()
+        }
     }
 }

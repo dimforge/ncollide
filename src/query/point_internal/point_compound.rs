@@ -75,7 +75,7 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisit
     fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, PointProjection<N>> {
         let mut res = BestFirstDataVisitStatus::Continue;
 
-        self.compound.map_part_at(*b, &mut |_, objm, obj| {
+        self.compound.map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
             let proj = obj.project_point(objm, self.point, self.solid);
 
             res = BestFirstDataVisitStatus::ContinueWithResult(

@@ -31,7 +31,7 @@ where
     let mut res = None::<Contact<N>>;
 
     for i in interferences.into_iter() {
-        g1.map_transformed_part_at(i, m1, &mut |_, m, part| {
+        g1.map_part_at(i, m1, &mut |m, part| {
             match contacts_internal::contact_internal(m, part, m2, g2, prediction) {
                 Some(c) => {
                     let replace = match res {

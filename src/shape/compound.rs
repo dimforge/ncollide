@@ -7,6 +7,7 @@ use math::Isometry;
 use na::{self, Real};
 use partitioning::{BVHImpl, BVT};
 use shape::{CompositeShape, Shape, ShapeHandle};
+use query::{ContactPrediction, ContactPreprocessor};
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -102,25 +103,27 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
-        let id = self.start_idx[i];
-        let &(ref m, ref g) = &self.shapes()[i];
-
-        f(id, m, g.as_ref())
-    }
-
-    #[inline(always)]
-    fn map_transformed_part_at(
+    fn map_part_at(
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(usize, &Isometry<N>, &Shape<N>),
+        f: &mut FnMut(&Isometry<N>, &Shape<N>),
     )
     {
         let id = self.start_idx[i];
         let elt = &self.shapes()[i];
 
-        f(id, &(m.clone() * elt.0.clone()), elt.1.as_ref())
+        f(&(m.clone() * elt.0.clone()), elt.1.as_ref())
+    }
+
+    fn map_part_with_preprocessor_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        prediction: &ContactPrediction<N>,
+        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+    ) {
+        unimplemented!()
     }
 
     #[inline]

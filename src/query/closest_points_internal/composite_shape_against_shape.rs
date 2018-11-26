@@ -107,7 +107,7 @@ where
         let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1
-            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+            .map_part_at(*b, self.m1, &mut |m1, g1| {
                 let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
                 res = match pts {
                     ClosestPoints::WithinMargin(ref p1, ref p2) => {

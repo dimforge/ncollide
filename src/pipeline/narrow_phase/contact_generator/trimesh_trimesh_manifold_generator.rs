@@ -1,11 +1,11 @@
 use bounding_volume::{BoundingVolume, AABB};
 use math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ContactGeneratorShapeContext};
+use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use query::closest_points_internal;
 use query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
-    ContactPrediction, ContactTrackingMode, NeighborhoodGeometry,
+    ContactPrediction, ContactTrackingMode, NeighborhoodGeometry, ContactPreprocessor
 };
 use shape::{
     ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
@@ -48,9 +48,11 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
         m1: &Isometry<N>,
         mesh1: &TriMesh<N>,
         i1: usize,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         mesh2: &TriMesh<N>,
         i2: usize,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -340,7 +342,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                         pts2[ip2],
                                         NeighborhoodGeometry::Point,
                                     );
-                                    let _ = manifold.push(contact, p1, kinematic, id_alloc);
+                                    let _ = manifold.push(contact, kinematic, p1, proc1, proc2, id_alloc);
                                 }
                             }
                             (
@@ -370,7 +372,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                         pts2[e2.indices.x],
                                         NeighborhoodGeometry::Line(m21 * seg2.direction().unwrap()),
                                     );
-                                    let _ = manifold.push(contact, p1, kinematic, id_alloc);
+                                    let _ = manifold.push(contact, kinematic, p1, proc1, proc2, id_alloc);
                                 }
                             }
                             (
@@ -401,7 +403,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                         NeighborhoodGeometry::Point,
                                     );
 
-                                    let _ = manifold.push(contact, p1, kinematic, id_alloc);
+                                    let _ = manifold.push(contact, kinematic, p1, proc1, proc2, id_alloc);
                                 }
                             }
                             (SegmentPointLocation::OnEdge(_), SegmentPointLocation::OnEdge(_)) => {
@@ -427,7 +429,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                         pts2[e2.indices.x],
                                         NeighborhoodGeometry::Line(m21 * seg2.direction().unwrap()),
                                     );
-                                    let _ = manifold.push(contact, p1, kinematic, id_alloc);
+                                    let _ = manifold.push(contact, kinematic, p1, proc1, proc2, id_alloc);
                                 }
                             }
                         }
@@ -473,7 +475,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                         pts2[face2.indices.x],
                         NeighborhoodGeometry::Plane(face2.normal.unwrap()),
                     );
-                    let _ = manifold.push(contact, p1, kinematic, id_alloc);
+                    let _ = manifold.push(contact, kinematic, p1, proc1, proc2, id_alloc);
                 }
             }
 
@@ -520,7 +522,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                         m21 * p2,
                         NeighborhoodGeometry::Point,
                     );
-                    let _ = manifold.push(contact, proj, kinematic, id_alloc);
+                    let _ = manifold.push(contact, kinematic, proj, proc1, proc2, id_alloc);
                 }
             }
         }
@@ -533,10 +535,10 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
         d: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        ctxt1: Option<&ContactGeneratorShapeContext<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
-        ctxt2: Option<&ContactGeneratorShapeContext<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -565,7 +567,7 @@ impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N>
             let mut interferences = mem::replace(&mut self.interferences, Vec::new());
             for id in interferences.drain(..) {
                 self.compute_faces_closest_points(
-                    &m12, &m21, m1, mesh1, id.0, m2, mesh2, id.1, prediction, id_alloc, manifold,
+                    &m12, &m21, m1, mesh1, id.0, proc1, m2, mesh2, id.1, proc2, prediction, id_alloc, manifold,
                 );
             }
             self.interferences = interferences;

@@ -22,7 +22,7 @@ impl<'a, N: Real, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>> V
     fn visit(&mut self, bv: &BV, b: Option<&usize>) -> VisitStatus {
         if bv.contains_point(&Isometry::identity(), self.point) {
             if let Some(b) = b {
-                self.shape.map_part_at(*b, &mut |_, objm, obj| {
+                self.shape.map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
                     if obj.contains_point(objm, self.point) {
                         self.found = true;
                     }
