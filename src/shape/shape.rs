@@ -49,14 +49,6 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + ShapeClone<N> {
         _dir: &Unit<Vector<N>>,
     ) -> bool;
 
-    /// The transform of a specific subshape.
-    ///
-    /// Return `None` if the transform is known to be the identity.
-    #[inline]
-    fn subshape_transform(&self, _: usize) -> Option<Isometry<N>> {
-        None
-    }
-
     /// Returns the id of the subshape containing the specified feature.
     ///
     /// If several subshape contains the same feature, any one is returned.

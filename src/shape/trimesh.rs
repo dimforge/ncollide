@@ -649,7 +649,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
         f(m, &element)
     }
 
-    fn map_part_with_preprocessor_at(
+    fn map_part_and_preprocessor_at(
         &self,
         i: usize,
         m: &Isometry<N>,

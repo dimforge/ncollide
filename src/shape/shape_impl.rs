@@ -179,33 +179,22 @@ impl<N: Real> Shape<N> for Compound<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
 
-    #[inline]
-    fn subshape_transform(&self, subshape_id: usize) -> Option<Isometry<N>> {
-        let idx = self.start_idx();
-        let mut shape_id = 0;
-
-        while shape_id < idx.len() && idx[shape_id] <= subshape_id {
-            shape_id += 1;
-        }
-
-        let shape = &self.shapes()[shape_id - 1];
-
-        if let Some(subtransform) = shape.1.subshape_transform(subshape_id - idx[shape_id - 1]) {
-            Some(shape.0.clone() * subtransform)
-        } else {
-            Some(shape.0.clone())
-        }
-    }
-
     fn tangent_cone_contains_dir(
         &self,
-        _feature: FeatureId,
-        _m: &Isometry<N>,
-        _deformations: Option<&[N]>,
-        _dir: &Unit<Vector<N>>,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        _: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
     ) -> bool
     {
-        unimplemented!()
+        let (i, fid) = self.subshape_feature_id(feature);
+        let shape = &self.shapes()[i];
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+        shape.1.tangent_cone_contains_dir(fid, &shape.0, None, &ls_dir)
+    }
+
+    fn subshape_containing_feature(&self, feature: FeatureId) -> usize {
+        self.subshape_feature_id(feature).0
     }
 }
 

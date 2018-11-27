@@ -83,12 +83,12 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
             );
 
             if ls_aabb2.intersects(&aabb1) {
-                g1.map_part_at(key.0, m1, &mut |m1, g1| {
-                    g2.map_part_at(key.1, m2, &mut |m2, g2| {
+                g1.map_part_and_preprocessor_at(key.0, m1, prediction, &mut |m1, g1, proc1| {
+                    g2.map_part_and_preprocessor_at(key.1, m2, prediction, &mut |m2, g2, proc2| {
                         // FIXME: change the update functions.
                         assert!(
                             detector.generate_contacts(
-                                dispatcher, m1, g1, proc1, m2, g2, proc2, prediction, id_alloc,
+                                dispatcher, m1, g1, Some(proc1), m2, g2, Some(proc2), prediction, id_alloc,
                                 manifold
                             ),
                             "Internal error: the shape was no longer valid."

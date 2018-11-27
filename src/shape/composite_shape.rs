@@ -24,7 +24,7 @@ pub trait CompositeShape<N: Real> {
 
     /// Applies a transformation matrix and a function to each sub-shape of this concave
     /// shape.
-    fn map_part_with_preprocessor_at(
+    fn map_part_and_preprocessor_at(
         &self,
         usize,
         m: &Isometry<N>,

@@ -74,7 +74,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         // Update all collisions
         self.sub_detectors.retain(|key, detector| {
             if ls_aabb2.intersects(&g1.aabb_at(*key)) {
-                g1.map_part_with_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
+                g1.map_part_and_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
                     if flip {
                         assert!(
                             detector.generate_contacts(
@@ -141,7 +141,7 @@ impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerat
             }
         } else {
             if let Some(cs) = b.as_composite_shape() {
-                self.do_update(d, mb, cs, proc1, ma, a, proc2, prediction, id_alloc, manifold, true);
+                self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, id_alloc, manifold, true);
                 return true;
             }
         }
