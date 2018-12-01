@@ -5,7 +5,7 @@ use math::{Isometry, Point, Vector, DIM};
 use na::{self, Id, Point2, Point3, Real, Unit};
 use partitioning::{BVHImpl, BVT};
 use procedural;
-use query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction};
+use query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction, Contact, ContactKinematic};
 use shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
@@ -221,16 +221,14 @@ impl<N: Real> Polyline<N> {
 
     /// Face containing feature.
     #[inline]
-    pub fn face_containing_feature(&self, id: FeatureId) -> usize {
-        unimplemented!()
-        /*
+    pub fn edge_containing_feature(&self, id: FeatureId) -> usize {
         match id {
             FeatureId::Vertex(i) => self.adj_edge_list[self.vertices[i].adj_edges.start],
-            FeatureId::Edge(i) => self.edges[i].adj_edges.0.face_id,
-            FeatureId::Face(i) => i % self.faces.len(),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(i) => i,
+            FeatureId::Face(i) => i % self.edges.len(),
             _ => panic!("Feature ID cannot be unknown."),
         }
-        */
     }
 
     /// The segment of the `i`-th edge on this polyline.
@@ -457,7 +455,9 @@ impl<N: Real> CompositeShape<N> for Polyline<N> {
         prediction: &ContactPrediction<N>,
         f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
     ) {
-        unimplemented!()
+        let element = self.segment_at(i);
+        let proc = PolylineContactProcessor::new(self, m, i, prediction);
+        f(m, &element, &proc)
     }
 
     #[inline]
@@ -551,8 +551,6 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
         approx: &mut LocalShapeApproximation<N>,
     )
     {
-        unimplemented!()
-        /*
         assert!(
             indices.is_none(),
             "Remapping indices are not yet supported."
@@ -563,6 +561,7 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
                 approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);
                 approx.geometry = NeighborhoodGeometry::Point;
             }
+            #[cfg(feature = "dim3")]
             FeatureId::Edge(i) => {
                 let edge = &self.edges[i];
                 let pid1 = edge.indices.x * DIM;
@@ -579,25 +578,26 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
                     approx.geometry = NeighborhoodGeometry::Point;
                 }
             }
+            #[cfg(feature = "dim3")]
+            FeatureId::Face(_) => unreachable!(),
+            #[cfg(feature = "dim2")]
             FeatureId::Face(mut i) => {
-                let is_backface = i >= self.faces.len();
+                let is_backface = i >= self.edges.len();
                 if is_backface {
-                    i -= self.faces.len();
+                    i -= self.edges.len();
                 }
 
-                let face = &self.faces[i];
-                let pid1 = face.indices.x * DIM;
-                let pid2 = face.indices.y * DIM;
-                let pid3 = face.indices.z * DIM;
-                let tri = Triangle::new(
+                let edge = &self.edges[i];
+                let pid1 = edge.indices.x * DIM;
+                let pid2 = edge.indices.y * DIM;
+                let seg = Segment::new(
                     Point::from_slice(&coords[pid1..pid1 + DIM]),
                     Point::from_slice(&coords[pid2..pid2 + DIM]),
-                    Point::from_slice(&coords[pid3..pid3 + DIM]),
                 );
 
-                approx.point = *tri.a();
+                approx.point = *seg.a();
 
-                if let Some(n) = tri.normal() {
+                if let Some(n) = seg.normal() {
                     if !is_backface {
                         approx.geometry = NeighborhoodGeometry::Plane(n);
                     } else {
@@ -612,19 +612,72 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
                 approx.feature
             ),
         }
-        */
     }
 }
 
-/*
-impl<N: Real> From<procedural::Polyline<N>> for Polyline<N> {
-    fn from(polyline: procedural::Polyline<N>) -> Self {
-        let indices = polyline
-            .flat_indices()
-            .chunks(3)
-            .map(|idx| Point3::new(idx[0] as usize, idx[1] as usize, idx[2] as usize))
-            .collect();
-        Polyline::new(polyline.coords, indices, polyline.uvs)
+struct PolylineContactProcessor<'a, N: Real> {
+    polyline: &'a Polyline<N>,
+    pos: &'a Isometry<N>,
+    edge_id: usize,
+    prediction: &'a ContactPrediction<N>
+}
+
+impl<'a, N: Real> PolylineContactProcessor<'a, N> {
+    pub fn new(polyline: &'a Polyline<N>, pos: &'a Isometry<N>, edge_id: usize, prediction: &'a ContactPrediction<N>) -> Self {
+        PolylineContactProcessor {
+            polyline, pos, edge_id, prediction
+        }
     }
 }
-*/
+
+impl<'a, N: Real> ContactPreprocessor<N> for PolylineContactProcessor<'a, N> {
+    fn process_contact(
+        &self,
+        c: &mut Contact<N>,
+        kinematic: &mut ContactKinematic<N>,
+        is_first: bool)
+        -> bool {
+        // Fix the feature ID.
+        let feature = if is_first {
+            kinematic.feature1()
+        } else {
+            kinematic.feature2()
+        };
+
+        let edge = &self.polyline.edges()[self.edge_id];
+        let actual_feature = match feature {
+            FeatureId::Vertex(i) => FeatureId::Vertex(edge.indices[i]),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(_) => FeatureId::Edge(self.edge_id),
+            FeatureId::Face(i) => {
+                if i == 0 {
+                    FeatureId::Face(self.edge_id)
+                } else {
+                    FeatureId::Face(self.edge_id + self.polyline.edges().len())
+                }
+            }
+            FeatureId::Unknown => FeatureId::Unknown,
+        };
+
+        if is_first {
+            kinematic.set_feature1(actual_feature);
+        } else {
+            kinematic.set_feature2(actual_feature);
+        }
+
+/*
+        // TODO: Test the validity of the LMD.
+        if c.depth > N::zero() {
+            true
+        } else {
+            let local_dir = self.pos.inverse_transform_unit_vector(&c.normal);
+
+            if is_first {
+                self.polyline.tangent_cone_polar_contains_dir(actual_feature, &local_dir, self.prediction.sin_angular1(), self.prediction.cos_angular1())
+            } else {
+                self.polyline.tangent_cone_polar_contains_dir(actual_feature, &-local_dir, self.prediction.sin_angular2(), self.prediction.cos_angular2())
+            }
+        }*/
+        true
+    }
+}

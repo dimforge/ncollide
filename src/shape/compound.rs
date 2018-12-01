@@ -173,9 +173,13 @@ impl<'a, N: Real> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
 
         if is_first {
             kinematic.set_feature1(actual_feature);
+            // The contact kinematics must be expressed on the local frame of
+            // the compound instead of the sub-shape.
             kinematic.transform1(self.part_pos);
         } else {
             kinematic.set_feature2(actual_feature);
+            // The contact kinematics must be expressed on the local frame of
+            // the compound instead of the sub-shape.
             kinematic.transform2(self.part_pos);
         }
 

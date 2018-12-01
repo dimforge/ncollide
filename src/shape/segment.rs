@@ -26,6 +26,23 @@ pub enum SegmentPointLocation<N: Real> {
     OnEdge([N; 2]),
 }
 
+impl<N: Real> SegmentPointLocation<N> {
+    /// The barycentric coordinates corresponding to this point location.
+    pub fn barycentric_coordinates(&self) -> [N; 2] {
+        let mut bcoords = [N::zero(); 2];
+
+        match self {
+            SegmentPointLocation::OnVertex(i) => bcoords[*i] = N::one(),
+            SegmentPointLocation::OnEdge(uv) => {
+                bcoords[0] = uv[0];
+                bcoords[1] = uv[1];
+            }
+        }
+
+        bcoords
+    }
+}
+
 impl<N: Real> Segment<N> {
     /// Creates a new segment from two points.
     #[inline]
@@ -83,7 +100,7 @@ impl<N: Real> Segment<N> {
     #[cfg(feature = "dim2")]
     pub fn scaled_normal(&self) -> Vector<N> {
         let dir = self.scaled_direction();
-        Vector::new(-dir.y, dir.x)
+        Vector::new(dir.y, -dir.x)
     }
 
     /// In 2D, the normalized counterclockwise normal of this segment.
@@ -187,7 +204,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
 
     #[cfg(feature = "dim3")]
     fn face(&self, _: FeatureId, _: &mut ConvexPolygonalFeature<N>) {
-        panic!("A segment does not have any face indimensions higher than 2.")
+        panic!("A segment does not have any face in dimensions higher than 2.")
     }
 
     #[cfg(feature = "dim2")]

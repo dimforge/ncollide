@@ -6,10 +6,10 @@ use query::{PointQuery, RayCast};
 use shape::ConvexPolygon;
 use shape::{
     Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Polyline, Segment,
-    Capsule, Shape, SupportMap,
+    Capsule, Shape, SupportMap, DeformableShape
 };
 #[cfg(feature = "dim3")]
-use shape::{ConvexHull, DeformableShape, TriMesh, Triangle};
+use shape::{ConvexHull, TriMesh, Triangle};
 use utils::IsometryOps;
 
 macro_rules! impl_as_convex_polyhedron (
@@ -230,6 +230,7 @@ impl<N: Real> Shape<N> for TriMesh<N> {
 impl<N: Real> Shape<N> for Polyline<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
+    impl_as_deformable_shape!();
 
     fn tangent_cone_contains_dir(
         &self,
@@ -240,6 +241,11 @@ impl<N: Real> Shape<N> for Polyline<N> {
     ) -> bool
     {
         unimplemented!()
+    }
+
+
+    fn subshape_containing_feature(&self, id: FeatureId) -> usize {
+        self.edge_containing_feature(id)
     }
 }
 

@@ -519,7 +519,6 @@ impl<N: Real> TriMesh<N> {
 
         if let (Some(n1), Some(n2)) = (f1.normal, f2.normal) {
             if (n1.unwrap() + n2.unwrap()).dot(dir) < N::zero() {
-                println!(">>>>> Rejected: n1: {:?}, n2: {:?}, dir: {:?}", n1.unwrap(), n2.unwrap(), dir);
                 return false;
             }
         }

@@ -52,7 +52,7 @@ pub enum TrianglePointLocation<N: Real> {
 impl<N: Real> TrianglePointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     ///
-    /// Returns `None` if the location is `TetrahedronPointLocation::OnSolid`.
+    /// Returns `None` if the location is `TrianglePointLocation::OnSolid`.
     pub fn barycentric_coordinates(&self) -> Option<[N; 3]> {
         let mut bcoords = [N::zero(); 3];
 

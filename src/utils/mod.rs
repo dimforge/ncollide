@@ -16,7 +16,7 @@ pub use self::point_cloud_support_point::{
 };
 pub use self::point_in_poly2d::point_in_poly2d;
 pub use self::ref_with_cost::RefWithCost;
-pub use self::sort::sort3;
+pub use self::sort::{sort2, sort3};
 pub use self::sorted_pair::SortedPair;
 #[cfg(feature = "dim3")]
 pub use self::tetrahedron::{tetrahedron_center, tetrahedron_signed_volume, tetrahedron_volume};
