@@ -1,0 +1,39 @@
+use std::f32;
+
+use na::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+use ncollide3d::{
+    query::Ray,
+    shape::{Ball, ShapeHandle},
+    world::{CollisionGroups, CollisionWorld, GeometricQueryType},
+};
+
+#[test]
+fn interferences_with_ray() {
+    let mut world = CollisionWorld::new(0.01);
+
+    let shape = ShapeHandle::new(Ball::new(0.5f32));
+    let groups = CollisionGroups::new();
+    let query = GeometricQueryType::Contacts(0.0, 0.0);
+
+    let tra = Translation3::new(1.0, 1.0, 1.0);
+    let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::PI);
+    let iso = Isometry3::from_parts(tra, rot);
+
+    world.add(iso, shape.clone(), groups, query, ());
+
+    let num_collision_objects = world.collision_objects().into_iter().collect::<Vec<_>>().len();
+    assert!(
+        num_collision_objects  == 1,
+        format!("Expected 1 collision object, got {}", num_collision_objects),
+    );
+
+    let ray = Ray::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
+    let groups = CollisionGroups::new();
+    let interferences = world.interferences_with_ray(&ray, &groups);
+
+    let num_collisions = interferences.into_iter().collect::<Vec<_>>().len();
+    assert!(
+        num_collisions  == 1,
+        format!("Expected 1 collision, got {}", num_collisions),
+    );
+}
