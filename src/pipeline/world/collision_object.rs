@@ -163,8 +163,9 @@ impl<N: Real, T> CollisionObject<N, T> {
         &self.collision_groups
     }
 
+    /// Sets the collision groups of the collision object.
     #[inline]
-    pub(crate) fn set_collision_groups(&mut self, groups: CollisionGroups) {
+    pub fn set_collision_groups(&mut self, groups: CollisionGroups) {
         self.collision_groups = groups
     }
 
@@ -172,6 +173,12 @@ impl<N: Real, T> CollisionObject<N, T> {
     #[inline]
     pub fn query_type(&self) -> GeometricQueryType<N> {
         self.query_type
+    }
+
+    /// Sets the `GeometricQueryType` of the collision object.
+    #[inline]
+    pub fn set_query_type(&mut self, query_type: GeometricQueryType<N>) {
+        self.query_type = query_type;
     }
 
     /// Reference to the user-defined data associated to this object.
