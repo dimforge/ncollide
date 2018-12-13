@@ -304,6 +304,22 @@ impl<N: Real, T> CollisionWorld<N, T> {
         }
     }
 
+    /// Sets the shape of the given collision object.
+    #[inline]
+    pub fn set_shape(&mut self, handle: CollisionObjectHandle, shape: ShapeHandle<N>) {
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_shape(shape);
+
+            let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
+
+            aabb.loosen(co.query_type().query_limit());
+
+            let proxy_handle = self.broad_phase.create_proxy(aabb, handle);
+
+            co.set_proxy_handle(proxy_handle);
+        }
+    }
+
     /// Computes the interferences between every rigid bodies on this world and a ray.
     #[inline]
     pub fn interferences_with_ray<'a, 'b>(

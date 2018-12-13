@@ -157,15 +157,19 @@ impl<N: Real, T> CollisionObject<N, T> {
         &self.shape
     }
 
+    #[inline]
+    pub(crate) fn set_shape(&mut self, shape: ShapeHandle<N>) {
+        self.shape = shape
+    }
+
     /// The collision groups of the collision object.
     #[inline]
     pub fn collision_groups(&self) -> &CollisionGroups {
         &self.collision_groups
     }
 
-    /// Sets the collision groups of the collision object.
     #[inline]
-    pub fn set_collision_groups(&mut self, groups: CollisionGroups) {
+    pub(crate) fn set_collision_groups(&mut self, groups: CollisionGroups) {
         self.collision_groups = groups
     }
 
