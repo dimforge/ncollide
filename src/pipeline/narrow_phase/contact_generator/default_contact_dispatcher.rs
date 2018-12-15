@@ -3,7 +3,8 @@ use pipeline::narrow_phase::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
-    PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator
+    PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator,
+    CapsuleCapsuleManifoldGenerator
 };
 #[cfg(feature = "dim3")]
 use pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
@@ -41,8 +42,7 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
         }
 
         if a_is_capsule && b_is_capsule {
-            // FIXME: implement a special case for capsule-capsule.
-            Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(false)))
+            Some(Box::new(CapsuleCapsuleManifoldGenerator::<N>::new()))
         } else if a_is_capsule || b_is_capsule {
             Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(b_is_capsule)))
         } else if a_is_ball && b_is_ball {
