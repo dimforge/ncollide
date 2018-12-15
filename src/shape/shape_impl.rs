@@ -144,7 +144,6 @@ impl<N: Real> Shape<N> for Cuboid<N> {
 impl<N: Real> Shape<N> for Capsule<N> {
     impl_shape_common!();
     impl_as_support_map!();
-//    impl_as_convex_polyhedron!();
 
     // FIXME: this is wrong in theory but keep it this
     // way for now because of the way the ContactKinematic

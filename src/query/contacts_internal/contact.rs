@@ -108,6 +108,13 @@ impl<N: Real> ContactPrediction<N> {
         self.linear
     }
 
+
+    /// Sets linear prediction.
+    #[inline]
+    pub fn set_linear(&mut self, val: N) {
+        self.linear = val
+    }
+
     /// The angular regularization for the first solid.
     #[inline]
     pub fn angular1(&self) -> N {

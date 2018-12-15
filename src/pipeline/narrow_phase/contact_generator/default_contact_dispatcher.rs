@@ -3,13 +3,13 @@ use pipeline::narrow_phase::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
-    PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator,
+    PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator
 };
 #[cfg(feature = "dim3")]
 use pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
 #[cfg(feature = "dim3")]
 use shape::TriMesh;
-use shape::{Ball, Plane, Shape};
+use shape::{Ball, Plane, Shape, Capsule};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher {}
@@ -27,6 +27,8 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
         let b_is_ball = b.is_shape::<Ball<N>>();
         let a_is_plane = a.is_shape::<Plane<N>>();
         let b_is_plane = b.is_shape::<Plane<N>>();
+        let a_is_capsule = a.is_shape::<Capsule<N>>();
+        let b_is_capsule = b.is_shape::<Capsule<N>>();
 
         #[cfg(feature = "dim3")]
         {
@@ -38,7 +40,12 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
             }
         }
 
-        if a_is_ball && b_is_ball {
+        if a_is_capsule && b_is_capsule {
+            // FIXME: implement a special case for capsule-capsule.
+            Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(false)))
+        } else if a_is_capsule || b_is_capsule {
+            Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(b_is_capsule)))
+        } else if a_is_ball && b_is_ball {
             Some(Box::new(BallBallManifoldGenerator::<N>::new()))
         } else if a_is_plane && b_is_ball {
             Some(Box::new(PlaneBallManifoldGenerator::<N>::new(false)))

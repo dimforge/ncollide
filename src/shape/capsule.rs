@@ -3,8 +3,10 @@
 use na::{self, Real, Unit};
 
 use math::{Isometry, Point, Vector};
-use shape::SupportMap;
+use shape::{SupportMap, FeatureId, Segment};
 use utils::IsometryOps;
+use query::{ContactPreprocessor, Contact, ContactKinematic};
+
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]
@@ -28,16 +30,40 @@ impl<N: Real> Capsule<N> {
         }
     }
 
-    /// The capsule half length along the `y` axis.
+    /// The capsule half length along its local `y` axis.
     #[inline]
     pub fn half_height(&self) -> N {
         self.half_height
+    }
+
+    /// The capsule height along its local `y` axis.
+    #[inline]
+    pub fn height(&self) -> N {
+        self.half_height * na::convert(2.0)
     }
 
     /// The radius of the capsule's rounded part.
     #[inline]
     pub fn radius(&self) -> N {
         self.radius
+    }
+
+    /// The segment that, once dilated by `self.radius` yields this capsule.
+    #[inline]
+    pub fn segment(&self) -> Segment<N> {
+        let mut a = Point::origin();
+        let mut b = Point::origin();
+        a.y = -self.half_height;
+        b.y = self.half_height;
+
+        Segment::new(a, b)
+    }
+
+    #[inline]
+    pub fn contact_preprocessor(&self) -> impl ContactPreprocessor<N> {
+        CapsuleContactPreprocessor {
+            radius: self.radius
+        }
     }
 }
 
@@ -60,5 +86,57 @@ impl<N: Real> SupportMap<N> for Capsule<N> {
         }
 
         m * Point::from_coordinates(res + local_dir * self.radius())
+    }
+}
+
+
+struct CapsuleContactPreprocessor<N: Real> {
+    radius: N
+}
+
+impl<N: Real> CapsuleContactPreprocessor<N> {
+    pub fn new(radius: N) -> Self {
+        CapsuleContactPreprocessor {
+            radius
+        }
+    }
+}
+
+impl<N: Real> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
+    fn process_contact(
+        &self,
+        c: &mut Contact<N>,
+        kinematic: &mut ContactKinematic<N>,
+        is_first: bool)
+        -> bool {
+
+        // Fix the feature ID.
+        let feature = if is_first {
+            kinematic.feature1()
+        } else {
+            kinematic.feature2()
+        };
+
+        let actual_feature = match feature {
+            FeatureId::Vertex(i) => FeatureId::Face(i),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(_) => FeatureId::Face(2),
+            FeatureId::Face(i) => FeatureId::Face(2 + i),
+            FeatureId::Unknown => return false,
+        };
+
+        if is_first {
+            kinematic.set_feature1(actual_feature);
+            kinematic.set_dilation1(self.radius);
+            c.world1 += *c.normal * self.radius;
+            c.depth += self.radius;
+        } else {
+            kinematic.set_feature2(actual_feature);
+            kinematic.set_dilation2(self.radius);
+            c.world2 -= *c.normal * self.radius;
+            c.depth += self.radius;
+        }
+
+        true
     }
 }

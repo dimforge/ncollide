@@ -300,13 +300,39 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        _angle: N,
-        out: &mut ConvexPolygonalFeature<N>,
+        eps: N,
+        face: &mut ConvexPolygonalFeature<N>,
     )
     {
-        out.clear();
-        // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        face.clear();
+        let seg = self.transformed(transform);
+        let ceps = eps.sin();
+
+        if let Some(seg_dir) = seg.direction() {
+            let cang = dir.dot(&seg_dir);
+
+            if cang > ceps {
+                face.set_feature_id(FeatureId::Vertex(1));
+                face.push(seg.b, FeatureId::Vertex(1));
+            } else if cang < -ceps {
+                face.set_feature_id(FeatureId::Vertex(0));
+                face.push(seg.a, FeatureId::Vertex(0));
+            } else {
+                #[cfg(feature = "dim3")] {
+                    face.push(seg.a, FeatureId::Vertex(0));
+                    face.push(seg.b, FeatureId::Vertex(1));
+                    face.push_edge_feature_id(FeatureId::Edge(0));
+                    face.set_feature_id(FeatureId::Edge(0));
+                }
+                #[cfg(feature = "dim2")] {
+                    if dir.perp(&seg_dir) >= na::zero() {
+                        seg.face(FeatureId::Face(0), face);
+                    } else {
+                        seg.face(FeatureId::Face(1), face);
+                    }
+                }
+            }
+        }
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
