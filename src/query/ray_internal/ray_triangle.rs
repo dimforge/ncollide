@@ -2,7 +2,7 @@ use na::{self, Real, Vector3};
 
 use math::{Isometry, Point};
 use query::{Ray, RayCast, RayIntersection};
-use shape::Triangle;
+use shape::{Triangle, FeatureId};
 
 impl<N: Real> RayCast<N> for Triangle<N> {
     #[inline]
@@ -53,6 +53,10 @@ pub fn triangle_ray_intersection<N: Real>(
     if (t < na::zero() && d < na::zero()) || (t > na::zero() && d > na::zero()) {
         return None;
     }
+
+
+
+    let fid = if d < N::zero() { 0 } else { 1 };
 
     let d = d.abs();
 
@@ -105,7 +109,7 @@ pub fn triangle_ray_intersection<N: Real>(
     }
 
     Some((
-        RayIntersection::new(toi, normal),
+        RayIntersection::new(toi, normal, FeatureId::Face(fid)),
         Vector3::new(-v - w + na::one(), v, w),
     ))
 }

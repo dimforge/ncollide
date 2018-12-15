@@ -5,7 +5,7 @@ use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use query::{Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
-use shape::{Capsule, Segment, SupportMap};
+use shape::{Capsule, Segment, SupportMap, FeatureId};
 #[cfg(feature = "dim3")]
 use shape::{Cone, ConvexHull, Cylinder};
 
@@ -41,14 +41,14 @@ where
                     simplex.reset(CSOPoint::single_point(supp - new_ray.origin.coords));
 
                     gjk::cast_ray(m, shape, simplex, &new_ray)
-                        .map(|(toi, normal)| RayIntersection::new(shift - toi, normal))
+                        .map(|(toi, normal)| RayIntersection::new(shift - toi, normal, FeatureId::Unknown))
                 } else {
-                    Some(RayIntersection::new(toi, normal))
+                    Some(RayIntersection::new(toi, normal, FeatureId::Unknown))
                 }
             }
         }
     } else {
-        inter.map(|(toi, normal)| RayIntersection::new(toi, normal))
+        inter.map(|(toi, normal)| RayIntersection::new(toi, normal, FeatureId::Unknown))
     }
 }
 
@@ -184,7 +184,7 @@ impl<N: Real> RayCast<N> for Segment<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        // XXX: optimize if na::dimension::<P>() == 2
+        // XXX: implement an analytic solution
         let ls_ray = ray.inverse_transform_by(m);
 
         implicit_toi_and_normal_with_ray(

@@ -7,7 +7,7 @@ use na::Point2;
 use math::Vector;
 use math::{Isometry, Point};
 use query::{Ray, RayCast, RayIntersection};
-use shape::Ball;
+use shape::{Ball, FeatureId};
 
 #[cfg(feature = "dim3")]
 #[inline]
@@ -48,7 +48,7 @@ impl<N: Real> RayCast<N> for Ball<N> {
             let pos = ray.origin + ray.dir * n - center;
             let normal = na::normalize(&pos);
 
-            RayIntersection::new(n, if inside { -normal } else { normal })
+            RayIntersection::new(n, if inside { -normal } else { normal }, FeatureId::Face(0))
         })
     }
 
@@ -69,7 +69,7 @@ impl<N: Real> RayCast<N> for Ball<N> {
             let normal = na::normalize(&pos);
             let uv = ball_uv(&normal);
 
-            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, Some(uv))
+            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, FeatureId::Face(0), Some(uv))
         })
     }
 }

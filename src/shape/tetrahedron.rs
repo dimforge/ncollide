@@ -1,6 +1,6 @@
 //! Definition of the tetrahedron shape.
 
-use math::Point;
+use math::{Point, Matrix};
 use na::Real;
 use shape::{Segment, Triangle};
 use std::mem;
@@ -191,5 +191,24 @@ impl<N: Real> Tetrahedron<N> {
             5 => (2, 3),
             _ => panic!("Tetrahedron edge index out of bounds (must be < 6)."),
         }
+    }
+
+    /// Computes the barycentric coordinates of the given point in the coordinate system of this tetrahedron.
+    ///
+    /// Returns `None` if this tetrahedron is degenerate.
+    pub fn barycentric_coordinates(&self, p: &Point<N>) -> Option<[N; 4]> {
+        let ab = self.b - self.a;
+        let ac = self.c - self.a;
+        let ad = self.d - self.a;
+        let m = Matrix::new(
+            ab.x, ac.x, ad.x,
+            ab.y, ac.y, ad.y,
+            ab.z, ac.z, ad.z,
+        );
+
+        m.try_inverse().map(|im| {
+            let bcoords = im * (p - self.a);
+            [ N::one() - bcoords.x - bcoords.y - bcoords.z, bcoords.x, bcoords.y, bcoords.z ]
+        })
     }
 }

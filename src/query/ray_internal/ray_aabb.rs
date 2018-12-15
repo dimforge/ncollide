@@ -6,6 +6,7 @@ use na::Point2;
 use na::{self, Real};
 
 use bounding_volume::AABB;
+use shape::FeatureId;
 use math::{Isometry, Vector};
 use query::{Ray, RayCast, RayIntersection};
 
@@ -57,7 +58,15 @@ impl<N: Real> RayCast<N> for AABB<N> {
     {
         let ls_ray = ray.inverse_transform_by(m);
 
-        ray_aabb(self, &ls_ray, solid).map(|(t, n, _)| RayIntersection::new(t, m * n))
+        ray_aabb(self, &ls_ray, solid).map(|(t, n, i)| {
+            let feature = if i < 0 {
+                FeatureId::Face(i as usize - 1 + 3)
+            } else {
+                FeatureId::Face(i as usize - 1)
+            };
+
+            RayIntersection::new(t, m * n, feature)
+        })
     }
 
     #[cfg(feature = "dim3")]
@@ -91,23 +100,31 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
             let scale = *aabb.maxs() - *aabb.mins();
             let id = na::abs(&s);
             let gs_n = m * n;
+            let feature = if s < 0 {
+                FeatureId::Face(id as usize - 1 + 3)
+            } else {
+                FeatureId::Face(id as usize - 1)
+            };
 
             if id == 1 {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[1] / scale[1], dpt[2] / scale[2])),
                 )
             } else if id == 2 {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[2] / scale[2], dpt[0] / scale[0])),
                 )
             } else {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[0] / scale[0], dpt[1] / scale[1])),
                 )
             }

@@ -2,7 +2,7 @@ use na::{self, Real};
 
 use math::{Isometry, Point, Vector};
 use query::{Ray, RayCast, RayIntersection};
-use shape::Plane;
+use shape::{Plane, FeatureId};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]
@@ -57,7 +57,7 @@ impl<N: Real> RayCast<N> for Plane<N> {
 
         if solid && dot_normal_dpos > na::zero() {
             // The ray is inside of the solid half-space.
-            return Some(RayIntersection::new(na::zero(), na::zero()));
+            return Some(RayIntersection::new(na::zero(), na::zero(), FeatureId::Face(0)));
         }
 
         let t = dot_normal_dpos / na::dot(self.normal().as_ref(), &ls_ray.dir);
@@ -69,7 +69,7 @@ impl<N: Real> RayCast<N> for Plane<N> {
                 *self.normal()
             };
 
-            Some(RayIntersection::new(t, m * *n))
+            Some(RayIntersection::new(t, m * *n, FeatureId::Face(0)))
         } else {
             None
         }

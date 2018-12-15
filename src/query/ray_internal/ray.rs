@@ -5,6 +5,7 @@ use math::{Isometry, Point, Vector};
 use na::Point2;
 use na::Real;
 use utils::IsometryOps;
+use shape::FeatureId;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
@@ -60,6 +61,9 @@ pub struct RayIntersection<N: Real> {
     // XXX: use a Unit<Vetor<N>> instead.
     pub normal: Vector<N>,
 
+    /// Feature at the intersection point.
+    pub feature: FeatureId,
+
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
     #[cfg(feature = "dim3")]
@@ -70,21 +74,23 @@ impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new_with_uvs(toi: N, normal: Vector<N>, uvs: Option<Point2<N>>) -> RayIntersection<N> {
+    pub fn new_with_uvs(toi: N, normal: Vector<N>, feature: FeatureId, uvs: Option<Point2<N>>) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
-            uvs: uvs,
+            toi,
+            normal,
+            feature,
+            uvs,
         }
     }
 
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
+    pub fn new(toi: N, normal: Vector<N>, feature: FeatureId) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
+            toi,
+            normal,
+            feature,
             uvs: None,
         }
     }
@@ -92,10 +98,11 @@ impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim2")]
-    pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
+    pub fn new(toi: N, normal: Vector<N>, feature: FeatureId) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
+            toi,
+            normal,
+            feature
         }
     }
 }
