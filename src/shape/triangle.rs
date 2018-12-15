@@ -147,6 +147,11 @@ impl<N: Real> Triangle<N> {
         ]
     }
 
+    /// Returns a new triangle with vertices transformed by `m`.
+    #[inline]
+    pub fn transformed(&self, m: &Isometry<N>) -> Self {
+        Triangle::new(m * self.a, m * self.b, m * self.c)
+    }
     /// The three edges scaled directions of this triangle: [B - A, C - B, A - C].
     #[inline]
     pub fn edges_scaled_directions(&self) -> [Vector<N>; 3] {
@@ -224,6 +229,60 @@ impl<N: Real> Triangle<N> {
             }
         } else {
             false
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>, eps: N) -> FeatureId {
+        if let Some(normal) = self.normal() {
+            let (seps, ceps) = eps.sin_cos();
+
+            let normal_dot = local_dir.dot(&*normal);
+            if normal_dot >= ceps {
+                FeatureId::Face(0)
+            } else if normal_dot <= -ceps {
+                FeatureId::Face(1)
+            } else {
+                let edges = self.edges();
+                let mut dots = [N::zero(); 3];
+
+                let dir1 = edges[0].direction();
+                if let Some(dir1) = dir1 {
+                    dots[0] = dir1.dot(local_dir);
+
+                    if dots[0].abs() < seps {
+                        return FeatureId::Edge(0);
+                    }
+                }
+
+                let dir2 = edges[1].direction();
+                if let Some(dir2) = dir2 {
+                    dots[1] = dir2.dot(local_dir);
+
+                    if dots[1].abs() < seps {
+                        return FeatureId::Edge(1);
+                    }
+                }
+
+                let dir3 = edges[2].direction();
+                if let Some(dir3) = dir3 {
+                    dots[2] = dir3.dot(local_dir);
+
+                    if dots[2].abs() < seps {
+                        return FeatureId::Edge(2);
+                    }
+                }
+
+                if dots[0] > N::zero() && dots[1] < N::zero() {
+                    FeatureId::Vertex(1)
+                } else if dots[1] > N::zero() && dots[2] < N::zero() {
+                    FeatureId::Vertex(2)
+                } else {
+                    FeatureId::Vertex(0)
+                }
+            }
+        } else {
+            FeatureId::Vertex(0)
         }
     }
 }
@@ -380,44 +439,36 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        _angle: N,
+        eps: N,
         out: &mut ConvexPolygonalFeature<N>,
     )
     {
         out.clear();
-        // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        let tri = self.transformed(transform);
+        let feature = tri.support_feature_id_toward(dir, eps);
+
+        match feature {
+            FeatureId::Vertex(_) => {
+                let v = tri.vertex(feature);
+                out.push(v, feature);
+                out.set_feature_id(feature);
+            }
+            FeatureId::Edge(_) => {
+                let (a, b, fa, fb) = tri.edge(feature);
+                out.push(a, fa);
+                out.push(b, fb);
+                out.push_edge_feature_id(feature);
+                out.set_feature_id(feature);
+            }
+            FeatureId::Face(_) => {
+                tri.face(feature, out)
+            }
+            _ => unreachable!()
+        }
+
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
-        if let Some(normal) = self.normal() {
-            let eps: N = na::convert(f64::consts::PI / 180.0);
-            let ceps = eps.cos();
-
-            let normal_dot = local_dir.dot(&*normal);
-            if normal_dot >= ceps {
-                FeatureId::Face(0)
-            } else if normal_dot <= -ceps {
-                FeatureId::Face(1)
-            } else {
-                let dot1 = local_dir.dot(&self.a.coords);
-                let dot2 = local_dir.dot(&self.b.coords);
-                let dot3 = local_dir.dot(&self.c.coords);
-
-                if dot1 > dot2 {
-                    if dot1 > dot3 {
-                        FeatureId::Vertex(0)
-                    } else {
-                        FeatureId::Vertex(2)
-                    }
-                } else if dot2 > dot3 {
-                    FeatureId::Vertex(1)
-                } else {
-                    FeatureId::Vertex(2)
-                }
-            }
-        } else {
-            FeatureId::Vertex(0)
-        }
+        self.support_feature_id_toward(local_dir,  na::convert(f64::consts::PI / 180.0))
     }
 }
