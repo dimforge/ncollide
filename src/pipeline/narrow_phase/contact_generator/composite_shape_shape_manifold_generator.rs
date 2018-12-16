@@ -10,9 +10,10 @@ use utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N: Real> {
-    sub_detectors: HashMap<usize, ContactAlgorithm<N>, DeterministicState>,
+    sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
+    timestamp: usize
 }
 
 impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
@@ -22,6 +23,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
             sub_detectors: HashMap::with_hasher(DeterministicState),
             interferences: Vec::new(),
             flip,
+            timestamp: 0
         }
     }
 
@@ -40,6 +42,8 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         flip: bool,
     )
     {
+        self.timestamp += 1;
+
         // Find new collisions
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
@@ -52,7 +56,9 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         
         for i in self.interferences.drain(..) {
             match self.sub_detectors.entry(i) {
-                Entry::Occupied(_) => {}
+                Entry::Occupied(mut entry) => {
+                    entry.get_mut().1 = self.timestamp
+                }
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
         
@@ -65,55 +71,52 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                     });
         
                     if let Some(new_detector) = new_detector {
-                        let _ = entry.insert(new_detector);
+                        let _ = entry.insert((new_detector, self.timestamp));
                     }
                 }
             }
         }
         
         // Update all collisions
+        let timestamp = self.timestamp;
+
         self.sub_detectors.retain(|key, detector| {
-            if ls_aabb2.intersects(&g1.aabb_at(*key)) {
-                g1.map_part_and_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
-                    if flip {
-                        assert!(
-                            detector.generate_contacts(
-                                dispatcher,
-                                m2,
-                                g2,
-                                proc2,
-                                m1,
-                                g1,
-                                Some(proc1),
-                                prediction,
-                                id_alloc,
-                                manifold
-                            ),
-                            "Internal error: the shape was no longer valid."
-                        );
-                    } else {
-                        assert!(
-                            detector.generate_contacts(
-                                dispatcher,
-                                m1,
-                                g1,
-                                Some(proc1),
-                                m2,
-                                g2,
-                                proc2,
-                                prediction,
-                                id_alloc,
-                                manifold
-                            ),
-                            "Internal error: the shape was no longer valid."
-                        );
-                    }
-                });
-        
-                true
-            } else {
+            if detector.1 != timestamp {
                 // FIXME: ask the detector if it wants to be removed or not
                 false
+            } else {
+                let mut keep = false;
+                g1.map_part_and_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
+                    keep = if flip {
+                        detector.0.generate_contacts(
+                            dispatcher,
+                            m2,
+                            g2,
+                            proc2,
+                            m1,
+                            g1,
+                            Some(proc1),
+                            prediction,
+                            id_alloc,
+                            manifold
+                        )
+                    } else {
+                        detector.0.generate_contacts(
+                            dispatcher,
+                            m1,
+                            g1,
+                            Some(proc1),
+                            m2,
+                            g2,
+                            proc2,
+                            prediction,
+                            id_alloc,
+                            manifold
+                        )
+                    }
+                });
+
+                keep
             }
         });
     }

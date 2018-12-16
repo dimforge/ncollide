@@ -10,8 +10,9 @@ use utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeCompositeShapeManifoldGenerator<N> {
-    sub_detectors: HashMap<(usize, usize), ContactAlgorithm<N>, DeterministicState>,
+    sub_detectors: HashMap<(usize, usize), (ContactAlgorithm<N>, usize), DeterministicState>,
     interferences: Vec<(usize, usize)>,
+    timestamp: usize
 }
 
 impl<N> CompositeShapeCompositeShapeManifoldGenerator<N> {
@@ -20,6 +21,7 @@ impl<N> CompositeShapeCompositeShapeManifoldGenerator<N> {
         CompositeShapeCompositeShapeManifoldGenerator {
             sub_detectors: HashMap::with_hasher(DeterministicState),
             interferences: Vec::new(),
+            timestamp: 0
         }
     }
 }
@@ -39,6 +41,8 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         manifold: &mut ContactManifold<N>,
     )
     {
+        self.timestamp += 1;
+
         // Find new collisions
         let ls_m2 = m1.inverse() * m2;
         // For transforming AABBs from g2 in the local space of g1.
@@ -56,7 +60,9 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
 
         for id in self.interferences.drain(..) {
             match self.sub_detectors.entry(id) {
-                Entry::Occupied(_) => {}
+                Entry::Occupied(mut entry) => {
+                    entry.get_mut().1 = self.timestamp;
+                }
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
@@ -67,39 +73,30 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
                     });
 
                     if let Some(new_detector) = new_detector {
-                        let _ = entry.insert(new_detector);
+                        let _ = entry.insert((new_detector, self.timestamp));
                     }
                 }
             }
         }
 
         // Update all collisions
+        let timestamp = self.timestamp;
         self.sub_detectors.retain(|key, detector| {
-            let aabb1 = g1.aabb_at(key.0);
-            let aabb2 = g2.aabb_at(key.1);
-            let ls_aabb2 = AABB::from_half_extents(
-                ls_m2 * aabb2.center(),
-                ls_m2_abs_rot * aabb2.half_extents(),
-            );
-
-            if ls_aabb2.intersects(&aabb1) {
+            if detector.1 != timestamp {
+                false
+            } else {
+                let mut keep = false;
                 g1.map_part_and_preprocessor_at(key.0, m1, prediction, &mut |m1, g1, proc1| {
                     g2.map_part_and_preprocessor_at(key.1, m2, prediction, &mut |m2, g2, proc2| {
                         // FIXME: change the update functions.
-                        assert!(
-                            detector.generate_contacts(
-                                dispatcher, m1, g1, Some(proc1), m2, g2, Some(proc2), prediction, id_alloc,
-                                manifold
-                            ),
-                            "Internal error: the shape was no longer valid."
+                        keep = detector.0.generate_contacts(
+                            dispatcher, m1, g1, Some(proc1), m2, g2, Some(proc2), prediction, id_alloc,
+                            manifold
                         );
                     });
                 });
 
-                true
-            } else {
-                // FIXME: ask the detector if it wants to be removed or not
-                false
+                keep
             }
         });
     }
