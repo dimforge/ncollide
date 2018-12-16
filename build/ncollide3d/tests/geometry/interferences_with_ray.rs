@@ -19,12 +19,6 @@ fn interferences_with_ray() {
     let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::PI);
     let iso = Isometry3::from_parts(tra, rot);
 
-    let num_collision_objects = world.collision_objects().into_iter().collect::<Vec<_>>().len();
-    assert!(
-        num_collision_objects  == 1,
-        format!("Expected 1 collision object, got {}", num_collision_objects),
-    );
-
     let ray = Ray::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
 
     assert!(ball.toi_with_ray(
@@ -35,9 +29,15 @@ fn interferences_with_ray() {
 
     let shape = ShapeHandle::new(ball);
     world.add(iso, shape.clone(), groups, query, ());
+    world.update();
+
+    let num_collision_objects = world.collision_objects().into_iter().collect::<Vec<_>>().len();
+    assert!(
+        num_collision_objects  == 1,
+        format!("Expected 1 collision object, got {}", num_collision_objects),
+    );
 
     let interferences = world.interferences_with_ray(&ray, &groups);
-
     let num_collisions = interferences.into_iter().collect::<Vec<_>>().len();
     assert!(
         num_collisions  == 1,
