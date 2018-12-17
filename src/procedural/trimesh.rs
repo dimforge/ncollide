@@ -172,6 +172,33 @@ impl<N: Real> TriMesh<N> {
         self.normals = Some(new_normals);
     }
 
+    /// Flips all the normals of this mesh.
+    #[inline]
+    pub fn flip_normals(&mut self) {
+        if let Some(ref mut normals) = self.normals {
+            for n in normals {
+                *n = *n
+            }
+        }
+    }
+
+    /// Flips the orientation of every triangle of this mesh.
+    #[inline]
+    pub fn flip_triangles(&mut self) {
+        match self.indices {
+            IndexBuffer::Unified(ref mut idx) => {
+                for i in idx {
+                    i.coords.swap((1, 0), (2, 0))
+                }
+            }
+            IndexBuffer::Split(ref mut idx) => {
+                for i in idx {
+                    i.coords.swap((1, 0), (2, 0))
+                }
+            }
+        }
+    }
+
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {

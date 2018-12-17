@@ -4,13 +4,13 @@ use pipeline::narrow_phase::{
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
     PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator,
-    CapsuleCapsuleManifoldGenerator
+    CapsuleCapsuleManifoldGenerator, HeightFieldShapeManifoldGenerator
 };
 #[cfg(feature = "dim3")]
 use pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
 #[cfg(feature = "dim3")]
 use shape::TriMesh;
-use shape::{Ball, Plane, Shape, Capsule};
+use shape::{Ball, Plane, Shape, Capsule, HeightField};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher {}
@@ -30,6 +30,8 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
         let b_is_plane = b.is_shape::<Plane<N>>();
         let a_is_capsule = a.is_shape::<Capsule<N>>();
         let b_is_capsule = b.is_shape::<Capsule<N>>();
+        let a_is_heightfield = a.is_shape::<HeightField<N>>();
+        let b_is_heightfield = b.is_shape::<HeightField<N>>();
 
         #[cfg(feature = "dim3")]
         {
@@ -41,7 +43,14 @@ impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
             }
         }
 
-        if a_is_capsule && b_is_capsule {
+        {
+        }
+
+
+
+        if a_is_heightfield || b_is_heightfield {
+            return Some(Box::new(HeightFieldShapeManifoldGenerator::<N>::new(b_is_heightfield)));
+        } else if a_is_capsule && b_is_capsule {
             Some(Box::new(CapsuleCapsuleManifoldGenerator::<N>::new()))
         } else if a_is_capsule || b_is_capsule {
             Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(b_is_capsule)))

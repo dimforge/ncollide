@@ -10,7 +10,7 @@ use query::{ContactPreprocessor, ContactPrediction};
 /// A composite shape is composed of several shapes. Typically, it is a convex decomposition of
 /// a concave shape.
 pub trait CompositeShape<N: Real> {
-    /// The number of sub-shape in this composide sahpe.
+    /// The number of sub-shape in this composide shape.
     fn nparts(&self) -> usize;
 
     /// Applies a transformation matrix and a function to each sub-shape of this concave

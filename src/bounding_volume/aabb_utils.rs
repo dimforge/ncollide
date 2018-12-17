@@ -1,3 +1,5 @@
+use std::iter::IntoIterator;
+
 use alga::linear::Transformation;
 use bounding_volume::AABB;
 use math::{Isometry, Point, Vector, DIM};
@@ -30,12 +32,16 @@ where
 }
 
 /// Computes the AABB of a set of point.
-pub fn point_cloud_aabb<N: Real, M: Transformation<Point<N>>>(m: &M, pts: &[Point<N>]) -> AABB<N> {
-    let wp0 = m.transform_point(&pts[0]);
+pub fn point_cloud_aabb<'a, N: Real, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
+    where I: IntoIterator<Item = &'a Point<N>> {
+    let mut it = pts.into_iter();
+
+    let p0 = it.next().expect("Point cloud AABB construction: the input iterator should yield at least one point.");
+    let wp0 = m.transform_point(&p0);
     let mut min: Point<N> = wp0;
     let mut max: Point<N> = wp0;
 
-    for pt in pts[1..].iter() {
+    for pt in it {
         let wpt = m.transform_point(pt);
         min = na::inf(&min, &wpt);
         max = na::sup(&max, &wpt);

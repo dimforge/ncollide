@@ -1,7 +1,8 @@
 //! Axis Aligned Bounding Box.
 
-use bounding_volume::{BoundingVolume, HasBoundingVolume};
+use bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
 use math::{Isometry, Point, Vector};
+use utils::IsometryOps;
 use na::{self, Real};
 
 // Seems useful to help type inference. See issue #84.
@@ -74,6 +75,25 @@ impl<N: Real> AABB<N> {
     #[inline]
     pub fn extents(&self) -> Vector<N> {
         self.maxs - self.mins
+    }
+
+    /// Computes the AABB bounding `self` transformed by `m`.
+    #[inline]
+    pub fn transform_by(&self, m: &Isometry<N>) -> Self {
+        let ls_center = self.center();
+        let center = m * ls_center;
+        let ws_half_extents = m.absolute_transform_vector(&self.half_extents());
+
+        AABB::new(center + (-ws_half_extents), center + ws_half_extents)
+    }
+
+    /// The smallest bounding sphere containing this AABB.
+    #[inline]
+    pub fn bounding_sphere(&self) -> BoundingSphere<N> {
+        let center = self.center();
+        let rad = na::distance(self.mins(), self.maxs());
+
+        BoundingSphere::new(center, rad)
     }
 }
 

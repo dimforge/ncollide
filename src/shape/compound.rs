@@ -66,6 +66,13 @@ impl<N: Real> Compound<N> {
         &self.bvt
     }
 
+    /// The AABB of this compound in its local-space.
+    #[inline]
+    pub fn aabb(&self) -> &AABB<N> {
+        self.bvt().root_bounding_volume()
+            .expect("An empty Compound has no AABB.")
+    }
+
     /// The shapes bounding volumes.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<N>] {

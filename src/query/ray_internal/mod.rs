@@ -23,3 +23,4 @@ mod ray_support_map;
 mod ray_triangle;
 #[cfg(feature = "dim3")]
 mod ray_trimesh;
+mod ray_heightfield;

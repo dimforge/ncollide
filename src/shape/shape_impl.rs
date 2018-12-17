@@ -6,7 +6,7 @@ use query::{PointQuery, RayCast};
 use shape::ConvexPolygon;
 use shape::{
     Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Polyline, Segment,
-    Capsule, Shape, SupportMap, DeformableShape
+    Capsule, Shape, SupportMap, DeformableShape, HeightField
 };
 #[cfg(feature = "dim3")]
 use shape::{ConvexHull, TriMesh, Triangle};
@@ -245,6 +245,27 @@ impl<N: Real> Shape<N> for Polyline<N> {
 
     fn subshape_containing_feature(&self, id: FeatureId) -> usize {
         self.edge_containing_feature(id)
+    }
+}
+
+impl<N: Real> Shape<N> for HeightField<N> {
+    impl_shape_common!();
+
+    fn tangent_cone_contains_dir(
+        &self,
+        fid: FeatureId,
+        m: &Isometry<N>,
+        deformations: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool
+    {
+        // FIXME
+        false
+    }
+
+    fn subshape_containing_feature(&self, id: FeatureId) -> usize {
+        // FIXME
+        0
     }
 }
 

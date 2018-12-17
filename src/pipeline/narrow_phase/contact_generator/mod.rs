@@ -13,6 +13,7 @@ pub use self::plane_ball_manifold_generator::PlaneBallManifoldGenerator;
 pub use self::plane_convex_polyhedron_manifold_generator::PlaneConvexPolyhedronManifoldGenerator;
 #[cfg(feature = "dim3")]
 pub use self::trimesh_trimesh_manifold_generator::TriMeshTriMeshManifoldGenerator;
+pub use self::heightfield_shape_manifold_generator::HeightFieldShapeManifoldGenerator;
 pub use self::capsule_shape_manifold_generator::CapsuleShapeManifoldGenerator;
 pub use self::capsule_capsule_manifold_generator::CapsuleCapsuleManifoldGenerator;
 
@@ -29,5 +30,6 @@ mod plane_ball_manifold_generator;
 mod plane_convex_polyhedron_manifold_generator;
 #[cfg(feature = "dim3")]
 mod trimesh_trimesh_manifold_generator;
+mod heightfield_shape_manifold_generator;
 mod capsule_shape_manifold_generator;
 mod capsule_capsule_manifold_generator;

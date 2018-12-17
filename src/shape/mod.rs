@@ -35,6 +35,10 @@ pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
 pub use self::trimesh::{TriMesh, TriMeshFace};
+#[cfg(feature = "dim3")]
+pub use self::heightfield3::HeightField;
+#[cfg(feature = "dim2")]
+pub use self::heightfield2::HeightField;
 
 mod ball;
 mod capsule;
@@ -70,3 +74,7 @@ mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
+#[cfg(feature = "dim3")]
+mod heightfield3;
+#[cfg(feature = "dim2")]
+mod heightfield2;
