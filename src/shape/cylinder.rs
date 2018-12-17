@@ -7,6 +7,7 @@ use math::{Point, Vector, Isometry};
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Cylinder<N> {
     half_height: N,
     radius: N,

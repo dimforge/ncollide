@@ -8,6 +8,7 @@ use math::{Isometry, Point, Vector};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Capsule<N> {
     half_height: N,
     radius: N,

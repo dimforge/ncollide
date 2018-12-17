@@ -17,6 +17,7 @@ use utils::IsometryOps;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Triangle<N: Real> {
     a: Point<N>,
     b: Point<N>,

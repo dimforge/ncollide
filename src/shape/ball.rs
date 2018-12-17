@@ -5,6 +5,7 @@ use math::{Vector, Point, Isometry};
 
 /// A Ball shape.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Ball<N: Real> {
     radius: N,
 }

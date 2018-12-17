@@ -11,6 +11,7 @@ use utils::IsometryOps;
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Cuboid<N: Real> {
     half_extents: Vector<N>,
 }

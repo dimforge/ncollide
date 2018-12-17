@@ -119,6 +119,7 @@ impl<N: Real> Shape<N> {
 
 /// A shared immutable handle to an abstract shape.
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ShapeHandle<N: Real> {
     handle: Arc<Shape<N>>,
 }

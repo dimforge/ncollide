@@ -7,6 +7,7 @@ use math::Point;
 
 /// A tetrahedron with 4 vertices.
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Tetrahedron<N: Real> {
     a: Point<N>,
     b: Point<N>,

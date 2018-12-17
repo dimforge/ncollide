@@ -9,6 +9,7 @@ pub enum UpVector {
 
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Heightmap<N: Real> {
     heights: Vec<N>,
     scale: Vector<N>,

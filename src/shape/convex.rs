@@ -10,12 +10,14 @@ use transformation;
 use utils::{self, IsometryOps, SortedPair};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 struct Vertex {
     first_adj_face_or_edge: usize,
     num_adj_faces_or_edge: usize,
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 struct Edge<N: Real> {
     vertices: Point2<usize>,
     faces: Point2<usize>,
@@ -34,6 +36,7 @@ impl<N: Real> Edge<N> {
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 struct Face<N: Real> {
     first_vertex_or_edge: usize,
     num_vertices_or_edges: usize,
@@ -41,6 +44,7 @@ struct Face<N: Real> {
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 struct Triangle<N: Real> {
     vertices: Point3<usize>,
     edges: Point3<usize>,
@@ -61,6 +65,7 @@ impl<N: Real> Triangle<N> {
 }
 
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 /// A convex polyhedron without degenerate faces.
 pub struct ConvexHull<N: Real> {
     points: Vec<Point<N>>,

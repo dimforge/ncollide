@@ -39,6 +39,7 @@ const NO_GROUP: u32 = 0;
 ///    * Finally, B and C will **not** interact either because, even if C whitelists the group 3
 ///    (which B is part of), B does not whitelists the groups 6 nor 9 (which B is part of).
 #[derive(Clone, Debug, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CollisionGroups {
     membership: u32,
     whitelist: u32,

@@ -4,6 +4,7 @@ use math::Vector;
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Plane<N: Real> {
     /// The plane normal.
     normal: Unit<Vector<N>>,
