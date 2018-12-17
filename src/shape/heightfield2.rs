@@ -1,3 +1,4 @@
+use std::iter;
 use na::{DVector, Real, Point2};
 
 use crate::bounding_volume::AABB;
@@ -10,6 +11,7 @@ use crate::math::Vector;
 pub struct HeightField<N: Real> {
     heights: DVector<N>,
     scale: Vector<N>,
+    removed: Vec<bool>,
     aabb: AABB<N>,
     num_segments: usize
 }
@@ -28,8 +30,12 @@ impl<N: Real> HeightField<N> {
         let num_segments = heights.len() - 1;
 
         HeightField {
-            heights, scale, aabb, num_segments
+            heights, scale, aabb, num_segments, removed: Vec::new()
         }
+    }
+
+    pub fn num_segments(&self) -> usize {
+        self.num_segments
     }
 
     pub fn heights(&self) -> &DVector<N> {
@@ -42,6 +48,42 @@ impl<N: Real> HeightField<N> {
 
     pub fn aabb(&self) -> &AABB<N> {
         &self.aabb
+    }
+
+    pub fn segment_at(&self, i: usize) -> Option<Segment<N>> {
+        if self.is_segment_removed(i) {
+            return None;
+        }
+
+        let _0_5: N = na::convert(0.5);
+        let seg_length  = N::one() / na::convert(self.heights.len() as f64 - 1.0);
+
+        let x0 = -_0_5 +  seg_length * na::convert(i as f64);
+        let x1 = x0 + seg_length;
+
+        let y0 = self.heights[i + 0];
+        let y1 = self.heights[i + 1];
+
+        let mut p0 = Point2::new(x0, y0);
+        let mut p1 = Point2::new(x1, y1);
+
+        // Apply scales:
+        p0.coords.component_mul_mut(&self.scale);
+        p1.coords.component_mul_mut(&self.scale);
+
+        Some(Segment::new(p0, p1))
+    }
+
+    pub fn set_segment_removed(&mut self, i: usize, removed: bool) {
+        if self.removed.len() == 0 {
+            self.removed = iter::repeat(false).take(self.num_segments).collect()
+        }
+
+        self.removed[i] = removed
+    }
+
+    pub fn is_segment_removed(&self, i: usize) -> bool {
+        self.removed.len() != 0 && self.removed[i]
     }
 
     pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Segment<N>, &ContactPreprocessor<N>)) {
@@ -61,6 +103,10 @@ impl<N: Real> HeightField<N> {
         // FIXME: find a way to avoid recomputing the same vertices
         // multiple times.
         for i in min_x..max_x {
+            if self.is_segment_removed(i) {
+                continue;
+            }
+
             let x0 = -_0_5 +  seg_length * na::convert(i as f64);
             let x1 = x0 + seg_length;
 
@@ -78,10 +124,10 @@ impl<N: Real> HeightField<N> {
             p0.coords.component_mul_mut(&self.scale);
             p1.coords.component_mul_mut(&self.scale);
 
-            // Build the two triangles.
+            // Build the segment.
             let seg = Segment::new(p0, p1);
 
-            // Build the contact preprocessors.
+            // Build the contact preprocessor.
             let seg_id = i;
             let proc = HeightFieldTriangleContactPreprocessor::new(self, seg_id);
 
