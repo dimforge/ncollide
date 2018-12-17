@@ -9,3 +9,4 @@ mod cylinder_to_trimesh;
 pub mod to_trimesh;
 // mod mesh_to_trimesh;
 mod triangle_to_trimesh;
+mod heightfield_to_trimesh;

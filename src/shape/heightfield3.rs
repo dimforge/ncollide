@@ -11,6 +11,7 @@ bitflags! {
         const ZIGZAG_SUBDIVISION = 0b00000001;
         const LEFT_TRIANGLE_REMOVED = 0b00000010;
         const RIGHT_TRIANGLE_REMOVED = 0b00000100;
+        const CELL_REMOVED = Self::LEFT_TRIANGLE_REMOVED.bits | Self::RIGHT_TRIANGLE_REMOVED.bits;
     }
 }
 
@@ -41,6 +42,63 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    pub fn nrows(&self) -> usize {
+        self.heights.nrows() - 1
+    }
+
+    pub fn ncols(&self) -> usize {
+        self.heights.ncols() - 1
+    }
+
+    pub fn triangle_at(&self, i: usize, j: usize, left: bool) -> Option<Triangle<N>> {
+        let status = self.status[(i, j)];
+
+        if (left && status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED)) ||
+            (!left && status.contains(HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED)) {
+            return None;
+        }
+
+        let cell_width = self.unit_cell_width();
+        let cell_height = self.unit_cell_height();
+
+        let _0_5: N = na::convert(0.5);
+        let z0 = -_0_5 + cell_height * na::convert(i as f64);
+        let z1 = z0 + cell_height;
+
+        let x0 = -_0_5 + cell_width * na::convert(j as f64);
+        let x1 = x0 + cell_width;
+
+        let y00 = self.heights[(i + 0, j + 0)];
+        let y10 = self.heights[(i + 1, j + 0)];
+        let y01 = self.heights[(i + 0, j + 1)];
+        let y11 = self.heights[(i + 1, j + 1)];
+
+        let mut p00 = Point3::new(x0, y00, z0);
+        let mut p10 = Point3::new(x0, y10, z1);
+        let mut p01 = Point3::new(x1, y01, z0);
+        let mut p11 = Point3::new(x1, y11, z1);
+
+        // Apply scales:
+        p00.coords.component_mul_mut(&self.scale);
+        p10.coords.component_mul_mut(&self.scale);
+        p01.coords.component_mul_mut(&self.scale);
+        p11.coords.component_mul_mut(&self.scale);
+
+        if left {
+            if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+                Some(Triangle::new(p00, p10, p11))
+            } else {
+                Some(Triangle::new(p00, p10, p01))
+            }
+        } else {
+            if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+                Some(Triangle::new(p00, p11, p01))
+            } else {
+                Some(Triangle::new(p10, p11, p01))
+            }
+        }
+    }
+
     pub fn cell_status(&self, i: usize, j: usize) -> HeightFieldCellStatus {
         self.status[(i, j)]
     }
@@ -65,6 +123,22 @@ impl<N: Real> HeightField<N> {
         &self.scale
     }
 
+    pub fn cell_width(&self) -> N {
+        self.unit_cell_width() * self.scale.x
+    }
+
+    pub fn cell_height(&self) -> N {
+        self.unit_cell_height() * self.scale.z
+    }
+
+    pub fn unit_cell_width(&self) -> N {
+        N::one() / na::convert(self.heights.ncols() as f64 - 1.0)
+    }
+
+    pub fn unit_cell_height(&self) -> N {
+        N::one() / na::convert(self.heights.nrows() as f64 - 1.0)
+    }
+
     pub fn aabb(&self) -> &AABB<N> {
         &self.aabb
     }
@@ -73,8 +147,8 @@ impl<N: Real> HeightField<N> {
         let _0_5: N = na::convert(0.5);
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
-        let cell_width  = N::one() / na::convert(self.heights.ncols() as f64 - 1.0);
-        let cell_height = N::one() / na::convert(self.heights.nrows() as f64 - 1.0);
+        let cell_width  = self.unit_cell_width();
+        let cell_height = self.unit_cell_height();
 
         if ref_maxs.x <= -_0_5 || ref_maxs.z <= -_0_5 || ref_mins.x >= _0_5 || ref_mins.z >= _0_5 {
             // Outside of the heightfield bounds.
@@ -93,7 +167,7 @@ impl<N: Real> HeightField<N> {
             for i in min_z..max_z {
                 let status = self.status[(i, j)];
 
-                if status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED | HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
+                if status.contains(HeightFieldCellStatus::CELL_REMOVED) {
                     continue;
                 }
 
