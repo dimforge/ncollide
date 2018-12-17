@@ -32,15 +32,17 @@ fn interferences_with_ray() {
         .into_iter()
         .collect::<Vec<_>>()
         .len();
-    assert!(
-        num_collision_objects == 1,
-        format!("Expected 1 collision object, got {}", num_collision_objects),
+    assert_eq!(
+        num_collision_objects, 1,
+        "Expected 1 collision object, got {}",
+        num_collision_objects,
     );
 
     let interferences = world.interferences_with_ray(&ray, &groups);
     let num_collisions = interferences.into_iter().collect::<Vec<_>>().len();
-    assert!(
-        num_collisions == 1,
-        format!("Expected 1 collision, got {}", num_collisions),
+    assert_eq!(
+        num_collisions, 1,
+        "Expected 1 collision, got {}",
+        num_collisions,
     );
 }
