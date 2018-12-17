@@ -21,6 +21,7 @@ path = "../../src/lib.rs"
 
 [dependencies]
 either     = "1.0"
+bitflags   = "1.0"
 num-traits = { version = "0.2", default-features = false }
 smallvec   = "0.6"
 arrayvec   = "0.4"

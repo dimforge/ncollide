@@ -36,7 +36,7 @@ pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
 pub use self::trimesh::{TriMesh, TriMeshFace};
 #[cfg(feature = "dim3")]
-pub use self::heightfield3::HeightField;
+pub use self::heightfield3::{HeightField, HeightFieldCellStatus};
 #[cfg(feature = "dim2")]
 pub use self::heightfield2::HeightField;
 

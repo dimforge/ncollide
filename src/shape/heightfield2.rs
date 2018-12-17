@@ -16,6 +16,8 @@ pub struct HeightField<N: Real> {
 
 impl<N: Real> HeightField<N> {
     pub fn new(heights: DVector<N>, scale: Vector<N>) -> Self {
+        assert!(heights.len() > 1, "A heightfield heights must have at least 2 elements.");
+
         let max = heights.max();
         let min = heights.min();
         let hscale = scale * na::convert::<_, N>(0.5);

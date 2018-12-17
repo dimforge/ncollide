@@ -50,6 +50,8 @@ And various traits for collision detectors and broad phase collision detection.
 extern crate alga;
 #[macro_use]
 extern crate approx;
+#[macro_use]
+extern crate bitflags;
 extern crate arrayvec;
 extern crate either;
 extern crate nalgebra as na;
