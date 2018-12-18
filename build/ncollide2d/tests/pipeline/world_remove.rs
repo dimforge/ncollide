@@ -1,5 +1,5 @@
 use na::{Isometry2, Vector2};
-use ncollide2d::world::{CollisionGroups, CollisionWorld};
+use ncollide2d::world::CollisionWorld;
 use ncollide2d::shape::{Ball, ShapeHandle};
 use ncollide2d::world::GeometricQueryType;
 
@@ -11,21 +11,21 @@ fn issue_57_object_remove() {
     let object1 = world.add(
         Isometry2::new(Vector2::new(1.0, 0.0), 0.0),
         shape.clone(),
-        CollisionGroups::new(),
+        0,
         contact_query,
         (),
     );
     let _ = world.add(
         Isometry2::new(Vector2::new(1.0, 1.0), 0.0),
         shape.clone(),
-        CollisionGroups::new(),
+        0,
         contact_query,
         (),
     );
     let _ = world.add(
         Isometry2::new(Vector2::new(1.0, 2.0), 0.0),
         shape.clone(),
-        CollisionGroups::new(),
+        0,
         contact_query,
         (),
     );

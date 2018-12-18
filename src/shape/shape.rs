@@ -11,6 +11,12 @@ use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
 use bounding_volume::{BoundingSphere, AABB};
 use query::{PointQuery, RayCast};
 use math::Isometry;
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+#[cfg(feature = "serde")]
+use serde::de::DeserializeOwned;
+
+//serialize_trait_object!(Shape<f32>);
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
@@ -83,6 +89,7 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
         self.as_composite_shape().is_some()
     }
 }
+
 
 // Define our own because it is unstable.
 /// Raw representation of a trait-object.

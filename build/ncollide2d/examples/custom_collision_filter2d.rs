@@ -3,7 +3,7 @@ extern crate ncollide2d;
 
 use ncollide2d::shape::{Ball, ShapeHandle};
 use ncollide2d::broad_phase::BroadPhasePairFilter;
-use ncollide2d::world::{CollisionGroups, CollisionObject, CollisionWorld, GeometricQueryType};
+use ncollide2d::world::{CollisionObject, CollisionWorld, GeometricQueryType};
 
 struct ParityFilter;
 
@@ -19,17 +19,16 @@ impl BroadPhasePairFilter<f32, ()> for ParityFilter {
 
 fn main() {
     let shape = ShapeHandle::new(Ball::new(0.5f32));
-    let groups = CollisionGroups::new();
     let query = GeometricQueryType::Contacts(0.0, 0.0);
 
     let mut world = CollisionWorld::new(0.02);
 
     world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
 
-    world.add(na::one(), shape.clone(), groups, query, ());
-    world.add(na::one(), shape.clone(), groups, query, ());
-    world.add(na::one(), shape.clone(), groups, query, ());
-    world.add(na::one(), shape.clone(), groups, query, ());
+    world.add(na::one(), shape.clone(), 0, query, ());
+    world.add(na::one(), shape.clone(), 0, query, ());
+    world.add(na::one(), shape.clone(), 0, query, ());
+    world.add(na::one(), shape.clone(), 0, query, ());
 
     world.update();
 

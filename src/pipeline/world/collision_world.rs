@@ -2,6 +2,7 @@ use std::mem;
 use std::vec::IntoIter;
 
 use bounding_volume::{self, BoundingVolume, AABB};
+use half_matrix::HalfMatrix;
 use math::{Isometry, Point};
 use na::Real;
 use pipeline::broad_phase::{
@@ -13,7 +14,7 @@ use pipeline::narrow_phase::{
     DefaultProximityDispatcher, NarrowPhase, ProximityPairs,
 };
 use pipeline::world::{
-    CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
+    CollisionObject, CollisionObjectHandle,
     CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
 use query::{PointQuery, Ray, RayCast, RayIntersection};
@@ -32,6 +33,9 @@ pub struct CollisionWorld<N: Real, T> {
     contact_events: ContactEvents,
     proximity_events: ProximityEvents,
     pair_filters: BroadPhasePairFilters<N, T>,
+    /// The collision matrix indicating which colliders can collide with each other.
+    /// Based on the `CollisionObject::collision_group` value.
+    pub collision_matrix: HalfMatrix,
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
@@ -41,11 +45,12 @@ struct CollisionWorldInterferenceHandler<'a, N: Real, T: 'a> {
     proximity_events: &'a mut ProximityEvents,
     objects: &'a CollisionObjectSlab<N, T>,
     pair_filters: &'a BroadPhasePairFilters<N, T>,
+    collision_matrix: &'a HalfMatrix,
 }
 
 impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
     fn is_interference_allowed(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
-        CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
+        CollisionWorld::filter_collision(&self.collision_matrix, &self.pair_filters, &self.objects, *b1, *b2)
     }
 
     fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
@@ -68,6 +73,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
             margin,
         ));
         let narrow_phase = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
+        let mut collision_matrix = HalfMatrix::new(1);
+        collision_matrix.enable(0,0);
 
         CollisionWorld {
             contact_events: ContactEvents::new(),
@@ -76,6 +83,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
             broad_phase: broad_phase,
             narrow_phase: Box::new(narrow_phase),
             pair_filters: BroadPhasePairFilters::new(),
+            collision_matrix,
             timestamp: 0,
         }
     }
@@ -85,7 +93,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &mut self,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
-        collision_groups: CollisionGroups,
+        collision_group: u32,
         query_type: GeometricQueryType<N>,
         data: T,
     ) -> CollisionObjectHandle {
@@ -94,7 +102,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
             ProxyHandle::invalid(),
             position,
             shape,
-            collision_groups,
+            collision_group,
             query_type,
             data,
         );
@@ -206,6 +214,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     /// Executes the broad phase of the collision detection pipeline.
     pub fn perform_broad_phase(&mut self) {
         self.broad_phase.update(&mut CollisionWorldInterferenceHandler {
+            collision_matrix: &self.collision_matrix,
             narrow_phase: &mut self.narrow_phase,
             contact_events: &mut self.contact_events,
             proximity_events: &mut self.proximity_events,
@@ -296,9 +305,9 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
     /// Sets the collision groups of the given collision object.
     #[inline]
-    pub fn set_collision_groups(&mut self, handle: CollisionObjectHandle, groups: CollisionGroups) {
+    pub fn set_collision_group(&mut self, handle: CollisionObjectHandle, group: u32) {
         if let Some(co) = self.objects.get_mut(handle) {
-            co.set_collision_groups(groups);
+            co.set_collision_group(group);
             self.broad_phase
                 .deferred_recompute_all_proximities_with(co.proxy_handle());
         }
@@ -325,7 +334,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn interferences_with_ray<'a, 'b>(
         &'a self,
         ray: &'b Ray<N>,
-        groups: &'b CollisionGroups,
+        groups: &'b [u32],
     ) -> InterferencesWithRay<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
@@ -333,7 +342,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
         InterferencesWithRay {
             ray: ray,
-            groups: groups,
+            groups,
+            collision_matrix: &self.collision_matrix,
             objects: &self.objects,
             handles: handles.into_iter(),
         }
@@ -344,7 +354,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn interferences_with_point<'a, 'b>(
         &'a self,
         point: &'b Point<N>,
-        groups: &'b CollisionGroups,
+        groups: &'b [u32],
     ) -> InterferencesWithPoint<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
@@ -352,8 +362,9 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .interferences_with_point(point, &mut handles);
 
         InterferencesWithPoint {
-            point: point,
-            groups: groups,
+            point,
+            collision_matrix: &self.collision_matrix,
+            groups,
             objects: &self.objects,
             handles: handles.into_iter(),
         }
@@ -364,7 +375,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     pub fn interferences_with_aabb<'a, 'b>(
         &'a self,
         aabb: &'b AABB<N>,
-        groups: &'b CollisionGroups,
+        groups: &'b [u32],
     ) -> InterferencesWithAABB<'a, 'b, N, T> {
         // FIXME: avoid allocation.
         let mut handles = Vec::new();
@@ -372,7 +383,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .interferences_with_bounding_volume(aabb, &mut handles);
 
         InterferencesWithAABB {
-            groups: groups,
+            collision_matrix: &self.collision_matrix,
+            groups,
             objects: &self.objects,
             handles: handles.into_iter(),
         }
@@ -391,6 +403,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
     // Filters by group and by the user-provided callback.
     #[inline]
     fn filter_collision(
+        collision_matrix: &HalfMatrix,
         filters: &BroadPhasePairFilters<N, T>,
         objects: &CollisionObjectSlab<N, T>,
         handle1: CollisionObjectHandle,
@@ -398,9 +411,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
     ) -> bool {
         let o1 = &objects[handle1];
         let o2 = &objects[handle2];
-        let filter_by_groups = CollisionGroupsPairFilter;
 
-        filter_by_groups.is_pair_valid(o1, o2) && filters.is_pair_valid(o1, o2)
+        collision_matrix.contains(o1.collision_group(), o2.collision_group()) && filters.is_pair_valid(o1, o2)
     }
 }
 
@@ -408,7 +420,8 @@ impl<N: Real, T> CollisionWorld<N, T> {
 pub struct InterferencesWithRay<'a, 'b, N: 'a + Real, T: 'a> {
     ray: &'b Ray<N>,
     objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
+    collision_matrix: &'a HalfMatrix,
+    groups: &'b [u32],
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
@@ -420,7 +433,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
         while let Some(handle) = self.handles.next() {
             let co = &self.objects[*handle];
 
-            if co.collision_groups().can_interact_with_groups(self.groups) {
+            let can_collide = self.groups.iter().any(|g| self.collision_matrix.contains(co.collision_group(), *g));
+            if can_collide {
                 let inter = co
                     .shape()
                     .toi_and_normal_with_ray(&co.position(), self.ray, true);
@@ -439,7 +453,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
 pub struct InterferencesWithPoint<'a, 'b, N: 'a + Real, T: 'a> {
     point: &'b Point<N>,
     objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
+    collision_matrix: &'a HalfMatrix,
+    groups: &'b [u32],
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
@@ -451,7 +466,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
         while let Some(handle) = self.handles.next() {
             let co = &self.objects[*handle];
 
-            if co.collision_groups().can_interact_with_groups(self.groups)
+            let can_collide = self.groups.iter().any(|g| self.collision_matrix.contains(co.collision_group(), *g));
+            if can_collide 
                 && co.shape().contains_point(&co.position(), self.point)
             {
                 return Some(co);
@@ -465,7 +481,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
 pub struct InterferencesWithAABB<'a, 'b, N: 'a + Real, T: 'a> {
     objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
+    collision_matrix: &'a HalfMatrix,
+    groups: &'b [u32],
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
@@ -477,7 +494,8 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
         while let Some(handle) = self.handles.next() {
             let co = &self.objects[*handle];
 
-            if co.collision_groups().can_interact_with_groups(self.groups) {
+            let can_collide = self.groups.iter().any(|g| self.collision_matrix.contains(co.collision_group(), *g));
+            if can_collide {
                 return Some(co);
             }
         }

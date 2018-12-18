@@ -1,12 +1,11 @@
 use na::{zero, Isometry3, Point3, Vector3};
 use ncollide3d::shape::*;
-use ncollide3d::world::{CollisionGroups, CollisionWorld, GeometricQueryType};
+use ncollide3d::world::{CollisionWorld, GeometricQueryType};
 
 // Issue #188.
 #[test]
 fn duplicate_trimesh_on_world() {
     let mut world = CollisionWorld::new(0.02);
-    let groups = CollisionGroups::new();
     let contacts_query = GeometricQueryType::Contacts(0.0, 0.0);
 
     let vertices = vec![
@@ -67,11 +66,11 @@ fn duplicate_trimesh_on_world() {
 
     let iso = Isometry3::new(Vector3::new(0., 0., 0.), zero());
     let shape = ShapeHandle::new(mesh.clone());
-    world.add(iso, shape, groups, contacts_query, ());
+    world.add(iso, shape, 0, contacts_query, ());
 
     let iso = Isometry3::new(Vector3::new(0., 0., 0.), zero());
     let shape = ShapeHandle::new(mesh);
-    world.add(iso, shape, groups, contacts_query, ());
+    world.add(iso, shape, 0, contacts_query, ());
 
     world.update();
 }

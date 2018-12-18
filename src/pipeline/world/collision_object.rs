@@ -6,7 +6,6 @@ use alga::general::Real;
 use shape::ShapeHandle;
 use query::ContactPrediction;
 use pipeline::broad_phase::ProxyHandle;
-use pipeline::world::CollisionGroups;
 use math::Isometry;
 
 /// The kind of query a CollisionObject may be involved on.
@@ -85,7 +84,7 @@ pub struct CollisionObject<N: Real, T> {
     proxy_handle: ProxyHandle,
     position: Isometry<N>,
     shape: ShapeHandle<N>,
-    collision_groups: CollisionGroups,
+    collision_group: u32,
     query_type: GeometricQueryType<N>,
     data: T,
     // XXX: could this be replaced by an enum (or bitfield)
@@ -100,7 +99,7 @@ impl<N: Real, T> CollisionObject<N, T> {
         proxy_handle: ProxyHandle,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
-        groups: CollisionGroups,
+        collision_group: u32,
         query_type: GeometricQueryType<N>,
         data: T,
     ) -> CollisionObject<N, T> {
@@ -109,7 +108,7 @@ impl<N: Real, T> CollisionObject<N, T> {
             proxy_handle: proxy_handle,
             position: position,
             shape: shape,
-            collision_groups: groups,
+            collision_group,
             data: data,
             query_type: query_type,
             timestamp: 0,
@@ -164,13 +163,13 @@ impl<N: Real, T> CollisionObject<N, T> {
 
     /// The collision groups of the collision object.
     #[inline]
-    pub fn collision_groups(&self) -> &CollisionGroups {
-        &self.collision_groups
+    pub fn collision_group(&self) -> u32 {
+        self.collision_group
     }
 
     #[inline]
-    pub(crate) fn set_collision_groups(&mut self, groups: CollisionGroups) {
-        self.collision_groups = groups
+    pub(crate) fn set_collision_group(&mut self, group: u32) {
+        self.collision_group = group
     }
 
     /// The kind of queries this collision object is expected to .

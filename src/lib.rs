@@ -51,9 +51,16 @@ extern crate alga;
 extern crate slab;
 #[macro_use]
 extern crate approx;
+pub extern crate half_matrix;
 extern crate nalgebra as na;
 extern crate num_traits as num;
 extern crate smallvec;
+#[cfg(feature = "serde")]
+#[macro_use]
+extern crate serde;
+#[cfg(feature = "serde")]
+#[macro_use]
+extern crate erased_serde;
 
 pub use pipeline::{broad_phase, events, narrow_phase, world};
 
