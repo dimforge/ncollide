@@ -6,7 +6,7 @@ use shape::{Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, Plane, Pol
 #[cfg(feature = "dim2")]
 use shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
-use shape::{ConvexHull, TriMesh, Triangle};
+use shape::{ConvexHull, TriMesh, Triangle, Cylinder, Capsule};
 use math::Isometry;
 
 macro_rules! impl_as_convex_polyhedron(
@@ -97,6 +97,18 @@ impl<N: Real> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+}
+
+#[cfg(feature = "dim3")]
+impl<N: Real> Shape<N> for Cylinder<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
+}
+
+#[cfg(feature = "dim3")]
+impl<N: Real> Shape<N> for Capsule<N> {
+    impl_shape_common!();
+    impl_as_support_map!();
 }
 
 #[cfg(feature = "dim3")]
