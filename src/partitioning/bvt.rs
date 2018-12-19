@@ -11,13 +11,13 @@ use utils;
 use math::{Point, DIM};
 
 /// A Bounding Volume Tree.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct BVT<B, BV> {
     tree: Option<BVTNode<B, BV>>,
 }
 
 /// A node of the bounding volume tree.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum BVTNode<B, BV> {
     // XXX: give a faster access to the BV
     /// An internal node.

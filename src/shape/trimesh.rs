@@ -6,6 +6,7 @@ use bounding_volume::AABB;
 use shape::{CompositeShape, Shape, Triangle};
 use math::{Isometry, Point};
 
+#[derive(Debug)]
 /// Shape commonly known as a 2d line strip or a 3d triangle mesh.
 pub struct TriMesh<N: Real> {
     bvt: BVT<usize, AABB<N>>,

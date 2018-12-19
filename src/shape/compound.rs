@@ -9,6 +9,7 @@ use partitioning::BVT;
 use shape::{CompositeShape, Shape, ShapeHandle};
 use math::Isometry;
 
+#[derive(Debug)]
 /// A compound shape with an aabb bounding volume.
 ///
 /// A compound shape is a shape composed of the union of several simpler shape. This is

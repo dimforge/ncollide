@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::mem;
 use std::any::{Any, TypeId};
 use std::ops::Deref;
@@ -21,7 +22,7 @@ use serde::de::DeserializeOwned;
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
+pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId + Debug {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
@@ -125,7 +126,7 @@ impl<N: Real> Shape<N> {
 }
 
 /// A shared immutable handle to an abstract shape.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ShapeHandle<N: Real> {
     handle: Arc<Shape<N>>,
