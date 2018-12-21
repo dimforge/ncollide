@@ -57,6 +57,78 @@ impl CollisionGroups {
         }
     }
 
+    /// Returns a copy of this object, updated with a new set of membership groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const groups = CollisionGroups::new().with_membership(&[GROUP_A, GROUP_B]);
+    /// assert!(groups.is_member_of(GROUP_A);
+    /// assert!(groups.is_member_of(GROUP_B);
+    /// ```
+    #[inline]
+    pub fn with_membership(self, groups: &[usize]) -> CollisionGroups {
+        let membership: u32 = groups
+            .iter()
+            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
+        assert!(membership < (1 << 30));
+        CollisionGroups {
+            membership,
+            whitelist: self.whitelist,
+            blacklist: self.blacklist,
+        }
+    }
+
+    /// Returns a copy of this object, updated with a new set of whitelisted groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const group_a = CollisionGroups::new().with_whitelist(&[GROUP_B]);
+    /// assert!(!group_a.is_group_whitelisted(GROUP_A));
+    /// assert!(group_a.is_group_whitelisted(GROUP_B));
+    /// ```
+    #[inline]
+    pub fn with_whitelist(self, groups: &[usize]) -> CollisionGroups {
+        let whitelist: u32 = groups
+            .iter()
+            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
+        assert!(whitelist < (1 << 30));
+        CollisionGroups {
+            membership: self.membership,
+            whitelist: whitelist,
+            blacklist: self.blacklist,
+        }
+    }
+
+    /// Returns a copy of this object, updated with a new set of blacklisted groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const group_a = CollisionGroups::new().with_blacklist(&[GROUP_B]);
+    /// assert!(!group_a.is_group_blacklisted(GROUP_A));
+    /// assert!(group_a.is_group_blacklisted(GROUP_B));
+    /// ```
+    #[inline]
+    pub fn with_blacklist(self, groups: &[usize]) -> CollisionGroups {
+        let blacklist: u32 = groups
+            .iter()
+            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
+        assert!(blacklist < (1 << 30));
+        CollisionGroups {
+            membership: self.membership,
+            whitelist: self.whitelist,
+            blacklist,
+        }
+    }
+
     /// The maximum allowed group identifier.
     #[inline]
     pub fn max_group_id() -> usize {
