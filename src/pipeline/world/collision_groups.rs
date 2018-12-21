@@ -178,7 +178,7 @@ impl CollisionGroups {
         CollisionGroups::is_inside_mask(self.blacklist, group_id)
     }
 
-    /// Tests whether interactinos with a given group is possible.
+    /// Tests whether interactions with a given group is possible.
     ///
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]
