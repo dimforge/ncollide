@@ -191,7 +191,8 @@ impl CollisionGroups {
     #[inline]
     pub fn can_interact_with_groups(&self, other: &CollisionGroups) -> bool {
         // FIXME: is there a more bitwise-y way of doing this?
-        self.membership & other.blacklist == 0 && other.membership & self.blacklist == 0
+        self.membership & other.blacklist == 0
+            && other.membership & self.blacklist == 0
             && self.membership & other.whitelist != 0
             && other.membership & self.whitelist != 0
     }
@@ -215,11 +216,7 @@ impl CollisionGroupsPairFilter {
 }
 
 impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
-    fn is_pair_valid(
-        &self,
-        co1: &CollisionObject<N, T>,
-        co2: &CollisionObject<N, T>,
-    ) -> bool {
+    fn is_pair_valid(&self, co1: &CollisionObject<N, T>, co2: &CollisionObject<N, T>) -> bool {
         if co1.handle() == co2.handle() {
             co1.collision_groups().can_interact_with_self()
         } else {
