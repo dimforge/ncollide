@@ -96,6 +96,23 @@ impl<N: Real> CSOPoint<N> {
     pub fn translate2(&self, dir: &Vector<N>) -> Self {
         CSOPoint::new_with_point(self.point - dir, self.orig1, self.orig2 + dir)
     }
+
+
+    /// Translate in-place the first original point of this CSO point.
+    ///
+    /// This will apply the same translation to `self.point`.
+    pub fn translate1_mut(&mut self, dir: &Vector<N>) {
+        self.point += dir;
+        self.orig1 += dir;
+    }
+
+    /// Translate in-place the second original point of this CSO point.
+    ///
+    /// This will apply the opposite translation to `self.point`.
+    pub fn translate2_mut(&mut self, dir: &Vector<N>) {
+        self.point -= dir;
+        self.orig2 += dir;
+    }
 }
 
 impl<N: Real> Sub<CSOPoint<N>> for CSOPoint<N> {

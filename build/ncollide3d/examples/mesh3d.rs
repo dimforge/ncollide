@@ -21,5 +21,5 @@ fn main() {
     // Build the mesh.
     let mesh = TriMesh::new(points, indices, None);
 
-    assert!(mesh.vertices().len() == 4);
+    assert!(mesh.points().len() == 4);
 }

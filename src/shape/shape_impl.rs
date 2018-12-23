@@ -239,7 +239,8 @@ impl<N: Real> Shape<N> for Polyline<N> {
         _dir: &Unit<Vector<N>>,
     ) -> bool
     {
-        unimplemented!()
+        // FIXME
+        false
     }
 
 
