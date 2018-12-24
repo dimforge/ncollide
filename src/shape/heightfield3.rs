@@ -79,10 +79,10 @@ impl<N: Real> HeightField<N> {
         let mut p11 = Point3::new(x1, y11, z1);
 
         // Apply scales:
-        p00.coords.component_mul_mut(&self.scale);
-        p10.coords.component_mul_mut(&self.scale);
-        p01.coords.component_mul_mut(&self.scale);
-        p11.coords.component_mul_mut(&self.scale);
+        p00.coords.component_mul_assign(&self.scale);
+        p10.coords.component_mul_assign(&self.scale);
+        p01.coords.component_mul_assign(&self.scale);
+        p11.coords.component_mul_assign(&self.scale);
 
         if left {
             if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
@@ -193,10 +193,10 @@ impl<N: Real> HeightField<N> {
                 let mut p11 = Point3::new(x1, y11, z1);
 
                 // Apply scales:
-                p00.coords.component_mul_mut(&self.scale);
-                p10.coords.component_mul_mut(&self.scale);
-                p01.coords.component_mul_mut(&self.scale);
-                p11.coords.component_mul_mut(&self.scale);
+                p00.coords.component_mul_assign(&self.scale);
+                p10.coords.component_mul_assign(&self.scale);
+                p01.coords.component_mul_assign(&self.scale);
+                p11.coords.component_mul_assign(&self.scale);
 
                 // Build the two triangles, contact processors and call f.
                 let triangle_id1 = j * (self.heights.nrows() - 1) + i;

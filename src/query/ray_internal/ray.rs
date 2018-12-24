@@ -46,13 +46,21 @@ impl<N: Real> Ray<N> {
     pub fn translate_by(&self, v: Vector<N>) -> Self {
         Self::new(self.origin + v, self.dir)
     }
+
+    /// Computes the point at the given parameter on this line.
+    ///
+    /// This computes `self.origin + self.dir * t`.
+    #[inline]
+    pub fn point_at(&self, t: N) -> Point<N> {
+        self.origin + self.dir * t
+    }
 }
 
 /// Structure containing the result of a successful ray cast.
 pub struct RayIntersection<N: Real> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
-    /// with: `origin + dir * toi` where `origin` is the origin of the ray; `dir` is its direction and
-    /// `toi` is the value of this field.
+    /// with: `ray.point_at(toi)` or equivalently `origin + dir * toi` where `origin` is the origin of the ray;
+    /// `dir` is its direction and `toi` is the value of this field.
     pub toi: N,
 
     /// The normal at the intersection point.

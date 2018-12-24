@@ -13,7 +13,6 @@ pub struct HeightField<N: Real> {
     scale: Vector<N>,
     removed: Vec<bool>,
     aabb: AABB<N>,
-    num_segments: usize
 }
 
 impl<N: Real> HeightField<N> {
@@ -27,15 +26,14 @@ impl<N: Real> HeightField<N> {
             Point2::new(-hscale.x, min * scale.y),
             Point2::new(hscale.x, max * scale.y)
         );
-        let num_segments = heights.len() - 1;
 
         HeightField {
-            heights, scale, aabb, num_segments, removed: Vec::new()
+            heights, scale, aabb, removed: Vec::new()
         }
     }
 
-    pub fn num_segments(&self) -> usize {
-        self.num_segments
+    pub fn num_cells(&self) -> usize {
+        self.heights.len() - 1
     }
 
     pub fn heights(&self) -> &DVector<N> {
@@ -50,15 +48,52 @@ impl<N: Real> HeightField<N> {
         &self.aabb
     }
 
+    pub fn cell_width(&self) -> N {
+        self.unit_cell_width() * self.scale.x
+    }
+
+    pub fn unit_cell_width(&self) -> N {
+        N::one() / na::convert(self.heights.len() as f64 - 1.0)
+    }
+
+    pub fn start_x(&self) -> N {
+        self.scale.x * na::convert(-0.5)
+    }
+
+    fn quantize_floor(&self, val: N, seg_length: N) -> usize {
+        let _0_5: N = na::convert(0.5);
+        let i = na::clamp(((val + _0_5) / seg_length).floor(), N::zero(), na::convert((self.num_cells() - 1) as f64));
+        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+    }
+
+    fn quantize_ceil(&self, val: N, seg_length: N) -> usize {
+        let _0_5: N = na::convert(0.5);
+        let i = na::clamp(((val + _0_5) / seg_length).ceil(), N::zero(), na::convert(self.num_cells() as f64));
+        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+    }
+
+    pub fn cell_at_point(&self, pt: &Point2<N>) -> Option<usize> {
+        let _0_5: N = na::convert(0.5);
+        let scaled_pt = pt.coords.component_div(&self.scale);
+        let seg_length = self.unit_cell_width();
+
+        if scaled_pt.x < -_0_5 || scaled_pt.x > _0_5 {
+            // Outside of the heightfield bounds.
+            None
+        } else {
+            Some(self.quantize_floor(scaled_pt.x, seg_length))
+        }
+    }
+
     pub fn segment_at(&self, i: usize) -> Option<Segment<N>> {
-        if self.is_segment_removed(i) {
+        if i >= self.num_cells() || self.is_segment_removed(i) {
             return None;
         }
 
         let _0_5: N = na::convert(0.5);
-        let seg_length  = N::one() / na::convert(self.heights.len() as f64 - 1.0);
+        let seg_length = N::one() / na::convert(self.heights.len() as f64 - 1.0);
 
-        let x0 = -_0_5 +  seg_length * na::convert(i as f64);
+        let x0 = -_0_5 + seg_length * na::convert(i as f64);
         let x1 = x0 + seg_length;
 
         let y0 = self.heights[i + 0];
@@ -68,15 +103,15 @@ impl<N: Real> HeightField<N> {
         let mut p1 = Point2::new(x1, y1);
 
         // Apply scales:
-        p0.coords.component_mul_mut(&self.scale);
-        p1.coords.component_mul_mut(&self.scale);
+        p0.coords.component_mul_assign(&self.scale);
+        p1.coords.component_mul_assign(&self.scale);
 
         Some(Segment::new(p0, p1))
     }
 
     pub fn set_segment_removed(&mut self, i: usize, removed: bool) {
         if self.removed.len() == 0 {
-            self.removed = iter::repeat(false).take(self.num_segments).collect()
+            self.removed = iter::repeat(false).take(self.num_cells()).collect()
         }
 
         self.removed[i] = removed
@@ -92,13 +127,13 @@ impl<N: Real> HeightField<N> {
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
         let seg_length  = N::one() / na::convert(self.heights.len() as f64 - 1.0);
 
-        if ref_maxs.x <= -_0_5 || ref_mins.x >= _0_5 {
+        if ref_maxs.x < -_0_5 || ref_mins.x > _0_5 {
             // Outside of the heightfield bounds.
             return;
         }
 
-        let min_x = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_mins.x + _0_5, N::zero(), N::one()) / seg_length).floor()) } as usize;
-        let max_x = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_maxs.x + _0_5, N::zero(), N::one()) / seg_length).ceil()) } as usize;
+        let min_x = self.quantize_floor(ref_mins.x, seg_length);
+        let max_x = self.quantize_ceil(ref_maxs.x, seg_length);
 
         // FIXME: find a way to avoid recomputing the same vertices
         // multiple times.
@@ -121,8 +156,8 @@ impl<N: Real> HeightField<N> {
             let mut p1 = Point2::new(x1, y1);
 
             // Apply scales:
-            p0.coords.component_mul_mut(&self.scale);
-            p1.coords.component_mul_mut(&self.scale);
+            p0.coords.component_mul_assign(&self.scale);
+            p1.coords.component_mul_assign(&self.scale);
 
             // Build the segment.
             let seg = Segment::new(p0, p1);
