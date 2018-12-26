@@ -13,13 +13,13 @@ impl<N: Real> ToTriMesh<N> for shape::HeightField<N> {
 
         for i in 0..self.nrows() {
             for j in 0..self.ncols() {
-                if let Some(tri) = self.triangle_at(i, j, true) {
+                if let Some(tri) = self.triangles_at(i, j).0 {
                     vertices.push(*tri.a());
                     vertices.push(*tri.b());
                     vertices.push(*tri.c());
                 }
 
-                if let Some(tri) = self.triangle_at(i, j, false) {
+                if let Some(tri) = self.triangles_at(i, j).1 {
                     vertices.push(*tri.a());
                     vertices.push(*tri.b());
                     vertices.push(*tri.c());

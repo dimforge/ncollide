@@ -50,12 +50,51 @@ impl<N: Real> HeightField<N> {
         self.heights.ncols() - 1
     }
 
-    pub fn triangle_at(&self, i: usize, j: usize, left: bool) -> Option<Triangle<N>> {
+    fn quantize_floor(&self, val: N, cell_size: N, num_cells: usize) -> usize {
+        let _0_5: N = na::convert(0.5);
+        let i = na::clamp(((val + _0_5) / cell_size).floor(), N::zero(), na::convert((num_cells - 1) as f64));
+        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+    }
+
+    fn quantize_ceil(&self, val: N, cell_size: N, num_cells: usize) -> usize {
+        let _0_5: N = na::convert(0.5);
+        let i = na::clamp(((val + _0_5) / cell_size).ceil(), N::zero(), na::convert(num_cells as f64));
+        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+    }
+
+    pub fn cell_at_point(&self, pt: &Point3<N>) -> Option<(usize, usize)> {
+        let _0_5: N = na::convert(0.5);
+        let scaled_pt = pt.coords.component_div(&self.scale);
+        let cell_width = self.unit_cell_width();
+        let cell_height = self.unit_cell_height();
+        let ncells_x = self.ncols();
+        let ncells_z = self.nrows();
+
+        if scaled_pt.x < -_0_5 || scaled_pt.x > _0_5 || scaled_pt.z < -_0_5 || scaled_pt.z > _0_5 {
+            // Outside of the heightfield bounds.
+            None
+        } else {
+            let j = self.quantize_floor(scaled_pt.x, cell_width, ncells_x);
+            let i = self.quantize_floor(scaled_pt.z, cell_height, ncells_z);
+            Some((i, j))
+        }
+    }
+
+    pub fn x_at(&self, j: usize) -> N {
+        let _0_5: N = na::convert(0.5);
+        (-_0_5 + self.unit_cell_width() * na::convert(j as f64)) * self.scale.x
+    }
+
+    pub fn z_at(&self, i: usize) -> N {
+        let _0_5: N = na::convert(0.5);
+        (-_0_5 + self.unit_cell_height() * na::convert(i as f64)) * self.scale.z
+    }
+
+    pub fn triangles_at(&self, i: usize, j: usize) -> (Option<Triangle<N>>, Option<Triangle<N>>) {
         let status = self.status[(i, j)];
 
-        if (left && status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED)) ||
-            (!left && status.contains(HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED)) {
-            return None;
+        if status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED | HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
+            return (None, None);
         }
 
         let cell_width = self.unit_cell_width();
@@ -84,18 +123,34 @@ impl<N: Real> HeightField<N> {
         p01.coords.component_mul_assign(&self.scale);
         p11.coords.component_mul_assign(&self.scale);
 
-        if left {
-            if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+        if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+            let tri1 = if status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED) {
+                None
+            } else {
                 Some(Triangle::new(p00, p10, p11))
+            };
+
+            let tri2 = if status.contains(HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
+                None
+            } else {
+                Some(Triangle::new(p00, p11, p01))
+            };
+
+            (tri1, tri2)
+        } else {
+            let tri1 = if status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED) {
+                None
             } else {
                 Some(Triangle::new(p00, p10, p01))
-            }
-        } else {
-            if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
-                Some(Triangle::new(p00, p11, p01))
+            };
+
+            let tri2 = if status.contains(HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
+                None
             } else {
                 Some(Triangle::new(p10, p11, p01))
-            }
+            };
+
+            (tri1, tri2)
         }
     }
 
@@ -145,6 +200,9 @@ impl<N: Real> HeightField<N> {
 
     pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Triangle<N>, &ContactPreprocessor<N>)) {
         let _0_5: N = na::convert(0.5);
+        let ncells_x = self.ncols();
+        let ncells_z = self.nrows();
+
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
         let cell_width  = self.unit_cell_width();
@@ -155,11 +213,11 @@ impl<N: Real> HeightField<N> {
             return;
         }
 
-        let min_x = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_mins.x + _0_5, N::zero(), N::one()) / cell_width).floor()) } as usize;
-        let min_z = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_mins.z + _0_5, N::zero(), N::one()) / cell_height).floor()) } as usize;
+        let min_x = self.quantize_floor(ref_mins.x, cell_width, ncells_x);
+        let min_z = self.quantize_floor(ref_mins.z, cell_height, ncells_z);
 
-        let max_x = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_maxs.x + _0_5, N::zero(), N::one()) / cell_width).ceil()) } as usize;
-        let max_z = unsafe { na::convert_unchecked::<N, f64>((na::clamp(ref_maxs.z + _0_5, N::zero(), N::one()) / cell_height).ceil()) } as usize;
+        let max_x = self.quantize_ceil(ref_maxs.x, cell_width, ncells_x);
+        let max_z = self.quantize_ceil(ref_maxs.z, cell_height, ncells_z);
 
         // FIXME: find a way to avoid recomputing the same vertices
         // multiple times.

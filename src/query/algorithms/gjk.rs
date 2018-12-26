@@ -299,7 +299,7 @@ where
             simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
             simplex_init = true;
         } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) && !ray_advanced {
-            return None;
+            return Some((ltoi, ldir));
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
@@ -312,7 +312,11 @@ where
             // Return ldir: the last projection plane is tangent to the intersected surface.
             return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
-            return None;
+            if max_bound <= old_max_bound + _eps_tol {
+                return Some((ltoi, ldir))
+            } else {
+                return None;
+            }
         }
 
         old_max_bound = max_bound;
