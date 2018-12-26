@@ -34,8 +34,16 @@ impl<N: Real> RayCast<N> for HeightField<N> {
             let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
             if s >= N::zero() && t >= N::zero() && t <= N::one() {
                 // Cast succeeded on the first element!
-                // FIXME: return the correct feature and normal.
-                return Some(RayIntersection::new(s, m * seg.normal().unwrap().unwrap(), FeatureId::Face(curr)))
+                let n = seg.normal().unwrap().unwrap();
+                let fid = if n.dot(&ls_ray.dir) > N::zero() {
+                    // The ray hit the back face.
+                    curr + self.num_cells()
+                } else {
+                    // The ray hit the front face.
+                    curr
+                };
+
+                return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)))
             }
         }
 
@@ -70,8 +78,15 @@ impl<N: Real> RayCast<N> for HeightField<N> {
                 // TODO: test the y-coordinates (equivalent to an AABB test) before actually computing the intersection.
                 let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
                 if t >= N::zero() && t <= N::one() {
-                    // FIXME: return the correct feature and normal.
-                    return Some(RayIntersection::new(s, m * seg.normal().unwrap().unwrap(), FeatureId::Face(curr)))
+                    let n = seg.normal().unwrap().unwrap();
+                    let fid = if n.dot(&ls_ray.dir) > N::zero() {
+                        // The ray hit the back face.
+                        curr + self.num_cells()
+                    } else {
+                        // The ray hit the front face.
+                        curr
+                    };
+                    return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)))
                 }
             }
         }
