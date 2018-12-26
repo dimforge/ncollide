@@ -2,7 +2,7 @@ use na::{DMatrix, Real, Point3};
 
 use crate::bounding_volume::AABB;
 use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
-use crate::shape::Triangle;
+use crate::shape::{Triangle, FeatureId};
 use crate::math::Vector;
 
 bitflags! {
@@ -48,6 +48,24 @@ impl<N: Real> HeightField<N> {
 
     pub fn ncols(&self) -> usize {
         self.heights.ncols() - 1
+    }
+
+    fn triangle_id(&self, i: usize, j: usize, left: bool) -> usize {
+        let tid = j * (self.heights.nrows() - 1) + i;
+        if left {
+            tid
+        } else {
+            tid + self.num_triangles / 2
+        }
+    }
+
+    fn face_id(&self, i: usize, j: usize, left: bool, front: bool) -> usize {
+        let tid = self.triangle_id(i, j, left);
+        if front {
+            tid
+        } else {
+            tid + self.num_triangles
+        }
     }
 
     fn quantize_floor(&self, val: N, cell_size: N, num_cells: usize) -> usize {
@@ -198,6 +216,82 @@ impl<N: Real> HeightField<N> {
         &self.aabb
     }
 
+    pub fn convert_triangle_feature_id(&self, i: usize, j: usize, left: bool, fid: FeatureId) -> FeatureId {
+        match fid {
+            FeatureId::Vertex(ivertex) => {
+                let nrows = self.heights.nrows();
+                let ij = i + j * nrows;
+
+                if self.status[(i, j)].contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+                    if left {
+                        FeatureId::Vertex([ij, ij + 1, ij + 1 + nrows][ivertex])
+                    } else {
+                        FeatureId::Vertex([ij, ij + 1 + nrows, ij + nrows][ivertex])
+                    }
+                } else {
+                    if left {
+                        FeatureId::Vertex([ij, ij + 1, ij + nrows][ivertex])
+                    } else {
+                        FeatureId::Vertex([ij + 1, ij + 1 + nrows, ij + nrows][ivertex])
+                    }
+                }
+            }
+            FeatureId::Edge(iedge) => {
+                let (nrows, ncols) = self.heights.shape();
+                let vshift = 0; // First vertical line index.
+                let hshift = (nrows - 1) * ncols; // First horizontal line index.
+                let dshift = hshift + nrows * (ncols - 1); // First diagonal line index.
+                let idiag = dshift + i + j * (nrows - 1);
+                let itop = hshift + i + j * nrows;
+                let ibottom = itop + 1;
+                let ileft = vshift + i + j * (nrows - 1);
+                let iright = ileft + nrows - 1;
+
+                if self.status[(i, j)].contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
+                    if left {
+                        // Triangle:
+                        //
+                        // |\
+                        // |_\
+                        //
+                        FeatureId::Edge([ileft, ibottom, idiag][iedge])
+                    } else {
+                        // Triangle:
+                        // ___
+                        // \ |
+                        //  \|
+                        //
+                        FeatureId::Edge([idiag, iright, itop][iedge])
+                    }
+                } else {
+                    if left {
+                        // Triangle:
+                        // ___
+                        // | /
+                        // |/
+                        //
+                        FeatureId::Edge([ileft, idiag, itop][iedge])
+                    } else {
+                        // Triangle:
+                        //
+                        //  /|
+                        // /_|
+                        //
+                        FeatureId::Edge([ibottom, iright, idiag][iedge])
+                    }
+                }
+            }
+            FeatureId::Face(iface) => {
+                if iface == 0 {
+                    FeatureId::Face(self.face_id(i, j, left, true))
+                } else {
+                    FeatureId::Face(self.face_id(i, j, left, false))
+                }
+            }
+            FeatureId::Unknown => FeatureId::Unknown
+        }
+    }
+
     pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Triangle<N>, &ContactPreprocessor<N>)) {
         let _0_5: N = na::convert(0.5);
         let ncells_x = self.ncols();
@@ -257,8 +351,6 @@ impl<N: Real> HeightField<N> {
                 p11.coords.component_mul_assign(&self.scale);
 
                 // Build the two triangles, contact processors and call f.
-                let triangle_id1 = j * (self.heights.nrows() - 1) + i;
-
                 if !status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED) {
                     let tri1 = if status.contains(HeightFieldCellStatus::ZIGZAG_SUBDIVISION) {
                         Triangle::new(p00, p10, p11)
@@ -266,8 +358,9 @@ impl<N: Real> HeightField<N> {
                         Triangle::new(p00, p10, p01)
                     };
 
-                    let proc1 = HeightFieldTriangleContactPreprocessor::new(self, triangle_id1);
-                    f(triangle_id1, &tri1, &proc1);
+                    let tid = self.triangle_id(i, j, true);
+                    let proc1 = HeightFieldTriangleContactPreprocessor::new(self, tid);
+                    f(tid, &tri1, &proc1);
                 }
 
                 if !status.contains(HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
@@ -276,9 +369,9 @@ impl<N: Real> HeightField<N> {
                     } else {
                         Triangle::new(p10, p11, p01)
                     };
-                    let triangle_id2 = triangle_id1 + self.num_triangles / 2;
-                    let proc2 = HeightFieldTriangleContactPreprocessor::new(self, triangle_id2);
-                    f(triangle_id2, &tri2, &proc2);
+                    let tid = self.triangle_id(i, j, false);
+                    let proc2 = HeightFieldTriangleContactPreprocessor::new(self, tid);
+                    f(tid, &tri2, &proc2);
                 }
             }
         }

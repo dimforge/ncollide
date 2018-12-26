@@ -100,13 +100,13 @@ impl<N: Real> RayCast<N> for HeightField<N> {
             // None may happen due to slight numerical errors.
             None => {
                 let i = if ls_ray.origin.z > N::zero() {
-                    self.nrows()
+                    self.nrows() - 1
                 } else {
                     0
                 };
 
                 let j = if ls_ray.origin.x > N::zero() {
-                    self.ncols()
+                    self.ncols() - 1
                 } else {
                     0
                 };
@@ -121,20 +121,21 @@ impl<N: Real> RayCast<N> for HeightField<N> {
             let inter2 = tris.1.and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
 
             match (inter1, inter2) {
-                (Some(inter1), Some(inter2)) => {
-                    // XXX: adjust the feature ID.
+                (Some(mut inter1), Some(mut inter2)) => {
                     if inter1.toi < inter2.toi {
+                        inter1.feature = self.convert_triangle_feature_id(cell.0, cell.1, true, inter1.feature);
                         return Some(inter1);
                     } else {
+                        inter2.feature = self.convert_triangle_feature_id(cell.0, cell.1, false, inter2.feature);
                         return Some(inter2);
                     }
                 }
-                (Some(inter), None) => {
-                    // XXX: adjust the feature ID.
+                (Some(mut inter), None) => {
+                    inter.feature = self.convert_triangle_feature_id(cell.0, cell.1, true, inter.feature);
                     return Some(inter);
                 }
-                (None, Some(inter)) => {
-                    // XXX: adjust the feature ID.
+                (None, Some(mut inter)) => {
+                    inter.feature = self.convert_triangle_feature_id(cell.0, cell.1, false, inter.feature);
                     return Some(inter);
                 }
                 (None, None) => {}
