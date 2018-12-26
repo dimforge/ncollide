@@ -98,9 +98,21 @@ impl<N: Real> RayCast<N> for HeightField<N> {
         let mut cell = match self.cell_at_point(&clip_ray_a) {
             Some(cell) => cell,
             // None may happen due to slight numerical errors.
-            None => (0, 0) /* XXX: if ls_ray.origin.x > N::zero() { self.num_cells() - 1 } else {
-                0
-            }*/
+            None => {
+                let i = if ls_ray.origin.z > N::zero() {
+                    self.nrows()
+                } else {
+                    0
+                };
+
+                let j = if ls_ray.origin.x > N::zero() {
+                    self.ncols()
+                } else {
+                    0
+                };
+
+                (i, j)
+            }
         };
 
         loop {
